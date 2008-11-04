@@ -19,55 +19,26 @@ class ItemIconView(gtk.IconView):
         self.set_selection_mode(gtk.SELECTION_MULTIPLE)
         self.store = gtk.ListStore(str, gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)
         self.use_cells = isinstance(self, gtk.CellLayout)
-        if self.use_cells:
-            # Pack the renderers manually, since GtkIconView layout is very buggy.
-            self.icon_cell = gtk.CellRendererPixbuf()
-            self.icon_cell.set_property("yalign", 0.0)
-            self.icon_cell.set_property("xalign", 0.0)
-            self.pack_start(self.icon_cell, expand=True)
-            self.add_attribute(self.icon_cell, "pixbuf", 1)
-
-            self.text_cell = gtk.CellRendererText()
-            self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
-            self.text_cell.set_property("yalign", 0.0)
-            self.text_cell.set_property("xalign", 0.0)
-            self.pack_start(self.text_cell, expand=True)
-            self.add_attribute(self.text_cell, "markup", 0)
-        else:
-            self.set_markup_column(0)
-            self.set_pixbuf_column(1)
-            self.set_item_width(230)
         
-        #self.icon_cell.set_fixed_size(-1, -1) # Reset icon sizing
-        wrap_width = 200
-        self.text_cell.set_property("wrap-width", wrap_width)
+        self.icon_cell = gtk.CellRendererPixbuf()
+        self.icon_cell.set_property("yalign", 0.0)
+        self.icon_cell.set_property("xalign", 0.0)
+        self.pack_start(self.icon_cell, expand=True)
+        self.add_attribute(self.icon_cell, "pixbuf", 1)
+
+        self.text_cell = gtk.CellRendererText()
+        self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
+        self.text_cell.set_property("yalign", 0.0)
+        self.text_cell.set_property("xalign", 0.0)
+        self.pack_start(self.text_cell, expand=True)
+        self.add_attribute(self.text_cell, "markup", 0)
+        
+        self.text_cell.set_property("wrap-width", 100)
         
         self.items=[]
         self.connect("button-press-event", self._show_item_popup)
-        self.connect("button-release-event", self._button_release)
         self.connect("drag-data-get", self._item_drag_data_get)
-        self.connect("motion-notify-event", self._motion_notify)
-        self.enable_model_drag_source(0,
-                                      [("text/uri-list", 0, 100)],
-                                      gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
-        self.highlight_path = None
-        self.highlight_normal_icon = None
-        self.highlight_timeout = 0
-        self._connect_nautilus_click_policy()
-        
-    def _connect_nautilus_click_policy(self):
-        nautilus_dir = "/apps/nautilus/preferences/"
-        self.nautilus_click_policy_key = nautilus_dir + "click_policy"
-
-        self.gconf_client = gconf.client_get_default()
-        self.gconf_client.add_dir(nautilus_dir[:-1], gconf.CLIENT_PRELOAD_NONE)
-
-        value = self.gconf_client.get(self.nautilus_click_policy_key)
-        if value:
-            self.click_policy = value.get_string()
-        else:
-            self.click_policy = "double"
-
+        self.enable_model_drag_source(0, [("text/uri-list", 0, 100)],gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
     
     def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
         # FIXME: Prefer ACTION_LINK if available
@@ -87,49 +58,6 @@ class ItemIconView(gtk.IconView):
             pass #print " *** Dropping URIs:", uris
             selection_data.set_uris(uris)
 
-    
-    def _button_release(self, view, ev):
-        print("_button_release")
-        if ev.button == 1 and self.click_policy == 'single':
-            print("ev.button == 1")
-            path = view.get_path_at_pos(int(ev.x), int(ev.y))
-            if path:
-                print("path")
-                self.item_activated(path)
-  
-    def _motion_notify_timeout(self):
-        x, y = self.get_pointer()
-        path = self.get_path_at_pos(x, y)
-
-        if path != self.highlight_path:
-            if self.highlight_path:
-                #self._undo_highlight()
-                pass
-            if path:
-                #self._do_highlight(path)
-                pass
-            
-        if self.click_policy == "single":
-            cursor = None
-            if path:
-                # Set hand cursor
-                cursor = gtk.gdk.Cursor(gtk.gdk.HAND2)
-            self.window.set_cursor(cursor)
-
-        self.highlight_timeout = 0
-        del path,x,y
-        return False
-
-    def _motion_notify(self, view, ev):
-        if self.highlight_timeout != 0:
-            gobject.source_remove(self.highlight_timeout)
-
-        # Avoid highlighting while rubberbanding
-        if not ev.state & gtk.gdk.BUTTON1_MASK:
-            ### FIXME: IconView flickers if we replace the icon too quickly, so use
-            ###        a short timeout.
-            self.highlight_timeout = gobject.timeout_add(5, self._motion_notify_timeout)
-    
     def _show_item_popup(self, view, ev):
         if ev.button == 3:
             path = view.get_path_at_pos(int(ev.x), int(ev.y))
@@ -180,7 +108,8 @@ class ItemIconView(gtk.IconView):
             icon_width = 0
 
         # Update text, icon, and visibility
-        self.store.append([text,icon,item])
+        iter =[text,icon,item]
+        self.store.append(iter)
         
         # Return the icon width used for sizing other records
         del icon,name,comment,text
@@ -189,131 +118,7 @@ class ItemIconView(gtk.IconView):
         model = self.get_model()
         model.get_value(model.get_iter(path), 2).open()
         del model
-    
-class SearchToolItem(gtk.ToolItem):
-    __gsignals__ = {
-        "clear" : (gobject.SIGNAL_RUN_FIRST,
-                   gobject.TYPE_NONE,
-                   ()),
-        "search" : (gobject.SIGNAL_RUN_FIRST,
-                    gobject.TYPE_NONE,
-                    (gobject.TYPE_STRING,))
-        }
-
-    def __init__(self, accel_group = None):
-        gtk.ToolItem.__init__(self)
-        self.search_timeout = 0
-        self.default_search_text = _("Search (not yet implemented)")
-
-        box = gtk.HBox(False, 0)
-        box.show()
-
-        try:
-            img = icon_factory.load_image(gtk.STOCK_FIND, 16)
-            img.show()
-            ev_box = gtk.EventBox()
-            ev_box.set_property('visible-window', False)
-            ev_box.add(img)
-            ev_box.show()
-
-            self.clearbtn = gtk.EventBox()
-            self.clearbtn.set_property('visible-window', False)
-            self.clearbtn.set_size_request(100, -1)
-            self.clearbtn.show()
-            self.clearbtn.connect("button-release-event", lambda w, ev: self.emit("clear"))
-
-            self.iconentry = iconentry.IconEntry()
-            self.iconentry.pack_widget(ev_box, True)
-            self.iconentry.pack_widget(self.clearbtn, False)
-
-            align = gtk.Alignment(0.5, 0.5)
-            align.set_padding(0, 0, 0, 10)
-            align.add(self.iconentry)
-            align.show()
-
-            box.pack_start(align, False, False, 0)
-            self.entry = self.iconentry.get_entry()
-        except NameError:
-            self.clearbtn = None
-            self.iconentry = None
-            self.entry = gtk.Entry()
-            box.pack_start(self.entry, True, True)
-
-        self.entry.set_width_chars(14)
-        self.entry.set_text(self.default_search_text)
-        self.entry.show()
-        self.entry.connect("activate", lambda w: self._typing_timeout())
-        #self.entry.connect("focus-in-event", lambda w, x: self._entry_focus_in())
-        self.entry.connect("key-press-event", self._entry_key_press)
-        # Hold on to this id so we can block emission when initially clearing text
-        self.change_handler_id = self.entry.connect("changed", lambda w: self._queue_search())
-        '''
-        if accel_group:
-            # Focus on Ctrl-L
-            self.entry.add_accelerator("grab-focus",
-                                       accel_group,
-                                       ord('l'),
-                                       gtk.gdk.CONTROL_MASK,
-                                       0)
-        '''
-        self.add(box)
-        self.show_all()
-
-    def do_clear(self):
-        if self.clearbtn and self.clearbtn.child:
-            self.clearbtn.remove(self.clearbtn.child)
-        self._entry_clear_no_change_handler()
-
-    def do_search(self, text):
-        if self.clearbtn and not self.clearbtn.child:
-            img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
-            img.show()
-            self.clearbtn.add(img)
-
-    def _entry_clear_no_change_handler(self):
-        '''Avoids sending \'changed\' signal when clearing text.'''
-        self.entry.handler_block(self.change_handler_id)
-        self.entry.set_text("")
-        self.entry.handler_unblock(self.change_handler_id)
-
-    def _entry_focus_in(self):
-        '''Clear default search text'''
-        print ("Clear default search text")
-        if self.entry.get_text() == self.default_search_text:
-            self._entry_clear_no_change_handler()
-
-    def _typing_timeout(self):
-        if len(self.entry.get_text()) > 0:
-            self.emit("search", self.entry.get_text())
-        self.search_timeout = 0
-        return False
-
-    def _queue_search(self):
-        if self.search_timeout != 0:
-            gobject.source_remove(self.search_timeout)
-            self.search_timeout = 0
-
-        if len(self.entry.get_text()) == 0:
-            self.emit("clear")
-        else:
-            self.search_timeout = gobject.timeout_add(50, self._typing_timeout)
-
-    def _entry_key_press(self, w, ev):
-        if ev.keyval == gtk.gdk.keyval_from_name("Escape") \
-               and len(self.entry.get_text()) > 0:
-            self.emit("clear")
-            return True
-
-    def get_search_text(self):
-        if self.entry.get_text() == self.default_search_text:
-            return None
-        return self.entry.get_text()
-
-    def cancel(self):
-        '''Cancel a pending/active search without sending the \'clear\' signal.'''
-        if self.entry.get_text() != self.default_search_text:
-            self.do_clear()
-   
+  
 class MayannaWidget(gtk.HBox):
     
     def __init__(self):
@@ -342,26 +147,11 @@ class MayannaWidget(gtk.HBox):
         self.topicBox =  gtk.VBox(False)
         self.pack_start(self.vbox1,False,False)
         
-        '''
-        Set up search tool
-        ''' 
-        
-        self.accel_group = gtk.AccelGroup()
-        self.search_tool_item = SearchToolItem(self.accel_group)
-        #self.search_tool_item.set_tooltip(self.tooltips, ("Search (not working yet"))
-        self.search_tool_item.connect("search", self._search)
-        self.search_tool_item.connect("clear", self._search_clear)
-        self.searchbox = gtk.VBox()
-        self.searchbox.pack_start(self.search_tool_item)
-        
-        self.search_tool_item.entry.grab_focus()
-        
+               
         '''
         Set up Topic buttons
         '''
         
-        self.searchTopicBox= gtk.VBox(False)
-        self.searchTopicBox.pack_start(self.searchbox,True, True, 5)
         self.topicButtonBox = gtk.VBox(False)
         self.sidebarBox = gtk.VBox(False)
         
@@ -383,7 +173,6 @@ class MayannaWidget(gtk.HBox):
         #self.vbox1.pack_start(self.favIconView,False,False)
         self.vbox1.pack_start(self.topicTable,True,True)
         self.topicTable.pack_start(self.topicBox,False,False,5)
-        self.topicBox.pack_start(self.searchTopicBox,False,False)
         self.topicBox.pack_start(self.sidebarBox,True,True)
         self.sidebarBox.pack_start(self.frame1,True,True,5)
 
@@ -410,7 +199,6 @@ class MayannaWidget(gtk.HBox):
         self.pack_start(self.option_box,False,False)
        
         self.results = []
-        self.search_tool_item.entry.grab_focus()
         #self.vbox1.connect("focus-in-event",self.get_focus)
         self.date_dict={}
         
@@ -440,7 +228,7 @@ class MayannaWidget(gtk.HBox):
         self.frame2.add(self.voptionbox)
         
         
-        
+        self.date_dict = None
         datasink.connect("reload",self.viewall)
         self.reorganize()
 
@@ -502,7 +290,6 @@ class MayannaWidget(gtk.HBox):
              
         for key in sorted(date_dict.keys()):
             d = date_dict.get(key) 
-                
             label = gtk.Label(d.label)   
             label.set_padding(5, 5)    
             
@@ -530,10 +317,12 @@ class MayannaWidget(gtk.HBox):
             self.viewBox.pack_start(vbox,True,True)
             del d,label,iconview,scroll,vbox
         
+        self.backup_dict = date_dict
         del date_dict,day,list
         gc.collect() 
         
         self.viewBox.show_all()
+        
     
     def compare(self,a, b):
         return cmp(a.timestamp, b.timestamp) # compare as integers
