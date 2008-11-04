@@ -1,8 +1,7 @@
 
-from mayanna_engine.mayanna_base import ItemSource
 from mayanna_engine.mayanna_util import *
 from mayanna_engine.mayanna_fav import FavoritesSource
-from mayanna_engine.mayanna_recent import recent_model
+from mayanna_engine.mayanna_datasink import datasink
 from gettext import gettext as _
 import pango
 import gc
@@ -17,35 +16,33 @@ class ItemIconView(gtk.IconView):
     def __init__(self):
         gtk.IconView.__init__(self)
         self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
-
-        self.idle_load_id = None
-        self.reload_handlers = {}
-        # PyGtk before 2.8.4 doesn't expose GtkIconView's CellLayout interface
+        self.set_selection_mode(gtk.SELECTION_MULTIPLE)
+        self.store = gtk.ListStore(str, gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)
         self.use_cells = isinstance(self, gtk.CellLayout)
         if self.use_cells:
             # Pack the renderers manually, since GtkIconView layout is very buggy.
             self.icon_cell = gtk.CellRendererPixbuf()
             self.icon_cell.set_property("yalign", 0.0)
             self.icon_cell.set_property("xalign", 0.0)
-            self.pack_start(self.icon_cell, expand=False)
+            self.pack_start(self.icon_cell, expand=True)
             self.add_attribute(self.icon_cell, "pixbuf", 1)
 
             self.text_cell = gtk.CellRendererText()
             self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
             self.text_cell.set_property("yalign", 0.0)
             self.text_cell.set_property("xalign", 0.0)
-            self.pack_start(self.text_cell, expand=False)
+            self.pack_start(self.text_cell, expand=True)
             self.add_attribute(self.text_cell, "markup", 0)
-            #self.set_item_width(100)
         else:
             self.set_markup_column(0)
             self.set_pixbuf_column(1)
-            self.set_item_width(100)
-
-        self.set_margin(2)
-        self.set_spacing(2)
-        self.set_selection_mode(gtk.SELECTION_MULTIPLE)
-        self.connect("item-activated", self._open_item)
+            self.set_item_width(230)
+        
+        #self.icon_cell.set_fixed_size(-1, -1) # Reset icon sizing
+        wrap_width = 200
+        self.text_cell.set_property("wrap-width", wrap_width)
+        
+        self.items=[]
         self.connect("button-press-event", self._show_item_popup)
         self.connect("button-release-event", self._button_release)
         self.connect("drag-data-get", self._item_drag_data_get)
@@ -53,27 +50,11 @@ class ItemIconView(gtk.IconView):
         self.enable_model_drag_source(0,
                                       [("text/uri-list", 0, 100)],
                                       gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
-
-        self._connect_nautilus_click_policy()
-
         self.highlight_path = None
         self.highlight_normal_icon = None
         self.highlight_timeout = 0
+        self._connect_nautilus_click_policy()
         
-        self.store = gtk.ListStore(gobject.TYPE_STRING,    # 0: Markup text
-                              gtk.gdk.Pixbuf,         # 1: Pixbuf
-                              gobject.TYPE_PYOBJECT,  # 2: Item
-                              gobject.TYPE_BOOLEAN)   # 3: Visible
-        
-        
-        self.filterstore = self.store.filter_new()
-        self.filterstore.set_visible_column(3)
-
-        # IconView bug doesn't send selection-changed on set_model
-        self.unselect_all()
-        self.set_model(self.filterstore) # Set the model
-        
-
     def _connect_nautilus_click_policy(self):
         nautilus_dir = "/apps/nautilus/preferences/"
         self.nautilus_click_policy_key = nautilus_dir + "click_policy"
@@ -87,144 +68,7 @@ class ItemIconView(gtk.IconView):
         else:
             self.click_policy = "double"
 
-
-
-    def load_items(self, items, ondone_cb = None):
-        '''
-        Creates a new list store to load with item data, then sets up an idle
-        timeout generator to fill it.
-        '''
-        # Clean up existing item reload connections
-        for item, handler in self.reload_handlers.iteritems():
-            item.handler_disconnect(handler)
-            del handler, item
-        self.reload_handlers.clear()
-        self.store.clear()
-        
-        
-        # Clear highlight state
-        self.highlight_path = None
-        self.highlight_normal_icon = None
-        if self.highlight_timeout != 0:
-            gobject.source_remove(self.highlight_timeout)
-        if self.idle_load_id:
-            gobject.source_remove(self.idle_load_id) # Cancel pending load
-        self.idle_load_id = \
-            gobject.timeout_add(0, self._idle_load_items(items, ondone_cb).next)
-        del items
-        
-        #self.set_size_request(100, -1)
-        #self.set_resize_mode(True)
-        
-    def _idle_load_items(self, items, ondone_cb):
-        '''
-        Loads one item at a time, yielding True if there is more to load, and
-        setting the IconView model and yielding False when finished.
-        '''
-        
-        for i in items:
-            iter = self.store.append((None, None, i, i.get_is_user_visible()))
-            self.reload_handlers[i] = i.connect("reload", self._reload_item, iter)
-           # deliter
-            yield True # Keep going
-        
-       # delitems
-        
-        self._reload_visible_items()
- 
-        if ondone_cb:
-            ondone_cb()
-        
-        del items
-        yield False # All done
-        
-        
-    def _reload_item(self, item, iter):
-        try:
-            if self.store.iter_is_valid(iter):
-                icon_size = self._set_item(item, iter)
-        except:
-            pass
-        
-    def _reload_visible_items(self):
-        try:
-            self.store = self.get_model()
-            if isinstance(self.store, gtk.TreeModelFilter):
-                # Get a writable model if a filter model is set
-                self.store = self.store.get_model()
     
-            max_size = 0
-            for row in self.store:
-                    icon_size = self._set_item(row[2], row.iter)
-        except:
-            pass
-        
-
-    def _set_item(self, item, iter):
-        
-        
-        if not item.get_is_user_visible():
-            self.store.set(iter, 3, False) # Hide the item
-            return 0
-
-        name = item.get_name_markup()
-        largename = "<span size='large'>%s</span>" % name
-        smallname = "<span size='large'>%s</span>" % name
-        
-        comment = "<span size='small' foreground='darkgrey'>%s</span>" % item.time
-
-       # Size based on number of visible items
-        item_cnt = len(self.store)
-        text = name + "\n"  + comment
-        icon_size = 24
-
-        try:
-            icon = item.get_icon(icon_size)
-            # Bound returned width to height * 2
-            icon_width = min(icon.get_width(), icon.get_height() * 2)
-        except (AssertionError, AttributeError):
-            icon = None
-            icon_width = 0
-
-        # Update text, icon, and visibility
-        self.store.set(iter, 0, text, 1, icon, 3, True)
-
-        # Return the icon width used for sizing other records
-        del icon,name,largename,smallname,comment,text
-        gc.collect()
-        return icon_width
-
-    def _open_item(self, view, path):
-        model = view.get_model()
-        model.get_value(model.get_iter(path), 2).open()
-
-    def _deactivate_item_popup(self, menu, view, old_selected):
-        view.unselect_all()
-        pass #print " *** Restoring previous selection"
-        for path in old_selected:
-            view.select_path(path)
-
-    def _show_item_popup(self, view, ev):
-        if ev.button == 3:
-            path = view.get_path_at_pos(int(ev.x), int(ev.y))
-            if path:
-                model = view.get_model()
-                item = model.get_value(model.get_iter(path), 2)
-                if item:
-                    old_selected = view.get_selected_items()
-
-                    view.unselect_all()
-                    view.select_path(path)
-
-                    menu = gtk.Menu()
-                    menu.attach_to_widget(view, None)
-                    menu.connect("deactivate", self._deactivate_item_popup, view, old_selected)
-
-                    pass #print " *** Showing item popup"
-                    item.populate_popup(menu)
-                    menu.popup(None, None, None, ev.button, ev.time)
-                    return True
-
     def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
         # FIXME: Prefer ACTION_LINK if available
         if info == 100: # text/uri-list
@@ -243,10 +87,14 @@ class ItemIconView(gtk.IconView):
             pass #print " *** Dropping URIs:", uris
             selection_data.set_uris(uris)
 
+    
     def _button_release(self, view, ev):
+        print("_button_release")
         if ev.button == 1 and self.click_policy == 'single':
+            print("ev.button == 1")
             path = view.get_path_at_pos(int(ev.x), int(ev.y))
             if path:
+                print("path")
                 self.item_activated(path)
   
     def _motion_notify_timeout(self):
@@ -281,24 +129,67 @@ class ItemIconView(gtk.IconView):
             ### FIXME: IconView flickers if we replace the icon too quickly, so use
             ###        a short timeout.
             self.highlight_timeout = gobject.timeout_add(5, self._motion_notify_timeout)
+    
+    def _show_item_popup(self, view, ev):
+        if ev.button == 3:
+            path = view.get_path_at_pos(int(ev.x), int(ev.y))
+            if path:
+                model = view.get_model()
+                item = model.get_value(model.get_iter(path), 2)
+                if item:
+                    old_selected = view.get_selected_items()
 
-    def _click_policy_changed(self):
-            self._connect_nautilus_click_policy()
-         
- 
-class ItemBox(gtk.VBox):
-    def __init__(self):
-        gtk.VBox.__init__(self)
+                    view.unselect_all()
+                    view.select_path(path)
+
+                    menu = gtk.Menu()
+                    menu.attach_to_widget(view, None)
+                    #menu.connect("deactivate", self._deactivate_item_popup, view, old_selected)
+
+                    pass #print " *** Showing item popup"
+                    item.populate_popup(menu)
+                    menu.popup(None, None, None, ev.button, ev.time)
+                    return True
+    
+    def load_items(self, items, ondone_cb = None):
+        # Create a store for our iconview and fill it with stock icons
+        #del self.items
+        self.store.clear()
+        for item in items:
+            self._set_item(item)
+            del item
+        self.set_model(self.store)
         
-        self.scrolled_window = gtk.ScrolledWindow()
-        self.scrolled_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-        self.pack_start(self.scrolled_window)
-        self.show_all()
+    def _set_item(self, item):
         
-    def add_in_scroll(self, view):
-        self.scrolled_window.show()
-        self.scrolled_window.add_with_viewport(view)
+
+        name = item.get_name()
+        comment = "<span size='small'>%s</span>" % item.get_comment()
+
+       # Size based on number of visible items
+        item_cnt = len(self.store)
+        text = name + "\n"  + comment
+        icon_size = 24
+
+        try:
+            icon = item.get_icon(icon_size)
+            # Bound returned width to height * 2
+            icon_width = min(icon.get_width(), icon.get_height() * 2)
+        except (AssertionError, AttributeError):
+            icon = None
+            icon_width = 0
+
+        # Update text, icon, and visibility
+        self.store.append([text,icon,item])
         
+        # Return the icon width used for sizing other records
+        del icon,name,comment,text
+
+    def _open_item(self, view, path):
+        model = self.get_model()
+        model.get_value(model.get_iter(path), 2).open()
+        del model
+    
 class SearchToolItem(gtk.ToolItem):
     __gsignals__ = {
         "clear" : (gobject.SIGNAL_RUN_FIRST,
@@ -550,7 +441,7 @@ class MayannaWidget(gtk.HBox):
         
         
         
-        recent_model.connect("reload",self.viewall)
+        datasink.connect("reload",self.viewall)
         self.reorganize()
 
   
@@ -565,6 +456,7 @@ class MayannaWidget(gtk.HBox):
     def reload_fav(self,x=None):
         print("reloading favs")
         self.favIconView.load_items(self.fav.get_items())
+        self.viewall(None)
         
     def get_focus(self,x,y):
         self.search_tool_item.entry.grab_focus()
@@ -585,13 +477,12 @@ class MayannaWidget(gtk.HBox):
         for w in self.viewBox.get_children():
             self.viewBox.remove(w)
             del w
-        gc.collect()
         
         date_dict={}
         day = None
         list = []
         
-        items = recent_model.get_items()
+        items = datasink.get_items()
         items.sort(self.compare)
         items = sorted(items, self.compare_columns)
         
@@ -605,11 +496,12 @@ class MayannaWidget(gtk.HBox):
                     date_dict[i.ctimestamp]= dbal
              else:
                 list.append(i)
+             #print str(i.timestamp)
              del i
         del items 
-        gc.collect()
-                     
-        for d in  date_dict.values(): 
+             
+        for key in sorted(date_dict.keys()):
+            d = date_dict.get(key) 
                 
             label = gtk.Label(d.label)   
             label.set_padding(5, 5)    

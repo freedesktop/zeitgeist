@@ -1,10 +1,11 @@
+
 import datetime
 import os
 import re
-
 from gettext import gettext as _
 from xml.dom.minidom import parse
 from xml.parsers.expat import ExpatError
+
 import gobject
 import gtk
 import gnomevfs
@@ -70,18 +71,9 @@ class NoteItem(Item):
         else:
             return "".join([self._get_text_from_node(x) for x in node.childNodes])
 
-    def get_timestamp(self):
-        return self.timestamp
-
-    def get_comment(self):
-        return self.pretty_print_time_since(self.get_timestamp())
 
     def get_name(self):
         return self.title or os.path.basename(self.get_uri()) or self.get_uri()
-
-    def matches_text(self, text):
-        return Item.matches_text(self, text) or \
-               (self.content_text and self.content_text.find(text) > -1)
 
 
 class TomboySource(ItemSource):
@@ -93,8 +85,7 @@ class TomboySource(ItemSource):
     
         self.new_note_item = Item(name=_("Create New Note"),
                                   comment=_("Make a new Tomboy note"),
-                                  icon=gtk.STOCK_NEW,
-                                  special=True)
+                                  icon=gtk.STOCK_NEW)
         self.new_note_item.do_open = lambda: self._make_new_note()
         if not note_path:
             if os.environ.has_key("TOMBOY_PATH"):

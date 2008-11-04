@@ -1,10 +1,9 @@
 import datetime
-import inspect # for ImplementMe
 import os
-import sys     # for ImplementMe
 import urllib
-
 from gettext import gettext as _
+import sys     # for ImplementMe
+import inspect # for ImplementMe
 import dbus
 import gobject
 import gtk
@@ -51,7 +50,6 @@ class FileMonitor(gobject.GObject):
                 monitor_type = gnomevfs.MONITOR_FILE
             self.monitor = gnomevfs.monitor_add(self.path, monitor_type, self._queue_event)
         del monitor_type
-        gc.collect() 
 
     def _clear_timeout(self, info_uri):
         try:
@@ -60,19 +58,16 @@ class FileMonitor(gobject.GObject):
         except KeyError:
             pass
         del info_uri
-        gc.collect()
 
     def _queue_event(self, monitor_uri, info_uri, event):
         self._clear_timeout(info_uri)
         self.pending_timeouts[info_uri] = \
             gobject.timeout_add(250, self._timeout_cb, monitor_uri, info_uri, event)
         del monitor_uri, info_uri, event
-        gc.collect()
 
     def queue_changed(self, info_uri):
         self._queue_event(self.path, info_uri, gnomevfs.MONITOR_EVENT_CHANGED)
         del info_uri
-        gc.collect()
         
     def close(self):
         gnomevfs.monitor_cancel(self.monitor)
@@ -89,7 +84,6 @@ class FileMonitor(gobject.GObject):
 
         self._clear_timeout(info_uri)
         del monitor_uri, info_uri, event
-        gc.collect()
         return False
 
 class IconFactory:
@@ -120,20 +114,17 @@ class IconFactory:
                                               icon_size)
             if retval:
                 del icon_value,icon_size,data_dir,data_dirs
-                gc.collect()
                 return retval
             
             retval = self.load_icon_from_path(os.path.join(data_dir, "icons", icon_value),
                                               icon_size)
             if retval:
                 del icon_value,icon_size,data_dir,data_dirs
-                gc.collect()
                 return retval
             
             del retval,data_dir
             
         del data_dirs
-        gc.collect()
         return None
 
     def load_icon(self, icon_value, icon_size, force_size = True):
@@ -178,7 +169,6 @@ class IconFactory:
         img.set_from_pixbuf(pixbuf)
         img.show()
         del pixbuf, icon_value, icon_size, force_size 
-        gc.collect()
         return img
 
     def make_icon_frame(self, thumb, icon_size = None, blend = False):
@@ -202,7 +192,6 @@ class IconFactory:
                         mythumb,
                         border, border)
         del thumb,icon_size,blend
-        gc.collect()
         return mythumb
 
 

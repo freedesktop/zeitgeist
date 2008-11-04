@@ -1,16 +1,23 @@
-import datetime
-import math
-import os
-import sys
-
-import gnomeapplet
-import gobject
-import gtk
-import gtk.glade
-
-from mayanna_gui_helpers import DockWindow
+#!/usr/bin/env python
 from mayanna_panel_widgets import MayannaWidget
 from mayanna_engine.mayanna_util import bookmarks, icon_factory, icon_theme, launcher
+import sys
+import os
+import gnomeapplet
+
+import datetime
+import math
+try:
+     import pygtk
+     pygtk.require("2.0")
+except:
+      pass
+try:
+    import gtk
+    import gtk.glade
+except:
+    sys.exit(1)
+import gobject
 
 class MayannaGUI:   
     
@@ -32,18 +39,24 @@ class MayannaGUI:
         self.topicWindow.set_resizable(True)
         self.topicWindow.set_border_width(1)
         self.topicWindow.show_all()
-        self.topicWindow.connect("destroy", gtk.main_quit)
+        if (self.topicWindow):
+            self.topicWindow.connect("destroy", gtk.main_quit)
 
-        self.mainTable = gtk.HBox()
-        self.topicWindow.add(self.mainTable)
+        self.mainTable = gtk.HBox()    
         
         ''' 
         HeaderTable
         
         '''
+        ev_box = gtk.EventBox()
+        ev_box.modify_bg(gtk.STATE_NORMAL,None)
+        #ev_box.set_border_width(2)
+        ev_box.add(self.mainTable)
+        self.topicWindow.add(ev_box)
         
         self.mayannapanel = MayannaWidget()
-        self.mainTable.pack_start(self.mayannapanel, True, True)
+        self.mayannapanel.show_all()
+        self.mainTable.pack_start(self.mayannapanel,True,True)
         self.topicWindow.show_all()
         
         
