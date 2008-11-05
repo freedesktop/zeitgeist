@@ -21,7 +21,7 @@ class DataSinkSource(ItemSource):
         self.docs=RecentlyUsedDocumentsSource()
         self.others = RecentlyUsedOthersSource()
         #self.chats = RecentContacts()
-        self.tomboy = TomboySource()
+        #self.tomboy = TomboySource()
         self.init_sources()
         
     def init_sources(self):
@@ -32,7 +32,7 @@ class DataSinkSource(ItemSource):
                      self.docs,
                      self.others,
                      #self.chats,
-                     self.tomboy
+                     #self.tomboy
                     ]
        
     def get_items_uncached(self):

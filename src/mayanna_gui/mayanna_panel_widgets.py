@@ -5,6 +5,9 @@ from mayanna_engine.mayanna_datasink import datasink
 from gettext import gettext as _
 import pango
 import gc
+import time
+import datetime
+
  
 
 class ItemIconView(gtk.IconView):
@@ -201,6 +204,8 @@ class MayannaWidget(gtk.HBox):
         self.results = []
         #self.vbox1.connect("focus-in-event",self.get_focus)
         self.date_dict={}
+        self.backup_dict={}
+        self.today=None
         
         '''
         Filter Box
@@ -233,25 +238,13 @@ class MayannaWidget(gtk.HBox):
         self.reorganize()
 
   
-    def _make_new_note(self,x):
-        launcher.launch_command("tomboy --new-note")
-  
-    def _show_new_from_template_dialog(self, x):        
-        dlg = NewFromTemplateDialog(".","")
-        dlg.show()
-
+    
   
     def reload_fav(self,x=None):
         print("reloading favs")
         self.favIconView.load_items(self.fav.get_items())
         self.viewall(None)
-        
-    def get_focus(self,x,y):
-        self.search_tool_item.entry.grab_focus()
-                         
-    def set_presenter(self,presenter):
-        self.presenter=presenter
-        
+
     '''   GUI functionality '''
          
             
@@ -262,10 +255,8 @@ class MayannaWidget(gtk.HBox):
     def reorganize(self):
         self.viewBox.hide_all()
         print("reorganizing")
-        for w in self.viewBox.get_children():
-            self.viewBox.remove(w)
-            del w
         
+        self.today = datetime.date.today().strftime("%x")       
         date_dict={}
         day = None
         list = []
@@ -280,88 +271,105 @@ class MayannaWidget(gtk.HBox):
                 if not date_dict.__contains__(i.ctimestamp):
                     list.append(i)
                     day = i.ctimestamp
-                    dbal = DateBoxAndList(i.datestring,list)
+                    dbal = DateBoxAndList(i.datestring,list,i.date)
                     date_dict[i.ctimestamp]= dbal
              else:
                 list.append(i)
-             #print str(i.timestamp)
-             del i
-        del items 
              
+        '''
+        for w in self.viewBox.get_children():
+            self.viewBox.remove(w)
+            del w
+        '''
+        
         for key in sorted(date_dict.keys()):
-            d = date_dict.get(key) 
-            label = gtk.Label(d.label)   
-            label.set_padding(5, 5)    
-            
-            list = d.list
-            list.sort(self.compare)
-            list = sorted(list, self.compare_columns)
-            
-            iconview = ItemIconView()    
-            iconview.load_items(list)
-            iconview.show_all()
-            
-            scroll = gtk.ScrolledWindow()
-            scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-            scroll.set_shadow_type(gtk.SHADOW_IN)
-            scroll.show_all()
-            
-            scroll.add(iconview)
-            
-            vbox = gtk.VBox(False)
-            vbox.pack_end(scroll,True,True)
-            vbox.pack_end(label,False,False)
-            vbox.show_all()
-            
-            #self.hbox.pack_start(vbox,True,True)
-            self.viewBox.pack_start(vbox,True,True)
-            del d,label,iconview,scroll,vbox
+            if not self.backup_dict or self.backup_dict.__contains__(key):
+                if not self.backup_dict or not self.compare_sameday(self.backup_dict.get(key),date_dict.get(key)):
+                    self.create_dayView(date_dict,key)
         
         self.backup_dict = date_dict
-        del date_dict,day,list
         gc.collect() 
         
         self.viewBox.show_all()
+     
+    def compare_sameday(self,x,y):
+        if x.label == y.label:
+            if not x.time == self.today:
+                x = len(x.list)
+                y= len(y.list)
+                if x == y:
+                    return True
+        return False
+            
+    def create_dayView(self,date_dict,key):
+        d = date_dict.get(key) 
+        daybox = DayBox(d)
         
-    
+        #self.hbox.pack_start(vbox,True,True)
+        
+        for w in self.viewBox.get_children():
+            try:
+                x = w.get_children()
+                date1 = x[0].get_text()
+                date2 = daybox.date
+                if date1 == date2:
+                    self.viewBox.remove(w)
+            except:
+                print("EXCEPTION")
+          
+        self.viewBox.pack_start(daybox,True,True)
+
     def compare(self,a, b):
         return cmp(a.timestamp, b.timestamp) # compare as integers
 
     def compare_columns(self,a, b):
         # sort on ascending index 0, descending index 2
         return cmp(a.timestamp, b.timestamp)
- 
-    '''  Search functions '''
-     
-    def _search(self, w, text):
-        '''
-        self.results = []
-        for topic in self.topics:
-                matches = topic.find_items(text)
-                for item in matches:
-                     self.results.append(item)
-                #results = results +  [matches]
-        self.load_search_items(self.results)
-        #collector.delete_refs(results)
-        #for i in self.results:
-           # del i
-        #for box in self.connectors:
-           #     box.hide_sidebar()
-              #  del box
-        #collector.delete_refs(results)
-        '''
-         
-    
-    def _search_clear(self, w):
-        self.view.load_items([])
-         
-    
-    def load_search_items(self,results):
-            self.sidebarBox.hide()
-            self.view.load_items(results)
+
+    def _make_new_note(self,x):
+        launcher.launch_command("tomboy --new-note")
+  
+    def _show_new_from_template_dialog(self, x):        
+        dlg = NewFromTemplateDialog(".","")
+        dlg.show()
+
+class DayBox(gtk.VBox):
+    def __init__(self,d):
+        gtk.VBox.__init__(self,False)
+        self.date = d.label
+        self.label = gtk.Label(d.label)   
+        self.label.set_padding(5, 5)    
         
+        list = d.list
+        list.sort(self.compare)
+        list = sorted(list, self.compare_columns)
+        
+        iconview = ItemIconView()    
+        iconview.load_items(list)
+        iconview.show_all()
+        
+        scroll = gtk.ScrolledWindow()
+        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        scroll.set_shadow_type(gtk.SHADOW_IN)
+        scroll.show_all()
+        
+        scroll.add(iconview)
+        
+        self.pack_end(scroll,True,True)
+        self.pack_end(self.label,False,False)
+        self.show_all()
+
+    def compare(self,a, b):
+        return cmp(a.timestamp, b.timestamp) # compare as integers
+
+    def compare_columns(self,a, b):
+        # sort on ascending index 0, descending index 2
+        return cmp(a.timestamp, b.timestamp)
+        
+
 class DateBoxAndList:
-    def __init__(self,label,list):
+    def __init__(self,label,list,time):
+        self.time=time
         self.label = label
         self.list = list 
         

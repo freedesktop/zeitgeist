@@ -35,13 +35,13 @@ class Item(gobject.GObject):
         
         #Timestamps
         self.timestamp = timestamp
-        self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_(" %l:%M:%S %p"))
-        self.day =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_(" %d"))
-        self.weekday =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_(" %a"))
-        self.month =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_(" %b"))
-        self.cmonth = datetime.datetime.fromtimestamp(self.timestamp).strftime(_(" %m"))
-        self.year =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_(" %Y"))
-        self.date =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_(" %x"))
+        self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
+        self.day =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%d"))
+        self.weekday =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a"))
+        self.month =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%b"))
+        self.cmonth = datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%m"))
+        self.year =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%Y"))
+        self.date =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%x"))
         self.datestring =  self.weekday+" "+self.day+" "+self.month+" "+self.year
         self.ctimestamp = int(string.replace(self.year+self.cmonth+self.day," ",""))
         
