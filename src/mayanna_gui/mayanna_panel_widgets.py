@@ -131,7 +131,7 @@ class MayannaWidget(gtk.HBox):
         self.fav = FavoritesSource()
         self.favIconView = ItemIconView()
         self.favIconView.load_items(self.fav.get_items())
-        self.fav.connect("reload",self.reload_fav)
+        #self.fav.connect("reload",self.reload_fav)
         
         self.option_box = gtk.VBox(False)
         self.create_doc_btn = gtk.Button("Create New Document")
@@ -234,25 +234,11 @@ class MayannaWidget(gtk.HBox):
         
         
         self.date_dict = None
-        datasink.connect("reload",self.viewall)
+        datasink.connect("reload",self.reorganize)
         self.reorganize()
-
-  
-    
-  
-    def reload_fav(self,x=None):
-        print("reloading favs")
-        self.favIconView.load_items(self.fav.get_items())
-        self.viewall(None)
-
-    '''   GUI functionality '''
-         
             
-    def viewall(self,x):
-        self.reorganize()
         
-    
-    def reorganize(self):
+    def reorganize(self,x=None):
         self.viewBox.hide_all()
         print("reorganizing")
         
@@ -266,21 +252,15 @@ class MayannaWidget(gtk.HBox):
         items = sorted(items, self.compare_columns)
         
         for i in items:
-             if not day or  day != i.ctimestamp:
+             print(i.datestring)
+             if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
                 list = []
-                if not date_dict.__contains__(i.ctimestamp):
-                    list.append(i)
-                    day = i.ctimestamp
-                    dbal = DateBoxAndList(i.datestring,list,i.date)
-                    date_dict[i.ctimestamp]= dbal
+                day = i.ctimestamp
+                daybox =  DayBox(i.datestring,list,i.date)
+                daybox.list.append(i)
+                date_dict[i.ctimestamp]= daybox
              else:
-                list.append(i)
-             
-        '''
-        for w in self.viewBox.get_children():
-            self.viewBox.remove(w)
-            del w
-        '''
+                daybox.list.append(i)
         
         for key in sorted(date_dict.keys()):
             if not self.backup_dict or self.backup_dict.__contains__(key):
@@ -303,7 +283,6 @@ class MayannaWidget(gtk.HBox):
             
     def create_dayView(self,date_dict,key):
         d = date_dict.get(key) 
-        daybox = DayBox(d)
         
         #self.hbox.pack_start(vbox,True,True)
         
@@ -311,13 +290,14 @@ class MayannaWidget(gtk.HBox):
             try:
                 x = w.get_children()
                 date1 = x[0].get_text()
-                date2 = daybox.date
+                date2 = d.date
                 if date1 == date2:
                     self.viewBox.remove(w)
-            except:
-                print("EXCEPTION")
+            except StandardError, e:
+                print("EXCEPTION ",e)
           
-        self.viewBox.pack_start(daybox,True,True)
+        self.viewBox.pack_start(d,True,True)
+        d.view_items()
 
     def compare(self,a, b):
         return cmp(a.timestamp, b.timestamp) # compare as integers
@@ -334,30 +314,31 @@ class MayannaWidget(gtk.HBox):
         dlg.show()
 
 class DayBox(gtk.VBox):
-    def __init__(self,d):
+    def __init__(self,label,list,date):
         gtk.VBox.__init__(self,False)
-        self.date = d.label
-        self.label = gtk.Label(d.label)   
+        self.date = date
+        self.label = gtk.Label(label)   
         self.label.set_padding(5, 5)    
         
-        list = d.list
         list.sort(self.compare)
         list = sorted(list, self.compare_columns)
-        
-        iconview = ItemIconView()    
-        iconview.load_items(list)
-        iconview.show_all()
+        self.list= list
+        self.iconview = ItemIconView()    
+        self.iconview.show_all()
         
         scroll = gtk.ScrolledWindow()
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_IN)
         scroll.show_all()
         
-        scroll.add(iconview)
+        scroll.add(self.iconview)
         
         self.pack_end(scroll,True,True)
         self.pack_end(self.label,False,False)
         self.show_all()
+    
+    def view_items(self):
+        self.iconview.load_items(self.list)
 
     def compare(self,a, b):
         return cmp(a.timestamp, b.timestamp) # compare as integers
@@ -365,14 +346,7 @@ class DayBox(gtk.VBox):
     def compare_columns(self,a, b):
         # sort on ascending index 0, descending index 2
         return cmp(a.timestamp, b.timestamp)
-        
-
-class DateBoxAndList:
-    def __init__(self,label,list,time):
-        self.time=time
-        self.label = label
-        self.list = list 
-        
+      
 class NewFromTemplateDialog(gtk.FileChooserDialog):
     '''
     Dialog to create a new document from a template
