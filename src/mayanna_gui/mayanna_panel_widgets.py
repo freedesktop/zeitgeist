@@ -9,119 +9,6 @@ import time
 import datetime
 
  
-
-class ItemIconView(gtk.IconView):
-    '''
-    Icon view which displays Items in the style of the Nautilus horizontal mode,
-    where icons are right aligned and each column is of a uniform width.  Also
-    handles opening an item and displaying the item context menu.
-    '''
-    def __init__(self):
-        gtk.IconView.__init__(self)
-        self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
-        self.set_selection_mode(gtk.SELECTION_MULTIPLE)
-        self.store = gtk.ListStore(str, gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)
-        self.use_cells = isinstance(self, gtk.CellLayout)
-        
-        self.icon_cell = gtk.CellRendererPixbuf()
-        self.icon_cell.set_property("yalign", 0.0)
-        self.icon_cell.set_property("xalign", 0.0)
-        self.pack_start(self.icon_cell, expand=True)
-        self.add_attribute(self.icon_cell, "pixbuf", 1)
-
-        self.text_cell = gtk.CellRendererText()
-        self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
-        self.text_cell.set_property("yalign", 0.0)
-        self.text_cell.set_property("xalign", 0.0)
-        self.pack_start(self.text_cell, expand=True)
-        self.add_attribute(self.text_cell, "markup", 0)
-        
-        self.text_cell.set_property("wrap-width", 100)
-        
-        self.items=[]
-        self.connect("button-press-event", self._show_item_popup)
-        self.connect("drag-data-get", self._item_drag_data_get)
-        self.enable_model_drag_source(0, [("text/uri-list", 0, 100)],gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
-    
-    def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
-        # FIXME: Prefer ACTION_LINK if available
-        if info == 100: # text/uri-list
-            selected = view.get_selected_items()
-            if not selected:
-                return
-
-            model = view.get_model()
-            uris = []
-            for path in selected:
-                item = model.get_value(model.get_iter(path), 2)
-                if not item:
-                    continue
-                uris.append(item.get_uri())
-
-            pass #print " *** Dropping URIs:", uris
-            selection_data.set_uris(uris)
-
-    def _show_item_popup(self, view, ev):
-        if ev.button == 3:
-            path = view.get_path_at_pos(int(ev.x), int(ev.y))
-            if path:
-                model = view.get_model()
-                item = model.get_value(model.get_iter(path), 2)
-                if item:
-                    old_selected = view.get_selected_items()
-
-                    view.unselect_all()
-                    view.select_path(path)
-
-                    menu = gtk.Menu()
-                    menu.attach_to_widget(view, None)
-                    #menu.connect("deactivate", self._deactivate_item_popup, view, old_selected)
-
-                    pass #print " *** Showing item popup"
-                    item.populate_popup(menu)
-                    menu.popup(None, None, None, ev.button, ev.time)
-                    return True
-    
-    def load_items(self, items, ondone_cb = None):
-        # Create a store for our iconview and fill it with stock icons
-        #del self.items
-        self.store.clear()
-        for item in items:
-            self._set_item(item)
-            del item
-        self.set_model(self.store)
-        
-    def _set_item(self, item):
-        
-
-        name = item.get_name()
-        comment = "<span size='small'>%s</span>" % item.get_comment()
-
-       # Size based on number of visible items
-        item_cnt = len(self.store)
-        text = name + "\n"  + comment
-        icon_size = 24
-
-        try:
-            icon = item.get_icon(icon_size)
-            # Bound returned width to height * 2
-            icon_width = min(icon.get_width(), icon.get_height() * 2)
-        except (AssertionError, AttributeError):
-            icon = None
-            icon_width = 0
-
-        # Update text, icon, and visibility
-        iter =[text,icon,item]
-        self.store.append(iter)
-        
-        # Return the icon width used for sizing other records
-        del icon,name,comment,text
-
-    def _open_item(self, view, path):
-        model = self.get_model()
-        model.get_value(model.get_iter(path), 2).open()
-        del model
-  
 class MayannaWidget(gtk.HBox):
     
     def __init__(self):
@@ -206,6 +93,7 @@ class MayannaWidget(gtk.HBox):
         self.date_dict={}
         self.backup_dict={}
         self.today=None
+        self.filters=[]
         
         '''
         Filter Box
@@ -219,58 +107,66 @@ class MayannaWidget(gtk.HBox):
         self.frame2.set_label_widget(self.label2)
         
         self.option_box.pack_start(self.frame2,False, False, 5)
-        
-        self.docfilter = gtk.CheckMenuItem("    Documents")
-        self.vidfilter = gtk.CheckMenuItem("    Videos")
-        self.audfilter = gtk.CheckMenuItem("    Audio")
-        self.picfilter = gtk.CheckMenuItem("    Pictures")
         self.voptionbox = gtk.VBox(False)
-        self.voptionbox.pack_start( self.docfilter,False,False)
-        self.voptionbox.pack_start( self.vidfilter,False,False)
-        self.voptionbox.pack_start( self.audfilter,False,False)
-        self.voptionbox.pack_start( self.picfilter,False,False)
+        
+        for source in datasink.sources:
+            filter = CheckBox(source)
+            filter.set_active(True)
+            self.voptionbox.pack_start( filter,False,False,0)
+            self.filters.append(filter)
+            filter.connect("toggled",self.filterout)
+        
         self.viewBox.show_all()
         self.frame2.add(self.voptionbox)
         
         
         self.date_dict = None
+        self.filtered_items = datasink.get_items()
         datasink.connect("reload",self.reorganize)
         self.reorganize()
-            
+                   
+    def filterout(self,widget):
         
+        for w in self.viewBox.get_children():
+            self.viewBox.remove(w)
+        
+        self.reorganize()
+    
     def reorganize(self,x=None):
-        self.viewBox.hide_all()
-        print("reorganizing")
         
         self.today = datetime.date.today().strftime("%x")       
         date_dict={}
         day = None
         list = []
         
-        items = datasink.get_items()
-        items.sort(self.compare)
-        items = sorted(items, self.compare_columns)
-        
-        for i in items:
-             print(i.datestring)
+        for i in datasink.get_items():
              if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
                 list = []
                 day = i.ctimestamp
-                daybox =  DayBox(i.datestring,list,i.date)
+                daybox =  DayBox(i.datestring,list,i.ctimestamp)
                 daybox.list.append(i)
                 date_dict[i.ctimestamp]= daybox
              else:
                 daybox.list.append(i)
-        
-        for key in sorted(date_dict.keys()):
-            if not self.backup_dict or self.backup_dict.__contains__(key):
-                if not self.backup_dict or not self.compare_sameday(self.backup_dict.get(key),date_dict.get(key)):
-                    self.create_dayView(date_dict,key)
+      
+        for key in sorted(self.backup_dict.keys()):
+           if not date_dict.__contains__(key):
+               for w in self.viewBox.get_children():
+                   if w.date==key:
+                        self.viewBox.remove(w)
+                   #self.viewBox.remove()
+      
+        if not self.viewBox.get_children():
+            for key in sorted(date_dict.keys()):
+                self.viewBox.pack_start(date_dict.get(key),True,True)
+                date_dict.get(key).view_items()
+        else: 
+            for key in sorted(date_dict.keys()):
+                if not self.backup_dict or self.backup_dict.__contains__(key):
+                    if not self.backup_dict or not self.compare_sameday(self.backup_dict.get(key),date_dict.get(key)):
+                        self.create_dayView(date_dict.get(key))
         
         self.backup_dict = date_dict
-        gc.collect() 
-        
-        self.viewBox.show_all()
      
     def compare_sameday(self,x,y):
         if x.label == y.label:
@@ -281,31 +177,24 @@ class MayannaWidget(gtk.HBox):
                     return True
         return False
             
-    def create_dayView(self,date_dict,key):
-        d = date_dict.get(key) 
+    def create_dayView(self,d):
         
-        #self.hbox.pack_start(vbox,True,True)
-        
-        for w in self.viewBox.get_children():
+        for d2 in self.viewBox.get_children():
             try:
-                x = w.get_children()
+                x = d2.get_children()
+                
                 date1 = x[0].get_text()
-                date2 = d.date
+                date2 = d.label.get_text()
+                
                 if date1 == date2:
-                    self.viewBox.remove(w)
+                    if d.list != d2.list:
+                        self.viewBox.remove(d2) 
+                        if len(d.list):        
+                            self.viewBox.pack_start(d,True,True)
+                            d.view_items()
             except StandardError, e:
                 print("EXCEPTION ",e)
-          
-        self.viewBox.pack_start(d,True,True)
-        d.view_items()
-
-    def compare(self,a, b):
-        return cmp(a.timestamp, b.timestamp) # compare as integers
-
-    def compare_columns(self,a, b):
-        # sort on ascending index 0, descending index 2
-        return cmp(a.timestamp, b.timestamp)
-
+  
     def _make_new_note(self,x):
         launcher.launch_command("tomboy --new-note")
   
@@ -313,6 +202,25 @@ class MayannaWidget(gtk.HBox):
         dlg = NewFromTemplateDialog(".","")
         dlg.show()
 
+class CheckBox(gtk.CheckButton):
+    def __init__(self,source):
+        gtk.CheckButton.__init__(self)
+        self.source = source
+        self.set_border_width(5)
+        self.label = gtk.Label(source.name)
+        self.img = gtk.Image()
+        self.set_label(source.name)
+        #img.set_from_pixbuf(source.get_icon(16))
+        self.set_image(self.img)
+        self.set_focus_on_click(False)
+        self.connect("toggled",self.toggle_source)
+
+    def toggle_source(self,widget):
+        if self.get_active():
+            self.source.set_active(True)
+        else:
+            self.source.set_active(False)
+        
 class DayBox(gtk.VBox):
     def __init__(self,label,list,date):
         gtk.VBox.__init__(self,False)
@@ -392,3 +300,133 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
                 pass
 
         self.destroy()
+        
+class ItemIconView(gtk.IconView):
+    '''
+    Icon view which displays Items in the style of the Nautilus horizontal mode,
+    where icons are right aligned and each column is of a uniform width.  Also
+    handles opening an item and displaying the item context menu.
+    '''
+    def __init__(self):
+        gtk.IconView.__init__(self)
+        self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
+        self.set_selection_mode(gtk.SELECTION_MULTIPLE)
+        self.store = gtk.ListStore(str, gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT, gtk.gdk.Pixbuf)
+        self.use_cells = isinstance(self, gtk.CellLayout)
+        
+        self.icon_cell = gtk.CellRendererPixbuf()
+        self.icon_cell.set_property("yalign", 0.0)
+        self.icon_cell.set_property("xalign", 0.0)
+        self.pack_start(self.icon_cell, expand=False)
+        self.add_attribute(self.icon_cell, "pixbuf", 1)
+
+        self.text_cell = gtk.CellRendererText()
+        self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
+        self.text_cell.set_property("yalign", 0.0)
+        self.text_cell.set_property("xalign", 0.0)
+        self.pack_start(self.text_cell, expand=False)
+        self.add_attribute(self.text_cell, "markup", 0)
+        self.text_cell.set_property("wrap-width", 100)
+        
+        self.star_cell = gtk.CellRendererPixbuf()
+        self.star_cell.set_property("yalign", 0.0)
+        self.star_cell.set_property("xalign", 0.0)
+        self.pack_start(self.star_cell, expand=True)
+        self.add_attribute(self.star_cell, "pixbuf", 3)
+        
+        self.items=[]
+        self.connect("button-press-event", self._show_item_popup)
+        self.connect("drag-data-get", self._item_drag_data_get)
+        self.connect("focus-out-event", self._unselect_all)
+        self.enable_model_drag_source(0, [("text/uri-list", 0, 200)],gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
+    
+    def _unselect_all(self,x,y):
+        self.unselect_all()
+
+    def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
+        # FIXME: Prefer ACTION_LINK if available
+        if info == 100: # text/uri-list
+            selected = view.get_selected_items()
+            if not selected:
+                return
+
+            model = view.get_model()
+            uris = []
+            for path in selected:
+                item = model.get_value(model.get_iter(path), 2)
+                if not item:
+                    continue
+                uris.append(item.get_uri())
+
+            pass #print " *** Dropping URIs:", uris
+            selection_data.set_uris(uris)
+
+    def _show_item_popup(self, view, ev):
+        if ev.button == 3:
+            path = view.get_path_at_pos(int(ev.x), int(ev.y))
+            if path:
+                model = view.get_model()
+                item = model.get_value(model.get_iter(path), 2)
+                if item:
+                    old_selected = view.get_selected_items()
+
+                    view.unselect_all()
+                    view.select_path(path)
+
+                    menu = gtk.Menu()
+                    menu.attach_to_widget(view, None)
+                    #menu.connect("deactivate", self._deactivate_item_popup, view, old_selected)
+
+                    pass #print " *** Showing item popup"
+                    item.populate_popup(menu)
+                    menu.popup(None, None, None, ev.button, ev.time)
+                    return True
+    
+    def load_items(self, items, ondone_cb = None):
+        # Create a store for our iconview and fill it with stock icons
+        #del self.items
+        self.store.clear()
+        for item in items:
+            self._set_item(item)
+            del item
+        self.set_model(self.store)
+        self.items=items
+        
+    def _set_item(self, item):
+        
+
+        name = item.get_name()
+        comment = "<span size='small'>%s</span>" % item.get_comment()
+
+       # Size based on number of visible items
+        item_cnt = len(self.store)
+        text = name + "\n"  + comment
+        icon_size = 24
+
+        try:
+            icon = item.get_icon(icon_size)
+            # Bound returned width to height * 2
+            icon_width = min(icon.get_width(), icon.get_height() * 2)
+        except (AssertionError, AttributeError):
+            icon = None
+            icon_width = 0
+
+         
+        #bookmark_star = gtk.gdk.pixbuf_new_from_file_at_size("src/mayanna_gui/star.png", 32, 32)
+        
+        #pb = pb.scale_simple(thumb_width, thumb_height, gtk.gdk.INTERP_BILINEAR)
+        
+        gc.collect()
+
+        # Update text, icon, and visibility
+        iter =[text,icon,item,None]
+        self.store.append(iter)
+    
+        # Return the icon width used for sizing other records
+        del icon,name,comment,text
+
+    def _open_item(self, view, path):
+        model = self.get_model()
+        model.get_value(model.get_iter(path), 2).open()
+        del model
+        

@@ -194,7 +194,6 @@ class IconFactory:
         del thumb,icon_size,blend
         return mythumb
 
-
 class Thumbnailer:
     def __init__(self, uri, mimetype):
         self.uri = uri or ""

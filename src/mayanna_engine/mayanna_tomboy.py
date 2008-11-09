@@ -82,7 +82,7 @@ class TomboySource(ItemSource):
                             name=_("Notes"),
                             icon="stock_notes",
                             uri="source:///Documents/Tomboy")
-    
+        self.name=_("Notes")
         self.new_note_item = Item(name=_("Create New Note"),
                                   comment=_("Make a new Tomboy note"),
                                   icon=gtk.STOCK_NEW)

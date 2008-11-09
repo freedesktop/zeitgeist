@@ -35,6 +35,7 @@ class Item(gobject.GObject):
         
         #Timestamps
         self.timestamp = timestamp
+        print(self.timestamp)
         self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
         self.day =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%d"))
         self.weekday =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a"))
@@ -68,7 +69,10 @@ class Item(gobject.GObject):
 
     def get_name(self):
         
-        self.name=self.uri.rsplit('/',1)[1].replace("%20"," ").strip()
+        try:
+            self.name=self.uri.rsplit('/',1)[1].replace("%20"," ").strip()
+        except:
+            pass
         return self.name or self.get_uri()
 
     def get_comment(self):
@@ -89,29 +93,32 @@ class Item(gobject.GObject):
         return self.get_uri() != None
 
     def get_is_pinned(self):
-        return bookmarks.is_bookmark(self.get_uri())
-
+        #return bookmarks.is_bookmark(self.get_uri())
+        pass
+    
     def pin(self):
-        bookmarks.add_bookmark_item(self)
-        self.emit("reload")
-
+        #bookmarks.add_bookmark_item(self)
+        #self.emit("reload")
+        pass
+    
     def unpin(self):
-        bookmarks.remove_bookmark(self.get_uri())
-        self.emit("reload")
-
+        #bookmarks.remove_bookmark(self.get_uri())
+        #self.emit("reload")
+        pass
+    
     def populate_popup(self, menu):
         open = gtk.ImageMenuItem (gtk.STOCK_OPEN)
         open.connect("activate", lambda w: self.open())
         open.show()
         menu.append(open)
 
-        fav = gtk.CheckMenuItem (_("Add to Favorites"))
-        fav.set_sensitive(self.get_can_pin())
-        fav.set_active(self.get_is_pinned())
-        fav.connect("toggled", self._add_to_favorites_toggled)
-        fav.show()
-        menu.append(fav)
-        del fav,open
+        #fav = gtk.CheckMenuItem (_("Add to Favorites"))
+        #fav.set_sensitive(self.get_can_pin())
+        #fav.set_active(self.get_is_pinned())
+        #fav.connect("toggled", self._add_to_favorites_toggled)
+        #fav.show()
+        #menu.append(fav)
+        #del fav,open
 
     def _add_to_favorites_toggled(self, fav):
         if fav.get_active():
@@ -144,6 +151,7 @@ class ItemSource(Item):
         self.hasPref = None
         self.counter = 0
         self.needs_view=True
+        self.active=True
         
     def get_items(self):
         '''
@@ -156,14 +164,13 @@ class ItemSource(Item):
         if self.clear_cache_timeout_id:
             gobject.source_remove(self.clear_cache_timeout_id)
         self.clear_cache_timeout_id = gobject.timeout_add(ItemSource.CACHE_CLEAR_TIMEOUT_MS, lambda: self.set_items(None))
-        
-        if self.items:
-           return self.items
-        else:
-            del self.items
-            self.items =self.get_items_uncached()
-            return self.items
-
+        if self.active:
+            if self.items:
+               return self.items
+            else:
+                del self.items
+                self.items =self.get_items_uncached()
+                return self.items
 
     def get_items_uncached(self):
         '''Subclasses should override this to return/yield Items. The results
@@ -174,5 +181,9 @@ class ItemSource(Item):
         '''Set the cached items.  Pass None for items to reset the cache.'''
         self.items = items
        # delitems
- 
+    def set_active(self,bool):
+        self.active=bool
+        
+    def get_active(self):
+        return self.active
 

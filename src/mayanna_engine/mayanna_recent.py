@@ -12,7 +12,7 @@ import gtk
 import gnome.ui
 import gnomevfs
 import gnomevfs.async
-from mayanna_util import bookmarks, icon_factory, icon_theme, thumb_factory
+from mayanna_util import bookmarks
 from mayanna_base import Item, ItemSource
 
 
@@ -200,6 +200,7 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
                                         name=_("Documents"),
                                         icon="stock_new-presentation",
                                         mimetype_list=self.DOCUMENT_MIMETYPES)
+        self.name = _("Documents")
     def get_items_uncached(self):
         temp_list=[]
         for item in RecentlyUsedOfMimeType.get_items_uncached(self):
@@ -239,6 +240,7 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
                                         name=_("Other"),
                                         icon="applications-other",
                                         mimetype_list=self.DOCUMENT_MIMETYPES)
+        self.name = _("Other")
     def get_items_uncached(self):
         temp_list=[]
         items = RecentlyUsedOfMimeType.get_items_uncached(self)
@@ -263,8 +265,9 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
     def __init__(self):
         RecentlyUsedOfMimeType.__init__(self,
                                         name=_("Images"),
-                                        icon="image",
+                                        icon="gnome-mime-image",
                                         mimetype_list=self.DOCUMENT_MIMETYPES)
+        self.name = _("Images")
     def get_items_uncached(self):
         temp_list=[]
         items = RecentlyUsedOfMimeType.get_items_uncached(self)
@@ -287,6 +290,7 @@ class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
                                         name=_("Music"),
                                         icon="gnome-mime-audio",
                                         mimetype_list=self.MEDIA_MIMETYPES)
+        self.name = _("Music")
     def get_items_uncached(self):
         temp_list = []
         for item in RecentlyUsedOfMimeType.get_items_uncached(self):
@@ -308,6 +312,7 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
                                         name=_("Movies"),
                                         icon="gnome-mime-video",
                                         mimetype_list=self.MEDIA_MIMETYPES)
+        self.name = _("Movies")
     def get_items_uncached(self):
         #print("videos uncached")
         temp_list = []
