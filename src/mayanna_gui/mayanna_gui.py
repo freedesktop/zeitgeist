@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from mayanna_panel_widgets import MayannaWidget
-from mayanna_engine.mayanna_util import bookmarks, icon_factory, icon_theme, launcher
+from mayanna_engine.mayanna_util import icon_factory, icon_theme, launcher
 import sys
 import os
 import gnomeapplet

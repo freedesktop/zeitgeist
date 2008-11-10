@@ -4,12 +4,12 @@ import string
 import time
 from gettext import ngettext, gettext as _
 from xml.sax import saxutils
-
+from threading import Thread
 import gobject
 import gtk
 import gc
 
-from mayanna_util import Thumbnailer, bookmarks, icon_factory, launcher
+from mayanna_util import Thumbnailer,  icon_factory, launcher
 
 class Item(gobject.GObject):
     __gsignals__ = {
@@ -35,7 +35,6 @@ class Item(gobject.GObject):
         
         #Timestamps
         self.timestamp = timestamp
-        print(self.timestamp)
         self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
         self.day =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%d"))
         self.weekday =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a"))
@@ -69,11 +68,13 @@ class Item(gobject.GObject):
 
     def get_name(self):
         
+        name = None
         try:
-            self.name=self.uri.rsplit('/',1)[1].replace("%20"," ").strip()
+            name=self.uri.rsplit('/',1)[1].replace("%20"," ").strip()
         except:
             pass
-        return self.name or self.get_uri()
+        
+        return name or self.name or self.get_uri()
 
     def get_comment(self):
         return self.time.strip()
@@ -142,9 +143,10 @@ class ItemSource(Item):
                       comment=comment,
                       uri=uri,
                       mimetype="mayanna/item-source")
+        #Thread.__init__(self)
 		#self.sourceType = None
         self.filter_by_date = filter_by_date
-        self.items = None
+        self.items = []
         self.clear_cache_timeout_id = None
         # Clear cached items on reload
         self.connect("reload", lambda x: self.set_items(None))
@@ -152,7 +154,11 @@ class ItemSource(Item):
         self.counter = 0
         self.needs_view=True
         self.active=True
-        
+    
+    
+    def run(self):
+        self.get_items()
+    
     def get_items(self):
         '''
         Return cached items if available, otherwise get_items_uncached() is
@@ -164,14 +170,15 @@ class ItemSource(Item):
         if self.clear_cache_timeout_id:
             gobject.source_remove(self.clear_cache_timeout_id)
         self.clear_cache_timeout_id = gobject.timeout_add(ItemSource.CACHE_CLEAR_TIMEOUT_MS, lambda: self.set_items(None))
-        if self.active:
-            if self.items:
-               return self.items
-            else:
-                del self.items
-                self.items =self.get_items_uncached()
-                return self.items
-
+        if self.items:
+            for i in self.items:
+                yield i
+        else:
+            self.items=[]
+            for i in self.get_items_uncached():
+                self.items.append(i)
+                yield i
+                
     def get_items_uncached(self):
         '''Subclasses should override this to return/yield Items. The results
         will be cached.'''

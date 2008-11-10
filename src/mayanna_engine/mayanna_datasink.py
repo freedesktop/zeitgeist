@@ -15,17 +15,35 @@ class DataSinkSource(ItemSource):
                             icon=None,
                             uri="source:///Datasink")
         self.sources=[]
-        recent_model.connect("reload",lambda x: self.emit("reload"))
+        
+        '''
+        Recently Used
+        '''
+        
         self.videos=RecentlyUsedVideoSource()
+        self.videos.run()
         self.music=RecentlyUsedMusicSource()
+        self.music.run()
         self.images=RecentlyUsedImagesSource()
+        self.images.run()
         self.docs=RecentlyUsedDocumentsSource()
+        self.docs.run()
         self.others = RecentlyUsedOthersSource()
+        self.others.run()
+        recent_model.connect("reload",lambda x: self.emit("reload"))
+        
+        
+        
         self.firefox = FirefoxSource()
+        self.firefox.run()
         #self.chats = RecentContacts()
         self.tomboy = TomboySource()
+        self.tomboy.run()
         self.tomboy.connect("reload",lambda x: self.emit("reload"))
+        
+        
         self.init_sources()
+        
         
     def init_sources(self):
        self.sources=[
@@ -34,12 +52,13 @@ class DataSinkSource(ItemSource):
                      self.music,
                      self.docs,
                      self.others,
-                     #self.firefox,
+                     self.firefox,
                      #self.chats,
                      self.tomboy
                     ]
        
     def get_items(self):
+        "Datasink getting all items from DaraProviders"
         items =[]
         for source in self.sources:
             if source.get_active():
@@ -47,6 +66,8 @@ class DataSinkSource(ItemSource):
                     items.append(item)
         items.sort(self.compare)
         items = sorted(items, self.compare_columns)
+        "Datasink getting all items from DaraProviders done"
+        
         return items
     
     def compare(self,a, b):

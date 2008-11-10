@@ -388,101 +388,6 @@ class LaunchManager:
                                             groups=["Launchers"])
             return (child, startup_id)
 
-class BookmarkManager(gobject.GObject):
-    '''
-    Maintains a list of bookmarks in ~/.mayanna-bookmarks.
-    Each line of which is of the format: URI\tMIMETYPE
-    '''
-    
-    __gsignals__ = {
-        "reload" : (gobject.SIGNAL_RUN_FIRST,
-                    gobject.TYPE_NONE,
-                    ())
-        }
-
-    DEFAULT_BOOKMARKS = [
-        ]
-    
-    def __init__(self):
-        gobject.GObject.__init__(self)
-        self.bookmarks_path = os.path.expanduser("~/.mayanna-bookmarks")
-
-        self.monitor = FileMonitor(self.bookmarks_path)
-        self.monitor.connect("event", lambda a, b, ev: self.emit("reload"))
-        self.monitor.open()
-        self.bookmarks = []
-
-        self.emit("reload")
-
-
-    def do_reload(self):
-       # delself.bookmarks
-         
-        print("reloading bookmarks")
-        self.bookmarks = []
-        try:
-            f = file(self.bookmarks_path, "r")
-            for line in f:
-                line = line.strip()
-                args = line.split("\t")
-                try: 
-                    uri, mimetype, classname = args
-                except ValueError:
-                    uri, mimetype = args
-                    classname = "mayanna_recent.FileItem"
-                self.bookmarks.append([uri, mimetype, classname])
-            f.close()
-        except (IOError, EOFError):
-            self.bookmarks = BookmarkManager.DEFAULT_BOOKMARKS
-
-    def _write(self):
-        try:
-            f = file(self.bookmarks_path, "w")
-            f.writelines(["%s\t%s\t%s\n" % (u, m, c) for u, m, c in self.bookmarks])
-            f.close()
-
-            # Let the file monitor event signal the change to avoid reloading twice
-            self.monitor.queue_changed(self.bookmarks_path)
-        except (IOError, EOFError):
-            pass # Doesn't exist, or no access
-
-    def add_bookmark(self, uri, mimetype, classname = "mayanna_recent.FileItem"):
-        assert uri, "Must specify URI to bookmark"
-        assert mimetype, "Must specify MimeType for URI"
-
-        if not [uri, mimetype, classname] in self.bookmarks:
-            self.bookmarks.append([uri, mimetype, classname])
-            self._write()
-
-    def add_bookmark_item(self, item):
-        classname = "%s.%s" % (item.__class__.__module__, item.__class__.__name__)
-        self.add_bookmark(item.get_uri(), item.get_mimetype(), classname)
-
-    def remove_bookmark(self, uri):
-        assert uri, "Must specify URI to unbookmark"
-        
-        self.bookmarks = [x for x in self.bookmarks if x[0] != uri]
-        self._write()
-
-    def is_bookmark(self, check_uri):
-        return len([x for x in self.bookmarks if x[0] == check_uri]) > 0
-
-    def get_bookmarks(self, mime_type_list = None):
-        '''
-        Returns the current list of bookmarks as uri and mimetype pairs.  Can be
-        filtered by mimetype.
-        '''
-        if mime_type_list:
-            return [[x, y] for x, y, z in self.bookmarks if y in mime_type_list]
-        return [[x, y] for x, y, z in self.bookmarks]
-
-    def get_bookmarks_and_class(self):
-        '''
-        Returns the current list of bookmarks as uri and mimetype pairs.  Can be
-        filtered by mimetype.
-        '''
-        return [[x, z] for x, y, z in self.bookmarks]
-
 class DBusWrapper:
     '''
     Simple wrapper around DBUS object creation.  This works around older DBUS
@@ -537,6 +442,5 @@ icon_factory = IconFactory()
 icon_theme = gtk.icon_theme_get_default()
 thumb_factory = gnome.ui.ThumbnailFactory("normal")
 launcher = LaunchManager()
-bookmarks = BookmarkManager()
 
 

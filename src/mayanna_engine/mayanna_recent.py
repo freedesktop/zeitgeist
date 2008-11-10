@@ -12,85 +12,27 @@ import gtk
 import gnome.ui
 import gnomevfs
 import gnomevfs.async
-from mayanna_util import bookmarks
 from mayanna_base import Item, ItemSource
 
-
-class RecentlyUsedManager(ItemSource):
+class RecentlyUsedManagerGtk(ItemSource):
     def __init__(self):
         ItemSource.__init__(self)
-        
-    def add(self, uri, mimetype, groups = None, timestamp = None):
-        assert uri, "Must specify recent URI"
-        assert mimetype, "Must specify recent URI's mimetype"
-
-        if not timestamp:
-            timestamp = int(time.time())
-        recent_item = Item(uri=uri, mimetype=mimetype, tags=groups, timestamp=timestamp)
-        self.add_item(recent_item)
-       # delrecent_item
-
-    def add_item(self, item):
-        raise NotImplementedError
-
-    def get_item(self, uri):
-        raise NotImplementedError
-
-class RecentlyUsedManagerGtk(RecentlyUsedManager):
-    def __init__(self):
-        RecentlyUsedManager.__init__(self)
         self.recent_manager = gtk.recent_manager_get_default()
         self.recent_manager.set_limit(-1)
-
         self.recent_manager.connect("changed", lambda m: self.emit("reload"))
-        self.temp_list = None
     def get_items_uncached(self):
         # 
        # delself.temp_list
-        self.temp_list = []
         self.recent_list = self.recent_manager.get_items()
         for info in self.recent_list:
             if info.exists():
                 if not info.get_private_hint():
-                    self.temp_list.append( Item(name=info.get_display_name(),
+                  yield Item(name=info.get_display_name(),
                            uri=info.get_uri(),
                            mimetype=info.get_mime_type(),
                            timestamp=info.get_modified(),
-                           tags=info.get_groups()))
-           # delinfo
-        #collector.delete_refs(self.recent_list)
-         
+                           tags=info.get_groups())
         
-        return self.temp_list
-        
-
-    def add_item(self, item):
-        assert isinstance(item, Item), "argument must be an Item instance"
-
-        recent_dict = { "app_name" : "mayanna",
-                        "app_exec" : "mayanna",
-                        "mime_type" : item.get_mimetype(),
-                        "groups" : item.get_tags() + ["MayannaWasHere"],
-                        "visited" : item.timestamp
-                       }
-        self.recent_manager.add_full(item.get_uri(), recent_dict)
-       # delrecent_dict
-
-    def get_item(self, uri):
-        # Usually, we're given a file path, but maybe not always
-        if uri[0] == '/':
-            uri = 'file://' + uri
-
-        try:
-            info = self.recent_manager.lookup_item(uri)
-            return Item(name=info.get_display_name(),
-                        uri=info.get_uri(),
-                        mimetype=info.get_mime_type(),
-                        timestamp=info.get_modified(),
-                        tags=info.get_groups())
-        except gobject.GError:
-            raise KeyError, uri
-
 class RecentlyUsed(ItemSource):
     '''
     Recently-used documents, log stored in ~/.recently-used.
@@ -110,9 +52,7 @@ class RecentlyUsed(ItemSource):
         for item in recent_model.get_items():
             # Check whether to include this item
             if self.include_item(item):
-                    self.temp_list.append( item)
-         
-        return self.temp_list
+                yield item
     
     def include_item(self, item):
         return True
@@ -162,10 +102,7 @@ class RecentAggregate(ItemSource):
                 if  uri and uri not in item_uris:
                     item_uris[uri] = item
                     self.temp_list.append( item)
-               # delitem,uri
-       # delitem_uris,source
-         
-        return self.temp_list
+                    yield item
 #
 # Globals
 #
@@ -204,11 +141,8 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
     def get_items_uncached(self):
         temp_list=[]
         for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-            temp_item = Item(uri=item.get_uri(), timestamp=item.timestamp)
-            temp_list.append( temp_item)
-           # delitem,temp_item
-         
-        return temp_list
+            yield Item(uri=item.get_uri(), timestamp=item.timestamp)
+           
         
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
     ### FIXME: This is lame, we should generate this list somehow.
@@ -268,6 +202,8 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
                                         icon="gnome-mime-image",
                                         mimetype_list=self.DOCUMENT_MIMETYPES)
         self.name = _("Images")
+    
+    
     def get_items_uncached(self):
         temp_list=[]
         items = RecentlyUsedOfMimeType.get_items_uncached(self)
