@@ -122,16 +122,14 @@ class TomboySource(ItemSource):
         launcher.launch_command("tomboy --new-note")
 
     def get_items_uncached(self):
-        notes = {}
         try: 
             for filename in os.listdir(self.note_path):
                 if filename.endswith(".note"):
                     notepath = os.path.join(self.note_path, filename)
-                    notes[filename] = NoteItem(notepath)
+                    yield NoteItem(notepath)
         except (OSError, IOError), err:
            pass  #print " !!! Error loading Tomboy notes:", err
 
-        return notes.values()
         
     def get_items(self):
         # Avoid ItemSource's caching

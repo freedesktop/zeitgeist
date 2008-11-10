@@ -1,13 +1,10 @@
 
-from mayanna_engine.mayanna_util import *
 from mayanna_engine.mayanna_datasink import datasink
-from gettext import gettext as _
 import pango
 import gc
 import time
-import datetime
-import gconf
-
+import gtk
+import gobject
  
 class MayannaWidget(gtk.HBox):
     
@@ -116,13 +113,11 @@ class MayannaWidget(gtk.HBox):
     def reorganize(self,x=None):
         
         time1= time.time()
-        
-        self.today = datetime.date.today().strftime("%x")       
+           
         date_dict={}
         day = None
         list = []
         
-        print("reorganizing stage 1")
         for i in datasink.get_items():
              if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
                 list = []
@@ -133,8 +128,6 @@ class MayannaWidget(gtk.HBox):
              else:
                 daybox.list.append(i)
        
-        print("reorganizing stage 1 done")
-        print("reorganizing stage 2")
         for key in sorted(self.backup_dict.keys()):
            if not date_dict.__contains__(key):
                for w in self.viewBox.get_children():
@@ -143,35 +136,21 @@ class MayannaWidget(gtk.HBox):
                         del w
                    #self.viewBox.remove()
         
-        print("reorganizing stage 2 done")
-        print("reorganizing stage 3")
         if not self.viewBox.get_children():
-            print("if not self.viewBox.get_children()")
             for key in sorted(date_dict.keys()):
                 print(key)
                 self.viewBox.pack_start(date_dict.get(key),True,True)
                 date_dict.get(key).view_items()
         else: 
-            print("else")
             for key in sorted(date_dict.keys()):
                 if not self.backup_dict or self.backup_dict.__contains__(key):
-                    if not self.backup_dict or not self.compare_sameday(self.backup_dict.get(key),date_dict.get(key)):
                         self.create_dayView(date_dict.get(key))
         
-        print("reorganizing stage 3 done")
         self.backup_dict = date_dict
         time2= time.time()
-        print("Time: "+ str(time2 -time1))
+        print("Time to reorganize: "+ str(time2 -time1))
         gc.collect()
-        
-    def compare_sameday(self,x,y):
-        if x.label == y.label:
-            if not x.time == self.today:
-                x = len(x.list)
-                y= len(y.list)
-                if x == y:
-                    return True
-        return False
+ 
             
     def create_dayView(self,d):
         
@@ -243,7 +222,6 @@ class DayBox(gtk.VBox):
         self.show_all()
     
     def view_items(self):
-        print("viewing "+str(len(self.list))+" items")
         self.iconview.load_items(self.list)
 
     def compare(self,a, b):
@@ -310,22 +288,17 @@ class ItemIconView(gtk.IconView):
     def __init__(self):
         gtk.IconView.__init__(self)
         self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
-        # PyGtk before 2.8.4 doesn't expose GtkIconView's CellLayout interface
         self.use_cells = isinstance(self, gtk.CellLayout)
+        
         self.icon_cell = gtk.CellRendererPixbuf()
-        self.icon_cell.set_property("yalign", 0.0)
-        self.icon_cell.set_property("xalign", 0.0)
         self.pack_start(self.icon_cell, expand=True)
         self.add_attribute(self.icon_cell, "pixbuf", 1)
 
         self.text_cell = gtk.CellRendererText()
         self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
-        self.text_cell.set_property("yalign", 0.0)
-        self.text_cell.set_property("xalign", 0.0)
         self.pack_start(self.text_cell, expand=True)
         self.add_attribute(self.text_cell, "markup", 0)
 
-        self.set_selection_mode(gtk.SELECTION_MULTIPLE)
         self.connect("item-activated", self._open_item)
         self.connect("button-press-event", self._show_item_popup)
         self.connect("drag-data-get", self._item_drag_data_get)
@@ -337,13 +310,8 @@ class ItemIconView(gtk.IconView):
     def _open_item(self, view, path):
         model = view.get_model()
         model.get_value(model.get_iter(path), 2).open()
-        del model
-
-    def _deactivate_item_popup(self, menu, view, old_selected):
-        view.unselect_all()
-        pass #print " *** Restoring previous selection"
-        for path in old_selected:
-            view.select_path(path)
+        del model,view,path
+        gc.collect()
 
     def _show_item_popup(self, view, ev):
         if ev.button == 3:
@@ -359,12 +327,12 @@ class ItemIconView(gtk.IconView):
 
                     menu = gtk.Menu()
                     menu.attach_to_widget(view, None)
-                    menu.connect("deactivate", self._deactivate_item_popup, view, old_selected)
 
                     pass #print " *** Showing item popup"
                     item.populate_popup(menu)
                     menu.popup(None, None, None, ev.button, ev.time)
                     return True
+        del ev,view
 
     def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
         # FIXME: Prefer ACTION_LINK if available
@@ -383,41 +351,30 @@ class ItemIconView(gtk.IconView):
 
             pass #print " *** Dropping URIs:", uris
             selection_data.set_uris(uris)
-
-    def _button_release(self, view, ev):
-            path = view.get_path_at_pos(int(ev.x), int(ev.y))
-            if path:
-                self.item_activated(path)
-
+            
     def load_items(self, items, ondone_cb = None):
         # Create a store for our iconview and fill it with stock icons
-        #del self.items
         self.store.clear()
         for item in items:
             self._set_item(item)
+            del item
         self.set_model(self.store)
-        self.items=items
+        del items
         gc.collect()
         
     def _set_item(self, item):
         
-        print("setting item "+item.get_name())
         name = item.get_name()
         comment = "<span size='small'>%s</span>" % item.get_comment()
-
         text = name + "\n"  + comment
         
         try:
             icon = item.get_icon(24)
-            # Bound returned width to height * 2
         except (AssertionError, AttributeError):
             print("exception")
             icon = None
-        # Update text, icon, and visibility
-        iter =[text,icon,item]
-        self.store.append(iter)
+            
+        self.store.append([text,icon,item])
         
-        print("setting item "+item.get_name()+" done")
-        # Return the icon width used for sizing other records
         del icon,name,comment,text
 
