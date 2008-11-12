@@ -24,64 +24,26 @@ class MayannaGUI:
         self.create_gui()
         
     def create_gui(self):
-        '''
-        Main Window holding everything inside it
-        '''
-        self.topicWindow = gtk.Window()
-        self.topicWindow.set_title("Timeline")
-        self.topicWindow.resize(700, 500)
-        self.topicWindow.set_resizable(True)
-        self.topicWindow.set_border_width(1)
-        self.topicWindow.show_all()
-        if (self.topicWindow):
-            self.topicWindow.connect("destroy", gtk.main_quit)
+        self.glade = gtk.glade.XML("calendar.glade")
+        self.glade.signal_autoconnect(self)
         
-        '''
-        Paned view containing a sidebar and the calendar
-        '''
-        paned = gtk.HPaned()
-        self.topicWindow.add(paned)
-        
-        '''
-        Sidebar
-        '''
-        vbox = gtk.VBox()
-        paned.add1(vbox)
-        
-        self.miniCalendar = gtk.Calendar()
-        self.miniCalendar.select_month(self.date[1], self.date[0])
-        self.miniCalendar.set_display_options(gtk.CALENDAR_SHOW_HEADING)
-        vbox.add(self.miniCalendar)
-        
-        '''Main View'''
-        vbox = gtk.VBox(False)
-        paned.add2(vbox)
-        
-        buttonBox = gtk.HButtonBox()
-        vbox.pack_start(buttonBox, False)
-        
-        for buttonText in ["Week", "Month"]:
-            button = gtk.Button(buttonText)
-            button.connect("clicked",
-                self.on_mode_button_clicked, buttonText)
-            buttonBox.add(button)
-            
         self.calendarModel = Calendar.Model()
         self.calendar = Calendar.Calendar(self.calendarModel)
         self.calendar.set_range(Calendar.Calendar.RANGE_WEEK)
+        
+        vbox = self.glade.get_widget("mainVBox")
         vbox.add(self.calendar)
         
-        #self.mayannapanel = MayannaWidget()
-        #self.mayannapanel.show_all()
-        #self.mainTable.pack_start(self.mayannapanel,True,True)
-        self.topicWindow.show_all()
+        calendarWindow = self.glade.get_widget("calendarWindow")
+        calendarWindow.connect("destroy", gtk.main_quit)
+        calendarWindow.show_all()
     
-    def on_mode_button_clicked (self, button, buttonLabel):
+    def on_mode_button_clicked (self, button):
         '''
         Called when one of the buttons to change
         the calendar's mode has been clicked.
         '''
-        if buttonLabel == "Week":
+        if gtk.glade.get_widget_name(button) == "weekButton":
             self.calendar.set_range(Calendar.Calendar.RANGE_WEEK)
         else:
             self.calendar.set_range(Calendar.Calendar.RANGE_MONTH)
