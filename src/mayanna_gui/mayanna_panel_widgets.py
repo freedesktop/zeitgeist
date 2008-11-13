@@ -1,5 +1,6 @@
 
 from mayanna_engine.mayanna_datasink import datasink
+from mayanna_engine.mayanna_util import launcher
 import pango
 import gc
 import time
@@ -211,7 +212,7 @@ class DayBox(gtk.VBox):
         self.iconview.show_all()
         
         scroll = gtk.ScrolledWindow()
-        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
+        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_IN)
         scroll.show_all()
         
@@ -287,40 +288,32 @@ class ItemIconView(gtk.IconView):
     
     def __init__(self):
         gtk.IconView.__init__(self)
-        #self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
+        
         self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
+        self.set_selection_mode(gtk.SELECTION_MULTIPLE)
+        self.store = gtk.ListStore(str, gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)
         self.use_cells = isinstance(self, gtk.CellLayout)
         
-        if self.use_cells:
-            # Pack the renderers manually, since GtkIconView layout is very buggy.
-            self.icon_cell = gtk.CellRendererPixbuf()
-            self.icon_cell.set_property("yalign", 0.0)
-            self.icon_cell.set_property("xalign", 0.0)
-            self.pack_start(self.icon_cell, expand=True)
-            self.add_attribute(self.icon_cell, "pixbuf", 1)
+        self.icon_cell = gtk.CellRendererPixbuf()
+        self.icon_cell.set_property("yalign", 0.0)
+        self.icon_cell.set_property("xalign", 0.0)
+        self.pack_start(self.icon_cell, expand=False)
+        self.add_attribute(self.icon_cell, "pixbuf", 1)
 
-            self.text_cell = gtk.CellRendererText()
-            self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
-            self.text_cell.set_property("yalign", 0.0)
-            self.text_cell.set_property("xalign", 0.0)
-            self.pack_start(self.text_cell, expand=True)
-            self.add_attribute(self.text_cell, "markup", 0)
-        else:
-            self.set_markup_column(0)
-            self.set_pixbuf_column(1)
-            self.set_item_width(230)
-
-        self.set_margin(12)
-        self.set_spacing(4)
-
+        self.text_cell = gtk.CellRendererText()
+        self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
+        self.text_cell.set_property("yalign", 0.0)
+        self.text_cell.set_property("xalign", 0.0)
+        self.pack_start(self.text_cell, expand=False)
+        self.add_attribute(self.text_cell, "markup", 0)
+        self.text_cell.set_property("wrap-width", 100)
+     
         self.connect("item-activated", self._open_item)
         self.connect("button-press-event", self._show_item_popup)
         self.connect("drag-data-get", self._item_drag_data_get)
         self.enable_model_drag_source(0, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
-        self.store = gtk.ListStore(gobject.TYPE_STRING, gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)   # 3: Visible
-    
-        self.set_resize_mode(False)
-    
+  
+        
     def _open_item(self, view, path):
         model = view.get_model()
         model.get_value(model.get_iter(path), 2).open()
@@ -378,8 +371,8 @@ class ItemIconView(gtk.IconView):
         
     def _set_item(self, item):
         
-        name = item.get_name()
-        comment = "<span size='small'>%s</span>" % item.get_comment()
+        name =item.get_name()
+        comment = "<span size='small' color='red'>%s</span>" % item.get_comment()
         text = name + "\n"  + comment
         
         try:
