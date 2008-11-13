@@ -6,14 +6,15 @@ import time
 
 sys.path.append("libs/")
 from SpiffGtkWidgets import Calendar
+#from SpiffGtkWidgets import Event
 import gnomeapplet
 import gobject
 import gtk
 import gtk.glade
-    
+import datetime
 from mayanna_panel_widgets import MayannaWidget
 from mayanna_engine.mayanna_util import icon_factory, icon_theme, launcher
-
+from mayanna_engine.mayanna_datasink import DataSinkSource
 
 class MayannaGUI:   
     
@@ -71,6 +72,13 @@ class MayannaGUI:
         self.calendar.set_range(Calendar.Calendar.RANGE_WEEK)
         vbox.add(self.calendar)
         
+        datasink = DataSinkSource()
+        for data in datasink.get_items():
+            start = datetime.datetime.fromtimestamp(data.timestamp)
+            end = datetime.datetime.fromtimestamp(data.timestamp+1000)
+            ev = Calendar.Event(data.get_name(),start,end)
+            self.calendarModel.add_event(ev)
+            
         #self.mayannapanel = MayannaWidget()
         #self.mayannapanel.show_all()
         #self.mainTable.pack_start(self.mayannapanel,True,True)
