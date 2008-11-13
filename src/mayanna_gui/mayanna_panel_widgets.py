@@ -61,7 +61,7 @@ class MayannaWidget(gtk.HBox):
         self.scrolled_window2 = gtk.ScrolledWindow()
         self.scrolled_window2.set_border_width(4)
 
-        self.scrolled_window2.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
+        self.scrolled_window2.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.scrolled_window2.add_with_viewport(self.viewBox)
         self.pack_start(self.scrolled_window2,True,True)        
         self.pack_start(self.option_box,False,False)
@@ -211,7 +211,7 @@ class DayBox(gtk.VBox):
         self.iconview.show_all()
         
         scroll = gtk.ScrolledWindow()
-        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
         scroll.set_shadow_type(gtk.SHADOW_IN)
         scroll.show_all()
         
@@ -287,17 +287,31 @@ class ItemIconView(gtk.IconView):
     
     def __init__(self):
         gtk.IconView.__init__(self)
+        #self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
         self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
         self.use_cells = isinstance(self, gtk.CellLayout)
         
-        self.icon_cell = gtk.CellRendererPixbuf()
-        self.pack_start(self.icon_cell, expand=True)
-        self.add_attribute(self.icon_cell, "pixbuf", 1)
+        if self.use_cells:
+            # Pack the renderers manually, since GtkIconView layout is very buggy.
+            self.icon_cell = gtk.CellRendererPixbuf()
+            self.icon_cell.set_property("yalign", 0.0)
+            self.icon_cell.set_property("xalign", 0.0)
+            self.pack_start(self.icon_cell, expand=True)
+            self.add_attribute(self.icon_cell, "pixbuf", 1)
 
-        self.text_cell = gtk.CellRendererText()
-        self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
-        self.pack_start(self.text_cell, expand=True)
-        self.add_attribute(self.text_cell, "markup", 0)
+            self.text_cell = gtk.CellRendererText()
+            self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
+            self.text_cell.set_property("yalign", 0.0)
+            self.text_cell.set_property("xalign", 0.0)
+            self.pack_start(self.text_cell, expand=True)
+            self.add_attribute(self.text_cell, "markup", 0)
+        else:
+            self.set_markup_column(0)
+            self.set_pixbuf_column(1)
+            self.set_item_width(230)
+
+        self.set_margin(12)
+        self.set_spacing(4)
 
         self.connect("item-activated", self._open_item)
         self.connect("button-press-event", self._show_item_popup)
@@ -305,7 +319,7 @@ class ItemIconView(gtk.IconView):
         self.enable_model_drag_source(0, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
         self.store = gtk.ListStore(gobject.TYPE_STRING, gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)   # 3: Visible
     
-  
+        self.set_resize_mode(False)
     
     def _open_item(self, view, path):
         model = view.get_model()

@@ -33,7 +33,6 @@ class Event(object):
         self.start      = start
         self.end        = end
         print str(start)
-        print str(end)
         self.all_day    = kwargs.get('all_day',    False)
         self.text_color = kwargs.get('text_color', None)
         self.bg_color   = kwargs.get('bg_color',   'orangered')
