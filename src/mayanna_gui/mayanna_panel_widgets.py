@@ -7,29 +7,17 @@ import time
 import gtk
 import gobject
  
-class MayannaWidget(gtk.HBox):
+class TimelineWidget(gtk.HBox):
     
     def __init__(self):
         gtk.HBox.__init__(self,False,True)
         
         self.set_size_request(600,400)
-        #self.fav.connect("reload",self.reload_fav)
-        
-        self.option_box = gtk.VBox(False)
-        self.create_doc_btn = gtk.Button("Create New Document")
-        self.create_doc_btn.connect("clicked",self._show_new_from_template_dialog)
-        self.create_note_btn = gtk.Button("Create New Note")
-        self.create_note_btn.connect("clicked",self._make_new_note)
-        self.option_box.pack_start(self.create_doc_btn,False,False,5)
-        self.option_box.pack_start(self.create_note_btn,False,False)
-        
         
         '''
         Topics Buttons Box
         '''        
         self.vbox1 =  gtk.VBox(False)
-        self.topicTable = gtk.HBox(False)
-        self.topicBox =  gtk.VBox(False)
         self.pack_start(self.vbox1,False,False)
         
                
@@ -37,7 +25,6 @@ class MayannaWidget(gtk.HBox):
         Set up Topic buttons
         '''
         
-        self.topicButtonBox = gtk.VBox(False)
         self.sidebarBox = gtk.VBox(False)
         
         self.frame1 = gtk.Frame(False)
@@ -49,9 +36,7 @@ class MayannaWidget(gtk.HBox):
         self.sidebarBox.hide()#
         
         #self.vbox1.pack_start(self.favIconView,False,False)
-        self.vbox1.pack_start(self.topicTable,True,True)
-        self.topicTable.pack_start(self.topicBox,False,False,5)
-        self.topicBox.pack_start(self.sidebarBox,True,True)
+        self.vbox1.pack_start(self.sidebarBox,True,True)
         '''
          Viewer to view Items
          '''
@@ -64,52 +49,18 @@ class MayannaWidget(gtk.HBox):
 
         self.scrolled_window2.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.scrolled_window2.add_with_viewport(self.viewBox)
-        self.pack_start(self.scrolled_window2,True,True)        
-        self.pack_start(self.option_box,False,False)
+        self.pack_start(self.scrolled_window2,True,True)   
        
         self.results = []
         #self.vbox1.connect("focus-in-event",self.get_focus)
         self.date_dict={}
         self.backup_dict={}
         self.today=None
-        self.filters=[]
-        
-        '''
-        Filter Box
-        '''
-        
-        self.frame2 = gtk.Frame(True)
-        #self.alignment2 = gtk.Alignment(0.5,0.5,1.0,1.0)
-        self.label2 = gtk.Label("Filter")
-        self.frame2.set_label_align(0.5, 0.5)
-        #self.frame2.add(self.alignment2)
-        self.frame2.set_label_widget(self.label2)
-        
-        self.option_box.pack_start(self.frame2,False, False, 5)
-        self.voptionbox = gtk.VBox(False)
-        
-        for source in datasink.sources:
-            filter = CheckBox(source)
-            filter.set_active(True)
-            self.voptionbox.pack_start( filter,False,False,0)
-            self.filters.append(filter)
-            filter.connect("toggled",self.filterout)
-        
-        self.viewBox.show_all()
-        self.frame2.add(self.voptionbox)
-        
         
         self.date_dict = None
-        self.filtered_items = datasink.get_items()
         datasink.connect("reload",self.reorganize)
         self.reorganize()
                    
-    def filterout(self,widget):
-        
-        for w in self.viewBox.get_children():
-            self.viewBox.remove(w)
-            del w
-        self.reorganize()
     
     def reorganize(self,x=None):
         
@@ -118,6 +69,10 @@ class MayannaWidget(gtk.HBox):
         date_dict={}
         day = None
         list = []
+        
+        for w in self.viewBox.get_children():
+                self.viewBox.remove(w)
+                del w
         
         for i in datasink.get_items():
              if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
@@ -129,23 +84,10 @@ class MayannaWidget(gtk.HBox):
              else:
                 daybox.list.append(i)
        
-        for key in sorted(self.backup_dict.keys()):
-           if not date_dict.__contains__(key):
-               for w in self.viewBox.get_children():
-                   if w.date==key:
-                        self.viewBox.remove(w)
-                        del w
-                   #self.viewBox.remove()
-        
-        if not self.viewBox.get_children():
-            for key in sorted(date_dict.keys()):
-                print(key)
-                self.viewBox.pack_start(date_dict.get(key),True,True)
-                date_dict.get(key).view_items()
-        else: 
-            for key in sorted(date_dict.keys()):
-                if not self.backup_dict or self.backup_dict.__contains__(key):
-                        self.create_dayView(date_dict.get(key))
+        for key in sorted(date_dict.keys()):
+            print(key)
+            self.viewBox.pack_start(date_dict.get(key),True,True)
+            date_dict.get(key).view_items()
         
         self.backup_dict = date_dict
         time2= time.time()
@@ -172,12 +114,90 @@ class MayannaWidget(gtk.HBox):
             except StandardError, e:
                 print("EXCEPTION ",e)
   
+class StarredWidget(gtk.HBox):
+    def __init__(self):
+        gtk.HBox.__init__(self)
+        self.freqused = FrequentlyUsedWidget()
+        self.bookmakrs = BookmarksWidget()
+        
+        self.pack_start(self.freqused,True,True,5)
+        self.pack_start(self.bookmakrs,True,True,5)
+
+class FilterAndOptionBox(gtk.VBox):
+    def __init__(self):
+        gtk.VBox.__init__(self)
+        self.option_box = gtk.VBox(False)
+        self.create_doc_btn = gtk.Button("Create New Document")
+        self.create_doc_btn.connect("clicked",self._show_new_from_template_dialog)
+        self.create_note_btn = gtk.Button("Create New Note")
+        self.create_note_btn.connect("clicked",self._make_new_note)
+        self.option_box.pack_start(self.create_doc_btn,False,False,5)
+        self.option_box.pack_start(self.create_note_btn,False,False)
+        self.pack_start(self.option_box)
+        
+        self.filters=[]
+        '''
+        Filter Box
+        '''
+        self.frame2 = gtk.Frame(True)
+        #self.alignment2 = gtk.Alignment(0.5,0.5,1.0,1.0)
+        self.label2 = gtk.Label("Filter")
+        self.frame2.set_label_align(0.5, 0.5)
+        #self.frame2.add(self.alignment2)
+        self.frame2.set_label_widget(self.label2)
+        
+        self.option_box.pack_start(self.frame2,False, False, 5)
+        self.voptionbox = gtk.VBox(False)
+        
+        for source in datasink.sources:
+            filter = CheckBox(source)
+            filter.set_active(True)
+            self.voptionbox.pack_start( filter,False,False,0)
+            self.filters.append(filter)
+            filter.connect("toggled",self.filterout)
+        
+        self.frame2.add(self.voptionbox)
+        self.date_dict = None
+        self.pack_start(self.frame2,True,True,5)
+        
     def _make_new_note(self,x):
         launcher.launch_command("tomboy --new-note")
   
     def _show_new_from_template_dialog(self, x):        
         dlg = NewFromTemplateDialog(".","")
         dlg.show()
+        
+    def filterout(self,widget):
+        datasink.emit("reload")
+
+class FrequentlyUsedWidget(gtk.VBox):
+    def __init__(self):
+        gtk.VBox.__init__(self)
+        self.iconview = ItemIconView()
+        self.label = gtk.Label("Frequently Used")
+        self.label.set_padding(5, 5)    
+        
+        self.pack_start(self.label,False,False)
+        
+        scroll = gtk.ScrolledWindow()
+        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        scroll.set_shadow_type(gtk.SHADOW_IN)
+        scroll.add(self.iconview)
+        self.pack_start(scroll,True,True)
+        
+class BookmarksWidget(gtk.VBox):
+    def __init__(self):
+        gtk.VBox.__init__(self)
+        self.iconview = ItemIconView()
+        self.label = gtk.Label("Bookmarks")
+        self.label.set_padding(5, 5)     
+        self.pack_start(self.label,False,False)
+        
+        scroll = gtk.ScrolledWindow()
+        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        scroll.set_shadow_type(gtk.SHADOW_IN)
+        scroll.add(self.iconview)
+        self.pack_start(scroll,True,True)
 
 class CheckBox(gtk.CheckButton):
     def __init__(self,source):
@@ -213,7 +233,7 @@ class DayBox(gtk.VBox):
         
         scroll = gtk.ScrolledWindow()
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-        scroll.set_shadow_type(gtk.SHADOW_IN)
+        scroll.set_shadow_type(gtk.SHADOW_OUT)
         scroll.show_all()
         
         scroll.add(self.iconview)
