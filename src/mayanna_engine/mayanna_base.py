@@ -24,12 +24,13 @@ class Item(gobject.GObject):
                  timestamp = 0,
                  mimetype = None,
                  icon = None,
-                 tags = None):
+                 tags = None,
+                 count=1):
         gobject.GObject.__init__(self)
         
         
         self.uri = uri
-            
+        self.count = count
         self.comment = comment
         self.mimetype = mimetype
         
@@ -154,7 +155,7 @@ class ItemSource(Item):
         self.counter = 0
         self.needs_view=True
         self.active=True
-    
+        self.freqused = []
     
     def run(self):
         self.get_items()
@@ -187,6 +188,7 @@ class ItemSource(Item):
     def set_items(self, items):
         '''Set the cached items.  Pass None for items to reset the cache.'''
         self.items = items
+        
        # delitems
     def set_active(self,bool):
         self.active=bool
@@ -194,3 +196,23 @@ class ItemSource(Item):
     def get_active(self):
         return self.active
 
+    def get_freq_items(self):
+        items=[]
+        for i in self.items:
+            items.append(i)
+        items.sort(self.comparecount)
+        list= []
+        
+        if len(items)<10:
+            return items
+        else:
+            for i in range(10):
+                list.append(items[i])
+            return list
+    
+    def comparecount(self,a, b):
+        return cmp(b.count, a.count) # compare as integers
+    
+
+    def comparetime(self,a, b):
+        return cmp(a.timestamp, b.timestamp) # compare as integers

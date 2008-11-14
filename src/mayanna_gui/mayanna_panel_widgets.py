@@ -74,7 +74,7 @@ class TimelineWidget(gtk.HBox):
                 self.viewBox.remove(w)
                 del w
         
-        for i in datasink.get_items():
+        for i in datasink.get_items_by_time():
              if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
                 list = []
                 day = i.ctimestamp
@@ -171,6 +171,7 @@ class FilterAndOptionBox(gtk.VBox):
         datasink.emit("reload")
 
 class FrequentlyUsedWidget(gtk.VBox):
+    
     def __init__(self):
         gtk.VBox.__init__(self)
         self.iconview = ItemIconView()
@@ -184,6 +185,13 @@ class FrequentlyUsedWidget(gtk.VBox):
         scroll.set_shadow_type(gtk.SHADOW_IN)
         scroll.add(self.iconview)
         self.pack_start(scroll,True,True)
+        
+        datasink.connect("reload",self.reload_view)
+        self.reload_view()
+        
+    def reload_view(self,x=None):
+        x = datasink.get_freq_items()
+        self.iconview.load_items(x)
         
 class BookmarksWidget(gtk.VBox):
     def __init__(self):
@@ -392,8 +400,8 @@ class ItemIconView(gtk.IconView):
     def _set_item(self, item):
         
         name =item.get_name()
-        comment = "<span size='small' color='red'>%s</span>" % item.get_comment()
-        text = name + "\n"  + comment
+        comment = "<span size='small' color='red'>%s</span>" % item.get_comment() + "  <span size='small' color='blue'> %s </span>" % str(item.count)
+        text = name + "\n"  + comment 
         
         try:
             icon = item.get_icon(24)

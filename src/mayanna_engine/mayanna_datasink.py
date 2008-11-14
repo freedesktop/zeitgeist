@@ -34,8 +34,8 @@ class DataSinkSource(ItemSource):
         
         
         
-        self.firefox = FirefoxSource()
-        self.firefox.run()
+       # self.firefox = FirefoxSource()
+        #self.firefox.run()
         #self.chats = RecentContacts()
         self.tomboy = TomboySource()
         self.tomboy.run()
@@ -51,31 +51,37 @@ class DataSinkSource(ItemSource):
                      self.images,
                      self.music,
                      self.docs,
-                     self.others,
-                     self.firefox,
+                     self.others
+                     #self.firefox,
                      #self.chats,
-                     self.tomboy
+                     #self.tomboy
                     ]
        
     def get_items(self):
-        "Datasink getting all items from DaraProviders"
+        "Datasink getting all items from DaraProviders done"
         items =[]
         for source in self.sources:
             if source.get_active():
                 for item in source.get_items():
                     items.append(item)
-        items.sort(self.compare)
-        items = sorted(items, self.compare_columns)
-        "Datasink getting all items from DaraProviders done"
+        return items
         
+    def get_items_by_time(self):
+        "Datasink getting all items from DaraProviders"
+        items =self.get_items()
+        items.sort(self.comparetime)
         return items
     
-    def compare(self,a, b):
-        return cmp(a.timestamp, b.timestamp) # compare as integers
-
-    def compare_columns(self,a, b):
-        # sort on ascending index 0, descending index 2
-        return cmp(a.timestamp, b.timestamp)
-
+    def get_freq_items(self):
+        items =[]
+        for source in self.sources:
+            if source.get_active():
+                sourcelist= source.get_freq_items()
+                items += sourcelist
+                    
+        items.sort(self.comparecount)
+        return items
+               
+                    
 
 datasink= DataSinkSource()

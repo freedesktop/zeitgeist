@@ -25,13 +25,17 @@ class RecentlyUsedManagerGtk(ItemSource):
        # delself.temp_list
         self.recent_list = self.recent_manager.get_items()
         for info in self.recent_list:
+            counter=0
             if info.exists():
                 if not info.get_private_hint():
-                  yield Item(name=info.get_display_name(),
+                    
+                        
+                    yield Item(name=info.get_display_name(),
                            uri=info.get_uri(),
                            mimetype=info.get_mime_type(),
-                           timestamp=info.get_modified(),
-                           tags=info.get_groups())
+                           timestamp=max( [info.get_added(),info.get_modified(),info.get_visited()]),
+                           tags=info.get_groups(),
+                           count=counter)
         
 class RecentlyUsed(ItemSource):
     '''
@@ -140,9 +144,13 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
         self.name = _("Documents")
     def get_items_uncached(self):
         for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-            yield Item(uri=item.get_uri(), timestamp=item.timestamp)
-           
-        
+                counter = 0
+                info = recent_model.recent_manager.lookup_item(item.uri)
+                for app in info.get_applications():
+                    appinfo=info.get_application_info(app)
+                    counter=counter+appinfo[1]
+                yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
+                  
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
     ### FIXME: This is lame, we should generate this list somehow.
     DOCUMENT_MIMETYPES = [
@@ -176,7 +184,12 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
         self.name = _("Other")
     def get_items_uncached(self):
         for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-            yield Item(uri=item.get_uri(), timestamp=item.timestamp)
+                counter = 0
+                info = recent_model.recent_manager.lookup_item(item.uri)
+                for app in info.get_applications():
+                    appinfo=info.get_application_info(app)
+                    counter=counter+appinfo[1]
+                yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
             
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
     ### FIXME: This is lame, we should generate this list somehow.
@@ -199,7 +212,12 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
     
     def get_items_uncached(self):
         for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-             yield Item(uri=item.get_uri(), timestamp=item.timestamp)
+                counter = 0
+                info = recent_model.recent_manager.lookup_item(item.uri)
+                for app in info.get_applications():
+                    appinfo=info.get_application_info(app)
+                    counter=counter+appinfo[1]
+                yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
         
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
     ### FIXME: This is lame, we should generate this list somehow.
@@ -216,7 +234,12 @@ class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
         self.name = _("Music")
     def get_items_uncached(self):
         for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-             yield Item(uri=item.get_uri(), timestamp=item.timestamp)
+                counter = 0
+                info = recent_model.recent_manager.lookup_item(item.uri)
+                for app in info.get_applications():
+                    appinfo=info.get_application_info(app)
+                    counter=counter+appinfo[1]
+                yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
                
 class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
     ### FIXME: This is lame, we should generate this list somehow.
@@ -232,9 +255,13 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
                                         mimetype_list=self.MEDIA_MIMETYPES)
         self.name = _("Movies")
     def get_items_uncached(self):
-        #print("videos uncached")
         for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-             yield Item(uri=item.get_uri(), timestamp=item.timestamp)
+                counter = 0
+                info = recent_model.recent_manager.lookup_item(item.uri)
+                for app in info.get_applications():
+                    appinfo=info.get_application_info(app)
+                    counter=counter+appinfo[1]
+                yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
              
 
 
