@@ -34,8 +34,9 @@ class DataSinkSource(ItemSource):
         
         
         
-       # self.firefox = FirefoxSource()
-        #self.firefox.run()
+        self.firefox = FirefoxSource()
+        self.firefox.run()
+        
         #self.chats = RecentContacts()
         self.tomboy = TomboySource()
         self.tomboy.run()
@@ -51,10 +52,10 @@ class DataSinkSource(ItemSource):
                      self.images,
                      self.music,
                      self.docs,
-                     self.others
-                     #self.firefox,
+                     self.others,
+                     self.firefox,
                      #self.chats,
-                     #self.tomboy
+                     self.tomboy
                     ]
        
     def get_items(self):

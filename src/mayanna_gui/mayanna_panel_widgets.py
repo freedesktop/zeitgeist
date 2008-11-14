@@ -188,7 +188,6 @@ class FrequentlyUsedWidget(gtk.VBox):
         
         datasink.connect("reload",self.reload_view)
         self.reload_view()
-        
     def reload_view(self,x=None):
         x = datasink.get_freq_items()
         self.iconview.load_items(x)
@@ -334,7 +333,7 @@ class ItemIconView(gtk.IconView):
         self.text_cell.set_property("xalign", 0.0)
         self.pack_start(self.text_cell, expand=False)
         self.add_attribute(self.text_cell, "markup", 0)
-        self.text_cell.set_property("wrap-width", 100)
+        self.text_cell.set_property("wrap-width", 150)
      
         self.connect("item-activated", self._open_item)
         self.connect("button-press-event", self._show_item_popup)
