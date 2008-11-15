@@ -19,12 +19,13 @@ from mayanna_util import FileMonitor, launcher
 
 
 class FirefoxItem(Item):
-    def __init__(self,uri,name,timestamp):
+    def __init__(self,uri,name,timestamp,count):
         self.uri = uri
         self.name = name
         self.timestamp = timestamp
+        self.count = count
         self.icon="gnome-globe"
-        Item.__init__(self,name=name,uri=uri, timestamp = timestamp, icon = self.icon)
+        Item.__init__(self,name=name,uri=uri, timestamp = timestamp, icon = self.icon, count=self.count)
 
 class FirefoxSource(ItemSource):
     def __init__(self, name = "Firefox History", icon = "stock_contant"):
@@ -55,13 +56,14 @@ class FirefoxSource(ItemSource):
         for i in history:
             items = []
             cursor = self.connection.cursor()
-            contents = "id, url, title"
+            contents = "id, url, title, visit_count"
             item = cursor.execute("SELECT " +contents+ " FROM moz_places WHERE id="+str(i[1])).fetchall()
             url = item[0][1]
             name = item[0][2]
+            count = item[0][3]
             timestamp = history[j][2]
             timestamp = timestamp / (1000000)
             j=j+1
-            yield FirefoxItem(url,name,timestamp)
+            yield FirefoxItem(url,name,timestamp,count)
         print("reloading firefox history done")
         cursor.close()

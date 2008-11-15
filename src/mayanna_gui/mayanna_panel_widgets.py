@@ -239,7 +239,7 @@ class DayBox(gtk.VBox):
         self.iconview.show_all()
         
         scroll = gtk.ScrolledWindow()
-        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
         scroll.set_shadow_type(gtk.SHADOW_OUT)
         scroll.show_all()
         

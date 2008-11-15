@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from mayanna_panel_widgets import TimelineWidget,StarredWidget,FilterAndOptionBox
 from mayanna_engine.mayanna_util import icon_factory, icon_theme, launcher
+#from mayanna_calendar_gui import MayannaGUI
 import sys
 import os
 import gnomeapplet
@@ -51,6 +52,8 @@ class MayannaGUI:
         '''
         
         self.timeline = TimelineWidget()
+        #self.timeline = MayannaGUI()
+        
         self.starredbox=StarredWidget()
         self.notebook = gtk.Notebook()
         self.faobox= FilterAndOptionBox()
@@ -68,7 +71,6 @@ class MayannaGUI:
         
         
         self.topicWindow.add(self.mainbox)
-        
         self.topicWindow.show_all()
         
     

@@ -65,6 +65,8 @@ class DataSinkSource(ItemSource):
             if source.get_active():
                 for item in source.get_items():
                     items.append(item)
+                    del item
+            del source
         return items
         
     def get_items_by_time(self):
@@ -79,7 +81,7 @@ class DataSinkSource(ItemSource):
             if source.get_active():
                 sourcelist= source.get_freq_items()
                 items += sourcelist
-                    
+            del source
         items.sort(self.comparecount)
         return items
                

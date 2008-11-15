@@ -12,7 +12,6 @@ import gobject
 import gtk
 import gtk.glade
 import datetime
-from mayanna_panel_widgets import MayannaWidget
 from mayanna_engine.mayanna_util import icon_factory, icon_theme, launcher
 from mayanna_engine.mayanna_datasink import DataSinkSource
 

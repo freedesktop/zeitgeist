@@ -198,7 +198,9 @@ class ItemSource(Item):
 
     def get_freq_items(self):
         items=[]
-        for i in self.items:
+        
+        for i in self.get_items():
+            #if  today - item-timestamp <2 weeks
             items.append(i)
         items.sort(self.comparecount)
         list= []
@@ -206,13 +208,22 @@ class ItemSource(Item):
         if len(items)<10:
             return items
         else:
-            for i in range(10):
-                list.append(items[i])
+            for i in items:
+                if len(list) < 10:
+                    if not self.items_contains_uri(list, i.uri):
+                        list.append(i)
+                else:
+                    break
             return list
+    
+    def items_contains_uri(self,items,uri):
+        for i in items:
+            if i.uri == uri:
+                return True
+        return False
     
     def comparecount(self,a, b):
         return cmp(b.count, a.count) # compare as integers
     
-
     def comparetime(self,a, b):
         return cmp(a.timestamp, b.timestamp) # compare as integers
