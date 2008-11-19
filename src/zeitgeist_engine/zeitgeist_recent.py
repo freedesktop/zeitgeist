@@ -12,7 +12,7 @@ import gtk
 import gnome.ui
 import gnomevfs
 import gnomevfs.async
-from mayanna_base import Item, ItemSource
+from zeitgeist_base import Item, ItemSource
 
 class RecentlyUsedManagerGtk(ItemSource):
     def __init__(self):

@@ -8,8 +8,9 @@ from threading import Thread
 import gobject
 import gtk
 import gc
+import sys
 
-from mayanna_util import Thumbnailer,  icon_factory, launcher
+from zeitgeist_util import Thumbnailer,  icon_factory, launcher
 
 class Item(gobject.GObject):
     __gsignals__ = {
@@ -69,13 +70,13 @@ class Item(gobject.GObject):
 
     def get_name(self):
         
-        name = None
+        name = ""
         try:
             name=self.uri.rsplit('/',1)[1].replace("%20"," ").strip()
         except:
             pass
         
-        return name or self.name or self.get_uri()
+        return  name or self.name or self.get_uri() #
 
     def get_comment(self):
         return self.time.strip()
@@ -143,7 +144,7 @@ class ItemSource(Item):
                       icon=icon,
                       comment=comment,
                       uri=uri,
-                      mimetype="mayanna/item-source")
+                      mimetype="zeitgeist/item-source")
         #Thread.__init__(self)
 		#self.sourceType = None
         self.filter_by_date = filter_by_date
@@ -160,7 +161,7 @@ class ItemSource(Item):
     def run(self):
         self.get_items()
     
-    def get_items(self):
+    def get_items(self,min=0,max=sys.maxint):
         '''
         Return cached items if available, otherwise get_items_uncached() is
         called to create a new cache, yielding each result along the way.  A
@@ -173,12 +174,14 @@ class ItemSource(Item):
         self.clear_cache_timeout_id = gobject.timeout_add(ItemSource.CACHE_CLEAR_TIMEOUT_MS, lambda: self.set_items(None))
         if self.items:
             for i in self.items:
-                yield i
+                if i.timestamp >= min and i.timestamp <max:
+                    yield i
         else:
             self.items=[]
             for i in self.get_items_uncached():
                 self.items.append(i)
-                yield i
+                if i.timestamp >= min and i.timestamp <max:
+                    yield i
                 
     def get_items_uncached(self):
         '''Subclasses should override this to return/yield Items. The results

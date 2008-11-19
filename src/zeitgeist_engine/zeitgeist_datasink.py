@@ -1,12 +1,13 @@
 #!/usr/bin/env python
-from mayanna_engine.mayanna_base import ItemSource
-#from mayanna_engine.mayanna_pidgin import RecentContacts
-from mayanna_engine.mayanna_firefox import FirefoxSource
-from mayanna_engine.mayanna_tomboy import TomboySource
-from mayanna_engine.mayanna_recent import *
+from zeitgeist_engine.zeitgeist_base import ItemSource
+#from zeitgeist_engine.zeitgeist_pidgin import RecentContacts
+from zeitgeist_engine.zeitgeist_firefox import FirefoxSource
+from zeitgeist_engine.zeitgeist_tomboy import TomboySource
+from zeitgeist_engine.zeitgeist_recent import *
 import urllib
 import time
 from gettext import gettext as _
+import sys
 
 class DataSinkSource(ItemSource):
     def __init__(self, note_path=None):
@@ -30,9 +31,7 @@ class DataSinkSource(ItemSource):
         self.docs.run()
         self.others = RecentlyUsedOthersSource()
         self.others.run()
-        recent_model.connect("reload",lambda x: self.emit("reload"))
-        
-        
+        recent_model.connect("reload", self.log)
         
         self.firefox = FirefoxSource()
         self.firefox.run()
@@ -40,12 +39,12 @@ class DataSinkSource(ItemSource):
         #self.chats = RecentContacts()
         self.tomboy = TomboySource()
         self.tomboy.run()
-        self.tomboy.connect("reload",lambda x: self.emit("reload"))
+        self.tomboy.connect("reload", self.log)
         
-        
+        self.lasttimestamp = 0
         self.init_sources()
         
-        
+    
     def init_sources(self):
        self.sources=[
                      self.videos,
@@ -57,8 +56,25 @@ class DataSinkSource(ItemSource):
                      #self.chats,
                      self.tomboy
                     ]
+    
+    
+    def log(self,x=None):
+        print("reloading")
+        note_path = os.path.expanduser("~/.zeitgeist.log")
+        input = ""
+        f= open(note_path,'r+')
+        lines = f.read().split("\n")
+        for item in self.get_items_by_time():
+            line= str(item.timestamp) + "   |---GZG---|   " + item.uri
+            try:
+                index =  lines.index(line)
+            except:
+                f.write(str(item.timestamp) + "   |---GZG---|   " + item.uri+"\n")
+        f.close()
+        self.emit("reload")
+            
        
-    def get_items(self):
+    def get_items(self,min=0,max=sys.maxint):
         "Datasink getting all items from DaraProviders done"
         items =[]
         for source in self.sources:
@@ -71,7 +87,7 @@ class DataSinkSource(ItemSource):
         
     def get_items_by_time(self):
         "Datasink getting all items from DaraProviders"
-        items =self.get_items()
+        items = self.get_items()
         items.sort(self.comparetime)
         return items
     

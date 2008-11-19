@@ -1,6 +1,6 @@
 
-from mayanna_engine.mayanna_datasink import datasink
-from mayanna_engine.mayanna_util import launcher
+from zeitgeist_engine.zeitgeist_datasink import datasink
+from zeitgeist_engine.zeitgeist_util import launcher
 import pango
 import gc
 import time
@@ -14,29 +14,6 @@ class TimelineWidget(gtk.HBox):
         
         self.set_size_request(600,400)
         
-        '''
-        Topics Buttons Box
-        '''        
-        self.vbox1 =  gtk.VBox(False)
-        self.pack_start(self.vbox1,False,False)
-        
-               
-        '''
-        Set up Topic buttons
-        '''
-        
-        self.sidebarBox = gtk.VBox(False)
-        
-        self.frame1 = gtk.Frame(False)
-        self.alignment1 = gtk.Alignment(0.5,0.5,1.0,1.0)
-        
-        self.sidebarBtnBox = gtk.VBox()
-        
-        
-        self.sidebarBox.hide()#
-        
-        #self.vbox1.pack_start(self.favIconView,False,False)
-        self.vbox1.pack_start(self.sidebarBox,True,True)
         '''
          Viewer to view Items
          '''
@@ -85,7 +62,6 @@ class TimelineWidget(gtk.HBox):
                 daybox.list.append(i)
        
         for key in sorted(date_dict.keys()):
-            print(key)
             self.viewBox.pack_start(date_dict.get(key),True,True)
             date_dict.get(key).view_items()
         
@@ -93,7 +69,6 @@ class TimelineWidget(gtk.HBox):
         time2= time.time()
         print("Time to reorganize: "+ str(time2 -time1))
         gc.collect()
- 
             
     def create_dayView(self,d):
         
@@ -169,6 +144,12 @@ class FilterAndOptionBox(gtk.VBox):
         
     def filterout(self,widget):
         datasink.emit("reload")
+
+class CalendarWidget(gtk.VBox):
+    def __init__(self):
+        gtk.VBox.__init__(self)
+        self.calendar = gtk.Calendar()
+        self.pack_start(self.calendar)
 
 class FrequentlyUsedWidget(gtk.VBox):
     

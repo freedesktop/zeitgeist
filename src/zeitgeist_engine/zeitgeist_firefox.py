@@ -14,8 +14,8 @@ import W3CDate
 import tempfile
 import shutil
 
-from mayanna_base import Item, ItemSource
-from mayanna_util import FileMonitor, launcher
+from zeitgeist_base import Item, ItemSource
+from zeitgeist_util import FileMonitor, launcher
 
 
 class FirefoxItem(Item):

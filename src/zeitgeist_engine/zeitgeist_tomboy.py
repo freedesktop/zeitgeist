@@ -11,8 +11,8 @@ import gtk
 import gnomevfs
 import W3CDate
 
-from mayanna_base import Item, ItemSource
-from mayanna_util import FileMonitor, launcher
+from zeitgeist_base import Item, ItemSource
+from zeitgeist_util import FileMonitor, launcher
 
 # FIXME:  This should really just use Beagle or Tracker.
 

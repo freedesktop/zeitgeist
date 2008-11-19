@@ -5,12 +5,12 @@ import sys
 import gtk
 
 # uncomment the following line to use the new calendar gui
-#from mayanna_gui.mayanna_calendar_gui import MayannaGUI
+#from zeitgeist_gui.zeitgeist_calendar_gui import zeitgeistGUI
 
 # comment out the following line if you're using the new calendar gui
-from mayanna_gui.mayanna_gui import MayannaGUI
+from zeitgeist_gui.zeitgeist_gui import zeitgeistGUI
 
  
 if __name__ == "__main__":
-    gui=MayannaGUI()
+    gui=zeitgeistGUI()
     gtk.main()

@@ -266,8 +266,8 @@ class LaunchManager:
     def _get_recent_model(self):
         # FIXME: This avoids import cycles
         if not self.recent_model:
-            import mayanna_recent
-            self.recent_model = mayanna_recent.recent_model
+            import zeitgeist_recent
+            self.recent_model = zeitgeist_recent.recent_model
         return self.recent_model
 
     def launch_uri(self, uri, mimetype = None):
@@ -277,7 +277,7 @@ class LaunchManager:
         if not child:
             # Inside forked child
             os.setsid()
-            os.environ['MAYANNA_LAUNCHER'] = uri
+            os.environ['zeitgeist_LAUNCHER'] = uri
             os.environ['DESKTOP_STARTUP_ID'] = self.make_startup_id(uri)
             os.spawnlp(os.P_NOWAIT, "gnome-open", "gnome-open", uri)
             os._exit(0)
@@ -355,14 +355,14 @@ class LaunchManager:
         if not ev_time:
             ev_time = gtk.get_current_event_time()
         if not key:
-            return "MAYANNA_TIME%d" % ev_time
+            return "zeitgeist_TIME%d" % ev_time
         else:
-            return "MAYANNA:%s_TIME%d" % (key, ev_time)
+            return "zeitgeist:%s_TIME%d" % (key, ev_time)
 
     def parse_startup_id(self, id):
-        if id and id.startswith("MAYANNA:"):
+        if id and id.startswith("zeitgeist:"):
             try:
-                uri = id[len("MAYANNA:"):id.rfind("_TIME")]
+                uri = id[len("zeitgeist:"):id.rfind("_TIME")]
                 timestamp = id[id.rfind("_TIME") + len("_TIME"):]
                 return (uri, timestamp)
             except IndexError:
@@ -377,7 +377,7 @@ class LaunchManager:
             os.setsid()
             os.environ['DESKTOP_STARTUP_ID'] = startup_id
             if launcher_uri:
-                os.environ['MAYANNA_LAUNCHER'] = launcher_uri
+                os.environ['zeitgeist_LAUNCHER'] = launcher_uri
             os.popen2(command)
             os._exit(0)
         else:

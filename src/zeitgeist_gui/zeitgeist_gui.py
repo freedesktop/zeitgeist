@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from mayanna_panel_widgets import TimelineWidget,StarredWidget,FilterAndOptionBox
-from mayanna_engine.mayanna_util import icon_factory, icon_theme, launcher
-#from mayanna_calendar_gui import MayannaGUI
+from zeitgeist_panel_widgets import TimelineWidget,StarredWidget,FilterAndOptionBox,CalendarWidget
+from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
+#from zeitgeist_calendar_gui import zeitgeistGUI
 import sys
 import os
 import gnomeapplet
@@ -20,7 +20,7 @@ except:
     sys.exit(1)
 import gobject
 
-class MayannaGUI:   
+class zeitgeistGUI:   
     
     '''   Initilization   '''
    
@@ -45,24 +45,29 @@ class MayannaGUI:
 
         self.mainbox=gtk.VBox()
         self.mainTable = gtk.HBox()    
-        
+        self.sidebar = gtk.VBox()
         ''' 
         HeaderTable
         
         '''
         
         self.timeline = TimelineWidget()
-        #self.timeline = MayannaGUI()
+        #self.timeline = zeitgeistGUI()
         
         self.starredbox=StarredWidget()
         self.notebook = gtk.Notebook()
+        
         self.faobox= FilterAndOptionBox()
+        self.calendar = CalendarWidget()
+        self.sidebar.pack_start(self.calendar,False,False)
+        self.sidebar.pack_start(self.faobox,True,True)
+        
         
         self.notebook.append_page(self.starredbox,gtk.Label("Starred"))
         self.notebook.append_page(self.timeline,gtk.Label("Timeline"))
         
         self.mainTable.pack_start(self.notebook,True,True,5)
-        self.mainTable.pack_start(self.faobox,False,False,5)
+        self.mainTable.pack_start(self.sidebar,False,False,5)
     
         self.mainbox.pack_start(self.mainTable,True,True,5)
         

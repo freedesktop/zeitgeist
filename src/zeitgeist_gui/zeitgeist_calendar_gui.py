@@ -12,10 +12,10 @@ import gobject
 import gtk
 import gtk.glade
 import datetime
-from mayanna_engine.mayanna_util import icon_factory, icon_theme, launcher
-from mayanna_engine.mayanna_datasink import DataSinkSource
+from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
+from zeitgeist_engine.zeitgeist_datasink import DataSinkSource
 
-class MayannaGUI:   
+class zeitgeistGUI:   
     
     '''   Initilization   '''
     
@@ -64,9 +64,9 @@ class MayannaGUI:
             ev = Calendar.Event(data.get_name(),start,end)
             self.calendarModel.add_event(ev)
             
-        #self.mayannapanel = MayannaWidget()
-        #self.mayannapanel.show_all()
-        #self.mainTable.pack_start(self.mayannapanel,True,True)
+        #self.zeitgeistpanel = zeitgeistWidget()
+        #self.zeitgeistpanel.show_all()
+        #self.mainTable.pack_start(self.zeitgeistpanel,True,True)
         #self.topicWindow.show_all()
     
     def on_mode_button_clicked (self, button):
