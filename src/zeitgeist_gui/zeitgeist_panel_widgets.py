@@ -5,6 +5,7 @@ import gc
 import time
 import gtk
 import gobject
+import datetime
  
 class TimelineWidget(gtk.HBox):
     
@@ -267,6 +268,10 @@ class FrequentlyUsedWidget(gtk.VBox):
         max =  [date[0] ,date[1]+2,1,0,0,0,0,0,0]
         min = time.mktime(min)
         max= time.mktime(max)
+        
+        month =  datetime.datetime.fromtimestamp(max).strftime("%b")
+        self.label.set_text("Frequently Used "+month)
+        
         x = datasink.get_freq_items(min,max)
         self.iconview.load_items(x)
         

@@ -198,10 +198,10 @@ class ItemSource(Item):
     def get_active(self):
         return self.active
 
-    def get_freq_items(self,min=0,max=sys.maxint):
+    def get_freq_items(self,min,max):
         items=[]
         
-        for i in self.get_items():
+        for i in self.get_items(min,max):
             #if  today - item-timestamp <2 weeks
             items.append(i)
         items.sort(self.comparecount)
@@ -211,12 +211,11 @@ class ItemSource(Item):
             return items
         else:
             for i in items:
-                if i.timestamp>=min and i.timestamp <max:
-                    if len(list) < 10:
-                        if not self.items_contains_uri(list, i.uri):
-                            list.append(i)
-                    else:
-                        break
+                if len(list) < 10:
+                    if not self.items_contains_uri(list, i.uri):
+                        list.append(i)
+                else:
+                    break
             return list
     
     def items_contains_uri(self,items,uri):
