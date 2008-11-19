@@ -1,4 +1,3 @@
-
 from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_util import launcher
 import pango
@@ -34,24 +33,34 @@ class TimelineWidget(gtk.HBox):
         self.backup_dict={}
         self.today=None
         
+        calendar.connect("month-changed",self.reorganizemonth)
+        calendar.connect("day-selected-double-click",self.reorganizeday)
+        calendar.connect("day-selected",self.reorganizemonth)
+        self.calendardate=None
         self.date_dict = None
         datasink.connect("reload",self.reorganize)
         self.reorganize()
                    
-    
     def reorganize(self,x=None):
-        
         time1= time.time()
            
         date_dict={}
         day = None
         list = []
         
+        date=calendar.get_date()
+        min = [date[0] ,date[1]+1,1,0,0,0,0,0,0]
+        max =  [date[0] ,date[1]+2,0,0,0,0,0,0,0]
+        min = time.mktime(min)
+        max= time.mktime(max)
+        
+        self.calendardate = min
         for w in self.viewBox.get_children():
                 self.viewBox.remove(w)
                 del w
         
-        for i in datasink.get_items_by_time():
+        calendar.clear_marks()
+        for i in datasink.get_items_by_time(min,max):
              if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
                 list = []
                 day = i.ctimestamp
@@ -69,6 +78,90 @@ class TimelineWidget(gtk.HBox):
         time2= time.time()
         print("Time to reorganize: "+ str(time2 -time1))
         gc.collect()
+    
+            
+    def reorganizeday(self,x=None):
+        
+        time1= time.time()
+           
+        date_dict={}
+        day = None
+        list = []
+        
+        
+        date=calendar.get_date()
+        min = [date[0] ,date[1]+1,date[2],0,0,0,0,0,0]
+        max =  [date[0] ,date[1]+1,date[2]+1,0,0,0,0,0,0]
+        min = time.mktime(min)
+        max= time.mktime(max)
+
+        
+        if not self.calendardate or not self.calendardate == min:
+            self.calendardate = min
+            for w in self.viewBox.get_children():
+                    self.viewBox.remove(w)
+                    del w
+            
+            
+            calendar.clear_marks()
+            for i in datasink.get_items_by_time(min,max):
+                 if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
+                    list = []
+                    day = i.ctimestamp
+                    daybox =  DayBox(i.datestring,list,i.ctimestamp)
+                    daybox.list.append(i)
+                    date_dict[i.ctimestamp]= daybox
+                 else:
+                    daybox.list.append(i)
+           
+            for key in sorted(date_dict.keys()):
+                self.viewBox.pack_start(date_dict.get(key),True,True)
+                date_dict.get(key).view_items()
+            
+            self.backup_dict = date_dict
+            time2= time.time()
+            print("Time to reorganize: "+ str(time2 -time1))
+            gc.collect()
+    
+    def reorganizemonth(self,x=None):
+        time1= time.time()
+           
+        date_dict={}
+        day = None
+        list = []
+        
+        date=calendar.get_date()
+        min = [date[0] ,date[1]+1,1,0,0,0,0,0,0]
+        max =  [date[0] ,date[1]+2,0,0,0,0,0,0,0]
+        min = time.mktime(min)
+        max= time.mktime(max)
+        
+        if not self.calendardate or not self.calendardate == min:
+            self.calendardate = min
+            for w in self.viewBox.get_children():
+                    self.viewBox.remove(w)
+                    del w
+            
+            calendar.clear_marks()
+            for i in datasink.get_items_by_time(min,max):
+                 if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
+                    list = []
+                    day = i.ctimestamp
+                    daybox =  DayBox(i.datestring,list,i.ctimestamp)
+                    daybox.list.append(i)
+                    date_dict[i.ctimestamp]= daybox
+                 else:
+                    daybox.list.append(i)
+           
+            for key in sorted(date_dict.keys()):
+                self.viewBox.pack_start(date_dict.get(key),True,True)
+                date_dict.get(key).view_items()
+            
+            self.backup_dict = date_dict
+            time2= time.time()
+            print("Time to reorganize: "+ str(time2 -time1))
+            gc.collect()
+    
             
     def create_dayView(self,d):
         
@@ -114,7 +207,7 @@ class FilterAndOptionBox(gtk.VBox):
         '''
         Filter Box
         '''
-        self.frame2 = gtk.Frame(True)
+        self.frame2 = gtk.Frame()
         #self.alignment2 = gtk.Alignment(0.5,0.5,1.0,1.0)
         self.label2 = gtk.Label("Filter")
         self.frame2.set_label_align(0.5, 0.5)
@@ -145,12 +238,10 @@ class FilterAndOptionBox(gtk.VBox):
     def filterout(self,widget):
         datasink.emit("reload")
 
-class CalendarWidget(gtk.VBox):
+class CalendarWidget(gtk.Calendar):
     def __init__(self):
-        gtk.VBox.__init__(self)
-        self.calendar = gtk.Calendar()
-        self.pack_start(self.calendar)
-
+        gtk.Calendar.__init__(self)
+            
 class FrequentlyUsedWidget(gtk.VBox):
     
     def __init__(self):
@@ -166,11 +257,17 @@ class FrequentlyUsedWidget(gtk.VBox):
         scroll.set_shadow_type(gtk.SHADOW_IN)
         scroll.add(self.iconview)
         self.pack_start(scroll,True,True)
-        
+        calendar.connect("month-changed",self.reload_view)
         datasink.connect("reload",self.reload_view)
         self.reload_view()
     def reload_view(self,x=None):
-        x = datasink.get_freq_items()
+        
+        date=calendar.get_date()
+        min = [date[0] ,date[1]+1,0,0,0,0,0,0,0]
+        max =  [date[0] ,date[1]+2,1,0,0,0,0,0,0]
+        min = time.mktime(min)
+        max= time.mktime(max)
+        x = datasink.get_freq_items(min,max)
         self.iconview.load_items(x)
         
 class BookmarksWidget(gtk.VBox):
@@ -393,3 +490,6 @@ class ItemIconView(gtk.IconView):
         
         del icon,name,comment,text
 
+
+calendar = CalendarWidget()
+timeline = TimelineWidget()

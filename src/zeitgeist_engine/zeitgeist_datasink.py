@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 from zeitgeist_engine.zeitgeist_base import ItemSource
-#from zeitgeist_engine.zeitgeist_pidgin import RecentContacts
 from zeitgeist_engine.zeitgeist_firefox import FirefoxSource
 from zeitgeist_engine.zeitgeist_tomboy import TomboySource
 from zeitgeist_engine.zeitgeist_recent import *
+from gettext import gettext as _
 import urllib
 import time
-from gettext import gettext as _
 import sys
 
 class DataSinkSource(ItemSource):
@@ -79,23 +78,23 @@ class DataSinkSource(ItemSource):
         items =[]
         for source in self.sources:
             if source.get_active():
-                for item in source.get_items():
+                for item in source.get_items(min,max):
                     items.append(item)
                     del item
             del source
         return items
         
-    def get_items_by_time(self):
+    def get_items_by_time(self,min=0,max=sys.maxint):
         "Datasink getting all items from DaraProviders"
-        items = self.get_items()
+        items = self.get_items(min,max)
         items.sort(self.comparetime)
         return items
     
-    def get_freq_items(self):
+    def get_freq_items(self,min=0,max=sys.maxint):
         items =[]
         for source in self.sources:
             if source.get_active():
-                sourcelist= source.get_freq_items()
+                sourcelist= source.get_freq_items(min,max)
                 items += sourcelist
             del source
         items.sort(self.comparecount)

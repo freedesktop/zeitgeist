@@ -3,7 +3,6 @@ import datetime
 import string
 import time
 from gettext import ngettext, gettext as _
-from xml.sax import saxutils
 from threading import Thread
 import gobject
 import gtk
@@ -199,7 +198,7 @@ class ItemSource(Item):
     def get_active(self):
         return self.active
 
-    def get_freq_items(self):
+    def get_freq_items(self,min=0,max=sys.maxint):
         items=[]
         
         for i in self.get_items():
@@ -212,11 +211,12 @@ class ItemSource(Item):
             return items
         else:
             for i in items:
-                if len(list) < 10:
-                    if not self.items_contains_uri(list, i.uri):
-                        list.append(i)
-                else:
-                    break
+                if i.timestamp>=min and i.timestamp <max:
+                    if len(list) < 10:
+                        if not self.items_contains_uri(list, i.uri):
+                            list.append(i)
+                    else:
+                        break
             return list
     
     def items_contains_uri(self,items,uri):

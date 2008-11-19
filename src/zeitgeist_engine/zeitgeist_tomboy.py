@@ -130,10 +130,6 @@ class TomboySource(ItemSource):
         except (OSError, IOError), err:
            pass  #print " !!! Error loading Tomboy notes:", err
 
-        
-    def get_items(self):
-        # Avoid ItemSource's caching
-        return self.get_items_uncached()
 
 
 #
