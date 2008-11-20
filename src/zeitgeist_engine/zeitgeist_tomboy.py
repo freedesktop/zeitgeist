@@ -1,8 +1,6 @@
-
 import datetime
 import os
 import re
-from gettext import gettext as _
 from xml.dom.minidom import parse
 from xml.parsers.expat import ExpatError
 
@@ -10,6 +8,7 @@ import gobject
 import gtk
 import gnomevfs
 import W3CDate
+from gettext import gettext as _
 
 from zeitgeist_base import Item, ItemSource
 from zeitgeist_util import FileMonitor, launcher

@@ -2,17 +2,17 @@ import datetime
 import os
 import re
 import glob
-import sqlite3 as db
-from gettext import gettext as _
 from xml.dom.minidom import parse
 from xml.parsers.expat import ExpatError
 
+import gnomevfs
 import gobject
 import gtk
-import gnomevfs
-import W3CDate
-import tempfile
 import shutil
+import sqlite3 as db
+import tempfile
+import W3CDate
+from gettext import gettext as _
 
 from zeitgeist_base import Item, ItemSource
 from zeitgeist_util import FileMonitor, launcher

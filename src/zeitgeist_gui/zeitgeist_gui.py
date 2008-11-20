@@ -1,24 +1,16 @@
-#!/usr/bin/env python
+import datetime
+import math
+import sys
+import os
+
+import gtk
+import gtk.glade
+import gobject
+import gnomeapplet
+
 from zeitgeist_panel_widgets import timeline,StarredWidget,FilterAndOptionBox,calendar
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 #from zeitgeist_calendar_gui import zeitgeistGUI
-import sys
-import os
-import gnomeapplet
-
-import datetime
-import math
-try:
-     import pygtk
-     pygtk.require("2.0")
-except:
-      pass
-try:
-    import gtk
-    import gtk.glade
-except:
-    sys.exit(1)
-import gobject
 
 class zeitgeistGUI:   
     

@@ -1,13 +1,15 @@
-from zeitgeist_engine.zeitgeist_datasink import datasink
-from zeitgeist_engine.zeitgeist_util import launcher
-import pango
+import datetime
 import gc
+import os
 import time
+
 import gtk
 import gobject
-import datetime
-import os
+import pango
  
+from zeitgeist_engine.zeitgeist_datasink import datasink
+from zeitgeist_engine.zeitgeist_util import launcher
+
 class TimelineWidget(gtk.HBox):
     
     def __init__(self):

@@ -1,16 +1,17 @@
 import datetime
+import gc
 import os
 import urllib
-from gettext import gettext as _
 import sys     # for ImplementMe
 import inspect # for ImplementMe
+
 import dbus
 import gobject
 import gtk
-import gc
 import gnome.ui
 import gnomevfs
 import gconf
+from gettext import gettext as _
 
 class FileMonitor(gobject.GObject):
     '''

@@ -1,13 +1,13 @@
-
 import datetime
+import gc
 import string
+import sys
 import time
-from gettext import ngettext, gettext as _
 from threading import Thread
+
 import gobject
 import gtk
-import gc
-import sys
+from gettext import ngettext, gettext as _
 
 from zeitgeist_util import Thumbnailer,  icon_factory, launcher
 

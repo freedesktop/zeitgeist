@@ -1,17 +1,19 @@
+import datetime
+import gc
+import os
 import re
 import sys
-import gc
-import urlparse
-import datetime
-import os
-import urllib
 import time
-from gettext import gettext as _
-import gobject
-import gtk
+import urllib
+import urlparse
+
 import gnome.ui
 import gnomevfs
 import gnomevfs.async
+import gobject
+import gtk
+from gettext import gettext as _
+
 from zeitgeist_base import Item, ItemSource
 
 class RecentlyUsedManagerGtk(ItemSource):

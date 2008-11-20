@@ -1,12 +1,13 @@
-#!/usr/bin/env python
+import sys
+import time
+import urllib
+
+from gettext import gettext as _
+
 from zeitgeist_engine.zeitgeist_base import ItemSource
 from zeitgeist_engine.zeitgeist_firefox import FirefoxSource
 from zeitgeist_engine.zeitgeist_tomboy import TomboySource
 from zeitgeist_engine.zeitgeist_recent import *
-from gettext import gettext as _
-import urllib
-import time
-import sys
 
 class DataSinkSource(ItemSource):
     def __init__(self, note_path=None):

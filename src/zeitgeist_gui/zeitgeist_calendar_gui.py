@@ -11,7 +11,7 @@ import gnomeapplet
 import gobject
 import gtk
 import gtk.glade
-import datetime
+
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 from zeitgeist_engine.zeitgeist_datasink import DataSinkSource
 
