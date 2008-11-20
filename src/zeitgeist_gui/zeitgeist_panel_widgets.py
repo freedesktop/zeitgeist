@@ -6,6 +6,7 @@ import time
 import gtk
 import gobject
 import datetime
+import os
  
 class TimelineWidget(gtk.HBox):
     
@@ -185,7 +186,7 @@ class TimelineWidget(gtk.HBox):
   
 class StarredWidget(gtk.HBox):
     def __init__(self):
-        gtk.HBox.__init__(self)
+        gtk.HBox.__init__(self,True)
         self.freqused = FrequentlyUsedWidget()
         self.bookmakrs = BookmarksWidget()
         
@@ -248,7 +249,7 @@ class FrequentlyUsedWidget(gtk.VBox):
     def __init__(self):
         gtk.VBox.__init__(self)
         self.iconview = ItemIconView()
-        self.label = gtk.Label("Frequently Used")
+        self.label = gtk.Label("Popular")
         self.label.set_padding(5, 5)    
         
         self.pack_start(self.label,False,False)
@@ -264,13 +265,13 @@ class FrequentlyUsedWidget(gtk.VBox):
     def reload_view(self,x=None):
         
         date=calendar.get_date()
-        min = [date[0] ,date[1]+1,0,0,0,0,0,0,0]
-        max =  [date[0] ,date[1]+2,1,0,0,0,0,0,0]
+        min = [date[0] ,date[1]+1,1,0,0,0,0,0,0]
+        max =  [date[0] ,date[1]+2,0,0,0,0,0,0,0]
         min = time.mktime(min)
         max= time.mktime(max)
         
-        month =  datetime.datetime.fromtimestamp(max).strftime("%b")
-        self.label.set_text("Frequently Used "+month)
+        month =  datetime.datetime.fromtimestamp(max).strftime("%B")
+        self.label.set_text("Popular in "+month)
         
         x = datasink.get_freq_items(min,max)
         self.iconview.load_items(x)
@@ -279,7 +280,7 @@ class BookmarksWidget(gtk.VBox):
     def __init__(self):
         gtk.VBox.__init__(self)
         self.iconview = ItemIconView()
-        self.label = gtk.Label("Bookmarks")
+        self.label = gtk.Label("Bookmarks and Desktop")
         self.label.set_padding(5, 5)     
         self.pack_start(self.label,False,False)
         
@@ -288,6 +289,8 @@ class BookmarksWidget(gtk.VBox):
         scroll.set_shadow_type(gtk.SHADOW_IN)
         scroll.add(self.iconview)
         self.pack_start(scroll,True,True)
+        items = datasink.get_desktop_items()
+        self.iconview.load_items(items)
 
 class CheckBox(gtk.CheckButton):
     def __init__(self,source):
@@ -388,7 +391,7 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 
         self.destroy()
         
-class ItemIconView(gtk.IconView):
+class ItemIconView(gtk.TreeView):
     '''
     Icon view which displays Items in the style of the Nautilus horizontal mode,
     where icons are right aligned and each column is of a uniform width.  Also
@@ -397,36 +400,53 @@ class ItemIconView(gtk.IconView):
 
     
     def __init__(self):
-        gtk.IconView.__init__(self)
+        gtk.TreeView.__init__(self)
         
-        self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
-        self.set_selection_mode(gtk.SELECTION_MULTIPLE)
-        self.store = gtk.ListStore(str, gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)
-        self.use_cells = isinstance(self, gtk.CellLayout)
+        #self.set_selection_mode(gtk.SELECTION_MULTIPLE)
+        self.store = gtk.ListStore(str, gtk.gdk.Pixbuf,str,str, gobject.TYPE_PYOBJECT)
+        #self.use_cells = isinstance(self, gtk.CellLayout)
         
-        self.icon_cell = gtk.CellRendererPixbuf()
-        self.icon_cell.set_property("yalign", 0.0)
-        self.icon_cell.set_property("xalign", 0.0)
-        self.pack_start(self.icon_cell, expand=False)
-        self.add_attribute(self.icon_cell, "pixbuf", 1)
-
-        self.text_cell = gtk.CellRendererText()
-        self.text_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
-        self.text_cell.set_property("yalign", 0.0)
-        self.text_cell.set_property("xalign", 0.0)
-        self.pack_start(self.text_cell, expand=False)
-        self.add_attribute(self.text_cell, "markup", 0)
-        self.text_cell.set_property("wrap-width", 150)
+        time_cell = gtk.CellRendererText()
+        time_column = gtk.TreeViewColumn("Time",time_cell,markup=0)
+        
+        icon_cell = gtk.CellRendererPixbuf()
+        icon_column = gtk.TreeViewColumn("Icon",icon_cell,pixbuf=1)
+        
+        name_cell = gtk.CellRendererText()
+        name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
+        name_cell.set_property("yalign", 0.0)
+        name_cell.set_property("xalign", 0.0)
+        name_cell.set_property("wrap-width", 200)
+        name_column = gtk.TreeViewColumn("Name",name_cell,markup=2)
+        
+        count_cell = gtk.CellRendererText()
+        count_column = gtk.TreeViewColumn("Count",count_cell,markup=3)
+        
+        self.append_column(time_column)
+        self.append_column(icon_column)
+        self.append_column(name_column)
+        self.append_column(count_column)
      
-        self.connect("item-activated", self._open_item)
+        self.set_model(self.store)
+        self.set_headers_visible(False)
+        self.get_selection().set_mode(gtk.SELECTION_BROWSE)
+        
+        self.connect("row-activated", self._open_item)
         self.connect("button-press-event", self._show_item_popup)
         self.connect("drag-data-get", self._item_drag_data_get)
-        self.enable_model_drag_source(0, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
-  
+        self.connect("focus-out-event",self.unselect_all)
+        self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
         
-    def _open_item(self, view, path):
-        model = view.get_model()
-        model.get_value(model.get_iter(path), 2).open()
+        
+    def unselect_all(self,x=None,y=None):
+        i = self.get_selection()
+        i.unselect_all()
+        
+    def _open_item(self, view, path, x=None):        
+        treeselection = self.get_selection()
+        model, iter = treeselection.get_selected()
+        item = model.get_value(iter, 4)
+        item.open()
         del model,view,path
         gc.collect()
 
@@ -435,7 +455,7 @@ class ItemIconView(gtk.IconView):
             path = view.get_path_at_pos(int(ev.x), int(ev.y))
             if path:
                 model = view.get_model()
-                item = model.get_value(model.get_iter(path), 2)
+                item = model.get_value(model.get_iter(path), 4)
                 if item:
                     old_selected = view.get_selected_items()
 
@@ -453,14 +473,18 @@ class ItemIconView(gtk.IconView):
 
     def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
         # FIXME: Prefer ACTION_LINK if available
+        print("_item_drag_data_get")
+        '''
         if info == 100: # text/uri-list
-            selected = view.get_selected_items()
+            selected = view.get_selection()      
+            selected = selected.get_selected()
+            
             if not selected:
                 return
 
             model = view.get_model()
             uris = []
-            for path in selected:
+            for path in selected:path = path.
                 item = model.get_value(model.get_iter(path), 2)
                 if not item:
                     continue
@@ -468,32 +492,43 @@ class ItemIconView(gtk.IconView):
 
             pass #print " *** Dropping URIs:", uris
             selection_data.set_uris(uris)
+        '''
+        uris = []
+        treeselection = self.get_selection()
+        model, iter = treeselection.get_selected()
+        item = model.get_value(iter, 3)
+        if not item:
+            pass
+        uris.append(item.get_uri())
+
+        pass #print " *** Dropping URIs:", uris
+        selection_data.set_uris(uris)
+
             
     def load_items(self, items, ondone_cb = None):
         # Create a store for our iconview and fill it with stock icons
         self.store.clear()
         for item in items:
             self._set_item(item)
-            del item
         self.set_model(self.store)
-        del items
         gc.collect()
         
     def _set_item(self, item):
         
         name =item.get_name()
-        comment = "<span size='small' color='red'>%s</span>" % item.get_comment() + "  <span size='small' color='blue'> %s </span>" % str(item.count)
-        text = name + "\n"  + comment 
-        
+        comment = "<span size='large' color='red'>%s</span>" % item.get_comment() #+ "  <span size='small' color='blue'> %s </span>" % str(item.count)
+        #text = name + "\n"  + comment 
+        count="<span size='small' color='blue'>%s</span>" %  item.count
         try:
             icon = item.get_icon(24)
         except (AssertionError, AttributeError):
             print("exception")
             icon = None
-            
-        self.store.append([text,icon,item])
         
-        del icon,name,comment,text
+        self.store.append([comment,icon,name,count,item])
+        
+        #del icon,name,comment,text
+        
 
 
 calendar = CalendarWidget()

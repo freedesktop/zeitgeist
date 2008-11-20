@@ -36,7 +36,7 @@ class zeitgeistGUI:
         '''
         
         self.topicWindow = gtk.Window()
-        self.topicWindow.set_title("Timeline")
+        self.topicWindow.set_title("Gnome Zeitgeist")
         self.topicWindow.set_resizable(True)
         self.topicWindow.set_border_width(5)
         self.topicWindow.show_all()

@@ -42,7 +42,7 @@ class DataSinkSource(ItemSource):
         
         self.lasttimestamp = 0
         self.init_sources()
-        
+        self.desktop_items=[]
     
     def init_sources(self):
        self.sources=[
@@ -100,6 +100,19 @@ class DataSinkSource(ItemSource):
         items.sort(self.comparecount)
         return items
                
-                    
+    def get_desktop_items(self):
+        DirectoryList = []  
+        path = "~/Desktop"
+        path = os.path.expanduser(path)
+        os.path.walk(path, self.walker, DirectoryList)
+        return self.desktop_items
+        
+    def walker(self, arg, dirname, filenames):
+        self.desktop_items=[]
+        # Create A List Of Files with full pathname
+        for files in filenames:
+            file = os.path.join(dirname, files)
+            item = Item(uri=file)
+            self.desktop_items.append(item)
 
 datasink= DataSinkSource()
