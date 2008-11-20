@@ -514,18 +514,16 @@ class ItemIconView(gtk.TreeView):
         gc.collect()
         
     def _set_item(self, item):
-        
-        name =item.get_name()
+        name = item.get_name()
         comment = "<span size='large' color='red'>%s</span>" % item.get_comment() #+ "  <span size='small' color='blue'> %s </span>" % str(item.count)
-        #text = name + "\n"  + comment 
-        count="<span size='small' color='blue'>%s</span>" %  item.count
+        count = "<span size='small' color='blue'>%s</span>" %  item.count
         try:
             icon = item.get_icon(24)
         except (AssertionError, AttributeError):
             print("exception")
             icon = None
         
-        self.store.append([comment,icon,name,count,item])
+        self.store.append([None, icon, name, count, item])
         
         #del icon,name,comment,text
         
