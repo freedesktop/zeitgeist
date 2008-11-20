@@ -6,6 +6,7 @@ import time
 import gtk
 import gobject
 import pango
+from gettext import ngettext, gettext as _
  
 from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_util import launcher
