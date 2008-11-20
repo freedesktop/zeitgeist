@@ -1,3 +1,4 @@
+import gc
 import datetime
 import os
 import re
@@ -54,7 +55,6 @@ class FirefoxSource(ItemSource):
         history = cursor.execute("SELECT " +contents+ " FROM moz_historyvisits WHERE visit_type=" +str(2)).fetchall()
         j = 0
         for i in history:
-            items = []
             cursor = self.connection.cursor()
             contents = "id, url, title, visit_count"
             item = cursor.execute("SELECT " +contents+ " FROM moz_places WHERE id="+str(i[1])).fetchall()
@@ -65,5 +65,8 @@ class FirefoxSource(ItemSource):
             timestamp = timestamp / (1000000)
             j=j+1
             yield FirefoxItem(url,name,timestamp,count)
+            del i,url,item,name,count,timestamp
         print("reloading firefox history done")
         cursor.close()
+        del history
+        gc.collect()

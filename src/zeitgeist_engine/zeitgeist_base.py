@@ -90,23 +90,6 @@ class Item(gobject.GObject):
             #print " !!! Item has no URI to open: %s" % self
     def open(self):
         self.emit("open")
-        
-    def get_can_pin(self):
-        return self.get_uri() != None
-
-    def get_is_pinned(self):
-        #return bookmarks.is_bookmark(self.get_uri())
-        pass
-    
-    def pin(self):
-        #bookmarks.add_bookmark_item(self)
-        #self.emit("reload")
-        pass
-    
-    def unpin(self):
-        #bookmarks.remove_bookmark(self.get_uri())
-        #self.emit("reload")
-        pass
     
     def populate_popup(self, menu):
         open = gtk.ImageMenuItem (gtk.STOCK_OPEN)
@@ -114,19 +97,6 @@ class Item(gobject.GObject):
         open.show()
         menu.append(open)
 
-        #fav = gtk.CheckMenuItem (_("Add to Favorites"))
-        #fav.set_sensitive(self.get_can_pin())
-        #fav.set_active(self.get_is_pinned())
-        #fav.connect("toggled", self._add_to_favorites_toggled)
-        #fav.show()
-        #menu.append(fav)
-        #del fav,open
-
-    def _add_to_favorites_toggled(self, fav):
-        if fav.get_active():
-            self.pin()
-        else:
-            self.unpin()
     
 class ItemSource(Item):
     # Clear cached items after 4 minutes of inactivity
@@ -175,12 +145,14 @@ class ItemSource(Item):
             for i in self.items:
                 if i.timestamp >= min and i.timestamp <max:
                     yield i
+                    del i
         else:
             self.items=[]
             for i in self.get_items_uncached():
                 self.items.append(i)
                 if i.timestamp >= min and i.timestamp <max:
                     yield i
+                    del i
                 
     def get_items_uncached(self):
         '''Subclasses should override this to return/yield Items. The results
@@ -190,10 +162,13 @@ class ItemSource(Item):
     def set_items(self, items):
         '''Set the cached items.  Pass None for items to reset the cache.'''
         self.items = items
+        del items
+        gc.collect()
         
        # delitems
     def set_active(self,bool):
         self.active=bool
+        del bool
         
     def get_active(self):
         return self.active
@@ -216,12 +191,17 @@ class ItemSource(Item):
                         list.append(i)
                 else:
                     break
+            del items
             return list
     
     def items_contains_uri(self,items,uri):
         for i in items:
             if i.uri == uri:
+                del uri
+                del i
                 return True
+            else:
+                del i
         return False
     
     def comparecount(self,a, b):

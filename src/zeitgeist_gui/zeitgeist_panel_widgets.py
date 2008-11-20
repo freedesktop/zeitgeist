@@ -328,7 +328,7 @@ class DayBox(gtk.VBox):
         self.iconview.show_all()
         
         scroll = gtk.ScrolledWindow()
-        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
+        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_OUT)
         scroll.show_all()
         
@@ -518,17 +518,18 @@ class ItemIconView(gtk.TreeView):
         
     def _set_item(self, item):
         name = item.get_name()
-        comment = "<span size='large' color='red'>%s</span>" % item.get_comment() #+ "  <span size='small' color='blue'> %s </span>" % str(item.count)
+        comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "  <span size='small' color='blue'> %s </span>" % str(item.count)
         count = "<span size='small' color='blue'>%s</span>" %  item.count
+        text = name +"\n" + comment
         try:
             icon = item.get_icon(24)
         except (AssertionError, AttributeError):
             print("exception")
             icon = None
         
-        self.store.append([None, icon, name, count, item])
+        self.store.append([None, icon, text, None, item])
         
-        #del icon,name,comment,text
+        del icon,name,comment
         
 
 

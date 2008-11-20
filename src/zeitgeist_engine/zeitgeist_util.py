@@ -262,14 +262,7 @@ class LaunchManager:
     DESKTOP_STARTUP_IDs.
     '''
     def __init__(self):
-        self.recent_model = None
-
-    def _get_recent_model(self):
-        # FIXME: This avoids import cycles
-        if not self.recent_model:
-            import zeitgeist_recent
-            self.recent_model = zeitgeist_recent.recent_model
-        return self.recent_model
+        pass
 
     def launch_uri(self, uri, mimetype = None):
         assert uri, "Must specify URI to launch"
@@ -383,10 +376,6 @@ class LaunchManager:
             os._exit(0)
         else:
             os.wait()
-            if launcher_uri:
-                self._get_recent_model().add(uri=launcher_uri,
-                                            mimetype="application/x-desktop",
-                                            groups=["Launchers"])
             return (child, startup_id)
 
 class DBusWrapper:

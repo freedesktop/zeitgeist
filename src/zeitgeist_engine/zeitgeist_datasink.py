@@ -59,6 +59,8 @@ class DataSinkSource(ItemSource):
     
     
     def log(self,x=None):
+       
+        '''
         print("reloading")
         note_path = os.path.expanduser("~/.zeitgeist.log")
         input = ""
@@ -71,6 +73,7 @@ class DataSinkSource(ItemSource):
             except:
                 f.write(str(item.timestamp) + "   |---GZG---|   " + item.uri+"\n")
         f.close()
+        '''
         self.emit("reload")
             
        
@@ -89,7 +92,11 @@ class DataSinkSource(ItemSource):
         "Datasink getting all items from DaraProviders"
         items = self.get_items(min,max)
         items.sort(self.comparetime)
-        return items
+        for item in items:
+            yield item
+            del item
+        del items
+        gc.collect()
     
     def get_freq_items(self,min=0,max=sys.maxint):
         items =[]
@@ -99,7 +106,11 @@ class DataSinkSource(ItemSource):
                 items += sourcelist
             del source
         items.sort(self.comparecount)
-        return items
+        for item in items:
+            yield item
+            del item
+        del items
+        gc.collect()
                
     def get_desktop_items(self):
         DirectoryList = []  

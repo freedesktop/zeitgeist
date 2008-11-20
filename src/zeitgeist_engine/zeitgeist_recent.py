@@ -31,7 +31,6 @@ class RecentlyUsedManagerGtk(ItemSource):
             if info.exists():
                 if not info.get_private_hint():
                     
-                        
                     yield Item(name=info.get_display_name(),
                            uri=info.get_uri(),
                            mimetype=info.get_mime_type(),
