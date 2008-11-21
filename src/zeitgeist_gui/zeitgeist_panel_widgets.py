@@ -40,7 +40,7 @@ class TimelineWidget(gtk.HBox):
         self.calendarDate = None
         self.dateDict = None
         datasink.connect("reload", self.reorganize)
-        self.reorganize("MONTH")
+        self.reorganize("DAY")
                    
     def reorganize(self, widget, range=None):
         time1 = time.time()
@@ -50,12 +50,13 @@ class TimelineWidget(gtk.HBox):
         list = []
         
         date = calendar.get_date()
-        if range == "MONTH":
-            min = [date[0], date[1]+1,1,0,0,0,0,0,0]
-            max = [date[0], date[1]+2,0,0,0,0,0,0,0]
-        else:
+        
+        if range == "DAY":
             min = [date[0], date[1]+1,date[2]+1,0,0,0,0,0,0]
             max = [date[0], date[1]+1,date[2]+2,0,0,0,0,0,0]
+        else:
+            min = [date[0], date[1]+1,1,0,0,0,0,0,0]
+            max = [date[0], date[1]+2,0,0,0,0,0,0,0]
         min = time.mktime(min)
         max = time.mktime(max)
         
@@ -147,7 +148,6 @@ class FilterAndOptionBox(gtk.VBox):
         
         self.frame2.add(self.voptionbox)
         self.date_dict = None
-        self.pack_start(self.frame2,True,True,5)
         
     def _make_new_note(self,x):
         launcher.launch_command("tomboy --new-note")
@@ -225,7 +225,7 @@ class CheckBox(gtk.CheckButton):
         
         self.set_label(source.name)
         #img.set_from_pixbuf(source.get_icon(16))
-        self.img.set_from_icon_name(source.icon,16)
+        self.img.set_from_icon_name(source.icon,4)
         self.set_image(self.img)
         self.set_focus_on_click(False)
         self.connect("toggled",self.toggle_source)
@@ -366,10 +366,19 @@ class ItemIconView(gtk.TreeView):
         self.connect("row-activated", self._open_item)
         self.connect("button-press-event", self._show_item_popup)
         self.connect("drag-data-get", self._item_drag_data_get)
-        #self.connect("focus-out-event",self.unselect_all)
+        self.connect("focus-out-event",self.unselect_all)
         self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
+        self.last_item=None
         
-                
+    def unselect_all(self,x=None,y=None):
+        try:
+            treeselection = self.get_selection()
+            model, iter = treeselection.get_selected()
+            self.last_item = model.get_value(iter, 4)
+            treeselection.unselect_all()
+        except:
+            pass
+        
     def _open_item(self, view, path, x=None):        
         treeselection = self.get_selection()
         model, iter = treeselection.get_selected()
@@ -394,17 +403,12 @@ class ItemIconView(gtk.TreeView):
 
     def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
         # FIXME: Prefer ACTION_LINK if available
-        print("_item_drag_data_get")
-        
         if info == 100: # text/uri-list
             
-               treeselection = self.get_selection()
-               model, iter = treeselection.get_selected()
-               item = model.get_value(iter, 4)
-               if item:
-                    uris = []
-                    uris.append(item.get_uri())
-                    selection_data.set_uris(uris)
+            if self.last_item:
+                uris = []
+                uris.append(self.last_item.get_uri())
+                selection_data.set_uris(uris)
 
             
     def load_items(self, items, ondone_cb = None):
