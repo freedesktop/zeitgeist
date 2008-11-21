@@ -12,164 +12,80 @@ from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_util import launcher
 
 class TimelineWidget(gtk.HBox):
-    
+
     def __init__(self):
         gtk.HBox.__init__(self,False,True)
+        self.set_size_request(600, 400)
         
-        self.set_size_request(600,400)
-        
-        '''
-         Viewer to view Items
-         '''
-            
-        self.viewBox = gtk.HBox(False,True)
-        self.viewscroll = gtk.HBox()
-        
-        self.scrolled_window2 = gtk.ScrolledWindow()
-        self.scrolled_window2.set_border_width(4)
+        # Create child scrolled window
+        self.scrolledWindow = gtk.ScrolledWindow()
+        self.scrolledWindow.set_border_width(4)
 
-        self.scrolled_window2.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.scrolled_window2.add_with_viewport(self.viewBox)
-        self.pack_start(self.scrolled_window2,True,True)   
-       
+        self.scrolledWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.pack_start(self.scrolledWindow, True, True)   
+        
+        self.viewBox = gtk.HBox(False, True)
+        self.scrolledWindow.add_with_viewport(self.viewBox)
+        
         self.results = []
         #self.vbox1.connect("focus-in-event",self.get_focus)
-        self.date_dict={}
-        self.backup_dict={}
-        self.today=None
+        self.dateDict = {}
+        self.backupDict = {}
+        self.today = None
         
-        calendar.connect("month-changed",self.reorganizemonth)
-        calendar.connect("day-selected-double-click",self.reorganizeday)
-        calendar.connect("day-selected",self.reorganizemonth)
-        self.calendardate=None
-        self.date_dict = None
-        datasink.connect("reload",self.reorganize)
-        self.reorganize()
+        calendar.connect("month-changed", self.reorganize, "MONTH")
+        calendar.connect("day-selected-double-click", self.reorganize, "DAY")
+        calendar.connect("day-selected", self.reorganize, "MONTH")
+        
+        self.calendarDate = None
+        self.dateDict = None
+        datasink.connect("reload", self.reorganize)
+        self.reorganize("MONTH")
                    
-    def reorganize(self,x=None):
-        time1= time.time()
+    def reorganize(self, widget, range=None):
+        time1 = time.time()
            
-        date_dict={}
+        dateDict = {}
         day = None
         list = []
         
-        date=calendar.get_date()
-        min = [date[0] ,date[1]+1,1,0,0,0,0,0,0]
-        max =  [date[0] ,date[1]+2,0,0,0,0,0,0,0]
+        date = calendar.get_date()
+        if range == "MONTH":
+            min = [date[0], date[1]+1,1,0,0,0,0,0,0]
+            max = [date[0], date[1]+2,0,0,0,0,0,0,0]
+        else:
+            min = [date[0], date[1]+1,date[2]+1,0,0,0,0,0,0]
+            max = [date[0], date[1]+1,date[2]+2,0,0,0,0,0,0]
         min = time.mktime(min)
-        max= time.mktime(max)
+        max = time.mktime(max)
         
-        self.calendardate = min
+        self.calendarDate = min
         for w in self.viewBox.get_children():
-                self.viewBox.remove(w)
-                del w
+            self.viewBox.remove(w)
+            del w
         
         calendar.clear_marks()
-        for i in datasink.get_items_by_time(min,max):
-             if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
+        
+        for i in datasink.get_items_by_time(min, max):
+             if not day or day != i.ctimestamp or not dateDict.__contains__(i.ctimestamp):
                 list = []
                 day = i.ctimestamp
-                daybox =  DayBox(i.datestring,list,i.ctimestamp)
+                daybox =  DayBox(i.datestring, list,i.ctimestamp)
                 daybox.list.append(i)
-                date_dict[i.ctimestamp]= daybox
+                dateDict[i.ctimestamp]= daybox
              else:
                 daybox.list.append(i)
        
-        for key in sorted(date_dict.keys()):
-            self.viewBox.pack_start(date_dict.get(key),True,True)
-            date_dict.get(key).view_items()
+        for key in sorted(dateDict.keys()):
+            self.viewBox.pack_start(dateDict.get(key), True, True)
+            dateDict.get(key).view_items()
         
-        self.backup_dict = date_dict
-        time2= time.time()
-        print("Time to reorganize: "+ str(time2 -time1))
+        self.backupDict = dateDict
+        time2 = time.time()
+        print("Time to reorganize: " + str(time2 -time1))
         gc.collect()
-    
-            
-    def reorganizeday(self,x=None):
-        
-        time1= time.time()
-           
-        date_dict={}
-        day = None
-        list = []
-        
-        
-        date=calendar.get_date()
-        min = [date[0] ,date[1]+1,date[2],0,0,0,0,0,0]
-        max =  [date[0] ,date[1]+1,date[2]+1,0,0,0,0,0,0]
-        min = time.mktime(min)
-        max= time.mktime(max)
-
-        
-        if not self.calendardate or not self.calendardate == min:
-            self.calendardate = min
-            for w in self.viewBox.get_children():
-                    self.viewBox.remove(w)
-                    del w
-            
-            
-            calendar.clear_marks()
-            for i in datasink.get_items_by_time(min,max):
-                 if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
-                    list = []
-                    day = i.ctimestamp
-                    daybox =  DayBox(i.datestring,list,i.ctimestamp)
-                    daybox.list.append(i)
-                    date_dict[i.ctimestamp]= daybox
-                 else:
-                    daybox.list.append(i)
-           
-            for key in sorted(date_dict.keys()):
-                self.viewBox.pack_start(date_dict.get(key),True,True)
-                date_dict.get(key).view_items()
-            
-            self.backup_dict = date_dict
-            time2= time.time()
-            print("Time to reorganize: "+ str(time2 -time1))
-            gc.collect()
-    
-    def reorganizemonth(self,x=None):
-        time1= time.time()
-           
-        date_dict={}
-        day = None
-        list = []
-        
-        date=calendar.get_date()
-        min = [date[0] ,date[1]+1,1,0,0,0,0,0,0]
-        max =  [date[0] ,date[1]+2,0,0,0,0,0,0,0]
-        min = time.mktime(min)
-        max= time.mktime(max)
-        
-        if not self.calendardate or not self.calendardate == min:
-            self.calendardate = min
-            for w in self.viewBox.get_children():
-                    self.viewBox.remove(w)
-                    del w
-            
-            calendar.clear_marks()
-            for i in datasink.get_items_by_time(min,max):
-                 if not day or  day != i.ctimestamp or not date_dict.__contains__(i.ctimestamp):
-                    list = []
-                    day = i.ctimestamp
-                    daybox =  DayBox(i.datestring,list,i.ctimestamp)
-                    daybox.list.append(i)
-                    date_dict[i.ctimestamp]= daybox
-                 else:
-                    daybox.list.append(i)
-           
-            for key in sorted(date_dict.keys()):
-                self.viewBox.pack_start(date_dict.get(key),True,True)
-                date_dict.get(key).view_items()
-            
-            self.backup_dict = date_dict
-            time2= time.time()
-            print("Time to reorganize: "+ str(time2 -time1))
-            gc.collect()
-    
             
     def create_dayView(self,d):
-        
         for d2 in self.viewBox.get_children():
             try:
                 x = d2.get_children()
@@ -321,27 +237,35 @@ class CheckBox(gtk.CheckButton):
             self.source.set_active(False)
         
 class DayBox(gtk.VBox):
-    def __init__(self,label,list,date):
-        gtk.VBox.__init__(self,False)
-        self.date = date
-        self.label = gtk.Label(label)   
-        self.label.set_padding(5, 5)    
+    
+    def __init__(self, label, list, date):
+        # Call constructor
+        gtk.VBox.__init__(self, False)
         
+        # Split list of items into images and non-images
         list.sort(self.compare)
         list = sorted(list, self.compare_columns)
-        self.list= list
-        self.iconview = ItemIconView()    
-        self.iconview.show_all()
+        
+        # Set attributes
+        self.list = list
+        self.date = date
+        
+        # Create GUI
+        self.label = gtk.Label(label)   
+        self.label.set_padding(5, 5)  
+        self.pack_start(self.label,False,False)
         
         scroll = gtk.ScrolledWindow()
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_OUT)
-        scroll.show_all()
+        self.pack_start(scroll,True,True)
         
+        self.iconview = ItemIconView()
         scroll.add(self.iconview)
         
-        self.pack_end(scroll,True,True)
-        self.pack_end(self.label,False,False)
+        #self.imageBox = gtk.HBox(True)
+        #self.pack_start(self.imageBox)
+        
         self.show_all()
     
     def view_items(self):
