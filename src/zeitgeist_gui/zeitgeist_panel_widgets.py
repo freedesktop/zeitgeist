@@ -302,6 +302,11 @@ class CheckBox(gtk.CheckButton):
         self.set_border_width(5)
         self.label = gtk.Label(source.name)
         self.img = gtk.Image()
+        
+        icon = source.get_icon(16)
+
+        self.img.set_from_pixbuf(icon)
+        
         self.set_label(source.name)
         #img.set_from_pixbuf(source.get_icon(16))
         self.set_image(self.img)

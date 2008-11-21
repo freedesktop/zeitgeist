@@ -25,16 +25,16 @@ class FirefoxItem(Item):
         self.name = name
         self.timestamp = timestamp
         self.count = count
-        self.icon="gnome-globe"
+        self.icon="firefox"
         Item.__init__(self,name=name,uri=uri, timestamp = timestamp, icon = self.icon, count=self.count)
 
 class FirefoxSource(ItemSource):
-    def __init__(self, name = "Firefox History", icon = "stock_contant"):
+    def __init__(self, name = "Firefox History", icon = "gnome-globe"):
         
         self.items=[]
         ItemSource.__init__(self, name=name, icon=icon)
         self.name = "Firefox History"
-        self.icon="stock_firefox"
+        self.icon="firefox"
         #print(cursor)
         #self.emit("reload")
         

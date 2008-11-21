@@ -251,10 +251,10 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 
     def __init__(self):
         RecentlyUsedOfMimeType.__init__(self,
-                                        name=_("Movies"),
+                                        name=_("Videos"),
                                         icon="gnome-mime-video",
                                         mimetype_list=self.MEDIA_MIMETYPES)
-        self.name = _("Movies")
+        self.name = _("Videos")
     def get_items_uncached(self):
         for item in RecentlyUsedOfMimeType.get_items_uncached(self):
                 counter = 0

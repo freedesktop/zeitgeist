@@ -47,17 +47,15 @@ class DataSinkSource(ItemSource):
     
     def init_sources(self):
        self.sources=[
-                     self.videos,
+                     self.docs,
+                     self.firefox,
                      self.images,
                      self.music,
-                     self.docs,
                      self.others,
-                     self.firefox,
                      #self.chats,
-                     self.tomboy
+                     self.tomboy,
+                     self.videos
                     ]
-    
-    
     def log(self,x=None):
        
         '''
