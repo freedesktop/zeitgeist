@@ -303,12 +303,13 @@ class CheckBox(gtk.CheckButton):
         self.label = gtk.Label(source.name)
         self.img = gtk.Image()
         
-        icon = source.get_icon(16)
+        #icon = source.icon
 
-        self.img.set_from_pixbuf(icon)
+        #self.img.set_from_pixbuf(icon)
         
         self.set_label(source.name)
         #img.set_from_pixbuf(source.get_icon(16))
+        self.img.set_from_icon_name(source.icon,16)
         self.set_image(self.img)
         self.set_focus_on_click(False)
         self.connect("toggled",self.toggle_source)
@@ -437,7 +438,6 @@ class ItemIconView(gtk.TreeView):
      
         self.set_model(self.store)
         self.set_headers_visible(False)
-        self.get_selection().set_mode(gtk.SELECTION_BROWSE)
         
         self.connect("row-activated", self._open_item)
         self.connect("button-press-event", self._show_item_popup)
@@ -504,7 +504,7 @@ class ItemIconView(gtk.TreeView):
         uris = []
         treeselection = self.get_selection()
         model, iter = treeselection.get_selected()
-        item = model.get_value(iter, 3)
+        item = model.get_value(iter, 4)
         if not item:
             pass
         uris.append(item.get_uri())
