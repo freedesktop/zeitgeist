@@ -242,7 +242,7 @@ class DayBox(gtk.VBox):
         # Call constructor
         gtk.VBox.__init__(self, False)
         
-        # Split list of items into images and non-images
+        # Sort list
         list.sort(self.compare)
         list = sorted(list, self.compare_columns)
         
