@@ -366,14 +366,10 @@ class ItemIconView(gtk.TreeView):
         self.connect("row-activated", self._open_item)
         self.connect("button-press-event", self._show_item_popup)
         self.connect("drag-data-get", self._item_drag_data_get)
-        self.connect("focus-out-event",self.unselect_all)
+        #self.connect("focus-out-event",self.unselect_all)
         self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
         
-        
-    def unselect_all(self,x=None,y=None):
-        i = self.get_selection()
-        i.unselect_all()
-        
+                
     def _open_item(self, view, path, x=None):        
         treeselection = self.get_selection()
         model, iter = treeselection.get_selected()
@@ -384,57 +380,31 @@ class ItemIconView(gtk.TreeView):
 
     def _show_item_popup(self, view, ev):
         if ev.button == 3:
-            path = view.get_path_at_pos(int(ev.x), int(ev.y))
-            if path:
-                model = view.get_model()
-                item = model.get_value(model.get_iter(path), 4)
-                if item:
-                    old_selected = view.get_selected_items()
-
-                    view.unselect_all()
-                    view.select_path(path)
-
+               treeselection = self.get_selection()
+               model, iter = treeselection.get_selected()
+               item = model.get_value(iter, 4)
+               if item:
                     menu = gtk.Menu()
                     menu.attach_to_widget(view, None)
-
-                    pass #print " *** Showing item popup"
                     item.populate_popup(menu)
                     menu.popup(None, None, None, ev.button, ev.time)
                     return True
+                
         del ev,view
 
     def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
         # FIXME: Prefer ACTION_LINK if available
         print("_item_drag_data_get")
-        '''
+        
         if info == 100: # text/uri-list
-            selected = view.get_selection()      
-            selected = selected.get_selected()
             
-            if not selected:
-                return
-
-            model = view.get_model()
-            uris = []
-            for path in selected:path = path.
-                item = model.get_value(model.get_iter(path), 2)
-                if not item:
-                    continue
-                uris.append(item.get_uri())
-
-            pass #print " *** Dropping URIs:", uris
-            selection_data.set_uris(uris)
-        '''
-        uris = []
-        treeselection = self.get_selection()
-        model, iter = treeselection.get_selected()
-        item = model.get_value(iter, 4)
-        if not item:
-            pass
-        uris.append(item.get_uri())
-
-        pass #print " *** Dropping URIs:", uris
-        selection_data.set_uris(uris)
+               treeselection = self.get_selection()
+               model, iter = treeselection.get_selected()
+               item = model.get_value(iter, 4)
+               if item:
+                    uris = []
+                    uris.append(item.get_uri())
+                    selection_data.set_uris(uris)
 
             
     def load_items(self, items, ondone_cb = None):
