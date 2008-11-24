@@ -7,5 +7,5 @@ import gtk
 from zeitgeist_gui.zeitgeist_gui import zeitgeistGUI
  
 if __name__ == "__main__":
-    gui=zeitgeistGUI()
-    gtk.main()
+	gui=zeitgeistGUI()
+	gtk.main()
