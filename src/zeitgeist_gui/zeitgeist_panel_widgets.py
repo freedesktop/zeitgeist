@@ -35,26 +35,28 @@ class TimelineWidget(gtk.HBox):
 		calendar.connect("day-selected-double-click", self.reorganize, self.DAY)
 		calendar.connect("day-selected", self.reorganize, self.MONTH)
 		
-		datasink.connect("reload", self.reorganize)
-		self.reorganize(self.DAY)
+		datasink.connect("reload", self.reorganize, None, None)
+		self.reorganize(None, self.MONTH)
 				   
-	def reorganize(self, widget, range=None):
+	def reorganize(self, widget, range):
+		# Used for benchmarking
 		time1 = time.time()
-		   
-		dateDict = {}
-		day = None
-		list = []
 		
+		# Get date range
+		# Format is (year, month-1, day)
 		date = calendar.get_date()
-		
 		if range == self.DAY:
-			min = [date[0], date[1]+1,date[2]+1,0,0,0,0,0,0]
-			max = [date[0], date[1]+1,date[2]+2,0,0,0,0,0,0]
+			# each tuple is of format (year, month, day, hours, minutes,
+			# seconds, weekday, day_of_year, daylight savings) 
+			begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
+			end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
 		else:
-			min = [date[0], date[1]+1,1,0,0,0,0,0,0]
-			max = [date[0], date[1]+2,0,0,0,0,0,0,0]
-		min = time.mktime(min)
-		max = time.mktime(max)
+			begin = (date[0], date[1]+1, 1, 0,0,0,0,0,0)
+			end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
+		
+		# Get date as unix timestamp
+		begin = time.mktime(begin)
+		end = time.mktime(end)
 		
 		for w in self.viewBox.get_children():
 			self.viewBox.remove(w)
@@ -62,22 +64,29 @@ class TimelineWidget(gtk.HBox):
 		
 		calendar.clear_marks()
 		
-		for i in datasink.get_items_by_time(min, max):
-			 if not day or day != i.ctimestamp or not dateDict.__contains__(i.ctimestamp):
+		# Get all items in the date range
+		dateDict = {}
+		day = None
+		list = []
+		for i in datasink.get_items_by_time(begin, end):
+			if not day or day != i.ctimestamp or not dateDict.__contains__(i.ctimestamp):
 				list = []
 				day = i.ctimestamp
-				daybox =  DayBox(i.datestring, list,i.ctimestamp)
+				daybox =  DayBox(i.datestring, list, i.ctimestamp)
 				daybox.list.append(i)
 				dateDict[i.ctimestamp]= daybox
-			 else:
+			else:
 				daybox.list.append(i)
-	   
+		
 		for key in sorted(dateDict.keys()):
 			self.viewBox.pack_start(dateDict.get(key), True, True)
 			dateDict.get(key).view_items()
-			
+		
+		# Benchmarking
 		time2 = time.time()
 		print("Time to reorganize: " + str(time2 -time1))
+		
+		# Manually force garbage collection
 		gc.collect()
 			
 	def create_dayView(self,d):
