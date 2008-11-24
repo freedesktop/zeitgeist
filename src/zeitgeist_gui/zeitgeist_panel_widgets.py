@@ -12,9 +12,14 @@ from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_util import launcher
 
 class TimelineWidget(gtk.HBox):
+    
+    # Constants
+    DAY = 1
+    WEEK = 2
+    MONTH = 4
 
     def __init__(self):
-        gtk.HBox.__init__(self,False,True)
+        gtk.HBox.__init__(self, False, True)
         self.set_size_request(600, 400)
         
         # Create child scrolled window
@@ -26,12 +31,12 @@ class TimelineWidget(gtk.HBox):
         self.viewBox = gtk.HBox(False, True)
         self.scrolledWindow.add_with_viewport(self.viewBox)
         
-        calendar.connect("month-changed", self.reorganize, "MONTH")
-        calendar.connect("day-selected-double-click", self.reorganize, "DAY")
-        calendar.connect("day-selected", self.reorganize, "MONTH")
+        calendar.connect("month-changed", self.reorganize, self.MONTH)
+        calendar.connect("day-selected-double-click", self.reorganize, self.DAY)
+        calendar.connect("day-selected", self.reorganize, self.MONTH)
         
         datasink.connect("reload", self.reorganize)
-        self.reorganize("DAY")
+        self.reorganize(self.DAY)
                    
     def reorganize(self, widget, range=None):
         time1 = time.time()
@@ -42,7 +47,7 @@ class TimelineWidget(gtk.HBox):
         
         date = calendar.get_date()
         
-        if range == "DAY":
+        if range == self.DAY:
             min = [date[0], date[1]+1,date[2]+1,0,0,0,0,0,0]
             max = [date[0], date[1]+1,date[2]+2,0,0,0,0,0,0]
         else:
