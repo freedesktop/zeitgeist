@@ -20,25 +20,16 @@ class TimelineWidget(gtk.HBox):
         # Create child scrolled window
         self.scrolledWindow = gtk.ScrolledWindow()
         self.scrolledWindow.set_border_width(4)
-
         self.scrolledWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.pack_start(self.scrolledWindow, True, True)   
+        self.pack_start(self.scrolledWindow, True, True)
         
         self.viewBox = gtk.HBox(False, True)
         self.scrolledWindow.add_with_viewport(self.viewBox)
-        
-        self.results = []
-        #self.vbox1.connect("focus-in-event",self.get_focus)
-        self.dateDict = {}
-        self.backupDict = {}
-        self.today = None
         
         calendar.connect("month-changed", self.reorganize, "MONTH")
         calendar.connect("day-selected-double-click", self.reorganize, "DAY")
         calendar.connect("day-selected", self.reorganize, "MONTH")
         
-        self.calendarDate = None
-        self.dateDict = None
         datasink.connect("reload", self.reorganize)
         self.reorganize("DAY")
                    
@@ -60,7 +51,6 @@ class TimelineWidget(gtk.HBox):
         min = time.mktime(min)
         max = time.mktime(max)
         
-        self.calendarDate = min
         for w in self.viewBox.get_children():
             self.viewBox.remove(w)
             del w
@@ -80,8 +70,7 @@ class TimelineWidget(gtk.HBox):
         for key in sorted(dateDict.keys()):
             self.viewBox.pack_start(dateDict.get(key), True, True)
             dateDict.get(key).view_items()
-        
-        self.backupDict = dateDict
+            
         time2 = time.time()
         print("Time to reorganize: " + str(time2 -time1))
         gc.collect()
