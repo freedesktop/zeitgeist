@@ -8,6 +8,7 @@ from zeitgeist_engine.zeitgeist_base import ItemSource
 from zeitgeist_engine.zeitgeist_firefox import FirefoxSource
 from zeitgeist_engine.zeitgeist_tomboy import TomboySource
 from zeitgeist_engine.zeitgeist_recent import *
+from zeitgeist_engine.zeitgeist_dbcon import DBConnector
 
 class DataSinkSource(ItemSource):
 	def __init__(self, note_path=None):
@@ -33,10 +34,11 @@ class DataSinkSource(ItemSource):
 		self.others.run()
 		recent_model.connect("reload", self.log)
 		
-		self.firefox = FirefoxSource()
-		self.firefox.run()
+		#self.firefox = FirefoxSource()
+		#self.firefox.run()
 		
 		#self.chats = RecentContacts()
+		
 		self.tomboy = TomboySource()
 		self.tomboy.run()
 		self.tomboy.connect("reload", self.log)
@@ -44,11 +46,14 @@ class DataSinkSource(ItemSource):
 		self.lasttimestamp = 0
 		self.init_sources()
 		self.desktop_items=[]
+		
+		self.zdb = DBConnector()
+		self.log()
 	
 	def init_sources(self):
 	   self.sources=[
 					 self.docs,
-					 self.firefox,
+					 #self.firefox,
 					 self.images,
 					 self.music,
 					 self.others,
@@ -56,45 +61,31 @@ class DataSinkSource(ItemSource):
 					 self.tomboy,
 					 self.videos
 					]
+	
 	def log(self,x=None):
 	   
-		'''
-		print("reloading")
-		note_path = os.path.expanduser("~/.zeitgeist.log")
-		input = ""
-		f= open(note_path,'r+')
-		lines = f.read().split("\n")
-		for item in self.get_items_by_time():
-			line= str(item.timestamp) + "	|---GZG---|   " + item.uri
-			try:
-				index =  lines.index(line)
-			except:
-				f.write(str(item.timestamp) + "   |---GZG---|	" + item.uri+"\n")
-		f.close()
-		'''
+		print("logging")
+		for source in self.sources:
+			for item in source.get_items():
+				self.zdb.insert_item(item)
 		self.emit("reload")
 			
 	   
 	def get_items(self,min=0,max=sys.maxint):
-		"Datasink getting all items from DaraProviders done"
+		
 		items =[]
-		for source in self.sources:
-			if source.get_active():
-				for item in source.get_items(min,max):
-					items.append(item)
-					del item
-			del source
+		
+		for item in self.zdb.get_items(min,max):
+			items.append(item)
+		print " got all items"
 		return items
+		
 		
 	def get_items_by_time(self,min=0,max=sys.maxint):
 		"Datasink getting all items from DaraProviders"
 		items = self.get_items(min,max)
 		items.sort(self.comparetime)
-		for item in items:
-			yield item
-			del item
-		del items
-		gc.collect()
+		return items
 	
 	def get_freq_items(self,min=0,max=sys.maxint):
 		items =[]

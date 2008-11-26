@@ -35,7 +35,7 @@ class TimelineWidget(gtk.HBox):
 		calendar.connect("day-selected-double-click", self.reorganize, self.DAY)
 		calendar.connect("day-selected", self.reorganize, self.MONTH)
 		
-		datasink.connect("reload", self.reorganize, None, None)
+		datasink.connect("reload", self.reorganize, None)
 		self.reorganize(None, self.MONTH)
 				   
 	def reorganize(self, widget, range):
@@ -89,23 +89,6 @@ class TimelineWidget(gtk.HBox):
 		# Manually force garbage collection
 		gc.collect()
 			
-	def create_dayView(self,d):
-		for d2 in self.viewBox.get_children():
-			try:
-				x = d2.get_children()
-				
-				date1 = x[0].get_text()
-				date2 = d.label.get_text()
-				
-				if date1 == date2:
-					if d.list != d2.list:
-						self.viewBox.remove(d2) 
-						del d2
-						if len(d.list):		   
-							self.viewBox.pack_start(d,True,True)
-							d.view_items()
-			except StandardError, e:
-				print("EXCEPTION ",e)
   
 class StarredWidget(gtk.HBox):
 	def __init__(self):
@@ -196,7 +179,9 @@ class FrequentlyUsedWidget(gtk.VBox):
 		self.label.set_text("Popular in "+month)
 		
 		x = datasink.get_freq_items(min,max)
+		print("reload_view")
 		self.iconview.load_items(x)
+		print("reload_view done")
 		
 class BookmarksWidget(gtk.VBox):
 	def __init__(self):
@@ -272,6 +257,7 @@ class DayBox(gtk.VBox):
 		self.show_all()
 	
 	def view_items(self):
+		print("viewing items")
 		self.iconview.load_items(self.list)
 
 	def compare(self,a, b):
@@ -423,6 +409,7 @@ class ItemIconView(gtk.TreeView):
 		gc.collect()
 		
 	def _set_item(self, item):
+		
 		name = item.get_name()
 		comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
 		count = "<span size='small' color='blue'>%s</span>" %  item.count
@@ -437,6 +424,7 @@ class ItemIconView(gtk.TreeView):
 		
 		del icon,name,comment
 		
+		gc.collect()
 
 
 calendar = CalendarWidget()

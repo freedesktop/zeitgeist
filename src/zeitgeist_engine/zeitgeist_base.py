@@ -46,7 +46,7 @@ class Item(gobject.GObject):
 		self.datestring =  self.weekday+" "+self.day+" "+self.month+" "+self.year
 		self.ctimestamp = int(string.replace(self.year+self.cmonth+self.day," ",""))
 		
-		
+		self.name = name
 		self.icon = icon
 		self.tags = tags or []
 		self.thumbnailer = None
@@ -72,10 +72,14 @@ class Item(gobject.GObject):
 		name = ""
 		try:
 			name=self.uri.rsplit('/',1)[1].replace("%20"," ").strip()
+			#print name
 		except:
 			pass
 		
-		return	name or self.name or self.get_uri() #
+		if self.name:
+			return self.name
+		else:
+		  return name or self.get_uri() #
 
 	def get_comment(self):
 		return self.time.strip()
