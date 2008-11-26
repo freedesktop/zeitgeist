@@ -8,7 +8,7 @@ from zeitgeist_engine.zeitgeist_base import ItemSource
 from zeitgeist_engine.zeitgeist_firefox import FirefoxSource
 from zeitgeist_engine.zeitgeist_tomboy import TomboySource
 from zeitgeist_engine.zeitgeist_recent import *
-from zeitgeist_engine.zeitgeist_dbcon import DBConnector
+from zeitgeist_engine.zeitgeist_dbcon import db
 
 class DataSinkSource(ItemSource):
 	def __init__(self, note_path=None):
@@ -39,15 +39,12 @@ class DataSinkSource(ItemSource):
 		
 		#self.chats = RecentContacts()
 		
-		self.tomboy = TomboySource()
-		self.tomboy.run()
-		self.tomboy.connect("reload", self.log)
+		#self.tomboy = TomboySource()
+		#self.tomboy.run()
+		#self.tomboy.connect("reload", self.log)
 		
-		self.lasttimestamp = 0
 		self.init_sources()
-		self.desktop_items=[]
 		
-		self.zdb = DBConnector()
 		self.log()
 	
 	def init_sources(self):
@@ -58,16 +55,17 @@ class DataSinkSource(ItemSource):
 					 self.music,
 					 self.others,
 					 #self.chats,
-					 self.tomboy,
+					 #self.tomboy,
 					 self.videos
 					]
+	   
 	
 	def log(self,x=None):
 	   
 		print("logging")
 		for source in self.sources:
 			for item in source.get_items():
-				self.zdb.insert_item(item)
+				db.insert_item(item)
 		self.emit("reload")
 			
 	   
@@ -75,7 +73,7 @@ class DataSinkSource(ItemSource):
 		
 		items =[]
 		
-		for item in self.zdb.get_items(min,max):
+		for item in db.get_items(min,max):
 			items.append(item)
 		print " got all items"
 		return items

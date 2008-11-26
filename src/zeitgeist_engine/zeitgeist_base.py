@@ -25,7 +25,8 @@ class Item(gobject.GObject):
 				 mimetype = None,
 				 icon = None,
 				 tags = None,
-				 count=1):
+				 count=1,
+				 use = None):
 		gobject.GObject.__init__(self)
 		
 		
@@ -33,7 +34,7 @@ class Item(gobject.GObject):
 		self.count = count
 		self.comment = comment
 		self.mimetype = mimetype
-		
+		self.use = use
 		#Timestamps
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))

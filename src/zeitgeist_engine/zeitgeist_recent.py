@@ -13,8 +13,8 @@ import gnomevfs.async
 import gobject
 import gtk
 from gettext import gettext as _
-
 from zeitgeist_base import Item, ItemSource
+from zeitgeist_dbcon import db
 
 class RecentlyUsedManagerGtk(ItemSource):
 	def __init__(self):
@@ -26,17 +26,38 @@ class RecentlyUsedManagerGtk(ItemSource):
 		# 
 	   # delself.temp_list
 		self.recent_list = self.recent_manager.get_items()
+		self.recent_list.reverse() 
+		
 		for info in self.recent_list:
 			counter=0
 			if info.exists():
 				if not info.get_private_hint():
 					
-					yield Item(name=info.get_display_name(),
-						   uri=info.get_uri(),
-						   mimetype=info.get_mime_type(),
-						   timestamp=max( [info.get_added(),info.get_modified(),info.get_visited()]),
-						   tags=info.get_groups(),
-						   count=counter)
+					if info.get_added():
+						
+						use = None
+						
+						
+						timestamp=max( [info.get_added(),info.get_modified(),info.get_visited()])
+						
+						if info.get_added() == timestamp:
+							use = "first usage"
+							
+						elif info.get_visited() == timestamp:
+							use = "opened"
+						
+						elif info.get_modified() == timestamp:
+							use = "modified"
+						
+						yield Item(name=info.get_display_name(),
+							uri=info.get_uri(),
+							mimetype=info.get_mime_type(),
+							timestamp=timestamp,
+							tags=info.get_groups(),
+							count=counter,
+							use=use)
+							
+
 		
 class RecentlyUsed(ItemSource):
 	'''
@@ -150,7 +171,7 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
 				  
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -190,7 +211,7 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
 			
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -218,7 +239,7 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
 		
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -240,7 +261,7 @@ class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
 			   
 class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -262,7 +283,7 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
 			 
 
 

@@ -257,7 +257,6 @@ class DayBox(gtk.VBox):
 		self.show_all()
 	
 	def view_items(self):
-		print("viewing items")
 		self.iconview.load_items(self.list)
 
 	def compare(self,a, b):
@@ -413,7 +412,8 @@ class ItemIconView(gtk.TreeView):
 		name = item.get_name()
 		comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
 		count = "<span size='small' color='blue'>%s</span>" %  item.count
-		text = name +"\n" + comment
+		use = "<span size='small' color='blue'>%s</span>" %  item.use
+		text = name +"\n" + comment +" "+use
 		try:
 			icon = item.get_icon(24)
 		except (AssertionError, AttributeError):
