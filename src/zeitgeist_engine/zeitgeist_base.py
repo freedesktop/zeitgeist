@@ -45,7 +45,7 @@ class Item(gobject.GObject):
 		self.year =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%Y"))
 		self.date =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%x"))
 		self.datestring =  self.weekday+" "+self.day+" "+self.month+" "+self.year
-		self.ctimestamp = int(string.replace(self.year+self.cmonth+self.day," ",""))
+		self.ctimestamp = time.mktime([int(self.year),int(self.cmonth),int(self.day),0,0,0,0,0,0])
 		
 		self.name = name
 		self.icon = icon
