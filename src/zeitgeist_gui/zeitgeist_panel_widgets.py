@@ -65,22 +65,28 @@ class TimelineWidget(gtk.HBox):
 		calendar.clear_marks()
 		
 		# Get all items in the date range
-		dateDict = {}
-		day = None
-		list = []
-		for i in datasink.get_items_by_time(begin, end):
-			if not day or day != i.ctimestamp or not dateDict.__contains__(i.ctimestamp):
-				list = []
-				day = i.ctimestamp
-				daybox =  DayBox(i.datestring, list, i.ctimestamp)
-				daybox.list.append(i)
-				dateDict[i.ctimestamp]= daybox
-			else:
-				daybox.list.append(i)
+		items = datasink.get_items_by_time(begin, end)
 		
-		for key in sorted(dateDict.keys()):
-			self.viewBox.pack_start(dateDict.get(key), True, True)
-			dateDict.get(key).view_items()
+		# If we're currently showing a day then simply create one DayBox
+		if range == self.DAY:
+			daybox = DayBox(items[0].datestring, items, items[0].ctimestamp)
+			daybox.view_items()
+		
+		# If we're showing a whole week, create a DayBox for each day
+		else:
+			# daybox contains the last created DayBox
+			daybox = None
+			# Loop over each of the items and create a new DayBox every time we reach
+			# a new day. Otherwise, just add the item to the last created DayBox.
+			for i in items:
+				if daybox is None or daybox.date != i.ctimestamp:
+					if daybox is not None:
+						# Show the items in the old daybox
+						daybox.view_items()
+					# Create a new daybox for the current day
+					daybox = DayBox(i.datestring, [], i.ctimestamp)
+					self.viewBox.pack_start(daybox, True, True)
+				daybox.list.append(i)
 		
 		# Benchmarking
 		time2 = time.time()
