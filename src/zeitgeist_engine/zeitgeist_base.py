@@ -26,7 +26,8 @@ class Item(gobject.GObject):
 				 icon = None,
 				 tags = None,
 				 count=1,
-				 use = None):
+				 use = None,
+				 type = "N/A"):
 		gobject.GObject.__init__(self)
 		
 		
@@ -46,12 +47,12 @@ class Item(gobject.GObject):
 		self.date =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%x"))
 		self.datestring =  self.weekday+" "+self.day+" "+self.month+" "+self.year
 		self.ctimestamp = time.mktime([int(self.year),int(self.cmonth),int(self.day),0,0,0,0,0,0])
-		
+		self.type = type
 		self.name = name
 		self.icon = icon
 		self.tags = tags or []
 		self.thumbnailer = None
-		self.type = None
+		self.type = type
 		self.needs_view=False
 	
 	def get_icon(self, icon_size):

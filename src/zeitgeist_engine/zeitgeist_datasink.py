@@ -34,8 +34,8 @@ class DataSinkSource(ItemSource):
 		self.others.run()
 		recent_model.connect("reload", self.log)
 		
-		#self.firefox = FirefoxSource()
-		#self.firefox.run()
+		self.firefox = FirefoxSource()
+		self.firefox.run()
 		
 		#self.chats = RecentContacts()
 		
@@ -50,7 +50,7 @@ class DataSinkSource(ItemSource):
 	def init_sources(self):
 	   self.sources=[
 					 self.docs,
-					 #self.firefox,
+					 self.firefox,
 					 self.images,
 					 self.music,
 					 self.others,
@@ -70,12 +70,27 @@ class DataSinkSource(ItemSource):
 			
 	   
 	def get_items(self,min=0,max=sys.maxint):
-		
+		filters = []
+		for source in self.sources:
+			if source.get_active():
+				filters.append(source.get_name())
+			
 		items =[]
 		
+		# Used for benchmarking
+		time1 = time.time()
+		
 		for item in db.get_items(min,max):
-			items.append(item)
-		print " got all items"
+			try:
+				if filters.index(item.type)>=0:
+					if item.type =="Firefox History":
+						item.icon ="gnome-globe"
+					items.append(item)
+			except:
+				pass
+		
+		time2 = time.time()
+		print("Got all items: " + str(time2 -time1))
 		return items
 		
 		

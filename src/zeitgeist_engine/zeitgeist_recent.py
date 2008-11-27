@@ -56,9 +56,7 @@ class RecentlyUsedManagerGtk(ItemSource):
 							tags=info.get_groups(),
 							count=counter,
 							use=use)
-							
-
-		
+									
 class RecentlyUsed(ItemSource):
 	'''
 	Recently-used documents, log stored in ~/.recently-used.
@@ -171,7 +169,7 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use ,type="Documents")
 				  
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -211,7 +209,7 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Other")
 			
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -239,7 +237,7 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Images")
 		
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -261,7 +259,7 @@ class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Music")
 			   
 class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -283,7 +281,7 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 				for app in info.get_applications():
 					appinfo=info.get_application_info(app)
 					counter=counter+appinfo[1]
-				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use)
+				yield Item(uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Videos")
 			 
 
 

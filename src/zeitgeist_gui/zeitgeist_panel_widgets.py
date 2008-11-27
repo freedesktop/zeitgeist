@@ -24,7 +24,6 @@ class TimelineWidget(gtk.HBox):
 		
 		self.begin = None
 		self.end = None
-		self.day_boxes = []
 		# Create child scrolled window
 		self.scrolledWindow = gtk.ScrolledWindow()
 		self.scrolledWindow.set_border_width(4)
@@ -38,10 +37,10 @@ class TimelineWidget(gtk.HBox):
 		calendar.connect("day-selected-double-click", self.reorganize, self.DAY)
 		calendar.connect("day-selected", self.reorganize, self.MONTH)
 		
-		datasink.connect("reload", self.reorganize, None)
+		datasink.connect("reload", self.reorganize, None,True)
 		self.reorganize(None, self.MONTH)
 				   
-	def reorganize(self, widget, range):
+	def reorganize(self, widget, range, filter=False):
 		# Used for benchmarking
 		time1 = time.time()
 		
@@ -62,7 +61,7 @@ class TimelineWidget(gtk.HBox):
 		end = time.mktime(end)
 		
 		# If the date hasn't changed then just return
-		if self.begin == begin and self.end == end:
+		if self.begin == begin and self.end == end and  filter==False:
 			return
 		
 		calendar.clear_marks()
@@ -75,7 +74,7 @@ class TimelineWidget(gtk.HBox):
 		self.end = end
 		
 		# If the current day is inside the last time range
-		if begin_old is not None and begin_old <= begin and end_old >= end:
+		if begin_old is not None and begin_old <= begin and end_old >= end and filter==False:
 			for w in self.viewBox.get_children():
 				# print begin, end, begin_old, end_old, w.date
 				# NOTE: This is where things break.
@@ -86,8 +85,8 @@ class TimelineWidget(gtk.HBox):
 					self.viewBox.remove(w)
 			return
 		
-		#for w in self.viewBox.get_children():
-			#self.viewBox.remove(w)
+		for w in self.viewBox.get_children():
+			self.viewBox.remove(w)
 		
 		# Get all items in the date range
 		items = datasink.get_items_by_time(begin, end)
@@ -113,7 +112,8 @@ class TimelineWidget(gtk.HBox):
 					daybox = DayBox(i.datestring, [], i.ctimestamp)
 					self.viewBox.pack_start(daybox, True, True)
 				daybox.list.append(i)
-			daybox.view_items()
+			if daybox:
+				daybox.view_items()
 		
 		# Benchmarking
 		time2 = time.time()
