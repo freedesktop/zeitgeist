@@ -22,6 +22,9 @@ class TimelineWidget(gtk.HBox):
 		gtk.HBox.__init__(self, False, True)
 		self.set_size_request(600, 400)
 		
+		self.begin = None
+		self.end = None
+		
 		# Create child scrolled window
 		self.scrolledWindow = gtk.ScrolledWindow()
 		self.scrolledWindow.set_border_width(4)
@@ -58,17 +61,37 @@ class TimelineWidget(gtk.HBox):
 		begin = time.mktime(begin)
 		end = time.mktime(end)
 		
-		for w in self.viewBox.get_children():
-			self.viewBox.remove(w)
-			del w
+		# If the date hasn't changed then just return
+		if self.begin == begin and self.end == end:
+			return
 		
 		calendar.clear_marks()
+		
+		# Store the time range we're about to display
+		begin_old = self.begin
+		end_old = self.end
+		
+		self.begin = begin
+		self.end = end
+		
+		# If the current day is inside the last time range
+		if begin_old is not None and begin_old <= begin and end_old >= end:
+			for w in self.viewBox.get_children():
+				print begin, end, begin_old, end_old, w.date
+				if w.date >= begin and w.date <= end:
+					print "FOUND"
+				else:
+					self.viewBox.remove(w)
+			return
+		
+		for w in self.viewBox.get_children():
+			self.viewBox.remove(w)
 		
 		# Get all items in the date range
 		items = datasink.get_items_by_time(begin, end)
 		
 		# If we're currently showing a day then simply create one DayBox
-		if range == self.DAY:
+		if range == self.DAY and len(items) > 0:
 			daybox = DayBox(items[0].datestring, items, items[0].ctimestamp)
 			daybox.view_items()
 		
