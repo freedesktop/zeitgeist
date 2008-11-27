@@ -85,6 +85,20 @@ class DataSinkSource(ItemSource):
 				if filters.index(item.type)>=0:
 					if item.type =="Firefox History":
 						item.icon ="gnome-globe"
+					
+					'''
+					elif item.type =="Videos":
+						item.icon="gnome-mime-video"
+					elif item.type =="Music":
+						item.icon="gnome-mime-audio"
+					elif item.type =="Images":
+						item.icon="gnome-mime-image"
+					elif item.type =="Other":
+						item.icon="applications-other"
+					elif item.type =="Documents":
+						item.icon="stock_new-presentation"
+					'''
+					
 					items.append(item)
 			except:
 				pass

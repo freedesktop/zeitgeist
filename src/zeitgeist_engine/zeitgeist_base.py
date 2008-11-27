@@ -52,7 +52,6 @@ class Item(gobject.GObject):
 		self.icon = icon
 		self.tags = tags or []
 		self.thumbnailer = None
-		self.type = type
 		self.needs_view=False
 	
 	def get_icon(self, icon_size):

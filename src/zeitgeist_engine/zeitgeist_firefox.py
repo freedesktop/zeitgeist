@@ -26,7 +26,7 @@ class FirefoxItem(Item):
 		self.timestamp = timestamp
 		self.count = count
 		self.icon="firefox"
-		Item.__init__(self,name=name,uri=uri, timestamp = timestamp, icon = self.icon, count=self.count,type="Firefox History")
+		Item.__init__(self,name=name,uri=uri, timestamp = timestamp, icon = self.icon, count=self.count,  use="visited", type="Firefox History")
 
 class FirefoxSource(ItemSource):
 	def __init__(self, name = "Firefox History", icon = "gnome-globe"):
@@ -64,9 +64,8 @@ class FirefoxSource(ItemSource):
 			timestamp = history[j][2]
 			timestamp = timestamp / (1000000)
 			j=j+1
-			yield FirefoxItem(url,name,timestamp,count )
+			yield FirefoxItem(url,name,timestamp,count)
 			del i,url,item,name,count,timestamp
 		print("reloading firefox history done")
 		cursor.close()
 		del history
-		gc.collect()
