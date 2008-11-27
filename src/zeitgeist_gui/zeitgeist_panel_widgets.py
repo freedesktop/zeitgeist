@@ -78,6 +78,8 @@ class TimelineWidget(gtk.HBox):
 		if begin_old is not None and begin_old <= begin and end_old >= end:
 			for w in self.viewBox.get_children():
 				print begin, end, begin_old, end_old, w.date
+				# NOTE: This is where things break.
+				# w.date is not the same format as begin and end
 				if w.date >= begin and w.date <= end:
 					print "FOUND"
 				else:
