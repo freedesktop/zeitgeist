@@ -38,7 +38,7 @@ class DBConnector:
         
     def insert_item(self,item):
             try:
-                self.cursor.execute('INSERT INTO timetable VALUES ( ?,?,?,?,?,?)',(item.timestamp, item.uri, item.get_name(), item.type, item.count, item.use))
+                self.cursor.execute('INSERT INTO timetable VALUES ( ?,?,?,?,?,?)',(item.timestamp, item.uri, item.name, item.type, item.count, item.use))
                 self.connection.commit()
                 print("wrote "+item.uri+" into database")
             except:
@@ -71,10 +71,9 @@ class DBConnector:
             name = i[2]
             type = i[3]
             count = i[4]
-            use = i[5]
-            item = Item(uri=uri, timestamp=timestamp, name=name, count=count, use=use, type =type)
-            items.append(item)
+            use = i[5]	
+            yield Item(uri=uri, timestamp=timestamp, name=name, count=count, use=use, type =type)
         #print(str(len(items)))
-        return items
+     
         
 db=DBConnector()

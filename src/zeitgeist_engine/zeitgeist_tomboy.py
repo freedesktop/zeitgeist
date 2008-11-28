@@ -17,13 +17,14 @@ from zeitgeist_util import FileMonitor, launcher
 
 
 class NoteItem(Item):
-	def __init__(self, uri): 
+	def __init__(self, uri,timestamp =None): 
 		self.title = None
 		self.content_text = None
-		self.timestamp = None
+		self.timestamp = timestamp
 		self.uri = uri
+		self.type = "Notes"
 		self.do_reload()
-		Item.__init__(self, uri=uri, timestamp=self.timestamp, icon="stock_notes", mimetype="x-tomboy/note")
+		Item.__init__(self, uri=uri, timestamp=self.timestamp, icon="stock_notes", mimetype="x-tomboy/note", type =self.type)
 
 		# Load and parse note XML
 		#self.emit("reload")

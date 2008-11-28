@@ -32,6 +32,7 @@ class Item(gobject.GObject):
 		
 		
 		self.uri = uri
+		self.name = name
 		self.count = count
 		self.comment = comment
 		self.mimetype = mimetype
@@ -48,7 +49,6 @@ class Item(gobject.GObject):
 		self.datestring =  self.weekday+" "+self.day+" "+self.month+" "+self.year
 		self.ctimestamp = time.mktime([int(self.year),int(self.cmonth),int(self.day),0,0,0,0,0,0])
 		self.type = type
-		self.name = name
 		self.icon = icon
 		self.tags = tags or []
 		self.thumbnailer = None
@@ -61,7 +61,7 @@ class Item(gobject.GObject):
 		if not self.thumbnailer:
 			self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
 		return self.thumbnailer.get_icon(icon_size, self.timestamp)
-
+	
 	def get_mimetype(self):
 		return self.mimetype
 
@@ -69,18 +69,7 @@ class Item(gobject.GObject):
 		return self.uri
 
 	def get_name(self):
-		
-		name = ""
-		try:
-			name=self.uri.rsplit('/',1)[1].replace("%20"," ").strip()
-			#print name
-		except:
-			pass
-		
-		if self.name:
-			return self.name
-		else:
-		  return name or self.get_uri() #
+		return self.name
 
 	def get_comment(self):
 		return self.time.strip()

@@ -442,23 +442,25 @@ class ItemIconView(gtk.TreeView):
 		gc.collect()
 		
 	def _set_item(self, item):
-		
-		name = item.get_name()
-		comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
-		count = "<span size='small' color='blue'>%s</span>" %  item.count
-		use = "<span size='small' color='blue'>%s</span>" %  item.use
-		text = name +"\n" + comment +" "+use
 		try:
-			icon = item.get_icon(24)
-		except (AssertionError, AttributeError):
-			print("exception")
-			icon = None
-		
-		self.store.append([None, icon, text, None, item])
-		
-		del icon,name,comment
-		
-		gc.collect()
+			name = item.get_name()
+			if not name:
+				pass
+			comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
+			count = "<span size='small' color='blue'>%s</span>" %  item.count
+			use = "<span size='small' color='blue'>%s</span>" %  item.use
+			text = name +"\n" + comment +" "+use
+			try:
+				icon = item.get_icon(24)
+			except (AssertionError, AttributeError):
+				print("exception")
+				icon = None
+			
+			self.store.append([None, icon, text, None, item])
+			
+			del icon,name,comment
+		except:
+			pass
 
 
 calendar = CalendarWidget()

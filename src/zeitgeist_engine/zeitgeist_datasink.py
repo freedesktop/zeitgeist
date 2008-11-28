@@ -5,8 +5,8 @@ import urllib
 from gettext import gettext as _
 
 from zeitgeist_engine.zeitgeist_base import ItemSource
-from zeitgeist_engine.zeitgeist_firefox import FirefoxSource
-from zeitgeist_engine.zeitgeist_tomboy import TomboySource
+from zeitgeist_engine.zeitgeist_firefox import *
+from zeitgeist_engine.zeitgeist_tomboy import *
 from zeitgeist_engine.zeitgeist_recent import *
 from zeitgeist_engine.zeitgeist_dbcon import db
 
@@ -39,9 +39,9 @@ class DataSinkSource(ItemSource):
 		
 		#self.chats = RecentContacts()
 		
-		#self.tomboy = TomboySource()
-		#self.tomboy.run()
-		#self.tomboy.connect("reload", self.log)
+		self.tomboy = TomboySource()
+		self.tomboy.run()
+		self.tomboy.connect("reload", self.log)
 		
 		self.init_sources()
 		
@@ -55,7 +55,7 @@ class DataSinkSource(ItemSource):
 					 self.music,
 					 self.others,
 					 #self.chats,
-					 #self.tomboy,
+					 self.tomboy,
 					 self.videos
 					]
 	   
@@ -74,8 +74,7 @@ class DataSinkSource(ItemSource):
 		for source in self.sources:
 			if source.get_active():
 				filters.append(source.get_name())
-			
-		items =[]
+			del source
 		
 		# Used for benchmarking
 		time1 = time.time()
@@ -84,36 +83,25 @@ class DataSinkSource(ItemSource):
 			try:
 				if filters.index(item.type)>=0:
 					if item.type =="Firefox History":
-						item.icon ="gnome-globe"
-					
-					'''
-					elif item.type =="Videos":
-						item.icon="gnome-mime-video"
-					elif item.type =="Music":
-						item.icon="gnome-mime-audio"
-					elif item.type =="Images":
-						item.icon="gnome-mime-image"
-					elif item.type =="Other":
-						item.icon="applications-other"
-					elif item.type =="Documents":
-						item.icon="stock_new-presentation"
-					'''
-					
-					items.append(item)
+						yield FirefoxItem(item.uri,item.name,item.timestamp,item.count)
+					elif item.type =="Notes":
+						yield NoteItem(item.uri,item.timestamp)
+					else:
+						yield item	
 			except:
 				pass
+			del item
+		del filters
 		
 		time2 = time.time()
 		print("Got all items: " + str(time2 -time1))
-		return items
-		
+		gc.collect()
 		
 	def get_items_by_time(self,min=0,max=sys.maxint):
 		"Datasink getting all items from DaraProviders"
-		items = self.get_items(min,max)
-		items.sort(self.comparetime)
-		return items
-	
+		for item in self.get_items(min,max):
+			yield item
+			
 	def get_freq_items(self,min=0,max=sys.maxint):
 		items =[]
 		for source in self.sources:
