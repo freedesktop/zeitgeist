@@ -82,26 +82,22 @@ class DataSinkSource(ItemSource):
 		for item in db.get_items(min,max):
 			try:
 				if filters.index(item.type)>=0:
-					if item.type =="Firefox History":
-						yield FirefoxItem(item.uri,item.name,item.timestamp,item.count)
-					elif item.type =="Notes":
-						yield NoteItem(item.uri,item.timestamp)
-					else:
 						yield item	
 			except:
 				pass
-			del item
 		del filters
 		
 		time2 = time.time()
 		print("Got all items: " + str(time2 -time1))
 		gc.collect()
 		
+		
 	def get_items_by_time(self,min=0,max=sys.maxint):
 		"Datasink getting all items from DaraProviders"
 		for item in self.get_items(min,max):
 			yield item
-			
+
+	'''			
 	def get_freq_items(self,min=0,max=sys.maxint):
 		items =[]
 		for source in self.sources:
@@ -130,5 +126,6 @@ class DataSinkSource(ItemSource):
 			file = os.path.join(dirname, files)
 			item = Item(uri=file)
 			self.desktop_items.append(item)
+'''
 
 datasink= DataSinkSource()

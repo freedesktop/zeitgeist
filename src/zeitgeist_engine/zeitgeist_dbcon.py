@@ -5,6 +5,7 @@ import tempfile
 import re
 import glob
 import sys
+import gc
 import os
 from zeitgeist_engine.zeitgeist_base import ItemSource, Item
 
@@ -37,31 +38,25 @@ class DBConnector:
             return 0
         
     def insert_item(self,item):
-            try:
-                self.cursor.execute('INSERT INTO timetable VALUES ( ?,?,?,?,?,?)',(item.timestamp, item.uri, item.name, item.type, item.count, item.use))
-                self.connection.commit()
-                print("wrote "+item.uri+" into database")
-            except:
-                pass
-                '''
-                command ="SELECT * FROM timetable WHERE timestamp = "+ str(item.timestamp)
-                temp = self.cursor.execute(command).fetchall()
-                temp = str(temp[0][1])
-                uri = item.uri
-                if not uri == temp:
-                    self.offset = self.offset +1
-                    item.timestamp = item.timestamp + self.offset
-                    try:
-                        self.cursor.execute('INSERT INTO timetable VALUES ( ?,?,?,?,?)',(item.timestamp, item.uri, item.get_name(), "", item.count))
-                        self.connection.commit()
-                        print("wrote "+item.uri+" into database")
-                    except:
-                        print ("Error on "+item.get_name())
-                '''
-                    
+               try:
+                   self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?,?,?,?)',(
+                                                                                               item.timestamp,
+                                                                                               item.uri,
+                                                                                               item.name,
+                                                                                               item.comment,
+                                                                                               item.mimetype,
+                                                                                               item.tags,
+                                                                                               item.count,
+                                                                                               item.use,
+                                                                                               item.type))
+                   
+                   self.connection.commit()
+                   print("wrote "+item.uri+" into database")
+               except:
+                   pass
     def get_items(self,min,max):
         items = []
-        contents = "timestamp , data,  name,  type, count, use"
+        contents = "timestamp , uri,  name,  comment, mimetype, tags, count, use, type"
         #print ("min = " + str(min))
         #print ("max = " + str(max))
         temp = self.cursor.execute("SELECT " +contents+ " FROM timetable WHERE timestamp >= "+str(int(min)) +" and timestamp <= " + str(int(max))).fetchall()
@@ -69,10 +64,14 @@ class DBConnector:
             timestamp = i[0]
             uri= i[1]
             name = i[2]
-            type = i[3]
-            count = i[4]
-            use = i[5]	
-            yield Item(uri=uri, timestamp=timestamp, name=name, count=count, use=use, type =type)
+            comment = i[3]
+            mimetype = i[4]
+            tags =i[5]
+            count=i[6]
+            use =i[7]
+            type=i[8]
+            yield Item(uri= i[1], timestamp= i[0], name=i[2], comment=i[3], mimetype= i[4], tags=i[6], count=i[6], use=i[7], type =i[8])
+        gc.collect()
         #print(str(len(items)))
      
         

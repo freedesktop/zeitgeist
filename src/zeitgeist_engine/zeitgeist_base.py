@@ -20,13 +20,13 @@ class Item(gobject.GObject):
 	def __init__(self,
 				 uri = None,
 				 name = None,
-				 comment = None,
+				 comment = "",
 				 timestamp = 0,
-				 mimetype = None,
+				 mimetype = "XYZ",
 				 icon = None,
-				 tags = None,
+				 tags = "",
 				 count=1,
-				 use = None,
+				 use = "first use",
 				 type = "N/A"):
 		gobject.GObject.__init__(self)
 		
@@ -50,17 +50,18 @@ class Item(gobject.GObject):
 		self.ctimestamp = time.mktime([int(self.year),int(self.cmonth),int(self.day),0,0,0,0,0,0])
 		self.type = type
 		self.icon = icon
-		self.tags = tags or []
+		self.tags = tags
 		self.thumbnailer = None
-		self.needs_view=False
-	
+		
 	def get_icon(self, icon_size):
+		if self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
+		      self.icon="firefox"
 		if self.icon:
-			return icon_factory.load_icon(self.icon, icon_size)
-
+			  return icon_factory.load_icon(self.icon, icon_size)
 		if not self.thumbnailer:
-			self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
-		return self.thumbnailer.get_icon(icon_size, self.timestamp)
+			  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
+			  return self.thumbnailer.get_icon(icon_size, self.timestamp)
+		
 	
 	def get_mimetype(self):
 		return self.mimetype
@@ -197,6 +198,9 @@ class ItemSource(Item):
 			else:
 				del i
 		return False
+	
+	def comparecount(self,a,b):
+		return cmp(a.type, b.type)
 	
 	def comparecount(self,a, b):
 		return cmp(b.count, a.count) # compare as integers

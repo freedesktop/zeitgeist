@@ -25,8 +25,7 @@ class FirefoxItem(Item):
 		self.name = name
 		self.timestamp = timestamp
 		self.count = count
-		self.icon="firefox"
-		Item.__init__(self,name=name,uri=uri, timestamp = timestamp, icon = self.icon, count=self.count,  use="visited", type="Firefox History")
+		Item.__init__(self,name=name,uri=uri, timestamp = timestamp, count=self.count,  use="visited", type="Firefox History")
 
 class FirefoxSource(ItemSource):
 	def __init__(self, name = "Firefox History", icon = "gnome-globe"):

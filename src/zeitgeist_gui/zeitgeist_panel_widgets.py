@@ -123,7 +123,6 @@ class TimelineWidget(gtk.HBox):
 		# Manually force garbage collection
 		gc.collect()
 			
-  
 class StarredWidget(gtk.HBox):
 	def __init__(self):
 		gtk.HBox.__init__(self,True)
@@ -212,9 +211,9 @@ class FrequentlyUsedWidget(gtk.VBox):
 		month =  datetime.datetime.fromtimestamp(max).strftime("%B")
 		self.label.set_text("Popular in "+month)
 		
-		x = datasink.get_freq_items(min,max)
+		#x = datasink.get_freq_items(min,max)
 		print("reload_view")
-		self.iconview.load_items(x)
+		self.iconview.load_items([])
 		print("reload_view done")
 		
 class BookmarksWidget(gtk.VBox):
@@ -230,8 +229,8 @@ class BookmarksWidget(gtk.VBox):
 		scroll.set_shadow_type(gtk.SHADOW_IN)
 		scroll.add(self.iconview)
 		self.pack_start(scroll,True,True)
-		items = datasink.get_desktop_items()
-		self.iconview.load_items(items)
+		#items = datasink.get_desktop_items()
+		self.iconview.load_items([])
 
 class CheckBox(gtk.CheckButton):
 	def __init__(self,source):
@@ -358,29 +357,29 @@ class ItemIconView(gtk.TreeView):
 		gtk.TreeView.__init__(self)
 		
 		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
-		self.store = gtk.ListStore(str, gtk.gdk.Pixbuf,str,str, gobject.TYPE_PYOBJECT)
+		self.store = gtk.ListStore(gtk.gdk.Pixbuf,str,str,str, gobject.TYPE_PYOBJECT)
 		#self.use_cells = isinstance(self, gtk.CellLayout)
 		
-		time_cell = gtk.CellRendererText()
-		time_column = gtk.TreeViewColumn("Time",time_cell,markup=0)
 		
 		icon_cell = gtk.CellRendererPixbuf()
-		icon_column = gtk.TreeViewColumn("Icon",icon_cell,pixbuf=1)
+		icon_column = gtk.TreeViewColumn("Icon",icon_cell,pixbuf=0)
 		
 		name_cell = gtk.CellRendererText()
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("yalign", 0.0)
 		name_cell.set_property("xalign", 0.0)
 		name_cell.set_property("wrap-width", 200)
-		name_column = gtk.TreeViewColumn("Name",name_cell,markup=2)
+		name_column = gtk.TreeViewColumn("Name",name_cell,markup=1)
 		
 		count_cell = gtk.CellRendererText()
-		count_column = gtk.TreeViewColumn("Count",count_cell,markup=3)
+		count_column = gtk.TreeViewColumn("Count",count_cell,markup=2)
+		time_cell = gtk.CellRendererText()
+		time_column = gtk.TreeViewColumn("Time",time_cell,markup=3)
 		
-		self.append_column(time_column)
 		self.append_column(icon_column)
 		self.append_column(name_column)
 		self.append_column(count_column)
+		self.append_column(time_column)
 	 
 		self.set_model(self.store)
 		self.set_headers_visible(False)
@@ -435,32 +434,27 @@ class ItemIconView(gtk.TreeView):
 			
 	def load_items(self, items, ondone_cb = None):
 		# Create a store for our iconview and fill it with stock icons
-		self.store.clear()
-		for item in items:
-			self._set_item(item)
-		self.set_model(self.store)
-		gc.collect()
-		
-	def _set_item(self, item):
+		        self.store.clear()
+        		for item in items:
+        		      self._set_item(item,None)
+	        	self.set_model(self.store)      
+        		gc.collect()
+	
+	def _set_item(self, item,piter=None):
+		name = item.get_name()
+		comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
+		count = "<span size='small' color='blue'>%s</span>" %  item.count
+		use = "<span size='small' color='blue'>%s</span>" %  item.use
+		#text = name +"\n" + comment +" "+use
 		try:
-			name = item.get_name()
-			if not name:
-				pass
-			comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
-			count = "<span size='small' color='blue'>%s</span>" %  item.count
-			use = "<span size='small' color='blue'>%s</span>" %  item.use
-			text = name +"\n" + comment +" "+use
-			try:
-				icon = item.get_icon(24)
-			except (AssertionError, AttributeError):
-				print("exception")
-				icon = None
-			
-			self.store.append([None, icon, text, None, item])
-			
-			del icon,name,comment
-		except:
-			pass
+			icon = item.get_icon(24)
+		except (AssertionError, AttributeError):
+			print("exception")
+			icon = None
+		
+		self.store.append([icon, name, "", "", item])
+		
+		del icon,name,comment
 
 
 calendar = CalendarWidget()

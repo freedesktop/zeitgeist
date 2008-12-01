@@ -34,10 +34,7 @@ class RecentlyUsedManagerGtk(ItemSource):
 				if not info.get_private_hint():
 					
 					if info.get_added():
-						
 						use = None
-						
-						
 						timestamp=max( [info.get_added(),info.get_modified(),info.get_visited()])
 						
 						if info.get_added() == timestamp:
@@ -55,7 +52,9 @@ class RecentlyUsedManagerGtk(ItemSource):
 							timestamp=timestamp,
 							tags=info.get_groups(),
 							count=counter,
-							use=use)
+							use=use,
+							)
+						
 									
 class RecentlyUsed(ItemSource):
 	'''
