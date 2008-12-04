@@ -4,15 +4,15 @@ import urllib
 
 from gettext import gettext as _
 
-from zeitgeist_engine.zeitgeist_base import ItemSource
+from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_engine.zeitgeist_firefox import *
 from zeitgeist_engine.zeitgeist_tomboy import *
 from zeitgeist_engine.zeitgeist_recent import *
 from zeitgeist_engine.zeitgeist_dbcon import db
 
-class DataSinkSource(ItemSource):
+class DataSinkSource(DataProvider):
 	def __init__(self, note_path=None):
-		ItemSource.__init__(self,
+		DataProvider.__init__(self,
 							name=_("Sink"),
 							icon=None,
 							uri="source:///Datasink")
@@ -64,8 +64,8 @@ class DataSinkSource(ItemSource):
 	   
 		print("logging")
 		for source in self.sources:
-			for item in source.get_items():
-				db.insert_item(item)
+				db.insert_items(source.get_items())
+				
 		self.emit("reload")
 			
 	   
@@ -124,7 +124,7 @@ class DataSinkSource(ItemSource):
 		# Create A List Of Files with full pathname
 		for files in filenames:
 			file = os.path.join(dirname, files)
-			item = Item(uri=file)
+			item = Data(uri=file)
 			self.desktop_items.append(item)
 '''
 

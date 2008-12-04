@@ -10,13 +10,13 @@ import gnomevfs
 import W3CDate
 from gettext import gettext as _
 
-from zeitgeist_base import Item, ItemSource
+from zeitgeist_base import Data, DataProvider
 from zeitgeist_util import FileMonitor, launcher
 
 # FIXME:  This should really just use Beagle or Tracker.
 
 
-class NoteItem(Item):
+class NoteData(Data):
 	def __init__(self, uri,timestamp =None): 
 		self.title = None
 		self.content_text = None
@@ -24,8 +24,9 @@ class NoteItem(Item):
 		self.uri = uri
 		self.type = "Notes"
 		self.do_reload()
-		Item.__init__(self, uri=uri, timestamp=self.timestamp, icon="stock_notes", mimetype="x-tomboy/note", type =self.type)
-
+		self.name = str(self.title)
+		Data.__init__(self, uri=uri, name=self.name, timestamp=self.timestamp, icon="stock_notes", mimetype="x-tomboy/note", type =self.type)
+		
 		# Load and parse note XML
 		#self.emit("reload")
 
@@ -76,14 +77,14 @@ class NoteItem(Item):
 		return self.title or os.path.basename(self.get_uri()) or self.get_uri()
 
 
-class TomboySource(ItemSource):
+class TomboySource(DataProvider):
 	def __init__(self, note_path=None):
-		ItemSource.__init__(self,
+		DataProvider.__init__(self,
 							name=_("Notes"),
 							icon="stock_notes",
 							uri="source:///Documents/Tomboy")
 		self.name=_("Notes")
-		self.new_note_item = Item(name=_("Create New Note"),
+		self.new_note_item = Data(name=_("Create New Note"),
 								  comment=_("Make a new Tomboy note"),
 								  icon=gtk.STOCK_NEW)
 		self.new_note_item.do_open = lambda: self._make_new_note()
@@ -109,7 +110,7 @@ class TomboySource(ItemSource):
 
 		if ev == gnomevfs.MONITOR_EVENT_CREATED:
 			notepath = os.path.join(self.note_path, filename)
-			self.notes[filename] = NoteItem(notepath)
+			self.notes[filename] = NoteData(notepath)
 			self.emit("reload")
 		elif self.notes.has_key(filename):
 			if ev == gnomevfs.MONITOR_EVENT_DELETED:
@@ -126,7 +127,7 @@ class TomboySource(ItemSource):
 			for filename in os.listdir(self.note_path):
 				if filename.endswith(".note"):
 					notepath = os.path.join(self.note_path, filename)
-					yield NoteItem(notepath)
+					yield NoteData(notepath)
 		except (OSError, IOError), err:
 		   pass  #print " !!! Error loading Tomboy notes:", err
 

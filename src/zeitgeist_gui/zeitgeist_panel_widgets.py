@@ -164,7 +164,8 @@ class FilterAndOptionBox(gtk.VBox):
 			self.voptionbox.pack_start( filter,False,False,0)
 			self.filters.append(filter)
 			filter.connect("toggled",self.filterout)
-		
+			del source
+			
 		self.frame2.add(self.voptionbox)
 		self.date_dict = None
 		
@@ -177,6 +178,7 @@ class FilterAndOptionBox(gtk.VBox):
 		
 	def filterout(self,widget):
 		datasink.emit("reload")
+		gc.collect()
 
 class CalendarWidget(gtk.Calendar):
 	def __init__(self):
@@ -186,7 +188,7 @@ class FrequentlyUsedWidget(gtk.VBox):
 	
 	def __init__(self):
 		gtk.VBox.__init__(self)
-		self.iconview = ItemIconView()
+		self.iconview = DataIconView()
 		self.label = gtk.Label("Popular")
 		self.label.set_padding(5, 5)	
 		
@@ -219,7 +221,7 @@ class FrequentlyUsedWidget(gtk.VBox):
 class BookmarksWidget(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
-		self.iconview = ItemIconView()
+		self.iconview = DataIconView()
 		self.label = gtk.Label("Bookmarks and Desktop")
 		self.label.set_padding(5, 5)	 
 		self.pack_start(self.label,False,False)
@@ -281,7 +283,7 @@ class DayBox(gtk.VBox):
 		scroll.set_shadow_type(gtk.SHADOW_OUT)
 		self.pack_start(scroll,True,True)
 		
-		self.iconview = ItemIconView()
+		self.iconview = DataIconView()
 		scroll.add(self.iconview)
 		
 		#self.imageBox = gtk.HBox(True)
@@ -345,9 +347,9 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 
 		self.destroy()
 		
-class ItemIconView(gtk.TreeView):
+class DataIconView(gtk.TreeView):
 	'''
-	Icon view which displays Items in the style of the Nautilus horizontal mode,
+	Icon view which displays Datas in the style of the Nautilus horizontal mode,
 	where icons are right aligned and each column is of a uniform width.  Also
 	handles opening an item and displaying the item context menu.
 	'''
@@ -452,7 +454,7 @@ class ItemIconView(gtk.TreeView):
 			print("exception")
 			icon = None
 		
-		self.store.append([icon, name, "", "", item])
+		self.store.append([icon, name, comment, "", item])
 		
 		del icon,name,comment
 

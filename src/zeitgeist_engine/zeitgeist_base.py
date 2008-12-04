@@ -3,6 +3,7 @@ import gc
 import string
 import sys
 import time
+import os
 from threading import Thread
 
 import gobject
@@ -11,7 +12,7 @@ from gettext import ngettext, gettext as _
 
 from zeitgeist_util import Thumbnailer,  icon_factory, launcher
 
-class Item(gobject.GObject):
+class Data(gobject.GObject):
 	__gsignals__ = {
 		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		"open" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
@@ -56,11 +57,15 @@ class Item(gobject.GObject):
 	def get_icon(self, icon_size):
 		if self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
 		      self.icon="firefox"
+		elif self.mimetype =="x-tomboy/note":
+			self. icon="stock_notes" 
+		
+		
 		if self.icon:
 			  return icon_factory.load_icon(self.icon, icon_size)
 		if not self.thumbnailer:
 			  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
-			  return self.thumbnailer.get_icon(icon_size, self.timestamp)
+		return self.thumbnailer.get_icon(icon_size, self.timestamp)
 		
 	
 	def get_mimetype(self):
@@ -76,24 +81,30 @@ class Item(gobject.GObject):
 		return self.time.strip()
 
 	def do_open(self):
-		uri_to_open = self.get_uri()
+		
+		if self.mimetype =="x-tomboy/note":
+			uri_to_open = "note://tomboy/%s" % os.path.splitext(os.path.split(self.get_uri())[1])[0]
+		else:
+			uri_to_open = self.get_uri()
+		
 		if uri_to_open:
+			
 			self.timestamp = time.time()
 			launcher.launch_uri(uri_to_open, self.get_mimetype())
 		else:
 			pass
-			#print " !!! Item has no URI to open: %s" % self
+			#print " !!! Data has no URI to open: %s" % self
 	def open(self):
 		self.emit("open")
 	
 	def populate_popup(self, menu):
-		open = gtk.ImageMenuItem (gtk.STOCK_OPEN)
+		open = gtk.ImageMenuData (gtk.STOCK_OPEN)
 		open.connect("activate", lambda w: self.open())
 		open.show()
 		menu.append(open)
 
 	
-class ItemSource(Item):
+class DataProvider(Data,Thread):
 	# Clear cached items after 4 minutes of inactivity
 	CACHE_CLEAR_TIMEOUT_MS = 1000 * 60 * 4
 	
@@ -103,13 +114,13 @@ class ItemSource(Item):
 				 comment = None,
 				 uri = None,
 				 filter_by_date = True):
-		Item.__init__(self,
+		Data.__init__(self,
 					  name=name,
 					  icon=icon,
 					  comment=comment,
 					  uri=uri,
 					  mimetype="zeitgeist/item-source")
-		#Thread.__init__(self)
+		Thread.__init__(self)
 		#self.sourceType = None
 		self.filter_by_date = filter_by_date
 		self.items = []
@@ -135,7 +146,7 @@ class ItemSource(Item):
 		
 		if self.clear_cache_timeout_id:
 			gobject.source_remove(self.clear_cache_timeout_id)
-		self.clear_cache_timeout_id = gobject.timeout_add(ItemSource.CACHE_CLEAR_TIMEOUT_MS, lambda: self.set_items(None))
+		self.clear_cache_timeout_id = gobject.timeout_add(DataProvider.CACHE_CLEAR_TIMEOUT_MS, lambda: self.set_items(None))
 		if self.items:
 			for i in self.items:
 				if i.timestamp >= min and i.timestamp <max:
@@ -150,7 +161,7 @@ class ItemSource(Item):
 					del i
 				
 	def get_items_uncached(self):
-		'''Subclasses should override this to return/yield Items. The results
+		'''Subclasses should override this to return/yield Datas. The results
 		will be cached.'''
 		return []
 

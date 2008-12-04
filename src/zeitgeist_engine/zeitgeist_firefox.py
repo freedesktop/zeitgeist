@@ -15,23 +15,23 @@ import tempfile
 import W3CDate
 from gettext import gettext as _
 
-from zeitgeist_base import Item, ItemSource
+from zeitgeist_base import Data, DataProvider
 from zeitgeist_util import FileMonitor, launcher
 
 
-class FirefoxItem(Item):
+class FirefoxData(Data):
 	def __init__(self,uri,name,timestamp,count):
 		self.uri = uri
 		self.name = name
 		self.timestamp = timestamp
 		self.count = count
-		Item.__init__(self,name=name,uri=uri, timestamp = timestamp, count=self.count,  use="visited", type="Firefox History")
+		Data.__init__(self,name=name,uri=uri, timestamp = timestamp, count=self.count,  use="visited", type="Firefox History")
 
-class FirefoxSource(ItemSource):
+class FirefoxSource(DataProvider):
 	def __init__(self, name = "Firefox History", icon = "gnome-globe"):
 		
 		self.items=[]
-		ItemSource.__init__(self, name=name, icon=icon)
+		DataProvider.__init__(self, name=name, icon=icon)
 		self.name = "Firefox History"
 		self.icon="firefox"
 		#print(cursor)
@@ -63,7 +63,7 @@ class FirefoxSource(ItemSource):
 			timestamp = history[j][2]
 			timestamp = timestamp / (1000000)
 			j=j+1
-			yield FirefoxItem(url,name,timestamp,count)
+			yield FirefoxData(url,name,timestamp,count)
 			del i,url,item,name,count,timestamp
 		print("reloading firefox history done")
 		cursor.close()

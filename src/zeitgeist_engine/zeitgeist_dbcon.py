@@ -1,22 +1,22 @@
 
 import shutil
-import sqlite3 as db
+import sqlite3
 import tempfile
 import re
 import glob
 import sys
 import gc
 import os
-from zeitgeist_engine.zeitgeist_base import ItemSource, Item
+from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 
 class DBConnector:
     
     def __init__(self):
         
         self.create_db()
-        path = glob.glob(os.path.expanduser("~/.Zeitgeist/zeitgeist.sqlite"))
+        path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
         print (str(path))
-        self.connection = db.connect(path[0],True)
+        self.connection = sqlite3.connect(path[0],True)
         self.cursor = self.connection.cursor()
         self.offset = 0
     
@@ -25,22 +25,27 @@ class DBConnector:
             homedir = glob.glob(os.path.expanduser("~/"))
             homedir = homedir[0] +".Zeitgeist"
             os.mkdir(homedir)
-            shutil.copy("./zeitgeist.sqlite", homedir)     
+            shutil.copy("./gzg.sqlite", homedir)     
         except :
             print "Unexpected error:", sys.exc_info()[0]
 
     def get_last_timestmap(self):
-        command = "SELECT * FROM timetable WHERE timestamp IN (SELECT MAX(timestamp) AS timestamp FROM timetable)"
+        command = "SELECT * FROM timetable WHERE start IN (SELECT MAX(start) AS start FROM timetable)"
         temp = self.cursor.execute(command).fetchall()
         try:
             return temp[0][0]
         except:
             return 0
         
-    def insert_item(self,item):
+    def insert_items(self,items):
+            for item in items:
                try:
-                   self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?,?,?,?)',(
+                   self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)',(
                                                                                                item.timestamp,
+                                                                                               None,
+                                                                                               item.uri,
+                                                                                               ""))
+                   self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',(
                                                                                                item.uri,
                                                                                                item.name,
                                                                                                item.comment,
@@ -49,28 +54,33 @@ class DBConnector:
                                                                                                item.count,
                                                                                                item.use,
                                                                                                item.type))
-                   
-                   self.connection.commit()
                    print("wrote "+item.uri+" into database")
                except:
                    pass
+               self.connection.commit()
+               
     def get_items(self,min,max):
         items = []
-        contents = "timestamp , uri,  name,  comment, mimetype, tags, count, use, type"
+        tcontents = "start , end,  uri,  diff"
         #print ("min = " + str(min))
         #print ("max = " + str(max))
-        temp = self.cursor.execute("SELECT " +contents+ " FROM timetable WHERE timestamp >= "+str(int(min)) +" and timestamp <= " + str(int(max))).fetchall()
-        for i in temp:
-            timestamp = i[0]
-            uri= i[1]
-            name = i[2]
-            comment = i[3]
-            mimetype = i[4]
-            tags =i[5]
-            count=i[6]
-            use =i[7]
-            type=i[8]
-            yield Item(uri= i[1], timestamp= i[0], name=i[2], comment=i[3], mimetype= i[4], tags=i[6], count=i[6], use=i[7], type =i[8])
+        
+        perioditems = self.cursor.execute("SELECT " +tcontents+ " FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall()
+        
+        for t in perioditems:
+            
+            uri = t[2]
+            i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchall()
+            timestamp =t[0]
+            uri= i[0][0]
+            name = i[0][1]
+            comment = i[0][2]
+            mimetype = i[0][3]
+            tags =i[0][4]
+            count=i[0][5]
+            use =i[0][6]
+            type=i[0][7]
+            yield Data(uri=uri, timestamp= timestamp, name=name, comment=comment, mimetype= mimetype, tags=tags, count=count, use=use, type =type)
         gc.collect()
         #print(str(len(items)))
      
