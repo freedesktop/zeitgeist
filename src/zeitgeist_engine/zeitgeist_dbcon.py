@@ -22,7 +22,7 @@ class DBConnector:
     
     def create_db(self):
         path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
-        if not os.path.exists(path[0]):
+        if len(path)==0:
             try:
                 
                 homedir = glob.glob(os.path.expanduser("~/"))
