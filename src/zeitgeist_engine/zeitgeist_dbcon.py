@@ -21,13 +21,19 @@ class DBConnector:
         self.offset = 0
     
     def create_db(self):
-        try:
-            homedir = glob.glob(os.path.expanduser("~/"))
-            homedir = homedir[0] +".Zeitgeist"
-            os.mkdir(homedir)
-            shutil.copy("./gzg.sqlite", homedir)     
-        except :
-            print "Unexpected error:", sys.exc_info()[0]
+        path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
+        if not os.path.exists(path[0]):
+            try:
+                
+                homedir = glob.glob(os.path.expanduser("~/"))
+                homedir = homedir[0] +".Zeitgeist"
+                try:
+                    os.mkdir(homedir)
+                except:
+                    pass
+                shutil.copy("gzg.sqlite", homedir)    
+            except :
+                print "Unexpected error:", sys.exc_info()[0]
 
     def get_last_timestmap(self):
         command = "SELECT * FROM timetable WHERE start IN (SELECT MAX(start) AS start FROM timetable)"
