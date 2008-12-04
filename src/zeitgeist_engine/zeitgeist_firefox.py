@@ -41,14 +41,16 @@ class FirefoxSource(DataProvider):
 
 		
 	   historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
-	   shutil.copy2(historydb[0],"./firefox-history.sqlite")
-
+	   newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
+	   newloc = newloc[0]+"firefox.sqlite"
+	   shutil.copy2(historydb[0],newloc)
+	   return newloc
 	
 	def get_items_uncached(self):#
 		print("reloading firefox history")
-		self.copy_sqlite()
-		historydb = "./firefox-history.sqlite"
-		self.connection = db.connect(historydb,True)
+		path = self.copy_sqlite()
+		print path
+		self.connection = db.connect(path,True)
 		cursor = self.connection.cursor()
 		contents = "id, place_id, visit_date"
 		history = cursor.execute("SELECT " +contents+ " FROM moz_historyvisits WHERE visit_type=" +str(2)).fetchall()
