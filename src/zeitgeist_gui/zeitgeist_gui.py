@@ -8,7 +8,7 @@ import gtk.glade
 import gobject
 import gnomeapplet
 
-from zeitgeist_panel_widgets import timeline,StarredWidget,FilterAndOptionBox,calendar
+from zeitgeist_panel_widgets import timeline,StarredWidget,FilterAndOptionBox,calendar,search
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class zeitgeistGUI:
@@ -40,7 +40,7 @@ class zeitgeistGUI:
 		self.notebook = gtk.Notebook()
 		self.faobox = FilterAndOptionBox()
 		
-		
+		self.sidebar.pack_start(search,True,True,5)
 		self.sidebar.pack_start(calendar, False, False)
 		self.sidebar.pack_start(self.faobox, True, True)
 		

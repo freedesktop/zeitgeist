@@ -94,7 +94,7 @@ class DataSinkSource(DataProvider):
 		self.emit("reload")
 			
 	   
-	def get_items(self,min=0,max=sys.maxint):
+	def get_items(self,min=0,max=sys.maxint,tags=""):
 		filters = []
 		for source in self.sources:
 			if source.get_active():
@@ -106,7 +106,7 @@ class DataSinkSource(DataProvider):
 		
 		for item in db.get_items(min,max):
 			try:
-				if filters.index(item.type)>=0:
+				if filters.index(item.type)>=0 and (item.tags.lower().find(tags)> -1 or item.uri.lower().find(tags)>-1):
 					if item.type=="Documents" or item.type=="Other":
 						orgsrc= db.get_first_timestmap_for_item(item, True)
 						item.original_source=orgsrc[3]
@@ -123,9 +123,9 @@ class DataSinkSource(DataProvider):
 		db.update_item(item)
 		self.emit("reload")
 	
-	def get_items_by_time(self,min=0,max=sys.maxint):
+	def get_items_by_time(self,min=0,max=sys.maxint,tags=""):
 		"Datasink getting all items from DaraProviders"
-		for item in self.get_items(min,max):
+		for item in self.get_items(min,max,tags):
 			yield item
 
 	'''			
