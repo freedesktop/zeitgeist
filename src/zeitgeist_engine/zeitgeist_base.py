@@ -10,6 +10,7 @@ import gobject
 import gtk
 from gettext import ngettext, gettext as _
 
+
 from zeitgeist_util import Thumbnailer,icon_factory, launcher,difffactory
 
 class Data(gobject.GObject):
@@ -116,9 +117,47 @@ class Data(gobject.GObject):
 			timemachine.connect("activate", lambda w: self.open_from_timestamp())
 			timemachine.show()
 			menu.append(timemachine)
+			del timemachine
+			
+		tag = gtk.MenuItem("Edit Tags")
+		tag.connect("activate", lambda w:  self.tag_item())
+		tag.show()
+		menu.append(tag)
 		
-		del open,menu
+		del open,tag
 	
+	def tag_item(self):
+		taggingwindow = gtk.Window()
+		taggingwindow.set_border_width(5)
+		taggingwindow.set_size_request(400,100)
+		taggingwindow.set_title("Edit Tags for "+self.get_name())
+		textview=gtk.TextView()
+			
+		textview.get_buffer().set_text(self.tags)  
+		
+			
+		okbtn = gtk.Button("Add")
+		cbtn = gtk.Button("Cancel")
+		cbtn.connect("clicked", lambda w: taggingwindow.destroy())
+		okbtn.connect("clicked",lambda w: self.set_tags(textview.get_buffer().get_text(*textview.get_buffer().get_bounds()) ))
+		okbtn.connect("clicked",lambda w:  taggingwindow.destroy())
+		vbox=gtk.VBox()
+		hbox=gtk.HBox()
+		hbox.pack_start(okbtn)
+		hbox.pack_start(cbtn)
+		vbox.pack_start(textview,True,True,5)
+		vbox.pack_start(hbox,False,False)
+		taggingwindow.add(vbox)
+		taggingwindow.show_all()
+		
+		
+	def set_tags(self,tags):
+		print tags
+		from zeitgeist_datasink import datasink
+		self.tags=tags
+		datasink.update_item(self)
+		
+		
 class DataProvider(Data,Thread):
 	# Clear cached items after 4 minutes of inactivity
 	CACHE_CLEAR_TIMEOUT_MS = 1000 * 60 * 4

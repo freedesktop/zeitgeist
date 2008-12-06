@@ -412,13 +412,14 @@ class DataIconView(gtk.TreeView):
 		if ev.button == 3:
 			   treeselection = self.get_selection()
 			   model, iter = treeselection.get_selected()
-			   item = model.get_value(iter, 4)
-			   if item:
-					menu = gtk.Menu()
-					menu.attach_to_widget(view, None)
-					item.populate_popup(menu)
-					menu.popup(None, None, None, ev.button, ev.time)
-					return True
+			   if iter:
+				   item = model.get_value(iter, 4)
+				   if item:
+						menu = gtk.Menu()
+						menu.attach_to_widget(view, None)
+						item.populate_popup(menu)
+						menu.popup(None, None, None, ev.button, ev.time)
+						return True
 				
 		del ev,view
 

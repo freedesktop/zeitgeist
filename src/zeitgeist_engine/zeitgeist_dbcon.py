@@ -121,5 +121,17 @@ class DBConnector:
         gc.collect()
         #print(str(len(items)))
      
+    def update_item(self,item):
+         
+         self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
+         self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',(item.uri,
+                                                                                                   item.name,
+                                                                                                   item.comment,
+                                                                                                   item.mimetype,
+                                                                                                   item.tags,
+                                                                                                   item.count,
+                                                                                                   item.use,
+                                                                                                   item.type))
+         self.connection.commit()
         
 db=DBConnector()

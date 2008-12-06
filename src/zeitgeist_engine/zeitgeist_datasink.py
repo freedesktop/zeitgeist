@@ -64,6 +64,7 @@ class DataSinkSource(DataProvider):
 				items=[]
 				for item in source.get_items():
 					tempitem = db.get_last_timestmap_for_item(item)
+					
 					if not tempitem or tempitem[3]=="":
 						file = item.uri
 						file = file.replace("%20"," ")
@@ -72,10 +73,10 @@ class DataSinkSource(DataProvider):
 						item.diff=diff
 						items.append(item)
 						del diff, f, file
+					
 					else:
 						baseinput=db.get_first_timestmap_for_item(item, True)
-						diff = difffactory.create_diff(item.uri,baseinput[3])
-						
+						diff = difffactory.create_diff(item.uri,baseinput[3])	
  						if diff=="":
  							baseinput = db.get_last_timestmap_for_item(item,True)
  							item.diff = baseinput[3]
@@ -83,9 +84,7 @@ class DataSinkSource(DataProvider):
 					 		    item.diff=diff 
 					 	items.append(item)
 					 	
-					 	del diff,baseinput,tempitem
-					 	
-						del item
+					 	del diff,baseinput,tempitem,item
 						source.set_items(items)
 		
 			db.insert_items(source.get_items())
@@ -119,8 +118,11 @@ class DataSinkSource(DataProvider):
 		time2 = time.time()
 		print("Got all items: " + str(time2 -time1))
 		gc.collect()
-		
-		
+	
+	def update_item(self,item):
+		db.update_item(item)
+		self.emit("reload")
+	
 	def get_items_by_time(self,min=0,max=sys.maxint):
 		"Datasink getting all items from DaraProviders"
 		for item in self.get_items(min,max):
