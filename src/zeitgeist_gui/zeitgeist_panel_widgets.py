@@ -29,6 +29,8 @@ class TimelineWidget(gtk.HBox):
 		self.end = None
 		self.current_timestamp = None
 		self.filter = False
+		self.tags=""
+		self.range = 4
 		# Create child scrolled window
 		self.scrolledWindow = gtk.ScrolledWindow()
 		self.scrolledWindow.set_border_width(4)
@@ -42,11 +44,13 @@ class TimelineWidget(gtk.HBox):
 		calendar.connect("day-selected-double-click", self.reorganize, self.DAY)
 		calendar.connect("day-selected", self.reorganize, self.MONTH)
 		
-		datasink.connect("reload", self.reorganize, None,True)
+		datasink.connect("reload", self.reorganize, self.range,True,self.tags)
 		self.reorganize(None, self.MONTH)
 		
 				   
 	def reorganize(self, widget, range, filter=False,tags=""):
+		self.range=range
+		self.tags = tags
 		self.filter =filter
 		# Used for benchmarking
 		time1 = time.time()
@@ -95,7 +99,7 @@ class TimelineWidget(gtk.HBox):
 				self.viewBox.remove(w)
 			
 			# Get all items in the date range
-			items = datasink.get_items_by_time(begin, end,tags)
+			items = datasink.get_items_by_time(begin, end, self.tags)
 			
 			# If we're currently showing a day then simply create one DayBox
 			if range == self.DAY and len(items) > 0:
