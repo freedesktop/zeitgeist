@@ -22,8 +22,13 @@ class TimelineWidget(gtk.HBox):
 		gtk.HBox.__init__(self, False, True)
 		self.set_size_request(600, 400)
 		
+		# begin and end is the range of time that we've created
+		# DayBoxes for. current_timestamp is the currently shown day,
+		# or None if we're viewing an entire month.
 		self.begin = None
 		self.end = None
+		self.current_timestamp = None
+		
 		# Create child scrolled window
 		self.scrolledWindow = gtk.ScrolledWindow()
 		self.scrolledWindow.set_border_width(4)
@@ -60,60 +65,56 @@ class TimelineWidget(gtk.HBox):
 		begin = time.mktime(begin)
 		end = time.mktime(end)
 		
+		if range == self.DAY:
+			timestamp = begin
+		else:
+			timestamp = None
+		
 		# If the date hasn't changed then just return
-		if self.begin == begin and self.end == end and  filter==False:
+		if timestamp == self.current_timestamp and self.begin == begin and self.end == end and filter==False:
 			return
+		self.current_timestamp = timestamp
 		
 		calendar.clear_marks()
 		
-		# Store the time range we're about to display
-		begin_old = self.begin
-		end_old = self.end
-		
-		self.begin = begin
-		self.end = end
-		
-		# If the current day is inside the last time range
-		if begin_old is not None and begin_old <= begin and end_old >= end and filter==False:
+		# If the current day/month is inside the last time range
+		if self.begin is not None and self.begin <= begin and self.end >= end and not filter:
 			for w in self.viewBox.get_children():
-				# print begin, end, begin_old, end_old, w.date
-				# NOTE: This is where things break.
-				# w.date is not the same format as begin and end
 				if w.date >= begin and w.date < end:
-					print "FOUND"
+					w.show()
 				else:
-					self.viewBox.remove(w)
-			return
-		
-		for w in self.viewBox.get_children():
-			self.viewBox.remove(w)
-		
-		# Get all items in the date range
-		items = datasink.get_items_by_time(begin, end)
-		
-		# If we're currently showing a day then simply create one DayBox
-		if range == self.DAY and len(items) > 0:
-			daybox = DayBox(items[0].datestring, items, items[0].ctimestamp)
-			daybox.view_items()
-		
-		# If we're showing a whole week, create a DayBox for each day
-		
+					w.hide()
 		else:
+			self.begin = begin
+			self.end = end
 			
-			# daybox contains the last created DayBox
-			daybox = None
-			# Loop over each of the items and create a new DayBox every time we reach
-			# a new day. Otherwise, just add the item to the last created DayBox.
-			for i in items:
-				if daybox is None or daybox.date != i.ctimestamp:
-					if daybox:
-						daybox.view_items()
-					# Create a new daybox for the current day
-					daybox = DayBox(i.datestring, [], i.ctimestamp)
-					self.viewBox.pack_start(daybox, True, True)
-				daybox.list.append(i)
-			if daybox:
+			for w in self.viewBox.get_children():
+				self.viewBox.remove(w)
+			
+			# Get all items in the date range
+			items = datasink.get_items_by_time(begin, end)
+			
+			# If we're currently showing a day then simply create one DayBox
+			if range == self.DAY and len(items) > 0:
+				daybox = DayBox(items[0].datestring, items, items[0].ctimestamp)
 				daybox.view_items()
+			
+			# If we're showing a whole week, create a DayBox for each day
+			else:
+				# daybox contains the last created DayBox
+				daybox = None
+				# Loop over each of the items and create a new DayBox every time we reach
+				# a new day. Otherwise, just add the item to the last created DayBox.
+				for i in items:
+					if daybox is None or daybox.date != i.ctimestamp:
+						if daybox:
+							daybox.view_items()
+						# Create a new daybox for the current day
+						daybox = DayBox(i.datestring, [], i.ctimestamp)
+						self.viewBox.pack_start(daybox, True, True)
+					daybox.list.append(i)
+				if daybox:
+					daybox.view_items()
 		
 		# Benchmarking
 		time2 = time.time()

@@ -10,7 +10,6 @@ import gnomeapplet
 
 from zeitgeist_panel_widgets import timeline,StarredWidget,FilterAndOptionBox,calendar
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
-#from zeitgeist_calendar_gui import zeitgeistGUI
 
 class zeitgeistGUI:
    
