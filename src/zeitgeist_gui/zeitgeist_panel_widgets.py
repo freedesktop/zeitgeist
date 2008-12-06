@@ -214,9 +214,7 @@ class FrequentlyUsedWidget(gtk.VBox):
 		self.label.set_text("Popular in "+month)
 		
 		#x = datasink.get_freq_items(min,max)
-		print("reload_view")
 		self.iconview.load_items([])
-		print("reload_view done")
 		
 class BookmarksWidget(gtk.VBox):
 	def __init__(self):

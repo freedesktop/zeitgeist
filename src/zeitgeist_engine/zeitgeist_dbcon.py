@@ -15,7 +15,7 @@ class DBConnector:
         
         self.create_db()
         path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
-        print (str(path))
+       # print (str(path))
         self.connection = sqlite3.connect(path[0],True)
         self.cursor = self.connection.cursor()
         self.offset = 0
@@ -35,6 +35,8 @@ class DBConnector:
             except :
                 print "Unexpected error:", sys.exc_info()[0]
 
+    
+
     def get_last_timestmap(self):
         command = "SELECT * FROM timetable WHERE start IN (SELECT MAX(start) AS start FROM timetable)"
         temp = self.cursor.execute(command).fetchall()
@@ -43,27 +45,52 @@ class DBConnector:
         except:
             return 0
         
+    def get_last_timestmap_for_item(self,item,withdiff=False):
+        command = "SELECT * FROM timetable WHERE uri=?"
+        temp = self.cursor.execute(command,(item.uri,)).fetchall()
+        if temp:
+            if withdiff :
+                x=None
+                for i in temp:
+                    if not  i[3]=="" and not i[3]=="!diff" :
+                        del temp
+                        x=i
+                return x
+            return  temp[len(temp)-1]
+        return None
+    
+    def get_first_timestmap_for_item(self,item,withdiff=False):
+        command = "SELECT * FROM timetable WHERE uri=?"
+        temp = self.cursor.execute(command,(item.uri,)).fetchall()
+        if withdiff:
+            for i in temp:
+                if not  i[3]=="" and not i[3]=="!diff" :
+                    del temp
+                    return i
+        else:
+            None
+        
     def insert_items(self,items):
             for item in items:
-               try:
-                   self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)',(
-                                                                                               item.timestamp,
-                                                                                               None,
-                                                                                               item.uri,
-                                                                                               ""))
-                   self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',(
-                                                                                               item.uri,
-                                                                                               item.name,
-                                                                                               item.comment,
-                                                                                               item.mimetype,
-                                                                                               item.tags,
-                                                                                               item.count,
-                                                                                               item.use,
-                                                                                               item.type))
-                   print("wrote "+item.uri+" into database")
-               except:
-                   pass
-               self.connection.commit()
+                   try:
+                       self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)',(
+                                                                                                   item.timestamp,
+                                                                                                   None,
+                                                                                                   item.uri,
+                                                                                                   item.diff))
+                       self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',(
+                                                                                                   item.uri,
+                                                                                                   item.name,
+                                                                                                   item.comment,
+                                                                                                   item.mimetype,
+                                                                                                   item.tags,
+                                                                                                   item.count,
+                                                                                                   item.use,
+                                                                                                   item.type))
+                       print("wrote "+item.uri+" into database")
+                   except:
+                       pass
+            self.connection.commit()
                
     def get_items(self,min,max):
         items = []
@@ -86,7 +113,11 @@ class DBConnector:
             count=i[0][5]
             use =i[0][6]
             type=i[0][7]
-            yield Data(uri=uri, timestamp= timestamp, name=name, comment=comment, mimetype= mimetype, tags=tags, count=count, use=use, type =type)
+            diff = t[3]
+            d= Data(uri=uri, timestamp= timestamp, name=name, comment=comment, mimetype= mimetype, tags=tags, count=count, use=use, type =type)
+            d.diff=diff
+            yield d
+            del d
         gc.collect()
         #print(str(len(items)))
      

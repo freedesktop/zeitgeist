@@ -12,6 +12,7 @@ import gnome.ui
 import gnomevfs
 import gconf
 from gettext import gettext as _
+import tempfile, shutil, os
 
 class FileMonitor(gobject.GObject):
     '''
@@ -379,15 +380,13 @@ class LaunchManager:
             os.environ['DESKTOP_STARTUP_ID'] = startup_id
             if launcher_uri:
                 os.environ['zeitgeist_LAUNCHER'] = launcher_uri
-            os.popen2(command)
+            os.system(command)
             os._exit(0)
         else:
             os.wait()
-            if launcher_uri:
-                self._get_recent_model().add(uri=launcher_uri,
-                                            mimetype="application/x-desktop",
-                                            groups=["Launchers"])
+           
             return (child, startup_id)
+
 
 class DBusWrapper:
     '''
@@ -439,6 +438,33 @@ class DBusWrapper:
         except AttributeError:
             raise dbus.DBusException
 
+class DiffFactory:
+    def __init__(self):
+        pass
+    
+    def create_diff(self,uri1,content):
+        fd, path = tempfile.mkstemp()
+        os.write(fd, content)
+        diff =  os.popen("diff -u "+path+" "+uri1.replace("file://","",1)).read()
+        os.close(fd)
+        os.remove(path)
+        del path,fd
+        return diff
+        
+    def restore_file(self,item):
+        fd1, orginalfile = tempfile.mkstemp()
+        fd2, patch = tempfile.mkstemp()
+        
+        os.write(fd1, item.original_source)
+        os.write(fd2, item.diff)
+        
+        os.close(fd1)
+        os.close(fd2)
+        
+        os.system("patch "+orginalfile+"<"+patch)
+        return orginalfile
+    
+difffactory=DiffFactory()
 icon_factory = IconFactory()
 icon_theme = gtk.icon_theme_get_default()
 thumb_factory = gnome.ui.ThumbnailFactory("normal")

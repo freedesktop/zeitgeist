@@ -1,7 +1,6 @@
 import sys
 import time
 import urllib
-
 from gettext import gettext as _
 
 from zeitgeist_engine.zeitgeist_base import DataProvider
@@ -9,6 +8,7 @@ from zeitgeist_engine.zeitgeist_firefox import *
 from zeitgeist_engine.zeitgeist_tomboy import *
 from zeitgeist_engine.zeitgeist_recent import *
 from zeitgeist_engine.zeitgeist_dbcon import db
+from zeitgeist_util import difffactory
 
 class DataSinkSource(DataProvider):
 	def __init__(self, note_path=None):
@@ -37,8 +37,6 @@ class DataSinkSource(DataProvider):
 		self.firefox = FirefoxSource()
 		self.firefox.run()
 		
-		#self.chats = RecentContacts()
-		
 		self.tomboy = TomboySource()
 		self.tomboy.run()
 		self.tomboy.connect("reload", self.log)
@@ -54,7 +52,6 @@ class DataSinkSource(DataProvider):
 					 self.images,
 					 self.music,
 					 self.others,
-					 #self.chats,
 					 self.tomboy,
 					 self.videos
 					]
@@ -62,10 +59,39 @@ class DataSinkSource(DataProvider):
 	
 	def log(self,x=None):
 	   
-		print("logging")
 		for source in self.sources:
-				db.insert_items(source.get_items())
-				
+			if source.name=="Documents" or source.name=="Other":
+				items=[]
+				for item in source.get_items():
+					tempitem = db.get_last_timestmap_for_item(item)
+					if not tempitem or tempitem[3]=="":
+						file = item.uri
+						file = file.replace("%20"," ")
+						f = open(file.replace("file://","",1))
+						diff = f.read()
+						item.diff=diff
+						items.append(item)
+						del diff, f, file
+					else:
+						baseinput=db.get_first_timestmap_for_item(item, True)
+						diff = difffactory.create_diff(item.uri,baseinput[3])
+						
+ 						if diff=="":
+ 							baseinput = db.get_last_timestmap_for_item(item,True)
+ 							item.diff = baseinput[3]
+					 	else:
+					 		    item.diff=diff 
+					 	items.append(item)
+					 	
+					 	del diff,baseinput,tempitem
+					 	
+						del item
+						source.set_items(items)
+		
+			db.insert_items(source.get_items())
+			del source
+			
+		gc.collect()
 		self.emit("reload")
 			
 	   
@@ -82,7 +108,10 @@ class DataSinkSource(DataProvider):
 		for item in db.get_items(min,max):
 			try:
 				if filters.index(item.type)>=0:
-						yield item	
+					if item.type=="Documents" or item.type=="Other":
+						orgsrc= db.get_first_timestmap_for_item(item, True)
+						item.original_source=orgsrc[3]
+					yield item	
 			except:
 				pass
 		del filters

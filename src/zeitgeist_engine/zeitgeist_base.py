@@ -10,7 +10,7 @@ import gobject
 import gtk
 from gettext import ngettext, gettext as _
 
-from zeitgeist_util import Thumbnailer,  icon_factory, launcher
+from zeitgeist_util import Thumbnailer,icon_factory, launcher,difffactory
 
 class Data(gobject.GObject):
 	__gsignals__ = {
@@ -38,6 +38,7 @@ class Data(gobject.GObject):
 		self.comment = comment
 		self.mimetype = mimetype
 		self.use = use
+		self.diff=""
 		#Timestamps
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
@@ -53,6 +54,7 @@ class Data(gobject.GObject):
 		self.icon = icon
 		self.tags = tags
 		self.thumbnailer = None
+		self.original_source = None
 		
 	def get_icon(self, icon_size):
 		if self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
@@ -96,13 +98,26 @@ class Data(gobject.GObject):
 			#print " !!! Data has no URI to open: %s" % self
 	def open(self):
 		self.emit("open")
-	
+		
+	def open_from_timestamp(self):
+		path = difffactory.restore_file(self)
+		launcher.launch_uri(path, self.get_mimetype())
+		del path
+		gc.collect()
+		
 	def populate_popup(self, menu):
-		open = gtk.ImageMenuData (gtk.STOCK_OPEN)
+		open = gtk.ImageMenuItem (gtk.STOCK_OPEN)
 		open.connect("activate", lambda w: self.open())
 		open.show()
 		menu.append(open)
 
+		if self.type=="Documents" or self.type=="Other":
+			timemachine = gtk.MenuItem("Open from timestamp")
+			timemachine.connect("activate", lambda w: self.open_from_timestamp())
+			timemachine.show()
+			menu.append(timemachine)
+		
+		del open,menu
 	
 class DataProvider(Data,Thread):
 	# Clear cached items after 4 minutes of inactivity
