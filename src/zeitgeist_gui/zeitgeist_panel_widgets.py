@@ -186,6 +186,7 @@ class FilterAndOptionBox(gtk.VBox):
 		
 	def filterout(self,widget):
 		datasink.emit("reload")
+		search.emit("clear")
 		gc.collect()
 
 class CalendarWidget(gtk.Calendar):
@@ -262,6 +263,7 @@ class CheckBox(gtk.CheckButton):
 	def toggle_source(self,widget):
 		if self.get_active():
 			self.source.set_active(True)
+			#search.emit("clear")
 		else:
 			self.source.set_active(False)
 		
