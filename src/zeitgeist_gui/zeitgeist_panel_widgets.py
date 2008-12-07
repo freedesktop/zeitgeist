@@ -28,8 +28,10 @@ class TimelineWidget(gtk.HBox):
 		self.begin = None
 		self.end = None
 		self.current_timestamp = None
+		
 		self.filter = False
 		self.range = 4
+		
 		# Create child scrolled window
 		self.scrolledWindow = gtk.ScrolledWindow()
 		self.scrolledWindow.set_border_width(4)
@@ -43,13 +45,13 @@ class TimelineWidget(gtk.HBox):
 		calendar.connect("day-selected-double-click", self.reorganize, self.DAY)
 		calendar.connect("day-selected", self.reorganize, self.MONTH)
 		
-		datasink.connect("reload", self.reorganize, self.range,True)
+		datasink.connect("reload", self.reorganize, self.range, True)
 		self.reorganize(None, self.MONTH)
-		
 				   
-	def reorganize(self, widget, range, filter=False,tags=""):
+	def reorganize(self, widget, range, filter=False, tags=""):
 		self.range=range
 		self.filter =filter
+		
 		# Used for benchmarking
 		time1 = time.time()
 		
@@ -124,7 +126,6 @@ class TimelineWidget(gtk.HBox):
 		# Benchmarking
 		time2 = time.time()
 		print("Time to reorganize: " + str(time2 -time1))
-			
 		
 		# Manually force garbage collection
 		gc.collect()
@@ -311,6 +312,7 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 	'''
 	Dialog to create a new document from a template
 	'''
+	
 	__gsignals__ = {
 		"response" : "override"
 		}
@@ -491,11 +493,13 @@ class SearchToolItem(gtk.ToolItem):
 		self.entry.set_width_chars(14)
 		self.entry.set_text(self.default_search_text)
 		self.entry.show()
-		#Needs fixing to dirty
+		
+		# Needs cleanup
 		calendar.connect("month-changed", lambda w: self.emit("clear"))
 		self.entry.connect("activate", lambda w: self._typing_timeout())
 		self.entry.connect("focus-in-event", lambda w, x: self._entry_focus_in())
 		self.entry.connect("key-press-event", self._entry_key_press)
+		
 		# Hold on to this id so we can block emission when initially clearing text
 		self.change_handler_id = self.entry.connect("changed", lambda w: self._queue_search())
 

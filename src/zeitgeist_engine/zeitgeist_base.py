@@ -10,7 +10,6 @@ import gobject
 import gtk
 from gettext import ngettext, gettext as _
 
-
 from zeitgeist_util import Thumbnailer,icon_factory, launcher,difffactory
 
 class Data(gobject.GObject):
@@ -40,7 +39,8 @@ class Data(gobject.GObject):
 		self.mimetype = mimetype
 		self.use = use
 		self.diff=""
-		#Timestamps
+		
+		# Timestamps
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
 		self.day =	datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%d"))
@@ -51,6 +51,7 @@ class Data(gobject.GObject):
 		self.date =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%x"))
 		self.datestring =  self.weekday+" "+self.day+" "+self.month+" "+self.year
 		self.ctimestamp = time.mktime([int(self.year),int(self.cmonth),int(self.day),0,0,0,0,0,0])
+		
 		self.type = type
 		self.icon = icon
 		self.tags = tags
@@ -61,8 +62,7 @@ class Data(gobject.GObject):
 		if self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
 			  self.icon="firefox"
 		elif self.mimetype =="x-tomboy/note":
-			self. icon="stock_notes" 
-		
+			self. icon="stock_notes"
 		
 		if self.icon:
 			  return icon_factory.load_icon(self.icon, icon_size)
@@ -130,11 +130,10 @@ class Data(gobject.GObject):
 		taggingwindow = gtk.Window()
 		taggingwindow.set_border_width(5)
 		taggingwindow.set_size_request(400,100)
-		taggingwindow.set_title("Edit Tags for "+self.get_name())
+		taggingwindow.set_title("Edit Tags for " + self.get_name())
 		textview=gtk.TextView()
 			
 		textview.get_buffer().set_text(self.tags)  
-		
 			
 		okbtn = gtk.Button("Add")
 		cbtn = gtk.Button("Cancel")
@@ -150,35 +149,33 @@ class Data(gobject.GObject):
 		taggingwindow.add(vbox)
 		taggingwindow.show_all()
 		
-		
-	def set_tags(self,tags):
-		print tags
+	def set_tags(self, tags):
 		from zeitgeist_datasink import datasink
-		self.tags=tags
+		self.tags = tags
 		datasink.update_item(self)
 		
 		
-class DataProvider(Data,Thread):
+class DataProvider(Data, Thread):
 	# Clear cached items after 4 minutes of inactivity
 	CACHE_CLEAR_TIMEOUT_MS = 1000 * 60 * 4
 	
 	def __init__(self,
-				 name = None,
-				 icon = None,
-				 comment = None,
-				 uri = None,
-				 filter_by_date = True):
-		Data.__init__(self,
-					  name=name,
-					  icon=icon,
-					  comment=comment,
-					  uri=uri,
-					  mimetype="zeitgeist/item-source")
+				name=None,
+				icon=None,
+				comment=None,
+				uri=None,
+				filter_by_date=True):
+		
+		# Initialize superclasses
+		Data.__init__(self, name=name, icon=icon, comment=comment,
+			uri=uri, mimetype="zeitgeist/item-source")
 		Thread.__init__(self)
-		#self.sourceType = None
+		
+		# Set attributes
 		self.filter_by_date = filter_by_date
 		self.items = []
 		self.clear_cache_timeout_id = None
+		
 		# Clear cached items on reload
 		self.connect("reload", lambda x: self.set_items(None))
 		self.hasPref = None
@@ -190,13 +187,12 @@ class DataProvider(Data,Thread):
 	def run(self):
 		self.get_items()
 	
-	def get_items(self,min=0,max=sys.maxint):
+	def get_items(self, min=0, max=sys.maxint):
 		'''
 		Return cached items if available, otherwise get_items_uncached() is
 		called to create a new cache, yielding each result along the way.  A
 		timeout is set to invalidate the cached items to free memory.
 		'''
-		
 		
 		if self.clear_cache_timeout_id:
 			gobject.source_remove(self.clear_cache_timeout_id)
