@@ -15,25 +15,23 @@ class DBConnector:
 		
 		self.create_db()
 		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
-	   # print (str(path))
-		self.connection = sqlite3.connect(path[0],True)
+		self.connection = sqlite3.connect(path[0], True)
 		self.cursor = self.connection.cursor()
 		self.offset = 0
 	
 	def create_db(self):
 		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
-		if len(path)==0:
+		if len(path) == 0:
 			try:
-				
 				homedir = glob.glob(os.path.expanduser("~/"))
-				homedir = homedir[0] +".Zeitgeist"
+				dbdir = homedir[0] +".Zeitgeist"
 				try:
-					os.mkdir(homedir)
+					os.mkdir(dbdir)
 				except:
 					pass
-				shutil.copy("gzg.sqlite", homedir)	  
+				shutil.copy("gzg.sqlite", dbdir)	  
 			except :
-				print "Unexpected error:", sys.exc_info()[0]
+				print "Unexpected error creating database:", sys.exc_info()[0]
 
 	
 
@@ -71,26 +69,25 @@ class DBConnector:
 			None
 		
 	def insert_items(self,items):
-			for item in items:
-				   try:
-					   self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)',(
-																								   item.timestamp,
-																								   None,
-																								   item.uri,
-																								   item.diff))
-					   self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',(
-																								   item.uri,
-																								   item.name,
-																								   item.comment,
-																								   item.mimetype,
-																								   item.tags,
-																								   item.count,
-																								   item.use,
-																								   item.type))
-					   print("wrote "+item.uri+" into database")
-				   except:
-					   pass
-			self.connection.commit()
+		for item in items:
+			try:
+				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)', (item.timestamp,
+																				None,
+																				item.uri,
+																				item.diff))
+				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
+																					item.name,
+																					item.comment,
+																						item.mimetype,
+																						item.tags,
+																						item.count,
+																						item.use,
+																						item.type))
+				print("wrote "+item.uri+" into database")
+			except Exception, ex:
+				pass
+			
+		self.connection.commit()
 			   
 	def get_items(self,min,max):
 		items = []
