@@ -90,13 +90,14 @@ class DBConnector:
 		self.connection.commit()
 			   
 	def get_items(self,min,max):
-		items = []
-		tcontents = "start , end,  uri,  diff"
-		#print ("min = " + str(min))
-		#print ("max = " + str(max))
-		
-		perioditems = self.cursor.execute("SELECT " +tcontents+ " FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall()
-		
+
+		try:
+			tcontents = "start , end,  uri,  diff"
+			perioditems = self.cursor.execute("SELECT " +tcontents+ " FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall()
+		except:			
+			tcontents = "start , end,  uri"
+			perioditems = self.cursor.execute("SELECT " +tcontents+ " FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall()
+
 		for t in perioditems:
 			
 			uri = t[2]
@@ -110,7 +111,12 @@ class DBConnector:
 			count=i[0][5]
 			use =i[0][6]
 			type=i[0][7]
-			diff = t[3]
+
+			try:
+				diff = t[3]
+			except:
+				diff=None
+	
 			d= Data(uri=uri, timestamp= timestamp, name=name, comment=comment, mimetype= mimetype, tags=tags, count=count, use=use, type =type)
 			d.diff=diff
 			yield d

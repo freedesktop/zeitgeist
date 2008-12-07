@@ -104,7 +104,7 @@ class DataSinkSource(DataProvider):
 		# Used for benchmarking
 		time1 = time.time()
 		tagsplit = tags.split(" ")
-		print "TAGS COUNT " + str(len(tagsplit))
+		#print "TAGS COUNT " + str(len(tagsplit))
 		for item in db.get_items(min,max):
 				counter = 0	
 				for tag in tagsplit:
