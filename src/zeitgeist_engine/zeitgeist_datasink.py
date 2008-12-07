@@ -95,6 +95,7 @@ class DataSinkSource(DataProvider):
 			
 	   
 	def get_items(self,min=0,max=sys.maxint,tags=""):
+		tags = tags.replace(",","")
 		filters = []
 		for source in self.sources:
 			if source.get_active():
@@ -103,16 +104,21 @@ class DataSinkSource(DataProvider):
 		
 		# Used for benchmarking
 		time1 = time.time()
-		
+		tagsplit = tags.split(" ")
+		print "TAGS COUNT " + str(len(tagsplit))
 		for item in db.get_items(min,max):
-			try:
-				if filters.index(item.type)>=0 and (item.tags.lower().find(tags)> -1 or item.uri.lower().find(tags)>-1):
-					if item.type=="Documents" or item.type=="Other":
-						orgsrc= db.get_first_timestmap_for_item(item, True)
-						item.original_source=orgsrc[3]
-					yield item	
-			except:
-				pass
+				counter = 0	
+				for tag in tagsplit:
+					try:
+						if filters.index(item.type)>=0 and (item.tags.lower().find(tag)> -1 or item.uri.lower().find(tag)>-1):
+							if item.type=="Documents" or item.type=="Other":
+								orgsrc= db.get_first_timestmap_for_item(item, True)
+								item.original_source=orgsrc[3]
+							counter = counter +1
+						if counter == len(tagsplit):
+							yield item
+					except:
+						pass
 		del filters
 		
 		time2 = time.time()

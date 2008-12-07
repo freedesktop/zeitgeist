@@ -523,7 +523,6 @@ class SearchToolItem(gtk.ToolItem):
             img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
             img.show()
             self.clearbtn.add(img)
-        print("text "+text)
         timeline.reorganize(None, 4,True,text.lower())
 
     def _entry_clear_no_change_handler(self):
