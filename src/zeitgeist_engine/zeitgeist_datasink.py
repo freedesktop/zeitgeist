@@ -58,7 +58,6 @@ class DataSinkSource(DataProvider):
 	   
 	
 	def log(self,x=None):
-	   
 		for source in self.sources:
 			if source.name=="Documents" or source.name=="Other":
 				items=[]

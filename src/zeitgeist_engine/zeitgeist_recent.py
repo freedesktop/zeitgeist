@@ -129,13 +129,6 @@ class RecentAggregate(DataProvider):
                     item_uris[uri] = item
                     self.temp_list.append( item)
                     yield item
-#
-# Globals
-#
-
-#
-# Globals
-#
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -293,4 +286,3 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 
 
 recent_model = RecentlyUsedManagerGtk()
-

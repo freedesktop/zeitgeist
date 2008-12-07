@@ -92,6 +92,7 @@ class IconFactory:
     '''
     Icon lookup swiss-army knife (from menutreemodel.py)
     '''
+    
     def load_icon_from_path(self, icon_path, icon_size = None):
         try:
             if icon_size:
