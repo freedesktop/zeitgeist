@@ -60,75 +60,75 @@ class RecentlyUsedManagerGtk(DataProvider):
 								)
 						
 class RecentlyUsed(DataProvider):
-    '''
-    Recently-used documents, log stored in ~/.recently-used.
-    '''
-    def __init__(self, name, icon = "stock_calendar"):
-        DataProvider.__init__(self, name=name, icon=icon)
-        recent_model.connect("reload", lambda m: self.emit("reload"))
-        self.temp_list = []
-        self.counter = 0
-    
-    def get_items_uncached(self):
-       # 
-        self.counter  =self.counter  + 1
-        #print ( " getting recently used " + str(self.counter))
-       # delself.temp_list
-        self.temp_list = []
-        for item in recent_model.get_items():
-            # Check whether to include this item
-            if self.include_item(item):
-                yield item
-    
-    def include_item(self, item):
-        return True
+	'''
+	Recently-used documents, log stored in ~/.recently-used.
+	'''
+	def __init__(self, name, icon = "stock_calendar"):
+		DataProvider.__init__(self, name=name, icon=icon)
+		recent_model.connect("reload", lambda m: self.emit("reload"))
+		self.temp_list = []
+		self.counter = 0
+	
+	def get_items_uncached(self):
+	   # 
+		self.counter  =self.counter  + 1
+		#print ( " getting recently used " + str(self.counter))
+	   # delself.temp_list
+		self.temp_list = []
+		for item in recent_model.get_items():
+			# Check whether to include this item
+			if self.include_item(item):
+				yield item
+	
+	def include_item(self, item):
+		return True
 
 class RecentlyUsedOfMimeType(RecentlyUsed):
-    '''
-    Recently-used items filtered by a set of mimetypes.
-    '''
-    def __init__(self, name, icon, mimetype_list):
-        RecentlyUsed.__init__(self, name, icon)
-        self.mimetype_list = mimetype_list
+	'''
+	Recently-used items filtered by a set of mimetypes.
+	'''
+	def __init__(self, name, icon, mimetype_list):
+		RecentlyUsed.__init__(self, name, icon)
+		self.mimetype_list = mimetype_list
 
-    def include_item(self, item):
-        item_mime = item.get_mimetype()
-        for mimetype in self.mimetype_list:
-            if hasattr(mimetype, "match") and mimetype.match(item_mime) \
-                   or item_mime == mimetype:
-                return True
-        return False
+	def include_item(self, item):
+		item_mime = item.get_mimetype()
+		for mimetype in self.mimetype_list:
+			if hasattr(mimetype, "match") and mimetype.match(item_mime) \
+				   or item_mime == mimetype:
+				return True
+		return False
 
 class RecentAggregate(DataProvider):
-    '''
-    This ItemSource subclass aggregates all the items from a list of
-    ItemSources, by including the first Item encountered of a URI and
-    filtering duplicates.
-    '''
-    def __init__(self, sources, name = _("Recently Used"), icon = "stock_calendar"):
-        DataProvider.__init__(self, name=name, icon=icon)
+	'''
+	This ItemSource subclass aggregates all the items from a list of
+	ItemSources, by including the first Item encountered of a URI and
+	filtering duplicates.
+	'''
+	def __init__(self, sources, name = _("Recently Used"), icon = "stock_calendar"):
+		DataProvider.__init__(self, name=name, icon=icon)
 
-        # Sources provide the real items we will display
-        self.sources = sources
-        for source in self.sources:
-            self._listen_to_source(source)
-        self.temp_list = None
-    def _listen_to_source(self, source):
-        source.connect("reload", lambda x: self.emit("reload"))
+		# Sources provide the real items we will display
+		self.sources = sources
+		for source in self.sources:
+			self._listen_to_source(source)
+		self.temp_list = None
+	def _listen_to_source(self, source):
+		source.connect("reload", lambda x: self.emit("reload"))
 
-    def get_items_uncached(self):
-        # 
-       # delself.temp_list
-        item_uris = {}
-        # Find items matching recent uris
-        self.temp_list=[]
-        for source in self.sources:
-            for item in source.get_items_uncached():
-                uri = item.get_uri()
-                if  uri and uri not in item_uris:
-                    item_uris[uri] = item
-                    self.temp_list.append( item)
-                    yield item
+	def get_items_uncached(self):
+		# 
+	   # delself.temp_list
+		item_uris = {}
+		# Find items matching recent uris
+		self.temp_list=[]
+		for source in self.sources:
+			for item in source.get_items_uncached():
+				uri = item.get_uri()
+				if	uri and uri not in item_uris:
+					item_uris[uri] = item
+					self.temp_list.append( item)
+					yield item
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.

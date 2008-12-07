@@ -445,11 +445,11 @@ class DataIconView(gtk.TreeView):
 			
 	def load_items(self, items, ondone_cb = None):
 		# Create a store for our iconview and fill it with stock icons
-		        self.store.clear()
-        		for item in items:
-        		      self._set_item(item,None)
-	        	self.set_model(self.store)      
-        		gc.collect()
+				self.store.clear()
+				for item in items:
+					  self._set_item(item,None)
+				self.set_model(self.store)		
+				gc.collect()
 	
 	def _set_item(self, item,piter=None):
 		name = item.get_name()
@@ -468,103 +468,103 @@ class DataIconView(gtk.TreeView):
 		del icon,name,comment
 
 class SearchToolItem(gtk.ToolItem):
-    __gsignals__ = {
-        "clear" : (gobject.SIGNAL_RUN_FIRST,
-                   gobject.TYPE_NONE,
-                   ()),
-        "search" : (gobject.SIGNAL_RUN_FIRST,
-                    gobject.TYPE_NONE,
-                    (gobject.TYPE_STRING,))
-        }
+	__gsignals__ = {
+		"clear" : (gobject.SIGNAL_RUN_FIRST,
+				   gobject.TYPE_NONE,
+				   ()),
+		"search" : (gobject.SIGNAL_RUN_FIRST,
+					gobject.TYPE_NONE,
+					(gobject.TYPE_STRING,))
+		}
 
-    def __init__(self, accel_group = None):
-        gtk.ToolItem.__init__(self)
-        self.search_timeout = 0
-        self.default_search_text = _("Search")
+	def __init__(self, accel_group = None):
+		gtk.ToolItem.__init__(self)
+		self.search_timeout = 0
+		self.default_search_text = _("Search")
 
-        box = gtk.HBox(False, 0)
-        box.show()
+		box = gtk.HBox(False, 0)
+		box.show()
 
-        self.clearbtn = None
-        self.iconentry = None
-        self.entry = gtk.Entry()
-        box.pack_start(self.entry, True, True, 0)
+		self.clearbtn = None
+		self.iconentry = None
+		self.entry = gtk.Entry()
+		box.pack_start(self.entry, True, True, 0)
 
-        self.entry.set_width_chars(14)
-        self.entry.set_text(self.default_search_text)
-        self.entry.show()
-        #Needs fixing to dirty
-        calendar.connect("month-changed", lambda w: self.emit("clear"))
-        self.entry.connect("activate", lambda w: self._typing_timeout())
-        self.entry.connect("focus-in-event", lambda w, x: self._entry_focus_in())
-        self.entry.connect("key-press-event", self._entry_key_press)
-        # Hold on to this id so we can block emission when initially clearing text
-        self.change_handler_id = self.entry.connect("changed", lambda w: self._queue_search())
+		self.entry.set_width_chars(14)
+		self.entry.set_text(self.default_search_text)
+		self.entry.show()
+		#Needs fixing to dirty
+		calendar.connect("month-changed", lambda w: self.emit("clear"))
+		self.entry.connect("activate", lambda w: self._typing_timeout())
+		self.entry.connect("focus-in-event", lambda w, x: self._entry_focus_in())
+		self.entry.connect("key-press-event", self._entry_key_press)
+		# Hold on to this id so we can block emission when initially clearing text
+		self.change_handler_id = self.entry.connect("changed", lambda w: self._queue_search())
 
-        if accel_group:
-            # Focus on Ctrl-L
-            self.entry.add_accelerator("grab-focus",
-                                       accel_group,
-                                       ord('l'),
-                                       gtk.gdk.CONTROL_MASK,
-                                       0)
+		if accel_group:
+			# Focus on Ctrl-L
+			self.entry.add_accelerator("grab-focus",
+									   accel_group,
+									   ord('l'),
+									   gtk.gdk.CONTROL_MASK,
+									   0)
 
-        self.add(box)
-        self.show_all()
+		self.add(box)
+		self.show_all()
 
-    def do_clear(self):
-        if self.clearbtn and self.clearbtn.child:
-            self.clearbtn.remove(self.clearbtn.child)
-        self._entry_clear_no_change_handler()
-        self.do_search("")
-        
-    def do_search(self, text):
-        if self.clearbtn and not self.clearbtn.child:
-            img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
-            img.show()
-            self.clearbtn.add(img)
-        timeline.reorganize(None, 4,True,text.lower())
+	def do_clear(self):
+		if self.clearbtn and self.clearbtn.child:
+			self.clearbtn.remove(self.clearbtn.child)
+		self._entry_clear_no_change_handler()
+		self.do_search("")
+		
+	def do_search(self, text):
+		if self.clearbtn and not self.clearbtn.child:
+			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
+			img.show()
+			self.clearbtn.add(img)
+		timeline.reorganize(None, 4,True,text.lower())
 
-    def _entry_clear_no_change_handler(self):
-        '''Avoids sending \'changed\' signal when clearing text.'''
-        self.entry.handler_block(self.change_handler_id)
-        self.entry.set_text("")
-        self.entry.handler_unblock(self.change_handler_id)
+	def _entry_clear_no_change_handler(self):
+		'''Avoids sending \'changed\' signal when clearing text.'''
+		self.entry.handler_block(self.change_handler_id)
+		self.entry.set_text("")
+		self.entry.handler_unblock(self.change_handler_id)
 
-    def _entry_focus_in(self):
-        '''Clear default search text'''
-        if self.entry.get_text() == self.default_search_text:
-            self._entry_clear_no_change_handler()
+	def _entry_focus_in(self):
+		'''Clear default search text'''
+		if self.entry.get_text() == self.default_search_text:
+			self._entry_clear_no_change_handler()
 
-    def _typing_timeout(self):
-        if len(self.entry.get_text()) > 0:
-            self.emit("search", self.entry.get_text())
-        self.search_timeout = 0
-        return False
+	def _typing_timeout(self):
+		if len(self.entry.get_text()) > 0:
+			self.emit("search", self.entry.get_text())
+		self.search_timeout = 0
+		return False
 
-    def _queue_search(self):
-        if self.search_timeout != 0:
-            gobject.source_remove(self.search_timeout)
-            self.search_timeout = 0
+	def _queue_search(self):
+		if self.search_timeout != 0:
+			gobject.source_remove(self.search_timeout)
+			self.search_timeout = 0
 
-        if len(self.entry.get_text()) == 0:
-            self.emit("clear")
-        else:
-            self.search_timeout = gobject.timeout_add(100, self._typing_timeout)
+		if len(self.entry.get_text()) == 0:
+			self.emit("clear")
+		else:
+			self.search_timeout = gobject.timeout_add(100, self._typing_timeout)
 
-    def _entry_key_press(self, w, ev):
-        if ev.keyval == gtk.gdk.keyval_from_name("Escape") \
-               and len(self.entry.get_text()) > 0:
-            self.emit("clear")
-            return True
+	def _entry_key_press(self, w, ev):
+		if ev.keyval == gtk.gdk.keyval_from_name("Escape") \
+			   and len(self.entry.get_text()) > 0:
+			self.emit("clear")
+			return True
 
-    def get_search_text(self):
-        return self.entry.get_text()
+	def get_search_text(self):
+		return self.entry.get_text()
 
-    def cancel(self):
-        '''Cancel a pending/active search without sending the \'clear\' signal.'''
-        if self.entry.get_text() != self.default_search_text:
-            self.do_clear()
+	def cancel(self):
+		'''Cancel a pending/active search without sending the \'clear\' signal.'''
+		if self.entry.get_text() != self.default_search_text:
+			self.do_clear()
 
 
 

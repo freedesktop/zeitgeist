@@ -59,7 +59,7 @@ class Data(gobject.GObject):
 		
 	def get_icon(self, icon_size):
 		if self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
-		      self.icon="firefox"
+			  self.icon="firefox"
 		elif self.mimetype =="x-tomboy/note":
 			self. icon="stock_notes" 
 		

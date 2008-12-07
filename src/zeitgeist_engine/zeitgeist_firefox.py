@@ -25,7 +25,7 @@ class FirefoxData(Data):
 		self.name = name
 		self.timestamp = timestamp
 		self.count = count
-		Data.__init__(self,name=name,uri=uri, timestamp = timestamp, count=self.count,  use="visited", type="Firefox History")
+		Data.__init__(self,name=name,uri=uri, timestamp = timestamp, count=self.count,	use="visited", type="Firefox History")
 
 class FirefoxSource(DataProvider):
 	def __init__(self, name = "Firefox History", icon = "gnome-globe"):

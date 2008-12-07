@@ -76,14 +76,14 @@ class DataSinkSource(DataProvider):
 					else:
 						baseinput=db.get_first_timestmap_for_item(item, True)
 						diff = difffactory.create_diff(item.uri,baseinput[3])	
- 						if diff=="":
- 							baseinput = db.get_last_timestmap_for_item(item,True)
- 							item.diff = baseinput[3]
-					 	else:
-					 		    item.diff=diff 
-					 	items.append(item)
-					 	
-					 	del diff,baseinput,tempitem,item
+						if diff=="":
+							baseinput = db.get_last_timestmap_for_item(item,True)
+							item.diff = baseinput[3]
+						else:
+								item.diff=diff 
+						items.append(item)
+						
+						del diff,baseinput,tempitem,item
 						source.set_items(items)
 		
 			db.insert_items(source.get_items())
