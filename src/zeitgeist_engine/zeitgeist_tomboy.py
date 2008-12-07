@@ -130,12 +130,3 @@ class TomboySource(DataProvider):
 					yield NoteData(notepath)
 		except (OSError, IOError), err:
 		   pass  #print " !!! Error loading Tomboy notes:", err
-
-
-
-#
-# Globals
-#
-
-# Note reading happens in an idle handler, so begin it early.
-
