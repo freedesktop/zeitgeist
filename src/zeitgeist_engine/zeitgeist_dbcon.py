@@ -51,7 +51,6 @@ class DBConnector:
 				x=None
 				for i in temp:
 					if not	i[3]=="" and not i[3]=="!diff" :
-						del temp
 						x=i
 				return x
 			return	temp[len(temp)-1]
