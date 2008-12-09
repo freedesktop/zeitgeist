@@ -36,7 +36,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 				if not info.get_private_hint():					
 						use = None
 						timestamp=max( [info.get_added(),info.get_modified(),info.get_visited()])
-						if info.get_uri().find("/tmp/") < 0:
+						if timestamp > db.get_last_timestmap() and info.get_uri().find("/tmp/") < 0:
 							
 							#print str(info.get_uri())+"	"+ str(info.get_added())+"		"+str(info.get_modified())+"		"+str(info.get_visited())
 							#print info.get_groups()

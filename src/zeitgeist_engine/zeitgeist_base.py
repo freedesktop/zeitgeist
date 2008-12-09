@@ -112,12 +112,14 @@ class Data(gobject.GObject):
 		open.show()
 		menu.append(open)
 
+		'''
 		if self.type=="Documents" or self.type=="Other":
 			timemachine = gtk.MenuItem("Open from timestamp")
 			timemachine.connect("activate", lambda w: self.open_from_timestamp())
 			timemachine.show()
 			menu.append(timemachine)
 			del timemachine
+		'''
 			
 		tag = gtk.MenuItem("Edit Tags")
 		tag.connect("activate", lambda w:  self.tag_item())

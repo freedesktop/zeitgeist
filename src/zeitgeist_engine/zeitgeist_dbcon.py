@@ -90,12 +90,8 @@ class DBConnector:
 			   
 	def get_items(self,min,max):
 
-		try:
-			tcontents = "start , end,  uri,  diff"
-			perioditems = self.cursor.execute("SELECT " +tcontents+ " FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall()
-		except:			
-			tcontents = "start , end,  uri"
-			perioditems = self.cursor.execute("SELECT " +tcontents+ " FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall()
+		tcontents = "start , end,  uri,  diff"
+		perioditems = self.cursor.execute("SELECT " +tcontents+ " FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall()
 
 		for t in perioditems:
 			
@@ -110,14 +106,10 @@ class DBConnector:
 			count=i[0][5]
 			use =i[0][6]
 			type=i[0][7]
-
-			try:
-				diff = t[3]
-			except:
-				diff=None
+			#diff = t[3]
 	
 			d= Data(uri=uri, timestamp= timestamp, name=name, comment=comment, mimetype= mimetype, tags=tags, count=count, use=use, type =type)
-			d.diff=diff
+			#d.diff=diff
 			yield d
 			del d
 		gc.collect()

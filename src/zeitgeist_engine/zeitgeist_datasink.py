@@ -23,22 +23,22 @@ class DataSinkSource(DataProvider):
 		'''
 		
 		self.videos=RecentlyUsedVideoSource()
-		self.videos.run()
+		self.videos.start()
 		self.music=RecentlyUsedMusicSource()
-		self.music.run()
+		self.music.start()
 		self.images=RecentlyUsedImagesSource()
-		self.images.run()
+		self.images.start()
 		self.docs=RecentlyUsedDocumentsSource()
-		self.docs.run()
+		self.docs.start()
 		self.others = RecentlyUsedOthersSource()
-		self.others.run()
+		self.others.start()
 		recent_model.connect("reload", self.log)
 		
-		self.firefox = FirefoxSource()
-		self.firefox.run()
+		#self.firefox = FirefoxSource()
+		#self.firefox.start()
 		
 		self.tomboy = TomboySource()
-		self.tomboy.run()
+		self.tomboy.start()
 		self.tomboy.connect("reload", self.log)
 		
 		self.init_sources()
@@ -48,7 +48,7 @@ class DataSinkSource(DataProvider):
 	def init_sources(self):
 	   self.sources=[
 					 self.docs,
-					 self.firefox,
+					 #self.firefox,
 					 self.images,
 					 self.music,
 					 self.others,
@@ -63,7 +63,7 @@ class DataSinkSource(DataProvider):
 				items=[]
 				for item in source.get_items():
 					tempitem = db.get_last_timestmap_for_item(item)
-					
+					'''
 					if not tempitem or tempitem[3]=="":
 						file = item.uri
 						file = file.replace("%20"," ")
@@ -77,14 +77,16 @@ class DataSinkSource(DataProvider):
 						baseinput=db.get_first_timestmap_for_item(item, True)
 						diff = difffactory.create_diff(item.uri,baseinput[3])	
 						if diff=="":
-							baseinput = db.get_last_timestmap_for_item(item,True)
-							item.diff = baseinput[3]
+							#baseinput = db.get_last_timestmap_for_item(item,True)
+							#item.diff = baseinput[3]
+							pass
 						else:
-								item.diff=diff 
-						items.append(item)
+								item.diff="" 
+					'''
+					items.append(item)
 						
-						del diff,baseinput,tempitem,item
-						source.set_items(items)
+					#del diff,baseinput,tempitem,item
+				source.set_items(items)
 		
 			db.insert_items(source.get_items())
 			del source
@@ -111,8 +113,8 @@ class DataSinkSource(DataProvider):
 					try:
 						if filters.index(item.type)>=0 and (item.tags.lower().find(tag)> -1 or item.uri.lower().find(tag)>-1):
 							if item.type=="Documents" or item.type=="Other":
-								orgsrc= db.get_first_timestmap_for_item(item, True)
-								item.original_source=orgsrc[3]
+								#orgsrc= db.get_first_timestmap_for_item(item, True)
+								item.original_source=""
 							counter = counter +1
 						if counter == len(tagsplit):
 							yield item
