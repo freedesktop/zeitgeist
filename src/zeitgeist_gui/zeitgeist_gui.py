@@ -2,7 +2,7 @@ import datetime
 import math
 import sys
 import os
-
+import gc
 import gtk
 import gtk.glade
 import gobject
@@ -15,6 +15,13 @@ class zeitgeistGUI:
    
 	def __init__(self):
 		self.create_gui()
+	
+	def clean_gui(self):
+	    self.mainbox 
+		
+		
+	    del self.faobox,self.notebook,self.starredbox,self.sidebar,self.mainTable,self.mainbox ,self.topicWindow
+	    gc.collect()
 		
 	def create_gui(self):
 		
@@ -26,7 +33,7 @@ class zeitgeistGUI:
 		self.topicWindow.set_title("Gnome Zeitgeist")
 		self.topicWindow.set_resizable(True)
 		self.topicWindow.set_border_width(5)
-		self.topicWindow.connect("destroy", gtk.main_quit)
+		#self.topicWindow.connect("destroy", gtk.main_quit)
 
 		self.mainbox = gtk.VBox()
 		self.mainTable = gtk.HBox()    
