@@ -221,8 +221,9 @@ class FrequentlyUsedWidget(gtk.VBox):
 		month =  datetime.datetime.fromtimestamp(max).strftime("%B")
 		self.label.set_text("Popular in "+month)
 		
-		#x = datasink.get_freq_items(min,max)
-		self.iconview.load_items([])
+		x = datasink.get_freq_items(min,max)
+		self.iconview.load_items(x)
+		del x
 		
 class BookmarksWidget(gtk.VBox):
 	def __init__(self):
@@ -463,7 +464,7 @@ class DataIconView(gtk.TreeView):
 			print("exception")
 			icon = None
 		
-		self.store.append([icon, name, comment, "", item])
+		self.store.append([icon, name, comment, count, item])
 		
 		del icon,name,comment
 

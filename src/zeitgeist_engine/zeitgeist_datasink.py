@@ -34,8 +34,8 @@ class DataSinkSource(DataProvider):
 		self.others.start()
 		recent_model.connect("reload", self.log)
 		
-		#self.firefox = FirefoxSource()
-		#self.firefox.start()
+		self.firefox = FirefoxSource()
+		self.firefox.start()
 		
 		self.tomboy = TomboySource()
 		self.tomboy.start()
@@ -48,7 +48,7 @@ class DataSinkSource(DataProvider):
 	def init_sources(self):
 	   self.sources=[
 					 self.docs,
-					 #self.firefox,
+					 self.firefox,
 					 self.images,
 					 self.music,
 					 self.others,
@@ -135,13 +135,17 @@ class DataSinkSource(DataProvider):
 		for item in self.get_items(min,max,tags):
 			yield item
 
-	'''			
+				
 	def get_freq_items(self,min=0,max=sys.maxint):
 		items =[]
 		for source in self.sources:
 			if source.get_active():
 				sourcelist= source.get_freq_items(min,max)
-				items += sourcelist
+				for i in range(5):
+					try:
+						items.append(sourcelist[i])
+					except:
+						pass
 			del source
 		items.sort(self.comparecount)
 		for item in items:
@@ -149,7 +153,7 @@ class DataSinkSource(DataProvider):
 			del item
 		del items
 		gc.collect()
-			   
+	'''		   
 	def get_desktop_items(self):
 		DirectoryList = []	
 		path = "~/Desktop"
