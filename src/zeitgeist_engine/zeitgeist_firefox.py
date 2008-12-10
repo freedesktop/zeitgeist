@@ -21,12 +21,8 @@ from zeitgeist_util import FileMonitor, launcher
 
 class FirefoxData(Data):
 	def __init__(self, uri, name, timestamp, count):
-		self.uri = uri
-		self.name = name
-		self.timestamp = timestamp
-		self.count = count
 		Data.__init__(self, name=name, uri=uri,
-			timestamp=timestamp, count=self.count,
+			timestamp=timestamp, count=count,
 			use="visited", type="Firefox History")
 
 class FirefoxSource(DataProvider):

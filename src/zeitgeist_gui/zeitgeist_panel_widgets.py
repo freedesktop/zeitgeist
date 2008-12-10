@@ -109,6 +109,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				# Create label
 				label = gtk.Label(i.datestring)	
 				label.set_padding(5, 5) 
+				
 				# Add a frame around the label
 				evbox = gtk.EventBox()
 				evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))

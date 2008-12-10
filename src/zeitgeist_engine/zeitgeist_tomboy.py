@@ -25,7 +25,9 @@ class NoteData(Data):
 		self.type = "Notes"
 		self.do_reload()
 		self.name = str(self.title)
-		Data.__init__(self, uri=uri, name=self.name, timestamp=self.timestamp, icon="stock_notes", mimetype="x-tomboy/note", type =self.type)
+		Data.__init__(self, uri=uri, name=self.name,
+			timestamp=self.timestamp, icon="stock_notes",
+			mimetype="x-tomboy/note", type =self.type)
 		
 		# Load and parse note XML
 		#self.emit("reload")

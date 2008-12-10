@@ -17,11 +17,9 @@ class zeitgeistGUI:
 		self.create_gui()
 	
 	def clean_gui(self):
-	    self.mainbox 
-		
-		
-	    del self.faobox,self.notebook,self.starredbox,self.sidebar,self.mainTable,self.mainbox ,self.topicWindow
-	    gc.collect()
+		self.mainbox
+		del self.faobox, self.notebook, self.starredbox, self.sidebar, self.mainTable, self.mainbox, self.topicWindow
+		gc.collect()
 		
 	def create_gui(self):
 		
