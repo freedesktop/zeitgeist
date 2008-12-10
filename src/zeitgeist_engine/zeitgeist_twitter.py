@@ -6,7 +6,7 @@ class TwitterData(Data):
         self.uri = "http://explore.twitter.com/"+tweet.user.screen_name+"/status/"+str(tweet.id)
         self.name = tweet.user.name+":\n"+tweet.text 
         self.timestamp = tweet.created_at_in_seconds
-        Data.__init__(self, name=self.name, uri=self.uri,timestamp=self.timestamp, count=0,    use="tweet", type="Twitter")
+        Data.__init__(self, name=self.name, uri=self.uri,timestamp=self.timestamp, count=0, use="tweet", type="Twitter")
         
 class TwitterSource(DataProvider):
     def __init__(self):
@@ -19,7 +19,7 @@ class TwitterSource(DataProvider):
     def get_items_uncached(self):
         try:
             self.api = twitter.Api(username= self.username, password=self.password)
-            for status in self.api.GetUserTimeline(count=500):
+            for status in self.api.GetUserTimeline():
                 yield TwitterData(status)
                 del status
         except:

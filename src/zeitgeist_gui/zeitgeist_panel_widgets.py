@@ -441,9 +441,9 @@ class DataIconView(gtk.TreeView):
 	
 	def _set_item(self, item, piter=None):
 		name = item.get_name()
-		#comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
+		comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
 		#count = "<span size='small' color='blue'>%s</span>" %  item.count
-		comment = ""
+		
 		count = ""
 		use = "<span size='small' color='blue'>%s</span>" %  item.use
 		try:
