@@ -43,29 +43,6 @@ class DBConnector:
 		except:
 			return 0
 		
-	def get_last_timestmap_for_item(self,item,withdiff=False):
-		command = "SELECT * FROM timetable WHERE uri=?"
-		temp = self.cursor.execute(command,(item.uri,)).fetchall()
-		if temp:
-			if withdiff :
-				x=None
-				for i in temp:
-					if not	i[3]=="" and not i[3]=="!diff" :
-						x=i
-				return x
-			return	temp[len(temp)-1]
-		return None
-	
-	def get_first_timestmap_for_item(self,item,withdiff=False):
-		command = "SELECT * FROM timetable WHERE uri=?"
-		temp = self.cursor.execute(command,(item.uri,)).fetchall()
-		if withdiff:
-			for i in temp:
-				if not	i[3]=="" and not i[3]=="!diff" :
-					del temp
-					return i
-		else:
-			None
 		
 	def insert_items(self,items):
 		for item in items:
@@ -85,35 +62,35 @@ class DBConnector:
 				print("wrote "+item.uri+" into database")
 			except Exception, ex:
 				pass
+			del item
 			
 		self.connection.commit()
-			   
+		del items
+		   
 	def get_items(self,min,max):
 
-		tcontents = "start , end,  uri,  diff"
+		tcontents = "start , end,  uri"
 		perioditems = self.cursor.execute("SELECT " +tcontents+ " FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall()
 
 		for t in perioditems:
 			
-			uri = t[2]
-			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchall()
-			timestamp =t[0]
-			uri= i[0][0]
-			name = i[0][1]
-			comment = i[0][2]
-			mimetype = i[0][3]
-			tags =i[0][4]
-			count=i[0][5]
-			use =i[0][6]
-			type=i[0][7]
-			#diff = t[3]
-	
-			d= Data(uri=uri, timestamp= timestamp, name=name, comment=comment, mimetype= mimetype, tags=tags, count=count, use=use, type =type)
-			#d.diff=diff
+			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchall()
+			
+			d = Data(uri=i[0][0], 
+					          timestamp= t[0], 
+					          name= i[0][1], 
+					          comment=i[0][2], 
+					          mimetype=  i[0][3], 
+					          tags=i[0][4], 
+					          count=i[0][5], 
+					          use =i[0][6], 
+					          type=i[0][7])
 			yield d
-			del d
-		gc.collect()
+			del d,i
+			
+		del perioditems,t
 		#print(str(len(items)))
+		gc.collect()
 	 
 	def update_item(self,item):
 		 

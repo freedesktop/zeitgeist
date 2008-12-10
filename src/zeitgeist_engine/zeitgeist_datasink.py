@@ -59,35 +59,6 @@ class DataSinkSource(DataProvider):
 	
 	def log(self,x=None):
 		for source in self.sources:
-			if source.name=="Documents" or source.name=="Other":
-				items=[]
-				for item in source.get_items():
-					tempitem = db.get_last_timestmap_for_item(item)
-					'''
-					if not tempitem or tempitem[3]=="":
-						file = item.uri
-						file = file.replace("%20"," ")
-						f = open(file.replace("file://","",1))
-						diff = f.read()
-						item.diff=diff
-						items.append(item)
-						del diff, f, file
-					
-					else:
-						baseinput=db.get_first_timestmap_for_item(item, True)
-						diff = difffactory.create_diff(item.uri,baseinput[3])	
-						if diff=="":
-							#baseinput = db.get_last_timestmap_for_item(item,True)
-							#item.diff = baseinput[3]
-							pass
-						else:
-								item.diff="" 
-					'''
-					items.append(item)
-						
-					#del diff,baseinput,tempitem,item
-				source.set_items(items)
-		
 			db.insert_items(source.get_items())
 			del source
 			
@@ -112,14 +83,12 @@ class DataSinkSource(DataProvider):
 				for tag in tagsplit:
 					try:
 						if filters.index(item.type)>=0 and (item.tags.lower().find(tag)> -1 or item.uri.lower().find(tag)>-1):
-							if item.type=="Documents" or item.type=="Other":
-								#orgsrc= db.get_first_timestmap_for_item(item, True)
-								item.original_source=""
 							counter = counter +1
 						if counter == len(tagsplit):
 							yield item
 					except:
 						pass
+					del item
 		del filters
 		
 		time2 = time.time()
@@ -153,21 +122,5 @@ class DataSinkSource(DataProvider):
 			del item
 		del items
 		gc.collect()
-	'''		   
-	def get_desktop_items(self):
-		DirectoryList = []	
-		path = "~/Desktop"
-		path = os.path.expanduser(path)
-		os.path.walk(path, self.walker, DirectoryList)
-		return self.desktop_items
-		
-	def walker(self, arg, dirname, filenames):
-		self.desktop_items=[]
-		# Create A List Of Files with full pathname
-		for files in filenames:
-			file = os.path.join(dirname, files)
-			item = Data(uri=file)
-			self.desktop_items.append(item)
-'''
 
 datasink= DataSinkSource()

@@ -98,36 +98,6 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 				return True
 		return False
 
-class RecentAggregate(DataProvider):
-	'''
-	This ItemSource subclass aggregates all the items from a list of
-	ItemSources, by including the first Item encountered of a URI and
-	filtering duplicates.
-	'''
-	def __init__(self, sources, name = _("Recently Used"), icon = "stock_calendar"):
-		DataProvider.__init__(self, name=name, icon=icon)
-
-		# Sources provide the real items we will display
-		self.sources = sources
-		for source in self.sources:
-			self._listen_to_source(source)
-		self.temp_list = None
-	def _listen_to_source(self, source):
-		source.connect("reload", lambda x: self.emit("reload"))
-
-	def get_items_uncached(self):
-		# 
-	   # delself.temp_list
-		item_uris = {}
-		# Find items matching recent uris
-		self.temp_list=[]
-		for source in self.sources:
-			for item in source.get_items_uncached():
-				uri = item.get_uri()
-				if	uri and uri not in item_uris:
-					item_uris[uri] = item
-					self.temp_list.append( item)
-					yield item
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.

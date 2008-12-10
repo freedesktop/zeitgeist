@@ -58,6 +58,23 @@ class Data(gobject.GObject):
 		self.thumbnailer = None
 		self.original_source = None
 		
+	def __del__(self):
+		del self.uri
+		del self.name
+		del self.count
+		del self.comment
+		del self.mimetype
+		del self.use
+		del self.type 
+		del self.diff
+		del self.icon
+		del self.tags
+		del self.thumbnailer
+		del self.original_source
+		del self.timestamp
+		del self.time
+		del self.day, self.weekday, self.month
+		
 	def get_icon(self, icon_size):
 		if self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
 			  self.icon="gnome-globe"
@@ -126,7 +143,7 @@ class Data(gobject.GObject):
 		tag.show()
 		menu.append(tag)
 		
-		del open,tag
+		del open,tag,menu
 	
 	def tag_item(self):
 		taggingwindow = gtk.Window()
@@ -211,6 +228,8 @@ class DataProvider(Data, Thread):
 				if i.timestamp >= min and i.timestamp <max:
 					yield i
 					del i
+					
+		gc.collect()
 				
 	def get_items_uncached(self):
 		'''Subclasses should override this to return/yield Datas. The results
