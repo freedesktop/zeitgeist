@@ -9,6 +9,7 @@ from threading import Thread
 import gobject
 import gtk
 from gettext import ngettext, gettext as _
+import glob
 
 from zeitgeist_util import Thumbnailer,icon_factory, launcher,difffactory
 
@@ -76,10 +77,17 @@ class Data(gobject.GObject):
 		del self.day, self.weekday, self.month
 		
 	def get_icon(self, icon_size):
-		if self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
-			  self.icon="gnome-globe"
-		elif self.mimetype =="x-tomboy/note":
-			self. icon="stock_notes"
+		try:
+			if self.uri == "gzg/twitter":
+				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
+				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(16))
+		        
+			elif self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
+			         self.icon="gnome-globe"
+			elif self.mimetype =="x-tomboy/note":
+				    self. icon="stock_notes"
+		except:
+			pass
 		
 		if self.icon:
 			  return icon_factory.load_icon(self.icon, icon_size)

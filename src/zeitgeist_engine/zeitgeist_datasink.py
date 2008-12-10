@@ -9,6 +9,7 @@ from zeitgeist_engine.zeitgeist_tomboy import *
 from zeitgeist_engine.zeitgeist_recent import *
 from zeitgeist_engine.zeitgeist_dbcon import db
 from zeitgeist_util import difffactory
+from zeitgeist_twitter import TwitterSource
 
 class DataSinkSource(DataProvider):
 	def __init__(self, note_path=None):
@@ -33,13 +34,15 @@ class DataSinkSource(DataProvider):
 		self.others = RecentlyUsedOthersSource()
 		self.others.start()
 		recent_model.connect("reload", self.log)
-		
 		self.firefox = FirefoxSource()
 		self.firefox.start()
 		
 		self.tomboy = TomboySource()
 		self.tomboy.start()
 		self.tomboy.connect("reload", self.log)
+		
+		
+		self.twitter=TwitterSource()
 		
 		self.init_sources()
 		
@@ -52,6 +55,7 @@ class DataSinkSource(DataProvider):
 					 self.images,
 					 self.music,
 					 self.others,
+					 self.twitter,
 					 self.tomboy,
 					 self.videos
 					]

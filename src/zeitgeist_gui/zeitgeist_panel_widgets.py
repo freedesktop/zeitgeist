@@ -274,7 +274,10 @@ class CheckBox(gtk.CheckButton):
 		
 		self.set_label(source.name)
 		#img.set_from_pixbuf(source.get_icon(16))
-		self.img.set_from_icon_name(source.icon,4)
+		try:
+			self.img.set_from_icon_name(source.get_icon(16),4)
+		except:
+		    self.img.set_from_pixbuf(source.get_icon(16))
 		self.set_image(self.img)
 		self.set_focus_on_click(False)
 		self.connect("toggled",self.toggle_source)

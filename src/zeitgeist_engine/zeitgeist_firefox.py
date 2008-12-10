@@ -27,9 +27,9 @@ class FirefoxData(Data):
 
 class FirefoxSource(DataProvider):
 	
-	def __init__(self, name="Firefox History", icon="gnome-globe"):
+	def __init__(self, name="Firefox History", icon="gnome-globe", uri="gzg/firefox"):
 		self.items= []
-		DataProvider.__init__(self, name=name, icon=icon)
+		DataProvider.__init__(self, name=name, icon=icon, uri = uri)
 		self.name = "Firefox History"
 		self.icon="firefox"
 		#self.emit("reload")
