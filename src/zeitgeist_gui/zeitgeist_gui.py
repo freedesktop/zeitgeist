@@ -15,52 +15,52 @@ class zeitgeistGUI:
    
 	def __init__(self):
 		self.create_gui()
-	
-	def clean_gui(self):
-		self.mainbox
-		del self.faobox, self.notebook, self.starredbox, self.sidebar, self.mainTable, self.mainbox, self.topicWindow
-		gc.collect()
 		
 	def create_gui(self):
 		
 		'''
-		Main Window holding everything inside it
+		Create main window and everything inside it
 		'''
 		
+		# Window
 		self.topicWindow = gtk.Window()
 		self.topicWindow.set_title("Gnome Zeitgeist")
 		self.topicWindow.set_resizable(True)
 		self.topicWindow.set_border_width(5)
-		#self.topicWindow.connect("destroy", gtk.main_quit)
-
-		self.mainbox = gtk.VBox()
-		self.mainTable = gtk.HBox()    
+		self.topicWindow.connect("destroy", gtk.main_quit)
+		
+		# Vertical box (contains self.hBox and a status bar)
+		self.vBox = gtk.VBox()
+		self.topicWindow.add(self.vBox)
+		
+		# Horizontal box (contains the main content and a sidebar)
+		self.hBox = gtk.HBox()
+		self.vBox.pack_start(self.hBox, True, True,5)
+		
+		# Sidebar
 		self.sidebar = gtk.VBox()
-		
-		''' 
-		HeaderTable
-		'''
-		
-		self.starredbox = StarredWidget()
-		self.notebook = gtk.Notebook()
-		self.faobox = FilterAndOptionBox()
-		
 		self.sidebar.pack_start(search,True,True,5)
 		self.sidebar.pack_start(calendar, False, False)
-		self.sidebar.pack_start(self.faobox, True, True)
+		self.hBox.pack_start(self.sidebar, False, False,5)
 		
+		# Filter/options box
+		self.filtersBox = FilterAndOptionBox()
+		self.sidebar.pack_start(self.filtersBox, True, True)
 		
-		self.notebook.append_page(self.starredbox, gtk.Label("Starred"))
+		# Notebook
+		self.notebook = gtk.Notebook()
+		self.hBox.pack_start(self.notebook, True, True, 5)
+		
+		# Timeline view
 		self.notebook.append_page(timeline, gtk.Label("Timeline"))
 		
-		self.mainTable.pack_start(self.sidebar, False, False,5)
-		self.mainTable.pack_start(self.notebook, True, True,5)
-	
-		self.mainbox.pack_start(self.mainTable, True, True,5)
+		# "Starred" view
+		self.starredbox = StarredWidget()
+		self.notebook.append_page(self.starredbox, gtk.Label("Starred"))
 		
+		# Status bar
 		statusbar = gtk.Statusbar()
-		self.mainbox.pack_start(statusbar, False, False)
+		self.vBox.pack_start(statusbar, False, False)
 		
-		
-		self.topicWindow.add(self.mainbox)
+		# Show everything
 		self.topicWindow.show_all()

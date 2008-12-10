@@ -151,12 +151,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 			
 class StarredWidget(gtk.HBox):
 	def __init__(self):
-		gtk.HBox.__init__(self,True)
+		gtk.HBox.__init__(self, False)
 		self.freqused = FrequentlyUsedWidget()
 		self.bookmakrs = BookmarksWidget()
 		
-		self.pack_start(self.freqused,True,True,5)
-		self.pack_start(self.bookmakrs,True,True,5)
+		self.pack_start(self.freqused, False, True, 5)
+		self.pack_start(self.bookmakrs, False, True, 5)
 
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
@@ -438,17 +438,18 @@ class DataIconView(gtk.TreeView):
 	
 	def _set_item(self, item, piter=None):
 		name = item.get_name()
-		comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
-		count = "<span size='small' color='blue'>%s</span>" %  item.count
+		#comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
+		#count = "<span size='small' color='blue'>%s</span>" %  item.count
+		comment = ""
+		count = ""
 		use = "<span size='small' color='blue'>%s</span>" %  item.use
-		#text = name +"\n" + comment +" "+use
 		try:
 			icon = item.get_icon(24)
 		except (AssertionError, AttributeError):
 			print("exception")
 			icon = None
 		
-		self.store.append([icon,comment, name, count, item])
+		self.store.append([icon, comment, name, count, item])
 		
 		del icon,name,comment
 
