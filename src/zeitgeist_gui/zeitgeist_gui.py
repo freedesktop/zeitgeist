@@ -8,7 +8,7 @@ import gtk.glade
 import gobject
 import gnomeapplet
 
-from zeitgeist_panel_widgets import timeline,StarredWidget,FilterAndOptionBox,calendar,search
+from zeitgeist_panel_widgets import StarredWidget,FilterAndOptionBox,calendar,search,timeline
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class zeitgeistGUI:
@@ -26,7 +26,6 @@ class zeitgeistGUI:
 		self.topicWindow = gtk.Window()
 		self.topicWindow.set_title("Gnome Zeitgeist")
 		self.topicWindow.set_resizable(True)
-		self.topicWindow.set_border_width(5)
 		self.topicWindow.connect("destroy", gtk.main_quit)
 		
 		# Vertical box (contains self.hBox and a status bar)

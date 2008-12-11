@@ -59,24 +59,9 @@ class Data(gobject.GObject):
 		self.thumbnailer = None
 		self.original_source = None
 		
-	def __del__(self):
-		del self.uri
-		del self.name
-		del self.count
-		del self.comment
-		del self.mimetype
-		del self.use
-		del self.type 
-		del self.diff
-		del self.icon
-		del self.tags
-		del self.thumbnailer
-		del self.original_source
-		del self.timestamp
-		del self.time
-		del self.day, self.weekday, self.month
 		
 	def get_icon(self, icon_size):
+		
 		try:
 			if self.uri == "gzg/twitter":
 				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
@@ -85,7 +70,7 @@ class Data(gobject.GObject):
 				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
 				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(24))
 			elif self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
-			         self.icon="gnome-globe"
+			         self.icon="firefox"
 			elif self.mimetype =="x-tomboy/note":
 				    self. icon="stock_notes"
 		except:
@@ -97,7 +82,6 @@ class Data(gobject.GObject):
 			  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
 		return self.thumbnailer.get_icon(icon_size, self.timestamp)
 		
-	
 	def get_mimetype(self):
 		return self.mimetype
 
@@ -230,14 +214,11 @@ class DataProvider(Data, Thread):
 			for i in self.items:
 				if i.timestamp >= min and i.timestamp <max:
 					yield i
-					del i
 		else:
-			self.items=[]
-			for i in self.get_items_uncached():
-				self.items.append(i)
+			self.items= self.get_items_uncached()
+			for i in self.items:
 				if i.timestamp >= min and i.timestamp <max:
 					yield i
-					del i
 					
 		gc.collect()
 				
@@ -278,17 +259,12 @@ class DataProvider(Data, Thread):
 						list.append(i)
 				else:
 					break
-			del items
 			return list
 	
 	def items_contains_uri(self,items,uri):
 		for i in items:
 			if i.uri == uri:
-				del uri
-				del i
 				return True
-			else:
-				del i
 		return False
 	
 	def comparecount(self,a,b):

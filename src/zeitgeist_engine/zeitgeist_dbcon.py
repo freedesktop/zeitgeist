@@ -62,10 +62,8 @@ class DBConnector:
 				print("wrote "+item.uri+" into database")
 			except Exception, ex:
 				pass
-			del item
 			
 		self.connection.commit()
-		del items
 		   
 	def get_items(self,min,max):
 
@@ -76,7 +74,7 @@ class DBConnector:
 			
 			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchall()
 			
-			d = Data(uri=i[0][0], 
+			yield Data(uri=i[0][0], 
 					          timestamp= t[0], 
 					          name= i[0][1], 
 					          comment=i[0][2], 
@@ -85,10 +83,7 @@ class DBConnector:
 					          count=i[0][5], 
 					          use =i[0][6], 
 					          type=i[0][7])
-			yield d
-			del d,i
 			
-		del perioditems,t
 		#print(str(len(items)))
 		gc.collect()
 	 

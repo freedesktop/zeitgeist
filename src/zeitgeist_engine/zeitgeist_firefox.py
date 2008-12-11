@@ -72,7 +72,5 @@ class FirefoxSource(DataProvider):
 			timestamp = history[j][2] / (1000000)
 			j += 1
 			yield FirefoxData(url, name, timestamp, count)
-			del i, url, item, name, count, timestamp
 		print("reloading firefox history done")
 		cursor.close()
-		del history

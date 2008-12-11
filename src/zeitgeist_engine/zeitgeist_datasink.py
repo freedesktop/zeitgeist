@@ -34,6 +34,7 @@ class DataSinkSource(DataProvider):
 		self.others = RecentlyUsedOthersSource()
 		self.others.start()
 		recent_model.connect("reload", self.log)
+		
 		self.firefox = FirefoxSource()
 		self.firefox.start()
 		
@@ -41,8 +42,8 @@ class DataSinkSource(DataProvider):
 		self.tomboy.start()
 		self.tomboy.connect("reload", self.log)
 		
-		
 		self.twitter=TwitterSource()
+		self.twitter.start()
 		
 		self.init_sources()
 		
@@ -64,7 +65,6 @@ class DataSinkSource(DataProvider):
 	def log(self,x=None):
 		for source in self.sources:
 			db.insert_items(source.get_items())
-			del source
 			
 		gc.collect()
 		self.emit("reload")
@@ -76,8 +76,6 @@ class DataSinkSource(DataProvider):
 		for source in self.sources:
 			if source.get_active():
 				filters.append(source.get_name())
-			del source
-		
 		# Used for benchmarking
 		time1 = time.time()
 		tagsplit = tags.split(" ")
@@ -92,8 +90,6 @@ class DataSinkSource(DataProvider):
 							yield item
 					except:
 						pass
-					del item
-		del filters
 		
 		time2 = time.time()
 		print("Got all items: " + str(time2 -time1))
@@ -119,12 +115,9 @@ class DataSinkSource(DataProvider):
 						items.append(sourcelist[i])
 					except:
 						pass
-			del source
 		items.sort(self.comparecount)
 		for item in items:
 			yield item
-			del item
-		del items
 		gc.collect()
 
 datasink= DataSinkSource()

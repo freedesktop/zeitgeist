@@ -24,7 +24,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Set up default properties
 		self.set_border_width(4)
-		self.set_size_request(600, 400)
+		self.set_size_request(350, 400)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		
 		# This contains the range of dates which we've currently loaded into the GUI
@@ -127,8 +127,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 			
 			# Add item to the GUI
 			iconview.add_item(i)
-			del i
-		del items,date
 		
 		self.box.show_all()
 		
@@ -190,7 +188,6 @@ class FilterAndOptionBox(gtk.VBox):
 			self.voptionbox.pack_start( filter,False,False,0)
 			self.filters.append(filter)
 			filter.connect("toggled",self.filterout)
-			del source
 			
 		self.frame2.add(self.voptionbox)
 		self.date_dict = None
@@ -242,7 +239,6 @@ class FrequentlyUsedWidget(gtk.VBox):
 		
 		x = datasink.get_freq_items(min,max)
 		self.iconview.load_items(x)
-		del x
 		
 class BookmarksWidget(gtk.VBox):
 	def __init__(self):
@@ -359,7 +355,7 @@ class DataIconView(gtk.TreeView):
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("yalign", 0.0)
 		name_cell.set_property("xalign", 0.0)
-		name_cell.set_property("wrap-width", 600)
+		name_cell.set_property("wrap-width", 200)
 		name_column = gtk.TreeViewColumn("Name",name_cell,markup=2)
 		
 		count_cell = gtk.CellRendererText()
@@ -386,7 +382,6 @@ class DataIconView(gtk.TreeView):
 		# Add an item to the store
 		self._set_item(item, None)
 		self.set_model(self.store)		
-		del item
 		
 	def load_items(self, items):
 		# Create a store for our iconview and fill it with stock icons
@@ -394,9 +389,7 @@ class DataIconView(gtk.TreeView):
 		for item in items:
 			self._set_item(item, None)
 			self.set_model(self.store)		
-			gc.collect()
-			del item
-		del items
+		gc.collect()
 		
 	def unselect_all(self,x=None,y=None):
 		try:
@@ -412,7 +405,6 @@ class DataIconView(gtk.TreeView):
 		model, iter = treeselection.get_selected()
 		item = model.get_value(iter, 4)
 		item.open()
-		del model,view,path
 		gc.collect()
 
 	def _show_item_popup(self, view, ev):
@@ -428,7 +420,6 @@ class DataIconView(gtk.TreeView):
 						menu.popup(None, None, None, ev.button, ev.time)
 						return True
 				
-		del ev,view
 
 	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
 		# FIXME: Prefer ACTION_LINK if available
@@ -440,6 +431,7 @@ class DataIconView(gtk.TreeView):
 				selection_data.set_uris(uris)
 	
 	def _set_item(self, item, piter=None):
+		
 		name = item.get_name()
 		comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
 		#count = "<span size='small' color='blue'>%s</span>" %  item.count
@@ -453,8 +445,9 @@ class DataIconView(gtk.TreeView):
 			icon = None
 		
 		self.store.append([icon, comment, name, count, item])
+		del item,icon,comment,name,count
 		
-		del icon,name,comment
+		pass
 
 class SearchToolItem(gtk.ToolItem):
 	__gsignals__ = {

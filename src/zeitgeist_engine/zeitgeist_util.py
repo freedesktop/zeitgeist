@@ -116,18 +116,18 @@ class IconFactory:
 			retval = self.load_icon_from_path(os.path.join(data_dir, "pixmaps", icon_value),
 											  icon_size)
 			if retval:
-				del icon_value,icon_size,data_dir,data_dirs
+				#del icon_value,icon_size,data_dir,data_dirs
 				return retval
 			
 			retval = self.load_icon_from_path(os.path.join(data_dir, "icons", icon_value),
 											  icon_size)
 			if retval:
-				del icon_value,icon_size,data_dir,data_dirs
+				#del icon_value,icon_size,data_dir,data_dirs
 				return retval
 			
-			del retval,data_dir
+			#del retval,data_dir
 			
-		del data_dirs
+		#del data_dirs
 		return None
 
 	def load_icon(self, icon_value, icon_size, force_size = True):
@@ -171,7 +171,7 @@ class IconFactory:
 		img = gtk.Image()
 		img.set_from_pixbuf(pixbuf)
 		img.show()
-		del pixbuf, icon_value, icon_size, force_size 
+		#del pixbuf, icon_value, icon_size, force_size 
 		return img
 
 	def make_icon_frame(self, thumb, icon_size = None, blend = False):
@@ -194,7 +194,7 @@ class IconFactory:
 						thumb.get_width() - (border * 2), thumb.get_height() - (border * 2),
 						mythumb,
 						border, border)
-		del thumb,icon_size,blend
+		#del thumb,icon_size,blend
 		return mythumb
 
 class Thumbnailer:
@@ -449,7 +449,6 @@ class DiffFactory:
 		diff =	os.popen("diff -u "+path+" "+uri1.replace("file://","",1)).read()
 		os.close(fd)
 		os.remove(path)
-		del path,fd
 		return diff
 		
 	def restore_file(self,item):
