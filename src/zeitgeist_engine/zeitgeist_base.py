@@ -42,15 +42,15 @@ class Data(gobject.GObject):
 		self.diff=""
 		
 		# Timestamps
+		# TODO: Remove all of the below attributes except for self.datestring and either self.timestamp or self.ctimestamp
+		# The conversion between different formats and between integers and strings is processor intensive and
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
 		self.day =	datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%d"))
-		self.weekday =	datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a"))
-		self.month =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%b"))
 		self.cmonth = datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%m"))
 		self.year =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%Y"))
-		self.date =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%x"))
-		self.datestring =  self.weekday+" "+self.day+" "+self.month+" "+self.year
+		# format is "weekday day month year"
+		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
 		self.ctimestamp = time.mktime([int(self.year),int(self.cmonth),int(self.day),0,0,0,0,0,0])
 		
 		self.type = type
@@ -61,7 +61,6 @@ class Data(gobject.GObject):
 		
 		
 	def get_icon(self, icon_size):
-		
 		try:
 			if self.uri == "gzg/twitter":
 				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
@@ -101,14 +100,13 @@ class Data(gobject.GObject):
 			uri_to_open = "note://tomboy/%s" % os.path.splitext(os.path.split(self.get_uri())[1])[0]
 		else:
 			uri_to_open = self.get_uri()
-		
 		if uri_to_open:
-			
 			self.timestamp = time.time()
 			launcher.launch_uri(uri_to_open, self.get_mimetype())
 		else:
 			pass
 			#print " !!! Data has no URI to open: %s" % self
+	
 	def open(self):
 		self.emit("open")
 		
@@ -228,6 +226,7 @@ class DataProvider(Data, Thread):
 		gc.collect()
 		
 	   # delitems
+	
 	def set_active(self,bool):
 		self.active=bool
 		del bool
