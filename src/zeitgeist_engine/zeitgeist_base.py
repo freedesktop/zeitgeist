@@ -82,6 +82,7 @@ class Data(gobject.GObject):
 			  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
 		return self.thumbnailer.get_icon(icon_size, self.timestamp)
 		
+		
 	def get_mimetype(self):
 		return self.mimetype
 
@@ -186,7 +187,6 @@ class DataProvider(Data, Thread):
 		
 		# Set attributes
 		self.filter_by_date = filter_by_date
-		self.items = []
 		self.clear_cache_timeout_id = None
 		
 		# Clear cached items on reload
@@ -195,7 +195,6 @@ class DataProvider(Data, Thread):
 		self.counter = 0
 		self.needs_view=True
 		self.active=True
-		self.freqused = []
 	
 	def run(self):
 		self.get_items()
@@ -210,16 +209,11 @@ class DataProvider(Data, Thread):
 		if self.clear_cache_timeout_id:
 			gobject.source_remove(self.clear_cache_timeout_id)
 		self.clear_cache_timeout_id = gobject.timeout_add(DataProvider.CACHE_CLEAR_TIMEOUT_MS, lambda: self.set_items(None))
-		if self.items:
-			for i in self.items:
-				if i.timestamp >= min and i.timestamp <max:
-					yield i
-		else:
-			self.items= self.get_items_uncached()
-			for i in self.items:
-				if i.timestamp >= min and i.timestamp <max:
-					yield i
-					
+		
+		for i in self.get_items_uncached():
+			if i.timestamp >= min and i.timestamp <max:
+				yield i
+				
 		gc.collect()
 				
 	def get_items_uncached(self):
@@ -241,25 +235,6 @@ class DataProvider(Data, Thread):
 	def get_active(self):
 		return self.active
 
-	def get_freq_items(self,min,max):
-		items=[]
-		
-		for i in self.get_items(min,max):
-			#if  today - item-timestamp <2 weeks
-			items.append(i)
-		items.sort(self.comparecount)
-		list= []
-		
-		if len(items)<10:
-			return items
-		else:
-			for i in items:
-				if len(list) < 10:
-					if not self.items_contains_uri(list, i.uri):
-						list.append(i)
-				else:
-					break
-			return list
 	
 	def items_contains_uri(self,items,uri):
 		for i in items:

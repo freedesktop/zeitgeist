@@ -105,7 +105,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 			# If we just reached a new date then create a label
 			if date is None or i.ctimestamp != date:
 				date = i.ctimestamp
-				
+				daybox=gtk.VBox()
 				# Create label
 				label = gtk.Label(i.datestring)	
 				label.set_padding(5, 5) 
@@ -117,13 +117,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 				evbox1.set_border_width(1)
 				evbox1.add(label)
 				evbox.add(evbox1)
-				self.box.pack_start(evbox, False, False)
+				daybox.pack_start(evbox, False, False)
 				
 				# Create iconview
 				# TODO: This is really just quick hack
 				# We should eventually place all items inside one DataIconView
 				iconview = DataIconView()
-				self.box.add(iconview)
+				daybox.pack_start(iconview, False, False)
+				self.box.pack_start(daybox)
 			
 			# Add item to the GUI
 			iconview.add_item(i)
@@ -137,6 +138,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Manually force garbage collection
 		gc.collect()
 	
+			
 	def jump_to_day(self, widget, hide_other_days):
 		'''
 		Jump to the currently selected day in the calendar.
@@ -237,8 +239,9 @@ class FrequentlyUsedWidget(gtk.VBox):
 		month =  datetime.datetime.fromtimestamp(max).strftime("%B")
 		self.label.set_text("Popular in "+month)
 		
-		x = datasink.get_freq_items(min,max)
+		x = [] 
 		self.iconview.load_items(x)
+		del x
 		
 class BookmarksWidget(gtk.VBox):
 	def __init__(self):
@@ -281,7 +284,7 @@ class CheckBox(gtk.CheckButton):
 	def toggle_source(self,widget):
 		if self.get_active():
 			self.source.set_active(True)
-			#search.emit("clear")
+			search.emit("clear")
 		else:
 			self.source.set_active(False)
 	  

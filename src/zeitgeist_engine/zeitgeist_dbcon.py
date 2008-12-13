@@ -46,23 +46,25 @@ class DBConnector:
 		
 	def insert_items(self,items):
 		for item in items:
-			try:
-				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)', (item.timestamp,
-																				None,
-																				item.uri,
-																				item.diff))
-				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
-																					item.name,
-																					item.comment,
-																						item.mimetype,
-																						item.tags,
-																						item.count,
-																						item.use,
-																						item.type))
-				print("wrote "+item.uri+" into database")
-			except Exception, ex:
-				pass
-			
+				#print item.name
+				#print item.timestamp
+				try:
+					self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)', (item.timestamp,
+																					None,
+																					item.uri,
+																					item.diff))
+					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
+																						item.name,
+																						item.comment,
+																							item.mimetype,
+																							item.tags,
+																							item.count,
+																							item.use,
+																							item.type))
+					print("wrote "+item.uri+" into database")
+				except:
+					pass
+				    #print "Error writing " + item.uri + " with timestamp "+ str(item.timestamp)
 		self.connection.commit()
 		   
 	def get_items(self,min,max):
@@ -73,8 +75,8 @@ class DBConnector:
 		for t in perioditems:
 			
 			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchall()
-			
-			yield Data(uri=i[0][0], 
+			try:
+				yield Data(uri=i[0][0], 
 					          timestamp= t[0], 
 					          name= i[0][1], 
 					          comment=i[0][2], 
@@ -83,7 +85,9 @@ class DBConnector:
 					          count=i[0][5], 
 					          use =i[0][6], 
 					          type=i[0][7])
-			
+			except:
+				#print "ERROR"
+				pass
 		#print(str(len(items)))
 		gc.collect()
 	 

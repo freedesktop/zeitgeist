@@ -19,7 +19,7 @@ class TwitterSource(DataProvider):
     def get_items_uncached(self):
         try:
             self.api = twitter.Api(username= self.username, password=self.password)
-            for status in self.api.GetUserTimeline():
+            for status in self.api.GetUserTimeline(count = 500):
                 yield TwitterData(status)
                 del status
         except:

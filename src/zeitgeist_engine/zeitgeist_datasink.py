@@ -90,34 +90,24 @@ class DataSinkSource(DataProvider):
 							yield item
 					except:
 						pass
-		
+                del item
+        
+        
 		time2 = time.time()
 		print("Got all items: " + str(time2 -time1))
 		gc.collect()
 	
 	def update_item(self,item):
 		db.update_item(item)
-		self.emit("reload")
+                del item
+                self.emit("reload")
 	
 	def get_items_by_time(self,min=0,max=sys.maxint,tags=""):
 		"Datasink getting all items from DaraProviders"
 		for item in self.get_items(min,max,tags):
-			yield item
+		        yield item
+                del item
+	
 
-				
-	def get_freq_items(self,min=0,max=sys.maxint):
-		items =[]
-		for source in self.sources:
-			if source.get_active():
-				sourcelist= source.get_freq_items(min,max)
-				for i in range(5):
-					try:
-						items.append(sourcelist[i])
-					except:
-						pass
-		items.sort(self.comparecount)
-		for item in items:
-			yield item
-		gc.collect()
-
+    
 datasink= DataSinkSource()
