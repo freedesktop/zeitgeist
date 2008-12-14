@@ -109,7 +109,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 			if date is None or i.datestring != date:
 				date = i.datestring
 				daybox=Daybox(i.datestring)
-				self.box.pack_start(daybox)
+				self.box.pack_end(daybox)
 			
 			# Add item to the GUI
 			daybox.add_item(i)
@@ -170,7 +170,7 @@ class Daybox(gtk.VBox):
 		self.pack_start(self.iconview, False, False)
 	
 	def add_item(self,item):
-		self.iconview.add_item(item)
+		self.iconview.prepend_item(item)
 	
 	
 class FilterAndOptionBox(gtk.VBox):
@@ -348,12 +348,15 @@ class DataIconView(gtk.TreeView):
 		self.last_item=None
 		self.items = []
 	
-	def add_item(self, item):
-		# Add an item to the store
-		
-		self._set_item(item, None)
+	def append_item(self, item):
+		# Add an item to the end of the store
+		self._set_item(item)
 		self.set_model(self.store)
-		del item
+	
+	def prepend_item(self, item):
+		# Add an item to the end of the store
+		self._set_item(item, False)
+		self.set_model(self.store)
 		
 	def remove_item(self,item):
 		#Maybe filtering should be done on a  UI level
@@ -363,7 +366,7 @@ class DataIconView(gtk.TreeView):
 		# Create a store for our iconview and fill it with stock icons
 		self.store.clear()
 		for item in items:
-			self._set_item(item, None)
+			self._set_item(item)
 			self.set_model(self.store)		
 		gc.collect()
 		
@@ -409,13 +412,18 @@ class DataIconView(gtk.TreeView):
 				uris.append(self.last_item.get_uri())
 				selection_data.set_uris(uris)
 	
-	def _set_item(self, item, piter=None):
-		self.store.append([item.get_icon(24), 
-						   "<span size='small' color='red'>%s</span>" % item.get_comment(), #+ "	<span size='small' color='blue'> %s </span>" % str(item.count), 
-						   item.get_name(), 
-						   item.count, 
-						   None])
-		del item
+	def _set_item(self, item, append=True):
+		if append:
+			func = self.store.append
+		else:
+			func = self.store.prepend
+		
+		func([item.get_icon(24),
+			"<span size='small' color='red'>%s</span>" % item.get_comment(),
+			item.get_name(),
+			#<span size='small' color='blue'> %s </span>" % str(item.count),
+			item.count,
+			None])
 
 class SearchToolItem(gtk.ToolItem):
 	__gsignals__ = {

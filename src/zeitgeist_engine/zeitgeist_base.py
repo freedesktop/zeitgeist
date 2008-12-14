@@ -43,7 +43,9 @@ class Data(gobject.GObject):
 		
 		# Timestamps
 		# TODO: Remove all of the below attributes except for self.datestring and either self.timestamp or self.ctimestamp
-		# The conversion between different formats and between integers and strings is processor intensive and
+		# The conversion between different formats and between integers and strings is processor intensive and uses up 
+		# extra memory. A better way to do this would be to add functions to generate the time and/or date based on the
+		# timestamp _only_ when it's needed. It _may_ make sense to cache those strings after they've been created.
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
 		# format is "weekday day month year"
