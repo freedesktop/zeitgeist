@@ -346,14 +346,17 @@ class DataIconView(gtk.TreeView):
 		self.connect("focus-out-event",self.unselect_all)
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
+		self.items = []
 	
 	def add_item(self, item):
 		# Add an item to the store
 		
 		self._set_item(item, None)
-		self.set_model(self.store)		
+		self.set_model(self.store)
+		del item
 		
 	def remove_item(self,item):
+		#Maybe filtering should be done on a  UI level
 		pass
 		
 	def load_items(self, items):
@@ -378,6 +381,9 @@ class DataIconView(gtk.TreeView):
 		model, iter = treeselection.get_selected()
 		item = model.get_value(iter, 4)
 		item.open()
+		del item
+		del iter
+		del model
 		gc.collect()
 
 	def _show_item_popup(self, view, ev):

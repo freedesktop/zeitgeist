@@ -36,8 +36,7 @@ class DBConnector:
 	
 
 	def get_last_timestmap(self):
-		command = "SELECT * FROM timetable WHERE start IN (SELECT MAX(start) AS start FROM timetable)"
-		temp = self.cursor.execute(command).fetchall()
+		temp = self.cursor.execute( "SELECT * FROM timetable WHERE start IN (SELECT MAX(start) AS start FROM timetable)").fetchall()
 		try:
 			return temp[0][0]
 		except:
@@ -71,27 +70,23 @@ class DBConnector:
 		   
 	def get_items(self,min,max):
 
-		tcontents = "start , end,  uri"
-		perioditems = self.cursor.execute("SELECT " +tcontents+ " FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall()
-
-		for t in perioditems:
+		for t in  self.cursor.execute("SELECT start , end,  uri FROM timetable WHERE start >= "+str(int(min)) +" and start <= " + str(int(max))).fetchall():
 			
-			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchall()
+			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchone()
 			try:
-				yield Data(uri=i[0][0], 
+				yield Data(uri=i[0], 
 					          timestamp= t[0], 
-					          name= i[0][1], 
-					          comment=i[0][2], 
-					          mimetype=  i[0][3], 
-					          tags=i[0][4], 
-					          count=i[0][5], 
-					          use =i[0][6], 
-					          type=i[0][7])
+					          name= i[1], 
+					          comment=i[2], 
+					          mimetype=  i[3], 
+					          tags=i[4], 
+					          count=i[5], 
+					          use =i[6], 
+					          type=i[7])
 			except:
 				print "ERROR"
 				#pass
 			del i,t
-		    
 		gc.collect()
 	 
 	def update_item(self,item):
