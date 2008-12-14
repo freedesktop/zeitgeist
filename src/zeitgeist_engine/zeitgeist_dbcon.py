@@ -65,6 +65,8 @@ class DBConnector:
 				except:
 					pass
 				    #print "Error writing " + item.uri + " with timestamp "+ str(item.timestamp)
+				del item
+		del items
 		self.connection.commit()
 		   
 	def get_items(self,min,max):
@@ -86,9 +88,10 @@ class DBConnector:
 					          use =i[0][6], 
 					          type=i[0][7])
 			except:
-				#print "ERROR"
-				pass
-		#print(str(len(items)))
+				print "ERROR"
+				#pass
+			del i,t
+		    
 		gc.collect()
 	 
 	def update_item(self,item):

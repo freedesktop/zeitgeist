@@ -27,10 +27,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 	def get_items_uncached(self):
 		# 
 	   # delself.temp_list
-		self.recent_list = self.recent_manager.get_items()
-		self.recent_list.reverse() 
 		
-		for info in self.recent_list:
+		for info in self.recent_manager.get_items():
 			counter=0
 			if info.exists():
 				if not info.get_private_hint():					

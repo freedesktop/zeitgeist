@@ -8,7 +8,7 @@ import gtk.glade
 import gobject
 import gnomeapplet
 
-from zeitgeist_panel_widgets import StarredWidget,FilterAndOptionBox,calendar,search,timeline
+from zeitgeist_panel_widgets import FilterAndOptionBox,calendar,search,timeline
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class zeitgeistGUI:
@@ -53,9 +53,6 @@ class zeitgeistGUI:
 		# Timeline view
 		self.notebook.append_page(timeline, gtk.Label("Timeline"))
 		
-		# "Starred" view
-		self.starredbox = StarredWidget()
-		self.notebook.append_page(self.starredbox, gtk.Label("Starred"))
 		
 		# Status bar
 		statusbar = gtk.Statusbar()

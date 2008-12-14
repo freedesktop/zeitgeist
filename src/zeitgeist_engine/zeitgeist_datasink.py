@@ -71,15 +71,22 @@ class DataSinkSource(DataProvider):
 			
 	   
 	def get_items(self,min=0,max=sys.maxint,tags=""):
-		tags = tags.replace(",","")
+			
 		filters = []
 		for source in self.sources:
 			if source.get_active():
 				filters.append(source.get_name())
+			del source
 		# Used for benchmarking
-		time1 = time.time()
-		tagsplit = tags.split(" ")
+		#time1 = time.time()
 		#print "TAGS COUNT " + str(len(tagsplit))
+		
+		if not tags =="":
+			tags = tags.replace(",","")
+			tagsplit = tags.split(" ")
+		else:
+			tagsplit =[""]
+			
 		for item in db.get_items(min,max):
 				counter = 0	
 				for tag in tagsplit:
@@ -93,8 +100,8 @@ class DataSinkSource(DataProvider):
                 del item
         
         
-		time2 = time.time()
-		print("Got all items: " + str(time2 -time1))
+		#time2 = time.time()
+		#print("Got all items: " + str(time2 -time1))
 		gc.collect()
 	
 	def update_item(self,item):

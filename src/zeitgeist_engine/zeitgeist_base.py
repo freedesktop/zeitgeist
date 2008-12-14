@@ -46,12 +46,8 @@ class Data(gobject.GObject):
 		# The conversion between different formats and between integers and strings is processor intensive and
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
-		self.day =	datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%d"))
-		self.cmonth = datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%m"))
-		self.year =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%Y"))
 		# format is "weekday day month year"
 		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
-		self.ctimestamp = time.mktime([int(self.year),int(self.cmonth),int(self.day),0,0,0,0,0,0])
 		
 		self.type = type
 		self.icon = icon

@@ -94,40 +94,25 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Remove all child widgets
 		for w in self.box.get_children():
+			for c in w.get_children():
+				w.remove(c)
+				del c
 			self.box.remove(w)
-		
+			del w
+			
 		# Get all items in the date range
-		items = datasink.get_items_by_time(self.begin, self.end, self.tags)
 		
 		# Loop over all of the items and add them to the GUI
 		date = None
-		for i in items:
+		for i in datasink.get_items_by_time(self.begin, self.end, self.tags):
 			# If we just reached a new date then create a label
-			if date is None or i.ctimestamp != date:
-				date = i.ctimestamp
-				daybox=gtk.VBox()
-				# Create label
-				label = gtk.Label(i.datestring)	
-				label.set_padding(5, 5) 
-				
-				# Add a frame around the label
-				evbox = gtk.EventBox()
-				evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
-				evbox1 = gtk.EventBox()
-				evbox1.set_border_width(1)
-				evbox1.add(label)
-				evbox.add(evbox1)
-				daybox.pack_start(evbox, False, False)
-				
-				# Create iconview
-				# TODO: This is really just quick hack
-				# We should eventually place all items inside one DataIconView
-				iconview = DataIconView()
-				daybox.pack_start(iconview, False, False)
+			if date is None or i.datestring != date:
+				date = i.datestring
+				daybox=Daybox(i.datestring)
 				self.box.pack_start(daybox)
 			
 			# Add item to the GUI
-			iconview.add_item(i)
+			daybox.add_item(i)
 		
 		self.box.show_all()
 		
@@ -147,17 +132,47 @@ class TimelineWidget(gtk.ScrolledWindow):
 		for the current day and hide all other days.
 		'''
 		# TODO: Implement me :-)
-		pass
-			
-class StarredWidget(gtk.HBox):
-	def __init__(self):
-		gtk.HBox.__init__(self, False)
-		self.freqused = FrequentlyUsedWidget()
-		self.bookmakrs = BookmarksWidget()
-		
-		self.pack_start(self.freqused, False, True, 5)
-		self.pack_start(self.bookmakrs, False, True, 5)
+		date=calendar.get_date()
+		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
+		ctimestamp = datetime.datetime.fromtimestamp(ctimestamp).strftime(_("%a %d %b %Y"))
+		if hide_other_days:
+			for w in self.box.get_children():
+				if not w.date== ctimestamp:
+					w.hide()
+				else:
+					w.show()
+		else:
+			for w in self.box.get_children():
+					w.show()
+			#Still need to scroll down
 
+class Daybox(gtk.VBox):
+	
+	def __init__(self,date):
+		gtk.VBox.__init__(self)
+		self.date=date
+		self.label = gtk.Label(date)	
+		self.label.set_padding(5, 5) 
+		
+		# Add a frame around the label
+		evbox = gtk.EventBox()
+		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
+		evbox1 = gtk.EventBox()
+		evbox1.set_border_width(1)
+		evbox1.add(self.label)
+		evbox.add(evbox1)
+		self.pack_start(evbox, False, False)
+		
+		# Create iconview
+		# TODO: This is really just quick hack
+		# We should eventually place all items inside one DataIconView
+		self.iconview = DataIconView()
+		self.pack_start(self.iconview, False, False)
+	
+	def add_item(self,item):
+		self.iconview.add_item(item)
+	
+	
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
@@ -209,55 +224,6 @@ class FilterAndOptionBox(gtk.VBox):
 class CalendarWidget(gtk.Calendar):
 	def __init__(self):
 		gtk.Calendar.__init__(self)
-			
-class FrequentlyUsedWidget(gtk.VBox):
-	
-	def __init__(self):
-		gtk.VBox.__init__(self)
-		self.iconview = DataIconView()
-		self.label = gtk.Label("Popular")
-		self.label.set_padding(5, 5)	
-		
-		self.pack_start(self.label,False,False)
-		
-		scroll = gtk.ScrolledWindow()
-		scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-		scroll.set_shadow_type(gtk.SHADOW_IN)
-		scroll.add(self.iconview)
-		self.pack_start(scroll,True,True)
-		calendar.connect("month-changed",self.reload_view)
-		datasink.connect("reload",self.reload_view)
-		self.reload_view()
-	def reload_view(self,x=None):
-		
-		date=calendar.get_date()
-		min = [date[0] ,date[1]+1,1,0,0,0,0,0,0]
-		max =  [date[0] ,date[1]+2,0,0,0,0,0,0,0]
-		min = time.mktime(min)
-		max= time.mktime(max)
-		
-		month =  datetime.datetime.fromtimestamp(max).strftime("%B")
-		self.label.set_text("Popular in "+month)
-		
-		x = [] 
-		self.iconview.load_items(x)
-		del x
-		
-class BookmarksWidget(gtk.VBox):
-	def __init__(self):
-		gtk.VBox.__init__(self)
-		self.iconview = DataIconView()
-		self.label = gtk.Label("Bookmarks and Desktop")
-		self.label.set_padding(5, 5)	 
-		self.pack_start(self.label,False,False)
-		
-		scroll = gtk.ScrolledWindow()
-		scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-		scroll.set_shadow_type(gtk.SHADOW_IN)
-		scroll.add(self.iconview)
-		self.pack_start(scroll,True,True)
-		#items = datasink.get_desktop_items()
-		self.iconview.load_items([])
 
 class CheckBox(gtk.CheckButton):
 	def __init__(self,source):
@@ -383,8 +349,12 @@ class DataIconView(gtk.TreeView):
 	
 	def add_item(self, item):
 		# Add an item to the store
+		
 		self._set_item(item, None)
 		self.set_model(self.store)		
+		
+	def remove_item(self,item):
+		pass
 		
 	def load_items(self, items):
 		# Create a store for our iconview and fill it with stock icons
@@ -434,23 +404,12 @@ class DataIconView(gtk.TreeView):
 				selection_data.set_uris(uris)
 	
 	def _set_item(self, item, piter=None):
-		
-		name = item.get_name()
-		comment = "<span size='small' color='red'>%s</span>" % item.get_comment() #+ "	<span size='small' color='blue'> %s </span>" % str(item.count)
-		#count = "<span size='small' color='blue'>%s</span>" %  item.count
-		
-		count = ""
-		use = "<span size='small' color='blue'>%s</span>" %  item.use
-		try:
-			icon = item.get_icon(24)
-		except (AssertionError, AttributeError):
-			print("exception")
-			icon = None
-		
-		self.store.append([icon, comment, name, count, item])
-		del item,icon,comment,name,count
-		
-		pass
+		self.store.append([item.get_icon(24), 
+						   "<span size='small' color='red'>%s</span>" % item.get_comment(), #+ "	<span size='small' color='blue'> %s </span>" % str(item.count), 
+						   item.get_name(), 
+						   item.count, 
+						   None])
+		del item
 
 class SearchToolItem(gtk.ToolItem):
 	__gsignals__ = {
