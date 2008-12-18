@@ -101,7 +101,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Loop over all of the items and add them to the GUI
 		date = None
 		for i in datasink.get_items_by_time(self.begin, self.end, self.tags):
-			print i
 			# If we just reached a new date then create a label
 			if date is None or i.datestring != date:
 				date = i.datestring
