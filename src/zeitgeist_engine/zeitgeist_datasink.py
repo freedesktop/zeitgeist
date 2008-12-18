@@ -105,8 +105,7 @@ class DataSinkSource(DataProvider):
 	
 	def update_item(self,item):
 		db.update_item(item)
-                del item
-                self.emit("reload")
+		self.emit("reload")
 	
 	def get_items_by_time(self,min=0,max=sys.maxint,tags=""):
 		"Datasink getting all items from DaraProviders"
