@@ -94,11 +94,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Remove all child widgets
 		for w in self.box.get_children():
-			for c in w.get_children():
-				w.remove(c)
-				del c
 			self.box.remove(w)
-			del w
 			
 		# Get all items in the date range
 		
@@ -340,10 +336,12 @@ class DataIconView(gtk.TreeView):
 		self.set_model(self.store)
 		self.set_headers_visible(False)
 		
+		self.connect("destroy", self._on_destroy)
 		self.connect("row-activated", self._open_item)
 		self.connect("button-press-event", self._show_item_popup)
 		self.connect("drag-data-get", self._item_drag_data_get)
 		self.connect("focus-out-event",self.unselect_all)
+		
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.items = []
@@ -378,6 +376,9 @@ class DataIconView(gtk.TreeView):
 			treeselection.unselect_all()
 		except:
 			pass
+	
+	def _on_destroy(self, widget):
+		self.store.clear()
 		
 	def _open_item(self, view, path, x=None):		 
 		treeselection = self.get_selection()
