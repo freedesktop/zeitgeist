@@ -95,9 +95,8 @@ class DataSinkSource(DataProvider):
 							counter = counter +1
 						if counter == len(tagsplit):
 							yield item
-					except:
-						pass
-                del item
+					except Exception, ex:
+						print ex
         
         
 		#time2 = time.time()
@@ -112,9 +111,6 @@ class DataSinkSource(DataProvider):
 	def get_items_by_time(self,min=0,max=sys.maxint,tags=""):
 		"Datasink getting all items from DaraProviders"
 		for item in self.get_items(min,max,tags):
-		        yield item
-                del item
-	
+			yield item
 
-    
 datasink= DataSinkSource()
