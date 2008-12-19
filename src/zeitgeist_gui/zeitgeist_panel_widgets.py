@@ -309,7 +309,7 @@ class DataIconView(gtk.TreeView):
 		gtk.TreeView.__init__(self)
 		
 		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
-		self.store = gtk.ListStore(gtk.gdk.Pixbuf,str,str,str, gobject.TYPE_PYOBJECT)
+		self.store = gtk.ListStore(gtk.gdk.Pixbuf, str, str, str, gobject.TYPE_PYOBJECT)
 		#self.use_cells = isinstance(self, gtk.CellLayout)
 		
 		
@@ -321,17 +321,17 @@ class DataIconView(gtk.TreeView):
 		name_cell.set_property("yalign", 0.0)
 		name_cell.set_property("xalign", 0.0)
 		name_cell.set_property("wrap-width", 200)
-		name_column = gtk.TreeViewColumn("Name",name_cell,markup=2)
+		name_column = gtk.TreeViewColumn("Name", name_cell, markup=2)
 		
-		count_cell = gtk.CellRendererText()
-		count_column = gtk.TreeViewColumn("Count",count_cell,markup=3)
+		#count_cell = gtk.CellRendererText()
+		#count_column = gtk.TreeViewColumn("Count", count_cell, markup=3)
 		time_cell = gtk.CellRendererText()
 		time_column = gtk.TreeViewColumn("Time",time_cell,markup=1)
 		
 		self.append_column(time_column)
 		self.append_column(icon_column)
 		self.append_column(name_column)
-		self.append_column(count_column)
+		#self.append_column(count_column)
 	 
 		self.set_model(self.store)
 		self.set_headers_visible(False)
