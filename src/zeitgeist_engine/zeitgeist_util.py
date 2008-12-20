@@ -116,18 +116,12 @@ class IconFactory:
 			retval = self.load_icon_from_path(os.path.join(data_dir, "pixmaps", icon_value),
 											  icon_size)
 			if retval:
-				#del icon_value,icon_size,data_dir,data_dirs
 				return retval
 			
 			retval = self.load_icon_from_path(os.path.join(data_dir, "icons", icon_value),
 											  icon_size)
 			if retval:
-				#del icon_value,icon_size,data_dir,data_dirs
 				return retval
-			
-			#del retval,data_dir
-			
-		#del data_dirs
 		return None
 
 	def load_icon(self, icon_value, icon_size, force_size = True):
@@ -171,7 +165,6 @@ class IconFactory:
 		img = gtk.Image()
 		img.set_from_pixbuf(pixbuf)
 		img.show()
-		#del pixbuf, icon_value, icon_size, force_size 
 		return img
 
 	def make_icon_frame(self, thumb, icon_size = None, blend = False):
@@ -194,7 +187,6 @@ class IconFactory:
 						thumb.get_width() - (border * 2), thumb.get_height() - (border * 2),
 						mythumb,
 						border, border)
-		#del thumb,icon_size,blend
 		return mythumb
 
 class Thumbnailer:
@@ -217,7 +209,6 @@ class Thumbnailer:
 		return self.cached_icon
 
 	def _lookup_or_make_thumb(self, icon_size, timestamp):
-		
 		icon_name, icon_type = \
 				   gnome.ui.icon_lookup(icon_theme, thumb_factory, self.uri, self.mimetype, 0)
 		try:
@@ -227,7 +218,6 @@ class Thumbnailer:
 				thumb = icon_factory.load_icon(icon_name, icon_size)
 			elif self._is_local_uri(self.uri):
 				# Generate a thumbnail for local files only
-				#print " *** Calling generate_thumbnail for", self.uri
 				thumb = thumb_factory.generate_thumbnail(self.uri, self.mimetype)
 				thumb_factory.save_thumbnail(thumb, self.uri, timestamp)
 
