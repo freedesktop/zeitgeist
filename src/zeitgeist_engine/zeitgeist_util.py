@@ -402,25 +402,17 @@ class DBusWrapper:
 	def __get_bus(self):
 		if not self.__bus:
 			try:
-				try:
-					# pthon-dbus 0.80.x requires a mainloop to connect signals
-					from dbus.mainloop.glib import DBusGMainLoop
-					self.__bus = dbus.SessionBus(mainloop=DBusGMainLoop())
-				except ImportError:
-					self.__bus = dbus.SessionBus()
-			except dbus.DBusException:
-				#print " !!! D-BUS Session bus is not running"
-				raise 
+				# pthon-dbus 0.80.x requires a mainloop to connect signals
+				from dbus.mainloop.glib import DBusGMainLoop
+				self.__bus = dbus.SessionBus(mainloop=DBusGMainLoop())
+			except ImportError:
+				self.__bus = dbus.SessionBus()
 		return self.__bus
 
 	def __get_obj(self):
 		if not self.__obj:
-			try:
-				svc = self.__get_bus().get_object(self.__service, self.__path)
-				self.__obj = dbus.Interface(svc, self.__interface)
-			except dbus.DBusException:
-				#print " !!! %s D-BUS service not available." % self.__service
-				raise
+			svc = self.__get_bus().get_object(self.__service, self.__path)
+			self.__obj = dbus.Interface(svc, self.__interface)
 		return self.__obj
 
 	def __getattr__(self, name):
@@ -451,7 +443,7 @@ class DiffFactory:
 		os.close(fd1)
 		os.close(fd2)
 		
-		os.system("patch "+orginalfile+"<"+patch)
+		os.system("patch %s < %s" % (orginalfile, patch))
 		return orginalfile
 	
 difffactory=DiffFactory()
