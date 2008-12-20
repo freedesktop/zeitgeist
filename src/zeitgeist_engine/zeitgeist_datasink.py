@@ -70,33 +70,43 @@ class DataSinkSource(DataProvider):
 		self.emit("reload")
 			
 	   
-	def get_items(self,min=0,max=sys.maxint,tags=""):
-			
-		filters = []
+	def get_items(self, min=0, max=sys.maxint, tags=""):
+		# Get a list of all document types that we're interested in
+		types = []
 		for source in self.sources:
 			if source.get_active():
-				filters.append(source.get_name())
-			del source
+				types.append(source.get_name())
+		# For efficiency, we convert the list to an immutable set
+		# Immutable sets (and regular sets) allow us to perform membership testing in O(1)
+		#  time. Lists, on the other hand, perform membership testing in O(n) time.
+		types = frozenset(types)
+		
+		# Get a list of all tags/search terms
+		# (Here, there's no reason to use sets, because we're not using python's 'in' 
+		#  keyword for membership testing.)
+		if not tags == "":
+			tags = tags.replace(",", "")
+			tagsplit = tags.split(" ")
+		else:
+			tagsplit = []
+		
 		# Used for benchmarking
 		#time1 = time.time()
 		#print "TAGS COUNT " + str(len(tagsplit))
 		
-		if not tags =="":
-			tags = tags.replace(",","")
-			tagsplit = tags.split(" ")
-		else:
-			tagsplit =[""]
-			
-		for item in db.get_items(min,max):
-				counter = 0	
+		# Loop over all of the items from the database
+		for item in db.get_items(min, max):
+			# Check if the document type matches; If it doesn't then don't bother checking anything else
+			if item.type in types:
+				matches = True
+				# Loop over every tag/search term
 				for tag in tagsplit:
-					try:
-						if filters.index(item.type)>=0 and (item.tags.lower().find(tag)> -1 or item.uri.lower().find(tag)>-1):
-							counter = counter +1
-						if counter == len(tagsplit):
-							yield item
-					except Exception, ex:
-						print ex
+					# If the document name or uri does NOT match the tag/search terms then skip this item
+					if not item.tags.lower().find(tag)> -1 and not item.uri.lower().find(tag)>-1:
+						matches = False
+						break
+				if matches:
+					yield item
         
         
 		#time2 = time.time()
