@@ -98,6 +98,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 			if date is None or i.datestring != date:
 				date = i.datestring
 				daybox=Daybox(i.datestring)
+				adj = self.get_vadjustment()
+				daybox.connect('set-focus-child', self.focus_in, adj)
 				self.box.pack_end(daybox)
 			
 			# Add item to the GUI
@@ -133,7 +135,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 		else:
 			for w in self.box.get_children():
 					w.show()
-			#Still need to scroll down
+					if w.date== ctimestamp:
+						w.emit_focus()
+				
+	def focus_in(self,widget, event, adj):
+		alloc = widget.get_allocation() 
+		if alloc.y < adj.value or alloc.y > adj.value + adj.page_size:
+			adj.set_value(min(alloc.y, adj.upper-adj.page_size))
+		del widget
+
 
 class Daybox(gtk.VBox):
 	
@@ -160,7 +170,9 @@ class Daybox(gtk.VBox):
 	
 	def add_item(self,item):
 		self.iconview.prepend_item(item)
-	
+
+	def emit_focus(self):
+		self.emit("set-focus-child",self)
 	
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
@@ -359,7 +371,6 @@ class DataIconView(gtk.TreeView):
 		for item in items:
 			self._set_item(item)
 			self.set_model(self.store)		
-		gc.collect()
 		
 	def unselect_all(self,x=None,y=None):
 		try:
@@ -372,6 +383,8 @@ class DataIconView(gtk.TreeView):
 	
 	def _on_destroy(self, widget):
 		self.store.clear()
+		self.destroy()
+		gc.collect()
 		
 	def _open_item(self, view, path, x=None):		 
 		treeselection = self.get_selection()
