@@ -45,7 +45,6 @@ class FirefoxSource(DataProvider):
 		return newloc
 	
 	def get_items_uncached(self):#
-		print("reloading firefox history")
 		path = self.copy_sqlite()
 		
 		# create a connection to firefox's sqlite database
@@ -71,5 +70,4 @@ class FirefoxSource(DataProvider):
 			timestamp = history[j][2] / (1000000)
 			j += 1
 			yield FirefoxData(url, name, timestamp, count)
-		print("reloading firefox history done")
 		cursor.close()
