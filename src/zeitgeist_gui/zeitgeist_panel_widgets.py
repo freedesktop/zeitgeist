@@ -47,7 +47,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		datasink.connect("reload", self.load_month)
 		
 		# Load the GUI
-		self.load_month(None)
+		self.load_month()
 				   
 	def load_month(self, widget=None, tags=None):
 		'''
@@ -74,18 +74,11 @@ class TimelineWidget(gtk.ScrolledWindow):
 		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
 		
 		# Get date as unix timestamp
-		begin = time.mktime(begin)
-		end = time.mktime(end)
+		self.begin = time.mktime(begin)
+		self.end = time.mktime(end)
 		
-		# If the month didn't change and the tags didn't change
-		# then don't reload anything
-		if begin == self.begin and end == self.end and tags == self.tags:
-			return
-		else:
-			self.begin = begin
-			self.end = end
-			if tags is not None:
-				self.tags = tags
+		if tags is not None:
+			self.tags = tags
 		
 		calendar.clear_marks()
 		
@@ -212,7 +205,7 @@ class FilterAndOptionBox(gtk.VBox):
 		dlg = NewFromTemplateDialog(".","")
 		dlg.show()
 		
-	def filterout(self,widget):
+	def filterout(self, widget):
 		datasink.emit("reload")
 		search.emit("clear")
 		gc.collect()
@@ -246,7 +239,8 @@ class CheckBox(gtk.CheckButton):
 	def toggle_source(self,widget):
 		if self.get_active():
 			self.source.set_active(True)
-			search.emit("clear")
+			# FIXME
+			#search.emit("clear")
 		else:
 			self.source.set_active(False)
 	  
@@ -438,7 +432,7 @@ class SearchToolItem(gtk.ToolItem):
 
 	def __init__(self, accel_group = None):
 		gtk.ToolItem.__init__(self)
-		self.search_timeout = 0
+		self.search_timeout = None
 		self.default_search_text = _("Search")
 
 		box = gtk.HBox(False, 0)
@@ -461,7 +455,7 @@ class SearchToolItem(gtk.ToolItem):
 		
 		# Hold on to this id so we can block emission when initially clearing text
 		self.change_handler_id = self.entry.connect("changed", lambda w: self._queue_search())
-
+		
 		if accel_group:
 			# Focus on Ctrl-L
 			self.entry.add_accelerator("grab-focus",
@@ -484,7 +478,7 @@ class SearchToolItem(gtk.ToolItem):
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
 			img.show()
 			self.clearbtn.add(img)
-		timeline.load_month (tags=text.lower())
+		timeline.load_month(tags=text.lower())
 
 	def _entry_clear_no_change_handler(self):
 		'''Avoids sending \'changed\' signal when clearing text.'''
@@ -500,13 +494,13 @@ class SearchToolItem(gtk.ToolItem):
 	def _typing_timeout(self):
 		if len(self.entry.get_text()) > 0:
 			self.emit("search", self.entry.get_text())
-		self.search_timeout = 0
+		self.search_timeout = None
 		return False
 
 	def _queue_search(self):
-		if self.search_timeout != 0:
+		if self.search_timeout is not None:
 			gobject.source_remove(self.search_timeout)
-			self.search_timeout = 0
+			self.search_timeout = None
 
 		if len(self.entry.get_text()) == 0:
 			self.emit("clear")
