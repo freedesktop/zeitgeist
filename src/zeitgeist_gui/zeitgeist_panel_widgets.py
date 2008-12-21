@@ -424,7 +424,7 @@ class DataIconView(gtk.TreeView):
 			item.get_name(),
 			#<span size='small' color='blue'> %s </span>" % str(item.count),
 			item.count,
-			None])
+			item])
 
 class SearchToolItem(gtk.ToolItem):
 	__gsignals__ = {
