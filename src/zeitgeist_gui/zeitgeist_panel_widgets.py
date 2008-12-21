@@ -215,26 +215,25 @@ class CalendarWidget(gtk.Calendar):
 		gtk.Calendar.__init__(self)
 
 class CheckBox(gtk.CheckButton):
+	
 	def __init__(self,source):
 		gtk.CheckButton.__init__(self)
-		self.source = source
+		self.set_label(source.name)
 		self.set_border_width(5)
-		self.label = gtk.Label(source.name)
 		self.img = gtk.Image()
 		
-		#icon = source.icon
-
-		#self.img.set_from_pixbuf(icon)
+		self.source = source
 		
-		self.set_label(source.name)
-		#img.set_from_pixbuf(source.get_icon(16))
+		#icon = source.icon
+		#self.img.set_from_pixbuf(icon)
 		try:
 			self.img.set_from_icon_name(source.get_icon(16),4)
 		except:
 		    self.img.set_from_pixbuf(source.get_icon(16))
 		self.set_image(self.img)
+		
 		self.set_focus_on_click(False)
-		self.connect("toggled",self.toggle_source)
+		self.connect("toggled", self.toggle_source)
 
 	def toggle_source(self,widget):
 		if self.get_active():
