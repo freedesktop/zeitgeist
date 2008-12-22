@@ -38,6 +38,8 @@ class DataSinkSource(DataProvider):
 		self.firefox = FirefoxSource()
 		self.firefox.start()
 		
+		# Pidgin
+		
 		# Tomboy
 		self.tomboy = TomboySource()
 		self.tomboy.start()
@@ -47,6 +49,7 @@ class DataSinkSource(DataProvider):
 		self.twitter=TwitterSource()
 		self.twitter.start()
 		
+		self.items=[]
 		# Initialize all sources
 		self.init_sources()
 		
@@ -64,6 +67,7 @@ class DataSinkSource(DataProvider):
 					 self.tomboy,
 					 self.videos
 					]
+	   
 	
 	def update_db(self):
 		'''
@@ -99,10 +103,11 @@ class DataSinkSource(DataProvider):
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
 			
-	   
-	def get_items(self, min=0, max=sys.maxint, tags=""):
+	
+	def get_items(self, min=0, max=sys.maxint, tags="",cached=False):
 		# Get a list of all document types that we're interested in
 		types = []
+		self.items=[]
 		for source in self.sources:
 			if source.get_active():
 				types.append(source.get_name())
@@ -121,19 +126,37 @@ class DataSinkSource(DataProvider):
 			tagsplit = []
 		
 		# Loop over all of the items from the database
-		for item in db.get_items(min, max):
-			# Check if the document type matches; If it doesn't then don't bother checking anything else
-			if item.type in types:
-				matches = True
-				# Loop over every tag/search term
-				for tag in tagsplit:
-					# If the document name or uri does NOT match the tag/search terms then skip this item
-					if not item.tags.lower().find(tag)> -1 and not item.uri.lower().find(tag)>-1:
-						matches = False
-						break
-				if matches:
-					yield item
-					
+		if cached==False:
+			print "GETTING UNCACHED"
+			for item in db.get_items(min, max):
+				if not self.items.__contains__(item):
+					self.items.append(item)
+					# Check if the document type matches; If it doesn't then don't bother checking anything else
+					if item.type in types:
+						matches = True
+						# Loop over every tag/search term
+						for tag in tagsplit:
+							# If the document name or uri does NOT match the tag/search terms then skip this item
+							if not item.tags.lower().find(tag)> -1 and not item.uri.lower().find(tag)>-1:
+								matches = False
+								break
+						if matches:
+							yield item
+		else:
+			print "GETTING CACHED"
+			for item in self.items:
+				# Check if the document type matches; If it doesn't then don't bother checking anything else
+				if item.type in types:
+					matches = True
+					# Loop over every tag/search term
+					for tag in tagsplit:
+						# If the document name or uri does NOT match the tag/search terms then skip this item
+						if not item.tags.lower().find(tag)> -1 and not item.uri.lower().find(tag)>-1:
+							matches = False
+							break
+					if matches:
+						yield item
+						
 		gc.collect()
 	
 	def update_item(self, item):
@@ -141,7 +164,7 @@ class DataSinkSource(DataProvider):
 		db.update_item(item)
 		self.emit("reload")
 	
-	def get_items_by_time(self, min=0, max=sys.maxint, tags=""):
+	def get_items_by_time(self, min=0, max=sys.maxint, tags="", cached=False):
 		"Datasink getting all items from DataProviders"
 		for item in self.get_items(min, max, tags):
 			yield item

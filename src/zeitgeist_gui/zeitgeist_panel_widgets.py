@@ -93,17 +93,30 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Loop over all of the items and add them to the GUI
 		date = None
-		for i in datasink.get_items_by_time(self.begin, self.end, self.tags):
-			# If we just reached a new date then create a label
-			if date is None or i.datestring != date:
-				date = i.datestring
-				daybox=Daybox(i.datestring)
-				adj = self.get_vadjustment()
-				daybox.connect('set-focus-child', self.focus_in, adj)
-				self.box.pack_end(daybox)
-			
-			# Add item to the GUI
-			daybox.add_item(i)
+		if not self.tags.strip()=="":
+			for i in datasink.get_items_by_time(self.begin, self.end, self.tags):
+				# If we just reached a new date then create a label
+				if date is None or i.datestring != date:
+					date = i.datestring
+					daybox=Daybox(i.datestring)
+					adj = self.get_vadjustment()
+					daybox.connect('set-focus-child', self.focus_in, adj)
+					self.box.pack_end(daybox)
+				
+				# Add item to the GUI
+				daybox.add_item(i)
+		else:
+			for i in datasink.get_items_by_time(self.begin, self.end, self.tags,True):
+				# If we just reached a new date then create a label
+				if date is None or i.datestring != date:
+					date = i.datestring
+					daybox=Daybox(i.datestring)
+					adj = self.get_vadjustment()
+					daybox.connect('set-focus-child', self.focus_in, adj)
+					self.box.pack_end(daybox)
+				
+				# Add item to the GUI
+				daybox.add_item(i)
 		
 		self.box.show_all()
 		
@@ -197,18 +210,30 @@ class FilterAndOptionBox(gtk.VBox):
 		#self.frame2.add(self.alignment2)
 		self.frame2.set_label_widget(self.label2)
 		
+		
+		self.timelinefilter = gtk.CheckButton()
+		self.timelinefilter.set_label("Filter over current period")
+		self.option_box.pack_start(self.timelinefilter,False,False,5)
 		self.option_box.pack_start(self.frame2,False, False, 5)
+		
+		
 		self.voptionbox = gtk.VBox(False)
 		
+		self.search = SearchToolItem()
+		self.voptionbox.pack_start( self.search ,False,False,0)
+		label = gtk.Label("")
+		self.voptionbox.pack_start(label ,False,False,0)
+		self.timelinefilter = gtk.CheckButton()
 		for source in datasink.sources:
 			filter = CheckBox(source)
 			filter.set_active(True)
 			self.voptionbox.pack_start( filter,False,False,0)
 			self.filters.append(filter)
-			filter.connect("toggled",self.filterout)
+			filter.connect("toggled",self.filter_out)
 			
 		self.frame2.add(self.voptionbox)
 		self.date_dict = None
+		
 		
 	def _make_new_note(self,x):
 		launcher.launch_command("tomboy --new-note")
@@ -217,9 +242,8 @@ class FilterAndOptionBox(gtk.VBox):
 		dlg = NewFromTemplateDialog(".","")
 		dlg.show()
 		
-	def filterout(self, widget):
+	def filter_out(self, widget):
 		datasink.emit("reload")
-		search.emit("clear")
 		gc.collect()
 
 class CalendarWidget(gtk.Calendar):
@@ -537,4 +561,3 @@ class SearchToolItem(gtk.ToolItem):
 
 calendar = CalendarWidget()
 timeline = TimelineWidget()
-search = SearchToolItem()
