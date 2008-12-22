@@ -2,7 +2,7 @@ import datetime
 import gc
 import os
 import time
-
+import sys
 import gtk
 import gobject
 import pango
@@ -348,7 +348,7 @@ class DataIconView(gtk.TreeView):
 		gtk.TreeView.__init__(self)
 		
 		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
-		self.store = gtk.ListStore(gtk.gdk.Pixbuf, str, str, str, gobject.TYPE_PYOBJECT)
+		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, str, gobject.TYPE_PYOBJECT)
 		#self.use_cells = isinstance(self, gtk.CellLayout)
 		
 		
@@ -383,7 +383,9 @@ class DataIconView(gtk.TreeView):
 		
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
+			
 		self.items = []
+		self._create_parents()
 	
 	def append_item(self, item):
 		# Add an item to the end of the store
@@ -398,13 +400,6 @@ class DataIconView(gtk.TreeView):
 	def remove_item(self,item):
 		#Maybe filtering should be done on a  UI level
 		pass
-		
-	def load_items(self, items):
-		# Create a store for our iconview and fill it with stock icons
-		self.store.clear()
-		for item in items:
-			self._set_item(item)
-			self.set_model(self.store)		
 		
 	def unselect_all(self,x=None,y=None):
 		try:
@@ -459,12 +454,24 @@ class DataIconView(gtk.TreeView):
 		else:
 			func = self.store.prepend
 		
-		func([item.get_icon(24),
-			"<span size='small' color='red'>%s</span>" % item.get_comment(),
-			item.get_name(),
-			#<span size='small' color='blue'> %s </span>" % str(item.count),
-			item.count,
-			item])
+		func(self.types[item.type],[item.get_icon(24),
+				    "<span size='small' color='red'>%s</span>" % item.get_comment(),
+				    item.get_name(),
+				    #<span size='small' color='blue'> %s </span>" % str(item.count),
+				    item.count,
+				    item])
+		
+	
+	def _create_parents(self):    	
+		self.types={}
+		for item in datasink.sources:
+			iter =self.store.append(None,[item.get_icon(24),
+			    "",
+			    item.get_name(),
+			    #<span size='small' color='blue'> %s </span>" % str(item.count),
+			    item.count,
+			    None])
+			self.types[item.name]=iter
 
 class SearchToolItem(gtk.ToolItem):
 	__gsignals__ = {

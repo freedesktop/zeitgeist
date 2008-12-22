@@ -47,8 +47,8 @@ class DataSinkSource(DataProvider):
 		self.tomboy.connect("reload", self.update_db_with_source)
 		
 		# Twitter
-		self.twitter=TwitterSource()
-		self.twitter.start()
+		#self.twitter=TwitterSource()
+		#self.twitter.start()
 		
 		# Initialize all sources
 		self.init_sources()
@@ -63,7 +63,7 @@ class DataSinkSource(DataProvider):
 					 self.images,
 					 self.music,
 					 self.others,
-					 self.twitter,
+					#self.twitter,
 					 self.tomboy,
 					 self.videos
 					]

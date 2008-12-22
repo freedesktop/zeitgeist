@@ -31,6 +31,7 @@ class FirefoxSource(DataProvider):
 		DataProvider.__init__(self, name=name, icon=icon, uri = uri)
 		self.name = "Firefox History"
 		self.icon="firefox"
+		self.type = self.name
 		#self.emit("reload")
 		
 	def copy_sqlite(self):
