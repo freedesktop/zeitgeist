@@ -93,8 +93,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Loop over all of the items and add them to the GUI
 		date = None
-		if not self.tags.strip()=="":
-			for i in datasink.get_items_by_time(self.begin, self.end, self.tags):
+		print filtersBox.timefilter_active
+		if filtersBox.timefilter_active == False:
+			print "fitlering from DB"
+			for i in datasink.get_items_by_time(self.begin, self.end, self.tags,False):
 				# If we just reached a new date then create a label
 				if date is None or i.datestring != date:
 					date = i.datestring
@@ -106,6 +108,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				# Add item to the GUI
 				daybox.add_item(i)
 		else:
+			print "fitlering within current timeline"
 			for i in datasink.get_items_by_time(self.begin, self.end, self.tags,True):
 				# If we just reached a new date then create a label
 				if date is None or i.datestring != date:
@@ -157,7 +160,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 			adj.set_value(min(alloc.y, adj.upper-adj.page_size))
 		del widget
 
-
 class Daybox(gtk.VBox):
 	
 	def __init__(self,date):
@@ -198,7 +200,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.option_box.pack_start(self.create_doc_btn,False,False,5)
 		self.option_box.pack_start(self.create_note_btn,False,False)
 		self.pack_start(self.option_box)
-		
+		self.timefilter_active=False
 		self.filters=[]
 		'''
 		Filter Box
@@ -211,9 +213,10 @@ class FilterAndOptionBox(gtk.VBox):
 		self.frame2.set_label_widget(self.label2)
 		
 		
-		self.timelinefilter = gtk.CheckButton()
-		self.timelinefilter.set_label("Filter over current period")
-		self.option_box.pack_start(self.timelinefilter,False,False,5)
+		self.timefilter = gtk.CheckButton()
+		self.timefilter.set_label("Filter over current period")
+		self.timefilter.connect("toggled",self.set_timelinefilter)
+		self.option_box.pack_start(self.timefilter,False,False,5)
 		self.option_box.pack_start(self.frame2,False, False, 5)
 		
 		
@@ -234,7 +237,14 @@ class FilterAndOptionBox(gtk.VBox):
 		self.frame2.add(self.voptionbox)
 		self.date_dict = None
 		
-		
+	def set_timelinefilter(self,w=None):
+		if self.timefilter.get_active():
+			self.timefilter_active=True
+			print "timefilter active"
+		else:
+			self.timefilter_active=False
+			print "timefilter inactive"
+	
 	def _make_new_note(self,x):
 		launcher.launch_command("tomboy --new-note")
   
@@ -558,6 +568,6 @@ class SearchToolItem(gtk.ToolItem):
 			self.do_clear()
 
 
-
 calendar = CalendarWidget()
+filtersBox = FilterAndOptionBox()
 timeline = TimelineWidget()
