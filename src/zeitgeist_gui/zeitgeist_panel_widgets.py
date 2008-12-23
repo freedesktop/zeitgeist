@@ -40,8 +40,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Connect to the calendar's (displayed in the sidebar) signals
 		calendar.connect("month-changed", self.load_month)
-		calendar.connect("day-selected", self.jump_to_day, False)
-		#calendar.connect("day-selected-double-click", self.jump_to_day, True)
+		calendar.connect("day-selected", self.jump_to_day)
+		#calendar.connect("day-selected-double-click", self.jump_to_day)
 		
 		# Connect to the datasink's signals
 		datasink.connect("reload", self.load_month)
@@ -100,7 +100,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				# If we just reached a new date then create a label
 				if date is None or i.datestring != date:
 					date = i.datestring
-					daybox=Daybox(i.datestring)
+					daybox=Daybox(i.datestring, i.timestamp)
 					adj = self.get_vadjustment()
 					daybox.connect('set-focus-child', self.focus_in, adj)
 					self.box.pack_end(daybox)
@@ -113,7 +113,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				# If we just reached a new date then create a label
 				if date is None or i.datestring != date:
 					date = i.datestring
-					daybox=Daybox(i.datestring)
+					daybox=Daybox(i.datestring, i.timestamp)
 					adj = self.get_vadjustment()
 					daybox.connect('set-focus-child', self.focus_in, adj)
 					self.box.pack_end(daybox)
@@ -131,28 +131,33 @@ class TimelineWidget(gtk.ScrolledWindow):
 		gc.collect()
 	
 			
-	def jump_to_day(self, widget, hide_other_days):
+	def jump_to_day(self, widget):
 		'''
 		Jump to the currently selected day in the calendar.
-		
-		If hide_other_days is True, show extra information
-		for the current day and hide all other days.
 		'''
-		# TODO: Implement me :-)
-		date=calendar.get_date()
+		# Get the date that we need to jump to
+		date = calendar.get_date()
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
-		ctimestamp = datetime.datetime.fromtimestamp(ctimestamp).strftime(_("%a %d %b %Y"))
-		if hide_other_days:
-			for w in self.box.get_children():
-				if not w.date== ctimestamp:
-					w.hide()
-				else:
-					w.show()
-		else:
-			for w in self.box.get_children():
-					w.show()
-					if w.date== ctimestamp:
-						w.emit_focus()
+		
+		# Get the all of the DayViews packed into the timeline
+		children = self.box.get_children()
+		
+		# If there are no DayViews for this month then return
+		if len(children) == 0:
+			return
+		
+		# Loop over all of the DayViews and find the right one
+		# We do this by stopping when we've gone too far back in time
+		best_match = children[0]
+		for w in children:
+			# If the current day is too far back in time then take the last day
+			if w.ctimestamp < ctimestamp:
+				break
+			best_match = w
+		
+		# Emit a focus event on the best_match DayView so that
+		#  the TreeView will scroll to it
+		best_match.emit_focus()
 				
 	def focus_in(self,widget, event, adj):
 		alloc = widget.get_allocation() 
@@ -162,9 +167,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 
 class Daybox(gtk.VBox):
 	
-	def __init__(self,date):
+	def __init__(self, date, ctimestamp):
+		'''
+		date: a string representation of the day.
+		ctimestamp: the day's timestamp.
+		'''
 		gtk.VBox.__init__(self)
-		self.date=date
+		self.date = date
+		self.ctimestamp = ctimestamp
 		self.label = gtk.Label(date)	
 		self.label.set_padding(5, 5) 
 		
