@@ -41,7 +41,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Connect to the calendar's (displayed in the sidebar) signals
 		calendar.connect("month-changed", self.load_month)
 		calendar.connect("day-selected", self.jump_to_day, False)
-		calendar.connect("day-selected-double-click", self.jump_to_day, True)
+		#calendar.connect("day-selected-double-click", self.jump_to_day, True)
 		
 		# Connect to the datasink's signals
 		datasink.connect("reload", self.load_month)
