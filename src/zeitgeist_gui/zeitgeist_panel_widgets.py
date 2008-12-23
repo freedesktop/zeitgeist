@@ -395,7 +395,7 @@ class DataIconView(gtk.TreeView):
 		self.last_item=None
 			
 		self.items = []
-		self._create_parents()
+		self.types={}
 	
 	def append_item(self, item):
 		# Add an item to the end of the store
@@ -464,6 +464,9 @@ class DataIconView(gtk.TreeView):
 		else:
 			func = self.store.prepend
 		
+		if not self.types.has_key(item.type):
+			self._create_parent(item.type)
+		
 		func(self.types[item.type],[item.get_icon(24),
 				    "<span size='small' color='red'>%s</span>" % item.get_comment(),
 				    item.get_name(),
@@ -472,16 +475,16 @@ class DataIconView(gtk.TreeView):
 				    item])
 		
 	
-	def _create_parents(self):    	
-		self.types={}
+	def _create_parent(self,source):    	
 		for item in datasink.sources:
-			iter =self.store.append(None,[item.get_icon(24),
-			    "",
-			    item.get_name(),
-			    #<span size='small' color='blue'> %s </span>" % str(item.count),
-			    item.count,
-			    None])
-			self.types[item.name]=iter
+			if item.name == source:
+				iter =self.store.append(None,[item.get_icon(24),
+				    "",
+				    item.get_name(),
+				    #<span size='small' color='blue'> %s </span>" % str(item.count),
+				    item.count,
+				    None])
+				self.types[item.name]=iter
 
 class SearchToolItem(gtk.ToolItem):
 	__gsignals__ = {
