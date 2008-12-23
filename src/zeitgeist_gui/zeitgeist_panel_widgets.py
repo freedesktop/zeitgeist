@@ -22,6 +22,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
 		
+		# Add children widgets
+		self.view = DataIconView()
+		self.add(self.view)
+				
 		# Set up default properties
 		self.set_border_width(4)
 		self.set_size_request(350, 400)
@@ -34,10 +38,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# The current tags that we're using to filter displayed results
 		self.tags = ''
 		
-		# Create vertical box
-		self.box = gtk.VBox(False, True)
-		self.add_with_viewport(self.box)
-		
 		# Connect to the calendar's (displayed in the sidebar) signals
 		calendar.connect("month-changed", self.load_month)
 		calendar.connect("day-selected", self.jump_to_day)
@@ -48,8 +48,31 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Load the GUI
 		self.load_month()
-				   
-	def load_month(self, widget=None, tags=None):
+	
+	def apply_search(self, tags):
+		'''
+		Adds all items which match tags to the gui.
+		'''
+		
+		self.tags = tags
+		
+		if not tags == "":
+			tags = self.tags.replace(",", "")
+			tagsplit = tags.split(" ")
+		else:
+			tagsplit = []
+		
+		self.view.clear_store()
+		
+		for item in self.items:
+			matches = True
+			for tag in tagsplit:
+				if not item.tags.lower().find(tag)> -1 and not item.uri.lower().find(tag)>-1:
+					matches = False
+			if matches:
+				self.view.append_item(item)
+					   
+	def load_month(self, widget=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -77,59 +100,25 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.begin = time.mktime(begin)
 		self.end = time.mktime(end)
 		
-		if tags is not None:
-			self.tags = tags
-		
 		calendar.clear_marks()
 		
 		# Begin benchmarking
 		time1 = time.time()
 		
-		# Remove all child widgets
-		for w in self.box.get_children():
-			self.box.remove(w)
-			
-		# Get all items in the date range
+		# Get all items in the date range and add them to self.items
+		self.items = []
+		for i in datasink.get_items_by_time(self.begin, self.end, '', False):
+			self.items.append(i)
 		
-		# Loop over all of the items and add them to the GUI
-		date = None
-		print filtersBox.timefilter_active
-		if filtersBox.timefilter_active == False:
-			print "fitlering from DB"
-			for i in datasink.get_items_by_time(self.begin, self.end, self.tags,False):
-				# If we just reached a new date then create a label
-				if date is None or i.datestring != date:
-					date = i.datestring
-					daybox=Daybox(i.datestring, i.timestamp)
-					adj = self.get_vadjustment()
-					daybox.connect('set-focus-child', self.focus_in, adj)
-					self.box.pack_end(daybox)
-				
-				# Add item to the GUI
-				daybox.add_item(i)
-		else:
-			print "fitlering within current timeline"
-			for i in datasink.get_items_by_time(self.begin, self.end, self.tags,True):
-				# If we just reached a new date then create a label
-				if date is None or i.datestring != date:
-					date = i.datestring
-					daybox=Daybox(i.datestring, i.timestamp)
-					adj = self.get_vadjustment()
-					daybox.connect('set-focus-child', self.focus_in, adj)
-					self.box.pack_end(daybox)
-				
-				# Add item to the GUI
-				daybox.add_item(i)
-		
-		self.box.show_all()
+		# Update the GUI with the items that match the current search terms/tags
+		self.apply_search(self.tags)
 		
 		# Benchmarking
 		time2 = time.time()
-		print("Time to reorganize: " + str(time2 -time1))
+		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
 		
 		# Manually force garbage collection
 		gc.collect()
-	
 			
 	def jump_to_day(self, widget):
 		'''
@@ -139,26 +128,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		date = calendar.get_date()
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
 		
-		# Get the all of the DayViews packed into the timeline
-		children = self.box.get_children()
-		
-		# If there are no DayViews for this month then return
-		if len(children) == 0:
-			return
-		
-		# Loop over all of the DayViews and find the right one
-		# We do this by stopping when we've gone too far back in time
-		best_match = children[0]
-		for w in children:
-			# If the current day is too far back in time then take the last day
-			if w.ctimestamp < ctimestamp:
-				break
-			best_match = w
-		
-		# Emit a focus event on the best_match DayView so that
-		#  the TreeView will scroll to it
-		best_match.emit_focus()
-				
+		# TODO: Implement me!
+	
 	def focus_in(self,widget, event, adj):
 		alloc = widget.get_allocation() 
 		if alloc.y < adj.value or alloc.y > adj.value + adj.page_size:
@@ -395,7 +366,7 @@ class DataIconView(gtk.TreeView):
 		self.last_item=None
 			
 		self.items = []
-		self.types={}
+		self.types = {}
 	
 	def append_item(self, item):
 		# Add an item to the end of the store
@@ -410,6 +381,10 @@ class DataIconView(gtk.TreeView):
 	def remove_item(self,item):
 		#Maybe filtering should be done on a  UI level
 		pass
+	
+	def clear_store(self):
+		self.store.clear()
+		self.types = {}
 		
 	def unselect_all(self,x=None,y=None):
 		try:
@@ -544,7 +519,7 @@ class SearchToolItem(gtk.ToolItem):
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
 			img.show()
 			self.clearbtn.add(img)
-		timeline.load_month(tags=text.lower())
+		timeline.apply_search(tags=text.lower())
 
 	def _entry_clear_no_change_handler(self):
 		'''Avoids sending \'changed\' signal when clearing text.'''
