@@ -323,6 +323,7 @@ class DataIconView(gtk.TreeView):
 	 
 		self.set_model(self.store)
 		self.set_headers_visible(True)
+		self.set_enable_tree_lines(True)
 		
 		self.connect("row-activated", self._open_item)
 		self.connect("button-press-event", self._show_item_popup)
@@ -353,6 +354,7 @@ class DataIconView(gtk.TreeView):
 	def clear_store(self):
 		self.types = {}
 		self.store.clear()
+		gc.collect()
 		
 	def unselect_all(self,x=None,y=None):
 		try:
