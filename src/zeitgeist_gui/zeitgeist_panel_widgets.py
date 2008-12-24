@@ -64,6 +64,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		self.view.clear_store()
 		
+		day = None
 		for item in self.items:
 			matches = True
 			for tag in tagsplit:
@@ -108,7 +109,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Get all items in the date range and add them to self.items
 		self.items = []
 		for i in datasink.get_items_by_time(self.begin, self.end, '', False):
-			self.items.append(i)
+			     self.items.append(i)
+			 
 		
 		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
@@ -135,40 +137,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if alloc.y < adj.value or alloc.y > adj.value + adj.page_size:
 			adj.set_value(min(alloc.y, adj.upper-adj.page_size))
 		del widget
-
-class Daybox(gtk.VBox):
-	
-	def __init__(self, date, ctimestamp):
-		'''
-		date: a string representation of the day.
-		ctimestamp: the day's timestamp.
-		'''
-		gtk.VBox.__init__(self)
-		self.date = date
-		self.ctimestamp = ctimestamp
-		self.label = gtk.Label(date)	
-		self.label.set_padding(5, 5) 
-		
-		# Add a frame around the label
-		evbox = gtk.EventBox()
-		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
-		evbox1 = gtk.EventBox()
-		evbox1.set_border_width(1)
-		evbox1.add(self.label)
-		evbox.add(evbox1)
-		self.pack_start(evbox, False, False)
-		
-		# Create iconview
-		# TODO: This is really just quick hack
-		# We should eventually place all items inside one DataIconView
-		self.iconview = DataIconView()
-		self.pack_start(self.iconview, False, False)
-	
-	def add_item(self,item):
-		self.iconview.prepend_item(item)
-
-	def emit_focus(self):
-		self.emit("set-focus-child",self)
 	
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
@@ -354,9 +322,8 @@ class DataIconView(gtk.TreeView):
 		#self.append_column(count_column)
 	 
 		self.set_model(self.store)
-		self.set_headers_visible(False)
+		self.set_headers_visible(True)
 		
-		self.connect("destroy", self._on_destroy)
 		self.connect("row-activated", self._open_item)
 		self.connect("button-press-event", self._show_item_popup)
 		self.connect("drag-data-get", self._item_drag_data_get)
@@ -364,9 +331,10 @@ class DataIconView(gtk.TreeView):
 		
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
-			
+		self.day=None
 		self.items = []
 		self.types = {}
+		self.days={}
 	
 	def append_item(self, item):
 		# Add an item to the end of the store
@@ -383,8 +351,8 @@ class DataIconView(gtk.TreeView):
 		pass
 	
 	def clear_store(self):
-		self.store.clear()
 		self.types = {}
+		self.store.clear()
 		
 	def unselect_all(self,x=None,y=None):
 		try:
@@ -394,12 +362,7 @@ class DataIconView(gtk.TreeView):
 			treeselection.unselect_all()
 		except:
 			pass
-	
-	def _on_destroy(self, widget):
-		self.store.clear()
-		self.destroy()
-		gc.collect()
-		
+			
 	def _open_item(self, view, path, x=None):		 
 		treeselection = self.get_selection()
 		model, iter = treeselection.get_selected()
@@ -439,17 +402,22 @@ class DataIconView(gtk.TreeView):
 		else:
 			func = self.store.prepend
 		
+		
+		if not item.datestring == self.day:
+			self.types.clear()
+			self.day = item.datestring
+			self.create_day(self.day)
+			
 		if not self.types.has_key(item.type):
 			self._create_parent(item.type)
 		
 		func(self.types[item.type],[item.get_icon(24),
 				    "<span size='small' color='red'>%s</span>" % item.get_comment(),
-				    item.get_name(),
+				    "<span size='small' color='black'>%s</span>" % item.get_name(),
 				    #<span size='small' color='blue'> %s </span>" % str(item.count),
 				    item.count,
 				    item])
 		
-	
 	def _create_parent(self,source):    	
 		for item in datasink.sources:
 			if item.name == source:
@@ -460,6 +428,15 @@ class DataIconView(gtk.TreeView):
 				    item.count,
 				    None])
 				self.types[item.name]=iter
+				
+	def create_day(self,date):
+		iter =self.store.append(None,[None,
+				   "",
+				     "<span size='large' color='blue'>%s</span>" % date,
+				    #<span size='small' color='blue'> %s </span>" % str(item.count),
+				    None,
+				    None])
+		self.days[date]=iter
 
 class SearchToolItem(gtk.ToolItem):
 	__gsignals__ = {
