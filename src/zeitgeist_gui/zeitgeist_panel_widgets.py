@@ -413,7 +413,7 @@ class DataIconView(gtk.TreeView):
 		if not self.types.has_key(item.type):
 			self._create_parent(item.type)
 		
-		func(self.types[item.type],[item.get_icon(24),
+		func(self.types[item.type],[item.get_icon(16),
 				    "<span size='small' color='red'>%s</span>" % item.get_comment(),
 				    "<span size='small' color='black'>%s</span>" % item.get_name(),
 				    #<span size='small' color='blue'> %s </span>" % str(item.count),
