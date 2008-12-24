@@ -97,7 +97,7 @@ class TomboySource(DataProvider):
 				note_path = "~/.tomboy"
 			note_path = os.path.expanduser(note_path)
 		self.note_path = note_path
-
+		self.comment = "notes from tomboy"
 		self.notes = {}
 
 		self.note_path_monitor = FileMonitor(self.note_path)

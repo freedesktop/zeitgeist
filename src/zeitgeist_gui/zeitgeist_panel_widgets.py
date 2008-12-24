@@ -316,14 +316,16 @@ class DataIconView(gtk.TreeView):
 		time_cell = gtk.CellRendererText()
 		time_column = gtk.TreeViewColumn("Time",time_cell,markup=1)
 		
-		self.append_column(time_column)
 		self.append_column(icon_column)
 		self.append_column(name_column)
+		self.append_column(time_column)
 		#self.append_column(count_column)
 	 
 		self.set_model(self.store)
 		self.set_headers_visible(True)
 		self.set_enable_tree_lines(True)
+		self.set_rubber_banding(True)
+		self.set_expander_column(icon_column)
 		
 		self.connect("row-activated", self._open_item)
 		self.connect("button-press-event", self._show_item_popup)
@@ -412,20 +414,24 @@ class DataIconView(gtk.TreeView):
 			
 		if not self.types.has_key(item.type):
 			self._create_parent(item.type)
+			
+	
 		
 		func(self.types[item.type],[item.get_icon(16),
-				    "<span size='small' color='red'>%s</span>" % item.get_comment(),
+				    "<span size='small' color='red'>%s</span>" % item.get_time(),
 				    "<span size='small' color='black'>%s</span>" % item.get_name(),
 				    #<span size='small' color='blue'> %s </span>" % str(item.count),
 				    item.count,
 				    item])
+		
+		self.expand_all()
 		
 	def _create_parent(self,source):    	
 		for item in datasink.sources:
 			if item.name == source:
 				iter =self.store.append(None,[item.get_icon(24),
 				    "",
-				    item.get_name(),
+				    item.get_comment(),
 				    #<span size='small' color='blue'> %s </span>" % str(item.count),
 				    item.count,
 				    None])

@@ -62,10 +62,10 @@ class Data(gobject.GObject):
 		try:
 			if self.uri == "gzg/twitter":
 				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
-				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(16))
+				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(24))
 			elif self.type=="Twitter":
 				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
-				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(24))
+				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(16))
 			elif self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
 			         self.icon="firefox"
 			elif self.mimetype =="x-tomboy/note":
@@ -89,8 +89,11 @@ class Data(gobject.GObject):
 	def get_name(self):
 		return self.name
 
-	def get_comment(self):
+	def get_time(self):
 		return self.time.strip()
+
+	def get_comment(self):
+		return self.comment
 
 	def do_open(self):
 		

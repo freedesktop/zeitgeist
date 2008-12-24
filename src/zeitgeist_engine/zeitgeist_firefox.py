@@ -32,6 +32,7 @@ class FirefoxSource(DataProvider):
 		self.name = "Firefox History"
 		self.icon="firefox"
 		self.type = self.name
+		self.comment = "websites visited with Firefox"
 		#self.emit("reload")
 		
 	def copy_sqlite(self):

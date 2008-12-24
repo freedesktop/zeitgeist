@@ -15,6 +15,7 @@ class TwitterSource(DataProvider):
         DataProvider.__init__(self,uri=self.uri,name=self.name)
         self.username = ''
         self.password = ''
+        self.comment = " tweets to Twitter"
         
     def get_items_uncached(self):
         try:
