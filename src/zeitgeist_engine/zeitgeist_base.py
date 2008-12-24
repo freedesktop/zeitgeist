@@ -131,13 +131,21 @@ class Data(gobject.GObject):
 			menu.append(timemachine)
 			del timemachine
 		'''
-			
+		
+		relate = gtk.MenuItem("get relationships")
+		relate.connect("activate", lambda w:  self.relate())
+		relate.show()
+		menu.append(relate)
+		
 		tag = gtk.MenuItem("Edit Tags")
 		tag.connect("activate", lambda w:  self.tag_item())
 		tag.show()
 		menu.append(tag)
 		
 		del open,tag,menu
+	
+	def relate(self,x=None):
+		self.emit("reload")
 	
 	def tag_item(self):
 		taggingwindow = gtk.Window()
@@ -147,7 +155,7 @@ class Data(gobject.GObject):
 		textview=gtk.TextView()
 			
 		textview.get_buffer().set_text(self.tags)  
-			
+		
 		okbtn = gtk.Button("Add")
 		cbtn = gtk.Button("Cancel")
 		cbtn.connect("clicked", lambda w: taggingwindow.destroy())

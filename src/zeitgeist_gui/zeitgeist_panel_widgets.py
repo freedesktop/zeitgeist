@@ -23,11 +23,11 @@ class TimelineWidget(gtk.ScrolledWindow):
 		gtk.ScrolledWindow.__init__(self)
 		
 		# Add children widgets
-		self.view = DataIconView()
+		self.view = DataIconView(True)
 		self.add(self.view)
 				
 		# Set up default properties
-		self.set_border_width(4)
+		self.set_border_width(5)
 		self.set_size_request(350, 400)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		
@@ -109,12 +109,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Get all items in the date range and add them to self.items
 		self.items = []
 		for i in datasink.get_items_by_time(self.begin, self.end, '', False):
-			     self.items.append(i)
+			self.items.append(i)
+			i.connect("reload",self.set_relation)
 			 
 		
 		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
-		
 		# Benchmarking
 		time2 = time.time()
 		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
@@ -138,6 +138,38 @@ class TimelineWidget(gtk.ScrolledWindow):
 			adj.set_value(min(alloc.y, adj.upper-adj.page_size))
 		del widget
 	
+	def set_relation(self,item):
+		related.set_relation(item)
+
+class RelatedWidget(gtk.ScrolledWindow):
+	def __init__(self):
+		# Initialize superclass
+		gtk.ScrolledWindow.__init__(self)
+		self.view = DataIconView()
+		self.add(self.view)
+		self.set_border_width(5)
+		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.set_size_request(350, 400)
+		self.show_all()
+		self.items = []
+	
+	def set_relation(self,item):
+		self.view.clear_store()
+		uris = {}
+		for i in timeline.items:
+			for tag in item.tags:
+				try:
+					if i.tags.index(tag):
+						uris[i.uri]=i
+					else:
+						pass
+				except:
+					pass
+		for uri in uris.keys():
+			self.view.append_item(uris[uri])
+		uris.clear()
+		
+		
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
@@ -284,167 +316,6 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 				pass
 
 		self.destroy()
-		
-class DataIconView(gtk.TreeView):
-	'''
-	Icon view which displays Datas in the style of the Nautilus horizontal mode,
-	where icons are right aligned and each column is of a uniform width.  Also
-	handles opening an item and displaying the item context menu.
-	'''
-
-	
-	def __init__(self):
-		gtk.TreeView.__init__(self)
-		
-		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
-		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, str, gobject.TYPE_PYOBJECT)
-		#self.use_cells = isinstance(self, gtk.CellLayout)
-		
-		
-		icon_cell = gtk.CellRendererPixbuf()
-		icon_column = gtk.TreeViewColumn("Icon",icon_cell,pixbuf=0)
-		
-		name_cell = gtk.CellRendererText()
-		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
-		name_cell.set_property("yalign", 0.0)
-		name_cell.set_property("xalign", 0.0)
-		name_cell.set_property("wrap-width", 200)
-		name_column = gtk.TreeViewColumn("Name", name_cell, markup=2)
-		
-		#count_cell = gtk.CellRendererText()
-		#count_column = gtk.TreeViewColumn("Count", count_cell, markup=3)
-		time_cell = gtk.CellRendererText()
-		time_column = gtk.TreeViewColumn("Time",time_cell,markup=1)
-		
-		self.append_column(icon_column)
-		self.append_column(name_column)
-		self.append_column(time_column)
-		#self.append_column(count_column)
-	 
-		self.set_model(self.store)
-		self.set_headers_visible(True)
-		self.set_enable_tree_lines(True)
-		self.set_rubber_banding(True)
-		self.set_expander_column(icon_column)
-		
-		self.connect("row-activated", self._open_item)
-		self.connect("button-press-event", self._show_item_popup)
-		self.connect("drag-data-get", self._item_drag_data_get)
-		self.connect("focus-out-event",self.unselect_all)
-		
-		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
-		self.last_item=None
-		self.day=None
-		self.items = []
-		self.types = {}
-		self.days={}
-	
-	def append_item(self, item):
-		# Add an item to the end of the store
-		self._set_item(item)
-		self.set_model(self.store)
-	
-	def prepend_item(self, item):
-		# Add an item to the end of the store
-		self._set_item(item, False)
-		self.set_model(self.store)
-		
-	def remove_item(self,item):
-		#Maybe filtering should be done on a  UI level
-		pass
-	
-	def clear_store(self):
-		self.types = {}
-		self.store.clear()
-		gc.collect()
-		
-	def unselect_all(self,x=None,y=None):
-		try:
-			treeselection = self.get_selection()
-			model, iter = treeselection.get_selected()
-			self.last_item = model.get_value(iter, 4)
-			treeselection.unselect_all()
-		except:
-			pass
-			
-	def _open_item(self, view, path, x=None):		 
-		treeselection = self.get_selection()
-		model, iter = treeselection.get_selected()
-		item = model.get_value(iter, 4)
-		item.open()
-		del item
-		del iter
-		del model
-		gc.collect()
-
-	def _show_item_popup(self, view, ev):
-		if ev.button == 3:
-			   treeselection = self.get_selection()
-			   model, iter = treeselection.get_selected()
-			   if iter:
-				   item = model.get_value(iter, 4)
-				   if item:
-						menu = gtk.Menu()
-						menu.attach_to_widget(view, None)
-						item.populate_popup(menu)
-						menu.popup(None, None, None, ev.button, ev.time)
-						return True
-				
-
-	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
-		# FIXME: Prefer ACTION_LINK if available
-		if info == 100: # text/uri-list
-			
-			if self.last_item:
-				uris = []
-				uris.append(self.last_item.get_uri())
-				selection_data.set_uris(uris)
-	
-	def _set_item(self, item, append=True):
-		if append:
-			func = self.store.append
-		else:
-			func = self.store.prepend
-		
-		
-		if not item.datestring == self.day:
-			self.types.clear()
-			self.day = item.datestring
-			self.create_day(self.day)
-			
-		if not self.types.has_key(item.type):
-			self._create_parent(item.type)
-			
-	
-		
-		func(self.types[item.type],[item.get_icon(16),
-				    "<span size='small' color='red'>%s</span>" % item.get_time(),
-				    "<span size='small' color='black'>%s</span>" % item.get_name(),
-				    #<span size='small' color='blue'> %s </span>" % str(item.count),
-				    item.count,
-				    item])
-		
-		self.expand_all()
-		
-	def _create_parent(self,source):    	
-		for item in datasink.sources:
-			if item.name == source:
-				iter =self.store.append(None,[item.get_icon(24),
-				    "",
-				    item.get_comment(),
-				    #<span size='small' color='blue'> %s </span>" % str(item.count),
-				    item.count,
-				    None])
-				self.types[item.name]=iter
-				
-	def create_day(self,date):
-		iter =self.store.append(None,[None,
-				   "",
-				     "<span size='large' color='blue'>%s</span>" % date,
-				    #<span size='small' color='blue'> %s </span>" % str(item.count),
-				    None,
-				    None])
-		self.days[date]=iter
 
 class SearchToolItem(gtk.ToolItem):
 	__gsignals__ = {
@@ -546,8 +417,167 @@ class SearchToolItem(gtk.ToolItem):
 		'''Cancel a pending/active search without sending the \'clear\' signal.'''
 		if self.entry.get_text() != self.default_search_text:
 			self.do_clear()
+		
+class DataIconView(gtk.TreeView):
+	'''
+	Icon view which displays Datas in the style of the Nautilus horizontal mode,
+	where icons are right aligned and each column is of a uniform width.  Also
+	handles opening an item and displaying the item context menu.
+	'''
 
+	
+	def __init__(self,parentdays=False):
+		gtk.TreeView.__init__(self)
+		self.parentdays = parentdays
+		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
+		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, str, gobject.TYPE_PYOBJECT)
+		#self.use_cells = isinstance(self, gtk.CellLayout)
+		
+		
+		icon_cell = gtk.CellRendererPixbuf()
+		icon_column = gtk.TreeViewColumn("Icon",icon_cell,pixbuf=0)
+		
+		name_cell = gtk.CellRendererText()
+		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
+		name_cell.set_property("yalign", 0.0)
+		name_cell.set_property("xalign", 0.0)
+		name_cell.set_property("wrap-width", 200)
+		name_column = gtk.TreeViewColumn("Name", name_cell, markup=2)
+		
+		#count_cell = gtk.CellRendererText()
+		#count_column = gtk.TreeViewColumn("Count", count_cell, markup=3)
+		time_cell = gtk.CellRendererText()
+		time_column = gtk.TreeViewColumn("Time",time_cell,markup=1)
+		
+		self.append_column(icon_column)
+		self.append_column(name_column)
+		self.append_column(time_column)
+		#self.append_column(count_column)
+	 
+		self.set_model(self.store)
+		self.set_headers_visible(False)
+		self.set_enable_tree_lines(True)
+		#self.set_rubber_banding(True)
+		self.set_expander_column(icon_column)
+		
+		self.connect("row-activated", self._open_item)
+		self.connect("button-press-event", self._show_item_popup)
+		self.connect("drag-data-get", self._item_drag_data_get)
+		self.connect("focus-out-event",self.unselect_all)
+		
+		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
+		self.last_item=None
+		self.day=None
+		self.items = []
+		self.types = {}
+		self.days={}
+	
+	def append_item(self, item):
+		# Add an item to the end of the store
+		self._set_item(item)
+		self.set_model(self.store)
+	
+	def prepend_item(self, item):
+		# Add an item to the end of the store
+		self._set_item(item, False)
+		self.set_model(self.store)
+		
+	def remove_item(self,item):
+		#Maybe filtering should be done on a  UI level
+		pass
+	
+	def clear_store(self):
+		self.types = {}
+		self.store.clear()
+		gc.collect()
+		
+	def unselect_all(self,x=None,y=None):
+		try:
+			treeselection = self.get_selection()
+			model, iter = treeselection.get_selected()
+			self.last_item = model.get_value(iter, 4)
+			treeselection.unselect_all()
+		except:
+			pass
+			
+	def _open_item(self, view, path, x=None):		 
+		treeselection = self.get_selection()
+		model, iter = treeselection.get_selected()
+		item = model.get_value(iter, 4)
+		item.open()
+		del item
+		del iter
+		del model
+		gc.collect()
+
+	def _show_item_popup(self, view, ev):
+		if ev.button == 3:
+			   treeselection = self.get_selection()
+			   model, iter = treeselection.get_selected()
+			   if iter:
+				   item = model.get_value(iter, 4)
+				   if item:
+						menu = gtk.Menu()
+						menu.attach_to_widget(view, None)
+						item.populate_popup(menu)
+						menu.popup(None, None, None, ev.button, ev.time)
+						return True
+				
+
+	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
+		# FIXME: Prefer ACTION_LINK if available
+		if info == 100: # text/uri-list
+			
+			if self.last_item:
+				uris = []
+				uris.append(self.last_item.get_uri())
+				selection_data.set_uris(uris)
+	
+	def _set_item(self, item, append=True):
+		if append:
+			func = self.store.append
+		else:
+			func = self.store.prepend
+		
+		
+		if self.parentdays and not item.datestring == self.day:
+			self.types.clear()
+			self.day = item.datestring
+			self.create_day(self.day)
+			
+		if not self.types.has_key(item.type):
+			self._create_parent(item.type)
+		
+		func(self.types[item.type],[item.get_icon(16),
+				    "<span size='small' color='red'>%s</span>" % item.get_time(),
+				    "<span size='small' color='black'>%s</span>" % item.get_name(),
+				    #<span size='small' color='blue'> %s </span>" % str(item.count),
+				    item.count,
+				    item])
+		
+		#self.expand_all()
+		
+	def _create_parent(self,source):    	
+		for item in datasink.sources:
+			if item.name == source:
+				iter =self.store.append(None,[item.get_icon(24),
+				    "",
+				    item.get_name(),
+				    #<span size='small' color='blue'> %s </span>" % str(item.count),
+				    item.count,
+				    None])
+				self.types[item.name]=iter
+	
+	def create_day(self,date):
+		iter =self.store.append(None,[None,
+				   "",
+				     "<span size='large' color='blue'>%s</span>" % date,
+				    #<span size='small' color='blue'> %s </span>" % str(item.count),
+				    None,
+				    None])
+		self.days[date]=iter
 
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
+related = RelatedWidget()
 timeline = TimelineWidget()
