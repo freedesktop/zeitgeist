@@ -49,7 +49,7 @@ class Data(gobject.GObject):
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
 		# format is "weekday day month year"
-		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
+		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%d %b %Y"))
 		
 		self.type = type
 		self.icon = icon
@@ -107,6 +107,16 @@ class Data(gobject.GObject):
 		else:
 			pass
 			#print " !!! Data has no URI to open: %s" % self
+	
+	def get_tags(self):
+		tags = []
+		for tag in self.tags.split(","):
+			for tag in tag.split(" "):
+				tags.append(tag)
+		return tags
+					
+				
+				
 	
 	def open(self):
 		self.emit("open")
@@ -250,11 +260,3 @@ class DataProvider(Data, Thread):
 				return True
 		return False
 	
-	def comparecount(self,a,b):
-		return cmp(a.type, b.type)
-	
-	def comparecount(self,a, b):
-		return cmp(b.count, a.count) # compare as integers
-	
-	def comparetime(self,a, b):
-		return cmp(a.timestamp, b.timestamp) # compare as integers

@@ -8,7 +8,7 @@ import gtk.glade
 import gobject
 import gnomeapplet
 
-from zeitgeist_panel_widgets import filtersBox,calendar,timeline,related
+from zeitgeist_panel_widgets import filtersBox,calendar,timeline,related,ctb
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class zeitgeistGUI:
@@ -47,7 +47,10 @@ class zeitgeistGUI:
 		# Notebook
 		self.notebook = gtk.Notebook()
 		self.hBox.pack_start(self.notebook, True, True, 5)
-	        self.hBox.pack_start(related,True,True,5)
+	        advancedbar = gtk.VBox()
+	        advancedbar.pack_start(related,True,True,5)
+        	advancedbar.pack_start(ctb,True,True,5)
+        	self.hBox.pack_start(advancedbar,True,True,5)
 		
 		# Timeline view
 		self.notebook.append_page(timeline, gtk.Label("Timeline"))

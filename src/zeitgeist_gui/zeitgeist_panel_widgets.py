@@ -72,7 +72,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 					matches = False
 			if matches:
 				self.view.append_item(item)
-					   
+		
+	
 	def load_month(self, widget=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
@@ -141,34 +142,95 @@ class TimelineWidget(gtk.ScrolledWindow):
 	def set_relation(self,item):
 		related.set_relation(item)
 
-class RelatedWidget(gtk.ScrolledWindow):
+class RelatedWidget(gtk.VBox):
 	def __init__(self):
 		# Initialize superclass
-		gtk.ScrolledWindow.__init__(self)
+		gtk.VBox.__init__(self)
+		self.label = gtk.Label("Related files")
+		# Add a frame around the label
+		evbox = gtk.EventBox()
+		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
+		evbox1 = gtk.EventBox()
+		evbox1.set_border_width(1)
+		evbox1.add(self.label)
+		evbox.add(evbox1)
+		self.label.set_padding(5, 5) 
+		self.pack_start(evbox, False, False)
+		
+		self.scroll = gtk.ScrolledWindow()
 		self.view = DataIconView()
-		self.add(self.view)
+		self.scroll.add(self.view)
 		self.set_border_width(5)
-		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		self.set_size_request(350, 400)
+		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.set_size_request(300, -1)
+		self.pack_start(self.scroll)
 		self.show_all()
 		self.items = []
 	
 	def set_relation(self,item):
 		self.view.clear_store()
 		uris = {}
-		for i in timeline.items:
-			for tag in item.tags:
-				try:
-					if i.tags.index(tag):
-						uris[i.uri]=i
-					else:
+		print item.tags
+		if not item.tags == "":
+			for i in timeline.items:
+				for tag in item.get_tags():
+					try:
+						if i.tags.index(tag) >= 0:
+							#print tag
+							uris[i.uri]=i
+						else:
+							pass
+					except:
 						pass
-				except:
-					pass
 		for uri in uris.keys():
 			self.view.append_item(uris[uri])
 		uris.clear()
 		
+		
+		
+class CommonTagBrowser(gtk.VBox):
+	def __init__(self):
+		# Initialize superclass
+		gtk.VBox.__init__(self)
+		self.label = gtk.Label("Most used tags")
+		# Add a frame around the label
+		evbox = gtk.EventBox()
+		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
+		evbox1 = gtk.EventBox()
+		evbox1.set_border_width(1)
+		evbox1.add(self.label)
+		evbox.add(evbox1)
+		self.set_size_request(300, -1)
+		self.label.set_padding(5, 5) 
+		self.pack_start(evbox, False, False)
+		
+		self.scroll = gtk.ScrolledWindow()
+		self.view = DataIconView()
+		self.scroll.add(self.view)
+		self.set_border_width(5)
+		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.pack_start(self.scroll)
+		self.show_all()
+		self.items = []
+	
+	def set_relation(self,item):
+		self.view.clear_store()
+		uris = {}
+		print item.tags
+		if not item.tags == "":
+			for i in timeline.items:
+				for tag in item.get_tags():
+					try:
+						if i.tags.index(tag) >= 0:
+							#print tag
+							uris[i.uri]=i
+						else:
+							pass
+					except:
+						pass
+		for uri in uris.keys():
+			self.view.append_item(uris[uri])
+		uris.clear()
 		
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
@@ -468,6 +530,9 @@ class DataIconView(gtk.TreeView):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.day=None
+		
+		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
+		
 		self.items = []
 		self.types = {}
 		self.days={}
@@ -544,6 +609,7 @@ class DataIconView(gtk.TreeView):
 			self.types.clear()
 			self.day = item.datestring
 			self.create_day(self.day)
+			self.days[self.day]
 			
 		if not self.types.has_key(item.type):
 			self._create_parent(item.type)
@@ -554,19 +620,28 @@ class DataIconView(gtk.TreeView):
 				    #<span size='small' color='blue'> %s </span>" % str(item.count),
 				    item.count,
 				    item])
-		
 		#self.expand_all()
 		
 	def _create_parent(self,source):    	
 		for item in datasink.sources:
-			if item.name == source:
-				iter =self.store.append(None,[item.get_icon(24),
-				    "",
-				    item.get_name(),
-				    #<span size='small' color='blue'> %s </span>" % str(item.count),
-				    item.count,
-				    None])
-				self.types[item.name]=iter
+			try:
+				if item.name == source:
+					iter =self.store.append(self.days[self.day],[item.get_icon(24),
+					    "",
+					    item.get_name(),
+					    #<span size='small' color='blue'> %s </span>" % str(item.count),
+					    item.count,
+					    None])
+					self.types[item.name]=iter
+			except:
+				if item.name == source:
+					iter =self.store.append(None,[item.get_icon(24),
+					    "",
+					    item.get_name(),
+					    #<span size='small' color='blue'> %s </span>" % str(item.count),
+					    item.count,
+					    None])
+					self.types[item.name]=iter
 	
 	def create_day(self,date):
 		iter =self.store.append(None,[None,
@@ -580,4 +655,5 @@ class DataIconView(gtk.TreeView):
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
 related = RelatedWidget()
+ctb = CommonTagBrowser()
 timeline = TimelineWidget()
