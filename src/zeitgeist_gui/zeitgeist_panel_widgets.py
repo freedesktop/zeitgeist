@@ -64,6 +64,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		self.view.clear_store()
 		
+		print tagsplit
+		
 		day = None
 		for item in self.items:
 			matches = True
@@ -71,6 +73,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				if not item.tags.lower().find(tag)> -1 and not item.uri.lower().find(tag)>-1:
 					matches = False
 			if matches:
+				print item.name
 				self.view.append_item(item)
 		
 	
@@ -533,7 +536,6 @@ class DataIconView(gtk.TreeView):
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		
-		self.items = []
 		self.types = {}
 		self.days={}
 	
@@ -552,8 +554,10 @@ class DataIconView(gtk.TreeView):
 		pass
 	
 	def clear_store(self):
-		self.types = {}
+		self.types.clear()
+		self.days.clear()
 		self.store.clear()
+		self.day=None
 		gc.collect()
 		
 	def unselect_all(self,x=None,y=None):
@@ -599,6 +603,7 @@ class DataIconView(gtk.TreeView):
 				selection_data.set_uris(uris)
 	
 	def _set_item(self, item, append=True):
+		print"--------------------------------"
 		if append:
 			func = self.store.append
 		else:
@@ -612,26 +617,25 @@ class DataIconView(gtk.TreeView):
 			self.days[self.day]
 			
 		if not self.types.has_key(item.type):
-			self._create_parent(item.type)
+			self._create_parent(item.type,item.datestring)
 		
+		print self.types[item.type]
 		func(self.types[item.type],[item.get_icon(16),
 				    "<span size='small' color='red'>%s</span>" % item.get_time(),
 				    "<span size='small' color='black'>%s</span>" % item.get_name(),
 				    #<span size='small' color='blue'> %s </span>" % str(item.count),
 				    item.count,
 				    item])
+		
+		print item.name
+		
 		#self.expand_all()
 		
-	def _create_parent(self,source):    	
+	def _create_parent(self,source,date):    	
 		for item in datasink.sources:
 			try:
 				if item.name == source:
-					iter =self.store.append(self.days[self.day],[item.get_icon(24),
-					    "",
-					    item.get_name(),
-					    #<span size='small' color='blue'> %s </span>" % str(item.count),
-					    item.count,
-					    None])
+					iter =self.store.append(self.days[date],[item.get_icon(24),"",item.get_name(),item.count,None])
 					self.types[item.name]=iter
 			except:
 				if item.name == source:

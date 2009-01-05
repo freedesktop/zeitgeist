@@ -100,6 +100,17 @@ class DBConnector:
 																								   item.count,
 																								   item.use,
 																								   item.type))
+		
+		
+	 	 self.cursor.execute('DELETE FROM tags where uri=?',(item.uri,))
+	 	 
+		 for tag in item.get_tags():
+		 	if not tag.strip() == "":
+		 	    self.cursor.execute('INSERT INTO tags VALUES (?,?)',(tag,item.uri)) 		 	 
+		 			 		
 		 self.connection.commit()
+		 
+	def get_most_tags(self,count=10):
+ 	  pass
 		
 db=DBConnector()
