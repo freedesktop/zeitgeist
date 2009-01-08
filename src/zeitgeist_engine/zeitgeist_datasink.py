@@ -68,7 +68,6 @@ class DataSinkSource(DataProvider):
 					 self.videos
 					]
 	   
-	
 	def update_db(self):
 		'''
 		Add new items from all sources into the database.
@@ -103,7 +102,6 @@ class DataSinkSource(DataProvider):
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
 			
-	
 	def get_items(self, min=0, max=sys.maxint, tags="",cached=False):
 		# Get a list of all document types that we're interested in
 		types = []
@@ -188,5 +186,9 @@ class DataSinkSource(DataProvider):
 		# Otherwise, if there are more items in the queue return True so that gtk+
 		#  will continue to call this function in idle cpu time
 		return True
+
+	def get_most_used_tags(self,count=10):
+		for tag in db.get_most_tags(count):
+			yield tag
 
 datasink= DataSinkSource()

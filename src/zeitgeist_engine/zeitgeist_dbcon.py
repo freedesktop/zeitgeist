@@ -91,8 +91,8 @@ class DBConnector:
 	 
 	def update_item(self,item):
 		 
-		 self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
-		 self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',(item.uri,
+		self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
+		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',(item.uri,
 																								   item.name,
 																								   item.comment,
 																								   item.mimetype,
@@ -102,15 +102,19 @@ class DBConnector:
 																								   item.type))
 		
 		
-	 	 self.cursor.execute('DELETE FROM tags where uri=?',(item.uri,))
+	 	self.cursor.execute('DELETE FROM tags where uri=?',(item.uri,))
 	 	 
-		 for tag in item.get_tags():
-		 	if not tag.strip() == "":
+		for tag in item.get_tags():
+			if not tag.strip() == "":
 		 	    self.cursor.execute('INSERT INTO tags VALUES (?,?)',(tag,item.uri)) 		 	 
 		 			 		
-		 self.connection.commit()
+		self.connection.commit()
 		 
 	def get_most_tags(self,count=10):
- 	  pass
+ 	      res = self.cursor.execute('SELECT tag, COUNT(uri) FROM tags GROUP BY tag ORDER BY COUNT(uri) DESC').fetchall()
+ 	      list = []
+ 	      for i in range(count):
+                yield res[i]
+        
 		
 db=DBConnector()

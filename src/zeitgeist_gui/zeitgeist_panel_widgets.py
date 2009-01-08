@@ -28,7 +28,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				
 		# Set up default properties
 		self.set_border_width(5)
-		self.set_size_request(350, 400)
+		self.set_size_request(-1, -1)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		
 		# This contains the range of dates which we've currently loaded into the GUI
@@ -57,26 +57,22 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.tags = tags
 		
 		if not tags == "":
-			tags = self.tags.replace(",", "")
-			tagsplit = tags.split(" ")
+			tags = self.tags.strip().replace(",", " ")
+			tagsplit = tags.strip().split(" ")
 		else:
 			tagsplit = []
-		
+			
 		self.view.clear_store()
-		
-		print tagsplit
-		
+				
 		day = None
 		for item in self.items:
-			matches = True
-			for tag in tagsplit:
-				if not item.tags.lower().find(tag)> -1 and not item.uri.lower().find(tag)>-1:
-					matches = False
-			if matches:
-				print item.name
+			if len(tagsplit) >0:
+				for tag in tagsplit:
+					if  item.tags.lower().find(tag)> -1 or  item.uri.lower().find(tag)>-1:
+						self.view.append_item(item)
+			else:
 				self.view.append_item(item)
-		
-	
+									
 	def load_month(self, widget=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
@@ -165,12 +161,17 @@ class RelatedWidget(gtk.VBox):
 		self.scroll.add(self.view)
 		self.set_border_width(5)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		self.set_size_request(300, -1)
+		self.set_size_request(-1, -1)
 		self.pack_start(self.scroll)
 		self.show_all()
 		self.items = []
 	
 	def set_relation(self,item):
+		'''
+		Find the items that share same tags with the current item
+		Later to be done by monitoring the active files
+		'''
+		
 		self.view.clear_store()
 		uris = {}
 		print item.tags
@@ -188,9 +189,7 @@ class RelatedWidget(gtk.VBox):
 		for uri in uris.keys():
 			self.view.append_item(uris[uri])
 		uris.clear()
-		
-		
-		
+						
 class CommonTagBrowser(gtk.VBox):
 	def __init__(self):
 		# Initialize superclass
@@ -203,38 +202,48 @@ class CommonTagBrowser(gtk.VBox):
 		evbox1.set_border_width(1)
 		evbox1.add(self.label)
 		evbox.add(evbox1)
-		self.set_size_request(300, -1)
+		self.set_size_request(-1, -1)
 		self.label.set_padding(5, 5) 
 		self.pack_start(evbox, False, False)
 		
 		self.scroll = gtk.ScrolledWindow()
-		self.view = DataIconView()
+		self.view = gtk.VBox()
 		self.scroll.add(self.view)
 		self.set_border_width(5)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.pack_start(self.scroll)
 		self.show_all()
 		self.items = []
-	
-	def set_relation(self,item):
-		self.view.clear_store()
-		uris = {}
-		print item.tags
-		if not item.tags == "":
-			for i in timeline.items:
-				for tag in item.get_tags():
-					try:
-						if i.tags.index(tag) >= 0:
-							#print tag
-							uris[i.uri]=i
-						else:
-							pass
-					except:
-						pass
-		for uri in uris.keys():
-			self.view.append_item(uris[uri])
-		uris.clear()
 		
+		self.get_common_tags()
+	
+	def get_common_tags(self):
+		
+		for w in self.view:
+			self.view.remove(w)
+		
+		for tag in datasink.get_most_used_tags(10):
+			print tag[0]
+			btn = gtk.ToggleButton(tag[0])
+			btn.set_relief(gtk.RELIEF_NONE)
+			btn.set_focus_on_click(False)
+			#label.set_use_underline(True)
+			self.view.pack_start(btn)
+			btn.connect("toggled",self.toggle)
+		self.show_all()
+		
+	def toggle(self,x=None):
+		tags = timeline.tags
+		if x.get_active():
+			if tags.find(x.get_label()) == -1:
+				 tags = tags+","+x.get_label()
+		else:
+			if tags.find(x.get_label()) > -1:
+				 tags = tags.replace(","+x.get_label(), ",")
+				 tags = tags.replace(x.get_label()+"," ,",")
+		
+		timeline.apply_search(tags)
+			
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
@@ -489,7 +498,6 @@ class DataIconView(gtk.TreeView):
 	where icons are right aligned and each column is of a uniform width.  Also
 	handles opening an item and displaying the item context menu.
 	'''
-
 	
 	def __init__(self,parentdays=False):
 		gtk.TreeView.__init__(self)
@@ -497,7 +505,6 @@ class DataIconView(gtk.TreeView):
 		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
 		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, str, gobject.TYPE_PYOBJECT)
 		#self.use_cells = isinstance(self, gtk.CellLayout)
-		
 		
 		icon_cell = gtk.CellRendererPixbuf()
 		icon_column = gtk.TreeViewColumn("Icon",icon_cell,pixbuf=0)
@@ -522,7 +529,7 @@ class DataIconView(gtk.TreeView):
 		self.set_model(self.store)
 		self.set_headers_visible(False)
 		self.set_enable_tree_lines(True)
-		#self.set_rubber_banding(True)
+		self.set_rubber_banding(True)
 		self.set_expander_column(icon_column)
 		
 		self.connect("row-activated", self._open_item)
@@ -603,7 +610,6 @@ class DataIconView(gtk.TreeView):
 				selection_data.set_uris(uris)
 	
 	def _set_item(self, item, append=True):
-		print"--------------------------------"
 		if append:
 			func = self.store.append
 		else:
@@ -619,7 +625,6 @@ class DataIconView(gtk.TreeView):
 		if not self.types.has_key(item.type):
 			self._create_parent(item.type,item.datestring)
 		
-		print self.types[item.type]
 		func(self.types[item.type],[item.get_icon(16),
 				    "<span size='small' color='red'>%s</span>" % item.get_time(),
 				    "<span size='small' color='black'>%s</span>" % item.get_name(),
@@ -627,9 +632,7 @@ class DataIconView(gtk.TreeView):
 				    item.count,
 				    item])
 		
-		print item.name
-		
-		#self.expand_all()
+		self.expand_all()
 		
 	def _create_parent(self,source,date):    	
 		for item in datasink.sources:
@@ -659,5 +662,5 @@ class DataIconView(gtk.TreeView):
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
 related = RelatedWidget()
-ctb = CommonTagBrowser()
 timeline = TimelineWidget()
+ctb = CommonTagBrowser()
