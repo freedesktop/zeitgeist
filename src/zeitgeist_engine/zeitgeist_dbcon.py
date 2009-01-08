@@ -114,6 +114,8 @@ class DBConnector:
  	      res = self.cursor.execute('SELECT tag, COUNT(uri) FROM tags GROUP BY tag ORDER BY COUNT(uri) DESC').fetchall()
  	      list = []
  	      for i in range(count):
+	        if i > res.count:
+ 	                break
                 yield res[i]
         
 		

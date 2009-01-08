@@ -28,7 +28,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				
 		# Set up default properties
 		self.set_border_width(5)
-		self.set_size_request(-1, -1)
+		self.set_size_request(400, -1)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		
 		# This contains the range of dates which we've currently loaded into the GUI
@@ -161,7 +161,7 @@ class RelatedWidget(gtk.VBox):
 		self.scroll.add(self.view)
 		self.set_border_width(5)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		self.set_size_request(-1, -1)
+		self.set_size_request(400, -1)
 		self.pack_start(self.scroll)
 		self.show_all()
 		self.items = []
@@ -202,7 +202,7 @@ class CommonTagBrowser(gtk.VBox):
 		evbox1.set_border_width(1)
 		evbox1.add(self.label)
 		evbox.add(evbox1)
-		self.set_size_request(-1, -1)
+		self.set_size_request(400, -1)
 		self.label.set_padding(5, 5) 
 		self.pack_start(evbox, False, False)
 		
