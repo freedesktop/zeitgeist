@@ -216,8 +216,11 @@ class CommonTagBrowser(gtk.VBox):
 		self.items = []
 		
 		self.get_common_tags()
+	    
+	    
+		datasink.connect("reload", self.get_common_tags)
 	
-	def get_common_tags(self):
+	def get_common_tags(self,x=None):
 		
 		for w in self.view:
 			self.view.remove(w)
@@ -230,6 +233,7 @@ class CommonTagBrowser(gtk.VBox):
 			#label.set_use_underline(True)
 			self.view.pack_start(btn)
 			btn.connect("toggled",self.toggle)
+			
 		self.show_all()
 		
 	def toggle(self,x=None):
