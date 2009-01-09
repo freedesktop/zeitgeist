@@ -446,6 +446,8 @@ class DiffFactory:
 		os.system("patch %s < %s" % (orginalfile, patch))
 		return orginalfile
 	
+
+
 difffactory=DiffFactory()
 icon_factory = IconFactory()
 icon_theme = gtk.icon_theme_get_default()

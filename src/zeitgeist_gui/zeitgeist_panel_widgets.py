@@ -63,12 +63,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 			tagsplit = []
 			
 		self.view.clear_store()
-				
+		
 		day = None
 		for item in self.items:
 			if len(tagsplit) >0:
 				for tag in tagsplit:
-					if  item.tags.lower().find(tag)> -1 or  item.uri.lower().find(tag)>-1:
+					if  item.tags.lower().find(tag.lower())> -1 or  item.uri.lower().find(tag.lower())>-1:
 						self.view.append_item(item)
 			else:
 				self.view.append_item(item)

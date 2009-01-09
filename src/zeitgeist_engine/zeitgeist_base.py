@@ -56,6 +56,7 @@ class Data(gobject.GObject):
 		self.tags = tags
 		self.thumbnailer = None
 		self.original_source = None
+		self.textview=gtk.TextView()
 		
 		
 	def get_icon(self, icon_size):
@@ -160,23 +161,28 @@ class Data(gobject.GObject):
 	def tag_item(self):
 		taggingwindow = gtk.Window()
 		taggingwindow.set_border_width(5)
-		taggingwindow.set_size_request(400,100)
+		taggingwindow.set_size_request(400,-1)
 		taggingwindow.set_title("Edit Tags for " + self.get_name())
-		textview=gtk.TextView()
 			
-		textview.get_buffer().set_text(self.tags)  
+		self.textview.get_buffer().set_text(self.tags)  
 		
 		okbtn = gtk.Button("Add")
 		cbtn = gtk.Button("Cancel")
 		cbtn.connect("clicked", lambda w: taggingwindow.destroy())
-		okbtn.connect("clicked",lambda w: self.set_tags(textview.get_buffer().get_text(*textview.get_buffer().get_bounds()) ))
+		okbtn.connect("clicked",lambda w: self.set_tags(self.textview.get_buffer().get_text(*self.textview.get_buffer().get_bounds()) ))
 		okbtn.connect("clicked",lambda w:  taggingwindow.destroy())
 		vbox=gtk.VBox()
 		hbox=gtk.HBox()
 		hbox.pack_start(okbtn)
 		hbox.pack_start(cbtn)
-		vbox.pack_start(textview,True,True,5)
+		vbox.pack_start(self.textview,True,True,5)
+
+		self.tbox = self.get_tagbox()
+		
+		vbox.pack_start(self.tbox,False,False)
 		vbox.pack_start(hbox,False,False)
+		
+		
 		taggingwindow.add(vbox)
 		taggingwindow.show_all()
 		
@@ -184,7 +190,80 @@ class Data(gobject.GObject):
 		from zeitgeist_datasink import datasink
 		self.tags = tags
 		datasink.update_item(self)
+
+
+	def get_tagbox(self):
+
+		# Initialize superclass
+		tbox = gtk.VBox()
+		label = gtk.Label("Most used tags")
+		# Add a frame around the label
+		evbox = gtk.EventBox()
+		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
+		evbox1 = gtk.EventBox()
+		evbox1.set_border_width(1)
+		evbox1.add(label)
+		evbox.add(evbox1)
+		tbox.set_size_request(400, -1)
+		label.set_padding(5, 5) 
+		tbox.pack_start(evbox, False, False)
 		
+		scroll = gtk.ScrolledWindow()
+		view = gtk.VBox()
+		scroll.add(view)
+		tbox.set_border_width(5)
+		scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		tbox.pack_start(scroll)
+		tbox.show_all()
+		
+		self.get_common_tags(view)
+		from zeitgeist_engine.zeitgeist_datasink import datasink
+		return tbox
+	
+	def get_common_tags(self,view):
+		
+		from zeitgeist_engine.zeitgeist_datasink import datasink
+		for tag in datasink.get_most_used_tags(10):
+			print tag[0]
+			btn = gtk.ToggleButton(tag[0])
+			btn.set_relief(gtk.RELIEF_NONE)
+			btn.set_focus_on_click(False)
+			#label.set_use_underline(True)
+			view.pack_start(btn)
+			btn.connect("toggled",self.toggle_tags)
+			
+		view.show_all()
+		
+	
+	def toggle_tags(self,x=None):
+		tags = self.tags
+		if x.get_active():
+			if tags.find(x.get_label()) == -1:
+				if tags.strip()=="":
+					tags = x.get_label()
+				else:
+					tags = tags+","+x.get_label()
+		else:
+			if tags.find(","+x.get_label()) > -1:
+				 tags = tags.replace(","+x.get_label(), "")
+			elif tags.find(x.get_label()+",") > -1:
+				 tags = tags.replace(x.get_label()+"," ,",")
+			elif tags.find(x.get_label()) > -1:
+				 tags = tags.replace(x.get_label(), "")
+		
+		while tags.find(",,")>-1:
+				 tags = tags.replace(",," ,",")
+				 tags.strip()
+						
+		if tags.strip().startswith(",") == True:
+			print"------------------------"
+			tags = tags.replace(",", "",1)
+			print tags
+			print"------------------------"
+		
+		self.tags=tags
+		
+		self.textview.get_buffer().set_text(self.tags)  
 		
 class DataProvider(Data, Thread):
 	# Clear cached items after 4 minutes of inactivity
