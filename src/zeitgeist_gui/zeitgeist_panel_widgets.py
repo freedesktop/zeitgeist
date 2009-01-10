@@ -207,24 +207,24 @@ class RelatedWidget(gtk.VBox):
 			self.view.append_item(uris[uri])
 		uris.clear()
 						
-class CommonTagBrowser(gtk.VBox):
+class CommonTagBrowser(gtk.HBox):
 	def __init__(self):
 		# Initialize superclass
-		gtk.VBox.__init__(self)
-		self.label = gtk.Label("Most used tags")
+		gtk.HBox.__init__(self)
+		self.label = gtk.Label("Most used tags :	")
 		# Add a frame around the label
 		evbox = gtk.EventBox()
-		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
+		#evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
 		evbox1 = gtk.EventBox()
 		evbox1.set_border_width(1)
 		evbox1.add(self.label)
 		evbox.add(evbox1)
-		self.set_size_request(400, -1)
-		self.label.set_padding(5, 5) 
+		self.set_size_request(-1, 40)
+		#self.label.set_padding(5, 5) 
 		self.pack_start(evbox, False, False)
 		
 		self.scroll = gtk.ScrolledWindow()
-		self.view = gtk.VBox(False,False)
+		self.view = gtk.HBox()
 		self.scroll.add(self.view)
 		self.set_border_width(5)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -233,7 +233,6 @@ class CommonTagBrowser(gtk.VBox):
 		self.items = []
 		
 		self.get_common_tags()
-	    
 	    
 		datasink.connect("reload", self.get_common_tags)
 	
@@ -245,10 +244,11 @@ class CommonTagBrowser(gtk.VBox):
 		for tag in datasink.get_most_used_tags(10):
 			print tag[0]
 			btn = gtk.ToggleButton(tag[0])
-			btn.set_relief(gtk.RELIEF_NONE)
+			#btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			#label.set_use_underline(True)
-			self.view.pack_start(btn,False)
+			self.view.pack_start(btn,False,False)
+			#btn.set_size_request(-1,-1)
 			btn.connect("toggled",self.toggle)
 			
 		self.show_all()

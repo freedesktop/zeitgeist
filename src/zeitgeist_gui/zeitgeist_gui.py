@@ -29,12 +29,14 @@ class zeitgeistGUI:
 		self.topicWindow.connect("destroy", gtk.main_quit)
 		
 		# Vertical box (contains self.hBox and a status bar)
-		self.vBox = gtk.VBox()
+		self.vBox = gtk.VBox(False,False)           
+                self.vBox.pack_start(ctb,False,False)
+
 		self.topicWindow.add(self.vBox)
 		
 		# Horizontal box (contains the main content and a sidebar)
 		self.hBox = gtk.HBox()
-		self.vBox.pack_start(self.hBox, True, True,5)
+		self.vBox.pack_start(self.hBox, False, False,5)
 		
 		# Sidebar
 		self.sidebar = gtk.VBox()
@@ -48,7 +50,7 @@ class zeitgeistGUI:
 		self.notebook = gtk.Notebook()
 		self.hBox.pack_start(self.notebook, True, True, 5)
 	        advancedbar = gtk.VBox()
-	        advancedbar.pack_start(related,True,True,5)
+	        #advancedbar.pack_start(related,True,True,5)
         	advancedbar.pack_start(ctb,True,True,5)
         	self.hBox.pack_start(advancedbar,True,True,5)
 		
