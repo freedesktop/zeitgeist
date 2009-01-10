@@ -57,14 +57,27 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.tags = tags
 		items=[]
 		if not tags == "":
-			tags = self.tags.strip().replace(",", " ")
+			if tags.find(",,")>-1:
+				tags = self.tags.strip().replace(",,", ",")
+			if tags.startswith(","):
+				tags.replace(",","",1)
 			while tags.find("  ") > -1:
-				tags = tags.replace("  "," ",1)
-			tagsplit = tags.strip().split(" ")
+				tags = tags.replace("  "," ")
+			tagsplit = tags.strip().split(",")
 		else:
 			tagsplit = []
 				
 		self.view.clear_store()
+		
+		ftagsplit=[]
+		for tag in tagsplit:
+			if not tag=="":
+				ftagsplit.append(tag)
+		tagsplit = ftagsplit
+		
+		print "----------"
+		print tagsplit
+		print "----------"
 		
 		day = None
 		for item in self.items:

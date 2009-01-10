@@ -112,7 +112,6 @@ class Data(gobject.GObject):
 	def get_tags(self):
 		tags = []
 		for tag in self.tags.split(","):
-			for tag in tag.split(" "):
 				tags.append(tag)
 		return tags
 					
@@ -253,10 +252,7 @@ class Data(gobject.GObject):
 				 tags.strip()
 						
 		if tags.strip().startswith(",") == True:
-			print"------------------------"
 			tags = tags.replace(",", "",1)
-			print tags
-			print"------------------------"
 		
 		self.tags=tags
 		
