@@ -28,7 +28,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				
 		# Set up default properties
 		self.set_border_width(5)
-		self.set_size_request(400, -1)
+		self.set_size_request(400, 400)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		
 		# This contains the range of dates which we've currently loaded into the GUI
@@ -41,7 +41,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Connect to the calendar's (displayed in the sidebar) signals
 		calendar.connect("month-changed", self.load_month)
 		calendar.connect("day-selected", self.jump_to_day)
-		#calendar.connect("day-selected-double-click", self.jump_to_day)
+		calendar.connect("day-selected-double-click", self.jump_to_day,True)
 		
 		# Connect to the datasink's signals
 		datasink.connect("reload", self.load_month)
@@ -63,12 +63,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 			tagsplit = tags.strip().split(" ")
 		else:
 			tagsplit = []
-		
-		
-		print "-------------------------"
-		print tagsplit
-		print "-------------------------"	
-		
+				
 		self.view.clear_store()
 		
 		day = None
@@ -89,7 +84,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 				except:
 					items.append(item)
 					self.view.append_item(item)
-									
+		
+		for count in range(len(self.view.store)):
+			self.view.expand_row(count,False)	
+				
 	def load_month(self, widget=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
@@ -139,15 +137,30 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Manually force garbage collection
 		gc.collect()
 			
-	def jump_to_day(self, widget):
+	def jump_to_day(self, widget,expand=False):
 		'''
 		Jump to the currently selected day in the calendar.
 		'''
 		# Get the date that we need to jump to
 		date = calendar.get_date()
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
+		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime(_("%d %b %Y"))
+		#print datestring
 		
-		# TODO: Implement me!
+		
+		self.view.collapse_all()
+		
+		if not expand:
+			for count in range(len(self.view.store)):
+				self.view.expand_row(count,False)	
+		
+		for count in range(len(self.view.store)):
+			#count = count  +1
+			if  self.view.store[count][3] == datestring:
+				self.view.scroll_to_cell(count)
+				self.view.expand_row(count,expand)	
+				print "OK"
+				break
 	
 	def focus_in(self,widget, event, adj):
 		alloc = widget.get_allocation() 
@@ -156,12 +169,20 @@ class TimelineWidget(gtk.ScrolledWindow):
 		del widget
 	
 	def set_relation(self,item):
+		related = RelatedWindow()
 		related.set_relation(item)
 
-class RelatedWidget(gtk.VBox):
+class RelatedWindow(gtk.Window):
 	def __init__(self):
 		# Initialize superclass
-		gtk.VBox.__init__(self)
+		gtk.Window.__init__(self)
+		
+		
+		self.set_resizable(True)
+		self.connect("destroy", lambda w: self.destroy)
+		
+		
+		self.vbox=gtk.VBox()
 		self.label = gtk.Label("Related files")
 		# Add a frame around the label
 		evbox = gtk.EventBox()
@@ -171,15 +192,16 @@ class RelatedWidget(gtk.VBox):
 		evbox1.add(self.label)
 		evbox.add(evbox1)
 		self.label.set_padding(5, 5) 
-		self.pack_start(evbox, False, False)
+		#self.vbox.pack_start(evbox, False, False)
 		
 		self.scroll = gtk.ScrolledWindow()
 		self.view = DataIconView()
-		self.scroll.add(self.view)
+		self.scroll.add_with_viewport(self.view)
 		self.set_border_width(5)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		self.set_size_request(400, -1)
-		self.pack_start(self.scroll)
+		self.vbox.set_size_request(400, 400)
+		self.vbox.pack_start(self.scroll)
+		self.add(self.vbox)
 		self.show_all()
 		self.items = []
 	
@@ -189,6 +211,7 @@ class RelatedWidget(gtk.VBox):
 		Later to be done by monitoring the active files
 		'''
 		
+		self.set_title("Gnome Zeitgeist - Files related to "+item.name)
 		self.view.clear_store()
 		uris = {}
 		print item.tags
@@ -225,7 +248,7 @@ class CommonTagBrowser(gtk.HBox):
 		
 		self.scroll = gtk.ScrolledWindow()
 		self.view = gtk.HBox()
-		self.scroll.add(self.view)
+		self.scroll.add_with_viewport(self.view)
 		self.set_border_width(5)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.pack_start(self.scroll)
@@ -273,14 +296,21 @@ class FilterAndOptionBox(gtk.VBox):
 		self.create_doc_btn.connect("clicked",self._show_new_from_template_dialog)
 		self.create_note_btn = gtk.Button("Create New Note")
 		self.create_note_btn.connect("clicked",self._make_new_note)
-		self.option_box.pack_start(self.create_doc_btn,False,False,5)
-		self.option_box.pack_start(self.create_note_btn,False,False)
-		self.pack_start(self.option_box)
+		self.option_box.pack_end(self.create_doc_btn,False,False,5)
+		self.option_box.pack_end(self.create_note_btn,False,False)
 		self.timefilter_active=False
 		self.filters=[]
 		'''
 		Filter Box
 		'''
+		
+		self.search = SearchToolItem()
+		self.pack_start( self.search ,False,False,0)
+		self.pack_start( gtk.Label("") ,False,False,0)
+		self.pack_start( calendar ,False,False,0)
+		
+		self.pack_start(self.option_box)
+		
 		self.frame2 = gtk.Frame()
 		#self.alignment2 = gtk.Alignment(0.5,0.5,1.0,1.0)
 		self.label2 = gtk.Label("Filter")
@@ -289,19 +319,15 @@ class FilterAndOptionBox(gtk.VBox):
 		self.frame2.set_label_widget(self.label2)
 		
 		
-		self.timefilter = gtk.CheckButton()
-		self.timefilter.set_label("Filter over current period")
-		self.timefilter.connect("toggled",self.set_timelinefilter)
-		self.option_box.pack_start(self.timefilter,False,False,5)
+		#self.timefilter = gtk.CheckButton()
+		#self.timefilter.set_label("Filter over current period")
+		#self.timefilter.connect("toggled",self.set_timelinefilter)
+		#self.option_box.pack_start(self.timefilter,False,False,5)
 		self.option_box.pack_start(self.frame2,False, False, 5)
 		
 		
 		self.voptionbox = gtk.VBox(False)
 		
-		self.search = SearchToolItem()
-		self.voptionbox.pack_start( self.search ,False,False,0)
-		label = gtk.Label("")
-		self.voptionbox.pack_start(label ,False,False,0)
 		self.timelinefilter = gtk.CheckButton()
 		for source in datasink.sources:
 			filter = CheckBox(source)
@@ -646,24 +672,24 @@ class DataIconView(gtk.TreeView):
 		if not self.types.has_key(item.type):
 			self._create_parent(item.type,item.datestring)
 		
-		func(self.types[item.type],[item.get_icon(16),
+		func(self.types[item.type],[item.get_icon(24),
 				    "<span size='small' color='red'>%s</span>" % item.get_time(),
 				    "<span size='small' color='black'>%s</span>" % item.get_name(),
 				    #<span size='small' color='blue'> %s </span>" % str(item.count),
 				    item.count,
 				    item])
 		
-		self.expand_all()
 		
 	def _create_parent(self,source,date):    	
 		for item in datasink.sources:
 			try:
 				if item.name == source:
-					iter =self.store.append(self.days[date],[item.get_icon(24),"",item.get_name(),item.count,None])
+					iter =self.store.append(self.days[date],[item.get_icon(16),"",item.get_name(),item.count,None])
+					#iter =self.store.append(None,[item.get_icon(24),"",item.get_name(),item.count,None])
 					self.types[item.name]=iter
 			except:
 				if item.name == source:
-					iter =self.store.append(None,[item.get_icon(24),
+					iter =self.store.append(None,[item.get_icon(16),
 					    "",
 					    item.get_name(),
 					    #<span size='small' color='blue'> %s </span>" % str(item.count),
@@ -676,12 +702,11 @@ class DataIconView(gtk.TreeView):
 				   "",
 				     "<span size='large' color='blue'>%s</span>" % date,
 				    #<span size='small' color='blue'> %s </span>" % str(item.count),
-				    None,
+				    date,
 				    None])
 		self.days[date]=iter
 
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
-related = RelatedWidget()
 timeline = TimelineWidget()
 ctb = CommonTagBrowser()

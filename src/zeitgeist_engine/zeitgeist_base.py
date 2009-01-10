@@ -116,9 +116,6 @@ class Data(gobject.GObject):
 				tags.append(tag)
 		return tags
 					
-				
-				
-	
 	def open(self):
 		self.emit("open")
 		
@@ -179,7 +176,7 @@ class Data(gobject.GObject):
 
 		self.tbox = self.get_tagbox()
 		
-		vbox.pack_start(self.tbox,False,False)
+		vbox.pack_start(self.tbox,True,True)
 		vbox.pack_start(hbox,False,False)
 		
 		
@@ -204,16 +201,16 @@ class Data(gobject.GObject):
 		evbox1.set_border_width(1)
 		evbox1.add(label)
 		evbox.add(evbox1)
-		tbox.set_size_request(400, -1)
+		#tbox.set_size_request(400, -1)
 		label.set_padding(5, 5) 
 		tbox.pack_start(evbox, False, False)
 		
 		scroll = gtk.ScrolledWindow()
-		view = gtk.VBox()
+		view = gtk.HBox()
+		view.set_size_request(-1, 40)
 		scroll.add(view)
-		tbox.set_border_width(5)
 		scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		tbox.pack_start(scroll)
+		tbox.pack_start(scroll,False,False)
 		tbox.show_all()
 		
 		self.get_common_tags(view)
@@ -229,7 +226,7 @@ class Data(gobject.GObject):
 			btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			#label.set_use_underline(True)
-			view.pack_start(btn)
+			view.pack_start(btn,False,False)
 			btn.connect("toggled",self.toggle_tags)
 			
 		view.show_all()
