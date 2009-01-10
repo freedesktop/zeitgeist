@@ -55,23 +55,40 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		
 		self.tags = tags
-		
+		items=[]
 		if not tags == "":
 			tags = self.tags.strip().replace(",", " ")
+			while tags.find("  ") > -1:
+				tags = tags.replace("  "," ",1)
 			tagsplit = tags.strip().split(" ")
 		else:
 			tagsplit = []
-			
+		
+		
+		print "-------------------------"
+		print tagsplit
+		print "-------------------------"	
+		
 		self.view.clear_store()
 		
 		day = None
 		for item in self.items:
 			if len(tagsplit) >0:
 				for tag in tagsplit:
-					if  item.tags.lower().find(tag.lower())> -1 or  item.uri.lower().find(tag.lower())>-1:
-						self.view.append_item(item)
+						if  item.tags.lower().find(tag.lower())> -1 or  item.uri.lower().find(tag.lower())>-1:
+							try:
+								if items.index(item)>-1:
+									pass
+							except:
+								items.append(item)
+								self.view.append_item(item)
 			else:
-				self.view.append_item(item)
+				try:
+					if items.index(item)>-1:
+						pass
+				except:
+					items.append(item)
+					self.view.append_item(item)
 									
 	def load_month(self, widget=None):
 		'''
@@ -207,7 +224,7 @@ class CommonTagBrowser(gtk.VBox):
 		self.pack_start(evbox, False, False)
 		
 		self.scroll = gtk.ScrolledWindow()
-		self.view = gtk.VBox()
+		self.view = gtk.VBox(False,False)
 		self.scroll.add(self.view)
 		self.set_border_width(5)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -231,7 +248,7 @@ class CommonTagBrowser(gtk.VBox):
 			btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			#label.set_use_underline(True)
-			self.view.pack_start(btn)
+			self.view.pack_start(btn,False)
 			btn.connect("toggled",self.toggle)
 			
 		self.show_all()
