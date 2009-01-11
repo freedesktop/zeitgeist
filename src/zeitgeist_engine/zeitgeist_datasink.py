@@ -64,12 +64,12 @@ class DataSinkSource(DataProvider):
 	def init_sources(self):
 	   self.sources=[
 					 self.docs,
-					# self.firefox,
+					 self.firefox,
 					 self.images,
 					 self.music,
 					 self.others,
 					 #self.twitter,
-					 #self.tomboy,
+					 self.tomboy,
 					 self.videos
 					]
 	   
