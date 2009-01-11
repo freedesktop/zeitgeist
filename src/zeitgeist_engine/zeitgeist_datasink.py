@@ -23,16 +23,21 @@ class DataSinkSource(DataProvider):
 		
 		# Recently used items
 		self.videos=RecentlyUsedVideoSource()
+		self.videos.connect("reload", self.update_db_with_source)
 		self.videos.start()
 		self.music=RecentlyUsedMusicSource()
+		self.music.connect("reload", self.update_db_with_source)
 		self.music.start()
 		self.images=RecentlyUsedImagesSource()
+		self.images.connect("reload", self.update_db_with_source)
 		self.images.start()
 		self.docs=RecentlyUsedDocumentsSource()
+		self.docs.connect("reload", self.update_db_with_source)
 		self.docs.start()
 		self.others = RecentlyUsedOthersSource()
+		self.others.connect("reload", self.update_db_with_source)
 		self.others.start()
-		recent_model.connect("reload", self.update_db_with_source)
+		
 		
 		# Firefox
 		self.firefox = FirefoxSource()
@@ -59,12 +64,12 @@ class DataSinkSource(DataProvider):
 	def init_sources(self):
 	   self.sources=[
 					 self.docs,
-					 self.firefox,
+					# self.firefox,
 					 self.images,
 					 self.music,
 					 self.others,
-					 self.twitter,
-					 self.tomboy,
+					 #self.twitter,
+					 #self.tomboy,
 					 self.videos
 					]
 	   
@@ -81,7 +86,7 @@ class DataSinkSource(DataProvider):
 		self._sources_queue = list(self.sources)
 		
 		# Add a new idle callback to update the db only if one doesn't already exist
-		if not self._db_update_in_progress:
+		if not self._db_update_in_progress and len(self._sources_queue) > 0:
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
 		
@@ -97,8 +102,8 @@ class DataSinkSource(DataProvider):
 		# Add the source into the queue
 		self._sources_queue.append(source)
 		
-		# Add a new idle callback to update the db only if one doesn't already exist
-		if not self._db_update_in_progress:
+		# Add a new idle callback to update the db only if one doesn't already existt
+		if not self._db_update_in_progress and len(self._sources_queue) > 0:
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
 			
@@ -168,24 +173,25 @@ class DataSinkSource(DataProvider):
 			yield item
 	
 	def _update_db_async(self):
-		print "Updating database with new %s items" % self._sources_queue[0].name
-		# Update the database with items from the first source in the queue
-		db.insert_items(self._sources_queue[0].get_items())
-		
-		# Remove the source from the queue
-		del self._sources_queue[0]
-		
-		# If there are no more items in the queue then finish up
-		if len(self._sources_queue) == 0:
-			self.db_update_in_progress = False
-			gc.collect()
-			self.emit("reload")
-			# Important: return False to stop this callback from being called again
-			return False
-		
-		# Otherwise, if there are more items in the queue return True so that gtk+
-		#  will continue to call this function in idle cpu time
-		return True
+		if len(self._sources_queue) > 0:
+			print "Updating database with new %s items" % self._sources_queue[0].name
+			# Update the database with items from the first source in the queue
+			db.insert_items(self._sources_queue[0].get_items())
+			
+			# Remove the source from the queue
+			del self._sources_queue[0]
+			
+			# If there are no more items in the queue then finish up
+			if len(self._sources_queue) == 0:
+				self.db_update_in_progress = False
+				gc.collect()
+				self.emit("reload")
+				# Important: return False to stop this callback from being called again
+				return False
+			
+			# Otherwise, if there are more items in the queue return True so that gtk+
+			#  will continue to call this function in idle cpu time
+			return True
 
 	def get_most_used_tags(self,count=10):
 		for tag in db.get_most_tags(count):

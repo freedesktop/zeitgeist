@@ -45,28 +45,27 @@ class DBConnector:
 		
 	def insert_items(self,items):
 		for item in items:
-				#print item.name
-				#print item.timestamp
 				try:
 					self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)', (item.timestamp,
 																					None,
 																					item.uri,
 																					item.diff))
-				except:
-					pass
-				try:
-					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
+					try:
+						self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
 																						item.name,
 																						item.comment,
-																							item.mimetype,
-																							item.tags,
-																							item.count,
-																							item.use,
-																							item.type))
-					print("wrote "+item.uri+" into database")
+																						item.mimetype,
+																						item.tags,
+																						item.count,
+																						item.use,
+																						item.type))
+						print("wrote "+item.uri+" into database")
+					except:
+						
+						print "Error writing " + item.uri + " with timestamp "+ str(item.timestamp)
 				except:
 					pass
-				    #print "Error writing " + item.uri + " with timestamp "+ str(item.timestamp)
+				
 				del item
 		del items
 		self.connection.commit()

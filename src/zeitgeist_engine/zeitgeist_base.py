@@ -295,10 +295,6 @@ class DataProvider(Data, Thread):
 		timeout is set to invalidate the cached items to free memory.
 		'''
 		
-		if self.clear_cache_timeout_id:
-			gobject.source_remove(self.clear_cache_timeout_id)
-		self.clear_cache_timeout_id = gobject.timeout_add(DataProvider.CACHE_CLEAR_TIMEOUT_MS, lambda: self.set_items(None))
-		
 		for i in self.get_items_uncached():
 			if i.timestamp >= min and i.timestamp <max:
 				yield i

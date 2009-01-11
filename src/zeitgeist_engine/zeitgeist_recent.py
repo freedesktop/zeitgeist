@@ -127,7 +127,6 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 										icon="stock_new-presentation",
 										mimetype_list=self.DOCUMENT_MIMETYPES)
 		self.name = _("Documents")
-		self.comment = " documnets opened"
 	def get_items_uncached(self):
 		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
 				counter = 0
@@ -168,7 +167,6 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 										icon="applications-other",
 										mimetype_list=self.DOCUMENT_MIMETYPES)
 		self.name = _("Other")
-		self.comment = " other opened"
 	def get_items_uncached(self):
 		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
 				counter = 0
@@ -195,7 +193,6 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 										icon="gnome-mime-image",
 										mimetype_list=self.DOCUMENT_MIMETYPES)
 		self.name = _("Images")
-		self.comment = " images displayed"
 	
 	
 	def get_items_uncached(self):
@@ -220,7 +217,6 @@ class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 										icon="gnome-mime-audio",
 										mimetype_list=self.MEDIA_MIMETYPES)
 		self.name = _("Music")
-		self.comment = " Music listened to"
 	def get_items_uncached(self):
 		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
 				counter = 0
@@ -242,9 +238,7 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 										name=_("Videos"),
 										icon="gnome-mime-video",
 										mimetype_list=self.MEDIA_MIMETYPES)
-		
-		self.comment = " videos watched"
-		
+		self.name = _("Videos")
 	def get_items_uncached(self):
 		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
 				counter = 0

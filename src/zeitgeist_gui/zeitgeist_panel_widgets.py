@@ -75,10 +75,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 				ftagsplit.append(tag)
 		tagsplit = ftagsplit
 		
-		print "----------"
-		print tagsplit
-		print "----------"
-		
 		day = None
 		for item in self.items:
 			if len(tagsplit) >0:
