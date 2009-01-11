@@ -697,14 +697,16 @@ class DataIconView(gtk.TreeView):
 		for item in datasink.sources:
 			try:
 				if item.name == source:
-					iter =self.store.append(self.days[date],[item.get_icon(16),"",item.get_name(),item.count,None])
+					name =  "<span size='large' color='black'>%s</span>" % item.get_name()
+					iter =self.store.append(self.days[date],[item.get_icon(16),"",name,item.count,None])
 					#iter =self.store.append(None,[item.get_icon(24),"",item.get_name(),item.count,None])
 					self.types[item.name]=iter
 			except:
 				if item.name == source:
+					name =  "<span size='large' color='black'>%s</span>" % item.get_name()
 					iter =self.store.append(None,[item.get_icon(16),
 					    "",
-					    item.get_name(),
+					   name,
 					    #<span size='small' color='blue'> %s </span>" % str(item.count),
 					    item.count,
 					    None])
