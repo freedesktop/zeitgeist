@@ -26,32 +26,24 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 	def get_items_uncached(self):
 		for info in self.recent_manager.get_items():
-			counter=0
-			if info.exists():
-				if not info.get_private_hint():					
-					use = None
-					timestamp=max( [info.get_added(),info.get_modified(),info.get_visited()])
-					if info.get_uri().find("/tmp/") < 0:
-						
-						#print str(info.get_uri())+"	"+ str(info.get_added())+"		"+str(info.get_modified())+"		"+str(info.get_visited())
-						#print info.get_groups()
-						if info.get_added() == timestamp:
-							use = "first usage"
-							
-						elif info.get_visited() == timestamp:
-							use = "opened"
-						
-						elif info.get_modified() == timestamp:
-							use = "modified"
-						
-						yield Data(name=info.get_display_name(),
-							uri=info.get_uri(),
-							mimetype=info.get_mime_type(),
-							timestamp=timestamp,
-							tags=info.get_groups(),
-							count=counter,
-							use=use,
-							)
+			if info.exists() and not info.get_private_hint() and info.get_uri().find("/tmp/") < 0:					
+				counter = 0
+				use = None
+				timestamp = max([info.get_added(), info.get_modified(), info.get_visited()])
+				if info.get_added() == timestamp:
+					use = "first usage"
+				elif info.get_visited() == timestamp:
+					use = "opened"
+				elif info.get_modified() == timestamp:
+					use = "modified"
+				yield Data(name=info.get_display_name(),
+					uri=info.get_uri(),
+					mimetype=info.get_mime_type(),
+					timestamp=timestamp,
+					tags=info.get_groups(),
+					count=counter,
+					use=use,
+					)
 					
 class RecentlyUsed(DataProvider):
 	'''
@@ -63,10 +55,7 @@ class RecentlyUsed(DataProvider):
 		self.counter = 0
 	
 	def get_items_uncached(self):
-	   # 
-		self.counter  =self.counter  + 1
-		#print ( " getting recently used " + str(self.counter))
-	   # delself.temp_list
+		self.counter = self.counter + 1
 		for item in recent_model.get_items():
 			# Check whether to include this item
 			if self.include_item(item):
@@ -79,9 +68,10 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 	'''
 	Recently-used items filtered by a set of mimetypes.
 	'''
-	def __init__(self, name, icon, mimetype_list):
+	def __init__(self, name, icon, mimetype_list, type):
 		RecentlyUsed.__init__(self, name, icon)
 		self.mimetype_list = mimetype_list
+		self.type = type
 
 	def include_item(self, item):
 		item_mime = item.get_mimetype()
@@ -90,6 +80,23 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 				   or item_mime == mimetype:
 				return True
 		return False
+	
+	def get_items_uncached(self):
+		for item in RecentlyUsed.get_items_uncached(self):
+			counter = 0
+			info = recent_model.recent_manager.lookup_item(item.uri)
+			
+			for app in info.get_applications():
+				appinfo=info.get_application_info(app)
+				counter=counter+appinfo[1]
+				
+			yield Data(name=item.name,
+						uri=item.get_uri(),
+						timestamp=item.timestamp,
+						count=counter,
+						use=item.use,
+						type=self.type,
+						mimetype=item.mimetype)
 
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
@@ -122,17 +129,9 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Documents"),
 										icon="stock_new-presentation",
-										mimetype_list=self.DOCUMENT_MIMETYPES)
-		self.name = _("Documents")
+										mimetype_list=self.DOCUMENT_MIMETYPES,
+										type="Documents")
 		self.comment = " documnets opened"
-	def get_items_uncached(self):
-		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-				counter = 0
-				info = recent_model.recent_manager.lookup_item(item.uri)
-				for app in info.get_applications():
-					appinfo=info.get_application_info(app)
-					counter=counter+appinfo[1]
-				yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use ,type="Documents", mimetype=item.mimetype)
 				  
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -163,17 +162,19 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Other"),
 										icon="applications-other",
-										mimetype_list=self.DOCUMENT_MIMETYPES)
+										mimetype_list=self.DOCUMENT_MIMETYPES,
+										type="Other")
 		self.name = _("Other")
 		self.comment = " other opened"
+		
 	def get_items_uncached(self):
 		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-				counter = 0
-				info = recent_model.recent_manager.lookup_item(item.uri)
-				for app in info.get_applications():
-					appinfo=info.get_application_info(app)
-					counter=counter+appinfo[1]
-				yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Other", mimetype=item.mimetype)
+			counter = 0
+			info = recent_model.recent_manager.lookup_item(item.uri)
+			for app in info.get_applications():
+				appinfo=info.get_application_info(app)
+				counter=counter+appinfo[1]
+			yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Other", mimetype=item.mimetype)
 			
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -190,19 +191,10 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Images"),
 										icon="gnome-mime-image",
-										mimetype_list=self.DOCUMENT_MIMETYPES)
+										mimetype_list=self.DOCUMENT_MIMETYPES,
+										type="Images")
 		self.name = _("Images")
 		self.comment = " images displayed"
-	
-	
-	def get_items_uncached(self):
-		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-				counter = 0
-				info = recent_model.recent_manager.lookup_item(item.uri)
-				for app in info.get_applications():
-					appinfo=info.get_application_info(app)
-					counter=counter+appinfo[1]
-				yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Images", mimetype=item.mimetype)
 		
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -215,17 +207,10 @@ class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Music"),
 										icon="gnome-mime-audio",
-										mimetype_list=self.MEDIA_MIMETYPES)
+										mimetype_list=self.MEDIA_MIMETYPES,
+										type="Music")
 		self.name = _("Music")
 		self.comment = " Music listened to"
-	def get_items_uncached(self):
-		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-				counter = 0
-				info = recent_model.recent_manager.lookup_item(item.uri)
-				for app in info.get_applications():
-					appinfo=info.get_application_info(app)
-					counter=counter+appinfo[1]
-				yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Music", mimetype=item.mimetype)
 			   
 class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -238,19 +223,9 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Videos"),
 										icon="gnome-mime-video",
-										mimetype_list=self.MEDIA_MIMETYPES)
+										mimetype_list=self.MEDIA_MIMETYPES,
+										type="Video")
 		
 		self.comment = " videos watched"
 		
-	def get_items_uncached(self):
-		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-				counter = 0
-				info = recent_model.recent_manager.lookup_item(item.uri)
-				for app in info.get_applications():
-					appinfo=info.get_application_info(app)
-					counter=counter+appinfo[1]
-				yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Videos", mimetype=item.mimetype)
-			 
-
-
 recent_model = RecentlyUsedManagerGtk()
