@@ -305,11 +305,6 @@ class DataProvider(Data, Thread):
 				
 		gc.collect()
 				
-	def get_items_uncached(self):
-		'''Subclasses should override this to return/yield Datas. The results
-		will be cached.'''
-		return []
-
 	def set_items(self, items):
 		'''Set the cached items.  Pass None for items to reset the cache.'''
 		self.items = items

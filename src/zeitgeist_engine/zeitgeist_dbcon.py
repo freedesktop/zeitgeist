@@ -52,6 +52,9 @@ class DBConnector:
 																					None,
 																					item.uri,
 																					item.diff))
+				except:
+					pass
+				try:
 					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
 																						item.name,
 																						item.comment,

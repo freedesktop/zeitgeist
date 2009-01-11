@@ -27,8 +27,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 	def get_items_uncached(self):
 		# 
 	   # delself.temp_list
-		
-		for info in self.recent_manager.get_items():
+	   for info in self.recent_manager.get_items():
 			counter=0
 			if info.exists():
 				if not info.get_private_hint():					
@@ -129,13 +128,15 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 		self.name = _("Documents")
 		self.comment = " documnets opened"
 	def get_items_uncached(self):
+		print "---------------------------------------------------------------------------"
 		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-				counter = 0
-				info = recent_model.recent_manager.lookup_item(item.uri)
-				for app in info.get_applications():
-					appinfo=info.get_application_info(app)
-					counter=counter+appinfo[1]
-				yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use ,type="Documents", mimetype=item.mimetype)
+			print item.name
+			counter = 0
+			info = recent_model.recent_manager.lookup_item(item.uri)
+			for app in info.get_applications():
+				appinfo=info.get_application_info(app)
+				counter=counter+appinfo[1]
+			yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use ,type="Documents", mimetype=item.mimetype)
 				  
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
@@ -170,13 +171,15 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 		self.name = _("Other")
 		self.comment = " other opened"
 	def get_items_uncached(self):
+		print "---------------------------------------------------------------------------"
 		for item in RecentlyUsedOfMimeType.get_items_uncached(self):
-				counter = 0
-				info = recent_model.recent_manager.lookup_item(item.uri)
-				for app in info.get_applications():
-					appinfo=info.get_application_info(app)
-					counter=counter+appinfo[1]
-				yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Other", mimetype=item.mimetype)
+			print item.name
+			counter = 0
+			info = recent_model.recent_manager.lookup_item(item.uri)
+			for app in info.get_applications():
+				appinfo=info.get_application_info(app)
+				counter=counter+appinfo[1]
+			yield Data(name= item.name,uri=item.get_uri(), timestamp=item.timestamp,count=counter,use=item.use, type="Other", mimetype=item.mimetype)
 			
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
