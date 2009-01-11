@@ -25,37 +25,34 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 		
 	def get_items_uncached(self):
-		# 
-	   # delself.temp_list
-		
 		for info in self.recent_manager.get_items():
 			counter=0
 			if info.exists():
 				if not info.get_private_hint():					
-						use = None
-						timestamp=max( [info.get_added(),info.get_modified(),info.get_visited()])
-						if info.get_uri().find("/tmp/") < 0:
-							
-							#print str(info.get_uri())+"	"+ str(info.get_added())+"		"+str(info.get_modified())+"		"+str(info.get_visited())
-							#print info.get_groups()
-							if info.get_added() == timestamp:
-								use = "first usage"
-								
-							elif info.get_visited() == timestamp:
-								use = "opened"
-							
-							elif info.get_modified() == timestamp:
-								use = "modified"
-							
-							yield Data(name=info.get_display_name(),
-								uri=info.get_uri(),
-								mimetype=info.get_mime_type(),
-								timestamp=timestamp,
-								tags=info.get_groups(),
-								count=counter,
-								use=use,
-								)
+					use = None
+					timestamp=max( [info.get_added(),info.get_modified(),info.get_visited()])
+					if info.get_uri().find("/tmp/") < 0:
 						
+						#print str(info.get_uri())+"	"+ str(info.get_added())+"		"+str(info.get_modified())+"		"+str(info.get_visited())
+						#print info.get_groups()
+						if info.get_added() == timestamp:
+							use = "first usage"
+							
+						elif info.get_visited() == timestamp:
+							use = "opened"
+						
+						elif info.get_modified() == timestamp:
+							use = "modified"
+						
+						yield Data(name=info.get_display_name(),
+							uri=info.get_uri(),
+							mimetype=info.get_mime_type(),
+							timestamp=timestamp,
+							tags=info.get_groups(),
+							count=counter,
+							use=use,
+							)
+					
 class RecentlyUsed(DataProvider):
 	'''
 	Recently-used documents, log stored in ~/.recently-used.
