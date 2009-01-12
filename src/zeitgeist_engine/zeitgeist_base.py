@@ -270,9 +270,9 @@ class DataProvider(Data, Thread):
 				filter_by_date=True):
 		
 		# Initialize superclasses
-		Data.__init__(self, name=name, icon=icon, comment=comment,
-			uri=uri, mimetype="zeitgeist/item-source")
 		Thread.__init__(self)
+		Data.__init__(self, name=name, icon=icon,comment=comment,uri=uri, mimetype="zeitgeist/item-source")
+		
 		
 		# Set attributes
 		self.filter_by_date = filter_by_date
