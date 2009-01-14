@@ -29,8 +29,8 @@ class zeitgeistGUI:
 		self.topicWindow.connect("destroy", gtk.main_quit)
 		
 		# Vertical box (contains self.hBox and a status bar)
-		self.vBox = gtk.VBox()           
-                self.vBox.pack_start(ctb,False,False)
+		self.vBox = gtk.VBox()
+		self.vBox.pack_start(ctb,False,False)
 
 		self.topicWindow.add(self.vBox)
 		
@@ -48,22 +48,22 @@ class zeitgeistGUI:
 		
 		# Notebook
 		#self.notebook = gtk.Notebook()
-	        evbox = gtk.EventBox()
-	        evbox.modify_bg(gtk.STATE_NORMAL, 
+		evbox = gtk.EventBox()
+		evbox.modify_bg(gtk.STATE_NORMAL, 
 		gtk.gdk.color_parse("darkgrey"))
-	        evbox1 = gtk.EventBox()
-	        evbox1.set_border_width(1)
-	        evbox1.add(timeline)
-	        evbox.add(evbox1)
+		evbox1 = gtk.EventBox()
+		evbox1.set_border_width(1)
+		evbox1.add(timeline)
+		evbox.add(evbox1)
         
 		self.hBox.pack_start(evbox, True, True)
-	        advancedbar = gtk.VBox()
-	        #advancedbar.pack_start(related,True,True,5)
-        	#advancedbar.pack_start(ctb,True,True,5)
-        	self.hBox.pack_start(advancedbar,False,False,5)
+		advancedbar = gtk.VBox()
+		#advancedbar.pack_start(related,True,True,5)
+		#advancedbar.pack_start(ctb,True,True,5)
+		self.hBox.pack_start(advancedbar,False,False,5)
 		
 		# Timeline view
-	        #self.notebook.append_page(related, gtk.Label("Related"))
+		#self.notebook.append_page(related, gtk.Label("Related"))
 		#self.notebook.append_page(timeline,gtk.Label("Timeline"))
 		#self.notebook.set_current_page(-1)
 		
