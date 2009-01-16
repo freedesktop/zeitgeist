@@ -70,14 +70,14 @@ class DBConnector:
 			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchone()
 			try:
 				yield Data(uri=i[0], 
-					          timestamp= t[0], 
-					          name= i[1], 
-					          comment=i[2], 
-					          mimetype=  i[3], 
-					          tags=i[4], 
-					          count=i[5], 
-					          use =i[6], 
-					          type=i[7])
+							  timestamp= t[0], 
+							  name= i[1], 
+							  comment=i[2], 
+							  mimetype=  i[3], 
+							  tags=i[4], 
+							  count=i[5], 
+							  use =i[6], 
+							  type=i[7])
 			except:
 				print "ERROR"
 		gc.collect()
@@ -92,21 +92,20 @@ class DBConnector:
 																		item.count,
 																		item.use,
 																		item.type))		
-	 	self.cursor.execute('DELETE FROM tags where uri=?', (item.uri,))
-	 	 
+		self.cursor.execute('DELETE FROM tags where uri=?', (item.uri,))
+		 
 		for tag in item.get_tags():
 			if not tag.strip() == "":
-		 	    self.cursor.execute('INSERT INTO tags VALUES (?,?)',(tag,item.uri)) 		 	 
-		 			 		
+				self.cursor.execute('INSERT INTO tags VALUES (?,?)',(tag,item.uri)) 			 
+							
 		self.connection.commit()
 		 
 	def get_most_tags(self,count=10):
- 	      res = self.cursor.execute('SELECT tag, COUNT(uri) FROM tags GROUP BY tag ORDER BY COUNT(uri) DESC').fetchall()
- 	      list = []
- 	      for i in range(count):
-	        if i >= len(res):
- 	                break
-                yield res[i]
-        
+		res = self.cursor.execute('SELECT tag, COUNT(uri) FROM tags GROUP BY tag ORDER BY COUNT(uri) DESC').fetchall()
+		list = []
+		for i in range(count):
+			if i >= len(res):
+				break
+			yield res[i]
 		
 db=DBConnector()

@@ -68,9 +68,9 @@ class Data(gobject.GObject):
 				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
 				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(16))
 			elif self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
-			         self.icon="firefox"
+					 self.icon="firefox"
 			elif self.mimetype =="x-tomboy/note":
-				    self. icon="stock_notes"
+					self. icon="stock_notes"
 		except:
 			pass
 		
@@ -160,7 +160,7 @@ class Data(gobject.GObject):
 		taggingwindow.set_size_request(400,-1)
 		taggingwindow.set_title("Edit Tags for " + self.get_name())
 			
-		self.textview.get_buffer().set_text(self.tags)  
+		self.textview.get_buffer().set_text(self.tags)	
 		
 		okbtn = gtk.Button("Add")
 		cbtn = gtk.Button("Cancel")
@@ -256,7 +256,7 @@ class Data(gobject.GObject):
 		
 		self.tags=tags
 		
-		self.textview.get_buffer().set_text(self.tags)  
+		self.textview.get_buffer().set_text(self.tags)	
 		
 class DataProvider(Data, Thread):
 	# Clear cached items after 4 minutes of inactivity

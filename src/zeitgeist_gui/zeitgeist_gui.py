@@ -55,7 +55,7 @@ class zeitgeistGUI:
 		evbox1.set_border_width(1)
 		evbox1.add(timeline)
 		evbox.add(evbox1)
-        
+		
 		self.hBox.pack_start(evbox, True, True)
 		advancedbar = gtk.VBox()
 		#advancedbar.pack_start(related,True,True,5)

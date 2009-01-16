@@ -79,7 +79,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		for item in self.items:
 			if len(tagsplit) >0:
 				for tag in tagsplit:
-						if  item.tags.lower().find(tag.lower())> -1 or  item.uri.lower().find(tag.lower())>-1:
+						if	item.tags.lower().find(tag.lower())> -1 or	item.uri.lower().find(tag.lower())>-1:
 							try:
 								if items.index(item)>-1:
 									pass
@@ -164,8 +164,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.view.expand_row(count,False)	
 		
 		for count in range(len(self.view.store)):
-			#count = count  +1
-			if  self.view.store[count][3] == datestring:
+			#count = count	+1
+			if	self.view.store[count][3] == datestring:
 				self.view.scroll_to_cell(count)
 				self.view.expand_row(count,expand)	
 				print "OK"
@@ -265,7 +265,7 @@ class CommonTagBrowser(gtk.HBox):
 		self.items = []
 		
 		self.get_common_tags()
-	    
+		
 		datasink.connect("reload", self.get_common_tags)
 	
 	def get_common_tags(self,x=None):
@@ -386,7 +386,7 @@ class CheckBox(gtk.CheckButton):
 		try:
 			self.img.set_from_icon_name(source.get_icon(16),4)
 		except:
-		    self.img.set_from_pixbuf(source.get_icon(16))
+			self.img.set_from_pixbuf(source.get_icon(16))
 		self.set_image(self.img)
 		
 		self.set_focus_on_click(False)
@@ -682,39 +682,39 @@ class DataIconView(gtk.TreeView):
 			self._create_parent(item.type,item.datestring)
 		
 		func(self.types[item.type],[item.get_icon(24),
-				    "<span size='small' color='red'>%s</span>" % item.get_time(),
-				    "<span size='small' color='black'>%s</span>" % item.get_name(),
-				    #<span size='small' color='blue'> %s </span>" % str(item.count),
-				    item.count,
-				    item])
+					"<span size='small' color='red'>%s</span>" % item.get_time(),
+					"<span size='small' color='black'>%s</span>" % item.get_name(),
+					#<span size='small' color='blue'> %s </span>" % str(item.count),
+					item.count,
+					item])
 		
 		
-	def _create_parent(self,source,date):    	
+	def _create_parent(self,source,date):		
 		for item in datasink.sources:
 			try:
 				if item.name == source:
-					name =  "<span size='large' color='black'>%s</span>" % item.get_name()
+					name =	"<span size='large' color='black'>%s</span>" % item.get_name()
 					iter =self.store.append(self.days[date],[item.get_icon(16),"",name,item.count,None])
 					#iter =self.store.append(None,[item.get_icon(24),"",item.get_name(),item.count,None])
 					self.types[item.name]=iter
 			except:
 				if item.name == source:
-					name =  "<span size='large' color='black'>%s</span>" % item.get_name()
+					name =	"<span size='large' color='black'>%s</span>" % item.get_name()
 					iter =self.store.append(None,[item.get_icon(16),
-					    "",
+						"",
 					   name,
-					    #<span size='small' color='blue'> %s </span>" % str(item.count),
-					    item.count,
-					    None])
+						#<span size='small' color='blue'> %s </span>" % str(item.count),
+						item.count,
+						None])
 					self.types[item.name]=iter
 	
 	def create_day(self,date):
 		iter =self.store.append(None,[None,
 				   "",
-				     "<span size='large' color='blue'>%s</span>" % date,
-				    #<span size='small' color='blue'> %s </span>" % str(item.count),
-				    date,
-				    None])
+					 "<span size='large' color='blue'>%s</span>" % date,
+					#<span size='small' color='blue'> %s </span>" % str(item.count),
+					date,
+					None])
 		self.days[date]=iter
 
 calendar = CalendarWidget()
