@@ -1,20 +1,9 @@
-import datetime
-import gc
-import os
 import re
-import sys
-import time
-import urllib
-import urlparse
 
-import gnome.ui
-import gnomevfs
-import gnomevfs.async
-import gobject
 import gtk
 from gettext import gettext as _
+
 from zeitgeist_base import Data, DataProvider
-from zeitgeist_dbcon import db
 
 class RecentlyUsedManagerGtk(DataProvider):
 	def __init__(self):
