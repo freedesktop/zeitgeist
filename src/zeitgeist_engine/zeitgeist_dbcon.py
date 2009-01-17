@@ -30,8 +30,8 @@ class DBConnector:
 			except:
 				print "Unexpected error creating database:", sys.exc_info()[0]	
 	
-	def get_last_timestmap(self):
-		query = "SELECT * FROM timetable WHERE start IN (SELECT MAX(start) AS start FROM timetable)"
+	def get_last_timestamp(self):
+		query = "SELECT * FROM timetable LIMIT 1"
 		result = self.cursor.execute(query).fetchall()
 		try:
 			return result[0][0]
