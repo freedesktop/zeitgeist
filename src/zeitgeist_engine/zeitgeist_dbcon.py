@@ -1,4 +1,3 @@
-
 import shutil
 import sqlite3
 import tempfile
@@ -12,14 +11,13 @@ from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 class DBConnector:
 	
 	def __init__(self):
-		self.create_db()
 		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
+		self.create_db(path)
 		self.connection = sqlite3.connect(path[0], True)
 		self.cursor = self.connection.cursor()
 		self.offset = 0
 	
-	def create_db(self):
-		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
+	def create_db(self, path):
 		if len(path) == 0:
 			try:
 				homedir = glob.glob(os.path.expanduser("~/"))
@@ -57,30 +55,27 @@ class DBConnector:
 																						item.use,
 																						item.type))
 						print "Wrote %s into the database." % item.uri
-					except:
+					except Exception, ex:
+						print ex.__class__
 						print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
-				except Exception, ex:
+				except sqlite3.IntegrityError, ex:
 					pass
-					#print "Error: %s" % ex 
 		self.connection.commit()
 		   
 	def get_items(self,min,max):
 		for t in self.cursor.execute("SELECT start , end,  uri FROM timetable WHERE start >= "
 									+ str(int(min)) + " and start <= " + str(int(max))).fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchone()
-			try:
-				yield Data(uri=i[0], 
-							  timestamp= t[0], 
-							  name= i[1], 
-							  comment=i[2], 
-							  mimetype=  i[3], 
-							  tags=i[4], 
-							  count=i[5], 
-							  use =i[6], 
-							  type=i[7])
-			except:
-				print "ERROR"
-		gc.collect()
+			yield Data(uri=i[0], 
+					  timestamp= t[0], 
+					  name= i[1], 
+					  comment=i[2], 
+					  mimetype=  i[3], 
+					  tags=i[4], 
+					  count=i[5], 
+					  use =i[6], 
+					  type=i[7])
+			gc.collect()
 	 
 	def update_item(self,item):
 		self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
