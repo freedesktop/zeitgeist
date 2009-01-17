@@ -6,6 +6,7 @@ from gettext import gettext as _
 from zeitgeist_base import Data, DataProvider
 
 class RecentlyUsedManagerGtk(DataProvider):
+	
 	def __init__(self):
 		DataProvider.__init__(self)
 		self.recent_manager = gtk.recent_manager_get_default()
@@ -15,31 +16,30 @@ class RecentlyUsedManagerGtk(DataProvider):
 	def get_items_uncached(self):
 		for info in self.recent_manager.get_items():
 			counter=0
-			if info.exists():
-				if not info.get_private_hint():					   
-					use = None
-					timestamp=max( [info.get_added(),info.get_modified(),info.get_visited()])
-					if info.get_uri().find("/tmp/") < 0:
-						if info.get_added() == timestamp:
-							use = "first usage"	
-						elif info.get_visited() == timestamp:
-							use = "opened"
-						elif info.get_modified() == timestamp:
-							use = "modified"
-						yield Data(name=info.get_display_name(),
-							uri=info.get_uri(),
-							mimetype=info.get_mime_type(),
-							timestamp=timestamp,
-							tags=info.get_groups(),
-							count=counter,
-							use=use,
-							)
+			if info.exists() and not info.get_private_hint() and info.get_uri().find("/tmp") < 0:
+				use = None
+				timestamp=max([info.get_added(), info.get_modified(), info.get_visited()])
+				if info.get_added() == timestamp:
+					use = "first usage"	
+				elif info.get_visited() == timestamp:
+					use = "opened"
+				elif info.get_modified() == timestamp:
+					use = "modified"
+				
+				yield Data(name=info.get_display_name(),
+					uri=info.get_uri(),
+					mimetype=info.get_mime_type(),
+					timestamp=timestamp,
+					tags=info.get_groups(),
+					count=counter,
+					use=use,
+					)
 						
 class RecentlyUsed(DataProvider):
 	'''
 	Recently-used documents, log stored in ~/.recently-used.
 	'''
-	def __init__(self, name, icon = "stock_calendar"):
+	def __init__(self, name, icon="stock_calendar"):
 		DataProvider.__init__(self, name=name, icon=icon)
 		recent_model.connect("reload", lambda m: self.emit("reload"))
 		self.counter = 0
