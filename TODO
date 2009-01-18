@@ -5,6 +5,14 @@ TODO:
 	+ Move all Twitter/Firefox/Tomboy specific code out of zeitgeist_base.py
 		and into the appropriate subclasses.
 	+ Add on Tracker support.
+	+ Set relationships between Data based on: 
+		1. Other Items usage in the periods where the Data.
+		2. Common Tags.
+		3. Context ( example context of text files ).
+	+ Extend DB to support location of usage
+	+ Related Items should be automatically determined by currenlty used URI.
+	+ Auto Tagging e.g: tasks,locations,and relations.
+	
 
 - Frontend:
 	+ Modify the GUI so that it looks more like GMail.
@@ -12,4 +20,4 @@ TODO:
 		items and a grid of item thumbnails.
 	+ After the new database design is finished, query the database 
 		for all searches instead of just searching the cache. 
-
+	+ create a bar displaying the related files to currently opened files (inspired by Gimmie)
