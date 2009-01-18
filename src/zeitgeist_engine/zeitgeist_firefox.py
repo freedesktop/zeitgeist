@@ -19,12 +19,6 @@ from zeitgeist_base import Data, DataProvider
 from zeitgeist_util import FileMonitor, launcher
 
 
-class FirefoxData(Data):
-	def __init__(self, uri, name, timestamp, count):
-		Data.__init__(self, name=name, uri=uri,
-			timestamp=timestamp, count=count,
-			use="visited", type="Firefox History")
-
 class FirefoxSource(DataProvider):
 	
 	def __init__(self, name="Firefox History", icon="gnome-globe", uri="gzg/firefox"):
@@ -71,5 +65,10 @@ class FirefoxSource(DataProvider):
 			count = item[0][3]
 			timestamp = history[j][2] / (1000000)
 			j += 1
-			yield FirefoxData(url, name, timestamp, count)
+			yield Data(uri=url,
+						name=name,
+						timestamp=timestamp,
+						count=count,
+						use="visited",
+						type="Firefox History")
 		cursor.close()
