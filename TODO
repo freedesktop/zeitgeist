@@ -1,0 +1,15 @@
+TODO:
+
+- Backend:
+	+ Move all GUI-related code out of zeitgeist_base.py.
+	+ Move all Twitter/Firefox/Tomboy specific code out of zeitgeist_base.py
+		and into the appropriate subclasses.
+	+ Add on Tracker support.
+
+- Frontend:
+	+ Modify the GUI so that it looks more like GMail.
+	+ Add on support for switching between a GMail-style list of 
+		items and a grid of item thumbnails.
+	+ After the new database design is finished, query the database 
+		for all searches instead of just searching the cache. 
+
