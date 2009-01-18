@@ -87,17 +87,17 @@ class DBConnector:
 	def get_items(self,min,max):
 		for t in self.cursor.execute("SELECT start , end,  uri FROM timetable WHERE start >= "
 									+ str(int(min)) + " and start <= " + str(int(max))).fetchall():
-			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[TIMESTAMP_URI],)).fetchone()
-			yield Data(uri=i[D_URI], 
-					  timestamp= t[TIMESTAMP_BEGIN],
-					  name= i[D_NAME],
-					  comment=i[D_COMMENT],
-					  mimetype=  i[D_MIMETYPE],
-					  tags=i[D_TAGS],
-					  count=i[D_COUNT],
-					  use =i[D_USE],
-					  type=i[D_TYPE])
-			gc.collect()
+			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchone()
+			yield Data(uri=i[0], 
+				  timestamp= t[0], 
+				  name= i[1], 
+				  comment=i[2], 
+				  mimetype=  i[3], 
+				  tags=i[4], 
+				  count=i[5], 
+				  use =i[6], 
+				  type=i[7])
+		gc.collect()
 	 
 	def update_item(self,item):
 		self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
