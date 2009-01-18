@@ -8,10 +8,10 @@ from threading import Thread
 
 import gobject
 import gtk
-from gettext import ngettext, gettext as _
 import glob
+from gettext import ngettext, gettext as _
 
-from zeitgeist_util import Thumbnailer,icon_factory, launcher,difffactory
+from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory
 
 class Data(gobject.GObject):
 	__gsignals__ = {
@@ -42,13 +42,8 @@ class Data(gobject.GObject):
 		self.diff=""
 		
 		# Timestamps
-		# TODO: Remove all of the below attributes except for self.datestring and either self.timestamp or self.ctimestamp
-		# The conversion between different formats and between integers and strings is processor intensive and uses up 
-		# extra memory. A better way to do this would be to add functions to generate the time and/or date based on the
-		# timestamp _only_ when it's needed. It _may_ make sense to cache those strings after they've been created.
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
-		# format is "weekday day month year"
 		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%d %b %Y"))
 		
 		self.type = type
@@ -56,7 +51,7 @@ class Data(gobject.GObject):
 		self.tags = tags
 		self.thumbnailer = None
 		self.original_source = None
-		self.textview=gtk.TextView()
+		self.textview = gtk.TextView()
 		
 		
 	def get_icon(self, icon_size):
@@ -68,9 +63,9 @@ class Data(gobject.GObject):
 				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
 				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(16))
 			elif self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
-					 self.icon="firefox"
+				self.icon="firefox"
 			elif self.mimetype =="x-tomboy/note":
-					self. icon="stock_notes"
+				self. icon="stock_notes"
 		except:
 			pass
 		
@@ -97,7 +92,6 @@ class Data(gobject.GObject):
 		return self.comment
 
 	def do_open(self):
-		
 		if self.mimetype =="x-tomboy/note":
 			uri_to_open = "note://tomboy/%s" % os.path.splitext(os.path.split(self.get_uri())[1])[0]
 		else:
@@ -107,12 +101,11 @@ class Data(gobject.GObject):
 			launcher.launch_uri(uri_to_open, self.get_mimetype())
 		else:
 			pass
-			#print " !!! Data has no URI to open: %s" % self
 	
 	def get_tags(self):
 		tags = []
 		for tag in self.tags.split(","):
-				tags.append(tag)
+			tags.append(tag)
 		return tags
 					
 	def open(self):
@@ -121,7 +114,6 @@ class Data(gobject.GObject):
 	def open_from_timestamp(self):
 		path = difffactory.restore_file(self)
 		launcher.launch_uri(path, self.get_mimetype())
-		del path
 		gc.collect()
 		
 	def populate_popup(self, menu):
@@ -139,7 +131,7 @@ class Data(gobject.GObject):
 			del timemachine
 		'''
 		
-		relate = gtk.MenuItem("get relationships")
+		relate = gtk.MenuItem("Show related files")
 		relate.connect("activate", lambda w:  self.relate())
 		relate.show()
 		menu.append(relate)
@@ -148,10 +140,8 @@ class Data(gobject.GObject):
 		tag.connect("activate", lambda w:  self.tag_item())
 		tag.show()
 		menu.append(tag)
-		
-		del open,tag,menu
 	
-	def relate(self,x=None):
+	def relate(self, x=None):
 		self.emit("reload")
 	
 	def tag_item(self):
@@ -187,9 +177,7 @@ class Data(gobject.GObject):
 		self.tags = tags
 		datasink.update_item(self)
 
-
 	def get_tagbox(self):
-
 		# Initialize superclass
 		tbox = gtk.VBox()
 		label = gtk.Label("Most used tags")
@@ -213,12 +201,10 @@ class Data(gobject.GObject):
 		tbox.show_all()
 		
 		self.get_common_tags(view)
-		from zeitgeist_engine.zeitgeist_datasink import datasink
 		return tbox
 	
-	def get_common_tags(self,view):
-		
-		from zeitgeist_engine.zeitgeist_datasink import datasink
+	def get_common_tags(self, view):
+		from zeitgeist_datasink import datasink
 		for tag in datasink.get_most_used_tags(10):
 			print tag[0]
 			btn = gtk.ToggleButton(tag[0])
@@ -227,11 +213,9 @@ class Data(gobject.GObject):
 			#label.set_use_underline(True)
 			view.pack_start(btn,False,False)
 			btn.connect("toggled",self.toggle_tags)
-			
 		view.show_all()
 		
-	
-	def toggle_tags(self,x=None):
+	def toggle_tags(self, x=None):
 		tags = self.tags
 		if x.get_active():
 			if tags.find(x.get_label()) == -1:
@@ -282,8 +266,8 @@ class DataProvider(Data, Thread):
 		self.connect("reload", lambda x: self.set_items(None))
 		self.hasPref = None
 		self.counter = 0
-		self.needs_view=True
-		self.active=True
+		self.needs_view = True
+		self.active = True
 	
 	def run(self):
 		self.get_items()
@@ -298,7 +282,7 @@ class DataProvider(Data, Thread):
 		for i in self.get_items_uncached():
 			if i.timestamp >= min and i.timestamp <max:
 				yield i
-				
+			
 		gc.collect()
 				
 	def get_items_uncached(self):
@@ -309,22 +293,16 @@ class DataProvider(Data, Thread):
 	def set_items(self, items):
 		'''Set the cached items.  Pass None for items to reset the cache.'''
 		self.items = items
-		del items
 		gc.collect()
-		
-	   # delitems
 	
 	def set_active(self,bool):
-		self.active=bool
-		del bool
+		self.active = bool
 		
 	def get_active(self):
 		return self.active
 
-	
 	def items_contains_uri(self,items,uri):
 		for i in items:
 			if i.uri == uri:
 				return True
 		return False
-	
