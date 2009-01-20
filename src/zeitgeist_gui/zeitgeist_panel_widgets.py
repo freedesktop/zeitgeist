@@ -181,12 +181,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		related = RelatedWindow()
 		related.set_relation(item)
 
-class DayBox(gtk.VBox):
-	def __init__(self,date):
-		gtk.VBox.__init__(self)
-		self.label=(date)
-		self.view=DataIconView(True)
-		
+
 
 class RelatedWindow(gtk.Window):
 	def __init__(self):
