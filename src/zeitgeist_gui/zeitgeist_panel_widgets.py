@@ -28,7 +28,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				
 		# Set up default properties
 		self.set_border_width(5)
-		self.set_size_request(400, 400)
+		self.set_size_request(420, 400)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		
 		# This contains the range of dates which we've currently loaded into the GUI
@@ -596,6 +596,7 @@ class DataIconView(gtk.TreeView):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.day=None
+		self.today=time.strftime(_("%d %b %Y"),time.gmtime())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		
@@ -666,23 +667,16 @@ class DataIconView(gtk.TreeView):
 				selection_data.set_uris(uris)
 	
 	def _set_item(self, item, append=True):
-		if append:
-			func = self.store.append
-		else:
-			func = self.store.prepend
+
+	        func = self.store.prepend
 		
-		
-		if self.parentdays and not item.datestring == self.day:
-			self.types.clear()
-			self.day = item.datestring
-			self.create_day(self.day)
-			self.days[self.day]
-			
-		if not self.types.has_key(item.type):
-			self._create_parent(item.type,item.datestring)
-		
-		func(self.types[item.type],[item.get_icon(24),
-					"<span size='small' color='red'>%s</span>" % item.get_time(),
+		date="<span size='large' color='blue'>%s</span>" % item.get_time()
+		if not item.datestring==self.today:
+			date="<span size='small' color='blue'>%s</span>" % item.get_time()
+			date= "<span size='large' color='blue'>%s</span>" % item.datestring + "\n" + date
+        	#func(self.types[item.type],[item.get_icon(24),
+        	func(None,[item.get_icon(24),
+					date,
 					"<span size='small' color='black'>%s</span>" % item.get_name(),
 					#<span size='small' color='blue'> %s </span>" % str(item.count),
 					item.count,
