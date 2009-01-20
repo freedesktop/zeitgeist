@@ -24,7 +24,7 @@ class FirefoxSource(DataProvider):
 	def __init__(self, name="Firefox History", icon="gnome-globe", uri="gzg/firefox"):
 		DataProvider.__init__(self, name=name, icon=icon, uri = uri)
 		self.name = "Firefox History"
-		self.icon="firefox"
+		self.icon="gnome-globe"
 		self.type = self.name
 		self.comment = "websites visited with Firefox"
 		#self.emit("reload")

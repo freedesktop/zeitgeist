@@ -63,7 +63,7 @@ class Data(gobject.GObject):
 				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
 				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(16))
 			elif self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
-				self.icon="firefox"
+				self.icon="gnome-globe"
 			elif self.mimetype =="x-tomboy/note":
 				self. icon="stock_notes"
 		except:
