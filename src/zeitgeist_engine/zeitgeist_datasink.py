@@ -9,7 +9,7 @@ from zeitgeist_engine.zeitgeist_tomboy import *
 from zeitgeist_engine.zeitgeist_recent import *
 from zeitgeist_engine.zeitgeist_dbcon import db
 from zeitgeist_util import difffactory
-from zeitgeist_twitter import TwitterSource
+#from zeitgeist_twitter import TwitterSource
 
 class DataSinkSource(DataProvider):
 	def __init__(self, note_path=None):
