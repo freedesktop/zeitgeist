@@ -67,16 +67,17 @@ class TimelineWidget(gtk.ScrolledWindow):
 			tagsplit = tags.strip().split(",")
 		else:
 			tagsplit = []
-		
-		for day in self.dayboxes:
-			self.dayboxes.remove(day)
-			day.view.clear_store()
-		
+				
 		ftagsplit=[]
 		for tag in tagsplit:
 			if not tag=="":
 				ftagsplit.append(tag)
 		tagsplit = ftagsplit
+		
+		self.days.clear()
+		for day in self.dayboxes:
+			self.dayboxes.remove(day)
+			day.view.clear_store()
 		
 		day = None
 		for item in self.items:
@@ -114,7 +115,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.connect('set-focus-child', self.focus_in, adj) 
 						self.dayboxes.pack_start(daybox)
 						self.days[day]=daybox
-						
+		
 			
 	def load_month(self, widget=None):
 		'''
@@ -164,7 +165,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Manually force garbage collection
 		gc.collect()
-			
+		
 	def jump_to_day(self, widget,focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
