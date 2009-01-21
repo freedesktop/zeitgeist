@@ -628,7 +628,6 @@ class DataIconView(gtk.TreeView):
 		self.day=None
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
-		
 		self.types = {}
 		self.days={}
 	
@@ -684,7 +683,6 @@ class DataIconView(gtk.TreeView):
 						item.populate_popup(menu)
 						menu.popup(None, None, None, ev.button, ev.time)
 						return True
-				
 
 	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
 		# FIXME: Prefer ACTION_LINK if available
@@ -697,18 +695,21 @@ class DataIconView(gtk.TreeView):
 	
 	def _set_item(self, item, append=True):
 
-	        func = self.store.prepend
+	        func = self.store.append
 	        
-		if not self.types.has_key(item.type):
-				self._create_parent(item.type,item.datestring)
+		#if not self.types.has_key(item.type):
+			#	self._create_parent(item.type,item.datestring)
 				
 		date="<span size='small' color='blue'>%s</span>" % item.get_time()
-        	func(self.types[item.type],[item.get_icon(24),
+        	#func(self.types[item.type],[item.get_icon(24),
+		func(None,[item.get_icon(24),
         			date,
 					"<span size='small' color='black'>%s</span>" % item.get_name(),
 					#<span size='small' color='blue'> %s </span>" % str(item.count),
 					item.count,
 					item])
+        	
+		self.expand_all()
 		
 		
 	def _create_parent(self,source,date):		
