@@ -289,7 +289,7 @@ class CommonTagBrowser(gtk.HBox):
 		self.view = gtk.HBox()
 		self.scroll.add_with_viewport(self.view)
 		self.set_border_width(5)
-		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.pack_start(self.scroll)
 		self.show_all()
 		self.items = []
