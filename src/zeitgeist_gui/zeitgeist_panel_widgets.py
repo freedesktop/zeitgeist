@@ -24,12 +24,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Add children widgets
 		self.view = DataIconView(True)
-		self.add(self.view)
+		self.dayboxes=gtk.HBox(False,True)
+		self.days={}
 				
 		# Set up default properties
 		self.set_border_width(5)
 		self.set_size_request(420, 400)
-		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
+		self.add_with_viewport(self.dayboxes)
 		
 		# This contains the range of dates which we've currently loaded into the GUI
 		self.begin = None
@@ -53,7 +55,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		Adds all items which match tags to the gui.
 		'''
-		
 		self.tags = tags
 		items=[]
 		if not tags == "":
@@ -66,8 +67,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 			tagsplit = tags.strip().split(",")
 		else:
 			tagsplit = []
-				
-		self.view.clear_store()
+		
+		for day in self.dayboxes:
+			self.dayboxes.remove(day)
+			day.view.clear_store()
 		
 		ftagsplit=[]
 		for tag in tagsplit:
@@ -85,18 +88,34 @@ class TimelineWidget(gtk.ScrolledWindow):
 									pass
 							except:
 								items.append(item)
-								self.view.append_item(item)
+								if day == item.datestring:
+									daybox.view.append_item(item)
+								else:
+									day=item.datestring
+									daybox = DayBox(item.datestring)
+									daybox.view.append_item(item)
+									adj = self.get_hadjustment()
+									daybox.connect('set-focus-child', self.focus_in, adj) 
+									self.dayboxes.pack_start(daybox)
+									self.days[day]=daybox
 			else:
 				try:
 					if items.index(item)>-1:
 						pass
 				except:
 					items.append(item)
-					self.view.append_item(item)
-		
-		for count in range(len(self.view.store)):
-			self.view.expand_row(count,False)	
-				
+					if day == item.datestring:
+						daybox.view.append_item(item)
+					else:
+						day=item.datestring
+						daybox = DayBox(item.datestring)
+						daybox.view.append_item(item)
+						adj = self.get_hadjustment()
+						daybox.connect('set-focus-child', self.focus_in, adj) 
+						self.dayboxes.pack_start(daybox)
+						self.days[day]=daybox
+						
+			
 	def load_month(self, widget=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
@@ -146,43 +165,51 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Manually force garbage collection
 		gc.collect()
 			
-	def jump_to_day(self, widget,expand=False):
+	def jump_to_day(self, widget,focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
 		'''
-		# Get the date that we need to jump to
 		date = calendar.get_date()
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
 		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime(_("%d %b %Y"))
-		#print datestring
-		
-		
-		self.view.collapse_all()
-		
-		if not expand:
-			for count in range(len(self.view.store)):
-				self.view.expand_row(count,False)	
-		
-		for count in range(len(self.view.store)):
-			#count = count	+1
-			if	self.view.store[count][3] == datestring:
-				self.view.scroll_to_cell(count)
-				self.view.expand_row(count,expand)	
-				print "OK"
-				break
-	
-	def focus_in(self,widget, event, adj):
-		alloc = widget.get_allocation() 
-		if alloc.y < adj.value or alloc.y > adj.value + adj.page_size:
-			adj.set_value(min(alloc.y, adj.upper-adj.page_size))
-		del widget
+		if focus==False:
+			for w in self.dayboxes:
+				w.show_all()
+				if w.date == datestring:
+					w.emit("set-focus-child",w)
+		else:
+			for w in self.dayboxes:
+				w.hide_all()
+				if w.date == datestring:
+					w.show_all()
 	
 	def set_relation(self,item):
 		related = RelatedWindow()
 		related.set_relation(item)
 
+	def focus_in(self,widget, event, adj):
+		alloc = widget.get_allocation() 
+            	if alloc.x < adj.value or alloc.x > adj.value + adj.page_size:
+	        	adj.set_value(min(alloc.x, adj.upper-adj.page_size))
+        	del widget 
 
-
+class DayBox(gtk.VBox):
+	def __init__(self,date):
+		gtk.VBox.__init__(self)
+		self.date=date
+		self.label=gtk.Label(date)
+		self.pack_start(self.label,False,False,5)
+		self.view=DataIconView(True)
+		self.scroll = gtk.ScrolledWindow()		
+		self.scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+		self.scroll.add_with_viewport(self.view)
+		self.pack_start(self.scroll)
+		self.show_all()
+				      
+	def emit_focus(self):
+	        self.emit("set-focus-child",self) 
+		  
+		  
 class RelatedWindow(gtk.Window):
 	def __init__(self):
 		# Initialize superclass
@@ -571,7 +598,7 @@ class DataIconView(gtk.TreeView):
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("yalign", 0.0)
 		name_cell.set_property("xalign", 0.0)
-		name_cell.set_property("wrap-width", 200)
+		name_cell.set_property("wrap-width", 100)
 		name_column = gtk.TreeViewColumn("Name", name_cell, markup=2)
 		
 		#count_cell = gtk.CellRendererText()
@@ -598,7 +625,6 @@ class DataIconView(gtk.TreeView):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.day=None
-		self.today=time.strftime(_("%d %b %Y"),time.gmtime())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		
@@ -671,14 +697,13 @@ class DataIconView(gtk.TreeView):
 	def _set_item(self, item, append=True):
 
 	        func = self.store.prepend
-		
-		date="<span size='large' color='blue'>%s</span>" % item.get_time()
-		if not item.datestring==self.today:
-			date="<span size='small' color='blue'>%s</span>" % item.get_time()
-			date= "<span size='large' color='blue'>%s</span>" % item.datestring + "\n" + date
-        	#func(self.types[item.type],[item.get_icon(24),
-        	func(None,[item.get_icon(24),
-					date,
+	        
+		if not self.types.has_key(item.type):
+				self._create_parent(item.type,item.datestring)
+				
+		date="<span size='small' color='blue'>%s</span>" % item.get_time()
+        	func(self.types[item.type],[item.get_icon(24),
+        			date,
 					"<span size='small' color='black'>%s</span>" % item.get_name(),
 					#<span size='small' color='blue'> %s </span>" % str(item.count),
 					item.count,
