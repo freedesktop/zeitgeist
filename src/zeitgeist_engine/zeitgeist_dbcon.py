@@ -88,7 +88,8 @@ class DBConnector:
 		for t in self.cursor.execute("SELECT start , end,  uri FROM timetable WHERE start >= "
 									+ str(int(min)) + " and start <= " + str(int(max))).fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchone()
-			yield Data(uri=i[0], 
+			if i:
+				yield Data(uri=i[0], 
 				  timestamp= t[0], 
 				  name= i[1], 
 				  comment=i[2], 
