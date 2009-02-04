@@ -9,6 +9,7 @@ from zeitgeist_engine.zeitgeist_tomboy import *
 from zeitgeist_engine.zeitgeist_recent import *
 from zeitgeist_engine.zeitgeist_dbcon import db
 from zeitgeist_util import difffactory
+from zeitgeist_engine.zeitgeist_evolution import EvolutionSource
 #from zeitgeist_twitter import TwitterSource
 
 class DataSinkSource(DataProvider):
@@ -43,6 +44,11 @@ class DataSinkSource(DataProvider):
 		self.firefox = FirefoxSource()
 		self.firefox.start()
 		
+		#Evolution
+		
+		self.evo = EvolutionSource()
+		self.evo.start()
+		
 		# Pidgin
 		
 		# Tomboy
@@ -68,7 +74,7 @@ class DataSinkSource(DataProvider):
 					 self.images,
 					 self.music,
 					 self.others,
-					 #self.twitter,
+					 self.evo,
 					 self.tomboy,
 					 self.videos
 					]
@@ -144,6 +150,7 @@ class DataSinkSource(DataProvider):
 								matches = False
 								break
 						if matches:
+							print item.name
 							yield item
 		else:
 			print "GETTING CACHED"
@@ -158,6 +165,7 @@ class DataSinkSource(DataProvider):
 							matches = False
 							break
 					if matches:
+						print item.name
 						yield item
 						
 		gc.collect()

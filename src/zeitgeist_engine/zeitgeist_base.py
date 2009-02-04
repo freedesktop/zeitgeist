@@ -34,12 +34,19 @@ class Data(gobject.GObject):
 		
 		
 		self.uri = uri
-		self.name = name
+		try:
+			name = name.replace("<","")
+			name = name.replace(">","")
+			print name
+		except:
+			pass
+		self.name=name
 		self.count = count
 		self.comment = comment
 		self.mimetype = mimetype
 		self.use = use
 		self.diff=""
+		
 		
 		# Timestamps
 		self.timestamp = timestamp
@@ -66,6 +73,9 @@ class Data(gobject.GObject):
 				self.icon="gnome-globe"
 			elif self.mimetype =="x-tomboy/note":
 				self. icon="stock_notes"
+			elif self.type=="Mail":
+				self. icon="stock_mail"
+			     
 		except:
 			pass
 		

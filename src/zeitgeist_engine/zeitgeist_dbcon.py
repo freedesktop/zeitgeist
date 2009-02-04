@@ -89,6 +89,7 @@ class DBConnector:
 									+ str(int(min)) + " and start <= " + str(int(max))).fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(t[2],)).fetchone()
 			if i:
+				print i
 				yield Data(uri=i[0], 
 				  timestamp= t[0], 
 				  name= i[1], 
