@@ -61,6 +61,17 @@ class Data(gobject.GObject):
 		
 		
 	def get_icon(self, icon_size):
+		
+		temp = self.get_icon_static(icon_size)
+		if temp != None:
+			self.icon = temp
+		if self.icon:
+			  return icon_factory.load_icon(self.icon, icon_size)
+		if not self.thumbnailer:
+			  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
+		return self.thumbnailer.get_icon(icon_size, self.timestamp)
+	
+	def get_icon_static(self,icon_size):
 		try:
 			if self.uri == "gzg/twitter":
 				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
@@ -74,16 +85,9 @@ class Data(gobject.GObject):
 				self. icon="stock_notes"
 			elif self.type=="Mail":
 				self. icon="stock_mail"
-			     
+			return self.icon
 		except:
-			pass
-		
-		if self.icon:
-			  return icon_factory.load_icon(self.icon, icon_size)
-		if not self.thumbnailer:
-			  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
-		return self.thumbnailer.get_icon(icon_size, self.timestamp)
-		
+			return None
 		
 	def get_mimetype(self):
 		return self.mimetype

@@ -28,6 +28,8 @@ class zeitgeistGUI:
 		self.topicWindow.set_resizable(True)
 		self.topicWindow.connect("destroy", gtk.main_quit)
 		
+	        self.topicWindow.set_icon_from_file("Hourglass.png")
+                #gtk.window_set_default_icon_from_file("Hourglass.png")
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox()
 		self.vBox.pack_start(ctb,False,False)
