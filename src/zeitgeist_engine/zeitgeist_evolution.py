@@ -54,12 +54,13 @@ class EvolutionSource(DataProvider):
 		
 		j = 0
 		for i in history:
-			name = i[1]+" \n"+i[2]
-			timestamp = i[0] 
-			yield Data(uri="mailto:"+i[2],
-						name=name,
-						timestamp=timestamp,
-						mimetype="mail",
-						use="visited",
-						type="Mail")
+			if i != None:
+				name = i[1]+" \n"+i[2]
+				timestamp = i[0] 
+				yield Data(uri="mailto:"+i[2],
+							name=name,
+							timestamp=timestamp,
+							mimetype="mail",
+							use="visited",
+							type="Mail")
 		cursor.close()
