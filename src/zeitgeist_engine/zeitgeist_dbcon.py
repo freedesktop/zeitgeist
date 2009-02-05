@@ -129,33 +129,39 @@ class DBConnector:
 	def get_related_items(self,item):
 		list = []
 		items = self.cursor.execute('SELECT * FROM timetable WHERE uri=? ORDER BY start DESC',(item.uri,)).fetchall()
+		priority = 0.0
+		type=item.type
 		for i in items:
-			min = i[0]-43200
-			max = i[0]+43200
-			res = self.cursor.execute("SELECT  COUNT(uri),uri FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)+" ORDER BY COUNT(uri) DESC").fetchall()
-			
-			priority = 0
+			min = i[0]-18000
+			max = i[0]+18000
+			res = self.cursor.execute("SELECT  uri FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)).fetchall()
+			priority = priority + 0.5
 			tempstamp = -1.0
 			for r in res:
-				#print res[1]
-				priortiy = priority +1
-				if r[0] > 0:
+				if r[0] != item.uri:
+					#print res[1]
+					count = res.count(r)
 					try:
-						list.index(r[1])
+						list.index(r[0])
 					except:
-						print r
-						list.append(r[1])
-						i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(r[1],)).fetchone()    
-						if i:
-							yield Data(uri=i[0], 
-							  timestamp= 0.0, 
-							  name= i[1], 
-							  comment=i[2], 
-							  mimetype=  i[3], 
-							  tags=i[4], 
-							  count=i[5], 
-							  use =i[6], 
-							  type=i[7])
+						i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(r[0],)).fetchone()
+						if i[7]==item.type:
+							temppr = priority -1.0
+						else:
+							temppr = priority
+						if  count > temppr:
+							print r
+							list.append(r[0])   
+							if i:
+								yield Data(uri=i[0], 
+								  timestamp= 0.0, 
+								  name= i[1], 
+								  comment=i[2], 
+								  mimetype=  i[3], 
+								  tags=i[4], 
+								  count=i[5], 
+								  use =i[6], 
+								  type=i[7])
 							
 	def numeric_compare(x, y):
 		if x[0]>y[0]:

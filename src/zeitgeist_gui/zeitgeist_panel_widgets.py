@@ -221,17 +221,19 @@ class RelatedWindow(gtk.Window):
 		self.connect("destroy", lambda w: self.destroy)
 		
 		
+		self.baseitem = gtk.HBox(False)
+		self.img = gtk.Image()
+		self.itemlabel = gtk.Label()
+		self.baseitem.pack_start(self.img,False,False,5)
+		self.baseitem.pack_start(self.itemlabel,False,False,5)
+		
+		
 		self.vbox=gtk.VBox()
+		self.vbox.pack_start(self.baseitem,False,False,5)
 		self.label = gtk.Label("Related files")
 		# Add a frame around the label
-		evbox = gtk.EventBox()
-		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
-		evbox1 = gtk.EventBox()
-		evbox1.set_border_width(1)
-		evbox1.add(self.label)
-		evbox.add(evbox1)
 		self.label.set_padding(5, 5) 
-		#self.vbox.pack_start(evbox, False, False)
+		self.vbox.pack_start(self.label, False, False)
 		
 		self.scroll = gtk.ScrolledWindow()
 		self.view = DataIconView()
@@ -249,7 +251,9 @@ class RelatedWindow(gtk.Window):
 		Find the items that share same tags with the current item
 		Later to be done by monitoring the active files
 		'''
-		
+		self.img.set_from_pixbuf(item.get_icon(64))
+		string = item.get_name() +"\n"+"\n"+item.datestring + " " + item.time +"\n"+"\n"+"tags: "+item.tags
+		self.itemlabel.set_label(string)
 		self.set_title("Gnome Zeitgeist - Files related to "+item.name)
 		self.view.clear_store()
 		uris = {}
