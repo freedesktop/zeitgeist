@@ -55,6 +55,10 @@ class EvolutionSource(DataProvider):
 		j = 0
 		for i in history:
 			if i != None:
+				if i[1]==None:
+					i[1]==""
+				if i[2] == None:
+					i[2] ==""
 				name = i[1]+" \n"+i[2]
 				timestamp = i[0] 
 				yield Data(uri="mailto:"+i[2],
