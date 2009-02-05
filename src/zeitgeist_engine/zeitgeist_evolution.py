@@ -33,41 +33,43 @@ class EvolutionSource(DataProvider):
 		'''
 		Copy the sqlite file to avoid file locks when it's being used by firefox.
 		'''
+		try:
+			historydb = glob.glob(os.path.expanduser("~/.evolution/mail/local/folders.db"))
+			newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
+			newloc = newloc[0]+"evo.sqlite"
+			shutil.copy2(historydb[0], newloc)
+			return newloc
+		except:
+			return -1
 		
-		historydb = glob.glob(os.path.expanduser("~/.evolution/mail/local/folders.db"))
-		newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
-		newloc = newloc[0]+"evo.sqlite"
-		shutil.copy2(historydb[0], newloc)
-		return newloc
-	
 	def get_items(self):#
 		path = self.copy_sqlite()
-		
-		# create a connection to firefox's sqlite database
-		self.connection = db.connect(path,True)
-		cursor = self.connection.cursor()
-		
-		# retrieve all urls from firefox history
-		contents = "dsent, subject, mail_to"
-		history = cursor.execute("SELECT " + contents + 
-			" FROM Sent").fetchall()
-		
-		j = 0
-		for i in history:
-			try:
-				if i != None:
-					if i[1]==None:
-						i[1]==""
-					if i[2] == None:
-						i[2] ==""
-					name = i[1]+" \n"+i[2]
-					timestamp = i[0] 
-					yield Data(uri="mailto:"+i[2],
-								name=name,
-								timestamp=timestamp,
-								mimetype="mail",
-								use="visited",
-								type="Mail")
-			except:
-				print "error fetching sent mail"
-		cursor.close()
+		if path != -1:
+			# create a connection to firefox's sqlite database
+			self.connection = db.connect(path,True)
+			cursor = self.connection.cursor()
+			
+			# retrieve all urls from firefox history
+			contents = "dsent, subject, mail_to"
+			history = cursor.execute("SELECT " + contents + 
+				" FROM Sent").fetchall()
+			
+			j = 0
+			for i in history:
+				try:
+					if i != None:
+						if i[1]==None:
+							i[1]==""
+						if i[2] == None:
+							i[2] ==""
+						name = i[1]+" \n"+i[2]
+						timestamp = i[0] 
+						yield Data(uri="mailto:"+i[2],
+									name=name,
+									timestamp=timestamp,
+									mimetype="mail",
+									use="visited",
+									type="Mail")
+				except:
+					print "error fetching sent mail"
+			cursor.close()
