@@ -128,19 +128,24 @@ class DBConnector:
 		
 	def get_related_items(self,item):
 		list = []
-		items = self.cursor.execute('SELECT * FROM timetable WHERE uri=?',(item.uri,)).fetchall()
+		items = self.cursor.execute('SELECT * FROM timetable WHERE uri=? ORDER BY start DESC',(item.uri,)).fetchall()
 		for i in items:
 			min = i[0]-43200
 			max = i[0]+43200
-			res = self.cursor.execute("SELECT uri, COUNT(uri) FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)+" GROUP BY uri ORDER BY COUNT(uri) DESC").fetchall()
+			res = self.cursor.execute("SELECT  COUNT(uri),uri FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)+" ORDER BY COUNT(uri) DESC").fetchall()
+			
+			priority = 0
+			tempstamp = -1.0
 			for r in res:
 				#print res[1]
-				if r[1] > 1:
+				priortiy = priority +1
+				if r[0] > 0:
 					try:
-						index = list.index(r[0])
+						list.index(r[1])
 					except:
-						list.append(r[0])
-						i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(r[0],)).fetchone()    
+						print r
+						list.append(r[1])
+						i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(r[1],)).fetchone()    
 						if i:
 							yield Data(uri=i[0], 
 							  timestamp= 0.0, 
@@ -151,4 +156,14 @@ class DBConnector:
 							  count=i[5], 
 							  use =i[6], 
 							  type=i[7])
+							
+	def numeric_compare(x, y):
+		if x[0]>y[0]:
+			return 1
+		elif x[0]==y[0]:
+			return 0
+		else: # x<y
+			return -1
+ 
+
 db=DBConnector()
