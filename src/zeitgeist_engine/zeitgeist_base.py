@@ -37,7 +37,6 @@ class Data(gobject.GObject):
 		try:
 			name = name.replace("<","")
 			name = name.replace(">","")
-			print name
 		except:
 			pass
 		self.name=name

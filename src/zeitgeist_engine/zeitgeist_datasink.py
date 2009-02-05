@@ -150,7 +150,6 @@ class DataSinkSource(DataProvider):
 								matches = False
 								break
 						if matches:
-							print item.name
 							yield item
 		else:
 			print "GETTING CACHED"
@@ -165,7 +164,6 @@ class DataSinkSource(DataProvider):
 							matches = False
 							break
 					if matches:
-						print item.name
 						yield item
 						
 		gc.collect()
@@ -205,4 +203,7 @@ class DataSinkSource(DataProvider):
 		for tag in db.get_most_tags(count):
 			yield tag
 
+	def get_related_items(self,item):
+		for i in db.get_related_items(item):
+		  yield i
 datasink= DataSinkSource()

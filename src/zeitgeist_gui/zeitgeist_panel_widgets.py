@@ -267,6 +267,8 @@ class RelatedWindow(gtk.Window):
 						pass
 		for uri in uris.keys():
 			self.view.append_item(uris[uri])
+		for i in datasink.get_related_items(item):
+			self.view.append_item(i)
 		uris.clear()
 						
 class CommonTagBrowser(gtk.HBox):
@@ -699,8 +701,11 @@ class DataIconView(gtk.TreeView):
 	        
 		#if not self.types.has_key(item.type):
 			#	self._create_parent(item.type,item.datestring)
-				
-		date="<span size='small' color='blue'>%s</span>" % item.get_time()
+		if not item.timestamp == 0.0:
+			date="<span size='small' color='blue'>%s</span>" % item.get_time()
+		else:
+			date=""
+			
         	#func(self.types[item.type],[item.get_icon(24),
 		func(None,[item.get_icon(24),
         			date,
