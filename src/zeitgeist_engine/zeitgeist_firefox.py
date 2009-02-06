@@ -51,7 +51,8 @@ class FirefoxSource(DataProvider):
 		contents = "id, place_id, visit_date"
 		history = cursor.execute("SELECT " + contents + 
 			" FROM moz_historyvisits WHERE visit_type=" +
-			str(2)).fetchall()
+			str(2)+" or visit_type=" +
+			str(3) ).fetchall()
 		
 		j = 0
 		for i in history:

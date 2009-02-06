@@ -137,8 +137,8 @@ class DBConnector:
 			'''
 			min and max define the neighbourhood radius
 			'''
-			min = i[0]-18000*4
-			max = i[0]+18000*4
+			min = i[0]-4500
+			max = i[0]+4500
 			
 			priority=i[0]/time.time() 
 			res = self.cursor.execute("SELECT  uri,start FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)).fetchall()
@@ -169,6 +169,9 @@ class DBConnector:
 		list.clear()
 		values.sort()
 		values.reverse()
+		
+		for v in values:
+			print v
 		
 		for index in range(7):
 			try:
