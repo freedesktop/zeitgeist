@@ -252,7 +252,7 @@ class RelatedWindow(gtk.Window):
 		Later to be done by monitoring the active files
 		'''
 		self.img.set_from_pixbuf(item.get_icon(64))
-		string = item.get_name() +"\n"+"\n"+item.datestring + " " + item.time +"\n"+"\n"+"tags: "+item.tags
+		string = item.get_name() +"\n"+"\n"+"Last Usage:			"+item.datestring + " " + item.time +"\n"+"\n"+"tags:				"+str(item.get_tags())+"\n"
 		self.itemlabel.set_label(string)
 		self.set_title("Gnome Zeitgeist - Files related to "+item.name)
 		self.view.clear_store()
@@ -318,7 +318,6 @@ class CommonTagBrowser(gtk.HBox):
 			self.view.remove(w)
 		
 		for tag in datasink.get_most_used_tags(10):
-			print tag[0]
 			btn = gtk.ToggleButton(tag[0])
 			#btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)

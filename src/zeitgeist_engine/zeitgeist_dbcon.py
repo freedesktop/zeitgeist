@@ -137,8 +137,8 @@ class DBConnector:
 			'''
 			min and max define the neighbourhood radius
 			'''
-			min = i[0]-18000
-			max = i[0]+18000
+			min = i[0]-18000*4
+			max = i[0]+18000*4
 			
 			priority=i[0]/time.time() 
 			res = self.cursor.execute("SELECT  uri,start FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)).fetchall()
@@ -162,8 +162,8 @@ class DBConnector:
 				heat=heat+relevant2[index]
 				relevant2.pop(index)
 				
-			
-			list[r]=[x,heat/x]
+			if r  != item.uri:
+				list[r]=[x,heat/x]
 
 		values = [(v, k) for (k, v) in list.iteritems()]
 		list.clear()
@@ -171,18 +171,21 @@ class DBConnector:
 		values.reverse()
 		
 		for index in range(7):
-			uri = values[index][1]
-			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
-			if i:
-				yield Data(uri=i[0], 
-				  timestamp= -1.0, 
-				  name= i[1], 
-				  comment=i[2], 
-				  mimetype=  i[3], 
-				  tags=i[4], 
-				  count=i[5], 
-				  use =i[6], 
-				  type=i[7])
+			try:
+				uri = values[index][1]
+				i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
+				if i:
+					yield Data(uri=i[0], 
+					  timestamp= -1.0, 
+					  name= i[1], 
+					  comment=i[2], 
+					  mimetype=  i[3], 
+					  tags=i[4], 
+					  count=i[5], 
+					  use =i[6], 
+					  type=i[7])
+			except:
+				pass
 		
 		
 	def numeric_compare(x, y):
