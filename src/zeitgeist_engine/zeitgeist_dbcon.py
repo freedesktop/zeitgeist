@@ -7,6 +7,7 @@ import sys
 import gc
 import os
 from zeitgeist_engine.zeitgeist_base import DataProvider, Data
+import time
 
 # Constants for quick use in SQL queries:
 # - Rows in the data table
@@ -129,40 +130,61 @@ class DBConnector:
 	def get_related_items(self,item):
 		list = []
 		items = self.cursor.execute('SELECT * FROM timetable WHERE uri=? ORDER BY start DESC',(item.uri,)).fetchall()
-		priority = 0.0
 		type=item.type
+		relevant=[]
+		relevant2=[]
 		for i in items:
+			'''
+			min and max define the neighbourhood radius
+			'''
 			min = i[0]-18000
 			max = i[0]+18000
-			res = self.cursor.execute("SELECT  uri FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)).fetchall()
-			priority = priority + 0.5
-			tempstamp = -1.0
+			
+			priority=i[0]/time.time() 
+			res = self.cursor.execute("SELECT  uri,start FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)).fetchall()
 			for r in res:
-				if r[0] != item.uri:
-					#print res[1]
-					count = res.count(r)
-					try:
-						list.index(r[0])
-					except:
-						i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(r[0],)).fetchone()
-						if i[7]==item.type:
-							temppr = priority -1.0
-						else:
-							temppr = priority
-						if  count > temppr:
-							print r
-							list.append(r[0])   
-							if i:
-								yield Data(uri=i[0], 
-								  timestamp= 0.0, 
-								  name= i[1], 
-								  comment=i[2], 
-								  mimetype=  i[3], 
-								  tags=i[4], 
-								  count=i[5], 
-								  use =i[6], 
-								  type=i[7])
-							
+				rtemp=float(abs(i[0]-r[1]))
+				temp = (i[0]-rtemp)/i[0]
+				temp=(temp-0.99999)*100000
+				if temp > 0 and temp <1 and item.uri !=res[0] :
+					relevant.append(r[0])
+					relevant2.append(temp)
+		
+		
+		list ={}
+		while relevant != []:
+			r = relevant[0]
+			x =  relevant.count(r)
+			heat=0
+			while relevant.count(r)>0:
+				index = relevant.index(r)
+				relevant.pop(index)
+				heat=heat+relevant2[index]
+				relevant2.pop(index)
+				
+			
+			list[r]=[x,heat/x]
+
+		values = [(v, k) for (k, v) in list.iteritems()]
+		list.clear()
+		values.sort()
+		values.reverse()
+		
+		for index in range(7):
+			uri = values[index][1]
+			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
+			if i:
+				yield Data(uri=i[0], 
+				  timestamp= -1.0, 
+				  name= i[1], 
+				  comment=i[2], 
+				  mimetype=  i[3], 
+				  tags=i[4], 
+				  count=i[5], 
+				  use =i[6], 
+				  type=i[7])
+		
+		
 	def numeric_compare(x, y):
 		if x[0]>y[0]:
 			return 1

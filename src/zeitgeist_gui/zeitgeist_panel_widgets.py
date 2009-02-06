@@ -257,22 +257,30 @@ class RelatedWindow(gtk.Window):
 		self.set_title("Gnome Zeitgeist - Files related to "+item.name)
 		self.view.clear_store()
 		uris = {}
-		print item.tags
 		if not item.tags == "":
 			for i in timeline.items:
 				for tag in item.get_tags():
 					try:
 						if i.tags.index(tag) >= 0:
 							#print tag
+							i.timestamp=-1.0
 							uris[i.uri]=i
 						else:
 							pass
 					except:
 						pass
+		items = []
 		for uri in uris.keys():
-			self.view.append_item(uris[uri])
+			if items.count(uri) == 0:
+				items.append(uri)
+				self.view.append_item(uris[uri])
+				
 		for i in datasink.get_related_items(item):
-			self.view.append_item(i)
+			if items.count(i.uri) == 0:
+				items.append(i.uri)
+				self.view.append_item(i)
+		
+		items=[]
 		uris.clear()
 						
 class CommonTagBrowser(gtk.HBox):
@@ -705,7 +713,7 @@ class DataIconView(gtk.TreeView):
 	        
 		#if not self.types.has_key(item.type):
 			#	self._create_parent(item.type,item.datestring)
-		if not item.timestamp == 0.0:
+		if not item.timestamp == -1.0:
 			date="<span size='small' color='blue'>%s</span>" % item.get_time()
 		else:
 			date=""
