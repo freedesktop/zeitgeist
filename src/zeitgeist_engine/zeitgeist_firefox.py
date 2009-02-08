@@ -48,28 +48,37 @@ class FirefoxSource(DataProvider):
 		cursor = self.connection.cursor()
 		
 		# retrieve all urls from firefox history
-		contents = "id, place_id, visit_date"
-		history = cursor.execute("SELECT " + contents + 
-			" FROM moz_historyvisits WHERE visit_type=" +
-			str(2)+" or visit_type=" +
-			str(3) ).fetchall()
+		contents = "id, place_id, visit_date,visit_type"
+		history = cursor.execute("SELECT " + contents + " FROM moz_historyvisits").fetchall()
 		
 		j = 0
 		for i in history:
 			# TODO: Fetch full rows above so that we don't need to do another query here
 			contents = "id, url, title, visit_count"
-			item = cursor.execute("SELECT " + contents +
-				" FROM moz_places WHERE id=" +
-				str(i[1])).fetchall()
+			item = cursor.execute("SELECT " + contents +" FROM moz_places WHERE id=" +str(i[1])).fetchall()
 			url = item[0][1]
 			name = item[0][2]
 			count = item[0][3]
 			timestamp = history[j][2] / (1000000)
 			j += 1
-			yield Data(uri=url,
-						name=name,
-						timestamp=timestamp,
-						count=count,
-						use="visited",
-						type="Firefox History")
+			try:
+				if history[j][3]==2 or history[j][3]==3:
+					yield Data(uri=url,
+							name=name,
+							timestamp=timestamp,
+							count=count,
+							use="visited",
+							type="Firefox History")
+				
+				else:
+					yield Data(uri=url,
+							name=name,
+							timestamp=timestamp,
+							count=count,
+							use="linked",
+							type="Firefox History")
+			except:
+				pass
+			
+			
 		cursor.close()
