@@ -55,27 +55,28 @@ class FirefoxSource(DataProvider):
 		for i in history:
 			# TODO: Fetch full rows above so that we don't need to do another query here
 			contents = "id, url, title, visit_count"
-			item = cursor.execute("SELECT " + contents +" FROM moz_places WHERE id=" +str(i[1])).fetchall()
-			url = item[0][1]
-			name = item[0][2]
-			count = item[0][3]
-			timestamp = history[j][2] / (1000000)
-			if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
-				yield Data(uri=url,
-						name=name,
-						timestamp=timestamp,
-						count=count,
-						use="visited",
-						type="Firefox History")
-			
-			else:
-				yield Data(uri=url,
-						name=name,
-						timestamp=timestamp,
-						count=count,
-						use="linked",
-						type="Firefox History")
-			
+			item = cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
+			if item:
+				url = item[1]
+				name = item[2]
+				count = item[3]
+				timestamp = history[j][2] / (1000000)
+				if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
+					yield Data(uri=url,
+							name=name,
+							timestamp=timestamp,
+							count=count,
+							use="visited",
+							type="Firefox History")
+				
+				else:
+					yield Data(uri=url,
+							name=name,
+							timestamp=timestamp,
+							count=count,
+							use="linked",
+							type="Firefox History")
+				
 			j += 1
 			
 		cursor.close()
