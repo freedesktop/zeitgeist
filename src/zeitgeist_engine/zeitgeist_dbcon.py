@@ -36,6 +36,8 @@ class DBConnector:
 	def __init__(self):
 		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
 		self.create_db(path)
+		#dirty fix
+		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
 		self.connection = sqlite3.connect(path[0], True)
 		self.cursor = self.connection.cursor()
 		self.offset = 0
