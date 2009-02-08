@@ -35,9 +35,7 @@ class DBConnector:
 	
 	def __init__(self):
 		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
-		self.create_db(path)
-		#dirty fix
-		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
+		path = self.create_db(path)
 		self.connection = sqlite3.connect(path[0], True)
 		self.cursor = self.connection.cursor()
 		self.offset = 0
@@ -54,6 +52,9 @@ class DBConnector:
 				shutil.copy("gzg.sqlite", dbdir)	  
 			except:
 				print "Unexpected error creating database:", sys.exc_info()[0]	
+			return glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
+		else:
+			return path
 	
 	def get_last_timestamp(self):
 		query = "SELECT * FROM timetable LIMIT 1"
