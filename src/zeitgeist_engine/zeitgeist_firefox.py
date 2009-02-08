@@ -60,25 +60,22 @@ class FirefoxSource(DataProvider):
 			name = item[0][2]
 			count = item[0][3]
 			timestamp = history[j][2] / (1000000)
-			j += 1
-			try:
-				if history[j][3]==2 or history[j][3]==3:
-					yield Data(uri=url,
-							name=name,
-							timestamp=timestamp,
-							count=count,
-							use="visited",
-							type="Firefox History")
-				
-				else:
-					yield Data(uri=url,
-							name=name,
-							timestamp=timestamp,
-							count=count,
-							use="linked",
-							type="Firefox History")
-			except:
-				pass
+			if history[j][3]==2 or history[j][3]==3:
+				yield Data(uri=url,
+						name=name,
+						timestamp=timestamp,
+						count=count,
+						use="visited",
+						type="Firefox History")
 			
+			else:
+				yield Data(uri=url,
+						name=name,
+						timestamp=timestamp,
+						count=count,
+						use="linked",
+						type="Firefox History")
+			
+			j += 1
 			
 		cursor.close()
