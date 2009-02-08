@@ -60,7 +60,7 @@ class FirefoxSource(DataProvider):
 			name = item[0][2]
 			count = item[0][3]
 			timestamp = history[j][2] / (1000000)
-			if history[j][3]==2 or history[j][3]==3:
+			if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
 				yield Data(uri=url,
 						name=name,
 						timestamp=timestamp,

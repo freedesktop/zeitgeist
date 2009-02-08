@@ -63,30 +63,29 @@ class DBConnector:
 		
 	def insert_items(self, items):
 		for item in items:
+			temp=self.cursor.execute("SELECT start  uri FROM timetable where uri=? and start=?",(item.uri,item.timestamp,)).fetchone()
+			if temp==None:
+				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)', (item.timestamp,
+																				None,
+																				item.uri,
+																				item.diff))
 				try:
-					self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?)', (item.timestamp,
-																					None,
-																					item.uri,
-																					item.diff))
-					try:
-						self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
-																						item.name,
-																						item.comment,
-																						item.mimetype,
-																						item.tags,
-																						item.count,
-																						item.use,
-																						item.type))
-						print "Wrote %s into the database." % item.uri
-					except Exception, ex:
-						print ex.__class__
-						print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
-				except sqlite3.IntegrityError, ex:
-					pass
+					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
+																					item.name,
+																					item.comment,
+																					item.mimetype,
+																					item.tags,
+																					item.count,
+																					item.use,
+																					item.type))
+					print "Wrote %s into the database." % item.uri
+				except Exception, ex:
+					print ex.__class__
+					print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
 		self.connection.commit()
 		   
 	def get_items(self,min,max):
-		for t in self.cursor.execute("SELECT start , end,  uri FROM timetable WHERE start >= "+ str(int(min)) + " and start <= " + str(int(max))).fetchall():
+		for t in self.cursor.execute("SELECT start , end,  uri FROM timetable WHERE start >= "+ str(int(min)) + " and start <= " + str(int(max)) + " ORDER BY start").fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[2],)).fetchone()
 			if i[6]!="linked":
 				if i:
