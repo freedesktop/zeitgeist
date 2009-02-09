@@ -66,13 +66,12 @@ class DBConnector:
 		
 	def insert_items(self, items):
 		for item in items:
-			key = str(item.timestamp)+"-"+item.uri
 			try:
 				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)', (item.timestamp,
 																				None,
 																				item.uri,
 																				item.use,
-																				key))
+																				str(item.timestamp)+"-"+item.uri))
 				try:
 					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
 																					item.name,
@@ -89,9 +88,10 @@ class DBConnector:
 			except sqlite3.IntegrityError, ex:
 				pass
 		self.connection.commit()
+
 		   
 	def get_items(self,min,max):
-		for t in self.cursor.execute("SELECT start , end,  uri FROM timetable WHERE start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY start").fetchall():
+		for t in self.cursor.execute("SELECT start , end,  uri FROM timetable WHERE start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[2],)).fetchone()
 			if i[6]!="linked":
 				if i:
@@ -159,41 +159,39 @@ class DBConnector:
 		list ={}
 		while relevant != []:
 			r = relevant[0]
-			x =  relevant.count(r)
+			x =  1
 			heat=0
 			while relevant.count(r)>0:
 				index = relevant.index(r)
+				if relevant2[index]>heat:
+					heat=relevant2[index]
+					x+=1
 				relevant.pop(index)
-				heat=heat+relevant2[index]
 				relevant2.pop(index)
 				
 			if r  != item.uri:
-				list[r]=[x,heat/x]
+				list[r]=[x,heat]
 
 		values = [(v, k) for (k, v) in list.iteritems()]
 		list.clear()
 		values.sort()
 		values.reverse()
 		
-		for v in values:
-			print v
 		
-		for index in range(7):
+		types=[]
+		items=[]
+		for index in range(len(values)):
 			try:
 				uri = values[index][1]
 				i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
 				if i:
-					yield Data(uri=i[0], 
-					  timestamp= -1.0, 
-					  name= i[1], 
-					  comment=i[2], 
-					  mimetype=  i[3], 
-					  tags=i[4], 
-					  count=i[5], 
-					  use =i[6], 
-					  type=i[7])
+					if types.count(i[7]) <= 10:
+						d= Data(uri=i[0],timestamp= -1.0, name= i[1], comment=i[2], mimetype=  i[3], tags=i[4], count=i[5], use =i[6], type=i[7])
+						types.append(i[7])
+						items.append(d)
 			except:
 				pass
+		return items
 		
 		
 	def numeric_compare(x, y):
