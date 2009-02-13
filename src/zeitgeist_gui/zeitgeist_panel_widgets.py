@@ -747,14 +747,6 @@ class DataIconView(gtk.TreeView):
 						None])
 					self.types[item.name]=iter
 	
-	def create_day(self,date):
-		iter =self.store.append(None,[None,
-				   "",
-					 "<span size='large' color='blue'>%s</span>" % date,
-					#<span size='small' color='blue'> %s </span>" % str(item.count),
-					date,
-					None])
-		self.days[date]=iter
 
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
