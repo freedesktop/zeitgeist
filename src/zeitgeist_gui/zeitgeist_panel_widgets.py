@@ -643,6 +643,8 @@ class DataIconView(gtk.TreeView):
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
 		self.days={}
+		self.last_item = ""
+		self.iter = None
 	
 	def append_item(self, item):
 		# Add an item to the end of the store
@@ -708,7 +710,7 @@ class DataIconView(gtk.TreeView):
 	
 	def _set_item(self, item, append=True):
 
-	        func = self.store.append
+	        func = self.store.prepend
 	        
 		#if not self.types.has_key(item.type):
 			#	self._create_parent(item.type,item.datestring)
@@ -718,35 +720,35 @@ class DataIconView(gtk.TreeView):
 			date=""
 			
         	#func(self.types[item.type],[item.get_icon(24),
-		func(None,[item.get_icon(24),
-        			date,
-					"<span size='small' color='black'>%s</span>" % item.get_name(),
+	        if self.last_item!=item.type:
+        		self.last_item = item.type
+        		#self._create_parent(item)
+        		self.iter=func(None,[item.get_icon(24),
+		        			date,
+							"<span size='small' color='black'>%s</span>" % item.get_name(),
+							#<span size='small' color='blue'> %s </span>" % str(item.count),
+							item.count,
+							item])
+		else:
+	        	func(self.iter,[item.get_icon(24),
+		        			date,
+							"<span size='small' color='black'>%s</span>" % item.get_name(),
+							#<span size='small' color='blue'> %s </span>" % str(item.count),
+							item.count,
+							item])
+        	
+        
+	def _create_parent(self,item):		
+				name =	"<span size='large' color='black'>%s</span>" % item.type
+				iter =self.store.append(None,[item.get_icon(16),
+					"",
+				   name,
 					#<span size='small' color='blue'> %s </span>" % str(item.count),
 					item.count,
-					item])
-        	
-		self.expand_all()
-		
-		
-	def _create_parent(self,source,date):		
-		for item in datasink.sources:
-			try:
-				if item.name == source:
-					name =	"<span size='large' color='black'>%s</span>" % item.get_name()
-					iter =self.store.append(self.days[date],[item.get_icon(16),"",name,item.count,None])
-					#iter =self.store.append(None,[item.get_icon(24),"",item.get_name(),item.count,None])
-					self.types[item.name]=iter
-			except:
-				if item.name == source:
-					name =	"<span size='large' color='black'>%s</span>" % item.get_name()
-					iter =self.store.append(None,[item.get_icon(16),
-						"",
-					   name,
-						#<span size='small' color='blue'> %s </span>" % str(item.count),
-						item.count,
-						None])
-					self.types[item.name]=iter
+					None])
+				self.iter=iter
 	
+		
 
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
