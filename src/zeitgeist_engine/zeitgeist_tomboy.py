@@ -15,9 +15,8 @@ from zeitgeist_util import FileMonitor, launcher
 
 # FIXME:  This should really just use Beagle or Tracker.
 
-
 class NoteData(Data):
-	def __init__(self, uri,timestamp =None): 
+	def __init__(self, uri, timestamp=None): 
 		self.title = None
 		self.content_text = None
 		self.timestamp = timestamp

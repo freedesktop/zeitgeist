@@ -13,6 +13,10 @@ from zeitgeist_engine.zeitgeist_evolution import EvolutionSource
 #from zeitgeist_twitter import TwitterSource
 
 class DataSinkSource(DataProvider):
+	'''
+	Aggregates all of the item-sources together and feeds them into the database when they update.
+	'''
+	
 	def __init__(self, note_path=None):
 		DataProvider.__init__(self,
 							name=_("Sink"),

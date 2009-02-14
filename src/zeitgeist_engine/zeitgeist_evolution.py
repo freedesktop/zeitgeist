@@ -29,27 +29,14 @@ class EvolutionSource(DataProvider):
 		self.comment = "Mail sent via evolution"
 		#self.emit("reload")
 		
-	def copy_sqlite(self):
-		'''
-		Copy the sqlite file to avoid file locks when it's being used by firefox.
-		'''
-		try:
-			historydb = glob.glob(os.path.expanduser("~/.evolution/mail/local/folders.db"))
-			newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
-			newloc = newloc[0]+"evo.sqlite"
-			shutil.copy2(historydb[0], newloc)
-			return newloc
-		except:
-			return -1
-		
 	def get_items(self):#
-		path = self.copy_sqlite()
+		path = self.__copy_sqlite()
 		if path != -1:
-			# create a connection to firefox's sqlite database
+			# create a connection to evolution's sqlite database
 			self.connection = db.connect(path,True)
 			cursor = self.connection.cursor()
 			
-			# retrieve all urls from firefox history
+			# retrieve all urls from evolution's history
 			contents = "dsent, subject, mail_to"
 			history = cursor.execute("SELECT " + contents + 
 				" FROM Sent").fetchall()
@@ -73,3 +60,16 @@ class EvolutionSource(DataProvider):
 				except:
 					print "error fetching sent mail"
 			cursor.close()
+	
+	def __copy_sqlite(self):
+		'''
+		Copy the sqlite file to avoid file locks when it's being used by evolution.
+		'''
+		try:
+			historydb = glob.glob(os.path.expanduser("~/.evolution/mail/local/folders.db"))
+			newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
+			newloc = newloc[0]+"evo.sqlite"
+			shutil.copy2(historydb[0], newloc)
+			return newloc
+		except:
+			return -1
