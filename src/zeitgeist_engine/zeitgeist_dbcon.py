@@ -9,28 +9,6 @@ import os
 from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 import time
 
-# Constants for quick use in SQL queries:
-# - Rows in the data table
-D_URI		= 0
-D_NAME		= 1
-D_COMMENT	= 2
-D_MIMETYPE	= 3
-D_TAGS		= 4
-D_COUNT		= 5
-D_USE		= 6
-D_TYPE		= 7
-
-# - Rows in the tags table
-TAG = 0
-TAG_URI = 1
-
-# - Rows in the timetable table
-TIMESTAMP_BEGIN		= 0
-TIMESTAMP_END		= 1
-TIMESTAMP_URI		= 2
-TIMESTAMP_DIFF		= 3
-
-
 class DBConnector:
 	
 	def __init__(self):
@@ -62,7 +40,7 @@ class DBConnector:
 		if result is None:
 			return 0
 		else:
-			return result[TIMESTAMP_BEGIN]
+			return result[0]
 		
 	def insert_items(self, items):
 		for item in items:
