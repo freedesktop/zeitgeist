@@ -34,11 +34,14 @@ class Data(gobject.GObject):
 		
 		
 		self.uri = uri
+		
+		# Remove characters that might be interpreted by pango as formatting
 		try:
 			name = name.replace("<","")
 			name = name.replace(">","")
 		except:
 			pass
+			
 		self.name=name
 		self.count = count
 		self.comment = comment
