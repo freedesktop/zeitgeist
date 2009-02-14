@@ -28,20 +28,9 @@ class FirefoxSource(DataProvider):
 		self.type = self.name
 		self.comment = "websites visited with Firefox"
 		#self.emit("reload")
-		
-	def copy_sqlite(self):
-		'''
-		Copy the sqlite file to avoid file locks when it's being used by firefox.
-		'''
-		
-		historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
-		newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
-		newloc = newloc[0]+"firefox.sqlite"
-		shutil.copy2(historydb[0], newloc)
-		return newloc
 	
-	def get_items_uncached(self):#
-		path = self.copy_sqlite()
+	def get_items_uncached(self):
+		path = self.__copy_sqlite()
 		
 		# create a connection to firefox's sqlite database
 		self.connection = db.connect(path,True)
@@ -80,3 +69,14 @@ class FirefoxSource(DataProvider):
 			j += 1
 			
 		cursor.close()
+	
+	def __copy_sqlite(self):
+		'''
+		Copy the sqlite file to avoid file locks when it's being used by firefox.
+		'''
+		
+		historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
+		newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
+		newloc = newloc[0]+"firefox.sqlite"
+		shutil.copy2(historydb[0], newloc)
+		return newloc
