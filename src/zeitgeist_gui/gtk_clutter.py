@@ -47,14 +47,14 @@ class Box (clutter.Group):
             height = self.get_height ()
             for child in self.order:
                 child.set_position (x, y)
-                child.set_size (width, height)
+                #child.set_size (width, height)
                 x += child.get_width () + self.spacing
         else:
             width = self.get_width ()
             height = self.get_height () / n - eat
             for child in self.order:
                 child.set_position (x, y)
-                child.set_size (width, height)
+                #child.set_size (width, height)
                 y += child.get_height () + self.spacing
             
     def set_size_static(self,width,height):
@@ -83,7 +83,7 @@ class Label (clutter.Label):
         attr = pango.AttrWeight (pango.WEIGHT_BOLD)
         attr.end_index = -1
         attr_list.insert (attr)
-        attr = pango.AttrSize (6*pango.SCALE)
+        attr = pango.AttrSize (3*pango.SCALE)
         attr.end_index = -1
         attr_list.insert (attr)
         self.set_attributes (attr_list)

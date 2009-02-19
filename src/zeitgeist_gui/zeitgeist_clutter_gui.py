@@ -15,20 +15,37 @@ class Item():
     def __init__(self,data,index):
         self.data = data
         self.index = index
-        pixbuf = data.get_icon(32)
-        #self.texture = clutter.Texture(pixbuf)
-        self.texture = Button(data.name)
+        pb = data.get_icon(32)
+        
+        tex = clutter.Texture()
+        if pb.props.has_alpha:
+            bpp = 4
+        else:
+            bpp = 3 
+        tex.set_from_rgb_data(
+            pb.get_pixels(),
+            pb.props.has_alpha,
+            pb.props.width,
+            pb.props.height,
+            pb.props.rowstride,
+            bpp, 0) 
+        
+        btn = Button(data.name+"\n"+data.time)
+        
+        self.texture = Box(Box.VERTICAL)#Button(data.name)
         self.texture.set_opacity(255)
-        #self.texture.set_text(data.get_name())
+        self.texture.pack_start(tex)
+        self.texture.pack_start(btn)
+        
         self.behaviour = None
     
     
 class UI():
     
-    ELLIPSE_Y = 200 # The y position of the ellipse of images.
-    ELLIPSE_HEIGHT = 600 # The distance from front to back when it's rotated 90 degrees.
+    ELLIPSE_Y = 100 # The y position of the ellipse of images.
+    ELLIPSE_HEIGHT = 150 # The distance from front to back when it's rotated 90 degrees.
     IMAGE_HEIGHT = 100
-    angle_step = 30.0
+    angle_step = 0.0
     
     def __init__(self):
         self.day =  datetime.datetime.fromtimestamp(time.time()).strftime("%d %b %Y")
@@ -62,7 +79,7 @@ class UI():
         
     def set_up(self):
         
-        self.stage.set_size(800,600)
+        self.stage.set_size(800,300)
         self.stage.set_color(clutter.color_parse("#00000000"))
         
       
@@ -132,8 +149,8 @@ class UI():
             
             tangle = 360.0 / len(self.items)
             
-            p.behaviour = clutter.BehaviourEllipse(alpha, 390, self.ELLIPSE_Y,
-                                                                            self.ELLIPSE_HEIGHT, self.ELLIPSE_HEIGHT,
+            p.behaviour = clutter.BehaviourEllipse(alpha, 350, self.ELLIPSE_Y,
+                                                                            350, self.ELLIPSE_HEIGHT,
                                                                             angle, angle + tangle)
         
             p.behaviour.set_angle_tilt(clutter.X_AXIS, -75.0)
