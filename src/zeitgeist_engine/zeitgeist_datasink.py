@@ -210,4 +210,6 @@ class DataSinkSource(DataProvider):
 	def get_related_items(self,item):
 		for i in db.get_related_items(item):
 		  yield i
+		  
+		  
 datasink= DataSinkSource()

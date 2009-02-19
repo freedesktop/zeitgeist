@@ -11,7 +11,7 @@ import gnomeapplet
 from zeitgeist_panel_widgets import filtersBox,calendar,timeline,ctb
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
-class zeitgeistGUI:
+class UI:
    
 	def __init__(self):
 		self.create_gui()

@@ -158,14 +158,12 @@ class DBConnector:
 		
 		types=[]
 		items=[]
-		for index in range(len(values)):
+		for index in range(20):
 			try:
 				uri = values[index][1]
 				i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
 				if i:
-					if types.count(i[7]) <= 10:
 						d= Data(uri=i[0],timestamp= -1.0, name= i[1], comment=i[2], mimetype=  i[3], tags=i[4], count=i[5], use =i[6], type=i[7])
-						types.append(i[7])
 						items.append(d)
 			except:
 				pass
