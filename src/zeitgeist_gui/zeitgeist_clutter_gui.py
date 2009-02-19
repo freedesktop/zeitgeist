@@ -103,7 +103,7 @@ class UI():
         
         
         if self.items:
-            self.rotate_item_to_front(self.items[0]);
+            self.rotate_item_to_front(self.items[len(self.items)-1]);
       
     def load_data(self):
         '''
@@ -111,12 +111,19 @@ class UI():
         '''
         self.items = []
         tmin = self.day 
+        tempitems = []
         for d in datasink.get_items(self.day):
+            tempitems.append(d)
+        
+        tempitems.reverse()
+        
+        for d in tempitems:
             item = Item(d,len(self.items))
             self.items.append(item)
-        self.front_item = 0
-        self.angle_step = 360.0/(len(self.items)+10)
           
+        self.front_item = 0
+        self.angle_step = 360.0/(len(self.items)+2)
+        
     def add_image_actors(self):
         x = 0
         y = 0
@@ -153,7 +160,7 @@ class UI():
                                                                             350, self.ELLIPSE_HEIGHT,
                                                                             angle, angle + tangle)
         
-            p.behaviour.set_angle_tilt(clutter.X_AXIS, -75.0)
+            p.behaviour.set_angle_tilt(clutter.X_AXIS, -45.0)
             p.behaviour.apply(actor)
             actor.show()
             
@@ -218,9 +225,9 @@ class UI():
                 angle_start += self.angle_step 
               
         
-        self.timeline_rot.set_n_frames(int(angle_diff));
-
-        # Remember what item will be at the front when this timeline finishes:
-        self.front_item= pos;
-
-        self.timeline_rot.start();
+            self.timeline_rot.set_n_frames(int(angle_diff));
+    
+            # Remember what item will be at the front when this timeline finishes:
+            self.front_item= pos;
+    
+            self.timeline_rot.start();

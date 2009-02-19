@@ -83,7 +83,7 @@ class Label (clutter.Label):
         attr = pango.AttrWeight (pango.WEIGHT_BOLD)
         attr.end_index = -1
         attr_list.insert (attr)
-        attr = pango.AttrSize (3*pango.SCALE)
+        attr = pango.AttrSize (6*pango.SCALE)
         attr.end_index = -1
         attr_list.insert (attr)
         self.set_attributes (attr_list)
@@ -92,8 +92,8 @@ class Button (clutter.Group):
     BORDER_WIDTH = 2
     BORDER_COLOR = clutter.color_parse ('#a9a9a970')
     NORMAL_COLOR = clutter.color_parse ('#FFFFFFFF')
-    HOVER_COLOR = clutter.color_parse ('#5e7ea580')
-    CLICKED_COLOR = clutter.color_parse ('#8bafdc80')
+    HOVER_COLOR = clutter.color_parse ('#000FFF')
+    CLICKED_COLOR = clutter.color_parse ('#FF0000')
    
     __gproperties__ = {
         'label': (gobject.TYPE_STRING, 'Label', "The button's label",
