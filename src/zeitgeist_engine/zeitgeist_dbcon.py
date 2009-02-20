@@ -8,8 +8,6 @@ import gc
 import os
 from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 import time
-import psyco
-psyco.full()
 
 class DBConnector:
 	

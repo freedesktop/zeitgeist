@@ -712,17 +712,13 @@ class DataIconView(gtk.TreeView):
 
 	        func = self.store.prepend
 	        
-		#if not self.types.has_key(item.type):
-			#	self._create_parent(item.type,item.datestring)
 		if not item.timestamp == -1.0:
 			date="<span size='small' color='blue'>%s</span>" % item.get_time()
 		else:
 			date=""
 			
-        	#func(self.types[item.type],[item.get_icon(24),
 	        if self.last_item!=item.type:
         		self.last_item = item.type
-        		#self._create_parent(item)
         		self.iter=func(None,[item.get_icon(16),
 		        			date,
 							"<span size='small' color='black'>%s</span>" % item.get_name(),
@@ -737,16 +733,6 @@ class DataIconView(gtk.TreeView):
 							item.count,
 							item])
         	
-        
-	def _create_parent(self,item):		
-				name =	"<span size='large' color='black'>%s</span>" % item.type
-				iter =self.store.append(None,[item.get_icon(16),
-					"",
-				   name,
-					#<span size='small' color='blue'> %s </span>" % str(item.count),
-					item.count,
-					None])
-				self.iter=iter
 	
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()

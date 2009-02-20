@@ -43,7 +43,7 @@ class Item():
 class UI():
     
     ELLIPSE_Y = 100 # The y position of the ellipse of images.
-    ELLIPSE_HEIGHT = 150 # The distance from front to back when it's rotated 90 degrees.
+    ELLIPSE_HEIGHT = 600 # The distance from front to back when it's rotated 90 degrees.
     IMAGE_HEIGHT = 100
     angle_step = 0.0
     
@@ -122,7 +122,7 @@ class UI():
             self.items.append(item)
           
         self.front_item = 0
-        self.angle_step = 360.0/(len(self.items)+2)
+        self.angle_step = 360.0/(len(self.items))
         
     def add_image_actors(self):
         x = 0
@@ -157,10 +157,10 @@ class UI():
             tangle = 360.0 / len(self.items)
             
             p.behaviour = clutter.BehaviourEllipse(alpha, 350, self.ELLIPSE_Y,
-                                                                            350, self.ELLIPSE_HEIGHT,
+                                                                            500, self.ELLIPSE_HEIGHT,
                                                                             angle, angle + tangle)
         
-            p.behaviour.set_angle_tilt(clutter.X_AXIS, -45.0)
+            p.behaviour.set_angle_tilt(clutter.X_AXIS, -90.0)
             p.behaviour.apply(actor)
             actor.show()
             
@@ -204,10 +204,9 @@ class UI():
         angle_end   = (angle_front) - (self.angle_step * pos);
         angle_diff = 0
         print "--------------"
-        print self.front_item
+        print pos
         print angle_start
         print angle_end
-        print "--------------"
         #Set the end angles:            
         if self.front_item != pos:
             
@@ -224,9 +223,12 @@ class UI():
                 angle_end   += self.angle_step
                 angle_start += self.angle_step 
               
+            
+            #if pos > self.fron_item:
+               # self.timeline_rot.set_direction(clutter)
         
             self.timeline_rot.set_n_frames(int(angle_diff));
-    
+            print angle_diff
             # Remember what item will be at the front when this timeline finishes:
             self.front_item= pos;
     
