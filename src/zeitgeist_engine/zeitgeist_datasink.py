@@ -139,7 +139,7 @@ class DataSinkSource(DataProvider):
 			tagsplit = []
 		
 		# Loop over all of the items from the database
-		if cached==False:
+		if cached==False or len(self.items)==0:
 			print "GETTING UNCACHED"
 			for item in db.get_items(min, max):
 				if not self.items.__contains__(item):
@@ -179,7 +179,7 @@ class DataSinkSource(DataProvider):
 	
 	def get_items_by_time(self, min=0, max=sys.maxint, tags="", cached=False):
 		"Datasink getting all items from DataProviders"
-		for item in self.get_items(min, max, tags):
+		for item in self.get_items(min, max, tags,cached):
 			yield item
 	
 	def _update_db_async(self):

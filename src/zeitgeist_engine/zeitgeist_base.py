@@ -69,7 +69,7 @@ class Data(gobject.GObject):
 		if temp != None:
 			self.icon = temp
 		if self.icon:
-			  return icon_factory.load_icon(self.icon, icon_size)
+			return icon_factory.load_icon(self.icon, icon_size)
 		if not self.thumbnailer:
 			  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
 		return self.thumbnailer.get_icon(icon_size, self.timestamp)

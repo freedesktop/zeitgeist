@@ -38,8 +38,10 @@ class FileMonitor(gobject.GObject):
 			self.path = path
 		try:
 			self.type = gnomevfs.get_file_info(path).type
+			print "got it"
 		except gnomevfs.Error:
 			self.type = gnomevfs.MONITOR_FILE
+			print "did not get it"
 
 		self.monitor = None
 		self.pending_timeouts = {}
@@ -52,6 +54,7 @@ class FileMonitor(gobject.GObject):
 				monitor_type = gnomevfs.MONITOR_FILE
 			self.monitor = gnomevfs.monitor_add(self.path, monitor_type, self._queue_event)
 		del monitor_type
+		print"open"
 
 	def _clear_timeout(self, info_uri):
 		try:
@@ -62,12 +65,14 @@ class FileMonitor(gobject.GObject):
 		del info_uri
 
 	def _queue_event(self, monitor_uri, info_uri, event):
+		print "queue event"
 		self._clear_timeout(info_uri)
 		self.pending_timeouts[info_uri] = \
 			gobject.timeout_add(250, self._timeout_cb, monitor_uri, info_uri, event)
 		del monitor_uri, info_uri, event
 
 	def queue_changed(self, info_uri):
+		print "queue changed"
 		self._queue_event(self.path, info_uri, gnomevfs.MONITOR_EVENT_CHANGED)
 		del info_uri
 		
@@ -78,10 +83,16 @@ class FileMonitor(gobject.GObject):
 	def _timeout_cb(self, monitor_uri, info_uri, event):
 		if event in (gnomevfs.MONITOR_EVENT_METADATA_CHANGED, gnomevfs.MONITOR_EVENT_CHANGED):
 			self.emit("changed", info_uri)
+			print "changed "+self.path
 		elif event == gnomevfs.MONITOR_EVENT_CREATED:
 			self.emit("created", info_uri)
+			print "created "+self.path
 		elif event == gnomevfs.MONITOR_EVENT_DELETED:
 			self.emit("deleted", info_uri)
+			print "deleted "+self.path
+		elif event == gnomevfs.MONITOR_EVENT_STOPEXECUTING	:
+			#self.emit("deleted", info_uri)
+			print "closed "+self.path
 		self.emit("event", info_uri, event)
 
 		self._clear_timeout(info_uri)
@@ -164,6 +175,7 @@ class IconFactory:
 		pixbuf = self.load_icon(icon_value, icon_size, force_size)
 		img = gtk.Image()
 		img.set_from_pixbuf(pixbuf)
+		del pixbuf
 		img.show()
 		return img
 
@@ -377,7 +389,6 @@ class LaunchManager:
 			os.wait()
 		   
 			return (child, startup_id)
-
 
 class DBusWrapper:
 	'''

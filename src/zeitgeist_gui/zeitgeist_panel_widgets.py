@@ -55,6 +55,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		Adds all items which match tags to the gui.
 		'''
+		# Begin benchmarking
+		time1 = time.time()
+		
 		self.tags = tags
 		items=[]
 		if not tags == "":
@@ -116,6 +119,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.dayboxes.pack_start(daybox)
 						self.days[day]=daybox
 		
+		time2 = time.time()
+		# Benchmarking
+		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
 			
 	def load_month(self, widget=None):
 		'''
@@ -147,21 +153,16 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		calendar.clear_marks()
 		
-		# Begin benchmarking
-		time1 = time.time()
 		
 		# Get all items in the date range and add them to self.items
 		self.items = []
-		for i in datasink.get_items_by_time(self.begin, self.end, '', False):
+		for i in datasink.get_items_by_time(self.begin, self.end, '', True):
 			self.items.append(i)
 			i.connect("reload",self.set_relation)
 			 
 		
 		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
-		# Benchmarking
-		time2 = time.time()
-		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
 		
 		# Manually force garbage collection
 		gc.collect()
@@ -209,8 +210,7 @@ class DayBox(gtk.VBox):
 				      
 	def emit_focus(self):
 	        self.emit("set-focus-child",self) 
-		  
-		  
+		  	  
 class RelatedWindow(gtk.Window):
 	def __init__(self):
 		# Initialize superclass
@@ -723,14 +723,14 @@ class DataIconView(gtk.TreeView):
 	        if self.last_item!=item.type:
         		self.last_item = item.type
         		#self._create_parent(item)
-        		self.iter=func(None,[item.get_icon(24),
+        		self.iter=func(None,[item.get_icon(16),
 		        			date,
 							"<span size='small' color='black'>%s</span>" % item.get_name(),
 							#<span size='small' color='blue'> %s </span>" % str(item.count),
 							item.count,
 							item])
-		else:
-	        	func(self.iter,[item.get_icon(24),
+        	else:
+	        	func(self.iter,[item.get_icon(16),
 		        			date,
 							"<span size='small' color='black'>%s</span>" % item.get_name(),
 							#<span size='small' color='blue'> %s </span>" % str(item.count),
@@ -748,8 +748,6 @@ class DataIconView(gtk.TreeView):
 					None])
 				self.iter=iter
 	
-		
-
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
 timeline = TimelineWidget()

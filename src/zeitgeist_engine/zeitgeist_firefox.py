@@ -6,7 +6,6 @@ import glob
 from xml.dom.minidom import parse
 from xml.parsers.expat import ExpatError
 
-import gnomevfs
 import gobject
 import gtk
 import shutil
@@ -16,7 +15,6 @@ import W3CDate
 from gettext import gettext as _
 
 from zeitgeist_base import Data, DataProvider
-from zeitgeist_util import FileMonitor, launcher
 
 
 class FirefoxSource(DataProvider):

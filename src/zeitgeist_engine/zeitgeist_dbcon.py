@@ -8,6 +8,8 @@ import gc
 import os
 from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 import time
+import psyco
+psyco.full()
 
 class DBConnector:
 	
@@ -69,10 +71,10 @@ class DBConnector:
 
 		   
 	def get_items(self,min,max):
-		for t in self.cursor.execute("SELECT start , end,  uri FROM timetable WHERE start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():
+		t1 = time.time()
+		for t in self.cursor.execute("SELECT start , end, uri FROM timetable WHERE start >= "+ str(int(min)) + " and start <= " + str(int(max))+" and  usage!='linked' ORDER BY key").fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[2],)).fetchone()
-			if i[6]!="linked":
-				if i:
+			if i:
 					yield Data(uri=i[0], 
 					  timestamp= t[0], 
 					  name= i[1], 
@@ -83,6 +85,7 @@ class DBConnector:
 					  use =i[6], 
 					  type=i[7])
 		gc.collect()
+		print time.time() -t1
 	 
 	def update_item(self,item):
 		self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
@@ -105,7 +108,7 @@ class DBConnector:
 	def get_most_tags(self,count=10):
 		res = self.cursor.execute('SELECT tag, COUNT(uri) FROM tags GROUP BY tag ORDER BY COUNT(uri) DESC').fetchall()
 		list = []
-		for i in range(count):
+		for i in xrange(count):
 			if i >= len(res):
 				break
 			yield res[i]
@@ -116,22 +119,27 @@ class DBConnector:
 		type=item.type
 		relevant=[]
 		relevant2=[]
+		relevant3=[]
 		for i in items:
 			'''
 			min and max define the neighbourhood radius
 			'''
-			min = i[0]-4500
-			max = i[0]+4500
-			
-			priority=i[0]/time.time() 
-			res = self.cursor.execute("SELECT  uri,start FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)).fetchall()
+			min = i[0]-28800
+			max = i[0]+28800
+			res = self.cursor.execute("SELECT  uri,start FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)+" and uri!=? ORDER BY start",(item.uri,)).fetchall()
 			for r in res:
 				rtemp=float(abs(i[0]-r[1]))
-				temp = (i[0]-rtemp)/i[0]
-				temp=(temp-0.99999)*100000
-				if temp > 0 and temp <1 and item.uri !=res[0] :
-					relevant.append(r[0])
-					relevant2.append(temp)
+				if rtemp < 1000:
+					#temp = (i[0]-rtemp)/i[0]
+					#temp=(temp-0.99999)*100000
+					try:
+						temp=1.0/rtemp**2
+					except:
+						temp = 1.0
+					if item.uri !=res[0] :
+						relevant.append(r[0])
+						relevant2.append(temp)
+						relevant3.append(r[1])
 		
 		
 		list ={}
@@ -139,26 +147,37 @@ class DBConnector:
 			r = relevant[0]
 			x =  1
 			heat=0
+			timestamp=0
 			while relevant.count(r)>0:
 				index = relevant.index(r)
+				if relevant3[index]>timestamp:
+					timestamp = relevant3[index]
 				if relevant2[index]>heat:
 					heat=relevant2[index]
-					x+=1
+				x+=1
+					#print"----------------"
+					#print heat
+					#print timestamp
+					#print x
+					
 				relevant.pop(index)
 				relevant2.pop(index)
+				relevant3.pop(index)
 				
 			if r  != item.uri:
-				list[r]=[x,heat]
+				list[r]=[timestamp*2*heat*x]
 
 		values = [(v, k) for (k, v) in list.iteritems()]
 		list.clear()
 		values.sort()
 		values.reverse()
 		
+		for v in values:
+			print v
 		
 		types=[]
 		items=[]
-		for index in range(20):
+		for index in xrange(20):
 			try:
 				uri = values[index][1]
 				i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
