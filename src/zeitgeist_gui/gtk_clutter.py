@@ -88,6 +88,17 @@ class Label (clutter.Label):
         attr_list.insert (attr)
         self.set_attributes (attr_list)
 
+    def set_size(self,size):
+        self.set_color (self.COLOR)
+        attr_list = pango.AttrList ()
+        attr = pango.AttrWeight (pango.WEIGHT_BOLD)
+        attr.end_index = -1
+        attr_list.insert (attr)
+        attr = pango.AttrSize (size*pango.SCALE)
+        attr.end_index = -1
+        attr_list.insert (attr)
+        self.set_attributes (attr_list)
+
 class Button (clutter.Group):
     BORDER_WIDTH = 2
     BORDER_COLOR = clutter.color_parse ('#a9a9a970')
