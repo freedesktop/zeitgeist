@@ -74,7 +74,7 @@ class Box (clutter.Group):
                 y += child.get_height () + self.spacing
     
 class Label (clutter.Label):
-    COLOR = clutter.color_parse ('#00000000')
+    COLOR = clutter.color_parse ('#FFFFFFFF')
 
     def __init__ (self):
         self.__gobject_init__ ()
@@ -101,9 +101,9 @@ class Label (clutter.Label):
 
 class Button (clutter.Group):
     BORDER_WIDTH = 2
-    BORDER_COLOR = clutter.color_parse ('#a9a9a970')
-    NORMAL_COLOR = clutter.color_parse ('#FFFFFFFF')
-    HOVER_COLOR = clutter.color_parse ('#000FFF')
+    BORDER_COLOR = clutter.color_parse ('#00000000')
+    NORMAL_COLOR = clutter.color_parse ('#00000000')
+    HOVER_COLOR = clutter.color_parse ('#00000000')
     CLICKED_COLOR = clutter.color_parse ('#FF0000')
    
     __gproperties__ = {

@@ -16,20 +16,8 @@ class Item():
         self.hasFocus=False
         self.data = data
         self.index = index
-        pb = data.get_icon(64)
-        self.actor=None
-        tex = clutter.Texture()
-        if pb.props.has_alpha:
-            bpp = 4
-        else:
-            bpp = 3 
-        tex.set_from_rgb_data(
-            pb.get_pixels(),
-            pb.props.has_alpha,
-            pb.props.width,
-            pb.props.height,
-            pb.props.rowstride,
-            bpp, 0) 
+        
+        self.set_icon_size(32)
         
         name=""
         for c in data.name:
@@ -41,16 +29,11 @@ class Item():
         name = name + "..."
             
         
-        self.btn = Button(name+"\n"+data.time)
+        self.btn = Button(name+"    "+data.time)
         
-        box = Box(Box.HORIZONTAL)
-        box.pack_start(Box(Box.VERTICAL))
-        box.pack_start(tex)
-        box.pack_start(Box(Box.VERTICAL))
-        
-        self.texture = Box(Box.VERTICAL)#Button(data.name)
+        self.texture = Box(Box.HORIZONTAL)#Button(data.name)
         self.texture.set_opacity(255)
-        self.texture.pack_start(box)
+        self.texture.pack_start(self.tex)
         self.texture.pack_start(self.btn)
         
         self.behaviour = None
@@ -64,12 +47,28 @@ class Item():
     def set_opacity(self,o):
         self.texture.set_opacity(o)
         
+    def set_icon_size(self,size):
+        pb = self.data.get_icon(size)
+        self.actor=None
+        self.tex = clutter.Texture()
+        if pb.props.has_alpha:
+            bpp = 4
+        else:
+            bpp = 3 
+        self.tex.set_from_rgb_data(
+            pb.get_pixels(),
+            pb.props.has_alpha,
+            pb.props.width,
+            pb.props.height,
+            pb.props.rowstride,
+            bpp, 0) 
+        
     
 class UI():
     
-    ELLIPSE_Y = 200 # The y position of the ellipse of images.
+    ELLIPSE_Y = 225 # The y position of the ellipse of images.
     ELLIPSE_HEIGHT = 400 # The distance from front to back when it's rotated 90 degrees.
-    IMAGE_HEIGHT =250
+    IMAGE_HEIGHT =225
     angle_step = 0.0
     
     def __init__(self):
@@ -148,14 +147,14 @@ class UI():
         rectangle_actor.set_opacity(255)
         group.set_opacity(255)
         
-        rectangle_actor.set_size (800, 50)
-        rectangle_actor.set_position(0,250)
+        rectangle_actor.set_size (800, 100)
+        rectangle_actor.set_position(0,200)
 
         group.add (rectangle_actor)
         group.add (dayLabel)
         
         self.stage.add(group)
-        dayLabel.set_position(50,250)
+        dayLabel.set_position(25,225)
         
         
         BORDER_COLOR = clutter.color_parse ('#A9A9A979')
@@ -164,10 +163,10 @@ class UI():
         rectangle_actor2.set_color (NORMAL_COLOR)
         rectangle_actor2.set_border_width (2)
         rectangle_actor2.set_border_color (BORDER_COLOR)        
-        self.stage.add(rectangle_actor2)
+        #self.stage.add(rectangle_actor2)
         
         rectangle_actor2.set_size (500, 600)
-        rectangle_actor2.set_position(600,0)
+        rectangle_actor2.set_position(550,0)
         
         if self.items:
             self.rotate_item_to_front(self.items[len(self.items)-1]);
@@ -211,7 +210,7 @@ class UI():
             '''
             
             actor.set_position(x, y)
-            y += 10
+            y += 50
         
             '''
             Allow the actor to emit events.  By default only the stage does this.
@@ -224,8 +223,8 @@ class UI():
             
             tangle = 360.0 / len(self.items)
             
-            p.behaviour = clutter.BehaviourEllipse(alpha, 200, self.ELLIPSE_Y,
-                                                                            600, self.ELLIPSE_HEIGHT,
+            p.behaviour = clutter.BehaviourEllipse(alpha, 150, self.ELLIPSE_Y,
+                                                                            700, self.ELLIPSE_HEIGHT,
                                                                             angle, angle + tangle)
         
             p.behaviour.set_angle_tilt(clutter.Y_AXIS, 45.0)
@@ -255,21 +254,17 @@ class UI():
          '''
         for item in self.items:
             if not item.index == self.front_item:
-                item.btn.NORMAL_COLOR=clutter.color_parse ('#FFFFFFFF')
-                item.btn.rectangle_actor.set_color (item.btn.NORMAL_COLOR)
-                if item.hasFocus:
-                    actor = item.get_actor()
-                    x,y = actor.get_position()
-                    #actor.set_scale(1/2,1/2)
+                NORMAL_COLOR=clutter.color_parse ('#FFFFFFFF')
+                item.btn.label_actor.set_color (NORMAL_COLOR)
+                item.set_icon_size(32)
                 item.set_opacity(122)
                 item.hasFocus=False
             else:
-                item.btn.NORMAL_COLOR=clutter.color_parse ('#FFFF00')
-                item.btn.rectangle_actor.set_color (item.btn.NORMAL_COLOR)
-                actor = item.get_actor()
-                x,y = actor.get_position()
+                NORMAL_COLOR=clutter.color_parse ('#747474')
+                item.btn.label_actor.set_color (NORMAL_COLOR)
                 item.hasFocus=True
-                actor.set_position(x+150, y)
+                item.set_icon_size(48)
+                #actor.set_position(x+150, y)
                 #actor.set_scale(2,2)
                 item.set_opacity(255)
     
