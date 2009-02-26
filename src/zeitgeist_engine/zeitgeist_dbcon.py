@@ -70,8 +70,8 @@ class DBConnector:
 		   
 	def get_items(self,min,max):
 		t1 = time.time()
-		for t in self.cursor.execute("SELECT start , end, uri FROM timetable WHERE start >= "+ str(int(min)) + " and start <= " + str(int(max))+" and  usage!='linked' ORDER BY key").fetchall():
-			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[2],)).fetchone()
+		for t in self.cursor.execute("SELECT start, uri FROM timetable WHERE usage!='linked' and start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():
+			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[1],)).fetchone()
 			if i:
 					yield Data(uri=i[0], 
 					  timestamp= t[0], 

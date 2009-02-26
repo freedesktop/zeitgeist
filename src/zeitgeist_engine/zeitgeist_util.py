@@ -457,11 +457,17 @@ class DiffFactory:
 		os.system("patch %s < %s" % (orginalfile, patch))
 		return orginalfile
 	
-
+class IconCollection:
+	def __init__(self):
+		self.dict = {}
+	
+	def clear(self):
+		self.dict.clear()
 
 difffactory=DiffFactory()
 icon_factory = IconFactory()
 icon_theme = gtk.icon_theme_get_default()
 thumb_factory = gnome.ui.ThumbnailFactory("normal")
 launcher = LaunchManager()
+iconcollection = IconCollection()
 

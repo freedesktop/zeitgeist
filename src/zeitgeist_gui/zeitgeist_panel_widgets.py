@@ -55,8 +55,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		Adds all items which match tags to the gui.
 		'''
-		# Begin benchmarking
-		time1 = time.time()
 		
 		self.tags = tags
 		items=[]
@@ -119,9 +117,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.dayboxes.pack_start(daybox)
 						self.days[day]=daybox
 		
-		time2 = time.time()
-		# Benchmarking
-		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
 			
 	def load_month(self, widget=None):
 		'''
@@ -154,6 +149,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		calendar.clear_marks()
 		
 		
+		# Begin benchmarking
+		time1 = time.time()
 		# Get all items in the date range and add them to self.items
 		self.items = []
 		for i in datasink.get_items_by_time(self.begin, self.end, '', True):
@@ -163,6 +160,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
+		
+		time2 = time.time()
+		# Benchmarking
+		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
 		
 		# Manually force garbage collection
 		gc.collect()
@@ -427,7 +428,7 @@ class CheckBox(gtk.CheckButton):
 		#icon = source.icon
 		#self.img.set_from_pixbuf(icon)
 		
-		self.img.set_from_pixbuf(source.get_icon(16))
+		self.img.set_from_pixbuf(source.get_icon_static_done(16))
 		
 		self.set_image(self.img)
 		
@@ -719,14 +720,14 @@ class DataIconView(gtk.TreeView):
 			
 	        if self.last_item!=item.type:
         		self.last_item = item.type
-        		self.iter=func(None,[item.get_icon(16),
+        		self.iter=func(None,[item.get_icon(24),
 		        			date,
 							"<span size='small' color='black'>%s</span>" % item.get_name(),
 							#<span size='small' color='blue'> %s </span>" % str(item.count),
 							item.count,
 							item])
         	else:
-	        	func(self.iter,[item.get_icon(16),
+	        	func(self.iter,[item.get_icon(24),
 		        			date,
 							"<span size='small' color='black'>%s</span>" % item.get_name(),
 							#<span size='small' color='blue'> %s </span>" % str(item.count),

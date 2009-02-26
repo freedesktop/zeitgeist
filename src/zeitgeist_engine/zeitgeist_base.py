@@ -11,7 +11,7 @@ import gtk
 import glob
 from gettext import ngettext, gettext as _
 
-from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory
+from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory, iconcollection
 
 class Data(gobject.GObject):
 	__gsignals__ = {
@@ -24,7 +24,7 @@ class Data(gobject.GObject):
 				 name = None,
 				 comment = "",
 				 timestamp = 0,
-				 mimetype = "XYZ",
+				 mimetype = "N/A",
 				 icon = None,
 				 tags = "",
 				 count=1,
@@ -65,14 +65,28 @@ class Data(gobject.GObject):
 		
 	def get_icon(self, icon_size):
 		
-		temp = self.get_icon_static(icon_size)
-		if temp != None:
-			self.icon = temp
-		if self.icon:
-			return icon_factory.load_icon(self.icon, icon_size)
-		if not self.thumbnailer:
-			  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
-		return self.thumbnailer.get_icon(icon_size, self.timestamp)
+		if iconcollection.dict.has_key(self.uri):
+			return iconcollection.dict[self.uri]
+		elif  iconcollection.dict.has_key(self.type):
+			#print "xxxxxxxxxxxxxxxxxxx"
+			return iconcollection.dict[self.type]
+		
+		else:
+			temp = self.get_icon_static(icon_size)
+			
+			if temp != None:
+				self.icon = temp
+			
+			if self.icon:
+				icon =  icon_factory.load_icon(self.icon, icon_size)
+				iconcollection.dict[self.type] = icon
+				return icon
+			
+			if not self.thumbnailer:
+				  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
+			thumb = self.thumbnailer.get_icon(icon_size, self.timestamp)
+			iconcollection.dict[self.uri] = thumb
+			return thumb
 	
 	def get_icon_static(self,icon_size):
 		try:
@@ -91,6 +105,16 @@ class Data(gobject.GObject):
 			return self.icon
 		except:
 			return None
+		
+	def get_icon_static_done(self,icon_size):
+		temp = self.get_icon_static(icon_size)
+			
+		if temp != None:
+			self.icon = temp
+		
+		if self.icon:
+			icon =  icon_factory.load_icon(self.icon, icon_size)
+			return icon
 		
 	def get_mimetype(self):
 		return self.mimetype
