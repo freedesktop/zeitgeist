@@ -13,7 +13,7 @@ import sqlite3 as db
 import tempfile
 import W3CDate
 from gettext import gettext as _
-
+from zeitgeist_util import FileMonitor
 from zeitgeist_base import Data, DataProvider
 
 
@@ -25,7 +25,17 @@ class FirefoxSource(DataProvider):
 		self.icon="gnome-globe"
 		self.type = self.name
 		self.comment = "websites visited with Firefox"
+		
+		self.historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
+		
+		self.note_path_monitor = FileMonitor(self.historydb[0])
+		self.note_path_monitor.connect("event", self.reload_proxy)
+		self.note_path_monitor.open()
 		#self.emit("reload")
+	
+	
+	def reload_proxy(self,x=None,y=None,z=None):
+		self.emit("reload")
 	
 	def get_items_uncached(self):
 		path = self.__copy_sqlite()
@@ -73,8 +83,8 @@ class FirefoxSource(DataProvider):
 		Copy the sqlite file to avoid file locks when it's being used by firefox.
 		'''
 		
-		historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
+		#historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
 		newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
 		newloc = newloc[0]+"firefox.sqlite"
-		shutil.copy2(historydb[0], newloc)
+		shutil.copy2(self.historydb[0], newloc)
 		return newloc

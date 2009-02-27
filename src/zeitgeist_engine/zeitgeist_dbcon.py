@@ -69,19 +69,22 @@ class DBConnector:
 
 		   
 	def get_items(self,min,max):
+		items = {}
 		t1 = time.time()
 		for t in self.cursor.execute("SELECT start, uri FROM timetable WHERE usage!='linked' and start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[1],)).fetchone()
 			if i:
-					yield Data(uri=i[0], 
-					  timestamp= t[0], 
-					  name= i[1], 
-					  comment=i[2], 
-					  mimetype=  i[3], 
-					  tags=i[4], 
-					  count=i[5], 
-					  use =i[6], 
-					  type=i[7])
+				  d = Data(uri=i[0], 
+				  timestamp= t[0], 
+				  name= i[1], 
+				  comment=i[2], 
+				  mimetype=  i[3], 
+				  tags=i[4], 
+				  count=i[5], 
+				  use =i[6], 
+				  type=i[7])
+				  items[i[0]]=d
+				  yield d 
 		gc.collect()
 		print time.time() -t1
 	 
