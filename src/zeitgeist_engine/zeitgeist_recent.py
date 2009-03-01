@@ -58,16 +58,16 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 	'''
 	Recently-used items filtered by a set of mimetypes.
 	'''
-	def __init__(self, name, icon, mimetype_list, filter_name):
+	def __init__(self, name, icon, mimetype_list, filter_name,inverse=False):
 		RecentlyUsed.__init__(self, name, icon)
 		self.mimetype_list = mimetype_list
 		self.filter_name = filter_name
+		self.inverse = inverse
 
 	def include_item(self, item):
 		item_mime = item.get_mimetype()
 		for mimetype in self.mimetype_list:
-			if hasattr(mimetype, "match") and mimetype.match(item_mime) \
-				   or item_mime == mimetype:
+			if hasattr(mimetype, "match") and mimetype.match(item_mime) or item_mime == mimetype:
 				return True
 		return False
 	
@@ -111,6 +111,7 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 		"application/x-abiword",
 		"application/x-gnucash",
 		"application/x-gnumeric",
+		"application/x-java*",
 		]
 	
 	def __init__(self):
@@ -143,6 +144,14 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 		"application/x-magicpoint",
 		"application/x-mrproject",
 		"application/x-php",
+		"application/tar",
+		"application/x-tar",
+		"applicaton/x-gtar",
+		"multipart/x-tar",
+		"application/x-compress",
+		"application/x-compressed",
+		"application/x-javascript",
+		"application/javascript",
 		]
 	
 	def __init__(self):
@@ -150,7 +159,8 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 										name=_("Other"),
 										icon="applications-other",
 										mimetype_list=self.DOCUMENT_MIMETYPES,
-										filter_name="Other")
+										filter_name="Other",
+										inverse = True)
 			
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.

@@ -613,7 +613,7 @@ class DataIconView(gtk.TreeView):
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("yalign", 0.0)
 		name_cell.set_property("xalign", 0.0)
-		name_cell.set_property("wrap-width", 100)
+		name_cell.set_property("wrap-width", 200)
 		name_column = gtk.TreeViewColumn("Name", name_cell, markup=2)
 		
 		#count_cell = gtk.CellRendererText()
@@ -722,15 +722,13 @@ class DataIconView(gtk.TreeView):
         		self.last_item = item.type
         		self.iter=func(None,[item.get_icon(24),
 		        			date,
-							"<span size='small' color='black'>%s</span>" % item.get_name(),
-							#<span size='small' color='blue'> %s </span>" % str(item.count),
+							"<span color='black'>%s</span>" % item.get_name(),
 							item.count,
 							item])
         	else:
 	        	func(None,[item.get_icon(24),
 		        			date,
-							"<span size='small' color='black'>%s</span>" % item.get_name(),
-							#<span size='small' color='blue'> %s </span>" % str(item.count),
+							"<span color='black'>%s</span>" % item.get_name(),
 							item.count,
 							item])
         	
