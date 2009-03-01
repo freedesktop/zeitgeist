@@ -72,7 +72,7 @@ class Data(gobject.GObject):
 			return iconcollection.dict[self.type]
 		
 		else:
-			temp = self.get_icon_static(icon_size)
+			temp = self.icon
 			
 			if temp != None:
 				self.icon = temp
@@ -88,26 +88,9 @@ class Data(gobject.GObject):
 			iconcollection.dict[self.uri] = thumb
 			return thumb
 	
-	def get_icon_static(self,icon_size):
-		try:
-			if self.uri == "gzg/twitter":
-				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
-				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(24))
-			elif self.type=="Twitter":
-				loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
-				self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(16))
-			elif self.uri.find("http") > -1 or self.uri.find("ftp") > -1:
-				self.icon="gnome-globe"
-			elif self.mimetype =="x-tomboy/note":
-				self. icon="stock_notes"
-			elif self.type=="Mail":
-				self. icon="stock_mail"
-			return self.icon
-		except:
-			return None
 		
 	def get_icon_static_done(self,icon_size):
-		temp = self.get_icon_static(icon_size)
+		temp = self.icon
 			
 		if temp != None:
 			self.icon = temp

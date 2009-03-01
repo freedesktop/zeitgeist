@@ -727,7 +727,7 @@ class DataIconView(gtk.TreeView):
 							item.count,
 							item])
         	else:
-	        	func(self.iter,[item.get_icon(24),
+	        	func(None,[item.get_icon(24),
 		        			date,
 							"<span size='small' color='black'>%s</span>" % item.get_name(),
 							#<span size='small' color='blue'> %s </span>" % str(item.count),

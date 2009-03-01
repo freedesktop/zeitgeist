@@ -63,6 +63,7 @@ class FirefoxSource(DataProvider):
 							name=name,
 							timestamp=timestamp,
 							count=count,
+							icon = "gnome-globe",
 							use="visited",
 							type="Firefox History")
 				
@@ -70,6 +71,7 @@ class FirefoxSource(DataProvider):
 					yield Data(uri=url,
 							name=name,
 							timestamp=timestamp,
+							icon = "gnome-globe",
 							count=count,
 							use="linked",
 							type="Firefox History")

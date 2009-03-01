@@ -46,30 +46,33 @@ class DBConnector:
 		for item in items:
 			try:
 				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)', (item.timestamp,
-																				None,
-																				item.uri,
-																				item.use,
-																				str(item.timestamp)+"-"+item.uri))
+					None,
+					item.uri,
+					item.use,
+					str(item.timestamp)+"-"+item.uri))
 				try:
-					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)', (item.uri,
-																					item.name,
-																					item.comment,
-																					item.mimetype,
-																					item.tags,
-																					item.count,
-																					item.use,
-																					item.type))
+					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?)', (item.uri,
+						item.name,
+						item.comment,
+						item.mimetype,
+						item.tags,
+						item.count,
+						item.use,
+						item.type,
+						item.icon))
 					print "Wrote %s into the database." % item.uri
 				except Exception, ex:
-					print ex.__class__
+					print "---------------------------------------------------------------------------"					
+					print ex
 					print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
+					print "---------------------------------------------------------------------------"	
+
 			except sqlite3.IntegrityError, ex:
-				pass
+					pass
 		self.connection.commit()
 
 		   
 	def get_items(self,min,max):
-		items = {}
 		t1 = time.time()
 		for t in self.cursor.execute("SELECT start, uri FROM timetable WHERE usage!='linked' and start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[1],)).fetchone()
@@ -82,22 +85,23 @@ class DBConnector:
 				  tags=i[4], 
 				  count=i[5], 
 				  use =i[6], 
-				  type=i[7])
-				  items[i[0]]=d
+				  type=i[7],
+				  icon=i[8])
 				  yield d 
 		gc.collect()
 		print time.time() -t1
 	 
 	def update_item(self,item):
 		self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
-		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',(item.uri,
+		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?)',(item.uri,
 																		item.name,
 																		item.comment,
 																		item.mimetype,
 																		item.tags,
 																		item.count,
 																		item.use,
-																		item.type))		
+																		item.type,
+																		item.icon))		
 		self.cursor.execute('DELETE FROM tags where uri=?', (item.uri,))
 		 
 		for tag in item.get_tags():

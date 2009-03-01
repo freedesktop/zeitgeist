@@ -53,6 +53,7 @@ class EvolutionSource(DataProvider):
 									name=name,
 									timestamp=timestamp,
 									mimetype="mail",
+									icon=self.icon,
 									use="visited",
 									type="Mail")
 				except:
