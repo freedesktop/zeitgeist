@@ -1,3 +1,4 @@
+import os
 import re
 
 import gtk
@@ -26,11 +27,24 @@ class RecentlyUsedManagerGtk(DataProvider):
 				elif info.get_modified() == timestamp:
 					use = "modified"
 				
+				# Create a string of tags based on the file's path
+				# e.g. the file /home/natan/foo/bar/example.py would be tagged with "foo" and "bar"
+				# Note: we only create tags for files under the users home folder
+				tags = ""
+				#tags=info.get_groups()
+				tmp = info.get_uri()[7:]		# strip off "file://" from the uri
+				tmp = os.path.dirname(tmp)		# remove the filename from the string
+				home = os.path.expanduser("~")  # get the users home folder
+				if tmp.startswith(home):
+					tmp = tmp.replace(home + "/", "", 1)
+					if tmp != "":
+						tags = tmp.replace("/", ",")
+				
 				yield Data(name=info.get_display_name(),
 					uri=info.get_uri(),
 					mimetype=info.get_mime_type(),
 					timestamp=timestamp,
-					tags=info.get_groups(),
+					tags=tags,
 					count=counter,
 					use=use,
 					)
