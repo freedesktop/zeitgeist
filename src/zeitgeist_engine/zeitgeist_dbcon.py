@@ -112,22 +112,29 @@ class DBConnector:
 																		item.count,
 																		item.use,
 																		item.type,
-																		item.icon))		
+																		item.icon))	
+			
 		self.cursor.execute('DELETE FROM tags where uri=?', (item.uri,))
 		 
 		for tag in item.get_tags():
 			if not tag.strip() == "":
-				self.cursor.execute('INSERT INTO tags VALUES (?,?)',(tag,item.uri)) 			 
+				try:
+					self.cursor.execute('INSERT INTO tagids VALUES (?)',(tag,)) 
+				except:
+					pass
+				id = self.cursor.execute("SELECT rowid FROM tagids WHERE  tag=?",(tag,)).fetchone()
+				self.cursor.execute('INSERT INTO tags VALUES (?,?)',(id[0],item.uri)) 			 
 							
 		self.connection.commit()
 		 
 	def get_most_tags(self,count=10):
-		res = self.cursor.execute('SELECT tag, COUNT(uri) FROM tags GROUP BY tag ORDER BY COUNT(uri) DESC').fetchall()
+		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags GROUP BY tagid ORDER BY COUNT(uri) DESC').fetchall()
 		list = []
 		for i in xrange(count):
 			if i >= len(res):
 				break
-			yield res[i]
+			tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?',(res[i][0],)).fetchone()
+			yield tag
 		
 	def get_related_items(self,item):
 		list = []
