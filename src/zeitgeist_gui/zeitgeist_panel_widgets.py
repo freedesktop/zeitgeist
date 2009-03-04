@@ -732,8 +732,18 @@ class DataIconView(gtk.TreeView):
 							item.count,
 							item])
         	
-	
+class BrowserBar (gtk.Toolbar):
+	def __init__(self):
+		gtk.Toolbar.__init__(self)
+		self.home = gtk.ToolButton("gtk-home")
+		self.back = gtk.ToolButton("gtk-go-back")
+		self.forward = gtk.ToolButton("gtk-go-forward")
+		self.add(self.back)
+		self.add(self.home)
+		self.add(self.forward)
+		
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
 timeline = TimelineWidget()
 ctb = CommonTagBrowser()
+bb = BrowserBar()

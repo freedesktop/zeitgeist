@@ -8,7 +8,7 @@ import gtk.glade
 import gobject
 import gnomeapplet
 
-from zeitgeist_panel_widgets import filtersBox,calendar,timeline,ctb
+from zeitgeist_panel_widgets import filtersBox,calendar,timeline,ctb,bb
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class UI:
@@ -32,7 +32,8 @@ class UI:
                 #gtk.window_set_default_icon_from_file("Hourglass.png")
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox()
-		self.vBox.pack_start(ctb,False,False)
+	        self.vBox.pack_start(bb,False,False)
+        	self.vBox.pack_start(ctb,False,False)
 
 		self.topicWindow.add(self.vBox)
 		
@@ -62,7 +63,7 @@ class UI:
 		advancedbar = gtk.VBox()
 		#advancedbar.pack_start(related,True,True,5)
 		#advancedbar.pack_start(ctb,True,True,5)
-		self.hBox.pack_start(advancedbar,False,False,5)
+		self.hBox.pack_start(advancedbar,False,False)
 		
 		# Timeline view
 		#self.notebook.append_page(related, gtk.Label("Related"))
