@@ -26,6 +26,7 @@ class UI:
 		self.topicWindow = gtk.Window()
 		self.topicWindow.set_title("Gnome Zeitgeist")
 		self.topicWindow.set_resizable(True)
+        	self.topicWindow.set_default_size(800,400)
 		self.topicWindow.connect("destroy", gtk.main_quit)
 		
 	        #self.topicWindow.set_icon_from_file("Hourglass.png")

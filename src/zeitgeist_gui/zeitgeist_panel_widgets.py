@@ -29,7 +29,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				
 		# Set up default properties
 		self.set_border_width(5)
-		self.set_size_request(420, 400)
+		self.set_size_request(600, 400)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.add_with_viewport(self.dayboxes)
 		
@@ -610,7 +610,7 @@ class DataIconView(gtk.TreeView):
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("yalign", 0.0)
 		name_cell.set_property("xalign", 0.0)
-		name_cell.set_property("wrap-width", 200)
+		name_cell.set_property("wrap-width", 150)
 		name_column = gtk.TreeViewColumn("Name", name_cell, markup=2)
 		
 		#count_cell = gtk.CellRendererText()
@@ -708,7 +708,7 @@ class DataIconView(gtk.TreeView):
 	
 	def _set_item(self, item, append=True):
 
-	        func = self.store.prepend
+	        func = self.store.append
 	        
 		if not item.timestamp == -1.0:
 			date="<span size='small' color='blue'>%s</span>" % item.get_time()
@@ -723,7 +723,7 @@ class DataIconView(gtk.TreeView):
 							item.count,
 							item])
         	else:
-	        	func(None,[item.get_icon(24),
+	        	func(self.iter,[item.get_icon(24),
 		        			date,
 							"<span color='black'>%s</span>" % item.get_name(),
 							item.count,
