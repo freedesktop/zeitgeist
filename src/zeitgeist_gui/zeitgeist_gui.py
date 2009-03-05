@@ -32,7 +32,7 @@ class UI:
                 #gtk.window_set_default_icon_from_file("Hourglass.png")
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox()
-	        self.vBox.pack_start(bb,False,False)
+	        self.vBox.pack_start(bb,False,False,5)
         	self.vBox.pack_start(ctb,False,False)
 
 		self.topicWindow.add(self.vBox)
@@ -59,11 +59,8 @@ class UI:
 		evbox1.add(timeline)
 		evbox.add(evbox1)
 		
-		self.hBox.pack_start(evbox, True, True)
+		self.hBox.pack_start(evbox, True, True,5)
 		advancedbar = gtk.VBox()
-		#advancedbar.pack_start(related,True,True,5)
-		#advancedbar.pack_start(ctb,True,True,5)
-		self.hBox.pack_start(advancedbar,False,False)
 		
 		# Timeline view
 		#self.notebook.append_page(related, gtk.Label("Related"))
@@ -76,3 +73,11 @@ class UI:
 		
 		# Show everything
 		self.topicWindow.show_all()
+                self.sidebar.hide_all()
+        	bb.options.connect("toggled",self.toggle_filters)
+        
+        def toggle_filters(self,x=None):
+       	 	if bb.options.get_active():
+        	    self.sidebar.show_all()
+        	else:
+                    self.sidebar.hide_all()

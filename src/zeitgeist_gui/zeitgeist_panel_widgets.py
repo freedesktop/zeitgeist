@@ -299,13 +299,12 @@ class CommonTagBrowser(gtk.HBox):
 		self.set_size_request(-1, 40)
 		#self.label.set_padding(5, 5) 
 		self.pack_start(evbox, False, False)
-		
 		self.scroll = gtk.ScrolledWindow()
 		self.view = gtk.HBox()
 		self.scroll.add_with_viewport(self.view)
 		self.set_border_width(5)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
-		self.pack_start(self.scroll)
+		self.pack_start(self.scroll,True,True)
 		self.show_all()
 		self.items = []
 		
@@ -349,7 +348,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.create_doc_btn.connect("clicked",self._show_new_from_template_dialog)
 		self.create_note_btn = gtk.Button("Create New Note")
 		self.create_note_btn.connect("clicked",self._make_new_note)
-		self.option_box.pack_end(self.create_doc_btn,False,False,5)
+		self.option_box.pack_end(self.create_doc_btn,False,False)
 		self.option_box.pack_end(self.create_note_btn,False,False)
 		self.timefilter_active=False
 		self.filters=[]
@@ -357,9 +356,8 @@ class FilterAndOptionBox(gtk.VBox):
 		Filter Box
 		'''
 		
-		self.search = SearchToolItem()
-		self.pack_start( self.search ,False,False,0)
-		self.pack_start( gtk.Label("") ,False,False,0)
+		#self.search = SearchToolItem()
+		#self.pack_start( self.search ,False,False,0)
 		self.pack_start( calendar ,False,False,0)
 		
 		self.pack_start(self.option_box)
@@ -376,7 +374,7 @@ class FilterAndOptionBox(gtk.VBox):
 		#self.timefilter.set_label("Filter over current period")
 		#self.timefilter.connect("toggled",self.set_timelinefilter)
 		#self.option_box.pack_start(self.timefilter,False,False,5)
-		self.option_box.pack_start(self.frame2,False, False, 5)
+		self.option_box.pack_start(self.frame2,False, False)
 		
 		
 		self.voptionbox = gtk.VBox(False)
@@ -505,14 +503,13 @@ class SearchToolItem(gtk.ToolItem):
 		gtk.ToolItem.__init__(self)
 		self.search_timeout = None
 		self.default_search_text = _("Search")
-
-		box = gtk.HBox(False, 0)
+		box = gtk.HBox(False, 5)
 		box.show()
 
 		self.clearbtn = None
 		self.iconentry = None
 		self.entry = gtk.Entry()
-		box.pack_start(self.entry, True, True, 0)
+		box.pack_start(self.entry, True, True, 5)
 
 		self.entry.set_width_chars(14)
 		self.entry.set_text(self.default_search_text)
@@ -736,12 +733,27 @@ class BrowserBar (gtk.Toolbar):
 	def __init__(self):
 		gtk.Toolbar.__init__(self)
 		self.home = gtk.ToolButton("gtk-home")
+		self.home.set_label("Recent")
+		self.home.set_expand(True)
 		self.back = gtk.ToolButton("gtk-go-back")
+		self.back.set_label("Older")
+		self.back.set_expand(True)
 		self.forward = gtk.ToolButton("gtk-go-forward")
+		self.forward.set_label("Later")
+		self.forward.set_expand(True)
+		self.options = gtk.ToggleToolButton("gtk-select-color")
+		self.options.set_label("Filters")
+		self.options.set_expand(True)
+		self.add(self.options)
 		self.add(self.back)
 		self.add(self.home)
 		self.add(self.forward)
 		
+		
+		self.search = SearchToolItem()
+		self.add(self.search)
+		self.search.set_expand(True)
+
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
 timeline = TimelineWidget()
