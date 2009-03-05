@@ -32,7 +32,7 @@ class UI:
                 #gtk.window_set_default_icon_from_file("Hourglass.png")
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox()
-	        self.vBox.pack_start(bb,False,False,5)
+	        self.vBox.pack_start(bb,False,False)
         	self.vBox.pack_start(ctb,False,False)
 
 		self.topicWindow.add(self.vBox)
