@@ -75,7 +75,7 @@ class DBConnector:
 					if item.tags != "" and item.tags != []:
 						for tag in item.get_tags():
 							self.cursor.execute('INSERT INTO tags VALUES (?,?)', (tag.capitalize(), item.uri))
-				except:
+				except Exception, ex:
 					print "Error inserting tags:"
 					print ex
 

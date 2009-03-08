@@ -38,6 +38,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 				if tmp.startswith(home):
 					tmp = tmp.replace(home + "/", "", 1)
 					if tmp != "":
+		                                tmp = tmp.replace("%20", " ")
 						tags = tmp.replace("/", ",")
 							
 				yield Data(name=info.get_display_name(),
