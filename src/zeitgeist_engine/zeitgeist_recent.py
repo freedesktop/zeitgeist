@@ -30,7 +30,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 				# Create a string of tags based on the file's path
 				# e.g. the file /home/natan/foo/bar/example.py would be tagged with "foo" and "bar"
 				# Note: we only create tags for files under the users home folder
-				tags = "foo"
+				tags = ""
 				#tags=info.get_groups()
 				tmp = info.get_uri()[7:]		# strip off "file://" from the uri
 				tmp = os.path.dirname(tmp)		# remove the filename from the string
@@ -39,8 +39,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					tmp = tmp.replace(home + "/", "", 1)
 					if tmp != "":
 						tags = tmp.replace("/", ",")
-						print tags
-					
+							
 				yield Data(name=info.get_display_name(),
 					uri=info.get_uri(),
 					mimetype=info.get_mime_type(),
@@ -99,7 +98,8 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 						timestamp=item.timestamp,
 						count=counter,use=item.use,
 						type=self.filter_name,
-						mimetype=item.mimetype)
+						mimetype=item.mimetype,
+						tags=item.tags)
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.

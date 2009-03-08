@@ -313,12 +313,11 @@ class CommonTagBrowser(gtk.HBox):
 		datasink.connect("reload", self.get_common_tags)
 	
 	def get_common_tags(self,x=None):
-		
 		for w in self.view:
 			self.view.remove(w)
 		
 		for tag in datasink.get_most_used_tags(10):
-			btn = gtk.ToggleButton(tag[0])
+			btn = gtk.ToggleButton(tag)
 			#btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			#label.set_use_underline(True)

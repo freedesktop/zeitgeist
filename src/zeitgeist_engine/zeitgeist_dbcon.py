@@ -73,7 +73,6 @@ class DBConnector:
 					# FIXME: Sometimes Data.tags is a string and sometimes it is a list.
 					# TODO: Improve consistency.
 					if item.tags != "" and item.tags != []:
-						print "Inserting tags into DB: %s" % item.tags
 						for tag in item.get_tags():
 							self.cursor.execute('INSERT INTO tags VALUES (?,?)', (tag.capitalize(), item.uri))
 				except:
@@ -131,12 +130,12 @@ class DBConnector:
 		 
 	def get_most_tags(self,count=10):
 		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags GROUP BY tagid ORDER BY COUNT(uri) DESC').fetchall()
-		list = []
-		for i in xrange(count):
-			if i >= len(res):
-				break
-			tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?',(res[i][0],)).fetchone()
-			yield tag
+		
+		i = 0
+		while i < len(res) and i < count:
+			#tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?', (res[i][0],)).fetchone()
+			yield res[i][0]
+			i += 1
 		
 	def get_related_items(self,item):
 		list = []
