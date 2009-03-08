@@ -62,16 +62,18 @@ class DBConnector:
 						item.icon))
 						
 				except Exception, ex:
-					print "---------------------------------------------------------------------------"					
-					print ex
-					print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
-					print "---------------------------------------------------------------------------"	
+					pass
+					#print "---------------------------------------------------------------------------"					
+					#print ex
+					#print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
+					#print "---------------------------------------------------------------------------"	
 				
 				try:
 					# Add tags into the database
 					# FIXME: Sometimes Data.tags is a string and sometimes it is a list.
 					# TODO: Improve consistency.
 					if item.tags != "" and item.tags != []:
+						print "Inserting tags into DB: %s" % item.tags
 						for tag in item.get_tags():
 							self.cursor.execute('INSERT INTO tags VALUES (?,?)', (tag.capitalize(), item.uri))
 				except:

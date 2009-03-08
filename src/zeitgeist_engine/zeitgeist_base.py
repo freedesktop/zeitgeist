@@ -33,22 +33,20 @@ class Data(gobject.GObject):
 		gobject.GObject.__init__(self)
 		
 		
-		self.uri = uri
-		
 		# Remove characters that might be interpreted by pango as formatting
 		try:
 			name = name.replace("<","")
 			name = name.replace(">","")
 		except:
 			pass
-			
+		
+		self.uri = uri
 		self.name=name
 		self.count = count
 		self.comment = comment
 		self.mimetype = mimetype
 		self.use = use
 		self.diff=""
-		
 		
 		# Timestamps
 		self.timestamp = timestamp
@@ -64,7 +62,6 @@ class Data(gobject.GObject):
 		
 		
 	def get_icon(self, icon_size):
-		
 		if iconcollection.dict.has_key(self.uri):
 			return iconcollection.dict[self.uri]
 		elif  iconcollection.dict.has_key(self.type):

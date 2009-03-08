@@ -739,7 +739,7 @@ class BrowserBar (gtk.Toolbar):
 		self.back.set_label("Older")
 		self.back.set_expand(True)
 		self.forward = gtk.ToolButton("gtk-go-forward")
-		self.forward.set_label("Later")
+		self.forward.set_label("Newer")
 		self.forward.set_expand(True)
 		self.options = gtk.ToggleToolButton("gtk-select-color")
 		self.options.set_label("Filters")
