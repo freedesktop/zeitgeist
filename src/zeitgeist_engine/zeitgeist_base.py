@@ -226,8 +226,8 @@ class Data(gobject.GObject):
 	def get_common_tags(self, view):
 		from zeitgeist_datasink import datasink
 		for tag in datasink.get_most_used_tags(10):
-			print tag[0]
-			btn = gtk.ToggleButton(tag[0])
+			print tag
+			btn = gtk.ToggleButton(tag)
 			btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			#label.set_use_underline(True)
