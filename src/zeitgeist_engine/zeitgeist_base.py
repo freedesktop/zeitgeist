@@ -227,12 +227,13 @@ class Data(gobject.GObject):
 		from zeitgeist_datasink import datasink
 		for tag in datasink.get_most_used_tags(10):
 			print tag
-			btn = gtk.ToggleButton(tag)
-			btn.set_relief(gtk.RELIEF_NONE)
-			btn.set_focus_on_click(False)
-			#label.set_use_underline(True)
-			view.pack_start(btn,False,False)
-			btn.connect("toggled",self.toggle_tags)
+			if tag:
+				btn = gtk.ToggleButton(tag)
+				btn.set_relief(gtk.RELIEF_NONE)
+				btn.set_focus_on_click(False)
+				#label.set_use_underline(True)
+				view.pack_start(btn,False,False)
+				btn.connect("toggled",self.toggle_tags)
 		view.show_all()
 		
 	def toggle_tags(self, x=None):
