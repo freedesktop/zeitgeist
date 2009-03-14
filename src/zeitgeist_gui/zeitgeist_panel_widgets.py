@@ -51,7 +51,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Load the GUI
 		self.load_month()
 	
-	def apply_search(self, tags):
+	def apply_search(self, tags, search = True):
 		'''
 		Adds all items which match tags to the gui.
 		'''
@@ -84,22 +84,43 @@ class TimelineWidget(gtk.ScrolledWindow):
 		for item in self.items:
 			if len(tagsplit) >0:
 				for tag in tagsplit:
-						if	item.tags.lower().find(tag.lower())> -1 or	item.uri.lower().find(tag.lower())>-1:
-							try:
-								if items.index(item)>-1:
-									pass
-							except:
-								items.append(item)
-								if day == item.datestring:
-									daybox.view.append_item(item)
-								else:
-									day=item.datestring
-									daybox = DayBox(item.datestring)
-									daybox.view.append_item(item)
-									adj = self.get_hadjustment()
-									daybox.connect('set-focus-child', self.focus_in, adj) 
-									self.dayboxes.pack_start(daybox)
-									self.days[day]=daybox
+						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
+					        	if search:
+						       		if item.uri.lower().find(tag.lower())>-1:
+									
+									try:
+										if items.index(item)>-1:
+											pass
+									except:
+										items.append(item)
+										if day == item.datestring:
+											daybox.view.append_item(item)
+										else:
+											day=item.datestring
+											daybox = DayBox(item.datestring)
+											daybox.view.append_item(item)
+											adj = self.get_hadjustment()
+											daybox.connect('set-focus-child', self.focus_in, adj) 
+											self.dayboxes.pack_start(daybox)
+											self.days[day]=daybox
+									
+							else:
+								try:
+									if items.index(item)>-1:
+										pass
+								except:
+									items.append(item)
+									if day == item.datestring:
+										daybox.view.append_item(item)
+									else:
+										day=item.datestring
+										daybox = DayBox(item.datestring)
+										daybox.view.append_item(item)
+										adj = self.get_hadjustment()
+										daybox.connect('set-focus-child', self.focus_in, adj) 
+										self.dayboxes.pack_start(daybox)
+										self.days[day]=daybox		
+								 
 			else:
 				try:
 					if items.index(item)>-1:
@@ -288,17 +309,17 @@ class CommonTagBrowser(gtk.HBox):
 	def __init__(self):
 		# Initialize superclass
 		gtk.HBox.__init__(self)
-		self.label = gtk.Label("Most used tags :	")
+		self.label = gtk.Label("Recently used tags :	")
+		self.set_border_width(2)
 		# Add a frame around the label
 		evbox = gtk.EventBox()
 		#evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
 		evbox1 = gtk.EventBox()
-		evbox1.set_border_width(1)
+		evbox1.set_border_width(2)
 		evbox1.add(self.label)
 		evbox.add(evbox1)
-		self.set_size_request(-1, 40)
 		#self.label.set_padding(5, 5) 
-		self.pack_start(evbox, False, False)
+		self.pack_start(evbox, False, False,2)
 		self.scroll = gtk.ScrolledWindow()
 		self.view = gtk.HBox()
 		self.scroll.add_with_viewport(self.view)
@@ -313,15 +334,21 @@ class CommonTagBrowser(gtk.HBox):
 		datasink.connect("reload", self.get_common_tags)
 	
 	def get_common_tags(self,x=None):
+		
+		date = calendar.get_date()
+		
+		begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
+		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
+		
 		for w in self.view:
 			self.view.remove(w)
 		
-		for tag in datasink.get_most_used_tags(10):
+		for tag in datasink.get_most_used_tags(10,begin,end):
 			btn = gtk.ToggleButton(tag)
 			#btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			#label.set_use_underline(True)
-			self.view.pack_start(btn,False,False)
+			self.view.pack_start(btn,True,True)
 			#btn.set_size_request(-1,-1)
 			btn.connect("toggled",self.toggle)
 			
@@ -337,7 +364,7 @@ class CommonTagBrowser(gtk.HBox):
 				 tags = tags.replace(","+x.get_label(), ",")
 				 tags = tags.replace(x.get_label()+"," ,",")
 		
-		timeline.apply_search(tags)
+		timeline.apply_search(tags,False)
 			
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
@@ -734,6 +761,7 @@ class BrowserBar (gtk.Toolbar):
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
 		self.home.set_expand(True)
+		self.home.connect("clicked",self.focus_today)
 		self.back = gtk.ToolButton("gtk-go-back")
 		self.back.set_label("Older")
 		self.back.set_expand(True)
@@ -752,6 +780,16 @@ class BrowserBar (gtk.Toolbar):
 		self.search = SearchToolItem()
 		self.add(self.search)
 		self.search.set_expand(True)
+		
+	
+	def focus_today(self, x = None):
+		today = time.time()
+		month =  int(datetime.datetime.fromtimestamp(today).strftime(_("%m")))-1
+		year =  int(datetime.datetime.fromtimestamp(today).strftime(_("%Y")))
+		day =  int(datetime.datetime.fromtimestamp(today).strftime(_("%d")))
+		calendar.select_month(month,year)
+		calendar.select_day(day)
+		#calendar.do_day_selected_double_click()
 
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()

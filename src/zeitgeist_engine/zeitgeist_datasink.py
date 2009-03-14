@@ -204,8 +204,8 @@ class DataSinkSource(DataProvider):
 			#  will continue to call this function in idle cpu time
 			return True
 
-	def get_most_used_tags(self,count=10):
-		for tag in db.get_most_tags(count):
+	def get_most_used_tags(self,count=20,min=0,max=sys.maxint):
+		for tag in db.get_most_tags(count,min,max):
 			yield tag
 
 	def get_related_items(self,item):

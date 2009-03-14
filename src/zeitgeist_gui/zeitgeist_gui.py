@@ -61,7 +61,7 @@ class UI:
 		evbox.add(evbox1)
 		
 		self.hBox.pack_start(evbox, True, True,5)
-		advancedbar = gtk.VBox()
+                #self.hBox.pack_start(ctb, True, True,5)
 		
 		# Timeline view
 		#self.notebook.append_page(related, gtk.Label("Related"))

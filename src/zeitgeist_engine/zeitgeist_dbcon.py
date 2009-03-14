@@ -74,7 +74,7 @@ class DBConnector:
 					# TODO: Improve consistency.
 					if item.tags != "" and item.tags != []:
 						for tag in item.get_tags():
-							self.cursor.execute('INSERT INTO tags VALUES (?,?)', (tag.capitalize(), item.uri))
+							self.cursor.execute('INSERT INTO tags VALUES (?,?,?)', (tag.capitalize(), item.uri,item.timestamp))
 				except Exception, ex:
 					print "Error inserting tags:"
 					print ex
@@ -124,12 +124,12 @@ class DBConnector:
 				except:
 					pass
 				id = self.cursor.execute("SELECT rowid FROM tagids WHERE  tag=?",(tag,)).fetchone()
-				self.cursor.execute('INSERT INTO tags VALUES (?,?)',(id[0],item.uri)) 			 
+				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(id[0],item.uri,item.timestano)) 			 
 							
 		self.connection.commit()
 		 
-	def get_most_tags(self,count=10):
-		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags GROUP BY tagid ORDER BY COUNT(uri) DESC').fetchall()
+	def get_most_tags(self,count=20,min=0,max=sys.maxint):
+		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags WHERE timestamp >='+ str(min) +" AND timestamp <="+ str(max) +' GROUP BY tagid ORDER BY  timestamp DESC').fetchall()
 		
 		i = 0
 		while i < len(res) and i < count:
