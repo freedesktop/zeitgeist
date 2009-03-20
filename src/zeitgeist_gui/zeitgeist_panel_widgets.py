@@ -195,6 +195,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		Jump to the currently selected day in the calendar.
 		'''
+		
+		self.offset = 0
 		self.load_month()
 		date = calendar.get_date()
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
