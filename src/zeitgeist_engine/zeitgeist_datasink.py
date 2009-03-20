@@ -2,7 +2,7 @@ import sys
 import time
 import urllib
 from gettext import gettext as _
-
+import thread
 from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_engine.zeitgeist_firefox import *
 from zeitgeist_engine.zeitgeist_tomboy import *
@@ -10,6 +10,7 @@ from zeitgeist_engine.zeitgeist_recent import *
 from zeitgeist_engine.zeitgeist_dbcon import db
 from zeitgeist_util import difffactory
 from zeitgeist_engine.zeitgeist_evolution import EvolutionSource
+from zeitgeist_engine.ThreadPool import  *
 #from zeitgeist_twitter import TwitterSource
 
 class DataSinkSource(DataProvider):
@@ -24,6 +25,8 @@ class DataSinkSource(DataProvider):
 							uri="source:///Datasink")
 		self.sources = []
 		self._sources_queue = []
+		self.threads=[]
+		
 		self._db_update_in_progress = False
 		
 		# Recently used items
@@ -83,7 +86,7 @@ class DataSinkSource(DataProvider):
 					 self.tomboy,
 					 self.videos
 					]
-	   
+	
 	def update_db(self):
 		'''
 		Add new items from all sources into the database.
@@ -187,7 +190,11 @@ class DataSinkSource(DataProvider):
 		if len(self._sources_queue) > 0:
 			print "Updating database with new %s items" % self._sources_queue[0].name
 			# Update the database with items from the first source in the queue
-			db.insert_items(self._sources_queue[0].get_items())
+			items = self._sources_queue[0].get_items()
+			
+			#insert_thread = InsertThread(items)
+			#self.threads.append()
+			db.insert_items(items)
 			
 			# Remove the source from the queue
 			del self._sources_queue[0]
@@ -212,5 +219,85 @@ class DataSinkSource(DataProvider):
 		for i in db.get_related_items(item):
 		  yield i
 		  
-		  
+				 
+		
+class InsertThread(ThreadPoolTask):
+	
+	def __init__(self,items):
+		ThreadPoolTask.__init__(self)
+		self.items=items
+		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
+		path = self.create_db(path)
+		self.connection = sqlite3.connect(path[0], True, check_same_thread=False)
+		self.cursor = self.connection.cursor()
+		self.offset = 0
+		
+	
+	def create_db(self, path):
+		if len(path) == 0:
+			try:
+				homedir = glob.glob(os.path.expanduser("~/"))
+				dbdir = homedir[0] +".Zeitgeist"
+				try:
+					os.mkdir(dbdir)
+				except:
+					pass
+				shutil.copy("gzg.sqlite", dbdir)	  
+			except:
+				print "Unexpected error creating database:", sys.exc_info()[0]	
+			return glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
+		else:
+			return path
+
+	def _action(self):
+		self.insert_items(self.items)
+		if thread_pool.queueEmpty():
+			thread_pool.terminate()
+		
+		      
+
+	def insert_items(self, items):
+		for item in items:
+			try:
+				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)', (item.timestamp,
+					None,
+					item.uri,
+					item.use,
+					str(item.timestamp)+"-"+item.uri))
+				try:
+					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?)', (item.uri,
+						item.name,
+						item.comment,
+						item.mimetype,
+						item.tags,
+						item.count,
+						item.use,
+						item.type,
+						item.icon))
+						
+				except Exception, ex:
+					pass
+					#print "---------------------------------------------------------------------------"					
+					#print ex
+					#print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
+					#print "---------------------------------------------------------------------------"	
+				
+				try:
+					# Add tags into the database
+					# FIXME: Sometimes Data.tags is a string and sometimes it is a list.
+					# TODO: Improve consistency.
+					if item.tags != "" and item.tags != []:
+						for tag in item.get_tags():
+							self.cursor.execute('INSERT INTO tags VALUES (?,?,?)', (tag.capitalize(), item.uri,item.timestamp))
+				except Exception, ex:
+					print "Error inserting tags:"
+					print ex
+
+			except sqlite3.IntegrityError, ex:
+					pass
+		self.connection.commit()
+		
+
+
+thread_pool = ThreadPool(1)
 datasink= DataSinkSource()

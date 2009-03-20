@@ -8,15 +8,17 @@ import gc
 import os
 from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 import time
+import thread
 
-class DBConnector:
+class DBConnector(DataProvider):
 	
 	def __init__(self):
 		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
 		path = self.create_db(path)
-		self.connection = sqlite3.connect(path[0], True)
+		self.connection = sqlite3.connect(path[0], True, check_same_thread=False)
 		self.cursor = self.connection.cursor()
 		self.offset = 0
+		
 	
 	def create_db(self, path):
 		if len(path) == 0:
@@ -41,6 +43,9 @@ class DBConnector:
 			return 0
 		else:
 			return result[0]
+
+	def insert_items_threaded(self,items):
+		thread.start_new(self.insert_items, (items,))
 		
 	def insert_items(self, items):
 		for item in items:
@@ -82,8 +87,10 @@ class DBConnector:
 			except sqlite3.IntegrityError, ex:
 					pass
 		self.connection.commit()
+		
 
-		   
+
+	   
 	def get_items(self,min,max):
 		t1 = time.time()
 		for t in self.cursor.execute("SELECT start, uri FROM timetable WHERE usage!='linked' and start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():

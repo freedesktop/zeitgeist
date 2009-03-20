@@ -13,10 +13,6 @@ from zeitgeist_engine.zeitgeist_util import launcher
 
 class TimelineWidget(gtk.ScrolledWindow):
 	
-	# Constants
-	DAY = 1
-	WEEK = 2
-	MONTH = 4
 
 	def __init__(self):
 		# Initialize superclass
@@ -47,7 +43,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Connect to the datasink's signals
 		datasink.connect("reload", self.load_month)
-		
+		self.offset=0
 		# Load the GUI
 		self.load_month()
 	
@@ -137,8 +133,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.connect('set-focus-child', self.focus_in, adj) 
 						self.dayboxes.pack_start(daybox)
 						self.days[day]=daybox
-		
-			
+					
 	def load_month(self, widget=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
@@ -153,11 +148,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
 		
+		
 		# Get the begin and end of this month
 		# each tuple is of format (year, month, day, hours, minutes,
 		# seconds, weekday, day_of_year, daylight savings) 
-		begin = (date[0], date[1]+1, 1, 0,0,0,0,0,0)
-		end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
+		
+		day = date[2]
+		
+		begin = (date[0], date[1]+1, day-1+self.offset, 0,0,0,0,0,0)
+		end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,0)
 		
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
@@ -193,6 +192,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		Jump to the currently selected day in the calendar.
 		'''
+		self.load_month()
 		date = calendar.get_date()
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
 		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime(_("%d %b %Y"))
@@ -206,6 +206,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				w.hide_all()
 				if w.date == datestring:
 					w.show_all()
+		
 	
 	def set_relation(self,item):
 		related = RelatedWindow()
@@ -765,9 +766,11 @@ class BrowserBar (gtk.Toolbar):
 		self.back = gtk.ToolButton("gtk-go-back")
 		self.back.set_label("Older")
 		self.back.set_expand(True)
+		self.back.connect("clicked",self.add_day)
 		self.forward = gtk.ToolButton("gtk-go-forward")
 		self.forward.set_label("Newer")
 		self.forward.set_expand(True)
+		self.forward.connect("clicked",self.remove_day)
 		self.options = gtk.ToggleToolButton("gtk-select-color")
 		self.options.set_label("Filters")
 		self.options.set_expand(True)
@@ -781,8 +784,18 @@ class BrowserBar (gtk.Toolbar):
 		self.add(self.search)
 		self.search.set_expand(True)
 		
-	
+	def remove_day(self, x=None):
+		print timeline.offset
+		timeline.offset +=  1
+		timeline.load_month()
+		
+	def add_day(self, x=None):
+		print timeline.offset
+		timeline.offset -= 1
+		timeline.load_month()
+
 	def focus_today(self, x = None):
+		timeline.offset = 0
 		today = time.time()
 		month =  int(datetime.datetime.fromtimestamp(today).strftime(_("%m")))-1
 		year =  int(datetime.datetime.fromtimestamp(today).strftime(_("%Y")))

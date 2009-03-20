@@ -28,37 +28,40 @@ class EvolutionSource(DataProvider):
 		#self.emit("reload")
 		
 	def get_items(self):#
-		path = self.__copy_sqlite()
-		if path != -1:
-			# create a connection to evolution's sqlite database
-			self.connection = db.connect(path,True)
-			cursor = self.connection.cursor()
-			
-			# retrieve all urls from evolution's history
-			contents = "dsent, subject, mail_to"
-			history = cursor.execute("SELECT " + contents + 
-				" FROM Sent").fetchall()
-			
-			j = 0
-			for i in history:
-				try:
-					if i != None:
-						if i[1]==None:
-							i[1]==""
-						if i[2] == None:
-							i[2] ==""
-						name = i[1]+" \n"+i[2]
-						timestamp = i[0] 
-						yield Data(uri="mailto:"+i[2],
-									name=name,
-									timestamp=timestamp,
-									mimetype="mail",
-									icon=self.icon,
-									use="visited",
-									type="Mail")
-				except:
-					print "error fetching sent mail"
-			cursor.close()
+		try:
+			path = self.__copy_sqlite()
+			if path != -1:
+				# create a connection to evolution's sqlite database
+				self.connection = db.connect(path,True)
+				cursor = self.connection.cursor()
+				
+				# retrieve all urls from evolution's history
+				contents = "dsent, subject, mail_to"
+				history = cursor.execute("SELECT " + contents + 
+					" FROM Sent").fetchall()
+				
+				j = 0
+				for i in history:
+					try:
+						if i != None:
+							if i[1]==None:
+								i[1]==""
+							if i[2] == None:
+								i[2] ==""
+							name = i[1]+" \n"+i[2]
+							timestamp = i[0] 
+							yield Data(uri="mailto:"+i[2],
+										name=name,
+										timestamp=timestamp,
+										mimetype="mail",
+										icon=self.icon,
+										use="visited",
+										type="Mail")
+					except:
+						print "error fetching sent mail"
+				cursor.close()
+		except:
+				pass
 	
 	def __copy_sqlite(self):
 		'''
