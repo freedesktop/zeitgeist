@@ -84,27 +84,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 		for item in self.items:
 			if len(tagsplit) >0:
 				for tag in tagsplit:
-						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
-					        	if search:
-						       		if item.uri.lower().find(tag.lower())>-1:
-									
-									try:
-										if items.index(item)>-1:
-											pass
-									except:
-										items.append(item)
-										if day == item.datestring:
-											daybox.view.append_item(item)
-										else:
-											day=item.datestring
-											daybox = DayBox(item.datestring)
-											daybox.view.append_item(item)
-											adj = self.get_hadjustment()
-											daybox.connect('set-focus-child', self.focus_in, adj) 
-											self.dayboxes.pack_start(daybox)
-											self.days[day]=daybox
-									
-							else:
+						if search:
+							if item.uri.lower().find(tag.lower())>-1:
+								
 								try:
 									if items.index(item)>-1:
 										pass
@@ -119,8 +101,26 @@ class TimelineWidget(gtk.ScrolledWindow):
 										adj = self.get_hadjustment()
 										daybox.connect('set-focus-child', self.focus_in, adj) 
 										self.dayboxes.pack_start(daybox)
-										self.days[day]=daybox		
-								 
+										self.days[day]=daybox
+									
+						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
+
+							try:
+								if items.index(item)>-1:
+									pass
+							except:
+								items.append(item)
+								if day == item.datestring:
+									daybox.view.append_item(item)
+								else:
+									day=item.datestring
+									daybox = DayBox(item.datestring)
+									daybox.view.append_item(item)
+									adj = self.get_hadjustment()
+									daybox.connect('set-focus-child', self.focus_in, adj) 
+									self.dayboxes.pack_start(daybox)
+									self.days[day]=daybox		
+							 
 			else:
 				try:
 					if items.index(item)>-1:
