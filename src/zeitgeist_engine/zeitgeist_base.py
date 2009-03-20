@@ -51,7 +51,7 @@ class Data(gobject.GObject):
 		# Timestamps
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
-		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%d %b %Y"))
+		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
 		
 		self.type = type
 		self.icon = icon
