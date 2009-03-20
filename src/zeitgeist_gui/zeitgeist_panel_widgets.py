@@ -134,7 +134,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.dayboxes.pack_start(daybox)
 						self.days[day]=daybox
 					
-	def load_month(self, widget=None):
+	def load_month(self, widget=None,month=False):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -154,9 +154,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# seconds, weekday, day_of_year, daylight savings) 
 		
 		day = date[2]
-		
-		begin = (date[0], date[1]+1, day-1+self.offset, 0,0,0,0,0,0)
-		end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,0)
+		if not month:
+			begin = (date[0], date[1]+1, day-1+self.offset, 0,0,0,0,0,0)
+			end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,0)
+		else:
+			begin = (date[0], date[1]+1, 1, 0,0,0,0,0,0)
+			end = (date[0], date[1]+2, 1, 0,0,0,0,0,0)
 		
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
@@ -360,10 +363,12 @@ class CommonTagBrowser(gtk.HBox):
 		if x.get_active():
 			if tags.find(x.get_label()) == -1:
 				 tags = tags+","+x.get_label()
+				 timeline.load_month(month=True)
 		else:
 			if tags.find(x.get_label()) > -1:
 				 tags = tags.replace(","+x.get_label(), ",")
 				 tags = tags.replace(x.get_label()+"," ,",")
+				 timeline.load_month(month=False)
 		
 		timeline.apply_search(tags,False)
 			
