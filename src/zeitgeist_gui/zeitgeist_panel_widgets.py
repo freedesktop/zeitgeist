@@ -574,8 +574,10 @@ class SearchToolItem(gtk.ToolItem):
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
+		timeline.load_month(month=False)
 		
 	def do_search(self, text):
+		timeline.load_month(month=True)
 		if self.clearbtn and not self.clearbtn.child:
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
 			img.show()
