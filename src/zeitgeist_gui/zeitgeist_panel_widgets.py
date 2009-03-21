@@ -42,7 +42,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		calendar.connect("day-selected-double-click", self.jump_to_day,True)
 		
 		# Connect to the datasink's signals
-		datasink.connect("reload", self.load_month)
+		datasink.connect("reload", self.load_month_proxy)
 		self.offset=0
 		# Load the GUI
 		self.load_month()
@@ -134,6 +134,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.dayboxes.pack_start(daybox)
 						self.days[day]=daybox
 					
+	def load_month_proxy(self,widget=None,month=False):
+        	
+        	today = time.time()
+        	if today  >= self.begin and today<=self.end+86400 :
+        	    self.load_month()
+                    
 	def load_month(self, widget=None,month=False):
 		'''
 		Loads the current month selected on the calendar into the GUI.
@@ -161,6 +167,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 			begin = (date[0], date[1]+1, 1, 0,0,0,0,0,0)
 			end = (date[0], date[1]+2, 1, 0,0,0,0,0,0)
 		
+                    
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
 		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
