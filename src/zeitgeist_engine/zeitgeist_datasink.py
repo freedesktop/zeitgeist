@@ -176,6 +176,10 @@ class DataSinkSource(DataProvider):
 						
 		gc.collect()
 	
+	def get_bookmarks(self):
+		for i in  db.get_bookmarked_items():
+		      yield i
+	
 	def update_item(self, item):
 		print "Updating item: %s" % item
 		db.update_item(item)

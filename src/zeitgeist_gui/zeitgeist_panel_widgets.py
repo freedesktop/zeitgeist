@@ -9,7 +9,7 @@ import pango
 from gettext import ngettext, gettext as _
  
 from zeitgeist_engine.zeitgeist_datasink import datasink
-from zeitgeist_engine.zeitgeist_util import launcher
+from zeitgeist_engine.zeitgeist_util import launcher, bookmark_icon
 
 class TimelineWidget(gtk.ScrolledWindow):
 	
@@ -25,7 +25,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				
 		# Set up default properties
 		self.set_border_width(5)
-		self.set_size_request(800, 300)
+		self.set_size_request(400, 300)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.add_with_viewport(self.dayboxes)
 		
@@ -185,7 +185,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.items = []
 		for i in datasink.get_items_by_time(self.begin, self.end, '', True):
 			self.items.append(i)
-			i.connect("reload",self.set_relation)
+			i.connect("relate",self.set_relation)
+			i.connect("reload",self.load_month)
 			 
 		
 		# Update the GUI with the items that match the current search terms/tags
@@ -690,7 +691,7 @@ class DataIconView(gtk.TreeView):
 		gtk.TreeView.__init__(self)
 		self.parentdays = parentdays
 		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
-		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, str, gobject.TYPE_PYOBJECT)
+		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str,gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)
 		#self.use_cells = isinstance(self, gtk.CellLayout)
 		
 		icon_cell = gtk.CellRendererPixbuf()
@@ -701,16 +702,18 @@ class DataIconView(gtk.TreeView):
 		name_cell.set_property("yalign", 0.0)
 		name_cell.set_property("xalign", 0.0)
 		name_cell.set_property("wrap-width", 150)
-		name_column = gtk.TreeViewColumn("Name", name_cell, markup=2)
+		name_column = gtk.TreeViewColumn("Name", name_cell, markup=1)
 		
-		#count_cell = gtk.CellRendererText()
-		#count_column = gtk.TreeViewColumn("Count", count_cell, markup=3)
 		time_cell = gtk.CellRendererText()
-		time_column = gtk.TreeViewColumn("Time",time_cell,markup=1)
+		time_column = gtk.TreeViewColumn("Time",time_cell,markup=2)
+		
+		bookmark_cell = gtk.CellRendererPixbuf()
+		bookmark_column = gtk.TreeViewColumn("bookmark",bookmark_cell,pixbuf=3,expand=False)
 		
 		self.append_column(icon_column)
 		self.append_column(name_column)
 		self.append_column(time_column)
+		self.append_column(bookmark_column)
 		#self.append_column(count_column)
 	 
 		self.set_model(self.store)
@@ -734,14 +737,14 @@ class DataIconView(gtk.TreeView):
 		self.last_item = ""
 		self.iter = None
 	
-	def append_item(self, item):
+	def append_item(self, item,group=True):
 		# Add an item to the end of the store
-		self._set_item(item)
+		self._set_item(item,group=group)
 		self.set_model(self.store)
 	
-	def prepend_item(self, item):
+	def prepend_item(self, item,group=True):
 		# Add an item to the end of the store
-		self._set_item(item, False)
+		self._set_item(item, False,group=group)
 		self.set_model(self.store)
 		
 	def remove_item(self,item):
@@ -796,28 +799,35 @@ class DataIconView(gtk.TreeView):
 				uris.append(self.last_item.get_uri())
 				selection_data.set_uris(uris)
 	
-	def _set_item(self, item, append=True):
-
-	        func = self.store.append
+	def _set_item(self, item, append=True, group=True):
+		bookmark = None
+		if item.bookmark == True:
+			bookmark = bookmark_icon	
+		
+		func = self.store.append
 	        
 		if not item.timestamp == -1.0:
 			date="<span size='small' color='blue'>%s</span>" % item.get_time()
 		else:
 			date=""
 			
-	        if self.last_item!=item.type:
+	        if self.last_item!=item.type or group==False:
         		self.last_item = item.type
         		self.iter=func(None,[item.get_icon(24),
-		        			date,
 							"<span color='black'>%s</span>" % item.get_name(),
-							item.count,
+		        			date,
+							bookmark,
 							item])
         	else:
 	        	func(self.iter,[item.get_icon(24),
-		        			date,
 							"<span color='black'>%s</span>" % item.get_name(),
-							item.count,
+		        			date,
+							bookmark,
 							item])
+	        	
+	def get_icon_pixbuf(self, stock):
+		return self.render_icon(stock, size=gtk.ICON_SIZE_MENU,detail=None)
+
         	
 class BrowserBar (gtk.Toolbar):
 	def __init__(self):
@@ -837,6 +847,13 @@ class BrowserBar (gtk.Toolbar):
 		self.options = gtk.ToggleToolButton("gtk-select-color")
 		self.options.set_label("Filters")
 		self.options.set_expand(True)
+		
+		self.star = gtk.ToggleToolButton("gtk-about")
+		self.star.set_label("Bookmarks")
+		self.star.set_expand(True)
+		self.star.connect("toggled",self.toggle_bookmarks)
+		
+		self.add(self.star)
 		self.add(self.options)
 		self.add(self.back)
 		self.add(self.home)
@@ -852,6 +869,12 @@ class BrowserBar (gtk.Toolbar):
 		timeline.offset +=  1
 		timeline.load_month()
 		
+	def toggle_bookmarks(self, x=None):
+		if self.star.get_active():
+			bookmarks.show_all()
+		else:
+			bookmarks.hide_all()
+		
 	def add_day(self, x=None):
 		print timeline.offset
 		timeline.offset -= 1
@@ -866,10 +889,28 @@ class BrowserBar (gtk.Toolbar):
 		calendar.select_month(month,year)
 		calendar.select_day(day)
 		#calendar.do_day_selected_double_click()
-
+		
+class BookmarksView(gtk.VBox):
+	def __init__(self):
+		gtk.VBox.__init__(self)
+		self.label = gtk.Label("Bookmarks")
+		self.pack_start(self.label,False,False)
+		self.view = DataIconView()
+		self.pack_start(self.view,True,True)
+		self.get_bookmarks()
+		datasink.connect("reload",self.get_bookmarks)
+		
+	def get_bookmarks(self,x=None):
+		self.view.clear_store()
+		for item in datasink.get_bookmarks():
+			self.view.append_item(item,group=False)
+			
+			
+		
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
 timeline = TimelineWidget()
+bookmarks = BookmarksView()
 ctb1 = MostTagBrowser()
 ctb2 = RecentTagBrowser()
 bb = BrowserBar()

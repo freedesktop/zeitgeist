@@ -8,7 +8,7 @@ import gtk.glade
 import gobject
 import gnomeapplet
 
-from zeitgeist_panel_widgets import filtersBox,calendar,timeline,ctb1,ctb2,bb
+from zeitgeist_panel_widgets import filtersBox,calendar,timeline,ctb1,ctb2,bb,bookmarks
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class UI:
@@ -26,7 +26,7 @@ class UI:
 		self.topicWindow = gtk.Window()
 		self.topicWindow.set_title("Gnome Zeitgeist")
 		self.topicWindow.set_resizable(True)
-        	self.topicWindow.set_default_size(800,600)
+        	self.topicWindow.set_default_size(400,600)
 		self.topicWindow.connect("destroy", gtk.main_quit)
 		
 	        #self.topicWindow.set_icon_from_file("Hourglass.png")
@@ -49,7 +49,7 @@ class UI:
 		
 		# Sidebar
 		self.sidebar = gtk.VBox()
-		#self.sidebar.pack_start(calendar, False, False)
+		self.hBox.pack_start(bookmarks, False, False,5)
 		self.hBox.pack_start(self.sidebar, False, False,5)
 		
 		# Filter/options box
@@ -81,7 +81,9 @@ class UI:
 		# Show everything
 		self.topicWindow.show_all()
                 self.sidebar.hide_all()
+                bookmarks.hide_all()
         	bb.options.connect("toggled",self.toggle_filters)
+        
         
         def toggle_filters(self,x=None):
        	 	if bb.options.get_active():

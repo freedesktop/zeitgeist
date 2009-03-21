@@ -470,4 +470,4 @@ icon_theme = gtk.icon_theme_get_default()
 thumb_factory = gnome.ui.ThumbnailFactory("normal")
 launcher = LaunchManager()
 iconcollection = IconCollection()
-
+bookmark_icon = icon_factory.load_icon(gtk.STOCK_ABOUT, 24)

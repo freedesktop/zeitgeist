@@ -16,6 +16,7 @@ from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory, ico
 class Data(gobject.GObject):
 	__gsignals__ = {
 		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
+		"relate" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		"open" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		}
 
@@ -29,7 +30,8 @@ class Data(gobject.GObject):
 				 tags = "",
 				 count=1,
 				 use = "first use",
-				 type = "N/A"):
+				 type = "N/A",
+				 bookmark=False):
 		gobject.GObject.__init__(self)
 		
 		
@@ -47,7 +49,7 @@ class Data(gobject.GObject):
 		self.mimetype = mimetype
 		self.use = use
 		self.diff=""
-		
+		self.bookmark=bookmark
 		# Timestamps
 		self.timestamp = timestamp
 		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
@@ -150,6 +152,16 @@ class Data(gobject.GObject):
 			menu.append(timemachine)
 			del timemachine
 		'''
+		if self.bookmark:
+			bookmark = gtk.MenuItem("Unbookmark")
+			bookmark.connect("activate", lambda w:  self.add_bookmark())
+			bookmark.show()
+			menu.append(bookmark)
+		else:
+			bookmark = gtk.MenuItem("Bookmark")
+			bookmark.connect("activate", lambda w:  self.add_bookmark())
+			bookmark.show()
+			menu.append(bookmark)
 		
 		relate = gtk.MenuItem("Show related files")
 		relate.connect("activate", lambda w:  self.relate())
@@ -162,7 +174,18 @@ class Data(gobject.GObject):
 		menu.append(tag)
 	
 	def relate(self, x=None):
+		self.emit("relate")
+		pass
+	
+	def add_bookmark(self, x=None):
+		from zeitgeist_datasink import datasink
+		if self.bookmark == False:
+			self.bookmark = True
+		else:
+			self.bookmark = False
+		datasink.update_item(self)
 		self.emit("reload")
+	
 	
 	def tag_item(self):
 		taggingwindow = gtk.Window()

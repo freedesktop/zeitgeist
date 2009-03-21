@@ -56,7 +56,7 @@ class DBConnector(DataProvider):
 					item.use,
 					str(item.timestamp)+"-"+item.uri))
 				try:
-					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?)', (item.uri,
+					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)', (item.uri,
 						item.name,
 						item.comment,
 						item.mimetype,
@@ -64,7 +64,8 @@ class DBConnector(DataProvider):
 						item.count,
 						item.use,
 						item.type,
-						item.icon))
+						item.icon,
+						0))
 						
 				except Exception, ex:
 					pass
@@ -88,31 +89,39 @@ class DBConnector(DataProvider):
 					pass
 		self.connection.commit()
 		
-
-
-	   
 	def get_items(self,min,max):
 		t1 = time.time()
 		for t in self.cursor.execute("SELECT start, uri FROM timetable WHERE usage!='linked' and start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[1],)).fetchone()
 			if i:
-				  d = Data(uri=i[0], 
-				  timestamp= t[0], 
-				  name= i[1], 
-				  comment=i[2], 
-				  mimetype=  i[3], 
-				  tags=i[4], 
-				  count=i[5], 
-				  use =i[6], 
-				  type=i[7],
-				  icon=i[8])
-				  yield d 
+				bookmark = False
+				if i[9] ==1:
+					bookmark=True
+					
+				d = Data(uri=i[0], 
+			 		timestamp= t[0], 
+			 		name= i[1], 
+			  		comment=i[2], 
+			  		mimetype=  i[3], 
+			        tags=i[4], 
+			  		count=i[5], 
+			  		use =i[6], 
+			  		type=i[7],
+			  		icon=i[8],
+			  		bookmark=bookmark)
+			yield d 
 		gc.collect()
 		print time.time() -t1
 	 
 	def update_item(self,item):
 		self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
-		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?)',(item.uri,
+		bookmark = 0
+		if item.bookmark == True:
+			bookmark = 1
+		
+		print item.name + " 	" + "bookmark: "+ str(item.bookmark)
+		
+		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',(item.uri,
 																		item.name,
 																		item.comment,
 																		item.mimetype,
@@ -120,7 +129,8 @@ class DBConnector(DataProvider):
 																		item.count,
 																		item.use,
 																		item.type,
-																		item.icon))	
+																		item.icon,
+																		bookmark))	
 			
 		self.cursor.execute('DELETE FROM tags where uri=?', (item.uri,))
 		 
@@ -131,7 +141,7 @@ class DBConnector(DataProvider):
 				except:
 					pass
 				id = self.cursor.execute("SELECT rowid FROM tagids WHERE  tag=?",(tag,)).fetchone()
-				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(id[0],item.uri,item.timestano)) 			 
+				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(id[0],item.uri,item.timestamp)) 			 
 							
 		self.connection.commit()
 		 
@@ -221,13 +231,26 @@ class DBConnector(DataProvider):
 				uri = values[index][1]
 				i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
 				if i:
-						d= Data(uri=i[0],timestamp= -1.0, name= i[1], comment=i[2], mimetype=  i[3], tags=i[4], count=i[5], use =i[6], type=i[7])
-						items.append(d)
+					bookmark = False
+					if i[9] ==1:
+						bookmark=True
+						
+					d = Data(uri=i[0], 
+				 		timestamp= t[0], 
+				 		name= i[1], 
+				  		comment=i[2], 
+				  		mimetype=  i[3], 
+				        tags=i[4], 
+				  		count=i[5], 
+				  		use =i[6], 
+				  		type=i[7],
+				  		icon=i[8],
+				  		bookmark=bookmark)
+					items.append(d)
 			except:
 				pass
 		return items
-		
-		
+				
 	def numeric_compare(x, y):
 		if x[0]>y[0]:
 			return 1
@@ -236,5 +259,25 @@ class DBConnector(DataProvider):
 		else: # x<y
 			return -1
  
+		
+	def get_bookmarked_items(self):
+		t1 = time.time()
+		for i in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
+				if i:
+					d = Data(uri=i[0], 
+				 		timestamp= -1, 
+				 		name= i[1], 
+				  		comment=i[2], 
+				  		mimetype=  i[3], 
+				        tags=i[4], 
+				  		count=i[5], 
+				  		use =i[6], 
+				  		type=i[7],
+				  		icon=i[8],
+				  		bookmark=True)
+				yield d 
+		gc.collect()
+		print time.time() -t1
+	 
 
 db=DBConnector()
