@@ -397,7 +397,7 @@ class RecentTagBrowser(gtk.HBox):
             self.view.remove(w)
         
         for tag in datasink.get_recent_used_tags(5,begin,end):
-            btn = gtk.ToggleButton(tag)
+            btn = gtk.ToggleButton(str(tag))
             #btn.set_relief(gtk.RELIEF_NONE)
             btn.set_focus_on_click(False)
             #label.set_use_underline(True)
