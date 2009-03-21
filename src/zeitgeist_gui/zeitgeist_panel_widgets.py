@@ -893,10 +893,36 @@ class BrowserBar (gtk.Toolbar):
 class BookmarksView(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
+
+		vbox=gtk.VBox()
+		
 		self.label = gtk.Label("Bookmarks")
-		self.pack_start(self.label,False,False)
+		self.label.set_padding(5,5)
+		vbox.pack_start(self.label,False,True)
 		self.view = DataIconView()
-		self.pack_start(self.view,True,True)
+
+		evbox = gtk.EventBox()
+		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
+		evbox1 = gtk.EventBox()
+		evbox1.set_border_width(1)
+		evbox1.add(vbox)
+		evbox.add(evbox1)
+		
+		
+				
+		
+        	evbox2 = gtk.EventBox()
+		evbox2.set_border_width(5)
+		evbox2.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
+        	evbox3 = gtk.EventBox()
+        	evbox3.set_border_width(1)
+        	evbox3.add(self.view)
+        	evbox2.add(evbox3)
+            
+		
+		
+		vbox.pack_start(evbox2,True,True)
+		self.pack_start(evbox,True,True)
 		self.get_bookmarks()
 		datasink.connect("reload",self.get_bookmarks)
 		

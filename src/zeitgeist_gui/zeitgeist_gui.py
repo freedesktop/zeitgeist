@@ -49,7 +49,8 @@ class UI:
 		
 		# Sidebar
 		self.sidebar = gtk.VBox()
-		self.hBox.pack_start(bookmarks, False, False,5)
+            
+	   	self.hBox.pack_start(bookmarks, False, False,5)
 		self.hBox.pack_start(self.sidebar, False, False,5)
 		
 		# Filter/options box
