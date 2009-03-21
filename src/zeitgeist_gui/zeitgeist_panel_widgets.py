@@ -25,7 +25,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				
 		# Set up default properties
 		self.set_border_width(5)
-		self.set_size_request(600, 400)
+		self.set_size_request(800, 300)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.add_with_viewport(self.dayboxes)
 		
@@ -311,25 +311,17 @@ class RelatedWindow(gtk.Window):
 		items=[]
 		uris.clear()
 						
-class CommonTagBrowser(gtk.HBox):
+class MostTagBrowser(gtk.HBox):
 	def __init__(self):
 		# Initialize superclass
 		gtk.HBox.__init__(self)
-		self.label = gtk.Label("Recently used tags :	")
+		self.label = gtk.Label("Most used tags :	")
 		self.set_border_width(2)
-		# Add a frame around the label
-		evbox = gtk.EventBox()
-		#evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
-		evbox1 = gtk.EventBox()
-		evbox1.set_border_width(2)
-		evbox1.add(self.label)
-		evbox.add(evbox1)
 		#self.label.set_padding(5, 5) 
-		self.pack_start(evbox, False, False,2)
+		self.pack_start(self.label, False, False,2)
 		self.scroll = gtk.ScrolledWindow()
 		self.view = gtk.HBox()
 		self.scroll.add_with_viewport(self.view)
-		self.set_border_width(5)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.pack_start(self.scroll,True,True)
 		self.show_all()
@@ -349,7 +341,7 @@ class CommonTagBrowser(gtk.HBox):
 		for w in self.view:
 			self.view.remove(w)
 		
-		for tag in datasink.get_most_used_tags(10,begin,end):
+		for tag in datasink.get_most_used_tags(5,begin,end):
 			btn = gtk.ToggleButton(tag)
 			#btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
@@ -374,6 +366,61 @@ class CommonTagBrowser(gtk.HBox):
 		
 		timeline.apply_search(tags,False)
 			
+class RecentTagBrowser(gtk.HBox):
+    def __init__(self):
+        # Initialize superclass
+        gtk.HBox.__init__(self)
+        self.label = gtk.Label("Recently used tags :    ")
+        self.set_border_width(2)
+        #self.label.set_padding(5, 5) 
+        self.pack_start(self.label, False, False,2)
+        self.scroll = gtk.ScrolledWindow()
+        self.view = gtk.HBox()
+        self.scroll.add_with_viewport(self.view)
+        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
+        self.pack_start(self.scroll,True,True)
+        self.show_all()
+        self.items = []
+        
+        self.get_common_tags()
+        
+        datasink.connect("reload", self.get_common_tags)
+    
+    def get_common_tags(self,x=None):
+        
+        date = calendar.get_date()
+        
+        begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
+        end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
+        
+        for w in self.view:
+            self.view.remove(w)
+        
+        for tag in datasink.get_recent_used_tags(5,begin,end):
+            btn = gtk.ToggleButton(tag)
+            #btn.set_relief(gtk.RELIEF_NONE)
+            btn.set_focus_on_click(False)
+            #label.set_use_underline(True)
+            self.view.pack_start(btn,True,True)
+            #btn.set_size_request(-1,-1)
+            btn.connect("toggled",self.toggle)
+            
+        self.show_all()
+        
+    def toggle(self,x=None):
+        tags = timeline.tags
+        if x.get_active():
+            if tags.find(x.get_label()) == -1:
+                 tags = tags+","+x.get_label()
+                 timeline.load_month(month=True)
+        else:
+            if tags.find(x.get_label()) > -1:
+                 tags = tags.replace(","+x.get_label(), ",")
+                 tags = tags.replace(x.get_label()+"," ,",")
+                 timeline.load_month(month=False)
+        
+        timeline.apply_search(tags,False)
+                       
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
@@ -816,5 +863,6 @@ class BrowserBar (gtk.Toolbar):
 calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
 timeline = TimelineWidget()
-ctb = CommonTagBrowser()
+ctb1 = MostTagBrowser()
+ctb2 = RecentTagBrowser()
 bb = BrowserBar()

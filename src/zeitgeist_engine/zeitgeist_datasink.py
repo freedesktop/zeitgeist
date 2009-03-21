@@ -215,6 +215,10 @@ class DataSinkSource(DataProvider):
 		for tag in db.get_most_tags(count,min,max):
 			yield tag
 
+	def get_recent_used_tags(self,count=20,min=0,max=sys.maxint):
+		for tag in db.get_recent_tags(count,min,max):
+			yield tag
+
 	def get_related_items(self,item):
 		for i in db.get_related_items(item):
 		  yield i

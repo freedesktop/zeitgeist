@@ -135,9 +135,17 @@ class DBConnector(DataProvider):
 							
 		self.connection.commit()
 		 
-	def get_most_tags(self,count=20,min=0,max=sys.maxint):
+	def get_recent_tags(self,count=20,min=0,max=sys.maxint):
 		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags WHERE timestamp >='+ str(min) +" AND timestamp <="+ str(max) +' GROUP BY tagid ORDER BY  timestamp DESC').fetchall()
 		
+		i = 0
+		while i < len(res) and i < count:
+			#tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?', (res[i][0],)).fetchone()
+			yield res[i][0]
+			i += 1
+			
+	def get_most_tags(self,count=20,min=0,max=sys.maxint):
+		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags GROUP BY tagid ORDER BY COUNT(uri) DESC').fetchall()
 		i = 0
 		while i < len(res) and i < count:
 			#tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?', (res[i][0],)).fetchone()

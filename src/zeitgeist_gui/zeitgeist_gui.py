@@ -8,7 +8,7 @@ import gtk.glade
 import gobject
 import gnomeapplet
 
-from zeitgeist_panel_widgets import filtersBox,calendar,timeline,ctb,bb
+from zeitgeist_panel_widgets import filtersBox,calendar,timeline,ctb1,ctb2,bb
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class UI:
@@ -26,15 +26,20 @@ class UI:
 		self.topicWindow = gtk.Window()
 		self.topicWindow.set_title("Gnome Zeitgeist")
 		self.topicWindow.set_resizable(True)
-        	self.topicWindow.set_default_size(800,400)
+        	self.topicWindow.set_default_size(800,600)
 		self.topicWindow.connect("destroy", gtk.main_quit)
 		
 	        #self.topicWindow.set_icon_from_file("Hourglass.png")
                 #gtk.window_set_default_icon_from_file("Hourglass.png")
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox()
-	        self.vBox.pack_start(bb,False,False)
-        	self.vBox.pack_start(ctb,False,False)
+	        tagbox = gtk.HBox()
+            
+        	tagbox.pack_start(ctb1,True,True,2)
+                tagbox.pack_start(ctb2,True,True,2)
+                self.vBox.pack_start(bb,False,False)
+                self.vBox.pack_start(tagbox,False,False)
+
 
 		self.topicWindow.add(self.vBox)
 		
@@ -68,10 +73,11 @@ class UI:
 		#self.notebook.append_page(timeline,gtk.Label("Timeline"))
 		#self.notebook.set_current_page(-1)
 		
-		# Status bar
-		statusbar = gtk.Statusbar()
-		self.vBox.pack_start(statusbar, False, False)
-		
+        
+	        # Status bar
+        	statusbar = gtk.Statusbar()
+        	self.vBox.pack_start(statusbar, False, False)
+        
 		# Show everything
 		self.topicWindow.show_all()
                 self.sidebar.hide_all()
