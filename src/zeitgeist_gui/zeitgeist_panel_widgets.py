@@ -134,13 +134,13 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.dayboxes.pack_start(daybox)
 						self.days[day]=daybox
 					
-	def load_month_proxy(self,widget=None,month=False):
+	def load_month_proxy(self,widget=None,month=False,force=False):
         	
         	today = time.time()
         	if today  >= self.begin and today<=self.end+86400 :
-        	    self.load_month()
+        	    self.load_month(month=month,force=force)
                     
-	def load_month(self, widget=None,month=False):
+	def load_month(self, widget=None,month=False,force=False):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -486,7 +486,7 @@ class FilterAndOptionBox(gtk.VBox):
 		else:
 			self.timefilter_active=False
 			print "timefilter inactive"
-	
+			
 	def _make_new_note(self,x):
 		launcher.launch_command("tomboy --new-note")
   
@@ -530,6 +530,9 @@ class CheckBox(gtk.CheckButton):
 			#search.emit("clear")
 		else:
 			self.source.set_active(False)
+		
+		timeline.load_month()
+	
 	  
 class NewFromTemplateDialog(gtk.FileChooserDialog):
 	'''
@@ -853,11 +856,12 @@ class BrowserBar (gtk.Toolbar):
 		self.star.set_expand(True)
 		self.star.connect("toggled",self.toggle_bookmarks)
 		
+		
+		self.add(self.back)
+		self.add(self.forward)
+		self.add(self.home)
 		self.add(self.star)
 		self.add(self.options)
-		self.add(self.back)
-		self.add(self.home)
-		self.add(self.forward)
 		
 		
 		self.search = SearchToolItem()
