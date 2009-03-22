@@ -11,13 +11,18 @@ from gettext import ngettext, gettext as _
 from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_util import launcher
 
-class TimelineWidget(gtk.ScrolledWindow):
+class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
+	__gsignals__ = {
+		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
+		}
+
 	
 
 	def __init__(self):
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
 		
+		gobject.GObject.__init__(self)
 		# Add children widgets
 		self.view = DataIconView(True)
 		self.dayboxes=gtk.HBox(False,True)
@@ -198,6 +203,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Manually force garbage collection
 		gc.collect()
+		self.emit("reload")
 		
 	def jump_to_day(self, widget,focus=False):
 		'''
@@ -328,7 +334,7 @@ class TagBrowser(gtk.HBox):
         
         self.combobox = gtk.combo_box_new_text()
         self.combobox.append_text('Recently used tags')
-        self.combobox.append_text('Most used tags')
+        self.combobox.append_text('Most used tags in view')
         
         self.pack_start(self.combobox, False, False)
         
@@ -346,6 +352,7 @@ class TagBrowser(gtk.HBox):
         
         self.func()
         
+        timeline.connect("reload", self.reload_tags)
     
         self.combobox.connect('changed', self.changed_cb)
         self.combobox.set_active(0)
@@ -353,7 +360,15 @@ class TagBrowser(gtk.HBox):
         datasink.connect("reload", lambda x: self.func)
         return
 
-    def changed_cb(self, combobox):
+    def reload_tags(self,x=None):
+    	model = self.combobox.get_model()
+        index = self.combobox.get_active()
+        if index == 0:
+        	self.func = self.get_recent_tags()
+        else:
+        	self.func = self.get_most_tags()
+
+    def changed_cb(self, combobox=None):
         model = self.combobox.get_model()
         index = self.combobox.get_active()
         if index == 0:
@@ -369,7 +384,7 @@ class TagBrowser(gtk.HBox):
         
         begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
         end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
-        
+		
         for w in self.view:
             self.view.remove(w)
         
@@ -386,16 +401,14 @@ class TagBrowser(gtk.HBox):
         
     def get_most_tags(self,x=None):
 		
-		date = calendar.get_date()
-		
-		begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
-		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
-		
+		begin = timeline.begin
+		end = timeline.end
+        
 		for w in self.view:
 			self.view.remove(w)
 		
 		for tag in datasink.get_most_used_tags(10,begin,end):
-			btn = gtk.ToggleButton(tag)
+			btn = gtk.ToggleButton(str(tag))
 			#btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			#label.set_use_underline(True)
@@ -809,7 +822,8 @@ class DataIconView(gtk.TreeView):
 							item.get_bookmark_icon(),
 							item])
         	else:
-	        	func(self.iter,[item.get_icon(24),
+	        	func(None,[item.get_icon(24),
+	        	#func(self.iter,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
 							item.get_bookmark_icon(),
