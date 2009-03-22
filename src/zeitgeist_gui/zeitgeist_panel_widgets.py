@@ -318,70 +318,21 @@ class RelatedWindow(gtk.Window):
 		
 		items=[]
 		uris.clear()
-						
-class MostTagBrowser(gtk.HBox):
-	def __init__(self):
-		# Initialize superclass
-		gtk.HBox.__init__(self)
-		self.label = gtk.Label("Most used tags :	")
-		self.set_border_width(2)
-		#self.label.set_padding(5, 5) 
-		self.pack_start(self.label, False, False,2)
-		self.scroll = gtk.ScrolledWindow()
-		self.view = gtk.HBox()
-		self.scroll.add_with_viewport(self.view)
-		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
-		self.pack_start(self.scroll,True,True)
-		self.show_all()
-		self.items = []
 		
-		self.get_common_tags()
-		
-		datasink.connect("reload", self.get_common_tags)
-	
-	def get_common_tags(self,x=None):
-		
-		date = calendar.get_date()
-		
-		begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
-		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
-		
-		for w in self.view:
-			self.view.remove(w)
-		
-		for tag in datasink.get_most_used_tags(5,begin,end):
-			btn = gtk.ToggleButton(tag)
-			#btn.set_relief(gtk.RELIEF_NONE)
-			btn.set_focus_on_click(False)
-			#label.set_use_underline(True)
-			self.view.pack_start(btn,True,True)
-			#btn.set_size_request(-1,-1)
-			btn.connect("toggled",self.toggle)
-			
-		self.show_all()
-		
-	def toggle(self,x=None):
-		tags = timeline.tags
-		if x.get_active():
-			if tags.find(x.get_label()) == -1:
-				 tags = tags+","+x.get_label()
-				 timeline.load_month(month=True)
-		else:
-			if tags.find(x.get_label()) > -1:
-				 tags = tags.replace(","+x.get_label(), ",")
-				 tags = tags.replace(x.get_label()+"," ,",")
-				 timeline.load_month(month=False)
-		
-		timeline.apply_search(tags,False)
-			
-class RecentTagBrowser(gtk.HBox):
+class TagBrowser(gtk.HBox):
     def __init__(self):
         # Initialize superclass
         gtk.HBox.__init__(self)
-        self.label = gtk.Label("Recently used tags :    ")
-        self.set_border_width(2)
-        #self.label.set_padding(5, 5) 
-        self.pack_start(self.label, False, False,2)
+        self.combobox = gtk.combo_box_new_text()
+        
+        self.combobox = gtk.combo_box_new_text()
+        self.combobox.append_text('Most used tags')
+        self.combobox.append_text('Recently used tags')
+        
+        self.pack_start(self.combobox, False, False,2)
+        
+        
+        
         self.scroll = gtk.ScrolledWindow()
         self.view = gtk.HBox()
         self.scroll.add_with_viewport(self.view)
@@ -390,11 +341,28 @@ class RecentTagBrowser(gtk.HBox):
         self.show_all()
         self.items = []
         
-        self.get_common_tags()
+        self.func = self.get_recent_tags
         
-        datasink.connect("reload", self.get_common_tags)
+        self.func()
+        
     
-    def get_common_tags(self,x=None):
+        self.combobox.connect('changed', self.changed_cb)
+        self.combobox.set_active(0)
+        
+        datasink.connect("reload", lambda x: self.func())
+        return
+
+    def changed_cb(self, combobox):
+        model = self.combobox.get_model()
+        index = self.combobox.get_active()
+        if index == 0:
+        	self.func = self.get_recent_tags()
+        else:
+        	self.func = self.get_most_tags()
+
+    
+    
+    def get_recent_tags(self,x=None):
         
         date = calendar.get_date()
         
@@ -404,7 +372,7 @@ class RecentTagBrowser(gtk.HBox):
         for w in self.view:
             self.view.remove(w)
         
-        for tag in datasink.get_recent_used_tags(5,begin,end):
+        for tag in datasink.get_recent_used_tags(10,begin,end):
             btn = gtk.ToggleButton(str(tag))
             #btn.set_relief(gtk.RELIEF_NONE)
             btn.set_focus_on_click(False)
@@ -414,6 +382,27 @@ class RecentTagBrowser(gtk.HBox):
             btn.connect("toggled",self.toggle)
             
         self.show_all()
+        
+    def get_most_tags(self,x=None):
+		
+		date = calendar.get_date()
+		
+		begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
+		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
+		
+		for w in self.view:
+			self.view.remove(w)
+		
+		for tag in datasink.get_most_used_tags(10,begin,end):
+			btn = gtk.ToggleButton(tag)
+			#btn.set_relief(gtk.RELIEF_NONE)
+			btn.set_focus_on_click(False)
+			#label.set_use_underline(True)
+			self.view.pack_start(btn,True,True)
+			#btn.set_size_request(-1,-1)
+			btn.connect("toggled",self.toggle)
+			
+		self.show_all()
         
     def toggle(self,x=None):
         tags = timeline.tags
@@ -913,7 +902,6 @@ class BookmarksView(gtk.VBox):
 		evbox.add(evbox1)
 		
 		
-				
 		
         	evbox2 = gtk.EventBox()
 		evbox2.set_border_width(5)
@@ -941,6 +929,5 @@ calendar = CalendarWidget()
 filtersBox = FilterAndOptionBox()
 timeline = TimelineWidget()
 bookmarks = BookmarksView()
-ctb1 = MostTagBrowser()
-ctb2 = RecentTagBrowser()
+tb =TagBrowser()
 bb = BrowserBar()

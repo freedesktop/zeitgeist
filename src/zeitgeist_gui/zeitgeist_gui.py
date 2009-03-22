@@ -8,7 +8,7 @@ import gtk.glade
 import gobject
 import gnomeapplet
 
-from zeitgeist_panel_widgets import filtersBox,calendar,timeline,ctb1,ctb2,bb,bookmarks
+from zeitgeist_panel_widgets import filtersBox,calendar,timeline,tb,bb,bookmarks
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class UI:
@@ -35,8 +35,7 @@ class UI:
 		self.vBox = gtk.VBox()
 	        tagbox = gtk.HBox()
             
-        	tagbox.pack_start(ctb1,True,True,2)
-                tagbox.pack_start(ctb2,True,True,2)
+        	tagbox.pack_start(tb,True,True,2)
                 self.vBox.pack_start(bb,False,False)
                 self.vBox.pack_start(tagbox,False,False)
 
