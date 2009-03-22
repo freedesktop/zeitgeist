@@ -107,7 +107,7 @@ class IconFactory:
 	def load_icon_from_path(self, icon_path, icon_size = None):
 		try:
 			if icon_size:
-				pic = gtk.gdk.pixbuf_new_from_file_at_size(icon_path, -1, int(icon_size))
+				pic = gtk.gdk.pixbuf_new_from_file_at_size(icon_path,  int(icon_size), int(icon_size))
 				return pic
 			else:
 				pic =  gtk.gdk.pixbuf_new_from_file(icon_path)
@@ -134,6 +134,21 @@ class IconFactory:
 			if retval:
 				return retval
 		return None
+
+	def transparentize(self, pixbuf, percent):
+		pixbuf = pixbuf.add_alpha(False, '0', '0', '0')
+	        for row in pixbuf.get_pixels_array():
+        	    for pix in row:
+               		 pix[3] = min(int(pix[3]), 255 - (percent * 0.01 * 255))
+       		return pixbuf
+
+	def greyscale(self, pixbuf):
+		pixbuf = pixbuf.copy()
+	        for row in pixbuf.get_pixels_array():
+	            for pix in row:
+	                pix[0] = pix[1] = pix[2] = (int(pix[0]) + int(pix[1]) + int(pix[2])) / 3
+		return pixbuf
+
 
 	def load_icon(self, icon_value, icon_size, force_size = True):
 	
@@ -470,4 +485,8 @@ icon_theme = gtk.icon_theme_get_default()
 thumb_factory = gnome.ui.ThumbnailFactory("normal")
 launcher = LaunchManager()
 iconcollection = IconCollection()
+
+
 bookmark_icon = icon_factory.load_icon(gtk.STOCK_ABOUT, 24)
+unbookmark_icon = icon_factory.transparentize(icon_factory.greyscale(bookmark_icon),70)
+

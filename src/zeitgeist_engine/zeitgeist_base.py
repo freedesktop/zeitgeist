@@ -11,7 +11,7 @@ import gtk
 import glob
 from gettext import ngettext, gettext as _
 
-from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory, iconcollection
+from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory, iconcollection,bookmark_icon,unbookmark_icon
 
 class Data(gobject.GObject):
 	__gsignals__ = {
@@ -62,7 +62,6 @@ class Data(gobject.GObject):
 		self.original_source = None
 		self.textview = gtk.TextView()
 		
-		
 	def get_icon(self, icon_size):
 		if iconcollection.dict.has_key(self.uri):
 			return iconcollection.dict[self.uri]
@@ -87,7 +86,14 @@ class Data(gobject.GObject):
 			iconcollection.dict[self.uri] = thumb
 			return thumb
 	
-		
+	def get_bookmark_icon(self):
+		#bookmark = unbookmark_icon
+		bookmark = None
+
+		if self.bookmark == True:
+			bookmark = bookmark_icon	
+		return bookmark
+		  
 	def get_icon_static_done(self,icon_size):
 		temp = self.icon
 			

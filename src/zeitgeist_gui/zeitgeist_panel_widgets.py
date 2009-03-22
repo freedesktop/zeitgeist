@@ -9,7 +9,7 @@ import pango
 from gettext import ngettext, gettext as _
  
 from zeitgeist_engine.zeitgeist_datasink import datasink
-from zeitgeist_engine.zeitgeist_util import launcher, bookmark_icon
+from zeitgeist_engine.zeitgeist_util import launcher
 
 class TimelineWidget(gtk.ScrolledWindow):
 	
@@ -323,13 +323,14 @@ class TagBrowser(gtk.HBox):
     def __init__(self):
         # Initialize superclass
         gtk.HBox.__init__(self)
+        self.set_size_request(-1,32)
         self.combobox = gtk.combo_box_new_text()
         
         self.combobox = gtk.combo_box_new_text()
-        self.combobox.append_text('Most used tags')
         self.combobox.append_text('Recently used tags')
+        self.combobox.append_text('Most used tags')
         
-        self.pack_start(self.combobox, False, False,2)
+        self.pack_start(self.combobox, False, False)
         
         
         
@@ -349,7 +350,7 @@ class TagBrowser(gtk.HBox):
         self.combobox.connect('changed', self.changed_cb)
         self.combobox.set_active(0)
         
-        datasink.connect("reload", lambda x: self.func())
+        datasink.connect("reload", lambda x: self.func)
         return
 
     def changed_cb(self, combobox):
@@ -792,9 +793,6 @@ class DataIconView(gtk.TreeView):
 				selection_data.set_uris(uris)
 	
 	def _set_item(self, item, append=True, group=True):
-		bookmark = None
-		if item.bookmark == True:
-			bookmark = bookmark_icon	
 		
 		func = self.store.append
 	        
@@ -808,13 +806,13 @@ class DataIconView(gtk.TreeView):
         		self.iter=func(None,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
-							bookmark,
+							item.get_bookmark_icon(),
 							item])
         	else:
 	        	func(self.iter,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
-							bookmark,
+							item.get_bookmark_icon(),
 							item])
 	        	
 	def get_icon_pixbuf(self, stock):
@@ -823,26 +821,31 @@ class DataIconView(gtk.TreeView):
         	
 class BrowserBar (gtk.Toolbar):
 	def __init__(self):
-		gtk.Toolbar.__init__(self)
+		gtk.Toolbar.__init__(self)   
+		self.tooltips = gtk.Tooltips()
+
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
-		self.home.set_expand(True)
 		self.home.connect("clicked",self.focus_today)
+		self.tooltips.set_tip(self.home , "Show recent activities")
+
 		self.back = gtk.ToolButton("gtk-go-back")
 		self.back.set_label("Older")
-		self.back.set_expand(True)
 		self.back.connect("clicked",self.add_day)
+		self.tooltips.set_tip(self.back , "Go back in time")
+		
 		self.forward = gtk.ToolButton("gtk-go-forward")
 		self.forward.set_label("Newer")
-		self.forward.set_expand(True)
 		self.forward.connect("clicked",self.remove_day)
+		self.tooltips.set_tip(self.forward , "Go to the future")
+		
 		self.options = gtk.ToggleToolButton("gtk-select-color")
+		self.tooltips.set_tip(self.options , "Filter your current view")
 		self.options.set_label("Filters")
-		self.options.set_expand(True)
 		
 		self.star = gtk.ToggleToolButton("gtk-about")
 		self.star.set_label("Bookmarks")
-		self.star.set_expand(True)
+		self.tooltips.set_tip(self.star , "View bookmarked activities")
 		self.star.connect("toggled",self.toggle_bookmarks)
 		
 		
@@ -855,7 +858,6 @@ class BrowserBar (gtk.Toolbar):
 		
 		self.search = SearchToolItem()
 		self.add(self.search)
-		self.search.set_expand(True)
 		
 	def remove_day(self, x=None):
 		print timeline.offset
@@ -926,8 +928,8 @@ class BookmarksView(gtk.VBox):
 			
 		
 calendar = CalendarWidget()
-filtersBox = FilterAndOptionBox()
 timeline = TimelineWidget()
+filtersBox = FilterAndOptionBox()
 bookmarks = BookmarksView()
 tb =TagBrowser()
 bb = BrowserBar()
