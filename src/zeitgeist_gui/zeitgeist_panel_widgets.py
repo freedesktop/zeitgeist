@@ -352,7 +352,7 @@ class TagBrowser(gtk.HBox):
         
         self.func()
         
-        timeline.connect("reload", self.reload_tags)
+        #timeline.connect("reload", self.reload_tags)
     
         self.combobox.connect('changed', self.changed_cb)
         self.combobox.set_active(0)
