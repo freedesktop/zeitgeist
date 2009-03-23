@@ -334,15 +334,19 @@ class TagBrowser(gtk.HBox):
         
         self.combobox = gtk.combo_box_new_text()
         self.combobox.append_text('Recently used tags')
-        self.combobox.append_text('Most used tags in view')
+        self.combobox.append_text('Most used tags')
         
         self.pack_start(self.combobox, False, False)
         
         
         
         self.scroll = gtk.ScrolledWindow()
+        self.ev = gtk.EventBox()
+        self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
+
         self.view = gtk.HBox()
-        self.scroll.add_with_viewport(self.view)
+        self.ev.add(self.view)
+        self.scroll.add_with_viewport(self.ev)
         self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
         self.pack_start(self.scroll,True,True)
         self.show_all()
@@ -390,7 +394,7 @@ class TagBrowser(gtk.HBox):
         
         for tag in datasink.get_recent_used_tags(10,begin,end):
             btn = gtk.ToggleButton(str(tag))
-            #btn.set_relief(gtk.RELIEF_NONE)
+            btn.set_relief(gtk.RELIEF_NONE)
             btn.set_focus_on_click(False)
             #label.set_use_underline(True)
             self.view.pack_start(btn,True,True)
@@ -409,7 +413,7 @@ class TagBrowser(gtk.HBox):
 		
 		for tag in datasink.get_most_used_tags(10,begin,end):
 			btn = gtk.ToggleButton(str(tag))
-			#btn.set_relief(gtk.RELIEF_NONE)
+			btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			#label.set_use_underline(True)
 			self.view.pack_start(btn,True,True)
@@ -853,6 +857,7 @@ class BrowserBar (gtk.Toolbar):
 		self.forward.connect("clicked",self.remove_day)
 		self.tooltips.set_tip(self.forward , "Go to the future")
 		
+		
 		self.options = gtk.ToggleToolButton("gtk-select-color")
 		self.tooltips.set_tip(self.options , "Filter your current view")
 		self.options.set_label("Filters")
@@ -863,10 +868,16 @@ class BrowserBar (gtk.Toolbar):
 		self.star.connect("toggled",self.toggle_bookmarks)
 		
 		
+		self.tags = gtk.ToggleToolButton("gtk-dialog-warning")
+		self.tags.set_label("Tags")
+		self.tooltips.set_tip(self.tags , "View tagged activities")
+		self.tags.connect("toggled",self.toggle_tags)
+		
 		self.add(self.back)
 		self.add(self.forward)
 		self.add(self.home)
 		self.add(self.star)
+		self.add(self.tags)
 		self.add(self.options)
 		
 		
@@ -883,6 +894,13 @@ class BrowserBar (gtk.Toolbar):
 			bookmarks.show_all()
 		else:
 			bookmarks.hide_all()
+			
+	
+	def toggle_tags(self, x=None):
+		if self.tags.get_active():
+			tb.show_all()
+		else:
+			tb.hide_all()
 		
 	def add_day(self, x=None):
 		print timeline.offset
@@ -943,7 +961,7 @@ class BookmarksView(gtk.VBox):
 		
 calendar = CalendarWidget()
 timeline = TimelineWidget()
+tb =TagBrowser()
 filtersBox = FilterAndOptionBox()
 bookmarks = BookmarksView()
-tb =TagBrowser()
 bb = BrowserBar()

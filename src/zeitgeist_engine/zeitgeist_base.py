@@ -87,11 +87,13 @@ class Data(gobject.GObject):
 			return thumb
 	
 	def get_bookmark_icon(self):
-		#bookmark = unbookmark_icon
-		bookmark = None
+		bookmark = unbookmark_icon
+		#bookmark = None	
 
 		if self.bookmark == True:
-			bookmark = bookmark_icon	
+			bookmark = bookmark_icon
+			#bookmark = None	
+
 		return bookmark
 		  
 	def get_icon_static_done(self,icon_size):

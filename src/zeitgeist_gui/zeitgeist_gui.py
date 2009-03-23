@@ -50,7 +50,6 @@ class UI:
 		self.sidebar = gtk.VBox()
             
 	   	self.hBox.pack_start(bookmarks, False, False,5)
-		self.hBox.pack_start(self.sidebar, False, False,5)
 		
 		# Filter/options box
 		self.sidebar.pack_start(filtersBox, True, True)
@@ -66,6 +65,7 @@ class UI:
 		evbox.add(evbox1)
 		
 		self.hBox.pack_start(evbox, True, True,5)
+	        self.hBox.pack_start(self.sidebar, False, False,5)
                 #self.hBox.pack_start(ctb, True, True,5)
 		
 		# Timeline view
@@ -75,13 +75,14 @@ class UI:
 		
         
 	        # Status bar
-        	statusbar = gtk.Statusbar()
-        	self.vBox.pack_start(statusbar, False, False)
+                statusbar = gtk.Statusbar()
+                self.vBox.pack_start(statusbar, False, False)
         
 		# Show everything
 		self.topicWindow.show_all()
                 self.sidebar.hide_all()
                 bookmarks.hide_all()
+                tb.hide_all()
         	bb.options.connect("toggled",self.toggle_filters)
         
         
