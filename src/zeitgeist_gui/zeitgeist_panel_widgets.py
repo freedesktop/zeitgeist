@@ -956,6 +956,7 @@ class BookmarksView(gtk.VBox):
 		self.view.clear_store()
 		for item in datasink.get_bookmarks():
 			self.view.append_item(item,group=False)
+		timeline.load_month(force=True)
 			
 			
 		
