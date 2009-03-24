@@ -5,7 +5,6 @@ import urllib
 import sys	   # for ImplementMe
 import inspect # for ImplementMe
 
-import dbus
 import gobject
 import gtk
 import gnome.ui
@@ -405,47 +404,7 @@ class LaunchManager:
 		   
 			return (child, startup_id)
 
-class DBusWrapper:
-	'''
-	Simple wrapper around DBUS object creation.  This works around older DBUS
-	bindings which did not create proxy objects if the service/interface is not
-	available.	If there is no proxy object, all member access will raise a
-	dbus.DBusException.
-	'''
 
-	def __init__(self, service, path = None, interface = None, program_name = None, bus = None):
-		assert service, "D-BUS Service name not valid"
-		self.__service = service
-		self.__obj = None
-
-		# NOTE: Some services use the same name for the path
-		self.__path = path or "/%s" % service.replace(".", "/")
-		self.__interface = interface or service
-
-		self.__program_name = program_name
-		self.__bus = bus
-
-	def __get_bus(self):
-		if not self.__bus:
-			try:
-				# pthon-dbus 0.80.x requires a mainloop to connect signals
-				from dbus.mainloop.glib import DBusGMainLoop
-				self.__bus = dbus.SessionBus(mainloop=DBusGMainLoop())
-			except ImportError:
-				self.__bus = dbus.SessionBus()
-		return self.__bus
-
-	def __get_obj(self):
-		if not self.__obj:
-			svc = self.__get_bus().get_object(self.__service, self.__path)
-			self.__obj = dbus.Interface(svc, self.__interface)
-		return self.__obj
-
-	def __getattr__(self, name):
-		try:
-			return getattr(self.__get_obj(), name)
-		except AttributeError:
-			raise dbus.DBusException
 
 class DiffFactory:
 	def __init__(self):
