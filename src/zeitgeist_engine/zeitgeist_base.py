@@ -52,7 +52,8 @@ class Data(gobject.GObject):
 		self.bookmark=bookmark
 		# Timestamps
 		self.timestamp = timestamp
-		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
+		#self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
+		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M %p"))
 		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
 		
 		self.type = type
