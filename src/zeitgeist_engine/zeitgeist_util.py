@@ -12,6 +12,7 @@ import gnomevfs
 import gconf
 from gettext import gettext as _
 import tempfile, shutil, os
+import Image
 
 class FileMonitor(gobject.GObject):
 	'''
@@ -256,7 +257,6 @@ class Thumbnailer:
 
 		return icon_factory.load_icon(icon_name, icon_size)
 
-
 	def _is_local_uri(self, uri):
 		# NOTE: gnomevfs.URI.is_local seems to hang for some URIs (e.g. ssh
 		#		or http).  So look in a list of local schemes which comes
@@ -404,8 +404,6 @@ class LaunchManager:
 		   
 			return (child, startup_id)
 
-
-
 class DiffFactory:
 	def __init__(self):
 		pass
@@ -438,13 +436,106 @@ class IconCollection:
 	def clear(self):
 		self.dict.clear()
 
+
+class GConfBridge(gobject.GObject):
+    DEFAULTS = {
+        'compress_empty_days'       : False, 
+        'show_note_button'      : True,
+        'show_file_button'      : True
+    }
+
+    ZEITGEIST_PREFIX = "/apps/zeitgeist/"
+
+    __gsignals__ = {
+        'changed' : (gobject.SIGNAL_RUN_LAST | gobject.SIGNAL_DETAILED, gobject.TYPE_NONE, ()),
+    }
+
+    def __init__(self, prefix = None):
+        gobject.GObject.__init__(self)
+
+        if not prefix:
+            prefix = self.ZEITGEIST_PREFIX
+        if prefix[-1] != "/":
+            prefix = prefix + "/"
+        self.prefix = prefix
+        
+        self.gconf_client = gconf.client_get_default()
+        self.gconf_client.add_dir(prefix[:-1], gconf.CLIENT_PRELOAD_RECURSIVE)
+
+        self.notify_keys = { }
+
+    def connect(self, detailed_signal, handler, *args):
+        # Ensure we are watching the GConf key
+        if detailed_signal.startswith("changed::"):
+            key = detailed_signal[len("changed::"):]
+            if not key.startswith(self.prefix):
+                key = self.prefix + key
+            if key not in self.notify_keys:
+                self.notify_keys[key] = self.gconf_client.notify_add(key, self._key_changed)
+
+        return gobject.GObject.connect(self, detailed_signal, handler, *args)
+
+    def get(self, key, default=None):
+        if not default:
+            if key in self.DEFAULTS:
+                default = self.DEFAULTS[key]
+                vtype = type(default)
+            else:
+                assert "Unknown GConf key '%s', and no default value" % key
+
+        vtype = type(default)
+        if vtype not in (bool, str, int):
+            assert "Invalid GConf key type '%s'" % vtype
+
+        if not key.startswith(self.prefix):
+            key = self.prefix + key
+
+        value = self.gconf_client.get(key)
+        if not value:
+            self.set(key, default)
+            return default
+
+        if vtype is bool:
+            return value.get_bool()
+        elif vtype is str:
+            return value.get_string()
+        elif vtype is int:
+            return value.get_int()
+        else:
+            return value
+
+    def set(self, key, value):
+        vtype = type(value)
+        if vtype not in (bool, str, int):
+            assert "Invalid GConf key type '%s'" % vtype
+
+        if not key.startswith(self.prefix):
+            key = self.prefix + key
+
+        if vtype is bool:
+            self.gconf_client.set_bool(key, value)
+        elif vtype is str:
+            self.gconf_client.set_string(key, value)
+        elif vtype is int:
+            self.gconf_client.set_int(key, value)
+
+    def _key_changed(self, client, cnxn_id, entry, data=None):
+        if entry.key.startswith(self.prefix):
+            key = entry.key[len(self.prefix):]
+        else:
+            key = entry.key
+        detailed_signal = "changed::%s" % key
+        self.emit(detailed_signal)
+
+
+
 difffactory=DiffFactory()
 icon_factory = IconFactory()
 icon_theme = gtk.icon_theme_get_default()
 thumb_factory = gnome.ui.ThumbnailFactory("normal")
 launcher = LaunchManager()
 iconcollection = IconCollection()
-
+gconf_bridge = GConfBridge()
 
 bookmark_icon = icon_factory.load_icon(gtk.STOCK_ABOUT, 24)
 unbookmark_icon = icon_factory.transparentize(icon_factory.greyscale(bookmark_icon),70)

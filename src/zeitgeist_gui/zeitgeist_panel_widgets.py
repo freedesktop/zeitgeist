@@ -6,10 +6,10 @@ import sys
 import gtk
 import gobject
 import pango
-from gettext import ngettext, gettext as _
+from gettext import ngettext, gettext as _ 
  
 from zeitgeist_engine.zeitgeist_datasink import datasink
-from zeitgeist_engine.zeitgeist_util import launcher
+from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 
 class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 	__gsignals__ = {
@@ -25,7 +25,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		gobject.GObject.__init__(self)
 		# Add children widgets
 		self.view = DataIconView(True)
-		self.dayboxes=gtk.HBox(False,True)
+		self.dayboxes=gtk.HBox(False,False)
 		self.days={}
 				
 		# Set up default properties
@@ -46,13 +46,17 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		calendar.connect("day-selected", self.jump_to_day)
 		calendar.connect("day-selected-double-click", self.jump_to_day,True)
 		
+		# GConf settings
+		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
+	        gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
+		
 		# Connect to the datasink's signals
 		datasink.connect("reload", self.load_month_proxy)
 		self.offset=0
 		# Load the GUI
 		self.load_month()
 	
-	def apply_search(self, tags, search = True):
+	def apply_search(self, tags="", search = True):
 		'''
 		Adds all items which match tags to the gui.
 		'''
@@ -110,7 +114,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 									daybox.append_item(item)
 									adj = self.get_hadjustment()
 									daybox.connect('set-focus-child', self.focus_in, adj) 
-									self.dayboxes.pack_start(daybox)
+									self.dayboxes.pack_start(daybox,False,False)
 									self.days[day]=daybox
 									
 						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
@@ -128,7 +132,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 									daybox.append_item(item)
 									adj = self.get_hadjustment()
 									daybox.connect('set-focus-child', self.focus_in, adj) 
-									self.dayboxes.pack_start(daybox)
+									self.dayboxes.pack_start(daybox,False,False)
 									self.days[day]=daybox		
 							 
 			else:
@@ -145,15 +149,19 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 						daybox.append_item(item)
 						adj = self.get_hadjustment()
 						daybox.connect('set-focus-child', self.focus_in, adj) 
-						self.dayboxes.pack_start(daybox)
+						self.dayboxes.pack_start(daybox,False,False)
 						self.days[day]=daybox
 						
 		self.clean_up_dayboxes()
 						
 	def clean_up_dayboxes(self):
-		for daybox in self.dayboxes:
-			if len(daybox.items) == 0:
-				daybox.label.set_label(".")
+		range = (self.end-self.begin)/86400
+		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
+		if self.compress_empty_days and range>7:
+			for daybox in self.dayboxes:
+				if len(daybox.items) == 0:
+					daybox.label.set_label(".")
+		
 								
 	def load_month_proxy(self,widget=None,begin=None,end=None,force=False):
         	
@@ -259,6 +267,11 @@ class DayBox(gtk.VBox):
 		self.label=gtk.Label(date)
 		self.pack_start(self.label,False,False,5)
 		self.view=DataIconView(True)
+		if date.startswith("Sat") or date.startswith("Sun"):
+			color = gtk.gdk.rgb_get_colormap().alloc_color('#EEEEEE')
+			self.view.modify_base(gtk.STATE_NORMAL,color)
+
+			
 		self.scroll = gtk.ScrolledWindow()		
 		self.scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 		self.scroll.add_with_viewport(self.view)
@@ -511,6 +524,29 @@ class FilterAndOptionBox(gtk.VBox):
 		self.frame2.add(self.voptionbox)
 		self.date_dict = None
 		
+		
+		# GConf settings
+		gconf_bridge.connect("changed::show_note_button", lambda gb: self.set_buttons())
+		gconf_bridge.connect("changed::show_file_button", lambda gb: self.set_buttons())
+		self.set_buttons()
+		
+	def set_buttons(self):
+		note = gconf_bridge.get("show_note_button")
+		if note:
+			self.create_note_btn.show_all()
+		else:
+			self.create_note_btn.hide_all()
+			
+		file = gconf_bridge.get("show_file_button")
+		if file:
+			self.create_doc_btn.show_all()
+		else:
+			self.create_doc_btn.hide_all()
+			
+			
+			
+		
+		
 	def set_timelinefilter(self,w=None):
 		if self.timefilter.get_active():
 			self.timefilter_active=True
@@ -551,21 +587,25 @@ class CheckBox(gtk.CheckButton):
 		
 		self.set_image(self.img)
 		
+		if self.source.get_active():
+			self.set_active(True)
+		else:
+			self.set_active(False)
+		
 		self.set_focus_on_click(False)
 		self.connect("toggled", self.toggle_source)
 		self.show_all()
 
-	def toggle_source(self,widget):
+	def toggle_source(self,widget=None):
 		if self.get_active():
 			self.source.set_active(True)
 			# FIXME
 			#search.emit("clear")
 		else:
 			self.source.set_active(False)
-		
+				
 		timeline.load_month()
-	
-	  
+  
 class NewFromTemplateDialog(gtk.FileChooserDialog):
 	'''
 	Dialog to create a new document from a template
@@ -717,7 +757,7 @@ class SearchToolItem(gtk.ToolItem):
 		if len(self.entry.get_text()) == 0:
 			self.emit("clear")
 		else:
-			self.search_timeout = gobject.timeout_add(100, self._typing_timeout)
+			self.search_timeout = gobject.timeout_add(500, self._typing_timeout)
 
 	def _entry_key_press(self, w, ev):
 		if ev.keyval == gtk.gdk.keyval_from_name("Escape") \
@@ -789,7 +829,7 @@ class DataIconView(gtk.TreeView):
 		self.days={}
 		self.last_item = ""
 		self.iter = None
-	
+		
 	def append_item(self, item,group=True):
 		# Add an item to the end of the store
 		self._set_item(item,group=group)
@@ -878,8 +918,7 @@ class DataIconView(gtk.TreeView):
 	        	
 	def get_icon_pixbuf(self, stock):
 		return self.render_icon(stock, size=gtk.ICON_SIZE_MENU,detail=None)
-
-        	
+       	
 class BrowserBar (gtk.Toolbar):
 	def __init__(self):
 		gtk.Toolbar.__init__(self)   

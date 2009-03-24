@@ -8,7 +8,7 @@ from zeitgeist_engine.zeitgeist_firefox import *
 from zeitgeist_engine.zeitgeist_tomboy import *
 from zeitgeist_engine.zeitgeist_recent import *
 from zeitgeist_engine.zeitgeist_dbcon import db
-from zeitgeist_util import difffactory
+from zeitgeist_util import difffactory, gconf_bridge
 from zeitgeist_engine.zeitgeist_evolution import EvolutionSource
 from zeitgeist_engine.ThreadPool import  *
 #from zeitgeist_twitter import TwitterSource
@@ -28,20 +28,24 @@ class DataSinkSource(DataProvider):
 		self.threads=[]
 		
 		self._db_update_in_progress = False
-		
+				
 		# Recently used items
 		self.videos=RecentlyUsedVideoSource()
 		self.videos.connect("reload", self.update_db_with_source)
 		self.videos.start()
+		
 		self.music=RecentlyUsedMusicSource()
 		self.music.connect("reload", self.update_db_with_source)
 		self.music.start()
+		
 		self.images=RecentlyUsedImagesSource()
 		self.images.connect("reload", self.update_db_with_source)
 		self.images.start()
+		
 		self.docs=RecentlyUsedDocumentsSource()
 		self.docs.connect("reload", self.update_db_with_source)
 		self.docs.start()
+		
 		self.others = RecentlyUsedOthersSource()
 		self.others.connect("reload", self.update_db_with_source)
 		self.others.start()
