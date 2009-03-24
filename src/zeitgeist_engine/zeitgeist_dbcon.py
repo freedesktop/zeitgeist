@@ -140,8 +140,8 @@ class DBConnector(DataProvider):
 					self.cursor.execute('INSERT INTO tagids VALUES (?)',(tag,)) 
 				except:
 					pass
-				id = self.cursor.execute("SELECT rowid FROM tagids WHERE  tag=?",(tag,)).fetchone()
-				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(id[0],item.uri,item.timestamp)) 			 
+				#id = self.cursor.execute("SELECT rowid FROM tagids WHERE  tag=?",(tag,)).fetchone()
+				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(tag.capitalize(),item.uri,item.timestamp)) 			 
 							
 		self.connection.commit()
 		 
@@ -151,6 +151,7 @@ class DBConnector(DataProvider):
 		i = 0
 		while i < len(res) and i < count:
 			#tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?', (res[i][0],)).fetchone()
+			#print res[i][0]
 			yield res[i][0]
 			i += 1
 			
@@ -158,9 +159,24 @@ class DBConnector(DataProvider):
 		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags WHERE timestamp >='+ str(min) +" AND timestamp <="+ str(max) +' GROUP BY tagid ORDER BY COUNT(uri) DESC').fetchall()
 		i = 0
 		while i < len(res) and i < count:
+			#print res[i][0]
 			#tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?', (res[i][0],)).fetchone()
 			yield res[i][0]
 			i += 1
+			
+	def get_min_timestamp_for_tag(self,tag):
+		res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp',(tag,)).fetchone()
+		if res:
+			return res[0]
+		else:
+			return None
+			
+	def get_max_timestamp_for_tag(self,tag):
+		res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp DESC',(tag,)).fetchone()
+		if res:
+			return res[0]
+		else:
+			return None
 		
 	def get_related_items(self,item):
 		list = []

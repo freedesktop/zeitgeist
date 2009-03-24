@@ -223,6 +223,12 @@ class DataSinkSource(DataProvider):
 		for tag in db.get_recent_tags(count,min,max):
 			yield tag
 
+	def get_timestamps_for_tag(self,tag):
+		begin = db.get_min_timestamp_for_tag(tag)
+		end = db.get_max_timestamp_for_tag(tag)
+		return begin,end
+
+
 	def get_related_items(self,item):
 		for i in db.get_related_items(item):
 		  yield i

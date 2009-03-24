@@ -81,6 +81,15 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			self.dayboxes.remove(day)
 			day.view.clear_store()
 		
+		
+		#precalculate the number of dayboxes we need and generate the dayboxes
+		days_range= (self.end - self.begin )/86400 #get the days range
+		for i in range(days_range+1):
+			datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
+			self.days[datestring]=DayBox(datestring)
+			self.dayboxes.pack_start(self.days[datestring])
+			
+		
 		day = None
 		for item in self.items:
 			if len(tagsplit) >0:
@@ -93,16 +102,16 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 										pass
 								except:
 									items.append(item)
-									if day == item.datestring:
-										daybox.view.append_item(item)
-									else:
-										day=item.datestring
+									if not  self.days.has_key(item.datestring):
 										daybox = DayBox(item.datestring)
-										daybox.view.append_item(item)
-										adj = self.get_hadjustment()
-										daybox.connect('set-focus-child', self.focus_in, adj) 
-										self.dayboxes.pack_start(daybox)
-										self.days[day]=daybox
+										self.days[item.datestring] = daybox	
+									else:
+										daybox = self.days[item.datestring]
+									daybox.append_item(item)
+									adj = self.get_hadjustment()
+									daybox.connect('set-focus-child', self.focus_in, adj) 
+									self.dayboxes.pack_start(daybox)
+									self.days[day]=daybox
 									
 						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
 
@@ -110,13 +119,13 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 								if items.index(item)>-1:
 									pass
 							except:
-								items.append(item)
-								if day == item.datestring:
-									daybox.view.append_item(item)
-								else:
-									day=item.datestring
-									daybox = DayBox(item.datestring)
-									daybox.view.append_item(item)
+									items.append(item)
+									if not  self.days.has_key(item.datestring):
+										daybox = DayBox(item.datestring)
+										self.days[item.datestring] = daybox	
+									else:
+										daybox = self.days[item.datestring]
+									daybox.append_item(item)
 									adj = self.get_hadjustment()
 									daybox.connect('set-focus-child', self.focus_in, adj) 
 									self.dayboxes.pack_start(daybox)
@@ -127,25 +136,32 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 					if items.index(item)>-1:
 						pass
 				except:
-					items.append(item)
-					if day == item.datestring:
-						daybox.view.append_item(item)
-					else:
-						day=item.datestring
-						daybox = DayBox(item.datestring)
-						daybox.view.append_item(item)
+						items.append(item)
+						if not  self.days.has_key(item.datestring):
+							daybox = DayBox(item.datestring)
+							self.days[item.datestring] = daybox	
+						else:
+							daybox = self.days[item.datestring]
+						daybox.append_item(item)
 						adj = self.get_hadjustment()
 						daybox.connect('set-focus-child', self.focus_in, adj) 
 						self.dayboxes.pack_start(daybox)
 						self.days[day]=daybox
-					
-	def load_month_proxy(self,widget=None,month=False,force=False):
+						
+		self.clean_up_dayboxes()
+						
+	def clean_up_dayboxes(self):
+		for daybox in self.dayboxes:
+			if len(daybox.items) == 0:
+				daybox.label.set_label(".")
+								
+	def load_month_proxy(self,widget=None,begin=None,end=None,force=False):
         	
         	today = time.time()
         	if today  >= self.begin and today<=self.end+86400 :
-        	    self.load_month(month=month,force=force)
+        	    self.load_month(begin=begin,end=end,force=force)
                     
-	def load_month(self, widget=None,month=False,force=False):
+	def load_month(self, widget=None,begin=None,end=None,force=False):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -165,22 +181,21 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# seconds, weekday, day_of_year, daylight savings) 
 		
 		day = date[2]
-		if not month:
+		if begin==None and end ==None:
 			begin = (date[0], date[1]+1, day-1+self.offset, 0,0,0,0,0,0)
 			end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,0)
-		else:
-			begin = (date[0], date[1]+1, 1, 0,0,0,0,0,0)
-			end = (date[0], date[1]+2, 1, 0,0,0,0,0,0)
+			self.begin = time.mktime(begin)
+			self.end = time.mktime(end) -1
 		
-                    
+		else:
+			self.begin = begin 
+			self.end = end -1
+		
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
 		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
 		
 		# Get date as unix timestamp
-		self.begin = time.mktime(begin)
-		self.end = time.mktime(end)
-		
 		calendar.clear_marks()
 		
 		
@@ -249,7 +264,12 @@ class DayBox(gtk.VBox):
 		self.scroll.add_with_viewport(self.view)
 		self.pack_start(self.scroll)
 		self.show_all()
-				      
+		self.items =[]
+	
+	def append_item(self,item):
+		self.items.append(item)		
+		self.view.append_item(item)	   
+	   
 	def emit_focus(self):
 	        self.emit("set-focus-child",self) 
 		  	  
@@ -425,14 +445,19 @@ class TagBrowser(gtk.HBox):
     def toggle(self,x=None):
         tags = timeline.tags
         if x.get_active():
-            if tags.find(x.get_label()) == -1:
-                 tags = tags+","+x.get_label()
-                 timeline.load_month(month=True)
+        	if tags.find(x.get_label()) == -1:
+        		 print "xxxxxxxxxxxxxxxxxxxxxxx"
+        		 tags = tags+","+x.get_label()
+        		 begin, end = datasink.get_timestamps_for_tag(x.get_label())
+        		 print begin
+        		 print end
+        		 timeline.load_month(begin=begin,end=end)
         else:
-            if tags.find(x.get_label()) > -1:
+        	print "yyyyyyyyyyyyyyyyyyyyyyy"
+        	if tags.find(x.get_label()) > -1:
                  tags = tags.replace(","+x.get_label(), ",")
                  tags = tags.replace(x.get_label()+"," ,",")
-                 timeline.load_month(month=False)
+                 timeline.load_month()
         
         timeline.apply_search(tags,False)
                        
@@ -639,10 +664,28 @@ class SearchToolItem(gtk.ToolItem):
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
-		timeline.load_month(month=False)
+		timeline.load_month()
 		
 	def do_search(self, text):
-		timeline.load_month(month=True)
+		begin,end = datasink.get_timestamps_for_tag(text)
+		if begin ==None or end == None:
+			# Get date range
+			# Format is (year, month-1, day)
+			date = calendar.get_date()
+			
+			
+			# Get the begin and end of this month
+			# each tuple is of format (year, month, day, hours, minutes,
+			# seconds, weekday, day_of_year, daylight savings) 
+			
+			day = date[2]
+			begin = (date[0], date[1]+1,0, 0,0,0,0,0,0)
+			end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
+			begin = time.mktime(begin)
+			end = time.mktime(end) -1
+		
+		timeline.load_month(begin=begin,end=end)
+		
 		if self.clearbtn and not self.clearbtn.child:
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
 			img.show()
