@@ -42,53 +42,56 @@ class FirefoxSource(DataProvider):
 	def get_items_uncached(self):
 		path = self.__copy_sqlite()
 		
-		# create a connection to firefox's sqlite database
-		self.connection = db.connect(path,True)
-		cursor = self.connection.cursor()
-		
-		# retrieve all urls from firefox history
-		contents = "id, place_id, visit_date,visit_type"
-		history = cursor.execute("SELECT " + contents + " FROM moz_historyvisits").fetchall()
-		
-		j = 0
-		for i in history:
-			# TODO: Fetch full rows above so that we don't need to do another query here
-			contents = "id, url, title, visit_count"
-			item = cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
-			if item:
-				url = item[1]
-				name = item[2]
-				count = item[3]
-				timestamp = history[j][2] / (1000000)
-				if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
-					yield Data(uri=url,
-							name=name,
-							timestamp=timestamp,
-							count=count,
-							icon = "gnome-globe",
-							use="visited",
-							type="Firefox History")
-				
-				else:
-					yield Data(uri=url,
-							name=name,
-							timestamp=timestamp,
-							icon = "gnome-globe",
-							count=count,
-							use="linked",
-							type="Firefox History")
-				
-			j += 1
+		if path:
+			# create a connection to firefox's sqlite database
+			self.connection = db.connect(path,True)
+			cursor = self.connection.cursor()
 			
-		cursor.close()
+			# retrieve all urls from firefox history
+			contents = "id, place_id, visit_date,visit_type"
+			history = cursor.execute("SELECT " + contents + " FROM moz_historyvisits").fetchall()
+			
+			j = 0
+			for i in history:
+				# TODO: Fetch full rows above so that we don't need to do another query here
+				contents = "id, url, title, visit_count"
+				item = cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
+				if item:
+					url = item[1]
+					name = item[2]
+					count = item[3]
+					timestamp = history[j][2] / (1000000)
+					if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
+						yield Data(uri=url,
+								name=name,
+								timestamp=timestamp,
+								count=count,
+								icon = "gnome-globe",
+								use="visited",
+								type="Firefox History")
+					
+					else:
+						yield Data(uri=url,
+								name=name,
+								timestamp=timestamp,
+								icon = "gnome-globe",
+								count=count,
+								use="linked",
+								type="Firefox History")
+					
+				j += 1
+				
+			cursor.close()
 	
 	def __copy_sqlite(self):
 		'''
 		Copy the sqlite file to avoid file locks when it's being used by firefox.
 		'''
-		
-		#historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
-		newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
-		newloc = newloc[0]+"firefox.sqlite"
-		shutil.copy2(self.historydb[0], newloc)
-		return newloc
+		try:
+			#historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
+			newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
+			newloc = newloc[0]+"firefox.sqlite"
+			shutil.copy2(self.historydb[0], newloc)
+			return newloc
+		except:
+			return None
