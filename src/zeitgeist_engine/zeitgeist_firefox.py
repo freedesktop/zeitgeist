@@ -28,11 +28,13 @@ class FirefoxSource(DataProvider):
 		
 		self.historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
 		
-		self.note_path_monitor = FileMonitor(self.historydb[0])
-		self.note_path_monitor.connect("event", self.reload_proxy)
-		self.note_path_monitor.open()
+		try:
+			self.note_path_monitor = FileMonitor(self.historydb[0])
+			self.note_path_monitor.connect("event", self.reload_proxy)
+			self.note_path_monitor.open()
 		#self.emit("reload")
-	
+		except:
+			print "Are you using Firefox"
 	
 	def reload_proxy(self,x=None,y=None,z=None):
 		self.emit("reload")
