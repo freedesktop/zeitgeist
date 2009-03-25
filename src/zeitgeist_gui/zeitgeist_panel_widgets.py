@@ -53,6 +53,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# Connect to the datasink's signals
 		datasink.connect("reload", self.load_month_proxy)
 		self.offset=0
+		self.items = []
 		# Load the GUI
 		self.load_month()
 	
@@ -87,33 +88,27 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		'''
 		Try avoiding rebuiling boxes and use currently available
 		'''
-		print "recycling dayboxes"
 		
-		if days_range == len(self.dayboxes) and not search:
+		if days_range == len(self.dayboxes):
 			i = 0
 			for daybox in self.dayboxes:
 				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
 				daybox.view.clear_store()
+				daybox.items=[]
 				daybox.label.set_label(datestring)
 				self.days[datestring]=daybox
 				i=i+1
 		
 		else:
-			print "not recycling"
 			for day in self.dayboxes:
 				self.dayboxes.remove(day)
 				day.view.clear_store()
-				print "removing " + str(day)
+				del day
 			#precalculate the number of dayboxes we need and generate the dayboxes
 			for i in range(days_range):
-				
-				print "\n"+str(self.begin)+"		"+str(self.end)+"		"+str(days_range)
-				print days_range
 				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
-		
-		print "appending items "+str(len(self.items))
 		
 		for item in self.items:
 			if len(tagsplit) >0:
@@ -181,7 +176,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 				if len(daybox.items) == 0:
 					daybox.label.set_label(".")
 					daybox.view.set_size_request(-1,-1)
-		
+		gc.collect()
 								
 	def load_month_proxy(self,widget=None,begin=None,end=None,force=False):
         	
@@ -230,6 +225,8 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# Begin benchmarking
 		time1 = time.time()
 		# Get all items in the date range and add them to self.items
+		for item in self.items:
+			del item
 		self.items = []
 		for i in datasink.get_items_by_time(self.begin, self.end, '', True):
 			self.items.append(i)
@@ -246,7 +243,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
 		
 		# Manually force garbage collection
-		gc.collect()
 		self.emit("reload")
 		
 	def jump_to_day(self, widget,focus=False):
@@ -310,7 +306,8 @@ class DayBox(gtk.VBox):
 	
 	def append_item(self,item):
 		self.items.append(item)		
-		self.view.append_item(item)	   
+		self.view.append_item(item)
+		del item 
 	   
 	def emit_focus(self):
 	        self.emit("set-focus-child",self) 
