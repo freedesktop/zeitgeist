@@ -791,7 +791,7 @@ class DataIconView(gtk.TreeView):
 	
 	def __init__(self,parentdays=False):
 		gtk.TreeView.__init__(self)
-		self.set_size_request(250,1)
+		self.set_size_request(250,-1)
 		self.parentdays = parentdays
 		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
 		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str,gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)
