@@ -105,13 +105,11 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		
 			
 		
-		day = None
 		for item in self.items:
 			if len(tagsplit) >0:
 				for tag in tagsplit:
 						if search:
 							if item.uri.lower().find(tag.lower())>-1:
-								
 								try:
 									if items.index(item)>-1:
 										pass
@@ -126,10 +124,9 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 									adj = self.get_hadjustment()
 									daybox.connect('set-focus-child', self.focus_in, adj) 
 									self.dayboxes.pack_start(daybox,False,False)
-									self.days[day]=daybox
+									self.days[item.datestring]=daybox
 									
 						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
-
 							try:
 								if items.index(item)>-1:
 									pass
@@ -144,7 +141,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 									adj = self.get_hadjustment()
 									daybox.connect('set-focus-child', self.focus_in, adj) 
 									self.dayboxes.pack_start(daybox,False,False)
-									self.days[day]=daybox		
+									self.days[item.datestring]=daybox		
 							 
 			else:
 				try:
@@ -161,7 +158,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 						adj = self.get_hadjustment()
 						daybox.connect('set-focus-child', self.focus_in, adj) 
 						self.dayboxes.pack_start(daybox,False,False)
-						self.days[day]=daybox
+						self.days[item.datestring]=daybox
 						
 		self.clean_up_dayboxes()
 						
@@ -831,7 +828,7 @@ class DataIconView(gtk.TreeView):
 		#self.append_column(count_column)
 	 
 		self.set_model(self.store)
-		self.set_headers_visible(True)
+		self.set_headers_visible(False)
 		self.set_enable_tree_lines(True)
 		self.set_rubber_banding(True)
 		self.set_expander_column(icon_column)
