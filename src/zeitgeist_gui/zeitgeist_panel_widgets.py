@@ -29,8 +29,8 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		self.days={}
 				
 		# Set up default properties
-		self.set_border_width(5)
-		self.set_size_request(400, 300)
+		self.set_border_width(0)
+		self.set_size_request(600, 1)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.add_with_viewport(self.dayboxes)
 		
@@ -264,14 +264,19 @@ class DayBox(gtk.VBox):
 	def __init__(self,date):
 		gtk.VBox.__init__(self)
 		self.date=date
-		self.label=gtk.Label(date)
-		self.pack_start(self.label,False,False,5)
-		self.view=DataIconView(True)
-		if date.startswith("Sat") or date.startswith("Sun"):
+		self.label=gtk.Label("\n"+date+"\n")
+		
+	        self.ev = gtk.EventBox()
+	        self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FFFAAA"))
+        	self.ev.add(self.label)
+        	self.ev.set_border_width(1)
+        
+	        self.pack_start(self.ev,False,False)
+	        self.view=DataIconView(True)
+	        if date.startswith("Sat") or date.startswith("Sun"):
 			color = gtk.gdk.rgb_get_colormap().alloc_color('#EEEEEE')
 			self.view.modify_base(gtk.STATE_NORMAL,color)
 
-			
 		self.scroll = gtk.ScrolledWindow()		
 		self.scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 		self.scroll.add_with_viewport(self.view)
@@ -381,6 +386,7 @@ class TagBrowser(gtk.HBox):
         self.ev.add(self.view)
         self.scroll.add_with_viewport(self.ev)
         self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
+        self.scroll.set_shadow_type(gtk.SHADOW_NONE)
         self.pack_start(self.scroll,True,True)
         self.show_all()
         self.items = []
@@ -395,7 +401,6 @@ class TagBrowser(gtk.HBox):
         self.combobox.set_active(0)
         
         datasink.connect("reload", lambda x: self.func)
-        return
 
     def reload_tags(self,x=None):
     	model = self.combobox.get_model()
@@ -528,6 +533,7 @@ class FilterAndOptionBox(gtk.VBox):
 		# GConf settings
 		gconf_bridge.connect("changed::show_note_button", lambda gb: self.set_buttons())
 		gconf_bridge.connect("changed::show_file_button", lambda gb: self.set_buttons())
+		self.show_all()
 		self.set_buttons()
 		
 	def set_buttons(self):
@@ -569,6 +575,7 @@ class FilterAndOptionBox(gtk.VBox):
 class CalendarWidget(gtk.Calendar):
 	def __init__(self):
 		gtk.Calendar.__init__(self)
+		self.show_all()
 
 class CheckBox(gtk.CheckButton):
 	
@@ -958,6 +965,7 @@ class BrowserBar (gtk.Toolbar):
 		self.add(self.back)
 		self.add(self.forward)
 		self.add(self.home)
+		self.add(gtk.SeparatorToolItem())
 		self.add(self.star)
 		self.add(self.tags)
 		self.add(self.options)
@@ -1016,9 +1024,7 @@ class BookmarksView(gtk.VBox):
 		evbox1.set_border_width(1)
 		evbox1.add(vbox)
 		evbox.add(evbox1)
-		
-		
-		
+				
         	evbox2 = gtk.EventBox()
 		evbox2.set_border_width(5)
 		evbox2.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
@@ -1026,9 +1032,7 @@ class BookmarksView(gtk.VBox):
         	evbox3.set_border_width(1)
         	evbox3.add(self.view)
         	evbox2.add(evbox3)
-            
-		
-		
+            		
 		vbox.pack_start(evbox2,True,True)
 		self.pack_start(evbox,True,True)
 		self.get_bookmarks()
@@ -1039,9 +1043,7 @@ class BookmarksView(gtk.VBox):
 		for item in datasink.get_bookmarks():
 			self.view.append_item(item,group=False)
 		timeline.load_month(force=True)
-			
-			
-		
+	
 calendar = CalendarWidget()
 timeline = TimelineWidget()
 tb =TagBrowser()

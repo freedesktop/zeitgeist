@@ -26,7 +26,7 @@ class UI:
 		self.topicWindow = gtk.Window()
 		self.topicWindow.set_title("Gnome Zeitgeist")
 		self.topicWindow.set_resizable(True)
-        	self.topicWindow.set_default_size(400,600)
+        	self.topicWindow.set_default_size(800,-1)
 		self.topicWindow.connect("destroy", gtk.main_quit)
 		
 	        #self.topicWindow.set_icon_from_file("Hourglass.png")
@@ -85,9 +85,9 @@ class UI:
                 tb.hide_all()
         	bb.options.connect("toggled",self.toggle_filters)
         
-        
         def toggle_filters(self,x=None):
-       	 	if bb.options.get_active():
-        	    self.sidebar.show_all()
-        	else:
-                    self.sidebar.hide_all()
+     	    if bb.options.get_active():
+		self.sidebar.show_all()
+                filtersBox.set_buttons()
+            else:
+                self.sidebar.hide_all()
