@@ -161,6 +161,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			for daybox in self.dayboxes:
 				if len(daybox.items) == 0:
 					daybox.label.set_label(".")
+					daybox.view.set_size_request(-1,-1)
 		
 								
 	def load_month_proxy(self,widget=None,begin=None,end=None,force=False):
@@ -792,6 +793,7 @@ class DataIconView(gtk.TreeView):
 	
 	def __init__(self,parentdays=False):
 		gtk.TreeView.__init__(self)
+		self.set_size_request(250,1)
 		self.parentdays = parentdays
 		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
 		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str,gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)
@@ -804,7 +806,7 @@ class DataIconView(gtk.TreeView):
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("yalign", 0.0)
 		name_cell.set_property("xalign", 0.0)
-		name_cell.set_property("wrap-width", 150)
+		name_cell.set_property("wrap-width", 125)
 		name_column = gtk.TreeViewColumn("Name", name_cell, markup=1)
 		
 		time_cell = gtk.CellRendererText()
