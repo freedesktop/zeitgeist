@@ -63,7 +63,7 @@ class UI:
 	        #vbox for timeline and tagbar
 	        vbox = gtk.VBox()
 	        vbox.pack_start(evbox)
-	        vbox.pack_start(tagbox,False,False,1)
+	        vbox.pack_start(tagbox,False,False)
         
 		self.hBox.pack_start(vbox, True, True,5)
 	        self.hBox.pack_start(self.sidebar, False, False,5)

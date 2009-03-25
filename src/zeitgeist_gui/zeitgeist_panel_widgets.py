@@ -367,21 +367,21 @@ class RelatedWindow(gtk.Window):
 		items=[]
 		uris.clear()
 		
-class TagBrowser(gtk.HBox):
+class TagBrowser(gtk.VBox):
     def __init__(self):
         # Initialize superclass
-        gtk.HBox.__init__(self)
-        self.set_size_request(-1,32)
+        gtk.VBox.__init__(self)
+        self.set_size_request(-1,36)
         self.combobox = gtk.combo_box_new_text()
         
         self.combobox = gtk.combo_box_new_text()
         self.combobox.append_text('Recently used tags')
         self.combobox.append_text('Most used tags')
         
-        self.pack_start(self.combobox, False, False)
+        hbox=gtk.HBox()
         
-        
-        
+        hbox.pack_start(self.combobox, False, False)
+                
         self.scroll = gtk.ScrolledWindow()
         self.ev = gtk.EventBox()
         self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
@@ -391,7 +391,7 @@ class TagBrowser(gtk.HBox):
         self.scroll.add_with_viewport(self.ev)
         self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
         self.scroll.set_shadow_type(gtk.SHADOW_NONE)
-        self.pack_start(self.scroll,True,True,1)
+        hbox.pack_start(self.scroll,True,True,1)
         self.show_all()
         self.items = []
         
@@ -403,7 +403,7 @@ class TagBrowser(gtk.HBox):
     
         self.combobox.connect('changed', self.changed_cb)
         self.combobox.set_active(0)
-        
+        self.pack_start(hbox,True,True,5)
         datasink.connect("reload", lambda x: self.func)
 
     def reload_tags(self,x=None):
@@ -468,14 +468,12 @@ class TagBrowser(gtk.HBox):
         tags = timeline.tags
         if x.get_active():
         	if tags.find(x.get_label()) == -1:
-        		 print "xxxxxxxxxxxxxxxxxxxxxxx"
         		 tags = tags+","+x.get_label()
         		 begin, end = datasink.get_timestamps_for_tag(x.get_label())
         		 print begin
         		 print end
         		 timeline.load_month(begin=begin,end=end)
         else:
-        	print "yyyyyyyyyyyyyyyyyyyyyyy"
         	if tags.find(x.get_label()) > -1:
                  tags = tags.replace(","+x.get_label(), ",")
                  tags = tags.replace(x.get_label()+"," ,",")
@@ -931,9 +929,9 @@ class DataIconView(gtk.TreeView):
 	def get_icon_pixbuf(self, stock):
 		return self.render_icon(stock, size=gtk.ICON_SIZE_MENU,detail=None)
        	
-class BrowserBar (gtk.Toolbar):
+class BrowserBar (gtk.HBox):
 	def __init__(self):
-		gtk.Toolbar.__init__(self)   
+		gtk.HBox.__init__(self)   
 		self.tooltips = gtk.Tooltips()
 
 		self.home = gtk.ToolButton("gtk-home")
@@ -967,17 +965,31 @@ class BrowserBar (gtk.Toolbar):
 		self.tooltips.set_tip(self.tags , "View tagged activities")
 		self.tags.connect("toggled",self.toggle_tags)
 		
-		self.add(self.back)
-		self.add(self.forward)
-		self.add(self.home)
-		self.add(gtk.SeparatorToolItem())
-		self.add(self.star)
-		self.add(self.tags)
-		self.add(self.options)
+		toolbar = gtk.Toolbar()
+		
+		toolbar.add(self.back)
+		toolbar.add(self.home)
+		toolbar.add(self.forward)
+		toolbar.add(gtk.SeparatorToolItem())
+		toolbar.add(self.star)
+		toolbar.add(self.tags)
+		toolbar.add(self.options)
+		self.pack_start(toolbar,True,True,4)
+		
+		hbox=gtk.HBox()
+		hbox2=gtk.HBox()
+		hbox.pack_start(hbox2,True,True,5)
+		hbox2.pack_start(gtk.HBox(True),True,True,5)
 		
 		
+		# Search Area
 		self.search = SearchToolItem()
-		self.add(self.search)
+		hbox.pack_start(self.search,True,True)
+		clear_btn = gtk.ToolButton("gtk-clear")
+		clear_btn.connect("clicked",lambda x: self.search.do_clear())
+		hbox.pack_start(clear_btn,False,False,4)
+		
+		self.pack_start(hbox,True,True)
 		
 	def remove_day(self, x=None):
 		print timeline.offset
