@@ -84,7 +84,12 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			
 		days_range= int((self.end - self.begin )/86400)  +1 #get the days range
 		
-		if days_range == len(self.dayboxes):
+		'''
+		Try avoiding rebuiling boxes and use currently available
+		'''
+		print "recycling dayboxes"
+		
+		if days_range == len(self.dayboxes) and not search:
 			i = 0
 			for daybox in self.dayboxes:
 				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
@@ -94,16 +99,21 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 				i=i+1
 		
 		else:
+			print "not recycling"
 			for day in self.dayboxes:
 				self.dayboxes.remove(day)
 				day.view.clear_store()
+				print "removing " + str(day)
 			#precalculate the number of dayboxes we need and generate the dayboxes
 			for i in range(days_range):
+				
+				print "\n"+str(self.begin)+"		"+str(self.end)+"		"+str(days_range)
+				print days_range
 				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
 		
-			
+		print "appending items "+str(len(self.items))
 		
 		for item in self.items:
 			if len(tagsplit) >0:
@@ -163,6 +173,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		self.clean_up_dayboxes()
 						
 	def clean_up_dayboxes(self):
+		print "cleaning up view"
 		range = (self.end-self.begin)/86400
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days and range>7:
@@ -227,6 +238,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			 
 		
 		# Update the GUI with the items that match the current search terms/tags
+		print "Applying serach"
 		self.apply_search(self.tags)
 		
 		time2 = time.time()
@@ -724,22 +736,20 @@ class SearchToolItem(gtk.ToolItem):
 		timeline.load_month()
 		
 	def do_search(self, text):
-		begin,end = datasink.get_timestamps_for_tag(text)
-		if begin ==None or end == None:
-			# Get date range
-			# Format is (year, month-1, day)
-			date = calendar.get_date()
-			
-			
-			# Get the begin and end of this month
-			# each tuple is of format (year, month, day, hours, minutes,
-			# seconds, weekday, day_of_year, daylight savings) 
-			
-			day = date[2]
-			begin = (date[0], date[1]+1,0, 0,0,0,0,0,0)
-			end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
-			begin = time.mktime(begin)
-			end = time.mktime(end) -1
+		# Get date range
+		# Format is (year, month-1, day)
+		date = calendar.get_date()
+		
+		
+		# Get the begin and end of this month
+		# each tuple is of format (year, month, day, hours, minutes,
+		# seconds, weekday, day_of_year, daylight savings) 
+		
+		day = date[2]
+		begin = (date[0], date[1]+1,0, 0,0,0,0,0,0)
+		end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
+		begin = time.mktime(begin)
+		end = time.mktime(end) -1
 		
 		timeline.load_month(begin=begin,end=end)
 		

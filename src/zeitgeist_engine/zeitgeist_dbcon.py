@@ -141,7 +141,7 @@ class DBConnector(DataProvider):
 				except:
 					pass
 				#id = self.cursor.execute("SELECT rowid FROM tagids WHERE  tag=?",(tag,)).fetchone()
-				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(tag.capitalize(),item.uri,item.timestamp)) 			 
+				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(tag.capitalize(),item.uri,time.time())) 			 
 							
 		self.connection.commit()
 		 
