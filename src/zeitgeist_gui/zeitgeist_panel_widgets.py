@@ -264,13 +264,16 @@ class DayBox(gtk.VBox):
 	def __init__(self,date):
 		gtk.VBox.__init__(self)
 		self.date=date
-		self.label=gtk.Label("\n"+date+"\n")
+		self.label=gtk.Label(date)
+		vbox = gtk.VBox()
 		
 	        self.ev = gtk.EventBox()
 	        self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FFFAAA"))
-        	self.ev.add(self.label)
+        	self.ev.add(vbox)
         	self.ev.set_border_width(1)
-        
+        	vbox.pack_start(self.label,True,True,5)
+        	
+        	
 	        self.pack_start(self.ev,False,False)
 	        self.view=DataIconView(True)
 	        if date.startswith("Sat") or date.startswith("Sun"):
@@ -387,7 +390,7 @@ class TagBrowser(gtk.HBox):
         self.scroll.add_with_viewport(self.ev)
         self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
         self.scroll.set_shadow_type(gtk.SHADOW_NONE)
-        self.pack_start(self.scroll,True,True)
+        self.pack_start(self.scroll,True,True,1)
         self.show_all()
         self.items = []
         
@@ -1010,23 +1013,27 @@ class BrowserBar (gtk.Toolbar):
 class BookmarksView(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
-
+		
 		vbox=gtk.VBox()
 		
+		
 		self.label = gtk.Label("Bookmarks")
-		self.label.set_padding(5,5)
-		vbox.pack_start(self.label,False,True)
+		#self.label.set_padding(5,5)
+		vbox.pack_start(self.label,False,True,5)
 		self.view = DataIconView()
 
+		ev = gtk.EventBox()
+		ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FFFAAA"))
 		evbox = gtk.EventBox()
 		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
 		evbox1 = gtk.EventBox()
 		evbox1.set_border_width(1)
-		evbox1.add(vbox)
+		evbox1.add(ev)
 		evbox.add(evbox1)
+		ev.set_border_width(1)
+		ev.add(vbox)
 				
         	evbox2 = gtk.EventBox()
-		evbox2.set_border_width(5)
 		evbox2.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
         	evbox3 = gtk.EventBox()
         	evbox3.set_border_width(1)

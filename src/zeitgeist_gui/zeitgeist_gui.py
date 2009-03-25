@@ -35,9 +35,8 @@ class UI:
 		self.vBox = gtk.VBox()
 	        tagbox = gtk.HBox()
             
-        	tagbox.pack_start(tb,True,True,2)
+        	tagbox.pack_start(tb,True,True)
                 self.vBox.pack_start(bb,False,False)
-                self.vBox.pack_start(tagbox,False,False)
 
 
 		self.topicWindow.add(self.vBox)
@@ -57,14 +56,16 @@ class UI:
 		# Notebook
 		#self.notebook = gtk.Notebook()
 		evbox = gtk.EventBox()
-		evbox.modify_bg(gtk.STATE_NORMAL, 
-		gtk.gdk.color_parse("darkgrey"))
-		evbox1 = gtk.EventBox()
-		evbox1.set_border_width(1)
-		evbox1.add(timeline)
-		evbox.add(evbox1)
+		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
 		
-		self.hBox.pack_start(evbox, True, True,5)
+		evbox.add(timeline)
+		
+	        #vbox for timeline and tagbar
+	        vbox = gtk.VBox()
+	        vbox.pack_start(evbox)
+	        vbox.pack_start(tagbox,False,False,1)
+        
+		self.hBox.pack_start(vbox, True, True,5)
 	        self.hBox.pack_start(self.sidebar, False, False,5)
                 #self.hBox.pack_start(ctb, True, True,5)
 		
