@@ -81,17 +81,28 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		tagsplit = ftagsplit
 		
 		self.days.clear()
-		for day in self.dayboxes:
-			self.dayboxes.remove(day)
-			day.view.clear_store()
+			
+		days_range= int((self.end - self.begin )/86400)  +1 #get the days range
 		
+		if days_range == len(self.dayboxes):
+			i = 0
+			for daybox in self.dayboxes:
+				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
+				daybox.view.clear_store()
+				daybox.label.set_label(datestring)
+				self.days[datestring]=daybox
+				i=i+1
 		
-		#precalculate the number of dayboxes we need and generate the dayboxes
-		days_range= (self.end - self.begin )/86400 #get the days range
-		for i in range(days_range+1):
-			datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
-			self.days[datestring]=DayBox(datestring)
-			self.dayboxes.pack_start(self.days[datestring])
+		else:
+			for day in self.dayboxes:
+				self.dayboxes.remove(day)
+				day.view.clear_store()
+			#precalculate the number of dayboxes we need and generate the dayboxes
+			for i in range(days_range):
+				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
+				self.days[datestring]=DayBox(datestring)
+				self.dayboxes.pack_start(self.days[datestring])
+		
 			
 		
 		day = None
@@ -798,7 +809,7 @@ class DataIconView(gtk.TreeView):
 		#self.use_cells = isinstance(self, gtk.CellLayout)
 		
 		icon_cell = gtk.CellRendererPixbuf()
-		icon_column = gtk.TreeViewColumn("Icon",icon_cell,pixbuf=0)
+		icon_column = gtk.TreeViewColumn("",icon_cell,pixbuf=0)
 		
 		name_cell = gtk.CellRendererText()
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
@@ -820,7 +831,7 @@ class DataIconView(gtk.TreeView):
 		#self.append_column(count_column)
 	 
 		self.set_model(self.store)
-		self.set_headers_visible(False)
+		self.set_headers_visible(True)
 		self.set_enable_tree_lines(True)
 		self.set_rubber_banding(True)
 		self.set_expander_column(icon_column)
