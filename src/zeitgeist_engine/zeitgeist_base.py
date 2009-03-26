@@ -187,15 +187,20 @@ class Data(gobject.GObject):
 		pass
 	
 	def add_bookmark(self, x=None):
-		from zeitgeist_datasink import datasink
+		from zeitgeist_datasink import datasink, bookmarker
 		if self.bookmark == False:
 			self.bookmark = True
 		else:
 			self.bookmark = False
 		datasink.update_item(self)
-		self.emit("reload")
+		bookmarker.reload_bookmarks()
 	
-	
+	def set_bookmark(self,bookmark):
+		from zeitgeist_datasink import datasink, bookmarker
+		self.bookmark = bookmark
+		datasink.update_item(self)
+		bookmarker.reload_bookmarks()
+		
 	def tag_item(self):
 		taggingwindow = gtk.Window()
 		taggingwindow.set_border_width(5)

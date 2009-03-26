@@ -186,7 +186,7 @@ class DataSinkSource(DataProvider):
 	
 	def update_item(self, item):
 		print "Updating item: %s" % item
-		db.update_item(item)
+		db.update_item(item)		 
 		self.emit("reload")
 	
 	def get_items_by_time(self, min=0, max=sys.maxint, tags="", cached=False):
@@ -232,13 +232,10 @@ class DataSinkSource(DataProvider):
 		end = db.get_max_timestamp_for_tag(tag)
 		return begin,end
 
-
 	def get_related_items(self,item):
 		for i in db.get_related_items(item):
 		  yield i
-		  
-				 
-		
+		  		
 class InsertThread(ThreadPoolTask):
 	
 	def __init__(self,items):
@@ -317,5 +314,41 @@ class InsertThread(ThreadPoolTask):
 		
 
 
+class Bookmarker(DataProvider):	
+	def __init__(self,
+							name=_("Bookmarker"),
+							icon=None,
+							uri="source:///Bookmarker"):
+		
+		DataProvider.__init__(self)
+		self.bookmarks=[]
+		self.reload_bookmarks()
+		
+	def get_bookmark(self,item):
+		if self.bookmarks.count(item.uri) > 0:
+			return True
+		return False
+	
+	def add_bookmark(self,item):
+		if self.bookmarks.count(item.uri) == 0:
+			self.bookmarks.append(item.uri)
+			
+				
+	def reload_bookmarks(self):
+		print "------------------------------------"
+		self.bookmarks = []
+		for item in datasink.get_bookmarks():
+			self.add_bookmark(item)
+			print "bookmarking "+item.uri
+		print "------------------------------------"
+		self.emit("reload")
+			
+	def get_items_uncached(self):
+		for i in datasink.get_bookmarks():
+			yield i
+		
+
 thread_pool = ThreadPool(1)
 datasink= DataSinkSource()
+bookmarker = Bookmarker()
+

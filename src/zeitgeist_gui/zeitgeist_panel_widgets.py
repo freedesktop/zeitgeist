@@ -8,7 +8,7 @@ import gobject
 import pango
 from gettext import ngettext, gettext as _ 
  
-from zeitgeist_engine.zeitgeist_datasink import datasink
+from zeitgeist_engine.zeitgeist_datasink import bookmarker, datasink
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 
 class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
@@ -93,17 +93,17 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			i = 0
 			for daybox in self.dayboxes:
 				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
-				daybox.view.clear_store()
-				daybox.items=[]
+				daybox.clear()
 				daybox.label.set_label(datestring)
 				self.days[datestring]=daybox
 				i=i+1
+				del daybox
 		
 		else:
-			for day in self.dayboxes:
-				self.dayboxes.remove(day)
-				day.view.clear_store()
-				del day
+			for daybox in self.dayboxes:
+				self.dayboxes.remove(daybox)
+				daybox.clear()
+				del daybox
 			#precalculate the number of dayboxes we need and generate the dayboxes
 			for i in range(days_range):
 				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
@@ -173,7 +173,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days and range>7:
 			for daybox in self.dayboxes:
-				if len(daybox.items) == 0:
+				if daybox.item_count == 0:
 					daybox.label.set_label(".")
 					daybox.view.set_size_request(-1,-1)
 		gc.collect()
@@ -302,12 +302,16 @@ class DayBox(gtk.VBox):
 		self.scroll.add_with_viewport(self.view)
 		self.pack_start(self.scroll)
 		self.show_all()
-		self.items =[]
+		self.item_count=0
 	
 	def append_item(self,item):
-		self.items.append(item)		
 		self.view.append_item(item)
+		self.item_count +=1
 		del item 
+		
+	def clear(self):
+		self.view.clear_store()
+		self.item_count = 0
 	   
 	def emit_focus(self):
 	        self.emit("set-focus-child",self) 
@@ -797,7 +801,10 @@ class SearchToolItem(gtk.ToolItem):
 		if self.entry.get_text() != self.default_search_text:
 			self.do_clear()
 		
-class DataIconView(gtk.TreeView):
+class DataIconView(gtk.TreeView,gobject.GObject):
+	__gsignals__ = {
+		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
+		}
 	'''
 	Icon view which displays Datas in the style of the Nautilus horizontal mode,
 	where icons are right aligned and each column is of a uniform width.  Also
@@ -806,38 +813,38 @@ class DataIconView(gtk.TreeView):
 	
 	def __init__(self,parentdays=False):
 		gtk.TreeView.__init__(self)
+		gobject.GObject.__init__(self)
 		self.set_size_request(250,-1)
 		self.parentdays = parentdays
-		#self.set_selection_mode(gtk.SELECTION_MULTIPLE)
-		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str,gtk.gdk.Pixbuf, gobject.TYPE_PYOBJECT)
-		#self.use_cells = isinstance(self, gtk.CellLayout)
+		
+		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT)
 		
 		icon_cell = gtk.CellRendererPixbuf()
 		icon_column = gtk.TreeViewColumn("",icon_cell,pixbuf=0)
 		
 		name_cell = gtk.CellRendererText()
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
-		name_cell.set_property("yalign", 0.0)
-		name_cell.set_property("xalign", 0.0)
 		name_cell.set_property("wrap-width", 125)
 		name_column = gtk.TreeViewColumn("Name", name_cell, markup=1)
 		
 		time_cell = gtk.CellRendererText()
 		time_column = gtk.TreeViewColumn("Time",time_cell,markup=2)
 		
-		bookmark_cell = gtk.CellRendererPixbuf()
-		bookmark_column = gtk.TreeViewColumn("bookmark",bookmark_cell,pixbuf=3,expand=False)
-		
+		bookmark_cell = gtk.CellRendererToggle()
+		bookmark_cell.set_property('activatable', True)
+		bookmark_cell.set_property('radio', True)
+		bookmark_cell.connect( 'toggled', self.toggle_bookmark, self.store )
+		bookmark_column = gtk.TreeViewColumn("bookmark",bookmark_cell)
+		bookmark_column.add_attribute( bookmark_cell, "active", 3)
+				
 		self.append_column(icon_column)
 		self.append_column(name_column)
 		self.append_column(time_column)
 		self.append_column(bookmark_column)
-		#self.append_column(count_column)
 	 
 		self.set_model(self.store)
 		self.set_headers_visible(False)
 		self.set_enable_tree_lines(True)
-		self.set_rubber_banding(True)
 		self.set_expander_column(icon_column)
 		
 		self.connect("row-activated", self._open_item)
@@ -917,10 +924,24 @@ class DataIconView(gtk.TreeView):
 				uris.append(self.last_item.get_uri())
 				selection_data.set_uris(uris)
 	
+	def toggle_bookmark( self, cell, path, model ):
+		"""
+	        Sets the toggled state on the toggle button to true or false.
+        	"""
+        	
+        	model[path][3] = not model[path][3]
+        	item = model[path][4]
+        	item.add_bookmark()
+        	self.emit("reload")
+        	
+        	#FIXME: try to refres hall iter wihtotu reloading the month
+        	timeline.load_month()
+	
 	def _set_item(self, item, append=True, group=True):
 		
 		func = self.store.append
-	        
+		bookmark = bookmarker.get_bookmark(item)
+		
 		if not item.timestamp == -1.0:
 			date="<span size='small' color='blue'>%s</span>" % item.get_time()
 		else:
@@ -931,19 +952,17 @@ class DataIconView(gtk.TreeView):
         		self.iter=func(None,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
-							item.get_bookmark_icon(),
+							bookmark,
 							item])
         	else:
 	        	func(None,[item.get_icon(24),
 	        	#func(self.iter,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
-							item.get_bookmark_icon(),
+							bookmark,
 							item])
 	        	
-	def get_icon_pixbuf(self, stock):
-		return self.render_icon(stock, size=gtk.ICON_SIZE_MENU,detail=None)
-       	
+	   	
 class BrowserBar (gtk.HBox):
 	def __init__(self):
 		gtk.HBox.__init__(self)   
@@ -1038,7 +1057,7 @@ class BrowserBar (gtk.HBox):
 		calendar.select_month(month,year)
 		calendar.select_day(day)
 		#calendar.do_day_selected_double_click()
-		
+				
 class BookmarksView(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
@@ -1072,13 +1091,20 @@ class BookmarksView(gtk.VBox):
 		vbox.pack_start(evbox2,True,True)
 		self.pack_start(evbox,True,True)
 		self.get_bookmarks()
-		datasink.connect("reload",self.get_bookmarks)
+		bookmarker.connect("reload",self.get_bookmarks)
+		self.view.connect("reload",self.notify_timeline)
+
+	def notify_timeline(self,x=None):
+		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+		timeline.load_month()
 		
+
 	def get_bookmarks(self,x=None):
 		self.view.clear_store()
-		for item in datasink.get_bookmarks():
+		for item in bookmarker.get_items_uncached():
 			self.view.append_item(item,group=False)
-		timeline.load_month(force=True)
+		#timeline.load_month(force=True)
+	
 	
 calendar = CalendarWidget()
 timeline = TimelineWidget()

@@ -10,7 +10,7 @@ from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 import time
 import thread
 
-class DBConnector(DataProvider):
+class DBConnector():
 	
 	def __init__(self):
 		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
@@ -118,9 +118,7 @@ class DBConnector(DataProvider):
 		bookmark = 0
 		if item.bookmark == True:
 			bookmark = 1
-		
-		print item.name + " 	" + "bookmark: "+ str(item.bookmark)
-		
+				
 		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',(item.uri,
 																		item.name,
 																		item.comment,
@@ -141,8 +139,7 @@ class DBConnector(DataProvider):
 				except:
 					pass
 				#id = self.cursor.execute("SELECT rowid FROM tagids WHERE  tag=?",(tag,)).fetchone()
-				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(tag.capitalize(),item.uri,time.time())) 			 
-							
+				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(tag.capitalize(),item.uri,time.time())) 	
 		self.connection.commit()
 		 
 	def get_recent_tags(self,count=20,min=0,max=sys.maxint):
@@ -294,6 +291,6 @@ class DBConnector(DataProvider):
 				yield d 
 		gc.collect()
 		print time.time() -t1
-	 
+
 
 db=DBConnector()

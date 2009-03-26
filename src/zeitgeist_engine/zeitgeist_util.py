@@ -436,7 +436,6 @@ class IconCollection:
 	def clear(self):
 		self.dict.clear()
 
-
 class GConfBridge(gobject.GObject):
     DEFAULTS = {
         'compress_empty_days'       : True, 
@@ -527,8 +526,6 @@ class GConfBridge(gobject.GObject):
         detailed_signal = "changed::%s" % key
         self.emit(detailed_signal)
 
-
-
 difffactory=DiffFactory()
 icon_factory = IconFactory()
 icon_theme = gtk.icon_theme_get_default()
@@ -536,7 +533,6 @@ thumb_factory = gnome.ui.ThumbnailFactory("normal")
 launcher = LaunchManager()
 iconcollection = IconCollection()
 gconf_bridge = GConfBridge()
-
 bookmark_icon = icon_factory.load_icon(gtk.STOCK_ABOUT, 24)
 unbookmark_icon = icon_factory.transparentize(icon_factory.greyscale(bookmark_icon),70)
 
