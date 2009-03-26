@@ -187,7 +187,6 @@ class DataSinkSource(DataProvider):
 	def update_item(self, item):
 		print "Updating item: %s" % item
 		db.update_item(item)		 
-		self.emit("reload")
 	
 	def get_items_by_time(self, min=0, max=sys.maxint, tags="", cached=False):
 		"Datasink getting all items from DataProviders"

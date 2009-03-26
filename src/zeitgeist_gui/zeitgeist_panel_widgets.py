@@ -932,10 +932,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
         	model[path][3] = not model[path][3]
         	item = model[path][4]
         	item.add_bookmark()
-        	self.emit("reload")
         	
-        	#FIXME: try to refres hall iter wihtotu reloading the month
-        	timeline.load_month()
 	
 	def _set_item(self, item, append=True, group=True):
 		
@@ -946,23 +943,26 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 			date="<span size='small' color='blue'>%s</span>" % item.get_time()
 		else:
 			date=""
-			
-	        if self.last_item!=item.type or group==False:
+		
+		if self.last_item!=item.type or group==False:
         		self.last_item = item.type
-        		self.iter=func(None,[item.get_icon(24),
+        		iter=func(None,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
 							bookmark,
 							item])
-        	else:
-	        	func(None,[item.get_icon(24),
+	        else:
+		        iter=func(None,[item.get_icon(24),
 	        	#func(self.iter,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
 							bookmark,
 							item])
-	        	
-	   	
+	     	   
+	  	
+		bookmarker.connect("reload",lambda x: self.store.set(iter,3,bookmarker.get_bookmark(item)))	     
+	     
+	     	    	
 class BrowserBar (gtk.HBox):
 	def __init__(self):
 		gtk.HBox.__init__(self)   
@@ -1092,11 +1092,6 @@ class BookmarksView(gtk.VBox):
 		self.pack_start(evbox,True,True)
 		self.get_bookmarks()
 		bookmarker.connect("reload",self.get_bookmarks)
-		self.view.connect("reload",self.notify_timeline)
-
-	def notify_timeline(self,x=None):
-		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-		timeline.load_month()
 		
 
 	def get_bookmarks(self,x=None):
