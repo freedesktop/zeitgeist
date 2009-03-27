@@ -11,7 +11,7 @@ import gtk
 import glob
 from gettext import ngettext, gettext as _
 
-from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory, iconcollection
+from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory, iconcollection,thumbnailer
 
 class Data(gobject.GObject):
 	__gsignals__ = {
@@ -64,13 +64,6 @@ class Data(gobject.GObject):
 		self.textview = gtk.TextView()
 		
 	def get_icon(self, icon_size):
-		if iconcollection.dict.has_key(self.uri):
-			return iconcollection.dict[self.uri]
-		elif  iconcollection.dict.has_key(self.type):
-			#print "xxxxxxxxxxxxxxxxxxx"
-			return iconcollection.dict[self.type]
-		
-		else:
 			temp = self.icon
 			
 			if temp != None:
@@ -78,13 +71,9 @@ class Data(gobject.GObject):
 			
 			if self.icon:
 				icon =  icon_factory.load_icon(self.icon, icon_size)
-				iconcollection.dict[self.type] = icon
 				return icon
 			
-			if not self.thumbnailer:
-				  self.thumbnailer = Thumbnailer(self.get_uri(), self.get_mimetype())
-			thumb = self.thumbnailer.get_icon(icon_size, self.timestamp)
-			iconcollection.dict[self.uri] = thumb
+			thumb = thumbnailer.get_icon(self.get_uri(),self.get_mimetype(),icon_size, self.timestamp)
 			return thumb
 	
 	def get_icon_static_done(self,icon_size):

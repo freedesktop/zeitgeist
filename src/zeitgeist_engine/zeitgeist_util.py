@@ -224,36 +224,29 @@ class IconFactory():
 		return mythumb
 
 class Thumbnailer:
-	def __init__(self, uri, mimetype):
-		self.uri = uri or ""
-		self.mimetype = mimetype or ""
-		self.cached_icon = None
-		self.cached_timestamp = None
-		self.cached_size = None
+	def __init__(self):
+		self.icon_dict={}
 
-	def get_icon(self, icon_size, timestamp = 0):
-		if not self.cached_icon or \
-			   icon_size != self.cached_size or \
-			   timestamp != self.cached_timestamp:
-			cached_icon = self._lookup_or_make_thumb(icon_size, timestamp)
-			self.cached_icon =cached_icon
-		   # delcached_icon
-			self.cached_size = icon_size
-			self.cached_timestamp = timestamp
-		return self.cached_icon
+	def get_icon(self, uri, mimetype, icon_size, timestamp = 0):
+		
+		if self.icon_dict.get(uri) == None:
+			cached_icon = self._lookup_or_make_thumb(uri,mimetype, icon_size, timestamp)
+			self.icon_dict[uri]=cached_icon
+		
+		return self.icon_dict[uri]
 
-	def _lookup_or_make_thumb(self, icon_size, timestamp):
+	def _lookup_or_make_thumb(self, uri, mimetype, icon_size, timestamp):
 		icon_name, icon_type = \
-				   gnome.ui.icon_lookup(icon_theme, thumb_factory, self.uri, self.mimetype, 0)
+				   gnome.ui.icon_lookup(icon_theme, thumb_factory, uri, mimetype, 0)
 		try:
 			if icon_type == gnome.ui.ICON_LOOKUP_RESULT_FLAGS_THUMBNAIL or \
-				   thumb_factory.has_valid_failed_thumbnail(self.uri, timestamp):
+				   thumb_factory.has_valid_failed_thumbnail(uri, timestamp):
 				# Use existing thumbnail
 				thumb = icon_factory.load_icon(icon_name, icon_size)
-			elif self._is_local_uri(self.uri):
+			elif self._is_local_uri(uri):
 				# Generate a thumbnail for local files only
-				thumb = thumb_factory.generate_thumbnail(self.uri, self.mimetype)
-				thumb_factory.save_thumbnail(thumb, self.uri, timestamp)
+				thumb = thumb_factory.generate_thumbnail(uri, mimetype)
+				thumb_factory.save_thumbnail(thumb, uri, timestamp)
 
 			if thumb:
 				thumb = icon_factory.make_icon_frame(thumb, icon_size)
@@ -535,6 +528,7 @@ class GConfBridge(gobject.GObject):
 
 difffactory=DiffFactory()
 icon_factory = IconFactory()
+thumbnailer = Thumbnailer()
 icon_theme = gtk.icon_theme_get_default()
 thumb_factory = gnome.ui.ThumbnailFactory("normal")
 launcher = LaunchManager()
