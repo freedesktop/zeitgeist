@@ -394,7 +394,7 @@ class TagBrowser(gtk.VBox):
     def __init__(self):
         # Initialize superclass
         gtk.VBox.__init__(self)
-        self.set_size_request(-1,36)
+        self.set_size_request(-1,-1)
         self.combobox = gtk.combo_box_new_text()
         
         self.combobox = gtk.combo_box_new_text()
@@ -459,6 +459,7 @@ class TagBrowser(gtk.VBox):
         
         for tag in datasink.get_recent_used_tags(10,begin,end):
             btn = gtk.ToggleButton(str(tag))
+            btn.set_size_request(-1,-1)
             btn.set_relief(gtk.RELIEF_NONE)
             btn.set_focus_on_click(False)
             #label.set_use_underline(True)
@@ -478,11 +479,11 @@ class TagBrowser(gtk.VBox):
 		
 		for tag in datasink.get_most_used_tags(10,begin,end):
 			btn = gtk.ToggleButton(str(tag))
+			btn.set_size_request(-1,-1)
 			btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
-			#label.set_use_underline(True)
 			self.view.pack_start(btn,True,True)
-			#btn.set_size_request(-1,-1)
+			btn.set_size_request(-1,-1)
 			btn.connect("toggled",self.toggle)
 			
 		self.show_all()
