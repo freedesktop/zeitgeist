@@ -854,12 +854,12 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.day=None
+		bookmarker.connect("reload",lambda x: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
 		self.days={}
 		self.last_item = ""
-		self.iters=[]
 		
 	def append_item(self, item,group=True):
 		# Add an item to the end of the store
@@ -878,12 +878,9 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 	def clear_store(self):
 		self.types.clear()
 		self.days.clear()
-		self.store.clear()
 		self.day=None
-		for iter in self.iters:
-			self.iters.remove(iter)
-			del iter
-			
+		
+		self.store.clear()
 			
 	def unselect_all(self,x=None,y=None):
 		try:
@@ -934,7 +931,22 @@ class DataIconView(gtk.TreeView,gobject.GObject):
         	model[path][3] = not model[path][3]
         	item = model[path][4]
         	item.add_bookmark()
-        	
+
+	def _do_refresh_rows(self):
+		iter = self.store.get_iter_root()
+		if iter:
+			item = self.store.get_value(iter, 4)
+			self.store.set(iter,3,bookmarker.get_bookmark(item))
+			while True:
+				iter = self.store.iter_next(iter)
+				if iter:
+					item = self.store.get_value(iter, 4)
+					self.store.set(iter,3,bookmarker.get_bookmark(item))
+				else:
+					break
+			del iter
+			del item
+		gc.collect()
 	
 	def _set_item(self, item, append=True, group=True):
 		
@@ -949,24 +961,21 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		if self.last_item!=item.type or group==False:
         		self.last_item = item.type
         		
-        		iter=func(None,[item.get_icon(24),
+        		func(None,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
 							bookmark,
 							item])
 	        else:
 		        
-		        iter=func(None,[item.get_icon(24),
+		        func(None,[item.get_icon(24),
 	        	#func(self.iter,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
 							bookmark,
 							item])
-		        
-		    #notify the iterator to check if it is bookamrked
-       		bookmarker.connect("reload",lambda x: self.store.set(iter,3,bookmarker.get_bookmark(item)))	     
-       		self.iters.append(iter)
-	     	   
+       	
+
 	     
 class BrowserBar(gtk.HBox):
 	def __init__(self):
