@@ -832,7 +832,6 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		
 		bookmark_cell = gtk.CellRendererToggle()
 		bookmark_cell.set_property('activatable', True)
-		bookmark_cell.set_property('radio', True)
 		bookmark_cell.connect( 'toggled', self.toggle_bookmark, self.store )
 		bookmark_column = gtk.TreeViewColumn("bookmark",bookmark_cell)
 		bookmark_column.add_attribute( bookmark_cell, "active", 3)
@@ -962,8 +961,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 	  	
 		bookmarker.connect("reload",lambda x: self.store.set(iter,3,bookmarker.get_bookmark(item)))	     
 	     
-	     	    	
-class BrowserBar (gtk.HBox):
+class BrowserBar(gtk.HBox):
 	def __init__(self):
 		gtk.HBox.__init__(self)   
 		self.tooltips = gtk.Tooltips()
@@ -1100,7 +1098,94 @@ class BookmarksView(gtk.VBox):
 			self.view.append_item(item,group=False)
 		#timeline.load_month(force=True)
 	
+	     
+class ButtonCellRenderer(gtk.GenericCellRenderer):
+     __gsignals__ = {
+          'toggled': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
+                     (gobject.TYPE_STRING,))
+      }
+     def __init__(self):
+         gtk.GenericCellRenderer.__init__(self)
+         self.__gobject_init__()
+         self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
+
+         self.xpad = 1; self.ypad = 0
+         self.xalign = 0.5; self.yalign = 0.5
+         self.active_area = None
+         self.toggled = False
+         self.pango_l  = None
+         self.text = ""
+         self.active_bookmark = icon_factory.load_icon(gtk.STOCK_ABOUT, 24)
+         
+         self.inactive_bookmark = icon_factory.greyscale(icon_factory.load_icon(gtk.STOCK_ABOUT, 24))
+
+     def do_set_property(self, pspec, value):
+         print "set prop ", pspec.name
+         setattr(self, pspec.name, value)
+     def do_get_property(self, pspec):
+         print "get prop ", pspec.name
+         return getattr(self, pspec.name)
+     
+     def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
+     	
+	pix_rect = gtk.gdk.Rectangle()
+	pix_rect.x, pix_rect.y, pix_rect.width, pix_rect.height = \
+        self.on_get_size(widget, cell_area)
 	
+	pix_rect.x += cell_area.x
+      	pix_rect.y += cell_area.y
+	pix_rect.width  -= 2 * self.get_property("xpad")
+	pix_rect.height -= 2 * self.get_property("ypad")
+	
+	draw_rect = cell_area.intersect(pix_rect)
+	draw_rect = expose_area.intersect(draw_rect)
+
+	if self.toggled:
+		window.draw_pixbuf(widget.style.black_gc, self.active_bookmark, \
+	         draw_rect.x-pix_rect.x, draw_rect.y-pix_rect.y, draw_rect.x, \
+	         draw_rect.y+2, draw_rect.width, draw_rect.height, \
+	         gtk.gdk.RGB_DITHER_NONE, 0, 0)
+	else:
+		window.draw_pixbuf(widget.style.black_gc, self.inactive_bookmark, \
+	         draw_rect.x-pix_rect.x, draw_rect.y-pix_rect.y, draw_rect.x, \
+	         draw_rect.y+2, draw_rect.width, draw_rect.height, \
+	         gtk.gdk.RGB_DITHER_NONE, 0, 0)
+		
+
+      
+
+     def on_get_size(self, widget, cell_area):
+         if cell_area:
+             calc_width = cell_area.width - 2*self.xpad
+             calc_height = cell_area.height - 2*self.ypad
+             if calc_width < calc_height:
+                 calc_height = calc_width
+             else:
+                 calc_width = calc_height
+             x_offset = int(self.xalign * (cell_area.width - calc_width))
+             x_offset = max(x_offset, 0)
+             y_offset = int(self.yalign * (cell_area.height - calc_height))
+             y_offset = max(y_offset, 0)
+         else:
+             x_offset = 0
+             y_offset = 0
+             calc_width = 20
+             calc_height = 16
+         return x_offset, y_offset, calc_width, calc_height
+
+     def on_activate(self, event, widget, path, background_area, cell_area, flags):
+         self.sig_deac = widget.connect('button-release-event', self.on_deactivate, cell_area, path)
+         self.active_area = cell_area
+         self.toggled = not self.toggled
+
+     def on_deactivate(self, w, e, cell_area, path):
+         w.disconnect(self.sig_deac)
+         if ( cell_area.x <= int(e.x) <= cell_area.x + cell_area.width ) and ( cell_area.y <= int(e.y) <= cell_area.y + cell_area.height):
+             self.emit('toggled', path)
+         self.active_area = None
+         self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
+  	
+
 calendar = CalendarWidget()
 timeline = TimelineWidget()
 tb =TagBrowser()

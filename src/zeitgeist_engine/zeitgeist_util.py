@@ -533,6 +533,3 @@ thumb_factory = gnome.ui.ThumbnailFactory("normal")
 launcher = LaunchManager()
 iconcollection = IconCollection()
 gconf_bridge = GConfBridge()
-bookmark_icon = icon_factory.load_icon(gtk.STOCK_ABOUT, 24)
-unbookmark_icon = icon_factory.transparentize(icon_factory.greyscale(bookmark_icon),70)
-
