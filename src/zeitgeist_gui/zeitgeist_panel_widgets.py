@@ -30,7 +30,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 				
 		# Set up default properties
 		self.set_border_width(0)
-		self.set_size_request(600, 1)
+		self.set_size_request(600, 200)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.add_with_viewport(self.dayboxes)
 		
@@ -824,20 +824,24 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		
 		icon_cell = gtk.CellRendererPixbuf()
 		icon_column = gtk.TreeViewColumn("",icon_cell,pixbuf=0)
+		icon_column.set_fixed_width(32)
 		
 		name_cell = gtk.CellRendererText()
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("wrap-width", 125)
 		name_column = gtk.TreeViewColumn("Name", name_cell, markup=1)
+		name_column.set_fixed_width(125)
 		
 		time_cell = gtk.CellRendererText()
 		time_column = gtk.TreeViewColumn("Time",time_cell,markup=2)
+		time_column.set_fixed_width(32)
 		
 		bookmark_cell = gtk.CellRendererToggle()
 		bookmark_cell.set_property('activatable', True)
 		bookmark_cell.connect( 'toggled', self.toggle_bookmark, self.store )
 		bookmark_column = gtk.TreeViewColumn("bookmark",bookmark_cell)
 		bookmark_column.add_attribute( bookmark_cell, "active", 3)
+		bookmark_column.set_fixed_width(32)
 				
 		self.append_column(icon_column)
 		self.append_column(name_column)
@@ -939,21 +943,38 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 
 	def _do_refresh_rows(self):
 		refresh=False
-		for uri in self.items_uris:
-			if bookmarker.get_bookmark(uri):
-				refresh = True
-				break
+		if len(bookmarker.bookmarks)>0:	
+			for uri in self.items_uris:
+				if bookmarker.get_bookmark(uri):
+					refresh = True
+					break
+				
+			if refresh:
+				iter = self.store.get_iter_root()
+				if iter:
+					item = self.store.get_value(iter, 4)
+					self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+					while True:
+						iter = self.store.iter_next(iter)
+						if iter:
+							item = self.store.get_value(iter, 4)
+							self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+						else:
+							break
+					del iter
+					del item
+				gc.collect()
 			
-		if refresh:
+		else:
 			iter = self.store.get_iter_root()
 			if iter:
 				item = self.store.get_value(iter, 4)
-				self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+				self.store.set(iter,3,False)
 				while True:
 					iter = self.store.iter_next(iter)
 					if iter:
 						item = self.store.get_value(iter, 4)
-						self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+						self.store.set(iter,3,False)
 					else:
 						break
 				del iter

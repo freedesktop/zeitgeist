@@ -240,7 +240,7 @@ class Thumbnailer:
 				   gnome.ui.icon_lookup(icon_theme, thumb_factory, uri, mimetype, 0)
 		try:
 			if icon_type == gnome.ui.ICON_LOOKUP_RESULT_FLAGS_THUMBNAIL or \
-				   thumb_factory.has_valid_failed_thumbnail(uri, timestamp):
+				   thumb_factory.has_valid_failed_thumbnail(uri,int(timestamp)):
 				# Use existing thumbnail
 				thumb = icon_factory.load_icon(icon_name, icon_size)
 			elif self._is_local_uri(uri):
