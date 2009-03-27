@@ -105,7 +105,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 				daybox.clear()
 				del daybox
 			#precalculate the number of dayboxes we need and generate the dayboxes
-			for i in range(days_range):
+			for i in xrange(days_range):
 				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
@@ -130,6 +130,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 									daybox.connect('set-focus-child', self.focus_in, adj) 
 									self.dayboxes.pack_start(daybox,False,False)
 									self.days[item.datestring]=daybox
+									del daybox
 									
 						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
 							try:
@@ -147,7 +148,8 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 									daybox.connect('set-focus-child', self.focus_in, adj) 
 									self.dayboxes.pack_start(daybox,False,False)
 									self.days[item.datestring]=daybox		
-							 
+									del daybox
+									
 			else:
 				try:
 					if items.index(item)>-1:
@@ -164,7 +166,8 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 						daybox.connect('set-focus-child', self.focus_in, adj) 
 						self.dayboxes.pack_start(daybox,False,False)
 						self.days[item.datestring]=daybox
-						
+						del daybox
+			del item
 		self.clean_up_dayboxes()
 						
 	def clean_up_dayboxes(self):
@@ -179,7 +182,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		gc.collect()
 								
 	def load_month_proxy(self,widget=None,begin=None,end=None,force=False):
-        	
         	today = time.time()
         	if today  >= self.begin and today<=self.end+86400 :
         	    self.load_month(begin=begin,end=end,force=force)
@@ -860,6 +862,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		self.types = {}
 		self.days={}
 		self.last_item = ""
+		self.items_uris=[]
 		
 	def append_item(self, item,group=True):
 		# Add an item to the end of the store
@@ -879,6 +882,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		self.types.clear()
 		self.days.clear()
 		self.day=None
+		self.items_uris=[]
 		
 		self.store.clear()
 			
@@ -933,26 +937,33 @@ class DataIconView(gtk.TreeView,gobject.GObject):
         	item.add_bookmark()
 
 	def _do_refresh_rows(self):
-		iter = self.store.get_iter_root()
-		if iter:
-			item = self.store.get_value(iter, 4)
-			self.store.set(iter,3,bookmarker.get_bookmark(item))
-			while True:
-				iter = self.store.iter_next(iter)
-				if iter:
-					item = self.store.get_value(iter, 4)
-					self.store.set(iter,3,bookmarker.get_bookmark(item))
-				else:
-					break
-			del iter
-			del item
-		gc.collect()
+		refresh=False
+		for uri in self.items_uris:
+			if bookmarker.get_bookmark(uri):
+				refresh = True
+				break
+			
+		if refresh:
+			iter = self.store.get_iter_root()
+			if iter:
+				item = self.store.get_value(iter, 4)
+				self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+				while True:
+					iter = self.store.iter_next(iter)
+					if iter:
+						item = self.store.get_value(iter, 4)
+						self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+					else:
+						break
+				del iter
+				del item
+			gc.collect()
 	
 	def _set_item(self, item, append=True, group=True):
 		
 		func = self.store.append
-		bookmark = bookmarker.get_bookmark(item)
-		
+		bookmark = bookmarker.get_bookmark(item.uri)
+		self.items_uris.append(item.uri)
 		if not item.timestamp == -1.0:
 			date="<span size='small' color='blue'>%s</span>" % item.get_time()
 		else:

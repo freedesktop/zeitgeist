@@ -323,8 +323,8 @@ class Bookmarker(DataProvider):
 		self.bookmarks=[]
 		self.reload_bookmarks()
 		
-	def get_bookmark(self,item):
-		if self.bookmarks.count(item.uri) > 0:
+	def get_bookmark(self,uri):
+		if self.bookmarks.count(uri) > 0:
 			return True
 		return False
 	
