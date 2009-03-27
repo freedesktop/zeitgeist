@@ -345,7 +345,8 @@ class Bookmarker(DataProvider):
 	def get_items_uncached(self):
 		for i in datasink.get_bookmarks():
 			yield i
-		
+			del i
+			
 
 thread_pool = ThreadPool(1)
 datasink= DataSinkSource()

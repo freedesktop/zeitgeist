@@ -859,7 +859,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		self.types = {}
 		self.days={}
 		self.last_item = ""
-		self.iter = None
+		self.iters=[]
 		
 	def append_item(self, item,group=True):
 		# Add an item to the end of the store
@@ -880,8 +880,11 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		self.days.clear()
 		self.store.clear()
 		self.day=None
-		gc.collect()
-		
+		for iter in self.iters:
+			self.iters.remove(iter)
+			del iter
+			
+			
 	def unselect_all(self,x=None,y=None):
 		try:
 			treeselection = self.get_selection()
@@ -945,21 +948,25 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		
 		if self.last_item!=item.type or group==False:
         		self.last_item = item.type
+        		
         		iter=func(None,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
 							bookmark,
 							item])
 	        else:
+		        
 		        iter=func(None,[item.get_icon(24),
 	        	#func(self.iter,[item.get_icon(24),
 							"<span color='black'>%s</span>" % item.get_name(),
 		        			date,
 							bookmark,
 							item])
+		        
+		    #notify the iterator to check if it is bookamrked
+       		bookmarker.connect("reload",lambda x: self.store.set(iter,3,bookmarker.get_bookmark(item)))	     
+       		self.iters.append(iter)
 	     	   
-	  	
-		bookmarker.connect("reload",lambda x: self.store.set(iter,3,bookmarker.get_bookmark(item)))	     
 	     
 class BrowserBar(gtk.HBox):
 	def __init__(self):
@@ -1022,11 +1029,14 @@ class BrowserBar(gtk.HBox):
 		hbox.pack_start(clear_btn,False,False,4)
 		
 		self.pack_start(hbox,True,True)
+		self.iters=[]
 		
 	def remove_day(self, x=None):
 		print timeline.offset
 		timeline.offset +=  1
 		timeline.load_month()
+		for iter in self.iters:
+			del iter
 		
 	def toggle_bookmarks(self, x=None):
 		if self.star.get_active():

@@ -99,11 +99,13 @@ class FileMonitor(gobject.GObject):
 		del monitor_uri, info_uri, event
 		return False
 
-class IconFactory:
+class IconFactory():
 	'''
 	Icon lookup swiss-army knife (from menutreemodel.py)
 	'''
-	
+	def __init__(self):
+		self.icon_dict={}
+		
 	def load_icon_from_path(self, icon_path, icon_size = None):
 		try:
 			if icon_size:
@@ -151,40 +153,45 @@ class IconFactory:
 
 
 	def load_icon(self, icon_value, icon_size, force_size = True):
+		if self.icon_dict.get(icon_value) == None:
+			try:
+				assert icon_value, "No icon to load!"
+		
+				if isinstance(icon_value, gtk.gdk.Pixbuf):
+					return icon_value
+		
+				if os.path.isabs(icon_value):
+					icon = self.load_icon_from_path(icon_value, icon_size)
+					if icon:
+						return icon
+					icon_name = os.path.basename(icon_value)
+				else:
+					icon_name = icon_value
+				
+				if icon_name.endswith(".png"):
+					icon_name = icon_name[:-len(".png")]
+				elif icon_name.endswith(".xpm"):
+					icon_name = icon_name[:-len(".xpm")]
+				elif icon_name.endswith(".svg"):
+					icon_name = icon_name[:-len(".svg")]
+				
+				icon = None
+				info = icon_theme.lookup_icon(icon_name, icon_size, gtk.ICON_LOOKUP_USE_BUILTIN)
+				if info:
+					if icon_name.startswith("gtk-"):
+						icon = info.load_icon()
+					elif info.get_filename():
+						icon = self.load_icon_from_path(info.get_filename())
+				else:
+					icon = self.load_icon_from_data_dirs(icon_value, icon_size) 
 	
-		try:
-			assert icon_value, "No icon to load!"
-	
-			if isinstance(icon_value, gtk.gdk.Pixbuf):
-				return icon_value
-	
-			if os.path.isabs(icon_value):
-				icon = self.load_icon_from_path(icon_value, icon_size)
-				if icon:
-					return icon
-				icon_name = os.path.basename(icon_value)
-			else:
-				icon_name = icon_value
-			
-			if icon_name.endswith(".png"):
-				icon_name = icon_name[:-len(".png")]
-			elif icon_name.endswith(".xpm"):
-				icon_name = icon_name[:-len(".xpm")]
-			elif icon_name.endswith(".svg"):
-				icon_name = icon_name[:-len(".svg")]
-			
-			icon = None
-			info = icon_theme.lookup_icon(icon_name, icon_size, gtk.ICON_LOOKUP_USE_BUILTIN)
-			if info:
-				if icon_name.startswith("gtk-"):
-					icon = info.load_icon()
-				elif info.get_filename():
-					icon = self.load_icon_from_path(info.get_filename())
-			else:
-				icon = self.load_icon_from_data_dirs(icon_value, icon_size) 
-			return icon
-		except:
-			return None
+				self.icon_dict[icon_value]=icon
+				return icon
+			except:
+				self.icon_dict[icon_value]=None
+				return None
+		else:
+			return self.icon_dict[icon_value]
 
 	def load_image(self, icon_value, icon_size, force_size = True):
 		pixbuf = self.load_icon(icon_value, icon_size, force_size)
