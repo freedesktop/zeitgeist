@@ -53,7 +53,7 @@ class DataSinkSource(DataProvider):
 		
 		# Firefox
 		self.firefox = FirefoxSource()
-		self.firefox.connect("reload", self.update_db_with_source)
+		self.firefox.connect("reload-send", self.update_db_with_source)
 		self.firefox.start()
 		
 		#Evolution

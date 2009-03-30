@@ -7,6 +7,7 @@ from xml.dom.minidom import parse
 from xml.parsers.expat import ExpatError
 
 import gobject
+import thread
 import gtk
 import shutil
 import sqlite3 as db
@@ -25,26 +26,40 @@ class FirefoxSource(DataProvider):
 		self.icon="gnome-globe"
 		self.type = self.name
 		self.comment = "websites visited with Firefox"
-		
+		self.path = None
 		self.historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
-		
 		try:
 			self.note_path_monitor = FileMonitor(self.historydb[0])
-			self.note_path_monitor.connect("event", self.reload_proxy)
+			self.note_path_monitor.connect("event", thread.start_new_thread(self.reload_proxy,(None,)))
 			self.note_path_monitor.open()
 		#self.emit("reload")
 		except:
 			print "Are you using Firefox"
+		self.items = []
+	
+	def __copy_sqlite(self):
+		'''
+		Copy the sqlite file to avoid file locks when it's being used by firefox.
+		'''
+		try:
+			#historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
+			newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
+			newloc = newloc[0]+"firefox.sqlite"
+			shutil.copy2(self.historydb[0], newloc)
+			return newloc
+		except:
+			return None
 	
 	def reload_proxy(self,x=None,y=None,z=None):
+		self.path = self.__copy_sqlite()
 		self.emit("reload")
-	
-	def get_items_uncached(self):
-		path = self.__copy_sqlite()
 		
-		if path:
+	def get_items_from_firefox_db(self):
+		self.items=[]
+		if self.path:
+			
 			# create a connection to firefox's sqlite database
-			self.connection = db.connect(path,True)
+			self.connection = db.connect(self.path,True)
 			cursor = self.connection.cursor()
 			
 			# retrieve all urls from firefox history
@@ -62,36 +77,19 @@ class FirefoxSource(DataProvider):
 					count = item[3]
 					timestamp = history[j][2] / (1000000)
 					if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
-						yield Data(uri=url,
-								name=name,
-								timestamp=timestamp,
-								count=count,
-								icon = "gnome-globe",
-								use="visited",
-								type="Firefox History")
+						d = Data(uri=url,name=name,timestamp=timestamp,count=count,icon = "gnome-globe",use="visited",type="Firefox History")
+						self.items.append(d)
 					
 					else:
-						yield Data(uri=url,
-								name=name,
-								timestamp=timestamp,
-								icon = "gnome-globe",
-								count=count,
-								use="linked",
-								type="Firefox History")
-					
+						d = Data(uri=url,name=name,timestamp=timestamp,icon = "gnome-globe",count=count,use="linked",type="Firefox History")
+						self.items.append(d)
+						
 				j += 1
-				
+					
 			cursor.close()
 	
-	def __copy_sqlite(self):
-		'''
-		Copy the sqlite file to avoid file locks when it's being used by firefox.
-		'''
-		try:
-			#historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
-			newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
-			newloc = newloc[0]+"firefox.sqlite"
-			shutil.copy2(self.historydb[0], newloc)
-			return newloc
-		except:
-			return None
+	def get_items_uncached(self):
+		self.get_items_from_firefox_db()
+		for i in self.items:
+			yield i
+	
