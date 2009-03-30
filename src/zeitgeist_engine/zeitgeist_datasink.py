@@ -32,40 +32,32 @@ class DataSinkSource(DataProvider):
 		# Recently used items
 		self.videos=RecentlyUsedVideoSource()
 		self.videos.connect("reload", self.update_db_with_source)
-		self.videos.start()
 		
 		self.music=RecentlyUsedMusicSource()
 		self.music.connect("reload", self.update_db_with_source)
-		self.music.start()
 		
 		self.images=RecentlyUsedImagesSource()
 		self.images.connect("reload", self.update_db_with_source)
-		self.images.start()
 		
 		self.docs=RecentlyUsedDocumentsSource()
 		self.docs.connect("reload", self.update_db_with_source)
-		self.docs.start()
 		
 		self.others = RecentlyUsedOthersSource()
 		self.others.connect("reload", self.update_db_with_source)
-		self.others.start()
 		
 		
 		# Firefox
 		self.firefox = FirefoxSource()
 		self.firefox.connect("reload", self.update_db_with_source)
-		self.firefox.start()
 		
 		#Evolution
 		
 		self.evo = EvolutionSource()
-		self.evo.start()
 		
 		# Pidgin
 		
 		# Tomboy
 		self.tomboy = TomboySource()
-		self.tomboy.start()
 		self.tomboy.connect("reload", self.update_db_with_source)
 		
 		# Twitter
@@ -234,85 +226,7 @@ class DataSinkSource(DataProvider):
 	def get_related_items(self,item):
 		for i in db.get_related_items(item):
 		  yield i
-		  		
-class InsertThread(ThreadPoolTask):
 	
-	def __init__(self,items):
-		ThreadPoolTask.__init__(self)
-		self.items=items
-		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
-		path = self.create_db(path)
-		self.connection = sqlite3.connect(path[0], True, check_same_thread=False)
-		self.cursor = self.connection.cursor()
-		self.offset = 0
-		
-	
-	def create_db(self, path):
-		if len(path) == 0:
-			try:
-				homedir = glob.glob(os.path.expanduser("~/"))
-				dbdir = homedir[0] +".Zeitgeist"
-				try:
-					os.mkdir(dbdir)
-				except:
-					pass
-				shutil.copy("gzg.sqlite", dbdir)	  
-			except:
-				print "Unexpected error creating database:", sys.exc_info()[0]	
-			return glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
-		else:
-			return path
-
-	def _action(self):
-		self.insert_items(self.items)
-		if thread_pool.queueEmpty():
-			thread_pool.terminate()
-		
-		      
-
-	def insert_items(self, items):
-		for item in items:
-			try:
-				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)', (item.timestamp,
-					None,
-					item.uri,
-					item.use,
-					str(item.timestamp)+"-"+item.uri))
-				try:
-					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?)', (item.uri,
-						item.name,
-						item.comment,
-						item.mimetype,
-						item.tags,
-						item.count,
-						item.use,
-						item.type,
-						item.icon))
-						
-				except Exception, ex:
-					pass
-					#print "---------------------------------------------------------------------------"					
-					#print ex
-					#print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
-					#print "---------------------------------------------------------------------------"	
-				
-				try:
-					# Add tags into the database
-					# FIXME: Sometimes Data.tags is a string and sometimes it is a list.
-					# TODO: Improve consistency.
-					if item.tags != "" and item.tags != []:
-						for tag in item.get_tags():
-							self.cursor.execute('INSERT INTO tags VALUES (?,?,?)', (tag.capitalize(), item.uri,item.timestamp))
-				except Exception, ex:
-					print "Error inserting tags:"
-					print ex
-
-			except sqlite3.IntegrityError, ex:
-					pass
-		self.connection.commit()
-		
-
-
 class Bookmarker(DataProvider):	
 	def __init__(self,
 							name=_("Bookmarker"),
@@ -347,8 +261,6 @@ class Bookmarker(DataProvider):
 			yield i
 			del i
 			
-
-thread_pool = ThreadPool(1)
 datasink= DataSinkSource()
 bookmarker = Bookmarker()
 

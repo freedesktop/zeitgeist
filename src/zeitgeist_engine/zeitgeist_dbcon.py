@@ -109,7 +109,7 @@ class DBConnector():
 			  		type=i[7],
 			  		icon=i[8],
 			  		bookmark=bookmark)
-			yield d 
+				yield d 
 		gc.collect()
 		print time.time() -t1
 	 
@@ -176,80 +176,18 @@ class DBConnector():
 			return None
 		
 	def get_related_items(self,item):
-		list = []
-		items = self.cursor.execute('SELECT * FROM timetable WHERE uri=? ORDER BY start DESC',(item.uri,)).fetchall()
-		type=item.type
-		relevant=[]
-		relevant2=[]
-		relevant3=[]
-		for i in items:
-			'''
-			min and max define the neighbourhood radius
-			'''
-			min = i[0]-28800
-			max = i[0]+28800
-			res = self.cursor.execute("SELECT  uri,start FROM timetable WHERE start >="+ str(min) + " and start <= " + str(max)+" and uri!=? ORDER BY start",(item.uri,)).fetchall()
-			for r in res:
-				rtemp=float(abs(i[0]-r[1]))
-				if rtemp < 1000:
-					#temp = (i[0]-rtemp)/i[0]
-					#temp=(temp-0.99999)*100000
-					try:
-						temp=1.0/rtemp**2
-					except:
-						temp = 1.0
-					if item.uri !=res[0] :
-						relevant.append(r[0])
-						relevant2.append(temp)
-						relevant3.append(r[1])
-		
-		
-		list ={}
-		while relevant != []:
-			r = relevant[0]
-			x =  1
-			heat=0
-			timestamp=0
-			while relevant.count(r)>0:
-				index = relevant.index(r)
-				if relevant3[index]>timestamp:
-					timestamp = relevant3[index]
-				if relevant2[index]>heat:
-					heat=relevant2[index]
-				x+=1
-					#print"----------------"
-					#print heat
-					#print timestamp
-					#print x
-					
-				relevant.pop(index)
-				relevant2.pop(index)
-				relevant3.pop(index)
-				
-			if r  != item.uri:
-				list[r]=[timestamp*2*heat*x]
-
-		values = [(v, k) for (k, v) in list.iteritems()]
-		list.clear()
-		values.sort()
-		values.reverse()
-		
-		for v in values:
-			print v
-		
-		types=[]
-		items=[]
-		for index in xrange(20):
-			try:
-				uri = values[index][1]
-				i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
+		for tag in item.get_tags():
+			print tag
+			res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ? ORDER BY timestamp DESC',(tag,)).fetchall()
+			for raw in res:
+				print raw
+				i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(raw[0],)).fetchone()
 				if i:
 					bookmark = False
 					if i[9] ==1:
 						bookmark=True
-						
+					
 					d = Data(uri=i[0], 
-				 		timestamp= t[0], 
 				 		name= i[1], 
 				  		comment=i[2], 
 				  		mimetype=  i[3], 
@@ -259,10 +197,8 @@ class DBConnector():
 				  		type=i[7],
 				  		icon=i[8],
 				  		bookmark=bookmark)
-					items.append(d)
-			except:
-				pass
-		return items
+					yield d 
+				
 				
 	def numeric_compare(x, y):
 		if x[0]>y[0]:
