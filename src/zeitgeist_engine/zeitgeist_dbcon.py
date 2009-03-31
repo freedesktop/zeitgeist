@@ -175,10 +175,10 @@ class DBConnector():
 		else:
 			return None
 		
-	def get_related_items(self,item):
+	def get_items_related_by_tags(self,item):
 		for tag in item.get_tags():
 			print tag
-			res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ? ORDER BY timestamp DESC',(tag,)).fetchall()
+			res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ? ORDER BY COUNT(uri) DESC',(tag,)).fetchall()
 			for raw in res:
 				print raw
 				i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(raw[0],)).fetchone()
@@ -198,8 +198,48 @@ class DBConnector():
 				  		icon=i[8],
 				  		bookmark=bookmark)
 					yield d 
-				
-				
+		
+	def get_related_items(self,item):
+		list = []
+		dict = {}
+		current_timestamp = time.time() - (90*24*60*60)
+		items = self.cursor.execute('SELECT * FROM timetable WHERE start >? AND  uri=? ORDER BY start DESC',(current_timestamp,item.uri)).fetchall()
+		for uri in items:
+			'''
+			min and max define the neighbourhood radius
+			'''
+			min = uri[0]-(60*60)
+			max = uri[0]+(60*60)
+			
+			res = self.cursor.execute("SELECT uri FROM timetable WHERE start >=? and start <=? and uri!=?" ,(min,max,uri[2])).fetchall()
+			
+			for r in res:
+				if dict.has_key(r[0]):
+					dict[r[0]]=dict[r[0]]+1
+				else:
+					dict[r[0]]=0
+		
+		
+		print"-----------------------------------------------------------------------------------------------"
+		values = [(v, k) for (k, v) in dict.iteritems()]
+		dict.clear()
+ 		values.sort()
+ 		values.reverse()
+		print"-----------------------------------------------------------------------------------------------"
+			
+		counter =0
+		for v in values:
+			uri=v[1]
+			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
+			if i:
+				if counter <= 5:
+					d= Data(uri=i[0],timestamp= -1.0, name= i[1], comment=i[2], mimetype=  i[3], tags=i[4], count=i[5], use =i[6], type=i[7])
+					list.append(d) 
+					counter = counter +1
+			
+		return list
+		
+		
 	def numeric_compare(x, y):
 		if x[0]>y[0]:
 			return 1
