@@ -216,6 +216,11 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			self.begin = begin 
 			self.end = end -1
 		
+		print "------------------------------"
+		print begin
+		print end
+		print "------------------------------"
+		
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
 		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)

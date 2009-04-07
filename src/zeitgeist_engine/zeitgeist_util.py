@@ -12,7 +12,6 @@ import gnomevfs
 import gconf
 from gettext import gettext as _
 import tempfile, shutil, os
-import Image
 
 class FileMonitor(gobject.GObject):
 	'''
