@@ -254,7 +254,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			 
 		
 		# Update the GUI with the items that match the current search terms/tags
-		print "Applying serach"
+		print "Applying search"
 		self.apply_search(self.tags)
 		
 		time2 = time.time()
