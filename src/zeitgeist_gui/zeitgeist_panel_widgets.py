@@ -63,7 +63,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		'''
 		
 		self.tags = tags
-		items=[]
 		if not tags == "":
 			if tags.find(",,")>-1:
 				tags = self.tags.strip().replace(",,", ",")
@@ -80,14 +79,82 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			if not tag=="":
 				ftagsplit.append(tag)
 		tagsplit = ftagsplit
-		
-		self.days.clear()
-			
 		days_range= int((self.end - self.begin )/86400)  +1 #get the days range
 		
+		self.days.clear()
+		self.review_days()
+		self.build_days(tagsplit,search)
+		
+		
+	def build_days(self,tagsplit,search):
+		items=[]
+		for item in self.items:
+			if len(tagsplit) >0:
+				for tag in tagsplit:
+						if search:
+							if item.uri.lower().find(tag.lower())>-1:
+								try:
+									if items.index(item)>-1:
+										pass
+								except:
+									items.append(item)
+									if not  self.days.has_key(item.datestring):
+										pass
+									else:
+										daybox = self.days[item.datestring]
+										daybox.append_item(item)
+										adj = self.get_hadjustment()
+										daybox.connect('set-focus-child', self.focus_in, adj) 
+										self.dayboxes.pack_start(daybox,False,False)
+										self.days[item.datestring]=daybox
+										del daybox
+									
+						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
+							try:
+								if items.index(item)>-1:
+									pass
+							except:
+									items.append(item)
+									if not  self.days.has_key(item.datestring):
+										pass
+									else:
+										daybox = self.days[item.datestring]
+										daybox.append_item(item)
+										adj = self.get_hadjustment()
+										daybox.connect('set-focus-child', self.focus_in, adj) 
+										self.dayboxes.pack_start(daybox,False,False)
+										self.days[item.datestring]=daybox		
+										del daybox
+									
+			else:
+				try:
+					if items.index(item)>-1:
+						pass
+				except:
+						items.append(item)
+						if not self.days.has_key(item.datestring):
+									pass
+						else:
+							daybox = self.days[item.datestring]
+							daybox.append_item(item)
+							adj = self.get_hadjustment()
+							daybox.connect('set-focus-child', self.focus_in, adj) 
+							self.dayboxes.pack_start(daybox,False,False)
+							self.days[item.datestring]=daybox
+							del daybox
+			del item
+		self.clean_up_dayboxes()
+	
+	def review_days(self):	
+		
+		days_range= int((self.end - self.begin )/86400)  +1 #get the days range
 		'''
 		Try avoiding rebuiling boxes and use currently available
 		'''
+		print "-------------------------------------------------------------------"
+		print days_range
+		print len(self.dayboxes)
+		
 		
 		if days_range == len(self.dayboxes):
 			i = 0
@@ -110,65 +177,9 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
 		
-		for item in self.items:
-			if len(tagsplit) >0:
-				for tag in tagsplit:
-						if search:
-							if item.uri.lower().find(tag.lower())>-1:
-								try:
-									if items.index(item)>-1:
-										pass
-								except:
-									items.append(item)
-									if not  self.days.has_key(item.datestring):
-										daybox = DayBox(item.datestring)
-										self.days[item.datestring] = daybox	
-									else:
-										daybox = self.days[item.datestring]
-									daybox.append_item(item)
-									adj = self.get_hadjustment()
-									daybox.connect('set-focus-child', self.focus_in, adj) 
-									self.dayboxes.pack_start(daybox,False,False)
-									self.days[item.datestring]=daybox
-									del daybox
-									
-						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
-							try:
-								if items.index(item)>-1:
-									pass
-							except:
-									items.append(item)
-									if not  self.days.has_key(item.datestring):
-										daybox = DayBox(item.datestring)
-										self.days[item.datestring] = daybox	
-									else:
-										daybox = self.days[item.datestring]
-									daybox.append_item(item)
-									adj = self.get_hadjustment()
-									daybox.connect('set-focus-child', self.focus_in, adj) 
-									self.dayboxes.pack_start(daybox,False,False)
-									self.days[item.datestring]=daybox		
-									del daybox
-									
-			else:
-				try:
-					if items.index(item)>-1:
-						pass
-				except:
-						items.append(item)
-						if not  self.days.has_key(item.datestring):
-							daybox = DayBox(item.datestring)
-							self.days[item.datestring] = daybox	
-						else:
-							daybox = self.days[item.datestring]
-						daybox.append_item(item)
-						adj = self.get_hadjustment()
-						daybox.connect('set-focus-child', self.focus_in, adj) 
-						self.dayboxes.pack_start(daybox,False,False)
-						self.days[item.datestring]=daybox
-						del daybox
-			del item
-		self.clean_up_dayboxes()
+		print "+++++++++++++++++++++++++++"
+		print days_range
+		print len(self.dayboxes)
 						
 	def clean_up_dayboxes(self):
 		print "cleaning up view"
@@ -236,9 +247,10 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			del item
 		self.items = []
 		for i in datasink.get_items_by_time(self.begin, self.end, '', True):
-			self.items.append(i)
-			i.connect("relate",self.set_relation)
-			i.connect("reload",self.load_month)
+			if i.timestamp < self.end:
+				self.items.append(i)
+				i.connect("relate",self.set_relation)
+				i.connect("reload",self.load_month)
 			 
 		
 		# Update the GUI with the items that match the current search terms/tags
@@ -509,6 +521,11 @@ class TagBrowser(gtk.VBox):
                  timeline.load_month()
         
         timeline.apply_search(tags,False)
+        
+    def untoggle_all(self):
+    	for btn in self.view:
+    		btn.set_active(False)
+    	
                        
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
@@ -1076,14 +1093,12 @@ class BrowserBar(gtk.HBox):
 		hbox.pack_start(clear_btn,False,False,4)
 		
 		self.pack_start(hbox,True,True)
-		self.iters=[]
 		
 	def remove_day(self, x=None):
+		tb.untoggle_all()
 		print timeline.offset
 		timeline.offset +=  1
 		timeline.load_month()
-		for iter in self.iters:
-			del iter
 		
 	def toggle_bookmarks(self, x=None):
 		if self.star.get_active():
@@ -1099,6 +1114,7 @@ class BrowserBar(gtk.HBox):
 			tb.hide_all()
 		
 	def add_day(self, x=None):
+		tb.untoggle_all()
 		print timeline.offset
 		timeline.offset -= 1
 		timeline.load_month()
