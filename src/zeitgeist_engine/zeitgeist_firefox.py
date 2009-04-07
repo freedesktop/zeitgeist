@@ -18,6 +18,7 @@ from zeitgeist_util import FileMonitor
 from zeitgeist_base import Data, DataProvider
 
 
+
 class FirefoxSource(DataProvider):
     
     def __init__(self, name="Firefox History", icon="gnome-globe", uri="gzg/firefox"):
