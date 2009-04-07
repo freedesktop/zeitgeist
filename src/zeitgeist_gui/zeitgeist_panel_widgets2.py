@@ -418,7 +418,7 @@ class TagBrowser(gtk.VBox):
         self.combobox.append_text('Recently used tags')
         self.combobox.append_text('Most used tags')
         
-        hbox=gtk.HBox()
+        hbox=gtk.VBox()
         
         hbox.pack_start(self.combobox, False, False)
                 
@@ -426,7 +426,7 @@ class TagBrowser(gtk.VBox):
         self.ev = gtk.EventBox()
         self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
 
-        self.view = gtk.HBox()
+        self.view = gtk.VBox()
         self.ev.add(self.view)
         self.scroll.add_with_viewport(self.ev)
         self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
@@ -1035,9 +1035,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		        			date,
 							bookmark,
 							item])
-       	
-
-	     
+     	  
 class BrowserBar(gtk.HBox):
 	def __init__(self):
 		gtk.HBox.__init__(self)   
@@ -1074,14 +1072,15 @@ class BrowserBar(gtk.HBox):
 		self.tooltips.set_tip(self.tags , "View tagged activities")
 		self.tags.connect("toggled",self.toggle_tags)
 		
+		
 		toolbar = gtk.Toolbar()
 		
 		toolbar.add(self.back)
 		toolbar.add(self.home)
 		toolbar.add(self.forward)
-		toolbar.add(gtk.SeparatorToolItem())
-		toolbar.add(self.star)
-		toolbar.add(self.tags)
+		#toolbar.add(gtk.SeparatorToolItem())
+		#toolbar.add(self.star)
+		#toolbar.add(self.tags)
 		toolbar.add(self.options)
 		self.pack_start(toolbar,True,True,4)
 		
@@ -1092,13 +1091,13 @@ class BrowserBar(gtk.HBox):
 		
 		
 		# Search Area
-		self.search = SearchToolItem()
-		hbox.pack_start(self.search,True,True)
-		clear_btn = gtk.ToolButton("gtk-clear")
-		clear_btn.connect("clicked",lambda x: self.search.do_clear())
-		hbox.pack_start(clear_btn,False,False,4)
+		#self.search = SearchToolItem()
+		#clear_btn = gtk.ToolButton("gtk-clear")
+		#clear_btn.connect("clicked",lambda x: self.search.do_clear())
 		
-		self.pack_start(hbox,True,True)
+		#toolbar.add(self.search)
+		#toolbar.add(clear_btn)
+		
 		
 	def remove_day(self, x=None):
 		tb.untoggle_all()
@@ -1264,9 +1263,13 @@ class ButtonCellRenderer(gtk.GenericCellRenderer):
          self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
   	
 
+	
+		
+
 calendar = CalendarWidget()
 timeline = TimelineWidget()
 tb =TagBrowser()
 filtersBox = FilterAndOptionBox()
 bookmarks = BookmarksView()
+bookmarks.view.set_size_request(-1,-1)
 bb = BrowserBar()

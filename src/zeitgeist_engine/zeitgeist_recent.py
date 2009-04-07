@@ -6,6 +6,65 @@ from gettext import gettext as _
 
 from zeitgeist_base import Data, DataProvider
 
+
+
+
+#-----------------------------------------------------------------------------#
+
+
+DOCUMENT_MIMETYPES = [
+        # Covers:
+        #     vnd.corel-draw
+        #     vnd.ms-powerpoint
+        #     vnd.ms-excel
+        #     vnd.oasis.opendocument.*
+        #     vnd.stardivision.*
+        #     vnd.sun.xml.*
+        re.compile(u"application/vnd.*"),
+        # Covers: x-applix-word, x-applix-spreadsheet, x-applix-presents
+        re.compile(u"application/x-applix-*"),
+        # Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
+        re.compile(u"application/x-k(word|spread|presenter|illustrator)"),
+        u"application/ms-powerpoint",
+        u"application/msword",
+        u"application/pdf",
+        u"application/postscript",
+        u"application/ps",
+        u"application/rtf",
+        u"application/x-abiword",
+        u"application/x-gnucash",
+        u"application/x-gnumeric",
+        u"application/x-java*",
+        ]
+
+
+IMAGE_MIMETYPES = [
+        # Covers:
+        #     vnd.corel-draw
+        re.compile(u"application/vnd.corel-draw"),
+        # Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
+        re.compile(u"application/x-k(illustrator)"),
+        re.compile(u"image/*"),
+        ]
+
+
+AUDIO_MIMETYPES = [
+        re.compile(u"audio/*"),
+        u"application/ogg"
+        ]
+
+
+VIDEO_MIMETYPES = [
+        re.compile(u"video/*"),
+        u"application/ogg"
+        ]
+
+
+#-----------------------------------------------------------------------------#
+
+
+
+
 class RecentlyUsedManagerGtk(DataProvider):
 	
 	def __init__(self):
@@ -104,82 +163,38 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
-	DOCUMENT_MIMETYPES = [
-		# Covers:
-		#	 vnd.corel-draw
-		#	 vnd.ms-powerpoint
-		#	 vnd.ms-excel
-		#	 vnd.oasis.opendocument.*
-		#	 vnd.stardivision.*
-		#	 vnd.sun.xml.*
-		re.compile("application/vnd.*"),
-		# Covers: x-applix-word, x-applix-spreadsheet, x-applix-presents
-		re.compile("application/x-applix-*"),
-		# Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
-		re.compile("application/x-k(word|spread|presenter|illustrator)"),
-		"application/ms-powerpoint",
-		"application/msword",
-		"application/pdf",
-		"application/postscript",
-		"application/ps",
-		"application/rtf",
-		"application/x-abiword",
-		"application/x-gnucash",
-		"application/x-gnumeric",
-		"application/x-java*",
-		]
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Documents"),
 										icon="stock_new-presentation",
-										mimetype_list=self.DOCUMENT_MIMETYPES,
+										mimetype_list=DOCUMENT_MIMETYPES,
 										filter_name="Documents")
+		
+	
 				  
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
-	### FIXME: This is lame, we should generate this list somehow.
-	DOCUMENT_MIMETYPES = [
-		# Covers:
-		#	 vnd.corel-draw
-		#	 vnd.ms-powerpoint
-		#	 vnd.ms-excel
-		#	 vnd.oasis.opendocument.*
-		#	 vnd.stardivision.*
-		#	 vnd.sun.xml.*
-		re.compile("text/*"),
-		"application/x-asp",
-		"application/x-bittorrent",
-		"application/x-blender",
-		"application/x-cgi",
-		"application/x-dia-diagram",
-		"application/x-dvi",
-		"application/x-glade",
-		"application/x-iso-image",
-		"application/x-jbuilder-project",
-		"application/x-magicpoint",
-		"application/x-mrproject",
-		"application/x-php",
-		"application/tar",
-		"application/x-tar",
-		"applicaton/x-gtar",
-		"multipart/x-tar",
-		"application/x-compress",
-		"application/x-compressed",
-		"application/x-javascript",
-		"application/javascript",
-		]
+	
+	OTHER_MIMETYPES = DOCUMENT_MIMETYPES + IMAGE_MIMETYPES + AUDIO_MIMETYPES + VIDEO_MIMETYPES
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Other"),
 										icon="applications-other",
-										mimetype_list=self.DOCUMENT_MIMETYPES,
+										mimetype_list=self.OTHER_MIMETYPES,
 										filter_name="Other",
 										inverse = True)
+	
+	def include_item(self, item):
+		item_mime = item.get_mimetype()
+		for mimetype in self.mimetype_list:
+			if hasattr(mimetype, "match") and mimetype.match(item_mime) or item_mime == mimetype:
+				return False
+		return True
 			
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
-	DOCUMENT_MIMETYPES = [
+	IMAGE_MIMETYPES = [
 		# Covers:
 		#	 vnd.corel-draw
 		re.compile("application/vnd.corel-draw"),
@@ -192,35 +207,25 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Images"),
 										icon="gnome-mime-image",
-										mimetype_list=self.DOCUMENT_MIMETYPES,
+										mimetype_list=IMAGE_MIMETYPES,
 										filter_name="Images")
 										
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
-	### FIXME: This is lame, we should generate this list somehow.
-	MEDIA_MIMETYPES = [
-		re.compile("audio/*"),
-		"application/ogg"
-		]
-
+	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Music"),
 										icon="gnome-mime-audio",
-										mimetype_list=self.MEDIA_MIMETYPES,
+										mimetype_list=AUDIO_MIMETYPES,
 										filter_name="Music")
 					   
 class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
-	### FIXME: This is lame, we should generate this list somehow.
-	MEDIA_MIMETYPES = [
-		re.compile("video/*"),
-		"application/ogg"
-		]
-
+	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name=_("Videos"),
 										icon="gnome-mime-video",
-										mimetype_list=self.MEDIA_MIMETYPES,
+										mimetype_list=VIDEO_MIMETYPES,
 										filter_name="Videos")
 
 recent_model = RecentlyUsedManagerGtk()
