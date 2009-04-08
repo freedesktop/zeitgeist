@@ -151,7 +151,7 @@ class DBConnector():
 		while i < len(res) and i < count:
 			#tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?', (res[i][0],)).fetchone()
 			#print res[i][0]
-			yield res[i][0]
+			yield str(res[i][0])
 			i += 1
 			
 	def get_most_tags(self,count=20,min=0,max=sys.maxint):
@@ -160,7 +160,7 @@ class DBConnector():
 		while i < len(res) and i < count:
 			#print res[i][0]
 			#tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?', (res[i][0],)).fetchone()
-			yield res[i][0]
+			yield str(res[i][0])
 			i += 1
 			
 	def get_min_timestamp_for_tag(self,tag):
