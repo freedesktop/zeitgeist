@@ -10,6 +10,7 @@ from gettext import ngettext, gettext as _
  
 from zeitgeist_engine.zeitgeist_datasink import bookmarker, datasink
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
+from zeitgeist_engine.xdgdirs import xdg_directory
 
 class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 	
@@ -210,7 +211,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
 		
-		
 		# Get the begin and end of this month
 		# each tuple is of format (year, month, day, hours, minutes,
 		# seconds, weekday, day_of_year, daylight savings) 
@@ -238,7 +238,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# Get date as unix timestamp
 		calendar.clear_marks()
 		
-		
 		# Begin benchmarking
 		time1 = time.time()
 		# Get all items in the date range and add them to self.items
@@ -250,7 +249,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 				self.items.append(i)
 				i.connect("relate",self.set_relation)
 				i.connect("reload",self.load_month)
-			 
 		
 		# Update the GUI with the items that match the current search terms/tags
 		print "Applying search"
@@ -262,7 +260,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		
 		# Manually force garbage collection
 		self.emit("reload")
-		
+	
 	def jump_to_day(self, widget,focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
@@ -554,13 +552,11 @@ class FilterAndOptionBox(gtk.VBox):
 		#self.frame2.add(self.alignment2)
 		self.frame2.set_label_widget(self.label2)
 		
-		
 		#self.timefilter = gtk.CheckButton()
 		#self.timefilter.set_label("Filter over current period")
 		#self.timefilter.connect("toggled",self.set_timelinefilter)
 		#self.option_box.pack_start(self.timefilter,False,False,5)
 		self.option_box.pack_start(self.frame2,False, False)
-		
 		
 		self.voptionbox = gtk.VBox(False)
 		
@@ -568,13 +564,12 @@ class FilterAndOptionBox(gtk.VBox):
 		for source in datasink.sources:
 			filter = CheckBox(source)
 			filter.set_active(True)
-			self.voptionbox.pack_start( filter,False,False,0)
+			self.voptionbox.pack_start(filter, False, False, 0)
 			self.filters.append(filter)
-			filter.connect("toggled",self.filter_out)
+			filter.connect("toggled", self.filter_out)
 			
 		self.frame2.add(self.voptionbox)
 		self.date_dict = None
-		
 		
 		# GConf settings
 		gconf_bridge.connect("changed::show_note_button", lambda gb: self.set_buttons())
@@ -594,11 +589,7 @@ class FilterAndOptionBox(gtk.VBox):
 			self.create_doc_btn.show_all()
 		else:
 			self.create_doc_btn.hide_all()
-			
-			
-			
-		
-		
+	
 	def set_timelinefilter(self,w=None):
 		if self.timefilter.get_active():
 			self.timefilter_active=True
@@ -684,7 +675,7 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 									   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
 										gtk.STOCK_SAVE, gtk.RESPONSE_ACCEPT))
 		self.set_current_name(name)
-		self.set_current_folder(os.path.expanduser("~/Desktop"))
+		self.set_current_folder(xdg_directory("desktop", "~/Desktop"))
 		self.set_do_overwrite_confirmation(True)
 		self.set_default_response(gtk.RESPONSE_ACCEPT)
 
@@ -823,16 +814,17 @@ class SearchToolItem(gtk.ToolItem):
 		'''Cancel a pending/active search without sending the \'clear\' signal.'''
 		if self.entry.get_text() != self.default_search_text:
 			self.do_clear()
-		
+
 class DataIconView(gtk.TreeView,gobject.GObject):
-	__gsignals__ = {
-		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
-		}
 	'''
 	Icon view which displays Datas in the style of the Nautilus horizontal mode,
 	where icons are right aligned and each column is of a uniform width.  Also
 	handles opening an item and displaying the item context menu.
 	'''
+	
+	__gsignals__ = {
+		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
+		}
 	
 	def __init__(self,parentdays=False):
 		gtk.TreeView.__init__(self)
@@ -900,7 +892,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		self.set_model(self.store)
 		
 	def remove_item(self,item):
-		#Maybe filtering should be done on a  UI level
+		# Maybe filtering should be done on a UI level
 		pass
 	
 	def clear_store(self):
@@ -1041,33 +1033,32 @@ class BrowserBar(gtk.HBox):
 
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
-		self.home.connect("clicked",self.focus_today)
-		self.tooltips.set_tip(self.home , "Show recent activities")
+		self.home.connect("clicked", self.focus_today)
+		self.tooltips.set_tip(self.home, "Show recent activities")
 
 		self.back = gtk.ToolButton("gtk-go-back")
 		self.back.set_label("Older")
 		self.back.connect("clicked",self.add_day)
-		self.tooltips.set_tip(self.back , "Go back in time")
+		self.tooltips.set_tip(self.back, "Go back in time")
 		
 		self.forward = gtk.ToolButton("gtk-go-forward")
 		self.forward.set_label("Newer")
-		self.forward.connect("clicked",self.remove_day)
-		self.tooltips.set_tip(self.forward , "Go to the future")
-		
+		self.forward.connect("clicked", self.remove_day)
+		self.tooltips.set_tip(self.forward, "Go to the future")
 		
 		self.options = gtk.ToggleToolButton("gtk-select-color")
-		self.tooltips.set_tip(self.options , "Filter your current view")
+		self.tooltips.set_tip(self.options, "Filter your current view")
 		self.options.set_label("Filters")
 		
 		self.star = gtk.ToggleToolButton("gtk-about")
 		self.star.set_label("Bookmarks")
-		self.tooltips.set_tip(self.star , "View bookmarked activities")
+		self.tooltips.set_tip(self.star, "View bookmarked activities")
 		self.star.connect("toggled",self.toggle_bookmarks)
 		
 		
 		self.tags = gtk.ToggleToolButton("gtk-dialog-warning")
 		self.tags.set_label("Tags")
-		self.tooltips.set_tip(self.tags , "View tagged activities")
+		self.tooltips.set_tip(self.tags, "View tagged activities")
 		self.tags.connect("toggled",self.toggle_tags)
 		
 		toolbar = gtk.Toolbar()
@@ -1085,7 +1076,6 @@ class BrowserBar(gtk.HBox):
 		hbox2=gtk.HBox()
 		hbox.pack_start(hbox2,True,True,5)
 		hbox2.pack_start(gtk.HBox(True),True,True,5)
-		
 		
 		# Search Area
 		self.search = SearchToolItem()
@@ -1136,7 +1126,6 @@ class BookmarksView(gtk.VBox):
 		
 		vbox=gtk.VBox()
 		
-		
 		self.label = gtk.Label("Bookmarks")
 		#self.label.set_padding(5,5)
 		vbox.pack_start(self.label,False,True,5)
@@ -1164,7 +1153,6 @@ class BookmarksView(gtk.VBox):
 		self.pack_start(evbox,True,True)
 		self.get_bookmarks()
 		bookmarker.connect("reload",self.get_bookmarks)
-		
 
 	def get_bookmarks(self,x=None):
 		self.view.clear_store()
