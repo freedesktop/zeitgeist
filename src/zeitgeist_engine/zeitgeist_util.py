@@ -179,7 +179,7 @@ class IconFactory():
 					if icon_name.startswith("gtk-"):
 						icon = info.load_icon()
 					elif info.get_filename():
-						icon = self.load_icon_from_path(info.get_filename())
+						icon = self.load_icon_from_path(info.get_filename(), icon_size)
 				else:
 					icon = self.load_icon_from_data_dirs(icon_value, icon_size) 
 	
