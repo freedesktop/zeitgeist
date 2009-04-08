@@ -541,7 +541,7 @@ class FilterAndOptionBox(gtk.VBox):
 		
 		#self.search = SearchToolItem()
 		#self.pack_start( self.search ,False,False,0)
-		self.pack_start( calendar ,False,False,0)
+		self.pack_start(calendar, False, False, 0)
 		
 		self.pack_start(self.option_box)
 		
@@ -567,7 +567,7 @@ class FilterAndOptionBox(gtk.VBox):
 			self.voptionbox.pack_start(filter, False, False, 0)
 			self.filters.append(filter)
 			filter.connect("toggled", self.filter_out)
-			
+		
 		self.frame2.add(self.voptionbox)
 		self.date_dict = None
 		
@@ -616,7 +616,7 @@ class CalendarWidget(gtk.Calendar):
 
 class CheckBox(gtk.CheckButton):
 	
-	def __init__(self,source):
+	def __init__(self, source):
 		gtk.CheckButton.__init__(self)
 		self.set_label(source.name)
 		self.set_border_width(5)

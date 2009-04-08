@@ -184,7 +184,7 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 			if hasattr(mimetype, "match") and mimetype.match(item_mime) or item_mime == mimetype:
 				return False
 		return True
-			
+
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 	### FIXME: This is lame, we should generate this list somehow.
 	IMAGE_MIMETYPES = [
@@ -202,7 +202,7 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 										icon="gnome-mime-image",
 										mimetype_list=IMAGE_MIMETYPES,
 										filter_name="Images")
-										
+
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 	
 	def __init__(self):
