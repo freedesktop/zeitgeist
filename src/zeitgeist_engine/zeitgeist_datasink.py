@@ -38,7 +38,8 @@ class DataSinkSource(DataProvider):
 				),
 			"firefox": ("Firefox",),
 			"tomboy": ("Tomboy",),
-			# Missing: Evolution, Pidgin, Twitter...
+			"evolution": ("Evolution",),
+			# Missing: Pidgin, Twitter...
 		}
 		
 		self.sources = []
