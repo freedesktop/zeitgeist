@@ -12,11 +12,10 @@ from zeitgeist_engine.zeitgeist_datasink import bookmarker, datasink
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 
 class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
+	
 	__gsignals__ = {
 		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
-		}
-
-	
+	}
 
 	def __init__(self):
 		# Initialize superclass
@@ -48,7 +47,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		
 		# GConf settings
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
-	        gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
+		gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
 		
 		# Connect to the datasink's signals
 		datasink.connect("reload", self.load_month_proxy)
@@ -193,10 +192,10 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		gc.collect()
 								
 	def load_month_proxy(self,widget=None,begin=None,end=None,force=False):
-        	today = time.time()
-        	if today  >= self.begin and today<=self.end+86400 :
-        	    self.load_month(begin=begin,end=end,force=force)
-                    
+			today = time.time()
+			if today  >= self.begin and today<=self.end+86400 :
+				self.load_month(begin=begin,end=end,force=force)
+					
 	def load_month(self, widget=None,begin=None,end=None,force=False):
 		'''
 		Loads the current month selected on the calendar into the GUI.
@@ -286,15 +285,15 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 					w.show_all()
 		
 	
-	def set_relation(self,item):
+	def set_relation(self, item):
 		related = RelatedWindow()
 		related.set_relation(item)
 
-	def focus_in(self,widget, event, adj):
+	def focus_in(self, widget, event, adj):
 		alloc = widget.get_allocation() 
-            	if alloc.x < adj.value or alloc.x > adj.value + adj.page_size:
-	        	adj.set_value(min(alloc.x, adj.upper-adj.page_size))
-        	del widget 
+		if alloc.x < adj.value or alloc.x > adj.value + adj.page_size:
+			adj.set_value(min(alloc.x, adj.upper-adj.page_size))
+			del widget 
 
 class DayBox(gtk.VBox):
 	def __init__(self,date):
@@ -303,16 +302,15 @@ class DayBox(gtk.VBox):
 		self.label=gtk.Label(date)
 		vbox = gtk.VBox()
 		
-	        self.ev = gtk.EventBox()
-	        self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FFFAAA"))
-        	self.ev.add(vbox)
-        	self.ev.set_border_width(1)
-        	vbox.pack_start(self.label,True,True,5)
-        	
-        	
-	        self.pack_start(self.ev,False,False)
-	        self.view=DataIconView(True)
-	        if date.startswith("Sat") or date.startswith("Sun"):
+		self.ev = gtk.EventBox()
+		self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FFFAAA"))
+		self.ev.add(vbox)
+		self.ev.set_border_width(1)
+		vbox.pack_start(self.label,True,True,5)
+		
+		self.pack_start(self.ev,False,False)
+		self.view=DataIconView(True)
+		if date.startswith("Sat") or date.startswith("Sun"):
 			color = gtk.gdk.rgb_get_colormap().alloc_color('#EEEEEE')
 			self.view.modify_base(gtk.STATE_NORMAL,color)
 
@@ -333,7 +331,7 @@ class DayBox(gtk.VBox):
 		self.item_count = 0
 	   
 	def emit_focus(self):
-	        self.emit("set-focus-child",self) 
+			self.emit("set-focus-child",self) 
 		  	  
 class RelatedWindow(gtk.Window):
 	def __init__(self):
@@ -408,89 +406,89 @@ class RelatedWindow(gtk.Window):
 		uris.clear()
 		
 class TagBrowser(gtk.VBox):
-    def __init__(self):
-        # Initialize superclass
-        gtk.VBox.__init__(self)
-        self.set_size_request(-1,-1)
-        self.combobox = gtk.combo_box_new_text()
-        
-        self.combobox = gtk.combo_box_new_text()
-        self.combobox.append_text('Recently used tags')
-        self.combobox.append_text('Most used tags')
-        
-        hbox=gtk.HBox()
-        
-        hbox.pack_start(self.combobox, False, False)
-                
-        self.scroll = gtk.ScrolledWindow()
-        self.ev = gtk.EventBox()
-        self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
-
-        self.view = gtk.HBox()
-        self.ev.add(self.view)
-        self.scroll.add_with_viewport(self.ev)
-        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
-        self.scroll.set_shadow_type(gtk.SHADOW_NONE)
-        hbox.pack_start(self.scroll,True,True,1)
-        self.show_all()
-        self.items = []
-        
-        self.func = self.get_recent_tags
-        
-        self.func()
-        
-        #timeline.connect("reload", self.reload_tags)
-    
-        self.combobox.connect('changed', self.changed_cb)
-        self.combobox.set_active(0)
-        self.pack_start(hbox,True,True,5)
-        datasink.connect("reload", lambda x: self.func)
-
-    def reload_tags(self,x=None):
-    	model = self.combobox.get_model()
-        index = self.combobox.get_active()
-        if index == 0:
-        	self.func = self.get_recent_tags()
-        else:
-        	self.func = self.get_most_tags()
-
-    def changed_cb(self, combobox=None):
-        model = self.combobox.get_model()
-        index = self.combobox.get_active()
-        if index == 0:
-        	self.func = self.get_recent_tags()
-        else:
-        	self.func = self.get_most_tags()
-
-    
-    
-    def get_recent_tags(self,x=None):
-        
-        date = calendar.get_date()
-        
-        begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
-        end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
+	def __init__(self):
+		# Initialize superclass
+		gtk.VBox.__init__(self)
+		self.set_size_request(-1,-1)
+		self.combobox = gtk.combo_box_new_text()
 		
-        for w in self.view:
-            self.view.remove(w)
-        
-        for tag in datasink.get_recent_used_tags(10,begin,end):
-            btn = gtk.ToggleButton(str(tag))
-            btn.set_size_request(-1,-1)
-            btn.set_relief(gtk.RELIEF_NONE)
-            btn.set_focus_on_click(False)
-            #label.set_use_underline(True)
-            self.view.pack_start(btn,True,True)
-            #btn.set_size_request(-1,-1)
-            btn.connect("toggled",self.toggle)
-            
-        self.show_all()
-        
-    def get_most_tags(self,x=None):
+		self.combobox = gtk.combo_box_new_text()
+		self.combobox.append_text('Recently used tags')
+		self.combobox.append_text('Most used tags')
+		
+		hbox=gtk.HBox()
+		
+		hbox.pack_start(self.combobox, False, False)
+				
+		self.scroll = gtk.ScrolledWindow()
+		self.ev = gtk.EventBox()
+		self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
+
+		self.view = gtk.HBox()
+		self.ev.add(self.view)
+		self.scroll.add_with_viewport(self.ev)
+		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
+		self.scroll.set_shadow_type(gtk.SHADOW_NONE)
+		hbox.pack_start(self.scroll,True,True,1)
+		self.show_all()
+		self.items = []
+		
+		self.func = self.get_recent_tags
+		
+		self.func()
+		
+		#timeline.connect("reload", self.reload_tags)
+	
+		self.combobox.connect('changed', self.changed_cb)
+		self.combobox.set_active(0)
+		self.pack_start(hbox,True,True,5)
+		datasink.connect("reload", lambda x: self.func)
+
+	def reload_tags(self,x=None):
+		model = self.combobox.get_model()
+		index = self.combobox.get_active()
+		if index == 0:
+			self.func = self.get_recent_tags()
+		else:
+			self.func = self.get_most_tags()
+
+	def changed_cb(self, combobox=None):
+		model = self.combobox.get_model()
+		index = self.combobox.get_active()
+		if index == 0:
+			self.func = self.get_recent_tags()
+		else:
+			self.func = self.get_most_tags()
+
+	
+	
+	def get_recent_tags(self,x=None):
+		
+		date = calendar.get_date()
+		
+		begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
+		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
+		
+		for w in self.view:
+			self.view.remove(w)
+		
+		for tag in datasink.get_recent_used_tags(10,begin,end):
+			btn = gtk.ToggleButton(str(tag))
+			btn.set_size_request(-1,-1)
+			btn.set_relief(gtk.RELIEF_NONE)
+			btn.set_focus_on_click(False)
+			#label.set_use_underline(True)
+			self.view.pack_start(btn,True,True)
+			#btn.set_size_request(-1,-1)
+			btn.connect("toggled",self.toggle)
+			
+		self.show_all()
+		
+	def get_most_tags(self,x=None):
 		
 		begin = timeline.begin
 		end = timeline.end
-        
+		
 		for w in self.view:
 			self.view.remove(w)
 		
@@ -504,29 +502,29 @@ class TagBrowser(gtk.VBox):
 			btn.connect("toggled",self.toggle)
 			
 		self.show_all()
-        
-    def toggle(self,x=None):
-        tags = timeline.tags
-        if x.get_active():
-        	if tags.find(x.get_label()) == -1:
-        		 tags = tags+","+x.get_label()
-        		 begin, end = datasink.get_timestamps_for_tag(x.get_label())
-        		 print begin
-        		 print end
-        		 timeline.load_month(begin=begin,end=end)
-        else:
-        	if tags.find(x.get_label()) > -1:
-                 tags = tags.replace(","+x.get_label(), ",")
-                 tags = tags.replace(x.get_label()+"," ,",")
-                 timeline.load_month()
-        
-        timeline.apply_search(tags,False)
-        
-    def untoggle_all(self):
-    	for btn in self.view:
-    		btn.set_active(False)
-    	
-                       
+		
+	def toggle(self,x=None):
+		tags = timeline.tags
+		if x.get_active():
+			if tags.find(x.get_label()) == -1:
+				 tags = tags+","+x.get_label()
+				 begin, end = datasink.get_timestamps_for_tag(x.get_label())
+				 print begin
+				 print end
+				 timeline.load_month(begin=begin,end=end)
+		else:
+			if tags.find(x.get_label()) > -1:
+				 tags = tags.replace(","+x.get_label(), ",")
+				 tags = tags.replace(x.get_label()+"," ,",")
+				 timeline.load_month()
+		
+		timeline.apply_search(tags,False)
+		
+	def untoggle_all(self):
+		for btn in self.view:
+			btn.set_active(False)
+		
+					   
 class FilterAndOptionBox(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
@@ -948,26 +946,26 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
 		# FIXME: Prefer ACTION_LINK if available
 		print("_item_drag_data_get")
-	        uris = []
-	        treeselection = self.get_selection()
-	        model, iter = treeselection.get_selected()
-	        print type(iter)
-	        item = model.get_value(iter, 4)
-	        if not item:
-	            print "ERROR"
-	        uris.append(item.get_uri())
-	
-	        pass #print " *** Dropping URIs:", uris
-	        selection_data.set_uris(uris)
+		uris = []
+		treeselection = self.get_selection()
+		model, iter = treeselection.get_selected()
+		print type(iter)
+		item = model.get_value(iter, 4)
+		if not item:
+			print "ERROR"
+		uris.append(item.get_uri())
+		
+		pass #print " *** Dropping URIs:", uris
+		selection_data.set_uris(uris)
 	
 	def toggle_bookmark( self, cell, path, model ):
 		"""
-	        Sets the toggled state on the toggle button to true or false.
-        	"""
-        	
-        	model[path][3] = not model[path][3]
-        	item = model[path][4]
-        	item.add_bookmark()
+		Sets the toggled state on the toggle button to true or false.
+		"""
+		
+		model[path][3] = not model[path][3]
+		item = model[path][4]
+		item.add_bookmark()
 
 	def _do_refresh_rows(self):
 		refresh=False
@@ -1020,24 +1018,22 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 			date=""
 		
 		if self.last_item!=item.type or group==False:
-        		self.last_item = item.type
-        		
-        		func(None,[item.get_icon(24),
-							"<span color='black'>%s</span>" % item.get_name(),
-		        			date,
-							bookmark,
-							item])
-	        else:
-		        
-		        func(None,[item.get_icon(24),
-	        	#func(self.iter,[item.get_icon(24),
-							"<span color='black'>%s</span>" % item.get_name(),
-		        			date,
-							bookmark,
-							item])
-       	
+			self.last_item = item.type
+			
+			func(None,[item.get_icon(24),
+				"<span color='black'>%s</span>" % item.get_name(),
+				date,
+				bookmark,
+				item])
+		else:
+			func(None,[item.get_icon(24),
+			#func(self.iter,[item.get_icon(24),
+				"<span color='black'>%s</span>" % item.get_name(),
+				date,
+				bookmark,
+				item])
 
-	     
+		 
 class BrowserBar(gtk.HBox):
 	def __init__(self):
 		gtk.HBox.__init__(self)   
@@ -1127,9 +1123,9 @@ class BrowserBar(gtk.HBox):
 	def focus_today(self, x = None):
 		timeline.offset = 0
 		today = time.time()
-		month =  int(datetime.datetime.fromtimestamp(today).strftime(_("%m")))-1
-		year =  int(datetime.datetime.fromtimestamp(today).strftime(_("%Y")))
-		day =  int(datetime.datetime.fromtimestamp(today).strftime(_("%d")))
+		month = int(datetime.datetime.fromtimestamp(today).strftime(_("%m")))-1
+		year = int(datetime.datetime.fromtimestamp(today).strftime(_("%Y")))
+		day = int(datetime.datetime.fromtimestamp(today).strftime(_("%d")))
 		calendar.select_month(month,year)
 		calendar.select_day(day)
 		#calendar.do_day_selected_double_click()
@@ -1157,13 +1153,13 @@ class BookmarksView(gtk.VBox):
 		ev.set_border_width(1)
 		ev.add(vbox)
 				
-        	evbox2 = gtk.EventBox()
+		evbox2 = gtk.EventBox()
 		evbox2.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
-        	evbox3 = gtk.EventBox()
-        	evbox3.set_border_width(1)
-        	evbox3.add(self.view)
-        	evbox2.add(evbox3)
-            		
+		evbox3 = gtk.EventBox()
+		evbox3.set_border_width(1)
+		evbox3.add(self.view)
+		evbox2.add(evbox3)
+					
 		vbox.pack_start(evbox2,True,True)
 		self.pack_start(evbox,True,True)
 		self.get_bookmarks()
@@ -1175,94 +1171,94 @@ class BookmarksView(gtk.VBox):
 		for item in bookmarker.get_items_uncached():
 			self.view.append_item(item,group=False)
 		#timeline.load_month(force=True)
-	
-	     
+
+
 class ButtonCellRenderer(gtk.GenericCellRenderer):
-     __gsignals__ = {
-          'toggled': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
-                     (gobject.TYPE_STRING,))
-      }
-     def __init__(self):
-         gtk.GenericCellRenderer.__init__(self)
-         self.__gobject_init__()
-         self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
-
-         self.xpad = 1; self.ypad = 0
-         self.xalign = 0.5; self.yalign = 0.5
-         self.active_area = None
-         self.toggled = False
-         self.pango_l  = None
-         self.text = ""
-         self.active_bookmark = icon_factory.load_icon(gtk.STOCK_ABOUT, 24)
-         
-         self.inactive_bookmark = icon_factory.greyscale(icon_factory.load_icon(gtk.STOCK_ABOUT, 24))
-
-     def do_set_property(self, pspec, value):
-         print "set prop ", pspec.name
-         setattr(self, pspec.name, value)
-     def do_get_property(self, pspec):
-         print "get prop ", pspec.name
-         return getattr(self, pspec.name)
-     
-     def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
-     	
-	pix_rect = gtk.gdk.Rectangle()
-	pix_rect.x, pix_rect.y, pix_rect.width, pix_rect.height = \
-        self.on_get_size(widget, cell_area)
 	
-	pix_rect.x += cell_area.x
-      	pix_rect.y += cell_area.y
-	pix_rect.width  -= 2 * self.get_property("xpad")
-	pix_rect.height -= 2 * self.get_property("ypad")
+	__gsignals__ = {
+		'toggled': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
+			(gobject.TYPE_STRING,))
+	}
 	
-	draw_rect = cell_area.intersect(pix_rect)
-	draw_rect = expose_area.intersect(draw_rect)
+	def __init__(self):
+		gtk.GenericCellRenderer.__init__(self)
+		self.__gobject_init__()
+		self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
 
-	if self.toggled:
-		window.draw_pixbuf(widget.style.black_gc, self.active_bookmark, \
-	         draw_rect.x-pix_rect.x, draw_rect.y-pix_rect.y, draw_rect.x, \
-	         draw_rect.y+2, draw_rect.width, draw_rect.height, \
-	         gtk.gdk.RGB_DITHER_NONE, 0, 0)
-	else:
-		window.draw_pixbuf(widget.style.black_gc, self.inactive_bookmark, \
-	         draw_rect.x-pix_rect.x, draw_rect.y-pix_rect.y, draw_rect.x, \
-	         draw_rect.y+2, draw_rect.width, draw_rect.height, \
-	         gtk.gdk.RGB_DITHER_NONE, 0, 0)
+		self.xpad = 1; self.ypad = 0
+		self.xalign = 0.5; self.yalign = 0.5
+		self.active_area = None
+		self.toggled = False
+		self.pango_l  = None
+		self.text = ""
+		self.active_bookmark = icon_factory.load_icon(gtk.STOCK_ABOUT, 24)
 		
+		self.inactive_bookmark = icon_factory.greyscale(icon_factory.load_icon(gtk.STOCK_ABOUT, 24))
 
-      
+	def do_set_property(self, pspec, value):
+		print "set prop ", pspec.name
+		setattr(self, pspec.name, value)
+	
+	def do_get_property(self, pspec):
+		print "get prop ", pspec.name
+		return getattr(self, pspec.name)
+	
+	def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
+	
+		pix_rect = gtk.gdk.Rectangle()
+		pix_rect.x, pix_rect.y, pix_rect.width, pix_rect.height = \
+		self.on_get_size(widget, cell_area)
+		
+		pix_rect.x += cell_area.x
+		pix_rect.y += cell_area.y
+		pix_rect.width -= 2 * self.get_property("xpad")
+		pix_rect.height -= 2 * self.get_property("ypad")
+		
+		draw_rect = cell_area.intersect(pix_rect)
+		draw_rect = expose_area.intersect(draw_rect)
 
-     def on_get_size(self, widget, cell_area):
-         if cell_area:
-             calc_width = cell_area.width - 2*self.xpad
-             calc_height = cell_area.height - 2*self.ypad
-             if calc_width < calc_height:
-                 calc_height = calc_width
-             else:
-                 calc_width = calc_height
-             x_offset = int(self.xalign * (cell_area.width - calc_width))
-             x_offset = max(x_offset, 0)
-             y_offset = int(self.yalign * (cell_area.height - calc_height))
-             y_offset = max(y_offset, 0)
-         else:
-             x_offset = 0
-             y_offset = 0
-             calc_width = 20
-             calc_height = 16
-         return x_offset, y_offset, calc_width, calc_height
+		if self.toggled:
+			window.draw_pixbuf(widget.style.black_gc, self.active_bookmark, \
+				draw_rect.x-pix_rect.x, draw_rect.y-pix_rect.y, draw_rect.x, \
+				draw_rect.y+2, draw_rect.width, draw_rect.height, \
+				gtk.gdk.RGB_DITHER_NONE, 0, 0)
+		else:
+			window.draw_pixbuf(widget.style.black_gc, self.inactive_bookmark, \
+				draw_rect.x-pix_rect.x, draw_rect.y-pix_rect.y, draw_rect.x, \
+				draw_rect.y+2, draw_rect.width, draw_rect.height, \
+				gtk.gdk.RGB_DITHER_NONE, 0, 0)
+	
+	def on_get_size(self, widget, cell_area):
+		if cell_area:
+			calc_width = cell_area.width - 2 * self.pad
+			calc_height = cell_area.height - 2 * self.ypad
+			if calc_width < calc_height:
+				calc_height = calc_width
+			else:
+				calc_width = calc_height
+			x_offset = int(self.xalign * (cell_area.width - calc_width))
+			x_offset = max(x_offset, 0)
+			y_offset = int(self.yalign * (cell_area.height - calc_height))
+			y_offset = max(y_offset, 0)
+		else:
+			x_offset = 0
+			y_offset = 0
+			calc_width = 20
+			calc_height = 16
+		return x_offset, y_offset, calc_width, calc_height
 
-     def on_activate(self, event, widget, path, background_area, cell_area, flags):
-         self.sig_deac = widget.connect('button-release-event', self.on_deactivate, cell_area, path)
-         self.active_area = cell_area
-         self.toggled = not self.toggled
+	def on_activate(self, event, widget, path, background_area, cell_area, flags):
+		self.sig_deac = widget.connect('button-release-event', self.on_deactivate, cell_area, path)
+		self.active_area = cell_area
+		self.toggled = not self.toggled
 
-     def on_deactivate(self, w, e, cell_area, path):
-         w.disconnect(self.sig_deac)
-         if ( cell_area.x <= int(e.x) <= cell_area.x + cell_area.width ) and ( cell_area.y <= int(e.y) <= cell_area.y + cell_area.height):
-             self.emit('toggled', path)
-         self.active_area = None
-         self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
-  	
+	def on_deactivate(self, w, e, cell_area, path):
+		w.disconnect(self.sig_deac)
+		if (cell_area.x <= int(e.x) <= cell_area.x + cell_area.width) and (cell_area.y <= int(e.y) <= cell_area.y + cell_area.height):
+			self.emit('toggled', path)
+		self.active_area = None
+		self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
+
 
 calendar = CalendarWidget()
 timeline = TimelineWidget()
