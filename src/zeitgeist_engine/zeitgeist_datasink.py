@@ -69,7 +69,7 @@ class DataSinkSource(DataProvider):
 		if not self._db_update_in_progress and len(self._sources_queue) > 0:
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
-		
+	
 	def update_db_with_source(self, source):
 		'''
 		Add new items from source into the database.
@@ -181,10 +181,14 @@ class DataSinkSource(DataProvider):
 			return True
 
 	def get_most_used_tags(self,count=20,min=0,max=sys.maxint):
+		if count == 0: count = 20
+		if max == 0: max = sys.maxint
 		for tag in db.get_most_tags(count,min,max):
 			yield tag
 
 	def get_recent_used_tags(self,count=20,min=0,max=sys.maxint):
+		if count == 0: count = 20
+		if max == 0: max = sys.maxint
 		for tag in db.get_recent_tags(count,min,max):
 			yield tag
 
