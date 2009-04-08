@@ -15,6 +15,10 @@ for bookmark in bookmarks:
 	print '-', bookmark[0], '"' +  urllib.unquote(str(bookmark[1])) + '"'
 	last_item = bookmark
 
+print '\nSending "reload" signal...'
+iface.reload()
+print 'Done.'
+
 print '\nYour most used tags are:'
 print ', '.join(iface.get_most_used_tags(0, 0, 0))
 

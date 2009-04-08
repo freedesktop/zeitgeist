@@ -9,7 +9,7 @@ from zeitgeist_engine.zeitgeist_datasink import datasink
 class RemoteInterface(dbus.service.Object):
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature='', out_signature='a(ss)')
+						in_signature="", out_signature="a(ss)")
 	def get_bookmarks(self):
 		items = []
 		for item in datasink.get_bookmarks():
@@ -17,24 +17,29 @@ class RemoteInterface(dbus.service.Object):
 		return items
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature='iii', out_signature='as')
+						in_signature="iii", out_signature="as")
 	def get_most_used_tags(self, amount, min_timestamp, max_timestamp):
 		return list(datasink.get_most_used_tags(amount,
 			min_timestamp, max_timestamp))
 
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature='iii', out_signature='as')
+						in_signature="iii", out_signature="as")
 	def get_recent_used_tags(self, amount, min_timestamp, max_timestamp):
 		return list(datasink.get_recent_used_tags(amount,
 			min_timestamp, max_timestamp))
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature='s', out_signature='a(ss)')
+						in_signature="s", out_signature="a(ss)")
 	def get_related_items(self, item_uri):
 		items = []
 		for item in datasink.get_related_items(item_uri):
 			items.append((item.get_name(), item.get_uri()))
 		return items
+	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature="", out_signature="")
+	def reload(self):
+		datasink.emit("reload")
 
 if __name__ == "__main__":
 	
