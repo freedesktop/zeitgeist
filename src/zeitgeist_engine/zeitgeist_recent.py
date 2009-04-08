@@ -1,16 +1,10 @@
 import os
 import re
-
+import urllib
 import gtk
 from gettext import gettext as _
 
 from zeitgeist_base import Data, DataProvider
-
-
-
-
-#-----------------------------------------------------------------------------#
-
 
 DOCUMENT_MIMETYPES = [
         # Covers:
@@ -90,14 +84,13 @@ class RecentlyUsedManagerGtk(DataProvider):
 				# e.g. the file /home/natan/foo/bar/example.py would be tagged with "foo" and "bar"
 				# Note: we only create tags for files under the users home folder
 				tags = ""
-				#tags=info.get_groups()
-				tmp = info.get_uri()[7:]		# strip off "file://" from the uri
+				tmp = info.get_uri()[info.get_uri().find('://') + 3:]
 				tmp = os.path.dirname(tmp)		# remove the filename from the string
 				home = os.path.expanduser("~")  # get the users home folder
 				if tmp.startswith(home):
 					tmp = tmp.replace(home + "/", "", 1)
 					if tmp != "":
-		                                tmp = tmp.replace("%20", " ")
+						tmp = unicode(urllib.unquote(tmp))
 						tags = tmp.replace("/", ",")
 							
 				yield Data(name=info.get_display_name(),
