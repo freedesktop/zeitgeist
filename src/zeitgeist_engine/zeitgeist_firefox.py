@@ -18,7 +18,6 @@ from zeitgeist_util import FileMonitor
 from zeitgeist_base import Data, DataProvider
 
 
-
 class FirefoxSource(DataProvider):
     
     def __init__(self, name="Firefox History", icon="gnome-globe", uri="gzg/firefox"):
@@ -27,16 +26,20 @@ class FirefoxSource(DataProvider):
         self.icon="gnome-globe"
         self.type = self.name
         self.comment = "websites visited with Firefox"
-            
-        self.historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
         
+        self.historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
+        print 'Reading from', self.historydb[0]
+        
+        # TODO: Be more sensible about: a) old profiles being present
+        # (look at profiles.ini to find the correct one), and b) more
+        # than one Firefox version being used (eg., current and alpha).
         try:
             self.note_path_monitor = FileMonitor(self.historydb[0])
             self.note_path_monitor.connect("event", self.reload_proxy)
             self.note_path_monitor.open()
         #self.emit("reload")
         except:
-            print "Are you using Firefox"
+            print "Are you using Firefox?"
             
         try:
             self.loc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
@@ -49,16 +52,18 @@ class FirefoxSource(DataProvider):
         except Exception,ex:
             print ex
             self.last_timestamp = 0.0
-                        
-        
     
     def get_latest_timestamp(self): 
         self.connection = db.connect( self.loc,True)
         cursor = self.connection.cursor()
         
         contents = "visit_date"
-        history = cursor.execute("SELECT " + contents + " FROM moz_historyvisits ORDER BY visit_date DESC").fetchone()
-        self.timestamp=history[0]
+        try:
+            history = cursor.execute("SELECT " + contents + " FROM moz_historyvisits ORDER BY visit_date DESC").fetchone()
+        except db.OperationalError, e:
+            print e
+        else:
+            self.timestamp=history[0]
     
     def reload_proxy(self,x=None,y=None,z=None):
         self.__copy_sqlite()
@@ -72,38 +77,40 @@ class FirefoxSource(DataProvider):
         
         # retrieve all urls from firefox history
         contents = "id, place_id, visit_date,visit_type"
-        history = cursor.execute("SELECT " + contents + " FROM moz_historyvisits WHERE visit_date>?",(self.timestamp,)).fetchall()
-        
-        j = 0
-        for i in history:
-            # TODO: Fetch full rows above so that we don't need to do another query here
-            contents = "id, url, title, visit_count"
-            item = cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
-            if item:
-                url = item[1]
-                name = item[2]
-                count = item[3]
-                timestamp = history[j][2] / (1000000)
-                self.timestamp =  history[j][2]
-                if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
-                    yield Data(uri=url,
-                            name=name,
-                            timestamp=timestamp,
-                            count=count,
-                            icon = "gnome-globe",
-                            use="visited",
-                            type="Firefox History")
-                
-                else:
-                    yield Data(uri=url,
-                            name=name,
-                            timestamp=timestamp,
-                            icon = "gnome-globe",
-                            count=count,
-                            use="linked",
-                            type="Firefox History")
-                
-            j += 1
+        try:
+            history = cursor.execute("SELECT " + contents + " FROM moz_historyvisits WHERE visit_date>?",(self.timestamp,)).fetchall()
+        except db.OperationalError, e:
+            print 'Firefox database error:', e
+        else:
+            j = 0
+            for i in history:
+                # TODO: Fetch full rows above so that we don't need to do another query here
+                contents = "id, url, title, visit_count"
+                item = cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
+                if item:
+                    url = item[1]
+                    name = item[2]
+                    count = item[3]
+                    timestamp = history[j][2] / (1000000)
+                    self.timestamp =  history[j][2]
+                    if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
+                        yield Data(uri=url,
+                                name=name,
+                                timestamp=timestamp,
+                                count=count,
+                                icon = "gnome-globe",
+                                use="visited",
+                                type="Firefox History")
+                    
+                    else:
+                        yield Data(uri=url,
+                                name=name,
+                                timestamp=timestamp,
+                                icon = "gnome-globe",
+                                count=count,
+                                use="linked",
+                                type="Firefox History")
+                j += 1
             
         cursor.close()
     
@@ -115,5 +122,3 @@ class FirefoxSource(DataProvider):
             shutil.copy2(self.historydb[0],  self.loc)
         except:
             pass
-        
-        
