@@ -19,7 +19,7 @@ print '\nYour most used tags are:'
 print ', '.join(iface.get_most_used_tags(0, 0, 0))
 
 print '\nYour recently used tags are:'
-print ', '.join(iface.get_most_used_tags(0, 0, 0))
+print ', '.join(iface.get_recent_used_tags(0, 0, 0))
 
 if last_item:
 	print '\nItems related to "%s":' % last_item[0]
