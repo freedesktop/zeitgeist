@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-
 import gtk
 
 #from zeitgeist_gui.zeitgeist_clutter_gui import UI
