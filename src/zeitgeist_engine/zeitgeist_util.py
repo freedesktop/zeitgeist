@@ -437,7 +437,7 @@ class IconCollection:
 
 class GConfBridge(gobject.GObject):
     DEFAULTS = {
-        'compress_empty_days'       : True, 
+        'compress_empty_days'   : True, 
         'show_note_button'      : True,
         'show_file_button'      : True
     }

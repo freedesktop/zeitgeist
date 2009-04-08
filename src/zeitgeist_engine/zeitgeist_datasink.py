@@ -3,13 +3,12 @@ import time
 import urllib
 from gettext import gettext as _
 import thread
+import gobject
+import gc
+
 from zeitgeist_engine.zeitgeist_base import DataProvider
-from zeitgeist_engine.zeitgeist_firefox import *
-from zeitgeist_engine.zeitgeist_tomboy import *
-from zeitgeist_engine.zeitgeist_recent import *
 from zeitgeist_engine.zeitgeist_dbcon import db
 from zeitgeist_util import difffactory, gconf_bridge
-from zeitgeist_engine.zeitgeist_evolution import EvolutionSource
 from zeitgeist_engine.ThreadPool import  *
 #from zeitgeist_twitter import TwitterSource
 
@@ -28,60 +27,29 @@ class DataSinkSource(DataProvider):
 		self.threads=[]
 		
 		self._db_update_in_progress = False
-				
-		# Recently used items
-		self.videos=RecentlyUsedVideoSource()
-		self.videos.connect("reload", self.update_db_with_source)
 		
-		self.music=RecentlyUsedMusicSource()
-		self.music.connect("reload", self.update_db_with_source)
+		logger_sources = {
+			"recent": (
+				"RecentlyUsedVideo", "RecentlyUsedMusic",
+				"RecentlyUsedImages", "RecentlyUsedDocuments",
+				),
+			"firefox": ("Firefox",),
+			"tomboy": ("Tomboy",),
+			# Missing: Evolution, Pidgin, Twitter...
+		}
 		
-		self.images=RecentlyUsedImagesSource()
-		self.images.connect("reload", self.update_db_with_source)
-		
-		self.docs=RecentlyUsedDocumentsSource()
-		self.docs.connect("reload", self.update_db_with_source)
-		
-		self.others = RecentlyUsedOthersSource()
-		self.others.connect("reload", self.update_db_with_source)
-		
-		
-		# Firefox
-		self.firefox = FirefoxSource()
-		self.firefox.connect("reload", self.update_db_with_source)
-		
-		#Evolution
-		
-		self.evo = EvolutionSource()
-		
-		# Pidgin
-		
-		# Tomboy
-		self.tomboy = TomboySource()
-		self.tomboy.connect("reload", self.update_db_with_source)
-		
-		# Twitter
-		#self.twitter=TwitterSource()
-		#self.twitter.start()
-		
-		self.items=[]
-		# Initialize all sources
-		self.init_sources()
+		self.sources = []
+		for namespace in logger_sources:
+			sourcefile = __import__('zeitgeist_engine.zeitgeist_' + namespace,
+				fromlist=['zeitgeist_' + namespace])
+			for item in logger_sources[namespace]:
+				print sourcefile
+				instance = getattr(sourcefile, item + "Source")()
+				instance.connect("reload", self.update_db_with_source)
+				self.sources.append(instance)
 		
 		# Update the database
 		self.update_db()
-	
-	def init_sources(self):
-	   self.sources=[
-					 self.docs,
-					 self.firefox,
-					 self.images,
-					 self.music,
-					 self.others,
-					 self.evo,
-					 self.tomboy,
-					 self.videos
-					]
 	
 	def update_db(self):
 		'''
