@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
 import sys
-
 import gtk
 
-#from zeitgeist_gui.zeitgeist_clutter_gui import UI
-from zeitgeist_gui.zeitgeist_gui import UI
-
 if __name__ == "__main__":
-	gui=UI()
+	
+	if '--light' in sys.argv:
+		from zeitgeist_gui.zeitgeist_gui2 import UI
+	else:
+		from zeitgeist_gui.zeitgeist_gui import UI
+	
+	gui = UI()
 	gtk.main()

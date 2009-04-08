@@ -6,9 +6,11 @@ import glob
 import sys
 import gc
 import os
-from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 import time
 import thread
+
+# Imports from zeitgeist_engine
+from zeitgeist_base import DataProvider, Data
 
 class DBConnector():
 	

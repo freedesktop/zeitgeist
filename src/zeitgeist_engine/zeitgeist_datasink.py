@@ -1,4 +1,5 @@
 import sys
+import os
 import time
 import urllib
 from gettext import gettext as _
@@ -6,11 +7,13 @@ import thread
 import gobject
 import gc
 
-from zeitgeist_engine.zeitgeist_base import DataProvider
-from zeitgeist_engine.zeitgeist_dbcon import db
+# Imports from zeitgeist_engine
+from zeitgeist_base import DataProvider
+from zeitgeist_dbcon import db
 from zeitgeist_util import difffactory, gconf_bridge
-from zeitgeist_engine.ThreadPool import  *
-#from zeitgeist_twitter import TwitterSource
+from ThreadPool import  *
+
+sys.path.append(os.path.dirname(__file__))
 
 class DataSinkSource(DataProvider):
 	'''
@@ -40,8 +43,7 @@ class DataSinkSource(DataProvider):
 		
 		self.sources = []
 		for namespace in logger_sources:
-			sourcefile = __import__('zeitgeist_engine.zeitgeist_' + namespace,
-				fromlist=['zeitgeist_' + namespace])
+			sourcefile = __import__('zeitgeist_' + namespace)
 			for item in logger_sources[namespace]:
 				print sourcefile
 				instance = getattr(sourcefile, item + "Source")()
@@ -213,8 +215,7 @@ class Bookmarker(DataProvider):
 	def add_bookmark(self,item):
 		if self.bookmarks.count(item.uri) == 0:
 			self.bookmarks.append(item.uri)
-			
-				
+	
 	def reload_bookmarks(self):
 		print "------------------------------------"
 		self.bookmarks = []
@@ -228,6 +229,6 @@ class Bookmarker(DataProvider):
 		for i in datasink.get_bookmarks():
 			yield i
 			del i
-			
-datasink= DataSinkSource()
+
+datasink = DataSinkSource()
 bookmarker = Bookmarker()

@@ -1,3 +1,3 @@
 #!/bin/sh
 
-python src/start2.py $@
+python src/start.py --light $@

@@ -52,8 +52,7 @@ class Data(gobject.GObject):
 		self.bookmark=bookmark
 		# Timestamps
 		self.timestamp = timestamp
-		#self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
-		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M %p"))
+		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M %p")).strip()
 		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
 		
 		self.type = type
@@ -96,7 +95,7 @@ class Data(gobject.GObject):
 		return self.name
 
 	def get_time(self):
-		return self.time.strip()
+		return self.time
 
 	def get_comment(self):
 		return self.comment
@@ -242,7 +241,6 @@ class Data(gobject.GObject):
 	def get_common_tags(self, view):
 		from zeitgeist_datasink import datasink
 		for tag in datasink.get_most_used_tags(10):
-			print tag
 			if tag:
 				btn = gtk.ToggleButton(tag)
 				btn.set_relief(gtk.RELIEF_NONE)
