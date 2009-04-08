@@ -27,7 +27,14 @@ class RemoteInterface(dbus.service.Object):
 	def get_recent_used_tags(self, amount, min_timestamp, max_timestamp):
 		return list(datasink.get_recent_used_tags(amount,
 			min_timestamp, max_timestamp))
-
+	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature='s', out_signature='a(ss)')
+	def get_related_items(self, item_uri):
+		items = []
+		for item in datasink.get_related_items(item_uri):
+			items.append((item.get_name(), item.get_uri()))
+		return items
 
 if __name__ == "__main__":
 	

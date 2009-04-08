@@ -201,11 +201,13 @@ class DBConnector():
 				  		bookmark=bookmark)
 					yield d 
 		
-	def get_related_items(self,item):
+	def get_related_items(self, item):
+		''' Parameter item may be a Data object or the URL of an item. '''
 		list = []
 		dict = {}
 		current_timestamp = time.time() - (90*24*60*60)
-		items = self.cursor.execute('SELECT * FROM timetable WHERE start >? AND  uri=? ORDER BY start DESC',(current_timestamp,item.uri)).fetchall()
+		item_uri = item.uri if isinstance(item, Data) else item
+		items = self.cursor.execute('SELECT * FROM timetable WHERE start >? AND uri=? ORDER BY start DESC',(current_timestamp,item_uri)).fetchall()
 		for uri in items:
 			'''
 			min and max define the neighbourhood radius
@@ -240,7 +242,6 @@ class DBConnector():
 					counter = counter +1
 			
 		return list
-		
 		
 	def numeric_compare(x, y):
 		if x[0]>y[0]:
