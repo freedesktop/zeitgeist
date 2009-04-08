@@ -6,9 +6,11 @@ import glob
 import sys
 import gc
 import os
-from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 import time
 import thread
+
+# Imports from zeitgeist_engine
+from zeitgeist_base import DataProvider, Data
 
 class DBConnector():
 	
@@ -123,15 +125,15 @@ class DBConnector():
 																		item.name,
 																		item.comment,
 																		item.mimetype,
-																		item.tags,
+																		unicode(item.tags),
 																		item.count,
 																		item.use,
 																		item.type,
 																		item.icon,
 																		bookmark))	
-			
+		
 		self.cursor.execute('DELETE FROM tags where uri=?', (item.uri,))
-		 
+		
 		for tag in item.get_tags():
 			if not tag.strip() == "":
 				try:
@@ -139,7 +141,7 @@ class DBConnector():
 				except:
 					pass
 				#id = self.cursor.execute("SELECT rowid FROM tagids WHERE  tag=?",(tag,)).fetchone()
-				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(tag.capitalize(),item.uri,time.time())) 	
+				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(unicode(tag.capitalize()),item.uri,time.time())) 	
 		self.connection.commit()
 		 
 	def get_recent_tags(self,count=20,min=0,max=sys.maxint):

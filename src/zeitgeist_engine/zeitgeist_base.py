@@ -14,11 +14,12 @@ from gettext import ngettext, gettext as _
 from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory, iconcollection,thumbnailer
 
 class Data(gobject.GObject):
+	
 	__gsignals__ = {
 		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		"relate" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		"open" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
-		}
+	}
 
 	def __init__(self,
 				 uri = None,
@@ -33,7 +34,6 @@ class Data(gobject.GObject):
 				 type = "N/A",
 				 bookmark=False):
 		gobject.GObject.__init__(self)
-		
 		
 		# Remove characters that might be interpreted by pango as formatting
 		try:
@@ -52,8 +52,7 @@ class Data(gobject.GObject):
 		self.bookmark=bookmark
 		# Timestamps
 		self.timestamp = timestamp
-		#self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M:%S %p"))
-		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M %p"))
+		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M %p")).strip()
 		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
 		
 		self.type = type
@@ -76,16 +75,10 @@ class Data(gobject.GObject):
 			thumb = thumbnailer.get_icon(self.get_uri(),self.get_mimetype(),icon_size, self.timestamp)
 			return thumb
 	
-	def get_icon_static_done(self,icon_size):
-		temp = self.icon
-			
-		if temp != None:
-			self.icon = temp
-		
+	def get_icon_static_done(self, icon_size):
 		if self.icon:
-			icon =  icon_factory.load_icon(self.icon, icon_size)
-			return icon
-		
+			return icon_factory.load_icon(self.icon, icon_size)
+	
 	def get_mimetype(self):
 		return self.mimetype
 
@@ -96,7 +89,7 @@ class Data(gobject.GObject):
 		return self.name
 
 	def get_time(self):
-		return self.time.strip()
+		return self.time
 
 	def get_comment(self):
 		return self.comment
@@ -242,7 +235,6 @@ class Data(gobject.GObject):
 	def get_common_tags(self, view):
 		from zeitgeist_datasink import datasink
 		for tag in datasink.get_most_used_tags(10):
-			print tag
 			if tag:
 				btn = gtk.ToggleButton(tag)
 				btn.set_relief(gtk.RELIEF_NONE)

@@ -1,17 +1,19 @@
 import sys
+import os
 import time
 import urllib
 from gettext import gettext as _
 import thread
-from zeitgeist_engine.zeitgeist_base import DataProvider
-from zeitgeist_engine.zeitgeist_firefox import *
-from zeitgeist_engine.zeitgeist_tomboy import *
-from zeitgeist_engine.zeitgeist_recent import *
-from zeitgeist_engine.zeitgeist_dbcon import db
+import gobject
+import gc
+
+# Imports from zeitgeist_engine
+from zeitgeist_base import DataProvider
+from zeitgeist_dbcon import db
 from zeitgeist_util import difffactory, gconf_bridge
-from zeitgeist_engine.zeitgeist_evolution import EvolutionSource
-from zeitgeist_engine.ThreadPool import  *
-#from zeitgeist_twitter import TwitterSource
+from ThreadPool import  *
+
+sys.path.append(os.path.dirname(__file__))
 
 class DataSinkSource(DataProvider):
 	'''
@@ -28,60 +30,28 @@ class DataSinkSource(DataProvider):
 		self.threads=[]
 		
 		self._db_update_in_progress = False
-				
-		# Recently used items
-		self.videos=RecentlyUsedVideoSource()
-		self.videos.connect("reload", self.update_db_with_source)
 		
-		self.music=RecentlyUsedMusicSource()
-		self.music.connect("reload", self.update_db_with_source)
+		logger_sources = {
+			"recent": (
+				"RecentlyUsedVideo", "RecentlyUsedMusic",
+				"RecentlyUsedImages", "RecentlyUsedDocuments",
+				),
+			"firefox": ("Firefox",),
+			"tomboy": ("Tomboy",),
+			# Missing: Evolution, Pidgin, Twitter...
+		}
 		
-		self.images=RecentlyUsedImagesSource()
-		self.images.connect("reload", self.update_db_with_source)
-		
-		self.docs=RecentlyUsedDocumentsSource()
-		self.docs.connect("reload", self.update_db_with_source)
-		
-		self.others = RecentlyUsedOthersSource()
-		self.others.connect("reload", self.update_db_with_source)
-		
-		
-		# Firefox
-		self.firefox = FirefoxSource()
-		self.firefox.connect("reload", self.update_db_with_source)
-		
-		#Evolution
-		
-		self.evo = EvolutionSource()
-		
-		# Pidgin
-		
-		# Tomboy
-		self.tomboy = TomboySource()
-		self.tomboy.connect("reload", self.update_db_with_source)
-		
-		# Twitter
-		#self.twitter=TwitterSource()
-		#self.twitter.start()
-		
-		self.items=[]
-		# Initialize all sources
-		self.init_sources()
+		self.sources = []
+		for namespace in logger_sources:
+			sourcefile = __import__('zeitgeist_' + namespace)
+			for item in logger_sources[namespace]:
+				print sourcefile
+				instance = getattr(sourcefile, item + "Source")()
+				instance.connect("reload", self.update_db_with_source)
+				self.sources.append(instance)
 		
 		# Update the database
 		self.update_db()
-	
-	def init_sources(self):
-	   self.sources=[
-					 self.docs,
-					 self.firefox,
-					 self.images,
-					 self.music,
-					 self.others,
-					 self.evo,
-					 self.tomboy,
-					 self.videos
-					]
 	
 	def update_db(self):
 		'''
@@ -99,7 +69,7 @@ class DataSinkSource(DataProvider):
 		if not self._db_update_in_progress and len(self._sources_queue) > 0:
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
-		
+	
 	def update_db_with_source(self, source):
 		'''
 		Add new items from source into the database.
@@ -211,10 +181,14 @@ class DataSinkSource(DataProvider):
 			return True
 
 	def get_most_used_tags(self,count=20,min=0,max=sys.maxint):
+		if count == 0: count = 20
+		if max == 0: max = sys.maxint
 		for tag in db.get_most_tags(count,min,max):
 			yield tag
 
 	def get_recent_used_tags(self,count=20,min=0,max=sys.maxint):
+		if count == 0: count = 20
+		if max == 0: max = sys.maxint
 		for tag in db.get_recent_tags(count,min,max):
 			yield tag
 
@@ -245,8 +219,7 @@ class Bookmarker(DataProvider):
 	def add_bookmark(self,item):
 		if self.bookmarks.count(item.uri) == 0:
 			self.bookmarks.append(item.uri)
-			
-				
+	
 	def reload_bookmarks(self):
 		print "------------------------------------"
 		self.bookmarks = []
@@ -260,7 +233,6 @@ class Bookmarker(DataProvider):
 		for i in datasink.get_bookmarks():
 			yield i
 			del i
-			
-datasink= DataSinkSource()
-bookmarker = Bookmarker()
 
+datasink = DataSinkSource()
+bookmarker = Bookmarker()

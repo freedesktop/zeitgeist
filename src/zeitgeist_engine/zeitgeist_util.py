@@ -102,10 +102,11 @@ class IconFactory():
 	'''
 	Icon lookup swiss-army knife (from menutreemodel.py)
 	'''
+	
 	def __init__(self):
 		self.icon_dict={}
-		
-	def load_icon_from_path(self, icon_path, icon_size = None):
+	
+	def load_icon_from_path(self, icon_path, icon_size=None):
 		try:
 			if icon_size:
 				pic = gtk.gdk.pixbuf_new_from_file_at_size(icon_path,  int(icon_size), int(icon_size))
@@ -116,8 +117,8 @@ class IconFactory():
 		except:
 			pass
 		return None
-
-	def load_icon_from_data_dirs(self, icon_value, icon_size = None):
+	
+	def load_icon_from_data_dirs(self, icon_value, icon_size=None):
 		data_dirs = None
 		if os.environ.has_key("XDG_DATA_DIRS"):
 			data_dirs = os.environ["XDG_DATA_DIRS"]
@@ -151,14 +152,12 @@ class IconFactory():
 		return pixbuf
 
 
-	def load_icon(self, icon_value, icon_size, force_size = True):
+	def load_icon(self, icon_value, icon_size, force_size=True):
 		if self.icon_dict.get(icon_value) == None:
 			try:
-				assert icon_value, "No icon to load!"
-		
 				if isinstance(icon_value, gtk.gdk.Pixbuf):
 					return icon_value
-		
+				
 				if os.path.isabs(icon_value):
 					icon = self.load_icon_from_path(icon_value, icon_size)
 					if icon:
@@ -180,14 +179,14 @@ class IconFactory():
 					if icon_name.startswith("gtk-"):
 						icon = info.load_icon()
 					elif info.get_filename():
-						icon = self.load_icon_from_path(info.get_filename())
+						icon = self.load_icon_from_path(info.get_filename(), icon_size)
 				else:
 					icon = self.load_icon_from_data_dirs(icon_value, icon_size) 
 	
-				self.icon_dict[icon_value]=icon
+				self.icon_dict[icon_value] = icon
 				return icon
 			except:
-				self.icon_dict[icon_value]=None
+				self.icon_dict[icon_value] = None
 				return None
 		else:
 			return self.icon_dict[icon_value]
@@ -437,7 +436,7 @@ class IconCollection:
 
 class GConfBridge(gobject.GObject):
     DEFAULTS = {
-        'compress_empty_days'       : True, 
+        'compress_empty_days'   : True, 
         'show_note_button'      : True,
         'show_file_button'      : True
     }
