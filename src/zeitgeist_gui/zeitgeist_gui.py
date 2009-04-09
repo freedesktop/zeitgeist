@@ -15,7 +15,7 @@ class UI:
    
     def __init__(self):
         self.create_gui()
-        
+    
     def create_gui(self):
         
         '''
@@ -37,7 +37,6 @@ class UI:
             
         tagbox.pack_start(tb,True,True)
         self.vBox.pack_start(bb,False,False)
-
 
         self.topicWindow.add(self.vBox)
         
@@ -73,7 +72,6 @@ class UI:
         #self.notebook.append_page(related, gtk.Label("Related"))
         #self.notebook.append_page(timeline,gtk.Label("Timeline"))
         #self.notebook.set_current_page(-1)
-        
         
         # Status bar
         statusbar = gtk.Statusbar()

@@ -11,4 +11,8 @@ if __name__ == "__main__":
 		from zeitgeist_gui.zeitgeist_gui import UI
 	
 	gui = UI()
-	gtk.main()
+	
+	try:
+		gtk.main()
+	except KeyboardInterrupt:
+		sys.exit(0)
