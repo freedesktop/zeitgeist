@@ -53,9 +53,9 @@ class DataSinkSource(DataProvider):
 				self.sources.append(instance)
 		
 		# Update the database
-		self.update_db()
+		self._update_db()
 	
-	def update_db(self):
+	def _update_db(self):
 		'''
 		Add new items from all sources into the database.
 		'''
