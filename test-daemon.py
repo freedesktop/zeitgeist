@@ -30,10 +30,19 @@ print '\nYour recently used tags are:'
 print ', '.join(iface.get_recent_used_tags(0, 0, 0))
 
 if last_item:
+	print '\nTags for item "%s":' % last_item[0]
+	print '-', ', '.join(last_item[2].split(','))
+	
 	print '\nItems related to "%s":' % last_item[0]
 	related_items = iface.get_related_items(last_item[1])
 	for related_item in related_items:
 		print '-', related_item[0], '"' +  urllib.unquote(str(related_item[1])) + '"'
+	
+	last_tag = last_item[2].split(',')[-1]
+	print '\nItems with tag "%s":' % last_tag
+	tag_items = iface.get_items(0, 0, last_tag)
+	for tag_item in tag_items:
+		print '-', tag_item[0], '"' +  urllib.unquote(str(tag_item[1])) + '"'
 
 loop = gobject.MainLoop()
 loop.run()

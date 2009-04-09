@@ -102,22 +102,22 @@ class DBConnector():
 				bookmark = False
 				if i[9] ==1:
 					bookmark=True
-					
-				d = Data(uri=i[0], 
-			 		timestamp= t[0], 
-			 		name= i[1], 
-			  		comment=i[2], 
-			  		mimetype=  i[3], 
-			        tags=i[4], 
-			  		count=i[5], 
-			  		use =i[6], 
-			  		type=i[7],
-			  		icon=i[8],
-			  		bookmark=bookmark)
+				
+				d = Data(uri=i[0],
+					timestamp=t[0],
+					name=i[1],
+			 		comment=i[2],
+			 		mimetype=i[3],
+					tags=i[4],
+					count=i[5],
+					use=i[6],
+					type=i[7],
+					icon=i[8],
+					bookmark=bookmark)
 				yield d 
 		gc.collect()
 		print time.time() -t1
-	 
+	
 	def update_item(self,item):
 		self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
 		bookmark = 0

@@ -93,6 +93,10 @@ class DataSinkSource(DataProvider):
 			gobject.idle_add(self._update_db_async)
 	
 	def get_items(self, min=0, max=sys.maxint, tags="", cached=False):
+		
+		# Emulate optional argument for the D-Bus interface
+		if max == 0: max = sys.maxint
+		
 		# Get a list of all document types that we're interested in
 		types = []
 		self.items=[]
@@ -105,11 +109,11 @@ class DataSinkSource(DataProvider):
 		types = frozenset(types)
 		
 		# Get a list of all tags/search terms
-		# (Here, there's no reason to use sets, because we're not using python's 'in' 
+		# (Here, there's no reason to use sets, because we're not using python's "in"
 		#  keyword for membership testing.)
 		if not tags == "":
-			tags = tags.replace(",", "")
-			tagsplit = tags.split(" ")
+			tags = tags.replace(",", " ")
+			tagsplit = [tag.lower() for tag in tags.split(" ")]
 		else:
 			tagsplit = []
 		
@@ -125,7 +129,7 @@ class DataSinkSource(DataProvider):
 						# Loop over every tag/search term
 						for tag in tagsplit:
 							# If the document name or uri does NOT match the tag/search terms then skip this item
-							if not item.tags.lower().find(tag) > -1 and not item.uri.lower().find(tag) > -1:
+							if not tag in item.tags.lower().split(',') and not item.uri.lower().find(tag) > -1:
 								matches = False
 								break
 						if matches:
@@ -139,7 +143,7 @@ class DataSinkSource(DataProvider):
 					# Loop over every tag/search term
 					for tag in tagsplit:
 						# If the document name or uri does NOT match the tag/search terms then skip this item
-						if not item.tags.lower().find(tag) > -1 and not item.uri.lower().find(tag) > -1:
+						if not tag in item.tags.lower().split(',') and not item.uri.lower().find(tag) > -1:
 							matches = False
 							break
 					if matches:
@@ -189,16 +193,16 @@ class DataSinkSource(DataProvider):
 			# will continue to call this function in idle cpu time
 			return True
 	
-	def get_most_used_tags(self,count=20,min=0,max=sys.maxint):
+	def get_most_used_tags(self, count=20, min=0, max=sys.maxint):
 		if count == 0: count = 20
 		if max == 0: max = sys.maxint
-		for tag in db.get_most_tags(count,min,max):
+		for tag in db.get_most_tags(count, min, max):
 			yield tag
 
-	def get_recent_used_tags(self,count=20,min=0,max=sys.maxint):
+	def get_recent_used_tags(self, count=20, min=0, max=sys.maxint):
 		if count == 0: count = 20
 		if max == 0: max = sys.maxint
-		for tag in db.get_recent_tags(count,min,max):
+		for tag in db.get_recent_tags(count, min, max):
 			yield tag
 
 	def get_timestamps_for_tag(self,tag):
@@ -241,7 +245,6 @@ class Bookmarker(DataProvider):
 	def get_items_uncached(self):
 		for i in datasink.get_bookmarks():
 			yield i
-			del i
 
 datasink = DataSinkSource()
 bookmarker = Bookmarker()
