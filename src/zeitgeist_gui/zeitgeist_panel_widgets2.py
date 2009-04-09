@@ -245,7 +245,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		for item in self.items:
 			del item
 		self.items = []
-		for i in datasink.get_items_by_time(self.begin, self.end, '', True):
+		for i in datasink.get_items_by_time(self.begin, self.end, ''):
 			if i.timestamp < self.end:
 				self.items.append(i)
 				i.connect("relate",self.set_relation)
