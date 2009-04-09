@@ -194,13 +194,13 @@ class DataSinkSource(DataProvider):
 		if count == 0: count = 20
 		if max == 0: max = sys.maxint
 		for tag in db.get_most_tags(count,min,max):
-			yield str(tag)
+			yield tag
 
 	def get_recent_used_tags(self,count=20,min=0,max=sys.maxint):
 		if count == 0: count = 20
 		if max == 0: max = sys.maxint
 		for tag in db.get_recent_tags(count,min,max):
-			yield str(tag)
+			yield tag
 
 	def get_timestamps_for_tag(self,tag):
 		begin = db.get_min_timestamp_for_tag(tag)
