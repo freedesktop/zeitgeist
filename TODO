@@ -8,13 +8,18 @@ TODO:
 	+ Set relationships between Data based on: 
 		1. Other Items usage in the periods where the Data.
 		2. Common Tags.
-		3. Context ( example context of text files ).
+		3. Context (example context of text files).
 	+ Extend DB to support location of usage
 	+ Related Items should be automatically determined by currenlty used URI.
-	+ Auto Tagging e.g: tasks,locations,and relations.
+	+ Auto Tagging e.g: tasks, locations, and relations.
+	+ Finish the D-Bus interface.
+	+ Reduce the amount of "changed" signals send.
+	+ Fix the firefox DB detection (see comment in code).
 	
-
 - Frontend:
+    + Separate it from the backend and let it only use D-Bus for communication.
+	+ "Delete item" feature.
+	+ Do not show an item twice one beneath the other.
 	+ Modify the GUI so that it looks more like GMail.
 	+ Add on support for switching between a GMail-style list of 
 		items and a grid of item thumbnails.
