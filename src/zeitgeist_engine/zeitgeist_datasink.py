@@ -79,11 +79,6 @@ class DataSinkSource(DataProvider):
 		the "reload" signal.
 		'''
 		
-		# Propagate the reload signal to other interested functions
-		# (eg., the D-Bus interface)
-		for callback in self.reload_callbacks:
-			callback()
-		
 		# If the source is already in the queue then just return
 		if source in self._sources_queue:
 			return False
@@ -172,7 +167,12 @@ class DataSinkSource(DataProvider):
 			# Update the database with items from the first source in the queue
 			items = self._sources_queue[0].get_items()
 			
-			db.insert_items(items)
+			if db.insert_items(items):
+				# If we inserted at least one item...
+				# Propagate the reload signal to other interested
+				# functions (eg., the D-Bus interface)
+				for callback in self.reload_callbacks:
+					callback()
 			
 			# Remove the source from the queue
 			del self._sources_queue[0]

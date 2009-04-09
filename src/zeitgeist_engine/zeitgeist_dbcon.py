@@ -50,7 +50,9 @@ class DBConnector():
 		thread.start_new(self.insert_items, (items,))
 		
 	def insert_items(self, items):
+		amount_items = 0
 		for item in items:
+			amount_items += 1
 			try:
 				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)', (item.timestamp,
 					None,
@@ -90,6 +92,7 @@ class DBConnector():
 			except sqlite3.IntegrityError, ex:
 					pass
 		self.connection.commit()
+		return amount_items
 	
 	def get_items(self,min,max):
 		t1 = time.time()
