@@ -12,11 +12,10 @@ from zeitgeist_engine.zeitgeist_datasink import bookmarker, datasink
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 
 class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
+	
 	__gsignals__ = {
 		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
-		}
-
-	
+	}
 
 	def __init__(self):
 		# Initialize superclass

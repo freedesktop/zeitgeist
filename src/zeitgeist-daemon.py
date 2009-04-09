@@ -44,8 +44,9 @@ class RemoteInterface(dbus.service.Object):
 		return items
 	
 	@dbus.service.signal("org.gnome.zeitgeist")
-	def signal_reload(self):
-		print "Emitted reload signal." # pass
+	def signal_updated(self):
+		# We forward the "reload" signal, but only if something changed.
+		print "Emitted \"updated\" signal." # pass
 
 
 if __name__ == "__main__":
@@ -54,7 +55,7 @@ if __name__ == "__main__":
 	session_bus = dbus.SessionBus()
 	name = dbus.service.BusName("org.gnome.zeitgeist", session_bus)
 	object = RemoteInterface(session_bus, '/RemoteInterface')
-	datasink.reload_callbacks.append(object.signal_reload)
+	datasink.reload_callbacks.append(object.signal_updated)
 	
 	mainloop = gobject.MainLoop()
 	print _("Running Zeitgeist service.")

@@ -90,7 +90,7 @@ class DBConnector():
 			except sqlite3.IntegrityError, ex:
 					pass
 		self.connection.commit()
-		
+	
 	def get_items(self,min,max):
 		t1 = time.time()
 		for t in self.cursor.execute("SELECT start, uri FROM timetable WHERE usage!='linked' and start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():

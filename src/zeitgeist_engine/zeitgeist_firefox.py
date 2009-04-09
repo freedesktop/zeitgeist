@@ -1,19 +1,9 @@
-import gc
-import datetime
 import os
-import re
 import glob
-from xml.dom.minidom import parse
-from xml.parsers.expat import ExpatError
-
-import gobject
-import thread
-import gtk
 import shutil
 import sqlite3 as db
-import tempfile
-import W3CDate
 from gettext import gettext as _
+
 from zeitgeist_util import FileMonitor
 from zeitgeist_base import Data, DataProvider
 
@@ -37,13 +27,12 @@ class FirefoxSource(DataProvider):
             self.note_path_monitor = FileMonitor(self.historydb[0])
             self.note_path_monitor.connect("event", self.reload_proxy)
             self.note_path_monitor.open()
-        #self.emit("reload")
         except:
             print "Are you using Firefox?"
-            
+        
         try:
             self.loc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
-            self.loc = self.loc[0]+"firefox.sqlite"
+            self.loc = self.loc[0] + "firefox.sqlite"
         except:
             pass
         
@@ -54,7 +43,7 @@ class FirefoxSource(DataProvider):
             self.last_timestamp = 0.0
     
     def get_latest_timestamp(self): 
-        self.connection = db.connect( self.loc,True)
+        self.connection = db.connect(self.loc, True)
         cursor = self.connection.cursor()
         
         contents = "visit_date"
@@ -68,7 +57,6 @@ class FirefoxSource(DataProvider):
     def reload_proxy(self,x=None,y=None,z=None):
         self.__copy_sqlite()
         self.emit("reload")
-    
     
     def get_items_uncached(self):
         # create a connection to firefox's sqlite database

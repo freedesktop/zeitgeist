@@ -31,7 +31,6 @@ DOCUMENT_MIMETYPES = [
         u"application/x-java*",
         ]
 
-
 IMAGE_MIMETYPES = [
         # Covers:
         #     vnd.corel-draw
@@ -41,22 +40,17 @@ IMAGE_MIMETYPES = [
         re.compile(u"image/*"),
         ]
 
-
 AUDIO_MIMETYPES = [
         re.compile(u"audio/*"),
         u"application/ogg"
         ]
-
 
 VIDEO_MIMETYPES = [
         re.compile(u"video/*"),
         u"application/ogg"
         ]
 
-
 #-----------------------------------------------------------------------------#
-
-
 
 
 class RecentlyUsedManagerGtk(DataProvider):
@@ -100,7 +94,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					tags=tags,
 					count=counter,
 					use=use)
-						
+
 class RecentlyUsed(DataProvider):
 	'''
 	Recently-used documents, log stored in ~/.recently-used.

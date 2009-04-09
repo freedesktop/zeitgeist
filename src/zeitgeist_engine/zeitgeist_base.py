@@ -312,11 +312,11 @@ class DataProvider(Data, Thread):
 		'''
 		
 		for i in self.get_items_uncached():
-			if i.timestamp >= min and i.timestamp <max:
+			if i.timestamp >= min and i.timestamp < max:
 				yield i
 			
 		gc.collect()
-				
+	
 	def get_items_uncached(self):
 		'''Subclasses should override this to return/yield Datas. The results
 		will be cached.'''

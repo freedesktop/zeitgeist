@@ -92,11 +92,11 @@ class DataSinkSource(DataProvider):
 		# Add the source into the queue
 		self._sources_queue.append(source)
 		
-		# Add a new idle callback to update the db only if one doesn't already existt
+		# Add a new idle callback to update the db only if one doesn't already exist
 		if not self._db_update_in_progress and len(self._sources_queue) > 0:
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
-			
+	
 	def get_items(self, min=0, max=sys.maxint, tags="", cached=False):
 		# Get a list of all document types that we're interested in
 		types = []
@@ -166,13 +166,12 @@ class DataSinkSource(DataProvider):
 			yield item
 	
 	def _update_db_async(self):
+		
 		if len(self._sources_queue) > 0:
 			print "Updating database with new %s items" % self._sources_queue[0].name
 			# Update the database with items from the first source in the queue
 			items = self._sources_queue[0].get_items()
 			
-			#insert_thread = InsertThread(items)
-			#self.threads.append()
 			db.insert_items(items)
 			
 			# Remove the source from the queue
@@ -187,9 +186,9 @@ class DataSinkSource(DataProvider):
 				return False
 			
 			# Otherwise, if there are more items in the queue return True so that gtk+
-			#  will continue to call this function in idle cpu time
+			# will continue to call this function in idle cpu time
 			return True
-
+	
 	def get_most_used_tags(self,count=20,min=0,max=sys.maxint):
 		if count == 0: count = 20
 		if max == 0: max = sys.maxint
