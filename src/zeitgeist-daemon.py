@@ -9,12 +9,18 @@ from zeitgeist_engine.zeitgeist_datasink import datasink
 
 class RemoteInterface(dbus.service.Object):
 	
+	def _plainify(self, obj):
+		''' Takes a Data object and converts it into an object
+			suitable for transmission through D-Bus. '''
+		
+		return (obj.get_name(), item.get_uri())
+	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="", out_signature="a(ss)")
 	def get_bookmarks(self):
 		items = []
 		for item in datasink.get_bookmarks():
-			items.append((item.get_name(), item.get_uri()))
+			items.append(self._plainify(item))
 		return items
 	
 	@dbus.service.method("org.gnome.zeitgeist",
@@ -34,7 +40,7 @@ class RemoteInterface(dbus.service.Object):
 	def get_related_items(self, item_uri):
 		items = []
 		for item in datasink.get_related_items(item_uri):
-			items.append((item.get_name(), item.get_uri()))
+			items.append(self.plainify(item))
 		return items
 	
 	@dbus.service.signal("org.gnome.zeitgeist")

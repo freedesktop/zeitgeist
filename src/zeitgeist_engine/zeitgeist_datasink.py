@@ -97,7 +97,7 @@ class DataSinkSource(DataProvider):
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
 			
-	def get_items(self, min=0, max=sys.maxint, tags="",cached=False):
+	def get_items(self, min=0, max=sys.maxint, tags="", cached=False):
 		# Get a list of all document types that we're interested in
 		types = []
 		self.items=[]
@@ -119,7 +119,7 @@ class DataSinkSource(DataProvider):
 			tagsplit = []
 		
 		# Loop over all of the items from the database
-		if cached==False or len(self.items)==0:
+		if cached == False or len(self.items) == 0:
 			print "GETTING UNCACHED"
 			for item in db.get_items(min, max):
 				if not self.items.__contains__(item):
@@ -130,7 +130,7 @@ class DataSinkSource(DataProvider):
 						# Loop over every tag/search term
 						for tag in tagsplit:
 							# If the document name or uri does NOT match the tag/search terms then skip this item
-							if not item.tags.lower().find(tag)> -1 and not item.uri.lower().find(tag)>-1:
+							if not item.tags.lower().find(tag) > -1 and not item.uri.lower().find(tag) > -1:
 								matches = False
 								break
 						if matches:
@@ -144,12 +144,12 @@ class DataSinkSource(DataProvider):
 					# Loop over every tag/search term
 					for tag in tagsplit:
 						# If the document name or uri does NOT match the tag/search terms then skip this item
-						if not item.tags.lower().find(tag)> -1 and not item.uri.lower().find(tag)>-1:
+						if not item.tags.lower().find(tag) > -1 and not item.uri.lower().find(tag) > -1:
 							matches = False
 							break
 					if matches:
 						yield item
-						
+		
 		gc.collect()
 	
 	def get_bookmarks(self):
@@ -162,7 +162,7 @@ class DataSinkSource(DataProvider):
 	
 	def get_items_by_time(self, min=0, max=sys.maxint, tags="", cached=False):
 		"Datasink getting all items from DataProviders"
-		for item in self.get_items(min, max, tags,cached):
+		for item in self.get_items(min, max, tags, cached):
 			yield item
 	
 	def _update_db_async(self):
