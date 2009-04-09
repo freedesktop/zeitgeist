@@ -27,7 +27,8 @@ class DataSinkSource(DataProvider):
 							uri="source:///Datasink")
 		self.sources = []
 		self._sources_queue = []
-		self.threads=[]
+		self.threads = []
+		self.reload_callbacks = []
 		
 		self._db_update_in_progress = False
 		
@@ -48,7 +49,7 @@ class DataSinkSource(DataProvider):
 			for item in logger_sources[namespace]:
 				print sourcefile
 				instance = getattr(sourcefile, item + "Source")()
-				instance.connect("reload", self.update_db_with_source)
+				instance.connect("reload", self._update_db_with_source)
 				self.sources.append(instance)
 		
 		# Update the database
@@ -71,10 +72,18 @@ class DataSinkSource(DataProvider):
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
 	
-	def update_db_with_source(self, source):
+	def _update_db_with_source(self, source):
 		'''
-		Add new items from source into the database.
+		Add new items from source into the database. This funcion
+		should not be called directly, but instead activated through
+		the "reload" signal.
 		'''
+		
+		# Propagate the reload signal to other interested functions
+		# (eg., the D-Bus interface)
+		for callback in self.reload_callbacks:
+			callback()
+		
 		# If the source is already in the queue then just return
 		if source in self._sources_queue:
 			return False

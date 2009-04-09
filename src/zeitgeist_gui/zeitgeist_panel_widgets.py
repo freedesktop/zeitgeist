@@ -824,7 +824,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 	
 	__gsignals__ = {
 		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
-		}
+	}
 	
 	def __init__(self,parentdays=False):
 		gtk.TreeView.__init__(self)
@@ -873,7 +873,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.day=None
-		bookmarker.connect("reload",lambda x: self._do_refresh_rows())
+		bookmarker.connect("reload", lambda x: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}

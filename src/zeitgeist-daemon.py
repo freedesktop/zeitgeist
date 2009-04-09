@@ -6,6 +6,7 @@ from gettext import ngettext, gettext as _
 
 from zeitgeist_engine.zeitgeist_datasink import datasink
 
+
 class RemoteInterface(dbus.service.Object):
 	
 	@dbus.service.method("org.gnome.zeitgeist",
@@ -36,10 +37,10 @@ class RemoteInterface(dbus.service.Object):
 			items.append((item.get_name(), item.get_uri()))
 		return items
 	
-	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="", out_signature="")
-	def reload(self):
-		datasink.emit("reload")
+	@dbus.service.signal("org.gnome.zeitgeist")
+	def signal_reload(self):
+		print "Emitted reload signal." # pass
+
 
 if __name__ == "__main__":
 	
@@ -47,6 +48,7 @@ if __name__ == "__main__":
 	session_bus = dbus.SessionBus()
 	name = dbus.service.BusName("org.gnome.zeitgeist", session_bus)
 	object = RemoteInterface(session_bus, '/RemoteInterface')
+	datasink.reload_callbacks.append(object.signal_reload)
 	
 	mainloop = gobject.MainLoop()
 	print _("Running Zeitgeist service.")
