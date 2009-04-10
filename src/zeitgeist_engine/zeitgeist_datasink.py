@@ -199,8 +199,12 @@ class DataSinkSource(DataProvider):
 		return begin,end
 
 	def get_related_items(self, item):
-		for i in db.get_related_items(item):
-		  yield i
+		for item in db.get_related_items(item):
+			yield item
+	
+	def get_items_related_by_tags(self, item):
+		for item in db.get_items_related_by_tags(item):
+			yield item
 
 class Bookmarker(DataProvider):	
 	def __init__(self,

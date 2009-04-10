@@ -51,7 +51,7 @@ class DBConnector():
 			if uri_only:
 				return item
 			else:
-				item = _result2data(
+				item = self._result2data(
 					self.cursor.execute(
 						"SELECT * FROM data WHERE uri=?", (item,)).fetchone())
 		elif uri_only:
@@ -154,7 +154,6 @@ class DBConnector():
 				ORDER BY key"""
 		
 		for start, uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
-			
 			# Retrieve the item from the data table
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
 									(uri,)).fetchone()
@@ -249,42 +248,41 @@ class DBConnector():
 		
 		for tagid, tagcount in res:
 			yield str(tagid)
-			
+	
 	def get_min_timestamp_for_tag(self,tag):
 		res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp',(tag,)).fetchone()
 		if res:
 			return res[0]
 		else:
 			return None
-			
+	
 	def get_max_timestamp_for_tag(self,tag):
 		res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp DESC',(tag,)).fetchone()
 		if res:
 			return res[0]
 		else:
 			return None
-		
-	def get_items_related_by_tags(self,item):
-		for tag in item.get_tags():
-			print tag
-			res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ? ORDER BY COUNT(uri) DESC',(tag,)).fetchall()
+	
+	def get_items_related_by_tags(self, item):
+		# TODO: Is one matching tag enough or should more/all of them
+		# match?
+		for tag in self._ensure_item(item).get_tags():
+			res = self.cursor.execute('SELECT uri FROM tags WHERE tagid=? GROUP BY uri ORDER BY COUNT(uri) DESC', (tag,)).fetchall()
 			for raw in res:
-				print raw
 				item = self.cursor.execute("SELECT * FROM data WHERE uri=?", (raw[0],)).fetchone()
 				if item:
 					yield self._result2data(item)
 	
 	def get_related_items(self, item):
-		''' Parameter item may be a Data object or the URL of an item. '''
+		# TODO: Only neighboorhood in time is considered? A bit poor,
+		# this needs serious improvement.
 		list = []
 		dict = {}
 		current_timestamp = time.time() - (90*24*60*60)
 		item_uri = self._ensure_item(item, uri_only=True)
 		items = self.cursor.execute('SELECT * FROM timetable WHERE start >? AND uri=? ORDER BY start DESC',(current_timestamp,item_uri)).fetchall()
 		for uri in items:
-			'''
-			min and max define the neighbourhood radius
-			'''
+			# min and max define the neighbourhood radius
 			min = uri[0]-(60*60)
 			max = uri[0]+(60*60)
 			
@@ -312,7 +310,7 @@ class DBConnector():
 					counter = counter +1
 			
 		return list
-		
+	
 	def numeric_compare(x, y):
 		if x[0]>y[0]:
 			return 1

@@ -52,6 +52,14 @@ class RemoteInterface(dbus.service.Object):
 		return items
 	
 	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature="s", out_signature=_sig_plaindata)
+	def get_items_related_by_tags(self, item_uri):
+		items = []
+		for item in datasink.get_items_related_by_tags(item_uri):
+			items.append(self._plainify(item))
+		return items
+	
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="s", out_signature="")
 	def delete_item(self, item_uri):
 		datasink.delete_item(item_uri)
