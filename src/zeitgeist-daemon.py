@@ -9,11 +9,11 @@ from zeitgeist_engine.zeitgeist_datasink import datasink
 
 class RemoteInterface(dbus.service.Object):
 	
-	_sig_plaindata = "a(sss)"
+	_sig_plaindata = "a(sssssss)"
 	def _plainify(self, obj):
 		''' Takes a Data object and converts it into an object
 			suitable for transmission through D-Bus. '''
-		return (obj.get_name(), obj.get_uri(), ','.join(obj.get_tags()))
+		return (str(obj.get_timestamp()), obj.get_uri(), obj.get_name(), obj.get_type(), obj.get_mimetype(), obj.get_icon_string(), ','.join(obj.get_tags()))
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="iis", out_signature=_sig_plaindata)

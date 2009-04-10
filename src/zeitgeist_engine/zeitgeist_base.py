@@ -61,6 +61,9 @@ class Data(gobject.GObject):
 		self.original_source = None
 		self.textview = gtk.TextView()
 	
+	def get_timestamp(self):
+		return self.timestamp
+	
 	def get_icon(self, icon_size):
 			temp = self.icon
 			
@@ -74,12 +77,18 @@ class Data(gobject.GObject):
 			thumb = thumbnailer.get_icon(self.get_uri(),self.get_mimetype(),icon_size, self.timestamp)
 			return thumb
 	
+	def get_icon_string(self):
+		return self.icon
+	
 	def get_icon_static_done(self, icon_size):
 		if self.icon:
 			return icon_factory.load_icon(self.icon, icon_size)
 	
 	def get_mimetype(self):
 		return self.mimetype
+	
+	def get_type(self):
+		return self.type
 
 	def get_uri(self):
 		return self.uri
