@@ -184,7 +184,13 @@ class DBConnector():
 				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
 					(unicode(tag.capitalize()),item.uri,time.time())) 	
 		self.connection.commit()
-		 
+	
+	def delete_item(self, item):
+		item_uri = item.uri if isinstance(item, Data) else item
+		self.cursor.execute('DELETE FROM data where uri=?', (item_uri,))
+		self.cursor.execute('DELETE FROM tags where uri=?', (item_uri,))
+		self.connection.commit()
+	
 	def get_recent_tags(self, count=20, min=0, max=sys.maxint):
 		"""
 		Yields tags between the timestamps min and max.

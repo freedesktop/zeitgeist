@@ -140,6 +140,13 @@ class DataSinkSource(DataProvider):
 		print "Updating item: %s" % item
 		db.update_item(item)		 
 	
+	def delete_item(self, item):
+		print "Deleting item: %s" % item
+		db.delete_item(item)
+		# optimize this, no full reload required, so no signal should
+		# be emitted, instead the GUI should know to delete it
+		self.emit("reload")
+	
 	def get_items_by_time(self, min=0, max=sys.maxint, tags=""):
 		"Datasink getting all items from DataProviders"
 		for item in self.get_items(min, max, tags):

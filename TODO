@@ -18,7 +18,6 @@ TODO:
 	
 - Frontend:
     + Separate it from the backend and let it only use D-Bus for communication.
-	+ "Delete item" feature.
 	+ Do not show an item twice one beneath the other.
 	+ Modify the GUI so that it looks more like GMail.
 	+ Add on support for switching between a GMail-style list of 

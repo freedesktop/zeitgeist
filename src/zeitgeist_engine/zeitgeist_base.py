@@ -1,6 +1,5 @@
 import datetime
 import gc
-import string
 import sys
 import time
 import os
@@ -8,7 +7,6 @@ from threading import Thread
 
 import gobject
 import gtk
-import glob
 from gettext import ngettext, gettext as _
 
 from zeitgeist_util import Thumbnailer, icon_factory, launcher, difffactory, iconcollection,thumbnailer
@@ -153,6 +151,17 @@ class Data(gobject.GObject):
 		tag.connect("activate", lambda w:  self.tag_item())
 		tag.show()
 		menu.append(tag)
+		
+		# Add a separator (we could use SeparatorMenuItem but that's
+		# just an alias for calling MenuItem without arguments).
+		tag = gtk.MenuItem()
+		tag.show()
+		menu.append(tag)
+		
+		tag = gtk.MenuItem("Delete item")
+		tag.connect("activate", lambda w:  self.delete_item())
+		tag.show()
+		menu.append(tag)
 	
 	def relate(self, x=None):
 		self.emit("relate")
@@ -177,8 +186,8 @@ class Data(gobject.GObject):
 		taggingwindow = gtk.Window()
 		taggingwindow.set_border_width(5)
 		taggingwindow.set_size_request(400,-1)
-		taggingwindow.set_title("Edit Tags for " + self.get_name())
-			
+		taggingwindow.set_title(_("Edit Tags for %s") % self.get_name())
+		
 		self.textview.get_buffer().set_text(self.tags)	
 		
 		okbtn = gtk.Button("Add")
@@ -193,14 +202,16 @@ class Data(gobject.GObject):
 		vbox.pack_start(self.textview,True,True,5)
 
 		self.tbox = self.get_tagbox()
-		
 		vbox.pack_start(self.tbox,True,True)
 		vbox.pack_start(hbox,False,False)
 		
-		
 		taggingwindow.add(vbox)
 		taggingwindow.show_all()
-		
+	
+	def delete_item(self):
+		from zeitgeist_datasink import datasink
+		datasink.delete_item(self)
+	
 	def set_tags(self, tags):
 		from zeitgeist_datasink import datasink
 		self.tags = tags
@@ -290,7 +301,6 @@ class DataProvider(Data, Thread):
 		Thread.__init__(self)
 		Data.__init__(self, name=name, icon=icon,comment=comment,uri=uri, mimetype="zeitgeist/item-source")
 		
-		
 		# Set attributes
 		self.filter_by_date = filter_by_date
 		self.clear_cache_timeout_id = None
@@ -335,7 +345,6 @@ class DataProvider(Data, Thread):
 		return self.active
 
 	def items_contains_uri(self,items,uri):
-		for i in items:
-			if i.uri == uri:
-				return True
+		if uri in (i.uri for i in items):
+			return True
 		return False
