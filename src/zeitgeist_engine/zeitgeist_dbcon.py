@@ -21,6 +21,44 @@ class DBConnector():
 		self.cursor = self.connection.cursor()
 		self.offset = 0
 	
+	def _result2data(self, result, timestamp=0):
+		return Data(
+			uri			= result[0],
+			name		= result[1],
+			comment		= result[2],
+			mimetype	= result[3],
+			tags		= result[4],
+			count		= result[5],
+			use			= result[6],
+			type		= result[7],
+			icon		= result[8],
+			bookmark	= (result[9] == 1),
+			timestamp	= timestamp
+			)
+	
+	def _ensure_item(self, item, uri_only=False):
+		"""
+		Takes either a Data object or an URI for an item in the
+		database. If it's a Data object it is returned unchanged,
+		but if it's an URI it's looked up in the database and the
+		its returned converted into a complete Data object.
+		
+		If uri_only is True, only the URI of the item is returned
+		(and no database query needs to take place).
+		"""
+		
+		if not isinstance(item, Data):
+			if uri_only:
+				return item
+			else:
+				item = _result2data(
+					self.cursor.execute(
+						"SELECT * FROM data WHERE uri=?", (item,)).fetchone())
+		elif uri_only:
+			return item.uri
+		
+		return item
+	
 	def create_db(self, path):
 		"""
 		Create the database at path if it doesn't already exist.
@@ -118,28 +156,13 @@ class DBConnector():
 		for start, uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
 			
 			# Retrieve the item from the data table
-			item = self.cursor.execute("SELECT * FROM data WHERE  uri=?",
+			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
 									(uri,)).fetchone()
 			
 			# TODO: Can item ever be None?
 			if item is not None:
-				# Check if the item is bookmarked
-				if item[9] == 1:
-					bookmark = True
-				else:
-					bookmark = False
-				
-				yield Data(uri  = item[0],
-					name		= item[1],
-			 		comment		= item[2],
-			 		mimetype	= item[3],
-					tags		= item[4],
-					count		= item[5],
-					use			= item[6],
-					type		= item[7],
-					icon		= item[8],
-					timestamp   = start,
-					bookmark	= bookmark)
+				itemobj = self._result2data(item, timestamp = start)
+				yield itemobj
 		
 		gc.collect()
 	
@@ -186,7 +209,7 @@ class DBConnector():
 		self.connection.commit()
 	
 	def delete_item(self, item):
-		item_uri = item.uri if isinstance(item, Data) else item
+		item_uri = self._ensure_item(item, uri_only=True)
 		self.cursor.execute('DELETE FROM data where uri=?', (item_uri,))
 		self.cursor.execute('DELETE FROM tags where uri=?', (item_uri,))
 		self.connection.commit()
@@ -247,30 +270,16 @@ class DBConnector():
 			res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ? ORDER BY COUNT(uri) DESC',(tag,)).fetchall()
 			for raw in res:
 				print raw
-				i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(raw[0],)).fetchone()
-				if i:
-					bookmark = False
-					if i[9] ==1:
-						bookmark=True
-					
-					d = Data(uri=i[0], 
-				 		name= i[1], 
-				  		comment=i[2], 
-				  		mimetype=  i[3], 
-				        tags=i[4], 
-				  		count=i[5], 
-				  		use =i[6], 
-				  		type=i[7],
-				  		icon=i[8],
-				  		bookmark=bookmark)
-					yield d 
-		
+				item = self.cursor.execute("SELECT * FROM data WHERE uri=?", (raw[0],)).fetchone()
+				if item:
+					yield self._result2data(item)
+	
 	def get_related_items(self, item):
 		''' Parameter item may be a Data object or the URL of an item. '''
 		list = []
 		dict = {}
 		current_timestamp = time.time() - (90*24*60*60)
-		item_uri = item.uri if isinstance(item, Data) else item
+		item_uri = self._ensure_item(item, uri_only=True)
 		items = self.cursor.execute('SELECT * FROM timetable WHERE start >? AND uri=? ORDER BY start DESC',(current_timestamp,item_uri)).fetchall()
 		for uri in items:
 			'''
@@ -287,21 +296,18 @@ class DBConnector():
 				else:
 					dict[r[0]]=0
 		
-		
-		print"-----------------------------------------------------------------------------------------------"
 		values = [(v, k) for (k, v) in dict.iteritems()]
 		dict.clear()
  		values.sort()
  		values.reverse()
-		print"-----------------------------------------------------------------------------------------------"
-			
+ 		
 		counter =0
 		for v in values:
-			uri=v[1]
-			i = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
-			if i:
+			uri = v[1]
+			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
+			if item:
 				if counter <= 5:
-					d= Data(uri=i[0],timestamp= -1.0, name= i[1], comment=i[2], mimetype=  i[3], tags=i[4], count=i[5], use =i[6], type=i[7])
+					d = self._result2data(item, timestamp = -1)
 					list.append(d) 
 					counter = counter +1
 			
@@ -315,25 +321,14 @@ class DBConnector():
 		else: # x<y
 			return -1
  
-		
 	def get_bookmarked_items(self):
 		t1 = time.time()
-		for i in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
-				if i:
-					d = Data(uri=i[0], 
-				 		timestamp= -1, 
-				 		name= i[1], 
-				  		comment=i[2], 
-				  		mimetype=  i[3], 
-				        tags=i[4], 
-				  		count=i[5], 
-				  		use =i[6], 
-				  		type=i[7],
-				  		icon=i[8],
-				  		bookmark=True)
+		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
+				if item:
+					d = self._result2data(item, timestamp = -1)
 				yield d 
 		gc.collect()
-		print time.time() -t1
+		print time.time() - t1
 
 
-db=DBConnector()
+db = DBConnector()

@@ -20,17 +20,18 @@ class Data(gobject.GObject):
 	}
 
 	def __init__(self,
-				 uri = None,
-				 name = None,
-				 comment = "",
-				 timestamp = 0,
-				 mimetype = "N/A",
-				 icon = None,
-				 tags = "",
-				 count=1,
-				 use = "first use",
-				 type = "N/A",
-				 bookmark=False):
+				 uri		= None,
+				 name		= None,
+				 comment	= "",
+				 timestamp	= 0,
+				 mimetype	= "N/A",
+				 icon		= None,
+				 tags		= "",
+				 count		= 1,
+				 use		= "first use",
+				 type		= "N/A",
+				 bookmark	= False):
+		
 		gobject.GObject.__init__(self)
 		
 		# Remove characters that might be interpreted by pango as formatting
@@ -59,7 +60,7 @@ class Data(gobject.GObject):
 		self.thumbnailer = None
 		self.original_source = None
 		self.textview = gtk.TextView()
-		
+	
 	def get_icon(self, icon_size):
 			temp = self.icon
 			
