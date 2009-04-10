@@ -276,8 +276,9 @@ class DataProvider(Data, Thread):
 	CACHE_CLEAR_TIMEOUT_MS = 1000 * 60 * 4
 	
 	__gsignals__ = {
-		"reload_send" : (gobject.SIGNAL_RUN_LAST, gobject.gobject.TYPE_PYOBJECT, ()),
-		}
+		"reload_send" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_PYOBJECT, ()),
+	}
+	
 	def __init__(self,
 				name=None,
 				icon=None,
