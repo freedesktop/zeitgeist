@@ -20,9 +20,11 @@ class DBConnector():
 		self.connection = sqlite3.connect(path[0], True, check_same_thread=False)
 		self.cursor = self.connection.cursor()
 		self.offset = 0
-		
 	
 	def create_db(self, path):
+		"""
+		Creates the Zeitgeist database at path.
+		"""
 		if len(path) == 0:
 			try:
 				homedir = glob.glob(os.path.expanduser("~/"))
@@ -39,6 +41,9 @@ class DBConnector():
 			return path
 	
 	def get_last_timestamp(self):
+		"""
+		Gets the timestamp of the most recent item in the database.
+		"""
 		query = "SELECT * FROM timetable LIMIT 1"
 		result = self.cursor.execute(query).fetchone()
 		if result is None:
@@ -46,10 +51,16 @@ class DBConnector():
 		else:
 			return result[0]
 
-	def insert_items_threaded(self,items):
+	def insert_items_threaded(self, items):
+		"""
+		Insert items into the database in a new thread.
+		"""
 		thread.start_new(self.insert_items, (items,))
 		
 	def insert_items(self, items):
+		"""
+		Inserts items into the database.
+		"""
 		amount_items = 0
 		for item in items:
 			amount_items += 1
@@ -73,10 +84,7 @@ class DBConnector():
 						
 				except Exception, ex:
 					pass
-					#print "---------------------------------------------------------------------------"					
-					#print ex
 					#print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
-					#print "---------------------------------------------------------------------------"	
 				
 				try:
 					# Add tags into the database
@@ -86,15 +94,18 @@ class DBConnector():
 						for tag in item.get_tags():
 							self.cursor.execute('INSERT INTO tags VALUES (?,?,?)', (tag.capitalize(), item.uri,item.timestamp))
 				except Exception, ex:
-					print "Error inserting tags:"
-					print ex
+					print "Error inserting tags: %s" % ex
 
 			except sqlite3.IntegrityError, ex:
-					pass
+				pass
+				
 		self.connection.commit()
 		return amount_items
 	
-	def get_items(self,min,max):
+	def get_items(self, min, max):
+		"""
+		Retrieves all items from the database between the timestamps min and max.
+		"""
 		t1 = time.time()
 		for t in self.cursor.execute("SELECT start, uri FROM timetable WHERE usage!='linked' and start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():
 			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[1],)).fetchone()
@@ -118,7 +129,11 @@ class DBConnector():
 		gc.collect()
 		print time.time() -t1
 	
-	def update_item(self,item):
+	def update_item(self, item):
+		"""
+		Updates an item already in the database. If the item has tags, then the tags will also be updated.
+		"""
+		# TODO: We also have to remove tags from the database which the item is no longer tagged with.
 		self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
 		bookmark = 0
 		if item.bookmark == True:
@@ -147,7 +162,10 @@ class DBConnector():
 				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(unicode(tag.capitalize()),item.uri,time.time())) 	
 		self.connection.commit()
 		 
-	def get_recent_tags(self,count=20,min=0,max=sys.maxint):
+	def get_recent_tags(self, count=20, min=0, max=sys.maxint):
+		"""
+		Retrieves a list of recently used tags.
+		"""
 		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags WHERE timestamp >='+ str(min) +" AND timestamp <="+ str(max) +' GROUP BY tagid ORDER BY  timestamp DESC').fetchall()
 		
 		i = 0
@@ -157,7 +175,7 @@ class DBConnector():
 			yield str(res[i][0])
 			i += 1
 			
-	def get_most_tags(self,count=20,min=0,max=sys.maxint):
+	def get_most_tags(self, count=20, min=0, max=sys.maxint):
 		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags WHERE timestamp >='+ str(min) +" AND timestamp <="+ str(max) +' GROUP BY tagid ORDER BY COUNT(uri) DESC').fetchall()
 		i = 0
 		while i < len(res) and i < count:
