@@ -32,6 +32,11 @@ print '-', ', '.join(iface.get_most_used_tags(0, 0, 0))
 print '\nYour recently used tags are:'
 print '-', ', '.join(iface.get_recent_used_tags(0, 0, 0))
 
+mimetype = 'text/plain'
+print '\nItems with mimetype «%s»:' % mimetype
+for item in iface.get_items_with_mimetype(mimetype, 0, 0, "")[:5]:
+	print '-', item[0]
+
 if first_item:
 	print u'\nTags for item «%s»:' % first_item[0]
 	print '-', ', '.join(first_item[2].split(','))

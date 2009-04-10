@@ -11,7 +11,7 @@ import gc
 from zeitgeist_base import DataProvider
 from zeitgeist_dbcon import db
 from zeitgeist_util import difffactory, gconf_bridge
-from ThreadPool import  *
+from ThreadPool import *
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -151,6 +151,11 @@ class DataSinkSource(DataProvider):
 		"Datasink getting all items from DataProviders"
 		for item in self.get_items(min, max, tags):
 			yield item
+	
+	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
+		for item in self.get_items_by_time(min, max, tags):
+			if item.mimetype in mimetype.split(','):
+				yield item
 	
 	def _update_db_async(self):
 		

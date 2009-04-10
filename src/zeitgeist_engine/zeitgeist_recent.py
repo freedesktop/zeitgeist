@@ -29,6 +29,7 @@ DOCUMENT_MIMETYPES = [
         u"application/x-gnucash",
         u"application/x-gnumeric",
         u"application/x-java*",
+        u"text/plain"
         ]
 
 IMAGE_MIMETYPES = [
@@ -114,6 +115,7 @@ class RecentlyUsed(DataProvider):
 	def include_item(self, item):
 		return True
 
+
 class RecentlyUsedOfMimeType(RecentlyUsed):
 	'''
 	Recently-used items filtered by a set of mimetypes.
@@ -148,8 +150,8 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 						mimetype=item.mimetype,
 						tags=item.tags)
 
+
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
-	### FIXME: This is lame, we should generate this list somehow.
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
@@ -157,9 +159,8 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 										icon="stock_new-presentation",
 										mimetype_list=DOCUMENT_MIMETYPES,
 										filter_name="Documents")
-		
-	
-				  
+
+
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 	
 	OTHER_MIMETYPES = DOCUMENT_MIMETYPES + IMAGE_MIMETYPES + AUDIO_MIMETYPES + VIDEO_MIMETYPES
@@ -179,16 +180,8 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 				return False
 		return True
 
+
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
-	### FIXME: This is lame, we should generate this list somehow.
-	IMAGE_MIMETYPES = [
-		# Covers:
-		#	 vnd.corel-draw
-		re.compile("application/vnd.corel-draw"),
-		# Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
-		re.compile("application/x-k(illustrator)"),
-		re.compile("image/*"),
-		]
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
@@ -196,6 +189,7 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 										icon="gnome-mime-image",
 										mimetype_list=IMAGE_MIMETYPES,
 										filter_name="Images")
+
 
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 	
@@ -205,7 +199,8 @@ class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 										icon="gnome-mime-audio",
 										mimetype_list=AUDIO_MIMETYPES,
 										filter_name="Music")
-					   
+
+
 class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 	
 	def __init__(self):

@@ -15,7 +15,8 @@ TODO:
 	+ Finish the D-Bus interface.
 	+ Reduce the amount of "changed" signals send.
 	+ Fix the firefox DB detection (see comment in code).
-	
+	+ Is RecentlyUsedDocuments the best place for text/plain files?
+
 - Frontend:
     + Separate it from the backend and let it only use D-Bus for communication.
 	+ Do not show an item twice one beneath the other.
