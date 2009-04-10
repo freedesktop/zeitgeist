@@ -7,7 +7,7 @@ import dbus.mainloop.glib
 import gobject
 import urllib
 
-def reload_signal_handler():
+def updated_signal_handler():
 	print "Received reload signal."
 
 if '--listen' in sys.argv:
@@ -16,7 +16,7 @@ bus = dbus.SessionBus()
 
 remote_object = bus.get_object("org.gnome.zeitgeist", "/RemoteInterface")
 if '--listen' in sys.argv:
-	remote_object.connect_to_signal("signal_reload", reload_signal_handler, dbus_interface="org.gnome.zeitgeist")
+	remote_object.connect_to_signal("signal_updated", updated_signal_handler, dbus_interface="org.gnome.zeitgeist")
 iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
 
 print 'Your bookmarks are:'
