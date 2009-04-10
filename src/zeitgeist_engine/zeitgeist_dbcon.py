@@ -15,34 +15,32 @@ from zeitgeist_base import DataProvider, Data
 class DBConnector():
 	
 	def __init__(self):
-		path = glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
-		path = self.create_db(path)
-		self.connection = sqlite3.connect(path[0], True, check_same_thread=False)
+		path = os.path.expanduser("~/.Zeitgeist/gzg.sqlite")
+		self.create_db(path)
+		self.connection = sqlite3.connect(path, True, check_same_thread=False)
 		self.cursor = self.connection.cursor()
 		self.offset = 0
 	
 	def create_db(self, path):
 		"""
-		Creates the Zeitgeist database at path.
+		Create the database at path if it doesn't already exist.
 		"""
-		if len(path) == 0:
+		# If the database doesn't already exists
+		if glob.glob(path) == "":
+			dbdir = os.path.expanduser("~/Zeitgeist")
+			# Try to create the .Zeitgeist directory
 			try:
-				homedir = glob.glob(os.path.expanduser("~/"))
-				dbdir = homedir[0] +".Zeitgeist"
-				try:
-					os.mkdir(dbdir)
-				except:
-					pass
-				shutil.copy("gzg.sqlite", dbdir)	  
+				os.mkdir(dbdir)
 			except:
-				print "Unexpected error creating database:", sys.exc_info()[0]	
-			return glob.glob(os.path.expanduser("~/.Zeitgeist/gzg.sqlite"))
-		else:
-			return path
+				pass
+			# Copy the empty database skeleton into .Zeitgeist
+			shutil.copy("gzg.sqlite", dbdir)	  
 	
 	def get_last_timestamp(self):
 		"""
 		Gets the timestamp of the most recent item in the database.
+		
+		Returns 0 if there are no items in the database.
 		"""
 		query = "SELECT * FROM timetable LIMIT 1"
 		result = self.cursor.execute(query).fetchone()
@@ -60,18 +58,25 @@ class DBConnector():
 	def insert_items(self, items):
 		"""
 		Inserts items into the database.
+		
+		Returns len(items)
 		"""
+		# TODO: Is there any reason to return len(items)?
+		# Will changing this break other parts of the codebase?
+		
 		amount_items = 0
 		for item in items:
 			amount_items += 1
 			try:
-				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)', (item.timestamp,
+				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)',
+					(item.timestamp,
 					None,
 					item.uri,
 					item.use,
 					str(item.timestamp)+"-"+item.uri))
 				try:
-					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)', (item.uri,
+					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
+						(item.uri,
 						item.name,
 						item.comment,
 						item.mimetype,
@@ -84,7 +89,6 @@ class DBConnector():
 						
 				except Exception, ex:
 					pass
-					#print "Error writing %s with timestamp %s." %(item.uri, item.timestamp)
 				
 				try:
 					# Add tags into the database
@@ -92,7 +96,8 @@ class DBConnector():
 					# TODO: Improve consistency.
 					if item.tags != "" and item.tags != []:
 						for tag in item.get_tags():
-							self.cursor.execute('INSERT INTO tags VALUES (?,?,?)', (tag.capitalize(), item.uri,item.timestamp))
+							self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
+								(tag.capitalize(), item.uri, item.timestamp))
 				except Exception, ex:
 					print "Error inserting tags: %s" % ex
 
@@ -104,85 +109,121 @@ class DBConnector():
 	
 	def get_items(self, min, max):
 		"""
-		Retrieves all items from the database between the timestamps min and max.
+		Yields all items from the database between the timestamps min and max.
 		"""
-		t1 = time.time()
-		for t in self.cursor.execute("SELECT start, uri FROM timetable WHERE usage!='linked' and start >= "+ str(int(min)) + " and start <= " + str(int(max))+" ORDER BY key").fetchall():
-			i = self.cursor.execute("SELECT * FROM data WHERE  uri=?",(t[1],)).fetchone()
-			if i:
-				bookmark = False
-				if i[9] ==1:
-					bookmark=True
+		# Loop over all items in the timetable table which are between min and max
+		query = """SELECT start, uri 
+				FROM timetable
+				WHERE usage!='linked'
+				and start >= ?
+				and start <= ?
+				ORDER BY key"""
+		
+		for start, uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
+			
+			# Retrieve the item from the data table
+			item = self.cursor.execute("SELECT * FROM data WHERE  uri=?",
+									(uri,)).fetchone()
+			
+			# TODO: Can item ever be None?
+			if item is not None:
+				# Check if the item is bookmarked
+				if item[9] == 1:
+					bookmark = True
+				else:
+					bookmark = False
 				
-				d = Data(uri=i[0],
-					timestamp=t[0],
-					name=i[1],
-			 		comment=i[2],
-			 		mimetype=i[3],
-					tags=i[4],
-					count=i[5],
-					use=i[6],
-					type=i[7],
-					icon=i[8],
-					bookmark=bookmark)
-				yield d 
+				yield Data(uri  = item[0],
+					name		= item[1],
+			 		comment		= item[2],
+			 		mimetype	= item[3],
+					tags		= item[4],
+					count		= item[5],
+					use			= item[6],
+					type		= item[7],
+					icon		= item[8],
+					timestamp   = start,
+					bookmark	= bookmark)
+		
 		gc.collect()
-		print time.time() -t1
 	
 	def update_item(self, item):
 		"""
-		Updates an item already in the database. If the item has tags, then the tags will also be updated.
+		Updates an item already in the database.
+		
+		If the item has tags, then the tags will also be updated.
 		"""
-		# TODO: We also have to remove tags from the database which the item is no longer tagged with.
-		self.cursor.execute('DELETE FROM  data where uri=?',(item.uri,))
-		bookmark = 0
+		# Delete this item from the database if it's already present.
+		self.cursor.execute('DELETE FROM data where uri=?',(item.uri,))
+		
+		# Check if the item is bookmarked
 		if item.bookmark == True:
 			bookmark = 1
-				
-		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',(item.uri,
-																		item.name,
-																		item.comment,
-																		item.mimetype,
-																		unicode(item.tags),
-																		item.count,
-																		item.use,
-																		item.type,
-																		item.icon,
-																		bookmark))	
+		else:
+			bookmark = 0
 		
+		# (Re)insert the item into the database
+		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
+							(item.uri,
+							item.name,
+							item.comment,
+							item.mimetype,
+							unicode(item.tags),
+							item.count,
+							item.use,
+							item.type,
+							item.icon,
+							bookmark))	
+		
+		# Delete old tags for this item
 		self.cursor.execute('DELETE FROM tags where uri=?', (item.uri,))
 		
+		# (Re)insert tags into the database
 		for tag in item.get_tags():
 			if not tag.strip() == "":
 				try:
 					self.cursor.execute('INSERT INTO tagids VALUES (?)',(tag,)) 
 				except:
 					pass
-				#id = self.cursor.execute("SELECT rowid FROM tagids WHERE  tag=?",(tag,)).fetchone()
-				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',(unicode(tag.capitalize()),item.uri,time.time())) 	
+				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
+					(unicode(tag.capitalize()),item.uri,time.time())) 	
 		self.connection.commit()
 		 
 	def get_recent_tags(self, count=20, min=0, max=sys.maxint):
 		"""
-		Retrieves a list of recently used tags.
-		"""
-		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags WHERE timestamp >='+ str(min) +" AND timestamp <="+ str(max) +' GROUP BY tagid ORDER BY  timestamp DESC').fetchall()
+		Yields tags between the timestamps min and max.
 		
-		i = 0
-		while i < len(res) and i < count:
-			#tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?', (res[i][0],)).fetchone()
-			#print res[i][0]
-			yield str(res[i][0])
-			i += 1
+		At most, count tags will be yielded.
+		"""
+		res = self.cursor.execute("""SELECT tagid, COUNT(uri)
+									FROM tags
+									WHERE timestamp >= ?
+									AND timestamp <= ?
+									GROUP BY tagid
+									ORDER BY timestamp DESC
+									LIMIT ?""",
+									(str(min), str(max), str(count))).fetchall()
+		
+		for tagid, tagcount in res:
+			yield str(tagid)
 			
 	def get_most_tags(self, count=20, min=0, max=sys.maxint):
-		res = self.cursor.execute('SELECT tagid, COUNT(uri) FROM tags WHERE timestamp >='+ str(min) +" AND timestamp <="+ str(max) +' GROUP BY tagid ORDER BY COUNT(uri) DESC').fetchall()
-		i = 0
-		while i < len(res) and i < count:
-			#print res[i][0]
-			#tag = self.cursor.execute('SELECT tag FROM tagids WHERE rowid=?', (res[i][0],)).fetchone()
-			yield str(res[i][0])
-			i += 1
+		"""
+		Yields the tags between min and max which are used the most often.
+		
+		At most, count tags will be yielded.
+		"""
+		res = self.cursor.execute("""SELECT tagid, COUNT(uri)
+									FROM tags
+									WHERE timestamp >= ?
+									AND timestamp <= ?
+									GROUP BY tagid
+									ORDER BY COUNT(uri) DESC
+									LIMIT ?""",
+									(str(min), str(max), str(count))).fetchall()
+		
+		for tagid, tagcount in res:
+			yield str(tagid)
 			
 	def get_min_timestamp_for_tag(self,tag):
 		res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp',(tag,)).fetchone()
