@@ -26,15 +26,14 @@ class DBConnector():
 		Create the database at path if it doesn't already exist.
 		"""
 		# If the database doesn't already exists
-		if glob.glob(path) == "":
-			dbdir = os.path.expanduser("~/Zeitgeist")
-			# Try to create the .Zeitgeist directory
+		if not os.path.isdir(os.path.dirname(path)):
 			try:
-				os.mkdir(dbdir)
-			except:
-				pass
-			# Copy the empty database skeleton into .Zeitgeist
-			shutil.copy("gzg.sqlite", dbdir)	  
+				os.mkdir(os.path.dirname(path))
+			except OSError, e:
+				print 'Could not create the data directory: %s' % e.strerror
+			else:
+				# Copy the empty database skeleton into .Zeitgeist
+				shutil.copy("gzg.sqlite", dbdir)	  
 	
 	def get_last_timestamp(self):
 		"""
