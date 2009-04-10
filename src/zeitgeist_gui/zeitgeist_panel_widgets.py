@@ -151,10 +151,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		'''
 		Try avoiding rebuiling boxes and use currently available
 		'''
-		print "-------------------------------------------------------------------"
-		print days_range
-		print len(self.dayboxes)
-		
 		
 		if days_range == len(self.dayboxes):
 			i = 0
@@ -177,10 +173,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
 		
-		print "+++++++++++++++++++++++++++"
-		print days_range
-		print len(self.dayboxes)
-						
 	def clean_up_dayboxes(self):
 		print "cleaning up view"
 		range = (self.end-self.begin)/86400
@@ -226,10 +218,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			self.begin = begin 
 			self.end = end -1
 		
-		print "------------------------------"
-		print begin
-		print end
-		print "------------------------------"
 		
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
@@ -507,8 +495,6 @@ class TagBrowser(gtk.VBox):
 			if tags.find(x.get_label()) == -1:
 				 tags = tags+","+x.get_label()
 				 begin, end = datasink.get_timestamps_for_tag(x.get_label())
-				 print begin
-				 print end
 				 timeline.load_month(begin=begin,end=end)
 		else:
 			if tags.find(x.get_label()) > -1:
@@ -941,7 +927,6 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		uris = []
 		treeselection = self.get_selection()
 		model, iter = treeselection.get_selected()
-		print type(iter)
 		item = model.get_value(iter, 4)
 		if not item:
 			print "ERROR"
@@ -1088,7 +1073,6 @@ class BrowserBar(gtk.HBox):
 		
 	def remove_day(self, x=None):
 		tb.untoggle_all()
-		print timeline.offset
 		timeline.offset +=  1
 		timeline.load_month()
 		
@@ -1106,7 +1090,6 @@ class BrowserBar(gtk.HBox):
 		
 	def add_day(self, x=None):
 		tb.untoggle_all()
-		print timeline.offset
 		timeline.offset -= 1
 		timeline.load_month()
 

@@ -16,6 +16,7 @@ class UI:
 	
 	def __init__(self, bus):
 		
+		'''
 		try:
 			remote_object = bus.get_object("org.gnome.zeitgeist", "/RemoteInterface")
 		except dbus.exceptions.DBusException:
@@ -24,6 +25,7 @@ class UI:
 		
 		#remote_object.connect_to_signal("signal_updated", callback_func, dbus_interface="org.gnome.zeitgeist")
 		self._iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
+		'''
 		
 		# Window
 		self.topicWindow = gtk.Window()
