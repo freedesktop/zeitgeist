@@ -5,8 +5,8 @@ import gtk
 
 if __name__ == "__main__":
 	
-	if '--light' in sys.argv:
-		from zeitgeist_gui.zeitgeist_gui2 import UI
+	if '--old' in sys.argv:
+		from zeitgeist_gui.zeitgeist_gui_old import UI
 	else:
 		from zeitgeist_gui.zeitgeist_gui import UI
 	
