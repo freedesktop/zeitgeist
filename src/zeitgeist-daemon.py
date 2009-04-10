@@ -34,7 +34,6 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="iii", out_signature="as")
 	def get_most_used_tags(self, amount, min_timestamp, max_timestamp):
-		print list(datasink.get_most_used_tags(amount,min_timestamp, max_timestamp))
 		return list(datasink.get_most_used_tags(amount,
 			min_timestamp, max_timestamp))
 
