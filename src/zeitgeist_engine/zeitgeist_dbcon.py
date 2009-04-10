@@ -56,12 +56,9 @@ class DBConnector():
 		
 	def insert_items(self, items):
 		"""
-		Inserts items into the database.
-		
-		Returns len(items)
+		Inserts items into the database and returns the amount of
+		items it inserted.
 		"""
-		# TODO: Is there any reason to return len(items)?
-		# Will changing this break other parts of the codebase?
 		
 		amount_items = 0
 		for item in items:
