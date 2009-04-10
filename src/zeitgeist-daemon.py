@@ -51,6 +51,11 @@ class RemoteInterface(dbus.service.Object):
 			items.append(self._plainify(item))
 		return items
 	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature="s", out_signature="")
+	def delete_item(self, item_uri):
+		datasink.delete_item(item_uri)
+	
 	@dbus.service.signal("org.gnome.zeitgeist")
 	def signal_updated(self):
 		# We forward the "reload" signal, but only if something changed.
