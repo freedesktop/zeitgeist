@@ -116,7 +116,8 @@ class Data(gobject.GObject):
 	def get_tags(self):
 		tags = []
 		for tag in self.tags.split(","):
-			tags.append(tag)
+			if tag: # TODO: Ensure that there can be no empty tag in the first place
+				tags.append(tag)
 		return tags
 					
 	def open(self):
