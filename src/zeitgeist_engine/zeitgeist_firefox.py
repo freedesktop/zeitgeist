@@ -41,6 +41,8 @@ class FirefoxSource(DataProvider):
         except Exception,ex:
             print ex
             self.last_timestamp = 0.0
+            
+        self.__copy_sqlite()
     
     def get_latest_timestamp(self): 
         self.connection = db.connect(self.loc, True)
