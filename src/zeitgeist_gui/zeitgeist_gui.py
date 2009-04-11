@@ -14,11 +14,16 @@ from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class UI:
 	
-	def __init__(self, bus):
+	def __init__(self):
 		
 		'''
 		try:
-			remote_object = bus.get_object("org.gnome.zeitgeist", "/RemoteInterface")
+			bus = dbus.SessionBus()
+		except dbus.exceptions.DBusException:
+			print _("Error: Could not connect to D-Bus.")
+			sys.exit(1)
+		try:
+			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
 		except dbus.exceptions.DBusException:
 			print _("Error: Zeitgeist service not running.")
 			sys.exit(1)
@@ -98,9 +103,8 @@ class UI:
 if __name__ == "__main__":
 	
 	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-	bus = dbus.SessionBus()
 	
-	gui = UI(bus)
+	gui = UI()
 	
 	try:
 		gtk.main()

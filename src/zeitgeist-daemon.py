@@ -9,6 +9,10 @@ from zeitgeist_engine.zeitgeist_datasink import datasink
 
 class RemoteInterface(dbus.service.Object):
 	
+	def __init__(self):
+		bus_name = dbus.service.BusName("org.gnome.zeitgeist", dbus.SessionBus())
+		dbus.service.Object.__init__(self, bus_name, "/org/gnome/zeitgeist")
+	
 	_sig_plaindata = "a(sssssss)"
 	def _plainify(self, obj):
 		''' Takes a Data object and converts it into an object
@@ -83,9 +87,7 @@ class RemoteInterface(dbus.service.Object):
 if __name__ == "__main__":
 	
 	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-	session_bus = dbus.SessionBus()
-	name = dbus.service.BusName("org.gnome.zeitgeist", session_bus)
-	object = RemoteInterface(session_bus, '/RemoteInterface')
+	object = RemoteInterface()
 	datasink.reload_callbacks.append(object.signal_updated)
 	
 	mainloop = gobject.MainLoop()
