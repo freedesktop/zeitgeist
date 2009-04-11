@@ -71,7 +71,7 @@ class DBConnector():
 				print 'Could not create the data directory: %s' % e.strerror
 			else:
 				# Copy the empty database skeleton into .Zeitgeist
-				shutil.copy("data/gzg.sqlite", dbdir)	  
+				shutil.copy("data/gzg.sqlite", path)	  
 	
 	def get_last_timestamp(self):
 		"""
