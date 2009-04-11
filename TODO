@@ -2,7 +2,7 @@ TODO:
 
 - Backend:
 	+ Move all GUI-related code out of zeitgeist_base.py.
-	+ Move all Twitter/Firefox/Tomboy specific code out of zeitgeist_base.py
+	+ Move all Twitter/Firefox/Tomboy specific code out of zeitgeist_base.py (Done?)
 		and into the appropriate subclasses.
 	+ Add on Tracker support.
 	+ Set relationships between Data based on: 
@@ -10,9 +10,9 @@ TODO:
 		2. Common Tags.
 		3. Context (example context of text files).
 	+ Extend DB to support location of usage
-	+ Related Items should be automatically determined by currenlty used URI.
+	+ Related Items should be automatically determined by currently used URI.
 	+ Auto Tagging e.g: tasks, locations, and relations.
-	+ Finish the D-Bus interface.
+	+ Finish the D-Bus interface. (We need to insert items via DBUS , maybe patch up the datasink to have an insert in string tuples)
 	+ Reduce the amount of "changed" signals send.
 	+ Fix the firefox DB detection (see comment in code).
 	+ Is RecentlyUsedDocuments the best place for text/plain files?
@@ -20,9 +20,5 @@ TODO:
 - Frontend:
     + Separate it from the backend and let it only use D-Bus for communication.
 	+ Do not show an item twice one beneath the other.
-	+ Modify the GUI so that it looks more like GMail.
-	+ Add on support for switching between a GMail-style list of 
-		items and a grid of item thumbnails.
-	+ After the new database design is finished, query the database 
-		for all searches instead of just searching the cache. 
+	+ Use a generic CellRenderer to display stars for bookmarking instead of checkboxes!
 	+ create a bar displaying the related files to currently opened files (inspired by Gimmie)
