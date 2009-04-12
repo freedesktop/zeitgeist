@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$1" != "--old" ]; then
+if [ "$1" == "--new" ]; then
 	python src/zeitgeist_gui/zeitgeist_gui.py $@
 else
 	python -c """
