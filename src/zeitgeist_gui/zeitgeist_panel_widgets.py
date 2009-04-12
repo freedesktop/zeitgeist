@@ -11,13 +11,10 @@ from gettext import ngettext, gettext as _
 from zeitgeist_engine.zeitgeist_datasink import bookmarker, datasink
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist_engine.xdgdirs import xdg_directory
+from zeitgeist_dbus import iface, dbus_connect
 
 class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 	
-	__gsignals__ = {
-		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
-	}
-
 	def __init__(self):
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
@@ -51,7 +48,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
 		
 		# Connect to the datasink's signals
-		datasink.connect("reload", self.load_month_proxy)
+		dbus_connect("signal_updated", self.load_month_proxy)
 		self.offset=0
 		self.items = []
 		# Load the GUI
@@ -218,7 +215,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			self.begin = begin 
 			self.end = end -1
 		
-		
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
 		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
@@ -232,11 +228,11 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		for item in self.items:
 			del item
 		self.items = []
-		for i in datasink.get_items_by_time(self.begin, self.end, ''):
-			if i.timestamp < self.end:
-				self.items.append(i)
-				i.connect("relate",self.set_relation)
-				i.connect("reload",self.load_month)
+		for item in datasink.get_items_by_time(self.begin, self.end, ''):
+			if item.timestamp < self.end:
+				self.items.append(item)
+				item.connect("relate",self.set_relation)
+				dbus_connect("signal_updated",self.load_month, item)
 		
 		# Update the GUI with the items that match the current search terms/tags
 		print "Applying search"
@@ -247,7 +243,8 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
 		
 		# Manually force garbage collection
-		self.emit("reload")
+		# What is this for? (Disabled because it causes an endless loop)
+		#iface.emit_signal_updated()
 	
 	def jump_to_day(self, widget,focus=False):
 		'''
@@ -422,13 +419,11 @@ class TagBrowser(gtk.VBox):
 		self.func = self.get_recent_tags
 		
 		self.func()
-		
-		#timeline.connect("reload", self.reload_tags)
 	
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(hbox,True,True,5)
-		datasink.connect("reload", lambda x: self.func)
+		dbus_connect("signal_updated", lambda: self.func)
 
 	def reload_tags(self,x=None):
 		model = self.combobox.get_model()
@@ -445,8 +440,6 @@ class TagBrowser(gtk.VBox):
 			self.func = self.get_recent_tags()
 		else:
 			self.func = self.get_most_tags()
-
-	
 	
 	def get_recent_tags(self,x=None):
 		
@@ -592,7 +585,7 @@ class FilterAndOptionBox(gtk.VBox):
 		dlg.show()
 		
 	def filter_out(self, widget):
-		datasink.emit("reload")
+		iface.emit_signal_updated()
 		gc.collect()
 
 class CalendarWidget(gtk.Calendar):
@@ -808,10 +801,6 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 	handles opening an item and displaying the item context menu.
 	'''
 	
-	__gsignals__ = {
-		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
-	}
-	
 	def __init__(self,parentdays=False):
 		gtk.TreeView.__init__(self)
 		gobject.GObject.__init__(self)
@@ -859,7 +848,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.day=None
-		bookmarker.connect("reload", lambda x: self._do_refresh_rows())
+		dbus_connect("signal_updated", lambda: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
@@ -1066,7 +1055,7 @@ class BrowserBar(gtk.HBox):
 		self.search = SearchToolItem()
 		hbox.pack_start(self.search,True,True)
 		clear_btn = gtk.ToolButton("gtk-clear")
-		clear_btn.connect("clicked",lambda x: self.search.do_clear())
+		clear_btn.connect("clicked",lambda: self.search.do_clear())
 		hbox.pack_start(clear_btn,False,False,4)
 		
 		self.pack_start(hbox,True,True)
@@ -1135,9 +1124,9 @@ class BookmarksView(gtk.VBox):
 		vbox.pack_start(evbox2,True,True)
 		self.pack_start(evbox,True,True)
 		self.get_bookmarks()
-		bookmarker.connect("reload",self.get_bookmarks)
+		dbus_connect("signal_updated", self.get_bookmarks)
 
-	def get_bookmarks(self,x=None):
+	def get_bookmarks(self):
 		self.view.clear_store()
 		for item in bookmarker.get_items_uncached():
 			self.view.append_item(item,group=False)

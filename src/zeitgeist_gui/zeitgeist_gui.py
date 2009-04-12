@@ -2,35 +2,18 @@ import sys
 import os
 import gtk
 import gobject
-import dbus
-import dbus.mainloop.glib
 from gettext import ngettext, gettext as _ 
 
 # Transitional until we got ride of imports from the backend
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../")))
 
 from zeitgeist_panel_widgets import filtersBox, calendar, timeline, tb, bb, bookmarks
+from zeitgeist_dbus import iface
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class UI:
 	
 	def __init__(self):
-		
-		'''
-		try:
-			bus = dbus.SessionBus()
-		except dbus.exceptions.DBusException:
-			print _("Error: Could not connect to D-Bus.")
-			sys.exit(1)
-		try:
-			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
-		except dbus.exceptions.DBusException:
-			print _("Error: Zeitgeist service not running.")
-			sys.exit(1)
-		
-		#remote_object.connect_to_signal("signal_updated", callback_func, dbus_interface="org.gnome.zeitgeist")
-		self._iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
-		'''
 		
 		# Window
 		self.topicWindow = gtk.Window()
@@ -101,8 +84,6 @@ class UI:
 			self.sidebar.hide_all()
 
 if __name__ == "__main__":
-	
-	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 	
 	gui = UI()
 	

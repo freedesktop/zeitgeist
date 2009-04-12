@@ -82,6 +82,10 @@ class RemoteInterface(dbus.service.Object):
 	def signal_updated(self):
 		# We forward the "reload" signal, but only if something changed.
 		print "Emitted \"updated\" signal." # pass
+	
+	@dbus.service.method("org.gnome.zeitgeist")
+	def emit_signal_updated(self):
+		self.signal_updated()
 
 
 if __name__ == "__main__":
