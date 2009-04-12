@@ -21,7 +21,7 @@ class DBConnector():
 		self.cursor = self.connection.cursor()
 		self.offset = 0
 	
-	def result2data(self, result, timestamp=0):
+	def _result2data(self, result, timestamp=0):
 		return Data(
 			uri			= result[0],
 			name		= result[1],
@@ -51,7 +51,7 @@ class DBConnector():
 			if uri_only:
 				return item
 			else:
-				item = self.result2data(
+				item = self._result2data(
 					self.cursor.execute(
 						"SELECT * FROM data WHERE uri=?", (item,)).fetchone())
 		elif uri_only:
@@ -173,7 +173,7 @@ class DBConnector():
 			
 			# TODO: Can item ever be None?
 			if item is not None:
-				itemobj = self.result2data(item, timestamp = start)
+				itemobj = self._result2data(item, timestamp = start)
 				yield itemobj
 		
 		gc.collect()
@@ -284,7 +284,7 @@ class DBConnector():
 			for raw in res:
 				item = self.cursor.execute("SELECT * FROM data WHERE uri=?", (raw[0],)).fetchone()
 				if item:
-					yield self.result2data(item)
+					yield self._result2data(item)
 	
 	def get_related_items(self, item):
 		# TODO: Only neighboorhood in time is considered? A bit poor,
@@ -318,7 +318,7 @@ class DBConnector():
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
 			if item:
 				if counter <= 5:
-					d = self.result2data(item, timestamp = -1)
+					d = self._result2data(item, timestamp = -1)
 					list.append(d) 
 					counter = counter +1
 			
@@ -336,7 +336,7 @@ class DBConnector():
 		t1 = time.time()
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
 				if item:
-					d = self.result2data(item, timestamp = -1)
+					d = self._result2data(item, timestamp = -1)
 				yield d 
 		gc.collect()
 		print time.time() - t1

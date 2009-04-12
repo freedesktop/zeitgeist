@@ -4,8 +4,8 @@ import shutil
 import sqlite3 as db
 from gettext import gettext as _
 
-from zeitgeist_util import FileMonitor
-from zeitgeist_base import Data, DataProvider
+from zeitgeist_engine.zeitgeist_util import FileMonitor
+from zeitgeist_engine.zeitgeist_base import Data, DataProvider
 
 
 class FirefoxSource(DataProvider):
