@@ -99,8 +99,6 @@ class DBConnector():
 		database).
 		"""
 		
-		item = self._ensure_item(item)
-		
 		try:
 			# Insert into timetable
 			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)',
