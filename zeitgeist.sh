@@ -1,8 +1,6 @@
 #!/bin/sh
 
-if [ "$1" != "--old" ]; then
-	python src/zeitgeist_gui/zeitgeist_gui.py $@
-else
+if [ "$1" != "--new" ]; then
 	python -c """
 import sys, gtk, os
 sys.path.append('src/')
@@ -13,4 +11,6 @@ try:
 except KeyboardInterrupt:
 	sys.exit(0)
 		"""
+else
+	python src/zeitgeist_gui/zeitgeist_gui.py $@
 fi
