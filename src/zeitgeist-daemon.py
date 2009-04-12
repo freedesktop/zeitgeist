@@ -9,6 +9,8 @@ from zeitgeist_engine.zeitgeist_datasink import datasink
 
 class RemoteInterface(dbus.service.Object):
 	
+	# Initialization
+	
 	def __init__(self):
 		bus_name = dbus.service.BusName("org.gnome.zeitgeist", dbus.SessionBus())
 		dbus.service.Object.__init__(self, bus_name, "/org/gnome/zeitgeist")
@@ -20,6 +22,8 @@ class RemoteInterface(dbus.service.Object):
 		return (str(obj.get_timestamp()), obj.get_uri(),
 			obj.get_name(), obj.get_type(), obj.get_mimetype(), 
 			obj.get_icon_string() or '', ','.join(obj.get_tags()))
+	
+	# Reading stuff
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="iis", out_signature=_sig_plaindata)
@@ -77,6 +81,13 @@ class RemoteInterface(dbus.service.Object):
 						in_signature="s", out_signature="")
 	def delete_item(self, item_uri):
 		datasink.delete_item(item_uri)
+	
+	# Writing stuff
+	
+	def insert_item(self, item_list):
+		datasink.insert_item(self.result2data(item_list))
+	
+	# Signals and signal emitters
 	
 	@dbus.service.signal("org.gnome.zeitgeist")
 	def signal_updated(self):

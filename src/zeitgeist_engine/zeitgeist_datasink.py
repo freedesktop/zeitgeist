@@ -210,6 +210,9 @@ class DataSinkSource(DataProvider):
 	def get_items_related_by_tags(self, item):
 		for item in db.get_items_related_by_tags(item):
 			yield item
+	
+	def insert_item(self, item):
+		return db.insert_item(item)
 
 class Bookmarker(DataProvider):	
 	def __init__(self,

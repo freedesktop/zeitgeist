@@ -21,7 +21,7 @@ class DBConnector():
 		self.cursor = self.connection.cursor()
 		self.offset = 0
 	
-	def _result2data(self, result, timestamp=0):
+	def result2data(self, result, timestamp=0):
 		return Data(
 			uri			= result[0],
 			name		= result[1],
@@ -47,11 +47,11 @@ class DBConnector():
 		(and no database query needs to take place).
 		"""
 		
-		if not isinstance(item, Data):
+		if type(item) is str:
 			if uri_only:
 				return item
 			else:
-				item = self._result2data(
+				item = self.result2data(
 					self.cursor.execute(
 						"SELECT * FROM data WHERE uri=?", (item,)).fetchone())
 		elif uri_only:
@@ -88,10 +88,60 @@ class DBConnector():
 
 	def insert_items_threaded(self, items):
 		"""
-		Insert items into the database in a new thread.
+		Inserts items into the database in a new thread.
 		"""
 		thread.start_new(self.insert_items, (items,))
+	
+	def insert_item(self, item):
+		"""
+		Inserts an item into the database. Returns True on success,
+		False otherwise (for example, if the item already is in the
+		database).
+		"""
 		
+		item = self._ensure_item(item)
+		
+		try:
+			# Insert into timetable
+			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)',
+				(item.timestamp,
+				None,
+				item.uri,
+				item.use,
+				"%s-%s" % (str(item.timestamp), item.uri)))
+			
+			# Insert into data, if it isn't there yet
+			try:
+				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
+					(item.uri,
+					item.name,
+					item.comment,
+					item.mimetype,
+					item.tags,
+					item.count,
+					item.use,
+					item.type,
+					item.icon,
+					0))
+			except sqlite3.IntegrityError, ex:
+				pass
+			
+			try:
+				# Add tags into the database
+				# FIXME: Sometimes Data.tags is a string and sometimes it is a list.
+				# TODO: Improve consistency.
+				for tag in item.get_tags():
+					self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
+						(tag.capitalize(), item.uri, item.timestamp))
+			except Exception, ex:
+				print "Error inserting tags: %s" % ex
+		
+		except sqlite3.IntegrityError, ex:
+			return False
+		
+		else:
+			return True
+	
 	def insert_items(self, items):
 		"""
 		Inserts items into the database and returns the amount of
@@ -100,44 +150,9 @@ class DBConnector():
 		
 		amount_items = 0
 		for item in items:
-			try:
-				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)',
-					(item.timestamp,
-					None,
-					item.uri,
-					item.use,
-					str(item.timestamp)+"-"+item.uri))
+			if self.insert_item(item):
 				amount_items += 1
-				try:
-					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
-						(item.uri,
-						item.name,
-						item.comment,
-						item.mimetype,
-						item.tags,
-						item.count,
-						item.use,
-						item.type,
-						item.icon,
-						0))
-						
-				except Exception, ex:
-					pass
-				
-				try:
-					# Add tags into the database
-					# FIXME: Sometimes Data.tags is a string and sometimes it is a list.
-					# TODO: Improve consistency.
-					if item.tags != "" and item.tags != []:
-						for tag in item.get_tags():
-							self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
-								(tag.capitalize(), item.uri, item.timestamp))
-				except Exception, ex:
-					print "Error inserting tags: %s" % ex
-
-			except sqlite3.IntegrityError, ex:
-				pass
-				
+		
 		self.connection.commit()
 		return amount_items
 	
@@ -160,7 +175,7 @@ class DBConnector():
 			
 			# TODO: Can item ever be None?
 			if item is not None:
-				itemobj = self._result2data(item, timestamp = start)
+				itemobj = self.result2data(item, timestamp = start)
 				yield itemobj
 		
 		gc.collect()
@@ -271,7 +286,7 @@ class DBConnector():
 			for raw in res:
 				item = self.cursor.execute("SELECT * FROM data WHERE uri=?", (raw[0],)).fetchone()
 				if item:
-					yield self._result2data(item)
+					yield self.result2data(item)
 	
 	def get_related_items(self, item):
 		# TODO: Only neighboorhood in time is considered? A bit poor,
@@ -299,13 +314,13 @@ class DBConnector():
  		values.sort()
  		values.reverse()
  		
-		counter =0
+		counter = 0
 		for v in values:
 			uri = v[1]
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
 			if item:
 				if counter <= 5:
-					d = self._result2data(item, timestamp = -1)
+					d = self.result2data(item, timestamp = -1)
 					list.append(d) 
 					counter = counter +1
 			
@@ -323,7 +338,7 @@ class DBConnector():
 		t1 = time.time()
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
 				if item:
-					d = self._result2data(item, timestamp = -1)
+					d = self.result2data(item, timestamp = -1)
 				yield d 
 		gc.collect()
 		print time.time() - t1
