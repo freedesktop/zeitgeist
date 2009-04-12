@@ -10,7 +10,7 @@ import time
 import thread
 
 # Imports from zeitgeist_engine
-from zeitgeist_base import DataProvider, Data
+from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 
 class DBConnector():
 	

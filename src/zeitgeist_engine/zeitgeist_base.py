@@ -18,7 +18,7 @@ class Data(gobject.GObject):
 		"relate" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		"open" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 	}
-
+	
 	def __init__(self,
 				 uri		= None,
 				 name		= None,

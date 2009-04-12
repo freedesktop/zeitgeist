@@ -8,16 +8,17 @@ import gtk
 from gettext import ngettext, gettext as _
 
 from zeitgeist_engine.zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
-
+from zeitgeist_engine.zeitgeist_datasink import datasink
+from zeitgeist_engine.zeitgeist_base import DataProvider
+from zeitgeist_gui.zeitgeist_dbus import iface
 
 class Data(gobject.GObject):
 	
 	__gsignals__ = {
-		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		"relate" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		"open" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 	}
-
+	
 	def __init__(self,
 				 uri		= None,
 				 name		= None,
@@ -148,12 +149,12 @@ class Data(gobject.GObject):
 		'''
 		if self.bookmark:
 			bookmark = gtk.MenuItem("Unbookmark")
-			bookmark.connect("activate", lambda w:  self.add_bookmark())
+			bookmark.connect("activate", lambda w: self.add_bookmark())
 			bookmark.show()
 			menu.append(bookmark)
 		else:
 			bookmark = gtk.MenuItem("Bookmark")
-			bookmark.connect("activate", lambda w:  self.add_bookmark())
+			bookmark.connect("activate", lambda w: self.add_bookmark())
 			bookmark.show()
 			menu.append(bookmark)
 		
@@ -183,7 +184,6 @@ class Data(gobject.GObject):
 		pass
 	
 	def add_bookmark(self, x=None):
-		from zeitgeist_datasink import datasink, bookmarker
 		if self.bookmark == False:
 			self.bookmark = True
 		else:
@@ -191,8 +191,7 @@ class Data(gobject.GObject):
 		datasink.update_item(self)
 		bookmarker.reload_bookmarks()
 	
-	def set_bookmark(self,bookmark):
-		from zeitgeist_datasink import datasink, bookmarker
+	def set_bookmark(self, bookmark):
 		self.bookmark = bookmark
 		datasink.update_item(self)
 		bookmarker.reload_bookmarks()
@@ -296,3 +295,39 @@ class Data(gobject.GObject):
 		self.tags=tags
 		
 		self.textview.get_buffer().set_text(self.tags)	
+
+
+class Bookmarker(DataProvider):
+	
+	def __init__(self,
+				name=_("Bookmarker"),
+				icon=None,
+				uri="source:///Bookmarker"):
+		
+		DataProvider.__init__(self)
+		self.bookmarks=[]
+		self.reload_bookmarks()
+		
+	def get_bookmark(self,uri):
+		if self.bookmarks.count(uri) > 0:
+			return True
+		return False
+	
+	def add_bookmark(self,item):
+		if self.bookmarks.count(item.uri) == 0:
+			self.bookmarks.append(item.uri)
+	
+	def reload_bookmarks(self):
+		print "------------------------------------"
+		self.bookmarks = []
+		for item in datasink.get_bookmarks():
+			self.add_bookmark(item)
+			print "bookmarking "+item.uri
+		print "------------------------------------"
+		iface.emit_signal_updated()
+	
+	def get_items_uncached(self):
+		for i in datasink.get_bookmarks():
+			yield i
+
+bookmarker = Bookmarker()

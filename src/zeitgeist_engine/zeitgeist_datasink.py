@@ -8,7 +8,7 @@ import gobject
 import gc
 
 # Imports from zeitgeist_engine
-from zeitgeist_base import DataProvider
+from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_dbcon import db
 from zeitgeist_util import difffactory, gconf_bridge
 from ThreadPool import *
@@ -214,11 +214,12 @@ class DataSinkSource(DataProvider):
 	def insert_item(self, item):
 		return db.insert_item(item)
 
-class Bookmarker(DataProvider):	
+class Bookmarker(DataProvider): # Only for old GUI
+	
 	def __init__(self,
-							name=_("Bookmarker"),
-							icon=None,
-							uri="source:///Bookmarker"):
+				name=_("Bookmarker"),
+				icon=None,
+				uri="source:///Bookmarker"):
 		
 		DataProvider.__init__(self)
 		self.bookmarks=[]
@@ -241,7 +242,7 @@ class Bookmarker(DataProvider):
 			print "bookmarking "+item.uri
 		print "------------------------------------"
 		self.emit("reload")
-			
+	
 	def get_items_uncached(self):
 		for i in datasink.get_bookmarks():
 			yield i
