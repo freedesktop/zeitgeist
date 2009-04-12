@@ -1131,8 +1131,7 @@ class BookmarksView(gtk.VBox):
 		for item in bookmarker.get_items_uncached():
 			self.view.append_item(item,group=False)
 		#timeline.load_month(force=True)
-
-
+		
 class ButtonCellRenderer(gtk.GenericCellRenderer):
 	
 	__gsignals__ = {

@@ -24,7 +24,7 @@ class TwitterSource(DataProvider):
 		
 	def get_items_uncached(self):
 		# If twitter isn't installed or if we don't have a username and password
-		if twitter is None or username=="" or password="":
+		if twitter is None or username=="" or password=="":
 			return
 		
 		# Connect to twitter, loop over statuses, and create items for each status

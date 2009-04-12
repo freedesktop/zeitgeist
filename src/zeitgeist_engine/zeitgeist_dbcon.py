@@ -100,7 +100,6 @@ class DBConnector():
 		
 		amount_items = 0
 		for item in items:
-			amount_items += 1
 			try:
 				self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)',
 					(item.timestamp,
@@ -108,6 +107,7 @@ class DBConnector():
 					item.uri,
 					item.use,
 					str(item.timestamp)+"-"+item.uri))
+				amount_items += 1
 				try:
 					self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
 						(item.uri,
