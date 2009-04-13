@@ -134,7 +134,7 @@ class DataSinkSource(DataProvider):
 	
 	def get_bookmarks(self):
 		for i in db.get_bookmarked_items():
-		      yield i
+			yield i
 	
 	def update_item(self, item):
 		print "Updating item: %s" % item
@@ -217,36 +217,4 @@ class DataSinkSource(DataProvider):
 	def get_sources(self):
 		return self.sources
 
-class Bookmarker(DataProvider): # Only for old GUI
-	
-	def __init__(self,
-				name=_("Bookmarker"),
-				icon=None,
-				uri="source:///Bookmarker"):
-		
-		DataProvider.__init__(self)
-		self.bookmarks=[]
-		self.reload_bookmarks()
-		
-	def get_bookmark(self,uri):
-		if self.bookmarks.count(uri) > 0:
-			return True
-		return False
-	
-	def add_bookmark(self,item):
-		if self.bookmarks.count(item.uri) == 0:
-			self.bookmarks.append(item.uri)
-	
-	def reload_bookmarks(self):
-		self.bookmarks = []
-		for item in datasink.get_bookmarks():
-			self.add_bookmark(item)
-			print "bookmarking "+item.uri
-		self.emit("reload")
-	
-	def get_items_uncached(self):
-		for i in datasink.get_bookmarks():
-			yield i
-
 datasink = DataSinkSource()
-bookmarker = Bookmarker()

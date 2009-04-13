@@ -5,10 +5,7 @@ import time
 import os
 from threading import Thread
 import gobject
-import gtk
 from gettext import ngettext, gettext as _
-
-from zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
 
 
 class Data(gobject.GObject):
@@ -57,9 +54,7 @@ class Data(gobject.GObject):
 		self.type = type
 		self.icon = icon
 		self.tags = tags
-		self.thumbnailer = None
 		self.original_source = None
-		self.textview = gtk.TextView()
 	
 	def get_timestamp(self):
 		return self.timestamp
@@ -150,16 +145,16 @@ class DataProvider(Data, Thread):
 		return []
 
 	def set_items(self, items):
-		'''Set the cached items.  Pass None for items to reset the cache.'''
+		'''Set the cached items. Pass None for items to reset the cache.'''
 		self.items = items
 		gc.collect()
 	
 	def set_active(self,bool):
 		self.active = bool
-		
+	
 	def get_active(self):
 		return self.active
-
+	
 	def items_contains_uri(self,items,uri):
 		if uri in (i.uri for i in items):
 			return True

@@ -84,12 +84,25 @@ class RemoteInterface(dbus.service.Object):
 	def get_timestamps_for_tag(self, tag):
 		return datasink.get_timestamps_for_tag(tag)
 	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature="s", out_signature=sig_plain_data)
+	def get_bookmarks(self, tag):
+		bookmarks = []
+		for bookmark in datasink.get_bookmarks():
+			bookmarks.append(plainify_data(bookmark))
+		return bookmarks
+	
 	# Writing stuff
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature=sig_plain_data, out_signature="")
 	def insert_item(self, item_list):
 		datasink.insert_item(objectify_data(item_list))
+	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature=sig_plain_data, out_signature="")
+	def update_item(self, item_list):
+		datasink.update_item(objectify_data(item_list))
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="s", out_signature="")

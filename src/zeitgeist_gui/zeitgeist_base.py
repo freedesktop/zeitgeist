@@ -8,7 +8,6 @@ import gtk
 from gettext import ngettext, gettext as _
 
 from zeitgeist_engine.zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
-from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_gui.zeitgeist_dbus import iface
 
@@ -188,12 +187,12 @@ class Data(gobject.GObject):
 			self.bookmark = True
 		else:
 			self.bookmark = False
-		datasink.update_item(self)
+		iface.update_item(plainify_data(self))
 		bookmarker.reload_bookmarks()
 	
 	def set_bookmark(self, bookmark):
 		self.bookmark = bookmark
-		datasink.update_item(self)
+		iface.update_item(plainify_data(self))
 		bookmarker.reload_bookmarks()
 		
 	def tag_item(self):
@@ -223,14 +222,12 @@ class Data(gobject.GObject):
 		taggingwindow.show_all()
 	
 	def delete_item(self):
-		from zeitgeist_datasink import datasink
-		datasink.delete_item(self)
+		iface.delete_item(self.uri)
 	
 	def set_tags(self, tags):
-		from zeitgeist_datasink import datasink
 		self.tags = tags
-		datasink.update_item(self)
-
+		iface.update_item(plainify_data(self))
+	
 	def get_tagbox(self):
 		# Initialize superclass
 		tbox = gtk.VBox()
@@ -258,17 +255,15 @@ class Data(gobject.GObject):
 		return tbox
 	
 	def get_common_tags(self, view):
-		from zeitgeist_datasink import datasink
-		for tag in datasink.get_most_used_tags(10):
-			if tag:
-				btn = gtk.ToggleButton(tag)
-				btn.set_relief(gtk.RELIEF_NONE)
-				btn.set_focus_on_click(False)
-				#label.set_use_underline(True)
-				view.pack_start(btn,False,False)
-				btn.connect("toggled",self.toggle_tags)
+		for tag in iface.get_most_used_tags(10):
+			# TODO: This code is duplicated in zeitgeist_panel_widgets.py
+			btn = gtk.ToggleButton(tag)
+			btn.set_relief(gtk.RELIEF_NONE)
+			btn.set_focus_on_click(False)
+			view.pack_start(btn, False, False)
+			btn.connect("toggled", self.toggle_tags)
 		view.show_all()
-		
+	
 	def toggle_tags(self, x=None):
 		tags = self.tags
 		if x.get_active():
@@ -297,37 +292,29 @@ class Data(gobject.GObject):
 		self.textview.get_buffer().set_text(self.tags)	
 
 
-class Bookmarker(DataProvider):
+class Bookmarker:
 	
-	def __init__(self,
-				name=_("Bookmarker"),
-				icon=None,
-				uri="source:///Bookmarker"):
+	def __init__(self):
 		
 		DataProvider.__init__(self)
-		self.bookmarks=[]
+		self.bookmarks = []
 		self.reload_bookmarks()
-		
+	
 	def get_bookmark(self,uri):
-		if self.bookmarks.count(uri) > 0:
-			return True
-		return False
+		return self.bookmarks.count(uri) > 0
 	
 	def add_bookmark(self,item):
 		if self.bookmarks.count(item.uri) == 0:
 			self.bookmarks.append(item.uri)
 	
 	def reload_bookmarks(self):
-		print "------------------------------------"
 		self.bookmarks = []
-		for item in datasink.get_bookmarks():
-			self.add_bookmark(item)
-			print "bookmarking "+item.uri
-		print "------------------------------------"
+		for item in iface.get_bookmarks():
+			self.add_bookmark(objectify_data(item))
 		iface.emit_signal_updated()
 	
 	def get_items_uncached(self):
-		for i in datasink.get_bookmarks():
-			yield i
+		for bookmark in iface.get_bookmarks():
+			yield objectify_data(bookmark)
 
 bookmarker = Bookmarker()

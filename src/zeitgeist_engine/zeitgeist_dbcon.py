@@ -9,10 +9,9 @@ import os
 import time
 import thread
 
-# Imports from zeitgeist_engine
 from zeitgeist_engine.zeitgeist_base import DataProvider, Data
 
-class DBConnector():
+class DBConnector:
 	
 	def __init__(self):
 		path = os.path.expanduser("~/.Zeitgeist/gzg.sqlite")
@@ -293,13 +292,15 @@ class DBConnector():
 		dict = {}
 		current_timestamp = time.time() - (90*24*60*60)
 		item_uri = self._ensure_item(item, uri_only=True)
-		items = self.cursor.execute('SELECT * FROM timetable WHERE start >? AND uri=? ORDER BY start DESC',(current_timestamp,item_uri)).fetchall()
+		items = self.cursor.execute("SELECT * FROM timetable WHERE start >? AND uri=? ORDER BY start DESC",
+			(current_timestamp, item_uri)).fetchall()
 		for uri in items:
 			# min and max define the neighbourhood radius
 			min = uri[0]-(60*60)
 			max = uri[0]+(60*60)
 			
-			res = self.cursor.execute("SELECT uri FROM timetable WHERE start >=? and start <=? and uri!=?" ,(min,max,uri[2])).fetchall()
+			res = self.cursor.execute("SELECT uri FROM timetable WHERE start >=? and start <=? and uri!=?",
+				(min, max, uri[2])).fetchall()
 			
 			for r in res:
 				if dict.has_key(r[0]):
@@ -315,7 +316,8 @@ class DBConnector():
 		counter = 0
 		for v in values:
 			uri = v[1]
-			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri,)).fetchone() 
+			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
+				(uri,)).fetchone() 
 			if item:
 				if counter <= 5:
 					d = self._result2data(item, timestamp = -1)
@@ -334,10 +336,7 @@ class DBConnector():
  
 	def get_bookmarked_items(self):
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
-				if item:
-					d = self._result2data(item, timestamp = -1)
-				yield d 
+			yield self._result2data(item, timestamp = -1)
 		gc.collect()
-
 
 db = DBConnector()
