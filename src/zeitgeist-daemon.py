@@ -6,7 +6,7 @@ from gettext import ngettext, gettext as _
 
 from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_base import Data
-from zeitgeist_shared import *
+from zeitgeist_shared.zeitgeist_shared import *
 
 
 class RemoteInterface(dbus.service.Object):
@@ -20,27 +20,27 @@ class RemoteInterface(dbus.service.Object):
 	# Reading stuff
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="iis", out_signature=sig_plaindata)
+						in_signature="iis", out_signature=sig_plain_data)
 	def get_items(self, min_timestamp, max_timestamp, tags):
 		items = []
 		for item in datasink.get_items(min_timestamp, max_timestamp, tags):
-			items.append(plainify(item))
+			items.append(plainify_data(item))
 		return items
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="siis", out_signature=sig_plaindata)
+						in_signature="siis", out_signature=sig_plain_data)
 	def get_items_with_mimetype(self, mimetype, min_timestamp, max_timestamp, tags):
 		items = []
 		for item in datasink.get_items_with_mimetype(mimetype, min_timestamp, max_timestamp, tags):
-			items.append(plainify(item))
+			items.append(plainify_data(item))
 		return items
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="", out_signature=sig_plaindata)
+						in_signature="", out_signature=sig_plain_data)
 	def get_bookmarks(self):
 		items = []
 		for item in datasink.get_bookmarks():
-			items.append(plainify(item))
+			items.append(plainify_data(item))
 		return items
 	
 	@dbus.service.method("org.gnome.zeitgeist",
@@ -56,30 +56,40 @@ class RemoteInterface(dbus.service.Object):
 			min_timestamp, max_timestamp))
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="s", out_signature=sig_plaindata)
+						in_signature="s", out_signature=sig_plain_data)
 	def get_related_items(self, item_uri):
 		items = []
 		for item in datasink.get_related_items(item_uri):
-			items.append(plainify(item))
+			items.append(plainify_data(item))
 		return items
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="s", out_signature=sig_plaindata)
+						in_signature="s", out_signature=sig_plain_data)
 	def get_items_related_by_tags(self, item_uri):
 		items = []
 		for item in datasink.get_items_related_by_tags(item_uri):
-			items.append(plainify(item))
+			items.append(plainify_data(item))
 		return items
+	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature="", out_signature=sig_plain_dataprovider)
+	def get_sources_list(self):
+		sources = []
+		for source in datasink.get_sources():
+			sources.append(plainify_dataprovider(source))
+		return sources
+	
+	# Writing stuff
+	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature=sig_plain_data, out_signature="")
+	def insert_item(self, item_list):
+		datasink.insert_item(objectify_data(item_list))
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="s", out_signature="")
 	def delete_item(self, item_uri):
 		datasink.delete_item(item_uri)
-	
-	# Writing stuff
-	
-	def insert_item(self, item_list):
-		datasink.insert_item(objectify(item_list))
 	
 	# Signals and signal emitters
 	

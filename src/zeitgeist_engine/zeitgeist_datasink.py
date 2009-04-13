@@ -213,6 +213,9 @@ class DataSinkSource(DataProvider):
 	
 	def insert_item(self, item):
 		return db.insert_item(item)
+	
+	def get_sources(self):
+		return self.sources
 
 class Bookmarker(DataProvider): # Only for old GUI
 	

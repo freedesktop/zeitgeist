@@ -11,9 +11,10 @@ from gettext import ngettext, gettext as _
 from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist_engine.xdgdirs import xdg_directory
+from zeitgeist_engine.zeitgeist_util import icon_factory
 from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
 from zeitgeist_gui.zeitgeist_base import Data, bookmarker
-from zeitgeist_shared import *
+from zeitgeist_shared.zeitgeist_shared import *
 
 class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 	
@@ -231,7 +232,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 			del item
 		self.items = []
 		for item in iface.get_items(self.begin, self.end, ""):
-			item = objectify(item)
+			item = objectify_data(item)
 			if item.timestamp < self.end:
 				self.items.append(item)
 				item.connect("relate",self.set_relation)
@@ -506,7 +507,9 @@ class TagBrowser(gtk.VBox):
 		
 					   
 class FilterAndOptionBox(gtk.VBox):
+	
 	def __init__(self):
+		
 		gtk.VBox.__init__(self)
 		self.option_box = gtk.VBox(False)
 		self.create_doc_btn = gtk.Button("Create New Document")
@@ -517,6 +520,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.option_box.pack_end(self.create_note_btn,False,False)
 		self.timefilter_active=False
 		self.filters=[]
+		
 		'''
 		Filter Box
 		'''
@@ -543,7 +547,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.voptionbox = gtk.VBox(False)
 		
 		self.timelinefilter = gtk.CheckButton()
-		for source in datasink.sources:
+		for source in iface.get_sources_list():
 			filter = CheckBox(source)
 			filter.set_active(True)
 			self.voptionbox.pack_start(filter, False, False, 0)
@@ -591,47 +595,46 @@ class FilterAndOptionBox(gtk.VBox):
 		iface.emit_signal_updated()
 		gc.collect()
 
+
 class CalendarWidget(gtk.Calendar):
 	def __init__(self):
 		gtk.Calendar.__init__(self)
 		self.show_all()
 
+
 class CheckBox(gtk.CheckButton):
 	
 	def __init__(self, source):
+		
 		gtk.CheckButton.__init__(self)
-		self.set_label(source.name)
 		self.set_border_width(5)
-		self.img = gtk.Image()
-		
-		self.source = source
-		
-		#icon = source.icon
-		#self.img.set_from_pixbuf(icon)
-		
-		self.img.set_from_pixbuf(source.get_icon_static_done(16))
-		
-		self.set_image(self.img)
-		
-		if self.source.get_active():
-			self.set_active(True)
-		else:
-			self.set_active(False)
-		
 		self.set_focus_on_click(False)
 		self.connect("toggled", self.toggle_source)
+		
+		self.source = source
+		self.set_label(source[0])
+		self.set_active(self.source[2])
+		
+		icon = icon_factory.load_icon(source[1], icon_size = 16)
+		self.image = gtk.Image()
+		self.image.set_from_pixbuf(icon)
+		self.set_image(self.image)
+		
 		self.show_all()
-
-	def toggle_source(self,widget=None):
+	
+	def toggle_source(self, widget=None):
 		if self.get_active():
-			self.source.set_active(True)
-			# FIXME
+			pass
+			#self.source.set_active(True)
+			# FIXME - ???
 			#search.emit("clear")
 		else:
-			self.source.set_active(False)
-				
+			pass
+			#self.source.set_active(False)
+		
 		timeline.load_month()
-  
+
+
 class NewFromTemplateDialog(gtk.FileChooserDialog):
 	'''
 	Dialog to create a new document from a template
@@ -986,7 +989,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		else:
 			date=""
 		
-		if self.last_item!=item.type or group==False:
+		if self.last_item != item.type or not group:
 			self.last_item = item.type
 			
 			func(None,[item.get_icon(24),
@@ -1002,7 +1005,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 				bookmark,
 				item])
 
-		 
+
 class BrowserBar(gtk.HBox):
 	def __init__(self):
 		gtk.HBox.__init__(self)   
