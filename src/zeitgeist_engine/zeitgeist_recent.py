@@ -51,8 +51,6 @@ VIDEO_MIMETYPES = [
         u"application/ogg"
         ]
 
-#-----------------------------------------------------------------------------#
-
 
 class RecentlyUsedManagerGtk(DataProvider):
 	

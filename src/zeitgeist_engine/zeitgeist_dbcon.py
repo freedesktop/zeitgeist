@@ -112,7 +112,7 @@ class DBConnector():
 			try:
 				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
 					(item.uri,
-					item.name,
+					unicode(item.name),
 					item.comment,
 					item.mimetype,
 					item.tags,
@@ -150,8 +150,8 @@ class DBConnector():
 		for item in items:
 			if self.insert_item(item):
 				amount_items += 1
-		
-		self.connection.commit()
+				
+		#self.connection.commit()
 		return amount_items
 	
 	def get_items(self, min, max):
@@ -333,13 +333,11 @@ class DBConnector():
 			return -1
  
 	def get_bookmarked_items(self):
-		t1 = time.time()
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
 				if item:
 					d = self.result2data(item, timestamp = -1)
 				yield d 
 		gc.collect()
-		print time.time() - t1
 
 
 db = DBConnector()

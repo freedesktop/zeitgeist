@@ -234,12 +234,10 @@ class Bookmarker(DataProvider):
 			self.bookmarks.append(item.uri)
 	
 	def reload_bookmarks(self):
-		print "------------------------------------"
 		self.bookmarks = []
 		for item in datasink.get_bookmarks():
 			self.add_bookmark(item)
 			print "bookmarking "+item.uri
-		print "------------------------------------"
 		self.emit("reload")
 			
 	def get_items_uncached(self):
