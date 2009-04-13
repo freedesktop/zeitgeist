@@ -92,7 +92,6 @@ class Data(gobject.GObject):
 	def get_tags(self):
 		return [tag for tag in self.tags.split(",") if tag]
 
-
 class DataProvider(Data, Thread):
 	# Clear cached items after 4 minutes of inactivity
 	CACHE_CLEAR_TIMEOUT_MS = 1000 * 60 * 4

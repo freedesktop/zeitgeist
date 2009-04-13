@@ -80,8 +80,11 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		tagsplit = ftagsplit
 		days_range= int((self.end - self.begin )/86400)  +1 #get the days range
 		
+		print "Cleaning up days in cache"
 		self.days.clear()
+		print "Reusing days in cache"
 		self.review_days()
+		print "Building missing days"
 		self.build_days(tagsplit,search)
 		
 		
@@ -126,6 +129,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 										del daybox
 									
 			else:
+				print "No search, no tags"
 				try:
 					if items.index(item)>-1:
 						pass
@@ -270,7 +274,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 				if w.date == datestring:
 					w.show_all()
 		
-	
 	def set_relation(self, item):
 		related = RelatedWindow()
 		related.set_relation(item)
@@ -308,6 +311,7 @@ class DayBox(gtk.VBox):
 		self.item_count=0
 	
 	def append_item(self,item):
+		print "Appending item to dayview: " + item.uri
 		self.view.append_item(item)
 		self.item_count +=1
 		del item 
@@ -976,6 +980,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 	
 	def _set_item(self, item, append=True, group=True):
 		
+		print "Setting up item in list: " + item.uri
 		func = self.store.append
 		bookmark = bookmarker.get_bookmark(item.uri)
 		self.items_uris.append(item.uri)
@@ -987,13 +992,13 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		if self.last_item != item.type or not group:
 			self.last_item = item.type
 			
-			func(None,[item.get_icon(24),
+			func(None,[None,#item.get_icon(24),
 				"<span color='black'>%s</span>" % item.get_name(),
 				date,
 				bookmark,
 				item])
 		else:
-			func(None,[item.get_icon(24),
+			func(None,[None,#item.get_icon(24),
 			#func(self.iter,[item.get_icon(24),
 				"<span color='black'>%s</span>" % item.get_name(),
 				date,
