@@ -3,18 +3,18 @@ import gc
 import sys
 import time
 import os
-from threading import Thread
 import gobject
 import gtk
 from gettext import ngettext, gettext as _
 
-from zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
-
+from zeitgeist_engine.zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
+from zeitgeist_engine.zeitgeist_datasink import datasink
+from zeitgeist_engine.zeitgeist_base import DataProvider
+from zeitgeist_gui.zeitgeist_dbus import iface
 
 class Data(gobject.GObject):
 	
 	__gsignals__ = {
-		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		"relate" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 		"open" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 	}
@@ -149,12 +149,12 @@ class Data(gobject.GObject):
 		'''
 		if self.bookmark:
 			bookmark = gtk.MenuItem("Unbookmark")
-			bookmark.connect("activate", lambda w:  self.add_bookmark())
+			bookmark.connect("activate", lambda w: self.add_bookmark())
 			bookmark.show()
 			menu.append(bookmark)
 		else:
 			bookmark = gtk.MenuItem("Bookmark")
-			bookmark.connect("activate", lambda w:  self.add_bookmark())
+			bookmark.connect("activate", lambda w: self.add_bookmark())
 			bookmark.show()
 			menu.append(bookmark)
 		
@@ -184,7 +184,6 @@ class Data(gobject.GObject):
 		pass
 	
 	def add_bookmark(self, x=None):
-		from zeitgeist_datasink import datasink, bookmarker
 		if self.bookmark == False:
 			self.bookmark = True
 		else:
@@ -192,8 +191,7 @@ class Data(gobject.GObject):
 		datasink.update_item(self)
 		bookmarker.reload_bookmarks()
 	
-	def set_bookmark(self,bookmark):
-		from zeitgeist_datasink import datasink, bookmarker
+	def set_bookmark(self, bookmark):
 		self.bookmark = bookmark
 		datasink.update_item(self)
 		bookmarker.reload_bookmarks()
@@ -298,69 +296,38 @@ class Data(gobject.GObject):
 		
 		self.textview.get_buffer().set_text(self.tags)	
 
-class DataProvider(Data, Thread):
-	# Clear cached items after 4 minutes of inactivity
-	CACHE_CLEAR_TIMEOUT_MS = 1000 * 60 * 4
-	
-	__gsignals__ = {
-		"reload_send" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_PYOBJECT, ()),
-	}
+
+class Bookmarker(DataProvider):
 	
 	def __init__(self,
-				name=None,
+				name=_("Bookmarker"),
 				icon=None,
-				comment=None,
-				uri=None,
-				filter_by_date=True):
+				uri="source:///Bookmarker"):
 		
-		# Initialize superclasses
-		Thread.__init__(self)
-		Data.__init__(self, name=name, icon=icon,comment=comment,uri=uri, mimetype="zeitgeist/item-source")
+		DataProvider.__init__(self)
+		self.bookmarks=[]
+		self.reload_bookmarks()
 		
-		# Set attributes
-		self.filter_by_date = filter_by_date
-		self.clear_cache_timeout_id = None
-		
-		# Clear cached items on reload
-		self.connect("reload", lambda x: self.set_items(None))
-		self.hasPref = None
-		self.counter = 0
-		self.needs_view = True
-		self.active = True
-	
-	def run(self):
-		self.get_items()
-	
-	def get_items(self, min=0, max=sys.maxint):
-		'''
-		Return cached items if available, otherwise get_items_uncached() is
-		called to create a new cache, yielding each result along the way.  A
-		timeout is set to invalidate the cached items to free memory.
-		'''
-		
-		for i in self.get_items_uncached():
-			if i.timestamp >= min and i.timestamp < max:
-				yield i
-			
-		gc.collect()
-	
-	def get_items_uncached(self):
-		'''Subclasses should override this to return/yield Datas. The results
-		will be cached.'''
-		return []
-
-	def set_items(self, items):
-		'''Set the cached items.  Pass None for items to reset the cache.'''
-		self.items = items
-		gc.collect()
-	
-	def set_active(self,bool):
-		self.active = bool
-		
-	def get_active(self):
-		return self.active
-
-	def items_contains_uri(self,items,uri):
-		if uri in (i.uri for i in items):
+	def get_bookmark(self,uri):
+		if self.bookmarks.count(uri) > 0:
 			return True
 		return False
+	
+	def add_bookmark(self,item):
+		if self.bookmarks.count(item.uri) == 0:
+			self.bookmarks.append(item.uri)
+	
+	def reload_bookmarks(self):
+		print "------------------------------------"
+		self.bookmarks = []
+		for item in datasink.get_bookmarks():
+			self.add_bookmark(item)
+			print "bookmarking "+item.uri
+		print "------------------------------------"
+		iface.emit_signal_updated()
+	
+	def get_items_uncached(self):
+		for i in datasink.get_bookmarks():
+			yield i
+
+bookmarker = Bookmarker()

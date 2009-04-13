@@ -10,8 +10,8 @@ import gnomevfs
 import W3CDate
 from gettext import gettext as _
 
-from zeitgeist_base import Data, DataProvider
-from zeitgeist_util import FileMonitor, launcher
+from zeitgeist_engine.zeitgeist_base import Data, DataProvider
+from zeitgeist_engine.zeitgeist_util import FileMonitor, launcher
 
 # FIXME:  This should really just use Beagle or Tracker.
 

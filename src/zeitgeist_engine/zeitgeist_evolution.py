@@ -14,7 +14,7 @@ import tempfile
 import W3CDate
 from gettext import gettext as _
 
-from zeitgeist_base import Data, DataProvider
+from zeitgeist_engine.zeitgeist_base import Data, DataProvider
 
 
 class EvolutionSource(DataProvider):

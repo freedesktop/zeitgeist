@@ -8,10 +8,12 @@ import gobject
 import pango
 from gettext import ngettext, gettext as _ 
  
-from zeitgeist_engine.zeitgeist_datasink import bookmarker, datasink
+from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist_engine.xdgdirs import xdg_directory
-from zeitgeist_dbus import iface, dbus_connect
+from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
+from zeitgeist_gui.zeitgeist_base import Data, bookmarker
+from zeitgeist_shared import *
 
 class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 	
@@ -228,7 +230,8 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		for item in self.items:
 			del item
 		self.items = []
-		for item in datasink.get_items_by_time(self.begin, self.end, ''):
+		for item in iface.get_items(self.begin, self.end, ""):
+			item = objectify(item)
 			if item.timestamp < self.end:
 				self.items.append(item)
 				item.connect("relate",self.set_relation)

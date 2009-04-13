@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$1" == "--new" ]; then
-	python src/zeitgeist_gui/zeitgeist_gui.py $@
+	python src/zeitgeist_gui/zeitgeist_gui_main.py $@
 else
 	python -c """
 import sys, gtk, os

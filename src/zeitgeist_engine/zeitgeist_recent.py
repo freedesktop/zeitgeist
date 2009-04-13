@@ -4,7 +4,7 @@ import urllib
 import gtk
 from gettext import gettext as _
 
-from zeitgeist_base import Data, DataProvider
+from zeitgeist_engine.zeitgeist_base import Data, DataProvider
 
 DOCUMENT_MIMETYPES = [
         # Covers:
