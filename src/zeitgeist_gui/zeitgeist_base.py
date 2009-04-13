@@ -1,6 +1,5 @@
 import datetime
 import gc
-import sys
 import time
 import os
 import gobject
@@ -8,8 +7,8 @@ import gtk
 from gettext import ngettext, gettext as _
 
 from zeitgeist_engine.zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
-from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_gui.zeitgeist_dbus import iface
+from zeitgeist_shared.zeitgeist_shared import *
 
 class Data(gobject.GObject):
 	
@@ -296,7 +295,6 @@ class Bookmarker:
 	
 	def __init__(self):
 		
-		DataProvider.__init__(self)
 		self.bookmarks = []
 		self.reload_bookmarks()
 	

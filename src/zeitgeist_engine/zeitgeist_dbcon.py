@@ -46,7 +46,8 @@ class DBConnector:
 		(and no database query needs to take place).
 		"""
 		
-		if type(item) is str:
+		# Is it a string (can be str, dbus.String, etc.)?
+		if hasattr(item, 'capitalize'):
 			if uri_only:
 				return item
 			else:
@@ -54,7 +55,7 @@ class DBConnector:
 					self.cursor.execute(
 						"SELECT * FROM data WHERE uri=?", (item,)).fetchone())
 		elif uri_only:
-			return item.uri
+			return item.get_uri()
 		
 		return item
 	

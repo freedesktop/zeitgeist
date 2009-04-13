@@ -4,7 +4,7 @@
 from zeitgeist_base import Data
 
 
-sig_plain_data = "a(ussssssusb)"
+sig_plain_data = "a(issssssisb)"
 def plainify_data(obj):
 	''' Takes a Data object and converts it into an object
 		suitable for transmission through D-Bus. '''
