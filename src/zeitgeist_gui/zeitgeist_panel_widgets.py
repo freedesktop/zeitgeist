@@ -12,7 +12,8 @@ from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist_engine.xdgdirs import xdg_directory
 from zeitgeist_engine.zeitgeist_util import icon_factory
 from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
-from zeitgeist_gui.zeitgeist_base import Data, bookmarker
+from zeitgeist_gui.zeitgeist_base import Data
+from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 from zeitgeist_shared.zeitgeist_shared import *
 
 class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):

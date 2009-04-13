@@ -8,7 +8,10 @@ from gettext import ngettext, gettext as _
 
 from zeitgeist_engine.zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
 from zeitgeist_gui.zeitgeist_dbus import iface
-from zeitgeist_shared.zeitgeist_shared import *
+
+# from zeitgeist_shared.zeitgeist_shared import plainify
+# ^ Those imports are in-place to avoid a circular dependency
+
 
 class Data(gobject.GObject):
 	
@@ -186,11 +189,13 @@ class Data(gobject.GObject):
 			self.bookmark = True
 		else:
 			self.bookmark = False
+		from zeitgeist_shared.zeitgeist_shared import plainify
 		iface.update_item(plainify_data(self))
 		bookmarker.reload_bookmarks()
 	
 	def set_bookmark(self, bookmark):
 		self.bookmark = bookmark
+		from zeitgeist_shared.zeitgeist_shared import plainify
 		iface.update_item(plainify_data(self))
 		bookmarker.reload_bookmarks()
 		
@@ -225,6 +230,7 @@ class Data(gobject.GObject):
 	
 	def set_tags(self, tags):
 		self.tags = tags
+		from zeitgeist_shared.zeitgeist_shared import plainify
 		iface.update_item(plainify_data(self))
 	
 	def get_tagbox(self):
@@ -289,30 +295,3 @@ class Data(gobject.GObject):
 		self.tags=tags
 		
 		self.textview.get_buffer().set_text(self.tags)	
-
-
-class Bookmarker:
-	
-	def __init__(self):
-		
-		self.bookmarks = []
-		self.reload_bookmarks()
-	
-	def get_bookmark(self,uri):
-		return self.bookmarks.count(uri) > 0
-	
-	def add_bookmark(self,item):
-		if self.bookmarks.count(item.uri) == 0:
-			self.bookmarks.append(item.uri)
-	
-	def reload_bookmarks(self):
-		self.bookmarks = []
-		for item in iface.get_bookmarks():
-			self.add_bookmark(objectify_data(item))
-		iface.emit_signal_updated()
-	
-	def get_items_uncached(self):
-		for bookmark in iface.get_bookmarks():
-			yield objectify_data(bookmark)
-
-bookmarker = Bookmarker()
