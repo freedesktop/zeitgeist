@@ -8,7 +8,6 @@ import gobject
 import pango
 from gettext import ngettext, gettext as _ 
  
-from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist_engine.xdgdirs import xdg_directory
 from zeitgeist_engine.zeitgeist_util import icon_factory
@@ -50,7 +49,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
 		
-		# Connect to the datasink's signals
 		dbus_connect("signal_updated", self.load_month_proxy)
 		self.offset=0
 		self.items = []
@@ -355,7 +353,7 @@ class RelatedWindow(gtk.Window):
 		self.show_all()
 		self.items = []
 	
-	def set_relation(self,item):
+	def set_relation(self, item):
 		'''
 		Find the items that share same tags with the current item
 		Later to be done by monitoring the active files
@@ -376,22 +374,23 @@ class RelatedWindow(gtk.Window):
 							uris[i.uri]=i
 						else:
 							pass
-					except:
+					except Exception: # TODO: Why this?
 						pass
 		items = []
 		for uri in uris.keys():
 			if items.count(uri) == 0:
 				items.append(uri)
 				self.view.append_item(uris[uri])
-				
-		for i in datasink.get_related_items(item):
-			if items.count(i.uri) == 0:
-				items.append(i.uri)
-				self.view.append_item(i)
 		
-		items=[]
-		uris.clear()
+		for related_item in iface.get_related_items(item):
+			related_item = objectify_data(related_item)
+			if items.count(related_item.uri) == 0:
+				items.append(related_item.uri)
+				self.view.append_item(related_item)
 		
+		items = []
+
+
 class TagBrowser(gtk.VBox):
 	def __init__(self):
 		# Initialize superclass
@@ -445,7 +444,15 @@ class TagBrowser(gtk.VBox):
 		else:
 			self.func = self.get_most_tags()
 	
-	def get_recent_tags(self,x=None):
+	def _tag_toggle_button(self, tag):
+		btn = gtk.ToggleButton(tag)
+		btn.set_size_request(-1, -1)
+		btn.set_relief(gtk.RELIEF_NONE)
+		btn.set_focus_on_click(False)
+		self.view.pack_start(btn, True, True)
+		btn.connect("toggled", self.toggle)
+	
+	def get_recent_tags(self, x=None):
 		
 		date = calendar.get_date()
 		
@@ -455,19 +462,12 @@ class TagBrowser(gtk.VBox):
 		for w in self.view:
 			self.view.remove(w)
 		
-		for tag in datasink.get_recent_used_tags(10,begin,end):
-			btn = gtk.ToggleButton(str(tag))
-			btn.set_size_request(-1,-1)
-			btn.set_relief(gtk.RELIEF_NONE)
-			btn.set_focus_on_click(False)
-			#label.set_use_underline(True)
-			self.view.pack_start(btn,True,True)
-			#btn.set_size_request(-1,-1)
-			btn.connect("toggled",self.toggle)
+		for tag in iface.get_recent_used_tags(10, begin, end):
+			self._tag_toggle_button(tag)
 			
 		self.show_all()
-		
-	def get_most_tags(self,x=None):
+	
+	def get_most_tags(self, x=None):
 		
 		begin = timeline.begin
 		end = timeline.end
@@ -475,28 +475,22 @@ class TagBrowser(gtk.VBox):
 		for w in self.view:
 			self.view.remove(w)
 		
-		for tag in datasink.get_most_used_tags(10,begin,end):
-			btn = gtk.ToggleButton(str(tag))
-			btn.set_size_request(-1,-1)
-			btn.set_relief(gtk.RELIEF_NONE)
-			btn.set_focus_on_click(False)
-			self.view.pack_start(btn,True,True)
-			btn.set_size_request(-1,-1)
-			btn.connect("toggled",self.toggle)
-			
-		self.show_all()
+		for tag in iface.get_most_used_tags(10,begin,end):
+			self._tag_toggle_button(tag)
 		
-	def toggle(self,x=None):
+		self.show_all()
+	
+	def toggle(self, x=None):
 		tags = timeline.tags
 		if x.get_active():
 			if tags.find(x.get_label()) == -1:
-				 tags = tags+","+x.get_label()
-				 begin, end = datasink.get_timestamps_for_tag(x.get_label())
-				 timeline.load_month(begin=begin,end=end)
+				 tags = tags + "," + x.get_label()
+				 begin, end = iface.get_timestamps_for_tag(x.get_label())
+				 timeline.load_month(begin=begin, end=end)
 		else:
 			if tags.find(x.get_label()) > -1:
-				 tags = tags.replace(","+x.get_label(), ",")
-				 tags = tags.replace(x.get_label()+"," ,",")
+				 tags = tags.replace("," + x.get_label(), ",")
+				 tags = tags.replace(x.get_label() + ",", ",")
 				 timeline.load_month()
 		
 		timeline.apply_search(tags,False)
@@ -513,11 +507,11 @@ class FilterAndOptionBox(gtk.VBox):
 		gtk.VBox.__init__(self)
 		self.option_box = gtk.VBox(False)
 		self.create_doc_btn = gtk.Button("Create New Document")
-		self.create_doc_btn.connect("clicked",self._show_new_from_template_dialog)
+		self.create_doc_btn.connect("clicked", self._show_new_from_template_dialog)
 		self.create_note_btn = gtk.Button("Create New Note")
-		self.create_note_btn.connect("clicked",self._make_new_note)
-		self.option_box.pack_end(self.create_doc_btn,False,False)
-		self.option_box.pack_end(self.create_note_btn,False,False)
+		self.create_note_btn.connect("clicked", self._make_new_note)
+		self.option_box.pack_end(self.create_doc_btn, False, False)
+		self.option_box.pack_end(self.create_note_btn, False, False)
 		self.timefilter_active=False
 		self.filters=[]
 		
@@ -864,7 +858,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		
 	def append_item(self, item,group=True):
 		# Add an item to the end of the store
-		self._set_item(item,group=group)
+		self._set_item(item, group=group)
 		self.set_model(self.store)
 	
 	def prepend_item(self, item,group=True):
@@ -1135,9 +1129,10 @@ class BookmarksView(gtk.VBox):
 	def get_bookmarks(self):
 		self.view.clear_store()
 		for item in bookmarker.get_items_uncached():
-			self.view.append_item(item,group=False)
+			self.view.append_item(item, group=False)
 		#timeline.load_month(force=True)
-		
+
+
 class ButtonCellRenderer(gtk.GenericCellRenderer):
 	
 	__gsignals__ = {

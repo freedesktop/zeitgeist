@@ -79,6 +79,11 @@ class RemoteInterface(dbus.service.Object):
 			sources.append(plainify_dataprovider(source))
 		return sources
 	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature="s", out_signature="(uu)")
+	def get_timestamps_for_tag(self, tag):
+		return datasink.get_timestamps_for_tag(tag)
+	
 	# Writing stuff
 	
 	@dbus.service.method("org.gnome.zeitgeist",
