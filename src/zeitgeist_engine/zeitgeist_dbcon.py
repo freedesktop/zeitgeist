@@ -9,7 +9,7 @@ import os
 import time
 import thread
 
-from zeitgeist_engine.zeitgeist_base import DataProvider, Data
+from zeitgeist_engine.zeitgeist_base import DataProvider
 
 class DBConnector:
 	
@@ -21,19 +21,20 @@ class DBConnector:
 		self.offset = 0
 	
 	def _result2data(self, result, timestamp=0):
-		return Data(
-			uri			= result[0],
-			name		= result[1],
-			comment		= result[2],
-			mimetype	= result[3],
-			tags		= result[4],
-			count		= result[5],
-			use			= result[6],
-			type		= result[7],
-			icon		= result[8],
-			bookmark	= (result[9] == 1),
-			timestamp	= timestamp
-			)
+		
+		return {
+			"uri": result[0],
+			"name": result[1],
+			"comment": result[2],
+			"mimetype": result[3],
+			"tags": result[4],
+			"count": result[5],
+			"use": result[6],
+			"type": result[7],
+			"icon": result[8],
+			"bookmark": (result[9] == 1),
+			"timestamp": timestamp,
+			}
 	
 	def _ensure_item(self, item, uri_only=False):
 		"""
@@ -55,7 +56,7 @@ class DBConnector:
 					self.cursor.execute(
 						"SELECT * FROM data WHERE uri=?", (item,)).fetchone())
 		elif uri_only:
-			return item.get_uri()
+			return item["uri"]
 		
 		return item
 	
@@ -102,24 +103,24 @@ class DBConnector:
 		try:
 			# Insert into timetable
 			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)',
-				(item.timestamp,
+				(item["timestamp"],
 				None,
-				item.uri,
-				item.use,
-				"%s-%s" % (str(item.timestamp), item.uri)))
+				item["uri"],
+				item["use"],
+				"%d-%s" % (item["timestamp"], item["uri"])))
 			
 			# Insert into data, if it isn't there yet
 			try:
 				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
-					(item.uri,
-					unicode(item.name),
-					item.comment,
-					item.mimetype,
-					item.tags,
-					item.count,
-					item.use,
-					item.type,
-					item.icon,
+					(item["uri"],
+					unicode(item["name"]),
+					item["comment"],
+					item["mimetype"],
+					item["tags"],
+					item["count"],
+					item["use"],
+					item["type"],
+					item["icon"],
 					0))
 			except sqlite3.IntegrityError, ex:
 				pass
@@ -128,9 +129,9 @@ class DBConnector:
 				# Add tags into the database
 				# FIXME: Sometimes Data.tags is a string and sometimes it is a list.
 				# TODO: Improve consistency.
-				for tag in item.get_tags():
+				for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
 					self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
-						(tag.capitalize(), item.uri, item.timestamp))
+						(tag.capitalize(), item["uri"], item["timestamp"]))
 			except Exception, ex:
 				print "Error inserting tags: %s" % ex
 		
@@ -185,39 +186,32 @@ class DBConnector:
 		If the item has tags, then the tags will also be updated.
 		"""
 		# Delete this item from the database if it's already present.
-		self.cursor.execute('DELETE FROM data where uri=?',(item.uri,))
-		
-		# Check if the item is bookmarked
-		if item.bookmark == True:
-			bookmark = 1
-		else:
-			bookmark = 0
+		self.cursor.execute('DELETE FROM data where uri=?',(item["uri"],))
 		
 		# (Re)insert the item into the database
 		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
-							(item.uri,
-							item.name,
-							item.comment,
-							item.mimetype,
-							unicode(item.tags),
-							item.count,
-							item.use,
-							item.type,
-							item.icon,
-							bookmark))	
+							(item["uri"],
+							item["name"],
+							item["comment"],
+							item["mimetype"],
+							unicode(item["tags"]),
+							item["count"],
+							item["use"],
+							item["type"],
+							item["icon"],
+							item["bookmark"]))
 		
 		# Delete old tags for this item
-		self.cursor.execute('DELETE FROM tags where uri=?', (item.uri,))
+		self.cursor.execute('DELETE FROM tags where uri=?', (item["uri"],))
 		
 		# (Re)insert tags into the database
-		for tag in item.get_tags():
-			if not tag.strip() == "":
-				try:
-					self.cursor.execute('INSERT INTO tagids VALUES (?)',(tag,)) 
-				except:
-					pass
-				self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
-					(unicode(tag.capitalize()),item.uri,time.time())) 	
+		for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
+			try:
+				self.cursor.execute('INSERT INTO tagids VALUES (?)',(tag,)) 
+			except:
+				pass
+			self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
+				(unicode(tag.capitalize()), item["uri"], time.time())) 	
 		self.connection.commit()
 	
 	def delete_item(self, item):

@@ -5,7 +5,7 @@ import sqlite3 as db
 from gettext import gettext as _
 
 from zeitgeist_engine.zeitgeist_util import FileMonitor
-from zeitgeist_engine.zeitgeist_base import Data, DataProvider
+from zeitgeist_engine.zeitgeist_base import DataProvider
 
 
 class FirefoxSource(DataProvider):
@@ -84,24 +84,20 @@ class FirefoxSource(DataProvider):
                     timestamp = history[j][2] / (1000000)
                     self.timestamp =  history[j][2]
                     if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
-                        yield Data(uri=url,
-                                name=name,
-                                timestamp=timestamp,
-                                count=count,
-                                icon = "gnome-globe",
-                                use="visited",
-                                type="Firefox History")
-                    
+                        use = "visited"
                     else:
-                        yield Data(uri=url,
-                                name=name,
-                                timestamp=timestamp,
-                                icon = "gnome-globe",
-                                count=count,
-                                use="linked",
-                                type="Firefox History")
+                        use = "linked"
+                    yield {
+                        "timestamp": timestamp,
+                        "uri": url,
+                        "name": name,
+                        "type": "Firefox History",
+                        "count": counter,
+                        "use": use,
+                        "icon": "gnome-globe"
+                        }
                 j += 1
-            
+        
         cursor.close()
     
     def __copy_sqlite(self):

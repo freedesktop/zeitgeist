@@ -14,7 +14,6 @@ from zeitgeist_engine.zeitgeist_util import icon_factory
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_gui.zeitgeist_base import Data
 from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
-from zeitgeist_shared.zeitgeist_shared import *
 
 class TimelineWidget(gtk.ScrolledWindow, gobject.GObject):
 	

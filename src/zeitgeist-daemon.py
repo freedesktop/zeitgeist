@@ -5,7 +5,6 @@ import gobject
 from gettext import ngettext, gettext as _
 
 from zeitgeist_engine.zeitgeist_datasink import datasink
-from zeitgeist_engine.zeitgeist_base import Data
 from zeitgeist_shared.zeitgeist_shared import *
 
 
@@ -97,12 +96,12 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature=sig_plain_data, out_signature="")
 	def insert_item(self, item_list):
-		datasink.insert_item(objectify_data(item_list))
+		datasink.insert_item(dictify_data(item_list))
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature=sig_plain_data, out_signature="")
 	def update_item(self, item_list):
-		datasink.update_item(objectify_data(item_list))
+		datasink.update_item(dictify_data(item_list))
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="")

@@ -14,7 +14,7 @@ import tempfile
 import W3CDate
 from gettext import gettext as _
 
-from zeitgeist_engine.zeitgeist_base import Data, DataProvider
+from zeitgeist_engine.zeitgeist_base import DataProvider
 
 
 class EvolutionSource(DataProvider):
@@ -50,13 +50,14 @@ class EvolutionSource(DataProvider):
 								i[2] ==""
 							name = i[1]+" \n"+i[2]
 							timestamp = i[0] 
-							yield Data(uri="mailto:"+i[2],
-										name=name,
-										timestamp=timestamp,
-										mimetype="mail",
-										icon=self.icon,
-										use="visited",
-										type="Mail")
+							yield {
+								"timestamp": timestamp,
+								"uri": "mailto:%s" % i[2],
+								"name": name,
+								"use": "visited",
+								"type": "Mail",
+								"icon": self.icon,
+								}
 					except:
 						print "error fetching sent mail"
 				cursor.close()
