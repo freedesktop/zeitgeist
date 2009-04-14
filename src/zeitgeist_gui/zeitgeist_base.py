@@ -260,7 +260,7 @@ class Data(gobject.GObject):
 		return tbox
 	
 	def get_common_tags(self, view):
-		for tag in iface.get_most_used_tags(10):
+		for tag in iface.get_most_used_tags(10, 0, 0):
 			# TODO: This code is duplicated in zeitgeist_panel_widgets.py
 			btn = gtk.ToggleButton(tag)
 			btn.set_relief(gtk.RELIEF_NONE)
