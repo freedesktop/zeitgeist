@@ -4,7 +4,6 @@ import dbus.mainloop.glib
 import gobject
 from gettext import ngettext, gettext as _
 import gtk
-import subprocess
 
 from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_shared.zeitgeist_shared import *

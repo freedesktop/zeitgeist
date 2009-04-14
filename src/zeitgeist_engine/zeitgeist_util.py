@@ -12,6 +12,7 @@ import gnomevfs
 import gconf
 from gettext import gettext as _
 import tempfile, shutil, os
+import subprocess
 
 class FileMonitor(gobject.GObject):
 	'''

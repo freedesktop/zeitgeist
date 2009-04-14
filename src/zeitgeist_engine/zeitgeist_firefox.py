@@ -91,6 +91,7 @@ class FirefoxSource(DataProvider):
                         "timestamp": timestamp,
                         "uri": url,
                         "name": name,
+                        "comment": "",
                         "type": "Firefox History",
                         "count": count,
                         "use": use,
