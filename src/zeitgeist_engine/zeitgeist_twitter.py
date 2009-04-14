@@ -1,4 +1,4 @@
-from zeitgeist_base import Data, DataProvider
+from zeitgeist_base import DataProvider
 
 try:
 	import twitter
@@ -30,8 +30,11 @@ class TwitterSource(DataProvider):
 		# Connect to twitter, loop over statuses, and create items for each status
 		self.api = twitter.Api(username=self.username, password=self.password)
 		for status in self.api.GetUserTimeline(count = 500):
-			yield Data(type = "Twitter",
-						icon = None, count=0, use="tweet",
-						name = tweet.user.name + ":\n" + tweet.text,
-						timestamp = tweet.created_at_in_seconds,
-						uri = "http://explore.twitter.com/" + tweet.user.screen_name + "/status/" + str(tweet.id))
+			yield {
+				"timestamp": tweet.created_at_in_seconds,
+				"uri": "http://explore.twitter.com/" + tweet.user.screen_name + "/status/" + str(tweet.id),
+				"name": tweet.user.name + ":\n" + tweet.text,
+				"type": "Twitter",
+				"count": 0,
+				"use": "tweet",
+				}

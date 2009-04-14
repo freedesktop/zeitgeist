@@ -14,20 +14,20 @@ from zeitgeist_engine.zeitgeist_util import icon_factory
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_gui.zeitgeist_base import Data
 from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
-from zeitgeist_shared.zeitgeist_shared import *
 
-class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
+class TimelineWidget(gtk.ScrolledWindow, gobject.GObject):
 	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
 		
 		gobject.GObject.__init__(self)
 		# Add children widgets
 		self.view = DataIconView(True)
-		self.dayboxes=gtk.HBox(False,False)
-		self.days={}
-				
+		self.dayboxes = gtk.HBox(False, False)
+		self.days = {}
+		
 		# Set up default properties
 		self.set_border_width(0)
 		self.set_size_request(600, 200)
@@ -39,7 +39,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		self.end = None
 		
 		# The current tags that we're using to filter displayed results
-		self.tags = ''
+		self.tags = ""
 		
 		# Connect to the calendar's (displayed in the sidebar) signals
 		calendar.connect("month-changed", self.load_month)
@@ -51,103 +51,68 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
 		
 		engine.connect("signal_updated", self.load_month_proxy)
-		self.offset=0
+		self.offset = 0
 		self.items = []
 		
 		# Load the GUI
 		self.load_month()
 	
-	def apply_search(self, tags="", search = True):
+	def apply_search(self, tags="", search=True):
 		'''
 		Adds all items which match tags to the gui.
 		'''
 		
 		self.tags = tags
-		if not tags == "":
-			if tags.find(",,")>-1:
-				tags = self.tags.strip().replace(",,", ",")
-			if tags.startswith(","):
-				tags.replace(",","",1)
-			while tags.find("  ") > -1:
-				tags = tags.replace("  "," ")
-			tagsplit = tags.strip().split(",")
-		else:
-			tagsplit = []
-				
-		ftagsplit=[]
-		for tag in tagsplit:
-			if not tag=="":
-				ftagsplit.append(tag)
-		tagsplit = ftagsplit
-		days_range= int((self.end - self.begin )/86400)  +1 #get the days range
+		tagsplit = [tag.strip() for tag in tags.split(',') if tag.strip()]
+		days_range = int((self.end - self.begin ) / 86400) +1 #get the days range
 		
 		self.days.clear()
 		self.review_days()
-		self.build_days(tagsplit,search)
-		
-		
-	def build_days(self,tagsplit,search):
-		items=[]
+		self.build_days(tagsplit, search)
+	
+	def build_days(self, tagsplit, search):
+		items = []
 		for item in self.items:
-			if len(tagsplit) >0:
+			if item in items:
+				continue
+			if tagsplit:
 				for tag in tagsplit:
-						if search:
-							if item.uri.lower().find(tag.lower())>-1:
-								try:
-									if items.index(item)>-1:
-										pass
-								except:
-									items.append(item)
-									if not  self.days.has_key(item.datestring):
-										pass
-									else:
-										daybox = self.days[item.datestring]
-										daybox.append_item(item)
-										adj = self.get_hadjustment()
-										daybox.connect('set-focus-child', self.focus_in, adj) 
-										self.dayboxes.pack_start(daybox,False,False)
-										self.days[item.datestring]=daybox
-										del daybox
-									
-						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
-							try:
-								if items.index(item)>-1:
-									pass
-							except:
-									items.append(item)
-									if not  self.days.has_key(item.datestring):
-										pass
-									else:
-										daybox = self.days[item.datestring]
-										daybox.append_item(item)
-										adj = self.get_hadjustment()
-										daybox.connect('set-focus-child', self.focus_in, adj) 
-										self.dayboxes.pack_start(daybox,False,False)
-										self.days[item.datestring]=daybox		
-										del daybox
-									
-			else:
-				try:
-					if items.index(item)>-1:
-						pass
-				except:
+					if search:
 						items.append(item)
-						if not self.days.has_key(item.datestring):
-									pass
-						else:
+						if self.days.has_key(item.datestring):
 							daybox = self.days[item.datestring]
 							daybox.append_item(item)
 							adj = self.get_hadjustment()
-							daybox.connect('set-focus-child', self.focus_in, adj) 
-							self.dayboxes.pack_start(daybox,False,False)
-							self.days[item.datestring]=daybox
+							daybox.connect('set-focus-child', self.focus_in, adj)
+							self.dayboxes.pack_start(daybox, False, False)
+							self.days[item.datestring] = daybox
 							del daybox
-			del item
+					
+					if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
+						items.append(item)
+						if self.days.has_key(item.datestring):
+							daybox = self.days[item.datestring]
+							daybox.append_item(item)
+							adj = self.get_hadjustment()
+							daybox.connect('set-focus-child', self.focus_in, adj)
+							self.dayboxes.pack_start(daybox, False, False)
+							self.days[item.datestring] = daybox		
+							del daybox
+			else:
+				items.append(item)
+				if self.days.has_key(item.datestring):
+					daybox = self.days[item.datestring]
+					daybox.append_item(item)
+					adj = self.get_hadjustment()
+					daybox.connect('set-focus-child', self.focus_in, adj) 
+					self.dayboxes.pack_start(daybox, False, False)
+					self.days[item.datestring] = daybox
+					del daybox
 		self.clean_up_dayboxes()
 	
 	def review_days(self):	
 		
-		days_range= int((self.end - self.begin )/86400)  +1 #get the days range
+		days_range= int((self.end - self.begin ) / 86400) +1 #get the days range
 		'''
 		Try avoiding rebuiling boxes and use currently available
 		'''
@@ -510,8 +475,6 @@ class FilterAndOptionBox(gtk.VBox):
 		Filter Box
 		'''
 		
-		#self.search = SearchToolItem()
-		#self.pack_start( self.search ,False,False,0)
 		self.pack_start(calendar, False, False, 0)
 		
 		self.pack_start(self.option_box)
@@ -665,6 +628,7 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 		self.destroy()
 
 class SearchToolItem(gtk.ToolItem):
+	
 	__gsignals__ = {
 		"clear" : (gobject.SIGNAL_RUN_FIRST,
 				   gobject.TYPE_NONE,
@@ -673,7 +637,7 @@ class SearchToolItem(gtk.ToolItem):
 					gobject.TYPE_NONE,
 					(gobject.TYPE_STRING,))
 		}
-
+	
 	def __init__(self, accel_group = None):
 		gtk.ToolItem.__init__(self)
 		self.search_timeout = None
@@ -709,19 +673,18 @@ class SearchToolItem(gtk.ToolItem):
 
 		self.add(box)
 		self.show_all()
-
+	
 	def do_clear(self):
 		if self.clearbtn and self.clearbtn.child:
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
 		timeline.load_month()
-		
+	
 	def do_search(self, text):
 		# Get date range
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
-		
 		
 		# Get the begin and end of this month
 		# each tuple is of format (year, month, day, hours, minutes,
@@ -1040,7 +1003,7 @@ class BrowserBar(gtk.HBox):
 		self.search = SearchToolItem()
 		hbox.pack_start(self.search, True, True)
 		clear_btn = gtk.ToolButton("gtk-clear")
-		clear_btn.connect("clicked", lambda: self.search.do_clear())
+		clear_btn.connect("clicked", lambda x=None: self.search.do_clear())
 		hbox.pack_start(clear_btn, False, False, 4)
 		
 		self.pack_start(hbox, True, True)
@@ -1204,7 +1167,7 @@ class ButtonCellRenderer(gtk.GenericCellRenderer):
 
 calendar = CalendarWidget()
 timeline = TimelineWidget()
-tb =TagBrowser()
+tb = TagBrowser()
 filtersBox = FilterAndOptionBox()
 bookmarks = BookmarksView()
 bb = BrowserBar()

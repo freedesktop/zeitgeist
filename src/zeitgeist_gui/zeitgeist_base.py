@@ -121,7 +121,7 @@ class Data(gobject.GObject):
 			pass
 	
 	def get_tags(self):
-		return [tag for tag in self.tags.split(",") if tag]
+		return [tag.strip() for tag in self.tags.split(",") if tag.strip()]
 	
 	def open(self):
 		self.emit("open")
@@ -296,3 +296,19 @@ class Data(gobject.GObject):
 		self.tags=tags
 		
 		self.textview.get_buffer().set_text(self.tags)
+
+
+def objectify_data(item_list):
+	return Data(
+		timestamp	= item_list[0],
+		uri			= item_list[1],
+		name		= item_list[2],
+		type		= item_list[3],
+		mimetype	= item_list[4],
+		tags		= item_list[5],
+		comment		= item_list[6],
+		count		= item_list[7],
+		use			= item_list[8],
+		bookmark	= item_list[9],
+		icon		= item_list[10]
+		)

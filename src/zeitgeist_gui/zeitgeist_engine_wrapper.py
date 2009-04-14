@@ -1,5 +1,6 @@
 from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
-from zeitgeist_shared.zeitgeist_shared import *
+from zeitgeist_shared.zeitgeist_shared import plainify_data
+from zeitgeist_gui.zeitgeist_base import objectify_data
 
 
 class EngineInterface(object):

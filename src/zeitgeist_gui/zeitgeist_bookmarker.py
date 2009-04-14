@@ -1,5 +1,4 @@
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
-from zeitgeist_shared.zeitgeist_shared import *
 
 class Bookmarker:
 	

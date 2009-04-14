@@ -4,7 +4,7 @@ import urllib
 import gtk
 from gettext import gettext as _
 
-from zeitgeist_engine.zeitgeist_base import Data, DataProvider
+from zeitgeist_engine.zeitgeist_base import DataProvider
 
 DOCUMENT_MIMETYPES = [
         # Covers:
@@ -62,7 +62,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 	def get_items_uncached(self):
 		for info in self.recent_manager.get_items():
-			counter=0
 			if info.exists() and not info.get_private_hint() and info.get_uri().find("/tmp") < 0:
 				use = None
 				timestamp=max([info.get_added(), info.get_modified(), info.get_visited()])
@@ -86,13 +85,15 @@ class RecentlyUsedManagerGtk(DataProvider):
 						tmp = unicode(urllib.unquote(tmp))
 						tags = tmp.replace("/", ",")
 							
-				yield Data(name=info.get_display_name(),
-					uri=info.get_uri(),
-					mimetype=info.get_mime_type(),
-					timestamp=timestamp,
-					tags=tags,
-					count=counter,
-					use=use)
+				yield {
+					"timestamp": timestamp,
+					"uri": info.get_uri(),
+					"name": info.get_display_name(),
+                    "comment": info.get_display_name(),
+					"mimetype": info.get_mime_type(),
+					"tags": tags,
+					"use": use,
+					}
 
 class RecentlyUsed(DataProvider):
 	'''
@@ -125,7 +126,7 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 		self.inverse = inverse
 
 	def include_item(self, item):
-		item_mime = item.get_mimetype()
+		item_mime = item["mimetype"]
 		for mimetype in self.mimetype_list:
 			if hasattr(mimetype, "match") and mimetype.match(item_mime) or item_mime == mimetype:
 				return True
@@ -134,19 +135,17 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 	def get_items_uncached(self):
 		for item in RecentlyUsed.get_items_uncached(self):
 			counter = 0
-			info = recent_model.recent_manager.lookup_item(item.uri)
+			info = recent_model.recent_manager.lookup_item(item["uri"])
 			
 			for app in info.get_applications():
 				appinfo=info.get_application_info(app)
 				counter=counter+appinfo[1]
-			
-			yield Data(name=item.name,
-						uri=item.get_uri(),
-						timestamp=item.timestamp,
-						count=counter,use=item.use,
-						type=self.filter_name,
-						mimetype=item.mimetype,
-						tags=item.tags)
+        
+	        	item["count"] = counter
+			item["type"] = self.name
+		        item["icon"] = ""
+            	
+			yield item
 
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
