@@ -178,8 +178,10 @@ class AboutWindow(gtk.Window):
 	def _toggle_(self,widget=None):
 		if self.visible:
 			self.hide_all()
+			self.visible=False
 		else:
 			self.show_all()
+			self.visible=True
 			
 	def _get_about(self):
 		title = "<span size='large' color='blue'>%s</span>" %"GNOME Zeitgeist"
