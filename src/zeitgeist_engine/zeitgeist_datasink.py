@@ -133,8 +133,7 @@ class DataSinkSource(DataProvider):
 		gc.collect()
 	
 	def get_bookmarks(self):
-		for i in db.get_bookmarked_items():
-			yield i
+		return db.get_bookmarked_items()
 	
 	def update_item(self, item):
 		print "Updating item: %s" % item
@@ -149,8 +148,7 @@ class DataSinkSource(DataProvider):
 	
 	def get_items_by_time(self, min=0, max=sys.maxint, tags=""):
 		"Datasink getting all items from DataProviders"
-		for item in self.get_items(min, max, tags):
-			yield item
+		return self.get_items(min, max, tags)
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
 		for item in self.get_items_by_time(min, max, tags):
@@ -189,14 +187,12 @@ class DataSinkSource(DataProvider):
 	def get_most_used_tags(self, count=20, min=0, max=sys.maxint):
 		if count == 0: count = 20
 		if max == 0: max = sys.maxint
-		for tag in db.get_most_tags(count, min, max):
-			yield tag
+		return db.get_most_tags(count, min, max)
 
 	def get_recent_used_tags(self, count=20, min=0, max=sys.maxint):
 		if count == 0: count = 20
 		if max == 0: max = sys.maxint
-		for tag in db.get_recent_tags(count, min, max):
-			yield tag
+		return db.get_recent_tags(count, min, max)
 
 	def get_timestamps_for_tag(self, tag):
 		begin = db.get_min_timestamp_for_tag(tag)
@@ -204,12 +200,10 @@ class DataSinkSource(DataProvider):
 		return (begin, end)
 	
 	def get_related_items(self, item):
-		for item in db.get_related_items(item):
-			yield item
+		return db.get_related_items(item)
 	
 	def get_items_related_by_tags(self, item):
-		for item in db.get_items_related_by_tags(item):
-			yield item
+		return db.get_items_related_by_tags(item)
 	
 	def insert_item(self, item):
 		return db.insert_item(item)
