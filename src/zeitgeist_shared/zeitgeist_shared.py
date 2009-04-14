@@ -4,14 +4,18 @@
 from zeitgeist_base import Data
 
 
-sig_plain_data = "a(issssssisb)"
+sig_plain_data = "a(issssssisbs)"
 def plainify_data(obj):
 	''' Takes a Data object and converts it into an object
 		suitable for transmission through D-Bus. '''
+	icon = obj.get_icon_string()
+	if icon == None:
+		icon = ""
+		
 	return (int(obj.get_timestamp()), obj.get_uri(),
 		obj.get_name(), obj.get_type(), obj.get_mimetype(), 
 		','.join(obj.get_tags()), obj.get_comment(), obj.get_count(),
-		obj.get_use(), obj.get_bookmark())
+		obj.get_use(), obj.get_bookmark(), icon)
 
 def objectify_data(item_list):
 	return Data(
@@ -24,7 +28,8 @@ def objectify_data(item_list):
 		comment		= item_list[6],
 		count		= item_list[7],
 		use			= item_list[8],
-		bookmark	= item_list[9]
+		bookmark	= item_list[9],
+		icon = item_list[10]
 		)
 
 
