@@ -75,7 +75,7 @@ class Data(gobject.GObject):
 				icon =  icon_factory.load_icon(self.icon, icon_size)
 				return icon
 			
-			thumb = thumbnailer.get_icon(self.get_uri(),self.get_mimetype(),icon_size, self.timestamp)
+			thumb = thumbnailer.get_icon(self.get_uri(), self.get_mimetype(), icon_size, self.timestamp)
 			return thumb
 	
 	def get_icon_string(self):
@@ -295,39 +295,3 @@ class Data(gobject.GObject):
 		self.tags=tags
 		
 		self.textview.get_buffer().set_text(self.tags)	
-
-class Bookmarker(gobject.GObject):
-	
-	__gsignals__ = {
-		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
-		}
-	
-	def __init__(self):
-		gobject.GObject.__init__(self)
-		self.bookmarks=[]
-		self.reload_bookmarks()
-		
-	def get_bookmark(self,uri):
-		if self.bookmarks.count(uri) > 0:
-			return True
-		return False
-	
-	def add_bookmark(self,item):
-		uri =  item[1]
-		if self.bookmarks.count(uri) == 0:
-			self.bookmarks.append(uri)
-	
-	def reload_bookmarks(self):
-		print "------------------------------------"
-		self.bookmarks = []
-		for item in iface.get_bookmarks():
-			self.add_bookmark(item)
-			print "bookmarking "+ item[1]
-		print "------------------------------------"
-		iface.emit_signal_updated()
-	
-	def get_items_uncached(self):
-		for i in iface.get_bookmarks():
-			yield i
-
-bookmarker = Bookmarker()

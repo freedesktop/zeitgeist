@@ -8,14 +8,11 @@ sig_plain_data = "a(issssssisbs)"
 def plainify_data(obj):
 	''' Takes a Data object and converts it into an object
 		suitable for transmission through D-Bus. '''
-	icon = obj.get_icon_string()
-	if icon == None:
-		icon = ""
-		
+	
 	return (int(obj.get_timestamp()), obj.get_uri(),
 		obj.get_name(), obj.get_type(), obj.get_mimetype(), 
 		','.join(obj.get_tags()), obj.get_comment(), obj.get_count(),
-		obj.get_use(), obj.get_bookmark(), icon)
+		obj.get_use(), obj.get_bookmark(), obj.get_icon_string() or "")
 
 def objectify_data(item_list):
 	return Data(
