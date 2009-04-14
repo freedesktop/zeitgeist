@@ -44,7 +44,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# Connect to the calendar's (displayed in the sidebar) signals
 		calendar.connect("month-changed", self.load_month)
 		calendar.connect("day-selected", self.jump_to_day)
-		calendar.connect("day-selected-double-click", self.jump_to_day,True)
+		calendar.connect("day-selected-double-click", self.jump_to_day, True)
 		
 		# GConf settings
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
@@ -53,6 +53,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		dbus_connect("signal_updated", self.load_month_proxy)
 		self.offset=0
 		self.items = []
+		
 		# Load the GUI
 		self.load_month()
 	
@@ -181,13 +182,13 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 					daybox.label.set_label(".")
 					daybox.view.set_size_request(-1,-1)
 		gc.collect()
-								
-	def load_month_proxy(self,widget=None,begin=None,end=None,force=False):
-			today = time.time()
-			if today  >= self.begin and today<=self.end+86400 :
-				self.load_month(begin=begin,end=end,force=force)
 					
-	def load_month(self, widget=None,begin=None,end=None,force=False):
+	def load_month_proxy(self,widget=None,begin=None,end=None):
+		today = time.time()
+		if today  >= self.begin and today <= (self.end + 86400):
+			self.load_month(begin=begin,end=end)
+	
+	def load_month(self, widget=None,begin=None,end=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -1128,7 +1129,6 @@ class BookmarksView(gtk.VBox):
 		self.view.clear_store()
 		for item in bookmarker.get_items_uncached():
 			self.view.append_item(item, group=False)
-		#timeline.load_month(force=True)
 
 
 class ButtonCellRenderer(gtk.GenericCellRenderer):
