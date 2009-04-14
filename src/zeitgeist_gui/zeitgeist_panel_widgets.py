@@ -19,13 +19,14 @@ from zeitgeist_shared.zeitgeist_shared import *
 class TimelineWidget(gtk.ScrolledWindow, gobject.GObject):
 	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
 		
 		gobject.GObject.__init__(self)
 		# Add children widgets
 		self.view = DataIconView(True)
-		self.dayboxes = gtk.HBox(False,False)
+		self.dayboxes = gtk.HBox(False, False)
 		self.days = {}
 		
 		# Set up default properties
@@ -39,7 +40,7 @@ class TimelineWidget(gtk.ScrolledWindow, gobject.GObject):
 		self.end = None
 		
 		# The current tags that we're using to filter displayed results
-		self.tags = ''
+		self.tags = ""
 		
 		# Connect to the calendar's (displayed in the sidebar) signals
 		calendar.connect("month-changed", self.load_month)
@@ -79,27 +80,25 @@ class TimelineWidget(gtk.ScrolledWindow, gobject.GObject):
 				for tag in tagsplit:
 					if search:
 						items.append(item)
-						if not  self.days.has_key(item.datestring):
-							pass
-						else:
+						if self.days.has_key(item.datestring):
 							daybox = self.days[item.datestring]
 							daybox.append_item(item)
 							adj = self.get_hadjustment()
-							daybox.connect('set-focus-child', self.focus_in, adj) 
+							daybox.connect('set-focus-child', self.focus_in, adj)
 							self.dayboxes.pack_start(daybox, False, False)
 							self.days[item.datestring] = daybox
 							del daybox
-						
-						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
-							items.append(item)
-							if self.days.has_key(item.datestring):
-								daybox = self.days[item.datestring]
-								daybox.append_item(item)
-								adj = self.get_hadjustment()
-								daybox.connect('set-focus-child', self.focus_in, adj) 
-								self.dayboxes.pack_start(daybox, False, False)
-								self.days[item.datestring] = daybox		
-								del daybox
+					
+					if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
+						items.append(item)
+						if self.days.has_key(item.datestring):
+							daybox = self.days[item.datestring]
+							daybox.append_item(item)
+							adj = self.get_hadjustment()
+							daybox.connect('set-focus-child', self.focus_in, adj)
+							self.dayboxes.pack_start(daybox, False, False)
+							self.days[item.datestring] = daybox		
+							del daybox
 			else:
 				items.append(item)
 				if self.days.has_key(item.datestring):
@@ -479,8 +478,6 @@ class FilterAndOptionBox(gtk.VBox):
 		Filter Box
 		'''
 		
-		#self.search = SearchToolItem()
-		#self.pack_start( self.search ,False,False,0)
 		self.pack_start(calendar, False, False, 0)
 		
 		self.pack_start(self.option_box)
@@ -637,6 +634,7 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 		self.destroy()
 
 class SearchToolItem(gtk.ToolItem):
+	
 	__gsignals__ = {
 		"clear" : (gobject.SIGNAL_RUN_FIRST,
 				   gobject.TYPE_NONE,
@@ -645,7 +643,7 @@ class SearchToolItem(gtk.ToolItem):
 					gobject.TYPE_NONE,
 					(gobject.TYPE_STRING,))
 		}
-
+	
 	def __init__(self, accel_group = None):
 		gtk.ToolItem.__init__(self)
 		self.search_timeout = None
@@ -681,19 +679,18 @@ class SearchToolItem(gtk.ToolItem):
 
 		self.add(box)
 		self.show_all()
-
+	
 	def do_clear(self):
 		if self.clearbtn and self.clearbtn.child:
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
 		timeline.load_month()
-		
+	
 	def do_search(self, text):
 		# Get date range
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
-		
 		
 		# Get the begin and end of this month
 		# each tuple is of format (year, month, day, hours, minutes,
@@ -1013,7 +1010,7 @@ class BrowserBar(gtk.HBox):
 		self.search = SearchToolItem()
 		hbox.pack_start(self.search, True, True)
 		clear_btn = gtk.ToolButton("gtk-clear")
-		clear_btn.connect("clicked", lambda: self.search.do_clear())
+		clear_btn.connect("clicked", lambda x=None: self.search.do_clear())
 		hbox.pack_start(clear_btn, False, False, 4)
 		
 		self.pack_start(hbox, True, True)
