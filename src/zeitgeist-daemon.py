@@ -120,6 +120,7 @@ class RemoteInterface(dbus.service.Object):
 	def emit_signal_updated(self):
 		self.signal_updated()
 
+
 class ZeitgeistTrayIcon(gtk.StatusIcon):
 	
 	def __init__(self):
@@ -151,7 +152,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 			self.journal_proc = subprocess.Popen("sh zeitgeist.sh",shell=True)
 			
 	def open_about(self,widget):
-		about.visible=False
+		about.visible = False
 		about._toggle_()
 				
  	def popup_menu_cb(self,widget, button, time, data = None):
@@ -159,6 +160,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
  			if data:
  				data.show_all()
                 data.popup(None, None, None, 3, time)
+
 
 class AboutWindow(gtk.Window):
 	def __init__(self):
@@ -170,7 +172,7 @@ class AboutWindow(gtk.Window):
 		self.connect("destroy", self._toggle_)
 		self.set_icon_name(gtk.STOCK_ABOUT)
 		self.hide_all()
-		self.visible=True
+		self.visible = True
 		self.label = gtk.Label()
 		self.label.set_markup(self._get_about())
 		self.add(self.label)
@@ -178,8 +180,10 @@ class AboutWindow(gtk.Window):
 	def _toggle_(self,widget=None):
 		if self.visible:
 			self.hide_all()
+			self.visible = False
 		else:
 			self.show_all()
+			self.visible = True
 			
 	def _get_about(self):
 		title = "<span size='large' color='blue'>%s</span>" %"GNOME Zeitgeist"
@@ -189,7 +193,8 @@ class AboutWindow(gtk.Window):
 		
 		about = title +"\n"+"\n"+comment+"\n"+"\n"+copyright+"\n"+"\n"+page
 		return about
-	
+
+
 if __name__ == "__main__":
 	
 	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
