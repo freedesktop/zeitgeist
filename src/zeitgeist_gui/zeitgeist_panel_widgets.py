@@ -383,7 +383,6 @@ class RelatedWindow(gtk.Window):
 		
 		items = []
 
-
 class TagBrowser(gtk.VBox):
 	def __init__(self):
 		# Initialize superclass
@@ -491,8 +490,7 @@ class TagBrowser(gtk.VBox):
 	def untoggle_all(self):
 		for btn in self.view:
 			btn.set_active(False)
-		
-					   
+							   
 class FilterAndOptionBox(gtk.VBox):
 	
 	def __init__(self):
@@ -582,12 +580,10 @@ class FilterAndOptionBox(gtk.VBox):
 		engine.emit_signal_updated()
 		gc.collect()
 
-
 class CalendarWidget(gtk.Calendar):
 	def __init__(self):
 		gtk.Calendar.__init__(self)
 		self.show_all()
-
 
 class CheckBox(gtk.CheckButton):
 	
@@ -620,7 +616,6 @@ class CheckBox(gtk.CheckButton):
 			#self.source.set_active(False)
 		
 		timeline.load_month()
-
 
 class NewFromTemplateDialog(gtk.FileChooserDialog):
 	'''
@@ -992,7 +987,6 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 				bookmark,
 				item])
 
-
 class BrowserBar(gtk.HBox):
 	
 	def __init__(self):
@@ -1082,8 +1076,6 @@ class BrowserBar(gtk.HBox):
 		calendar.select_month(month,year)
 		calendar.select_day(day)
 		#calendar.do_day_selected_double_click()
-
-
 class BookmarksView(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
@@ -1122,7 +1114,6 @@ class BookmarksView(gtk.VBox):
 		self.view.clear_store()
 		for item in bookmarker.get_items_uncached():
 			self.view.append_item(item, group=False)
-
 
 class ButtonCellRenderer(gtk.GenericCellRenderer):
 	

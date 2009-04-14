@@ -107,7 +107,8 @@ class DBConnector:
 				item.uri,
 				item.use,
 				"%s-%s" % (str(item.timestamp), item.uri)))
-			
+			print "-------> "+item.uri+" @ "+str(item.timestamp)
+			     
 			# Insert into data, if it isn't there yet
 			try:
 				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',

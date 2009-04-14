@@ -10,17 +10,16 @@ sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../"))
 from zeitgeist_panel_widgets import filtersBox, calendar, timeline, tb, bb, bookmarks
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
-class UI:
+class Journal(gtk.Window):
 	
 	def __init__(self):
-		
+		gtk.Window.__init__(self)
 		# Window
-		self.topicWindow = gtk.Window()
-		self.topicWindow.set_title("Gnome Zeitgeist")
-		self.topicWindow.set_resizable(True)
-		self.topicWindow.set_default_size(800, -1)
-		self.topicWindow.connect("destroy", gtk.main_quit)
-		self.topicWindow.set_icon_from_file("data/hourglass.png")
+		self.set_title("Gnome Zeitgeist")
+		self.set_resizable(True)
+		self.set_default_size(800, -1)
+		self.connect("destroy", gtk.main_quit)
+		self.set_icon_from_file("data/gnome-zeitgeist.png")
 		#gtk.window_set_default_icon_from_file("Hourglass.png")
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox()
@@ -29,7 +28,7 @@ class UI:
 		tagbox.pack_start(tb,True,True)
 		self.vBox.pack_start(bb,False,False)
 
-		self.topicWindow.add(self.vBox)
+		self.add(self.vBox)
 		
 		# Horizontal box (contains the main content and a sidebar)
 		self.hBox = gtk.HBox()
@@ -69,7 +68,7 @@ class UI:
 		self.vBox.pack_start(statusbar, False, False)
 		
 		# Show everything
-		self.topicWindow.show_all()
+		self.show_all()
 		self.sidebar.hide_all()
 		bookmarks.hide_all()
 		tb.hide_all()
@@ -82,10 +81,11 @@ class UI:
 		else:
 			self.sidebar.hide_all()
 
+
 if __name__ == "__main__":
 	
-	gui = UI()
-	
+	journal = Journal()
+
 	try:
 		gtk.main()
 	except KeyboardInterrupt:
