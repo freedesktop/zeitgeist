@@ -933,7 +933,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 
 	def _do_refresh_rows(self):
 		refresh=False
-		if len(bookmarker.bookmarks)>0:	
+		if len(bookmarker.bookmarks) > 0:	
 			for uri in self.items_uris:
 				if bookmarker.get_bookmark(uri):
 					refresh = True

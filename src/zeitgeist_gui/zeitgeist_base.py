@@ -8,9 +8,7 @@ from gettext import ngettext, gettext as _
 
 from zeitgeist_engine.zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
 from zeitgeist_gui.zeitgeist_dbus import iface
-
-# from zeitgeist_shared.zeitgeist_shared import plainify
-# ^ Those imports are in-place to avoid a circular dependency
+# Some imports are in-place to avoid a circular dependency
 
 
 class Data(gobject.GObject):
@@ -189,14 +187,16 @@ class Data(gobject.GObject):
 			self.bookmark = True
 		else:
 			self.bookmark = False
-		from zeitgeist_shared.zeitgeist_shared import plainify
+		from zeitgeist_shared.zeitgeist_shared import plainify_data
 		iface.update_item(plainify_data(self))
+		from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 		bookmarker.reload_bookmarks()
 	
 	def set_bookmark(self, bookmark):
 		self.bookmark = bookmark
-		from zeitgeist_shared.zeitgeist_shared import plainify
+		from zeitgeist_shared.zeitgeist_shared import plainify_data
 		iface.update_item(plainify_data(self))
+		from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 		bookmarker.reload_bookmarks()
 		
 	def tag_item(self):
@@ -230,7 +230,7 @@ class Data(gobject.GObject):
 	
 	def set_tags(self, tags):
 		self.tags = tags
-		from zeitgeist_shared.zeitgeist_shared import plainify
+		from zeitgeist_shared.zeitgeist_shared import plainify_data
 		iface.update_item(plainify_data(self))
 	
 	def get_tagbox(self):
@@ -294,4 +294,4 @@ class Data(gobject.GObject):
 		
 		self.tags=tags
 		
-		self.textview.get_buffer().set_text(self.tags)	
+		self.textview.get_buffer().set_text(self.tags)

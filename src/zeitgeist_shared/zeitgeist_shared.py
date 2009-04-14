@@ -4,7 +4,7 @@
 from zeitgeist_base import Data
 
 
-sig_plain_data = "a(issssssisbs)"
+sig_plain_data = "(issssssisbs)"
 def plainify_data(obj):
 	''' Takes a Data object and converts it into an object
 		suitable for transmission through D-Bus. '''
@@ -26,11 +26,11 @@ def objectify_data(item_list):
 		count		= item_list[7],
 		use			= item_list[8],
 		bookmark	= item_list[9],
-		icon = item_list[10]
+		icon		= item_list[10]
 		)
 
 
-sig_plain_dataprovider = "a(ssb)"
+sig_plain_dataprovider = "(ssb)"
 def plainify_dataprovider(obj):
 	''' Takes a DataSource object and converts it into an object
 		suitable for transmission through D-Bus. '''
