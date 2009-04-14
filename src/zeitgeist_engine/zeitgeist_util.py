@@ -524,6 +524,87 @@ class GConfBridge(gobject.GObject):
         detailed_signal = "changed::%s" % key
         self.emit(detailed_signal)
 
+
+class ZeitgeistTrayIcon(gtk.StatusIcon):
+	
+	def __init__(self):
+		gtk.StatusIcon.__init__(self)
+		self.set_from_file("data/gnome-zeitgeist.png")
+		self.set_visible(True)
+		
+		menu = gtk.Menu()
+		
+		self.journal_proc = None
+		
+		menuItem = gtk.ImageMenuItem(gtk.STOCK_HOME)
+		menuItem.set_name("Open Journal")
+		menu.append(menuItem)
+		menuItem.connect('activate', self.open_journal)
+		
+		menuItem = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
+		menu.append(menuItem)
+		menuItem.connect('activate', self.open_about)
+		
+		
+		menuItem = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
+		menu.append(menuItem)
+		menuItem.connect('activate', self.open_about)
+		
+		menuItem = gtk.ImageMenuItem(gtk.STOCK_QUIT)
+		menu.append(menuItem)
+		 
+		self.set_tooltip("Zeitgeist")
+		self.connect('popup-menu', self.popup_menu_cb, menu)
+
+	def open_journal(self,widget):
+		if self.journal_proc == None or not self.journal_proc.poll() == None:
+			self.journal_proc = subprocess.Popen("sh zeitgeist.sh",shell=True)
+			
+	def open_about(self,widget):
+		about.visible=False
+		about._toggle_()
+				
+ 	def popup_menu_cb(self,widget, button, time, data = None):
+ 		if button == 3:
+ 			if data:
+ 				data.show_all()
+                data.popup(None, None, None, 3, time)
+
+class AboutWindow(gtk.Window):
+	def __init__(self):
+		gtk.Window.__init__(self)
+		# Window
+		self.set_title("About Gnome Zeitgeist")
+		self.set_resizable(False)
+		self.set_size_request(400,320)
+		self.connect("destroy", self._toggle_)
+		self.set_icon_name(gtk.STOCK_ABOUT)
+		self.hide_all()
+		self.visible=True
+		self.label = gtk.Label()
+		self.label.set_markup(self._get_about())
+		self.add(self.label)
+		
+	def _toggle_(self,widget=None):
+		if self.visible:
+			self.hide_all()
+			self.visible=False
+		else:
+			self.show_all()
+			self.label.show_all()
+			self.visible=True
+			
+	def _get_about(self):
+		title = "<span size='large' color='blue'>%s</span>" %"GNOME Zeitgeist"
+		comment = "Gnome Zeitgeist is a tool for easily browsing and finding files on your computer"
+		copyright = "<span size='small' color='blue'>%s</span>"%"Copyright  2009 GNOME Zeitgeist Developers"
+		page="http://zeitgeist.geekyogre.com"
+		
+		about = title +"\n"+"\n"+comment+"\n"+"\n"+copyright+"\n"+"\n"+page
+		return about
+	
+
+about = AboutWindow()
 difffactory=DiffFactory()
 icon_factory = IconFactory()
 thumbnailer = Thumbnailer()

@@ -8,6 +8,7 @@ import subprocess
 
 from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_shared.zeitgeist_shared import *
+from zeitgeist_engine.zeitgeist_util import ZeitgeistTrayIcon
 
 class RemoteInterface(dbus.service.Object):
 	
@@ -120,7 +121,6 @@ class RemoteInterface(dbus.service.Object):
 	def emit_signal_updated(self):
 		self.signal_updated()
 
-
 class ZeitgeistTrayIcon(gtk.StatusIcon):
 	
 	def __init__(self):
@@ -194,14 +194,12 @@ class AboutWindow(gtk.Window):
 		about = title +"\n"+"\n"+comment+"\n"+"\n"+copyright+"\n"+"\n"+page
 		return about
 
-
 if __name__ == "__main__":
 	
 	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 	object = RemoteInterface()
 	datasink.reload_callbacks.append(object.signal_updated)
 
-	about = AboutWindow()
 	trayicon = ZeitgeistTrayIcon()
 	
 	mainloop = gobject.MainLoop()
