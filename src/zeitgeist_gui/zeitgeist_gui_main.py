@@ -8,7 +8,6 @@ from gettext import ngettext, gettext as _
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../")))
 
 from zeitgeist_panel_widgets import filtersBox, calendar, timeline, tb, bb, bookmarks
-from zeitgeist_dbus import iface
 from zeitgeist_engine.zeitgeist_util import icon_factory, icon_theme, launcher
 
 class UI:

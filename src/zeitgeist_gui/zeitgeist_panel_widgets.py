@@ -11,7 +11,7 @@ from gettext import ngettext, gettext as _
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist_engine.xdgdirs import xdg_directory
 from zeitgeist_engine.zeitgeist_util import icon_factory
-from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
+from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_gui.zeitgeist_base import Data
 from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 from zeitgeist_shared.zeitgeist_shared import *
@@ -50,7 +50,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
 		
-		dbus_connect("signal_updated", self.load_month_proxy)
+		engine.connect("signal_updated", self.load_month_proxy)
 		self.offset=0
 		self.items = []
 		
@@ -183,12 +183,12 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 					daybox.view.set_size_request(-1,-1)
 		gc.collect()
 					
-	def load_month_proxy(self,widget=None,begin=None,end=None):
+	def load_month_proxy(self,widget=None, begin=None, end=None):
 		today = time.time()
 		if today  >= self.begin and today <= (self.end + 86400):
 			self.load_month(begin=begin,end=end)
 	
-	def load_month(self, widget=None,begin=None,end=None):
+	def load_month(self, widget=None, begin=None, end=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -207,7 +207,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# seconds, weekday, day_of_year, daylight savings) 
 		
 		day = date[2]
-		if begin==None and end ==None:
+		if begin == None and end == None:
 			begin = (date[0], date[1]+1, day-1+self.offset, 0,0,0,0,0,0)
 			end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,0)
 			self.begin = time.mktime(begin)
@@ -230,12 +230,11 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		for item in self.items:
 			del item
 		self.items = []
-		for item in iface.get_items(self.begin, self.end, ""):
-			item = objectify_data(item)
+		for item in engine.get_items(self.begin, self.end, ""):
 			if item.timestamp < self.end:
 				self.items.append(item)
 				item.connect("relate",self.set_relation)
-				dbus_connect("signal_updated",self.load_month, item)
+				engine.connect("signal_updated", self.load_month, item)
 		
 		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
@@ -243,10 +242,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		time2 = time.time()
 		# Benchmarking
 		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
-		
-		# Manually force garbage collection
-		# What is this for? (Disabled because it causes an endless loop)
-		#iface.emit_signal_updated()
 	
 	def jump_to_day(self, widget,focus=False):
 		'''
@@ -381,8 +376,7 @@ class RelatedWindow(gtk.Window):
 				items.append(uri)
 				self.view.append_item(uris[uri])
 		
-		for related_item in iface.get_related_items(item):
-			related_item = objectify_data(related_item)
+		for related_item in engine.get_related_items(item):
 			if items.count(related_item.uri) == 0:
 				items.append(related_item.uri)
 				self.view.append_item(related_item)
@@ -425,7 +419,7 @@ class TagBrowser(gtk.VBox):
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(hbox,True,True,5)
-		dbus_connect("signal_updated", lambda: self.func)
+		engine.connect("signal_updated", lambda x=None: self.func)
 
 	def reload_tags(self,x=None):
 		model = self.combobox.get_model()
@@ -461,7 +455,7 @@ class TagBrowser(gtk.VBox):
 		for w in self.view:
 			self.view.remove(w)
 		
-		for tag in iface.get_recent_used_tags(10, begin, end):
+		for tag in engine.get_recent_used_tags(10, begin, end):
 			self._tag_toggle_button(tag)
 			
 		self.show_all()
@@ -474,7 +468,7 @@ class TagBrowser(gtk.VBox):
 		for w in self.view:
 			self.view.remove(w)
 		
-		for tag in iface.get_most_used_tags(10,begin,end):
+		for tag in engine.get_most_used_tags(10, begin, end):
 			self._tag_toggle_button(tag)
 		
 		self.show_all()
@@ -484,7 +478,7 @@ class TagBrowser(gtk.VBox):
 		if x.get_active():
 			if tags.find(x.get_label()) == -1:
 				 tags = tags + "," + x.get_label()
-				 begin, end = iface.get_timestamps_for_tag(x.get_label())
+				 begin, end = engine.get_timestamps_for_tag(x.get_label())
 				 timeline.load_month(begin=begin, end=end)
 		else:
 			if tags.find(x.get_label()) > -1:
@@ -540,7 +534,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.voptionbox = gtk.VBox(False)
 		
 		self.timelinefilter = gtk.CheckButton()
-		for source in iface.get_sources_list():
+		for source in engine.get_sources_list():
 			filter = CheckBox(source)
 			filter.set_active(True)
 			self.voptionbox.pack_start(filter, False, False, 0)
@@ -585,7 +579,7 @@ class FilterAndOptionBox(gtk.VBox):
 		dlg.show()
 		
 	def filter_out(self, widget):
-		iface.emit_signal_updated()
+		engine.emit_signal_updated()
 		gc.collect()
 
 
@@ -847,7 +841,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.day=None
-		dbus_connect("signal_updated", lambda: self._do_refresh_rows())
+		engine.connect("signal_updated", lambda x=None: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
@@ -1081,7 +1075,7 @@ class BrowserBar(gtk.HBox):
 		timeline.offset -= 1
 		timeline.load_month()
 
-	def focus_today(self, x = None):
+	def focus_today(self, x=None):
 		timeline.offset = 0
 		today = time.time()
 		month = int(datetime.datetime.fromtimestamp(today).strftime(_("%m")))-1
@@ -1099,7 +1093,7 @@ class BookmarksView(gtk.VBox):
 		
 		self.label = gtk.Label("Bookmarks")
 		#self.label.set_padding(5,5)
-		vbox.pack_start(self.label,False,True,5)
+		vbox.pack_start(self.label, False, True, 5)
 		self.view = DataIconView()
 
 		ev = gtk.EventBox()
@@ -1123,9 +1117,9 @@ class BookmarksView(gtk.VBox):
 		vbox.pack_start(evbox2,True,True)
 		self.pack_start(evbox,True,True)
 		self.get_bookmarks()
-		dbus_connect("signal_updated", self.get_bookmarks)
+		engine.connect("signal_updated", self.get_bookmarks)
 
-	def get_bookmarks(self):
+	def get_bookmarks(self, x=None):
 		self.view.clear_store()
 		for item in bookmarker.get_items_uncached():
 			self.view.append_item(item, group=False)

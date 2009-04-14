@@ -7,7 +7,6 @@ import gtk
 from gettext import ngettext, gettext as _
 
 from zeitgeist_engine.zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
-from zeitgeist_gui.zeitgeist_dbus import iface
 # Some imports are in-place to avoid a circular dependency
 
 
@@ -187,15 +186,15 @@ class Data(gobject.GObject):
 			self.bookmark = True
 		else:
 			self.bookmark = False
-		from zeitgeist_shared.zeitgeist_shared import plainify_data
-		iface.update_item(plainify_data(self))
+		from zeitgeist_engine_wrapper import engine
+		engine.update_item(self)
 		from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 		bookmarker.reload_bookmarks()
 	
 	def set_bookmark(self, bookmark):
 		self.bookmark = bookmark
-		from zeitgeist_shared.zeitgeist_shared import plainify_data
-		iface.update_item(plainify_data(self))
+		from zeitgeist_engine_wrapper import engine
+		engine.update_item(self)
 		from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 		bookmarker.reload_bookmarks()
 		
@@ -226,12 +225,13 @@ class Data(gobject.GObject):
 		taggingwindow.show_all()
 	
 	def delete_item(self):
-		iface.delete_item(self.uri)
+		from zeitgeist_engine_wrapper import engine
+		engine.delete_item(self.uri)
 	
 	def set_tags(self, tags):
 		self.tags = tags
-		from zeitgeist_shared.zeitgeist_shared import plainify_data
-		iface.update_item(plainify_data(self))
+		from zeitgeist_engine_wrapper import engine
+		engine.update_item(self)
 	
 	def get_tagbox(self):
 		# Initialize superclass
@@ -260,7 +260,8 @@ class Data(gobject.GObject):
 		return tbox
 	
 	def get_common_tags(self, view):
-		for tag in iface.get_most_used_tags(10, 0, 0):
+		from zeitgeist_engine_wrapper import engine
+		for tag in engine.get_most_used_tags(10, 0, 0):
 			# TODO: This code is duplicated in zeitgeist_panel_widgets.py
 			btn = gtk.ToggleButton(tag)
 			btn.set_relief(gtk.RELIEF_NONE)

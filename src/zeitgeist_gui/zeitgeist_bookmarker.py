@@ -1,4 +1,4 @@
-from zeitgeist_gui.zeitgeist_dbus import iface
+from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_shared.zeitgeist_shared import *
 
 class Bookmarker:
@@ -17,12 +17,11 @@ class Bookmarker:
 	
 	def reload_bookmarks(self):
 		self.bookmarks = []
-		for item in iface.get_bookmarks():
-			self.add_bookmark(objectify_data(item))
-		iface.emit_signal_updated()
+		for item in engine.get_bookmarks():
+			self.add_bookmark(item)
+		engine.emit_signal_updated()
 	
 	def get_items_uncached(self):
-		for bookmark in iface.get_bookmarks():
-			yield objectify_data(bookmark)
+		return engine.get_bookmarks()
 
 bookmarker = Bookmarker()
