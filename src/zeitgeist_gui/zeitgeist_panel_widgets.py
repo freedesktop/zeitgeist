@@ -994,7 +994,9 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 
 
 class BrowserBar(gtk.HBox):
+	
 	def __init__(self):
+		
 		gtk.HBox.__init__(self)   
 		self.tooltips = gtk.Tooltips()
 
@@ -1005,7 +1007,7 @@ class BrowserBar(gtk.HBox):
 
 		self.back = gtk.ToolButton("gtk-go-back")
 		self.back.set_label("Older")
-		self.back.connect("clicked",self.add_day)
+		self.back.connect("clicked", self.add_day)
 		self.tooltips.set_tip(self.back, "Go back in time")
 		
 		self.forward = gtk.ToolButton("gtk-go-forward")
@@ -1022,14 +1024,12 @@ class BrowserBar(gtk.HBox):
 		self.tooltips.set_tip(self.star, "View bookmarked activities")
 		self.star.connect("toggled",self.toggle_bookmarks)
 		
-		
 		self.tags = gtk.ToggleToolButton("gtk-dialog-warning")
 		self.tags.set_label("Tags")
 		self.tooltips.set_tip(self.tags, "View tagged activities")
-		self.tags.connect("toggled",self.toggle_tags)
+		self.tags.connect("toggled", self.toggle_tags)
 		
 		toolbar = gtk.Toolbar()
-		
 		toolbar.add(self.back)
 		toolbar.add(self.home)
 		toolbar.add(self.forward)
@@ -1037,22 +1037,20 @@ class BrowserBar(gtk.HBox):
 		toolbar.add(self.star)
 		toolbar.add(self.tags)
 		toolbar.add(self.options)
-		self.pack_start(toolbar,True,True,4)
+		self.pack_start(toolbar, True, True, 4)
 		
-		hbox=gtk.HBox()
-		hbox2=gtk.HBox()
-		hbox.pack_start(hbox2,True,True,5)
-		hbox2.pack_start(gtk.HBox(True),True,True,5)
+		hbox = gtk.HBox()
+		hbox.pack_start(gtk.HBox(), True, True, 5)
 		
 		# Search Area
 		self.search = SearchToolItem()
-		hbox.pack_start(self.search,True,True)
+		hbox.pack_start(self.search, True, True)
 		clear_btn = gtk.ToolButton("gtk-clear")
-		clear_btn.connect("clicked",lambda: self.search.do_clear())
-		hbox.pack_start(clear_btn,False,False,4)
+		clear_btn.connect("clicked", lambda: self.search.do_clear())
+		hbox.pack_start(clear_btn, False, False, 4)
 		
-		self.pack_start(hbox,True,True)
-		
+		self.pack_start(hbox, True, True)
+	
 	def remove_day(self, x=None):
 		tb.untoggle_all()
 		timeline.offset +=  1
@@ -1084,7 +1082,8 @@ class BrowserBar(gtk.HBox):
 		calendar.select_month(month,year)
 		calendar.select_day(day)
 		#calendar.do_day_selected_double_click()
-				
+
+
 class BookmarksView(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
