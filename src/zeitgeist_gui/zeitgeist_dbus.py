@@ -11,19 +11,19 @@ except dbus.exceptions.DBusException:
 	print _("Error: Could not connect to D-Bus.")
 	sys.exit(1)
 try:
-	remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
+	remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/zeitgeist")
 except dbus.exceptions.DBusException:
 	print _("Error: Zeitgeist service not running.")
 	sys.exit(1)
 
-iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
+iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist")
 
 def dbus_connect(signal, callback, arg0=None):
 	if not arg0:
 		remote_object.connect_to_signal(signal, callback,
-			dbus_interface="org.gnome.zeitgeist")
+			dbus_interface="org.gnome.Zeitgeist")
 	else:
 		# TODO: This is ugly and limited to 1 argument. Find a better
 		# way to do it.
 		remote_object.connect_to_signal(signal, callback,
-			dbus_interface="org.gnome.zeitgeist", arg0=arg0)
+			dbus_interface="org.gnome.Zeitgeist", arg0=arg0)
