@@ -241,7 +241,8 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		
 		time2 = time.time()
 		# Benchmarking
-		print "Time to retrive %s items from database: %s" % (len(self.items), str(time2 -time1))
+		#print "Time to retrive %s items from database: %s \n" % (len(self.items), str(time2 -time1))
+		print "\n"
 	
 	def jump_to_day(self, widget,focus=False):
 		'''
