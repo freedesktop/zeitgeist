@@ -1,5 +1,6 @@
 import sys
 import time
+from zeitgeist_gui.zeitgeist_base import Data
 
 class BaseEngineInterface():
 	
@@ -7,12 +8,16 @@ class BaseEngineInterface():
 		self._interface = interface
 	
 	def get_items(self, *args):
+		func = self._data_from_engine
+		items = []
+		append = items.append
 		t1 = time.time()
 		for item in self._interface.get_items(*args):
-			yield self._data_from_engine(item)
+				append(func(item))
 		t2 = time.time()
 		print"--------------> time to fetch items via dbus: "+str(t2-t1)
-	
+		return items
+		
 	def get_related_items(self, *args):
 		for related_item in self._interface.get_related_items(*args):
 			yield self._data_from_engine(related_item)

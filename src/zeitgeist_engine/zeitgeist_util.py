@@ -422,8 +422,8 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 			self.journal_proc = subprocess.Popen("sh zeitgeist.sh",shell=True)
 			
 	def open_about(self,widget):
-		about.visible=False
-		about._toggle_()
+		about = AboutWindow()
+		about.show_all()
 				
  	def popup_menu_cb(self,widget, button, time, data = None):
  		if button == 3:
@@ -431,39 +431,17 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
  				data.show_all()
                 data.popup(None, None, None, 3, time)
 
-class AboutWindow(gtk.Window):
+class AboutWindow(gtk.AboutDialog):
 	def __init__(self):
-		gtk.Window.__init__(self)
-		# Window
-		self.set_title("About Gnome Zeitgeist")
-		self.set_resizable(False)
-		self.set_size_request(400,320)
-		self.connect("destroy", self._toggle_)
-		self.set_icon_name(gtk.STOCK_ABOUT)
-		self.hide_all()
-		self.visible=True
-		self.label = gtk.Label()
-		self.label.set_markup(self._get_about())
-		self.add(self.label)
+		gtk.AboutDialog.__init__(self)
+		self.set_name("GNOME Zeitgeist")
+		self.set_version("0.0.3")
+		self.set_copyright("Copyright 2009 GNOME Zeitgeist Developers")
+		self.set_website("http://zeitgeist.geekyogre.com")
+		self.set_program_name("GNOME Zeitgeist")
+		image = gtk.image_new_from_file("data/gnome-zeitgeist.png")
 		
-	def _toggle_(self,widget=None):
-		if self.visible:
-			self.hide_all()
-			self.visible=False
-		else:
-			self.show_all()
-			self.label.show_all()
-			self.visible=True
 			
-	def _get_about(self):
-		title = "<span size='large' color='blue'>%s</span>" %"GNOME Zeitgeist"
-		comment = "Gnome Zeitgeist is a tool for easily browsing and finding files on your computer"
-		copyright = "<span size='small' color='blue'>%s</span>"%"Copyright  2009 GNOME Zeitgeist Developers"
-		page="http://zeitgeist.geekyogre.com"
-		
-		about = title +"\n"+"\n"+comment+"\n"+"\n"+copyright+"\n"+"\n"+page
-		return about
-	
 
 about = AboutWindow()
 difffactory=DiffFactory()

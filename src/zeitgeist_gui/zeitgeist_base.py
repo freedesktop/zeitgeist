@@ -47,18 +47,19 @@ class Data(gobject.GObject):
 		self.bookmark = bookmark
 		# Timestamps
 		self.timestamp = timestamp
-		self.time =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M %p")).strip()
-		self.datestring =  datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
 		
 		self.type = type
 		self.icon = icon
 		self.tags = tags
 		self.thumbnailer = None
 		self.original_source = None
-		self.textview = gtk.TextView()
+		self.textview = None
 	
 	def get_timestamp(self):
 		return self.timestamp
+	
+	def get_datestring(self):
+		return datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
 	
 	def get_icon(self, icon_size):
 			temp = self.icon
@@ -93,7 +94,7 @@ class Data(gobject.GObject):
 		return self.name
 	
 	def get_time(self):
-		return self.time
+		return datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M %p")).strip()
 	
 	def get_comment(self):
 		return self.comment
@@ -182,6 +183,8 @@ class Data(gobject.GObject):
 		bookmarker.reload_bookmarks()
 	
 	def tag_item(self):
+		if not self.textview:
+			self.textview = gtk.TextView()
 		taggingwindow = gtk.Window()
 		taggingwindow.set_border_width(5)
 		taggingwindow.set_size_request(400,-1)

@@ -57,6 +57,10 @@ class EvolutionSource(DataProvider):
 								"use": "visited",
 								"type": "Mail",
 								"icon": self.icon,
+								"comment": "",
+								"mimetype": "mail",
+								"tags": "",
+								"count":""
 								}
 					except:
 						print "error fetching sent mail"

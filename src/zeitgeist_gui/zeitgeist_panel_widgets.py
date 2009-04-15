@@ -100,15 +100,15 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 										pass
 								except:
 									items.append(item)
-									if not  self.days.has_key(item.datestring):
+									if not  self.days.has_key(item.get_datestring()):
 										pass
 									else:
-										daybox = self.days[item.datestring]
+										daybox = self.days[item.get_datestring()]
 										daybox.append_item(item)
 										adj = self.get_hadjustment()
 										daybox.connect('set-focus-child', self.focus_in, adj) 
 										self.dayboxes.pack_start(daybox,False,False)
-										self.days[item.datestring]=daybox
+										self.days[item.get_datestring()]=daybox
 										del daybox
 									
 						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
@@ -117,15 +117,15 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 									pass
 							except:
 									items.append(item)
-									if not  self.days.has_key(item.datestring):
+									if not  self.days.has_key(item.get_datestring()):
 										pass
 									else:
-										daybox = self.days[item.datestring]
+										daybox = self.days[item.get_datestring()]
 										daybox.append_item(item)
 										adj = self.get_hadjustment()
 										daybox.connect('set-focus-child', self.focus_in, adj) 
 										self.dayboxes.pack_start(daybox,False,False)
-										self.days[item.datestring]=daybox		
+										self.days[item.get_datestring()]=daybox		
 										del daybox
 									
 			else:
@@ -134,15 +134,15 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 						pass
 				except:
 						items.append(item)
-						if not self.days.has_key(item.datestring):
+						if not self.days.has_key(item.get_datestring()):
 									pass
 						else:
-							daybox = self.days[item.datestring]
+							daybox = self.days[item.get_datestring()]
 							daybox.append_item(item)
 							adj = self.get_hadjustment()
 							daybox.connect('set-focus-child', self.focus_in, adj) 
 							self.dayboxes.pack_start(daybox,False,False)
-							self.days[item.datestring]=daybox
+							self.days[item.get_datestring()]=daybox
 							del daybox
 			del item
 		self.clean_up_dayboxes()
@@ -356,7 +356,7 @@ class RelatedWindow(gtk.Window):
 		Later to be done by monitoring the active files
 		'''
 		self.img.set_from_pixbuf(item.get_icon(64))
-		string = item.get_name() +"\n"+"\n"+"Last Usage:			"+item.datestring + " " + item.time +"\n"+"\n"+"tags:				"+str(item.get_tags())+"\n"
+		string = item.get_name() +"\n"+"\n"+"Last Usage:			"+item.get_datestring() + " " + item.get_time()+"\n"+"\n"+"tags:				"+str(item.get_tags())+"\n"
 		self.itemlabel.set_label(string)
 		self.set_title("Gnome Zeitgeist - Files related to "+item.name)
 		self.view.clear_store()

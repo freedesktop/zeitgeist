@@ -95,7 +95,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					"use": use,
 					}
                 
-                	yield item
+	                	yield item
 
 class RecentlyUsed(DataProvider):
 	'''
@@ -144,7 +144,7 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 				counter=counter+appinfo[1]
         
 	        	item["count"] = counter
-			item["type"] = self.name
+	         	item["type"] = self.name
 		        item["icon"] = ""
             
 			yield item
