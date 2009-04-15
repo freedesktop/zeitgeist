@@ -108,7 +108,6 @@ class DBConnector:
                 item["uri"],
                 item["use"],
                 "%d-%s" % (item["timestamp"], item["uri"])))
-            print item
             
             # Insert into data, if it isn't there yet
             try:

@@ -127,7 +127,6 @@ class TomboySource(DataProvider):
 		launcher.launch_command("tomboy --new-note")
 
 	def get_items_uncached(self):
-		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 		try:
 			for filename in os.listdir(self.note_path):
 				if filename.endswith(".note"):
