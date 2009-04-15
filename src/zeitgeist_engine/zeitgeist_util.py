@@ -11,6 +11,7 @@ import gconf
 from gettext import gettext as _
 import tempfile, shutil
 import subprocess
+import webbrowser
 
 class FileMonitor(gobject.GObject):
 	'''
@@ -393,6 +394,8 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		self.set_from_file("data/gnome-zeitgeist.png")
 		self.set_visible(True)
 		
+		self.about_visible=False
+		
 		menu = gtk.Menu()
 		
 		self.journal_proc = None
@@ -403,7 +406,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		menuItem.connect('activate', self.open_journal)
 		
 		menuItem = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
-		menu.append(menuItem)
+		#menu.append(menuItem)
 		menuItem.connect('activate', self.open_about)
 		
 		
@@ -413,6 +416,12 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		
 		menuItem = gtk.ImageMenuItem(gtk.STOCK_QUIT)
 		menu.append(menuItem)
+		menuItem.connect('activate', self.quit)
+		 
+		self.about = AboutWindow()
+		
+		self.about.connect("destroy",self.close_about)
+		self.about.connect("response",self.close_about)
 		 
 		self.set_tooltip("Zeitgeist")
 		self.connect('popup-menu', self.popup_menu_cb, menu)
@@ -422,28 +431,66 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 			self.journal_proc = subprocess.Popen("sh zeitgeist.sh",shell=True)
 			
 	def open_about(self,widget):
-		about = AboutWindow()
-		about.show_all()
-				
+		self.about = AboutWindow()
+		self.about.show()
+		self.about_visible = True
+	
+	def close_about(self,x=None,y=None):
+		print "xxxxxxxxx"
+		self.about_visible = False
+			
  	def popup_menu_cb(self,widget, button, time, data = None):
  		if button == 3:
  			if data:
  				data.show_all()
                 data.popup(None, None, None, 3, time)
+            
+ 	def quit(self,widget):
+ 		sys.exit(-1)
 
 class AboutWindow(gtk.AboutDialog):
 	def __init__(self):
 		gtk.AboutDialog.__init__(self)
 		self.set_name("GNOME Zeitgeist")
 		self.set_version("0.0.3")
-		self.set_copyright("Copyright 2009 GNOME Zeitgeist Developers")
+		self.set_copyright("Copyright 2009 (c) GNOME Zeitgeist Developers")
 		self.set_website("http://zeitgeist.geekyogre.com")
+		gtk.about_dialog_set_url_hook(self.open_url,None)
+		gtk.about_dialog_set_email_hook(self.open_mail, None)
+
+
 		self.set_program_name("GNOME Zeitgeist")
 		image = gtk.image_new_from_file("data/gnome-zeitgeist.png")
 		
+		f = open("AUTHORS","r")
+		authors =["Federico Mena-Quintero <federico@gnome.org>",
+						"Natan Yellin <aantny@gmail.com>",
+						"Seif Lotfy <seilo@geekyogre.com>",
+						"Siegfried-Angel Gevatter <rainct@ubuntu.com>",
+						"Thorsten Prante <thorsten@prante.eu>"]
 			
+		self.set_authors(authors)
+		self.set_comments("Gnome Zeitgeist is a tool for easily browsing and finding files on your computer.")
+		self.set_logo(gtk.gdk.pixbuf_new_from_file("data/gnome-zeitgeist.png"))
+		
+		
+		artists =["Kalle Persson <kalle@nemus.se>"]
+		self.set_artists(artists)
+		self.set_icon_from_file("data/gnome-zeitgeist.png")
+	
+		self.connect("response", self.close)
+		self.hide()
+		
+	def close(self, w, res=None):
+		if res == gtk.RESPONSE_CANCEL:
+			self.hide()
+		
+	def open_url(self, dialog, link, ignored):
+		webbrowser.open_new(link)
 
-about = AboutWindow()
+	def open_mail(self, dialog, link, ignored):
+		webbrowser.open_new("mailto:" + link)
+
 difffactory=DiffFactory()
 icon_factory = IconFactory()
 thumbnailer = Thumbnailer()

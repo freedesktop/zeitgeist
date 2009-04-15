@@ -45,7 +45,6 @@ class Data(gobject.GObject):
 		self.use = use
 		self.diff = ""
 		self.bookmark = bookmark
-		# Timestamps
 		self.timestamp = timestamp
 		
 		self.type = type
