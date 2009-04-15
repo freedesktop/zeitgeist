@@ -93,7 +93,7 @@ class DataSinkSource(DataProvider):
 			gobject.idle_add(self._update_db_async)
 	
 	def get_items(self, min=0, max=sys.maxint, tags=""):
-		
+		t1 = time.time() 
 		# Emulate optional argument for the D-Bus interface
 		if max == 0: max = sys.maxint
 		
@@ -129,6 +129,9 @@ class DataSinkSource(DataProvider):
 						break
 				if matches:
 					yield item
+		t2=time.time()
+		
+		print "++++++++++++++> time to fetch data from DB: "+ str(t2-t1)
 		
 		gc.collect()
 	
