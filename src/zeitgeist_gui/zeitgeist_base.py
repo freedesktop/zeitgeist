@@ -14,7 +14,6 @@ class Data(gobject.GObject):
 	
 	__gsignals__ = {
 		"relate" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
-		"open" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 	}
 	
 	def __init__(self,
@@ -107,20 +106,8 @@ class Data(gobject.GObject):
 	def get_bookmark(self):
 		return self.bookmark
 	
-	def do_open(self):
-		if self.mimetype == "x-tomboy/note":
-			uri_to_open = "note://tomboy/%s" % os.path.splitext(os.path.split(self.get_uri())[1])[0]
-		else:
-			uri_to_open = self.get_uri()
-		if uri_to_open:
-			self.timestamp = time.time()
-			launcher.launch_uri(uri_to_open, self.get_mimetype())
-	
 	def get_tags(self):
 		return [tag.strip() for tag in self.tags.split(",") if tag.strip()]
-	
-	def open(self):
-		self.emit("open")
 	
 	def open_from_timestamp(self):
 		path = difffactory.restore_file(self)

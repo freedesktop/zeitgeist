@@ -11,6 +11,7 @@ from gettext import ngettext, gettext as _
 from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist_engine.xdgdirs import xdg_directory
 from zeitgeist_engine.zeitgeist_util import icon_factory
+from zeitgeist_engine.zeitgeist_util import launcher
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_gui.zeitgeist_base import Data
 from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
@@ -878,17 +879,20 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 			
 	def _open_item(self, view, path, x=None):		 
 		item = self.get_selected_item()
-		item.open()
-		gc.collect()
-		
+		if item.get_mimetype() == "x-tomboy/note":
+			uri_to_open = "note://tomboy/%s" % os.path.splitext(os.path.split(item.get_uri())[1])[0]
+		else:
+			uri_to_open = item.get_uri()
+		if uri_to_open:
+			item.timestamp = time.time()
+			launcher.launch_uri(uri_to_open, item.get_mimetype())
+	
 	def get_selected_item(self):
 		treeselection = self.get_selection()
 		model, iter = treeselection.get_selected()
 		item = model.get_value(iter, 4)
-		del iter
-		del model
 		return item
-
+	
 	def _show_item_popup(self, view, ev):
 		if ev.button == 3:
 			item = self.get_selected_item()
@@ -898,7 +902,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 				item.populate_popup(menu)
 				menu.popup(None, None, None, ev.button, ev.time)
 				return True
-
+	
 	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
 		# FIXME: Prefer ACTION_LINK if available
 		print("_item_drag_data_get")
@@ -942,10 +946,6 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 							self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
 						else:
 							break
-					del iter
-					del item
-				gc.collect()
-			
 		else:
 			iter = self.store.get_iter_root()
 			if iter:
@@ -958,9 +958,6 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 						self.store.set(iter,3,False)
 					else:
 						break
-				del iter
-				del item
-			gc.collect()
 	
 	def _set_item(self, item, append=True, group=True):
 		
