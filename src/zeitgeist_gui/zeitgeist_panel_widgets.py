@@ -8,10 +8,11 @@ import gobject
 import pango
 from gettext import ngettext, gettext as _ 
  
-from zeitgeist_engine.zeitgeist_util import launcher, gconf_bridge
+from zeitgeist_engine.zeitgeist_util import gconf_bridge
+from zeitgeist_gui.zeitgeist_util import launcher
 from zeitgeist_engine.xdgdirs import xdg_directory
 from zeitgeist_engine.zeitgeist_util import icon_factory
-from zeitgeist_engine.zeitgeist_util import launcher
+from zeitgeist_gui.zeitgeist_util import launcher
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_gui.zeitgeist_base import Data
 from zeitgeist_gui.zeitgeist_bookmarker import bookmarker

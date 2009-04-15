@@ -11,7 +11,7 @@ import W3CDate
 from gettext import gettext as _
 
 from zeitgeist_engine.zeitgeist_base import DataProvider
-from zeitgeist_engine.zeitgeist_util import FileMonitor, launcher
+from zeitgeist_engine.zeitgeist_util import FileMonitor
 
 # FIXME:  This should really just use Beagle or Tracker.
 
@@ -91,7 +91,7 @@ class TomboySource(DataProvider):
 			"comment": _("Make a new Tomboy note"),
 			"icon": gtk.STOCK_NEW,
 			}
-		#self.new_note_item.do_open = lambda: self._make_new_note()
+		
 		if not note_path:
 			if os.environ.has_key("TOMBOY_PATH"):
 				note_path = os.environ["TOMBOY_PATH"]
@@ -122,9 +122,6 @@ class TomboySource(DataProvider):
 				self.emit("reload")
 			else:
 				self.notes[filename].emit("reload")
-
-	def _make_new_note(self):
-		launcher.launch_command("tomboy --new-note")
 
 	def get_items_uncached(self):
 		try:

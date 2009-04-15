@@ -6,7 +6,8 @@ import gobject
 import gtk
 from gettext import ngettext, gettext as _
 
-from zeitgeist_engine.zeitgeist_util import icon_factory, launcher, difffactory, thumbnailer
+from zeitgeist_engine.zeitgeist_util import icon_factory, difffactory, thumbnailer
+from zeitgeist_gui.zeitgeist_util import launcher
 # Some imports are in-place to avoid a circular dependency
 
 
