@@ -33,11 +33,9 @@ class Data(gobject.GObject):
 		gobject.GObject.__init__(self)
 		
 		# Remove characters that might be interpreted by pango as formatting
-		try:
+		if name:
 			name = name.replace("<","")
 			name = name.replace(">","")
-		except:
-			pass
 		
 		self.uri = uri
 		self.name = name
@@ -93,10 +91,10 @@ class Data(gobject.GObject):
 
 	def get_name(self):
 		return self.name
-
+	
 	def get_time(self):
 		return self.time
-
+	
 	def get_comment(self):
 		return self.comment
 	
@@ -110,33 +108,31 @@ class Data(gobject.GObject):
 		return self.bookmark
 	
 	def do_open(self):
-		if self.mimetype =="x-tomboy/note":
+		if self.mimetype == "x-tomboy/note":
 			uri_to_open = "note://tomboy/%s" % os.path.splitext(os.path.split(self.get_uri())[1])[0]
 		else:
 			uri_to_open = self.get_uri()
 		if uri_to_open:
 			self.timestamp = time.time()
 			launcher.launch_uri(uri_to_open, self.get_mimetype())
-		else:
-			pass
 	
 	def get_tags(self):
 		return [tag.strip() for tag in self.tags.split(",") if tag.strip()]
 	
 	def open(self):
 		self.emit("open")
-		
+	
 	def open_from_timestamp(self):
 		path = difffactory.restore_file(self)
 		launcher.launch_uri(path, self.get_mimetype())
 		gc.collect()
-		
+	
 	def populate_popup(self, menu):
 		open = gtk.ImageMenuItem (gtk.STOCK_OPEN)
 		open.connect("activate", lambda w: self.open())
 		open.show()
 		menu.append(open)
-
+		
 		'''
 		if self.type=="Documents" or self.type=="Other":
 			timemachine = gtk.MenuItem("Open from timestamp")
@@ -157,12 +153,12 @@ class Data(gobject.GObject):
 			menu.append(bookmark)
 		
 		relate = gtk.MenuItem("Show related files")
-		relate.connect("activate", lambda w:  self.relate())
+		relate.connect("activate", lambda w: self.relate())
 		relate.show()
 		menu.append(relate)
 		
 		tag = gtk.MenuItem("Edit Tags")
-		tag.connect("activate", lambda w:  self.tag_item())
+		tag.connect("activate", lambda w: self.tag_item())
 		tag.show()
 		menu.append(tag)
 		
@@ -173,13 +169,12 @@ class Data(gobject.GObject):
 		menu.append(tag)
 		
 		tag = gtk.MenuItem("Delete item")
-		tag.connect("activate", lambda w:  self.delete_item())
+		tag.connect("activate", lambda w: self.delete_item())
 		tag.show()
 		menu.append(tag)
 	
 	def relate(self, x=None):
 		self.emit("relate")
-		pass
 	
 	def add_bookmark(self, x=None):
 		if self.bookmark == False:
@@ -197,7 +192,7 @@ class Data(gobject.GObject):
 		engine.update_item(self)
 		from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 		bookmarker.reload_bookmarks()
-		
+	
 	def tag_item(self):
 		taggingwindow = gtk.Window()
 		taggingwindow.set_border_width(5)
@@ -209,8 +204,8 @@ class Data(gobject.GObject):
 		okbtn = gtk.Button("Add")
 		cbtn = gtk.Button("Cancel")
 		cbtn.connect("clicked", lambda w: taggingwindow.destroy())
-		okbtn.connect("clicked",lambda w: self.set_tags(self.textview.get_buffer().get_text(*self.textview.get_buffer().get_bounds()) ))
-		okbtn.connect("clicked",lambda w:  taggingwindow.destroy())
+		okbtn.connect("clicked", lambda w: self.set_tags(self.textview.get_buffer().get_text(*self.textview.get_buffer().get_bounds()) ))
+		okbtn.connect("clicked", lambda w: taggingwindow.destroy())
 		vbox=gtk.VBox()
 		hbox=gtk.HBox()
 		hbox.pack_start(okbtn)

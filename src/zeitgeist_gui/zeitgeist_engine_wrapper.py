@@ -7,11 +7,11 @@ class BaseEngineInterface():
 		self._interface = interface
 	
 	def get_items(self, *args):
-            t1 = time.time()
-            for item in self._interface.get_items(*args):
-			             yield self._data_from_engine(item)
-            t2 = time.time()
-            print"--------------> time to fetch items via dbus: "+str(t2-t1)
+		t1 = time.time()
+		for item in self._interface.get_items(*args):
+			yield self._data_from_engine(item)
+		t2 = time.time()
+		print"--------------> time to fetch items via dbus: "+str(t2-t1)
 	
 	def get_related_items(self, *args):
 		for related_item in self._interface.get_related_items(*args):
