@@ -4,7 +4,6 @@ import dbus.mainloop.glib
 import gobject
 from gettext import ngettext, gettext as _
 import gtk
-import gc
 
 from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_shared.zeitgeist_shared import *
@@ -26,8 +25,6 @@ class RemoteInterface(dbus.service.Object):
 		items = []
 		for item in datasink.get_items(min_timestamp, max_timestamp, tags):
 			items.append(plainify_data(item))
-			del item
-		gc.collect()
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
@@ -36,8 +33,6 @@ class RemoteInterface(dbus.service.Object):
 		items = []
 		for item in datasink.get_items_with_mimetype(mimetype, min_timestamp, max_timestamp, tags):
 			items.append(plainify_data(item))
-			del item
-		gc.collect()
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
@@ -46,8 +41,6 @@ class RemoteInterface(dbus.service.Object):
 		items = []
 		for item in datasink.get_bookmarks():
 			items.append(plainify_data(item))
-			del item
-		gc.collect()
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
@@ -68,8 +61,6 @@ class RemoteInterface(dbus.service.Object):
 		items = []
 		for item in datasink.get_related_items(item_uri):
 			items.append(plainify_data(item))
-			del item
-		gc.collect()
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
@@ -78,8 +69,6 @@ class RemoteInterface(dbus.service.Object):
 		items = []
 		for item in datasink.get_items_related_by_tags(item_uri):
 			items.append(plainify_data(item))
-			del item
-		gc.collect()
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",

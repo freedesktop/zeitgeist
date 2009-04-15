@@ -17,7 +17,6 @@ def plainify_data(obj):
 			obj["bookmark"] or False,
 			obj["icon"] or "",
 			)
-	        del obj
 	        return item
 	else:
 		item = (
@@ -33,7 +32,6 @@ def plainify_data(obj):
 			obj.get_bookmark(),
 			obj.get_icon_string() or "",
 			)
-	        del obj
         	return item
 
 def dictify_data(item_list):

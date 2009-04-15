@@ -95,8 +95,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					"use": use,
 					}
                 
-                		yield item
-                		del item
+                	yield item
 
 class RecentlyUsed(DataProvider):
 	'''
