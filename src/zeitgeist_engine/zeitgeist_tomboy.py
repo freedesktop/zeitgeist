@@ -29,12 +29,7 @@ class NoteData:
 		self.name = str(self.title)
 		self.icon = "stock_notes"
 		self.mimetype = "x-tomboy/note"
-		self.use = ""
 	
-	def do_open(self):
-		note_uri = "note://tomboy/%s" % os.path.splitext(os.path.split(self.get_uri())[1])[0]
-		launcher.launch_uri(note_uri, self.get_mimetype())
-
 	def do_reload(self):
 		try:
 			note_doc = parse(self.get_uri())
@@ -132,10 +127,25 @@ class TomboySource(DataProvider):
 		launcher.launch_command("tomboy --new-note")
 
 	def get_items_uncached(self):
+		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 		try:
 			for filename in os.listdir(self.note_path):
 				if filename.endswith(".note"):
 					notepath = os.path.join(self.note_path, filename)
-					yield NoteData(notepath)
+					note =  NoteData(notepath)
+		                        item = {
+            			        	"timestamp": note.timestamp,
+                		        	"uri": note.get_uri(),
+                	        		"name": note.title ,
+                	        		"comment": note.content_text,
+                	        		"type": note.type,
+                	        		"count": 0,
+                	        		"use": "",
+                	        		"mimetype": note.mimetype,
+                	        		"tags": "",
+                	        		"icon": note.icon
+                	        		}
+	                                yield item
+                                    
 		except (OSError, IOError), err:
 			pass  #print " !!! Error loading Tomboy notes:", err

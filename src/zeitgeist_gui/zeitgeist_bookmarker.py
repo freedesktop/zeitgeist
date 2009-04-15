@@ -18,7 +18,9 @@ class Bookmarker:
 		self.bookmarks = []
 		for item in engine.get_bookmarks():
 			self.add_bookmark(item)
+			del item
 		engine.emit_signal_updated()
+		
 	
 	def get_items_uncached(self):
 		return engine.get_bookmarks()

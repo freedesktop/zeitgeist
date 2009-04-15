@@ -108,6 +108,7 @@ class DBConnector:
                 item["uri"],
                 item["use"],
                 "%d-%s" % (item["timestamp"], item["uri"])))
+            print item
             
             # Insert into data, if it isn't there yet
             try:
@@ -146,13 +147,12 @@ class DBConnector:
         Inserts items into the database and returns the amount of
         items it inserted.
         """
-        
         amount_items = 0
         for item in items:
             if self.insert_item(item):
                 amount_items += 1
                 
-        #self.connection.commit()
+        self.connection.commit()
         return amount_items
     
     def get_items(self, min, max):

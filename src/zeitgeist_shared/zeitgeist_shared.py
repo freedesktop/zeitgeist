@@ -4,7 +4,7 @@ def plainify_data(obj):
 		tuple suitable for transmission through D-Bus. '''
 	
 	if type(obj) is dict:
-		return (
+		item =  (
 			obj["timestamp"] or 0,
 			obj["uri"] or none,
 			obj["name"] or None,
@@ -17,8 +17,10 @@ def plainify_data(obj):
 			obj["bookmark"] or False,
 			obj["icon"] or "",
 			)
+	        del obj
+	        return item
 	else:
-		return (
+		item = (
 			int(obj.get_timestamp()),
 			obj.get_uri(),
 			obj.get_name(),
@@ -31,6 +33,8 @@ def plainify_data(obj):
 			obj.get_bookmark(),
 			obj.get_icon_string() or "",
 			)
+	        del obj
+        	return item
 
 def dictify_data(item_list):
 	return {
@@ -49,6 +53,7 @@ def dictify_data(item_list):
 
 
 sig_plain_dataprovider = "(ssb)"
+
 def plainify_dataprovider(obj):
 	''' Takes a DataSource object and converts it into an object
 		suitable for transmission through D-Bus. '''

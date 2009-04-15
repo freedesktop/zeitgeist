@@ -1076,6 +1076,8 @@ class BrowserBar(gtk.HBox):
 		calendar.select_month(month,year)
 		calendar.select_day(day)
 		#calendar.do_day_selected_double_click()
+		
+		
 class BookmarksView(gtk.VBox):
 	def __init__(self):
 		gtk.VBox.__init__(self)
