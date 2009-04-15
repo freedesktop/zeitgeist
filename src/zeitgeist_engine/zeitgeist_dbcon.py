@@ -22,19 +22,19 @@ class DBConnector:
     
     def _result2data(self, result, timestamp=0):
         
-        return {
-            "uri": result[0],
-            "name": result[1],
-            "comment": result[2],
-            "mimetype": result[3],
-            "tags": result[4],
-            "count": result[5],
-            "use": result[6],
-            "type": result[7],
-            "icon": result[8],
-            "bookmark": (result[9] == 1),
-            "timestamp": timestamp,
-            }
+        return (
+            timestamp,
+            result[0], # uri
+            result[1], # name
+            result[7] or "N/A", # type
+            result[3] or "N/A", # mimetype
+            result[4], # tags
+            result[2], # comment
+            result[5] or 1, # count
+            result[6] or "first use", # use
+            (result[9] == 1), # bookmark
+            result[8], # icon
+            )
     
     def _ensure_item(self, item, uri_only=False):
         """
@@ -150,7 +150,7 @@ class DBConnector:
         for item in items:
             if self.insert_item(item):
                 amount_items += 1
-                
+        
         self.connection.commit()
         return amount_items
     
@@ -173,8 +173,7 @@ class DBConnector:
             
             # TODO: Can item ever be None?
             if item is not None:
-                itemobj = self._result2data(item, timestamp = start)
-                yield itemobj
+                yield self._result2data(item, timestamp = start)
         
         gc.collect()
     
@@ -331,6 +330,5 @@ class DBConnector:
     def get_bookmarked_items(self):
         for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
             yield self._result2data(item, timestamp = -1)
-        gc.collect()
 
 db = DBConnector()

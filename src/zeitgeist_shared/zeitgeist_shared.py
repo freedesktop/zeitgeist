@@ -1,38 +1,22 @@
-sig_plain_data = "(issssssisbs)"
+sig_plain_data = "(issssssusbs)"
 def plainify_data(obj):
 	''' Takes a Data object or a dictionary and converts it into a
 		tuple suitable for transmission through D-Bus. '''
 	
-	if type(obj) is dict:
-		item =  (
-			obj["timestamp"] or 0,
-			obj["uri"] or none,
-			obj["name"] or None,
-			obj["type"] or "N/A",
-			obj["mimetype"] or "N/A",
-			obj["tags"] or "",
-			obj["comment"] or "",
-			obj["count"] or 1,
-			obj["use"] or "first use",
-			obj["bookmark"] or False,
-			obj["icon"] or "",
-			)
-	        return item
-	else:
-		item = (
-			int(obj.get_timestamp()),
-			obj.get_uri(),
-			obj.get_name(),
-			obj.get_type(),
-			obj.get_mimetype(), 
-			','.join(obj.get_tags()),
-			obj.get_comment(),
-			obj.get_count(),
-			obj.get_use(),
-			obj.get_bookmark(),
-			obj.get_icon_string() or "",
-			)
-        	return item
+	item = (
+		int(obj.get_timestamp()),
+		obj.get_uri(),
+		obj.get_name(),
+		obj.get_type(),
+		obj.get_mimetype(), 
+		','.join(obj.get_tags()),
+		obj.get_comment(),
+		obj.get_count(),
+		obj.get_use(),
+		obj.get_bookmark(),
+		obj.get_icon_string() or "",
+		)
+	return item
 
 def dictify_data(item_list):
 	return {

@@ -119,12 +119,12 @@ class DataSinkSource(DataProvider):
 		# Loop over all of the items from the database
 		for item in db.get_items(min, max):
 			# Check if the document type matches; If it doesn't then don't bother checking anything else
-			if item["type"] in types:
+			if item[3] in types:
 				matches = True
 				# Loop over every tag/search term
 				for tag in tagsplit:
 					# If the document name or uri does NOT match the tag/search terms then skip this item
-					if not tag in item["tags"].lower().split(',') and not item["uri"].lower().find(tag) > -1:
+					if not tag in item[5].lower().split(',') and not item[0].lower().find(tag) > -1:
 						matches = False
 						break
 				if matches:
@@ -132,7 +132,6 @@ class DataSinkSource(DataProvider):
 		t2=time.time()
 		
 		print "++++++++++++++> time to fetch data from DB: "+ str(t2-t1)
-		
 		gc.collect()
 	
 	def get_bookmarks(self):
@@ -155,7 +154,7 @@ class DataSinkSource(DataProvider):
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
 		for item in self.get_items_by_time(min, max, tags):
-			if item["mimetype"] in mimetype.split(','):
+			if item[4] in mimetype.split(','):
 				yield item
 	
 	def _update_db_async(self):

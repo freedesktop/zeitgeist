@@ -24,11 +24,11 @@ class RemoteInterface(dbus.service.Object):
 						in_signature="iis", out_signature="a"+sig_plain_data)
 	def get_items(self, min_timestamp, max_timestamp, tags):
 		t1 = time.time()
-        	items = []
+		items = []
 		for item in datasink.get_items(min_timestamp, max_timestamp, tags):
-			items.append(plainify_data(item))
-            	t2 = time.time()
-            	print "##############> time to fetch data from datasink: "+ str(t2-t1)
+			items.append(item)
+			t2 = time.time()
+			print "##############> time to fetch data from datasink: "+ str(t2-t1)
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
@@ -36,7 +36,7 @@ class RemoteInterface(dbus.service.Object):
 	def get_items_with_mimetype(self, mimetype, min_timestamp, max_timestamp, tags):
 		items = []
 		for item in datasink.get_items_with_mimetype(mimetype, min_timestamp, max_timestamp, tags):
-			items.append(plainify_data(item))
+			items.append(item)
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
@@ -44,7 +44,7 @@ class RemoteInterface(dbus.service.Object):
 	def get_bookmarks(self):
 		items = []
 		for item in datasink.get_bookmarks():
-			items.append(plainify_data(item))
+			items.append(item)
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
@@ -64,19 +64,19 @@ class RemoteInterface(dbus.service.Object):
 	def get_related_items(self, item_uri):
 		items = []
 		for item in datasink.get_related_items(item_uri):
-			items.append(plainify_data(item))
+			items.append(item)
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="a"+sig_plain_data)
 	def get_items_related_by_tags(self, item_uri):
 		items = []
-	        t1 = time.time()
-	        for item in datasink.get_items_related_by_tags(item_uri):
-			items.append(plainify_data(item))
-        	t2 = time.time()
-        	print "##########> time to fetch data from DB: "+ str(t2-t1)
-       		return items
+		t1 = time.time()
+		for item in datasink.get_items_related_by_tags(item_uri):
+			items.append(item)
+		t2 = time.time()
+		print "##########> time to fetch data from DB: "+ str(t2-t1)
+		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="", out_signature="a"+sig_plain_dataprovider)
@@ -96,7 +96,7 @@ class RemoteInterface(dbus.service.Object):
 	def get_bookmarks(self):
 		bookmarks = []
 		for bookmark in datasink.get_bookmarks():
-			bookmarks.append(plainify_data(bookmark))
+			bookmarks.append(bookmark)
 		return bookmarks
 	
 	# Writing stuff
