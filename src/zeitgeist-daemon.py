@@ -23,12 +23,9 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="iis", out_signature="a"+sig_plain_data)
 	def get_items(self, min_timestamp, max_timestamp, tags):
-		t1 = time.time()
 		items = []
 		for item in datasink.get_items(min_timestamp, max_timestamp, tags):
 			items.append(item)
-		t2 = time.time()
-		print "##############> time to fetch data from datasink: "+ str(t2-t1)
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",

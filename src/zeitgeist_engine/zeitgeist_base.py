@@ -60,12 +60,11 @@ class DataProvider(gobject.GObject, Thread):
 		called to create a new cache, yielding each result along the way.  A
 		timeout is set to invalidate the cached items to free memory.
 		'''
-		
+		items = []
 		for i in self.get_items_uncached():
 			if i["timestamp"] >= min and i["timestamp"] < max:
-				yield i
-			
-		gc.collect()
+				items.append(i)
+		return items
 	
 	def get_items_uncached(self):
 		'''Subclasses should override this to return/yield Datas. The results

@@ -11,11 +11,8 @@ class BaseEngineInterface():
 		func = self._data_from_engine
 		items = []
 		append = items.append
-		t1 = time.time()
 		for item in self._interface.get_items(*args):
 				append(func(item))
-		t2 = time.time()
-		print"--------------> time to fetch items via dbus: "+str(t2-t1)
 		return items
 		
 	def get_related_items(self, *args):
@@ -23,19 +20,19 @@ class BaseEngineInterface():
 			yield self._data_from_engine(related_item)
 	
 	def get_most_used_tags(self, *args):
-		for tag in self._interface.get_most_used_tags(*args):
-			yield tag
+		return self._interface.get_most_used_tags(*args)
 	
 	def get_recent_used_tags(self, *args):
-		for tag in self._interface.get_recent_used_tags(*args):
-			yield tag
+		return self._interface.get_recent_used_tags(*args)
 	
 	def get_timestamps_for_tag(self, *args):
 		return self._interface.get_timestamps_for_tag(*args)
 	
 	def get_bookmarks(self, *args):
+		items = []
 		for item in self._interface.get_bookmarks(*args):
-			yield self._data_from_engine(item)
+			items.append(self._data_from_engine(item))
+		return items
 	
 	def get_sources_list(self, *args):
 		return self._interface.get_sources_list()

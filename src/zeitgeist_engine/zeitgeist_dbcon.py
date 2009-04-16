@@ -166,15 +166,19 @@ class DBConnector:
                 and start <= ?
                 ORDER BY key"""
         
+        items=[]
+        func = self._result2data
+        append = items.append
         for start, uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
             # Retrieve the item from the data table
             item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
                                     (uri,)).fetchone()
             
             # TODO: Can item ever be None?
-            if item is not None:
-                yield self._result2data(item, timestamp = start)
-        
+            if item:
+                append(func(item, timestamp = start))
+        return items
+       
         gc.collect()
     
     def update_item(self, item):
@@ -233,8 +237,10 @@ class DBConnector:
                                     LIMIT ?""",
                                     (str(min), str(max), str(count))).fetchall()
         
+        tags =[]
         for tagid, tagcount in res:
-            yield str(tagid)
+            tags.append(str(tagid))
+        return tags
             
     def get_most_tags(self, count=20, min=0, max=sys.maxint):
         """
@@ -251,8 +257,10 @@ class DBConnector:
                                     LIMIT ?""",
                                     (str(min), str(max), str(count))).fetchall()
         
+        tags =[]
         for tagid, tagcount in res:
-            yield str(tagid)
+            tags.append(str(tagid))
+        return tags
     
     def get_min_timestamp_for_tag(self,tag):
         res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp',(tag,)).fetchone()
@@ -328,7 +336,9 @@ class DBConnector:
             return -1
  
     def get_bookmarked_items(self):
+    	items = []
         for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
-            yield self._result2data(item, timestamp = -1)
+            items.append(self._result2data(item, timestamp = -1))
+        return items
 
 db = DBConnector()

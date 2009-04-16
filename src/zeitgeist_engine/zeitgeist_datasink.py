@@ -93,10 +93,9 @@ class DataSinkSource(DataProvider):
 			gobject.idle_add(self._update_db_async)
 	
 	def get_items(self, min=0, max=sys.maxint, tags=""):
-		t1 = time.time() 
 		# Emulate optional argument for the D-Bus interface
 		if max == 0: max = sys.maxint
-		
+		items = []
 		# Get a list of all document types that we're interested in
 		types = []
 		for source in self.sources:
@@ -128,11 +127,9 @@ class DataSinkSource(DataProvider):
 						matches = False
 						break
 				if matches:
-					yield item
-		t2=time.time()
-		
-		print "++++++++++++++> time to fetch data from DB: "+ str(t2-t1)
+					items.append(item)
 		gc.collect()
+		return items
 	
 	def get_bookmarks(self):
 		return db.get_bookmarked_items()
@@ -153,9 +150,11 @@ class DataSinkSource(DataProvider):
 		return self.get_items(min, max, tags)
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
+		items = []
 		for item in self.get_items_by_time(min, max, tags):
 			if item[4] in mimetype.split(','):
-				yield item
+				items.append(item)
+		return items
 	
 	def _update_db_async(self):
 		

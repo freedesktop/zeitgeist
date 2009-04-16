@@ -43,6 +43,10 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# The current tags that we're using to filter displayed results
 		self.tags = ''
 		
+		# Get list of sources to filter
+		self.sources = {}
+		self.set_filters()
+		
 		# Connect to the calendar's (displayed in the sidebar) signals
 		calendar.connect("month-changed", self.load_month)
 		calendar.connect("day-selected", self.jump_to_day)
@@ -58,6 +62,10 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		
 		# Load the GUI
 		self.load_month()
+		
+	def set_filters(self):
+		for source in engine.get_sources_list():
+			self.sources[source[0]]=False
 	
 	def apply_search(self, tags="", search = True):
 		'''
@@ -88,63 +96,34 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		self.build_days(tagsplit,search)
 		
 		
+		
 	def build_days(self,tagsplit,search):
-		items=[]
 		for item in self.items:
-			if len(tagsplit) >0:
-				for tag in tagsplit:
-						if search:
-							if item.uri.lower().find(tag.lower())>-1:
-								try:
-									if items.index(item)>-1:
-										pass
-								except:
-									items.append(item)
-									if not  self.days.has_key(item.get_datestring()):
-										pass
-									else:
+			if not self.sources[item.type]:
+				if len(tagsplit) >0:
+					for tag in tagsplit:
+							if search:
+								if item.uri.lower().find(tag.lower())>-1:
+									if self.days.has_key(item.get_datestring()):
 										daybox = self.days[item.get_datestring()]
 										daybox.append_item(item)
-										adj = self.get_hadjustment()
-										daybox.connect('set-focus-child', self.focus_in, adj) 
 										self.dayboxes.pack_start(daybox,False,False)
 										self.days[item.get_datestring()]=daybox
-										del daybox
-									
-						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
-							try:
-								if items.index(item)>-1:
-									pass
-							except:
-									items.append(item)
-									if not  self.days.has_key(item.get_datestring()):
-										pass
-									else:
-										daybox = self.days[item.get_datestring()]
-										daybox.append_item(item)
-										adj = self.get_hadjustment()
-										daybox.connect('set-focus-child', self.focus_in, adj) 
-										self.dayboxes.pack_start(daybox,False,False)
-										self.days[item.get_datestring()]=daybox		
-										del daybox
-									
-			else:
-				try:
-					if items.index(item)>-1:
-						pass
-				except:
-						items.append(item)
-						if not self.days.has_key(item.get_datestring()):
-									pass
-						else:
-							daybox = self.days[item.get_datestring()]
-							daybox.append_item(item)
-							adj = self.get_hadjustment()
-							daybox.connect('set-focus-child', self.focus_in, adj) 
-							self.dayboxes.pack_start(daybox,False,False)
-							self.days[item.get_datestring()]=daybox
-							del daybox
-			del item
+										
+							if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
+								if self.days.has_key(item.get_datestring()):
+									daybox = self.days[item.get_datestring()]
+									daybox.append_item(item)
+									self.dayboxes.pack_start(daybox,False,False)
+									self.days[item.get_datestring()]=daybox
+										
+				else:
+					if self.days.has_key(item.get_datestring()):
+						daybox = self.days[item.get_datestring()]
+						daybox.append_item(item)
+						self.dayboxes.pack_start(daybox,False,False)
+						self.days[item.get_datestring()]=daybox
+				del item
 		self.clean_up_dayboxes()
 	
 	def review_days(self):	
@@ -190,7 +169,7 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		if today  >= self.begin and today <= (self.end + 86400):
 			self.load_month(begin=begin,end=end)
 	
-	def load_month(self, widget=None, begin=None, end=None):
+	def load_month(self, widget=None, begin=None, end=None, keep = False):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -200,6 +179,8 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		parameter.
 		'''
 		
+		# Begin benchmarking
+		t1 = time.time()
 		# Get date range
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
@@ -209,16 +190,20 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# seconds, weekday, day_of_year, daylight savings) 
 		
 		day = date[2]
-		if begin == None and end == None:
-			begin = (date[0], date[1]+1, day-1+self.offset, 0,0,0,0,0,0)
-			end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,0)
-			self.begin = time.mktime(begin)
-			self.end = time.mktime(end) -1
+		if not keep:
+			if begin == None and end == None:
+				begin = (date[0], date[1]+1, day-1+self.offset, 0,0,0,0,0,0)
+				end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,0)
+				self.begin = time.mktime(begin)
+				self.end = time.mktime(end) -1
+			
+			else:
+				self.begin = begin 
+				self.end = end -1
 		
-		else:
-			self.begin = begin 
-			self.end = end -1
-		
+		t2 = time.time()
+		print "Time to set up dates: "+str(t2-t1)
+				
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
 		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
@@ -226,8 +211,6 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 		# Get date as unix timestamp
 		calendar.clear_marks()
 		
-		# Begin benchmarking
-		time1 = time.time()
 		# Get all items in the date range and add them to self.items
 		for item in self.items:
 			del item
@@ -238,13 +221,18 @@ class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
 				item.connect("relate",self.set_relation)
 				engine.connect("signal_updated", self.load_month, item)
 		
+		
+		t3 = time.time()
+		print "Time to get items: "+str(t3-t2)
+		
 		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
 		
-		time2 = time.time()
+		t4 = time.time()
 		# Benchmarking
-		#print "Time to retrive %s items from database: %s \n" % (len(self.items), str(time2 -time1))
-		print "\n"
+		print "Time to apply search on  %s items: %s" % (len(self.items), str(t4 -t3))
+		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
+		
 	
 	def jump_to_day(self, widget,focus=False):
 		'''
@@ -540,7 +528,6 @@ class FilterAndOptionBox(gtk.VBox):
 			filter.set_active(True)
 			self.voptionbox.pack_start(filter, False, False, 0)
 			self.filters.append(filter)
-			filter.connect("toggled", self.filter_out)
 		
 		self.frame2.add(self.voptionbox)
 		self.date_dict = None
@@ -579,10 +566,6 @@ class FilterAndOptionBox(gtk.VBox):
 		dlg = NewFromTemplateDialog(".","")
 		dlg.show()
 		
-	def filter_out(self, widget):
-		engine.emit_signal_updated()
-		gc.collect()
-
 class CalendarWidget(gtk.Calendar):
 	def __init__(self):
 		gtk.Calendar.__init__(self)
@@ -610,11 +593,13 @@ class CheckBox(gtk.CheckButton):
 	
 	def toggle_source(self, widget=None):
 		if self.get_active():
+			timeline.sources[self.source[0]]=False
 			pass
 			#self.source.set_active(True)
 			# FIXME - ???
 			#search.emit("clear")
 		else:
+			timeline.sources[self.source[0]]=True
 			pass
 			#self.source.set_active(False)
 		
@@ -785,7 +770,7 @@ class SearchToolItem(gtk.ToolItem):
 		if self.entry.get_text() != self.default_search_text:
 			self.do_clear()
 
-class DataIconView(gtk.TreeView,gobject.GObject):
+class DataIconView(gtk.TreeView):
 	'''
 	Icon view which displays Datas in the style of the Nautilus horizontal mode,
 	where icons are right aligned and each column is of a uniform width.  Also
@@ -794,7 +779,6 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 	
 	def __init__(self,parentdays=False):
 		gtk.TreeView.__init__(self)
-		gobject.GObject.__init__(self)
 		self.set_size_request(250,-1)
 		self.parentdays = parentdays
 		
@@ -850,12 +834,12 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 	def append_item(self, item,group=True):
 		# Add an item to the end of the store
 		self._set_item(item, group=group)
-		self.set_model(self.store)
+		#self.set_model(self.store)
 	
 	def prepend_item(self, item,group=True):
 		# Add an item to the end of the store
 		self._set_item(item, False,group=group)
-		self.set_model(self.store)
+		#self.set_model(self.store)
 		
 	def remove_item(self,item):
 		# Maybe filtering should be done on a UI level
@@ -970,17 +954,7 @@ class DataIconView(gtk.TreeView,gobject.GObject):
 		else:
 			date=""
 		
-		if self.last_item != item.type or not group:
-			self.last_item = item.type
-			
-			func(None,[item.get_icon(24),
-				"<span color='black'>%s</span>" % item.get_name(),
-				date,
-				bookmark,
-				item])
-		else:
-			func(None,[item.get_icon(24),
-			#func(self.iter,[item.get_icon(24),
+		func(None,[item.get_icon(24),
 				"<span color='black'>%s</span>" % item.get_name(),
 				date,
 				bookmark,

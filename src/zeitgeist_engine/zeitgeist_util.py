@@ -154,6 +154,7 @@ class IconFactory():
 
 	def load_icon(self, icon_value, icon_size, force_size=True):
 		if self.icon_dict.get(icon_value) == None:
+			#print "creating icon for "+icon_value
 			try:
 				if isinstance(icon_value, gtk.gdk.Pixbuf):
 					return icon_value
@@ -189,6 +190,7 @@ class IconFactory():
 				self.icon_dict[icon_value] = None
 				return None
 		else:
+			#print "getting cached icon for "+icon_value
 			return self.icon_dict[icon_value]
 
 	def load_image(self, icon_value, icon_size, force_size = True):
