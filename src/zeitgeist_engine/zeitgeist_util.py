@@ -465,7 +465,8 @@ class AboutWindow(gtk.AboutDialog):
 		image = gtk.image_new_from_file("data/gnome-zeitgeist.png")
 		
 		f = open("AUTHORS","r")
-		authors =["Federico Mena-Quintero <federico@gnome.org>",
+		authors =["Alexander Gabriel <Alexander.Gabriel@tu-harburg.de>",
+						"Federico Mena-Quintero <federico@gnome.org>",
 						"Natan Yellin <aantny@gmail.com>",
 						"Seif Lotfy <seilo@geekyogre.com>",
 						"Siegfried-Angel Gevatter <rainct@ubuntu.com>",

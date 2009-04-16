@@ -89,7 +89,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					"timestamp": timestamp,
 					"uri": info.get_uri(),
 					"name": info.get_display_name(),
-			                "comment": info.get_display_name(),
+			        "comment": info.get_display_name(),
 					"mimetype": info.get_mime_type(),
 					"tags": tags,
 					"use": use,

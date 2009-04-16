@@ -26,14 +26,14 @@ class DBConnector:
             timestamp,
             result[0], # uri
             result[1], # name
-            result[7] or "N/A", # type
-            result[3] or "N/A", # mimetype
-            result[4], # tags
             result[2], # comment
-            result[5] or 1, # count
-            result[6] or "first use", # use
-            (result[9] == 1), # bookmark
-            result[8], # icon
+            result[3], # tags
+            result[4] or "first use", # use
+            result[5], # icon
+            result[6], # bookmark
+            result[7] or "N/A", # mimetype
+            result[8] or 1, # count
+            result[9] or "N/A", # type
             )
     
     def _ensure_item(self, item, uri_only=False):
@@ -115,13 +115,13 @@ class DBConnector:
                     (item["uri"],
                     unicode(item["name"]),
                     item["comment"],
-                    item["mimetype"],
                     item["tags"],
-                    item["count"],
                     item["use"],
-                    item["type"],
                     item["icon"],
-                    0))
+                    0,
+                    item["mimetype"],
+                    item["count"],
+                    item["type"]))
             except sqlite3.IntegrityError, ex:
                 pass
             
@@ -191,17 +191,22 @@ class DBConnector:
         self.cursor.execute('DELETE FROM data where uri=?',(item["uri"],))
         
         # (Re)insert the item into the database
+        if item["bookmark"]:
+        	print "lllllllllllllllllllllllllllllllllllL"
+        	print item["bookmark"]
+        	
         self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
-                            (item["uri"],
-                            item["name"],
-                            item["comment"],
-                            item["mimetype"],
-                            unicode(item["tags"]),
-                            item["count"],
-                            item["use"],
-                            item["type"],
-                            item["icon"],
-                            item["bookmark"]))
+                             (item["uri"],
+			                    unicode(item["name"]),
+			                    item["comment"],
+			                    item["tags"],
+			                    item["use"],
+			                    item["icon"],
+			                    item["bookmark"],
+			                    item["mimetype"],
+			                    item["count"],
+			                    item["type"]))
+        self.connection.commit()
         
         # Delete old tags for this item
         self.cursor.execute('DELETE FROM tags where uri=?', (item["uri"],))

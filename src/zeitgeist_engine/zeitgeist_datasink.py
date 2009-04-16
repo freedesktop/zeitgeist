@@ -96,16 +96,6 @@ class DataSinkSource(DataProvider):
 		# Emulate optional argument for the D-Bus interface
 		if max == 0: max = sys.maxint
 		items = []
-		# Get a list of all document types that we're interested in
-		types = []
-		for source in self.sources:
-			if source.get_active():
-				types.append(source.get_name())
-		# For efficiency, we convert the list to an immutable set
-		# Immutable sets (and regular sets) allow us to perform membership testing in O(1)
-		#  time. Lists, on the other hand, perform membership testing in O(n) time.
-		types = frozenset(types)
-		
 		# Get a list of all tags/search terms
 		# (Here, there's no reason to use sets, because we're not using python's "in"
 		#  keyword for membership testing.)
@@ -118,12 +108,11 @@ class DataSinkSource(DataProvider):
 		# Loop over all of the items from the database
 		for item in db.get_items(min, max):
 			# Check if the document type matches; If it doesn't then don't bother checking anything else
-			if item[3] in types:
 				matches = True
 				# Loop over every tag/search term
 				for tag in tagsplit:
 					# If the document name or uri does NOT match the tag/search terms then skip this item
-					if not tag in item[5].lower().split(',') and not item[0].lower().find(tag) > -1:
+					if not tag in item[3].lower().split(',') and not item[0].lower().find(tag) > -1:
 						matches = False
 						break
 				if matches:

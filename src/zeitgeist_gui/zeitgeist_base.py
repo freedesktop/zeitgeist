@@ -285,15 +285,15 @@ class Data(gobject.GObject):
 
 def objectify_data(item_list):
 	return Data(
-		timestamp	= item_list[0],
-		uri			= item_list[1],
-		name		= item_list[2],
-		type		= item_list[3],
-		mimetype	= item_list[4],
-		tags		= item_list[5],
-		comment		= item_list[6],
-		count		= item_list[7],
-		use			= item_list[8],
-		bookmark	= item_list[9],
-		icon		= item_list[10]
-		)
+			timestamp = item_list[0],
+			uri = item_list[1], # uri
+            name = item_list[2], # name
+            comment = item_list[3], # comment
+            tags = item_list[4], # tags
+            use = item_list[5] or "first use", # use
+            icon =  item_list[6], # icon
+            bookmark = item_list[7], # bookmark
+            mimetype = item_list[8] or "N/A", # mimetype
+            count = item_list[9] or 1, # count
+            type = item_list[10] or "N/A", # type
+            )

@@ -948,6 +948,7 @@ class DataIconView(gtk.TreeView):
 		
 		func = self.store.append
 		bookmark = bookmarker.get_bookmark(item.uri)
+		
 		self.items_uris.append(item.uri)
 		if not item.timestamp == -1.0:
 			date="<span size='small' color='blue'>%s</span>" % item.get_time()
