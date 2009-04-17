@@ -87,15 +87,13 @@ class TimelineWidget(gtk.ScrolledWindow):
 			if not tag=="":
 				ftagsplit.append(tag)
 		tagsplit = ftagsplit
-		days_range= int((self.end - self.begin )/86400)  +1 #get the days range
+		days_range= int((self.end - self.begin ) / 86400) + 1 #get the days range
 		
 		self.days.clear()
 		self.review_days()
-		self.build_days(tagsplit,search)
-		
-		
-		
-	def build_days(self,tagsplit,search):
+		self.build_days(tagsplit, search)
+	
+	def build_days(self, tagsplit, search):
 		for item in self.items:
 			if not self.sources[item.type]:
 				if len(tagsplit) >0:
@@ -134,7 +132,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if days_range == len(self.dayboxes):
 			i = 0
 			for daybox in self.dayboxes:
-				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
+				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
 				daybox.clear()
 				daybox.label.set_label(datestring)
 				self.days[datestring]=daybox
@@ -145,7 +143,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 			for daybox in self.dayboxes:
 				self.dayboxes.remove(daybox)
 				daybox.clear()
-				del daybox
 			#precalculate the number of dayboxes we need and generate the dayboxes
 			for i in xrange(days_range):
 				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
@@ -694,6 +691,7 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 		self.destroy()
 
 class SearchToolItem(gtk.ToolItem):
+	
 	__gsignals__ = {
 		"clear" : (gobject.SIGNAL_RUN_FIRST,
 				   gobject.TYPE_NONE,
@@ -702,7 +700,7 @@ class SearchToolItem(gtk.ToolItem):
 					gobject.TYPE_NONE,
 					(gobject.TYPE_STRING,))
 		}
-
+	
 	def __init__(self, accel_group = None):
 		gtk.ToolItem.__init__(self)
 		self.search_timeout = None
@@ -738,14 +736,14 @@ class SearchToolItem(gtk.ToolItem):
 
 		self.add(box)
 		self.show_all()
-
+	
 	def do_clear(self):
 		if self.clearbtn and self.clearbtn.child:
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
 		timeline.load_month()
-		
+	
 	def do_search(self, text):
 		# Get date range
 		# Format is (year, month-1, day)
@@ -1077,7 +1075,7 @@ class BrowserBar(gtk.HBox):
 		self.search = SearchToolItem()
 		hbox.pack_start(self.search, True, True)
 		clear_btn = gtk.ToolButton("gtk-clear")
-		clear_btn.connect("clicked", lambda: self.search.do_clear())
+		clear_btn.connect("clicked", lambda x: self.search.do_clear())
 		hbox.pack_start(clear_btn, False, False, 4)
 		
 		self.pack_start(hbox, True, True)
