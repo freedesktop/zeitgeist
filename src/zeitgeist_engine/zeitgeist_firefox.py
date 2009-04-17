@@ -18,7 +18,6 @@ class FirefoxSource(DataProvider):
         self.comment = "websites visited with Firefox"
         
         self.historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
-        print 'Reading from', self.historydb[0]
         
         # TODO: Be more sensible about: a) old profiles being present
         # (look at profiles.ini to find the correct one), and b) more
@@ -27,8 +26,10 @@ class FirefoxSource(DataProvider):
             self.note_path_monitor = FileMonitor(self.historydb[0])
             self.note_path_monitor.connect("event", self.reload_proxy)
             self.note_path_monitor.open()
-        except:
+        except Exception:
             print "Are you using Firefox?"
+        else:
+            print 'Reading from', self.historydb[0]
         
         try:
             self.last_timestamp = self.get_latest_timestamp()
