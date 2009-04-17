@@ -166,9 +166,7 @@ class DBConnector:
                 and start <= ?
                 ORDER BY key"""
         
-        items=[]
         func = self._result2data
-        append = items.append
         for start, uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
             # Retrieve the item from the data table
             item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
@@ -176,10 +174,7 @@ class DBConnector:
             
             # TODO: Can item ever be None?
             if item:
-                append(func(item, timestamp = start))
-        return items
-       
-        gc.collect()
+                yield func(item, timestamp = start)
     
     def update_item(self, item):
         """
@@ -253,9 +248,7 @@ class DBConnector:
         
         At most, count tags will be yielded.
         """
-        items = []
         func = self._result2data
-        append = items.append
         res = self.cursor.execute("""SELECT uri
                                     FROM tags
                                     WHERE tagid= ?
@@ -265,10 +258,8 @@ class DBConnector:
         for uri in res:
 	        item = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri[0],)).fetchone()
 	       	if item:
-	       			append(func(item, timestamp = -1))
+	       			yield func(item, timestamp = -1)
 	    
-	return items
-    
     def get_most_tags(self, count=20, min=0, max=sys.maxint):
         """
         Yields the tags between min and max which are used the most often.
@@ -363,9 +354,8 @@ class DBConnector:
             return -1
  
     def get_bookmarked_items(self):
-    	items = []
         for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
-            items.append(self._result2data(item, timestamp = -1))
-        return items
+            yield self._result2data(item, timestamp = -1)
+        
 
 db = DBConnector()

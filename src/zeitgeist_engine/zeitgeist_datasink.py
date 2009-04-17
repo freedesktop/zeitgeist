@@ -95,7 +95,6 @@ class DataSinkSource(DataProvider):
 	def get_items(self, min=0, max=sys.maxint, tags=""):
 		# Emulate optional argument for the D-Bus interface
 		if max == 0: max = sys.maxint
-		items = []
 		# Get a list of all tags/search terms
 		# (Here, there's no reason to use sets, because we're not using python's "in"
 		#  keyword for membership testing.)
@@ -116,9 +115,9 @@ class DataSinkSource(DataProvider):
 						matches = False
 						break
 				if matches:
-					items.append(item)
+					yield item
+				
 		gc.collect()
-		return items
 	
 	def get_items_for_tag(self, tag):
 		items = []

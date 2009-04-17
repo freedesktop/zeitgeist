@@ -6,8 +6,7 @@ import gobject
 import gtk
 from gettext import ngettext, gettext as _
 
-from zeitgeist_engine.zeitgeist_util import icon_factory, difffactory, thumbnailer
-from zeitgeist_gui.zeitgeist_util import launcher
+from zeitgeist_gui.zeitgeist_util import icon_factory, thumbnailer, launcher
 # Some imports are in-place to avoid a circular dependency
 
 
@@ -111,9 +110,12 @@ class Data(gobject.GObject):
 		return [tag.strip() for tag in self.tags.split(",") if tag.strip()]
 	
 	def open_from_timestamp(self):
+		'''
 		path = difffactory.restore_file(self)
 		launcher.launch_uri(path, self.get_mimetype())
 		gc.collect()
+		'''
+		pass
 	
 	def populate_popup(self, menu):
 		open = gtk.ImageMenuItem (gtk.STOCK_OPEN)

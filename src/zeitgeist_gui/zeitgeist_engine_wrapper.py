@@ -9,19 +9,13 @@ class BaseEngineInterface():
 	
 	def get_items(self, *args):
 		func = self._data_from_engine
-		items = []
-		append = items.append
 		for item in self._interface.get_items(*args):
-				append(func(item))
-		return items
+				yield func(item)
 	
 	def get_items_for_tag(self, *args):
 		func = self._data_from_engine
-		items = []
-		append = items.append
 		for item in self._interface.get_items_for_tag(*args):
-				append(func(item))
-		return items
+				yield func(item)
 		
 	def get_related_items(self, *args):
 		for related_item in self._interface.get_related_items(*args):
