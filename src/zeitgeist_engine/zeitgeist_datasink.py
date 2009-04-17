@@ -92,7 +92,7 @@ class DataSinkSource(DataProvider):
 		if not self._db_update_in_progress and len(self._sources_queue) > 0:
 			self.db_update_in_progress = True
 			gobject.idle_add(self._update_db_async)
-	
+			
 	def get_items(self, min=0, max=sys.maxint, tags=""):
 		# Emulate optional argument for the D-Bus interface
 		if max == 0: max = sys.maxint
@@ -117,7 +117,11 @@ class DataSinkSource(DataProvider):
 						break
 				if matches:
 					yield item
-				
+				del item
+			
+		gc.enable()		
+		gc.set_debug(gc.DEBUG_LEAK)
+		print gc.garbage
 		gc.collect()
 	
 	def get_items_for_tag(self, tag):
@@ -165,7 +169,10 @@ class DataSinkSource(DataProvider):
 				# functions (eg., the D-Bus interface)
 				for callback in self.reload_callbacks:
 					callback()
-			
+					
+			gc.enable()		
+			gc.set_debug(gc.DEBUG_LEAK)
+			print gc.garbage
 			# Remove the source from the queue
 			del self._sources_queue[0]
 			
@@ -177,6 +184,7 @@ class DataSinkSource(DataProvider):
 				# Important: return False to stop this callback from being called again
 				return False
 			
+			gc.collect()
 			# Otherwise, if there are more items in the queue return True so that gtk+
 			# will continue to call this function in idle cpu time
 			return True

@@ -57,6 +57,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		engine.connect("signal_updated", self.load_month_proxy)
 		self.offset=0
 		self.items = []
+		self.funcs = []
 		
 		# Load the GUI
 		self.load_month()
@@ -209,14 +210,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Get all items in the date range and add them to self.items
 		for item in self.items:
 			del item
+			
 		self.items = []
 		for item in engine.get_items(self.begin, self.end, ""):
 			if item.timestamp < self.end:
 				self.items.append(item)
 				item.connect("relate",self.set_relation)
-				engine.connect("signal_updated", self.load_month, item)
-		
-		
+			del item
+			
 		t3 = time.time()
 		print "Time to get items: %s" % str(t3-t2)
 		
@@ -228,6 +229,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		print "Time to apply search on  %s items: %s" % (len(self.items), str(t4 -t3))
 		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
 		
+		gc.enable()		
+		gc.set_debug(gc.DEBUG_LEAK)
+		print gc.garbage
+		gc.collect()
 	
 	def jump_to_day(self, widget,focus=False):
 		'''
@@ -874,7 +879,8 @@ class DataIconView(gtk.TreeView):
 		# Add an item to the end of the store
 		self._set_item(item, group=group)
 		#self.set_model(self.store)
-	
+		pass
+		
 	def prepend_item(self, item,group=True):
 		# Add an item to the end of the store
 		self._set_item(item, False,group=group)
