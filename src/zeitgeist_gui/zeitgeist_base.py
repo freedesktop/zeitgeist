@@ -213,7 +213,9 @@ class Data(gobject.GObject):
 	
 	def delete_item(self):
 		from zeitgeist_engine_wrapper import engine
+		from zeitgeist_panel_widgets import timeline
 		engine.delete_item(self.uri)
+		engine.emit_signal_updated() # TODO: No need to reload, just remove the single item
 	
 	def set_tags(self, tags):
 		self.tags = tags

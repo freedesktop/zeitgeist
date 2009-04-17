@@ -7,7 +7,7 @@ import gtk
 import gobject
 import pango
 from gettext import ngettext, gettext as _ 
- 
+
 from zeitgeist_engine.zeitgeist_util import gconf_bridge
 from zeitgeist_gui.zeitgeist_util import launcher
 from zeitgeist_engine.xdgdirs import xdg_directory
@@ -26,7 +26,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Add children widgets
 		self.view = DataIconView(True)
 		self.dayboxes=gtk.HBox(False,False)
-		self.days={}
+		self.days = {}
 				
 		# Set up default properties
 		self.set_border_width(0)
@@ -57,11 +57,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		engine.connect("signal_updated", self.load_month_proxy)
 		self.offset=0
 		self.items = []
-		self.funcs = []
 		
 		# Load the GUI
 		self.load_month()
-		
+	
 	def set_filters(self):
 		for source in engine.get_sources_list():
 			self.sources[source[0]]=False
@@ -72,23 +71,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		
 		self.tags = tags
-		if not tags == "":
-			if tags.find(",,")>-1:
-				tags = self.tags.strip().replace(",,", ",")
-			if tags.startswith(","):
-				tags.replace(",","",1)
-			while tags.find("  ") > -1:
-				tags = tags.replace("  "," ")
-			tagsplit = tags.strip().split(",")
-		else:
-			tagsplit = []
-				
-		ftagsplit=[]
-		for tag in tagsplit:
-			if not tag=="":
-				ftagsplit.append(tag)
-		tagsplit = ftagsplit
-		days_range= int((self.end - self.begin ) / 86400) + 1 #get the days range
+		tagsplit = [tag.strip() for tag in \
+			tags.replace(",", " ").split() if tag.strip()]
+		
+		days_range = int((self.end - self.begin ) / 86400) + 1 #get the days range
 		
 		self.days.clear()
 		self.review_days()
@@ -97,35 +83,36 @@ class TimelineWidget(gtk.ScrolledWindow):
 	def build_days(self, tagsplit, search):
 		for item in self.items:
 			if not self.sources[item.type]:
-				if len(tagsplit) >0:
+				if len(tagsplit) > 0:
 					for tag in tagsplit:
-							if search:
-								if item.uri.lower().find(tag.lower())>-1:
-									if self.days.has_key(item.get_datestring()):
-										daybox = self.days[item.get_datestring()]
-										daybox.append_item(item)
-										self.dayboxes.pack_start(daybox,False,False)
-										self.days[item.get_datestring()]=daybox
-										
-							if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
+						if search:
+							if item.uri.lower().find(tag.lower())>-1:
 								if self.days.has_key(item.get_datestring()):
 									daybox = self.days[item.get_datestring()]
 									daybox.append_item(item)
 									self.dayboxes.pack_start(daybox,False,False)
 									self.days[item.get_datestring()]=daybox
-										
+						
+						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
+							if self.days.has_key(item.get_datestring()):
+								daybox = self.days[item.get_datestring()]
+								daybox.append_item(item)
+								self.dayboxes.pack_start(daybox, False, False)
+								self.days[item.get_datestring()]=daybox
+				
 				else:
 					if self.days.has_key(item.get_datestring()):
 						daybox = self.days[item.get_datestring()]
 						daybox.append_item(item)
-						self.dayboxes.pack_start(daybox,False,False)
-						self.days[item.get_datestring()]=daybox
-				del item
+						self.dayboxes.pack_start(daybox, False, False)
+						self.days[item.get_datestring()] = daybox
+		
 		self.clean_up_dayboxes()
 	
-	def review_days(self):	
+	def review_days(self):
 		
-		days_range= int((self.end - self.begin )/86400)  +1 #get the days range
+		days_range = int((self.end - self.begin) / 86400) +1 #get the days range
+		
 		'''
 		Try avoiding rebuiling boxes and use currently available
 		'''
@@ -137,8 +124,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				daybox.clear()
 				daybox.label.set_label(datestring)
 				self.days[datestring]=daybox
-				i=i+1
-				del daybox
+				i = i + 1
 		
 		else:
 			for daybox in self.dayboxes:
@@ -146,20 +132,20 @@ class TimelineWidget(gtk.ScrolledWindow):
 				daybox.clear()
 			#precalculate the number of dayboxes we need and generate the dayboxes
 			for i in xrange(days_range):
-				datestring =  datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
+				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
-		
+	
 	def clean_up_dayboxes(self):
-		range = (self.end-self.begin)/86400
+		range = (self.end-self.begin) / 86400
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
-		if self.compress_empty_days and range>7:
+		if self.compress_empty_days and range > 7:
 			for daybox in self.dayboxes:
 				if daybox.item_count == 0:
 					daybox.label.set_label(".")
 					daybox.view.set_size_request(-1,-1)
 		gc.collect()
-					
+	
 	def load_month_proxy(self,widget=None, begin=None, end=None):
 		today = time.time()
 		if today >= self.begin and today <= (self.end + 86400):
@@ -208,16 +194,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 		calendar.clear_marks()
 		
 		# Get all items in the date range and add them to self.items
-		for item in self.items:
-			del item
-			
 		self.items = []
 		for item in engine.get_items(self.begin, self.end, ""):
 			if item.timestamp < self.end:
 				self.items.append(item)
-				item.connect("relate",self.set_relation)
-			del item
-			
+				item.connect("relate", self.set_relation)
+		
 		t3 = time.time()
 		print "Time to get items: %s" % str(t3-t2)
 		
@@ -244,7 +226,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		date = calendar.get_date()
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
 		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime(_("%d %b %Y"))
-		if focus==False:
+		if focus == False:
 			for w in self.dayboxes:
 				w.show_all()
 				if w.date == datestring:
@@ -1254,8 +1236,8 @@ class ProjectView(gtk.ScrolledWindow):
 calendar = CalendarWidget()
 timeline = TimelineWidget()
 projectview = ProjectView()
-htb =HTagBrowser()
-vtb =VTagBrowser()
+htb = HTagBrowser()
+vtb = VTagBrowser()
 filtersBox = FilterAndOptionBox()
 bookmarks = BookmarksView()
 bb = BrowserBar()
