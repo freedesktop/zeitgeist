@@ -281,18 +281,30 @@ class DBConnector:
         return tags
     
     def get_min_timestamp_for_tag(self,tag):
-        res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp',(tag,)).fetchone()
+    	timestamp = sys.maxint
+        res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ?',(tag,)).fetchall()
         if res:
-        	print "min timestamp for tagid: "+tag+" = "+ str(res[0])
-        	return res[0]
+        	for uri in res:
+          		print uri
+			res = self.cursor.execute('SELECT start FROM timetable WHERE uri=? ORDER BY start ',(uri[0],)).fetchone()
+			if res[0] < timestamp:
+				timestamp = res[0]
+		print timestamp
+		return timestamp
         else:
             return None
     
     def get_max_timestamp_for_tag(self,tag):
-        res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp DESC',(tag,)).fetchone()
+        timestamp = 0
+        res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ?',(tag,)).fetchall()
         if res:
-        	print "max timestamp for tagid: "+tag+" = "+ str(res[0])
-        	return res[0]
+        	for uri in res:
+	        	print uri
+			res = self.cursor.execute('SELECT start FROM timetable WHERE uri=? ORDER BY start DESC',(uri[0],)).fetchone()
+			if res[0] > timestamp:
+				timestamp = res[0]
+		print timestamp
+		return timestamp
         else:
             return None
     
