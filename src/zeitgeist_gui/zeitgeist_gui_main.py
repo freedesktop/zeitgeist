@@ -7,7 +7,7 @@ from gettext import ngettext, gettext as _
 # Transitional until we got ride of imports from the backend
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../")))
 
-from zeitgeist_panel_widgets import filtersBox, calendar, timeline, tb, bb, bookmarks
+from zeitgeist_panel_widgets import filtersBox, calendar, timeline, htb, bb, bookmarks
 
 
 class Journal(gtk.Window):
@@ -25,7 +25,7 @@ class Journal(gtk.Window):
 		self.vBox = gtk.VBox()
 		tagbox = gtk.HBox()
 			
-		tagbox.pack_start(tb,True,True)
+		tagbox.pack_start(htb,True,True)
 		self.vBox.pack_start(bb,False,False)
 
 		self.add(self.vBox)
@@ -52,7 +52,7 @@ class Journal(gtk.Window):
 		#vbox for timeline and tagbar
 		vbox = gtk.VBox()
 		vbox.pack_start(evbox)
-		vbox.pack_start(tagbox,False,False)
+		vbox.pack_start(tagbox,False,True)
 		
 		self.hBox.pack_start(vbox, True, True,5)
 		self.hBox.pack_start(self.sidebar, False, False,5)
@@ -71,7 +71,7 @@ class Journal(gtk.Window):
 		self.show_all()
 		self.sidebar.hide_all()
 		bookmarks.hide_all()
-		tb.hide_all()
+		htb.hide_all()
 		bb.options.connect("toggled",self.toggle_filters)
 	
 	def toggle_filters(self, x=None):

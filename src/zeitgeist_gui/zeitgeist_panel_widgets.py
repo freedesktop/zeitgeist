@@ -18,13 +18,12 @@ from zeitgeist_gui.zeitgeist_base import Data
 from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 from zeitgeist_shared.zeitgeist_shared import *
 
-class TimelineWidget(gtk.ScrolledWindow,gobject.GObject):
+class TimelineWidget(gtk.ScrolledWindow):
 	
 	def __init__(self):
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
 		
-		gobject.GObject.__init__(self)
 		# Add children widgets
 		self.view = DataIconView(True)
 		self.dayboxes=gtk.HBox(False,False)
@@ -279,7 +278,7 @@ class DayBox(gtk.VBox):
 		vbox.pack_start(self.label,True,True,5)
 		
 		self.pack_start(self.ev,False,False)
-		self.view=DataIconView(True)
+		self.view=DataIconView()
 		if date.startswith("Sat") or date.startswith("Sun"):
 			color = gtk.gdk.rgb_get_colormap().alloc_color('#EEEEEE')
 			self.view.modify_base(gtk.STATE_NORMAL,color)
@@ -374,13 +373,11 @@ class RelatedWindow(gtk.Window):
 		
 		items = []
 
-class TagBrowser(gtk.VBox):
+class HTagBrowser(gtk.HBox):
 	def __init__(self):
 		# Initialize superclass
-		gtk.VBox.__init__(self)
+		gtk.HBox.__init__(self)
 		self.set_size_request(-1,-1)
-		self.combobox = gtk.combo_box_new_text()
-		
 		self.combobox = gtk.combo_box_new_text()
 		self.combobox.append_text('Recently used tags')
 		self.combobox.append_text('Most used tags')
@@ -398,7 +395,7 @@ class TagBrowser(gtk.VBox):
 		self.scroll.add_with_viewport(self.ev)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.scroll.set_shadow_type(gtk.SHADOW_NONE)
-		hbox.pack_start(self.scroll,True,True,1)
+		hbox.pack_start(self.scroll,True,True)
 		self.show_all()
 		self.items = []
 		
@@ -408,7 +405,7 @@ class TagBrowser(gtk.VBox):
 	
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
-		self.pack_start(hbox,True,True,5)
+		self.pack_start(hbox,True,True)
 		engine.connect("signal_updated", lambda x=None: self.func)
 
 	def reload_tags(self,x=None):
@@ -481,6 +478,51 @@ class TagBrowser(gtk.VBox):
 	def untoggle_all(self):
 		for btn in self.view:
 			btn.set_active(False)
+		
+class VTagBrowser(gtk.VBox):
+	def __init__(self):
+		# Initialize superclass
+		gtk.VBox.__init__(self)
+		self.set_size_request(-1,-1)
+		self.combobox = gtk.combo_box_new_text()
+		self.reload_tags()
+		
+		self.combobox.connect('changed', self.changed_cb)
+		self.combobox.set_active(0)
+		self.pack_start(self.combobox,True,True,5)
+		engine.connect("signal_updated", lambda x=None: self.func)
+		
+	def reload_tags(self,x=None):
+		self.func = self.get_recent_tags()
+		self.func = self.get_most_tags()
+
+	def changed_cb(self, combobox=None):
+		label = combobox.get_active_text()
+		projectview.view.clear_store()
+		for item in engine.get_items_for_tag(label):
+			projectview.view.append_item(item)
+		
+	def get_recent_tags(self, x=None):
+		
+		date = calendar.get_date()
+		
+		begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
+		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
+		
+		for tag in engine.get_recent_used_tags(10, begin, end):
+			print tag
+			self.combobox.append_text(tag)
+			
+	def get_most_tags(self, x=None):
+		
+		begin = timeline.begin
+		end = timeline.end
+		
+		for tag in engine.get_most_used_tags(10, begin, end):
+			print tag
+			self.combobox.append_text(tag)
+	
+		
 							   
 class FilterAndOptionBox(gtk.VBox):
 	
@@ -812,6 +854,7 @@ class DataIconView(gtk.TreeView):
 	 
 		self.set_model(self.store)
 		self.set_headers_visible(False)
+			
 		self.set_enable_tree_lines(True)
 		self.set_expander_column(icon_column)
 		
@@ -923,12 +966,18 @@ class DataIconView(gtk.TreeView):
 				iter = self.store.get_iter_root()
 				if iter:
 					item = self.store.get_value(iter, 4)
-					self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+					try:
+						self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+					except:
+						pass
 					while True:
 						iter = self.store.iter_next(iter)
 						if iter:
 							item = self.store.get_value(iter, 4)
-							self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+							try:
+								self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+							except:
+								pass
 						else:
 							break
 		else:
@@ -948,19 +997,34 @@ class DataIconView(gtk.TreeView):
 		
 		func = self.store.append
 		bookmark = bookmarker.get_bookmark(item.uri)
+		parent = None
 		
+		if self.parentdays:
+			if not self.types.has_key(item.type):
+				parent = func(None,[None,#item.get_icon(24),
+										"<span size='x-large' color='blue'>%s</span>" % item.type,
+										"",
+										False,
+										None])
+				self.types[item.type]=parent
+			else:
+				parent = self.types[item.type]
+			
 		self.items_uris.append(item.uri)
+		
 		if not item.timestamp == -1.0:
 			date="<span size='small' color='blue'>%s</span>" % item.get_time()
 		else:
 			date=""
 		
-		func(None,[item.get_icon(24),
+		func(parent,[item.get_icon(24),
 				"<span color='black'>%s</span>" % item.get_name(),
 				date,
 				bookmark,
 				item])
-
+		
+		self.expand_all()
+		
 class BrowserBar(gtk.HBox):
 	
 	def __init__(self):
@@ -1020,7 +1084,7 @@ class BrowserBar(gtk.HBox):
 		self.pack_start(hbox, True, True)
 	
 	def remove_day(self, x=None):
-		tb.untoggle_all()
+		htb.untoggle_all()
 		timeline.offset +=  1
 		timeline.load_month()
 		
@@ -1032,12 +1096,12 @@ class BrowserBar(gtk.HBox):
 			
 	def toggle_tags(self, x=None):
 		if self.tags.get_active():
-			tb.show_all()
+			htb.show_all()
 		else:
-			tb.hide_all()
+			htb.hide_all()
 		
 	def add_day(self, x=None):
-		tb.untoggle_all()
+		htb.untoggle_all()
 		timeline.offset -= 1
 		timeline.load_month()
 
@@ -1177,10 +1241,20 @@ class ButtonCellRenderer(gtk.GenericCellRenderer):
 		self.active_area = None
 		self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
 
+class ProjectView(gtk.ScrolledWindow):
+	def __init__(self):
+		gtk.ScrolledWindow.__init__(self)
+		self.view = DataIconView(True)
+		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.add_with_viewport(self.view)
+		
 
 calendar = CalendarWidget()
 timeline = TimelineWidget()
-tb =TagBrowser()
+projectview = ProjectView()
+htb =HTagBrowser()
+vtb =VTagBrowser()
 filtersBox = FilterAndOptionBox()
 bookmarks = BookmarksView()
 bb = BrowserBar()
+

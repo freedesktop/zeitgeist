@@ -246,7 +246,29 @@ class DBConnector:
         for tagid, tagcount in res:
             tags.append(str(tagid))
         return tags
-            
+    
+    def get_items_for_tag(self,tag):
+        """
+        Yields tags between the timestamps min and max.
+        
+        At most, count tags will be yielded.
+        """
+        items = []
+        func = self._result2data
+        append = items.append
+        res = self.cursor.execute("""SELECT uri
+                                    FROM tags
+                                    WHERE tagid= ?
+                                    """,
+                                    (tag,)).fetchall()
+        
+        for uri in res:
+	        item = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri[0],)).fetchone()
+	       	if item:
+	       			append(func(item, timestamp = -1))
+	    
+	return items
+    
     def get_most_tags(self, count=20, min=0, max=sys.maxint):
         """
         Yields the tags between min and max which are used the most often.

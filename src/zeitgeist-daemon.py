@@ -29,6 +29,14 @@ class RemoteInterface(dbus.service.Object):
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
+						in_signature="s", out_signature="a"+sig_plain_data)
+	def get_items_for_tag(self, tag):
+		items = []
+		for item in datasink.get_items_for_tag(tag):
+			items.append(item)
+		return items
+	
+	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="siis", out_signature="a"+sig_plain_data)
 	def get_items_with_mimetype(self, mimetype, min_timestamp, max_timestamp, tags):
 		items = []

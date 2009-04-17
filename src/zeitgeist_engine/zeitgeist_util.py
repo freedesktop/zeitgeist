@@ -401,11 +401,17 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		menu = gtk.Menu()
 		
 		self.journal_proc = None
+		self.project_viewer_proc = None
 		
 		menuItem = gtk.ImageMenuItem(gtk.STOCK_HOME)
 		menuItem.set_name("Open Journal")
 		menu.append(menuItem)
 		menuItem.connect('activate', self.open_journal)
+		
+		menuItem = gtk.ImageMenuItem(gtk.STOCK_DIRECTORY)
+		menuItem.set_name("Open Project Viewer")
+		menu.append(menuItem)
+		menuItem.connect('activate', self.open_project_viewer)
 		
 		menuItem = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
 		#menu.append(menuItem)
@@ -430,7 +436,11 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 
 	def open_journal(self,widget):
 		if self.journal_proc == None or not self.journal_proc.poll() == None:
-			self.journal_proc = subprocess.Popen("sh zeitgeist.sh",shell=True)
+			self.journal_proc = subprocess.Popen("sh zeitgeist-journal.sh",shell=True)
+			
+	def open_project_viewer(self,widget):
+		if self.project_viewer_proc == None or not self.project_viewer_proc.poll() == None:
+			self.project_viewer_proc = subprocess.Popen("sh zeitgeist-projectviewer.sh",shell=True)
 			
 	def open_about(self,widget):
 		self.about = AboutWindow()
