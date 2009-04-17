@@ -213,7 +213,7 @@ class DBConnector:
             except:
                 pass
             self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
-                (unicode(tag.capitalize()), item["uri"], time.time()))     
+                (unicode(tag.capitalize()), item["uri"], int(time.time())))     
         self.connection.commit()
     
     def delete_item(self, item):
@@ -283,14 +283,16 @@ class DBConnector:
     def get_min_timestamp_for_tag(self,tag):
         res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp',(tag,)).fetchone()
         if res:
-            return res[0]
+        	print "min timestamp for tagid: "+tag+" = "+ str(res[0])
+        	return res[0]
         else:
             return None
     
     def get_max_timestamp_for_tag(self,tag):
         res = self.cursor.execute('SELECT timestamp FROM tags WHERE tagid = ? ORDER BY timestamp DESC',(tag,)).fetchone()
         if res:
-            return res[0]
+        	print "max timestamp for tagid: "+tag+" = "+ str(res[0])
+        	return res[0]
         else:
             return None
     
