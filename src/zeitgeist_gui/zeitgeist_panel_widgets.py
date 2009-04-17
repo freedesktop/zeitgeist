@@ -161,10 +161,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 					
 	def load_month_proxy(self,widget=None, begin=None, end=None):
 		today = time.time()
-		if today  >= self.begin and today <= (self.end + 86400):
-			self.load_month(begin=begin,end=end)
+		if today >= self.begin and today <= (self.end + 86400):
+			self.load_month(begin=begin, end=end)
 	
-	def load_month(self, widget=None, begin=None, end=None, keep = False):
+	def load_month(self, widget=None, begin=None, end=None, keep=False):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -194,11 +194,11 @@ class TimelineWidget(gtk.ScrolledWindow):
 			
 			else:
 				self.begin = begin 
-				self.end = end -1
+				self.end = end - 1
 		
 		t2 = time.time()
 		print "Time to set up dates: "+str(t2-t1)
-				
+		
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
 		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
@@ -218,7 +218,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		
 		t3 = time.time()
-		print "Time to get items: "+str(t3-t2)
+		print "Time to get items: %s" % str(t3-t2)
 		
 		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
@@ -296,24 +296,23 @@ class DayBox(gtk.VBox):
 		self.item_count = 0
 	   
 	def emit_focus(self):
-			self.emit("set-focus-child",self) 
+			self.emit("set-focus-child", self) 
 		  	  
 class RelatedWindow(gtk.Window):
+	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.Window.__init__(self)
 		
-		
 		self.set_resizable(True)
 		self.connect("destroy", lambda w: self.destroy)
-		
 		
 		self.baseitem = gtk.HBox(False)
 		self.img = gtk.Image()
 		self.itemlabel = gtk.Label()
 		self.baseitem.pack_start(self.img,False,False,5)
 		self.baseitem.pack_start(self.itemlabel,False,False,5)
-		
 		
 		self.vbox=gtk.VBox()
 		self.vbox.pack_start(self.baseitem,False,False,5)
@@ -402,7 +401,7 @@ class HTagBrowser(gtk.HBox):
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(hbox,True,True)
-		engine.connect("signal_updated", lambda x=None: self.func)
+		engine.connect("signal_updated", lambda *args: self.func)
 
 	def reload_tags(self,x=None):
 		model = self.combobox.get_model()
@@ -486,7 +485,7 @@ class VTagBrowser(gtk.VBox):
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(self.combobox,True,True,5)
-		engine.connect("signal_updated", lambda x=None: self.func)
+		engine.connect("signal_updated", lambda *args: self.func)
 		
 	def reload_tags(self,x=None):
 		self.func = self.get_recent_tags()
@@ -760,7 +759,7 @@ class SearchToolItem(gtk.ToolItem):
 		begin = time.mktime(begin)
 		end = time.mktime(end) -1
 		
-		timeline.load_month(begin=begin,end=end)
+		timeline.load_month(begin=begin, end=end)
 		
 		if self.clearbtn and not self.clearbtn.child:
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
@@ -863,7 +862,7 @@ class DataIconView(gtk.TreeView):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.day=None
-		engine.connect("signal_updated", lambda x=None: self._do_refresh_rows())
+		engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
@@ -1084,13 +1083,13 @@ class BrowserBar(gtk.HBox):
 		htb.untoggle_all()
 		timeline.offset +=  1
 		timeline.load_month()
-		
+	
 	def toggle_bookmarks(self, x=None):
 		if self.star.get_active():
 			bookmarks.show_all()
 		else:
 			bookmarks.hide_all()
-			
+	
 	def toggle_tags(self, x=None):
 		if self.tags.get_active():
 			htb.show_all()

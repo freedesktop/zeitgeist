@@ -9,9 +9,10 @@ import gc
 
 # Imports from zeitgeist_engine
 from zeitgeist_engine.zeitgeist_base import DataProvider
+from zeitgeist_engine.ThreadPool import *
 from zeitgeist_dbcon import db
 from zeitgeist_util import difffactory, gconf_bridge
-from ThreadPool import *
+from zeitgeist_shared.zeitgeist_shared import *
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -205,6 +206,6 @@ class DataSinkSource(DataProvider):
 		return db.insert_item(item)
 	
 	def get_sources_list(self):
-		return self.sources
+		return [plainify_dataprovider(source) for source in self.sources]
 
 datasink = DataSinkSource()

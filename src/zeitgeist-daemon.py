@@ -71,8 +71,7 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="", out_signature="a"+sig_plain_dataprovider)
 	def get_sources_list(self):
-		return [plainify_dataprovider(source) for source in \
-			datasink.get_sources_list()]
+		return datasink.get_sources_list()
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="(uu)")

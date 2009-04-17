@@ -1,8 +1,11 @@
 import sys
 import time
-from zeitgeist_gui.zeitgeist_base import Data
 
-class BaseEngineInterface():
+from zeitgeist_gui.zeitgeist_base import Data
+from zeitgeist_shared.zeitgeist_shared import plainify_data, dictify_data
+from zeitgeist_gui.zeitgeist_base import objectify_data
+
+class BaseEngineInterface:
 	
 	def __init__(self, interface):
 		self._interface = interface
@@ -15,8 +18,8 @@ class BaseEngineInterface():
 	def get_items_for_tag(self, *args):
 		func = self._data_from_engine
 		for item in self._interface.get_items_for_tag(*args):
-				yield func(item)
-		
+			yield func(item)
+	
 	def get_related_items(self, *args):
 		for related_item in self._interface.get_related_items(*args):
 			yield self._data_from_engine(related_item)
@@ -48,27 +51,38 @@ class BaseEngineInterface():
 
 if "--no-dbus" in sys.argv:
 	
+	import gobject
 	from zeitgeist_engine.zeitgeist_datasink import datasink
 	
-	class EngineInterface(BaseEngineInterface):
+	class SignalHandling(gobject.GObject):
+		
+		__gsignals__ = {
+			"signal_updated" : (gobject.SIGNAL_RUN_FIRST,
+				gobject.TYPE_NONE,
+				()),
+		}
+	
+	class EngineInterface(BaseEngineInterface, gobject.GObject):
 		
 		def _data_to_engine(self, data):
 			return dictify_data(plainify_data(data))
 		
 		def _data_from_engine(self, data):
-			return objectify_data(plainify_data(data))
+			return objectify_data(data)
 		
-		def connect(self, *args):
-			pass
-			#return getattr()
+		def connect(self, signal, callback, arg0=None):
+			signals.connect(signal, callback, arg0)
+		
+		def emit_signal_updated(self, *args):
+			signals.emit("signal_updated")
 	
+	signals = SignalHandling()
 	engine = EngineInterface(datasink)
+	datasink.reload_callbacks.append(engine.emit_signal_updated)
 
 else:
 	
 	from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
-	from zeitgeist_shared.zeitgeist_shared import plainify_data
-	from zeitgeist_gui.zeitgeist_base import objectify_data
 	
 	class EngineInterface(BaseEngineInterface):
 		
