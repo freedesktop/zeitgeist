@@ -121,7 +121,7 @@ class DBConnector:
                     0,
                     item["mimetype"],
                     item["count"],
-                    item["type"]))
+                    unicode(item["type"])))
             except sqlite3.IntegrityError, ex:
                 pass
             
