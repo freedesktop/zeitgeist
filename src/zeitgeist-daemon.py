@@ -23,34 +23,22 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="iis", out_signature="a"+sig_plain_data)
 	def get_items(self, min_timestamp, max_timestamp, tags):
-		items = []
-		for item in datasink.get_items(min_timestamp, max_timestamp, tags):
-			items.append(item)
-		return items
+		return datasink.get_items(min_timestamp, max_timestamp, tags)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="a"+sig_plain_data)
 	def get_items_for_tag(self, tag):
-		items = []
-		for item in datasink.get_items_for_tag(tag):
-			items.append(item)
-		return items
+		return datasink.get_items_for_tag(tag)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="siis", out_signature="a"+sig_plain_data)
 	def get_items_with_mimetype(self, mimetype, min_timestamp, max_timestamp, tags):
-		items = []
-		for item in datasink.get_items_with_mimetype(mimetype, min_timestamp, max_timestamp, tags):
-			items.append(item)
-		return items
+		return datasink.get_items_with_mimetype(mimetype, min_timestamp, max_timestamp, tags)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="", out_signature="a"+sig_plain_data)
 	def get_bookmarks(self):
-		items = []
-		for item in datasink.get_bookmarks():
-			items.append(item)
-		return items
+		return datasink.get_bookmarks()
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="iii", out_signature="as")
@@ -67,10 +55,7 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="a"+sig_plain_data)
 	def get_related_items(self, item_uri):
-		items = []
-		for item in datasink.get_related_items(item_uri):
-			items.append(item)
-		return items
+		return datasink.get_related_items(item_uri)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="a"+sig_plain_data)
@@ -86,10 +71,8 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="", out_signature="a"+sig_plain_dataprovider)
 	def get_sources_list(self):
-		sources = []
-		for source in datasink.get_sources():
-			sources.append(plainify_dataprovider(source))
-		return sources
+		return [plainify_dataprovider(source) for source in \
+			datasink.get_sources_list()]
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="(uu)")
@@ -99,10 +82,7 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="", out_signature="a"+sig_plain_data)
 	def get_bookmarks(self):
-		bookmarks = []
-		for bookmark in datasink.get_bookmarks():
-			bookmarks.append(bookmark)
-		return bookmarks
+		return datasink.get_bookmarks()
 	
 	# Writing stuff
 	

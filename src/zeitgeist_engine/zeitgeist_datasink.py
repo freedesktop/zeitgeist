@@ -204,7 +204,7 @@ class DataSinkSource(DataProvider):
 	def insert_item(self, item):
 		return db.insert_item(item)
 	
-	def get_sources(self):
+	def get_sources_list(self):
 		return self.sources
 
 datasink = DataSinkSource()
