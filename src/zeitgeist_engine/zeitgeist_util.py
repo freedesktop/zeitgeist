@@ -448,7 +448,6 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		self.about_visible = True
 	
 	def close_about(self,x=None,y=None):
-		print "xxxxxxxxx"
 		self.about_visible = False
 			
  	def popup_menu_cb(self,widget, button, time, data = None):
@@ -477,6 +476,7 @@ class AboutWindow(gtk.AboutDialog):
 		f = open("AUTHORS","r")
 		authors =["Alexander Gabriel <Alexander.Gabriel@tu-harburg.de>",
 						"Federico Mena-Quintero <federico@gnome.org>",
+						"Jason Smith <jassmith@gmail.com>",
 						"Natan Yellin <aantny@gmail.com>",
 						"Seif Lotfy <seilo@geekyogre.com>",
 						"Siegfried-Angel Gevatter <rainct@ubuntu.com>",
@@ -487,7 +487,8 @@ class AboutWindow(gtk.AboutDialog):
 		self.set_logo(gtk.gdk.pixbuf_new_from_file("data/gnome-zeitgeist.png"))
 		
 		
-		artists =["Kalle Persson <kalle@nemus.se>"]
+		artists =["Jason Smith <jassmith@gmail.com>",
+						"Kalle Persson <kalle@nemus.se>"]
 		self.set_artists(artists)
 		self.set_icon_from_file("data/gnome-zeitgeist.png")
 	
