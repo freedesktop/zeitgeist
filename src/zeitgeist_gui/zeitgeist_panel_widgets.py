@@ -74,6 +74,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		tagsplit = [tag.strip() for tag in \
 			tags.replace(",", " ").split() if tag.strip()]
 		
+		print "----------------------------------------------------------"
+		print tagsplit
+		print "----------------------------------------------------------"
+		
 		days_range = int((self.end - self.begin ) / 86400) + 1 #get the days range
 		
 		self.days.clear()
@@ -106,7 +110,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.append_item(item)
 						self.dayboxes.pack_start(daybox, False, False)
 						self.days[item.get_datestring()] = daybox
-		
+			
 		self.clean_up_dayboxes()
 	
 	def review_days(self):
@@ -443,6 +447,7 @@ class HTagBrowser(gtk.HBox):
 		self.show_all()
 	
 	def toggle(self, x=None):
+		
 		tags = timeline.tags
 		if x.get_active():
 			if tags.find(x.get_label()) == -1:
