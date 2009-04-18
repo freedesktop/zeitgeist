@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import dbus
 import dbus.service
 import dbus.mainloop.glib

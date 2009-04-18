@@ -1,3 +1,1 @@
-#!/bin/sh
-
-python src/zeitgeist-daemon.py $@
+python ./src/zeitgeist-daemon.py $@

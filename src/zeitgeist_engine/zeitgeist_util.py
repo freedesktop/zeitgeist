@@ -8,6 +8,8 @@ import tempfile
 import subprocess
 import webbrowser
 
+from zeitgeist_shared.basics import BASEDIR
+
 class FileMonitor(gobject.GObject):
 	'''
 	A simple wrapper around GNOME VFS file monitors.  Emits created, deleted,
@@ -124,7 +126,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 	
 	def __init__(self):
 		gtk.StatusIcon.__init__(self)
-		self.set_from_file("data/gnome-zeitgeist.png")
+		self.set_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		self.set_visible(True)
 		
 		self.about_visible=False
@@ -192,7 +194,9 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 
 
 class AboutWindow(gtk.AboutDialog):
+	
 	def __init__(self):
+		
 		gtk.AboutDialog.__init__(self)
 		self.set_name("GNOME Zeitgeist")
 		self.set_version("0.0.3")
@@ -202,9 +206,9 @@ class AboutWindow(gtk.AboutDialog):
 		gtk.about_dialog_set_email_hook(self.open_mail, None)
 		
 		self.set_program_name("GNOME Zeitgeist")
-		image = gtk.image_new_from_file("data/gnome-zeitgeist.png")
+		image = gtk.image_new_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		
-		authors =["Alexander Gabriel <Alexander.Gabriel@tu-harburg.de>",
+		authors = ["Alexander Gabriel <Alexander.Gabriel@tu-harburg.de>",
 						"Federico Mena-Quintero <federico@gnome.org>",
 						"Jason Smith <jassmith@gmail.com>",
 						"Natan Yellin <aantny@gmail.com>",
@@ -214,13 +218,13 @@ class AboutWindow(gtk.AboutDialog):
 		
 		self.set_authors(authors)
 		self.set_comments("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer.")
-		self.set_logo(gtk.gdk.pixbuf_new_from_file("data/gnome-zeitgeist.png"))
+		self.set_logo(gtk.gdk.pixbuf_new_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR))
 		
 		
 		artists =["Jason Smith <jassmith@gmail.com>",
 						"Kalle Persson <kalle@nemus.se>"]
 		self.set_artists(artists)
-		self.set_icon_from_file("data/gnome-zeitgeist.png")
+		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 	
 		self.connect("response", self.close)
 		self.hide()
@@ -235,5 +239,4 @@ class AboutWindow(gtk.AboutDialog):
 	def open_mail(self, dialog, link, ignored):
 		webbrowser.open_new("mailto:" + link)
 
-
-difffactory=DiffFactory()
+difffactory = DiffFactory()
