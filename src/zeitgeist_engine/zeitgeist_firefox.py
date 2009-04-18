@@ -38,7 +38,7 @@ class FirefoxSource(DataProvider):
             self.last_timestamp = 0.0
             
         try:
-            self.loc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
+            self.loc = glob.glob(os.path.expanduser("~/.zeitgeist/"))
             self.loc = self.loc[0] + "firefox.sqlite"
         except:
             pass

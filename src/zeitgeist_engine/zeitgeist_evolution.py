@@ -74,7 +74,7 @@ class EvolutionSource(DataProvider):
 		'''
 		try:
 			historydb = glob.glob(os.path.expanduser("~/.evolution/mail/local/folders.db"))
-			newloc = glob.glob(os.path.expanduser("~/.Zeitgeist/"))
+			newloc = glob.glob(os.path.expanduser("~/.zeitgeist/"))
 			newloc = newloc[0]+"evo.sqlite"
 			shutil.copy2(historydb[0], newloc)
 			return newloc

@@ -14,7 +14,7 @@ from zeitgeist_engine.zeitgeist_base import DataProvider
 class DBConnector:
     
     def __init__(self):
-        path = os.path.expanduser("~/.Zeitgeist/gzg.sqlite")
+        path = os.path.expanduser("~/.zeitgeist/gzg.sqlite")
         self.create_db(path)
         self.connection = sqlite3.connect(path, True, check_same_thread=False)
         self.cursor = self.connection.cursor()
@@ -70,7 +70,7 @@ class DBConnector:
             except OSError, e:
                 print 'Could not create the data directory: %s' % e.strerror
             else:
-                # Copy the empty database skeleton into .Zeitgeist
+                # Copy the empty database skeleton into .zeitgeist
                 shutil.copy("data/gzg.sqlite", path)      
     
     def get_last_timestamp(self):

@@ -19,7 +19,7 @@ class TwitterSource(DataProvider):
 		self.comment = " tweets to Twitter"
 		
 	def get_icon_static(self,icon_size):
-		loc = glob.glob(os.path.expanduser("~/.Zeitgeist/twitter.png"))
+		loc = glob.glob(os.path.expanduser("~/.zeitgeist/twitter.png"))
 		self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(24))
 		
 	def get_items_uncached(self):
