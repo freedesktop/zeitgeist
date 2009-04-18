@@ -14,7 +14,7 @@ class ProjectViewer(gtk.Window):
 	def __init__(self):
 		gtk.Window.__init__(self)
 		# Window
-		self.set_title("Gnome Zeitgeist Project Viewer")
+		self.set_title("GNOME Zeitgeist Project Viewer")
 		self.set_resizable(True)
 		self.set_default_size(300, 600)
 		self.connect("destroy", gtk.main_quit)

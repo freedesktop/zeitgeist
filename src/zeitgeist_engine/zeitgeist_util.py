@@ -11,7 +11,7 @@ import webbrowser
 
 class FileMonitor(gobject.GObject):
 	'''
-	A simple wrapper around Gnome VFS file monitors.  Emits created, deleted,
+	A simple wrapper around GNOME VFS file monitors.  Emits created, deleted,
 	and changed events.  Incoming events are queued, with the latest event
 	cancelling prior undelivered events.
 	'''
@@ -306,7 +306,7 @@ class AboutWindow(gtk.AboutDialog):
 						"Thorsten Prante <thorsten@prante.eu>"]
 			
 		self.set_authors(authors)
-		self.set_comments("Gnome Zeitgeist is a tool for easily browsing and finding files on your computer.")
+		self.set_comments("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer.")
 		self.set_logo(gtk.gdk.pixbuf_new_from_file("data/gnome-zeitgeist.png"))
 		
 		

@@ -334,7 +334,7 @@ class RelatedWindow(gtk.Window):
 		self.img.set_from_pixbuf(item.get_icon(64))
 		string = item.get_name() +"\n"+"\n"+"Last Usage:			"+item.get_datestring() + " " + item.get_time()+"\n"+"\n"+"tags:				"+str(item.get_tags())+"\n"
 		self.itemlabel.set_label(string)
-		self.set_title("Gnome Zeitgeist - Files related to "+item.name)
+		self.set_title("GNOME Zeitgeist - Files related to "+item.name)
 		self.view.clear_store()
 		uris = {}
 		if not item.tags == "":

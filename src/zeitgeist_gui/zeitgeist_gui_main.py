@@ -15,7 +15,7 @@ class Journal(gtk.Window):
 	def __init__(self):
 		gtk.Window.__init__(self)
 		# Window
-		self.set_title("Gnome Zeitgeist")
+		self.set_title("GNOME Zeitgeist")
 		self.set_resizable(True)
 		self.set_default_size(800, -1)
 		self.connect("destroy", gtk.main_quit)
