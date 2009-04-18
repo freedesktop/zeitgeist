@@ -18,7 +18,6 @@ class DBConnector:
         self.create_db(path)
         self.connection = sqlite3.connect(path, True, check_same_thread=False)
         self.cursor = self.connection.cursor()
-        self.offset = 0
     
     def _result2data(self, result, timestamp=0):
         
@@ -130,8 +129,8 @@ class DBConnector:
                 # FIXME: Sometimes Data.tags is a string and sometimes it is a list.
                 # TODO: Improve consistency.
                 for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
-                    self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
-                        (tag.capitalize(), item["uri"], item["timestamp"]))
+                    self.cursor.execute('INSERT INTO tags VALUES (?,?)',
+                        (tag.capitalize(), item["uri"]))
             except Exception, ex:
                 print "Error inserting tags: %s" % ex
         
@@ -208,12 +207,8 @@ class DBConnector:
         
         # (Re)insert tags into the database
         for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
-            try:
-                self.cursor.execute('INSERT INTO tagids VALUES (?)',(tag,)) 
-            except:
-                pass
-            self.cursor.execute('INSERT INTO tags VALUES (?,?,?)',
-                (unicode(tag.capitalize()), item["uri"], int(time.time())))     
+            self.cursor.execute('INSERT INTO tags VALUES (?,?)',
+                (unicode(tag.capitalize()), item["uri"]))     
         self.connection.commit()
     
     def delete_item(self, item):
@@ -228,19 +223,22 @@ class DBConnector:
         
         At most, count tags will be yielded.
         """
+        
+        # FIXME: this returns the same tags as most used
+        
+        # Get uri's in in time intervall sorted desc by time
+    
+        # Get first 20 tags for uris
+        
         res = self.cursor.execute("""SELECT tagid, COUNT(uri)
                                     FROM tags
-                                    WHERE timestamp >= ?
-                                    AND timestamp <= ?
                                     GROUP BY tagid
-                                    ORDER BY timestamp DESC
+                                    ORDER BY COUNT(uri) DESC
                                     LIMIT ?""",
-                                    (str(min), str(max), str(count))).fetchall()
+                                    (str(count),)).fetchall()
         
-        tags =[]
         for tagid, tagcount in res:
-            tags.append(str(tagid))
-        return tags
+        	yield str(tagid)
     
     def get_items_for_tag(self,tag):
         """
@@ -266,19 +264,20 @@ class DBConnector:
         
         At most, count tags will be yielded.
         """
+        
+        # Get uri's in in time intervall sorted by uri desc 
+    
+        # Get first 20 tags for uris
+        
         res = self.cursor.execute("""SELECT tagid, COUNT(uri)
                                     FROM tags
-                                    WHERE timestamp >= ?
-                                    AND timestamp <= ?
                                     GROUP BY tagid
                                     ORDER BY COUNT(uri) DESC
                                     LIMIT ?""",
-                                    (str(min), str(max), str(count))).fetchall()
+                                    (str(count),)).fetchall()
         
-        tags =[]
         for tagid, tagcount in res:
-            tags.append(str(tagid))
-        return tags
+        	yield str(tagid)
     
     def get_min_timestamp_for_tag(self,tag):
     	timestamp = sys.maxint
@@ -321,6 +320,11 @@ class DBConnector:
     def get_related_items(self, item):
         # TODO: Only neighboorhood in time is considered? A bit poor,
         # this needs serious improvement.
+       
+    	for i in self.get_items_related_by_tags():
+    		yield i
+    
+        '''
         list = []
         dict = {}
         current_timestamp = time.time() - (90*24*60*60)
@@ -358,15 +362,8 @@ class DBConnector:
                     counter = counter +1
             
         return list
-    
-    def numeric_compare(x, y):
-        if x[0]>y[0]:
-            return 1
-        elif x[0]==y[0]:
-            return 0
-        else: # x<y
-            return -1
- 
+       	'''
+       	
     def get_bookmarked_items(self):
         for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
             yield self._result2data(item, timestamp = -1)

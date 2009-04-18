@@ -46,12 +46,10 @@ class FirefoxSource(DataProvider):
         self.__copy_sqlite()
     
     def get_latest_timestamp(self): 
-        self.connection = db.connect(self.loc, True)
-        cursor = self.connection.cursor()
         
         contents = "visit_date"
         try:
-            history = cursor.execute("SELECT " + contents + " FROM moz_historyvisits ORDER BY visit_date DESC").fetchone()
+            history = self.cursor.execute("SELECT " + contents + " FROM moz_historyvisits ORDER BY visit_date DESC").fetchone()
         except db.OperationalError, e:
             print e
         else:
@@ -63,13 +61,11 @@ class FirefoxSource(DataProvider):
     
     def get_items_uncached(self):
         # create a connection to firefox's sqlite database
-        self.connection = db.connect( self.loc,True)
-        cursor = self.connection.cursor()
         
         # retrieve all urls from firefox history
         contents = "id, place_id, visit_date,visit_type"
         try:
-            history = cursor.execute("SELECT " + contents + " FROM moz_historyvisits WHERE visit_date>?",(self.last_timestamp,)).fetchall()
+            history = self.cursor.execute("SELECT " + contents + " FROM moz_historyvisits WHERE visit_date>?",(self.last_timestamp,)).fetchall()
         except db.OperationalError, e:
             print 'Firefox database error:', e
         else:
@@ -77,24 +73,19 @@ class FirefoxSource(DataProvider):
             for i in history:
                 # TODO: Fetch full rows above so that we don't need to do another query here
                 contents = "id, url, title, visit_count"
-                item = cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
+                item = self.cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
                 if item:
-                    url = item[1]
-                    name = item[2]
-                    count = item[3]
-                    timestamp = history[j][2] / (1000000)
                     self.last_timestamp =  history[j][2]
+                    use = "linked"
                     if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
                         use = "visited"
-                    else:
-                        use = "linked"
                     item = {
-                        "timestamp": int(timestamp),
-                        "uri": url,
-                        "name": name,
+                        "timestamp": int(	self.last_timestamp / (1000000)),
+                        "uri": item[1],
+                        "name": item[2],
                         "comment": "",
                         "type": "Firefox History",
-                        "count": count,
+                        "count": item[3],
                         "use": use,
                         "mimetype": "",
                         "tags": "",
@@ -103,13 +94,18 @@ class FirefoxSource(DataProvider):
                     yield item
                 j += 1
         
-        cursor.close()
     
     def __copy_sqlite(self):
         '''
         Copy the sqlite file to avoid file locks when it's being used by firefox.
         '''
         try:
-            shutil.copy2(self.historydb[0],  self.loc)
+        	try: 
+        		self.cursor.close()
+        	except:
+        	 	pass
+        	shutil.copy2(self.historydb[0],  self.loc)
+        	self.connection = db.connect(self.loc, True)
+        	self.cursor = self.connection.cursor()
         except:
             pass

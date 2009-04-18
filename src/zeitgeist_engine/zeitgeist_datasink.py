@@ -1,17 +1,13 @@
 import sys
 import os
 import time
-import urllib
 from gettext import gettext as _
-import thread
 import gobject
 import gc
 
-# Imports from zeitgeist_engine
 from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_engine.ThreadPool import *
 from zeitgeist_dbcon import db
-from zeitgeist_util import difffactory, gconf_bridge
 from zeitgeist_shared.zeitgeist_shared import *
 
 sys.path.append(os.path.dirname(__file__))

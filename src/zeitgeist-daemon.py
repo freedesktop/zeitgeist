@@ -4,7 +4,6 @@ import dbus.mainloop.glib
 import gobject
 from gettext import ngettext, gettext as _
 import gtk
-import time
 
 from zeitgeist_engine.zeitgeist_datasink import datasink
 from zeitgeist_shared.zeitgeist_shared import *
@@ -61,11 +60,8 @@ class RemoteInterface(dbus.service.Object):
 						in_signature="s", out_signature="a"+sig_plain_data)
 	def get_items_related_by_tags(self, item_uri):
 		items = []
-		t1 = time.time()
 		for item in datasink.get_items_related_by_tags(item_uri):
 			items.append(item)
-		t2 = time.time()
-		print "##########> time to fetch data from DB: "+ str(t2-t1)
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
@@ -117,8 +113,8 @@ if __name__ == "__main__":
 	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 	object = RemoteInterface()
 	datasink.reload_callbacks.append(object.signal_updated)
-
 	trayicon = ZeitgeistTrayIcon()
+	
 	
 	mainloop = gobject.MainLoop()
 	print _("Running Zeitgeist service.")
