@@ -96,6 +96,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 									daybox.append_item(item)
 									self.dayboxes.pack_start(daybox,False,False)
 									self.days[item.get_datestring()]=daybox
+									break
 						
 						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
 							if self.days.has_key(item.get_datestring()):
@@ -103,6 +104,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 								daybox.append_item(item)
 								self.dayboxes.pack_start(daybox, False, False)
 								self.days[item.get_datestring()]=daybox
+								break
 				
 				else:
 					if self.days.has_key(item.get_datestring()):
@@ -110,6 +112,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.append_item(item)
 						self.dayboxes.pack_start(daybox, False, False)
 						self.days[item.get_datestring()] = daybox
+						
 		
 		self.clean_up_dayboxes()
 	
