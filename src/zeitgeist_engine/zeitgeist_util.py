@@ -1,8 +1,5 @@
-import datetime
 import os
-import urllib
 import sys	   # for ImplementMe
-import inspect # for ImplementMe
 import gobject
 import gtk
 import gnomevfs

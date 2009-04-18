@@ -1,14 +1,8 @@
 import shutil
 import sqlite3
-import tempfile
-import re
-import glob
 import sys
 import gc
 import os
-import time
-import thread
-
 from zeitgeist_engine.zeitgeist_base import DataProvider
 
 class DBConnector:
@@ -85,12 +79,6 @@ class DBConnector:
             return 0
         else:
             return result[0]
-
-    def insert_items_threaded(self, items):
-        """
-        Inserts items into the database in a new thread.
-        """
-        thread.start_new(self.insert_items, (items,))
     
     def insert_item(self, item):
         """
@@ -185,9 +173,6 @@ class DBConnector:
         self.cursor.execute('DELETE FROM data where uri=?',(item["uri"],))
         
         # (Re)insert the item into the database
-        if item["bookmark"]:
-        	print "lllllllllllllllllllllllllllllllllllL"
-        	print item["bookmark"]
         	
         self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
                              (item["uri"],
@@ -224,22 +209,36 @@ class DBConnector:
         At most, count tags will be yielded.
         """
         
-        # FIXME: this returns the same tags as most used
+        uris = [] 
+        tags = []
         
         # Get uri's in in time intervall sorted desc by time
-    
-        # Get first 20 tags for uris
+    	query = """SELECT  uri 
+                FROM timetable
+                WHERE usage!='linked'
+                and start >= ?
+                and start <= ?
+                ORDER BY key DESC"""
         
-        res = self.cursor.execute("""SELECT tagid, COUNT(uri)
-                                    FROM tags
-                                    GROUP BY tagid
-                                    ORDER BY COUNT(uri) DESC
-                                    LIMIT ?""",
-                                    (str(count),)).fetchall()
-        
-        for tagid, tagcount in res:
-        	yield str(tagid)
-    
+        for uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
+            	# Retrieve the item from the data table:
+         	uri = uri[0]
+		if uris.count(uri) <= 0 and len(tags) < count:
+			uris.append(uri)
+       		uri = self.cursor.execute("SELECT * FROM data WHERE uri=?",
+                                   (uri,)).fetchone()
+		if uri:
+			res = self.cursor.execute("""SELECT tagid
+        	                    	FROM tags
+        	                    	WHERE uri = ?""",
+                                    (uri[0],)).fetchall()
+       	                            
+       			for tag in res:
+				if tags.count(tag) <= 0:
+   					if len(tags) < count:
+       						tags.append(tag)
+       						yield str(tag[0])
+       		  			
     def get_items_for_tag(self,tag):
         """
         Yields tags between the timestamps min and max.
@@ -265,30 +264,46 @@ class DBConnector:
         At most, count tags will be yielded.
         """
         
-        # Get uri's in in time intervall sorted by uri desc 
-    
-        # Get first 20 tags for uris
+        uris = [] 
+        tags = []
         
-        res = self.cursor.execute("""SELECT tagid, COUNT(uri)
-                                    FROM tags
-                                    GROUP BY tagid
-                                    ORDER BY COUNT(uri) DESC
-                                    LIMIT ?""",
-                                    (str(count),)).fetchall()
+        # Get uri's in in time intervall sorted desc by time
+    	query = """SELECT  uri 
+                FROM timetable
+                WHERE usage!='linked'
+                and start >= ?
+                and start <= ?
+                ORDER BY uri DESC"""
         
-        for tagid, tagcount in res:
-        	yield str(tagid)
-    
+        for uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
+            	# Retrieve the item from the data table:
+         	uri = uri[0]
+		if uris.count(uri) <= 0 and len(tags) < count:
+			uris.append(uri)
+       		uri = self.cursor.execute("SELECT * FROM data WHERE uri=?",
+                                   (uri,)).fetchone()
+		if uri:
+			res = self.cursor.execute("""SELECT tagid
+        	                    	FROM tags
+        	                    	WHERE uri = ?
+                                    ORDER BY tagid
+                                    """,
+                                    (uri[0],)).fetchall()
+       	                            
+       			for tag in res:
+				if tags.count(tag) <= 0:
+   					if len(tags) < count:
+       						tags.append(tag)
+       						yield str(tag[0])
+              					
     def get_min_timestamp_for_tag(self,tag):
     	timestamp = sys.maxint
         res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ?',(tag,)).fetchall()
         if res:
         	for uri in res:
-          		print uri
 			res = self.cursor.execute('SELECT start FROM timetable WHERE uri=? ORDER BY start ',(uri[0],)).fetchone()
 			if res[0] < timestamp:
 				timestamp = res[0]
-		print timestamp
 		return timestamp
         else:
             return None
@@ -298,11 +313,9 @@ class DBConnector:
         res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ?',(tag,)).fetchall()
         if res:
         	for uri in res:
-	        	print uri
 			res = self.cursor.execute('SELECT start FROM timetable WHERE uri=? ORDER BY start DESC',(uri[0],)).fetchone()
 			if res[0] > timestamp:
 				timestamp = res[0]
-		print timestamp
 		return timestamp
         else:
             return None

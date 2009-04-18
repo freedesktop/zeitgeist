@@ -1,5 +1,4 @@
 import datetime
-import gc
 import sys
 import time
 import os
@@ -72,7 +71,6 @@ class DataProvider(gobject.GObject, Thread):
 	def set_items(self, items):
 		'''Set the cached items. Pass None for items to reset the cache.'''
 		self.items = items
-		gc.collect()
 	
 	def set_active(self,bool):
 		self.active = bool

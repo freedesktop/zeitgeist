@@ -1,12 +1,10 @@
 import sys
 import os
-import time
 from gettext import gettext as _
 import gobject
 import gc
 
 from zeitgeist_engine.zeitgeist_base import DataProvider
-from zeitgeist_engine.ThreadPool import *
 from zeitgeist_dbcon import db
 from zeitgeist_shared.zeitgeist_shared import *
 
@@ -115,9 +113,6 @@ class DataSinkSource(DataProvider):
 					yield item
 				del item
 			
-		gc.enable()		
-		gc.set_debug(gc.DEBUG_LEAK)
-		print gc.garbage
 		gc.collect()
 	
 	def get_items_for_tag(self, tag):

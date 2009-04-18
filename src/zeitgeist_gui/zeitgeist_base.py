@@ -113,7 +113,6 @@ class Data(gobject.GObject):
 		'''
 		path = difffactory.restore_file(self)
 		launcher.launch_uri(path, self.get_mimetype())
-		gc.collect()
 		'''
 		pass
 	

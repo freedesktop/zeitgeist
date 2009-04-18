@@ -1,10 +1,8 @@
-import datetime
 import os
 import re
 from xml.dom.minidom import parse
 from xml.parsers.expat import ExpatError
 
-import gobject
 import gtk
 import gnomevfs
 import W3CDate

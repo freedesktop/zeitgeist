@@ -1,17 +1,8 @@
-import gc
-import datetime
 import os
-import re
 import glob
-from xml.dom.minidom import parse
-from xml.parsers.expat import ExpatError
-
 import gobject
-import gtk
 import shutil
 import sqlite3 as db
-import tempfile
-import W3CDate
 from gettext import gettext as _
 
 from zeitgeist_engine.zeitgeist_base import DataProvider
