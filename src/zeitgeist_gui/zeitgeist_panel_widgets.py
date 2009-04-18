@@ -74,10 +74,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		tagsplit = [tag.strip() for tag in \
 			tags.replace(",", " ").split() if tag.strip()]
 		
-		print "----------------------------------------------------------"
-		print tagsplit
-		print "----------------------------------------------------------"
-		
 		days_range = int((self.end - self.begin ) / 86400) + 1 #get the days range
 		
 		self.days.clear()
