@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Zeitgeist File Journal
+GenericName=File Journal
+Comment=Browse a journal of recently used files
+Exec=zeitgeist-journal
+Icon=zeitgeist
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;Utility;
