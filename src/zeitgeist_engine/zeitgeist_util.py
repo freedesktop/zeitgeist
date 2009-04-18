@@ -1,11 +1,10 @@
 import os
-import sys	   # for ImplementMe
+import sys
 import gobject
 import gtk
 import gnomevfs
-import gconf
 from gettext import gettext as _
-import tempfile, shutil
+import tempfile
 import subprocess
 import webbrowser
 
@@ -94,6 +93,7 @@ class FileMonitor(gobject.GObject):
 		del monitor_uri, info_uri, event
 		return False
 
+
 class DiffFactory:
 	def __init__(self):
 		pass
@@ -118,98 +118,6 @@ class DiffFactory:
 		
 		os.system("patch %s < %s" % (orginalfile, patch))
 		return orginalfile
-	
-
-
-class GConfBridge(gobject.GObject):
-    DEFAULTS = {
-        'compress_empty_days'   : True, 
-        'show_note_button'      : True,
-        'show_file_button'      : True
-    }
-
-    ZEITGEIST_PREFIX = "/apps/zeitgeist/"
-
-    __gsignals__ = {
-        'changed' : (gobject.SIGNAL_RUN_LAST | gobject.SIGNAL_DETAILED, gobject.TYPE_NONE, ()),
-    }
-
-    def __init__(self, prefix = None):
-        gobject.GObject.__init__(self)
-
-        if not prefix:
-            prefix = self.ZEITGEIST_PREFIX
-        if prefix[-1] != "/":
-            prefix = prefix + "/"
-        self.prefix = prefix
-        
-        self.gconf_client = gconf.client_get_default()
-        self.gconf_client.add_dir(prefix[:-1], gconf.CLIENT_PRELOAD_RECURSIVE)
-
-        self.notify_keys = { }
-
-    def connect(self, detailed_signal, handler, *args):
-        # Ensure we are watching the GConf key
-        if detailed_signal.startswith("changed::"):
-            key = detailed_signal[len("changed::"):]
-            if not key.startswith(self.prefix):
-                key = self.prefix + key
-            if key not in self.notify_keys:
-                self.notify_keys[key] = self.gconf_client.notify_add(key, self._key_changed)
-
-        return gobject.GObject.connect(self, detailed_signal, handler, *args)
-
-    def get(self, key, default=None):
-        if not default:
-            if key in self.DEFAULTS:
-                default = self.DEFAULTS[key]
-                vtype = type(default)
-            else:
-                assert "Unknown GConf key '%s', and no default value" % key
-
-        vtype = type(default)
-        if vtype not in (bool, str, int):
-            assert "Invalid GConf key type '%s'" % vtype
-
-        if not key.startswith(self.prefix):
-            key = self.prefix + key
-
-        value = self.gconf_client.get(key)
-        if not value:
-            self.set(key, default)
-            return default
-
-        if vtype is bool:
-            return value.get_bool()
-        elif vtype is str:
-            return value.get_string()
-        elif vtype is int:
-            return value.get_int()
-        else:
-            return value
-
-    def set(self, key, value):
-        vtype = type(value)
-        if vtype not in (bool, str, int):
-            assert "Invalid GConf key type '%s'" % vtype
-
-        if not key.startswith(self.prefix):
-            key = self.prefix + key
-
-        if vtype is bool:
-            self.gconf_client.set_bool(key, value)
-        elif vtype is str:
-            self.gconf_client.set_string(key, value)
-        elif vtype is int:
-            self.gconf_client.set_int(key, value)
-
-    def _key_changed(self, client, cnxn_id, entry, data=None):
-        if entry.key.startswith(self.prefix):
-            key = entry.key[len(self.prefix):]
-        else:
-            key = entry.key
-        detailed_signal = "changed::%s" % key
-        self.emit(detailed_signal)
 
 
 class ZeitgeistTrayIcon(gtk.StatusIcon):
@@ -259,8 +167,8 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 
 	def open_journal(self,widget):
 		if self.journal_proc == None or not self.journal_proc.poll() == None:
-			self.journal_proc = subprocess.Popen("sh zeitgeist-journal.sh",shell=True)
-			
+			self.journal_proc = subprocess.Popen("sh zeitgeist-journal.sh", shell=True)
+	
 	def open_project_viewer(self,widget):
 		if self.project_viewer_proc == None or not self.project_viewer_proc.poll() == None:
 			self.project_viewer_proc = subprocess.Popen("sh zeitgeist-projectviewer.sh",shell=True)
@@ -282,6 +190,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
  	def quit(self,widget):
  		sys.exit(-1)
 
+
 class AboutWindow(gtk.AboutDialog):
 	def __init__(self):
 		gtk.AboutDialog.__init__(self)
@@ -291,12 +200,10 @@ class AboutWindow(gtk.AboutDialog):
 		self.set_website("http://zeitgeist.geekyogre.com")
 		gtk.about_dialog_set_url_hook(self.open_url,None)
 		gtk.about_dialog_set_email_hook(self.open_mail, None)
-
-
+		
 		self.set_program_name("GNOME Zeitgeist")
 		image = gtk.image_new_from_file("data/gnome-zeitgeist.png")
 		
-		f = open("AUTHORS","r")
 		authors =["Alexander Gabriel <Alexander.Gabriel@tu-harburg.de>",
 						"Federico Mena-Quintero <federico@gnome.org>",
 						"Jason Smith <jassmith@gmail.com>",
@@ -304,7 +211,7 @@ class AboutWindow(gtk.AboutDialog):
 						"Seif Lotfy <seilo@geekyogre.com>",
 						"Siegfried-Angel Gevatter <rainct@ubuntu.com>",
 						"Thorsten Prante <thorsten@prante.eu>"]
-			
+		
 		self.set_authors(authors)
 		self.set_comments("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer.")
 		self.set_logo(gtk.gdk.pixbuf_new_from_file("data/gnome-zeitgeist.png"))
@@ -328,5 +235,5 @@ class AboutWindow(gtk.AboutDialog):
 	def open_mail(self, dialog, link, ignored):
 		webbrowser.open_new("mailto:" + link)
 
+
 difffactory=DiffFactory()
-gconf_bridge = GConfBridge()
