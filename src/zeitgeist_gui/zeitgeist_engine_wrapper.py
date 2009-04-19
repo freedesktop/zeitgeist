@@ -18,14 +18,12 @@ class BaseEngineInterface:
 	
 	def get_items(self, *args):
 		func = self._data_from_engine
-		for item in self._interface.get_items(*args):
-				yield func(item)
+		return (func(item) for item in self._interface.get_items(*args))
 	
 	def get_items_for_tag(self, *args):
-		func = self._data_from_engine
-		for item in self._interface.get_items_for_tag(*args):
-			yield func(item)
-	
+		func = self._data_from_engine		
+		return (func(item) for item in self._interface.get_items_for_tag(*args))
+
 	def get_related_items(self, *args):
 		for related_item in self._interface.get_related_items(*args):
 			yield self._data_from_engine(related_item)

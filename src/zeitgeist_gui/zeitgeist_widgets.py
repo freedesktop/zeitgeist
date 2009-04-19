@@ -546,7 +546,7 @@ class SearchToolItem(gtk.ToolItem):
 		self.entry = gtk.Entry()
 		box.pack_start(self.entry, True, True, 5)
 
-		self.entry.set_width_chars(14)
+		self.entry.set_width_chars(30)
 		self.entry.set_text(self.default_search_text)
 		self.entry.show()
 		
@@ -679,26 +679,34 @@ class BrowserBar(gtk.HBox):
 		self.tags.connect("toggled", self.toggle_tags)
 		
 		toolbar = gtk.Toolbar()
-		toolbar.add(self.back)
-		toolbar.add(self.home)
-		toolbar.add(self.forward)
-		toolbar.add(gtk.SeparatorToolItem())
-		toolbar.add(self.star)
-		toolbar.add(self.tags)
-		toolbar.add(self.options)
-		self.pack_start(toolbar, True, True, 4)
+		toolbar.insert(self.back, -1)
+		toolbar.insert(self.home, -1)
+		toolbar.insert(self.forward, -1)
+		toolbar.insert(gtk.SeparatorToolItem(),-1)
+		toolbar.insert(self.star, -1)
+		toolbar.insert(self.tags, -1)
+		toolbar.insert(self.options, -1)
 		
 		hbox = gtk.HBox()
-		hbox.pack_start(gtk.HBox(), True, True, 5)
+		hbox.pack_start(toolbar,True,True)
 		
+		
+		
+		toolbar2 = gtk.Toolbar()
+		searchbox = gtk.HBox()
 		# Search Area
 		self.search = SearchToolItem()
-		hbox.pack_start(self.search, True, True)
+		searchbox.pack_start(self.search, True, True)
 		clear_btn = gtk.ToolButton("gtk-clear")
 		clear_btn.connect("clicked", lambda x: self.search.do_clear())
-		hbox.pack_start(clear_btn, False, False, 4)
+		searchbox.pack_start(clear_btn, False, False)
+		toolbar2.add(searchbox)
+		
+		hbox2 = gtk.HBox(True)
+		hbox2.pack_start(toolbar2)
 		
 		self.pack_start(hbox, True, True)
+		self.pack_start(hbox2, False, False)
 	
 	def remove_day(self, x=None):
 		htb.untoggle_all()

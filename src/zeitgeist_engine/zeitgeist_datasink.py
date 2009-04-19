@@ -116,11 +116,7 @@ class DataSinkSource(DataProvider):
 		gc.collect()
 	
 	def get_items_for_tag(self, tag):
-		items = []
-		for item in db.get_items_for_tag(tag):
-			items.append(item)
-		gc.collect()
-		return items
+		return (item for item in db.get_items_for_tag(tag))
 	
 	def get_bookmarks(self):
 		return db.get_bookmarked_items()
