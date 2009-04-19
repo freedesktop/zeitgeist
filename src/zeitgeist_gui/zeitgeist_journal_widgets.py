@@ -74,8 +74,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		tagsplit = [tag.strip() for tag in \
 			tags.replace(",", " ").split() if tag.strip()]
 		
-		days_range = int((self.end - self.begin ) / 86400) + 1 #get the days range
-		
 		self.days.clear()
 		self.review_days()
 		self.build_days(tagsplit, search)
@@ -281,7 +279,6 @@ class HTagBrowser(gtk.HBox):
 		engine.connect("signal_updated", lambda *args: self.func)
 
 	def reload_tags(self,x=None):
-		model = self.combobox.get_model()
 		index = self.combobox.get_active()
 		if index == 0:
 			self.func = self.get_recent_tags()
@@ -289,7 +286,6 @@ class HTagBrowser(gtk.HBox):
 			self.func = self.get_most_tags()
 
 	def changed_cb(self, combobox=None):
-		model = self.combobox.get_model()
 		index = self.combobox.get_active()
 		if index == 0:
 			self.func = self.get_recent_tags()
@@ -337,14 +333,14 @@ class HTagBrowser(gtk.HBox):
 		tags = timeline.tags
 		if x.get_active():
 			if tags.find(x.get_label()) == -1:
-				 tags = tags + "," + x.get_label()
-				 begin, end = engine.get_timestamps_for_tag(x.get_label())
-				 timeline.load_month(begin=begin, end=end)
+				tags = tags + "," + x.get_label()
+				begin, end = engine.get_timestamps_for_tag(x.get_label())
+				timeline.load_month(begin=begin, end=end)
 		else:
 			if tags.find(x.get_label()) > -1:
-				 tags = tags.replace("," + x.get_label(), ",")
-				 tags = tags.replace(x.get_label() + ",", ",")
-				 timeline.load_month()
+				tags = tags.replace("," + x.get_label(), ",")
+				tags = tags.replace(x.get_label() + ",", ",")
+				timeline.load_month()
 		
 		timeline.apply_search(tags,False)
 		
@@ -395,8 +391,6 @@ class VTagBrowser(gtk.VBox):
 			print tag
 			self.combobox.append_text(tag)
 	
-		
-							   
 class FilterAndOptionBox(gtk.VBox):
 	
 	def __init__(self):
@@ -476,7 +470,7 @@ class FilterAndOptionBox(gtk.VBox):
 			
 	def _make_new_note(self,x):
 		launcher.launch_command("tomboy --new-note")
-  
+		
 	def _show_new_from_template_dialog(self, x):		
 		dlg = NewFromTemplateDialog(".","")
 		dlg.show()
@@ -584,7 +578,6 @@ class SearchToolItem(gtk.ToolItem):
 		# each tuple is of format (year, month, day, hours, minutes,
 		# seconds, weekday, day_of_year, daylight savings) 
 		
-		day = date[2]
 		begin = (date[0], date[1]+1,0, 0,0,0,0,0,0)
 		end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
 		begin = time.mktime(begin)

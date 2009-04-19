@@ -89,8 +89,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 					if tmp != "":
 						tmp = unicode(urllib.unquote(tmp))
 						tags = tmp.replace("/", ",")
-				
-                		item = {
+						
+					item = {
 					"timestamp": timestamp,
 					"uri": info.get_uri(),
 					"name": info.get_display_name(),
@@ -99,8 +99,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 					"tags": tags,
 					"use": use,
 					}
-                
-	                	yield item
+					
+					yield item
 
 class RecentlyUsed(DataProvider):
 	'''
@@ -149,10 +149,10 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 			for app in info.get_applications():
 				appinfo=info.get_application_info(app)
 				counter=counter+appinfo[1]
-        
-	        	item["count"] = counter
-	         	item["type"] = self.name
-		        item["icon"] = ""
+        	
+        		item["count"] = counter
+	        	item["type"] = self.name
+	         	item["icon"] = ""
             
 			yield item
 			del item

@@ -75,7 +75,7 @@ class W3CDate:
 			parsedtime = [23, 59, 59]				# +++ doesn't handle leap seconds
 		else:
 			parsedtime = [0, 0, 0]
-		 
+			
 		if self.datePunctRE.search(t):			# extract year-month-day
 			parseddate = (int(t[0:4]),int(t[5:7]),int(t[8:10]))
 			t = t[self.datePunctLen:]

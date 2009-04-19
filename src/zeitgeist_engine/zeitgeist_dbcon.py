@@ -224,7 +224,7 @@ class DBConnector:
 		for uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
 			
 			# Retrieve the item from the data table:
-		 	uri = uri[0]
+			uri = uri[0]
 			
 			if uris.count(uri) <= 0 and len(tags) < count:
 				uris.append(uri)
@@ -273,8 +273,8 @@ class DBConnector:
 		
 		for uri in res:
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri[0],)).fetchone()
-		   	if item:
-		   		yield func(item, timestamp = -1)
+			if item:
+				yield func(item, timestamp = -1)
 	
 	def get_min_timestamp_for_tag(self,tag):
 		timestamp = sys.maxint
@@ -313,7 +313,7 @@ class DBConnector:
 	def get_related_items(self, item):
 		# TODO: Only neighboorhood in time is considered? A bit poor,
 		# this needs serious improvement.
-	   
+		
 		for i in self.get_items_related_by_tags():
 			yield i
 	
@@ -356,7 +356,7 @@ class DBConnector:
 			
 		return list
 	   	'''
-	   	
+
 	def get_bookmarked_items(self):
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
 			yield self._result2data(item, timestamp = -1)
