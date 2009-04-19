@@ -17,7 +17,6 @@ from zeitgeist_gui.zeitgeist_util import launcher, icon_factory
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_shared.zeitgeist_shared import *
 
-
 class TimelineWidget(gtk.ScrolledWindow):
 	
 	def __init__(self):
@@ -214,8 +213,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Benchmarking
 		print "Time to apply search on  %s items: %s" % (len(self.items), str(t4 -t3))
 		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
-	
-	def jump_to_day(self, widget, focus=False):
+		
+	def jump_to_day(self, widget,focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
 		'''
@@ -246,11 +245,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 			adj.set_value(min(alloc.x, adj.upper-adj.page_size))
 			del widget 
 
-
 class HTagBrowser(gtk.HBox):
-	
 	def __init__(self):
-		
 		# Initialize superclass
 		gtk.HBox.__init__(self)
 		self.set_size_request(-1,-1)
@@ -271,7 +267,7 @@ class HTagBrowser(gtk.HBox):
 		self.scroll.add_with_viewport(self.ev)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.scroll.set_shadow_type(gtk.SHADOW_NONE)
-		hbox.pack_start(self.scroll, True, True)
+		hbox.pack_start(self.scroll,True,True)
 		self.show_all()
 		self.items = []
 		
@@ -279,12 +275,12 @@ class HTagBrowser(gtk.HBox):
 		
 		self.func()
 	
-		self.combobox.connect("changed", self.changed_cb)
+		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
-		self.pack_start(hbox, True, True)
+		self.pack_start(hbox,True,True)
 		engine.connect("signal_updated", lambda *args: self.func)
 
-	def reload_tags(self, *discard):
+	def reload_tags(self,x=None):
 		model = self.combobox.get_model()
 		index = self.combobox.get_active()
 		if index == 0:
@@ -292,7 +288,7 @@ class HTagBrowser(gtk.HBox):
 		else:
 			self.func = self.get_most_tags()
 
-	def changed_cb(self, *discard):
+	def changed_cb(self, combobox=None):
 		model = self.combobox.get_model()
 		index = self.combobox.get_active()
 		if index == 0:
@@ -308,7 +304,7 @@ class HTagBrowser(gtk.HBox):
 		self.view.pack_start(btn, True, True)
 		btn.connect("toggled", self.toggle)
 	
-	def get_recent_tags(self, *discard):
+	def get_recent_tags(self, x=None):
 		
 		date = calendar.get_date()
 		
@@ -323,7 +319,7 @@ class HTagBrowser(gtk.HBox):
 			
 		self.show_all()
 	
-	def get_most_tags(self, *discard):
+	def get_most_tags(self, x=None):
 		
 		begin = timeline.begin
 		end = timeline.end
@@ -355,34 +351,31 @@ class HTagBrowser(gtk.HBox):
 	def untoggle_all(self):
 		for btn in self.view:
 			btn.set_active(False)
-
-
-class VTagBrowser(gtk.VBox):
-	
-	def __init__(self):
 		
+class VTagBrowser(gtk.VBox):
+	def __init__(self):
 		# Initialize superclass
 		gtk.VBox.__init__(self)
 		self.set_size_request(-1,-1)
 		self.combobox = gtk.combo_box_new_text()
 		self.reload_tags()
 		
-		self.combobox.connect("changed", self.changed_cb)
+		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(self.combobox,True,True,5)
 		engine.connect("signal_updated", lambda *args: self.func)
-	
-	def reload_tags(self, *discard):
+		
+	def reload_tags(self,x=None):
 		self.func = self.get_recent_tags()
 		self.func = self.get_most_tags()
-	
+
 	def changed_cb(self, combobox=None):
 		label = combobox.get_active_text()
 		projectview.view.clear_store()
 		for item in engine.get_items_for_tag(label):
 			projectview.view.append_item(item)
-	
-	def get_recent_tags(self, *discard):
+		
+	def get_recent_tags(self, x=None):
 		
 		date = calendar.get_date()
 		
@@ -390,17 +383,20 @@ class VTagBrowser(gtk.VBox):
 		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
 		
 		for tag in engine.get_recent_used_tags(10, begin, end):
+			print tag
 			self.combobox.append_text(tag)
-	
-	def get_most_tags(self, *discard):
+			
+	def get_most_tags(self, x=None):
 		
 		begin = timeline.begin
 		end = timeline.end
 		
 		for tag in engine.get_most_used_tags(10, begin, end):
+			print tag
 			self.combobox.append_text(tag)
-
-		   
+	
+		
+							   
 class FilterAndOptionBox(gtk.VBox):
 	
 	def __init__(self):
@@ -503,7 +499,7 @@ class CheckBox(gtk.CheckButton):
 		self.set_label(source[0])
 		self.set_active(self.source[2])
 		
-		icon = icon_factory.load_icon(source[1], icon_size = 16)
+		icon = icon_factory.load_icon(source[1], icon_size = 24)
 		self.image = gtk.Image()
 		self.image.set_from_pixbuf(icon)
 		self.set_image(self.image)
@@ -523,7 +519,6 @@ class CheckBox(gtk.CheckButton):
 			#self.source.set_active(False)
 		
 		timeline.load_month()
-
 
 class SearchToolItem(gtk.ToolItem):
 	
@@ -644,7 +639,6 @@ class SearchToolItem(gtk.ToolItem):
 		if self.entry.get_text() != self.default_search_text:
 			self.do_clear()
 
-
 class BrowserBar(gtk.HBox):
 	
 	def __init__(self, htb):
@@ -735,16 +729,13 @@ class BrowserBar(gtk.HBox):
 		timeline.load_month()
 
 	def focus_today(self, x=None):
-		timeline.offset = 0
-		today = time.time()
-		month = int(datetime.datetime.fromtimestamp(today).strftime(_("%m")))-1
-		year = int(datetime.datetime.fromtimestamp(today).strftime(_("%Y")))
-		day = int(datetime.datetime.fromtimestamp(today).strftime(_("%d")))
-		calendar.select_month(month,year)
-		calendar.select_day(day)
-		#calendar.do_day_selected_double_click()
-
-
+		today = str(datetime.datetime.today().strftime(_("%d %m %Y"))).split(" ")
+		date = calendar.get_date()
+		calendar.select_day(int(today[0]))
+		if not int(today[1])-1 == int(date[1]):
+			calendar.select_month(int(today[1])-1, int(today[2]))
+		
+		
 class ButtonCellRenderer(gtk.GenericCellRenderer):
 	
 	__gsignals__ = {
@@ -838,142 +829,13 @@ class ProjectView(gtk.ScrolledWindow):
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.add_with_viewport(self.view)
 		
-class CairoTimeline (gtk.DrawingArea):
-	# TODO:
-	# - Update self.week when the day changes
-	# - Connect to the engine's signals and redraw when necessary
-	# - Bling up the timeline
-	# - Do something when the user clicks on a tag
-	# - Add on more intelligent sizing logic (right now, tags overlap if they're too long)
-	# - Clean up all of the drawing code.
-	
-	# Draw in response to an expose-event
-	__gsignals__ = { "expose-event": "override" }
-	
-	def __init__ (self):
-		gtk.DrawingArea.__init__(self)
-		self.__init_week()
-		self.__init_tags()
-		
-	def do_expose_event (self, event):
-		# Create the cairo context
-		ctx = self.window.cairo_create()
-		
-		# Restrict Cairo to the exposed area; avoid extra work
-		ctx.rectangle(event.area.x, event.area.y,
-			event.area.width, event.area.height)
-		ctx.clip()
-		
-		self.__draw(ctx, *self.window.get_size())
-	
-	def __init_week (self):
-		"""
-		Initializes the self.week list which contains the name 
-		(e.g. "Sunday"), start timestamp, and end timestamp for every
-		day in the past week. (The list starts with the current day and
-		goes backwards in time.)
-		"""
-		# Get an object representing the current day
-		day = datetime.date.today()
-		
-		# Get the start and end timestamps for each day in the past week
-		self.week = []
-		for i in xrange(7):
-			if len(self.week) == 0:
-				name = "Today"
-			elif len(self.week) == 1:
-				name = "Yesterday"
-			else:
-				name = day.strftime("%A")
-			start = time.mktime(day.timetuple())
-			end = start + 86400 # number of seconds in 1 day
-			self.week.append((name, start, end))
-			
-			day -= datetime.timedelta(days=1)
-	
-	def __init_tags (self):
-		"""
-		Initializes the self.tags list which contains the tags for the
-		for the past week. (The list starts with a list of tags for the
-		current day and goes backwards in time.)
-		"""
-		self.tags = []
-		
-		# Loop over every day in the past week and get it's most popular tags
-		for (name, start, end) in self.week:
-			tags = engine.get_most_used_tags(4, start, end)
-			self.tags.append(tags)
-		
-	def __draw (self, ctx, width, height):
-		# Create a pango layout
-		layout = ctx.create_layout()
-		
-		# Fill the background with gray
-		ctx.set_source_rgb(0.5, 0.5, 0.5)
-		ctx.rectangle(0, 0, width, height)
-		ctx.fill()		
-		
-		# Draw a line down the middle
-		border = 20
-		ctx.set_source_rgb(1.0, 1.0, 1.0)
-		ctx.move_to(border, height - 30 - 6)
-		ctx.line_to(width - border, height - 30 - 6)
-		ctx.arc(width - border, height - 30, 12, -math.pi/2, math.pi/2)
-		ctx.line_to(width - border, height - 30 + 6)
-		ctx.line_to(border, height - 30 + 6)
-		ctx.arc(border, height - 30, 12, math.pi/2, -math.pi/2)
-		ctx.line_to(border, height - 30 - 6)
-		ctx.fill()
-		
-		# Loop over each day in the past week, and draw tags for that day
-		interval = (width - 2 * (border + 10)) / 7.0
-		x = width - border - 7 - interval
-		for i in xrange(7):
-			# If this day has tags:
-			if len(self.tags[i]) > 0:
-				# Draw a line connecting the timeline to the tags
-				ctx.set_source_rgb(0.2, 0.2, 0.2)
-				ctx.move_to(x + (interval)/2.0, height - 30 - 6)
-				ctx.line_to(x + (interval - 40)/2.0, height - 30 - 30)
-				ctx.stroke()
-				
-				# Draw all of the tags for this day
-				y = height - 30
-				for tag in self.tags[i]:
-					y -= 40
-					ctx.set_source_rgb(0.2, 0.2, 0.2)
-					ctx.rectangle(x, y, interval - 10, 20)
-					ctx.fill()
-					
-					# Draw tag text
-					ctx.set_source_rgb(1.0, 1.0, 1.0)
-					font = pango.FontDescription()
-					font.set_weight(20)
-					layout.set_font_description(font)
-					layout.set_markup(tag)
-					ctx.move_to(x + 3, y + 2)
-					ctx.show_layout(layout)
-				
-				# Draw a line connecting the tags to one another
-				ctx.set_source_rgb(0.2, 0.2, 0.2)	
-				ctx.move_to(x + 1, height - 30 - 20)
-				ctx.line_to(x + 1, y)
-				ctx.stroke()
-				
-			# Draw this day's name on the timeline
-			name = self.week[i][0]
-			ctx.set_source_rgb(0.0, 0.0, 0.0)
-			font = pango.FontDescription()
-			font.set_weight(30)
-			font.set_size(9 * pango.SCALE)
-			layout.set_font_description(font)
-			layout.set_markup(name)
-			ctx.move_to(x, height - 30 - 7)
-			ctx.show_layout(layout)
-				
-			x -= interval
-
 
 calendar = CalendarWidget()
 timeline = TimelineWidget()
 projectview = ProjectView()
+
+htb = HTagBrowser()
+vtb = VTagBrowser()
+filtersBox = FilterAndOptionBox()
+bookmarks = BookmarksView()
+bb = BrowserBar(htb)
