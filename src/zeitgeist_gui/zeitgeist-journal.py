@@ -8,7 +8,7 @@ from gettext import ngettext, gettext as _
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../"))
 
-from zeitgeist_panel_widgets import filtersBox, calendar, timeline, htb, bb, bookmarks
+from zeitgeist_widgets import filtersBox, calendar, timeline, htb, bb, bookmarks
 from zeitgeist_shared.basics import BASEDIR
 
 class Journal(gtk.Window):

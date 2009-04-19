@@ -8,7 +8,7 @@ from gettext import ngettext, gettext as _
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../"))
 
-from zeitgeist_panel_widgets import vtb, bb, bookmarks, projectview
+from zeitgeist_widgets import vtb, bb, bookmarks, projectview
 from zeitgeist_shared.basics import BASEDIR
 
 class ProjectViewer(gtk.Window):

@@ -212,7 +212,6 @@ class Data(gobject.GObject):
 	
 	def delete_item(self):
 		from zeitgeist_engine_wrapper import engine
-		from zeitgeist_panel_widgets import timeline
 		engine.delete_item(self.uri)
 		engine.emit_signal_updated() # TODO: No need to reload, just remove the single item
 	
@@ -250,7 +249,7 @@ class Data(gobject.GObject):
 	def get_common_tags(self, view):
 		from zeitgeist_engine_wrapper import engine
 		for tag in engine.get_most_used_tags(10, 0, 0):
-			# TODO: This code is duplicated in zeitgeist_panel_widgets.py
+			# TODO: This code is duplicated in zeitgeist_widgets.py
 			btn = gtk.ToggleButton(tag)
 			btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
