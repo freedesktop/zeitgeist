@@ -1,7 +1,12 @@
+'''
+Copyright (C) 2007 Alex Graveley <alex@beatniksoftware.com>
+'''
+
 import os
 import re
 import urllib
 import gtk
+import gc
 from gettext import gettext as _
 
 from zeitgeist_engine.zeitgeist_base import DataProvider
@@ -105,6 +110,7 @@ class RecentlyUsed(DataProvider):
 		DataProvider.__init__(self, name=name, icon=icon)
 		recent_model.connect("reload", lambda m: self.emit("reload"))
 		self.counter = 0
+		self.last_uri = None
 	
 	def get_items_uncached(self):
 		self.counter = self.counter + 1
@@ -112,6 +118,7 @@ class RecentlyUsed(DataProvider):
 			# Check whether to include this item
 			if self.include_item(item):
 				yield item
+				del item
 	
 	def include_item(self, item):
 		return True
@@ -148,6 +155,8 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 		        item["icon"] = ""
             
 			yield item
+			del item
+		gc.collect()
 
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
@@ -173,7 +182,7 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 										inverse = True)
 	
 	def include_item(self, item):
-		item_mime = item.get_mimetype()
+		item_mime = item["mimetype"]
 		for mimetype in self.mimetype_list:
 			if hasattr(mimetype, "match") and mimetype.match(item_mime) or item_mime == mimetype:
 				return False

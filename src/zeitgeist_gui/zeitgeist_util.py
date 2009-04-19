@@ -1,3 +1,7 @@
+'''
+Copyright (C) 2007 Alex Graveley <alex@beatniksoftware.com>
+'''
+
 import os
 import gtk
 import gnome.ui

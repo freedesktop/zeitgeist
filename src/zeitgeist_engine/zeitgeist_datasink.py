@@ -30,7 +30,7 @@ class DataSinkSource(DataProvider):
 		logger_sources = {
 			"recent": (
 				"RecentlyUsedVideo", "RecentlyUsedMusic",
-				"RecentlyUsedImages", "RecentlyUsedDocuments",
+				"RecentlyUsedImages", "RecentlyUsedDocuments","RecentlyUsedOthers",
 				),
 			"firefox": ("Firefox",),
 			"tomboy": ("Tomboy",),

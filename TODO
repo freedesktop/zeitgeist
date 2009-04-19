@@ -5,20 +5,13 @@ TODO:
 	+ Move all Twitter/Firefox/Tomboy specific code out of zeitgeist_base.py (Done?)
 		and into the appropriate subclasses.
 	+ Add on Tracker support.
-	+ Set relationships between Data based on: 
-		1. Other Items usage in the periods where the Data.
-		2. Common Tags.
-		3. Context (example context of text files).
 	+ Extend DB to support location of usage
 	+ Related Items should be automatically determined by currently used URI.
 	+ Auto Tagging e.g: tasks, locations, and relations.
-	+ Finish the D-Bus interface. (We need to insert items via DBUS , maybe patch up the datasink to have an insert in string tuples)
-	+ Reduce the amount of "changed" signals send.
-	+ Fix the firefox DB detection (see comment in code).
-	+ Is RecentlyUsedDocuments the best place for text/plain files?
+	+ Export all DataProviders outside the zeitgeist_engine into a new plugin package,
+	that communicates with the engine via D-Bus
 
 - Frontend:
-    + Separate it from the backend and let it only use D-Bus for communication.
 	+ Do not show an item twice one beneath the other.
 	+ Use a generic CellRenderer to display stars for bookmarking instead of checkboxes!
 	+ create a bar displaying the related files to currently opened files (inspired by Gimmie)
