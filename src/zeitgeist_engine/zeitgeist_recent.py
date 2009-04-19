@@ -6,6 +6,7 @@ import os
 import re
 import urllib
 import gtk
+import gc
 from gettext import gettext as _
 
 from zeitgeist_engine.zeitgeist_base import DataProvider
@@ -117,6 +118,7 @@ class RecentlyUsed(DataProvider):
 			# Check whether to include this item
 			if self.include_item(item):
 				yield item
+				del item
 	
 	def include_item(self, item):
 		return True
@@ -153,6 +155,8 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 		        item["icon"] = ""
             
 			yield item
+			del item
+		gc.collect()
 
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
