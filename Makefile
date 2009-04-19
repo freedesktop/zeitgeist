@@ -23,10 +23,12 @@ install:
 	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist-daemon.py
 	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-journal.py
 	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-projectviewer.py
+	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-timeline.py
 	
 	rm -f $(PREFIX)/bin/zeitgeist-daemon \
 		$(PREFIX)/bin/zeitgeist-journal \
-		$(PREFIX)/bin/zeitgeist-projectviewer
+		$(PREFIX)/bin/zeitgeist-projectviewer \
+		$(PREFIX)/bin/zeitgeist-timeline \
 	
 	ln -s $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist-daemon.py \
 		$(PREFIX)/bin/zeitgeist-daemon
@@ -34,7 +36,9 @@ install:
 		$(PREFIX)/bin/zeitgeist-journal
 	ln -s $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-projectviewer.py \
 		$(PREFIX)/bin/zeitgeist-projectviewer
-	
+	ln -s $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-timeline.py \
+		$(PREFIX)/bin/zeitgeist-timeline
+		
 	@echo "Makefile: Installed GNOME Zeitgeist."
 
 # uninstall
@@ -44,6 +48,7 @@ uninstall:
 	rm -f $(PREFIX)/bin/zeitgeist-daemon
 	rm -f $(PREFIX)/bin/zeitgeist-journal
 	rm -f $(PREFIX)/bin/zeitgeist-projectviewer
+	rm -f $(PREFIX)/bin/zeitgeist-timeline
 	rm -f $(PREFIX)/share/applications/zeitgeist-journal.desktop
 	rm -f $(PREFIX)/share/dbus-1/services/org.gnome.Zeitgeist.service
 	@echo "Makefile: GNOME Zeitgeist uninstalled."
