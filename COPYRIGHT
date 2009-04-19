@@ -1,0 +1,40 @@
+GNOME Zeitgeist
+Copyright (C) 2008 by the following:
+
+If you have contributed to this project then you deserve to be on this list.
+Contact us (see: AUTHORS) and we'll add you.
+
+Alexander Gabriel 
+Federico Mena-Quintero
+Jason Smith 
+Natan Yellin 
+Seif Lotfy 
+Siegfried-Angel Gevatter 
+Thorsten Prante 
+
+
+
+src/zeitgeist_engine/zeitgeist_util.py
+src/zeitgeist_engine/zeitgeist_recent.py
+
+The utility package and RecentlyUsed dataproviders are taken from the Gimmie project.
+The Gimmie homepage is located at http://www.beatniksoftware.com/gimmie.
+Copyright (C) 2007 Alex Graveley <alex@beatniksoftware.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
