@@ -15,3 +15,6 @@ TODO:
 	+ Do not show an item twice one beneath the other.
 	+ Use a generic CellRenderer to display stars for bookmarking instead of checkboxes!
 	+ create a bar displaying the related files to currently opened files (inspired by Gimmie)
+	+ Fix menuitem names in the trayicon
+	+ Stop instantiating widgets in zeitgeist_widgets.py (see the last 7 lines). This wastes memory
+	  and processing for widgets, even when we don't display them.
