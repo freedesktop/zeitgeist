@@ -390,9 +390,9 @@ class HTagBrowser(gtk.HBox):
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(hbox,True,True)
-		engine.connect("signal_updated", lambda *args: self.func)
+		engine.connect("signal_updated", lambda *discard: self.func)
 
-	def reload_tags(self,x=None):
+	def reload_tags(self, *discard):
 		model = self.combobox.get_model()
 		index = self.combobox.get_active()
 		if index == 0:
@@ -400,7 +400,7 @@ class HTagBrowser(gtk.HBox):
 		else:
 			self.func = self.get_most_tags()
 
-	def changed_cb(self, combobox=None):
+	def changed_cb(self, *discard):
 		model = self.combobox.get_model()
 		index = self.combobox.get_active()
 		if index == 0:
@@ -416,7 +416,7 @@ class HTagBrowser(gtk.HBox):
 		self.view.pack_start(btn, True, True)
 		btn.connect("toggled", self.toggle)
 	
-	def get_recent_tags(self, x=None):
+	def get_recent_tags(self, *discard):
 		
 		date = calendar.get_date()
 		
@@ -431,7 +431,7 @@ class HTagBrowser(gtk.HBox):
 			
 		self.show_all()
 	
-	def get_most_tags(self, x=None):
+	def get_most_tags(self, *discard):
 		
 		begin = timeline.begin
 		end = timeline.end
@@ -475,9 +475,9 @@ class VTagBrowser(gtk.VBox):
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(self.combobox,True,True,5)
-		engine.connect("signal_updated", lambda *args: self.func)
+		engine.connect("signal_updated", lambda *discard: self.func)
 		
-	def reload_tags(self,x=None):
+	def reload_tags(self, *discard):
 		self.func = self.get_recent_tags()
 		self.func = self.get_most_tags()
 
@@ -487,7 +487,7 @@ class VTagBrowser(gtk.VBox):
 		for item in engine.get_items_for_tag(label):
 			projectview.view.append_item(item)
 		
-	def get_recent_tags(self, x=None):
+	def get_recent_tags(self, *discard):
 		
 		date = calendar.get_date()
 		
@@ -498,17 +498,15 @@ class VTagBrowser(gtk.VBox):
 			print tag
 			self.combobox.append_text(tag)
 			
-	def get_most_tags(self, x=None):
+	def get_most_tags(self, *discard):
 		
 		begin = timeline.begin
 		end = timeline.end
 		
 		for tag in engine.get_most_used_tags(10, begin, end):
-			print tag
 			self.combobox.append_text(tag)
-	
-		
-							   
+
+
 class FilterAndOptionBox(gtk.VBox):
 	
 	def __init__(self):
@@ -852,7 +850,7 @@ class DataIconView(gtk.TreeView):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.last_item=None
 		self.day=None
-		engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
+		engine.connect("signal_updated", lambda *discard: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
@@ -883,7 +881,7 @@ class DataIconView(gtk.TreeView):
 		
 		self.store.clear()
 			
-	def unselect_all(self,x=None,y=None):
+	def unselect_all(self, *discard):
 		try:
 			treeselection = self.get_selection()
 			model, iter = treeselection.get_selected()
@@ -892,7 +890,7 @@ class DataIconView(gtk.TreeView):
 		except:
 			pass
 			
-	def _open_item(self, view, path, x=None):		 
+	def _open_item(self, view, path, *discard):		 
 		item = self.get_selected_item()
 		if item.get_mimetype() == "x-tomboy/note":
 			uri_to_open = "note://tomboy/%s" % os.path.splitext(os.path.split(item.get_uri())[1])[0]
@@ -1070,29 +1068,29 @@ class BrowserBar(gtk.HBox):
 		
 		self.pack_start(hbox, True, True)
 	
-	def remove_day(self, x=None):
+	def remove_day(self, *discard):
 		htb.untoggle_all()
 		timeline.offset +=  1
 		timeline.load_month()
 	
-	def toggle_bookmarks(self, x=None):
+	def toggle_bookmarks(self, *discard):
 		if self.star.get_active():
 			bookmarks.show_all()
 		else:
 			bookmarks.hide_all()
 	
-	def toggle_tags(self, x=None):
+	def toggle_tags(self, *discard):
 		if self.tags.get_active():
 			htb.show_all()
 		else:
 			htb.hide_all()
 		
-	def add_day(self, x=None):
+	def add_day(self, *discard):
 		htb.untoggle_all()
 		timeline.offset -= 1
 		timeline.load_month()
 
-	def focus_today(self, x=None):
+	def focus_today(self, *discard):
 		timeline.offset = 0
 		today = time.time()
 		month = int(datetime.datetime.fromtimestamp(today).strftime(_("%m")))-1
@@ -1137,7 +1135,7 @@ class BookmarksView(gtk.VBox):
 		self.get_bookmarks()
 		engine.connect("signal_updated", self.get_bookmarks)
 
-	def get_bookmarks(self, x=None):
+	def get_bookmarks(self, *discard):
 		self.view.clear_store()
 		for item in bookmarker.get_items_uncached():
 			self.view.append_item(item, group=False)

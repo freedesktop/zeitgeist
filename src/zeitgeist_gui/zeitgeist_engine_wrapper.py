@@ -10,6 +10,12 @@ class BaseEngineInterface:
 	def __init__(self, interface):
 		self._interface = interface
 	
+	def _data_to_engine(self, data):
+		return plainify_data(data)
+	
+	def _data_from_engine(self, data):
+		return objectify_data(data)
+	
 	def get_items(self, *args):
 		func = self._data_from_engine
 		for item in self._interface.get_items(*args):
@@ -52,6 +58,7 @@ class BaseEngineInterface:
 if "--no-dbus" in sys.argv:
 	
 	import gobject
+	from zeitgeist_engine.zeitgeist_dbus import RemoteInterface
 	from zeitgeist_engine.zeitgeist_datasink import datasink
 	
 	class SignalHandling(gobject.GObject):
@@ -64,12 +71,6 @@ if "--no-dbus" in sys.argv:
 	
 	class EngineInterface(BaseEngineInterface, gobject.GObject):
 		
-		def _data_to_engine(self, data):
-			return dictify_data(plainify_data(data))
-		
-		def _data_from_engine(self, data):
-			return objectify_data(data)
-		
 		def connect(self, signal, callback, arg0=None):
 			signals.connect(signal, callback, arg0)
 		
@@ -77,7 +78,8 @@ if "--no-dbus" in sys.argv:
 			signals.emit("signal_updated")
 	
 	signals = SignalHandling()
-	engine = EngineInterface(datasink)
+	remoteinterface = RemoteInterface(start_dbus = False)
+	engine = EngineInterface(remoteinterface)
 	datasink.reload_callbacks.append(engine.emit_signal_updated)
 
 else:
@@ -85,12 +87,6 @@ else:
 	from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
 	
 	class EngineInterface(BaseEngineInterface):
-		
-		def _data_to_engine(self, data):
-			return plainify_data(data)
-		
-		def _data_from_engine(self, data):
-			return objectify_data(data)
 		
 		def connect(self, *args):
 			return dbus_connect(*args)
