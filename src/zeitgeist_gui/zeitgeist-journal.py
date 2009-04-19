@@ -8,7 +8,7 @@ from gettext import ngettext, gettext as _
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../"))
 
-from zeitgeist_widgets import filtersBox, calendar, timeline, htb, bb, bookmarks
+from zeitgeist_widgets import *
 from zeitgeist_shared.basics import BASEDIR
 
 class Journal(gtk.Window):
@@ -23,6 +23,14 @@ class Journal(gtk.Window):
 		self.set_default_size(800, -1)
 		self.connect("destroy", gtk.main_quit)
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
+		
+		# init widgets
+		htb = HTagBrowser()
+		vtb = VTagBrowser()
+		filtersBox = FilterAndOptionBox()
+		bookmarks = BookmarksView()
+		bb = BrowserBar(htb)
+		
 		
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox()

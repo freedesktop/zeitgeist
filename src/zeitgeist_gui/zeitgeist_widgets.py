@@ -646,8 +646,9 @@ class SearchToolItem(gtk.ToolItem):
 
 class BrowserBar(gtk.HBox):
 	
-	def __init__(self):
+	def __init__(self, htb):
 		
+		self.htb = htb
 		gtk.HBox.__init__(self)   
 		self.tooltips = gtk.Tooltips()
 
@@ -711,7 +712,7 @@ class BrowserBar(gtk.HBox):
 		self.pack_start(hbox2, False, False)
 	
 	def remove_day(self, x=None):
-		htb.untoggle_all()
+		self.htb.untoggle_all()
 		timeline.offset +=  1
 		timeline.load_month()
 	
@@ -723,12 +724,12 @@ class BrowserBar(gtk.HBox):
 	
 	def toggle_tags(self, x=None):
 		if self.tags.get_active():
-			htb.show_all()
+			self.htb.show_all()
 		else:
-			htb.hide_all()
+			self.htb.hide_all()
 		
 	def add_day(self, x=None):
-		htb.untoggle_all()
+		self.htb.untoggle_all()
 		timeline.offset -= 1
 		timeline.load_month()
 
@@ -973,9 +974,4 @@ class CairoTimeline (gtk.DrawingArea):
 calendar = CalendarWidget()
 timeline = TimelineWidget()
 projectview = ProjectView()
-htb = HTagBrowser()
-vtb = VTagBrowser()
-filtersBox = FilterAndOptionBox()
-bookmarks = BookmarksView()
-bb = BrowserBar()
 

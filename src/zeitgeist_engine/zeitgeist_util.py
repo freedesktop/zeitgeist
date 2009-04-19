@@ -139,17 +139,17 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		self.timeline_proc = None
 		
 		menuItem = gtk.ImageMenuItem(gtk.STOCK_HOME)
-		menuItem.set_name("Open Journal")
+		menuItem.get_children()[0].set_label("Open Journal")
 		menu.append(menuItem)
 		menuItem.connect('activate', self.open_journal)
 		
 		menuItem = gtk.ImageMenuItem(gtk.STOCK_DIRECTORY)
-		menuItem.set_name("Open Project Viewer")
+		menuItem.get_children()[0].set_label("Open Project Viewer")
 		menu.append(menuItem)
 		menuItem.connect('activate', self.open_project_viewer)
 		
 		menuItem = gtk.ImageMenuItem(gtk.STOCK_DIRECTORY)
-		menuItem.set_name("Open Timeline")
+		menuItem.get_children()[0].set_label("Open Timeline")
 		menu.append(menuItem)
 		menuItem.connect('activate', self.open_timeline)
 		
