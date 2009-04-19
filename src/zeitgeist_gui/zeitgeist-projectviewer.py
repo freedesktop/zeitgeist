@@ -8,7 +8,7 @@ from gettext import ngettext, gettext as _
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../"))
 
-from zeitgeist_widgets import vtb, bb, bookmarks, projectview
+from zeitgeist_gui.zeitgeist_widgets import *
 from zeitgeist_shared.basics import BASEDIR
 
 class ProjectViewer(gtk.Window):
@@ -23,6 +23,10 @@ class ProjectViewer(gtk.Window):
 		self.set_default_size(300, 600)
 		self.connect("destroy", gtk.main_quit)
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
+		
+		# init widgets
+		vtb = VTagBrowser()
+		projectview = ProjectView()
 		
 		# Vertical box (contains self.hBox and a status bar)
 		self.vbox = gtk.VBox()

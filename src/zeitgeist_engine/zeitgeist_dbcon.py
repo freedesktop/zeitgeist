@@ -256,7 +256,7 @@ class DBConnector:
 	        item = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri[0],)).fetchone()
 	       	if item:
 	       			yield func(item, timestamp = -1)
-	    
+    
     def get_most_tags(self, count=20, min=0, max=sys.maxint):
         """
         Yields the tags between min and max which are used the most often.
@@ -270,13 +270,13 @@ class DBConnector:
         # Get uri's in in time intervall sorted desc by time
     	query = """SELECT  uri 
                 FROM timetable
-                WHERE usage!='linked'
+                WHERE usage != 'linked'
                 and start >= ?
                 and start <= ?
                 ORDER BY uri DESC"""
         
         for uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
-            	# Retrieve the item from the data table:
+            # Retrieve the item from the data table:
          	uri = uri[0]
 		if uris.count(uri) <= 0 and len(tags) < count:
 			uris.append(uri)
@@ -284,7 +284,7 @@ class DBConnector:
                                    (uri,)).fetchone()
 		if uri:
 			res = self.cursor.execute("""SELECT tagid
-        	                    	FROM tags
+            FROM tags
         	                    	WHERE uri = ?
                                     ORDER BY tagid
                                     """,
@@ -295,7 +295,7 @@ class DBConnector:
    					if len(tags) < count:
        						tags.append(tag)
        						yield str(tag[0])
-              					
+    
     def get_min_timestamp_for_tag(self,tag):
     	timestamp = sys.maxint
         res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ?',(tag,)).fetchall()

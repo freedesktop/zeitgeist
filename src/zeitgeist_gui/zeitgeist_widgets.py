@@ -17,6 +17,7 @@ from zeitgeist_gui.zeitgeist_util import launcher, icon_factory
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_shared.zeitgeist_shared import *
 
+
 class TimelineWidget(gtk.ScrolledWindow):
 	
 	def __init__(self):
@@ -213,13 +214,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Benchmarking
 		print "Time to apply search on  %s items: %s" % (len(self.items), str(t4 -t3))
 		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
-		
-		gc.enable()		
-		gc.set_debug(gc.DEBUG_LEAK)
-		print gc.garbage
-		gc.collect()
 	
-	def jump_to_day(self, widget,focus=False):
+	def jump_to_day(self, widget, focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
 		'''
@@ -250,8 +246,11 @@ class TimelineWidget(gtk.ScrolledWindow):
 			adj.set_value(min(alloc.x, adj.upper-adj.page_size))
 			del widget 
 
+
 class HTagBrowser(gtk.HBox):
+	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.HBox.__init__(self)
 		self.set_size_request(-1,-1)
@@ -272,7 +271,7 @@ class HTagBrowser(gtk.HBox):
 		self.scroll.add_with_viewport(self.ev)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.scroll.set_shadow_type(gtk.SHADOW_NONE)
-		hbox.pack_start(self.scroll,True,True)
+		hbox.pack_start(self.scroll, True, True)
 		self.show_all()
 		self.items = []
 		
@@ -280,12 +279,12 @@ class HTagBrowser(gtk.HBox):
 		
 		self.func()
 	
-		self.combobox.connect('changed', self.changed_cb)
+		self.combobox.connect("changed", self.changed_cb)
 		self.combobox.set_active(0)
-		self.pack_start(hbox,True,True)
+		self.pack_start(hbox, True, True)
 		engine.connect("signal_updated", lambda *args: self.func)
 
-	def reload_tags(self,x=None):
+	def reload_tags(self, *discard):
 		model = self.combobox.get_model()
 		index = self.combobox.get_active()
 		if index == 0:
@@ -293,7 +292,7 @@ class HTagBrowser(gtk.HBox):
 		else:
 			self.func = self.get_most_tags()
 
-	def changed_cb(self, combobox=None):
+	def changed_cb(self, *discard):
 		model = self.combobox.get_model()
 		index = self.combobox.get_active()
 		if index == 0:
@@ -309,7 +308,7 @@ class HTagBrowser(gtk.HBox):
 		self.view.pack_start(btn, True, True)
 		btn.connect("toggled", self.toggle)
 	
-	def get_recent_tags(self, x=None):
+	def get_recent_tags(self, *discard):
 		
 		date = calendar.get_date()
 		
@@ -324,7 +323,7 @@ class HTagBrowser(gtk.HBox):
 			
 		self.show_all()
 	
-	def get_most_tags(self, x=None):
+	def get_most_tags(self, *discard):
 		
 		begin = timeline.begin
 		end = timeline.end
@@ -356,31 +355,34 @@ class HTagBrowser(gtk.HBox):
 	def untoggle_all(self):
 		for btn in self.view:
 			btn.set_active(False)
-		
+
+
 class VTagBrowser(gtk.VBox):
+	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.VBox.__init__(self)
 		self.set_size_request(-1,-1)
 		self.combobox = gtk.combo_box_new_text()
 		self.reload_tags()
 		
-		self.combobox.connect('changed', self.changed_cb)
+		self.combobox.connect("changed", self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(self.combobox,True,True,5)
 		engine.connect("signal_updated", lambda *args: self.func)
-		
-	def reload_tags(self,x=None):
+	
+	def reload_tags(self, *discard):
 		self.func = self.get_recent_tags()
 		self.func = self.get_most_tags()
-
+	
 	def changed_cb(self, combobox=None):
 		label = combobox.get_active_text()
 		projectview.view.clear_store()
 		for item in engine.get_items_for_tag(label):
 			projectview.view.append_item(item)
-		
-	def get_recent_tags(self, x=None):
+	
+	def get_recent_tags(self, *discard):
 		
 		date = calendar.get_date()
 		
@@ -388,20 +390,17 @@ class VTagBrowser(gtk.VBox):
 		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
 		
 		for tag in engine.get_recent_used_tags(10, begin, end):
-			print tag
 			self.combobox.append_text(tag)
-			
-	def get_most_tags(self, x=None):
+	
+	def get_most_tags(self, *discard):
 		
 		begin = timeline.begin
 		end = timeline.end
 		
 		for tag in engine.get_most_used_tags(10, begin, end):
-			print tag
 			self.combobox.append_text(tag)
-	
-		
-							   
+
+		   
 class FilterAndOptionBox(gtk.VBox):
 	
 	def __init__(self):
@@ -525,6 +524,7 @@ class CheckBox(gtk.CheckButton):
 		
 		timeline.load_month()
 
+
 class SearchToolItem(gtk.ToolItem):
 	
 	__gsignals__ = {
@@ -644,6 +644,7 @@ class SearchToolItem(gtk.ToolItem):
 		if self.entry.get_text() != self.default_search_text:
 			self.do_clear()
 
+
 class BrowserBar(gtk.HBox):
 	
 	def __init__(self, htb):
@@ -742,7 +743,8 @@ class BrowserBar(gtk.HBox):
 		calendar.select_month(month,year)
 		calendar.select_day(day)
 		#calendar.do_day_selected_double_click()
-		
+
+
 class ButtonCellRenderer(gtk.GenericCellRenderer):
 	
 	__gsignals__ = {
@@ -971,7 +973,7 @@ class CairoTimeline (gtk.DrawingArea):
 				
 			x -= interval
 
+
 calendar = CalendarWidget()
 timeline = TimelineWidget()
 projectview = ProjectView()
-

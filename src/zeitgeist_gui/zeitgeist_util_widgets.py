@@ -422,4 +422,4 @@ class DayBox(gtk.VBox):
 		self.item_count = 0
 	   
 	def emit_focus(self):
-			self.emit("set-focus-child", self) 
+			self.emit("set-focus-child", self)
