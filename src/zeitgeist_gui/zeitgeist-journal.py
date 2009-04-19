@@ -14,14 +14,16 @@ from zeitgeist_shared.basics import BASEDIR
 class Journal(gtk.Window):
 	
 	def __init__(self):
+		
 		gtk.Window.__init__(self)
+		
 		# Window
 		self.set_title("GNOME Zeitgeist")
 		self.set_resizable(True)
 		self.set_default_size(800, -1)
 		self.connect("destroy", gtk.main_quit)
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
-		#gtk.window_set_default_icon_from_file("Hourglass.png")
+		
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox()
 		tagbox = gtk.HBox()
@@ -73,7 +75,7 @@ class Journal(gtk.Window):
 		self.sidebar.hide_all()
 		bookmarks.hide_all()
 		htb.hide_all()
-		bb.options.connect("toggled",self.toggle_filters)
+		bb.options.connect("toggled", self.toggle_filters)
 	
 	def toggle_filters(self, x=None):
 		if bb.options.get_active():
