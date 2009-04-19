@@ -1,4 +1,5 @@
-TODO:
+TODO
+================================
 
 FOR RELEASE:
 
@@ -11,9 +12,8 @@ FOR RELEASE:
 
 - Frontend:
 	+ Use a generic CellRenderer to display stars for bookmarking instead of checkboxes!
-	+ Stop instantiating widgets in zeitgeist_widgets.py (see the last 7 lines). This wastes memory
+	+ Stop instantiating widgets in zeitgeist_widgets.py (see the last 3 lines). This wastes memory
 	  and processing for widgets, even when we don't display them.
-
 
 
 FUTURE:

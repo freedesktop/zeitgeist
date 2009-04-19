@@ -38,14 +38,14 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="iii", out_signature="as")
 	def get_most_used_tags(self, amount, min_timestamp, max_timestamp):
-		return list(datasink.get_most_used_tags(amount,
-			min_timestamp, max_timestamp))
-
+		return datasink.get_most_used_tags(amount,
+			min_timestamp, max_timestamp)
+	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="iii", out_signature="as")
 	def get_recent_used_tags(self, amount, min_timestamp, max_timestamp):
-		return list(datasink.get_recent_used_tags(amount,
-			min_timestamp, max_timestamp))
+		return datasink.get_recent_used_tags(amount,
+			min_timestamp, max_timestamp)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="a"+sig_plain_data)
