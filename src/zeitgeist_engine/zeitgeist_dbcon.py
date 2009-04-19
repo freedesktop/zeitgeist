@@ -243,9 +243,7 @@ class DBConnector:
        		  			
     def get_items_for_tag(self,tag):
         """
-        Yields tags between the timestamps min and max.
-        
-        At most, count tags will be yielded.
+        Gets all of the items with tag.
         """
         func = self._result2data
         res = self.cursor.execute("""SELECT uri
