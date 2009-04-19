@@ -176,15 +176,15 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 
 	def open_journal(self,widget):
 		if self.journal_proc == None or not self.journal_proc.poll() == None:
-			self.journal_proc = subprocess.Popen("sh zeitgeist-journal.sh", shell=True)
+			self.journal_proc = subprocess.Popen("python %s/src/zeitgeist_gui/zeitgeist-journal.py" % BASEDIR, shell=True)
 	
 	def open_project_viewer(self,widget):
 		if self.project_viewer_proc == None or not self.project_viewer_proc.poll() == None:
-			self.project_viewer_proc = subprocess.Popen("sh zeitgeist-projectviewer.sh",shell=True)
+			self.project_viewer_proc = subprocess.Popen("python %s/src/zeitgeist_gui/zeitgeist-projectviewer.py" % BASEDIR, shell=True)
 	
 	def open_timeline(self,widget):
 		if self.timeline_proc == None or not self.timeline_proc.poll() == None:
-			self.timeline_proc = subprocess.Popen("sh zeitgeist-timeline.sh",shell=True)
+			self.timeline_proc =subprocess.Popen("python %s/src/zeitgeist_gui/zeitgeist-timeline.py" % BASEDIR, shell=True)
 			
 	def open_about(self,widget):
 		self.about = AboutWindow()
