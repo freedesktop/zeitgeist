@@ -35,8 +35,9 @@ class Data(gobject.GObject):
 		if name:
 			name = name.replace("<","")
 			name = name.replace(">","")
+			
 		
-		self.uri = uri
+		self.uri = uri.replace("%20"," ")
 		self.name = name
 		self.count = count
 		self.comment = comment
@@ -53,7 +54,7 @@ class Data(gobject.GObject):
 		self.original_source = None
 		self.textview = None
 		
-		self.exists = exists(uri)
+		self.exists = exists(self.uri)
 	
 	def get_timestamp(self):
 		return self.timestamp
@@ -308,4 +309,10 @@ def exists(uri):
 	
 	if os.path.exists(uri[7:]):
 		return True
+	
+	print "----------------"
+	print uri
+	print uri[7:]
+	print "----------------"
+	
 	return False
