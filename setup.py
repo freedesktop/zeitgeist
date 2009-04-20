@@ -7,7 +7,7 @@ from distutils.core import setup
 
 setup(
 	name			= "gnome-zeitgeist",
-	version			= "0.0.3",
+	version			= "0.0.4",
 	description		= "file usage journal",
 	author			= "The Zeitgeist Team",
 	license			= "GPLv3+",
