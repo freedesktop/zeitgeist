@@ -1,4 +1,3 @@
-import sys
 import gtk
 import subprocess
 import webbrowser
@@ -64,7 +63,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 			data.popup(None, None, None, 3, time)
 	
 	def quit(self,widget):
-		sys.exit(-1)
+		self._mainloop.quit()
 
 
 class AboutWindow(gtk.AboutDialog):
