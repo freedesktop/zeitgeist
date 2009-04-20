@@ -2,6 +2,7 @@ import sys
 import gtk
 import subprocess
 import webbrowser
+from gettext import ngettext, gettext as _
 
 from zeitgeist_shared.basics import BASEDIR
 
@@ -16,55 +17,37 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		self.set_visible(True)
 		
 		self._mainloop = mainloop
-		self.journal_proc = None
-		self.project_viewer_proc = None
-		self.timeline_proc = None
+		self._procs = {}
 		self._about = None
 		
 		menu = gtk.Menu()
+		for (icon, name, callback, frontend) in (
+				(gtk.STOCK_HOME, _("Open Journal"), None, 'journal'),
+				(gtk.STOCK_DIRECTORY, _("Open Project Viewer"), None, 'projectviewer'),
+				(gtk.STOCK_DIRECTORY, _("Open Timeline"), None, 'timeline'),
+				#(gtk.STOCK_PREFERENCES, None, self.open_about, None),
+				(gtk.STOCK_ABOUT, None, self.open_about, None),
+				(gtk.STOCK_QUIT, None, self.quit, None),
+			):
+			menu_item = gtk.ImageMenuItem(icon)
+			if name:
+				menu_item.get_children()[0].set_label(name)
+			menu.append(menu_item)
+			if callback:
+				menu_item.connect('activate', callback)
+			elif frontend:
+				menu_item.connect('activate', self._open_frontend, frontend)
 		
-		menuItem = gtk.ImageMenuItem(gtk.STOCK_HOME)
-		menuItem.get_children()[0].set_label("Open Journal")
-		menu.append(menuItem)
-		menuItem.connect('activate', self.open_journal)
-		
-		menuItem = gtk.ImageMenuItem(gtk.STOCK_DIRECTORY)
-		menuItem.get_children()[0].set_label("Open Project Viewer")
-		menu.append(menuItem)
-		menuItem.connect('activate', self.open_project_viewer)
-		
-		menuItem = gtk.ImageMenuItem(gtk.STOCK_DIRECTORY)
-		menuItem.get_children()[0].set_label("Open Timeline")
-		menu.append(menuItem)
-		menuItem.connect('activate', self.open_timeline)
-		
-		menuItem = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
-		#menu.append(menuItem)
-		menuItem.connect('activate', self.open_about)
-		
-		menuItem = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
-		menu.append(menuItem)
-		menuItem.connect('activate', self.open_about)
-		
-		menuItem = gtk.ImageMenuItem(gtk.STOCK_QUIT)
-		menu.append(menuItem)
-		menuItem.connect('activate', self.quit)
-		 
 		self.set_tooltip("GNOME Zeitgeist")
 		self.connect('popup-menu', self.popup_menu_cb, menu)
-
-	def open_journal(self, widget):
-		if self.journal_proc == None or not self.journal_proc.poll() == None:
-			self.journal_proc = subprocess.Popen("python %s/src/zeitgeist_gui/zeitgeist-journal.py" % BASEDIR, shell=True)
 	
-	def open_project_viewer(self, widget):
-		if self.project_viewer_proc == None or not self.project_viewer_proc.poll() == None:
-			self.project_viewer_proc = subprocess.Popen("python %s/src/zeitgeist_gui/zeitgeist-projectviewer.py" % BASEDIR, shell=True)
+	def _open_frontend(self, widget, frontend):
+		# If .poll does return None the process hasn't terminated yet.
+		if frontend not in self._procs or self._procs[frontend].poll() != None:
+			self._procs[frontend] = subprocess.Popen(
+				"python %s/src/zeitgeist_gui/zeitgeist-%s.py" % \
+				(BASEDIR, frontend), shell=True)
 	
-	def open_timeline(self, widget):
-		if self.timeline_proc == None or not self.timeline_proc.poll() == None:
-			self.timeline_proc = subprocess.Popen("python %s/src/zeitgeist_gui/zeitgeist-timeline.py" % BASEDIR, shell=True)
-			
 	def open_about(self, widget):
 		if not self._about:
 			self._about = AboutWindow()
@@ -74,14 +57,13 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 	def _about_destroyed(self, *discard):
 		self._about = None
 	
- 	def popup_menu_cb(self,widget, button, time, data = None):
- 		if button == 3:
- 			if data:
- 				data.show_all()
-                data.popup(None, None, None, 3, time)
-            
- 	def quit(self,widget):
- 		sys.exit(-1)
+	def popup_menu_cb(self, widget, button, time, data=None):
+		if button == 3 and data:
+			data.show_all()
+			data.popup(None, None, None, 3, time)
+	
+	def quit(self,widget):
+		sys.exit(-1)
 
 
 class AboutWindow(gtk.AboutDialog):
@@ -89,6 +71,7 @@ class AboutWindow(gtk.AboutDialog):
 	def __init__(self):
 		
 		gtk.AboutDialog.__init__(self)
+		
 		self.set_name("GNOME Zeitgeist")
 		self.set_version("0.0.3")
 		self.set_copyright("Copyright 2009 (c) The Zeitgeist Team")
@@ -111,11 +94,11 @@ class AboutWindow(gtk.AboutDialog):
 		self.set_comments("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer.")
 		self.set_logo(gtk.gdk.pixbuf_new_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR))
 		
-		artists =["Jason Smith <jassmith@gmail.com>",
+		artists = ["Jason Smith <jassmith@gmail.com>",
 						"Kalle Persson <kalle@nemus.se>"]
 		self.set_artists(artists)
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
-	
+		
 		self.connect("response", self.close)
 		self.hide()
 	
