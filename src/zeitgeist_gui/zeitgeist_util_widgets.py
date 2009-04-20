@@ -305,12 +305,16 @@ class DataIconView(gtk.TreeView):
 		self.items_uris.append(item.uri)
 		
 		if not item.timestamp == -1.0:
-			date="<span size='small' color='blue'>%s</span>" % item.get_time()
+			date="<span size='small' color='grey'>%s</span>" % item.get_time()
 		else:
 			date=""
 		
+		if item.exists:
+			name = "<span color='black'>%s</span>" % item.get_name()
+		else:
+			name = "<span color='grey'>%s</span>" % item.get_name()
 		func(parent,[item.get_icon(24),
-				"<span color='black'>%s</span>" % item.get_name(),
+				name,
 				date,
 				bookmark,
 				item])

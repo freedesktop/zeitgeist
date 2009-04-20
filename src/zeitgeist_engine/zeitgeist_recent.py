@@ -129,6 +129,7 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 		self.mimetype_list = mimetype_list
 		self.filter_name = filter_name
 		self.inverse = inverse
+		self.icon = icon
 
 	def include_item(self, item):
 		item_mime = item["mimetype"]
@@ -148,7 +149,7 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
         	
         		item["count"] = counter
 	        	item["type"] = self.name
-	         	item["icon"] = ""
+	         	item["icon"] = self.icon
             
 			yield item
 			del item
@@ -181,7 +182,8 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 		item_mime = item["mimetype"]
 		for mimetype in self.mimetype_list:
 			if hasattr(mimetype, "match") and mimetype.match(item_mime) or item_mime == mimetype:
-				return False
+				return False		
+		item["icon"]=self.icon
 		return True
 
 

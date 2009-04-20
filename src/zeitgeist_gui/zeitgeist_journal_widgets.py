@@ -655,7 +655,7 @@ class BrowserBar(gtk.HBox):
 		
 		self.options = gtk.ToggleToolButton("gtk-select-color")
 		self.tooltips.set_tip(self.options, "Filter your current view")
-		self.options.set_label("Filters")
+		self.options.set_label("Calendar & Filters")
 		
 		self.star = gtk.ToggleToolButton("gtk-about")
 		self.star.set_label("Bookmarks")

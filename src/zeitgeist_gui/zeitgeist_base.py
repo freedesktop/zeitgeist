@@ -52,6 +52,8 @@ class Data(gobject.GObject):
 		self.thumbnailer = None
 		self.original_source = None
 		self.textview = None
+		
+		self.exists = exists(uri)
 	
 	def get_timestamp(self):
 		return self.timestamp
@@ -60,17 +62,17 @@ class Data(gobject.GObject):
 		return datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
 	
 	def get_icon(self, icon_size):
-			temp = self.icon
-			
-			if temp != None:
-				self.icon = temp
-			
-			if self.icon:
-				icon =  icon_factory.load_icon(self.icon, icon_size)
-				return icon
-			
+		if  self.exists and self.uri.startswith("file"):
 			thumb = thumbnailer.get_icon(self.get_uri(), self.get_mimetype(), icon_size, self.timestamp)
 			return thumb
+		
+		if self.icon:
+			icon =  icon_factory.load_icon(self.icon, icon_size)
+			if not self.exists:
+				icon = icon_factory.transparentize(icon,75)
+			return icon
+		
+		return None
 	
 	def get_icon_string(self):
 		return self.icon
@@ -299,3 +301,11 @@ def objectify_data(item_list):
             count = item_list[9] or 1, # count
             type = item_list[10] or "N/A", # type
             )
+
+def exists(uri):
+	if not uri.startswith("file") :
+		return True
+	
+	if os.path.exists(uri[7:]):
+		return True
+	return False
