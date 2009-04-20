@@ -1,4 +1,6 @@
+import os
 import gtk
+import signal
 import subprocess
 import webbrowser
 from gettext import ngettext, gettext as _
@@ -62,7 +64,10 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 			data.show_all()
 			data.popup(None, None, None, 3, time)
 	
-	def quit(self,widget):
+	def quit(self, *discard):
+		for proc in (proc for proc in self._procs.values() if proc.poll() == None):
+			print "peng", proc, proc.pid
+			os.kill(proc.pid, signal.SIGUSR1)
 		self._mainloop.quit()
 
 

@@ -2,6 +2,7 @@
 
 import sys
 import os
+import signal
 import gtk
 import gobject
 from gettext import ngettext, gettext as _ 
@@ -22,6 +23,7 @@ class App(gtk.Window):
 		self.set_resizable(True)
 		self.resize(700, 300)
 		self.connect("destroy", gtk.main_quit)
+		signal.signal(signal.SIGUSR1, lambda: self.emit(gtk.main_quit))
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		
 		self.timeline = CairoTimeline()

@@ -260,7 +260,8 @@ class Data(gobject.GObject):
 			btn.connect("toggled", self.toggle_tags)
 		view.show_all()
 	
-	def toggle_tags(self, x=None):
+	def toggle_tags(self, *discard):
+		# TODO: Clean this mess up. Use a list comprehension or sth.
 		tags = self.tags
 		if x.get_active():
 			if tags.find(x.get_label()) == -1:
@@ -279,12 +280,11 @@ class Data(gobject.GObject):
 		while tags.find(",,")>-1:
 				 tags = tags.replace(",," ,",")
 				 tags.strip()
-						
+		
 		if tags.strip().startswith(",") == True:
 			tags = tags.replace(",", "",1)
 		
-		self.tags=tags
-		
+		self.tags = tags
 		self.textview.get_buffer().set_text(self.tags)
 
 
@@ -304,7 +304,7 @@ def objectify_data(item_list):
             )
 
 def exists(uri):
-	if not uri.startswith("file") :
+	if not uri.startswith("file"):
 		return True
 	
 	if os.path.exists(uri[7:]):
