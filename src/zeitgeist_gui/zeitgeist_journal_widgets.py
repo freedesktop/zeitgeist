@@ -379,7 +379,6 @@ class VTagBrowser(gtk.VBox):
 		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
 		
 		for tag in engine.get_recent_used_tags(10, begin, end):
-			print tag
 			self.combobox.append_text(tag)
 			
 	def get_most_tags(self, x=None):
@@ -388,7 +387,6 @@ class VTagBrowser(gtk.VBox):
 		end = timeline.end
 		
 		for tag in engine.get_most_used_tags(10, begin, end):
-			print tag
 			self.combobox.append_text(tag)
 	
 class FilterAndOptionBox(gtk.VBox):

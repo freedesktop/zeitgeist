@@ -60,9 +60,8 @@ class DataProvider(gobject.GObject, Thread):
 		timeout is set to invalidate the cached items to free memory.
 		'''
 		
-		for i in self.get_items_uncached():
-			if i["timestamp"] >= min and i["timestamp"] < max:
-				yield i
+		return (i for i in self.get_items_uncached() if i["timestamp"] >= min and i["timestamp"] < max)
+
 	def get_items_uncached(self):
 		'''Subclasses should override this to return/yield Datas. The results
 		will be cached.'''

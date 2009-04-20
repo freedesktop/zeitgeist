@@ -114,11 +114,7 @@ class RecentlyUsed(DataProvider):
 	
 	def get_items_uncached(self):
 		self.counter = self.counter + 1
-		for item in recent_model.get_items():
-			# Check whether to include this item
-			if self.include_item(item):
-				yield item
-				del item
+		return (item for item in recent_model.get_items() if self.include_item(item))
 	
 	def include_item(self, item):
 		return True
