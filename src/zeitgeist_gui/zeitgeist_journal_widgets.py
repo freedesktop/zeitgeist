@@ -657,7 +657,9 @@ class BrowserBar(gtk.HBox):
 		self.tooltips.set_tip(self.options, "Filter your current view")
 		self.options.set_label("Calendar & Filters")
 		
-		self.star = gtk.ToggleToolButton("gtk-about")
+		self.star = gtk.ToggleToolButton()
+		icon = gtk.image_new_from_file("data/bookmark-new.png")
+		self.star.set_icon_widget(icon)
 		self.star.set_label("Bookmarks")
 		self.tooltips.set_tip(self.star, "View bookmarked activities")
 		self.star.connect("toggled",self.toggle_bookmarks)
