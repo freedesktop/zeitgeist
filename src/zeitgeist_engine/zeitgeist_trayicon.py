@@ -47,8 +47,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		# If .poll does return None the process hasn't terminated yet.
 		if frontend not in self._procs or self._procs[frontend].poll() != None:
 			self._procs[frontend] = subprocess.Popen(
-				"python %s/src/zeitgeist_gui/zeitgeist-%s.py" % \
-				(BASEDIR, frontend), shell=True)
+				"%s/src/zeitgeist_gui/zeitgeist-%s.py" % (BASEDIR, frontend))
 	
 	def open_about(self, widget):
 		if not self._about:
@@ -66,7 +65,6 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 	
 	def quit(self, *discard):
 		for proc in (proc for proc in self._procs.values() if proc.poll() == None):
-			print "peng", proc, proc.pid
 			os.kill(proc.pid, signal.SIGUSR1)
 		self._mainloop.quit()
 
