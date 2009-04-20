@@ -9,17 +9,17 @@ from gettext import ngettext, gettext as _
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 from zeitgeist_engine.zeitgeist_dbus import RemoteInterface
-from zeitgeist_engine.zeitgeist_util import ZeitgeistTrayIcon
 from zeitgeist_engine.zeitgeist_datasink import datasink
 
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+object = RemoteInterface()
+datasink.reload_callbacks.append(object.signal_updated)
 
-if __name__ == "__main__":
-	
-	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-	object = RemoteInterface()
-	datasink.reload_callbacks.append(object.signal_updated)
-	trayicon = ZeitgeistTrayIcon()
-	
-	mainloop = gobject.MainLoop()
-	print _("Running Zeitgeist service.")
-	mainloop.run()
+mainloop = gobject.MainLoop()
+
+if not '--no-trayicon' in sys.argv:
+	from zeitgeist_engine.zeitgeist_trayicon import ZeitgeistTrayIcon
+	trayicon = ZeitgeistTrayIcon(mainloop)
+
+print _("Starting Zeitgeist service...")
+mainloop.run()
