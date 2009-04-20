@@ -16,6 +16,7 @@ from zeitgeist_shared.xdgdirs import xdg_directory
 from zeitgeist_gui.zeitgeist_util import launcher, icon_factory
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_shared.zeitgeist_shared import *
+from zeitgeist_shared.basics import BASEDIR
 
 class TimelineWidget(gtk.ScrolledWindow):
 	
@@ -658,7 +659,7 @@ class BrowserBar(gtk.HBox):
 		self.options.set_label("Calendar & Filters")
 		
 		self.star = gtk.ToggleToolButton()
-		icon = gtk.image_new_from_file("data/bookmark-new.png")
+		icon = gtk.image_new_from_file("%s/data/bookmark-new.png" % BASEDIR)
 		self.star.set_icon_widget(icon)
 		self.star.set_label("Bookmarks")
 		self.tooltips.set_tip(self.star, "View bookmarked activities")
