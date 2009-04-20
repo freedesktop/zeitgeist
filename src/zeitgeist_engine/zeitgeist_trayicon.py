@@ -22,6 +22,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		self._about = None
 		
 		menu = gtk.Menu()
+		self.connect("activate",self.open_journal)
 		
 		menuItem = gtk.ImageMenuItem(gtk.STOCK_HOME)
 		menuItem.get_children()[0].set_label("Open Journal")
