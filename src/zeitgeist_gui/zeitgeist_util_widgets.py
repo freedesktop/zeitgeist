@@ -115,7 +115,9 @@ class DataIconView(gtk.TreeView):
 		self.set_size_request(250,-1)
 		self.parentdays = parentdays
 		
-		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT)
+		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT, str)
+		
+		self.set_tooltip_column(5)
 		
 		icon_cell = gtk.CellRendererPixbuf()
 		icon_column = gtk.TreeViewColumn("",icon_cell,pixbuf=0)
@@ -297,6 +299,7 @@ class DataIconView(gtk.TreeView):
 										"<span size='x-large' color='blue'>%s</span>" % item.type,
 										"",
 										False,
+										None,
 										None])
 				self.types[item.type]=parent
 			else:
@@ -311,13 +314,16 @@ class DataIconView(gtk.TreeView):
 		
 		if item.exists:
 			name = "<span color='black'>%s</span>" % item.get_name()
+			uri = item.uri
 		else:
 			name = "<span color='grey'>%s</span>" % item.get_name()
+			uri = "The file has been removed from\n"+item.uri
 		func(parent,[item.get_icon(24),
 				name,
 				date,
 				bookmark,
-				item])
+				item,
+				uri])
 		
 		self.expand_all()
 
