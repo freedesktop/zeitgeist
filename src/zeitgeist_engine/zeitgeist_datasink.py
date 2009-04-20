@@ -42,7 +42,6 @@ class DataSinkSource(DataProvider):
 		for namespace in logger_sources:
 			sourcefile = __import__('zeitgeist_' + namespace)
 			for item in logger_sources[namespace]:
-				print sourcefile
 				instance = getattr(sourcefile, item + "Source")()
 				instance.connect("reload", self._update_db_with_source)
 				self.sources.append(instance)
