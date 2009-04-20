@@ -26,7 +26,7 @@ setup(
 		"License :: OSI-Approved :: GNU General Public License (GPL)",
 		"Intended Audience :: End Users/Desktop",
 		"Development Status :: 3 - Alpha",
-		"Topic :: Desktop Environment :: Gnome",
+		"Topic :: Desktop Environment :: GNOME",
 		"Programming Language :: Python",
 		],
 )

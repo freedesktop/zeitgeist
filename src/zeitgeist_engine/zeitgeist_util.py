@@ -211,7 +211,7 @@ class AboutWindow(gtk.AboutDialog):
 		gtk.AboutDialog.__init__(self)
 		self.set_name("GNOME Zeitgeist")
 		self.set_version("0.0.3")
-		self.set_copyright("Copyright 2009 (c) GNOME Zeitgeist Developers")
+		self.set_copyright("Copyright 2009 (c) The Zeitgeist Team")
 		self.set_website("http://zeitgeist.geekyogre.com")
 		gtk.about_dialog_set_url_hook(self.open_url,None)
 		gtk.about_dialog_set_email_hook(self.open_mail, None)
