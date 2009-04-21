@@ -133,7 +133,6 @@ if __name__ == "__main__":
 	
 	mainloop = gobject.MainLoop()
 	
-	from zeitgeist_engine.zeitgeist_trayicon import ZeitgeistTrayIcon
 	trayicon = ZeitgeistTrayIcon(mainloop)
 	
 	mainloop.run()
