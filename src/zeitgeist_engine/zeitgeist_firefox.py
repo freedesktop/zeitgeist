@@ -60,40 +60,42 @@ class FirefoxSource(DataProvider):
         self.emit("reload")
     
     def get_items_uncached(self):
-        # create a connection to firefox's sqlite database
-        
-        # retrieve all urls from firefox history
-        contents = "id, place_id, visit_date,visit_type"
         try:
-            history = self.cursor.execute("SELECT " + contents + " FROM moz_historyvisits WHERE visit_date>?",(self.last_timestamp,)).fetchall()
-        except db.OperationalError, e:
-            print 'Firefox database error:', e
-        else:
-            j = 0
-            for i in history:
-                # TODO: Fetch full rows above so that we don't need to do another query here
-                contents = "id, url, title, visit_count"
-                item = self.cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
-                if item:
-                    self.last_timestamp =  history[j][2]
-                    use = "linked"
-                    if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
-                        use = "visited"
-                    item = {
-                        "timestamp": int(	self.last_timestamp / (1000000)),
-                        "uri": item[1],
-                        "name": item[2],
-                        "comment": "",
-                        "type": "Firefox History",
-                        "count": item[3],
-                        "use": use,
-                        "mimetype": "",
-                        "tags": "",
-                        "icon": "gnome-globe"
-                        }
-                    yield item
-                j += 1
-        
+            # create a connection to firefox's sqlite database
+            
+            # retrieve all urls from firefox history
+            contents = "id, place_id, visit_date,visit_type"
+            try:
+                history = self.cursor.execute("SELECT " + contents + " FROM moz_historyvisits WHERE visit_date>?",(self.last_timestamp,)).fetchall()
+            except db.OperationalError, e:
+                print 'Firefox database error:', e
+            else:
+                j = 0
+                for i in history:
+                    # TODO: Fetch full rows above so that we don't need to do another query here
+                    contents = "id, url, title, visit_count"
+                    item = self.cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
+                    if item:
+                        self.last_timestamp =  history[j][2]
+                        use = "linked"
+                        if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
+                            use = "visited"
+                        item = {
+                            "timestamp": int(	self.last_timestamp / (1000000)),
+                            "uri": item[1],
+                            "name": item[2],
+                            "comment": "",
+                            "type": "Firefox History",
+                            "count": item[3],
+                            "use": use,
+                            "mimetype": "",
+                            "tags": "",
+                            "icon": "gnome-globe"
+                            }
+                        yield item
+                    j += 1
+        except Excpetion, ex:
+            print ex
     
     def __copy_sqlite(self):
         '''

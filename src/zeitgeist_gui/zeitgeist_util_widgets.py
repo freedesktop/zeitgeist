@@ -176,11 +176,9 @@ class DataIconView(gtk.TreeView):
 		self.reload_name_cell_size(250)
 		
 	def reload_name_cell_size(self,width):
-		
 		if width < 300:
 			width = 300
 			wrap = 225
-			
 		else:
 			wrap = width - 75
 			
