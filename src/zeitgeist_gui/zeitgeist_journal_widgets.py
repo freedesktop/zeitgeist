@@ -464,10 +464,8 @@ class FilterAndOptionBox(gtk.VBox):
 	def set_timelinefilter(self,w=None):
 		if self.timefilter.get_active():
 			self.timefilter_active=True
-			print "timefilter active"
 		else:
 			self.timefilter_active=False
-			print "timefilter inactive"
 			
 	def _make_new_note(self,x):
 		launcher.launch_command("tomboy --new-note")

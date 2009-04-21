@@ -158,7 +158,6 @@ class DataSinkSource(DataProvider):
 					
 			gc.enable()		
 			gc.set_debug(gc.DEBUG_LEAK)
-			print gc.garbage
 			# Remove the source from the queue
 			del self._sources_queue[0]
 			

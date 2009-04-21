@@ -320,9 +320,4 @@ def exists(uri):
 	if os.path.exists(uri[7:]):
 		return True
 	
-	print "----------------"
-	print uri
-	print uri[7:]
-	print "----------------"
-	
 	return False

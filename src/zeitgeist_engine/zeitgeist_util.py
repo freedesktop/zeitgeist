@@ -29,10 +29,8 @@ class FileMonitor(gobject.GObject):
 			self.path = path
 		try:
 			self.type = gnomevfs.get_file_info(path).type
-			print "got it"
 		except gnomevfs.Error:
 			self.type = gnomevfs.MONITOR_FILE
-			print "did not get it"
 
 		self.monitor = None
 		self.pending_timeouts = {}
