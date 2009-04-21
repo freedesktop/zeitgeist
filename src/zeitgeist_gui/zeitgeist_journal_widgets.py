@@ -656,7 +656,16 @@ class BrowserBar(gtk.HBox):
 		
 		self.options = gtk.ToggleToolButton("gtk-select-color")
 		self.tooltips.set_tip(self.options, "Filter your current view")
-		self.options.set_label("Calendar & Filters")
+		self.options.set_label("Filters")
+		self.options.connect("toggled",self.toggle_options)
+		
+		self.calendar = gtk.ToggleToolButton()
+		icon = gtk.image_new_from_file("%s/data/calendar.png" % BASEDIR)
+		icon.set_pixel_size(16)
+		self.calendar.set_icon_widget(icon)
+		self.tooltips.set_tip(self.calendar, "View journal for a specific date")
+		self.calendar.set_label("Calendar")
+		self.calendar.connect("toggled",self.toggle_calendar)
 		
 		self.star = gtk.ToggleToolButton()
 		icon = gtk.image_new_from_file("%s/data/bookmark-new.png" % BASEDIR)
@@ -681,6 +690,7 @@ class BrowserBar(gtk.HBox):
 		toolbar.insert(self.star, -1)
 		toolbar.insert(self.tags, -1)
 		toolbar.insert(self.options, -1)
+		toolbar.insert(self.calendar, -1)
 		
 		hbox = gtk.HBox()
 		hbox.pack_start(toolbar,True,True)
@@ -708,11 +718,23 @@ class BrowserBar(gtk.HBox):
 		timeline.offset +=  1
 		timeline.load_month()
 	
+	def toggle_options(self, x=None):
+		if self.options.get_active():
+			filtersBox.option_box.show_all()
+		else:
+			filtersBox.option_box.hide_all()
+	
 	def toggle_bookmarks(self, x=None):
 		if self.star.get_active():
 			bookmarks.show_all()
 		else:
 			bookmarks.hide_all()
+			
+	def toggle_calendar(self, x=None):
+		if self.calendar.get_active():
+			calendar.show_all()
+		else:
+			calendar.hide_all()
 	
 	def toggle_tags(self, x=None):
 		if self.tags.get_active():

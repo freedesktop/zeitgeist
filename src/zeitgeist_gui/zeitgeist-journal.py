@@ -74,17 +74,12 @@ class Journal(gtk.Window):
 		
 		# Show everything
 		self.show_all()
-		self.sidebar.hide_all()
+		#self.sidebar.hide_all()
 		bookmarks.hide_all()
 		htb.hide_all()
-		bb.options.connect("toggled", self.toggle_filters)
-	
-	def toggle_filters(self, x=None):
-		if bb.options.get_active():
-			self.sidebar.show_all()
-			filtersBox.set_buttons()
-		else:
-			self.sidebar.hide_all()
+		filtersBox.option_box.hide_all()
+		calendar.hide_all()
+		
 
 
 if __name__ == "__main__":

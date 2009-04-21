@@ -46,8 +46,11 @@ class FileMonitor(gobject.GObject):
 			self.monitor = gnomevfs.monitor_add(self.path, monitor_type, self._queue_event)
 
 	def _clear_timeout(self, info_uri):
-		gobject.source_remove(self.pending_timeouts[info_uri])
-
+		try:
+			gobject.source_remove(self.pending_timeouts[info_uri])
+		except:
+			pass
+		
 	def _queue_event(self, monitor_uri, info_uri, event):
 		print "queue event"
 		self._clear_timeout(info_uri)
