@@ -665,7 +665,10 @@ class BrowserBar(gtk.HBox):
 		self.tooltips.set_tip(self.star, "View bookmarked activities")
 		self.star.connect("toggled",self.toggle_bookmarks)
 		
-		self.tags = gtk.ToggleToolButton("gtk-dialog-warning")
+		self.tags = gtk.ToggleToolButton()
+		icon = gtk.image_new_from_file("%s/data/tag.png" % BASEDIR)
+		icon.set_pixel_size(24)
+		self.tags.set_icon_widget(icon)
 		self.tags.set_label("Tags")
 		self.tooltips.set_tip(self.tags, "View tagged activities")
 		self.tags.connect("toggled", self.toggle_tags)
