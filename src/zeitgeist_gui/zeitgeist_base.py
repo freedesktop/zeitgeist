@@ -75,6 +75,16 @@ class Data(gobject.GObject):
 		
 		return None
 	
+	
+	def open(self):
+		if self.get_mimetype() == "x-tomboy/note":
+			uri_to_open = "note://tomboy/%s" % os.path.splitext(os.path.split(self.get_uri())[1])[0]
+		else:
+			uri_to_open = self.get_uri()
+		if uri_to_open:
+			self.timestamp = time.time()
+			launcher.launch_uri(uri_to_open, self.get_mimetype())
+	
 	def get_icon_string(self):
 		return self.icon
 	
