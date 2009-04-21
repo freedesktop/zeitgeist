@@ -51,6 +51,12 @@ class BaseEngineInterface:
 	
 	def delete_item(self, *args):
 		return self._interface.delete_item(*args)
+	
+	def quit(self):
+		'''
+		Stops the daemon. Use carefully!
+		'''
+		return self._interface.quit()
 
 
 if "--no-dbus" in sys.argv:

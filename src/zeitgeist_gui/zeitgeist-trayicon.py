@@ -1,9 +1,15 @@
+#! /usr/bin/env python
+
+import sys
 import os
 import gtk
+import gobject
 import signal
 import subprocess
 import webbrowser
 from gettext import ngettext, gettext as _
+
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../"))
 
 from zeitgeist_shared.basics import BASEDIR
 
@@ -64,8 +70,15 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 			data.popup(None, None, None, 3, time)
 	
 	def quit(self, *discard):
+		# Stop the frontends
 		for proc in (proc for proc in self._procs.values() if proc.poll() == None):
 			os.kill(proc.pid, signal.SIGUSR1)
+		
+		# Stop the daemon
+		from zeitgeist_gui.zeitgeist_engine_wrapper import engine
+		engine.quit()
+		
+		# Quit
 		self._mainloop.quit()
 
 
@@ -114,3 +127,13 @@ class AboutWindow(gtk.AboutDialog):
 
 	def open_mail(self, dialog, link, ignored):
 		webbrowser.open_new("mailto:%s" % link)
+
+
+if __name__ == "__main__":
+	
+	mainloop = gobject.MainLoop()
+	
+	from zeitgeist_engine.zeitgeist_trayicon import ZeitgeistTrayIcon
+	trayicon = ZeitgeistTrayIcon(mainloop)
+	
+	mainloop.run()
