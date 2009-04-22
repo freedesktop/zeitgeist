@@ -235,20 +235,26 @@ class DataIconView(gtk.TreeView):
 			launcher.launch_uri(uri_to_open, item.get_mimetype())
 	
 	def get_selected_item(self):
-		treeselection = self.get_selection()
-		model, iter = treeselection.get_selected()
-		item = model.get_value(iter, 4)
-		return item
+		try:
+			treeselection = self.get_selection()
+			model, iter = treeselection.get_selected()
+			item = model.get_value(iter, 4)
+			return item
+		except:   
+			pass
 	
 	def _show_item_popup(self, view, ev):
-		if ev.button == 3:
-			item = self.get_selected_item()
-			if item:
-				menu = gtk.Menu()
-				menu.attach_to_widget(view, None)
-				item.populate_popup(menu)
-				menu.popup(None, None, None, ev.button, ev.time)
-				return True
+		try:
+			if ev.button == 3:
+				item = self.get_selected_item()
+				if item:
+					menu = gtk.Menu()
+					menu.attach_to_widget(view, None)
+					item.populate_popup(menu)
+					menu.popup(None, None, None, ev.button, ev.time)
+					return True
+		except:
+			pass
 	
 	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
 		# FIXME: Prefer ACTION_LINK if available

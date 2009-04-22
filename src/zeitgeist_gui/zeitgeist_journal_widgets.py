@@ -203,7 +203,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 		for item in engine.get_items(self.begin, self.end, ""):
 					
-			if item.timestamp >= self.begin and item.timestamp <= self.end:
+			if item.timestamp <= self.end:
 				self.items.append(item)
 				item.connect("relate", self.set_relation)
 		
