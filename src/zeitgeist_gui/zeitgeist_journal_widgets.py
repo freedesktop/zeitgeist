@@ -28,7 +28,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.view = DataIconView(True)
 		self.dayboxes=gtk.HBox(False,False)
 		self.days = {}
-				
+		
 		# Set up default properties
 		self.set_border_width(0)
 		self.set_size_request(600, 200)

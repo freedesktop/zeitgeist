@@ -115,30 +115,36 @@ class DataIconView(gtk.TreeView):
 		self.set_size_request(250,-1)
 		self.parentdays = parentdays
 		
+		
+		#self.connect('window-state-event', self.window_state_event_cb)
 		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT, str)
 		
 		self.set_tooltip_column(5)
 		
 		icon_cell = gtk.CellRendererPixbuf()
 		icon_column = gtk.TreeViewColumn("",icon_cell,pixbuf=0)
-		icon_column.set_fixed_width(32)
+		#icon_column.set_fixed_width(32)
+		icon_column.set_expand(False)
 		
 		name_cell = gtk.CellRendererText()
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("wrap-width", 125)
 		name_column = gtk.TreeViewColumn("Name", name_cell, markup=1)
-		name_column.set_fixed_width(125)
+		name_column.set_expand(True)
+		self.name_cell = name_cell
 		
 		time_cell = gtk.CellRendererText()
 		time_column = gtk.TreeViewColumn("Time",time_cell,markup=2)
-		time_column.set_fixed_width(32)
+		#time_column.set_fixed_width(32)
+		time_column.set_expand(False)
 		
 		bookmark_cell = gtk.CellRendererToggle()
 		bookmark_cell.set_property('activatable', True)
 		bookmark_cell.connect( 'toggled', self.toggle_bookmark, self.store )
 		bookmark_column = gtk.TreeViewColumn("bookmark",bookmark_cell)
 		bookmark_column.add_attribute( bookmark_cell, "active", 3)
-		bookmark_column.set_fixed_width(32)
+		bookmark_column.set_fixed_width(128)
+		bookmark_column.set_expand(False)
 				
 		self.append_column(icon_column)
 		self.append_column(name_column)
@@ -166,6 +172,20 @@ class DataIconView(gtk.TreeView):
 		self.days={}
 		self.last_item = ""
 		self.items_uris=[]
+		
+		self.reload_name_cell_size(250)
+		
+	def reload_name_cell_size(self,width):
+		
+		if width < 300:
+			width = 300
+			wrap = 225
+			
+		else:
+			wrap = width - 75
+			
+		self.name_cell.set_property("wrap-width",wrap)
+		self.set_size_request(width,-1)
 		
 	def append_item(self, item,group=True):
 		# Add an item to the end of the store
@@ -352,7 +372,7 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 									   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
 										gtk.STOCK_SAVE, gtk.RESPONSE_ACCEPT))
 		self.set_current_name(name)
-		self.set_current_folder(xdg_directory("desktop", "~/Desktop"))
+		self.set_current_folder(xdg_directory("", "~/"))
 		self.set_do_overwrite_confirmation(True)
 		self.set_default_response(gtk.RESPONSE_ACCEPT)
 

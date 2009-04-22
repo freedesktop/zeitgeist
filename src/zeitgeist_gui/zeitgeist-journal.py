@@ -25,6 +25,10 @@ class Journal(gtk.Window):
 		self.connect("destroy", gtk.main_quit)
 		signal.signal(signal.SIGUSR1, lambda: self.emit(gtk.main_quit))
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
+
+		#self.connect('window-state-event', self.window_state_event_cb)
+		self.connect('check-resize', self.window_state_event_cb)
+		
 		
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox(False,5)
@@ -83,7 +87,18 @@ class Journal(gtk.Window):
 		filtersBox.option_box.hide_all()
 		calendar.hide_all()
 		
-
+	def window_state_event_cb(self,window):
+		width, height = self.get_size()
+		
+		if bookmarks.get_property("visible"):
+			width = width / 5
+		else:
+			width = width / 4
+		
+		for day in timeline.dayboxes:
+			day.view.reload_name_cell_size(width)
+		bookmarks.view.reload_name_cell_size(width)
+			
 
 if __name__ == "__main__":
 	
