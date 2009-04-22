@@ -271,6 +271,10 @@ class DataIconView(gtk.TreeView):
 			else:
 				tags = item.tags + "," + selection.get_text() 
 			item.set_tags(tags)
+			
+			tooltip = self.get_tooltip(item)
+			model.set_value(iter,5,tooltip)
+	      
 	      
 		except Exception, ex:
 			print ex
@@ -348,15 +352,16 @@ class DataIconView(gtk.TreeView):
 		else:
 			date=""
 		
-		tooltip = item.uri 
-		if not len(item.tags) == 0:
-			tooltip = tooltip +"\n\n" +  "Tagged with:\n"+item.tags
+		
+		tooltip = self.get_tooltip(item)
+		
 
 		if item.exists:
 			name = "<span color='black'>%s</span>" % item.get_name()
 		else:
 			name = "<span color='grey'>%s</span>" % item.get_name()
-			tooltip = "The file has been removed from\n"+tooltip
+			
+			
 		func(parent,[item.get_icon(24),
 				name,
 				date,
@@ -365,6 +370,16 @@ class DataIconView(gtk.TreeView):
 				tooltip])
 		
 		self.expand_all()
+
+	
+	def get_tooltip(self,item):
+		tooltip = item.uri 
+		if not len(item.tags) == 0:
+			tooltip = tooltip +"\n\n" +  "Tagged with:\n"+item.tags
+		if not item.exists:	
+			tooltip = "The file has been removed from\n"+tooltip
+		return tooltip
+		
 
 class NewFromTemplateDialog(gtk.FileChooserDialog):
 	'''
