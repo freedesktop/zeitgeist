@@ -118,8 +118,8 @@ class DataIconView(gtk.TreeView):
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
 
-		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT ) ]
-		
+		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT ), ( "image/x-xpixmap", 0, TARGET_TYPE_PIXMAP ) ]
+
 		#self.connect('window-state-event', self.window_state_event_cb)
 		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT, str)
 		
@@ -257,27 +257,30 @@ class DataIconView(gtk.TreeView):
 		selection_data.set_uris(uris)
 	
 	def drag_data_received_data(self, iconview, context, x, y, selection, info, etime):
-		try:
-			data = selection.data
-			drop_info = self.get_dest_row_at_pos(x, y)
-			if drop_info:
-				(model, paths) = self.get_selection().get_selected_rows()
-				path, position = drop_info
-				iter = model.get_iter(path)
-	        
-			item = model.get_value(iter, 4)
-			if item.tags.strip()=="" or item.tags == None:
-				tags = selection.get_text() 
-			else:
-				tags = item.tags + "," + selection.get_text() 
-			item.set_tags(tags)
-			
-			tooltip = self.get_tooltip(item)
-			model.set_value(iter,5,tooltip)
-	      
-	      
-		except Exception, ex:
-			print ex
+		
+		data = selection.data
+		if data[0:6] == "tag://":
+			data = data[6:]
+			try:
+				drop_info = self.get_dest_row_at_pos(x, y)
+				if drop_info:
+					(model, paths) = self.get_selection().get_selected_rows()
+					path, position = drop_info
+					iter = model.get_iter(path)
+		        
+				item = model.get_value(iter, 4)
+				if item.tags.strip()=="" or item.tags == None:
+					tags = selection.get_text() 
+				else:
+					tags = item.tags + "," + selection.get_text() 
+				item.set_tags(tags)
+				
+				tooltip = self.get_tooltip(item)
+				model.set_value(iter,5,tooltip)
+		      
+		      
+			except Exception, ex:
+				print ex
 		
 	def toggle_bookmark( self, cell, path, model ):
 		"""

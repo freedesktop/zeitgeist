@@ -318,7 +318,7 @@ class HTagBrowser(gtk.HBox):
 		btn.connect("toggled", self.toggle)
 	
 	def sendCallback(self, widget, context, selection, targetType, eventTime):
-		selection.set(selection.target, 8, widget.get_label())
+		selection.set(selection.target, 8, "tag://"+widget.get_label())
 
 	
 	def get_recent_tags(self, x=None):
