@@ -143,12 +143,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 		range = (self.end-self.begin) / 86400
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days:
+			i = len(self.dayboxes) -1
 			for daybox in self.dayboxes:
 				if daybox.item_count == 0:
 					daybox.label.set_label(".")
 					daybox.view.set_size_request(-1,-1)
 				else:
 					daybox.view.reload_name_cell_size(width)
+				i = i - 1
 		gc.collect()
 	
 	def load_month_proxy(self,widget=None, begin=None, end=None):
