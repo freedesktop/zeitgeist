@@ -332,7 +332,6 @@ class HTagBrowser(gtk.HBox):
 			self.view.remove(w)
 		
 		for tag in engine.get_recent_used_tags(10, begin, end):
-			print tag
 			self._tag_toggle_button(tag)
 			
 		self.show_all()
