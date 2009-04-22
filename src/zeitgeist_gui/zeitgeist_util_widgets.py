@@ -548,7 +548,21 @@ class DayBox(gtk.VBox):
 		vbox = gtk.VBox()
 		
 		self.ev = gtk.EventBox()
-		self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FFFAAA"))
+			
+		'''
+		FIXME: export the code somehwere else
+		This makes the headers of the days fit the tooltip color
+		'''
+		
+		'''
+		self.tooltip = gtk.Window()
+		self.tooltip.set_name('gtk-tooltips')
+		self.tooltip.show_all()
+		
+		color = self.format_color_string(self.tooltip.style.bg[gtk.STATE_NORMAL])
+		self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(color[0],color[1],color[2] ))
+		'''
+		
 		self.ev.add(vbox)
 		self.ev.set_border_width(1)
 		vbox.pack_start(self.label,True,True,5)
@@ -566,6 +580,11 @@ class DayBox(gtk.VBox):
 		self.show_all()
 		self.item_count=0
 	
+	
+	def format_color_string(self, color):
+		""" Convert 48-bit gdk.Color to 24-bit "RRR GGG BBB" triple. """
+		return (color.red/256, color.green/256,  color.blue/256)	
+	
 	def append_item(self,item):
 		self.view.append_item(item)
 		self.item_count +=1
@@ -577,3 +596,5 @@ class DayBox(gtk.VBox):
 	   
 	def emit_focus(self):
 			self.emit("set-focus-child", self)
+			
+			
