@@ -348,18 +348,21 @@ class DataIconView(gtk.TreeView):
 		else:
 			date=""
 		
+		tooltip = item.uri 
+		if not len(item.tags) == 0:
+			tooltip = tooltip +"\n\n" +  "Tagged with:\n"+item.tags
+
 		if item.exists:
 			name = "<span color='black'>%s</span>" % item.get_name()
-			uri = item.uri
 		else:
 			name = "<span color='grey'>%s</span>" % item.get_name()
-			uri = "The file has been removed from\n"+item.uri
+			tooltip = "The file has been removed from\n"+tooltip
 		func(parent,[item.get_icon(24),
 				name,
 				date,
 				bookmark,
 				item,
-				uri])
+				tooltip])
 		
 		self.expand_all()
 
