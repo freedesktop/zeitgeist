@@ -10,7 +10,7 @@ from gettext import ngettext, gettext as _
 
 from zeitgeist_gui.zeitgeist_util import launcher
 from zeitgeist_shared.xdgdirs import xdg_directory
-from zeitgeist_gui.zeitgeist_util import launcher
+from zeitgeist_gui.zeitgeist_util import launcher, color_palette
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 from zeitgeist_shared.zeitgeist_shared import *
@@ -443,7 +443,7 @@ class BookmarksView(gtk.VBox):
 		self.view = DataIconView()
 
 		ev = gtk.EventBox()
-		ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FFFAAA"))
+		ev.modify_bg(gtk.STATE_NORMAL, color_palette.get_tooltip_color())
 		evbox = gtk.EventBox()
 		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
 		evbox1 = gtk.EventBox()
@@ -554,14 +554,12 @@ class DayBox(gtk.VBox):
 		This makes the headers of the days fit the tooltip color
 		'''
 		
-		'''
+		
 		self.tooltip = gtk.Window()
 		self.tooltip.set_name('gtk-tooltips')
-		self.tooltip.show_all()
+		self.tooltip.hide_all()
 		
-		color = self.format_color_string(self.tooltip.style.bg[gtk.STATE_NORMAL])
-		self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(color[0],color[1],color[2] ))
-		'''
+		self.ev.modify_bg(gtk.STATE_NORMAL, color_palette.get_tooltip_color())
 		
 		self.ev.add(vbox)
 		self.ev.set_border_width(1)
@@ -583,7 +581,7 @@ class DayBox(gtk.VBox):
 	
 	def format_color_string(self, color):
 		""" Convert 48-bit gdk.Color to 24-bit "RRR GGG BBB" triple. """
-		return (color.red/256, color.green/256,  color.blue/256)	
+		return (color.red, color.green,  color.blue)	
 	
 	def append_item(self,item):
 		self.view.append_item(item)

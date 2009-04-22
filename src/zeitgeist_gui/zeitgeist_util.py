@@ -418,6 +418,25 @@ class GConfBridge(gobject.GObject):
         self.emit(detailed_signal)
 
 
+class ColorPalette(gtk.Window):
+
+	def __init__(self):
+		gtk.Window.__init__(self)
+		self.set_name('gtk-tooltips')
+		self.hide_all()
+		self.map = self.get_colormap()
+				
+	def get_tooltip_color(self):
+		color = self.format_color_string(self.style.bg[gtk.STATE_NORMAL])
+		
+		color = self.map.alloc_color(color[0],color[1],color[2])
+		return color
+		
+	def format_color_string(self, color):
+		""" Convert 48-bit gdk.Color to 24-bit "RRR GGG BBB" triple. """
+		return (color.red, color.green,  color.blue)	
+	
+color_palette = ColorPalette()
 launcher = LaunchManager()
 icon_factory = IconFactory()
 thumbnailer = Thumbnailer()
