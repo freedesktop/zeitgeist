@@ -270,9 +270,9 @@ class DataIconView(gtk.TreeView):
 		        
 				item = model.get_value(iter, 4)
 				if item.tags.strip()=="" or item.tags == None:
-					tags = selection.get_text() 
+					tags = data
 				else:
-					tags = item.tags + "," + selection.get_text() 
+					tags = item.tags + "," + data
 				item.set_tags(tags)
 				
 				tooltip = self.get_tooltip(item)

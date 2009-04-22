@@ -272,6 +272,10 @@ class Data(gobject.GObject):
 	
 	def toggle_tags(self, *discard):
 		# TODO: Clean this mess up. Use a list comprehension or sth.
+		x = discard
+		
+		print discard
+		
 		tags = self.tags
 		if x.get_active():
 			if tags.find(x.get_label()) == -1:
