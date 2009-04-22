@@ -17,12 +17,24 @@ class DBConnector:
 	
 	def _result2data(self, result, timestamp=0):
 		
+		res = self.cursor.execute(
+					"""SELECT tagid FROM tags WHERE uri = ?""",
+					(result[0],)).fetchall()
+		
+		tags=""
+		if len(res)>0:
+			for tag in res:
+				if not tags=="":
+					tags = tags + "," + tag[0]
+				else:
+					tags = tag[0]
+		
 		return (
 			timestamp,
 			result[0], # uri
 			result[1], # name
 			result[2], # comment
-			result[3], # tags
+			tags, # tags
 			result[4] or "first use", # use
 			result[5], # icon
 			result[6], # bookmark
@@ -160,6 +172,8 @@ class DBConnector:
 			# Retrieve the item from the data table
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
 									(uri,)).fetchone()
+			
+			
 			
 			# TODO: Can item ever be None?
 			if item:
