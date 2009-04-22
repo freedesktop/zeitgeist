@@ -115,6 +115,10 @@ class DataIconView(gtk.TreeView):
 		self.set_size_request(250,-1)
 		self.parentdays = parentdays
 		
+		TARGET_TYPE_TEXT = 80
+		TARGET_TYPE_PIXMAP = 81
+
+		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT ) ]
 		
 		#self.connect('window-state-event', self.window_state_event_cb)
 		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT, str)
@@ -160,9 +164,12 @@ class DataIconView(gtk.TreeView):
 		self.connect("row-activated", self._open_item)
 		self.connect("button-press-event", self._show_item_popup)
 		self.connect("drag-data-get", self._item_drag_data_get)
+		self.connect("drag_data_received", self.drag_data_received_data)
 		self.connect("focus-out-event",self.unselect_all)
 		
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
+		self.enable_model_drag_dest(self.fromImage, gtk.gdk.ACTION_MOVE) 
+		
 		self.last_item=None
 		self.day=None
 		engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
@@ -245,18 +252,29 @@ class DataIconView(gtk.TreeView):
 	
 	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
 		# FIXME: Prefer ACTION_LINK if available
-		print("_item_drag_data_get")
 		uris = []
-		treeselection = self.get_selection()
-		model, iter = treeselection.get_selected()
-		item = model.get_value(iter, 4)
-		if not item:
-			print "ERROR"
-		uris.append(item.get_uri())
-		
-		pass #print " *** Dropping URIs:", uris
+		uris.append(self.last_item.get_uri())
 		selection_data.set_uris(uris)
 	
+	def drag_data_received_data(self, iconview, context, x, y, selection, info, etime):
+		try:
+			data = selection.data
+			drop_info = self.get_dest_row_at_pos(x, y)
+			if drop_info:
+				(model, paths) = self.get_selection().get_selected_rows()
+				path, position = drop_info
+				iter = model.get_iter(path)
+	        
+			item = model.get_value(iter, 4)
+			if item.tags.strip()=="" or item.tags == None:
+				tags = selection.get_text() 
+			else:
+				tags = item.tags + "," + selection.get_text() 
+			item.set_tags(tags)
+	      
+		except Exception, ex:
+			print ex
+		
 	def toggle_bookmark( self, cell, path, model ):
 		"""
 		Sets the toggled state on the toggle button to true or false.

@@ -109,7 +109,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.days[item.get_datestring()] = daybox
 						
 		
-		self.clean_up_dayboxes()
+		self.clean_up_dayboxes(-1)
 	
 	def review_days(self):
 		
@@ -138,14 +138,16 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
 	
-	def clean_up_dayboxes(self):
+	def clean_up_dayboxes(self,width):
 		range = (self.end-self.begin) / 86400
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
-		if self.compress_empty_days and range > 7:
+		if self.compress_empty_days:
 			for daybox in self.dayboxes:
 				if daybox.item_count == 0:
 					daybox.label.set_label(".")
 					daybox.view.set_size_request(-1,-1)
+				else:
+					daybox.view.reload_name_cell_size(width)
 		gc.collect()
 	
 	def load_month_proxy(self,widget=None, begin=None, end=None):
@@ -249,14 +251,21 @@ class HTagBrowser(gtk.HBox):
 		# Initialize superclass
 		gtk.HBox.__init__(self)
 		self.set_size_request(-1,-1)
+		
+		TARGET_TYPE_TEXT = 80
+		TARGET_TYPE_PIXMAP = 81
+
+		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT )]
+
+		
 		self.combobox = gtk.combo_box_new_text()
 		self.combobox.append_text('Recently used tags')
 		self.combobox.append_text('Most used tags')
 		
 		hbox=gtk.HBox()
-		
 		hbox.pack_start(self.combobox, False, False)
 				
+	
 		self.scroll = gtk.ScrolledWindow()
 		self.ev = gtk.EventBox()
 		self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
@@ -294,12 +303,23 @@ class HTagBrowser(gtk.HBox):
 			self.func = self.get_most_tags()
 	
 	def _tag_toggle_button(self, tag):
+		
+		
 		btn = gtk.ToggleButton(tag)
+		image = gtk.image_new_from_file("%s/data/tag.png" % BASEDIR)
+		btn.connect("drag_data_get", self.sendCallback)
+		btn.drag_source_set(gtk.gdk.BUTTON1_MASK, self.fromImage,gtk.gdk.ACTION_COPY)
+
+		btn.set_image(image)
 		btn.set_size_request(-1, -1)
 		btn.set_relief(gtk.RELIEF_NONE)
 		btn.set_focus_on_click(False)
 		self.view.pack_start(btn, True, True)
 		btn.connect("toggled", self.toggle)
+	
+	def sendCallback(self, widget, context, selection, targetType, eventTime):
+		selection.set(selection.target, 8, widget.get_label())
+
 	
 	def get_recent_tags(self, x=None):
 		
@@ -312,6 +332,7 @@ class HTagBrowser(gtk.HBox):
 			self.view.remove(w)
 		
 		for tag in engine.get_recent_used_tags(10, begin, end):
+			print tag
 			self._tag_toggle_button(tag)
 			
 		self.show_all()
@@ -336,6 +357,7 @@ class HTagBrowser(gtk.HBox):
 			if tags.find(x.get_label()) == -1:
 				tags = tags + "," + x.get_label()
 				begin, end = engine.get_timestamps_for_tag(x.get_label())
+				end = end + 86400
 				timeline.load_month(begin=begin, end=end)
 		else:
 			if tags.find(x.get_label()) > -1:
