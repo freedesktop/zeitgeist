@@ -160,24 +160,30 @@ class DBConnector:
 		Yields all items from the database between the timestamps min and max.
 		"""
 		# Loop over all items in the timetable table which are between min and max
-		query = """SELECT start, uri 
-				FROM timetable
-				WHERE usage!='linked'
-				and start >= ?
-				and start <= ?
-				ORDER BY key"""
+		query = '''SELECT start, uri FROM timetable WHERE usage!='linked'	and start >= ? and start <= ? ORDER BY start ASC'''
+		
+		items = []
+		
+		x = sys.maxint
 		
 		func = self._result2data
-		for start, uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
+		
+		res =self.cursor.execute(query, (str(min), str(max))).fetchall()
+		
+		for start, uri in res:
 			# Retrieve the item from the data table
+			
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
 									(uri,)).fetchone()
 			
-			
+			if start < x:
+				x = start
 			
 			# TODO: Can item ever be None?
 			if item:
-				yield func(item, timestamp = start)
+				items.append(func(item, timestamp = start))
+		
+		return items
 	
 	def update_item(self, item):
 		"""
@@ -296,8 +302,9 @@ class DBConnector:
 		if res:
 			for uri in res:
 				res = self.cursor.execute('SELECT start FROM timetable WHERE uri=? ORDER BY start ',(uri[0],)).fetchone()
-				if res[0] < timestamp:
-					timestamp = res[0]
+				if res:
+					if res[0] < timestamp:
+						timestamp = res[0]
 			return timestamp
 		else:
 			return None
@@ -308,8 +315,9 @@ class DBConnector:
 		if res:
 			for uri in res:
 				res = self.cursor.execute('SELECT start FROM timetable WHERE uri=? ORDER BY start DESC',(uri[0],)).fetchone()
-				if res[0] > timestamp:
-					timestamp = res[0]
+				if res:
+					if res[0] > timestamp:
+						timestamp = res[0]
 			return timestamp
 		else:
 			return None

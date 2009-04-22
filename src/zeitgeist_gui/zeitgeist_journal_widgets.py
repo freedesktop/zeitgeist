@@ -139,6 +139,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.dayboxes.pack_start(self.days[datestring])
 	
 	def clean_up_dayboxes(self,width):
+		
 		range = (self.end-self.begin) / 86400
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days:
@@ -178,9 +179,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 		day = date[2]
 		if not keep:
 			if begin == None and end == None:
-				begin = (date[0], date[1]+1, day-1+self.offset, 0,0,0,0,0,0)
-				end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,0)
-				self.begin = time.mktime(begin)
+				begin = (date[0], date[1]+1, day-1+self.offset,0,0,0,0,0,-1)
+				end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,-1)
+				self.begin = time.mktime(begin) 
 				self.end = time.mktime(end) -1
 			
 			else:
@@ -199,10 +200,13 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Get all items in the date range and add them to self.items
 		self.items = []
+	
 		for item in engine.get_items(self.begin, self.end, ""):
-			if item.timestamp < self.end:
+					
+			if item.timestamp >= self.begin and item.timestamp <= self.end:
 				self.items.append(item)
 				item.connect("relate", self.set_relation)
+		
 		
 		t3 = time.time()
 		print "Time to get items: %s" % str(t3-t2)
