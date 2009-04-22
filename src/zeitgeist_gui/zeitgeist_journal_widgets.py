@@ -409,6 +409,8 @@ class FilterAndOptionBox(gtk.VBox):
 		Filter Box
 		'''
 		
+		self.option_box.set_size_request(210,-1)
+		
 		#self.search = SearchToolItem()
 		#self.pack_start( self.search ,False,False,0)
 		self.pack_start(calendar, False, False, 0)

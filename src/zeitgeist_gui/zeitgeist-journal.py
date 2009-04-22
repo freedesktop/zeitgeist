@@ -27,7 +27,7 @@ class Journal(gtk.Window):
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		
 		# Vertical box (contains self.hBox and a status bar)
-		self.vBox = gtk.VBox()
+		self.vBox = gtk.VBox(False,5)
 		tagbox = gtk.HBox()
 			
 		tagbox.pack_start(htb,True,True)
@@ -37,12 +37,12 @@ class Journal(gtk.Window):
 		
 		# Horizontal box (contains the main content and a sidebar)
 		self.hBox = gtk.HBox()
-		self.vBox.pack_start(self.hBox, True, True,5)
+		self.vBox.pack_start(self.hBox, True, True,1)
 		
 		# Sidebar
 		self.sidebar = gtk.VBox()
 			
-		self.hBox.pack_start(bookmarks, False, False,5)
+		self.hBox.pack_start(bookmarks, False, False)
 		
 		# Filter/options box
 		self.sidebar.pack_start(filtersBox, True, True)
@@ -57,10 +57,13 @@ class Journal(gtk.Window):
 		#vbox for timeline and tagbar
 		vbox = gtk.VBox()
 		vbox.pack_start(evbox)
-		vbox.pack_start(tagbox,False,True)
+		vbox.pack_start(tagbox,False,True,2)
 		
-		self.hBox.pack_start(vbox, True, True,5)
-		self.hBox.pack_start(self.sidebar, False, False,5)
+		hbox = gtk.HBox()
+		hbox.pack_start(vbox,True,True,1)
+		
+		self.hBox.pack_start(hbox, True, True,5)
+		self.hBox.pack_start(self.sidebar, False, False)
 		#self.hBox.pack_start(ctb, True, True,5)
 		
 		# Timeline view
