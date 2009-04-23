@@ -473,7 +473,6 @@ class RelatedWindow(gtk.Window):
 				for tag in item.get_tags():
 					try:
 						if i.tags.index(tag) >= 0:
-							#print tag
 							i.timestamp=-1.0
 							uris[i.uri]=i
 						else:

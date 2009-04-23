@@ -111,7 +111,6 @@ class DataSinkSource(DataProvider):
 						matches = False
 						break
 				if matches:
-					print item
 					yield item
 		
 		gc.collect()
