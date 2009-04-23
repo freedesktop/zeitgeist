@@ -182,7 +182,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if self.compress_empty_days:
 			i = len(self.dayboxes) -1
 			for daybox in self.dayboxes:
-				if daybox.item_count == 0:
+				if daybox.item_count == 0 and self.tags !="":
 					daybox.label.set_label(".")
 					daybox.view.set_size_request(-1,-1)
 				else:
@@ -295,31 +295,25 @@ class HTagBrowser(gtk.HBox):
 		
 		# Initialize superclass
 		gtk.HBox.__init__(self)
-		self.set_size_request(-1,-1)
+		self.set_size_request(-1,48)
 		
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
-
+		
 		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT )]
 
-		
 		self.combobox = gtk.combo_box_new_text()
 		self.combobox.append_text('Recently used tags')
 		self.combobox.append_text('Most used tags')
 		
-		hbox=gtk.HBox()
-		hbox.pack_start(self.combobox, False, False)
-	
+		self.pack_start(self.combobox, False, False)
+		
 		self.scroll = gtk.ScrolledWindow()
-		self.ev = gtk.EventBox()
-		#self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
-
 		self.view = gtk.HBox()
-		self.ev.add(self.view)
-		self.scroll.add_with_viewport(self.ev)
+		self.scroll.add_with_viewport(self.view)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.scroll.set_shadow_type(gtk.SHADOW_NONE)
-		hbox.pack_start(self.scroll,True,True)
+		self.pack_start(self.scroll,True,True)
 		self.show_all()
 		self.items = []
 		
@@ -328,7 +322,7 @@ class HTagBrowser(gtk.HBox):
 	
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
-		self.pack_start(hbox,True,True)
+		
 		engine.connect("signal_updated", lambda *args: self.func)
 
 	def reload_tags(self,x=None):
@@ -353,7 +347,7 @@ class HTagBrowser(gtk.HBox):
 		btn.drag_source_set(gtk.gdk.BUTTON1_MASK, self.fromImage,gtk.gdk.ACTION_COPY)
 
 		btn.set_image(image)
-		btn.set_size_request(-1, -1)
+		btn.set_size_request(-1, 28)
 		btn.set_relief(gtk.RELIEF_NONE)
 		btn.set_focus_on_click(False)
 		self.view.pack_start(btn, True, True)
@@ -417,6 +411,13 @@ class HTagBrowser(gtk.HBox):
 	def untoggle_all(self):
 		for btn in self.view:
 			btn.set_active(False)
+		timeline.tags = ""
+
+	def resize(self):
+		parent_x, parent_y =self.get_size_request()
+		child_x, child_y = self.view.get_size_request()
+		if parent_y < child_y:
+			pass
 
 class VTagBrowser(gtk.VBox):
 	
@@ -638,6 +639,7 @@ class SearchToolItem(gtk.ToolItem):
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
+		timeline.tags=""
 		#timeline.load_month()
 	
 	def do_search(self, text):
