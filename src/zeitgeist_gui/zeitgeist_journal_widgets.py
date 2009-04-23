@@ -751,6 +751,7 @@ class BrowserBar(gtk.HBox):
 		toolbar.insert(self.tags, -1)
 		toolbar.insert(self.options, -1)
 		toolbar.insert(self.calendar, -1)
+		toolbar.set_style(gtk.TOOLBAR_ICONS)
 		
 		hbox = gtk.HBox()
 		hbox.pack_start(toolbar,True,True)
