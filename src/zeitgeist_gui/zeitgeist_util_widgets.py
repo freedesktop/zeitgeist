@@ -359,15 +359,7 @@ class DataIconView(gtk.TreeView):
 			name = "<span color='grey'>%s</span>" % item.get_name()
 			
 		
-		if self.last_item != None and item.comment == self.last_item.comment: 
-			func(self.last_iter, [item.get_icon(24),
-					name,
-					date,
-					bookmark,
-					item,
-					tooltip])
-		else:
-			self.last_iter = func(None, [item.get_icon(24),
+		self.last_iter = func(None, [item.get_icon(24),
 					name,
 					date,
 					bookmark,

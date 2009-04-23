@@ -182,7 +182,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if self.compress_empty_days:
 			i = len(self.dayboxes) -1
 			for daybox in self.dayboxes:
-				if daybox.item_count == 0:
+				if daybox.item_count == 0 and self.tags !="":
 					daybox.label.set_label(".")
 					daybox.view.set_size_request(-1,-1)
 				else:
@@ -418,6 +418,7 @@ class HTagBrowser(gtk.HBox):
 	def untoggle_all(self):
 		for btn in self.view:
 			btn.set_active(False)
+		timeline.tags = ""
 
 class VTagBrowser(gtk.VBox):
 	
@@ -638,6 +639,7 @@ class SearchToolItem(gtk.ToolItem):
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
+		timeline.tags=""
 		#timeline.load_month()
 	
 	def do_search(self, text):
