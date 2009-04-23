@@ -414,11 +414,6 @@ class HTagBrowser(gtk.HBox):
 			btn.set_active(False)
 		timeline.tags = ""
 
-	def resize(self):
-		parent_x, parent_y =self.get_size_request()
-		child_x, child_y = self.view.get_size_request()
-		if parent_y < child_y:
-			pass
 
 class VTagBrowser(gtk.VBox):
 	

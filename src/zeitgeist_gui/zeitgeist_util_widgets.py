@@ -426,45 +426,6 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 
 		self.destroy()
 
-class BookmarksView(gtk.VBox):
-	def __init__(self):
-		gtk.VBox.__init__(self)
-		
-		vbox=gtk.VBox()
-		
-		self.label = gtk.Label("Bookmarks")
-		#self.label.set_padding(5,5)
-		vbox.pack_start(self.label, False, True, 5)
-		self.view = DataIconView()
-
-		ev = gtk.EventBox()
-		ev.modify_bg(gtk.STATE_NORMAL, color_palette.get_tooltip_color())
-		evbox = gtk.EventBox()
-		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
-		evbox1 = gtk.EventBox()
-		evbox1.set_border_width(1)
-		evbox1.add(ev)
-		evbox.add(evbox1)
-		ev.set_border_width(1)
-		ev.add(vbox)
-				
-		evbox2 = gtk.EventBox()
-		evbox2.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
-		evbox3 = gtk.EventBox()
-		evbox3.set_border_width(1)
-		evbox3.add(self.view)
-		evbox2.add(evbox3)
-					
-		vbox.pack_start(evbox2,True,True)
-		self.pack_start(evbox,True,True)
-		self.get_bookmarks()
-		engine.connect("signal_updated", self.get_bookmarks)
-
-	def get_bookmarks(self, x=None):
-		self.view.clear_store()
-		for item in bookmarker.get_items_uncached():
-			self.view.append_item(item, group=False)
-
 class RelatedWindow(gtk.Window):
 	
 	def __init__(self):
@@ -590,4 +551,22 @@ class DayBox(gtk.VBox):
 	def emit_focus(self):
 			self.emit("set-focus-child", self)
 			
-			
+class BookmarksBox(DayBox):
+	def __init__(self):
+		DayBox.__init__(self,"Bookmark")
+		self.get_bookmarks()
+		engine.connect("signal_updated", self.get_bookmarks)
+
+	def get_bookmarks(self, x=None):
+		self.view.clear_store()
+		for item in bookmarker.get_items_uncached():
+			self.view.append_item(item, group=False)
+		
+class BookmarksView(gtk.ScrolledWindow):
+	def __init__(self):
+		gtk.ScrolledWindow.__init__(self)
+		self.bookmarks = BookmarksBox()
+		self.add_with_viewport(self.bookmarks)		
+		self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
+		
+		
