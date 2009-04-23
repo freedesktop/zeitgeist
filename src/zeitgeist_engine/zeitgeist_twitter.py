@@ -18,7 +18,7 @@ class TwitterSource(DataProvider):
 		self.password = ""
 		self.comment = " tweets to Twitter"
 		
-	def get_icon_static(self,icon_size):
+	def get_icon_static(self, icon_size):
 		loc = glob.glob(os.path.expanduser("~/.zeitgeist/twitter.png"))
 		self.icon = gtk.gdk.pixbuf_new_from_file_at_size(loc[0], -1, int(24))
 		
@@ -32,9 +32,9 @@ class TwitterSource(DataProvider):
 		for status in self.api.GetUserTimeline(count = 500):
 			yield {
 				"timestamp": tweet.created_at_in_seconds,
-				"uri": "http://explore.twitter.com/" + tweet.user.screen_name + "/status/" + str(tweet.id),
-				"name": tweet.user.name + ":\n" + tweet.text,
-				"type": "Twitter",
+				"uri": unicode("http://explore.twitter.com/" + tweet.user.screen_name + "/status/" + str(tweet.id)),
+				"name": unicode(tweet.user.name + ":\n" + tweet.text),
+				"type": u"Twitter",
 				"count": 0,
-				"use": "tweet",
+				"use": u"tweet",
 				}

@@ -28,7 +28,7 @@ class FileMonitor(gobject.GObject):
 		else:
 			self.path = path
 		try:
-			self.type = gnomevfs.get_file_info(path).type
+			self.type = gnomevfs.get_file_info(str(path)).type
 		except gnomevfs.Error:
 			self.type = gnomevfs.MONITOR_FILE
 

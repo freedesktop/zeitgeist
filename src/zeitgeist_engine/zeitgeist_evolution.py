@@ -43,15 +43,15 @@ class EvolutionSource(DataProvider):
 							timestamp = i[0] 
 							yield {
 								"timestamp": timestamp,
-								"uri": "mailto:%s" % i[2],
-								"name": name,
-								"use": "visited",
-								"type": "Mail",
-								"icon": self.icon,
-								"comment": "",
-								"mimetype": "mail",
-								"tags": "",
-								"count":""
+								"uri": unicode("mailto:%s" % i[2]),
+								"name": unicode(name),
+								"use": u"visited",
+								"type": u"Mail",
+								"icon": unicode(self.icon),
+								"comment": u"",
+								"mimetype": u"mail",
+								"tags": u"",
+								"count": u""
 								}
 					except Exception:
 						print "error fetching sent mail"

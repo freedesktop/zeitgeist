@@ -21,14 +21,14 @@ class DBConnector:
 					"""SELECT tagid FROM tags WHERE uri = ?""",
 					(result[0],)).fetchall()
 		
-		tags=""
+		tags = ""
 		if len(res)>0:
 			for tag in res:
 				if not tags=="":
 					tags = tags + "," + tag[0]
 				else:
 					tags = tag[0]
-			
+		
 		'''
 		s = " "
 		print (str(type(timestamp)) + s +
@@ -130,7 +130,7 @@ class DBConnector:
 			try:
 				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
 					(item["uri"],
-					unicode(item["name"]),
+					item["name"],
 					item["comment"],
 					item["tags"],
 					item["use"],
@@ -138,7 +138,7 @@ class DBConnector:
 					0,
 					item["mimetype"],
 					item["count"],
-					unicode(item["type"])))
+					item["type"]))
 			except sqlite3.IntegrityError, ex:
 				pass
 			

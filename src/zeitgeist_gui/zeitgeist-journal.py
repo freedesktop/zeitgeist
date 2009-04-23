@@ -83,6 +83,9 @@ class Journal(gtk.Window):
 		htb.hide_all()
 		filtersBox.option_box.hide_all()
 		calendar.hide_all()
+		
+		# Load data
+		timeline.ready()
 	
 	def window_state_event_cb(self,window):
 		width, height = self.get_size()

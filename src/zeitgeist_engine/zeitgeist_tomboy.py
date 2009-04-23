@@ -11,7 +11,7 @@ from gettext import gettext as _
 from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_engine.zeitgeist_util import FileMonitor
 
-# FIXME:  This should really just use Beagle or Tracker.
+# FIXME: This should really just use Beagle or Tracker.
 
 class NoteData:
 	
@@ -85,8 +85,8 @@ class TomboySource(DataProvider):
 							uri="source:///Documents/Tomboy")
 		self.name = _("Notes")
 		self.new_note_item = {
-			"name": _("Create New Note"),
-			"comment": _("Make a new Tomboy note"),
+			"name": _(u"Create New Note"),
+			"comment": _(u"Make a new Tomboy note"),
 			"icon": gtk.STOCK_NEW,
 			}
 		
@@ -96,8 +96,8 @@ class TomboySource(DataProvider):
 			else:
 				note_path = "~/.tomboy"
 			note_path = os.path.expanduser(note_path)
-		self.note_path = note_path
-		self.comment = "Notes from Tomboy"
+		self.note_path = unicode(note_path)
+		self.comment = u"Notes from Tomboy"
 		self.notes = {}
 		
 		self.note_path_monitor = FileMonitor(self.note_path)
@@ -129,15 +129,15 @@ class TomboySource(DataProvider):
 					note =  NoteData(notepath)
 		                        item = {
             			        	"timestamp": note.timestamp,
-                		        	"uri": note.get_uri(),
-                	        		"name": note.title ,
-                	        		"comment": note.content_text,
-                	        		"type": note.type,
+                		        	"uri": unicode(note.get_uri()),
+                	        		"name": unicode(note.title),
+                	        		"comment": unicode(note.content_text),
+                	        		"type": unicode(note.type),
                 	        		"count": 0,
-                	        		"use": "",
-                	        		"mimetype": note.mimetype,
-                	        		"tags": "",
-                	        		"icon": note.icon
+                	        		"use": u"",
+                	        		"mimetype": unicode(note.mimetype),
+                	        		"tags": u"",
+                	        		"icon": unicode(note.icon)
                 	        		}
 	                                yield item
                                     

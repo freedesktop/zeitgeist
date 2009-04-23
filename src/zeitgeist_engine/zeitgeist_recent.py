@@ -92,12 +92,12 @@ class RecentlyUsedManagerGtk(DataProvider):
 						
 					item = {
 					"timestamp": timestamp,
-					"uri": info.get_uri(),
-					"name": info.get_display_name(),
-			        "comment": info.get_display_name(),
-					"mimetype": info.get_mime_type(),
-					"tags": tags,
-					"use": use,
+					"uri": unicode(info.get_uri()),
+					"name": unicode(info.get_display_name()),
+					"comment": unicode(info.get_display_name()),
+					"mimetype": unicode(info.get_mime_type()),
+					"tags": unicode(tags),
+					"use": unicode(use),
 					}
 					
 					yield item

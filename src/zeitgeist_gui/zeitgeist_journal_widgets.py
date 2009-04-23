@@ -56,12 +56,22 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
 		
-		engine.connect("signal_updated", self.load_month_proxy)
 		self.offset = 0
 		self.items = []
+		self._ready = False
 		
 		# Load the GUI
 		self.load_month()
+	
+	def ready(self):
+		'''
+		Only call this one time, once the GUI has loaded and we can
+		start listening to events.
+		'''
+		
+		assert self._ready == False
+		self._ready = True
+		engine.connect("signal_updated", self.load_month_proxy)
 	
 	def set_filters(self):
 		for source in engine.get_sources_list():
@@ -134,7 +144,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.append_item(item)
 						self.dayboxes.pack_start(daybox, False, False)
 						self.days[item.get_datestring()] = daybox
-						
 		
 		print "---------------"
 		self.clean_up_dayboxes(-1)
@@ -320,7 +329,7 @@ class HTagBrowser(gtk.HBox):
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(hbox,True,True)
-		engine.connect("signal_updated", lambda *args: self.func)
+		#engine.connect("signal_updated", lambda *args: self.func)
 
 	def reload_tags(self,x=None):
 		index = self.combobox.get_active()
@@ -409,8 +418,9 @@ class HTagBrowser(gtk.HBox):
 	def untoggle_all(self):
 		for btn in self.view:
 			btn.set_active(False)
-		
+
 class VTagBrowser(gtk.VBox):
+	
 	def __init__(self):
 		# Initialize superclass
 		gtk.VBox.__init__(self)
@@ -421,7 +431,7 @@ class VTagBrowser(gtk.VBox):
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(self.combobox,True,True,5)
-		engine.connect("signal_updated", lambda *args: self.func)
+		#engine.connect("signal_updated", lambda *args: self.func)
 		
 	def reload_tags(self,x=None):
 		self.func = self.get_recent_tags()
@@ -450,7 +460,7 @@ class VTagBrowser(gtk.VBox):
 		
 		for tag in engine.get_most_used_tags(10, begin, end):
 			self.combobox.append_text(tag)
-	
+
 class FilterAndOptionBox(gtk.VBox):
 	
 	def __init__(self):
@@ -464,7 +474,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.option_box.pack_end(self.create_doc_btn, False, False)
 		self.option_box.pack_end(self.create_note_btn, False, False)
 		self.timefilter_active=False
-		self.filters=[]
+		self.filters = []
 		
 		'''
 		Filter Box
@@ -548,7 +558,6 @@ class CheckBox(gtk.CheckButton):
 		gtk.CheckButton.__init__(self)
 		self.set_border_width(5)
 		self.set_focus_on_click(False)
-		self.connect("toggled", self.toggle_source)
 		
 		self.source = source
 		self.set_label(source[0])
@@ -559,18 +568,20 @@ class CheckBox(gtk.CheckButton):
 		self.image.set_from_pixbuf(icon)
 		self.set_image(self.image)
 		
+		# Leave this at the end, as else the callback will reload
+		# the GUI several times.
+		self.connect("toggled", self.toggle_source)
+		
 		self.show_all()
 	
 	def toggle_source(self, widget=None):
 		if self.get_active():
 			timeline.sources[self.source[0]]=False
-			pass
 			#self.source.set_active(True)
 			# FIXME - ???
 			#search.emit("clear")
 		else:
 			timeline.sources[self.source[0]]=True
-			pass
 			#self.source.set_active(False)
 		
 		timeline.load_month()
@@ -627,7 +638,7 @@ class SearchToolItem(gtk.ToolItem):
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
-		timeline.load_month()
+		#timeline.load_month()
 	
 	def do_search(self, text):
 		# Get date range
@@ -643,7 +654,7 @@ class SearchToolItem(gtk.ToolItem):
 		begin = time.mktime(begin)
 		end = time.mktime(end) -1
 		
-		timeline.load_month(begin=begin, end=end)
+		#timeline.load_month(begin=begin, end=end)
 		
 		if self.clearbtn and not self.clearbtn.child:
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)

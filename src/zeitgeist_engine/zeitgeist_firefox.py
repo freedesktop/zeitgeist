@@ -81,16 +81,16 @@ class FirefoxSource(DataProvider):
                         if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
                             use = "visited"
                         item = {
-                            "timestamp": int(	self.last_timestamp / (1000000)),
-                            "uri": item[1],
-                            "name": item[2],
-                            "comment": item[4],
-                            "type": "Firefox History",
+                            "timestamp": int(self.last_timestamp / (1000000)),
+                            "uri": unicode(item[1]),
+                            "name": unicode(item[2]),
+                            "comment": unicode(item[4]),
+                            "type": u"Firefox History",
                             "count": item[3],
-                            "use": use,
-                            "mimetype": "",
-                            "tags": "",
-                            "icon": "gnome-globe"
+                            "use": unicode(use),
+                            "mimetype": u"",
+                            "tags": u"",
+                            "icon": u"gnome-globe"
                             }
                         yield item
                     j += 1

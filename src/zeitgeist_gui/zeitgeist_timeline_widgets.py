@@ -129,7 +129,7 @@ class CairoTimeline (gtk.DrawingArea):
 					font = pango.FontDescription()
 					font.set_weight(20)
 					layout.set_font_description(font)
-					layout.set_markup(tag)
+					layout.set_text(tag)
 					ctx.move_to(x + 3, y + 2)
 					ctx.show_layout(layout)
 				
@@ -146,7 +146,7 @@ class CairoTimeline (gtk.DrawingArea):
 			font.set_weight(30)
 			font.set_size(9 * pango.SCALE)
 			layout.set_font_description(font)
-			layout.set_markup(name)
+			layout.set_text(name)
 			ctx.move_to(x, height - 30 - 7)
 			ctx.show_layout(layout)
 				

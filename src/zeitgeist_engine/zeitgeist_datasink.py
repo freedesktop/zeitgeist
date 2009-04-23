@@ -88,7 +88,7 @@ class DataSinkSource(DataProvider):
 			
 	def get_items(self, min=0, max=sys.maxint, tags=""):
 		# Emulate optional argument for the D-Bus interface
-		if max == 0: max = sys.maxint
+		if not max: max = sys.maxint
 		# Get a list of all tags/search terms
 		# (Here, there's no reason to use sets, because we're not using python's "in"
 		#  keyword for membership testing.)
@@ -175,13 +175,15 @@ class DataSinkSource(DataProvider):
 			return True
 	
 	def get_most_used_tags(self, count=20, min=0, max=sys.maxint):
-		if count == 0: count = 20
-		if max == 0: max = sys.maxint
+		if not count: count = 20
+		if not min: min = 0
+		if not max: max = sys.maxint
 		return db.get_most_tags(count, min, max)
 	
 	def get_recent_used_tags(self, count=20, min=0, max=sys.maxint):
-		if count == 0: count = 20
-		if max == 0: max = sys.maxint
+		if not count: count = 20
+		if not min: min = 0
+		if not max: max = sys.maxint
 		return db.get_recent_tags(count, min, max)
 	
 	def get_timestamps_for_tag(self, tag):
