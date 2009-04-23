@@ -354,7 +354,7 @@ class HTagBrowser(gtk.HBox):
 		btn.drag_source_set(gtk.gdk.BUTTON1_MASK, self.fromImage,gtk.gdk.ACTION_COPY)
 
 		btn.set_image(image)
-		btn.set_size_request(-1, -1)
+		btn.set_size_request(-1, 28)
 		btn.set_relief(gtk.RELIEF_NONE)
 		btn.set_focus_on_click(False)
 		self.view.pack_start(btn, True, True)
