@@ -293,7 +293,7 @@ class HTagBrowser(gtk.HBox):
 	def __init__(self):
 		# Initialize superclass
 		gtk.HBox.__init__(self)
-		self.set_size_request(-1,-1)
+		self.set_size_request(-1,48)
 		
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
@@ -305,20 +305,15 @@ class HTagBrowser(gtk.HBox):
 		self.combobox.append_text('Recently used tags')
 		self.combobox.append_text('Most used tags')
 		
-		hbox=gtk.HBox()
-		hbox.pack_start(self.combobox, False, False)
+		self.pack_start(self.combobox, False, False)
 				
 	
 		self.scroll = gtk.ScrolledWindow()
-		self.ev = gtk.EventBox()
-		#self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
-
 		self.view = gtk.HBox()
-		self.ev.add(self.view)
-		self.scroll.add_with_viewport(self.ev)
+		self.scroll.add_with_viewport(self.view)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.scroll.set_shadow_type(gtk.SHADOW_NONE)
-		hbox.pack_start(self.scroll,True,True)
+		self.pack_start(self.scroll,True,True)
 		self.show_all()
 		self.items = []
 		
@@ -328,7 +323,6 @@ class HTagBrowser(gtk.HBox):
 	
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
-		self.pack_start(hbox,True,True)
 		#engine.connect("signal_updated", lambda *args: self.func)
 
 	def reload_tags(self,x=None):
@@ -419,6 +413,12 @@ class HTagBrowser(gtk.HBox):
 		for btn in self.view:
 			btn.set_active(False)
 		timeline.tags = ""
+
+	def resize(self):
+		parent_x, parent_y =self.get_size_request()
+		child_x, child_y = self.view.get_size_request()
+		if parent_y < child_y:
+			pass
 
 class VTagBrowser(gtk.VBox):
 	

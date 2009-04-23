@@ -269,6 +269,11 @@ class DBConnector:
 				if tags.count(tag[0]) <= 0:
 					if len(tags) < count:
 						tags.append(tag[0])
+						
+		print "----------------------"
+		print order_by
+		print tags
+		print "----------------------"
 		
 		return tags
 	
