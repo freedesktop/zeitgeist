@@ -394,7 +394,6 @@ class HTagBrowser(gtk.HBox):
 			if tags.find(x.get_label()) == -1:
 				tags = tags + "," + x.get_label()
 				begin, end = engine.get_timestamps_for_tag(x.get_label())
-				end = end + 86400
 				timeline.load_month(begin=begin, end=end)
 		else:
 			if tags.find(x.get_label()) > -1:
