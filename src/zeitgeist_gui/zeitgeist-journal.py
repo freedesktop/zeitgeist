@@ -25,18 +25,15 @@ class Journal(gtk.Window):
 		self.connect("destroy", gtk.main_quit)
 		signal.signal(signal.SIGUSR1, lambda: self.emit(gtk.main_quit))
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
-
+		
 		#self.connect('window-state-event', self.window_state_event_cb)
 		self.connect('check-resize', self.window_state_event_cb)
 		
-		
 		# Vertical box (contains self.hBox and a status bar)
-		self.vBox = gtk.VBox(False,5)
+		self.vBox = gtk.VBox(False, 5)
 		tagbox = gtk.HBox()
-			
-		tagbox.pack_start(htb,True,True)
-		self.vBox.pack_start(bb,False,False)
-
+		tagbox.pack_start(htb, True, True)
+		self.vBox.pack_start(bb, False, False)
 		self.add(self.vBox)
 		
 		# Horizontal box (contains the main content and a sidebar)
@@ -45,7 +42,7 @@ class Journal(gtk.Window):
 		
 		# Sidebar
 		self.sidebar = gtk.VBox()
-			
+		
 		self.hBox.pack_start(bookmarks, False, False)
 		
 		# Filter/options box
@@ -86,7 +83,7 @@ class Journal(gtk.Window):
 		htb.hide_all()
 		filtersBox.option_box.hide_all()
 		calendar.hide_all()
-		
+	
 	def window_state_event_cb(self,window):
 		width, height = self.get_size()
 		
@@ -97,7 +94,7 @@ class Journal(gtk.Window):
 		
 		bookmarks.view.reload_name_cell_size(width)
 		timeline.clean_up_dayboxes(width)
-			
+
 
 if __name__ == "__main__":
 	

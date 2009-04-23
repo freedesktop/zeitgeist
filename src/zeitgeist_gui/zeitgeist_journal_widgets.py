@@ -21,6 +21,7 @@ from zeitgeist_shared.basics import BASEDIR
 class TimelineWidget(gtk.ScrolledWindow):
 	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
 		
@@ -40,7 +41,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.end = None
 		
 		# The current tags that we're using to filter displayed results
-		self.tags = ''
+		self.tags = ""
 		
 		# Get list of sources to filter
 		self.sources = {}
@@ -56,7 +57,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
 		
 		engine.connect("signal_updated", self.load_month_proxy)
-		self.offset=0
+		self.offset = 0
 		self.items = []
 		
 		# Load the GUI
@@ -535,6 +536,7 @@ class FilterAndOptionBox(gtk.VBox):
 		dlg.show()
 		
 class CalendarWidget(gtk.Calendar):
+	
 	def __init__(self):
 		gtk.Calendar.__init__(self)
 		self.show_all()
@@ -631,7 +633,6 @@ class SearchToolItem(gtk.ToolItem):
 		# Get date range
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
-		
 		
 		# Get the begin and end of this month
 		# each tuple is of format (year, month, day, hours, minutes,
