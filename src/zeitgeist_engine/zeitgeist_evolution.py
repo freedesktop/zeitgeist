@@ -53,10 +53,10 @@ class EvolutionSource(DataProvider):
 								"tags": "",
 								"count":""
 								}
-					except:
+					except Exception:
 						print "error fetching sent mail"
 				cursor.close()
-		except:
+		except Exception:
 				pass
 	
 	def __copy_sqlite(self):
@@ -69,5 +69,5 @@ class EvolutionSource(DataProvider):
 			newloc = newloc[0]+"evo.sqlite"
 			shutil.copy2(historydb[0], newloc)
 			return newloc
-		except:
+		except Exception:
 			return -1

@@ -221,7 +221,7 @@ class DataIconView(gtk.TreeView):
 			model, iter = treeselection.get_selected()
 			self.last_item = model.get_value(iter, 4)
 			treeselection.unselect_all()
-		except:
+		except Exception:
 			pass
 			
 	def _open_item(self, view, path, x=None):		 
@@ -240,7 +240,7 @@ class DataIconView(gtk.TreeView):
 			model, iter = treeselection.get_selected()
 			item = model.get_value(iter, 4)
 			return item
-		except:   
+		except Exception:   
 			pass
 	
 	def _show_item_popup(self, view, ev):
@@ -253,7 +253,7 @@ class DataIconView(gtk.TreeView):
 					item.populate_popup(menu)
 					menu.popup(None, None, None, ev.button, ev.time)
 					return True
-		except:
+		except Exception:
 			pass
 	
 	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
@@ -311,7 +311,7 @@ class DataIconView(gtk.TreeView):
 					item = self.store.get_value(iter, 4)
 					try:
 						self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
-					except:
+					except Exception:
 						pass
 					while True:
 						iter = self.store.iter_next(iter)
@@ -319,7 +319,7 @@ class DataIconView(gtk.TreeView):
 							item = self.store.get_value(iter, 4)
 							try:
 								self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
-							except:
+							except Exception:
 								pass
 						else:
 							break

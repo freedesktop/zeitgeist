@@ -171,7 +171,7 @@ class IconFactory():
 			else:
 				pic =  gtk.gdk.pixbuf_new_from_file(icon_path)
 				return pic
-		except:
+		except Exception:
 			pass
 		return None
 	
@@ -243,7 +243,7 @@ class IconFactory():
 	
 				self.icon_dict[icon_value] = icon
 				return icon
-			except:
+			except Exception:
 				self.icon_dict[icon_value] = None
 				return None
 		else:
@@ -311,7 +311,7 @@ class Thumbnailer:
 				thumb = icon_factory.make_icon_frame(thumb, icon_size)
 				return thumb
 			
-		except:
+		except Exception:
 			pass
 
 		return icon_factory.load_icon(icon_name, icon_size)

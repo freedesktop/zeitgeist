@@ -46,7 +46,7 @@ class FileMonitor(gobject.GObject):
 	def _clear_timeout(self, info_uri):
 		try:
 			gobject.source_remove(self.pending_timeouts[info_uri])
-		except:
+		except Exception:
 			pass
 		
 	def _queue_event(self, monitor_uri, info_uri, event):

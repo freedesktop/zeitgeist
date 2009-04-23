@@ -40,7 +40,7 @@ class FirefoxSource(DataProvider):
         try:
             self.loc = glob.glob(os.path.expanduser("~/.zeitgeist/"))
             self.loc = self.loc[0] + "firefox.sqlite"
-        except:
+        except Exception:
             pass
             
         self.__copy_sqlite()
@@ -104,10 +104,10 @@ class FirefoxSource(DataProvider):
         try:
         	try: 
         		self.cursor.close()
-        	except:
+        	except Exception:
         	 	pass
         	shutil.copy2(self.historydb[0],  self.loc)
         	self.connection = db.connect(self.loc, True)
         	self.cursor = self.connection.cursor()
-        except:
+        except Exception:
             pass
