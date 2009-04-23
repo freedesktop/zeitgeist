@@ -14,49 +14,49 @@ from gettext import gettext as _
 from zeitgeist_engine.zeitgeist_base import DataProvider
 
 DOCUMENT_MIMETYPES = [
-        # Covers:
-        #     vnd.corel-draw
-        #     vnd.ms-powerpoint
-        #     vnd.ms-excel
-        #     vnd.oasis.opendocument.*
-        #     vnd.stardivision.*
-        #     vnd.sun.xml.*
-        re.compile(u"application/vnd.*"),
-        # Covers: x-applix-word, x-applix-spreadsheet, x-applix-presents
-        re.compile(u"application/x-applix-*"),
-        # Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
-        re.compile(u"application/x-k(word|spread|presenter|illustrator)"),
-        u"application/ms-powerpoint",
-        u"application/msword",
-        u"application/pdf",
-        u"application/postscript",
-        u"application/ps",
-        u"application/rtf",
-        u"application/x-abiword",
-        u"application/x-gnucash",
-        u"application/x-gnumeric",
-        u"application/x-java*",
-        u"text/plain"
-        ]
+		# Covers:
+		#	 vnd.corel-draw
+		#	 vnd.ms-powerpoint
+		#	 vnd.ms-excel
+		#	 vnd.oasis.opendocument.*
+		#	 vnd.stardivision.*
+		#	 vnd.sun.xml.*
+		re.compile(u"application/vnd.*"),
+		# Covers: x-applix-word, x-applix-spreadsheet, x-applix-presents
+		re.compile(u"application/x-applix-*"),
+		# Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
+		re.compile(u"application/x-k(word|spread|presenter|illustrator)"),
+		u"application/ms-powerpoint",
+		u"application/msword",
+		u"application/pdf",
+		u"application/postscript",
+		u"application/ps",
+		u"application/rtf",
+		u"application/x-abiword",
+		u"application/x-gnucash",
+		u"application/x-gnumeric",
+		u"application/x-java*",
+		u"text/plain"
+		]
 
 IMAGE_MIMETYPES = [
-        # Covers:
-        #     vnd.corel-draw
-        re.compile(u"application/vnd.corel-draw"),
-        # Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
-        re.compile(u"application/x-k(illustrator)"),
-        re.compile(u"image/*"),
-        ]
+		# Covers:
+		#	 vnd.corel-draw
+		re.compile(u"application/vnd.corel-draw"),
+		# Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
+		re.compile(u"application/x-k(illustrator)"),
+		re.compile(u"image/*"),
+		]
 
 AUDIO_MIMETYPES = [
-        re.compile(u"audio/*"),
-        u"application/ogg"
-        ]
+		re.compile(u"audio/*"),
+		u"application/ogg"
+		]
 
 VIDEO_MIMETYPES = [
-        re.compile(u"video/*"),
-        u"application/ogg"
-        ]
+		re.compile(u"video/*"),
+		u"application/ogg"
+		]
 
 
 class RecentlyUsedManagerGtk(DataProvider):
@@ -85,7 +85,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 				tags = ""
 				tmp = info.get_uri()[info.get_uri().find('://') + 3:]
 				tmp = os.path.dirname(tmp)		# remove the filename from the string
-				home = os.path.expanduser("~")  # get the users home folder
+				home = os.path.expanduser("~")	# get the users home folder
 				if tmp.startswith(home):
 					tmp = tmp.replace(home + "/", "", 1)
 					if tmp != "":
@@ -148,11 +148,11 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 			for app in info.get_applications():
 				appinfo=info.get_application_info(app)
 				counter=counter+appinfo[1]
-        	
-        		item["count"] = counter
-	        	item["type"] = self.name
-	         	item["icon"] = self.icon
-            
+			
+				item["count"] = counter
+				item["type"] = self.name
+			 	item["icon"] = self.icon
+			
 			yield item
 			del item
 		gc.collect()

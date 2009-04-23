@@ -271,11 +271,6 @@ class DBConnector:
 				if tags.count(tag[0]) <= 0:
 					if len(tags) < count:
 						tags.append(tag[0])
-						
-		print "----------------------"
-		print order_by
-		print tags
-		print "----------------------"
 		
 		return tags
 	
@@ -352,9 +347,8 @@ class DBConnector:
 		# TODO: Only neighboorhood in time is considered? A bit poor,
 		# this needs serious improvement.
 		
-		for i in self.get_items_related_by_tags():
-			yield i
-	
+		return self.get_items_related_by_tags()
+		
 		'''
 		list = []
 		dict = {}

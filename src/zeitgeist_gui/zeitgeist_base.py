@@ -320,7 +320,6 @@ def exists(uri):
 	if not uri.startswith("file"):
 		return True
 	
-	print unicode(uri[7:])
 	if os.path.exists(uri[7:]):
 		return True
 	
