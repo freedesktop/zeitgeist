@@ -181,10 +181,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 			i = len(self.dayboxes) -1
 			for daybox in self.dayboxes:
 				if daybox.item_count == 0 and self.tags !="":
-					daybox.label.set_label(".")
-					daybox.view.set_size_request(-1,-1)
+					if i == len(self.dayboxes) -1 or i == 0:
+						daybox.hide()
+					else:
+						daybox.label.set_label(".")
+						daybox.view.set_size_request(-1,-1)
+						daybox.show()
 				else:
 					daybox.view.reload_name_cell_size(width)
+					daybox.show()
 				i = i - 1
 		gc.collect()
 	
