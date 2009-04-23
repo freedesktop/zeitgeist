@@ -1,3 +1,5 @@
+# -.- encoding: utf-8 -.-
+
 import datetime
 import time
 import math
@@ -108,7 +110,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		if s:	  
 			s = s.split(".")
-			print s
 		return s
 	
 	def build_days(self, tagsplit, search):

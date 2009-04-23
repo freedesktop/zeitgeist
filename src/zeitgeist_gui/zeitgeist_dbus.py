@@ -1,3 +1,5 @@
+# -.- encoding: utf-8 -.-
+
 import sys
 import dbus
 import dbus.mainloop.glib

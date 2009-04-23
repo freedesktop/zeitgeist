@@ -1,3 +1,5 @@
+# -.- encoding: utf-8 -.-
+
 import os
 import re
 from xml.dom.minidom import parse

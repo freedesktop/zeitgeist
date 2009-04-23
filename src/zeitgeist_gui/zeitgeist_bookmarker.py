@@ -1,3 +1,5 @@
+# -.- encoding: utf-8 -.-
+
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 
 class Bookmarker:

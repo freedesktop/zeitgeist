@@ -1,3 +1,5 @@
+# -.- encoding: utf-8 -.-
+
 import sys
 import os
 from gettext import gettext as _
@@ -109,9 +111,9 @@ class DataSinkSource(DataProvider):
 						matches = False
 						break
 				if matches:
+					print item
 					yield item
-				del item
-			
+		
 		gc.collect()
 	
 	def get_items_for_tag(self, tag):

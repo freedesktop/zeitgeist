@@ -1,3 +1,5 @@
+# -.- encoding: utf-8 -.-
+
 import datetime
 import gc
 import time
@@ -210,12 +212,12 @@ class Data(gobject.GObject):
 		cbtn.connect("clicked", lambda w: taggingwindow.destroy())
 		okbtn.connect("clicked", lambda w: self.set_tags(self.textview.get_buffer().get_text(*self.textview.get_buffer().get_bounds()) ))
 		okbtn.connect("clicked", lambda w: taggingwindow.destroy())
-		vbox=gtk.VBox()
-		hbox=gtk.HBox()
+		vbox = gtk.VBox()
+		hbox = gtk.HBox()
 		hbox.pack_start(okbtn)
 		hbox.pack_start(cbtn)
 		vbox.pack_start(self.textview,True,True,5)
-
+		
 		self.tbox = self.get_tagbox()
 		vbox.pack_start(self.tbox,True,True)
 		vbox.pack_start(hbox,False,False)
@@ -270,11 +272,8 @@ class Data(gobject.GObject):
 			btn.connect("toggled", self.toggle_tags)
 		view.show_all()
 	
-	def toggle_tags(self, *discard):
+	def toggle_tags(self, x, *discard):
 		# TODO: Clean this mess up. Use a list comprehension or sth.
-		x = discard
-		
-		print discard
 		
 		tags = self.tags
 		if x.get_active():
@@ -321,6 +320,7 @@ def exists(uri):
 	if not uri.startswith("file"):
 		return True
 	
+	print unicode(uri[7:])
 	if os.path.exists(uri[7:]):
 		return True
 	

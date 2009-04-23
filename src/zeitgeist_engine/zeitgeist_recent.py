@@ -1,3 +1,5 @@
+# -.- encoding: utf-8 -.-
+
 '''
 Copyright (C) 2007 Alex Graveley <alex@beatniksoftware.com>
 '''

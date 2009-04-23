@@ -1,3 +1,5 @@
+# -.- encoding: utf-8 -.-
+
 sig_plain_data = "(issssssusbs)"
 def plainify_data(obj):
 	''' Takes a Data object or a dictionary and converts it into a

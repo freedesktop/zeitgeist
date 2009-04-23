@@ -1,3 +1,5 @@
+# -.- encoding: utf-8 -.-
+
 from zeitgeist_base import DataProvider
 
 try:
