@@ -75,7 +75,6 @@ class Data(gobject.GObject):
 		
 		return None
 	
-	
 	def open(self):
 		if self.get_mimetype() == "x-tomboy/note":
 			uri_to_open = "note://tomboy/%s" % os.path.splitext(os.path.split(self.get_uri())[1])[0]
@@ -105,7 +104,8 @@ class Data(gobject.GObject):
 		return self.name
 	
 	def get_time(self):
-		return datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%l:%M %p")).strip()
+		# TODO: Should it be possible to switch to 12-hour clock ("%l:%M %p")?
+		return datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%H:%M")).strip()
 	
 	def get_comment(self):
 		return self.comment

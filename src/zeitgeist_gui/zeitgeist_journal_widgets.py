@@ -113,7 +113,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 	def build_days(self, tagsplit, search):
 		pin = False
-		print "---------------"
 		for item in self.items:
 			if not self.sources[item.type]:
 				
@@ -145,7 +144,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.dayboxes.pack_start(daybox, False, False)
 						self.days[item.get_datestring()] = daybox
 		
-		print "---------------"
 		self.clean_up_dayboxes(-1)
 	
 	def review_days(self):
@@ -205,8 +203,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		parameter.
 		'''
 		
-		# Begin benchmarking
-		t1 = time.time()
 		# Get date range
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
@@ -227,9 +223,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.begin = begin 
 				self.end = end - 1
 		
-		t2 = time.time()
-		print "Time to set up dates: "+str(t2-t1)
-		
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
 		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
@@ -239,7 +232,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Get all items in the date range and add them to self.items
 		self.items = []
-	
+		
+		# Begin benchmarking
+		t1 = time.time()
+		
 		for item in engine.get_items(self.begin, self.end, ""):
 					
 			if item.timestamp <= self.end:
@@ -248,7 +244,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		
 		t3 = time.time()
-		print "Time to get items: %s" % str(t3-t2)
+		print "Time to get items: %s" % str(t3-t1)
 		
 		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
@@ -272,13 +268,13 @@ class TimelineWidget(gtk.ScrolledWindow):
 			for w in self.dayboxes:
 				w.show_all()
 				if w.date == datestring:
-					w.emit("set-focus-child",w)
+					w.emit("set-focus-child", w)
 		else:
 			for w in self.dayboxes:
 				w.hide_all()
 				if w.date == datestring:
 					w.show_all()
-		
+	
 	def set_relation(self, item):
 		related = RelatedWindow()
 		related.set_relation(item)
@@ -290,24 +286,24 @@ class TimelineWidget(gtk.ScrolledWindow):
 			del widget 
 
 class HTagBrowser(gtk.HBox):
+	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.HBox.__init__(self)
 		self.set_size_request(-1,48)
 		
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
-
+		
 		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT )]
 
-		
 		self.combobox = gtk.combo_box_new_text()
 		self.combobox.append_text('Recently used tags')
 		self.combobox.append_text('Most used tags')
 		
 		self.pack_start(self.combobox, False, False)
-				
-	
+		
 		self.scroll = gtk.ScrolledWindow()
 		self.view = gtk.HBox()
 		self.scroll.add_with_viewport(self.view)
@@ -318,12 +314,12 @@ class HTagBrowser(gtk.HBox):
 		self.items = []
 		
 		self.func = self.get_recent_tags
-		
 		self.func()
 	
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
-		#engine.connect("signal_updated", lambda *args: self.func)
+		
+		engine.connect("signal_updated", lambda *args: self.func)
 
 	def reload_tags(self,x=None):
 		index = self.combobox.get_active()
@@ -340,7 +336,6 @@ class HTagBrowser(gtk.HBox):
 			self.func = self.get_most_tags()
 	
 	def _tag_toggle_button(self, tag):
-		
 		
 		btn = gtk.ToggleButton(tag)
 		image = gtk.image_new_from_file("%s/data/tag.png" % BASEDIR)
@@ -418,6 +413,7 @@ class HTagBrowser(gtk.HBox):
 class VTagBrowser(gtk.VBox):
 	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.VBox.__init__(self)
 		self.set_size_request(-1,-1)
@@ -427,8 +423,8 @@ class VTagBrowser(gtk.VBox):
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(self.combobox,True,True,5)
-		#engine.connect("signal_updated", lambda *args: self.func)
-		
+		engine.connect("signal_updated", lambda *args: self.func)
+	
 	def reload_tags(self,x=None):
 		self.func = self.get_recent_tags()
 		self.func = self.get_most_tags()
@@ -514,27 +510,24 @@ class FilterAndOptionBox(gtk.VBox):
 		gconf_bridge.connect("changed::show_file_button", lambda gb: self.set_buttons())
 		self.show_all()
 		self.set_buttons()
-		
+	
 	def set_buttons(self):
 		note = gconf_bridge.get("show_note_button")
 		if note:
 			self.create_note_btn.show_all()
 		else:
 			self.create_note_btn.hide_all()
-			
+		
 		file = gconf_bridge.get("show_file_button")
 		if file:
 			self.create_doc_btn.show_all()
 		else:
 			self.create_doc_btn.hide_all()
 	
-	def set_timelinefilter(self,w=None):
-		if self.timefilter.get_active():
-			self.timefilter_active=True
-		else:
-			self.timefilter_active=False
-			
-	def _make_new_note(self,x):
+	def set_timelinefilter(self, *discard):
+		self.timefilter_active = self.timefilter.get_active()
+		
+	def _make_new_note(self, *discard):
 		launcher.launch_command("tomboy --new-note")
 		
 	def _show_new_from_template_dialog(self, x):		
@@ -571,15 +564,7 @@ class CheckBox(gtk.CheckButton):
 		self.show_all()
 	
 	def toggle_source(self, widget=None):
-		if self.get_active():
-			timeline.sources[self.source[0]]=False
-			#self.source.set_active(True)
-			# FIXME - ???
-			#search.emit("clear")
-		else:
-			timeline.sources[self.source[0]]=True
-			#self.source.set_active(False)
-		
+		timeline.sources[self.source[0]] = not self.get_active()
 		timeline.load_month()
 
 class SearchToolItem(gtk.ToolItem):
@@ -830,7 +815,7 @@ class ProjectView(gtk.ScrolledWindow):
 		self.view = DataIconView(True)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.add_with_viewport(self.view)
-		
+
 
 calendar = CalendarWidget()
 timeline = TimelineWidget()
