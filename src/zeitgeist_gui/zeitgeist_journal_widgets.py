@@ -79,9 +79,32 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.review_days()
 		self.build_days(tagsplit, search)
 	
+	def _check_if_website(self,item):
+		s = None
+		x = False
+		if item.uri.startswith("https://"):
+		    s = item.uri.replace("https://","")
+		    x = True
+		elif item.uri.startswith("http://"):
+		    s = item.uri.replace("http://","")
+		    x = True
+		elif item.uri.startswith("ftps://"):
+		    s = item.uri.replace("ftps://","")
+		    x = True
+		elif item.uri.startswith("ftp://"):
+		    s = item.uri.replace("ftp://","")
+		    x = True
+		
+		if s:	  
+			s = s.split(".")
+			print s
+		return s
+	
 	def build_days(self, tagsplit, search):
+		print "---------------"
 		for item in self.items:
 			if not self.sources[item.type]:
+					
 				if len(tagsplit) > 0:
 					for tag in tagsplit:
 						if search:
@@ -109,6 +132,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.days[item.get_datestring()] = daybox
 						
 		
+		print "---------------"
 		self.clean_up_dayboxes(-1)
 	
 	def review_days(self):
@@ -371,7 +395,13 @@ class HTagBrowser(gtk.HBox):
 				timeline.load_month()
 		
 		timeline.apply_search(tags,False)
-		
+	
+	def is_any_toggled(self):
+		for w in self.view:
+			if w.get_active():
+				return True
+		return False
+	
 	def untoggle_all(self):
 		for btn in self.view:
 			btn.set_active(False)

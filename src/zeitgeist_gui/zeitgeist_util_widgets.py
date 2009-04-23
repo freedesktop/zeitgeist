@@ -565,7 +565,7 @@ class DayBox(gtk.VBox):
 		self.tooltip.set_name('gtk-tooltips')
 		self.tooltip.hide_all()
 		
-		self.ev.modify_bg(gtk.STATE_NORMAL, color_palette.get_tooltip_color())
+		#self.ev.modify_bg(gtk.STATE_NORMAL, color_palette.get_tooltip_color())
 		
 		self.ev.add(vbox)
 		self.ev.set_border_width(1)
