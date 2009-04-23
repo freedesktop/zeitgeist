@@ -176,7 +176,7 @@ class DBConnector:
 		Yields all items from the database between the timestamps min and max.
 		"""
 		# Loop over all items in the timetable table which are between min and max
-		query = '''SELECT start, uri FROM timetable WHERE start >= ? and start <= ? ORDER BY start ASC'''
+		query = '''SELECT start, uri FROM timetable WHERE usage!='linked' and start >= ? and start <= ? ORDER BY start ASC'''
 		
 		func = self._result2data
 		
