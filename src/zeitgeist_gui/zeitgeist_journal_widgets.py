@@ -272,13 +272,13 @@ class TimelineWidget(gtk.ScrolledWindow):
 			for w in self.dayboxes:
 				w.show_all()
 				if w.date == datestring:
-					w.emit("set-focus-child",w)
+					w.emit("set-focus-child", w)
 		else:
 			for w in self.dayboxes:
 				w.hide_all()
 				if w.date == datestring:
 					w.show_all()
-		
+	
 	def set_relation(self, item):
 		related = RelatedWindow()
 		related.set_relation(item)
@@ -290,7 +290,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 			del widget 
 
 class HTagBrowser(gtk.HBox):
+	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.HBox.__init__(self)
 		self.set_size_request(-1,-1)
@@ -307,7 +309,6 @@ class HTagBrowser(gtk.HBox):
 		
 		hbox=gtk.HBox()
 		hbox.pack_start(self.combobox, False, False)
-				
 	
 		self.scroll = gtk.ScrolledWindow()
 		self.ev = gtk.EventBox()
@@ -323,13 +324,12 @@ class HTagBrowser(gtk.HBox):
 		self.items = []
 		
 		self.func = self.get_recent_tags
-		
 		self.func()
 	
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(hbox,True,True)
-		#engine.connect("signal_updated", lambda *args: self.func)
+		engine.connect("signal_updated", lambda *args: self.func)
 
 	def reload_tags(self,x=None):
 		index = self.combobox.get_active()
@@ -346,7 +346,6 @@ class HTagBrowser(gtk.HBox):
 			self.func = self.get_most_tags()
 	
 	def _tag_toggle_button(self, tag):
-		
 		
 		btn = gtk.ToggleButton(tag)
 		image = gtk.image_new_from_file("%s/data/tag.png" % BASEDIR)
@@ -422,6 +421,7 @@ class HTagBrowser(gtk.HBox):
 class VTagBrowser(gtk.VBox):
 	
 	def __init__(self):
+		
 		# Initialize superclass
 		gtk.VBox.__init__(self)
 		self.set_size_request(-1,-1)
@@ -431,8 +431,8 @@ class VTagBrowser(gtk.VBox):
 		self.combobox.connect('changed', self.changed_cb)
 		self.combobox.set_active(0)
 		self.pack_start(self.combobox,True,True,5)
-		#engine.connect("signal_updated", lambda *args: self.func)
-		
+		engine.connect("signal_updated", lambda *args: self.func)
+	
 	def reload_tags(self,x=None):
 		self.func = self.get_recent_tags()
 		self.func = self.get_most_tags()
