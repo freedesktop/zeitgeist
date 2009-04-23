@@ -101,10 +101,13 @@ class TimelineWidget(gtk.ScrolledWindow):
 		return s
 	
 	def build_days(self, tagsplit, search):
+		pin = False
 		print "---------------"
 		for item in self.items:
 			if not self.sources[item.type]:
-					
+				
+				s = self._check_if_website(item)
+				
 				if len(tagsplit) > 0:
 					for tag in tagsplit:
 						if search:
@@ -298,7 +301,7 @@ class HTagBrowser(gtk.HBox):
 	
 		self.scroll = gtk.ScrolledWindow()
 		self.ev = gtk.EventBox()
-		self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
+		#self.ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
 
 		self.view = gtk.HBox()
 		self.ev.add(self.view)
