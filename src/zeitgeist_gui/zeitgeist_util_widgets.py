@@ -138,13 +138,13 @@ class DataIconView(gtk.TreeView):
 		self.name_cell = name_cell
 		
 		time_cell = gtk.CellRendererText()
-		time_column = gtk.TreeViewColumn("Time",time_cell,markup=2)
+		time_column = gtk.TreeViewColumn("Time", time_cell, markup=2)
 		#time_column.set_fixed_width(32)
 		time_column.set_expand(False)
 		
 		bookmark_cell = gtk.CellRendererToggle()
-		bookmark_cell.set_property('activatable', True)
-		bookmark_cell.connect( 'toggled', self.toggle_bookmark, self.store )
+		bookmark_cell.set_property("activatable", True)
+		bookmark_cell.connect("toggled", self.toggle_bookmark, self.store )
 		bookmark_column = gtk.TreeViewColumn("bookmark",bookmark_cell)
 		bookmark_column.add_attribute( bookmark_cell, "active", 3)
 		bookmark_column.set_fixed_width(128)
@@ -196,8 +196,7 @@ class DataIconView(gtk.TreeView):
 		# Add an item to the end of the store
 		self._set_item(item, group=group)
 		#self.set_model(self.store)
-		pass
-		
+	
 	def prepend_item(self, item,group=True):
 		# Add an item to the end of the store
 		self._set_item(item, False,group=group)
@@ -214,7 +213,7 @@ class DataIconView(gtk.TreeView):
 		self.items_uris=[]
 		
 		self.store.clear()
-			
+	
 	def unselect_all(self,x=None,y=None):
 		try:
 			treeselection = self.get_selection()
@@ -223,7 +222,7 @@ class DataIconView(gtk.TreeView):
 			treeselection.unselect_all()
 		except Exception:
 			pass
-			
+	
 	def _open_item(self, view, path, x=None):		 
 		item = self.get_selected_item()
 		if item.get_mimetype() == "x-tomboy/note":
@@ -287,7 +286,7 @@ class DataIconView(gtk.TreeView):
 		      
 			except Exception, ex:
 				print ex
-		
+	
 	def toggle_bookmark( self, cell, path, model ):
 		"""
 		Sets the toggled state on the toggle button to true or false.
@@ -296,7 +295,7 @@ class DataIconView(gtk.TreeView):
 		model[path][3] = not model[path][3]
 		item = model[path][4]
 		item.add_bookmark()
-
+	
 	def _do_refresh_rows(self):
 		refresh=False
 		if len(bookmarker.bookmarks) > 0:	
@@ -338,26 +337,23 @@ class DataIconView(gtk.TreeView):
 	
 	def _set_item(self, item, append=True, group=True):
 		
-		
 		func = self.store.append
 		bookmark = bookmarker.get_bookmark(item.uri)
 		
 		self.items_uris.append(item.uri)
 		
 		if not item.timestamp == -1.0:
+			# TODO: item.get_time() should give 24-hour time
 			date="<span size='small' color='grey'>%s</span>" % item.get_time()
 		else:
 			date=""
 		
-		
 		tooltip = self.get_tooltip(item)
 		
-
 		if item.exists:
 			name = "<span color='black'>%s</span>" % item.get_name()
 		else:
 			name = "<span color='grey'>%s</span>" % item.get_name()
-			
 		
 		self.last_iter = func(None, [item.get_icon(24),
 					name,
@@ -368,7 +364,6 @@ class DataIconView(gtk.TreeView):
 		
 		self.collapse_all()
 		self.last_item = item
-
 	
 	def get_tooltip(self,item):
 		tooltip = item.uri + "\n\n" + item.comment
@@ -536,7 +531,9 @@ class RelatedWindow(gtk.Window):
 		items = []
 
 class DayBox(gtk.VBox):
+	
 	def __init__(self,date):
+		
 		gtk.VBox.__init__(self)
 		self.date=date
 		self.label=gtk.Label(date)
@@ -549,7 +546,6 @@ class DayBox(gtk.VBox):
 		This makes the headers of the days fit the tooltip color
 		'''
 		
-		
 		self.tooltip = gtk.Window()
 		self.tooltip.set_name('gtk-tooltips')
 		self.tooltip.hide_all()
@@ -561,7 +557,7 @@ class DayBox(gtk.VBox):
 		vbox.pack_start(self.label,True,True,5)
 		
 		self.pack_start(self.ev,False,False)
-		self.view=DataIconView()
+		self.view = DataIconView()
 		if date.startswith("Sat") or date.startswith("Sun"):
 			color = gtk.gdk.rgb_get_colormap().alloc_color('#EEEEEE')
 			self.view.modify_base(gtk.STATE_NORMAL,color)
@@ -571,23 +567,19 @@ class DayBox(gtk.VBox):
 		self.scroll.add_with_viewport(self.view)
 		self.pack_start(self.scroll)
 		self.show_all()
-		self.item_count=0
-	
+		self.item_count = 0
 	
 	def format_color_string(self, color):
 		""" Convert 48-bit gdk.Color to 24-bit "RRR GGG BBB" triple. """
 		return (color.red, color.green,  color.blue)	
 	
-	def append_item(self,item, group = True):
+	def append_item(self, item, group=True):
 		self.view.append_item(item, group)
-		self.item_count +=1
-		del item 
-		
+		self.item_count += 1
+	
 	def clear(self):
 		self.view.clear_store()
 		self.item_count = 0
-	   
+	  
 	def emit_focus(self):
-			self.emit("set-focus-child", self)
-			
-			
+		self.emit("set-focus-child", self)
