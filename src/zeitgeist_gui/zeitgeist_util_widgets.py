@@ -509,10 +509,6 @@ class DayBox(gtk.VBox):
 		This makes the headers of the days fit the tooltip color
 		'''
 		
-		self.tooltip = gtk.Window()
-		self.tooltip.set_name('gtk-tooltips')
-		self.tooltip.hide_all()
-		
 		#self.ev.modify_bg(gtk.STATE_NORMAL, color_palette.get_tooltip_color())
 		
 		self.ev.add(vbox)
