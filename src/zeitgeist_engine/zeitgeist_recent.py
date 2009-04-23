@@ -91,17 +91,17 @@ class RecentlyUsedManagerGtk(DataProvider):
 					if tmp != "":
 						tmp = unicode(urllib.unquote(tmp))
 						tags = tmp.replace("/", ",")
-						
-					item = {
-					"timestamp": timestamp,
-					"uri": unicode(info.get_uri()),
-					"name": unicode(info.get_display_name()),
-					"comment": unicode(info.get_display_name()),
-					"mimetype": unicode(info.get_mime_type()),
-					"tags": unicode(tags),
-					"use": unicode(use),
-					}
 					
+					item = {
+						"timestamp": timestamp,
+						"uri": unicode(urllib.unquote(info.get_uri()), 'utf-8'),
+						"name": unicode(urllib.unquote(info.get_display_name())),
+						"comment": unicode(info.get_display_name()),
+						"mimetype": unicode(info.get_mime_type()),
+						"tags": unicode(tags),
+						"use": unicode(use),
+					}
+					if "muaha" in item["uri"]: print "==================>",item["uri"]
 					yield item
 
 class RecentlyUsed(DataProvider):
