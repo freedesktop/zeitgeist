@@ -113,7 +113,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 	def build_days(self, tagsplit, search):
 		pin = False
-		print "---------------"
 		for item in self.items:
 			if not self.sources[item.type]:
 				
@@ -145,7 +144,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.dayboxes.pack_start(daybox, False, False)
 						self.days[item.get_datestring()] = daybox
 		
-		print "---------------"
 		self.clean_up_dayboxes(-1)
 	
 	def review_days(self):
@@ -205,8 +203,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		parameter.
 		'''
 		
-		# Begin benchmarking
-		t1 = time.time()
 		# Get date range
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
@@ -227,9 +223,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.begin = begin 
 				self.end = end - 1
 		
-		t2 = time.time()
-		print "Time to set up dates: "+str(t2-t1)
-		
 		# Note: To get the begin and end of a single day we would use the following
 		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
 		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
@@ -239,7 +232,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Get all items in the date range and add them to self.items
 		self.items = []
-	
+		
+		# Begin benchmarking
+		t1 = time.time()
+		
 		for item in engine.get_items(self.begin, self.end, ""):
 					
 			if item.timestamp <= self.end:
@@ -248,7 +244,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		
 		t3 = time.time()
-		print "Time to get items: %s" % str(t3-t2)
+		print "Time to get items: %s" % str(t3-t1)
 		
 		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
@@ -519,27 +515,24 @@ class FilterAndOptionBox(gtk.VBox):
 		gconf_bridge.connect("changed::show_file_button", lambda gb: self.set_buttons())
 		self.show_all()
 		self.set_buttons()
-		
+	
 	def set_buttons(self):
 		note = gconf_bridge.get("show_note_button")
 		if note:
 			self.create_note_btn.show_all()
 		else:
 			self.create_note_btn.hide_all()
-			
+		
 		file = gconf_bridge.get("show_file_button")
 		if file:
 			self.create_doc_btn.show_all()
 		else:
 			self.create_doc_btn.hide_all()
 	
-	def set_timelinefilter(self,w=None):
-		if self.timefilter.get_active():
-			self.timefilter_active=True
-		else:
-			self.timefilter_active=False
-			
-	def _make_new_note(self,x):
+	def set_timelinefilter(self, *discard):
+		self.timefilter_active = self.timefilter.get_active()
+		
+	def _make_new_note(self, *discard):
 		launcher.launch_command("tomboy --new-note")
 		
 	def _show_new_from_template_dialog(self, x):		
@@ -576,15 +569,7 @@ class CheckBox(gtk.CheckButton):
 		self.show_all()
 	
 	def toggle_source(self, widget=None):
-		if self.get_active():
-			timeline.sources[self.source[0]]=False
-			#self.source.set_active(True)
-			# FIXME - ???
-			#search.emit("clear")
-		else:
-			timeline.sources[self.source[0]]=True
-			#self.source.set_active(False)
-		
+		timeline.sources[self.source[0]] = not self.get_active()
 		timeline.load_month()
 
 class SearchToolItem(gtk.ToolItem):
@@ -835,7 +820,7 @@ class ProjectView(gtk.ScrolledWindow):
 		self.view = DataIconView(True)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.add_with_viewport(self.view)
-		
+
 
 calendar = CalendarWidget()
 timeline = TimelineWidget()
