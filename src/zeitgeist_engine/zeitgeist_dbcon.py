@@ -28,12 +28,28 @@ class DBConnector:
 					tags = tags + "," + tag[0]
 				else:
 					tags = tag[0]
+			
+		'''
+		s = " "
+		print (str(type(timestamp)) + s +
+			     str(type(result[0])) + s + 
+			     str(type(result[1])) + s +	
+			     str(type(result[2] or "")) + s + 
+			     str(type(tags)) + s + 
+			     str(type(result[4])) + s + 
+			     str(type(result[5])) + s + 
+			     str(type(result[6])) + s +	
+			     str(type(result[7] or "N/A")) + s +
+			     str(type(result[8] or 1)) + s + 
+				 str(type(result[9] or "N/A"))
+					)
+		'''
 		
 		return (
 			timestamp,
 			result[0], # uri
 			result[1], # name
-			result[2], # comment
+			result[2] or "", # comment
 			tags, # tags
 			result[4] or "first use", # use
 			result[5], # icon
@@ -160,11 +176,7 @@ class DBConnector:
 		Yields all items from the database between the timestamps min and max.
 		"""
 		# Loop over all items in the timetable table which are between min and max
-		query = '''SELECT start, uri FROM timetable WHERE usage!='linked'	and start >= ? and start <= ? ORDER BY start ASC'''
-		
-		items = []
-		
-		x = sys.maxint
+		query = '''SELECT start, uri FROM timetable WHERE start >= ? and start <= ? ORDER BY start ASC'''
 		
 		func = self._result2data
 		
@@ -176,15 +188,12 @@ class DBConnector:
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
 									(uri,)).fetchone()
 			
-			if start < x:
-				x = start
-			
 			# TODO: Can item ever be None?
 			if item:
-				items.append(func(item, timestamp = start))
-		
-		return items
-	
+				item = func(item, timestamp = start)
+				#print item
+				yield item
+				
 	def update_item(self, item):
 		"""
 		Updates an item already in the database.

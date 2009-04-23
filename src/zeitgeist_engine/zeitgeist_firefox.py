@@ -73,7 +73,7 @@ class FirefoxSource(DataProvider):
                 j = 0
                 for i in history:
                     # TODO: Fetch full rows above so that we don't need to do another query here
-                    contents = "id, url, title, visit_count"
+                    contents = "id, url, title, visit_count, rev_host"
                     item = self.cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
                     if item:
                         self.last_timestamp =  history[j][2]
@@ -84,7 +84,7 @@ class FirefoxSource(DataProvider):
                             "timestamp": int(	self.last_timestamp / (1000000)),
                             "uri": item[1],
                             "name": item[2],
-                            "comment": "",
+                            "comment": item[4],
                             "type": "Firefox History",
                             "count": item[3],
                             "use": use,
@@ -94,7 +94,7 @@ class FirefoxSource(DataProvider):
                             }
                         yield item
                     j += 1
-        except Excpetion, ex:
+        except Exception, ex:
             print ex
     
     def __copy_sqlite(self):

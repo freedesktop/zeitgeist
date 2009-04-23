@@ -106,7 +106,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		for item in self.items:
 			if not self.sources[item.type]:
 				
-				s = self._check_if_website(item)
+				#s = self._check_if_website(item)
 				
 				if len(tagsplit) > 0:
 					for tag in tagsplit:

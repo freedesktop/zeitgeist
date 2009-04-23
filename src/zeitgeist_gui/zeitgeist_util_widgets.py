@@ -171,13 +171,13 @@ class DataIconView(gtk.TreeView):
 		self.enable_model_drag_dest(self.fromImage, gtk.gdk.ACTION_MOVE) 
 		
 		self.last_item=None
+		self.last_iter = None
 		self.day=None
 		engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
 		self.days={}
-		self.last_item = ""
 		self.items_uris=[]
 		
 		self.reload_name_cell_size(250)
@@ -192,7 +192,7 @@ class DataIconView(gtk.TreeView):
 		self.name_cell.set_property("wrap-width",wrap)
 		self.set_size_request(width,-1)
 		
-	def append_item(self, item,group=True):
+	def append_item(self, item, group=True):
 		# Add an item to the end of the store
 		self._set_item(item, group=group)
 		#self.set_model(self.store)
@@ -338,22 +338,10 @@ class DataIconView(gtk.TreeView):
 	
 	def _set_item(self, item, append=True, group=True):
 		
+		
 		func = self.store.append
 		bookmark = bookmarker.get_bookmark(item.uri)
-		parent = None
 		
-		if self.parentdays:
-			if not self.types.has_key(item.type):
-				parent = func(None,[None,#item.get_icon(24),
-										"<span size='x-large' color='blue'>%s</span>" % item.type,
-										"",
-										False,
-										None,
-										None])
-				self.types[item.type]=parent
-			else:
-				parent = self.types[item.type]
-			
 		self.items_uris.append(item.uri)
 		
 		if not item.timestamp == -1.0:
@@ -370,19 +358,28 @@ class DataIconView(gtk.TreeView):
 		else:
 			name = "<span color='grey'>%s</span>" % item.get_name()
 			
-			
-		func(parent,[item.get_icon(24),
-				name,
-				date,
-				bookmark,
-				item,
-				tooltip])
 		
-		self.expand_all()
+		if self.last_item != None and item.comment == self.last_item.comment: 
+			func(self.last_iter, [item.get_icon(24),
+					name,
+					date,
+					bookmark,
+					item,
+					tooltip])
+		else:
+			self.last_iter = func(None, [item.get_icon(24),
+					name,
+					date,
+					bookmark,
+					item,
+					tooltip])
+		
+		self.collapse_all()
+		self.last_item = item
 
 	
 	def get_tooltip(self,item):
-		tooltip = item.uri 
+		tooltip = item.uri + "\n\n" + item.comment
 		if not len(item.tags) == 0:
 			tooltip = tooltip +"\n\n" +  "Tagged with:\n"+item.tags
 		if not item.exists:	
@@ -589,8 +586,8 @@ class DayBox(gtk.VBox):
 		""" Convert 48-bit gdk.Color to 24-bit "RRR GGG BBB" triple. """
 		return (color.red, color.green,  color.blue)	
 	
-	def append_item(self,item):
-		self.view.append_item(item)
+	def append_item(self,item, group = True):
+		self.view.append_item(item, group)
 		self.item_count +=1
 		del item 
 		
