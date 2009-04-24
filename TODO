@@ -15,6 +15,9 @@ FOR RELEASE:
 	+ Stop instantiating widgets in zeitgeist_widgets.py (see the last 3 lines). This wastes memory
 	  and processing for widgets, even when we don't display them.
 
+- Both:
+    + Fix unicode support.
+
 
 FUTURE:
 
