@@ -299,47 +299,28 @@ class DataIconView(gtk.TreeView):
 		item.add_bookmark()
 	
 	def _do_refresh_rows(self):
-		refresh=False
-		if len(bookmarker.bookmarks) > 0:	
-			for uri in self.items_uris:
-				if bookmarker.get_bookmark(uri):
-					refresh = True
-					break
-				
-			if refresh:
-				iter = self.store.get_iter_root()
+		
+		iter = self.store.get_iter_root()
+		if iter:
+			item = self.store.get_value(iter, 4)
+			try:
+				self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+			except Exception:
+				pass
+			while True:
+				iter = self.store.iter_next(iter)
 				if iter:
 					item = self.store.get_value(iter, 4)
 					try:
 						self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
 					except Exception:
 						pass
-					while True:
-						iter = self.store.iter_next(iter)
-						if iter:
-							item = self.store.get_value(iter, 4)
-							try:
-								self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
-							except Exception:
-								pass
-						else:
-							break
-		else:
-			iter = self.store.get_iter_root()
-			if iter:
-				item = self.store.get_value(iter, 4)
-				self.store.set(iter,3,False)
-				while True:
-					iter = self.store.iter_next(iter)
-					if iter:
-						item = self.store.get_value(iter, 4)
-						self.store.set(iter,3,False)
-					else:
-						break
-	
+				else:
+					break
+				
+						
 	def _set_item(self, item, append=True, group=True):
 		
-		func = self.store.append
 		bookmark = bookmarker.get_bookmark(item.uri)
 		
 		self.items_uris.append(item.uri)
@@ -357,7 +338,7 @@ class DataIconView(gtk.TreeView):
 		else:
 			name = "<span color='grey'>%s</span>" % item.get_name()
 		
-		self.last_iter = func(None, [item.get_icon(24),
+		self.last_iter = self.store.append(None, [item.get_icon(24),
 					name,
 					date,
 					bookmark,
