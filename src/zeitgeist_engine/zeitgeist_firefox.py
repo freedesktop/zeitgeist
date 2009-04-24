@@ -13,6 +13,7 @@ from zeitgeist_engine.zeitgeist_base import DataProvider
 class FirefoxSource(DataProvider):
     
     def __init__(self, name="Firefox History", icon="gnome-globe", uri="gzg/firefox"):
+        
         DataProvider.__init__(self, name=name, icon=icon, uri = uri)
         self.name = "Firefox History"
         self.icon="gnome-globe"
@@ -33,18 +34,15 @@ class FirefoxSource(DataProvider):
         else:
             print 'Reading from', self.historydb[0]
         
-        try:
+        if not hasattr(self, "cursor"):
+            self.cursor = None
+        if self.cursor:
             self.last_timestamp = self.get_latest_timestamp()
-        except Exception,ex:
-            print ex
+        else:
             self.last_timestamp = 0.0
-            
-        try:
-            self.loc = glob.glob(os.path.expanduser("~/.zeitgeist/"))
-            self.loc = self.loc[0] + "firefox.sqlite"
-        except Exception:
-            pass
-            
+        
+        self.loc = os.path.expanduser("~/.zeitgeist/firefox.sqlite")
+        
         self.__copy_sqlite()
     
     def get_latest_timestamp(self): 
@@ -53,9 +51,9 @@ class FirefoxSource(DataProvider):
         try:
             history = self.cursor.execute("SELECT " + contents + " FROM moz_historyvisits ORDER BY visit_date DESC").fetchone()
         except db.OperationalError, e:
-            print e
+            raise
         else:
-            self.timestamp=history[0]
+            self.timestamp = history[0]
     
     def reload_proxy(self,x=None,y=None,z=None):
         self.__copy_sqlite()
@@ -96,15 +94,10 @@ class FirefoxSource(DataProvider):
     
     def __copy_sqlite(self):
         '''
-        Copy the sqlite file to avoid file locks when it's being used by firefox.
+        Copy the sqlite file to avoid file locks when it's being used by Firefox.
         '''
-        try:
-        	try: 
-        		self.cursor.close()
-        	except Exception:
-        	 	pass
-        	shutil.copy2(self.historydb[0],  self.loc)
-        	self.connection = db.connect(self.loc, True)
-        	self.cursor = self.connection.cursor()
-        except Exception:
-            pass
+        if self.cursor:
+            self.cursor.close()
+        shutil.copy2(self.historydb[0],  self.loc)
+        self.connection = db.connect(self.loc, True)
+        self.cursor = self.connection.cursor()
