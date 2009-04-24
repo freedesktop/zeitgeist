@@ -72,15 +72,14 @@ class FirefoxSource(DataProvider):
             except db.OperationalError, e:
                 print 'Firefox database error:', e
             else:
-                j = 0
-                for i in history:
+                for j, i in enumerate(history):
                     # TODO: Fetch full rows above so that we don't need to do another query here
                     contents = "id, url, title, visit_count, rev_host"
-                    item = self.cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
+                    item = self.cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" + str(i[1])).fetchone()
                     if item:
-                        self.last_timestamp =  history[j][2]
+                        self.last_timestamp = history[j][2]
                         use = "linked"
-                        if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
+                        if history[j][3] in (2, 3, 5):
                             use = "visited"
                         item = {
                             "timestamp": int(self.last_timestamp / (1000000)),
@@ -90,12 +89,11 @@ class FirefoxSource(DataProvider):
                             "type": u"Firefox History",
                             "count": item[3],
                             "use": unicode(use),
-                            "mimetype": u"",
+                            "mimetype": u"", # TODO: Can we get a mime-type here?
                             "tags": u"",
                             "icon": u"gnome-globe"
                             }
                         yield item
-                    j += 1
         except Exception, ex:
             print ex
     

@@ -33,7 +33,6 @@ class EvolutionSource(DataProvider):
 				history = cursor.execute("SELECT " + contents + 
 					" FROM Sent").fetchall()
 				
-				j = 0
 				for i in history:
 					try:
 						if i != None:
