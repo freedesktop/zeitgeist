@@ -340,7 +340,7 @@ class DataIconView(gtk.TreeView):
 	def get_tooltip(self,item):
 		tooltip = item.uri + "\n\n" + item.comment
 		if not len(item.tags) == 0:
-			tooltip = tooltip +"\n\n" +  "Tagged with:\n"+item.tags
+			tooltip += "\n\nTagged with:\n" + ", ".join(item.tags.split(","))
 		if not item.exists:	
 			tooltip = "The file has been removed from\n"+tooltip
 		return tooltip
