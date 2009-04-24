@@ -165,7 +165,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if today >= self.begin and today <= (self.end + 86400):
 			self.load_month(begin=begin, end=end)
 	
-	def load_month(self, widget=None, begin=None, end=None, keep=False):
+	def load_month(self, widget=None, begin=None, end=None, cached=False):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -184,7 +184,13 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# seconds, weekday, day_of_year, daylight savings) 
 		
 		day = date[2]
-		if not keep:
+		
+		# Begin benchmarking
+		t1 = time.time()
+			
+		
+		if not cached:	
+			print "Getting uncached items"
 			if begin == None and end == None:
 				begin = (date[0], date[1]+1, day-1+self.offset,0,0,0,0,0,-1)
 				end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,-1)
@@ -195,30 +201,27 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.begin = begin 
 				self.end = end - 1
 		
-		# Note: To get the begin and end of a single day we would use the following
-		#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
-		#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
-		
-		# Get date as unix timestamp
-		calendar.clear_marks()
-		
-		# Get all items in the date range and add them to self.items
-		self.items = []
-		
-		# Begin benchmarking
-		t1 = time.time()
-		
-		for item in engine.get_items(self.begin, self.end, ""):
-					
-			if item.timestamp <= self.end:
-				self.items.append(item)
-				item.connect("relate", self.set_relation)
-		
-		
+			# Note: To get the begin and end of a single day we would use the following
+			#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
+			#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
+			
+			# Get date as unix timestamp
+			calendar.clear_marks()
+			
+			# Get all items in the date range and add them to self.items
+			self.items = []
+			
+			for item in engine.get_items(self.begin, self.end, ""):
+						
+				if item.timestamp <= self.end:
+					self.items.append(item)
+					item.connect("relate", self.set_relation)
+			
+			
+		# Update the GUI with the items that match the current search terms/tags
 		t3 = time.time()
 		print "Time to get items: %s" % str(t3-t1)
 		
-		# Update the GUI with the items that match the current search terms/tags
 		self.apply_search(self.tags)
 		
 		t4 = time.time()
@@ -536,7 +539,7 @@ class CheckBox(gtk.CheckButton):
 	
 	def toggle_source(self, widget=None):
 		timeline.sources[self.source[0]] = not self.get_active()
-		timeline.load_month()
+		timeline.load_month(cached=True)
 
 class SearchToolItem(gtk.ToolItem):
 	
