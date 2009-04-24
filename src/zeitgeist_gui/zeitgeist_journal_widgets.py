@@ -114,7 +114,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 	def review_days(self):
 		
-		days_range = int((self.end - self.begin) / 86400) +1 #get the days range
+		days_range = int((self.end - self.begin) / 86400) + 1 # get the days range
 		
 		'''
 		Try avoiding rebuiling boxes and use currently available
@@ -219,7 +219,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		t4 = time.time()
 		# Benchmarking
-		print "Time to apply search on  %s items: %s" % (len(self.items), str(t4 -t3))
+		print "Time to apply search on %s items: %s" % (len(self.items), str(t4 -t3))
 		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
 		
 	def jump_to_day(self, widget,focus=False):
