@@ -25,7 +25,7 @@ class Journal(gtk.Window):
 		self.set_default_size(800, -1)
 		self.connect("destroy", gtk.main_quit)
 		signal.signal(signal.SIGUSR1, lambda: self.emit(gtk.main_quit))
-		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
+		self.set_icon_from_file("%s/data/Zeitgeist-logo-192x192.png" % BASEDIR)
 		
 		#self.connect('window-state-event', self.window_state_event_cb)
 		self.connect('check-resize', self.window_state_event_cb)
@@ -85,8 +85,6 @@ class Journal(gtk.Window):
 		filtersBox.option_box.hide_all()
 		calendar.hide_all()
 		
-		# Load data
-		timeline.ready()
 	
 	def window_state_event_cb(self,window):
 		width, height = self.get_size()
@@ -103,6 +101,8 @@ class Journal(gtk.Window):
 if __name__ == "__main__":
 	
 	journal = Journal()
+	# Load data
+	timeline.ready()
 
 	try:
 		gtk.main()

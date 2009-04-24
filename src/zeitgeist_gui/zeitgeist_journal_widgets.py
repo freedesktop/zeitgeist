@@ -123,29 +123,23 @@ class TimelineWidget(gtk.ScrolledWindow):
 					for tag in tagsplit:
 						if search:
 							if item.uri.lower().find(tag.lower())>-1:
-								if self.days.has_key(item.get_datestring()):
-									daybox = self.days[item.get_datestring()]
-									daybox.append_item(item)
-									self.dayboxes.pack_start(daybox,False,False)
-									self.days[item.get_datestring()]=daybox
-									break
+								self.append_to_day(item)
 						
-						if item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
-							if self.days.has_key(item.get_datestring()):
-								daybox = self.days[item.get_datestring()]
-								daybox.append_item(item)
-								self.dayboxes.pack_start(daybox, False, False)
-								self.days[item.get_datestring()]=daybox
-								break
+						elif item.tags.lower().find(","+tag.lower()+",")> -1 or item.tags.lower().find(","+tag.lower())> -1 or item.tags.lower().find(tag.lower()+",")> -1 or item.tags.lower() == tag.lower()> -1:
+								self.append_to_day(item)
 				
 				else:
-					if self.days.has_key(item.get_datestring()):
-						daybox = self.days[item.get_datestring()]
-						daybox.append_item(item)
-						self.dayboxes.pack_start(daybox, False, False)
-						self.days[item.get_datestring()] = daybox
+					self.append_to_day(item)
 		
 		self.clean_up_dayboxes(-1)
+	
+	def append_to_day(self,item):
+		if self.days.has_key(item.get_datestring()):
+			daybox = self.days[item.get_datestring()]
+			daybox.append_item(item)
+			self.dayboxes.pack_start(daybox,False,False)
+			self.days[item.get_datestring()]=daybox
+			
 	
 	def review_days(self):
 		

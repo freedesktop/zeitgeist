@@ -21,7 +21,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		
 		gtk.StatusIcon.__init__(self)
 		
-		self.set_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
+		self.set_from_file("%s/data/Zeitgeist-logo-192x192.png" % BASEDIR)
 		self.set_visible(True)
 		
 		self._mainloop = mainloop
@@ -91,14 +91,14 @@ class AboutWindow(gtk.AboutDialog):
 		
 		self.set_name("GNOME Zeitgeist")
 		self.set_version("0.0.4")
-		self.set_copyright("Copyright 2009 (c) The Zeitgeist Team")
+		self.set_copyright(u'Copyright 2009 © The Zeitgeist Team')
 		self.set_website("http://zeitgeist.geekyogre.com")
 		gtk.about_dialog_set_url_hook(self.open_url,None)
 		gtk.about_dialog_set_email_hook(self.open_mail, None)
 		
 		self.set_program_name("GNOME Zeitgeist")
-		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
-		self.set_logo(gtk.gdk.pixbuf_new_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR))
+		self.set_icon_from_file("%s/data/Zeitgeist-logo-192x192.png" % BASEDIR)
+		self.set_logo(gtk.gdk.pixbuf_new_from_file("%s/data/Zeitgeist-logo-192x192.png" % BASEDIR))
 		
 		self.set_comments("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer.")
 		
@@ -111,13 +111,25 @@ class AboutWindow(gtk.AboutDialog):
 						"Thorsten Prante <thorsten@prante.eu>"])
 		
 		self.set_artists(["Jason Smith <jassmith@gmail.com>",
-						"Kalle Persson <kalle@nemus.se>"])
+						"Kalle Persson <kalle@nemus.se>",
+						"Martin Pinto-Bazurco <martinpintob@gmail.com>"])
 		
 		self.set_documenters(["Natan Yellin <aantny@gmail.com>",
 						"Seif Lotfy <seilo@geekyogre.com>",
 						"Siegfried-Angel Gevatter <rainct@ubuntu.com>"])
-				
-		self.set_license()
+		
+		f = open (("%s/COPYING" % BASEDIR),"r")
+		license = f.read()
+		f.close()
+		self.set_license(license)
+		
+		
+		'''
+		f = open (("%s/COPYRIGHT" % BASEDIR),"r")
+		copyright = f.read()
+		f.close()
+		self.set_copyright(copyright)
+		'''
 		
 		self.connect("response", self.close)
 		self.hide()

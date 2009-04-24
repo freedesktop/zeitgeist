@@ -347,9 +347,7 @@ class DBConnector:
 		# TODO: Only neighboorhood in time is considered? A bit poor,
 		# this needs serious improvement.
 		
-		return self.get_items_related_by_tags()
 		
-		'''
 		list = []
 		dict = {}
 		current_timestamp = time.time() - (90*24*60*60)
@@ -387,7 +385,6 @@ class DBConnector:
 					counter = counter +1
 			
 		return list
-	   	'''
 
 	def get_bookmarked_items(self):
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():

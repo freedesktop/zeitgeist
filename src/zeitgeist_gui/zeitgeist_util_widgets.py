@@ -468,6 +468,7 @@ class RelatedWindow(gtk.Window):
 		self.set_title("GNOME Zeitgeist - Files related to "+item.name)
 		self.view.clear_store()
 		uris = {}
+		from zeitgeist_gui.zeitgeist_journal_widgets import timeline
 		if not item.tags == "":
 			for i in timeline.items:
 				for tag in item.get_tags():
