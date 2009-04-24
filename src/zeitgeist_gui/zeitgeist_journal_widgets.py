@@ -112,6 +112,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.dayboxes.pack_start(daybox, False, False)
 		self.days[item.get_datestring()] = daybox
 	
+	
+	
 	def review_days(self):
 		
 		days_range = int((self.end - self.begin) / 86400) + 1 # get the days range

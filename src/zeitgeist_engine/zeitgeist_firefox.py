@@ -72,30 +72,40 @@ class FirefoxSource(DataProvider):
             except db.OperationalError, e:
                 print 'Firefox database error:', e
             else:
-                for j, i in enumerate(history):
+                j = 0
+                for i in history:
                     # TODO: Fetch full rows above so that we don't need to do another query here
                     contents = "id, url, title, visit_count, rev_host"
-                    item = self.cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" + str(i[1])).fetchone()
+                    item = self.cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" +str(i[1])).fetchone()
                     if item:
-                        self.last_timestamp = history[j][2]
+                        self.last_timestamp =  history[j][2]
                         use = "linked"
-                        if history[j][3] in (2, 3, 5):
+                        if history[j][3]==2 or history[j][3]==3 or history[j][3]==5:
                             use = "visited"
                         item = {
                             "timestamp": int(self.last_timestamp / (1000000)),
                             "uri": unicode(item[1]),
                             "name": unicode(item[2]),
-                            "comment": unicode(item[4]),
+                            "comment": unicode(self.reverse(item[4])),
                             "type": u"Firefox History",
                             "count": item[3],
                             "use": unicode(use),
-                            "mimetype": u"", # TODO: Can we get a mime-type here?
+                            "mimetype": u"",
                             "tags": u"",
                             "icon": u"gnome-globe"
                             }
                         yield item
+                    j += 1
         except Exception, ex:
             print ex
+    
+    
+    def reverse(self, string):
+    	try:
+			r = string[::-1]
+			return r[1:]
+    	except:
+    		return string
     
     def __copy_sqlite(self):
         '''

@@ -321,8 +321,7 @@ class DataIconView(gtk.TreeView):
 		
 		date = ""
 		if not item.timestamp == -1.0:
-			date = "<span size='small' color='grey'>%s</span>" % item.get_time()
-			date=""
+			date = "<span size='small' color='darkgrey'>%s</span>" % item.get_time()
 		
 		name = "<span color='%s'>%s</span>" % \
 			("black" if item.exists else "grey", item.get_name())
