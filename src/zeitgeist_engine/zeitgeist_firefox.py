@@ -74,7 +74,7 @@ class FirefoxSource(DataProvider):
             for j, i in enumerate(history):
                 # TODO: Fetch full rows above so that we don't need to do another query here
                 contents = "id, url, title, visit_count, rev_host"
-                item = self.cursor.execute("SELECT " + contents +" FROM moz_places WHERE title!='' and id=" + str(i[1])).fetchone()
+                item = self.cursor.execute("SELECT " + contents + " FROM moz_places WHERE title!='' and id=" + str(i[1])).fetchone()
                 if item:
                     self.last_timestamp = history[j][2]
                     use = "linked"
@@ -84,7 +84,7 @@ class FirefoxSource(DataProvider):
                         "timestamp": int(self.last_timestamp / (1000000)),
                         "uri": unicode(item[1]),
                         "name": unicode(item[2]),
-                        "comment": unicode(item[4][::-1]),
+                        "comment": unicode(item[4][::-1] if item[4] else u""),
                         "type": u"Firefox History",
                         "count": item[3],
                         "use": unicode(use),
