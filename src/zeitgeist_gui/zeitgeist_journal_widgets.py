@@ -95,6 +95,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 	def build_days(self, tagsplit, search):
 		
 		for item in self.items:
+			if self.sources[item.type]:
+				continue
 			if tagsplit:
 				for tag in tagsplit:
 					if search and tag.lower() in item.uri.lower():
