@@ -104,7 +104,6 @@ class ButtonCellRenderer(gtk.GenericCellRenderer):
 		self.active_area = None
 		self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
 
-
 class DataIconView(gtk.TreeView):
 	'''
 	Icon view which displays Datas in the style of the Nautilus horizontal mode,
@@ -346,7 +345,6 @@ class DataIconView(gtk.TreeView):
 			tooltip = "The file has been removed from\n"+tooltip
 		return tooltip
 		
-
 class NewFromTemplateDialog(gtk.FileChooserDialog):
 	'''
 	Dialog to create a new document from a template
@@ -531,3 +529,16 @@ class BookmarksView(gtk.ScrolledWindow):
 		self.bookmarks = BookmarksBox()
 		self.add_with_viewport(self.bookmarks)		
 		self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
+
+
+class TagWindow(gtk.Window):
+	def __init__(self):
+		gtk.Window.__init__(self)	
+		self.hide()
+		pass
+		
+	def edit_tags(self,item):
+		for tag in item.get_tags():
+			pass
+
+		
