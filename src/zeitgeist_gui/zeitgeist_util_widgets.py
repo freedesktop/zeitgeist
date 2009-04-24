@@ -195,14 +195,10 @@ class DataIconView(gtk.TreeView):
 		self.set_size_request(width,-1)
 		
 	def append_item(self, item, group=True):
-		# Add an item to the end of the store
 		self._set_item(item, group=group)
-		#self.set_model(self.store)
 	
 	def prepend_item(self, item,group=True):
-		# Add an item to the end of the store
-		self._set_item(item, False,group=group)
-		#self.set_model(self.store)
+		self._set_item(item, False, group=group)
 		
 	def remove_item(self,item):
 		# Maybe filtering should be done on a UI level
@@ -318,32 +314,27 @@ class DataIconView(gtk.TreeView):
 				else:
 					break
 				
-						
 	def _set_item(self, item, append=True, group=True):
 		
 		bookmark = bookmarker.get_bookmark(item.uri)
-		
 		self.items_uris.append(item.uri)
 		
+		date = ""
 		if not item.timestamp == -1.0:
-			# TODO: item.get_time() should give 24-hour time
-			date="<span size='small' color='grey'>%s</span>" % item.get_time()
-		else:
+			date = "<span size='small' color='grey'>%s</span>" % item.get_time()
 			date=""
 		
-		tooltip = self.get_tooltip(item)
+		name = "<span color='%s'>%s</span>" % \
+			("black" if item.exists else "grey", item.get_name())
 		
-		if item.exists:
-			name = "<span color='black'>%s</span>" % item.get_name()
-		else:
-			name = "<span color='grey'>%s</span>" % item.get_name()
-		
-		self.last_iter = self.store.append(None, [item.get_icon(24),
-					name,
-					date,
-					bookmark,
-					item,
-					tooltip])
+		self.last_iter = self.store.append(None, [
+			item.get_icon(24),
+			name,
+			date,
+			bookmarker.get_bookmark(item.uri),
+			item,
+			self.get_tooltip(item),
+			])
 		
 		self.collapse_all()
 		self.last_item = item
@@ -522,11 +513,11 @@ class DayBox(gtk.VBox):
 		self.item_count = 0
 	  
 	def emit_focus(self):
-			self.emit("set-focus-child", self)
+		self.emit("set-focus-child", self)
 			
 class BookmarksBox(DayBox):
 	def __init__(self):
-		DayBox.__init__(self,"Bookmark")
+		DayBox.__init__(self, "Bookmark")
 		self.get_bookmarks()
 		engine.connect("signal_updated", self.get_bookmarks)
 
@@ -541,4 +532,3 @@ class BookmarksView(gtk.ScrolledWindow):
 		self.bookmarks = BookmarksBox()
 		self.add_with_viewport(self.bookmarks)		
 		self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
-		
