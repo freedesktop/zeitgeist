@@ -25,7 +25,7 @@ class App(gtk.Window):
 		self.resize(700, 300)
 		self.connect("destroy", gtk.main_quit)
 		signal.signal(signal.SIGUSR1, lambda: self.emit(gtk.main_quit))
-		self.set_icon_from_file("%s/data/Zeitgeist-logo-192x192.png" % BASEDIR)
+		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		
 		self.timeline = CairoTimeline()
 		self.add(self.timeline)

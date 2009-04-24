@@ -21,7 +21,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		
 		gtk.StatusIcon.__init__(self)
 		
-		self.set_from_file("%s/data/Zeitgeist-logo-192x192.png" % BASEDIR)
+		self.set_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		self.set_visible(True)
 		
 		self._mainloop = mainloop
@@ -97,8 +97,8 @@ class AboutWindow(gtk.AboutDialog):
 		gtk.about_dialog_set_email_hook(self.open_mail, None)
 		
 		self.set_program_name("GNOME Zeitgeist")
-		self.set_icon_from_file("%s/data/Zeitgeist-logo-192x192.png" % BASEDIR)
-		self.set_logo(gtk.gdk.pixbuf_new_from_file("%s/data/Zeitgeist-logo-192x192.png" % BASEDIR))
+		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
+		self.set_logo(gtk.gdk.pixbuf_new_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR))
 		
 		self.set_comments("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer.")
 		
@@ -118,18 +118,10 @@ class AboutWindow(gtk.AboutDialog):
 						"Seif Lotfy <seilo@geekyogre.com>",
 						"Siegfried-Angel Gevatter <rainct@ubuntu.com>"])
 		
-		f = open (("%s/COPYING" % BASEDIR),"r")
-		license = f.read()
-		f.close()
-		self.set_license(license)
-		
-		
-		'''
-		f = open (("%s/COPYRIGHT" % BASEDIR),"r")
-		copyright = f.read()
-		f.close()
-		self.set_copyright(copyright)
-		'''
+		gplv3 = "/usr/share/common-licenses/GPL-3"
+		if not os.path.isfile(gplv3):
+			gplv3 = "%s/COPYING" % BASEDI
+		self.set_license(open(gplv3).read())
 		
 		self.connect("response", self.close)
 		self.hide()
