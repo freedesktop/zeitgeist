@@ -95,22 +95,22 @@ class TimelineWidget(gtk.ScrolledWindow):
 	def build_days(self, tagsplit, search):
 		
 		for item in self.items:
-			passed_filter = False
 			if tagsplit:
 				for tag in tagsplit:
 					if search and tag.lower() in item.uri.lower():
-						passed_filter = True
+						self._append_to_day(item)
 					elif tag.lower() in item.tags.lower().split(","):
-						passed_filter = True
+						self._append_to_day(item)
 			else:
-				passed_filter = True
-			
-			daybox = self.days[item.get_datestring()]
-			daybox.append_item(item)
-			self.dayboxes.pack_start(daybox, False, False)
-			self.days[item.get_datestring()] = daybox
+				self._append_to_day(item)
 		
 		self.clean_up_dayboxes(-1)
+	
+	def _append_to_day(self, item):
+		daybox = self.days[item.get_datestring()]
+		daybox.append_item(item)
+		self.dayboxes.pack_start(daybox, False, False)
+		self.days[item.get_datestring()] = daybox
 	
 	def review_days(self):
 		
