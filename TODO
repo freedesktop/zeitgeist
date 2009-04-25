@@ -2,15 +2,16 @@ TODO
 ================================
 
 FOR RELEASE:
+-------------------
 
 - Backend:
-	+ Move all GUI-related code out of zeitgeist_base.py.
-	+ Move all Twitter/Firefox/Tomboy specific code out of zeitgeist_base.py (Done?)
-		and into the appropriate subclasses.
 	+ Export all DataProviders outside the zeitgeist_engine into a new plugin package,
 	that communicates with the engine via D-Bus
 
 - Frontend:
+	+ Move all GUI-related code out of zeitgeist_base.py.
+	+ Move all Twitter/Firefox/Tomboy specific code out of zeitgeist_base.py (Done?)
+		and into the appropriate subclasses.
 	+ Use a generic CellRenderer to display stars for bookmarking instead of checkboxes!
 	+ Stop instantiating widgets in zeitgeist_widgets.py (see the last 3 lines). This wastes memory
 	  and processing for widgets, even when we don't display them.
@@ -20,6 +21,7 @@ FOR RELEASE:
 
 
 FUTURE:
+------------
 
 - Backend:
 	+ Add on Tracker support.
