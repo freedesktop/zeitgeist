@@ -250,11 +250,10 @@ class IconFactory():
 			#print "getting cached icon for "+icon_value
 			return self.icon_dict[icon_value]
 
-	def load_image(self, icon_value, icon_size, force_size = True):
+	def load_image(self, icon_value, icon_size, force_size=True):
 		pixbuf = self.load_icon(icon_value, icon_size, force_size)
 		img = gtk.Image()
 		img.set_from_pixbuf(pixbuf)
-		del pixbuf
 		img.show()
 		return img
 

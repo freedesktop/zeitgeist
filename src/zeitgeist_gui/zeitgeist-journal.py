@@ -23,12 +23,11 @@ class Journal(gtk.Window):
 		self.set_title("GNOME Zeitgeist")
 		self.set_resizable(True)
 		self.set_default_size(800, -1)
-		self.connect("destroy", gtk.main_quit)
-		signal.signal(signal.SIGUSR1, lambda: self.emit(gtk.main_quit))
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		
-		#self.connect('window-state-event', self.window_state_event_cb)
+		self.connect("destroy", gtk.main_quit)
 		self.connect('check-resize', self.window_state_event_cb)
+		signal.signal(signal.SIGUSR1, lambda *discard: self.emit(gtk.main_quit))
 		
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox(False, 5)
@@ -49,14 +48,12 @@ class Journal(gtk.Window):
 		# Filter/options box
 		self.sidebar.pack_start(filtersBox, True, True)
 		
-		# Notebook
-		#self.notebook = gtk.Notebook()
+		# Event box
 		evbox = gtk.EventBox()
 		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
-		
 		evbox.add(timeline)
 		
-		#vbox for timeline and tagbar
+		# vbox for timeline and tagbar
 		vbox = gtk.VBox()
 		vbox.pack_start(evbox)
 		vbox.pack_start(tagbox,False,True,2)
@@ -66,12 +63,6 @@ class Journal(gtk.Window):
 		
 		self.hBox.pack_start(hbox, True, True,5)
 		self.hBox.pack_start(self.sidebar, False, False)
-		#self.hBox.pack_start(ctb, True, True,5)
-		
-		# Timeline view
-		#self.notebook.append_page(related, gtk.Label("Related"))
-		#self.notebook.append_page(timeline,gtk.Label("Timeline"))
-		#self.notebook.set_current_page(-1)
 		
 		# Status bar
 		statusbar = gtk.Statusbar()
@@ -79,14 +70,12 @@ class Journal(gtk.Window):
 		
 		# Show everything
 		self.show_all()
-		#self.sidebar.hide_all()
 		bookmarks.hide_all()
 		htb.hide_all()
 		filtersBox.option_box.hide_all()
 		calendar.hide_all()
-		
 	
-	def window_state_event_cb(self,window):
+	def window_state_event_cb(self, window):
 		width, height = self.get_size()
 		
 		if bookmarks.get_property("visible"):
