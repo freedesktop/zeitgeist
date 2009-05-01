@@ -20,7 +20,7 @@ src/zeitgeist_engine/zeitgeist_recent.py
 The utility package and RecentlyUsed dataproviders are taken from the Gimmie project.
 The Gimmie homepage is located at http://www.beatniksoftware.com/gimmie.
 
-Copyright © 2007 Alex Graveley <alex@beatniksoftware.com>
+Copyright © 2007-2009 Alex Graveley <alex@beatniksoftware.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

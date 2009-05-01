@@ -17,7 +17,7 @@ FOR RELEASE:
 	  and processing for widgets, even when we don't display them.
 
 - Both:
-    + Fix unicode support.
+	+ Fix unicode support.
 
 
 FUTURE:

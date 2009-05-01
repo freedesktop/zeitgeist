@@ -147,14 +147,11 @@ class Data(gobject.GObject):
 		'''
 		if self.bookmark:
 			bookmark = gtk.MenuItem("Unbookmark")
-			bookmark.connect("activate", lambda w: self.add_bookmark())
-			bookmark.show()
-			menu.append(bookmark)
 		else:
 			bookmark = gtk.MenuItem("Bookmark")
-			bookmark.connect("activate", lambda w: self.add_bookmark())
-			bookmark.show()
-			menu.append(bookmark)
+		bookmark.connect("activate", lambda w: self.add_bookmark())
+		bookmark.show()
+		menu.append(bookmark)
 		
 		relate = gtk.MenuItem("Show related files")
 		relate.connect("activate", lambda w: self.relate())
@@ -181,16 +178,15 @@ class Data(gobject.GObject):
 		self.emit("relate")
 	
 	def add_bookmark(self, x=None):
-		if self.bookmark == False:
-			self.bookmark = True
-		else:
-			self.bookmark = False
+		
+		self.bookmark = not self.bookmark
 		from zeitgeist_engine_wrapper import engine
 		engine.update_item(self)
 		from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 		bookmarker.reload_bookmarks()
 	
 	def set_bookmark(self, bookmark):
+		
 		self.bookmark = bookmark
 		from zeitgeist_engine_wrapper import engine
 		engine.update_item(self)

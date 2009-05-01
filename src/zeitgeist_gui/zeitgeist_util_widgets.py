@@ -16,82 +16,45 @@ from zeitgeist_gui.zeitgeist_util import launcher, color_palette
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
 from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 from zeitgeist_shared.zeitgeist_shared import *
+from zeitgeist_shared.basics import BASEDIR
 
-
-class ButtonCellRenderer(gtk.GenericCellRenderer):
-	
-	__gsignals__ = {
+class CustomCellRenderer(gtk.GenericCellRenderer):
+    """
+    An unfortunately neccessary wrapper around a CellRenderPixbuf because
+    said renderer is not activatable
+    """
+    __gsignals__ = {
 		'toggled': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
-			(gobject.TYPE_STRING,))
+		(gobject.TYPE_STRING,))
 	}
-	
-	def __init__(self):
-		gtk.GenericCellRenderer.__init__(self)
-		self.__gobject_init__()
-		self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
+    
+    def __init__(self):
+        gtk.GenericCellRenderer.__init__(self)
+        self.image = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.png" % BASEDIR,16,16)
 
-		self.xpad = 1; self.ypad = 0
-		self.xalign = 0.5; self.yalign = 0.5
-		self.active_area = None
-		self.toggled = False
-		self.pango_l  = None
-		self.text = ""
-		self.active_bookmark = icon_factory.load_icon(gtk.STOCK_ABOUT, 24)
-		
-		self.inactive_bookmark = icon_factory.greyscale(icon_factory.load_icon(gtk.STOCK_ABOUT, 24))
 
-	def do_set_property(self, pspec, value):
-		print "set prop ", pspec.name
-		setattr(self, pspec.name, value)
-	
-	def do_get_property(self, pspec):
-		print "get prop ", pspec.name
-		return getattr(self, pspec.name)
-	
-	def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
-	
-		pix_rect = gtk.gdk.Rectangle()
-		pix_rect.x, pix_rect.y, pix_rect.width, pix_rect.height = \
-		self.on_get_size(widget, cell_area)
-		
-		pix_rect.x += cell_area.x
-		pix_rect.y += cell_area.y
-		pix_rect.width -= 2 * self.get_property("xpad")
-		pix_rect.height -= 2 * self.get_property("ypad")
-		
-		draw_rect = cell_area.intersect(pix_rect)
-		draw_rect = expose_area.intersect(draw_rect)
+    def on_get_size(self, widget, cell_area):
+        return  (   0,0, 
+                    16,16
+                    )
 
-		if self.toggled:
-			window.draw_pixbuf(widget.style.black_gc, self.active_bookmark, \
-				draw_rect.x-pix_rect.x, draw_rect.y-pix_rect.y, draw_rect.x, \
-				draw_rect.y+2, draw_rect.width, draw_rect.height, \
-				gtk.gdk.RGB_DITHER_NONE, 0, 0)
-		else:
-			window.draw_pixbuf(widget.style.black_gc, self.inactive_bookmark, \
-				draw_rect.x-pix_rect.x, draw_rect.y-pix_rect.y, draw_rect.x, \
-				draw_rect.y+2, draw_rect.width, draw_rect.height, \
-				gtk.gdk.RGB_DITHER_NONE, 0, 0)
-	
-	def on_get_size(self, widget, cell_area):
-		if cell_area:
-			calc_width = cell_area.width - 2 * self.pad
-			calc_height = cell_area.height - 2 * self.ypad
-			if calc_width < calc_height:
-				calc_height = calc_width
-			else:
-				calc_width = calc_height
-			x_offset = int(self.xalign * (cell_area.width - calc_width))
-			x_offset = max(x_offset, 0)
-			y_offset = int(self.yalign * (cell_area.height - calc_height))
-			y_offset = max(y_offset, 0)
-		else:
-			x_offset = 0
-			y_offset = 0
-			calc_width = 20
-			calc_height = 16
-		return x_offset, y_offset, calc_width, calc_height
-
+    def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
+        if self.image != None:
+            middle_x = (cell_area.width - 16) / 2
+            middle_y = (cell_area.height - 16) / 2  
+            self.image.render_to_drawable_alpha(window,
+                                            0, 0,                       #x, y in pixbuf
+                                            middle_x + cell_area.x,     #middle x in drawable
+                                            middle_y + cell_area.y,     #middle y in drawable
+                                            -1, -1,                     # use pixbuf width & height
+                                            0, 0,                       # alpha (deprecated params)
+                                            gtk.gdk.RGB_DITHER_NONE,
+                                            0, 0
+                                            )
+        return True
+      
+       
+      
 	def on_activate(self, event, widget, path, background_area, cell_area, flags):
 		self.sig_deac = widget.connect('button-release-event', self.on_deactivate, cell_area, path)
 		self.active_area = cell_area
@@ -103,6 +66,7 @@ class ButtonCellRenderer(gtk.GenericCellRenderer):
 			self.emit('toggled', path)
 		self.active_area = None
 		self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
+
 
 class DataIconView(gtk.TreeView):
 	'''
@@ -144,9 +108,9 @@ class DataIconView(gtk.TreeView):
 		time_column.set_expand(False)
 		
 		bookmark_cell = gtk.CellRendererToggle()
-		bookmark_cell.set_property("activatable", True)
+		#bookmark_cell.set_property("activatable", True)
 		bookmark_cell.connect("toggled", self.toggle_bookmark, self.store )
-		bookmark_column = gtk.TreeViewColumn("bookmark",bookmark_cell)
+		bookmark_column = gtk.TreeViewColumn("bookmark", bookmark_cell)
 		bookmark_column.add_attribute( bookmark_cell, "active", 3)
 		bookmark_column.set_fixed_width(128)
 		bookmark_column.set_expand(False)
@@ -168,6 +132,9 @@ class DataIconView(gtk.TreeView):
 		self.connect("drag_data_received", self.drag_data_received_data)
 		self.connect("focus-out-event",self.unselect_all)
 		
+		self.set_double_buffered(True)
+		#self.get_selection().set_mode(gtk.SELECTION_MULTIPLE)		
+		
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.enable_model_drag_dest(self.fromImage, gtk.gdk.ACTION_MOVE) 
 		
@@ -181,8 +148,23 @@ class DataIconView(gtk.TreeView):
 		self.days={}
 		self.items_uris=[]
 		
-		self.reload_name_cell_size(250)
-		
+		self.reload_name_cell_size(250)		
+	def button_press_handler(self,treeview,event):
+		if event.button == 3:
+	      		# Figure out which item they right clicked on
+			path = treeview.get_path_at_pos(int(event.x),int(event.y))
+          		# Get the selection
+           		selection = treeview.get_selection()
+	
+		    	# Get the selected path(s)
+		    	rows = selection.get_rows()
+			# If they didnt right click on a currently selected row, change the selection
+			if path[0] not in rows[1]:
+			         selection.unselect_all()
+			         selection.select_path(path[0])
+			
+		     	return True
+	
 	def reload_name_cell_size(self,width):
 		if width < 300:
 			width = 250
@@ -288,10 +270,9 @@ class DataIconView(gtk.TreeView):
 		"""
 		Sets the toggled state on the toggle button to true or false.
 		"""
-		
 		model[path][3] = not model[path][3]
 		item = model[path][4]
-		item.add_bookmark()
+		item.set_bookmark(model[path][3])
 	
 	def _do_refresh_rows(self):
 		
@@ -329,7 +310,7 @@ class DataIconView(gtk.TreeView):
 			item.get_icon(24),
 			name,
 			date,
-			bookmarker.get_bookmark(item.uri),
+			bookmark,
 			item,
 			self.get_tooltip(item),
 			])
@@ -530,7 +511,6 @@ class BookmarksView(gtk.ScrolledWindow):
 		self.add_with_viewport(self.bookmarks)		
 		self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
 
-
 class TagWindow(gtk.Window):
 	def __init__(self):
 		gtk.Window.__init__(self)	
@@ -542,3 +522,6 @@ class TagWindow(gtk.Window):
 			pass
 
 		
+		
+		
+			
