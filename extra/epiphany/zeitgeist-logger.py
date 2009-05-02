@@ -21,27 +21,47 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import epiphany
+import sys
 import dbus
 import time
+import urllib
 
-def page_changed(embed, load_status, window):
-	if not embed.get_property('load-status'):
-		# Send this info via D-Bus
-		title = embed.get_title()
-		url = embed.get_location(True)
-		timestamp = time.time()
-		icon = "gnome-globe"
-		print title, url, timestamp, icon
+# Connect to D-Bus
+bus = dbus.SessionBus()
+try:
+	remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/zeitgeist")
+except dbus.exceptions.DBusException:
+	print >>sys.stderr, "GNOME Zeitgeist Logger: Error: Could not connect to D-Bus."
+else:
+	iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist")
 
-def attach_tab(window, tab):
-	try:
-		signal = tab.connect_after("notify::load-status", page_changed, window)
-	except Exception:
-		signal = tab.connect_after("ge-content-change", page_changed, window)
-	
-	tab._page_changed = signal
+	def page_changed(embed, load_status, window):
+		if not embed.get_property('load-status'):
+			# Send this info via D-Bus
+			icon = "gnome-globe"
+			iface.insert_item((
+				int(time.time()), # timestamp
+				urllib.unquote(embed.get_location(True)), # uri
+				embed.get_title(), # name
+				u"Epiphany History", # type
+				u"", # mimetype
+				u"", # tags
+				u"", # comment
+				0, # count
+				u"visited", # use
+				False, # bookmark
+				u"gnome-globe", # icon
+				))
 
-def detach_tab(window, tab):
-	if hasattr(tab, "_page_changed"):
-		tab.disconnect(tab._page_changed)
-		delattr(tab, "_page_changed")
+	def attach_tab(window, tab):
+		try:
+			signal = tab.connect_after("notify::load-status", page_changed, window)
+		except Exception:
+			signal = tab.connect_after("ge-content-change", page_changed, window)
+		
+		tab._page_changed = signal
+
+	def detach_tab(window, tab):
+		if hasattr(tab, "_page_changed"):
+			tab.disconnect(tab._page_changed)
+			delattr(tab, "_page_changed")

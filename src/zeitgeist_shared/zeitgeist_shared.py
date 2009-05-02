@@ -37,7 +37,6 @@ def dictify_data(item_list):
 
 
 sig_plain_dataprovider = "(ssb)"
-
 def plainify_dataprovider(obj):
 	''' Takes a DataSource object and converts it into an object
 		suitable for transmission through D-Bus. '''

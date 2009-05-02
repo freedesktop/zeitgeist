@@ -67,7 +67,7 @@ class FirefoxSource(DataProvider):
         try:
             history = self.cursor.execute("SELECT " + contents + " FROM moz_historyvisits WHERE visit_date>?",(self.last_timestamp,)).fetchall()
         except db.OperationalError, e:
-            print 'Firefox database error:', e
+            print "Firefox database error:", e
         else:
             for j, i in enumerate(history):
                 # TODO: Fetch full rows above so that we don't need to do another query here
