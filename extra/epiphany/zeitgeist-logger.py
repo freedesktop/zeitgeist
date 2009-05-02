@@ -34,6 +34,7 @@ except dbus.exceptions.DBusException:
 	print >>sys.stderr, "GNOME Zeitgeist Logger: Error: Could not connect to D-Bus."
 else:
 	iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist")
+	iface.register_source("Epiphany History", "gnome-globe")
 
 	def page_changed(embed, load_status, window):
 		if not embed.get_property('load-status'):
@@ -43,14 +44,14 @@ else:
 				int(time.time()), # timestamp
 				urllib.unquote(embed.get_location(True)), # uri
 				embed.get_title(), # name
-				u"Epiphany History", # type
-				u"", # mimetype
-				u"", # tags
-				u"", # comment
+				"Epiphany History", # type
+				"", # mimetype
+				"", # tags
+				"", # comment
 				0, # count
-				u"visited", # use
+				"visited", # use
 				False, # bookmark
-				u"gnome-globe", # icon
+				"gnome-globe", # icon
 				))
 
 	def attach_tab(window, tab):

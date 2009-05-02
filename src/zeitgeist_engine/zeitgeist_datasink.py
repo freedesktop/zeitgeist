@@ -47,6 +47,7 @@ class DataSinkSource(DataProvider):
 				instance = getattr(sourcefile, item + "Source")()
 				instance.connect("reload", self._update_db_with_source)
 				self.sources.append(instance)
+		self.external_sources = []
 		
 		# Update the database
 		self._update_db()
@@ -156,7 +157,7 @@ class DataSinkSource(DataProvider):
 				# functions (eg., the D-Bus interface)
 				for callback in self.reload_callbacks:
 					callback()
-					
+			
 			gc.enable()		
 			gc.set_debug(gc.DEBUG_LEAK)
 			# Remove the source from the queue
@@ -206,6 +207,10 @@ class DataSinkSource(DataProvider):
 		return db.insert_item(item)
 	
 	def get_sources_list(self):
-		return [plainify_dataprovider(source) for source in self.sources]
+		return [plainify_dataprovider(source) for source in self.sources] + \
+			self.external_sources
+	
+	def register_source(self, name, icon_string):
+		self.external_sources.append((name, icon_string, True))
 
 datasink = DataSinkSource()
