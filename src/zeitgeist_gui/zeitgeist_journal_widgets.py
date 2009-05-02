@@ -188,8 +188,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Begin benchmarking
 		t1 = time.time()
-			
-		
+				
 		if not cached:	
 			print "Getting uncached items"
 			if begin == None and end == None:
