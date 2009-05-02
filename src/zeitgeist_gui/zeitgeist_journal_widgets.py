@@ -83,10 +83,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		Adds all items which match tags to the gui.
 		'''
-		
 		self.tags = tags
 		tagsplit = [tag.strip() for tag in \
-			tags.replace(",", " ").split() if tag.strip()]
+			tags.split(",") if tag.strip()]
 		
 		self.days.clear()
 		self.review_days()
@@ -100,8 +99,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 			if tagsplit:
 				for tag in tagsplit:
 					if search and tag.lower() in item.uri.lower():
+						print item.name
 						self._append_to_day(item)
 					elif tag.lower() in item.tags.lower().split(","):
+						print item.name
 						self._append_to_day(item)
 			else:
 				self._append_to_day(item)
