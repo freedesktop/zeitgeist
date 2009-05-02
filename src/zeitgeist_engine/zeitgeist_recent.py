@@ -71,13 +71,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 		for info in self.recent_manager.get_items():
 			if info.exists() and not info.get_private_hint() and info.get_uri().find("/tmp") < 0:
 				use = None
-				timestamp=max([info.get_added(), info.get_modified(), info.get_visited()])
-				if info.get_added() == timestamp:
-					use = "first usage"	
-				elif info.get_visited() == timestamp:
-					use = "opened"
-				elif info.get_modified() == timestamp:
-					use = "modified"
 				
 				# Create a string of tags based on the file's path
 				# e.g. the file /home/natan/foo/bar/example.py would be tagged with "foo" and "bar"
@@ -93,16 +86,26 @@ class RecentlyUsedManagerGtk(DataProvider):
 						tags = tmp.replace("/", ",")
 					
 					item = {
-						"timestamp": timestamp,
 						"uri": unicode((info.get_uri()), 'utf-8'),
 						"name": unicode(urllib.unquote(info.get_display_name())),
 						"comment": unicode(info.get_display_name()),
 						"mimetype": unicode(info.get_mime_type()),
 						"tags": unicode(tags),
-						"use": unicode(use),
 					}
-					if "muaha" in item["uri"]: print "==================>",item["uri"]
+					
+					item["timestamp"] = info.get_added()
+					item["use"] = unicode( "first usage")
 					yield item
+					
+					item["timestamp"] = info.get_visited()
+					item["use"] = unicode( "opened")
+					yield item
+					
+					item["timestamp"] = info.get_modified()
+					item["use"] = unicode( "modified")
+					yield item
+
+					
 
 class RecentlyUsed(DataProvider):
 	'''
