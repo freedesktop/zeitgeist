@@ -32,11 +32,8 @@ class CustomCellRenderer(gtk.GenericCellRenderer):
         gtk.GenericCellRenderer.__init__(self)
         self.image = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.png" % BASEDIR,16,16)
 
-
     def on_get_size(self, widget, cell_area):
-        return  (   0,0, 
-                    16,16
-                    )
+        return  (0, 0, 16, 16)
 
     def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
         if self.image != None:
@@ -56,14 +53,14 @@ class CustomCellRenderer(gtk.GenericCellRenderer):
        
       
 	def on_activate(self, event, widget, path, background_area, cell_area, flags):
-		self.sig_deac = widget.connect('button-release-event', self.on_deactivate, cell_area, path)
+		self.sig_deac = widget.connect("button-release-event", self.on_deactivate, cell_area, path)
 		self.active_area = cell_area
 		self.toggled = not self.toggled
 
 	def on_deactivate(self, w, e, cell_area, path):
 		w.disconnect(self.sig_deac)
 		if (cell_area.x <= int(e.x) <= cell_area.x + cell_area.width) and (cell_area.y <= int(e.y) <= cell_area.y + cell_area.height):
-			self.emit('toggled', path)
+			self.emit("toggled", path)
 		self.active_area = None
 		self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
 

@@ -1,9 +1,7 @@
 PREFIX = /usr/local
-INSTALL_LOG = install.log
-
-.PHONY : uninstall
 
 all:
+	echo $(PREFIX)
 	@echo "Makefile: Available actions: install, uninstall, clean, source_package, translations"
 
 # install
@@ -58,13 +56,21 @@ clean:
 	find src/ -name "*\.pyc" -delete
 	@echo "Makefile: Cleaned up."
 
-# build a source-release
+# build a source release
 source_package:
-	python setup.py sdist --formats=bztar
-	@echo "Makefile: Source-package is ready and waiting in ./dist ..."
+	@echo "Not yet implemented.
+	#@echo "Makefile: Source-package is ready and waiting in ./dist ..."
 
 # generate translations template
 translations:
-	xgettext --language=Python --output=messages.pot \
+	xgettext src/*.py src/*/*.py \
+		--output-dir=./po/ \
+		--output=messages.pot \
+		--language=Python \
 		--copyright-holder="The Zeitgeist Team" \
-		--msgid-bugs-address="seif@lotfy.com" src/*.py src/*/*.py
+		--msgid-bugs-address="gnome-zeitgeist-users@lists.launchpad.net"  \
+		--package-name="GNOME Zeitgeist" \
+		--package-version="$(cat VERSION)" \
+		--indent
+
+.PHONY: uninstall

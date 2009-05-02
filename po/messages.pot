@@ -1,0 +1,108 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR The Zeitgeist Team
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid   ""
+msgstr  "Project-Id-Version: GNOME Zeitgeist \n"
+        "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
+        "POT-Creation-Date: 2009-05-02 12:59+0200\n"
+        "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+        "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+        "Language-Team: LANGUAGE <LL@li.org>\n"
+        "MIME-Version: 1.0\n"
+        "Content-Type: text/plain; charset=CHARSET\n"
+        "Content-Transfer-Encoding: 8bit\n"
+
+#: src/zeitgeist-daemon.py:28
+msgid   "Starting Zeitgeist service..."
+msgstr  ""
+
+#: src/zeitgeist_engine/zeitgeist_datasink.py:22
+msgid   "Sink"
+msgstr  ""
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:165
+msgid   "Documents"
+msgstr  ""
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:177
+msgid   "Other"
+msgstr  ""
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:196
+msgid   "Images"
+msgstr  ""
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:206
+msgid   "Music"
+msgstr  ""
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:216
+msgid   "Videos"
+msgstr  ""
+
+#: src/zeitgeist_engine/zeitgeist_tomboy.py:85
+#: src/zeitgeist_engine/zeitgeist_tomboy.py:88
+msgid   "Notes"
+msgstr  ""
+
+#: src/zeitgeist_engine/zeitgeist_tomboy.py:90
+msgid   "Create New Note"
+msgstr  ""
+
+#: src/zeitgeist_engine/zeitgeist_tomboy.py:91
+msgid   "Make a new Tomboy note"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist-trayicon.py:33
+msgid   "Open Journal"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist-trayicon.py:34
+msgid   "Open Project Viewer"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist-trayicon.py:35
+msgid   "Open Timeline"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist_base.py:65
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:129
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:139
+msgid   "%a %d %b %Y"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist_base.py:110
+msgid   "%H:%M"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist_base.py:202
+#, python-format
+msgid   "Edit Tags for %s"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist_dbus.py:13
+msgid   "Error: Could not connect to D-Bus."
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist_dbus.py:18
+msgid   "Error: Zeitgeist service not running."
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:241
+msgid   "%d %b %Y"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:558
+msgid   "Search"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:780
+msgid   "%d %m %Y"
+msgstr  ""
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:345
+msgid   "New Document"
+msgstr  ""
