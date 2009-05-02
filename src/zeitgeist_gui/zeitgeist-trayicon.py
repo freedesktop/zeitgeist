@@ -8,9 +8,10 @@ import gobject
 import signal
 import subprocess
 import webbrowser
-from gettext import ngettext, gettext as _
+import gettext
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../"))
+gettext.install('gnome-zeitgeist', '/usr/share/locale', unicode=1)
 
 from zeitgeist_shared.basics import BASEDIR
 
@@ -91,7 +92,7 @@ class AboutWindow(gtk.AboutDialog):
 		
 		self.set_name("GNOME Zeitgeist")
 		self.set_version("0.0.4")
-		self.set_copyright(u'Copyright 2009 © The Zeitgeist Team')
+		self.set_copyright(u"Copyright 2009 © The Zeitgeist Team")
 		self.set_website("http://zeitgeist.geekyogre.com")
 		gtk.about_dialog_set_url_hook(self.open_url,None)
 		gtk.about_dialog_set_email_hook(self.open_mail, None)
@@ -100,7 +101,7 @@ class AboutWindow(gtk.AboutDialog):
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		self.set_logo(gtk.gdk.pixbuf_new_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR))
 		
-		self.set_comments("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer.")
+		self.set_comments(_("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer."))
 		
 		self.set_authors(["Alexander Gabriel <Alexander.Gabriel@tu-harburg.de>",
 						"Federico Mena-Quintero <federico@gnome.org>",
@@ -120,7 +121,7 @@ class AboutWindow(gtk.AboutDialog):
 		
 		gplv3 = "/usr/share/common-licenses/GPL-3"
 		if not os.path.isfile(gplv3):
-			gplv3 = "%s/COPYING" % BASEDI
+			gplv3 = "%s/COPYING" % BASEDIR
 		self.set_license(open(gplv3).read())
 		
 		self.connect("response", self.close)

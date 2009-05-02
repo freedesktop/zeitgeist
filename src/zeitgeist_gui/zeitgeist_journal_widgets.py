@@ -10,7 +10,7 @@ import sys
 import gtk
 import gobject
 import pango
-from gettext import ngettext, gettext as _
+import gettext
 
 from zeitgeist_gui.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist_gui.zeitgeist_util_widgets import *
@@ -126,7 +126,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		if days_range == len(self.dayboxes):
 			for i, daybox in enumerate(self.dayboxes):
-				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
+				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime("%a %d %b %Y")
 				daybox.clear()
 				daybox.label.set_label(datestring)
 				self.days[datestring] = daybox
@@ -136,7 +136,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				daybox.clear()
 			# precalculate the number of dayboxes we need and generate the dayboxes
 			for i in xrange(days_range):
-				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime(_("%a %d %b %Y"))
+				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime("%a %d %b %Y")
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
 	
@@ -238,7 +238,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.load_month()
 		date = calendar.get_date()
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
-		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime(_("%d %b %Y"))
+		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime("%d %b %Y")
 		if focus == False:
 			for w in self.dayboxes:
 				w.show_all()
@@ -274,8 +274,8 @@ class HTagBrowser(gtk.HBox):
 		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT )]
 
 		self.combobox = gtk.combo_box_new_text()
-		self.combobox.append_text('Recently used tags')
-		self.combobox.append_text('Most used tags')
+		self.combobox.append_text(_("Recently used tags"))
+		self.combobox.append_text(_("Most used tags"))
 		
 		self.pack_start(self.combobox, False, False)
 		
@@ -291,7 +291,7 @@ class HTagBrowser(gtk.HBox):
 		self.func = self.get_recent_tags
 		self.func()
 	
-		self.combobox.connect('changed', self.changed_cb)
+		self.combobox.connect("changed", self.changed_cb)
 		self.combobox.set_active(0)
 		
 		engine.connect("signal_updated", lambda *args: self.func)
@@ -433,9 +433,9 @@ class FilterAndOptionBox(gtk.VBox):
 		
 		gtk.VBox.__init__(self)
 		self.option_box = gtk.VBox(False)
-		self.create_doc_btn = gtk.Button("Create New Document")
+		self.create_doc_btn = gtk.Button(_("Create New Document..."))
 		self.create_doc_btn.connect("clicked", self._show_new_from_template_dialog)
-		self.create_note_btn = gtk.Button("Create New Note")
+		self.create_note_btn = gtk.Button(_("Create New Note"))
 		self.create_note_btn.connect("clicked", self._make_new_note)
 		self.option_box.pack_end(self.create_doc_btn, False, False)
 		self.option_box.pack_end(self.create_note_btn, False, False)
@@ -670,20 +670,20 @@ class BrowserBar(gtk.HBox):
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
 		self.home.connect("clicked", self.focus_today)
-		self.tooltips.set_tip(self.home, "Show recent activities")
+		self.tooltips.set_tip(self.home, _("Show recent activities"))
 
 		self.back = gtk.ToolButton("gtk-go-back")
 		self.back.set_label("Older")
 		self.back.connect("clicked", self.add_day)
-		self.tooltips.set_tip(self.back, "Go back in time")
+		self.tooltips.set_tip(self.back, _("Go back in time"))
 		
 		self.forward = gtk.ToolButton("gtk-go-forward")
 		self.forward.set_label("Newer")
 		self.forward.connect("clicked", self.remove_day)
-		self.tooltips.set_tip(self.forward, "Go to the future")
+		self.tooltips.set_tip(self.forward, _("Go to the future"))
 		
 		self.options = gtk.ToggleToolButton("gtk-select-color")
-		self.tooltips.set_tip(self.options, "Filter your current view")
+		self.tooltips.set_tip(self.options, _("Filter your current view"))
 		self.options.set_label("Filters")
 		self.options.connect("toggled",self.toggle_options)
 		
@@ -691,7 +691,7 @@ class BrowserBar(gtk.HBox):
 		icon = gtk.image_new_from_file("%s/data/calendar.png" % BASEDIR)
 		icon.set_pixel_size(16)
 		self.calendar.set_icon_widget(icon)
-		self.tooltips.set_tip(self.calendar, "View journal for a specific date")
+		self.tooltips.set_tip(self.calendar, _("View journal for a specific date"))
 		self.calendar.set_label("Calendar")
 		self.calendar.connect("toggled",self.toggle_calendar)
 		
@@ -699,7 +699,7 @@ class BrowserBar(gtk.HBox):
 		icon = gtk.image_new_from_file("%s/data/bookmark-new.png" % BASEDIR)
 		self.star.set_icon_widget(icon)
 		self.star.set_label("Bookmarks")
-		self.tooltips.set_tip(self.star, "View bookmarked activities")
+		self.tooltips.set_tip(self.star, _("View bookmarked activities"))
 		self.star.connect("toggled",self.toggle_bookmarks)
 		
 		self.tags = gtk.ToggleToolButton()
@@ -707,7 +707,7 @@ class BrowserBar(gtk.HBox):
 		icon.set_pixel_size(24)
 		self.tags.set_icon_widget(icon)
 		self.tags.set_label("Tags")
-		self.tooltips.set_tip(self.tags, "View tagged activities")
+		self.tooltips.set_tip(self.tags, _("View tagged activities"))
 		self.tags.connect("toggled", self.toggle_tags)
 		
 		toolbar = gtk.Toolbar()
@@ -777,7 +777,7 @@ class BrowserBar(gtk.HBox):
 		timeline.load_month()
 
 	def focus_today(self, x=None):
-		today = str(datetime.datetime.today().strftime(_("%d %m %Y"))).split(" ")
+		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
 		date = calendar.get_date()
 		calendar.select_day(int(today[0]))
 		if not int(today[1])-1 == int(date[1]):

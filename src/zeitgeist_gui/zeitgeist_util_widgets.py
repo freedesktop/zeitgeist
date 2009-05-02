@@ -8,7 +8,7 @@ import sys
 import gtk
 import gobject
 import pango
-from gettext import ngettext, gettext as _ 
+import gettext
 
 from zeitgeist_gui.zeitgeist_util import launcher
 from zeitgeist_shared.xdgdirs import xdg_directory
@@ -32,11 +32,8 @@ class CustomCellRenderer(gtk.GenericCellRenderer):
         gtk.GenericCellRenderer.__init__(self)
         self.image = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.png" % BASEDIR,16,16)
 
-
     def on_get_size(self, widget, cell_area):
-        return  (   0,0, 
-                    16,16
-                    )
+        return  (0, 0, 16, 16)
 
     def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
         if self.image != None:
@@ -56,14 +53,14 @@ class CustomCellRenderer(gtk.GenericCellRenderer):
        
       
 	def on_activate(self, event, widget, path, background_area, cell_area, flags):
-		self.sig_deac = widget.connect('button-release-event', self.on_deactivate, cell_area, path)
+		self.sig_deac = widget.connect("button-release-event", self.on_deactivate, cell_area, path)
 		self.active_area = cell_area
 		self.toggled = not self.toggled
 
 	def on_deactivate(self, w, e, cell_area, path):
 		w.disconnect(self.sig_deac)
 		if (cell_area.x <= int(e.x) <= cell_area.x + cell_area.width) and (cell_area.y <= int(e.y) <= cell_area.y + cell_area.height):
-			self.emit('toggled', path)
+			self.emit("toggled", path)
 		self.active_area = None
 		self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
 
@@ -98,12 +95,12 @@ class DataIconView(gtk.TreeView):
 		name_cell = gtk.CellRendererText()
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("wrap-width", 125)
-		name_column = gtk.TreeViewColumn("Name", name_cell, markup=1)
+		name_column = gtk.TreeViewColumn(_("Name"), name_cell, markup=1)
 		name_column.set_expand(True)
 		self.name_cell = name_cell
 		
 		time_cell = gtk.CellRendererText()
-		time_column = gtk.TreeViewColumn("Time", time_cell, markup=2)
+		time_column = gtk.TreeViewColumn(_("Time"), time_cell, markup=2)
 		#time_column.set_fixed_width(32)
 		time_column.set_expand(False)
 		
@@ -149,7 +146,7 @@ class DataIconView(gtk.TreeView):
 		self.items_uris=[]
 		
 		self.reload_name_cell_size(250)		
-	def button_press_handler(self,treeview,event):
+	def button_press_handler(self, treeview, event):
 		if event.button == 3:
 	      		# Figure out which item they right clicked on
 			path = treeview.get_path_at_pos(int(event.x),int(event.y))
@@ -321,9 +318,9 @@ class DataIconView(gtk.TreeView):
 	def get_tooltip(self,item):
 		tooltip = item.uri + "\n\n" + item.comment
 		if not len(item.tags) == 0:
-			tooltip += "\n\nTagged with:\n" + ", ".join(item.tags.split(","))
+			tooltip += "\n\n" + _("Tagged with:") + "\n" + ", ".join(item.tags.split(","))
 		if not item.exists:	
-			tooltip = "The file has been removed from\n"+tooltip
+			tooltip = _("The file has been removed from") + "\n" + tooltip
 		return tooltip
 		
 class NewFromTemplateDialog(gtk.FileChooserDialog):
@@ -391,7 +388,7 @@ class RelatedWindow(gtk.Window):
 		
 		self.vbox=gtk.VBox()
 		self.vbox.pack_start(self.baseitem,False,False,5)
-		self.label = gtk.Label("Related files")
+		self.label = gtk.Label(_("Related files"))
 		# Add a frame around the label
 		self.label.set_padding(5, 5) 
 		self.vbox.pack_start(self.label, False, False)
@@ -415,7 +412,7 @@ class RelatedWindow(gtk.Window):
 		self.img.set_from_pixbuf(item.get_icon(64))
 		string = item.get_name() +"\n"+"\n"+"Last Usage:			"+item.get_datestring() + " " + item.get_time()+"\n"+"\n"+"tags:				"+str(item.get_tags())+"\n"
 		self.itemlabel.set_label(string)
-		self.set_title("GNOME Zeitgeist - Files related to "+item.name)
+		self.set_title("GNOME Zeitgeist -" + _("Files related to %s") % item.name)
 		self.view.clear_store()
 		uris = {}
 		from zeitgeist_gui.zeitgeist_journal_widgets import timeline
@@ -495,7 +492,7 @@ class DayBox(gtk.VBox):
 			
 class BookmarksBox(DayBox):
 	def __init__(self):
-		DayBox.__init__(self, "Bookmark")
+		DayBox.__init__(self, _("Bookmark"))
 		self.get_bookmarks()
 		engine.connect("signal_updated", self.get_bookmarks)
 
