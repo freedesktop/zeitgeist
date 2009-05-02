@@ -6,9 +6,10 @@ import os
 import signal
 import gtk
 import gobject
-from gettext import ngettext, gettext as _ 
+import gettext
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../"))
+gettext.install('gnome-zeitgeist', '/usr/share/locale', unicode=1)
 
 from zeitgeist_timeline_widgets import CairoTimeline
 from zeitgeist_shared.basics import BASEDIR
@@ -20,7 +21,7 @@ class App(gtk.Window):
 		gtk.Window.__init__(self)
 		
 		# Window
-		self.set_title("GNOME Zeitgeist Timeline")
+		self.set_title(_("GNOME Zeitgeist Timeline"))
 		self.set_resizable(True)
 		self.resize(700, 300)
 		self.connect("destroy", gtk.main_quit)

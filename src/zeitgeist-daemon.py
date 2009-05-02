@@ -7,9 +7,10 @@ import gobject
 import signal
 import subprocess
 import dbus.mainloop.glib
-from gettext import ngettext, gettext as _
+import gettext
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+gettext.install('gnome-zeitgeist', '/usr/share/locale', unicode=1)
 
 from zeitgeist_engine.zeitgeist_dbus import RemoteInterface
 from zeitgeist_engine.zeitgeist_datasink import datasink

@@ -6,7 +6,7 @@ import time
 import os
 import gobject
 import gtk
-from gettext import ngettext, gettext as _
+import gettext
 
 from zeitgeist_gui.zeitgeist_util import icon_factory, thumbnailer, launcher
 # Some imports are in-place to avoid a circular dependency
@@ -62,7 +62,7 @@ class Data(gobject.GObject):
 		return self.timestamp
 	
 	def get_datestring(self):
-		return datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%a %d %b %Y"))
+		return datetime.datetime.fromtimestamp(self.timestamp).strftime("%a %d %b %Y")
 	
 	def get_icon(self, icon_size):
 		if  self.exists and self.uri.startswith("file"):
@@ -107,7 +107,7 @@ class Data(gobject.GObject):
 	
 	def get_time(self):
 		# TODO: Should it be possible to switch to 12-hour clock ("%l:%M %p")?
-		return datetime.datetime.fromtimestamp(self.timestamp).strftime(_("%H:%M")).strip()
+		return datetime.datetime.fromtimestamp(self.timestamp).strftime("%H:%M").strip()
 	
 	def get_comment(self):
 		return self.comment
@@ -199,7 +199,7 @@ class Data(gobject.GObject):
 		taggingwindow = gtk.Window()
 		taggingwindow.set_border_width(5)
 		taggingwindow.set_size_request(400,-1)
-		taggingwindow.set_title(_("Edit Tags for %s") % self.get_name())
+		taggingwindow.set_title(_("Edit tags for %s") % self.get_name())
 		
 		self.textview.get_buffer().set_text(self.tags)	
 		

@@ -1,24 +1,19 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR The Zeitgeist Team
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: GNOME Zeitgeist \n"
+"Project-Id-Version: GNOME Zeitgeist 0.0.4\n"
 "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
 "POT-Creation-Date: 2009-05-02 13:41+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
+"Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad.net>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Catalan\n"
 
 #: src/zeitgeist-daemon.py:29
 msgid "Starting Zeitgeist service..."
-msgstr ""
+msgstr "S'està iniciant el servei Zeitgeist..."
 
 #: src/zeitgeist_engine/zeitgeist_datasink.py:22
 msgid "Sink"
@@ -26,33 +21,33 @@ msgstr ""
 
 #: src/zeitgeist_engine/zeitgeist_recent.py:168
 msgid "Documents"
-msgstr ""
+msgstr "Documents"
 
 #: src/zeitgeist_engine/zeitgeist_recent.py:180
 msgid "Other"
-msgstr ""
+msgstr "Altres"
 
 #: src/zeitgeist_engine/zeitgeist_recent.py:199
 msgid "Images"
-msgstr ""
+msgstr "Imatges"
 
 #: src/zeitgeist_engine/zeitgeist_recent.py:209
 msgid "Music"
-msgstr ""
+msgstr "Música"
 
 #: src/zeitgeist_engine/zeitgeist_recent.py:219
 msgid "Videos"
-msgstr ""
+msgstr "Vídeos"
 
 #: src/zeitgeist_engine/zeitgeist_tomboy.py:85
 #: src/zeitgeist_engine/zeitgeist_tomboy.py:88
 msgid "Notes"
-msgstr ""
+msgstr "Notes"
 
 #: src/zeitgeist_engine/zeitgeist_tomboy.py:90
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:438
 msgid "Create New Note"
-msgstr ""
+msgstr "Crea una nota nova"
 
 #: src/zeitgeist_engine/zeitgeist_tomboy.py:91
 msgid "Make a new Tomboy note"
@@ -60,70 +55,68 @@ msgstr ""
 
 #: src/zeitgeist_gui/zeitgeist-projectviewer.py:24
 msgid "GNOME Zeitgeist Project Viewer"
-msgstr ""
+msgstr "Visualitzador de projectes del GNOME Zeitgeist"
 
 #: src/zeitgeist_gui/zeitgeist-timeline.py:24
 msgid "GNOME Zeitgeist Timeline"
-msgstr ""
+msgstr "Línia del temps del GNOME Zeitgeist"
 
 #: src/zeitgeist_gui/zeitgeist-trayicon.py:34
 msgid "Open Journal"
-msgstr ""
+msgstr "Obre el diari"
 
 #: src/zeitgeist_gui/zeitgeist-trayicon.py:35
 msgid "Open Project Viewer"
-msgstr ""
+msgstr "Obre el visualitzador de projectes"
 
 #: src/zeitgeist_gui/zeitgeist-trayicon.py:36
 msgid "Open Timeline"
-msgstr ""
+msgstr "Obre la línia del temps"
 
 #: src/zeitgeist_gui/zeitgeist-trayicon.py:104
-msgid ""
-"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
-"computer."
+msgid "GNOME Zeitgeist is a tool for easily browsing and finding files on your computer."
 msgstr ""
 
 #: src/zeitgeist_gui/zeitgeist_base.py:202
 #, python-format
 msgid "Edit tags for %s"
-msgstr ""
+msgstr "Canvia les etiquetes per a %s"
 
 #: src/zeitgeist_gui/zeitgeist_dbus.py:13
 msgid "Error: Could not connect to D-Bus."
-msgstr ""
+msgstr "Error: No s'ha pogut establir una connexió amb el D-Bus."
 
 #: src/zeitgeist_gui/zeitgeist_dbus.py:18
 msgid "Error: Zeitgeist service not running."
-msgstr ""
+msgstr "Error: No s'està executant el servei del Zeitgeist."
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:277
 msgid "Recently used tags"
-msgstr ""
+msgstr "Etiquetes utilitzades recentment"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:278
 msgid "Most used tags"
-msgstr ""
+msgstr "Etiquetes més utilitzades"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:436
 msgid "Create New Document..."
-msgstr ""
+msgstr "Crea un document nou..."
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:558
 msgid "Search"
-msgstr ""
+msgstr "Cerca"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:673
 msgid "Show recent activities"
-msgstr ""
+msgstr "Mostra les activats recents"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:678
 msgid "Go back in time"
-msgstr ""
+msgstr "Retrocedeix en el temps"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:683
 msgid "Go to the future"
-msgstr ""
+msgstr "Avança en el temps"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:686
 msgid "Filter your current view"
@@ -143,15 +136,15 @@ msgstr ""
 
 #: src/zeitgeist_gui/zeitgeist_timeline_widgets.py:64
 msgid "Today"
-msgstr ""
+msgstr "Avui"
 
 #: src/zeitgeist_gui/zeitgeist_timeline_widgets.py:66
 msgid "Yesterday"
-msgstr ""
+msgstr "Ahir"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:98
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:103
 msgid "Time"
@@ -159,25 +152,26 @@ msgstr ""
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:321
 msgid "Tagged with:"
-msgstr ""
+msgstr "Etiquetat amb:"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:323
 msgid "The file has been removed from"
-msgstr ""
+msgstr "El fitxer ha estat esborrat de"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:345
 msgid "New Document"
-msgstr ""
+msgstr "Document nou"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:391
 msgid "Related files"
-msgstr ""
+msgstr "Fitxers relacionats"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:415
 #, python-format
 msgid "Files related to %s"
-msgstr ""
+msgstr "Fitxers relacionats amb %s"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:495
 msgid "Bookmark"
 msgstr ""
+

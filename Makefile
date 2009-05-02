@@ -70,7 +70,11 @@ translations:
 		--copyright-holder="The Zeitgeist Team" \
 		--msgid-bugs-address="gnome-zeitgeist-users@lists.launchpad.net"  \
 		--package-name="GNOME Zeitgeist" \
-		--package-version="$(cat VERSION)" \
-		--indent
+		--package-version="$(cat VERSION)"
+
+# build and install the translations -- (for developer use only)
+install-translations:
+	msgfmt po/ca.po
+	sudo mv messages.mo /usr/share/locale/ca/LC_MESSAGES/gnome-zeitgeist.mo
 
 .PHONY: uninstall

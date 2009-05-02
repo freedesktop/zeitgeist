@@ -162,10 +162,10 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
-										name=_("Documents"),
+										name="Documents",
 										icon="stock_new-presentation",
 										mimetype_list=DOCUMENT_MIMETYPES,
-										filter_name="Documents")
+										filter_name=_("Documents"))
 
 
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
@@ -174,10 +174,10 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
-										name=_("Other"),
+										name="Other",
 										icon="applications-other",
 										mimetype_list=self.OTHER_MIMETYPES,
-										filter_name="Other",
+										filter_name=_("Other"),
 										inverse = True)
 	
 	def include_item(self, item):
@@ -193,29 +193,29 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
-										name=_("Images"),
+										name="Images",
 										icon="gnome-mime-image",
 										mimetype_list=IMAGE_MIMETYPES,
-										filter_name="Images")
+										filter_name=_("Images"))
 
 
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
-										name=_("Music"),
+										name="Music",
 										icon="gnome-mime-audio",
 										mimetype_list=AUDIO_MIMETYPES,
-										filter_name="Music")
+										filter_name=_("Music"))
 
 
 class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
-										name=_("Videos"),
+										name="Videos",
 										icon="gnome-mime-video",
 										mimetype_list=VIDEO_MIMETYPES,
-										filter_name="Videos")
+										filter_name=_("Videos"))
 
 recent_model = RecentlyUsedManagerGtk()

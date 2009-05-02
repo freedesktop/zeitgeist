@@ -10,7 +10,7 @@ import sys
 import gtk
 import gobject
 import pango
-from gettext import ngettext, gettext as _
+import gettext
 
 from zeitgeist_gui.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist_gui.zeitgeist_util_widgets import *
@@ -61,9 +61,9 @@ class CairoTimeline (gtk.DrawingArea):
 		self.week = []
 		for i in xrange(7):
 			if len(self.week) == 0:
-				name = "Today"
+				name = _("Today")
 			elif len(self.week) == 1:
-				name = "Yesterday"
+				name = _("Yesterday")
 			else:
 				name = day.strftime("%A")
 			start = time.mktime(day.timetuple())
@@ -153,5 +153,3 @@ class CairoTimeline (gtk.DrawingArea):
 			ctx.show_layout(layout)
 				
 			x -= interval
-
-

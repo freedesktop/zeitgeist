@@ -3,7 +3,7 @@
 import sys
 import dbus
 import dbus.mainloop.glib
-from gettext import ngettext, gettext as _ 
+import gettext
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
