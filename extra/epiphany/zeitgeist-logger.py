@@ -25,27 +25,23 @@ import dbus
 import time
 
 def page_changed(embed, load_status, window):
-	print embed
-	print "'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (load_status.blurb, load_status.default_value, load_status.flags, load_status.name, load_status.nick, load_status.owner_type, load_status.value_type)
-	print window
-	print '----'
-	#if embed._zeitgeist_stamp != load_status:
-	#	# Send this info via D-Bus
-	#	title = embed.get_title()
-	#	timestamp = time.time()
-	#	icon = "gnome-globe"
-	#	print title
+	if not embed.get_property('load-status'):
+		# Send this info via D-Bus
+		title = embed.get_title()
+		url = embed.get_location(True)
+		timestamp = time.time()
+		icon = "gnome-globe"
+		print title, url, timestamp, icon
 
 def attach_tab(window, tab):
 	try:
-		signal = tab.connect("notify::load-status", page_changed, window)
+		signal = tab.connect_after("notify::load-status", page_changed, window)
 	except Exception:
-		signal = tab.connect("ge-content-change", page_changed, window)
+		signal = tab.connect_after("ge-content-change", page_changed, window)
 	
 	tab._page_changed = signal
 
 def detach_tab(window, tab):
-	if not hasattr(tab, "_page_changed"):
-		return
-	tab.disconnect(tab._page_changed)
-	delattr(tab, "_page_changed")
+	if hasattr(tab, "_page_changed"):
+		tab.disconnect(tab._page_changed)
+		delattr(tab, "_page_changed")
