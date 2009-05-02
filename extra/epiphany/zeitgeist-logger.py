@@ -3,7 +3,8 @@
 # Unofficial Epiphany Extension
 # Push websites to GNOME Zeitgeist
 #
-# Copyright (C) 2008 Seif Lotfy <seiflotfy@gnome.org> 2008 Siegfried Gevatter <rainct@ubuntu.com>
+# Copyright (C) 2009 Seif Lotfy <seiflotfy@gnome.org>
+# Copyright (C) 2008-2009 Siegfried Gevatter <rainct@ubuntu.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,40 +24,28 @@ import epiphany
 import dbus
 import time
 
-i = 0
-
-def page_changed(embed, uri, window):
-	global i
-	i = i+1
-	if i%2 == 0:
-
-	'''
-	Send this info via D-Bus
-	'''	
-		title = embed.get_title()
-		timestamp = time.time()
-		icon = "gnome-globe"
+def page_changed(embed, load_status, window):
+	print embed
+	print "'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (load_status.blurb, load_status.default_value, load_status.flags, load_status.name, load_status.nick, load_status.owner_type, load_status.value_type)
+	print window
+	print '----'
+	#if embed._zeitgeist_stamp != load_status:
+	#	# Send this info via D-Bus
+	#	title = embed.get_title()
+	#	timestamp = time.time()
+	#	icon = "gnome-globe"
+	#	print title
 
 def attach_tab(window, tab):
-	if hasattr(tab, "get_embed"):
-		embed = tab.get_embed()
-	else:
-		embed = tab
 	try:
-		signal = embed.connect("notify::load-status", page_changed, window)
-	except:
-		signal = embed.connect("ge-content-change", page_changed, window)
-
+		signal = tab.connect("notify::load-status", page_changed, window)
+	except Exception:
+		signal = tab.connect("ge-content-change", page_changed, window)
+	
 	tab._page_changed = signal
 
 def detach_tab(window, tab):
 	if not hasattr(tab, "_page_changed"):
 		return
-	if hasattr(tab, "get_embed"):
-		embed = tab.get_embed()
-	else:
-		embed = tab
-	embed.disconnect(tab._page_changed)
+	tab.disconnect(tab._page_changed)
 	delattr(tab, "_page_changed")
-
-
