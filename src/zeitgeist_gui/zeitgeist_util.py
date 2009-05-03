@@ -9,6 +9,7 @@ import gtk
 import gnome.ui
 import gobject
 import gconf
+import urllib2
 
 class LaunchManager:
 	'''
@@ -145,15 +146,6 @@ class LaunchManager:
 		    os.wait()
 	       
 		    return (child, startup_id)
-
-
-class IconCollection:
-	def __init__(self):
-		self.dict = {}
-	
-	def clear(self):
-		self.dict.clear()
-
 
 class IconFactory():
 	'''
@@ -324,6 +316,22 @@ class Thumbnailer:
 										"man", "info", "hardware", "search", "pipe",
 										"gnome-trash")
 
+class FavIconFactory():
+	def __init__(self):
+		self.favicons={}
+	
+	def get_icon(self,uri):
+		try:
+			if self.favicons.has_key(uri):
+				return self.favicons[uri]
+			else:
+				picurl = urllib2.urlopen(uri+"/favicon.ico")
+				pic = gtk.gdk.PixbufLoader()
+				pic.write(picurl.read())
+				pic.close()
+				self.favicons[uri] = pic.get_pixbuf()
+		except Exception, ex:
+			return None 
 
 class GConfBridge(gobject.GObject):
 	
@@ -435,11 +443,11 @@ class ColorPalette(gtk.Window):
 		""" Convert 48-bit gdk.Color to 24-bit "RRR GGG BBB" triple. """
 		return (color.red, color.green,  color.blue)	
 	
+favicons = FavIconFactory()
 color_palette = ColorPalette()
 launcher = LaunchManager()
 icon_factory = IconFactory()
 thumbnailer = Thumbnailer()
 icon_theme = gtk.icon_theme_get_default()
 thumb_factory = gnome.ui.ThumbnailFactory("normal")
-iconcollection = IconCollection()
 gconf_bridge = GConfBridge()

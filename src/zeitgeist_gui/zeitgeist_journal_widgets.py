@@ -47,7 +47,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Get list of sources to filter
 		self.sources = {}
-		self.set_filters()
+		self.sources_icons = {}
 		
 		# Connect to the calendar's (displayed in the sidebar) signals
 		calendar.connect("month-changed", self.load_month)
@@ -75,10 +75,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self._ready = True
 		engine.connect("signal_updated", self.load_month_proxy)
 	
-	def set_filters(self):
-		for source in engine.get_sources_list():
-			self.sources[source[0]]=False
-	
 	def apply_search(self, tags="", search = True):
 		'''
 		Adds all items which match tags to the gui.
@@ -93,6 +89,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 	def build_days(self, tagsplit, search):
 		
+		print "building days"
+		
 		for item in self.items:
 			if self.sources[item.type]:
 				continue
@@ -106,7 +104,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self._append_to_day(item)
 			else:
 				self._append_to_day(item)
-		
+	
 		self.clean_up_dayboxes(-1)
 	
 	def _append_to_day(self,item):
@@ -114,9 +112,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		daybox.append_item(item)
 		self.dayboxes.pack_start(daybox, False, False)
 		self.days[item.get_datestring()] = daybox
-	
-	
-	
+		
 	def review_days(self):
 		
 		days_range = int((self.end - self.begin) / 86400) + 1 # get the days range
@@ -214,6 +210,11 @@ class TimelineWidget(gtk.ScrolledWindow):
 			for item in engine.get_items(self.begin, self.end, ""):
 						
 				if item.timestamp <= self.end:
+					
+					if not self.sources.has_key(item.type):
+						self.sources[item.type]=False
+						self.sources_icons[item.type] = item.icon
+					
 					self.items.append(item)
 					item.connect("relate", self.set_relation)
 			
@@ -470,7 +471,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.voptionbox = gtk.VBox(False)
 		
 		self.timelinefilter = gtk.CheckButton()
-		for source in engine.get_sources_list():
+		for source in timeline.sources.keys():
 			filter = CheckBox(source)
 			filter.set_active(True)
 			self.voptionbox.pack_start(filter, False, False, 0)
@@ -523,10 +524,10 @@ class CheckBox(gtk.CheckButton):
 		self.set_focus_on_click(False)
 		
 		self.source = source
-		self.set_label(source[0])
-		self.set_active(self.source[2])
+		self.set_label(source)
+		self.set_active(timeline.sources[source])
 		
-		icon = icon_factory.load_icon(source[1], icon_size = 24)
+		icon = icon_factory.load_icon(timeline.sources_icons[source], icon_size = 24)
 		self.image = gtk.Image()
 		self.image.set_from_pixbuf(icon)
 		self.set_image(self.image)
@@ -538,7 +539,8 @@ class CheckBox(gtk.CheckButton):
 		self.show_all()
 	
 	def toggle_source(self, widget=None):
-		timeline.sources[self.source[0]] = not self.get_active()
+		timeline.sources[self.source] = not self.get_active()
+		print timeline.sources[self.source]
 		timeline.load_month(cached=True)
 
 class SearchToolItem(gtk.ToolItem):

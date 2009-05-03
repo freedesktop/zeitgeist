@@ -8,7 +8,7 @@ import gobject
 import gtk
 import gettext
 
-from zeitgeist_gui.zeitgeist_util import icon_factory, thumbnailer, launcher
+from zeitgeist_gui.zeitgeist_util import icon_factory, thumbnailer, launcher, favicons
 # Some imports are in-place to avoid a circular dependency
 
 
@@ -68,6 +68,11 @@ class Data(gobject.GObject):
 		if  self.exists and self.uri.startswith("file"):
 			thumb = thumbnailer.get_icon(self.get_uri(), self.get_mimetype(), icon_size, self.timestamp)
 			return thumb
+		
+		'''
+		if self.uri.startswith("http"):
+			return favicons.get_icon(self.uri)
+		'''
 		
 		if self.icon:
 			icon =  icon_factory.load_icon(self.icon, icon_size)
