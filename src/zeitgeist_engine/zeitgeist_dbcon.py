@@ -267,10 +267,10 @@ class DBConnector:
 					"""SELECT tagid FROM tags WHERE uri = ?""",
 					(uri[0],)).fetchall()
 			
-			for tag in res:
-				if tags.count(tag[0]) <= 0:
-					if len(tags) < count:
-						tags.append(tag[0])
+				for tag in res:
+					if tags.count(tag[0]) <= 0:
+						if len(tags) < count:
+							tags.append(tag[0])
 		
 		return tags
 	
