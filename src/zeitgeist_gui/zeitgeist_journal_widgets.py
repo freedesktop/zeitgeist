@@ -218,6 +218,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 					self.items.append(item)
 					item.connect("relate", self.set_relation)
 			
+			try:
+				filtersBox.reload()
+			except:
+				pass
 			
 		# Update the GUI with the items that match the current search terms/tags
 		t3 = time.time()
@@ -441,7 +445,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.option_box.pack_end(self.create_doc_btn, False, False)
 		self.option_box.pack_end(self.create_note_btn, False, False)
 		self.timefilter_active=False
-		self.filters = []
+		self.filters = {}
 		
 		'''
 		Filter Box
@@ -469,13 +473,9 @@ class FilterAndOptionBox(gtk.VBox):
 		self.option_box.pack_start(self.frame2,False, False)
 		
 		self.voptionbox = gtk.VBox(False)
-		
+				
 		self.timelinefilter = gtk.CheckButton()
-		for source in timeline.sources.keys():
-			filter = CheckBox(source)
-			filter.set_active(True)
-			self.voptionbox.pack_start(filter, False, False, 0)
-			self.filters.append(filter)
+		self.reload()
 		
 		self.frame2.add(self.voptionbox)
 		self.date_dict = None
@@ -485,6 +485,14 @@ class FilterAndOptionBox(gtk.VBox):
 		gconf_bridge.connect("changed::show_file_button", lambda gb: self.set_buttons())
 		self.show_all()
 		self.set_buttons()
+	
+	def reload(self):		 
+		for source in timeline.sources.keys():
+			if not self.filters.has_key(source):
+				filter = CheckBox(source)
+				filter.set_active(True)
+				self.voptionbox.pack_start(filter, False, False, 0)
+				self.filters[source] = filter
 	
 	def set_buttons(self):
 		note = gconf_bridge.get("show_note_button")

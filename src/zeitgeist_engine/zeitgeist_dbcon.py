@@ -27,9 +27,9 @@ class DBConnector:
 		if len(res)>0:
 			for tag in res:
 				if not tags=="":
-					tags = tags + "," + tag[0]
+					tags = tags + "," + str(tag[0])
 				else:
-					tags = tag[0]
+					tags = str(tag[0])
 		
 		'''
 		s = " "
