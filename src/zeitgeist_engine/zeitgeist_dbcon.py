@@ -268,10 +268,13 @@ class DBConnector:
 					(uri[0],)).fetchall()
 			
 				for tag in res:
-					if tags.count(tag[0]) <= 0:
+					tag = str(tag[0])
+					if tags.count(tag) <= 0:
 						if len(tags) < count:
-							tags.append(tag[0])
-		
+							tags.append(tag)
+							
+		if tags ==[]:
+			return ""
 		return tags
 	
 	def get_recent_tags(self, count=20, min=0, max=sys.maxint):
