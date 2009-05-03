@@ -69,10 +69,14 @@ class Data(gobject.GObject):
 			thumb = thumbnailer.get_icon(self.get_uri(), self.get_mimetype(), icon_size, self.timestamp)
 			return thumb
 		
-		'''
-		if self.uri.startswith("http"):
-			return favicons.get_icon(self.uri)
-		'''
+		if self.uri.startswith("http") and not self.comment.strip()=="":
+			if self.comment[0] == ".":
+				uri = "http://" + self.comment[1:] +"/"
+			else: 
+				uri = "http://" + self.comment +"/"
+			icon =  favicons.get_icon(uri)
+			if icon:
+				return icon
 		
 		if self.icon:
 			icon =  icon_factory.load_icon(self.icon, icon_size)

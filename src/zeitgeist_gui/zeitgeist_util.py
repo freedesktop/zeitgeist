@@ -325,12 +325,15 @@ class FavIconFactory():
 			if self.favicons.has_key(uri):
 				return self.favicons[uri]
 			else:
+				print uri
 				picurl = urllib2.urlopen(uri+"/favicon.ico")
 				pic = gtk.gdk.PixbufLoader()
 				pic.write(picurl.read())
 				pic.close()
 				self.favicons[uri] = pic.get_pixbuf()
+				return self.favicons[uri] 
 		except Exception, ex:
+			self.favicons[uri] = None
 			return None 
 
 class GConfBridge(gobject.GObject):
@@ -423,7 +426,6 @@ class GConfBridge(gobject.GObject):
             key = entry.key
         detailed_signal = "changed::%s" % key
         self.emit(detailed_signal)
-
 
 class ColorPalette(gtk.Window):
 
