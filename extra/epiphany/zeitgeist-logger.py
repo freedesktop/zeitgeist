@@ -34,35 +34,33 @@ except dbus.exceptions.DBusException:
 	print >>sys.stderr, "GNOME Zeitgeist Logger: Error: Could not connect to D-Bus."
 else:
 	iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist")
-	iface.register_source("Epiphany History", "gnome-globe")
 
-	def page_changed(embed, load_status, window):
-		if not embed.get_property('load-status'):
-			# Send this info via D-Bus
-			icon = "gnome-globe"
-			iface.insert_item((
-				int(time.time()), # timestamp
-				urllib.unquote(embed.get_location(True)), # uri
-				embed.get_title(), # name
-				"Epiphany History", # type
-				"", # mimetype
-				"", # tags
-				"", # comment
-				0, # count
-				"visited", # use
-				False, # bookmark
-				"gnome-globe", # icon
-				))
-
-	def attach_tab(window, tab):
-		try:
-			signal = tab.connect_after("notify::load-status", page_changed, window)
-		except Exception:
-			signal = tab.connect_after("ge-content-change", page_changed, window)
+def page_changed(embed, load_status, window):
+	if not embed.get_property('load-status'):
+		# Send this info via D-Bus
+		icon = "gnome-globe"
 		
-		tab._page_changed = signal
+		item =(
+			int(time.time()),	# timestamp
+			urllib.unquote(embed.get_location(True)), 	# uri
+			embed.get_title(),	# name
+			"Epiphany History", # type
+			"", # mimetype
+			"",	 # tags
+			"", # comment
+			0, # count
+			"visited",	# use
+			False, # bookmark
+			"gnome-globe", # icon
+			)
+		
+		# Insert it into Zeitgeist
+		iface.insert_item(item)
 
-	def detach_tab(window, tab):
-		if hasattr(tab, "_page_changed"):
-			tab.disconnect(tab._page_changed)
-			delattr(tab, "_page_changed")
+def attach_tab(window, tab):
+	tab.connect_after("notify::load-status", page_changed, window)
+
+def detach_tab(window, tab):
+	if hasattr(tab, "_page_changed"):
+		tab.disconnect(tab._page_changed)
+		delattr(tab, "_page_changed")
