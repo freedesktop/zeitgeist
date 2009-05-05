@@ -18,23 +18,24 @@ from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 from zeitgeist_shared.zeitgeist_shared import *
 from zeitgeist_shared.basics import BASEDIR
 
+
 class CellRendererPixbuf(gtk.GenericCellRenderer):
 	
 	__gsignals__ = {
 		'toggled': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
 		(gobject.TYPE_STRING,))
 	}
-
+	
 	def __init__(self):
 		gtk.GenericCellRenderer.__init__(self)
-		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.png" % BASEDIR,16,16)		 
+		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size(
+			"%s/data/bookmark-new.png" % BASEDIR, 16, 16) 
 		self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
-
 		#self.inactive_image=None
 		#self.__properties = {}
 	
 	def on_get_size(self, widget, cell_area):
-		return (1,1,16,16)
+		return (1, 1, 16, 16)
 	
 	def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
 		
@@ -51,12 +52,14 @@ class CellRendererPixbuf(gtk.GenericCellRenderer):
                                         0, 0
                                         )
 		return True
-
+	
 	def on_activate(self, event, widget, path, background_area, cell_area, flags):
 		model = widget.get_model()
 		print  model[path][3]
 		self.emit("toggled",path)
-
+		
+	def on_start_editing(self, event, widget, path, background_area, cell_area, flags):
+		print "lala"
 
 
 class DataIconView(gtk.TreeView):
