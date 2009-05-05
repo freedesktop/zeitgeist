@@ -37,6 +37,8 @@ class CellRendererPixbuf(gtk.GenericCellRenderer):
 		return (1,1,16,16)
 	
 	def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
+		
+		
 		middle_x = (cell_area.width - 16) / 2
 		middle_y = (cell_area.height - 16) / 2 
 		self.active_image.render_to_drawable_alpha(window,
@@ -50,13 +52,11 @@ class CellRendererPixbuf(gtk.GenericCellRenderer):
                                         )
 		return True
 
-		
-		
 	def on_activate(self, event, widget, path, background_area, cell_area, flags):
-		print "lala"
+		model = widget.get_model()
+		print  model[path][3]
+		self.emit("toggled",path)
 
-	def on_start_editing(self, event, widget, path, background_area, cell_area, flags):
-		print "lala"
 
 
 class DataIconView(gtk.TreeView):
