@@ -18,51 +18,40 @@ from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 from zeitgeist_shared.zeitgeist_shared import *
 from zeitgeist_shared.basics import BASEDIR
 
-class CustomCellRenderer(gtk.GenericCellRenderer):
-    """
-    An unfortunately neccessary wrapper around a CellRenderPixbuf because
-    said renderer is not activatable
-    """
-    __gsignals__ = {
+class CellRendererPixbuf(gtk.GenericCellRenderer):
+	
+	__gsignals__ = {
 		'toggled': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
 		(gobject.TYPE_STRING,))
 	}
-    
-    def __init__(self):
-        gtk.GenericCellRenderer.__init__(self)
-        self.image = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.png" % BASEDIR,16,16)
 
-    def on_get_size(self, widget, cell_area):
-        return  (0, 0, 16, 16)
+	__gproperties__ = {
+      "active": (gobject.TYPE_OBJECT, "Active",
+      "Active", gobject.PARAM_READWRITE),
+   }
 
-    def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
-        if self.image != None:
-            middle_x = (cell_area.width - 16) / 2
-            middle_y = (cell_area.height - 16) / 2  
-            self.image.render_to_drawable_alpha(window,
-                                            0, 0,                       #x, y in pixbuf
-                                            middle_x + cell_area.x,     #middle x in drawable
-                                            middle_y + cell_area.y,     #middle y in drawable
-                                            -1, -1,                     # use pixbuf width & height
-                                            0, 0,                       # alpha (deprecated params)
-                                            gtk.gdk.RGB_DITHER_NONE,
-                                            0, 0
-                                            )
-        return True
-      
-       
-      
+	def __init__(self):
+		gtk.GenericCellRenderer.__init__(self)
+		self.active_image= gtk.image_new_from_file("%s/data/bookmark-new.png" % BASEDIR)
+		self.inactive_image=None
+		#self.__properties = {}
+	
+	def on_get_size(self, widget, cell_area):
+		if cell_area == None:
+			return (0,0,0,0)
+		x = cell_area.x
+		y = cell_area.x
+		w = cell_area.width
+		h = cell_area.height
+		return (x,y,w,h)
+
+	def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
+		pass
 	def on_activate(self, event, widget, path, background_area, cell_area, flags):
-		self.sig_deac = widget.connect("button-release-event", self.on_deactivate, cell_area, path)
-		self.active_area = cell_area
-		self.toggled = not self.toggled
+		pass
+	def on_start_editing(self, event, widget, path, background_area, cell_area, flags):
+		pass
 
-	def on_deactivate(self, w, e, cell_area, path):
-		w.disconnect(self.sig_deac)
-		if (cell_area.x <= int(e.x) <= cell_area.x + cell_area.width) and (cell_area.y <= int(e.y) <= cell_area.y + cell_area.height):
-			self.emit("toggled", path)
-		self.active_area = None
-		self.on_render(w.get_bin_window(), w, None, cell_area, None, 0)
 
 
 class DataIconView(gtk.TreeView):
@@ -105,6 +94,7 @@ class DataIconView(gtk.TreeView):
 		time_column.set_expand(False)
 		
 		bookmark_cell = gtk.CellRendererToggle()
+		#bookmark_cell = CellRendererPixbuf()
 		#bookmark_cell.set_property("activatable", True)
 		bookmark_cell.connect("toggled", self.toggle_bookmark, self.store )
 		bookmark_column = gtk.TreeViewColumn("bookmark", bookmark_cell)
