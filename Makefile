@@ -77,4 +77,19 @@ install-translations:
 	msgfmt po/ca.po
 	sudo mv messages.mo /usr/share/locale/ca/LC_MESSAGES/gnome-zeitgeist.mo
 
+update-po: translations
+	for cat in $$catalogs; do \
+	  cat=`basename $$cat`; \
+	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+	  mv $$lang.po $$lang.old.po; \
+	  echo "$$lang:"; \
+	  if $(MSGMERGE) -w 132 $$lang.old.po $(PACKAGE).pot -o $$lang.po; then \
+	    rm -f $$lang.old.po; \
+	  else \
+	    echo "msgmerge for $$cat failed!"; \
+	    rm -f $$lang.po; \
+	    mv $$lang.old.po $$lang.po; \
+	  fi; \
+	done
+
 .PHONY: uninstall
