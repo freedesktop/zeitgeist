@@ -27,7 +27,9 @@ class CellRendererPixbuf(gtk.GenericCellRenderer):
 
 	def __init__(self):
 		gtk.GenericCellRenderer.__init__(self)
-		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.png" % BASEDIR,16,16)
+		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.png" % BASEDIR,16,16)		 
+		self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
+
 		#self.inactive_image=None
 		#self.__properties = {}
 	
