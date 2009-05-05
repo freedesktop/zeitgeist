@@ -1,8 +1,7 @@
 PREFIX = /usr/local
 
 all:
-	echo $(PREFIX)
-	@echo "Makefile: Available actions: install, uninstall, clean, source_package, translations"
+	@echo "Makefile: Available actions: install, uninstall, clean, tarball, generate-pot, build-translations, install-translations, update-po."
 
 # install
 install:
@@ -57,12 +56,12 @@ clean:
 	@echo "Makefile: Cleaned up."
 
 # build a source release
-source_package:
-	@echo "Not yet implemented.
-	#@echo "Makefile: Source-package is ready and waiting in ./dist ..."
+tarball:
+	@echo "Not yet implemented."
+	#@echo "Makefile: Tarball is ready and waiting in ./dist ..."
 
-# generate translations template
-translations:
+# generate translations template (POT)
+generate-pot:
 	xgettext src/*.py src/*/*.py \
 		--output-dir=./po/ \
 		--output=messages.pot \
@@ -72,21 +71,29 @@ translations:
 		--package-name="GNOME Zeitgeist" \
 		--package-version="$(cat VERSION)"
 
-# build and install the translations -- (for developer use only)
-install-translations:
-	msgfmt po/ca.po
-	sudo mv messages.mo /usr/share/locale/ca/LC_MESSAGES/gnome-zeitgeist.mo
+# build translations (into .mo files)
+build-translations:
+	for file in po/*.po; do \
+		msgfmt $$file -o $${file%.*}.mo; \
+	done
 
-update-po: translations
-	for cat in $$catalogs; do \
-	  cat=`basename $$cat`; \
-	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+# install translations
+install-translations: build-translations
+	cd po/; for file in *.mo; do \
+		sudo mv $$file \
+			/usr/share/locale/$${file%.*}/LC_MESSAGES/gnome-zeitgeist.mo; \
+	done
+
+# update .po files with the POT template
+update-po: generate-pot
+	cd po/; for file in *.po; do \
+	  lang=$${file%.*}; \
 	  mv $$lang.po $$lang.old.po; \
 	  echo "$$lang:"; \
-	  if $(MSGMERGE) -w 132 $$lang.old.po $(PACKAGE).pot -o $$lang.po; then \
+	  if msgmerge $$lang.old.po messages.pot -o $$lang.po; then \
 	    rm -f $$lang.old.po; \
 	  else \
-	    echo "msgmerge for $$cat failed!"; \
+	    echo "msgmerge for $$file failed!"; \
 	    rm -f $$lang.po; \
 	    mv $$lang.old.po $$lang.po; \
 	  fi; \

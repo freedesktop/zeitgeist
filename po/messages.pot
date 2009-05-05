@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist \n"
 "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
-"POT-Creation-Date: 2009-05-02 13:41+0200\n"
+"POT-Creation-Date: 2009-05-05 20:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,23 +24,23 @@ msgstr ""
 msgid "Sink"
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:168
+#: src/zeitgeist_engine/zeitgeist_recent.py:171
 msgid "Documents"
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:180
+#: src/zeitgeist_engine/zeitgeist_recent.py:183
 msgid "Other"
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:199
+#: src/zeitgeist_engine/zeitgeist_recent.py:202
 msgid "Images"
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:209
+#: src/zeitgeist_engine/zeitgeist_recent.py:212
 msgid "Music"
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:219
+#: src/zeitgeist_engine/zeitgeist_recent.py:222
 msgid "Videos"
 msgstr ""
 
@@ -50,7 +50,7 @@ msgid "Notes"
 msgstr ""
 
 #: src/zeitgeist_engine/zeitgeist_tomboy.py:90
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:438
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:443
 msgid "Create New Note"
 msgstr ""
 
@@ -84,7 +84,7 @@ msgid ""
 "computer."
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_base.py:202
+#: src/zeitgeist_gui/zeitgeist_base.py:213
 #, python-format
 msgid "Edit tags for %s"
 msgstr ""
@@ -97,47 +97,47 @@ msgstr ""
 msgid "Error: Zeitgeist service not running."
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:277
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:282
 msgid "Recently used tags"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:278
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:283
 msgid "Most used tags"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:436
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:441
 msgid "Create New Document..."
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:558
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:568
 msgid "Search"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:673
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:683
 msgid "Show recent activities"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:678
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:688
 msgid "Go back in time"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:683
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:693
 msgid "Go to the future"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:686
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:696
 msgid "Filter your current view"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:694
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:704
 msgid "View journal for a specific date"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:702
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:712
 msgid "View bookmarked activities"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:710
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:720
 msgid "View tagged activities"
 msgstr ""
 
@@ -149,35 +149,35 @@ msgstr ""
 msgid "Yesterday"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:98
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:91
 msgid "Name"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:103
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:96
 msgid "Time"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:321
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:315
 msgid "Tagged with:"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:323
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:317
 msgid "The file has been removed from"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:345
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:339
 msgid "New Document"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:391
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:385
 msgid "Related files"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:415
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:409
 #, python-format
 msgid "Files related to %s"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:495
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:489
 msgid "Bookmark"
 msgstr ""
