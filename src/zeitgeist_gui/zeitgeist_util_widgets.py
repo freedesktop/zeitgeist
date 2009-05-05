@@ -32,26 +32,34 @@ class CellRendererPixbuf(gtk.GenericCellRenderer):
 
 	def __init__(self):
 		gtk.GenericCellRenderer.__init__(self)
-		self.active_image= gtk.image_new_from_file("%s/data/bookmark-new.png" % BASEDIR)
-		self.inactive_image=None
+		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.png" % BASEDIR,16,16)
+		#self.inactive_image=None
 		#self.__properties = {}
 	
 	def on_get_size(self, widget, cell_area):
-		if cell_area == None:
-			return (0,0,0,0)
-		x = cell_area.x
-		y = cell_area.x
-		w = cell_area.width
-		h = cell_area.height
-		return (x,y,w,h)
-
+		return (1,1,16,16)
+	
 	def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
-		pass
-	def on_activate(self, event, widget, path, background_area, cell_area, flags):
-		pass
-	def on_start_editing(self, event, widget, path, background_area, cell_area, flags):
-		pass
+		middle_x = (cell_area.width - 16) / 2
+		middle_y = (cell_area.height - 16) / 2 
+		self.active_image.render_to_drawable_alpha(window,
+                                        0, 0,                       #x, y in pixbuf
+                                        middle_x + cell_area.x,     #middle x in drawable
+                                        middle_y + cell_area.y,     #middle y in drawable
+                                        -1, -1,                     # use pixbuf width & height
+                                        0, 0,                       # alpha (deprecated params)
+                                        gtk.gdk.RGB_DITHER_NONE,
+                                        0, 0
+                                        )
+		return True
 
+		
+		
+	def on_activate(self, event, widget, path, background_area, cell_area, flags):
+		print "lala"
+
+	def on_start_editing(self, event, widget, path, background_area, cell_area, flags):
+		print "lala"
 
 
 class DataIconView(gtk.TreeView):
@@ -93,8 +101,8 @@ class DataIconView(gtk.TreeView):
 		#time_column.set_fixed_width(32)
 		time_column.set_expand(False)
 		
-		bookmark_cell = gtk.CellRendererToggle()
-		#bookmark_cell = CellRendererPixbuf()
+		#bookmark_cell = gtk.CellRendererToggle()
+		bookmark_cell = CellRendererPixbuf()
 		#bookmark_cell.set_property("activatable", True)
 		bookmark_cell.connect("toggled", self.toggle_bookmark, self.store )
 		bookmark_column = gtk.TreeViewColumn("bookmark", bookmark_cell)
