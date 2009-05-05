@@ -55,7 +55,7 @@ msgstr "Crear una nueva nota de Tomboy"
 
 #: src/zeitgeist_gui/zeitgeist-projectviewer.py:24
 msgid "GNOME Zeitgeist Project Viewer"
-msgstr "Visualizador de Proyector de GNOME Zeitgeist"
+msgstr "Visualizador de Proyectos de GNOME Zeitgeist"
 
 #: src/zeitgeist_gui/zeitgeist-timeline.py:24
 msgid "GNOME Zeitgeist Timeline"

@@ -85,7 +85,6 @@ class Journal(gtk.Window):
 			width = width / 4
 		
 		bookmarks.bookmarks.view.reload_name_cell_size(width)
-		timeline.clean_up_dayboxes(width)
 
 
 if __name__ == "__main__":

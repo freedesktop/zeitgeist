@@ -101,12 +101,9 @@ class DataIconView(gtk.TreeView):
 		#time_column.set_fixed_width(32)
 		time_column.set_expand(False)
 		
-		#bookmark_cell = gtk.CellRendererToggle()
 		bookmark_cell = CellRendererPixbuf()
-		#bookmark_cell.set_property("activatable", True)
 		bookmark_cell.connect("toggled", self.toggle_bookmark, self.store )
 		bookmark_column = gtk.TreeViewColumn("bookmark", bookmark_cell)
-		bookmark_column.add_attribute( bookmark_cell, "active", 3)
 		bookmark_column.set_fixed_width(128)
 		bookmark_column.set_expand(False)
 				

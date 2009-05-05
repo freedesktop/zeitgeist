@@ -61,9 +61,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.offset = 0
 		self.items = []
 		self._ready = False
-		
-		# Load the GUI
-		self.load_month()
 	
 	def ready(self):
 		'''
@@ -73,7 +70,11 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		assert self._ready == False
 		self._ready = True
+		
 		engine.connect("signal_updated", self.load_month_proxy)
+		
+		# Load the GUI
+		self.load_month()
 	
 	def apply_search(self, tags="", search = True):
 		'''
@@ -107,7 +108,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 		self.clean_up_dayboxes(-1)
 	
-	def _append_to_day(self,item):
+	def _append_to_day(self, item):
 		daybox = self.days[item.get_datestring()]
 		daybox.append_item(item)
 		self.dayboxes.pack_start(daybox, False, False)
@@ -137,14 +138,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
 	
-	def clean_up_dayboxes(self,width):
+	def clean_up_dayboxes(self, width):
 		
-		range = (self.end-self.begin) / 86400
+		range = (self.end - self.begin) / 86400
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days:
 			i = len(self.dayboxes) -1
 			for daybox in self.dayboxes:
-				if daybox.item_count == 0 and self.tags !="":
+				if daybox.item_count == 0 and self.tags:
 					if i == len(self.dayboxes) -1 or i == 0:
 						daybox.hide()
 					else:
@@ -301,12 +302,12 @@ class HTagBrowser(gtk.HBox):
 		
 		engine.connect("signal_updated", lambda *args: self.func)
 
-	def reload_tags(self,x=None):
+	def reload_tags(self, x=None):
 		index = self.combobox.get_active()
 		if index == 0:
-			self.func = self.get_recent_tags()
+			self.func = self.get_recent_tags
 		else:
-			self.func = self.get_most_tags()
+			self.func = self.get_most_tags
 
 	def changed_cb(self, combobox=None):
 		index = self.combobox.get_active()
@@ -375,7 +376,7 @@ class HTagBrowser(gtk.HBox):
 				tags = tags.replace(x.get_label() + ",", ",")
 				timeline.load_month()
 		
-		timeline.apply_search(tags,False)
+		timeline.apply_search(tags, False)
 	
 	def is_any_toggled(self):
 		for w in self.view:
@@ -404,16 +405,20 @@ class VTagBrowser(gtk.VBox):
 		self.pack_start(self.combobox,True,True,5)
 		engine.connect("signal_updated", lambda *args: self.func)
 	
-	def reload_tags(self,x=None):
-		self.func = self.get_recent_tags()
-		self.func = self.get_most_tags()
-
+	def reload_tags(self, x=None):
+		index = self.combobox.get_active()
+		if index == 0:
+			self.func = self.get_recent_tags
+		else:
+			self.func = self.get_most_tags
+	
 	def changed_cb(self, combobox=None):
 		label = combobox.get_active_text()
-		projectview.view.clear_store()
-		for item in engine.get_items_for_tag(label):
-			projectview.view.append_item(item)
-		
+		if label:
+			projectview.view.clear_store()
+			for item in engine.get_items_for_tag(label):
+				projectview.view.append_item(item)
+	
 	def get_recent_tags(self, x=None):
 		
 		date = calendar.get_date()
