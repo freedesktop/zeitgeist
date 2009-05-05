@@ -14,7 +14,7 @@ import re
 """
 
 CONFIG_HOME = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser('~/.config'))
-CACHE_HOME = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cachee"))
+CACHE_HOME = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
 DATA_HOME = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
 
 if os.path.isfile(os.path.join(CONFIG_HOME, "user-dirs.dirs")):
