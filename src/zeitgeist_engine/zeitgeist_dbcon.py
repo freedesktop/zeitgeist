@@ -141,7 +141,7 @@ class DBConnector:
 					item["mimetype"],
 					item["count"],
 					item["type"]))
-			except sqlite3.IntegrityError, ex:
+			except sqlite3.IntegrityError:
 				pass
 			
 			try:
@@ -206,7 +206,6 @@ class DBConnector:
 		self.cursor.execute('DELETE FROM data where uri=?',(item["uri"],))
 		
 		# (Re)insert the item into the database
-			
 		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
 							 (item["uri"],
 								unicode(item["name"]),
@@ -225,8 +224,11 @@ class DBConnector:
 		
 		# (Re)insert tags into the database
 		for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
-			self.cursor.execute('INSERT INTO tags VALUES (?,?)',
-				(unicode(tag.capitalize()), item["uri"]))	 
+			try:
+				self.cursor.execute('INSERT INTO tags VALUES (?,?)',
+					(unicode(tag.capitalize()), item["uri"]))
+			except sqlite3.IntegrityError:
+				pass
 		self.connection.commit()
 	
 	def delete_item(self, item):
