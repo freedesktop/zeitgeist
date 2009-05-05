@@ -10,7 +10,7 @@ import gobject
 import pango
 import gettext
 
-from zeitgeist_gui.zeitgeist_util import launcher
+from zeitgeist_gui.zeitgeist_util import launcher, icon_factory
 from zeitgeist_shared.xdgdirs import xdg_directory
 from zeitgeist_gui.zeitgeist_util import launcher, color_palette
 from zeitgeist_gui.zeitgeist_engine_wrapper import engine
@@ -28,38 +28,53 @@ class CellRendererPixbuf(gtk.GenericCellRenderer):
 	
 	def __init__(self):
 		gtk.GenericCellRenderer.__init__(self)
+		
 		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size(
 			"%s/data/bookmark-new.png" % BASEDIR, 16, 16) 
+		
+		self.inactive_image = icon_factory.greyscale(self.active_image)
+		
 		self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
-		#self.inactive_image=None
-		#self.__properties = {}
 	
 	def on_get_size(self, widget, cell_area):
 		return (1, 1, 16, 16)
 	
 	def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
 		
-		
 		middle_x = (cell_area.width - 16) / 2
 		middle_y = (cell_area.height - 16) / 2 
-		self.active_image.render_to_drawable_alpha(window,
-                                        0, 0,                       #x, y in pixbuf
-                                        middle_x + cell_area.x,     #middle x in drawable
-                                        middle_y + cell_area.y,     #middle y in drawable
-                                        -1, -1,                     # use pixbuf width & height
-                                        0, 0,                       # alpha (deprecated params)
-                                        gtk.gdk.RGB_DITHER_NONE,
-                                        0, 0
-                                        )
+		
+		model = widget.get_model()
+		iter = model.get_iter_root()
+		if iter:
+			bool = model.get_value(iter, 3)
+			if bool:
+				self.active_image.render_to_drawable_alpha(window,
+		                                        0, 0,                       #x, y in pixbuf
+		                                        middle_x + cell_area.x,     #middle x in drawable
+		                                        middle_y + cell_area.y,     #middle y in drawable
+		                                        -1, -1,                     # use pixbuf width & height
+		                                        0, 0,                       # alpha (deprecated params)
+		                                        gtk.gdk.RGB_DITHER_NONE,
+		                                        0, 0
+		                                        )
+			else:
+				self.inactive_image.render_to_drawable_alpha(window,
+		                                        0, 0,                       #x, y in pixbuf
+		                                        middle_x + cell_area.x,     #middle x in drawable
+		                                        middle_y + cell_area.y,     #middle y in drawable
+		                                        -1, -1,                     # use pixbuf width & height
+		                                        0, 0,                       # alpha (deprecated params)
+		                                        gtk.gdk.RGB_DITHER_NONE,
+		                                        0, 0
+		                                        )
+			
 		return True
 	
 	def on_activate(self, event, widget, path, background_area, cell_area, flags):
 		model = widget.get_model()
-		print  model[path][3]
 		self.emit("toggled",path)
 		
-	def on_start_editing(self, event, widget, path, background_area, cell_area, flags):
-		print "lala"
 
 
 class DataIconView(gtk.TreeView):
