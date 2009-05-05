@@ -25,11 +25,6 @@ class CellRendererPixbuf(gtk.GenericCellRenderer):
 		(gobject.TYPE_STRING,))
 	}
 
-	__gproperties__ = {
-      "active": (gobject.TYPE_OBJECT, "Active",
-      "Active", gobject.PARAM_READWRITE),
-   }
-
 	def __init__(self):
 		gtk.GenericCellRenderer.__init__(self)
 		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.png" % BASEDIR,16,16)
