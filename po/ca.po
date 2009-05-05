@@ -5,8 +5,7 @@ msgstr ""
 "POT-Creation-Date: 2009-05-05 20:34+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
-"Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad."
-"net>\n"
+"Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -52,7 +51,7 @@ msgstr "Crea una nota nova"
 
 #: src/zeitgeist_engine/zeitgeist_tomboy.py:91
 msgid "Make a new Tomboy note"
-msgstr ""
+msgstr "Crea una nota nova"
 
 #: src/zeitgeist_gui/zeitgeist-projectviewer.py:24
 msgid "GNOME Zeitgeist Project Viewer"
@@ -75,10 +74,8 @@ msgid "Open Timeline"
 msgstr "Obre la línia del temps"
 
 #: src/zeitgeist_gui/zeitgeist-trayicon.py:104
-msgid ""
-"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
-"computer."
-msgstr ""
+msgid "GNOME Zeitgeist is a tool for easily browsing and finding files on your computer."
+msgstr "El GNOME Zeitgeist és una eina per a navegar i trobar "
 
 #: src/zeitgeist_gui/zeitgeist_base.py:213
 #, python-format
@@ -151,7 +148,7 @@ msgstr "Nom"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:96
 msgid "Time"
-msgstr ""
+msgstr "Hora"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:315
 msgid "Tagged with:"
@@ -177,3 +174,4 @@ msgstr "Fitxers relacionats amb %s"
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:489
 msgid "Bookmark"
 msgstr ""
+

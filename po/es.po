@@ -1,0 +1,177 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: GNOME Zeitgeist 0.0.4\n"
+"Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
+"POT-Creation-Date: 2009-05-05 13:41+0000\n"
+"PO-Revision-Date: \n"
+"Last-Translator: José Luis Ricón <artirj@gmail.com>\n"
+"Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Spanish\n"
+
+#: src/zeitgeist-daemon.py:29
+msgid "Starting Zeitgeist service..."
+msgstr "Iniciando el servicio de Zeitgeist..."
+
+#: src/zeitgeist_engine/zeitgeist_datasink.py:22
+msgid "Sink"
+msgstr ""
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:168
+msgid "Documents"
+msgstr "Documentos"
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:180
+msgid "Other"
+msgstr "Otros"
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:199
+msgid "Images"
+msgstr "Imágenes"
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:209
+msgid "Music"
+msgstr "Música"
+
+#: src/zeitgeist_engine/zeitgeist_recent.py:219
+msgid "Videos"
+msgstr "Vídeos"
+
+#: src/zeitgeist_engine/zeitgeist_tomboy.py:85
+#: src/zeitgeist_engine/zeitgeist_tomboy.py:88
+msgid "Notes"
+msgstr "Notas"
+
+#: src/zeitgeist_engine/zeitgeist_tomboy.py:90
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:438
+msgid "Create New Note"
+msgstr "Crear una nota nueva"
+
+#: src/zeitgeist_engine/zeitgeist_tomboy.py:91
+msgid "Make a new Tomboy note"
+msgstr "Crear una nueva nota de Tomboy"
+
+#: src/zeitgeist_gui/zeitgeist-projectviewer.py:24
+msgid "GNOME Zeitgeist Project Viewer"
+msgstr "Visualizador de Proyector de GNOME Zeitgeist"
+
+#: src/zeitgeist_gui/zeitgeist-timeline.py:24
+msgid "GNOME Zeitgeist Timeline"
+msgstr "Línea de tiempo de GNOME Zeitgeist"
+
+#: src/zeitgeist_gui/zeitgeist-trayicon.py:34
+msgid "Open Journal"
+msgstr "Abrir el Diario"
+
+#: src/zeitgeist_gui/zeitgeist-trayicon.py:35
+msgid "Open Project Viewer"
+msgstr "Abrir el Visualizador de Proyectos"
+
+#: src/zeitgeist_gui/zeitgeist-trayicon.py:36
+msgid "Open Timeline"
+msgstr "Abrir la Lína de Tiempo"
+
+#: src/zeitgeist_gui/zeitgeist-trayicon.py:104
+msgid "GNOME Zeitgeist is a tool for easily browsing and finding files on your computer."
+msgstr "GNOME Zeitgeist es una herramienta para navegar y encontrar fácilmentes archivos en tu ordenador."
+
+#: src/zeitgeist_gui/zeitgeist_base.py:202
+#, python-format
+msgid "Edit tags for %s"
+msgstr "Cambiar las etiquetas para %s"
+
+#: src/zeitgeist_gui/zeitgeist_dbus.py:13
+msgid "Error: Could not connect to D-Bus."
+msgstr "Error: No se pudo conectar con D-Bus."
+
+#: src/zeitgeist_gui/zeitgeist_dbus.py:18
+msgid "Error: Zeitgeist service not running."
+msgstr "Error: El servicio de Zeitgeist no está activo."
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:277
+msgid "Recently used tags"
+msgstr "Etiquetas usadas recientemente"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:278
+msgid "Most used tags"
+msgstr "Etiquetas más usadas"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:436
+msgid "Create New Document..."
+msgstr "Crear un Documento Nuevo..."
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:558
+msgid "Search"
+msgstr "Buscar"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:673
+msgid "Show recent activities"
+msgstr "Mostrar actividades recientes"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:678
+msgid "Go back in time"
+msgstr "Retroceder en el tiempo"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:683
+msgid "Go to the future"
+msgstr "Avanzar en el tiempo"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:686
+msgid "Filter your current view"
+msgstr "Filtrar la vista actual"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:694
+msgid "View journal for a specific date"
+msgstr "Ver el diario de una fecha concreta"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:702
+msgid "View bookmarked activities"
+msgstr "Ver las actividades marcadas"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:710
+msgid "View tagged activities"
+msgstr "Ver las actividades etiquetadas"
+
+#: src/zeitgeist_gui/zeitgeist_timeline_widgets.py:64
+msgid "Today"
+msgstr "Hoy"
+
+#: src/zeitgeist_gui/zeitgeist_timeline_widgets.py:66
+msgid "Yesterday"
+msgstr "Ayer"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:98
+msgid "Name"
+msgstr "Nombre"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:103
+msgid "Time"
+msgstr "Hora"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:321
+msgid "Tagged with:"
+msgstr "Etiquetado con:"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:323
+msgid "The file has been removed from"
+msgstr "El archivo ha sido borrado de"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:345
+msgid "New Document"
+msgstr "Nuevo documento"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:391
+msgid "Related files"
+msgstr "Archivos relacionados"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:415
+#, python-format
+msgid "Files related to %s"
+msgstr "Archivos relacionados con %s"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:495
+msgid "Bookmark"
+msgstr "Marcar"
+
