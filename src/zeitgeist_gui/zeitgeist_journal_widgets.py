@@ -75,11 +75,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Load the GUI
 		self.load_month()
+		self.load_month()
 	
 	def apply_search(self, tags="", search = True):
 		'''
 		Adds all items which match tags to the gui.
 		'''
+		
+		print "apply search"
+		
 		self.tags = tags
 		tagsplit = [tag.strip() for tag in \
 			tags.split(",") if tag.strip()]
@@ -98,10 +102,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 			if tagsplit:
 				for tag in tagsplit:
 					if search and tag.lower() in item.uri.lower():
-						print item.name
 						self._append_to_day(item)
 					elif tag.lower() in item.tags.lower().split(","):
-						print item.name
 						self._append_to_day(item)
 			else:
 				self._append_to_day(item)
@@ -140,6 +142,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 	def clean_up_dayboxes(self, width):
 		
+		print "cleaning up"
+		
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days:
 			i = len(self.dayboxes) -1
@@ -152,6 +156,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.view.set_size_request(-1,-1)
 						daybox.show()
 				else:
+					print "kokokoko"
 					daybox.view.reload_name_cell_size(width)
 					daybox.show()
 				i = i - 1

@@ -111,7 +111,7 @@ class DataIconView(gtk.TreeView):
 		self.last_item=None
 		self.last_iter = None
 		self.day=None
-		engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
+		#engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
@@ -137,7 +137,7 @@ class DataIconView(gtk.TreeView):
 		     	return True
 	
 	def reload_name_cell_size(self,width):
-		self.name_cell.set_property("wrap-width",width-100)
+		self.name_cell.set_property("wrap-width",width - 150)
 		
 	def append_item(self, item, group=True):
 		self._set_item(item, group=group)
@@ -243,26 +243,6 @@ class DataIconView(gtk.TreeView):
 			icon = self.active_image
 		
 		model[path][6] = icon
-	
-	def _do_refresh_rows(self):
-		
-		iter = self.store.get_iter_root()
-		if iter:
-			item = self.store.get_value(iter, 4)
-			try:
-				self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
-			except Exception:
-				pass
-			while True:
-				iter = self.store.iter_next(iter)
-				if iter:
-					item = self.store.get_value(iter, 4)
-					try:
-						self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
-					except Exception:
-						pass
-				else:
-					break
 				
 	def _set_item(self, item, append=True, group=True):
 		

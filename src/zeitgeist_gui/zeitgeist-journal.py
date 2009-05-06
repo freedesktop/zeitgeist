@@ -75,19 +75,17 @@ class Journal(gtk.Window):
 		htb.hide_all()
 		filtersBox.option_box.hide_all()
 		calendar.hide_all()
+		
+		self.window_state_event_cb(None)
 	
 	def window_state_event_cb(self, window):
 		
 		width, height = self.get_size()
 		
-		print "-------------------"
-		print width
-		
-		
 		if bookmarks.get_property("visible"):
 			width = width /4
 			bookmarks.bookmarks.view.reload_name_cell_size(width)
-			bookmarks.set_size_request(width,-1)
+			bookmarks.set_size_request(width+20,-1)
 		else:
 			width = width / 3
 		
