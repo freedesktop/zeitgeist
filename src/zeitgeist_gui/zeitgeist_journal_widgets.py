@@ -34,7 +34,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Set up default properties
 		self.set_border_width(0)
-		self.set_size_request(600, 200)
+		#self.set_size_request(600, 200)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		self.add_with_viewport(self.dayboxes)
 		
@@ -130,6 +130,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				daybox.clear()
 				daybox.label.set_label(datestring)
 				self.days[datestring] = daybox
+				
 		else:
 			for daybox in self.dayboxes:
 				self.dayboxes.remove(daybox)
@@ -137,6 +138,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 			# precalculate the number of dayboxes we need and generate the dayboxes
 			for i in xrange(days_range):
 				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime("%a %d %b %Y")
+				daybox = DayBox(datestring)
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
 	
@@ -156,7 +158,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.view.set_size_request(-1,-1)
 						daybox.show()
 				else:
-					daybox.view.reload_name_cell_size(width)
+					#daybox.view.set_size_request(325,-1)
 					daybox.show()
 				i = i - 1
 		gc.collect()
@@ -712,12 +714,6 @@ class BrowserBar(gtk.HBox):
 		self.calendar.set_label("Calendar")
 		self.calendar.connect("toggled",self.toggle_calendar)
 		
-		self.star = gtk.ToggleToolButton()
-		icon = gtk.image_new_from_file("%s/data/bookmark-new.png" % BASEDIR)
-		self.star.set_icon_widget(icon)
-		self.star.set_label("Bookmarks")
-		self.tooltips.set_tip(self.star, _("View bookmarked activities"))
-		self.star.connect("toggled",self.toggle_bookmarks)
 		
 		self.tags = gtk.ToggleToolButton()
 		icon = gtk.image_new_from_file("%s/data/tag.png" % BASEDIR)
@@ -732,7 +728,6 @@ class BrowserBar(gtk.HBox):
 		toolbar.insert(self.home, -1)
 		toolbar.insert(self.forward, -1)
 		toolbar.insert(gtk.SeparatorToolItem(),-1)
-		toolbar.insert(self.star, -1)
 		toolbar.insert(self.tags, -1)
 		toolbar.insert(self.options, -1)
 		toolbar.insert(self.calendar, -1)
@@ -769,12 +764,6 @@ class BrowserBar(gtk.HBox):
 			filtersBox.option_box.show_all()
 		else:
 			filtersBox.option_box.hide_all()
-	
-	def toggle_bookmarks(self, x=None):
-		if self.star.get_active():
-			bookmarks.show_all()
-		else:
-			bookmarks.hide_all()
 			
 	def toggle_calendar(self, x=None):
 		if self.calendar.get_active():
