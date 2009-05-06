@@ -1,11 +1,12 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GNOME Zeitgeist 0.0.4\n"
+"Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
-"POT-Creation-Date: 2009-05-05 13:41+0000\n"
+"POT-Creation-Date: 2009-05-06 20:21+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: José Luis Ricón <artirj@gmail.com>\n"
-"Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad.net>\n"
+"Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad."
+"net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,23 +20,23 @@ msgstr "Iniciando el servicio de Zeitgeist..."
 msgid "Sink"
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:168
+#: src/zeitgeist_engine/zeitgeist_recent.py:171
 msgid "Documents"
 msgstr "Documentos"
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:180
+#: src/zeitgeist_engine/zeitgeist_recent.py:183
 msgid "Other"
 msgstr "Otros"
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:199
+#: src/zeitgeist_engine/zeitgeist_recent.py:202
 msgid "Images"
 msgstr "Imágenes"
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:209
+#: src/zeitgeist_engine/zeitgeist_recent.py:212
 msgid "Music"
 msgstr "Música"
 
-#: src/zeitgeist_engine/zeitgeist_recent.py:219
+#: src/zeitgeist_engine/zeitgeist_recent.py:222
 msgid "Videos"
 msgstr "Vídeos"
 
@@ -45,7 +46,7 @@ msgid "Notes"
 msgstr "Notas"
 
 #: src/zeitgeist_engine/zeitgeist_tomboy.py:90
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:438
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:450
 msgid "Create New Note"
 msgstr "Crear una nota nueva"
 
@@ -74,13 +75,54 @@ msgid "Open Timeline"
 msgstr "Abrir la Lína de Tiempo"
 
 #: src/zeitgeist_gui/zeitgeist-trayicon.py:104
-msgid "GNOME Zeitgeist is a tool for easily browsing and finding files on your computer."
-msgstr "GNOME Zeitgeist es una herramienta para navegar y encontrar fácilmentes archivos en tu ordenador."
+msgid ""
+"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
+"computer."
+msgstr ""
+"GNOME Zeitgeist es una herramienta para navegar y encontrar fácilmentes "
+"archivos en tu ordenador."
 
-#: src/zeitgeist_gui/zeitgeist_base.py:202
+#: src/zeitgeist_gui/zeitgeist_base.py:160
+#, fuzzy
+msgid "Unbookmark"
+msgstr "Marcar"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:162
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:453
+msgid "Bookmark"
+msgstr "Marcar"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:167
+#, fuzzy
+msgid "Show related files"
+msgstr "Archivos relacionados"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:172
+#, fuzzy
+msgid "Edit tags..."
+msgstr "Cambiar las etiquetas para %s"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:183
+msgid "Delete item from Zeitgeist"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_base.py:213
 #, python-format
 msgid "Edit tags for %s"
 msgstr "Cambiar las etiquetas para %s"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:218
+msgid "Add"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_base.py:219
+msgid "Cancel"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_base.py:249
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:287
+msgid "Most used tags"
+msgstr "Etiquetas más usadas"
 
 #: src/zeitgeist_gui/zeitgeist_dbus.py:13
 msgid "Error: Could not connect to D-Bus."
@@ -90,47 +132,43 @@ msgstr "Error: No se pudo conectar con D-Bus."
 msgid "Error: Zeitgeist service not running."
 msgstr "Error: El servicio de Zeitgeist no está activo."
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:277
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:286
 msgid "Recently used tags"
 msgstr "Etiquetas usadas recientemente"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:278
-msgid "Most used tags"
-msgstr "Etiquetas más usadas"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:436
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:448
 msgid "Create New Document..."
 msgstr "Crear un Documento Nuevo..."
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:558
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:575
 msgid "Search"
 msgstr "Buscar"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:673
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:690
 msgid "Show recent activities"
 msgstr "Mostrar actividades recientes"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:678
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:695
 msgid "Go back in time"
 msgstr "Retroceder en el tiempo"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:683
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:700
 msgid "Go to the future"
 msgstr "Avanzar en el tiempo"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:686
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:703
 msgid "Filter your current view"
 msgstr "Filtrar la vista actual"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:694
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:711
 msgid "View journal for a specific date"
 msgstr "Ver el diario de una fecha concreta"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:702
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:719
 msgid "View bookmarked activities"
 msgstr "Ver las actividades marcadas"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:710
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:727
 msgid "View tagged activities"
 msgstr "Ver las actividades etiquetadas"
 
@@ -142,36 +180,31 @@ msgstr "Hoy"
 msgid "Yesterday"
 msgstr "Ayer"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:98
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:74
 msgid "Name"
 msgstr "Nombre"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:103
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:79
 msgid "Time"
 msgstr "Hora"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:321
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:279
 msgid "Tagged with:"
 msgstr "Etiquetado con:"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:323
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:281
 msgid "The file has been removed from"
 msgstr "El archivo ha sido borrado de"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:345
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:303
 msgid "New Document"
 msgstr "Nuevo documento"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:391
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:349
 msgid "Related files"
 msgstr "Archivos relacionados"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:415
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:373
 #, python-format
 msgid "Files related to %s"
 msgstr "Archivos relacionados con %s"
-
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:495
-msgid "Bookmark"
-msgstr "Marcar"
-
