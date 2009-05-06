@@ -247,6 +247,12 @@ class DataIconView(gtk.TreeView):
 		model[path][3] = not model[path][3]
 		item = model[path][4]
 		item.set_bookmark(model[path][3])
+		
+		icon = self.inactive_image
+		if model[path][3] == True:
+			icon = self.active_image
+		
+		model[path][6] = icon
 	
 	def _do_refresh_rows(self):
 		
