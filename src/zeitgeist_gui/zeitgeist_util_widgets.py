@@ -19,59 +19,17 @@ from zeitgeist_shared.zeitgeist_shared import *
 from zeitgeist_shared.basics import BASEDIR
 
 
-class CellRendererPixbuf(gtk.GenericCellRenderer):
+class CellRendererPixbuf(gtk.CellRendererPixbuf):
 	
 	__gsignals__ = {
 		'toggled': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,
 		(gobject.TYPE_STRING,))
 	}
-	
 	def __init__(self):
-		gtk.GenericCellRenderer.__init__(self)
-		
-		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size(
-			"%s/data/bookmark-new.png" % BASEDIR, 16, 16) 
-		
-		self.inactive_image = icon_factory.greyscale(self.active_image)
-		
+		gtk.CellRendererPixbuf.__init__(self)
 		self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
 	
-	def on_get_size(self, widget, cell_area):
-		return (1, 1, 16, 16)
-	
-	def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
-		
-		middle_x = (cell_area.width - 16) / 2
-		middle_y = (cell_area.height - 16) / 2 
-		
-		model = widget.get_model()
-		iter = model.get_iter_root()
-		if iter:
-			bool = model.get_value(iter, 3)
-			if bool:
-				self.active_image.render_to_drawable_alpha(window,
-		                                        0, 0,                       #x, y in pixbuf
-		                                        middle_x + cell_area.x,     #middle x in drawable
-		                                        middle_y + cell_area.y,     #middle y in drawable
-		                                        -1, -1,                     # use pixbuf width & height
-		                                        0, 0,                       # alpha (deprecated params)
-		                                        gtk.gdk.RGB_DITHER_NONE,
-		                                        0, 0
-		                                        )
-			else:
-				self.inactive_image.render_to_drawable_alpha(window,
-		                                        0, 0,                       #x, y in pixbuf
-		                                        middle_x + cell_area.x,     #middle x in drawable
-		                                        middle_y + cell_area.y,     #middle y in drawable
-		                                        -1, -1,                     # use pixbuf width & height
-		                                        0, 0,                       # alpha (deprecated params)
-		                                        gtk.gdk.RGB_DITHER_NONE,
-		                                        0, 0
-		                                        )
-			
-		return True
-	
-	def on_activate(self, event, widget, path, background_area, cell_area, flags):
+	def do_activate(self, event, widget, path, background_area, cell_area, flags):
 		model = widget.get_model()
 		self.emit("toggled",path)
 		
@@ -94,8 +52,15 @@ class DataIconView(gtk.TreeView):
 
 		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT ), ( "image/x-xpixmap", 0, TARGET_TYPE_PIXMAP ) ]
 
+		
+		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size(
+			"%s/data/bookmark-new.png" % BASEDIR, 24, 24) 
+		
+		self.inactive_image = icon_factory.greyscale(self.active_image)
+		self.inactive_image = icon_factory.transparentize(self.inactive_image,50)
+
 		#self.connect('window-state-event', self.window_state_event_cb)
-		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT, str)
+		self.store = gtk.TreeStore(gtk.gdk.Pixbuf, str, str, gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT, str,  gtk.gdk.Pixbuf)
 		
 		self.set_tooltip_column(5)
 		
@@ -118,8 +83,7 @@ class DataIconView(gtk.TreeView):
 		
 		bookmark_cell = CellRendererPixbuf()
 		bookmark_cell.connect("toggled", self.toggle_bookmark, self.store )
-		bookmark_column = gtk.TreeViewColumn("bookmark", bookmark_cell)
-		bookmark_column.set_fixed_width(128)
+		bookmark_column = gtk.TreeViewColumn("bookmark", bookmark_cell, pixbuf =6)
 		bookmark_column.set_expand(False)
 				
 		self.append_column(icon_column)
@@ -154,8 +118,11 @@ class DataIconView(gtk.TreeView):
 		self.types = {}
 		self.days={}
 		self.items_uris=[]
+			
 		
 		self.reload_name_cell_size(250)		
+		
+		
 	def button_press_handler(self, treeview, event):
 		if event.button == 3:
 	      		# Figure out which item they right clicked on
@@ -167,8 +134,8 @@ class DataIconView(gtk.TreeView):
 		    	rows = selection.get_rows()
 			# If they didnt right click on a currently selected row, change the selection
 			if path[0] not in rows[1]:
-			         selection.unselect_all()
-			         selection.select_path(path[0])
+				selection.unselect_all()
+				selection.select_path(path[0])
 			
 		     	return True
 	
@@ -313,6 +280,10 @@ class DataIconView(gtk.TreeView):
 		name = "<span color='%s'>%s</span>" % \
 			("black" if item.exists else "grey", item.get_name())
 		
+		icon = self.inactive_image
+		if bookmark == True:
+			icon = self.active_image
+		
 		self.last_iter = self.store.append(None, [
 			item.get_icon(24),
 			name,
@@ -320,6 +291,7 @@ class DataIconView(gtk.TreeView):
 			bookmark,
 			item,
 			self.get_tooltip(item),
+			icon,
 			])
 		
 		self.collapse_all()
