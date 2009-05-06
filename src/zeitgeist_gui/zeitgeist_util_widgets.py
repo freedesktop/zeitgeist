@@ -31,7 +31,8 @@ class CellRendererPixbuf(gtk.CellRendererPixbuf):
 	
 	def do_activate(self, event, widget, path, background_area, cell_area, flags):
 		model = widget.get_model()
-		self.emit("toggled",path)
+		if model[path][6]:
+			self.emit("toggled",path)
 		
 
 
@@ -244,10 +245,11 @@ class DataIconView(gtk.TreeView):
 		
 		model[path][6] = icon
 				
-	def _set_item(self, item, append=True, group=True):
+	def _set_item(self, item, append=True, group=False):
 		
 		bookmark = bookmarker.get_bookmark(item.uri)
 		self.items_uris.append(item.uri)
+			
 		
 		date = ""
 		if not item.timestamp == -1.0:
@@ -260,8 +262,23 @@ class DataIconView(gtk.TreeView):
 		if bookmark == True:
 			icon = self.active_image
 		
-		self.last_iter = self.store.append(None, [
-			item.get_icon(24),
+		
+		if not self.types.has_key(item.type):
+			if group:
+				iter = self.store.append(None, [icon_factory.load_icon(item.icon, 24),
+									item.type,
+									date,
+									bookmark,
+									item,
+									"Bookmarked "+item.type,
+									None,
+									])
+			else:
+				iter = None
+			self.types[item.type] = iter
+		
+		self.last_iter = self.store.append(self.types[item.type], 
+			[item.get_icon(24),
 			name,
 			date,
 			bookmark,
@@ -437,7 +454,7 @@ class DayBox(gtk.VBox):
 		""" Convert 48-bit gdk.Color to 24-bit "RRR GGG BBB" triple. """
 		return (color.red, color.green,  color.blue)	
 	
-	def append_item(self, item, group=True):
+	def append_item(self, item, group=False):
 		self.view.append_item(item, group)
 		self.item_count += 1
 	
@@ -456,8 +473,25 @@ class BookmarksBox(DayBox):
 
 	def get_bookmarks(self, x=None):
 		self.view.clear_store()
+		self.types = {}
 		for item in bookmarker.get_items_uncached():
-			self.view.append_item(item, group=False)
+			if self.types.has_key(item.type):
+				self.types[item.type].append(item)
+			else:
+				self.types[item.type]=[item]
+		
+		items = self.types.items()
+		items.sort()
+		list =  [value for key, value in items]
+
+		
+		for type in list:
+			for item in type:
+				self.append_item(item)
+				
+	def append_item(self, item):
+		self.view.append_item(item, group = True)
+		self.item_count += 1
 		
 class BookmarksView(gtk.ScrolledWindow):
 	def __init__(self):

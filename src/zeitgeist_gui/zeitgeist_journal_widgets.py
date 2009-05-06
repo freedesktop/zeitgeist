@@ -764,11 +764,11 @@ class BrowserBar(gtk.HBox):
 	
 	def set_time_browsing(self, bool):
 		if bool:
-				self.back.show()
-				self.home.show()
-				self.sep.show()
-				self.forward.show()
 				self.calendar.show()
+				self.forward.show()
+				self.sep.show()
+				self.home.show()
+				self.back.show()
 		else:
 				self.back.hide()
 				self.home.hide()
