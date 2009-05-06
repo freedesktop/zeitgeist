@@ -140,7 +140,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 	def clean_up_dayboxes(self, width):
 		
-		range = (self.end - self.begin) / 86400
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days:
 			i = len(self.dayboxes) -1
@@ -388,7 +387,6 @@ class HTagBrowser(gtk.HBox):
 		for btn in self.view:
 			btn.set_active(False)
 		timeline.tags = ""
-
 
 class VTagBrowser(gtk.VBox):
 	

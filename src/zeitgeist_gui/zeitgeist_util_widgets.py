@@ -44,7 +44,6 @@ class DataIconView(gtk.TreeView):
 	
 	def __init__(self,parentdays=False):
 		gtk.TreeView.__init__(self)
-		self.set_size_request(250,-1)
 		self.parentdays = parentdays
 		
 		TARGET_TYPE_TEXT = 80
@@ -120,8 +119,6 @@ class DataIconView(gtk.TreeView):
 		self.items_uris=[]
 			
 		
-		self.reload_name_cell_size(250)		
-		
 		
 	def button_press_handler(self, treeview, event):
 		if event.button == 3:
@@ -140,14 +137,7 @@ class DataIconView(gtk.TreeView):
 		     	return True
 	
 	def reload_name_cell_size(self,width):
-		if width < 300:
-			width = 250
-			wrap = 125
-		else:
-			wrap = width - 50
-			
-		self.name_cell.set_property("wrap-width",wrap)
-		self.set_size_request(width,-1)
+		self.name_cell.set_property("wrap-width",width-100)
 		
 	def append_item(self, item, group=True):
 		self._set_item(item, group=group)

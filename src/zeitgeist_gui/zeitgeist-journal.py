@@ -23,7 +23,7 @@ class Journal(gtk.Window):
 		# Window
 		self.set_title("GNOME Zeitgeist")
 		self.set_resizable(True)
-		self.set_default_size(800, -1)
+		#self.set_default_size(800, -1)
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		
 		self.connect("destroy", gtk.main_quit)
@@ -56,7 +56,7 @@ class Journal(gtk.Window):
 		
 		# vbox for timeline and tagbar
 		vbox = gtk.VBox()
-		vbox.pack_start(evbox)
+		vbox.pack_start(evbox, True, True)
 		vbox.pack_start(tagbox,False,True,2)
 		
 		hbox = gtk.HBox()
@@ -77,14 +77,21 @@ class Journal(gtk.Window):
 		calendar.hide_all()
 	
 	def window_state_event_cb(self, window):
+		
 		width, height = self.get_size()
 		
-		if bookmarks.get_property("visible"):
-			width = width / 5
-		else:
-			width = width / 4
+		print "-------------------"
+		print width
 		
-		bookmarks.bookmarks.view.reload_name_cell_size(width)
+		
+		if bookmarks.get_property("visible"):
+			width = width /4
+			bookmarks.bookmarks.view.reload_name_cell_size(width)
+			bookmarks.set_size_request(width,-1)
+		else:
+			width = width / 3
+		
+		timeline.clean_up_dayboxes(width)
 
 
 if __name__ == "__main__":
