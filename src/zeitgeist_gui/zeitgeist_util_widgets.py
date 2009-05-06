@@ -117,7 +117,6 @@ class DataIconView(gtk.TreeView):
 		self.types = {}
 		self.days={}
 		self.items_uris=[]
-		self.name_cell.set_property("wrap-width",225)
 			
 		
 		
@@ -137,6 +136,8 @@ class DataIconView(gtk.TreeView):
 			
 		     	return True
 	
+	def reload_name_cell_size(self,width):
+		self.name_cell.set_property("wrap-width",width - 150)
 		
 	def append_item(self, item, group=True):
 		self._set_item(item, group=group)
