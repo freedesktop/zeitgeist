@@ -712,12 +712,14 @@ class BrowserBar(gtk.HBox):
 		self.calendar.set_label("Calendar")
 		self.calendar.connect("toggled",self.toggle_calendar)
 		
+		'''
 		self.star = gtk.ToggleToolButton()
 		icon = gtk.image_new_from_file("%s/data/bookmark-new.png" % BASEDIR)
 		self.star.set_icon_widget(icon)
 		self.star.set_label("Bookmarks")
 		self.tooltips.set_tip(self.star, _("View bookmarked activities"))
 		self.star.connect("toggled",self.toggle_bookmarks)
+		'''
 		
 		self.tags = gtk.ToggleToolButton()
 		icon = gtk.image_new_from_file("%s/data/tag.png" % BASEDIR)
@@ -731,8 +733,11 @@ class BrowserBar(gtk.HBox):
 		toolbar.insert(self.back, -1)
 		toolbar.insert(self.home, -1)
 		toolbar.insert(self.forward, -1)
-		toolbar.insert(gtk.SeparatorToolItem(),-1)
-		toolbar.insert(self.star, -1)
+		
+		self.sep = gtk.SeparatorToolItem()
+		
+		toolbar.insert(self.sep,-1)
+		#toolbar.insert(self.star, -1)
 		toolbar.insert(self.tags, -1)
 		toolbar.insert(self.options, -1)
 		toolbar.insert(self.calendar, -1)
@@ -740,8 +745,6 @@ class BrowserBar(gtk.HBox):
 		
 		hbox = gtk.HBox()
 		hbox.pack_start(toolbar,True,True)
-		
-		
 		
 		toolbar2 = gtk.Toolbar()
 		searchbox = gtk.HBox()
@@ -758,6 +761,20 @@ class BrowserBar(gtk.HBox):
 		
 		self.pack_start(hbox, True, True)
 		self.pack_start(hbox2, False, False)
+	
+	def set_time_browsing(self, bool):
+		if bool:
+				self.back.show()
+				self.home.show()
+				self.sep.show()
+				self.forward.show()
+				self.calendar.show()
+		else:
+				self.back.hide()
+				self.home.hide()
+				self.sep.hide()
+				self.forward.hide()
+				self.calendar.hide()
 	
 	def remove_day(self, x=None):
 		self.htb.untoggle_all()
