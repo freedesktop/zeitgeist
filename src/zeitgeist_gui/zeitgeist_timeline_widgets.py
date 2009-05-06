@@ -65,7 +65,7 @@ class CairoTimeline (gtk.DrawingArea):
 			elif len(self.week) == 1:
 				name = _("Yesterday")
 			else:
-				name = day.strftime("%A")
+				name = day.strftime("%A").capitalize()
 			start = time.mktime(day.timetuple())
 			end = start + 86400 # number of seconds in 1 day
 			self.week.append((name, start, end))
