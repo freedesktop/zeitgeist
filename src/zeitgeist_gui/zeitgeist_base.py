@@ -157,19 +157,19 @@ class Data(gobject.GObject):
 			del timemachine
 		'''
 		if self.bookmark:
-			bookmark = gtk.MenuItem("Unbookmark")
+			bookmark = gtk.MenuItem(_("Unbookmark"))
 		else:
-			bookmark = gtk.MenuItem("Bookmark")
+			bookmark = gtk.MenuItem(_("Bookmark"))
 		bookmark.connect("activate", lambda w: self.add_bookmark())
 		bookmark.show()
 		menu.append(bookmark)
 		
-		relate = gtk.MenuItem("Show related files")
+		relate = gtk.MenuItem(_("Show related files"))
 		relate.connect("activate", lambda w: self.relate())
 		relate.show()
 		menu.append(relate)
 		
-		tag = gtk.MenuItem("Edit Tags")
+		tag = gtk.MenuItem(_("Edit tags..."))
 		tag.connect("activate", lambda w: self.tag_item())
 		tag.show()
 		menu.append(tag)
@@ -180,7 +180,7 @@ class Data(gobject.GObject):
 		tag.show()
 		menu.append(tag)
 		
-		tag = gtk.MenuItem("Delete item")
+		tag = gtk.MenuItem(_("Delete item from Zeitgeist"))
 		tag.connect("activate", lambda w: self.delete_item())
 		tag.show()
 		menu.append(tag)
@@ -214,8 +214,9 @@ class Data(gobject.GObject):
 		
 		self.textview.get_buffer().set_text(self.tags)	
 		
-		okbtn = gtk.Button("Add")
-		cbtn = gtk.Button("Cancel")
+		# Use real Cancel/OK buttons. Those are not compliant with HIG.
+		okbtn = gtk.Button(_("Add"))
+		cbtn = gtk.Button(_("Cancel"))
 		cbtn.connect("clicked", lambda w: taggingwindow.destroy())
 		okbtn.connect("clicked", lambda w: self.set_tags(self.textview.get_buffer().get_text(*self.textview.get_buffer().get_bounds()) ))
 		okbtn.connect("clicked", lambda w: taggingwindow.destroy())
@@ -226,8 +227,8 @@ class Data(gobject.GObject):
 		vbox.pack_start(self.textview,True,True,5)
 		
 		self.tbox = self.get_tagbox()
-		vbox.pack_start(self.tbox,True,True)
-		vbox.pack_start(hbox,False,False)
+		vbox.pack_start(self.tbox, True,True)
+		vbox.pack_start(hbox, False,False)
 		
 		taggingwindow.add(vbox)
 		taggingwindow.show_all()
@@ -245,7 +246,7 @@ class Data(gobject.GObject):
 	def get_tagbox(self):
 		# Initialize superclass
 		tbox = gtk.VBox()
-		label = gtk.Label("Most used tags")
+		label = gtk.Label(_("Most used tags"))
 		# Add a frame around the label
 		evbox = gtk.EventBox()
 		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
