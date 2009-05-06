@@ -308,6 +308,19 @@ class Data(gobject.GObject):
 		self.tags = tags
 		self.textview.get_buffer().set_text(self.tags)
 
+	
+	def has_search(self, search):
+		if search.strip() == "":
+			return True
+		if self.comment.lower().find(search) > -1:
+			return True
+		if self.name.lower().find(search) > -1:
+			return True
+		for tag in self.tags:
+			if tag.lower().find(search) > -1:
+				return True
+		return False
+
 
 def objectify_data(item_list):
 	return Data(
@@ -323,6 +336,7 @@ def objectify_data(item_list):
             count = item_list[9] or 1, # count
             type = item_list[10] or "N/A", # type
             )
+
 
 def exists(uri):
 	if not uri.startswith("file"):

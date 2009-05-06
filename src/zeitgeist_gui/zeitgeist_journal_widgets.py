@@ -101,7 +101,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				continue
 			if tagsplit:
 				for tag in tagsplit:
-					if search and tag.lower() in item.uri.lower():
+					if search and tag.lower() in item.name.lower():
 						self._append_to_day(item)
 					elif tag.lower() in item.tags.lower().split(","):
 						self._append_to_day(item)
@@ -611,7 +611,8 @@ class SearchToolItem(gtk.ToolItem):
 		self._entry_clear_no_change_handler()
 		self.do_search("")
 		timeline.tags=""
-		#timeline.load_month()
+		bookmarks.bookmarks.get_bookmarks(text="")
+		timeline.load_month()
 	
 	def do_search(self, text):
 		# Get date range
@@ -622,18 +623,21 @@ class SearchToolItem(gtk.ToolItem):
 		# each tuple is of format (year, month, day, hours, minutes,
 		# seconds, weekday, day_of_year, daylight savings) 
 		
+		
+		# FIXME: We need to look for the frist entry and last entry in the DB
 		begin = (date[0], date[1]+1,0, 0,0,0,0,0,0)
 		end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
 		begin = time.mktime(begin)
 		end = time.mktime(end) -1
-		
-		#timeline.load_month(begin=begin, end=end)
+		timeline.load_month(begin=begin, end=end)
 		
 		if self.clearbtn and not self.clearbtn.child:
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
 			img.show()
 			self.clearbtn.add(img)
 		timeline.apply_search(tags=text.lower())
+		bookmarks.bookmarks.get_bookmarks(text = text.lower())
+		
 
 	def _entry_clear_no_change_handler(self):
 		'''Avoids sending \'changed\' signal when clearing text.'''
@@ -826,11 +830,11 @@ class ProjectView(gtk.ScrolledWindow):
 
 
 calendar = CalendarWidget()
+bookmarks = BookmarksView()
 timeline = TimelineWidget()
 projectview = ProjectView()
 
 htb = HTagBrowser()
 vtb = VTagBrowser()
 filtersBox = FilterAndOptionBox()
-bookmarks = BookmarksView()
 bb = BrowserBar(htb)

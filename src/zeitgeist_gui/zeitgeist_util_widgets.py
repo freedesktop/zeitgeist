@@ -471,20 +471,20 @@ class BookmarksBox(DayBox):
 		self.get_bookmarks()
 		engine.connect("signal_updated", self.get_bookmarks)
 
-	def get_bookmarks(self, x=None):
+	def get_bookmarks(self, x=None , text=""):
 		self.view.clear_store()
 		self.types = {}
 		for item in bookmarker.get_items_uncached():
-			if self.types.has_key(item.type):
-				self.types[item.type].append(item)
-			else:
-				self.types[item.type]=[item]
+			if item.has_search(text):
+				if self.types.has_key(item.type):
+					self.types[item.type].append(item)
+				else:
+					self.types[item.type]=[item]
 		
 		items = self.types.items()
 		items.sort()
 		list =  [value for key, value in items]
 
-		
 		for type in list:
 			for item in type:
 				self.append_item(item)
@@ -499,6 +499,7 @@ class BookmarksView(gtk.ScrolledWindow):
 		self.bookmarks = BookmarksBox()
 		self.add_with_viewport(self.bookmarks)		
 		self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
+
 
 class TagWindow(gtk.Window):
 	def __init__(self):
