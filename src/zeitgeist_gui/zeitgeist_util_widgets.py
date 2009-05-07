@@ -484,40 +484,56 @@ class DayBox(gtk.VBox):
 		self.emit("set-focus-child", self)
 			
 class BookmarksBox(DayBox):
-	def __init__(self):
-		DayBox.__init__(self, _("Bookmark"))
-		self.get_bookmarks()
-		engine.connect("signal_updated", self.get_bookmarks)
-
-	def get_bookmarks(self, x=None , text=""):
-		self.view.clear_store()
-		self.types = {}
-		for item in bookmarker.get_items_uncached():
-			if item.has_search(text):
-				if self.types.has_key(item.type):
-					self.types[item.type].append(item)
-				else:
-					self.types[item.type]=[item]
+	def __init__(self, label = "Bookmark"):
+		DayBox.__init__(self, _(label))
 		
-		items = self.types.items()
-		items.sort()
-		list =  [value for key, value in items]
-
-		for type in list:
-			for item in type:
-				self.append_item(item)
 				
 	def append_item(self, item):
-		self.view.append_item(item, group = True)
+		self.view.append_item(item, group = False)
 		self.item_count += 1
 		
 class BookmarksView(gtk.ScrolledWindow):
 	def __init__(self):
 		gtk.ScrolledWindow.__init__(self)
-		self.bookmarks = BookmarksBox()
-		self.add_with_viewport(self.bookmarks)		
-		self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
-
+		self.hbox = gtk.HBox()
+		#self.bookmarks = BookmarksBox()
+		self.add_with_viewport(self.hbox)		
+		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
+		engine.connect("signal_updated", self.get_bookmarks)
+		self.boxes = {}
+		self.get_bookmarks()
+		
+	def get_bookmarks(self, x=None , text=""):
+		print"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+		self.types = {}
+		for box in self.boxes.values():
+			box.clear()
+		
+		for item in bookmarker.get_items_uncached():
+			if item.has_search(text):
+				
+				if self.types.has_key(item.type):
+					self.types[item.type].append(item)
+				else:
+					self.types[item.type]=[item]
+				
+				if self.boxes.has_key(item.type):
+					self.boxes[item.type].append_item(item)
+				else:
+					bookmarkbox = BookmarksBox(item.type)
+					bookmarkbox.append_item(item)
+					self.boxes[item.type] = bookmarkbox
+					self.hbox.pack_start(bookmarkbox)
+					
+		for key in self.boxes.keys():
+			if not self.types.has_key(key):
+				box = self.boxes[key]
+				self.hbox.remove(box)
+				del self.boxes[key]
+				
+		
+			
+		
 
 class TagWindow(gtk.Window):
 	def __init__(self):

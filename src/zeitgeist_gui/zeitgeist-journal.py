@@ -97,7 +97,7 @@ class Journal(gtk.Window):
 		
 		width, height = self.get_size()
 		
-		bookmarks.bookmarks.view.reload_name_cell_size(width-50)
+		#bookmarks.bookmarks.view.reload_name_cell_size(width-50)
 		
 		if width < 800:
 			self.set_size_request(800,-1)
