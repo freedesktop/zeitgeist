@@ -74,6 +74,7 @@ class DataIconView(gtk.TreeView):
 		name_cell.set_property("wrap-width", 125)
 		name_column = gtk.TreeViewColumn(_("Name"), name_cell, markup=1)
 		name_column.set_expand(True)
+		name_column.set_properties("sensitive",False)
 		self.name_cell = name_cell
 		
 		time_cell = gtk.CellRendererText()
@@ -119,7 +120,26 @@ class DataIconView(gtk.TreeView):
 		self.days={}
 		self.items_uris=[]
 			
-		
+	def delete_entry(self,uri):
+		iter = self.store.get_iter_root()
+		if iter:
+			item = self.store.get_value(iter, 4)
+			try:
+				self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+			except Exception:
+				pass
+			while True:
+				iter = self.store.iter_next(iter)
+				if iter:
+					item = self.store.get_value(iter, 4)
+					try:
+						if item.uri == uri:
+							self.store.remove(iter)
+					except Exception:
+						pass
+				else:
+					break	
+		return False
 		
 	def button_press_handler(self, treeview, event):
 		if event.button == 3:
@@ -286,7 +306,6 @@ class DataIconView(gtk.TreeView):
 			icon,
 			])
 		
-		self.collapse_all()
 		self.last_item = item
 	
 	def get_tooltip(self,item):

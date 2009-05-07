@@ -767,17 +767,29 @@ class BrowserBar(gtk.HBox):
 	
 	def set_time_browsing(self, bool):
 		if bool:
+				self.back.hide()
+				self.home.hide()
+				self.forward.hide()
+				self.sep.hide()
+				self.tags.hide()
+				self.options.hide()
+				self.calendar.hide()
+				
 				self.calendar.show()
-				self.forward.show()
+				self.options.show()
+				self.tags.show()
 				self.sep.show()
+				self.forward.show()
 				self.home.show()
 				self.back.show()
+		
 		else:
 				self.back.hide()
 				self.home.hide()
 				self.sep.hide()
 				self.forward.hide()
 				self.calendar.hide()
+				self.calendar.set_active(False)
 	
 	def remove_day(self, x=None):
 		self.htb.untoggle_all()
