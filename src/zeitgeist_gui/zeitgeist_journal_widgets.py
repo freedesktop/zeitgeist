@@ -108,7 +108,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 			else:
 				self._append_to_day(item)
 	
-		self.clean_up_dayboxes(-1)
 	
 	def _append_to_day(self, item):
 		daybox = self.days[item.get_datestring()]
@@ -142,8 +141,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 	def clean_up_dayboxes(self, width):
 		
-		print "cleaning up"
-		
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days:
 			i = len(self.dayboxes) -1
@@ -156,7 +153,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.view.set_size_request(-1,-1)
 						daybox.show()
 				else:
-					daybox.view.reload_name_cell_size(width)
+					print width
+					print width - 100
+					if width  > 300:
+						
+						#daybox.view.set_size_request(width-75,-1)
+						daybox.view.reload_name_cell_size(width-50)
 					daybox.show()
 				i = i - 1
 		gc.collect()

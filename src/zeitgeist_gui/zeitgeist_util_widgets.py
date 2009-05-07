@@ -138,7 +138,7 @@ class DataIconView(gtk.TreeView):
 		     	return True
 	
 	def reload_name_cell_size(self,width):
-		self.name_cell.set_property("wrap-width",width - 150)
+		self.name_cell.set_property("wrap-width",width -125)
 		
 	def append_item(self, item, group=True):
 		self._set_item(item, group=group)
@@ -216,7 +216,7 @@ class DataIconView(gtk.TreeView):
 					(model, paths) = self.get_selection().get_selected_rows()
 					path, position = drop_info
 					iter = model.get_iter(path)
-		        
+					
 				item = model.get_value(iter, 4)
 				if item.tags.strip()=="" or item.tags == None:
 					tags = data
@@ -226,8 +226,7 @@ class DataIconView(gtk.TreeView):
 				
 				tooltip = self.get_tooltip(item)
 				model.set_value(iter,5,tooltip)
-		      
-		      
+				
 			except Exception, ex:
 				print ex
 	

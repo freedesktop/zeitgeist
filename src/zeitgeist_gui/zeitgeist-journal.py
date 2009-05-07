@@ -27,7 +27,7 @@ class Journal(gtk.Window):
 		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
 		
 		self.connect("destroy", gtk.main_quit)
-		#self.connect('check-resize', self.window_state_event_cb)
+		self.connect('check-resize', self.window_state_event_cb)
 		signal.signal(signal.SIGUSR1, lambda *discard: self.emit(gtk.main_quit))
 		
 		# Vertical box (contains self.hBox and a status bar)
@@ -93,6 +93,17 @@ class Journal(gtk.Window):
 		else:
 			bb.set_time_browsing(True)
 
+	def window_state_event_cb(self, window):
+		
+		width, height = self.get_size()
+		
+		bookmarks.bookmarks.view.reload_name_cell_size(width-50)
+		
+		if width < 800:
+			self.set_size_request(800,-1)
+			width = 800
+
+		timeline.clean_up_dayboxes(width/3)
 
 if __name__ == "__main__":
 	
