@@ -377,7 +377,8 @@ class HTagBrowser(gtk.HBox):
 				tags = tags.replace("," + x.get_label(), ",")
 				tags = tags.replace(x.get_label() + ",", ",")
 				timeline.load_month()
-		
+				
+		bookmarks.get_bookmarks(text = tags)
 		timeline.apply_search(tags, False)
 	
 	def is_any_toggled(self):
@@ -781,13 +782,13 @@ class BrowserBar(gtk.HBox):
 				self.home.set_sensitive(False)
 				self.sep.set_sensitive(False)
 				self.options.set_sensitive(False)
-				self.tags.set_sensitive(False)
+				#self.tags.set_sensitive(False)
 				self.forward.set_sensitive(False)
 				self.calendar.set_sensitive(False)
 				
 				self.calendar.set_active(False)
 				self.options.set_active(False)
-				self.tags.set_active(False)
+				#self.tags.set_active(False)
 	
 	def remove_day(self, x=None):
 		self.htb.untoggle_all()

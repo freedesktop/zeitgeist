@@ -113,7 +113,7 @@ class DataIconView(gtk.TreeView):
 		self.last_item=None
 		self.last_iter = None
 		self.day=None
-		#engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
+		engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
@@ -141,21 +141,49 @@ class DataIconView(gtk.TreeView):
 					break	
 		return False
 		
+	def _do_refresh_rows(self):
+		
+		iter = self.store.get_iter_root()
+		if iter:
+			item = self.store.get_value(iter, 4)
+			try:
+				self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+				icon = self.inactive_image
+				if bookmarker.get_bookmark(item.uri) == True:
+					icon = self.active_image
+				self.store.set(iter,6,icon)
+			except Exception:
+				pass
+			while True:
+				iter = self.store.iter_next(iter)
+				if iter:
+					item = self.store.get_value(iter, 4)
+					try:
+						self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+						icon = self.inactive_image
+						if bookmarker.get_bookmark(item.uri) == True:
+							icon = self.active_image
+						self.store.set(iter,6,icon)
+					except Exception:
+						pass
+				else:
+					break
+		
 	def button_press_handler(self, treeview, event):
 		if event.button == 3:
-	      		# Figure out which item they right clicked on
+			# Figure out which item they right clicked on
 			path = treeview.get_path_at_pos(int(event.x),int(event.y))
-          		# Get the selection
-           		selection = treeview.get_selection()
+			# Get the selection
+			selection = treeview.get_selection()
 	
-		    	# Get the selected path(s)
-		    	rows = selection.get_rows()
+			#Get the selected path(s)
+			rows = selection.get_rows()
 			# If they didnt right click on a currently selected row, change the selection
 			if path[0] not in rows[1]:
 				selection.unselect_all()
 				selection.select_path(path[0])
 			
-		     	return True
+		return True
 	
 	def reload_name_cell_size(self,width):
 		self.name_cell.set_property("wrap-width",width -125)
@@ -435,11 +463,10 @@ class RelatedWindow(gtk.Window):
 
 class DayBox(gtk.VBox):
 	
-	def __init__(self,date):
+	def __init__(self,date, show_date=True):
 		
 		gtk.VBox.__init__(self)
 		self.date=date
-		self.label=gtk.Label(date)
 		vbox = gtk.VBox()
 		
 		self.ev = gtk.EventBox()
@@ -453,7 +480,9 @@ class DayBox(gtk.VBox):
 		
 		self.ev.add(vbox)
 		self.ev.set_border_width(1)
-		vbox.pack_start(self.label,True,True,5)
+		if show_date:
+			self.label=gtk.Label(date)
+			vbox.pack_start(self.label,True,True,5)
 		
 		self.pack_start(self.ev,False,False)
 		self.view = DataIconView()
@@ -485,7 +514,7 @@ class DayBox(gtk.VBox):
 			
 class BookmarksBox(DayBox):
 	def __init__(self, label = "Bookmark"):
-		DayBox.__init__(self, _(label))
+		DayBox.__init__(self, _(label),False)
 		
 				
 	def append_item(self, item):
@@ -495,16 +524,17 @@ class BookmarksBox(DayBox):
 class BookmarksView(gtk.ScrolledWindow):
 	def __init__(self):
 		gtk.ScrolledWindow.__init__(self)
-		self.hbox = gtk.HBox()
-		#self.bookmarks = BookmarksBox()
-		self.add_with_viewport(self.hbox)		
+		self.notebook = gtk.Notebook()
+		print"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+		self.notebook.set_property("tab-pos",gtk.POS_RIGHT)
+		print"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+		self.add_with_viewport(self.notebook)		
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		engine.connect("signal_updated", self.get_bookmarks)
 		self.boxes = {}
 		self.get_bookmarks()
 		
 	def get_bookmarks(self, x=None , text=""):
-		print"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 		self.types = {}
 		for box in self.boxes.values():
 			box.clear()
@@ -523,12 +553,22 @@ class BookmarksView(gtk.ScrolledWindow):
 					bookmarkbox = BookmarksBox(item.type)
 					bookmarkbox.append_item(item)
 					self.boxes[item.type] = bookmarkbox
-					self.hbox.pack_start(bookmarkbox)
+					
+					box = gtk.HBox()
+					icon = gtk.Image()
+					icon.set_from_stock(item.icon, gtk.ICON_SIZE_MENU)
+					box.pack_start(icon)
+					box.pack_start(gtk.Label(item.type))
+					box.show_all()
+					
+					self.notebook.append_page((bookmarkbox),box)
+					self.notebook.set_tab_label_packing(bookmarkbox, True, True, gtk.PACK_START)
 					
 		for key in self.boxes.keys():
 			if not self.types.has_key(key):
 				box = self.boxes[key]
-				self.hbox.remove(box)
+				index = self.notebook.page_num(box)
+				self.notebook.remove(index)
 				del self.boxes[key]
 				
 		
