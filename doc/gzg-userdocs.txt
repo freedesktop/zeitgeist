@@ -11,7 +11,9 @@ Wouldn't it be nice if there was somewhere you could turn to bring up all the di
 Well, there is. GZG will do that for you.
 
 == What you see on startup ==
-When you start GZG you don't see much at all, except a small magnifying glass slash clock in your system tray (aka. notification area). That is the visible evidence that your daemon is running. [what the hell's a daemon] Click the GZG icon, and a window opens. This is your Journal. [Add image]
+When you start GZG you don't see much at all, except a small magnifying glass slash clock in your system tray (aka. notification area). That is the visible evidence that your daemon is running. (A daemon is a computer program that runs in the background, rather than under the direct control of a user; they are usually initiated as background processes.)
+
+Click the GZG icon, and a window opens. This is your Journal. [Add image]
 
 You also have some other options from this icon: Right click and you'll be able to open Project Viewer and Timeline.
 
