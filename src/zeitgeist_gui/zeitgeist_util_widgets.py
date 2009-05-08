@@ -560,15 +560,14 @@ class BookmarksView(gtk.ScrolledWindow):
 		for key in self.boxes.keys():
 			if not self.types.has_key(key):
 				box = self.boxes[key]
-				index = self.notebook.page_num(box)
-				self.notebook.remove(index)
+				self.notebook.remove(box)
 				del self.boxes[key]
 				
 	#
 	def create_tab_label(self, title, stock):
 			box = gtk.HBox()
 			
-			pixbuf = icon_factory.load_icon(stock, icon_size = 48 ,cache = False)
+			pixbuf = icon_factory.load_icon(stock, icon_size = 32 ,cache = False)
 			icon = gtk.Image()
 			icon.set_from_pixbuf(pixbuf)
 			del pixbuf
