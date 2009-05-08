@@ -611,7 +611,7 @@ class SearchToolItem(gtk.ToolItem):
 		self._entry_clear_no_change_handler()
 		self.do_search("")
 		timeline.tags=""
-		bookmarks.bookmarks.get_bookmarks(text="")
+		bookmarks.get_bookmarks(text="")
 		timeline.load_month()
 	
 	def do_search(self, text):
@@ -636,7 +636,7 @@ class SearchToolItem(gtk.ToolItem):
 			img.show()
 			self.clearbtn.add(img)
 		timeline.apply_search(tags=text.lower())
-		bookmarks.bookmarks.get_bookmarks(text = text.lower())
+		bookmarks.get_bookmarks(text = text.lower())
 		
 
 	def _entry_clear_no_change_handler(self):
