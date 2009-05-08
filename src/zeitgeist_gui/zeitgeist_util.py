@@ -201,8 +201,8 @@ class IconFactory():
 		return pixbuf
 
 
-	def load_icon(self, icon_value, icon_size, force_size=True):
-		if self.icon_dict.get(icon_value) == None:
+	def load_icon(self, icon_value, icon_size, force_size=True, cache=True):
+		if not self.icon_dict.has_key(icon_value) or cache==False:
 			#print "creating icon for "+icon_value
 			try:
 				if isinstance(icon_value, gtk.gdk.Pixbuf):
@@ -232,8 +232,9 @@ class IconFactory():
 						icon = self.load_icon_from_path(info.get_filename(), icon_size)
 				else:
 					icon = self.load_icon_from_data_dirs(icon_value, icon_size) 
-	
-				self.icon_dict[icon_value] = icon
+				
+				if cache:
+					self.icon_dict[icon_value] = icon
 				return icon
 			except Exception:
 				self.icon_dict[icon_value] = None

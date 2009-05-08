@@ -525,9 +525,7 @@ class BookmarksView(gtk.ScrolledWindow):
 	def __init__(self):
 		gtk.ScrolledWindow.__init__(self)
 		self.notebook = gtk.Notebook()
-		print"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 		self.notebook.set_property("tab-pos",gtk.POS_RIGHT)
-		print"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 		self.add_with_viewport(self.notebook)		
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		engine.connect("signal_updated", self.get_bookmarks)
@@ -554,12 +552,7 @@ class BookmarksView(gtk.ScrolledWindow):
 					bookmarkbox.append_item(item)
 					self.boxes[item.type] = bookmarkbox
 					
-					box = gtk.HBox()
-					icon = gtk.Image()
-					icon.set_from_stock(item.icon, gtk.ICON_SIZE_MENU)
-					box.pack_start(icon)
-					box.pack_start(gtk.Label(item.type))
-					box.show_all()
+					box = self.create_tab_label(item.type,item.icon)
 					
 					self.notebook.append_page((bookmarkbox),box)
 					self.notebook.set_tab_label_packing(bookmarkbox, True, True, gtk.PACK_START)
@@ -571,10 +564,22 @@ class BookmarksView(gtk.ScrolledWindow):
 				self.notebook.remove(index)
 				del self.boxes[key]
 				
-		
+	#
+	def create_tab_label(self, title, stock):
+			box = gtk.HBox()
 			
-		
+			pixbuf = icon_factory.load_icon(stock, icon_size = 48 ,cache = False)
+			icon = gtk.Image()
+			icon.set_from_pixbuf(pixbuf)
+			del pixbuf
 
+			label = gtk.Label(title)
+			
+			box.pack_start(icon, False, False)
+			box.pack_start(label, True, True)
+			box.show_all()
+			return box
+	
 class TagWindow(gtk.Window):
 	def __init__(self):
 		gtk.Window.__init__(self)	
