@@ -515,8 +515,8 @@ class DayBox(gtk.VBox):
 class BookmarksBox(DayBox):
 	def __init__(self, label = "Bookmark"):
 		DayBox.__init__(self, _(label),False)
-		
-				
+		self.set_border_width(5)
+			
 	def append_item(self, item):
 		self.view.append_item(item, group = False)
 		self.item_count += 1
