@@ -493,13 +493,17 @@ class FilterAndOptionBox(gtk.VBox):
 		self.show_all()
 		self.set_buttons()
 	
-	def reload(self):		 
-		for source in timeline.sources.keys():
-			if not self.filters.has_key(source):
-				filter = CheckBox(source)
-				filter.set_active(True)
-				self.voptionbox.pack_start(filter, False, False, 0)
-				self.filters[source] = filter
+	def reload(self):
+		for w in self.voptionbox:
+			self.voptionbox.remove(w)
+		
+		sources = timeline.sources.keys()
+		sources.sort()
+		for source in sources:
+			filter = CheckBox(source)
+			filter.set_active(True)
+			self.voptionbox.pack_start(filter, False, False, 0)
+			self.filters[source] = filter
 	
 	def set_buttons(self):
 		note = gconf_bridge.get("show_note_button")
@@ -701,7 +705,7 @@ class BrowserBar(gtk.HBox):
 		self.forward = gtk.ToolButton("gtk-go-forward")
 		self.forward.set_label("Newer")
 		self.forward.connect("clicked", self.remove_day)
-		self.tooltips.set_tip(self.forward, _("Go to the future"))
+		self.tooltips.set_tip(self.forward, _("Go forward in time"))
 		
 		self.options = gtk.ToggleToolButton("gtk-select-color")
 		self.tooltips.set_tip(self.options, _("Filter your current view"))

@@ -556,14 +556,15 @@ class BookmarksView(gtk.ScrolledWindow):
 					
 					self.notebook.append_page((bookmarkbox),box)
 					self.notebook.set_tab_label_packing(bookmarkbox, True, True, gtk.PACK_START)
-					
+		
 		for key in self.boxes.keys():
 			if not self.types.has_key(key):
 				box = self.boxes[key]
 				self.notebook.remove(box)
 				del self.boxes[key]
-				
-	#
+		
+		
+		
 	def create_tab_label(self, title, stock):
 			box = gtk.HBox()
 			
