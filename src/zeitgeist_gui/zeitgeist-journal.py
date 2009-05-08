@@ -58,9 +58,9 @@ class Journal(gtk.Window):
 		notebook = gtk.Notebook()
 		notebook.connect("switch-page",self.switch_page)
 		
+		notebook.append_page(evbox, gtk.Label("Journal"))
 		notebook.append_page(bookmarks,gtk.Label("Starred"))
 		#notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
-		notebook.append_page(evbox, gtk.Label("Journal"))
 		#notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
 		# vbox for timeline and tagbar
@@ -88,7 +88,7 @@ class Journal(gtk.Window):
 		#self.window_state_event_cb(None)
 	
 	def switch_page(self, notebook, page, page_num):	
-		if page_num == 0:
+		if page_num == 1:
 			bb.set_time_browsing(False)
 		else:
 			bb.set_time_browsing(True)
