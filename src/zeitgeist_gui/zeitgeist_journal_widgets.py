@@ -268,13 +268,13 @@ class TimelineWidget(gtk.ScrolledWindow):
 			adj.set_value(min(alloc.x, adj.upper-adj.page_size))
 			del widget 
 
-class HTagBrowser(gtk.HBox):
+class HTagBrowser(gtk.VBox):
 	
 	def __init__(self):
 		
 		# Initialize superclass
-		gtk.HBox.__init__(self)
-		self.set_size_request(-1,48)
+		gtk.VBox.__init__(self)
+		self.set_size_request(-1,-1)
 		
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
@@ -288,9 +288,9 @@ class HTagBrowser(gtk.HBox):
 		self.pack_start(self.combobox, False, False)
 		
 		self.scroll = gtk.ScrolledWindow()
-		self.view = gtk.HBox()
+		self.view = gtk.VBox()
 		self.scroll.add_with_viewport(self.view)
-		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
+		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.scroll.set_shadow_type(gtk.SHADOW_NONE)
 		self.pack_start(self.scroll,True,True)
 		self.show_all()
@@ -324,6 +324,7 @@ class HTagBrowser(gtk.HBox):
 		image = gtk.image_new_from_file("%s/data/tag3.svg" % BASEDIR)
 		btn.connect("drag_data_get", self.sendCallback)
 		btn.drag_source_set(gtk.gdk.BUTTON1_MASK, self.fromImage,gtk.gdk.ACTION_COPY)
+		btn.set_alignment(0,0.5)
 
 		btn.set_image(image)
 		btn.set_size_request(-1, 28)
@@ -392,52 +393,6 @@ class HTagBrowser(gtk.HBox):
 			btn.set_active(False)
 		timeline.tags = ""
 
-class VTagBrowser(gtk.VBox):
-	
-	def __init__(self):
-		
-		# Initialize superclass
-		gtk.VBox.__init__(self)
-		self.set_size_request(-1,-1)
-		self.combobox = gtk.combo_box_new_text()
-		self.reload_tags()
-		
-		self.combobox.connect('changed', self.changed_cb)
-		self.combobox.set_active(0)
-		self.pack_start(self.combobox,True,True,5)
-		engine.connect("signal_updated", lambda *args: self.func)
-	
-	def reload_tags(self, x=None):
-		index = self.combobox.get_active()
-		if index == 0:
-			self.func = self.get_recent_tags
-		else:
-			self.func = self.get_most_tags
-	
-	def changed_cb(self, combobox=None):
-		label = combobox.get_active_text()
-		if label:
-			projectview.view.clear_store()
-			for item in engine.get_items_for_tag(label):
-				projectview.view.append_item(item)
-	
-	def get_recent_tags(self, x=None):
-		
-		date = calendar.get_date()
-		
-		begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
-		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
-		
-		for tag in engine.get_recent_used_tags(10, begin, end):
-			self.combobox.append_text(tag)
-			
-	def get_most_tags(self, x=None):
-		
-		begin = timeline.begin
-		end = timeline.end
-		
-		for tag in engine.get_most_used_tags(10, begin, end):
-			self.combobox.append_text(tag)
 
 class FilterAndOptionBox(gtk.VBox):
 	
@@ -848,6 +803,5 @@ bookmarks = BookmarksView()
 timeline = TimelineWidget()
 
 htb = HTagBrowser()
-vtb = VTagBrowser()
 filtersBox = FilterAndOptionBox()
 bb = BrowserBar(htb)

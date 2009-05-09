@@ -73,8 +73,6 @@ class RemoteInterface(dbus.service.Object):
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="", out_signature="a"+sig_plain_data)
-	def get_bookmarks(self):
-		return datasink.get_bookmarks()
 	
 	# Writing stuff
 	

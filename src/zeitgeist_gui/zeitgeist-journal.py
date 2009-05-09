@@ -77,9 +77,10 @@ class Journal(gtk.Window):
 		# vbox for timeline and tagbar
 		vbox = gtk.VBox()
 		vbox.pack_start(notebook, True, True)
-		vbox.pack_start(tagbox,False,True,2)
+		#vbox.pack_start(tagbox,False,True,2)
 		
 		hbox = gtk.HBox()
+		self.hBox.pack_start(tagbox,False,True,2)
 		hbox.pack_start(vbox,True,True,1)
 		
 		self.hBox.pack_start(hbox, True, True,5)
