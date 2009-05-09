@@ -321,7 +321,7 @@ class HTagBrowser(gtk.HBox):
 	def _tag_toggle_button(self, tag):
 		
 		btn = gtk.ToggleButton(tag)
-		image = gtk.image_new_from_file("%s/data/tag.png" % BASEDIR)
+		image = gtk.image_new_from_file("%s/data/tag3.svg" % BASEDIR)
 		btn.connect("drag_data_get", self.sendCallback)
 		btn.drag_source_set(gtk.gdk.BUTTON1_MASK, self.fromImage,gtk.gdk.ACTION_COPY)
 
@@ -736,7 +736,7 @@ class BrowserBar(gtk.HBox):
 		'''
 		
 		self.tags = gtk.ToggleToolButton()
-		icon = gtk.image_new_from_file("%s/data/tag.png" % BASEDIR)
+		icon = gtk.image_new_from_file("%s/data/tag3.svg" % BASEDIR)
 		icon.set_pixel_size(24)
 		self.tags.set_icon_widget(icon)
 		self.tags.set_label("Tags")

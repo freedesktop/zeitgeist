@@ -57,25 +57,13 @@
     <linearGradient
        id="linearGradient3425">
       <stop
-         style="stop-color:#ffb400;stop-opacity:1;"
+         style="stop-color:#f4fb00;stop-opacity:1;"
          offset="0"
          id="stop3427" />
       <stop
-         id="stop3433"
-         offset="0.5022549"
-         style="stop-color:#ff9e00;stop-opacity:0.49803922;" />
-      <stop
-         style="stop-color:#ff9203;stop-opacity:0.24705882;"
-         offset="0.89655173"
-         id="stop3435" />
-      <stop
-         id="stop3437"
-         offset="0.94827586"
-         style="stop-color:#7f4901;stop-opacity:0.12156863;" />
-      <stop
-         style="stop-color:#000000;stop-opacity:0;"
+         style="stop-color:#f5f5d3;stop-opacity:1;"
          offset="1"
-         id="stop3429" />
+         id="stop3435" />
     </linearGradient>
     <inkscape:perspective
        sodipodi:type="inkscape:persp3d"
@@ -88,10 +76,10 @@
        inkscape:collect="always"
        xlink:href="#linearGradient3425"
        id="linearGradient4883"
-       x1="-1.7901947"
-       y1="12.876399"
-       x2="40.402683"
-       y2="12.876399"
+       x1="17.143003"
+       y1="18.014051"
+       x2="30.793373"
+       y2="-0.06287238"
        gradientUnits="userSpaceOnUse"
        spreadMethod="pad" />
   </defs>
@@ -109,14 +97,14 @@
      id="base"
      showgrid="false"
      inkscape:zoom="10.510638"
-     inkscape:cx="23.5"
+     inkscape:cx="2.0532532"
      inkscape:cy="23.5"
      inkscape:window-x="0"
      inkscape:window-y="26"
      inkscape:current-layer="svg2" />
   <path
      sodipodi:type="star"
-     style="opacity:1;fill:url(#linearGradient4883);fill-opacity:1;fill-rule:nonzero;stroke:#f3bc00;stroke-width:1.60000002;stroke-linecap:round;stroke-linejoin:round;marker-start:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.85"
+     style="opacity:1;fill:url(#linearGradient4883);fill-opacity:1;fill-rule:nonzero;stroke:#f3bc00;stroke-width:1.60000001999999997;stroke-linecap:round;stroke-linejoin:round;marker-start:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.84999999999999998"
      id="path2651"
      sodipodi:sides="5"
      sodipodi:cx="19.313765"
