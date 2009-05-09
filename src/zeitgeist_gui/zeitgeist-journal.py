@@ -57,9 +57,20 @@ class Journal(gtk.Window):
 		# Notebook
 		notebook = gtk.Notebook()
 		notebook.connect("switch-page",self.switch_page)
+		#notebook.set_property("tab-pos",gtk.POS_LEFT)
 		
-		notebook.append_page(evbox, gtk.Label("Journal"))
-		notebook.append_page(bookmarks,gtk.Label("Starred"))
+		label = self.create_tab_label("Journal",None)
+		notebook.append_page(evbox, label)
+		notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
+		
+		starred =	"%s/data/bookmark-new.png" % BASEDIR
+		label = self.create_tab_label("Starred",starred)
+		notebook.append_page(bookmarks,label)
+		notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
+		
+		box = gtk.VBox()
+		notebook.append_page(box,gtk.Label("Most Used"))
+		notebook.set_tab_label_packing(box, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
@@ -88,10 +99,25 @@ class Journal(gtk.Window):
 		#self.window_state_event_cb(None)
 	
 	def switch_page(self, notebook, page, page_num):	
-		if page_num == 1:
+		if page_num == 1 or page_num ==2:
 			bb.set_time_browsing(False)
 		else:
 			bb.set_time_browsing(True)
+			
+	def create_tab_label(self, title, stock):
+			box = gtk.HBox()
+			
+			pixbuf = icon_factory.load_icon(stock, icon_size = 16 ,cache = False)
+			icon = gtk.Image()
+			icon.set_from_pixbuf(pixbuf)
+			del pixbuf
+
+			label = gtk.Label(title)
+			
+			box.pack_start(icon, False, False)
+			box.pack_start(label, True, True)
+			box.show_all()
+			return box
 
 	def window_state_event_cb(self, window):
 		

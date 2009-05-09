@@ -112,6 +112,9 @@ class DataIconView(gtk.TreeView):
 		
 		self.last_item=None
 		self.last_iter = None
+		
+		self.intype = False
+		
 		self.day=None
 		engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
 		
@@ -324,15 +327,26 @@ class DataIconView(gtk.TreeView):
 				iter = None
 			self.types[item.type] = iter
 		
-		self.last_iter = self.store.append(self.types[item.type], 
-			[item.get_icon(24),
-			name,
-			date,
-			bookmark,
-			item,
-			self.get_tooltip(item),
-			icon,
-			])
+		if self.last_item and self.last_item.comment.strip() != "" and self.last_item.comment == item.comment:
+			self.store.append(self.last_iter, 
+				[item.get_icon(24),
+				name,
+				date,
+				bookmark,
+				item,
+				self.get_tooltip(item),
+				icon,
+				])
+		else:
+			self.last_iter = self.store.append(self.types[item.type], 
+				[item.get_icon(24),
+				name,
+				date,
+				bookmark,
+				item,
+				self.get_tooltip(item),
+				icon,
+				])
 		
 		self.last_item = item
 	

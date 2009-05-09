@@ -504,6 +504,7 @@ class FilterAndOptionBox(gtk.VBox):
 			filter.set_active(True)
 			self.voptionbox.pack_start(filter, False, False, 0)
 			self.filters[source] = filter
+			filter.ready = True
 	
 	def set_buttons(self):
 		note = gconf_bridge.get("show_note_button")
@@ -553,14 +554,18 @@ class CheckBox(gtk.CheckButton):
 		
 		# Leave this at the end, as else the callback will reload
 		# the GUI several times.
-		self.connect("toggled", self.toggle_source)
 		
 		self.show_all()
+		self.ready = False
+		
+		self.connect("toggled", self.toggle_source)
+		
 	
 	def toggle_source(self, widget=None):
-		timeline.sources[self.source] = not self.get_active()
-		print timeline.sources[self.source]
-		timeline.load_month(cached=True)
+		if self.ready:
+			timeline.sources[self.source] = not self.get_active()
+			print timeline.sources[self.source]
+			timeline.load_month(cached=True)
 
 class SearchToolItem(gtk.ToolItem):
 	
@@ -835,18 +840,11 @@ class BrowserBar(gtk.HBox):
 		if not int(today[1])-1 == int(date[1]):
 			calendar.select_month(int(today[1])-1, int(today[2]))
 		
-class ProjectView(gtk.ScrolledWindow):
-	def __init__(self):
-		gtk.ScrolledWindow.__init__(self)
-		self.view = DataIconView(True)
-		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		self.add_with_viewport(self.view)
 
 
 calendar = CalendarWidget()
 bookmarks = BookmarksView()
 timeline = TimelineWidget()
-projectview = ProjectView()
 
 htb = HTagBrowser()
 vtb = VTagBrowser()
