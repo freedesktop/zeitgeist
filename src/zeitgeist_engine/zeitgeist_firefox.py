@@ -88,7 +88,7 @@ class FirefoxSource(DataProvider):
                         "use": unicode(use),
                         "mimetype": u"", # TODO: Can we get a mime-type here?
                         "tags": u"",
-                        "icon": u"gnome-globe"
+                        "icon": u"firefox"
                         }
                     yield item
     

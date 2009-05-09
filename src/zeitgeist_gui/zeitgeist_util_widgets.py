@@ -337,6 +337,18 @@ class DataIconView(gtk.TreeView):
 				self.get_tooltip(item),
 				icon,
 				])
+		
+		elif self.last_item and self.last_item.tags != "" and self.last_item.tags == item.tags:
+			self.store.append(self.last_iter, 
+				[item.get_icon(24),
+				name,
+				date,
+				bookmark,
+				item,
+				self.get_tooltip(item),
+				icon,
+				])
+		
 		else:
 			self.last_iter = self.store.append(self.types[item.type], 
 				[item.get_icon(24),
