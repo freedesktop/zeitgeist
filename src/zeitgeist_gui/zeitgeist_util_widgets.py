@@ -54,7 +54,7 @@ class DataIconView(gtk.TreeView):
 
 		
 		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size(
-			"%s/data/bookmark-new.png" % BASEDIR, 24, 24) 
+			"%s/data/bookmark-new.svg" % BASEDIR, 24, 24) 
 		
 		self.inactive_image = icon_factory.greyscale(self.active_image)
 		self.inactive_image = icon_factory.transparentize(self.inactive_image,50)

@@ -63,7 +63,7 @@ class Journal(gtk.Window):
 		notebook.append_page(evbox, label)
 		notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
-		starred =	"%s/data/bookmark-new.png" % BASEDIR
+		starred =	"%s/data/bookmark-new.svg" % BASEDIR
 		label = self.create_tab_label("Starred",starred)
 		notebook.append_page(bookmarks,label)
 		notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)

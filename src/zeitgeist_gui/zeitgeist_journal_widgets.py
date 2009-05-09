@@ -718,8 +718,9 @@ class BrowserBar(gtk.HBox):
 		self.options.connect("toggled",self.toggle_options)
 		
 		self.calendar = gtk.ToggleToolButton()
-		icon = gtk.image_new_from_file("%s/data/calendar.png" % BASEDIR)
-		icon.set_pixel_size(16)
+		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/calendar.svg" % BASEDIR, 32, 32)
+		icon = gtk.image_new_from_pixbuf(pixbuf)
+		del pixbuf
 		self.calendar.set_icon_widget(icon)
 		self.tooltips.set_tip(self.calendar, _("View journal for a specific date"))
 		self.calendar.set_label("Calendar")
@@ -727,7 +728,7 @@ class BrowserBar(gtk.HBox):
 		
 		'''
 		self.star = gtk.ToggleToolButton()
-		icon = gtk.image_new_from_file("%s/data/bookmark-new.png" % BASEDIR)
+		icon = gtk.image_new_from_file("%s/data/bookmark-new.sng" % BASEDIR)
 		self.star.set_icon_widget(icon)
 		self.star.set_label("Bookmarks")
 		self.tooltips.set_tip(self.star, _("View bookmarked activities"))
