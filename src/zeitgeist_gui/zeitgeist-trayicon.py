@@ -121,6 +121,7 @@ class AboutWindow(gtk.AboutDialog):
 		self.set_documenters([
 						"Kalle Persson <kalle@nemus.se>",
 						"Natan Yellin <aantny@gmail.com>",
+						"Shane-Patrick Fagan <shanepatrickfagan@yahoo.ie>",
 						"Seif Lotfy <seilo@geekyogre.com>",
 						"Siegfried-Angel Gevatter <rainct@ubuntu.com>"])
 		
