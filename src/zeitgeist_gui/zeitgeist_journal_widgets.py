@@ -31,7 +31,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.view = DataIconView(True)
 		self.dayboxes=gtk.HBox(False,False)
 		self.days = {}
-		
+		self.search =""
 		# Set up default properties
 		self.set_border_width(0)
 		self.set_size_request(600, 200)
@@ -80,27 +80,45 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.offset += x
 		self.load_month()
 	
-	def apply_search(self, tags=[], search = True):
+	def apply_search(self, tags=[], search = True, search_string=""):
 		'''
 		Adds all items which match tags to the GUI.
 		'''
+		
+		self.search = search_string
 		
 		self.tags = tags
 		self.days.clear()
 		self.review_days()
 		self.build_days(self.tags, search)
+		self.clean_up_dayboxes()
 	
 	def build_days(self, tagsplit, search):
+		
+		print "xxxxxxxxxxxxxxxx"
+		print self.search
+		print "xxxxxxxxxxxxxxxx"
 		
 		for item in self.items:
 			if self.sources[item.type]:
 				continue
 			if tagsplit:
 				for tag in tagsplit:
-					if search and tag.lower() in item.name.lower():
+					if (tag.lower() in item.name.lower()):
 						self._append_to_day(item)
+						continue
 					elif tag.lower() in item.tags.lower().split(","):
 						self._append_to_day(item)
+						continue	
+			
+			elif search and self.search.strip() != "":
+					if self.search.strip().lower() in item.name.lower():
+						self._append_to_day(item)
+						continue	
+					elif self.search.strip().lower() in item.tags.lower():
+						self._append_to_day(item)
+						continue	
+			
 			else:
 				self._append_to_day(item)
 	
@@ -134,13 +152,13 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
 	
-	def clean_up_dayboxes(self, width):
+	def clean_up_dayboxes(self, width=None):
 		
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days:
 			i = len(self.dayboxes) -1
 			for daybox in self.dayboxes:
-				if daybox.item_count == 0 and self.tags:
+				if daybox.item_count == 0 and (self.tags or self.search!=""):
 					if i == len(self.dayboxes) -1 or i == 0:
 						daybox.hide()
 					else:
@@ -148,7 +166,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.view.set_size_request(-1,-1)
 						daybox.show()
 				else:
-					if width  > 300:
+					if width and width > 300:
 						daybox.view.set_size_request(width-30,-1)
 						daybox.set_size_request(width-10,-1)
 						daybox.view.reload_name_cell_size(width-50)
@@ -171,7 +189,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		parameter.
 		'''
 		self.tags=tags
-		
 		# Get date range
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
@@ -184,12 +201,17 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Begin benchmarking
 		t1 = time.time()
-				
+		
+		self.begin = begin
+		self.end = end
+		
 		if not cached:	
 			print "Getting uncached items"
 			
 			
 			if len(self.tags) > 0:
+				print self.tags
+				print "if len(self.tags) > 0:"
 				self.begin = sys.maxint
 				self.end = - sys.maxint - 1
 				for tag in self.tags:
@@ -198,16 +220,18 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.begin = start
 					if fin > self.end:
 						self.end = fin
-			
-			elif begin == None and end == None:
-				begin = (date[0], date[1]+1, day-1+self.offset,0,0,0,0,0,-1)
-				end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,-1)
-				self.begin = time.mktime(begin) 
-				self.end = time.mktime(end) -1
+					
+			elif(self.begin == None and self.end == None) or (self.begin == self.end):
+				print "self.begin == None and self.end == None) or (self.begin == self.end):"
+				self.begin = (date[0], date[1]+1, day-1+self.offset,0,0,0,0,0,-1)
+				self.end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,-1)
+				self.begin = time.mktime(self.begin) 
+				self.end = time.mktime(self.end) -1
 			
 			else:
-				self.begin = begin 
-				self.end = end - 1
+				print "else"
+				self.begin = self.begin 
+				self.end = self.end - 1
 		
 			
 			# Note: To get the begin and end of a single day we would use the following
@@ -240,7 +264,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		t3 = time.time()
 		print "Time to get items: %s" % str(t3-t1)
 		
-		self.apply_search(self.tags)
+		self.apply_search(self.tags, search_string = self.search)
 		
 		t4 = time.time()
 		# Benchmarking
@@ -397,12 +421,18 @@ class HTagBrowser(gtk.VBox):
 				begin, end = engine.get_timestamps_for_tag(x.get_label())
 				timeline.load_month(begin=begin, end=end, tags=tags)
 				using_tags = True		
+				timeline.search = ""
+				
 		else:
 			if tags.count(x.get_label()) > 0:
 				tags.remove(x.get_label())
 				timeline.load_month(tags=tags)
 		
 		if using_tags:
+			try:
+				search.do_clear()
+			except:
+				pass
 			bb.set_time_browsing(False)
 		else:
 			bb.set_time_browsing(True)
@@ -569,8 +599,8 @@ class SearchToolItem(gtk.ToolItem):
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
-		timeline.tags=[]
 		bookmarks.get_bookmarks(text="")
+		timeline.search = ""
 		timeline.load_month(tags = timeline.tags)
 	
 	def do_search(self, text):
@@ -588,14 +618,19 @@ class SearchToolItem(gtk.ToolItem):
 		end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
 		begin = time.mktime(begin)
 		end = time.mktime(end) -1
-		timeline.load_month(begin=begin, end=end)
+		timeline.load_month(begin=begin, end=end, tags = timeline.tags)
 		
 		if self.clearbtn and not self.clearbtn.child:
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
 			img.show()
 			self.clearbtn.add(img)
-		timeline.apply_search(tags=[text.lower()])
-		bookmarks.get_bookmarks(text = [text.lower()])
+		if not text.strip() == "":
+			htb.untoggle_all()
+			print "------------------"
+			print text.strip()
+			print "------------------"
+			timeline.apply_search(search=True, search_string= text.lower())
+			bookmarks.get_bookmarks(text = [text.lower()])
 		
 
 	def _entry_clear_no_change_handler(self):
@@ -720,10 +755,9 @@ class BrowserBar(gtk.HBox):
 		toolbar2 = gtk.Toolbar()
 		searchbox = gtk.HBox()
 		# Search Area
-		self.search = SearchToolItem()
-		searchbox.pack_start(self.search, True, True)
+		searchbox.pack_start(search, True, True)
 		clear_btn = gtk.ToolButton("gtk-clear")
-		clear_btn.connect("clicked", lambda x: self.search.do_clear())
+		clear_btn.connect("clicked", lambda x: search.do_clear())
 		searchbox.pack_start(clear_btn, False, False)
 		toolbar2.add(searchbox)
 		
@@ -732,11 +766,6 @@ class BrowserBar(gtk.HBox):
 		
 		self.pack_start(hbox, True, True)
 		self.pack_start(hbox2, False, False)
-
-		
-	
-
-
 
 	
 	def set_time_browsing(self, bool):
@@ -807,7 +836,7 @@ class BrowserBar(gtk.HBox):
 calendar = CalendarWidget()
 bookmarks = BookmarksView()
 timeline = TimelineWidget()
-
 htb = HTagBrowser()
+search = SearchToolItem()
 filtersBox = FilterBox()
 bb = BrowserBar(htb)

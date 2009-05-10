@@ -191,9 +191,12 @@ class DataSinkSource(DataProvider):
 		begin = db.get_min_timestamp_for_tag(tag)
 		end = db.get_max_timestamp_for_tag(tag)
 		
-		if end - begin > 86400:
-			end = end + 86400
-		
+		if begin and end:
+			if end - begin > 86400:
+				end = end + 86400
+		else:
+			begin =0
+			end = 0
 		return (begin, end)
 	
 	def get_related_items(self, item):
