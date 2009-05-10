@@ -291,7 +291,9 @@ class HTagBrowser(gtk.VBox):
 		
 		self.scroll = gtk.ScrolledWindow()
 		ev = gtk.EventBox()
-		ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
+		#ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
+		#ev.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("red"))
+		#ev.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse("red"))
 		self.view = gtk.VBox()
 		ev.add(self.view)
 		self.scroll.add_with_viewport(ev)
