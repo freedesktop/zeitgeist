@@ -3,7 +3,7 @@
 import os
 import gobject
 import gnomevfs
-from gettext import gettext as _
+import gettext
 import tempfile
 
 

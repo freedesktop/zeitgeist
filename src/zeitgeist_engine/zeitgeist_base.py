@@ -6,7 +6,7 @@ import time
 import os
 from threading import Thread
 import gobject
-from gettext import ngettext, gettext as _
+import gettext
 
 class DataProvider(gobject.GObject, Thread):
 	# Clear cached items after 4 minutes of inactivity

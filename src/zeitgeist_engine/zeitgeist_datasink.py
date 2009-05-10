@@ -2,7 +2,7 @@
 
 import sys
 import os
-from gettext import gettext as _
+import gettext
 import gobject
 import gc
 
@@ -19,7 +19,7 @@ class DataSinkSource(DataProvider):
 	
 	def __init__(self, note_path=None):
 		DataProvider.__init__(self,
-							name=_("Sink"),
+							name="Sink",
 							icon=None,
 							uri="source:///Datasink")
 		self.sources = []
@@ -56,7 +56,6 @@ class DataSinkSource(DataProvider):
 		'''
 		Add new items from all sources into the database.
 		'''
-		print "Adding all sources to update queue"
 		
 		# Update the list of sources;
 		# (Note: It's important that we copy the list and don't just reference it.
@@ -123,11 +122,11 @@ class DataSinkSource(DataProvider):
 		return db.get_bookmarked_items()
 	
 	def update_item(self, item):
-		print "Updating item: %s" % item
+		print _("Updating item: %s") % item
 		db.update_item(item)		 
 	
 	def delete_item(self, item):
-		print "Deleting item: %s" % item
+		print _("Deleting item: %s") % item
 		db.delete_item(item)
 		# optimize this, no full reload required, so no signal should
 		# be emitted, instead the GUI should know to delete it
@@ -147,7 +146,7 @@ class DataSinkSource(DataProvider):
 	def _update_db_async(self):
 		
 		if len(self._sources_queue) > 0:
-			print "Updating database with new %s items" % self._sources_queue[0].name
+			print _("Updating database with new %s items") % self._sources_queue[0].name
 			# Update the database with items from the first source in the queue
 			items = self._sources_queue[0].get_items()
 			

@@ -9,7 +9,7 @@ import re
 import urllib
 import gtk
 import gc
-from gettext import gettext as _
+import gettext
 
 from zeitgeist_engine.zeitgeist_base import DataProvider
 

@@ -146,8 +146,6 @@ class DBConnector:
 			
 			try:
 				# Add tags into the database
-				# FIXME: Sometimes Data.tags is a string and sometimes it is a list.
-				# TODO: Improve consistency.
 				for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
 					self.cursor.execute('INSERT INTO tags VALUES (?,?)',
 						(tag.capitalize(), item["uri"]))

@@ -8,7 +8,7 @@ from xml.parsers.expat import ExpatError
 import gtk
 import gnomevfs
 import W3CDate
-from gettext import gettext as _
+import gettext
 
 from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_engine.zeitgeist_util import FileMonitor

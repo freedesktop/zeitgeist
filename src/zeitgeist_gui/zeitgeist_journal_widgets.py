@@ -83,18 +83,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 	def apply_search(self, tags=[], search = True):
 		'''
-		Adds all items which match tags to the gui.
+		Adds all items which match tags to the GUI.
 		'''
 		
-		print "apply search"
 		self.tags = tags
 		self.days.clear()
 		self.review_days()
 		self.build_days(self.tags, search)
 	
 	def build_days(self, tagsplit, search):
-		
-		print "building days"
 		
 		for item in self.items:
 			if self.sources[item.type]:
@@ -112,7 +109,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 	def _append_to_day(self, item):
 		daybox = self.days[item.get_datestring()]
 		daybox.append_item(item)
-		self.dayboxes.pack_start(daybox, False, False)
 		self.days[item.get_datestring()] = daybox
 		
 	def review_days(self):

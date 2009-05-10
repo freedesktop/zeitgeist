@@ -4,7 +4,7 @@ import os
 import glob
 import shutil
 import sqlite3 as db
-from gettext import gettext as _
+import gettext
 
 from zeitgeist_engine.zeitgeist_util import FileMonitor
 from zeitgeist_engine.zeitgeist_base import DataProvider
