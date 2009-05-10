@@ -151,6 +151,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				else:
 					if width  > 300:
 						#daybox.view.set_size_request(width-75,-1)
+						daybox.set_size_request(width,-1)
 						daybox.view.reload_name_cell_size(width-50)
 					daybox.show()
 				i = i - 1
