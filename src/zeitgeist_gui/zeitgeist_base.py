@@ -282,6 +282,7 @@ class Data(gobject.GObject):
 	
 	def toggle_tags(self, x, *discard):
 		# TODO: Clean this mess up. Use a list comprehension or sth.
+		# No need for setting up stings just create a button with a - for every tag to remove
 		
 		tags = self.tags
 		if x.get_active():
