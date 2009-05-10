@@ -77,6 +77,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.load_month()
 		self.load_month()
 	
+	def step_in_time(self, x=0):
+		self.offset += x
+		self.load_month()
+	
 	def apply_search(self, tags=[], search = True):
 		'''
 		Adds all items which match tags to the gui.
@@ -773,8 +777,7 @@ class BrowserBar(gtk.HBox):
 	
 	def remove_day(self, x=None):
 		self.htb.untoggle_all()
-		timeline.offset +=  1
-		timeline.load_month()
+		timeline.step_in_time(1)
 	
 	def toggle_options(self, x=None):
 		if self.options.get_active():
@@ -802,8 +805,7 @@ class BrowserBar(gtk.HBox):
 		
 	def add_day(self, x=None):
 		self.htb.untoggle_all()
-		timeline.offset -= 1
-		timeline.load_month()
+		timeline.step_in_time(-1)
 
 	def focus_today(self, x=None):
 		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
