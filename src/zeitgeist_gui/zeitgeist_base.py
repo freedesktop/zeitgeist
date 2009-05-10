@@ -316,8 +316,8 @@ class Data(gobject.GObject):
 			return True
 		if self.name.lower().find(search) > -1:
 			return True
-		for tag in self.tags:
-			if tag.lower().find(search) > -1:
+		for tag in self.get_tags():
+			if tag == search:
 				return True
 		return False
 

@@ -43,7 +43,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.end = None
 		
 		# The current tags that we're using to filter displayed results
-		self.tags = ""
+		self.tags = []
 		
 		# Get list of sources to filter
 		self.sources = {}
@@ -77,20 +77,16 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.load_month()
 		self.load_month()
 	
-	def apply_search(self, tags="", search = True):
+	def apply_search(self, tags=[], search = True):
 		'''
 		Adds all items which match tags to the gui.
 		'''
 		
 		print "apply search"
-		
 		self.tags = tags
-		tagsplit = [tag.strip() for tag in \
-			tags.split(",") if tag.strip()]
-		
 		self.days.clear()
 		self.review_days()
-		self.build_days(tagsplit, search)
+		self.build_days(self.tags, search)
 	
 	def build_days(self, tagsplit, search):
 		
@@ -165,7 +161,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if today >= self.begin and today <= (self.end + 86400):
 			self.load_month(begin=begin, end=end)
 	
-	def load_month(self, widget=None, begin=None, end=None, cached=False):
+	def load_month(self, widget=None, begin=None, end=None, cached=False, tags=[]):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -174,6 +170,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		we need to reload the GUI and only show items that match the tags
 		parameter.
 		'''
+		self.tags=tags
 		
 		# Get date range
 		# Format is (year, month-1, day)
@@ -369,19 +366,18 @@ class HTagBrowser(gtk.VBox):
 		
 		tags = timeline.tags
 		if x.get_active():
-			if tags.find(x.get_label()) == -1:
-				tags = tags + "," + x.get_label()
+			if tags.count(x.get_label()) == 0:
+				tags.append(x.get_label())
 				begin, end = engine.get_timestamps_for_tag(x.get_label())
-				timeline.load_month(begin=begin, end=end)
+				timeline.load_month(begin=begin, end=end, tags=tags)
 		else:
-			if tags.find(x.get_label()) > -1:
-				tags = tags.replace("," + x.get_label(), ",")
-				tags = tags.replace(x.get_label() + ",", ",")
-				timeline.load_month()
-				
-		bookmarks.get_bookmarks(text = tags)
-		timeline.apply_search(tags, False)
-	
+			if tags.count(x.get_label()) > 0:
+				tags.remove(x.get_label())
+				timeline.load_month(tags=tags)
+		
+		bookmarks.get_bookmarks(text =  tags)
+		
+		
 	def is_any_toggled(self):
 		for w in self.view:
 			if w.get_active():
@@ -391,7 +387,7 @@ class HTagBrowser(gtk.VBox):
 	def untoggle_all(self):
 		for btn in self.view:
 			btn.set_active(False)
-		timeline.tags = ""
+		timeline.tags = []
 
 
 class FilterAndOptionBox(gtk.VBox):
@@ -519,7 +515,6 @@ class CheckBox(gtk.CheckButton):
 	def toggle_source(self, widget=None):
 		if self.ready:
 			timeline.sources[self.source] = not self.get_active()
-			print timeline.sources[self.source]
 			timeline.load_month(cached=True)
 
 class SearchToolItem(gtk.ToolItem):
@@ -574,7 +569,7 @@ class SearchToolItem(gtk.ToolItem):
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
 		self.do_search("")
-		timeline.tags=""
+		timeline.tags=[]
 		bookmarks.get_bookmarks(text="")
 		timeline.load_month()
 	
@@ -599,8 +594,8 @@ class SearchToolItem(gtk.ToolItem):
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
 			img.show()
 			self.clearbtn.add(img)
-		timeline.apply_search(tags=text.lower())
-		bookmarks.get_bookmarks(text = text.lower())
+		timeline.apply_search(tags=[text.lower()])
+		bookmarks.get_bookmarks(text = [text.lower()])
 		
 
 	def _entry_clear_no_change_handler(self):

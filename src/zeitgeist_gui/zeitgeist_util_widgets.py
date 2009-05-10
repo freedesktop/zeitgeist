@@ -206,7 +206,8 @@ class DataIconView(gtk.TreeView):
 		self.days.clear()
 		self.day=None
 		self.items_uris=[]
-		
+		self.last_item = None
+		self.last_iter = None
 		self.store.clear()
 	
 	def unselect_all(self,x=None,y=None):
@@ -296,7 +297,7 @@ class DataIconView(gtk.TreeView):
 		model[path][6] = icon
 				
 	def _set_item(self, item, append=True, group=False):
-		
+				
 		bookmark = bookmarker.get_bookmark(item.uri)
 		self.items_uris.append(item.uri)
 			
@@ -558,38 +559,41 @@ class BookmarksView(gtk.ScrolledWindow):
 		self.boxes = {}
 		self.get_bookmarks()
 		
-	def get_bookmarks(self, x=None , text=""):
+	def get_bookmarks(self, x=None , text=[]):
 		self.types = {}
 		for box in self.boxes.values():
 			box.clear()
-		
 		for item in bookmarker.get_items_uncached():
-			if item.has_search(text):
+			if len(text) > 0:
+				for tag in text:
+					self.append_item(tag, item)
+			else:
+				self.append_item("", item)
 				
-				if self.types.has_key(item.type):
-					self.types[item.type].append(item)
-				else:
-					self.types[item.type]=[item]
-				
-				if self.boxes.has_key(item.type):
-					self.boxes[item.type].append_item(item)
-				else:
-					bookmarkbox = BookmarksBox(item.type)
-					bookmarkbox.append_item(item)
-					self.boxes[item.type] = bookmarkbox
-					
-					box = self.create_tab_label(item.type,item.icon)
-					
-					self.notebook.append_page((bookmarkbox),box)
-					self.notebook.set_tab_label_packing(bookmarkbox, True, True, gtk.PACK_START)
-		
+			
 		for key in self.boxes.keys():
 			if not self.types.has_key(key):
 				box = self.boxes[key]
 				self.notebook.remove(box)
 				del self.boxes[key]
 		
-		
+	def append_item(self,tag,item):
+		if item.has_search(tag):
+			if self.types.has_key(item.type):
+				self.types[item.type].append(item)
+			else:
+				self.types[item.type]=[item]
+			
+			if self.boxes.has_key(item.type):
+				self.boxes[item.type].append_item(item)
+				self.boxes[item.type].show_all()
+			else:
+				bookmarkbox = BookmarksBox(item.type)
+				bookmarkbox.append_item(item)
+				self.boxes[item.type] = bookmarkbox
+				box = self.create_tab_label(item.type,item.icon)
+				self.notebook.append_page((bookmarkbox),box)
+				self.notebook.set_tab_label_packing(bookmarkbox, True, True, gtk.PACK_START)
 		
 	def create_tab_label(self, title, stock):
 			box = gtk.HBox()
