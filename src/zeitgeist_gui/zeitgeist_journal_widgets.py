@@ -373,17 +373,25 @@ class HTagBrowser(gtk.VBox):
 	
 	def toggle(self, x=None):
 		
+		using_tags = False
+		
 		tags = timeline.tags
 		if x.get_active():
 			if tags.count(x.get_label()) == 0:
 				tags.append(x.get_label())
 				begin, end = engine.get_timestamps_for_tag(x.get_label())
 				timeline.load_month(begin=begin, end=end, tags=tags)
+				using_tags = True		
 		else:
 			if tags.count(x.get_label()) > 0:
 				tags.remove(x.get_label())
 				timeline.load_month(tags=tags)
 		
+		if using_tags:
+			bb.set_time_browsing(False)
+		else:
+			bb.set_time_browsing(True)
+			
 		bookmarks.get_bookmarks(text =  tags)
 		
 		

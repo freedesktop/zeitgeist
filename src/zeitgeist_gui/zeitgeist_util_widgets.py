@@ -529,6 +529,9 @@ class DayBox(gtk.VBox):
 	def clear(self):
 		self.view.clear_store()
 		self.item_count = 0
+	
+	def set_label(self, text):
+		self.label.set_label(text)
 	  
 	def emit_focus(self):
 		self.emit("set-focus-child", self)
