@@ -75,7 +75,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Load the GUI
 		self.load_month()
-		self.load_month()
 	
 	def step_in_time(self, x=0):
 		self.offset += x
@@ -188,7 +187,19 @@ class TimelineWidget(gtk.ScrolledWindow):
 				
 		if not cached:	
 			print "Getting uncached items"
-			if begin == None and end == None:
+			
+			
+			if len(self.tags) > 0:
+				self.begin = sys.maxint
+				self.end = - sys.maxint - 1
+				for tag in self.tags:
+					start, fin = engine.get_timestamps_for_tag(tag)
+					if start < self.begin:
+						self.begin = start
+					if fin > self.end:
+						self.end = fin
+			
+			elif begin == None and end == None:
 				begin = (date[0], date[1]+1, day-1+self.offset,0,0,0,0,0,-1)
 				end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,-1)
 				self.begin = time.mktime(begin) 
@@ -198,6 +209,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.begin = begin 
 				self.end = end - 1
 		
+			
 			# Note: To get the begin and end of a single day we would use the following
 			#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
 			#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
@@ -277,6 +289,8 @@ class HTagBrowser(gtk.VBox):
 		gtk.VBox.__init__(self)
 		self.set_size_request(-1,-1)
 		
+		self.tag_widgets = {}
+		
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
 		
@@ -338,6 +352,7 @@ class HTagBrowser(gtk.VBox):
 		btn.set_focus_on_click(False)
 		self.view.pack_start(btn, True, True)
 		btn.connect("toggled", self.toggle)
+		return btn
 	
 	def sendCallback(self, widget, context, selection, targetType, eventTime):
 		selection.set(selection.target, 8, "tag://"+widget.get_label())
@@ -354,7 +369,7 @@ class HTagBrowser(gtk.VBox):
 			self.view.remove(w)
 		
 		for tag in engine.get_recent_used_tags(10, begin, end):
-			self._tag_toggle_button(tag)
+			self.tag_widgets[tag] = self._tag_toggle_button(tag)
 			
 		self.show_all()
 	
@@ -367,7 +382,7 @@ class HTagBrowser(gtk.VBox):
 			self.view.remove(w)
 		
 		for tag in engine.get_most_used_tags(10, begin, end):
-			self._tag_toggle_button(tag)
+			self.tag_widgets[tag] = self._tag_toggle_button(tag)
 		
 		self.show_all()
 	
@@ -465,13 +480,6 @@ class FilterBox(gtk.VBox):
 	def set_timelinefilter(self, *discard):
 		self.timefilter_active = self.timefilter.get_active()
 		
-	def _make_new_note(self, *discard):
-		launcher.launch_command("tomboy --new-note")
-		
-	def _show_new_from_template_dialog(self, x):		
-		dlg = NewFromTemplateDialog(".","")
-		dlg.show()
-		
 class CalendarWidget(gtk.Calendar):
 	
 	def __init__(self):
@@ -507,7 +515,7 @@ class CheckBox(gtk.CheckButton):
 	def toggle_source(self, widget=None):
 		if self.ready:
 			timeline.sources[self.source] = not self.get_active()
-			timeline.load_month(cached=True)
+			timeline.load_month(cached=True, tags = timeline.tags)
 
 class SearchToolItem(gtk.ToolItem):
 	
@@ -563,7 +571,7 @@ class SearchToolItem(gtk.ToolItem):
 		self.do_search("")
 		timeline.tags=[]
 		bookmarks.get_bookmarks(text="")
-		timeline.load_month()
+		timeline.load_month(tags = timeline.tags)
 	
 	def do_search(self, text):
 		# Get date range
