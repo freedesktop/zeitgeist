@@ -109,7 +109,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 	def _append_to_day(self, item):
 		daybox = self.days[item.get_datestring()]
 		daybox.append_item(item)
-		self.dayboxes.pack_start(daybox, False, False)
 		self.days[item.get_datestring()] = daybox
 		
 	def review_days(self):
