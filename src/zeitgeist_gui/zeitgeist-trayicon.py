@@ -32,8 +32,8 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		menu = gtk.Menu()
 		for (icon, name, callback, frontend) in (
 				(gtk.STOCK_HOME, _("Open Journal"), None, 'journal'),
-				(gtk.STOCK_DIRECTORY, _("Open Project Viewer"), None, 'projectviewer'),
-				(gtk.STOCK_DIRECTORY, _("Open Timeline"), None, 'timeline'),
+				#(gtk.STOCK_DIRECTORY, _("Open Project Viewer"), None, 'projectviewer'),
+				#(gtk.STOCK_DIRECTORY, _("Open Timeline"), None, 'timeline'),
 				#(gtk.STOCK_PREFERENCES, None, self.open_about, None),
 				(gtk.STOCK_ABOUT, None, self.open_about, None),
 				(gtk.STOCK_QUIT, None, self.quit, None),

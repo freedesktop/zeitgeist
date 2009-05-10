@@ -149,7 +149,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 					if i == len(self.dayboxes) -1 or i == 0:
 						daybox.hide()
 					else:
-						daybox.label.set_label(".")
+						daybox.set_label(".")
 						daybox.view.set_size_request(-1,-1)
 						daybox.show()
 				else:
@@ -264,12 +264,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 		related = RelatedWindow()
 		related.set_relation(item)
 
-	def focus_in(self, widget, event, adj):
-		alloc = widget.get_allocation() 
-		if alloc.x < adj.value or alloc.x > adj.value + adj.page_size:
-			adj.set_value(min(alloc.x, adj.upper-adj.page_size))
-			del widget 
-
+	#def focus_in(self, widget, event, adj):
+	#	alloc = widget.get_allocation() 
+	#	if alloc.x < adj.value or alloc.x > adj.value + adj.page_size:
+	#		adj.set_value(min(alloc.x, adj.upper-adj.page_size))
+	#		del widget 
+	def get_dayboxes(self):
+		return self.days.items()
+	
+	
 class HTagBrowser(gtk.VBox):
 	
 	def __init__(self):
@@ -400,18 +403,12 @@ class HTagBrowser(gtk.VBox):
 		timeline.tags = []
 
 
-class FilterAndOptionBox(gtk.VBox):
+class FilterBox(gtk.VBox):
 	
 	def __init__(self):
 		
 		gtk.VBox.__init__(self)
 		self.option_box = gtk.VBox(False)
-		self.create_doc_btn = gtk.Button(_("Create New Document..."))
-		self.create_doc_btn.connect("clicked", self._show_new_from_template_dialog)
-		self.create_note_btn = gtk.Button(_("Create New Note"))
-		self.create_note_btn.connect("clicked", self._make_new_note)
-		self.option_box.pack_end(self.create_doc_btn, False, False)
-		self.option_box.pack_end(self.create_note_btn, False, False)
 		self.timefilter_active=False
 		self.filters = {}
 		self.filters_active={}
@@ -420,29 +417,16 @@ class FilterAndOptionBox(gtk.VBox):
 		Filter Box
 		'''
 		
-		self.option_box.set_size_request(178,-1)
-		
-		#self.search = SearchToolItem()
-		#self.pack_start( self.search ,False,False,0)
-		self.pack_start(calendar, False, False, 0)
-		
+		self.option_box.set_size_request(-1,-1)
 		self.pack_start(self.option_box)
+		self.voptionbox = gtk.VBox(False)
 		
 		self.frame2 = gtk.Frame()
-		#self.alignment2 = gtk.Alignment(0.5,0.5,1.0,1.0)
 		self.label2 = gtk.Label("Filter")
 		self.frame2.set_label_align(0.5, 0.5)
-		#self.frame2.add(self.alignment2)
 		self.frame2.set_label_widget(self.label2)
-		
-		#self.timefilter = gtk.CheckButton()
-		#self.timefilter.set_label("Filter over current period")
-		#self.timefilter.connect("toggled",self.set_timelinefilter)
-		#self.option_box.pack_start(self.timefilter,False,False,5)
 		self.option_box.pack_start(self.frame2,False, False)
 		
-		self.voptionbox = gtk.VBox(False)
-				
 		self.timelinefilter = gtk.CheckButton()
 		self.reload()
 		
@@ -450,10 +434,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.date_dict = None
 		
 		# GConf settings
-		gconf_bridge.connect("changed::show_note_button", lambda gb: self.set_buttons())
-		gconf_bridge.connect("changed::show_file_button", lambda gb: self.set_buttons())
 		self.show_all()
-		self.set_buttons()
 	
 	def reload(self):
 		for w in self.voptionbox:
@@ -476,19 +457,6 @@ class FilterAndOptionBox(gtk.VBox):
 	
 	def toggle_source(self, widget=None): 
 		self.filters_active[widget.source] = widget.get_active()
-
-	def set_buttons(self):
-		note = gconf_bridge.get("show_note_button")
-		if note:
-			self.create_note_btn.show_all()
-		else:
-			self.create_note_btn.hide_all()
-		
-		file = gconf_bridge.get("show_file_button")
-		if file:
-			self.create_doc_btn.show_all()
-		else:
-			self.create_doc_btn.hide_all()
 	
 	def set_timelinefilter(self, *discard):
 		self.timefilter_active = self.timefilter.get_active()
@@ -752,19 +720,11 @@ class BrowserBar(gtk.HBox):
 		
 		self.pack_start(hbox, True, True)
 		self.pack_start(hbox2, False, False)
-		
 
-		#Arrow use
 		
-	def on_window_key_press_event(self,timelime,event):
-		if event.keyval==65362:
-			self.focus_today()
-		
-		if event.keyval==65361:
-			timeline.step_in_time(-1)
-			
-		if event.keyval==65363:
-			timeline.step_in_time(+1)
+	
+
+
 
 	
 	def set_time_browsing(self, bool):
@@ -837,5 +797,5 @@ bookmarks = BookmarksView()
 timeline = TimelineWidget()
 
 htb = HTagBrowser()
-filtersBox = FilterAndOptionBox()
+filtersBox = FilterBox()
 bb = BrowserBar(htb)

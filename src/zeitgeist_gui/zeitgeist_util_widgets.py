@@ -34,8 +34,6 @@ class CellRendererPixbuf(gtk.CellRendererPixbuf):
 		if model[path][6]:
 			self.emit("toggled",path)
 		
-
-
 class DataIconView(gtk.TreeView):
 	'''
 	Icon view which displays Datas in the style of the Nautilus horizontal mode,
@@ -493,7 +491,6 @@ class DayBox(gtk.VBox):
 		#self.ev.modify_bg(gtk.STATE_NORMAL, color_palette.get_tooltip_color())
 		
 		self.ev.add(vbox)
-		self.ev.set_border_width(1)
 		if show_date:
 			self.label=gtk.Label(date)
 			vbox.pack_start(self.label,True,True,5)

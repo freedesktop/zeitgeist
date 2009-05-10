@@ -32,14 +32,13 @@ class Journal(gtk.Window):
 		
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox(False, 5)
-		tagbox = gtk.HBox()
-		tagbox.pack_start(htb, True, True)
 		self.vBox.pack_start(bb, False, False)
 		self.add(self.vBox)
 		
 		# Horizontal box (contains the main content and a sidebar)
 		self.hBox = gtk.HBox()
 		self.vBox.pack_start(self.hBox, True, True,1)
+		self.hBox.set_border_width(5)
 		
 		# Sidebar
 		self.sidebar = gtk.VBox()
@@ -47,6 +46,7 @@ class Journal(gtk.Window):
 		#self.hBox.pack_start(bookmarks, False, False)
 		
 		# Filter/options box
+		self.sidebar.pack_start(calendar, False, False)
 		self.sidebar.pack_start(filtersBox, True, True)
 		
 		# Event box
@@ -76,7 +76,7 @@ class Journal(gtk.Window):
 		#notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
-		self.connect("key-press-event",bb.on_window_key_press_event)
+		self.connect("key-press-event",self.on_window_key_press_event)
 
 		
 		# vbox for timeline and tagbar
@@ -85,7 +85,7 @@ class Journal(gtk.Window):
 		#vbox.pack_start(tagbox,False,True,2)
 		
 		hbox = gtk.HBox()
-		self.hBox.pack_start(tagbox,False,True,2)
+		self.hBox.pack_start(htb,False,True,2)
 		hbox.pack_start(vbox,True,True,1)
 		
 		self.hBox.pack_start(hbox, True, True,5)
@@ -104,7 +104,19 @@ class Journal(gtk.Window):
 		
 		self.set_focus(None)
 		
+		
+		
 		#self.window_state_event_cb(None)
+	def on_window_key_press_event(self,timelime,event):
+		if event.keyval==65360:
+			timeline.jump_to_day(str(datetime.datetime.today().strftime("%d %m %Y")).split(" "))
+			self.set_focus(None)
+		if event.keyval==65361:
+			timeline.step_in_time(-1)
+
+			timeline.get_dayboxes()[1][1].grab_focus()
+		if event.keyval==65363:
+			timeline.step_in_time(+1)
 	
 	def switch_page(self, notebook, page, page_num):	
 		if page_num == 1 or page_num ==2:

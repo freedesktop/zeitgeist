@@ -19,8 +19,8 @@ install:
 	
 	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist-daemon.py
 	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-journal.py
-	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-projectviewer.py
-	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-timeline.py
+	#chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-projectviewer.py
+	#chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-timeline.py
 	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-trayicon.py
 	
 	rm -f $(PREFIX)/bin/zeitgeist-daemon \

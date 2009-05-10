@@ -164,7 +164,7 @@ class Data(gobject.GObject):
 		bookmark.show()
 		menu.append(bookmark)
 		
-		relate = gtk.MenuItem(_("Show related files"))
+		relate = gtk.MenuItem(_("Show related stuff"))
 		relate.connect("activate", lambda w: self.relate())
 		relate.show()
 		menu.append(relate)
