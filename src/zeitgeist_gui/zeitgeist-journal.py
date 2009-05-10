@@ -59,7 +59,8 @@ class Journal(gtk.Window):
 		notebook.connect("switch-page",self.switch_page)
 		#notebook.set_property("tab-pos",gtk.POS_LEFT)
 		
-		label = self.create_tab_label("Journal",None)
+		journal =	"%s/data/calendar.svg" % BASEDIR
+		label = self.create_tab_label("Journal",journal)
 		notebook.append_page(evbox, label)
 		notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
