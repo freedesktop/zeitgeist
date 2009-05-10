@@ -6,7 +6,7 @@ This is user documentation, i.e. what can you as a user do with Gnome Zeigeist. 
 == What does Gnome Zeitgeist do? ==
 Gnome Zeitgeist (GZG) is an application that tries to keep track of your workflow. It does so by keeping your web browsing history, your document history, image history, etc. all together.
 
-If you are like most people in front of a computer, you do a variety of tasks, that are not done in the same application (program). E.g. you work on your documents, while browsing the web for sources, while chatting online with your colleague, and sending mails to your boss about the fantastic progress you're making. All of a sudden you have to do something completely different for a couple of days, and your nice train of thought is lost. When you restart, you need to piece back all those small parts to put you back on track.
+If you are like most people in front of a computer, you do a variety of tasks, that are not done in the same application (program). E.g. you work on your documents, while browsing the web for sources, while chatting online with your colleague, and sending emails to your boss about the fantastic progress you're making. All of a sudden you have to do something completely different for a couple of days, and your nice train of thought is lost. When you restart, you need to piece back all those small parts to put you back on track.
 Wouldn't it be nice if there was somewhere you could turn to bring up all the different pieces of information that were necessary to restart your work? 
 Well, there is. GZG will do that for you.
 
@@ -30,7 +30,7 @@ There is another way of going back in time, if you need to jump far. See [Link t
 The other buttons are toggles, meaning they are pressed or not.
 
 === The Bookmark button [image] ===
-Clicking the bookmark button will open up a sidebar on the left side of the Journal window. This is where stuff you use GZG to bookmark will show up. This hasn't got anythin to do with your browser bookmarks, so changing the bookmarks in the browser won't change what appears here, and bookmarking items in GZG will not affect your browser bookmarks.
+Clicking the bookmark button will open up a sidebar on the left side of the Journal window. This is where stuff you use GZG to bookmark will show up. This hasn't got anything to do with your browser bookmarks, so changing the bookmarks in the browser won't change what appears here, and bookmarking items in GZG will not affect your browser bookmarks.
 
 The bookmarks sidebar is good for keeping things that you need to have fast access to.
 
@@ -59,7 +59,7 @@ Next to that drop down box there are buttons with possible tags corresponding to
 
 There are several ways to add or remove tags to your items:
 
-. By dragging and dropping the buttons to the item (don't worry, they won't disappear drom the bottom part of the window)
+. By dragging and dropping the buttons to the item (don't worry, they won't disappear from the bottom part of the window)
 
 . By right-clicking and choosing "Edit tags". Choosing this will open a new window. In this window you add and remove tags in two ways:
 
@@ -78,7 +78,7 @@ You can view your tags in several ways:
 . Using Filters, see [The Filters button]
 
 === The Filters button [image] ===
-Clicking the Filters button will open a sidebar on the right side of the Journal window. This is where you choose what GZG wil keep in its history. If you want to turn off logging of something, this is the place. Categories that are not checked will not be appearing as items.
+Clicking the Filters button will open a sidebar on the right side of the Journal window. This is where you choose what GZG will keep in its history. If you want to turn off logging of something, this is the place. Categories that are not checked will not be appearing as items.
 
 There is also a filter view here (NOT IMPLEMENTED)
 
@@ -98,7 +98,7 @@ Clicking the calendar button will bring in another piece in the sidebar on the r
 In the top right corner of the Journal window is the input box that we discussed in [Viewing your tags]
 
 === Related items ===
-If you've followed this guide, you'll have seen that there is a right-click option that we haven't talked about. It is the "Shwo related items" [currently called "...files", should be changed] option. Choosing this will open a new window that lists items that could be related to the item you're looking at. This is based on what items were used at the same time, and if that usually happens. So, it is prone to mistakes, because it will also contain not related items that you just often happen to use at the same time.
+If you've followed this guide, you'll have seen that there is a right-click option that we haven't talked about. It is the "Show related items" [currently called "...files", should be changed] option. Choosing this will open a new window that lists items that could be related to the item you're looking at. This is based on what items were used at the same time, and if that usually happens. So, it is prone to mistakes, because it will also contain not related items that you just often happen to use at the same time.
 
 == Using the [Project Viewer] ==
 Add some stuff...
