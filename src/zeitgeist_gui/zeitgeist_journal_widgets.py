@@ -407,6 +407,7 @@ class FilterAndOptionBox(gtk.VBox):
 		self.option_box.pack_end(self.create_note_btn, False, False)
 		self.timefilter_active=False
 		self.filters = {}
+		self.filters_active={}
 		
 		'''
 		Filter Box
@@ -458,8 +459,19 @@ class FilterAndOptionBox(gtk.VBox):
 			filter.set_active(True)
 			self.voptionbox.pack_start(filter, False, False, 0)
 			self.filters[source] = filter
+			if not self.filters_active.has_key(source):
+				print source + "	added"
+				self.filters_active[source] = True
+			filter.set_active(self.filters_active[source])
+			filter.connect("toggled", self.toggle_source)
+			print "-----------> " + source + "		" + str(self.filters_active[source])
+			
+			
 			filter.ready = True
 	
+	def toggle_source(self, widget=None): 
+		self.filters_active[widget.source] = widget.get_active()
+
 	def set_buttons(self):
 		note = gconf_bridge.get("show_note_button")
 		if note:

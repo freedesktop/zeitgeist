@@ -123,27 +123,6 @@ class DataIconView(gtk.TreeView):
 		self.days={}
 		self.items_uris=[]
 			
-	def delete_entry(self,uri):
-		iter = self.store.get_iter_root()
-		if iter:
-			item = self.store.get_value(iter, 4)
-			try:
-				self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
-			except Exception:
-				pass
-			while True:
-				iter = self.store.iter_next(iter)
-				if iter:
-					item = self.store.get_value(iter, 4)
-					try:
-						if item.uri == uri:
-							self.store.remove(iter)
-					except Exception:
-						pass
-				else:
-					break	
-		return False
-		
 	def _do_refresh_rows(self):
 		
 		iter = self.store.get_iter_root()
@@ -301,6 +280,9 @@ class DataIconView(gtk.TreeView):
 		bookmark = bookmarker.get_bookmark(item.uri)
 		self.items_uris.append(item.uri)
 			
+		if self.last_item:
+			if  item.timestamp - self.last_item.timestamp <=10:
+				return
 		
 		date = ""
 		if not item.timestamp == -1.0:

@@ -235,7 +235,8 @@ class Data(gobject.GObject):
 	
 	def delete_item(self):
 		from zeitgeist_engine_wrapper import engine
-		engine.delete_item(self.uri)
+		uri = self.uri.replace(" ","%20")
+		engine.delete_item(uri)
 		engine.emit_signal_updated() # TODO: No need to reload, just remove the single item
 	
 	def set_tags(self, tags):
