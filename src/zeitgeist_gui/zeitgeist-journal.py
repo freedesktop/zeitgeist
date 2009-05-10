@@ -67,9 +67,10 @@ class Journal(gtk.Window):
 		label = self.create_tab_label("Starred",starred)
 		notebook.append_page(bookmarks,label)
 		notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
+		notebook.set_homogeneous_tabs(True)
 		
 		box = gtk.VBox()
-		notebook.append_page(box,gtk.Label("Most Used"))
+		notebook.append_page(box,gtk.Label("Most Used Stuff (not yet  implemented)"))
 		notebook.set_tab_label_packing(box, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)

@@ -123,7 +123,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 			for i, daybox in enumerate(self.dayboxes):
 				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime("%a %d %b %Y")
 				daybox.clear()
-				daybox.label.set_label(datestring)
+				daybox.refresh(datestring)
 				self.days[datestring] = daybox
 		else:
 			for daybox in self.dayboxes:

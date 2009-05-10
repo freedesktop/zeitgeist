@@ -524,6 +524,16 @@ class DayBox(gtk.VBox):
 		self.show_all()
 		self.item_count = 0
 	
+	def refresh(self, date):
+		self.date = date
+		self.label.set_label(date)
+		if self.date.startswith("Sat") or self.date.startswith("Sun"):
+			color = gtk.gdk.rgb_get_colormap().alloc_color('#EEEEEE')
+			self.view.modify_base(gtk.STATE_NORMAL,color)
+		else:
+			color = gtk.gdk.rgb_get_colormap().alloc_color('#FFFFFF')
+			self.view.modify_base(gtk.STATE_NORMAL,color)
+	
 	def format_color_string(self, color):
 		""" Convert 48-bit gdk.Color to 24-bit "RRR GGG BBB" triple. """
 		return (color.red, color.green,  color.blue)	
