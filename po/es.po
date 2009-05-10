@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
-"POT-Creation-Date: 2009-05-10 20:36+0200\n"
+"POT-Creation-Date: 2009-05-10 20:52+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: José Luis Ricón <artirj@gmail.com>\n"
 "Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad."
@@ -16,17 +16,17 @@ msgstr ""
 msgid "Starting Zeitgeist service..."
 msgstr "Iniciando el servicio de Zeitgeist..."
 
-#: src/zeitgeist_engine/zeitgeist_datasink.py:126
+#: src/zeitgeist_engine/zeitgeist_datasink.py:125
 #, python-format
 msgid "Updating item: %s"
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_datasink.py:130
+#: src/zeitgeist_engine/zeitgeist_datasink.py:129
 #, python-format
 msgid "Deleting item: %s"
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_datasink.py:150
+#: src/zeitgeist_engine/zeitgeist_datasink.py:149
 #, python-format
 msgid "Updating database with new %s items"
 msgstr ""
@@ -57,7 +57,7 @@ msgid "Notes"
 msgstr "Notas"
 
 #: src/zeitgeist_engine/zeitgeist_tomboy.py:90
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:411
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:407
 msgid "Create New Note"
 msgstr "Crear una nota nueva"
 
@@ -80,6 +80,16 @@ msgstr "Hoy"
 #: src/zeitgeist_experimental/zeitgeist_timeline_widgets.py:66
 msgid "Yesterday"
 msgstr "Ayer"
+
+#: src/zeitgeist_gui/zeitgeist-journal.py:64
+#, fuzzy
+msgid "Journal"
+msgstr "Abrir el Diario"
+
+#: src/zeitgeist_gui/zeitgeist-journal.py:69
+#, fuzzy
+msgid "Bookmarks"
+msgstr "Marcar"
 
 #: src/zeitgeist_gui/zeitgeist-trayicon.py:34
 msgid "Open Journal"
@@ -138,7 +148,7 @@ msgid "Cancel"
 msgstr ""
 
 #: src/zeitgeist_gui/zeitgeist_base.py:250
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:288
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:284
 msgid "Most used tags"
 msgstr "Etiquetas más usadas"
 
@@ -150,40 +160,40 @@ msgstr "Error: No se pudo conectar con D-Bus."
 msgid "Error: Zeitgeist service not running."
 msgstr "Error: El servicio de Zeitgeist no está activo."
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:287
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:283
 msgid "Recently used tags"
 msgstr "Etiquetas usadas recientemente"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:409
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:405
 msgid "Create New Document..."
 msgstr "Crear un Documento Nuevo..."
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:554
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:550
 msgid "Search"
 msgstr "Buscar"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:673
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:669
 msgid "Show recent activities"
 msgstr "Mostrar actividades recientes"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:678
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:674
 msgid "Go back in time"
 msgstr "Retroceder en el tiempo"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:683
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:679
 #, fuzzy
 msgid "Go forward in time"
 msgstr "Retroceder en el tiempo"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:693
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:689
 msgid "Filter your current view"
 msgstr "Filtrar la vista actual"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:702
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:698
 msgid "View journal for a specific date"
 msgstr "Ver el diario de una fecha concreta"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:720
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:716
 msgid "View tagged activities"
 msgstr "Ver las actividades etiquetadas"
 

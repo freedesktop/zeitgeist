@@ -5,7 +5,7 @@ import glob
 import gobject
 import shutil
 import sqlite3 as db
-from gettext import gettext as _
+import gettext
 
 from zeitgeist_engine.zeitgeist_base import DataProvider
 

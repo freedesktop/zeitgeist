@@ -57,27 +57,26 @@ class Journal(gtk.Window):
 		# Notebook
 		notebook = gtk.Notebook()
 		notebook.connect("switch-page",self.switch_page)
-		#notebook.set_property("tab-pos",gtk.POS_LEFT)
+		notebook.set_homogeneous_tabs(True)
+		#notebook.set_property("tab-pos", gtk.POS_LEFT)
 		
-		journal =	"%s/data/calendar.svg" % BASEDIR
-		label = self.create_tab_label("Journal",journal)
+		journal = "%s/data/calendar.svg" % BASEDIR
+		label = self.create_tab_label(_("Journal"), journal)
 		notebook.append_page(evbox, label)
 		notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
-		starred =	"%s/data/bookmark-new.svg" % BASEDIR
-		label = self.create_tab_label("Starred",starred)
-		notebook.append_page(bookmarks,label)
+		starred = "%s/data/bookmark-new.svg" % BASEDIR
+		label = self.create_tab_label(_("Bookmarks"), starred)
+		notebook.append_page(bookmarks, label)
 		notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
-		notebook.set_homogeneous_tabs(True)
 		
 		box = gtk.VBox()
-		notebook.append_page(box,gtk.Label("Most Used Stuff (not yet  implemented)"))
+		notebook.append_page(box, gtk.Label("Most Used Stuff (not yet  implemented)"))
 		notebook.set_tab_label_packing(box, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
-		self.connect("key-press-event",bb.on_window_key_press_event)
-
+		self.connect("key-press-event", bb.on_window_key_press_event)
 		
 		# vbox for timeline and tagbar
 		vbox = gtk.VBox()
