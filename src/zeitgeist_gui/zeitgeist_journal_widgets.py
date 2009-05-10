@@ -758,13 +758,12 @@ class BrowserBar(gtk.HBox):
 		
 	def on_window_key_press_event(self,timelime,event):
 		if event.keyval==65362:
-			
-			timeline.jump_to_day(str(datetime.datetime.today().strftime("%d %m %Y")).split(" "))
+			self.focus_today()
+		
 		if event.keyval==65361:
-			
 			timeline.step_in_time(-1)
-		if event.keyval==65363:
 			
+		if event.keyval==65363:
 			timeline.step_in_time(+1)
 
 	

@@ -47,11 +47,15 @@ class DataIconView(gtk.TreeView):
 		gtk.TreeView.__init__(self)
 		self.parentdays = parentdays
 		
+		self.set_property("can-default", False)
+		self.set_property("can-focus", False)
+
+		
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
 
 		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT ), ( "image/x-xpixmap", 0, TARGET_TYPE_PIXMAP ) ]
-
+		
 		
 		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size(
 			"%s/data/bookmark-new.svg" % BASEDIR, 24, 24) 

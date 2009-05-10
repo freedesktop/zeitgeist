@@ -102,6 +102,8 @@ class Journal(gtk.Window):
 		filtersBox.option_box.hide_all()
 		calendar.hide_all()
 		
+		self.set_focus(None)
+		
 		#self.window_state_event_cb(None)
 	
 	def switch_page(self, notebook, page, page_num):	
