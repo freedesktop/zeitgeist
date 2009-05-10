@@ -150,8 +150,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.show()
 				else:
 					if width  > 300:
-						#daybox.view.set_size_request(width-75,-1)
-						daybox.set_size_request(width,-1)
+						daybox.view.set_size_request(width-30,-1)
+						daybox.set_size_request(width-10,-1)
 						daybox.view.reload_name_cell_size(width-50)
 					daybox.show()
 				i = i - 1
@@ -676,6 +676,13 @@ class BrowserBar(gtk.HBox):
 		self.forward.connect("clicked", self.remove_day)
 		self.tooltips.set_tip(self.forward, _("Go forward in time"))
 		
+		'''
+		self.options = gtk.ToggleToolButton()
+		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/filter.svg" % BASEDIR, 32, 32)
+		icon = gtk.image_new_from_pixbuf(pixbuf)
+		del pixbuf
+		self.options.set_icon_widget(icon)
+		'''
 		self.options = gtk.ToggleToolButton("gtk-select-color")
 		self.tooltips.set_tip(self.options, _("Filter your current view"))
 		self.options.set_label("Filters")
