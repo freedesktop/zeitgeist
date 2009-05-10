@@ -133,6 +133,7 @@ class Journal(gtk.Window):
 			width = 800
 
 		timeline.clean_up_dayboxes(width/3)
+		bookmarks.clean_up_dayboxes(width)
 
 if __name__ == "__main__":
 	
