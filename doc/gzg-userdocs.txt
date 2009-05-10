@@ -66,9 +66,7 @@ You can view your tags in several ways:
 === The Filters button ===
 Clicking the filters button image:images/22/filter.png will open a sidebar on the right side of the Journal window. This is where you choose what GZG will keep in its history. If you want to turn off logging of something, this is the place. Categories that are not checked will not be appearing as items.
 
-There is also a filter view here (NOT IMPLEMENTED)
-
-There is also two other buttons here (DOES NOT BELONG THERE)
+There is also two other buttons here https://bugs.launchpad.net/gnome-zeitgeist/+bug/374480
 
 . Create new note:
 This will open a new note in Tomboy, a note taking application. Think of these notes as small Post-its that you write in things you need to remember. Of course, GZG will log these notes, if you have Notes checked in the Filters sidebar
