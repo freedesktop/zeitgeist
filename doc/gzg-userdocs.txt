@@ -11,7 +11,7 @@ Wouldn't it be nice if there was somewhere you could turn to bring up all the di
 Well, there is. GZG will do that for you.
 
 == What you see on startup ==
-When you start GZG you see a small magnifying glass slash clock image:images/22/gnome-zeitgeist.png[] in your system tray (commonly also called "notification area"). That is the visible evidence that your daemon is running. A daemon is a computer program that runs in the background, rather than under the direct control of a user; they are usually initiated as background processes: http://en.wikipedia.org/wiki/Daemon_(computer_software)
+When you start GZG you see a small icon: image:images/22/gnome-zeitgeist.png[] in your system tray (commonly also called "notification area"). That is the visible evidence that your daemon is running. A daemon is a computer program that runs in the background, rather than under the direct control of a user; they are usually initiated as background processes: http://en.wikipedia.org/wiki/Daemon_(computer_software)
 
 Click the GZG icon, and a window opens. This is your Journal:
 
