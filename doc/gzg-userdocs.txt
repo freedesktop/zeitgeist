@@ -45,7 +45,7 @@ Below the drop down box there are buttons with possible tags corresponding to wh
 
 There are several ways to add or remove tags to your items:
 
-. By dragging and dropping the buttons to the item (don't worry, they won't disappear from the bottom part of the window)
+. By dragging and dropping the buttons to the item
 
 . By right-clicking and choosing "Edit tags". Choosing this will open a new window. In this window you add and remove tags in two ways:
 
@@ -61,10 +61,10 @@ You can view your tags in several ways:
 
 . Using the input box on the right side of the main Journal window, you can write in the name (or part of the name) of a tag, and the main area of the journal viewer will show only those items that match by tag or name.
 
-. Using Filters, see [The Filters button]
+. Using Filters, see next section
 
 === The Filters button ===
-Clicking the filters button image:images/22/filter.png will open a sidebar on the right side of the Journal window. This is where you choose what GZG will keep in its history. If you want to turn off logging of something, this is the place. Categories that are not checked will not be appearing as items.
+Clicking the filters button image:images/22/filter.png[] will open a sidebar on the right side of the Journal window. This is where you choose what GZG will keep in its history. If you want to turn off logging of something, this is the place. Categories that are not checked will not be appearing as items.
 
 There is also two other buttons here https://bugs.launchpad.net/gnome-zeitgeist/+bug/374480
 
@@ -95,7 +95,7 @@ For example, it might seem like a good idea to leave all your Gmail conversation
 ===============================
 
 == The starred tab ==
-The starred tab is empty the first time you run GZG. This will contain the items that you have chosen to have fast access to. The star image:images/22/star.png[] next to all items is a checkable button. It will light up when checked: image:images/22/star-lightup.png[]
+The starred tab is empty the first time you run GZG. This will contain the items that you have chosen to have fast access to. The star image:images/22/bookmark-new-grey.png[] next to all items is a checkable button. It will light up when checked: image:images/22/bookmark-new.png[]
 
 Items that are starred will go into the starred tab. When you bookmark one item, all instances of this item gets bookmarked.
 
