@@ -35,7 +35,7 @@ The other buttons are toggles, meaning when you click them, they remain pressed 
 
 
 === The Tag button ===
-Clicking the tag button image:images/22/tag.png will bring in a sidebar to the left of the window. 
+Clicking the tag button image:images/22/tag.png[] will bring in a sidebar to the left of the window. 
 
 Tagging is great for easy sorting stuff that relates to work, private, family, etc. You can use as many tags as you'd like.
 
