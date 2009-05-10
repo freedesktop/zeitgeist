@@ -76,6 +76,9 @@ class Journal(gtk.Window):
 		#notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
+		self.connect("key-press-event",bb.on_window_key_press_event)
+
+		
 		# vbox for timeline and tagbar
 		vbox = gtk.VBox()
 		vbox.pack_start(notebook, True, True)
