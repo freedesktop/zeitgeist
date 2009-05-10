@@ -1,4 +1,4 @@
-= Gnome Zeitgeist - user documentation =
+= GNOME Zeitgeist: User documentation =
 
 == What is this document? ==
 This is user documentation, i.e. what can you as a user do with Gnome Zeigeist. It is not intended to give you a technical overview of what happens inside the application. For that, refer to the developer documents.
@@ -11,9 +11,11 @@ Wouldn't it be nice if there was somewhere you could turn to bring up all the di
 Well, there is. GZG will do that for you.
 
 == What you see on startup ==
-When you start GZG you don't see much at all, except a small magnifying glass slash clock in your system tray (aka. notification area). That is the visible evidence that your daemon is running. (A daemon is a computer program that runs in the background, rather than under the direct control of a user; they are usually initiated as background processes.)
+When you start GZG you see a small magnifying glass slash clock image:images/22/gnome-zeitgeist.png["Tray icon"] in your system tray (commonly also called "notification area"). That is the visible evidence that your daemon is running. A daemon is a computer program that runs in the background, rather than under the direct control of a user; they are usually initiated as background processes: http://en.wikipedia.org/wiki/Daemon_(computer_software)
 
-Click the GZG icon, and a window opens. This is your Journal. [Add image]
+Click the GZG icon, and a window opens. This is your Journal:
+
+image:images/main_window_thumb.png["Main window",link="images/main_window.png"]
 
 You also have some other options from this icon: Right click and you'll be able to open Project Viewer and Timeline.
 
@@ -98,7 +100,7 @@ Clicking the calendar button will bring in another piece in the sidebar on the r
 In the top right corner of the Journal window is the input box that we discussed in [Viewing your tags]
 
 === Related items ===
-If you've followed this guide, you'll have seen that there is a right-click option that we haven't talked about. It is the "Show related items" [currently called "...files", should be changed] option. Choosing this will open a new window that lists items that could be related to the item you're looking at. This is based on what items were used at the same time, and if that usually happens. So, it is prone to mistakes, because it will also contain not related items that you just often happen to use at the same time.
+Moving down the right-click option menu, we have the "Show related items" https://bugs.launchpad.net/gnome-zeitgeist/+bug/374394 option. Choosing this will open a new window that lists items that could be related to the item you're looking at. This is based on what items were used at the same time, and if that usually happens. So, it is prone to mistakes, because it will also contain not related items that you just often happen to use at the same time.
 
 == Using the [Project Viewer] ==
 Add some stuff...
