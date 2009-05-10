@@ -35,7 +35,7 @@ The other buttons are toggles, meaning when you click them, they remain pressed 
 
 
 === The Tag button ===
-Clicking the tag button image:images/22/tag.png will bring in a sidebar to the left of the window. 
+Clicking the tag button image:images/22/tag.png[] will bring in a sidebar to the left of the window. 
 
 Tagging is great for easy sorting stuff that relates to work, private, family, etc. You can use as many tags as you'd like.
 
@@ -66,15 +66,6 @@ You can view your tags in several ways:
 === The Filters button ===
 Clicking the filters button image:images/22/filter.png[] will open a sidebar on the right side of the Journal window. This is where you choose what GZG will keep in its history. If you want to turn off logging of something, this is the place. Categories that are not checked will not be appearing as items.
 
-There is also two other buttons here https://bugs.launchpad.net/gnome-zeitgeist/+bug/374480
-
-. Create new note:
-This will open a new note in Tomboy, a note taking application. Think of these notes as small Post-its that you write in things you need to remember. Of course, GZG will log these notes, if you have Notes checked in the Filters sidebar
-
-. Create new document:
-This will make a new text document in your preferred text editor. (Note that a text editor is not the same as a word processor.)
-
-
 === The Calendar button ===
 Clicking the calendar button image:images/22/calendar.png[] will bring in another piece in the sidebar on the right side of the Journal window. This is a calendar, and you can pick a date to move your starting point to a particular date.
 
@@ -94,10 +85,12 @@ Choose carefully when you remove stuff from Zeitgeist. It might just happen that
 For example, it might seem like a good idea to leave all your Gmail conversations out of Zeitgeist, but what happens when you need to track down that particular conversation that includes the source of what you were working on?
 ===============================
 
-== The starred tab ==
-The starred tab is empty the first time you run GZG. This will contain the items that you have chosen to have fast access to. The star image:images/22/bookmark-new-grey.png[] next to all items is a checkable button. It will light up when checked: image:images/22/bookmark-new.png[]
+== The Bookmarks tab ==
+The Bookmarks tab is empty the first time you run GZG. This will contain the items that you have chosen to have fast access to. The star image:images/22/bookmark-new-grey.png[] next to all items is a checkable button. It will light up when checked: image:images/22/bookmark-new.png[]
 
-Items that are starred will go into the starred tab. When you bookmark one item, all instances of this item gets bookmarked.
+Note that GZG bookmarks doesn't have anything to do with the bookmarks in your web browser. Adding or deleting bookmarks in one, will not change anything in the other.
+
+Items that are bookmarked will go into the bookmarked tab. When you bookmark one item, all instances of this item gets bookmarked.
 
 In addition to checking the star, you can star an item by right clicking on an item and choose By right-clicking an item and choose "Bookmark".
 
