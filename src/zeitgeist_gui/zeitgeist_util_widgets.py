@@ -281,8 +281,9 @@ class DataIconView(gtk.TreeView):
 		self.items_uris.append(item.uri)
 			
 		if self.last_item:
-			if  item.timestamp - self.last_item.timestamp <=10:
-				return
+			if item.uri == self.last_item.uri:
+				if  item.timestamp - self.last_item.timestamp <=10:
+					return
 		
 		date = ""
 		if not item.timestamp == -1.0:

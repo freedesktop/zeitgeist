@@ -464,8 +464,6 @@ class FilterAndOptionBox(gtk.VBox):
 				self.filters_active[source] = True
 			filter.set_active(self.filters_active[source])
 			filter.connect("toggled", self.toggle_source)
-			print "-----------> " + source + "		" + str(self.filters_active[source])
-			
 			
 			filter.ready = True
 	
