@@ -752,6 +752,21 @@ class BrowserBar(gtk.HBox):
 		
 		self.pack_start(hbox, True, True)
 		self.pack_start(hbox2, False, False)
+		
+
+		#Arrow use
+		
+	def on_window_key_press_event(self,timelime,event):
+		if event.keyval==65362:
+			
+			timeline.jump_to_day(str(datetime.datetime.today().strftime("%d %m %Y")).split(" "))
+		if event.keyval==65361:
+			
+			timeline.step_in_time(-1)
+		if event.keyval==65363:
+			
+			timeline.step_in_time(+1)
+
 	
 	def set_time_browsing(self, bool):
 		if bool:
