@@ -285,8 +285,11 @@ class HTagBrowser(gtk.VBox):
 		self.pack_start(self.combobox, False, False)
 		
 		self.scroll = gtk.ScrolledWindow()
+		ev = gtk.EventBox()
+		ev.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
 		self.view = gtk.VBox()
-		self.scroll.add_with_viewport(self.view)
+		ev.add(self.view)
+		self.scroll.add_with_viewport(ev)
 		self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.scroll.set_shadow_type(gtk.SHADOW_NONE)
 		self.pack_start(self.scroll,True,True)

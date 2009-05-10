@@ -514,7 +514,7 @@ class DayBox(gtk.VBox):
 		self.pack_start(self.ev,False,False)
 		self.view = DataIconView()
 		if date.startswith("Sat") or date.startswith("Sun"):
-			color = gtk.gdk.rgb_get_colormap().alloc_color('#EEEEEE')
+			color = gtk.gdk.rgb_get_colormap().alloc_color('#FFF9D0')
 			self.view.modify_base(gtk.STATE_NORMAL,color)
 
 		self.scroll = gtk.ScrolledWindow()		
@@ -528,7 +528,7 @@ class DayBox(gtk.VBox):
 		self.date = date
 		self.label.set_label(date)
 		if self.date.startswith("Sat") or self.date.startswith("Sun"):
-			color = gtk.gdk.rgb_get_colormap().alloc_color('#EEEEEE')
+			color = gtk.gdk.rgb_get_colormap().alloc_color('#FFF9D0')
 			self.view.modify_base(gtk.STATE_NORMAL,color)
 		else:
 			color = gtk.gdk.rgb_get_colormap().alloc_color('#FFFFFF')
