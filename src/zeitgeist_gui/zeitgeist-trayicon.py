@@ -22,7 +22,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		
 		gtk.StatusIcon.__init__(self)
 		
-		self.set_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
+		self.set_from_file("%s/data/logo/scalable/apps/gnome-zeitgeist.svg" % BASEDIR)
 		self.set_visible(True)
 		
 		self._mainloop = mainloop
@@ -98,8 +98,13 @@ class AboutWindow(gtk.AboutDialog):
 		gtk.about_dialog_set_email_hook(self.open_mail, None)
 		
 		self.set_program_name("GNOME Zeitgeist")
-		self.set_icon_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR)
-		self.set_logo(gtk.gdk.pixbuf_new_from_file("%s/data/gnome-zeitgeist.png" % BASEDIR))
+		self.set_icon_from_file("%s/data/logo/32x32/apps/gnome-zeitgeist.png" % BASEDIR)
+		
+		pixbuf = gtk.gdk.pixbuf_new_from_file("%s/data/logo/scalable/apps/gnome-zeitgeist.svg" % BASEDIR)
+		
+		pixbuf.scale_simple(512, 512, gtk.gdk.INTERP_NEAREST)
+		
+		self.set_logo(pixbuf)
 		
 		self.set_comments(_("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer."))
 		
