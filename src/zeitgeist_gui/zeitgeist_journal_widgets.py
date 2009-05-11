@@ -94,11 +94,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.clean_up_dayboxes()
 	
 	def build_days(self, tagsplit, search):
-		
-		print "xxxxxxxxxxxxxxxx"
-		print self.search
-		print "xxxxxxxxxxxxxxxx"
-		
+				
 		for item in self.items:
 			if self.sources[item.type]:
 				continue
@@ -626,9 +622,6 @@ class SearchToolItem(gtk.ToolItem):
 			self.clearbtn.add(img)
 		if not text.strip() == "":
 			htb.untoggle_all()
-			print "------------------"
-			print text.strip()
-			print "------------------"
 			timeline.apply_search(search=True, search_string= text.lower())
 			bookmarks.get_bookmarks(text = [text.lower()])
 		
