@@ -1,4 +1,5 @@
 PREFIX = /usr/local
+MO_PREFIX = /usr
 
 all:
 	@echo "Makefile: Available actions: install, uninstall, clean, tarball, generate-pot, build-translations, install-translations, update-po."
@@ -81,7 +82,7 @@ build-translations:
 install-translations: build-translations
 	cd po/; for file in *.mo; do \
 		sudo mv $$file \
-			/usr/share/locale/$${file%.*}/LC_MESSAGES/gnome-zeitgeist.mo; \
+			$(MO_PREFIX)/share/locale/$${file%.*}/LC_MESSAGES/gnome-zeitgeist.mo; \
 	done
 
 # update .po files with the POT template
