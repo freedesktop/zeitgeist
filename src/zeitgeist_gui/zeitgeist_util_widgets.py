@@ -549,17 +549,25 @@ class BookmarksView(gtk.ScrolledWindow):
 	def __init__(self):
 		gtk.ScrolledWindow.__init__(self)
 		self.notebook = gtk.Notebook()
-		self.notebook.set_property("tab-pos",gtk.POS_RIGHT)
+		self.notebook.set_property("tab-pos",gtk.POS_LEFT)
 		self.add_with_viewport(self.notebook)		
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		engine.connect("signal_updated", self.get_bookmarks)
 		self.boxes = {}
+		
+		self.all_star = BookmarksBox()
+		starred = "%s/data/bookmark-new.svg" % BASEDIR
+		box = self.create_tab_label(("All Star"),starred)
+		self.notebook.append_page((self.all_star),box)
+		self.notebook.set_tab_label_packing(self.all_star, True, True, gtk.PACK_START)
+		
 		self.get_bookmarks()
 		
 	def get_bookmarks(self, x=None , text=[]):
 		self.types = {}
 		for box in self.boxes.values():
 			box.clear()
+		
 		for item in bookmarker.get_items_uncached():
 			if len(text) > 0:
 				for tag in text:
@@ -567,7 +575,6 @@ class BookmarksView(gtk.ScrolledWindow):
 			else:
 				self.append_item("", item)
 				
-			
 		for key in self.boxes.keys():
 			if not self.types.has_key(key):
 				box = self.boxes[key]
@@ -576,6 +583,7 @@ class BookmarksView(gtk.ScrolledWindow):
 		
 	def append_item(self,tag,item):
 		if item.has_search(tag):
+			self.all_star.append_item(item)
 			if self.types.has_key(item.type):
 				self.types[item.type].append(item)
 			else:
