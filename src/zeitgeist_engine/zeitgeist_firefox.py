@@ -22,27 +22,28 @@ class FirefoxSource(DataProvider):
             uri="gzg/firefox",
             comment=_(u"Websites visited with Firefox"))
         
-        self.type = self.name
+        self.type = "Firefox History"
         
-        # Holds a list of all places.sqlite files. The one that belongs to the
-        # default one will be the at the top of the list.
-        self.historydb = []
+        # Holds a list of all places.sqlite files. The file that belongs to the
+        # default profile will be the at the top of the list.
+        self.history_dbs = []
         
         for profile_dir in self.get_profile_dirs():
             db_file = join(profile_dir, "places.sqlite")
             
+            # Make sure that this particular places.sqlite file exists.
             if isfile(db_file):
-                self.historydb.append(db_file)
+                self.history_dbs.append(db_file)
         
         # TODO: Handle more than one Firefox profile.
         try:
-            self.note_path_monitor = FileMonitor(self.historydb[0])
+            self.note_path_monitor = FileMonitor(self.history_dbs[0])
             self.note_path_monitor.connect("event", self.reload_proxy)
             self.note_path_monitor.open()
         except Exception:
             print "Are you using Firefox?"
         else:
-            print 'Reading from', self.historydb[0]
+            print 'Reading from', self.history_dbs[0]
         
         if not hasattr(self, "cursor"):
             self.cursor = None
@@ -147,6 +148,6 @@ class FirefoxSource(DataProvider):
         '''
         if self.cursor:
             self.cursor.close()
-        shutil.copy2(self.historydb[0],  self.LOCATION)
+        shutil.copy2(self.history_dbs[0],  self.LOCATION)
         self.connection = db.connect(self.LOCATION, True)
         self.cursor = self.connection.cursor()
