@@ -61,6 +61,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.offset = 0
 		self.items = []
 		self._ready = False
+		self.days_range = 0
 	
 	def ready(self):
 		'''
@@ -126,13 +127,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 	def review_days(self):
 		
-		days_range = int((self.end - self.begin) / 86400) + 1 # get the days range
-		
+		try:
+			self.days_range = int((self.end - self.begin) / 86400) + 1 # get the days range
+		except:
+			self.days_range = 3
 		'''
 		Try avoiding rebuiling boxes and use currently available
 		'''
 		
-		if days_range == len(self.dayboxes):
+		if self.days_range == len(self.dayboxes):
 			for i, daybox in enumerate(self.dayboxes):
 				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime("%a %d %b %Y")
 				daybox.clear()
@@ -143,7 +146,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.dayboxes.remove(daybox)
 				daybox.clear()
 			# precalculate the number of dayboxes we need and generate the dayboxes
-			for i in xrange(days_range):
+			for i in xrange(self.days_range):
 				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime("%a %d %b %Y")
 				self.days[datestring]=DayBox(datestring)
 				self.dayboxes.pack_start(self.days[datestring])
@@ -266,6 +269,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Benchmarking
 		print "Time to apply search on %s items: %s" % (len(self.items), str(t4 -t3))
 		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
+		self.clean_up_dayboxes()
 		
 	def jump_to_day(self, widget,focus=False):
 		'''
@@ -541,7 +545,7 @@ class CheckBox(gtk.CheckButton):
 	def toggle_source(self, widget=None):
 		if self.ready:
 			timeline.sources[self.source] = not self.get_active()
-			timeline.load_month(cached=True, tags = timeline.tags)
+			timeline.load_month(begin= timeline.begin, end=timeline.end, cached=True, tags = timeline.tags)
 
 class SearchToolItem(gtk.ToolItem):
 	
