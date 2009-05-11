@@ -28,6 +28,10 @@ class FirefoxSource(DataProvider):
         # default profile will be the at the top of the list.
         self.history_dbs = []
         
+        # The places.sqlite file monitored by Zeitgeist.
+        # TODO: Handle multiple Firefox profiles.
+        self.history_db = ""
+        
         for profile_dir in self.get_profile_dirs():
             db_file = join(profile_dir, "places.sqlite")
             
@@ -35,24 +39,30 @@ class FirefoxSource(DataProvider):
             if isfile(db_file):
                 self.history_dbs.append(db_file)
         
-        # TODO: Handle more than one Firefox profile.
-        try:
-            self.note_path_monitor = FileMonitor(self.history_dbs[0])
-            self.note_path_monitor.connect("event", self.reload_proxy)
-            self.note_path_monitor.open()
-        except Exception:
-            print "Are you using Firefox?"
+        if self.history_dbs:
+            self.history_db = self.history_dbs[0]
+            
+            try:
+                note_path_monitor = FileMonitor(self.history_db)
+                note_path_monitor.connect("event", self.reload_proxy)
+                note_path_monitor.open()
+            except Exception, e:
+                print("Unable to monitor Firefox history %s: %s" % 
+                    (self.history_db, str(e)))
+            else:
+                print("Monitoring Firefox history: %s" % (self.history_db))
+                
+                if not hasattr(self, "cursor"):
+                    self.cursor = None
+                
+                if self.cursor:
+                    self.last_timestamp = self.get_latest_timestamp()
+                else:
+                    self.last_timestamp = 0.0
+                
+                self.__copy_sqlite()
         else:
-            print 'Reading from', self.history_dbs[0]
-        
-        if not hasattr(self, "cursor"):
-            self.cursor = None
-        if self.cursor:
-            self.last_timestamp = self.get_latest_timestamp()
-        else:
-            self.last_timestamp = 0.0
-        
-        self.__copy_sqlite()
+            print("No Firefox profile found")
     
     @classmethod
     def get_profile_dirs(cls):
@@ -91,7 +101,7 @@ class FirefoxSource(DataProvider):
                 if is_default:
                     profiles.insert(0, path)
                 else:
-                    profile.append(path)
+                    profiles.append(path)
         
         return profiles
     
@@ -148,6 +158,6 @@ class FirefoxSource(DataProvider):
         '''
         if self.cursor:
             self.cursor.close()
-        shutil.copy2(self.history_dbs[0],  self.LOCATION)
+        shutil.copy2(self.history_db,  self.LOCATION)
         self.connection = db.connect(self.LOCATION, True)
         self.cursor = self.connection.cursor()
