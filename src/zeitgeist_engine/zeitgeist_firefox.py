@@ -34,7 +34,7 @@ class FirefoxSource(DataProvider):
         
         for section in profile_parser.sections():
             try:
-                is_relative = profile_parser.get(section, "isRelative")
+                is_relative = profile_parser.getboolean(section, "isRelative")
                 path = profile_parser.get(section, "Path")
             except NoOptionError:
                 # This section does not represent a profile (for example the
