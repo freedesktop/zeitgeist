@@ -6,11 +6,15 @@ import shutil
 import sqlite3 as db
 import gettext
 
+from os.path import join, expanduser, isfile
+from ConfigParser import ConfigParser, NoOptionError
+
 from zeitgeist_engine.zeitgeist_util import FileMonitor
 from zeitgeist_engine.zeitgeist_base import DataProvider
 
-
 class FirefoxSource(DataProvider):
+    FIREFOX_DIR = expanduser("~/.mozilla/firefox")
+    PROFILE_FILE = join(FIREFOX_DIR, "profiles.ini")
     
     def __init__(self, name="Firefox History", icon="gnome-globe", uri="gzg/firefox"):
         
@@ -20,7 +24,30 @@ class FirefoxSource(DataProvider):
         self.type = self.name
         self.comment = "websites visited with Firefox"
         
-        self.historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
+        # Holds a list of all places.sqlite files.
+        self.historydb = []
+        
+        # Parse the profiles.ini file to get the location of all Firefox
+        # profiles.
+        profile_parser = ConfigParser()
+        profile_parser.read(self.PROFILE_FILE)
+        
+        for section in profile_parser.sections():
+            try:
+                is_relative = profile_parser.get(section, "isRelative")
+                path = profile_parser.get(section, "Path")
+            except NoOptionError:
+                # This section does not represent a profile (for example the
+                # `General` section).
+                pass
+            else:
+                if is_relative:
+                    path = join(self.FIREFOX_DIR, path)
+                
+                places_db = join(path, "places.sqlite")
+                
+                if isfile(places_db):
+                    self.historydb.append(places_db)
         
         # TODO: Be more sensible about: a) old profiles being present
         # (look at profiles.ini to find the correct one), and b) more
