@@ -717,7 +717,7 @@ class BrowserBar(gtk.HBox):
 		
 		'''
 		self.star = gtk.ToggleToolButton()
-		icon = gtk.image_new_from_file("%s/data/bookmark-new.sng" % BASEDIR)
+		icon = gtk.image_new_from_file("%s/data/bookmark-new.svg" % BASEDIR)
 		self.star.set_icon_widget(icon)
 		self.star.set_label("Bookmarks")
 		self.tooltips.set_tip(self.star, _("View bookmarked activities"))

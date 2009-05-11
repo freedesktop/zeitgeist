@@ -109,9 +109,6 @@ class AboutWindow(gtk.AboutDialog):
 		self.set_comments(_("GNOME Zeitgeist is a tool for easily browsing and finding files on your computer."))
 		
 		self.set_authors([
-						"Federico Mena-Quintero <federico@gnome.org>",
-						"Jason Smith <jassmith@gmail.com>",
-						"Ketil W. Aanensen <ketil.w.aanensen@gmail.com>",
 						"Natan Yellin <aantny@gmail.com>",
 						"Seif Lotfy <seilo@geekyogre.com>",
 						"Siegfried-Angel Gevatter <rainct@ubuntu.com>",

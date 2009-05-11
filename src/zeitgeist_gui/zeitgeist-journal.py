@@ -55,24 +55,24 @@ class Journal(gtk.Window):
 		evbox.add(timeline)
 		
 		# Notebook
-		notebook = gtk.Notebook()
-		notebook.connect("switch-page",self.switch_page)
-		notebook.set_homogeneous_tabs(True)
+		self.notebook = gtk.Notebook()
+		self.notebook.connect("switch-page",self.switch_page)
+		self.notebook.set_homogeneous_tabs(True)
 		#notebook.set_property("tab-pos", gtk.POS_LEFT)
 		
 		journal = "%s/data/calendar.svg" % BASEDIR
 		label = self.create_tab_label(_("Journal"), journal)
-		notebook.append_page(evbox, label)
-		notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
+		self.notebook.append_page(evbox, label)
+		self.notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
 		starred = "%s/data/bookmark-new.svg" % BASEDIR
 		label = self.create_tab_label(_("Bookmarks"), starred)
-		notebook.append_page(bookmarks, label)
-		notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
+		self.notebook.append_page(bookmarks, label)
+		self.notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
 		
 		box = gtk.VBox()
-		notebook.append_page(box, gtk.Label("Most Used Stuff (not yet  implemented)"))
-		notebook.set_tab_label_packing(box, True, True, gtk.PACK_START)
+		self.notebook.append_page(box, gtk.Label("Most Used Stuff (not yet  implemented)"))
+		self.notebook.set_tab_label_packing(box, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
 		#notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
@@ -81,7 +81,7 @@ class Journal(gtk.Window):
 		
 		# vbox for timeline and tagbar
 		vbox = gtk.VBox()
-		vbox.pack_start(notebook, True, True)
+		vbox.pack_start(self.notebook, True, True)
 		#vbox.pack_start(tagbox,False,True,2)
 		
 		hbox = gtk.HBox()
@@ -104,20 +104,19 @@ class Journal(gtk.Window):
 		
 		self.set_focus(None)
 		
-		
-		
 		#self.window_state_event_cb(None)
 	def on_window_key_press_event(self,timelime,event):
-		if event.keyval==65360:
-			timeline.jump_to_day(str(datetime.datetime.today().strftime("%d %m %Y")).split(" "))
-			self.set_focus(None)
-		if event.keyval==65361:
-			timeline.step_in_time(-1)
-
-			timeline.get_dayboxes()[1][1].grab_focus()
-		if event.keyval==65363:
-			timeline.step_in_time(+1)
+		if self.notebook.get_current_page() == 0:
+			if event.keyval==65360:
+				timeline.jump_to_day(str(datetime.datetime.today().strftime("%d %m %Y")).split(" "))
+				self.set_focus(None)
+			if event.keyval==65361:
+				timeline.step_in_time(-1)
 	
+				timeline.get_dayboxes()[1][1].grab_focus()
+			if event.keyval==65363:
+				timeline.step_in_time(+1)
+		
 	def switch_page(self, notebook, page, page_num):	
 		if page_num == 1 or page_num ==2:
 			bb.set_time_browsing(False)
