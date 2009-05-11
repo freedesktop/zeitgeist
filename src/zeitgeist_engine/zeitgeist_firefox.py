@@ -1,49 +1,109 @@
 # -.- encoding: utf-8 -.-
 
-import os
-import glob
 import shutil
 import sqlite3 as db
 import gettext
 
+from os.path import join, expanduser, isfile
+from ConfigParser import ConfigParser, NoOptionError
+
 from zeitgeist_engine.zeitgeist_util import FileMonitor
 from zeitgeist_engine.zeitgeist_base import DataProvider
 
-
 class FirefoxSource(DataProvider):
+    FIREFOX_DIR = expanduser("~/.mozilla/firefox")
+    PROFILE_FILE = join(FIREFOX_DIR, "profiles.ini")
+    LOCATION = expanduser("~/.zeitgeist/firefox.sqlite")
     
-    def __init__(self, name="Firefox History", icon="gnome-globe", uri="gzg/firefox"):
+    def __init__(self):
+        DataProvider.__init__(self,
+            name=_(u"Firefox History"),
+            icon="gnome-globe",
+            uri="gzg/firefox",
+            comment=_(u"Websites visited with Firefox"))
         
-        DataProvider.__init__(self, name=name, icon=icon, uri = uri)
-        self.name = "Firefox History"
-        self.icon="gnome-globe"
-        self.type = self.name
-        self.comment = "websites visited with Firefox"
+        self.type = "Firefox History"
         
-        self.historydb = glob.glob(os.path.expanduser("~/.mozilla/firefox/*/places.sqlite"))
+        # Holds a list of all places.sqlite files. The file that belongs to the
+        # default profile will be the at the top of the list.
+        self.history_dbs = []
         
-        # TODO: Be more sensible about: a) old profiles being present
-        # (look at profiles.ini to find the correct one), and b) more
-        # than one Firefox version being used (eg., current and alpha).
-        try:
-            self.note_path_monitor = FileMonitor(self.historydb[0])
-            self.note_path_monitor.connect("event", self.reload_proxy)
-            self.note_path_monitor.open()
-        except Exception:
-            print "Are you using Firefox?"
+        # The places.sqlite file monitored by Zeitgeist.
+        # TODO: Handle multiple Firefox profiles.
+        self.history_db = ""
+        
+        for profile_dir in self.get_profile_dirs():
+            db_file = join(profile_dir, "places.sqlite")
+            
+            # Make sure that this particular places.sqlite file exists.
+            if isfile(db_file):
+                self.history_dbs.append(db_file)
+        
+        if self.history_dbs:
+            self.history_db = self.history_dbs[0]
+            
+            try:
+                note_path_monitor = FileMonitor(self.history_db)
+                note_path_monitor.connect("event", self.reload_proxy)
+                note_path_monitor.open()
+            except Exception, e:
+                print("Unable to monitor Firefox history %s: %s" % 
+                    (self.history_db, str(e)))
+            else:
+                print("Monitoring Firefox history: %s" % (self.history_db))
+                
+                if not hasattr(self, "cursor"):
+                    self.cursor = None
+                
+                if self.cursor:
+                    self.last_timestamp = self.get_latest_timestamp()
+                else:
+                    self.last_timestamp = 0.0
+                
+                self.__copy_sqlite()
         else:
-            print 'Reading from', self.historydb[0]
+            print("No Firefox profile found")
+    
+    @classmethod
+    def get_profile_dirs(cls):
+        """
+        Returns a list of all Firefox profile directories.
         
-        if not hasattr(self, "cursor"):
-            self.cursor = None
-        if self.cursor:
-            self.last_timestamp = self.get_latest_timestamp()
-        else:
-            self.last_timestamp = 0.0
+        The default profile is located at the top of the list.
+        """
         
-        self.loc = os.path.expanduser("~/.zeitgeist/firefox.sqlite")
+        profiles = []
         
-        self.__copy_sqlite()
+        # Parse the profiles.ini file to get the location of all Firefox
+        # profiles.
+        profile_parser = ConfigParser()
+        
+        # Doesn't raise an exception if the file doesn't exist.
+        profile_parser.read(cls.PROFILE_FILE)
+        
+        for section in profile_parser.sections():
+            try:
+                is_relative = profile_parser.getboolean(section, "isRelative")
+                path = profile_parser.get(section, "Path")
+            except NoOptionError:
+                # This section does not represent a profile (for example the
+                # `General` section).
+                pass
+            else:
+                try:
+                    is_default = profile_parser.getboolean(section, "Default")
+                except (NoOptionError, ValueError):
+                    is_default = False
+                
+                if is_relative:
+                    path = join(cls.FIREFOX_DIR, path)
+                
+                if is_default:
+                    profiles.insert(0, path)
+                else:
+                    profiles.append(path)
+        
+        return profiles
     
     def get_latest_timestamp(self): 
         
@@ -98,6 +158,6 @@ class FirefoxSource(DataProvider):
         '''
         if self.cursor:
             self.cursor.close()
-        shutil.copy2(self.historydb[0],  self.loc)
-        self.connection = db.connect(self.loc, True)
+        shutil.copy2(self.history_db,  self.LOCATION)
+        self.connection = db.connect(self.LOCATION, True)
         self.cursor = self.connection.cursor()
