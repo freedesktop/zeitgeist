@@ -30,8 +30,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Add children widgets
 		self.view = DataIconView(True)
 		self.dayboxes=gtk.HBox(False,False)
+		
+		# A dict of daybox widgets for recycling
 		self.days = {}
-		self.search =""
+		
 		# Set up default properties
 		self.set_border_width(0)
 		self.set_size_request(600, 200)
@@ -45,6 +47,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# The current tags that we're using to filter displayed results
 		self.tags = []
 		
+		# The current search string that we're using to filter displayed results
+		self.search = ""
+		
 		# Get list of sources to filter
 		self.sources = {}
 		self.sources_icons = {}
@@ -55,13 +60,20 @@ class TimelineWidget(gtk.ScrolledWindow):
 		calendar.connect("day-selected-double-click", self.jump_to_day, True)
 		
 		# GConf settings
-		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		gconf_bridge.connect("changed::compress_empty_days", lambda gb: self.load_month())
 		
-		self.offset = 0
 		self.items = []
 		self._ready = False
 		self.days_range = 0
+		date = calendar.get_date()
+		# Get the begin and end of this month
+		# each tuple is of format (year, month, day, hours, minutes,
+		# seconds, weekday, day_of_year, daylight savings) 
+		day = date[2]
+		self.begin = (date[0], date[1]+1, day-1,0,0,0,0,0,-1)
+		self.end = (date[0], date[1]+1, day+2,0,0,0,0,0,-1)
+		self.begin = time.mktime(self.begin) 
+		self.end = time.mktime(self.end) -1
 	
 	def ready(self):
 		'''
@@ -71,15 +83,89 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		assert self._ready == False
 		self._ready = True
-		
-		engine.connect("signal_updated", self.load_month_proxy)
+		engine.connect("signal_updated", lambda x: self.load_month(checkrefresh = True))
 		
 		# Load the GUI
 		self.load_month()
 	
-	def step_in_time(self, x=0):
-		self.offset += x
-		self.load_month()
+	
+	def load_month(self, widget=None, begin=None, end=None, offset = 0, cached=False, tags=None , search=None, checkrefresh = False):
+		'''
+		Loads the current month selected on the calendar into the GUI.
+		
+		This is called when a new date is selected on the calendar
+		or when the user types into the search bar. In the second case,
+		we need to reload the GUI and only show items that match the tags
+		parameter.
+		'''
+		
+		# Begin benchmarking
+		t1 = time.time()
+		
+		if not cached:	
+			# Use old properties if new ones are None else replace them
+			if tags:
+				self.tags = tags
+			if search:
+				self.search = search
+			if begin:
+				self.begin = begin
+			if end:
+				self.end = end
+		
+			if len(self.tags) > 0:
+				print self.tags
+				print "if len(self.tags) > 0:"
+				self.begin = sys.maxint
+				self.end = - sys.maxint - 1
+				for tag in self.tags:
+					start, fin = engine.get_timestamps_for_tag(tag)
+					if start < self.begin:
+						self.begin = start
+					if fin > self.end:
+						self.end = fin
+			
+			else:
+				self.begin = self.begin + (offset*86400)
+				self.end =self.end + (offset*86400)
+			
+			# Note: To get the begin and end of a single day we would use the following
+			#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
+			#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
+			
+			# Get date as unix timestamp
+			calendar.clear_marks()
+			
+			# Get all items in the date range and add them to self.items
+			self.items = []
+			
+			for item in engine.get_items(self.begin, self.end, ""):
+						
+				if item.timestamp <= self.end:
+					
+					if not self.sources.has_key(item.type):
+						self.sources[item.type]=False
+						self.sources_icons[item.type] = item.icon
+					
+					self.items.append(item)
+					item.connect("relate", self.set_relation)
+			
+			try:
+				filtersBox.reload()
+			except:
+				pass
+			
+		# Update the GUI with the items that match the current search terms/tags
+		t3 = time.time()
+		print "Time to get items: %s" % str(t3-t1)
+		
+		self.apply_search(self.tags, search_string = self.search)
+		
+		t4 = time.time()
+		# Benchmarking
+		print "Time to apply search on %s items: %s" % (len(self.items), str(t4 -t3))
+		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
+		self.clean_up_dayboxes()
 	
 	def apply_search(self, tags=[], search = True, search_string=""):
 		'''
@@ -118,7 +204,45 @@ class TimelineWidget(gtk.ScrolledWindow):
 			
 			else:
 				self._append_to_day(item)
+		
+	def jump_to_day(self, widget,focus=False):
+		'''
+		Jump to the currently selected day in the calendar.
+		'''
+		
+		date = calendar.get_date()
+		begin =  time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,0])
+		end =  time.mktime([date[0],date[1]+1,date[2]+1,0,0,0,0,0,0])
+		self.load_month(begin=begin, end=end)
+		
+		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
+		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime("%d %b %Y")
+		if focus == False:
+			for w in self.dayboxes:
+				w.show_all()
+				if w.date == datestring:
+					w.emit("set-focus-child", w)
+		else:
+			for w in self.dayboxes:
+				w.hide_all()
+				if w.date == datestring:
+					w.show_all()
 	
+	def set_relation(self, item):
+		related = RelatedWindow()
+		related.set_relation(item)
+
+	#def focus_in(self, widget, event, adj):
+	#	alloc = widget.get_allocation() 
+	#	if alloc.x < adj.value or alloc.x > adj.value + adj.page_size:
+	#		adj.set_value(min(alloc.x, adj.upper-adj.page_size))
+	#		del widget 
+	
+	def get_dayboxes(self):
+		return self.days.items()
+	
+	def step_in_time(self, x=0):
+		self.load_month(offset = x)
 	
 	def _append_to_day(self, item):
 		daybox = self.days[item.get_datestring()]
@@ -172,137 +296,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 					daybox.show()
 				i = i - 1
 		gc.collect()
-	
-	def load_month_proxy(self,widget=None, begin=None, end=None):
-		today = time.time()
-		if today >= self.begin and today <= (self.end + 86400):
-			self.load_month(begin=begin, end=end)
-	
-	def load_month(self, widget=None, begin=None, end=None, cached=False, tags=[]):
-		'''
-		Loads the current month selected on the calendar into the GUI.
-		
-		This is called when a new date is selected on the calendar
-		or when the user types into the search bar. In the second case,
-		we need to reload the GUI and only show items that match the tags
-		parameter.
-		'''
-		self.tags=tags
-		# Get date range
-		# Format is (year, month-1, day)
-		date = calendar.get_date()
-		
-		# Get the begin and end of this month
-		# each tuple is of format (year, month, day, hours, minutes,
-		# seconds, weekday, day_of_year, daylight savings) 
-		
-		day = date[2]
-		
-		# Begin benchmarking
-		t1 = time.time()
-		
-		self.begin = begin
-		self.end = end
-		
-		if not cached:	
-			print "Getting uncached items"
-			
-			
-			if len(self.tags) > 0:
-				print self.tags
-				print "if len(self.tags) > 0:"
-				self.begin = sys.maxint
-				self.end = - sys.maxint - 1
-				for tag in self.tags:
-					start, fin = engine.get_timestamps_for_tag(tag)
-					if start < self.begin:
-						self.begin = start
-					if fin > self.end:
-						self.end = fin
-					
-			elif(self.begin == None and self.end == None) or (self.begin == self.end):
-				print "self.begin == None and self.end == None) or (self.begin == self.end):"
-				self.begin = (date[0], date[1]+1, day-1+self.offset,0,0,0,0,0,-1)
-				self.end = (date[0], date[1]+1, day+2+self.offset, 0,0,0,0,0,-1)
-				self.begin = time.mktime(self.begin) 
-				self.end = time.mktime(self.end) -1
-			
-			else:
-				print "else"
-				self.begin = self.begin 
-				self.end = self.end - 1
-		
-			
-			# Note: To get the begin and end of a single day we would use the following
-			#begin = (date[0], date[1]+1, date[2], 0,0,0,0,0,0)
-			#end = (date[0], date[1]+1, date[2]+1, 0,0,0,0,0,0)
-			
-			# Get date as unix timestamp
-			calendar.clear_marks()
-			
-			# Get all items in the date range and add them to self.items
-			self.items = []
-			
-			for item in engine.get_items(self.begin, self.end, ""):
-						
-				if item.timestamp <= self.end:
-					
-					if not self.sources.has_key(item.type):
-						self.sources[item.type]=False
-						self.sources_icons[item.type] = item.icon
-					
-					self.items.append(item)
-					item.connect("relate", self.set_relation)
-			
-			try:
-				filtersBox.reload()
-			except:
-				pass
-			
-		# Update the GUI with the items that match the current search terms/tags
-		t3 = time.time()
-		print "Time to get items: %s" % str(t3-t1)
-		
-		self.apply_search(self.tags, search_string = self.search)
-		
-		t4 = time.time()
-		# Benchmarking
-		print "Time to apply search on %s items: %s" % (len(self.items), str(t4 -t3))
-		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
-		self.clean_up_dayboxes()
-		
-	def jump_to_day(self, widget,focus=False):
-		'''
-		Jump to the currently selected day in the calendar.
-		'''
-		
-		self.offset = 0
-		self.load_month()
-		date = calendar.get_date()
-		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
-		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime("%d %b %Y")
-		if focus == False:
-			for w in self.dayboxes:
-				w.show_all()
-				if w.date == datestring:
-					w.emit("set-focus-child", w)
-		else:
-			for w in self.dayboxes:
-				w.hide_all()
-				if w.date == datestring:
-					w.show_all()
-	
-	def set_relation(self, item):
-		related = RelatedWindow()
-		related.set_relation(item)
-
-	#def focus_in(self, widget, event, adj):
-	#	alloc = widget.get_allocation() 
-	#	if alloc.x < adj.value or alloc.x > adj.value + adj.page_size:
-	#		adj.set_value(min(alloc.x, adj.upper-adj.page_size))
-	#		del widget 
-	def get_dayboxes(self):
-		return self.days.items()
 	
 	
 class HTagBrowser(gtk.VBox):
@@ -451,7 +444,6 @@ class HTagBrowser(gtk.VBox):
 			btn.set_active(False)
 		timeline.tags = []
 
-
 class FilterBox(gtk.VBox):
 	
 	def __init__(self):
@@ -545,7 +537,7 @@ class CheckBox(gtk.CheckButton):
 	def toggle_source(self, widget=None):
 		if self.ready:
 			timeline.sources[self.source] = not self.get_active()
-			timeline.load_month(begin= timeline.begin, end=timeline.end, cached=True, tags = timeline.tags)
+			timeline.load_month(cached=True)
 
 class SearchToolItem(gtk.ToolItem):
 	

@@ -272,7 +272,6 @@ class IconFactory():
 						border, border)
 		return mythumb
 
-
 class Thumbnailer:
 	
 	def __init__(self):
