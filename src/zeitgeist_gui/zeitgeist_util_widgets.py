@@ -18,6 +18,7 @@ from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
 from zeitgeist_shared.zeitgeist_shared import *
 from zeitgeist_shared.basics import BASEDIR
 
+today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
 
 class CellRendererPixbuf(gtk.CellRendererPixbuf):
 	
@@ -492,9 +493,14 @@ class DayBox(gtk.VBox):
 		
 		self.ev.add(vbox)
 		if show_date:
-			self.label=gtk.Label(date)
-			vbox.pack_start(self.label,True,True,5)
-		
+			
+			if datetime.datetime.now().strftime("%a %d %b %Y")  == date:
+			 self.label=gtk.Label(_"Today")
+			
+			else:
+			 self.label=gtk.Label(date)
+			
+		vbox.pack_start(self.label,True,True,5)
 		self.pack_start(self.ev,False,False)
 		self.view = DataIconView()
 		if date.startswith("Sat") or date.startswith("Sun"):
@@ -510,7 +516,10 @@ class DayBox(gtk.VBox):
 	
 	def refresh(self, date):
 		self.date = date
-		self.label.set_label(date)
+		if datetime.datetime.now().strftime("%a %d %b %Y")  == date:
+			self.label.set_label(_"Today")
+		else:
+			self.label.set_label(date)
 		if self.date.startswith("Sat") or self.date.startswith("Sun"):
 			color = gtk.gdk.rgb_get_colormap().alloc_color('#FFF9D0')
 			self.view.modify_base(gtk.STATE_NORMAL,color)
