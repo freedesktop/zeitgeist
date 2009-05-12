@@ -572,6 +572,7 @@ class BookmarksView(gtk.ScrolledWindow):
 		self.get_bookmarks()
 		
 	def get_bookmarks(self, x=None , text=[]):
+		self.all_star.clear()
 		self.types = {}
 		for box in self.boxes.values():
 			box.clear()
