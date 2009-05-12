@@ -495,11 +495,11 @@ class DayBox(gtk.VBox):
 			
 			if datetime.datetime.now().strftime("%a %d %b %Y")  == date:
 			 self.label=gtk.Label("Today")
-			 vbox.pack_start(self.label,True,True,5)
+			
 			else:
 			 self.label=gtk.Label(date)
-			 vbox.pack_start(self.label,True,True,5)
-		
+			
+		vbox.pack_start(self.label,True,True,5)
 		self.pack_start(self.ev,False,False)
 		self.view = DataIconView()
 		if date.startswith("Sat") or date.startswith("Sun"):
