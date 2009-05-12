@@ -31,8 +31,23 @@ class TimelineWidget(gtk.ScrolledWindow):
 		gtk.ScrolledWindow.__init__(self)
 		
 		# Add children widgets
+		self.hbox = gtk.HBox()
 		self.view = DataIconView(True)
 		self.dayboxes=gtk.HBox(False,False)
+		
+		self.back=gtk.Button(stock="gtk-go-back")
+		label=self.back.get_children()[0]
+		label=label.get_children()[0].get_children()[1]
+		label=label.set_label("")
+		self.back.set_size_request(32,-1)
+		self.back.connect("clicked", lambda x: self.step_in_time(-1))
+		
+		self.forward=gtk.Button(stock="gtk-go-forward")
+		label=self.forward.get_children()[0]
+		label=label.get_children()[0].get_children()[1]
+		label=label.set_label("")
+		self.forward.set_size_request(32,-1)
+		self.forward.connect("clicked", lambda x: self.step_in_time(1))
 		
 		# A dict of daybox widgets for recycling
 		self.days = {}
@@ -41,7 +56,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.set_border_width(0)
 		self.set_size_request(600, 200)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
-		self.add_with_viewport(self.dayboxes)
+		
+		self.hbox.pack_start(self.back,False,False)
+		self.hbox.pack_start(self.dayboxes)
+		self.hbox.pack_start(self.forward,False,False)
+		
+		self.add_with_viewport(self.hbox)
 		
 		# This contains the range of dates which we've currently loaded into the GUI
 		self.begin = None
@@ -78,6 +98,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.begin = time.mktime(self.begin) 
 		self.end = time.mktime(self.end) -1
 	
+	def set_time_browsing(self, bool):
+		if bool:
+			self.back.set_sensitive(True)
+			self.forward.set_sensitive(True)
+		else:
+			self.back.set_sensitive(False)
+			self.forward.set_sensitive(False)
+
 	def ready(self):
 		'''
 		Only call this one time, once the GUI has loaded and we can
@@ -86,13 +114,17 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		assert self._ready == False
 		self._ready = True
-		engine.connect("signal_updated", lambda *discard: self.load_month(checkrefresh = True))
+		engine.connect("signal_updated", lambda *discard: self.load_month_proxy())
 		
 		# Load the GUI
-		self.load_month()
+		self.load_month()#
 	
+	def load_month_proxy(self):
+		today = time.time()
+		if today >= self.begin and today <= (self.end + 86400):
+			self.load_month()
 	
-	def load_month(self, widget=None, begin=None, end=None, offset = 0, cached=False, tags=None , search=None, checkrefresh = False):
+	def load_month(self, widget=None, begin=None, end=None, offset = 0, cached=False, tags=None , search=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -473,8 +505,10 @@ class HTagBrowser(gtk.VBox):
 				timeline.search = ""
 			except:
 				pass
+			timeline.set_time_browsing(False)
 			bb.set_time_browsing(False)
 		else:
+			timeline.set_time_browsing(True)
 			bb.set_time_browsing(True)
 			
 		bookmarks.get_bookmarks(text =  tags)
@@ -723,23 +757,6 @@ class BrowserBar(gtk.HBox):
 		self.home.connect("clicked", self.focus_today)
 		self.tooltips.set_tip(self.home, _("Show recent activities"))
 
-		self.back = gtk.ToolButton("gtk-go-back")
-		self.back.set_label("Older")
-		self.back.connect("clicked", self.add_day)
-		self.tooltips.set_tip(self.back, _("Go back in time"))
-		
-		self.forward = gtk.ToolButton("gtk-go-forward")
-		self.forward.set_label("Newer")
-		self.forward.connect("clicked", self.remove_day)
-		self.tooltips.set_tip(self.forward, _("Go forward in time"))
-		
-		'''
-		self.options = gtk.ToggleToolButton()
-		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/filter.svg" % BASEDIR, 32, 32)
-		icon = gtk.image_new_from_pixbuf(pixbuf)
-		del pixbuf
-		self.options.set_icon_widget(icon)
-		'''
 		self.options = gtk.ToggleToolButton("gtk-select-color")
 		self.tooltips.set_tip(self.options, _("Filter your current view"))
 		self.options.set_label("Filters")
@@ -772,14 +789,11 @@ class BrowserBar(gtk.HBox):
 		self.tags.connect("toggled", self.toggle_tags)
 		
 		toolbar = gtk.Toolbar()
-		toolbar.insert(self.back, -1)
 		toolbar.insert(self.home, -1)
-		toolbar.insert(self.forward, -1)
 		
 		self.sep = gtk.SeparatorToolItem()
 		
 		toolbar.insert(self.sep,-1)
-		#toolbar.insert(self.star, -1)
 		toolbar.insert(self.tags, -1)
 		toolbar.insert(self.options, -1)
 		toolbar.insert(self.calendar, -1)
@@ -811,17 +825,13 @@ class BrowserBar(gtk.HBox):
 				self.options.set_sensitive(True)
 				self.tags.set_sensitive(True)
 				self.sep.set_sensitive(True)
-				self.forward.set_sensitive(True)
 				self.home.set_sensitive(True)
-				self.back.set_sensitive(True)
 		
 		else:
-				self.back.set_sensitive(False)
 				self.home.set_sensitive(False)
 				self.sep.set_sensitive(False)
 				self.options.set_sensitive(False)
 				#self.tags.set_sensitive(False)
-				self.forward.set_sensitive(False)
 				self.calendar.set_sensitive(False)
 				
 				self.calendar.set_active(False)

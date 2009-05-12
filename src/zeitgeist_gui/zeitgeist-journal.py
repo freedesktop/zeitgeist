@@ -56,7 +56,7 @@ class Journal(gtk.Window):
 		self.notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
 		
 		starred = "%s/data/bookmark-new.svg" % BASEDIR
-		label = self.create_tab_label(_("Bookmarks"), starred)
+		label = self.create_tab_label(_("Stars"), starred)
 		self.notebook.append_page(bookmarks, label)
 		self.notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
 		
@@ -141,7 +141,7 @@ class Journal(gtk.Window):
 			self.set_size_request(800,-1)
 			width = 800
 
-		timeline.clean_up_dayboxes(width/3)
+		timeline.clean_up_dayboxes(width/3 - 40)
 		bookmarks.clean_up_dayboxes(width)
 
 if __name__ == "__main__":
