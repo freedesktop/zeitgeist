@@ -140,7 +140,7 @@ class Journal(gtk.Window):
 		if width < 800:
 			self.set_size_request(800,-1)
 			width = 800
-
+		
 		timeline.clean_up_dayboxes(width/3 - 40)
 		bookmarks.clean_up_dayboxes(width)
 

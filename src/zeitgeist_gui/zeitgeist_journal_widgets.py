@@ -348,7 +348,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		print "reviewing days done"
 	
-	def clean_up_dayboxes(self, width=None):
+	def clean_up_dayboxes(self, width=0):
 		
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days:
@@ -359,13 +359,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.hide()
 					else:
 						daybox.set_label(".")
+						daybox.set_size_request(-1,-1)
 						daybox.view.set_size_request(-1,-1)
+						daybox.view.reload_name_cell_size(0)
 						daybox.show()
 				else:
-					if width and width > 300:
-						daybox.view.set_size_request(width-30,-1)
-						daybox.set_size_request(width-10,-1)
-						daybox.view.reload_name_cell_size(width-50)
+					daybox.view.set_size_request(width-30,-1)
+					daybox.set_size_request(width-10,-1)
+					daybox.view.reload_name_cell_size(width-50)
 					daybox.show()
 				i = i - 1
 		gc.collect()
