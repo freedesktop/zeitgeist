@@ -207,7 +207,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 					self._append_to_day(item)
 					continue	
 			
-		
 	def jump_to_day(self, widget,focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
@@ -264,8 +263,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 			temp=timestamp[2]
 		calendar.select_day(temp)
 		
-		
-	
 	def _append_to_day(self, item):
 		try:
 			daybox = self.days[item.get_datestring()]
@@ -277,8 +274,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 			daybox = self.days[item.get_datestring()]
 			daybox.append_item(item)
 			self.days[item.get_datestring()] = daybox
-		
-		
+				
 	def review_days(self):
 		print "reviewing days"
 		
@@ -341,7 +337,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 					daybox.show()
 				i = i - 1
 		gc.collect()
-	
 	
 class HTagBrowser(gtk.VBox):
 	
@@ -872,7 +867,27 @@ class BrowserBar(gtk.HBox):
 		if not int(today[1])-1 == int(date[1]):
 			calendar.select_month(int(today[1])-1, int(today[2]))
 		
-
+class ItemInfo(gtk.VBox): 
+	def __init__(self):
+		gtk.VBox.__init__(self)
+		self.frame = gtk.Frame()
+		self.label = gtk.Label("Item Info")
+		self.frame.set_label_align(0.5, 0.5)
+		self.frame.set_label_widget(self.label)
+		self.pack_start(self.frame2,False, False)
+		self.vbox = gtk.VBox(False)
+		self.frame.add(self.vbox)
+		
+		self.name = ""
+		self.comment = ""
+		self.icon = None
+		self.tags = []
+		
+	def set_item(self,item):
+		pass
+			
+	def set_tag_btn(self,tag):
+		pass
 
 calendar = CalendarWidget()
 bookmarks = BookmarksView()
