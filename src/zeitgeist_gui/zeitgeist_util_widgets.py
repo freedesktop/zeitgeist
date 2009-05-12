@@ -495,7 +495,7 @@ class DayBox(gtk.VBox):
 		if show_date:
 			
 			if datetime.datetime.now().strftime("%a %d %b %Y")  == date:
-			 self.label=gtk.Label(_"Today")
+			 self.label=gtk.Label(_("Today"))
 			
 			else:
 			 self.label=gtk.Label(date)
@@ -517,7 +517,7 @@ class DayBox(gtk.VBox):
 	def refresh(self, date):
 		self.date = date
 		if datetime.datetime.now().strftime("%a %d %b %Y")  == date:
-			self.label.set_label(_"Today")
+			self.label.set_label(_("Today"))
 		else:
 			self.label.set_label(date)
 		if self.date.startswith("Sat") or self.date.startswith("Sun"):
