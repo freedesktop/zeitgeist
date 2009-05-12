@@ -217,6 +217,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.begin =  time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,-1])
 		self.end =  time.mktime([date[0],date[1]+1,date[2]+2,0,0,0,0,0,-1]) - 1
 		
+		print "jump to day"
+		
 		self.load_month()
 		
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
@@ -643,7 +645,7 @@ class SearchToolItem(gtk.ToolItem):
 		timeline.reset_date()
 		bookmarks.get_bookmarks(text="")
 		timeline.search = ""
-		timeline.load_month(tags = timeline.tags)
+		timeline.load_month()
 	
 	def do_search(self, text):
 		# Get date range
@@ -660,7 +662,7 @@ class SearchToolItem(gtk.ToolItem):
 		end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
 		begin = time.mktime(begin)
 		end = time.mktime(end) -1
-		timeline.load_month(begin=begin, end=end, tags = timeline.tags)
+		#timeline.load_month(begin=begin, end=end, tags = timeline.tags)
 		
 		if self.clearbtn and not self.clearbtn.child:
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
