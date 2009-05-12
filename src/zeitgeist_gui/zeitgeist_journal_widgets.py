@@ -160,8 +160,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Benchmarking
 		print "Time to apply search on %s items: %s" % (len(self.items), str(t4 -t3))
 		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
-		self.clean_up_dayboxes()
-	
+		
 	def reset_date(self):
 		date = calendar.get_date()
 		# Get the begin and end of this month
@@ -215,9 +214,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		
 		date = calendar.get_date()
-		begin =  time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,0])
-		end =  time.mktime([date[0],date[1]+1,date[2]+1,0,0,0,0,0,0])
-		self.load_month(begin=begin, end=end)
+		self.begin =  time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,-1])
+		self.end =  time.mktime([date[0],date[1]+1,date[2]+2,0,0,0,0,0,-1]) - 1
+		
+		self.load_month()
 		
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
 		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime("%d %b %Y")
@@ -261,11 +261,21 @@ class TimelineWidget(gtk.ScrolledWindow):
 			calendar.select_month(timestamp[1] - 1,timestamp[0])
 			temp=timestamp[2]
 		calendar.select_day(temp)
+		
+		
 	
 	def _append_to_day(self, item):
-		daybox = self.days[item.get_datestring()]
-		daybox.append_item(item)
-		self.days[item.get_datestring()] = daybox
+		try:
+			daybox = self.days[item.get_datestring()]
+			daybox.append_item(item)
+			self.days[item.get_datestring()] = daybox
+		except:
+			self.days[item.get_datestring()]=DayBox(item.get_datestring())
+			self.dayboxes.pack_start(self.days[item.get_datestring()])
+			daybox = self.days[item.get_datestring()]
+			daybox.append_item(item)
+			self.days[item.get_datestring()] = daybox
+		
 		
 	def review_days(self):
 		print "reviewing days"
@@ -441,6 +451,8 @@ class HTagBrowser(gtk.VBox):
 	
 	def toggle(self, x=None):
 		
+		timeline.search=""
+		search.entry.set_text("")
 		using_tags = False
 		
 		tags = timeline.tags
