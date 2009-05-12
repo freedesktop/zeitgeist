@@ -29,7 +29,7 @@ msgstr "Borrando elemento: %s"
 #: src/zeitgeist_engine/zeitgeist_datasink.py:149
 #, python-format
 msgid "Updating database with new %s items"
-msgstr "Actualizando base de datos con %s elementos nuevos"
+msgstr "Actualizando base de datos con nuevos elementos %s"
 
 #: src/zeitgeist_engine/zeitgeist_recent.py:171
 msgid "Documents"
@@ -141,11 +141,11 @@ msgstr "Cambiar las etiquetas para %s"
 
 #: src/zeitgeist_gui/zeitgeist_base.py:218
 msgid "Add"
-msgstr ""
+msgstr "Añadir"
 
 #: src/zeitgeist_gui/zeitgeist_base.py:219
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: src/zeitgeist_gui/zeitgeist_base.py:250
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:284
