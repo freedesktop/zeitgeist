@@ -86,7 +86,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		assert self._ready == False
 		self._ready = True
-		engine.connect("signal_updated", lambda x: self.load_month(checkrefresh = True))
+		engine.connect("signal_updated", lambda *discard: self.load_month(checkrefresh = True))
 		
 		# Load the GUI
 		self.load_month()
