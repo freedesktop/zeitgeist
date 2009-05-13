@@ -364,9 +364,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 						daybox.view.reload_name_cell_size(0)
 						daybox.show()
 				else:
-					daybox.view.set_size_request(width-30,-1)
-					daybox.set_size_request(width-10,-1)
-					daybox.view.reload_name_cell_size(width-50)
+					daybox.set_size_request(width,-1)
+					daybox.view.set_size_request(width-20,-1)
+					daybox.view.reload_name_cell_size(width-24)
+					#daybox.view.set_size_request(width-30,-1)
+					#daybox.set_size_request(width-10,-1)
+					#daybox.view.reload_name_cell_size(width-20)
 					daybox.show()
 				i = i - 1
 		gc.collect()
@@ -789,23 +792,23 @@ class BrowserBar(gtk.HBox):
 		self.tooltips.set_tip(self.tags, _("View tagged activities"))
 		self.tags.connect("toggled", self.toggle_tags)
 		
-		toolbar = gtk.Toolbar()
-		toolbar.insert(self.home, -1)
+		self.toolbar = gtk.Toolbar()
+		self.toolbar.insert(self.home, -1)
 		
 		self.sep = gtk.SeparatorToolItem()
 		
-		toolbar.insert(self.sep,-1)
-		toolbar.insert(self.tags, -1)
-		toolbar.insert(self.options, -1)
-		toolbar.insert(self.calendar, -1)
-		toolbar.set_style(gtk.TOOLBAR_ICONS)
+		self.toolbar.insert(self.sep,-1)
+		self.toolbar.insert(self.options, -1)
+		self.toolbar.insert(self.calendar, -1)
+		self.toolbar.set_style(gtk.TOOLBAR_ICONS)
 		
 		hbox = gtk.HBox()
-		hbox.pack_start(toolbar,True,True)
+		hbox.pack_start(self.toolbar,True,True)
 		
 		toolbar2 = gtk.Toolbar()
 		searchbox = gtk.HBox()
 		# Search Area
+		searchbox.pack_start(self.tags, False, False)
 		searchbox.pack_start(search, True, True)
 		clear_btn = gtk.ToolButton("gtk-clear")
 		clear_btn.connect("clicked", lambda x: search.do_clear())

@@ -48,6 +48,8 @@ class Journal(gtk.Window):
 		self.notebook = gtk.Notebook()
 		self.notebook.connect("switch-page",self.switch_page)
 		self.notebook.set_homogeneous_tabs(True)
+		self.notebook.set_property("tab-pos",gtk.POS_BOTTOM)
+		#self.notebook.set_show_tabs(False)
 		
 		# Notebook components
 		journal = "%s/data/calendar.svg" % BASEDIR
@@ -77,7 +79,7 @@ class Journal(gtk.Window):
 		# Horizontal box (contains the main content and a sidebar)
 		self.hBox = gtk.HBox()
 		self.vBox.pack_start(self.hBox, True, True,1)
-		self.hBox.set_border_width(5)
+		self.hBox.set_border_width(0)
 		self.hBox.pack_start(htb,False,True,2)
 		self.hBox.pack_start(self.notebook,True,True,1)
 		self.hBox.pack_start(self.sidebar, False, False)
@@ -90,7 +92,35 @@ class Journal(gtk.Window):
 		calendar.hide_all()
 		
 		self.set_focus(None)
+		#self.create_toolbar_buttons()
 		
+		
+	def create_toolbar_buttons(self):
+		self.journal_button = gtk.ToggleToolButton()
+		self.star_button = gtk.ToggleToolButton()
+		#self.most_button = gtk.ToggleToolButton()
+		self.toggle_buttons = [self.journal_button,self.star_button]
+		
+		self.handlers = []
+		for btn in self.toggle_buttons:
+			self.handlers.append(self.journal_button.connect("toggled",self.toggled_tab))
+			
+		bb.toolbar.insert(self.journal_button,0)
+		bb.toolbar.insert(self.star_button,0)
+		bb.show_all()
+		
+	
+	def toggled_tab(self,widget):
+		for btn in self.toggle_buttons:
+			self.journal_button.disconnect(self.handlers[0])
+			widget.set_active(False)
+		
+		widget.set_active(True)
+		for btn in self.toggle_buttons:
+			self.handlers.append(self.journal_button.connect("toggled",self.toggled_tab))
+	
+	def ignore_toggle(self,widget):
+		pass
 		
 	'''
 	Check which tab is active and bind the keys event to it
@@ -123,7 +153,6 @@ class Journal(gtk.Window):
 
 			label = gtk.Label(title)
 			
-			
 			box = gtk.HBox()	
 			box.pack_start(icon, False, False)
 			box.pack_start(label, True, True)
@@ -141,7 +170,7 @@ class Journal(gtk.Window):
 			self.set_size_request(800,-1)
 			width = 800
 		
-		timeline.clean_up_dayboxes(width/3 - 40)
+		timeline.clean_up_dayboxes(width/3 - 32)
 		bookmarks.clean_up_dayboxes(width)
 
 if __name__ == "__main__":
