@@ -129,31 +129,40 @@ class DataIconView(gtk.TreeView):
 	def _do_refresh_rows(self):
 		
 		iter = self.store.get_iter_root()
-		if iter:
+		
+		try:
 			item = self.store.get_value(iter, 4)
+			self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+			icon = self.inactive_image
+			if bookmarker.get_bookmark(item.uri) == True:
+				icon = self.active_image
+			self.store.set(iter,6,icon)
+		except Exception:
+			pass
+		
+		while True:
 			try:
-				self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
-				icon = self.inactive_image
-				if bookmarker.get_bookmark(item.uri) == True:
-					icon = self.active_image
-				self.store.set(iter,6,icon)
-			except Exception:
-				pass
-			while True:
-				iter = self.store.iter_next(iter)
+				iter = self.store.iter_children()
 				if iter:
-					item = self.store.get_value(iter, 4)
-					try:
-						self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
-						icon = self.inactive_image
-						if bookmarker.get_bookmark(item.uri) == True:
-							icon = self.active_image
-						self.store.set(iter,6,icon)
-					except Exception:
-						pass
+					iter = self.check_rows(iter)
 				else:
 					break
-		
+			except:
+				break
+	
+	def check_rows(self,iter):
+		item = self.store.get_value(iter, 4)
+		try:
+			self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
+			icon = self.inactive_image
+			if bookmarker.get_bookmark(item.uri) == True:
+				icon = self.active_image
+			self.store.set(iter,6,icon)
+		except Exception:
+			pass
+		return self.store.iter_next(iter)
+	
+	
 	def button_press_handler(self, treeview, event):
 		if event.button == 3:
 			# Figure out which item they right clicked on
