@@ -143,7 +143,7 @@ class Journal(gtk.Window):
 		
 	def switch_page(self, notebook, page, page_num):	
 		if page_num == 0 or page_num ==2:
-			print "lul"
+			
 			bb.set_time_browsing(False)
 		else:
 			bb.set_time_browsing(True)
