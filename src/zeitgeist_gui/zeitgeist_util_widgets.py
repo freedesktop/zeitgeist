@@ -278,7 +278,7 @@ class DataIconView(gtk.TreeView):
 		
 		model[path][6] = icon
 				
-	def _set_item(self, item, append=True, group=False):
+	def _set_item(self, item, append=True, group=False, parent=False):
 				
 		bookmark = bookmarker.get_bookmark(item.uri)
 		self.items_uris.append(item.uri)
@@ -290,7 +290,7 @@ class DataIconView(gtk.TreeView):
 		
 		date = ""
 		if not item.timestamp == -1.0:
-			date = "<span size='small' color='darkgrey'>%s</span>" % item.get_time()
+			date = "<span size='small' color='blue'>%s</span>" % item.get_time()
 		
 		name = "<span color='%s'>%s</span>" % \
 			("black" if item.exists else "grey", item.get_name())
@@ -314,27 +314,29 @@ class DataIconView(gtk.TreeView):
 				iter = None
 			self.types[item.type] = iter
 		
-		if self.last_item and self.last_item.comment.strip() != "" and self.last_item.comment == item.comment:
-			self.store.append(self.last_iter, 
-				[item.get_icon(24),
-				name,
-				date,
-				bookmark,
-				item,
-				self.get_tooltip(item),
-				icon,
-				])
+		if parent:
+			print parent
+			if self.last_item and self.last_item.comment.strip() != "" and self.last_item.comment == item.comment:
+				self.store.append(self.last_iter, 
+					[item.get_icon(24),
+					name,
+					date,
+					bookmark,
+					item,
+					self.get_tooltip(item),
+					icon,
+					])
 		
-		elif self.last_item and self.last_item.tags != "" and self.last_item.tags == item.tags:
-			self.store.append(self.last_iter, 
-				[item.get_icon(24),
-				name,
-				date,
-				bookmark,
-				item,
-				self.get_tooltip(item),
-				icon,
-				])
+			elif self.last_item and self.last_item.tags != "" and self.last_item.tags == item.tags:
+				self.store.append(self.last_iter, 
+					[item.get_icon(24),
+					name,
+					date,
+					bookmark,
+					item,
+					self.get_tooltip(item),
+					icon,
+					])
 		
 		else:
 			self.last_iter = self.store.append(self.types[item.type], 

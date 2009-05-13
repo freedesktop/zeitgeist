@@ -71,22 +71,23 @@ class Journal(gtk.Window):
 		
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox(False)
-		self.vBox.pack_start(bb, False, False)
+		#self.vBox.pack_start(bb, False, False)
 		self.add(self.vBox)
 		
 		# Horizontal box (contains the main content and a sidebar)
 		self.hBox = gtk.HBox()
 		self.vBox.pack_start(self.hBox, True, True)
 		
-		self.hBox.pack_start(htb,False,True,2)
+		self.hBox.pack_start(bb, False, False)
 		self.hBox.pack_start(self.notebook,True,True)
 		self.hBox.pack_start(self.sidebar, False, False)
+		self.hBox.pack_start(bb.searchbox,True,True)
 		self.vBox.pack_start(statusbar, False, False)
 		
 		# Show everything
 		self.show_all()
-		htb.hide_all()
 		filtersBox.option_box.hide_all()
+		bb.searchbox.hide_all()
 		calendar.hide_all()
 		
 		self.set_focus(None)
@@ -100,25 +101,20 @@ class Journal(gtk.Window):
 		icon = gtk.image_new_from_pixbuf(pixbuf)
 		del pixbuf
 		self.star_button.set_icon_widget(icon)
-		
-		#self.most_button = gtk.ToggleToolButton()
-		self.toggle_buttons = [self.star_button]
-		
-		self.star_button.connect("toggled",self.toggled_tab)
+				
+		self.star_button.connect("toggled",self.toggled_starred)
 			
-		bb.toolbar.insert(self.star_button,0)
+		bb.pack_start(self.star_button,False,False)
 		bb.show_all()
 		
 	
-	def toggled_tab(self,widget):
+	def toggled_starred(self,widget):
 		if widget.get_active():
-			n = bb.toolbar.get_item_index(widget)	
-			self.notebook.set_current_page(n)
-			for btn in self.toggle_buttons:
-				if widget != btn:
-					btn.set_active(False)
+			self.notebook.set_current_page(0)
+			bb.set_time_browsing(False)
 		else:
 			self.notebook.set_current_page(1)
+			bb.set_time_browsing(True)
 		
 		
 	
@@ -172,8 +168,8 @@ class Journal(gtk.Window):
 		if width < 800:
 			self.set_size_request(800,-1)
 			width = 800
-		
-		timeline.clean_up_dayboxes(width/3 - 32)
+	
+		timeline.clean_up_dayboxes(width/3 - 38)
 		bookmarks.clean_up_dayboxes(width)
 
 if __name__ == "__main__":
