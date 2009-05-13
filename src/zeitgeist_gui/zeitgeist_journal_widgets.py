@@ -809,9 +809,6 @@ class BrowserBar(gtk.VBox):
 		#vbox = gtk.VBox()
 		#vbox.pack_start(self.toolbar,True,True)
 		
-		
-		
-		self.searchbox = gtk.VBox()
 		#searchbox = gtk.HBox()
 		# Search Area
 		#searchbox.pack_start(search, True, True)
@@ -850,7 +847,10 @@ class BrowserBar(gtk.VBox):
 			filtersBox.option_box.hide_all()
 			
 	def toggle_search(self, x=None):
-		pass
+		if x.get_active():
+			searchbox.show_all()
+		else:
+			searchbox.hide_all()
 	
 	def toggle_calendar(self, x=None):
 		if self.calendar.get_active():
@@ -870,6 +870,18 @@ class BrowserBar(gtk.VBox):
 		calendar.select_day(int(today[0]))
 		if not int(today[1])-1 == int(date[1]):
 			calendar.select_month(int(today[1])-1, int(today[2]))
+		
+class SearchBox(gtk.VBox):
+	def __init__(self):
+		gtk.VBox.__init__(self)
+		
+		searchbox = gtk.HBox()
+		searchbox.pack_start(search, True, True)
+		clear_btn = gtk.ToolButton("gtk-clear")
+		clear_btn.connect("clicked", lambda x: search.do_clear())
+		searchbox.pack_start(clear_btn, False, False)
+		self.pack_start(searchbox, False, False)
+		self.pack_start(htb,True,True)
 		
 class ItemInfo(gtk.VBox): 
 	def __init__(self):
@@ -898,5 +910,6 @@ bookmarks = BookmarksView()
 timeline = TimelineWidget()
 htb = HTagBrowser()
 search = SearchToolItem()
+searchbox = SearchBox()
 filtersBox = FilterBox()
 bb = BrowserBar(htb)

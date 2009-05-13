@@ -79,15 +79,14 @@ class Journal(gtk.Window):
 		self.vBox.pack_start(self.hBox, True, True)
 		
 		self.hBox.pack_start(bb, False, False)
+		self.hBox.pack_start(searchbox,False,False)
 		self.hBox.pack_start(self.notebook,True,True)
 		self.hBox.pack_start(self.sidebar, False, False)
-		self.hBox.pack_start(bb.searchbox,True,True)
 		self.vBox.pack_start(statusbar, False, False)
 		
 		# Show everything
 		self.show_all()
 		filtersBox.option_box.hide_all()
-		bb.searchbox.hide_all()
 		calendar.hide_all()
 		
 		self.set_focus(None)
