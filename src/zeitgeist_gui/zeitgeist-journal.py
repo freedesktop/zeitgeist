@@ -40,27 +40,25 @@ class Journal(gtk.Window):
 		self.sidebar.pack_start(filtersBox, True, True)
 		
 		# Event box
-		evbox = gtk.EventBox()
-		evbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("darkgrey"))
-		evbox.add(timeline)
 		
 		# Notebook
 		self.notebook = gtk.Notebook()
 		self.notebook.connect("switch-page",self.switch_page)
 		self.notebook.set_homogeneous_tabs(True)
 		self.notebook.set_property("tab-pos",gtk.POS_BOTTOM)
-		#self.notebook.set_show_tabs(False)
+		self.notebook.set_show_tabs(False)
 		
 		# Notebook components
-		journal = "%s/data/calendar.svg" % BASEDIR
-		label = self.create_tab_label(_("Journal"), journal)
-		self.notebook.append_page(evbox, label)
-		self.notebook.set_tab_label_packing(evbox, True, True, gtk.PACK_START)
-		
 		starred = "%s/data/bookmark-new.svg" % BASEDIR
 		label = self.create_tab_label(_("Stars"), starred)
 		self.notebook.append_page(bookmarks, label)
 		self.notebook.set_tab_label_packing(bookmarks, True, True, gtk.PACK_START)
+		
+		journal = "%s/data/calendar.svg" % BASEDIR
+		label = self.create_tab_label(_("Journal"), journal)
+		self.notebook.append_page(timeline, label)
+		self.notebook.set_tab_label_packing(timeline, True, True, gtk.PACK_START)
+		
 		
 		box = gtk.VBox()
 		self.notebook.append_page(box, gtk.Label("Most Used Stuff (not yet  implemented)"))
@@ -72,16 +70,16 @@ class Journal(gtk.Window):
 		
 		
 		# Vertical box (contains self.hBox and a status bar)
-		self.vBox = gtk.VBox(False, 5)
+		self.vBox = gtk.VBox(False)
 		self.vBox.pack_start(bb, False, False)
 		self.add(self.vBox)
 		
 		# Horizontal box (contains the main content and a sidebar)
 		self.hBox = gtk.HBox()
-		self.vBox.pack_start(self.hBox, True, True,1)
-		self.hBox.set_border_width(0)
+		self.vBox.pack_start(self.hBox, True, True)
+		
 		self.hBox.pack_start(htb,False,True,2)
-		self.hBox.pack_start(self.notebook,True,True,1)
+		self.hBox.pack_start(self.notebook,True,True)
 		self.hBox.pack_start(self.sidebar, False, False)
 		self.vBox.pack_start(statusbar, False, False)
 		
@@ -92,32 +90,37 @@ class Journal(gtk.Window):
 		calendar.hide_all()
 		
 		self.set_focus(None)
-		#self.create_toolbar_buttons()
+		self.create_toolbar_buttons()
+		self.notebook.set_current_page(1)
 		
 		
 	def create_toolbar_buttons(self):
-		self.journal_button = gtk.ToggleToolButton()
 		self.star_button = gtk.ToggleToolButton()
-		#self.most_button = gtk.ToggleToolButton()
-		self.toggle_buttons = [self.journal_button,self.star_button]
+		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.svg" % BASEDIR, 24, 24)
+		icon = gtk.image_new_from_pixbuf(pixbuf)
+		del pixbuf
+		self.star_button.set_icon_widget(icon)
 		
-		self.handlers = []
-		for btn in self.toggle_buttons:
-			self.handlers.append(self.journal_button.connect("toggled",self.toggled_tab))
+		#self.most_button = gtk.ToggleToolButton()
+		self.toggle_buttons = [self.star_button]
+		
+		self.star_button.connect("toggled",self.toggled_tab)
 			
-		bb.toolbar.insert(self.journal_button,0)
 		bb.toolbar.insert(self.star_button,0)
 		bb.show_all()
 		
 	
 	def toggled_tab(self,widget):
-		for btn in self.toggle_buttons:
-			self.journal_button.disconnect(self.handlers[0])
-			widget.set_active(False)
+		if widget.get_active():
+			n = bb.toolbar.get_item_index(widget)	
+			self.notebook.set_current_page(n)
+			for btn in self.toggle_buttons:
+				if widget != btn:
+					btn.set_active(False)
+		else:
+			self.notebook.set_current_page(1)
 		
-		widget.set_active(True)
-		for btn in self.toggle_buttons:
-			self.handlers.append(self.journal_button.connect("toggled",self.toggled_tab))
+		
 	
 	def ignore_toggle(self,widget):
 		pass
@@ -142,7 +145,7 @@ class Journal(gtk.Window):
 				timeline.get_dayboxes()[1][1].grab_focus()
 		
 	def switch_page(self, notebook, page, page_num):	
-		if page_num == 1 or page_num ==2:
+		if page_num == 0 or page_num ==2:
 			bb.set_time_browsing(False)
 		else:
 			bb.set_time_browsing(True)

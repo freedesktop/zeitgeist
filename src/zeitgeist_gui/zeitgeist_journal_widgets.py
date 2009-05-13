@@ -41,13 +41,17 @@ class TimelineWidget(gtk.ScrolledWindow):
 		label=label.set_label("")
 		self.back.set_size_request(32,-1)
 		self.back.connect("clicked", lambda x: self.step_in_time(-1))
-		
+		self.back.set_relief(gtk.RELIEF_NONE)
+		self.back.set_focus_on_click(False)
+
 		self.forward=gtk.Button(stock="gtk-go-forward")
 		label=self.forward.get_children()[0]
 		label=label.get_children()[0].get_children()[1]
 		label=label.set_label("")
 		self.forward.set_size_request(32,-1)
 		self.forward.connect("clicked", lambda x: self.step_in_time(1))
+		self.forward.set_relief(gtk.RELIEF_NONE)
+		self.forward.set_focus_on_click(False)
 		
 		# A dict of daybox widgets for recycling
 		self.days = {}
