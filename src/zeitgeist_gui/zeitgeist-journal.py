@@ -80,8 +80,8 @@ class Journal(gtk.Window):
 		
 		self.hBox.pack_start(bb, False, False)
 		self.hBox.pack_start(searchbox,False,False,5)
-		self.hBox.pack_start(self.notebook,True,True)
 		self.hBox.pack_start(self.sidebar, False, False)
+		self.hBox.pack_start(self.notebook,True,True)
 		self.vBox.pack_start(statusbar, False, False)
 		
 		# Show everything
@@ -126,7 +126,8 @@ class Journal(gtk.Window):
 	Check which tab is active and bind the keys event to it
 	'''
 	def on_window_key_press_event(self,timelime,event):
-		if self.notebook.get_current_page() == 0:
+		
+		if bb.timebrowse==True:
 			if event.keyval==65360:
 				timeline.jump_to_day(str(datetime.datetime.today().strftime("%d %m %Y")).split(" "))
 				self.set_focus(None)
@@ -134,15 +135,16 @@ class Journal(gtk.Window):
 			# KEY == LEFT
 			if event.keyval==65361:
 				timeline.step_in_time(-1)
-				timeline.get_dayboxes()[1][1].grab_focus()
+				self.set_focus(None)
 			
 			# KEY == Right
 			if event.keyval==65363:
 				timeline.step_in_time(+1)
-				timeline.get_dayboxes()[1][1].grab_focus()
+				self.set_focus(None)
 		
 	def switch_page(self, notebook, page, page_num):	
 		if page_num == 0 or page_num ==2:
+			
 			bb.set_time_browsing(False)
 		else:
 			bb.set_time_browsing(True)
