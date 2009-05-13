@@ -234,7 +234,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				continue
 			
 			if self.search.strip() =="" and len(self.tags) ==0:
-				self._append_to_day(item)
+				self._append_to_day(item, False)
 				continue
 				
 			for tag in self.tags:
