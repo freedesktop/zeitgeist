@@ -29,7 +29,11 @@ msgstr "Borrando elemento: %s"
 #: src/zeitgeist_engine/zeitgeist_datasink.py:149
 #, python-format
 msgid "Updating database with new %s items"
+<<<<<<< TREE
 msgstr "Actualizando base de datos con nuevos elementos %s"
+=======
+msgstr "Actualizando la base de datos con elementos nuevos: %s"
+>>>>>>> MERGE-SOURCE
 
 #: src/zeitgeist_engine/zeitgeist_recent.py:171
 msgid "Documents"
