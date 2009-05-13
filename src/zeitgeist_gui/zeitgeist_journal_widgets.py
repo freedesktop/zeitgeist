@@ -141,6 +141,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Begin benchmarking
 		t1 = time.time()
 		
+			
 		if not cached:	
 			self.items = []
 			# Use old properties if new ones are None else replace them
@@ -151,9 +152,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 			if begin:
 				self.begin = begin
 			if end:
+				print end
 				self.end = end
-		
-			if len(self.tags) > 0:
+				
+			elif len(self.tags) > 0:
 				print self.tags
 				print "if len(self.tags) > 0:"
 				self.begin = sys.maxint
@@ -166,11 +168,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.end = fin
 						
 			elif not search or search.strip()=="":
-				print "xxxxxxxxxxxx"
-				print search
-				print "xxxxxxxxxxxx"
 				self.begin = self.begin + (offset*86400)
 				self.end =self.end + (offset*86400)
+			
 			
 			calendar.clear_marks()
 			
@@ -690,19 +690,23 @@ class SearchToolItem(gtk.ToolItem):
 	def do_search(self, text):
 		# Get date range
 		# Format is (year, month-1, day)
-		date = calendar.get_date()
-		end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
-		begin =0
-		end = time.mktime(end) -1
-		#timeline.load_month(begin=begin, end=end, tags = timeline.tags)
-		
 		if self.clearbtn and not self.clearbtn.child:
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
 			img.show()
 			self.clearbtn.add(img)
 		if not text.strip() == "":
+			date = calendar.get_date()
+			begin = (date[0], date[1]+1, 0, 0,0,0,0,0,0)
+			begin =  time.mktime(begin)
+			end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
+			end = time.mktime(end) -1
+			#timeline.load_month(begin=begin, end=end, tags = timeline.tags)
+			
+			print "------------------------"
+			print text.lower()
+			print "------------------------"
 			htb.untoggle_all()
-			timeline.load_month(begin=0, end=end, search = text.lower())
+			timeline.load_month(begin=begin, end=end, search = text.lower())
 			bookmarks.get_bookmarks(text = [text.lower()])
 		
 
