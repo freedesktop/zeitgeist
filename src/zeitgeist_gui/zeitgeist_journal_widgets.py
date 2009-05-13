@@ -55,7 +55,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# A dict of daybox widgets for recycling
 		self.days = {}
-		
+		self.width = 0
 		# Set up default properties
 		self.set_border_width(0)
 		self.set_size_request(600, 200)
@@ -356,7 +356,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		print "reviewing days done"
 	
 	def clean_up_dayboxes(self, width=0):
-		
+		if width > 0:
+			self.width = width
 		self.compress_empty_days = gconf_bridge.get("compress_empty_days")
 		if self.compress_empty_days:
 			i = len(self.dayboxes) -1
@@ -792,7 +793,7 @@ class BrowserBar(gtk.VBox):
 		self.tags.set_icon_widget(icon)
 		self.tags.set_label("Tags")
 		self.tooltips.set_tip(self.tags, _("View tagged activities"))
-		self.tags.connect("toggled", self.toggle_tags)
+		#self.tags.connect("toggled", self.toggle_tags)
 		
 		#self.toolbar = gtk.Toolbar()
 		#self.toolbar.insert(self.home, -1)
@@ -850,11 +851,16 @@ class BrowserBar(gtk.VBox):
 		else:
 			filtersBox.option_box.hide_all()
 			
-	def toggle_search(self, x=None):
-		if x.get_active():
+	def toggle_search(self, w=None):
+		if w.get_active():
 			searchbox.show_all()
+			x, y = searchbox.get_size_request()
+			timeline.clean_up_dayboxes(timeline.width - x)
 		else:
 			searchbox.hide_all()
+			x, y = search.get_size_request()
+			timeline.clean_up_dayboxes(timeline.width +x)
+		print x
 	
 	def toggle_calendar(self, x=None):
 		if self.calendar.get_active():
@@ -862,11 +868,6 @@ class BrowserBar(gtk.VBox):
 		else:
 			calendar.hide_all()
 	
-	def toggle_tags(self, x=None):
-		if self.tags.get_active():
-			self.htb.show_all()
-		else:
-			self.htb.hide_all()
 
 	def focus_today(self, x=None):
 		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")

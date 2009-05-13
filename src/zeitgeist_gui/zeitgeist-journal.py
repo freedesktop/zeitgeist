@@ -93,6 +93,7 @@ class Journal(gtk.Window):
 		self.set_focus(None)
 		self.create_toolbar_buttons()
 		self.notebook.set_current_page(1)
+		self.set_size_request(800,-1)
 		
 		
 	def create_toolbar_buttons(self):
