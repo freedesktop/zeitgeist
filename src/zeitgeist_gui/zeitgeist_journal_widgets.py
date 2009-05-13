@@ -829,13 +829,13 @@ class BrowserBar(gtk.VBox):
 				self.options.set_sensitive(True)
 				self.tags.set_sensitive(True)
 				self.home.set_sensitive(True)
-		
+				self.timebrowse=True
 		else:
 				self.home.set_sensitive(False)
 				self.options.set_sensitive(False)
 				#self.tags.set_sensitive(False)
 				self.calendar.set_sensitive(False)
-				
+				self.timebrowse=False
 				self.calendar.set_active(False)
 				self.options.set_active(False)
 				#self.tags.set_active(False)
