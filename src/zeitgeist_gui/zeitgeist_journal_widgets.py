@@ -164,8 +164,11 @@ class TimelineWidget(gtk.ScrolledWindow):
 						self.begin = start
 					if fin > self.end:
 						self.end = fin
-			
-			else:
+						
+			elif not search or search.strip()=="":
+				print "xxxxxxxxxxxx"
+				print search
+				print "xxxxxxxxxxxx"
 				self.begin = self.begin + (offset*86400)
 				self.end =self.end + (offset*86400)
 			
@@ -688,16 +691,8 @@ class SearchToolItem(gtk.ToolItem):
 		# Get date range
 		# Format is (year, month-1, day)
 		date = calendar.get_date()
-		
-		# Get the begin and end of this month
-		# each tuple is of format (year, month, day, hours, minutes,
-		# seconds, weekday, day_of_year, daylight savings) 
-		
-		
-		# FIXME: We need to look for the frist entry and last entry in the DB
-		begin = (date[0], date[1]+1,0, 0,0,0,0,0,0)
 		end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
-		begin = time.mktime(begin)
+		begin =0
 		end = time.mktime(end) -1
 		#timeline.load_month(begin=begin, end=end, tags = timeline.tags)
 		
@@ -707,7 +702,7 @@ class SearchToolItem(gtk.ToolItem):
 			self.clearbtn.add(img)
 		if not text.strip() == "":
 			htb.untoggle_all()
-			timeline.load_month(begin=0, end=sys.maxint, search = text.lower())
+			timeline.load_month(begin=0, end=end, search = text.lower())
 			bookmarks.get_bookmarks(text = [text.lower()])
 		
 
@@ -752,12 +747,12 @@ class SearchToolItem(gtk.ToolItem):
 		if self.entry.get_text() != self.default_search_text:
 			self.do_clear()
 
-class BrowserBar(gtk.HBox):
+class BrowserBar(gtk.VBox):
 	
 	def __init__(self, htb):
 		
 		self.htb = htb
-		gtk.HBox.__init__(self)   
+		gtk.VBox.__init__(self)   
 		self.tooltips = gtk.Tooltips()
 
 		self.home = gtk.ToolButton("gtk-home")
@@ -771,7 +766,7 @@ class BrowserBar(gtk.HBox):
 		self.options.connect("toggled",self.toggle_options)
 		
 		self.calendar = gtk.ToggleToolButton()
-		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/calendar.svg" % BASEDIR, 32, 32)
+		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/calendar.svg" % BASEDIR, 24, 24)
 		icon = gtk.image_new_from_pixbuf(pixbuf)
 		del pixbuf
 		self.calendar.set_icon_widget(icon)
@@ -779,14 +774,13 @@ class BrowserBar(gtk.HBox):
 		self.calendar.set_label("Calendar")
 		self.calendar.connect("toggled",self.toggle_calendar)
 		
-		'''
-		self.star = gtk.ToggleToolButton()
-		icon = gtk.image_new_from_file("%s/data/bookmark-new.svg" % BASEDIR)
-		self.star.set_icon_widget(icon)
-		self.star.set_label("Bookmarks")
-		self.tooltips.set_tip(self.star, _("View bookmarked activities"))
-		self.star.connect("toggled",self.toggle_bookmarks)
-		'''
+		self.search = gtk.ToggleToolButton()
+		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/logo/32x32/apps/gnome-zeitgeist.png" % BASEDIR, 24, 24)
+		icon = gtk.image_new_from_pixbuf(pixbuf)
+		del pixbuf
+		self.search.set_icon_widget(icon)
+		self.tooltips.set_tip(self.search, _("Search for acitvites"))
+		self.search.connect("toggled", self.toggle_search)
 		
 		self.tags = gtk.ToggleToolButton()
 		icon = gtk.image_new_from_file("%s/data/tag3.svg" % BASEDIR)
@@ -796,34 +790,36 @@ class BrowserBar(gtk.HBox):
 		self.tooltips.set_tip(self.tags, _("View tagged activities"))
 		self.tags.connect("toggled", self.toggle_tags)
 		
-		self.toolbar = gtk.Toolbar()
-		self.toolbar.insert(self.home, -1)
+		#self.toolbar = gtk.Toolbar()
+		#self.toolbar.insert(self.home, -1)
 		
-		self.sep = gtk.SeparatorToolItem()
+		#self.sep = gtk.SeparatorToolItem()
 		
-		self.toolbar.insert(self.sep,-1)
-		self.toolbar.insert(self.options, -1)
-		self.toolbar.insert(self.calendar, -1)
-		self.toolbar.set_style(gtk.TOOLBAR_ICONS)
+		#self.toolbar.insert(self.sep,-1)
+		#self.toolbar.insert(self.options, -1)
+		#self.toolbar.insert(self.calendar, -1)
+		#self.toolbar.set_style(gtk.TOOLBAR_ICONS)
 		
-		hbox = gtk.HBox()
-		hbox.pack_start(self.toolbar,True,True)
+		self.pack_start(self.search, False,False)
 		
-		toolbar2 = gtk.Toolbar()
-		searchbox = gtk.HBox()
+		self.pack_end(self.options,False,False)
+		self.pack_end(self.calendar,False,False)
+		self.pack_end(self.home,False,False)
+		
+		#vbox = gtk.VBox()
+		#vbox.pack_start(self.toolbar,True,True)
+		
+		#searchbox = gtk.HBox()
 		# Search Area
-		searchbox.pack_start(self.tags, False, False)
-		searchbox.pack_start(search, True, True)
-		clear_btn = gtk.ToolButton("gtk-clear")
-		clear_btn.connect("clicked", lambda x: search.do_clear())
-		searchbox.pack_start(clear_btn, False, False)
-		toolbar2.add(searchbox)
-		
-		hbox2 = gtk.HBox(True)
-		hbox2.pack_start(toolbar2)
-		
-		self.pack_start(hbox, True, True)
-		self.pack_start(hbox2, False, False)
+		#searchbox.pack_start(search, True, True)
+		#clear_btn = gtk.ToolButton("gtk-clear")
+		#clear_btn.connect("clicked", lambda x: search.do_clear())
+		#searchbox.pack_start(clear_btn, False, False)
+		#	self.searchbox.pack_start(gtk.Label("ahsha"), False, False)
+		#self.searchbox.pack_start(self.tags, True, True)
+			
+		#self.pack_start(vbox, True, True)
+		#self.pack_start(hbox2, False, False)
 
 	
 	def set_time_browsing(self, bool):
@@ -832,12 +828,10 @@ class BrowserBar(gtk.HBox):
 				self.calendar.set_sensitive(True)
 				self.options.set_sensitive(True)
 				self.tags.set_sensitive(True)
-				self.sep.set_sensitive(True)
 				self.home.set_sensitive(True)
 		
 		else:
 				self.home.set_sensitive(False)
-				self.sep.set_sensitive(False)
 				self.options.set_sensitive(False)
 				#self.tags.set_sensitive(False)
 				self.calendar.set_sensitive(False)
@@ -846,22 +840,18 @@ class BrowserBar(gtk.HBox):
 				self.options.set_active(False)
 				#self.tags.set_active(False)
 	
-	def remove_day(self, x=None):
-		self.htb.untoggle_all()
-		timeline.step_in_time(1)
-	
 	def toggle_options(self, x=None):
 		if self.options.get_active():
 			filtersBox.option_box.show_all()
 		else:
 			filtersBox.option_box.hide_all()
-	
-	def toggle_bookmarks(self, x=None):
-		if self.star.get_active():
-			bookmarks.show_all()
-		else:
-			bookmarks.hide_all()
 			
+	def toggle_search(self, x=None):
+		if x.get_active():
+			searchbox.show_all()
+		else:
+			searchbox.hide_all()
+	
 	def toggle_calendar(self, x=None):
 		if self.calendar.get_active():
 			calendar.show_all()
@@ -873,10 +863,6 @@ class BrowserBar(gtk.HBox):
 			self.htb.show_all()
 		else:
 			self.htb.hide_all()
-		
-	def add_day(self, x=None):
-		self.htb.untoggle_all()
-		timeline.step_in_time(-1)
 
 	def focus_today(self, x=None):
 		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
@@ -884,6 +870,18 @@ class BrowserBar(gtk.HBox):
 		calendar.select_day(int(today[0]))
 		if not int(today[1])-1 == int(date[1]):
 			calendar.select_month(int(today[1])-1, int(today[2]))
+		
+class SearchBox(gtk.VBox):
+	def __init__(self):
+		gtk.VBox.__init__(self)
+		
+		searchbox = gtk.HBox()
+		searchbox.pack_start(search, True, True)
+		clear_btn = gtk.ToolButton("gtk-clear")
+		clear_btn.connect("clicked", lambda x: search.do_clear())
+		searchbox.pack_start(clear_btn, False, False)
+		self.pack_start(searchbox, False, False)
+		self.pack_start(htb,True,True)
 		
 class ItemInfo(gtk.VBox): 
 	def __init__(self):
@@ -912,5 +910,6 @@ bookmarks = BookmarksView()
 timeline = TimelineWidget()
 htb = HTagBrowser()
 search = SearchToolItem()
+searchbox = SearchBox()
 filtersBox = FilterBox()
 bb = BrowserBar(htb)
