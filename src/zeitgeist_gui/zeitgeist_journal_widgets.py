@@ -219,7 +219,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.days.clear()
 		self.review_days()
 		self.build_days()
+		self.expand()
 		self.clean_up_dayboxes()
+	
+	def expand(self):
+		if self.search or self.tags:
+			if self.search.strip() !="" or len(self.tags)!=0:
+				for daybox in self.dayboxes:
+					daybox.view.expand_all()
 	
 	def build_days(self):
 		for item in self.items:
@@ -232,20 +239,20 @@ class TimelineWidget(gtk.ScrolledWindow):
 				
 			for tag in self.tags:
 				if (tag.lower() in item.name.lower()):
-					self._append_to_day(item)
+					self._append_to_day(item, False)
 					continue
 				elif tag.lower() in item.tags.lower().split(","):
-					self._append_to_day(item)
+					self._append_to_day(item, False)
 					continue
 			
 			if self.search.strip() != "":
 				if self.search.strip().lower() in item.name.lower():
-					self._append_to_day(item)
+					self._append_to_day(item, False)
 					continue	
 				elif self.search.strip().lower() in item.tags.lower():
-					self._append_to_day(item)
+					self._append_to_day(item, False)
 					continue	
-			
+		
 	def jump_to_day(self, widget,focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
@@ -302,16 +309,16 @@ class TimelineWidget(gtk.ScrolledWindow):
 			temp=timestamp[2]
 		calendar.select_day(temp)
 		
-	def _append_to_day(self, item):
+	def _append_to_day(self, item, group=True):
 		try:
 			daybox = self.days[item.get_datestring()]
-			daybox.append_item(item)
+			daybox.append_item(item, group=group)
 			self.days[item.get_datestring()] = daybox
 		except:
 			self.days[item.get_datestring()]=DayBox(item.get_datestring())
 			self.dayboxes.pack_start(self.days[item.get_datestring()])
 			daybox = self.days[item.get_datestring()]
-			daybox.append_item(item)
+			daybox.append_item(item, group=group)
 			self.days[item.get_datestring()] = daybox
 				
 	def review_days(self):

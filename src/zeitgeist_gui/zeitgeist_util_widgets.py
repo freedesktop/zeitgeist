@@ -303,10 +303,11 @@ class DataIconView(gtk.TreeView):
 		if not self.types.has_key(item.type):
 			if group:
 				iter = self.store.append(None, [icon_factory.load_icon(item.icon, 24),
-									item.type,
-									date,
-									bookmark,
-									item,
+									 "<span size='large' color='%s'>%s</span>" % \
+			("black", item.type),
+									"",
+									True,
+									None,
 									"Bookmarked "+item.type,
 									None,
 									])
