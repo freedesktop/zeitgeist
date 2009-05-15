@@ -1,13 +1,13 @@
 # -.- encoding: utf-8 -.-
 
-import sys
 import time
 
 from zeitgeist_gui.zeitgeist_base import Data
 from zeitgeist_shared.zeitgeist_shared import plainify_data, dictify_data
 from zeitgeist_gui.zeitgeist_base import objectify_data
+from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
 
-class BaseEngineInterface:
+class EngineInterface:
 	
 	def __init__(self, interface):
 		self._interface = interface
@@ -17,6 +17,9 @@ class BaseEngineInterface:
 	
 	def _data_from_engine(self, data):
 		return objectify_data(data)
+	
+	def connect(self, *args):
+		return dbus_connect(*args)
 	
 	def get_items(self, *args):
 		func = self._data_from_engine
@@ -57,50 +60,13 @@ class BaseEngineInterface:
 	def delete_item(self, *args):
 		return self._interface.delete_item(*args)
 	
+	def emit_signal_updated(self, *args):
+		return self._interface.emit_signal_updated(*args)
+	
 	def quit(self):
 		'''
 		Stops the daemon. Use carefully!
 		'''
 		return self._interface.quit()
 
-
-if "--no-dbus" in sys.argv:
-	
-	import gobject
-	from zeitgeist_engine.zeitgeist_dbus import RemoteInterface
-	from zeitgeist_engine.zeitgeist_datasink import datasink
-	
-	class SignalHandling(gobject.GObject):
-		
-		__gsignals__ = {
-			"signal_updated" : (gobject.SIGNAL_RUN_FIRST,
-				gobject.TYPE_NONE,
-				()),
-		}
-	
-	class EngineInterface(BaseEngineInterface, gobject.GObject):
-		
-		def connect(self, signal, callback, arg0=None):
-			signals.connect(signal, callback, arg0)
-		
-		def emit_signal_updated(self, *args):
-			signals.emit("signal_updated")
-	
-	signals = SignalHandling()
-	remoteinterface = RemoteInterface(start_dbus = False)
-	engine = EngineInterface(remoteinterface)
-	datasink.reload_callbacks.append(engine.emit_signal_updated)
-
-else:
-	
-	from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
-	
-	class EngineInterface(BaseEngineInterface):
-		
-		def connect(self, *args):
-			return dbus_connect(*args)
-		
-		def emit_signal_updated(self, *args):
-			return self._interface.emit_signal_updated(*args)
-	
-	engine = EngineInterface(iface)
+engine = EngineInterface(iface)
