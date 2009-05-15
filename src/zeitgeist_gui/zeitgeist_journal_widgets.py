@@ -834,12 +834,26 @@ class FilterAndTimeBox(gtk.Notebook):
 		self.append_page(filtersBox, label)
 		self.set_tab_label_packing(filtersBox, True, True, gtk.PACK_START)
 		
-		label = self.create_tab_label(_("Date & Time"), calendar)
+		label = self.create_tab_label(_("Date, Time & View"), None)
 		vbox = gtk.VBox()
 		vbox.pack_start(calendar,False,False)
+		
+		enable_grouping = gtk.CheckButton()
+		enable_grouping.set_label(_("Enable Grouping"))
+		enable_grouping.set_active(True)
+		enable_grouping.connect("toggled",self.toggle_grouping)
+		vbox.pack_start(enable_grouping,False,False)
+		
 		self.append_page(vbox, label)
 		self.set_tab_label_packing(vbox, False, False, gtk.PACK_START)
 		
+	def toggle_grouping(self, widget):
+		if widget.get_active():
+			timeline.group = True
+		else:
+			timeline.group = False
+		timeline.load_month()
+	
 	def create_tab_label(self, title, stock):
 		icon = gtk.image_new_from_pixbuf(icon_factory.load_icon(stock, icon_size = 16 ,cache = False))
 		label = gtk.Label(title)
