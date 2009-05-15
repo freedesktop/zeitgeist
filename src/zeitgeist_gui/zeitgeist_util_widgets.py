@@ -456,9 +456,12 @@ class RelatedWindow(gtk.Window):
 		Later to be done by monitoring the active files
 		'''
 		self.img.set_from_pixbuf(item.get_icon(64))
-		string = item.get_name() +"\n"+"\n"+"Last Usage:			"+item.get_datestring() + " " + item.get_time()+"\n"+"\n"+"tags:				"+str(item.get_tags())+"\n"
+		# TODO: Use proper, separate widgets for this
+		string = item.get_name() + "\n\n" + _("Last usage:") + "\t" + \
+			item.get_datestring() + " " + item.get_time() + "\n\n" + \
+			_("Tags:") + "\t" + ", ".join(item.get_tags()) + "\n"
 		self.itemlabel.set_label(string)
-		self.set_title("GNOME Zeitgeist -" + _("Files related to %s") % item.name)
+		self.set_title("GNOME Zeitgeist - " + _("Files related to %s") % item.name)
 		self.view.clear_store()
 		uris = {}
 		from zeitgeist_gui.zeitgeist_journal_widgets import timeline
@@ -576,7 +579,7 @@ class BookmarksView(gtk.ScrolledWindow):
 		
 		self.all_star = BookmarksBox()
 		starred = "%s/data/bookmark-new.svg" % BASEDIR
-		box = self.create_tab_label(("All Star"),starred)
+		box = self.create_tab_label(_("All favourites"),starred)
 		self.notebook.append_page((self.all_star),box)
 		self.notebook.set_tab_label_packing(self.all_star, True, True, gtk.PACK_START)
 		

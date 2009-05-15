@@ -21,6 +21,7 @@ from zeitgeist_shared.zeitgeist_shared import *
 from zeitgeist_shared.basics import BASEDIR
 
 class TimelineWidget(gtk.ScrolledWindow):
+	
 	__gsignals__ = {
 		"reset" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 	}
@@ -140,7 +141,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Begin benchmarking
 		t1 = time.time()
-		
 			
 		if not cached:	
 			self.items = []
@@ -171,7 +171,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 				self.begin = self.begin + (offset*86400)
 				self.end =self.end + (offset*86400)
 			
-			
 			calendar.clear_marks()
 			
 			# Get all items in the date range and add them to self.items
@@ -186,9 +185,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 			
 			try:
 				filtersBox.reload()
-			except:
+			except Exception:
 				pass
-			
+		
 		# Update the GUI with the items that match the current search terms/tags
 		t3 = time.time()
 		print "Time to get items: %s" % str(t3-t1)
@@ -333,12 +332,11 @@ class TimelineWidget(gtk.ScrolledWindow):
 			self.begin = begin
 			self.end = end
 		
-		
 		try:
 			self.days_range = int((self.end - self.begin) / 86400) + 1 # get the days range
 		except:
 			self.days_range = 3
-			
+		
 		'''
 		Try avoiding rebuiling boxes and use currently available
 		'''
@@ -346,7 +344,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if self.days_range == len(self.dayboxes):
 			for i, daybox in enumerate(self.dayboxes):
 				datestring = datetime.datetime.fromtimestamp(self.begin+(i*86400)).strftime("%a %d %b %Y")
-				print datestring
 				daybox.clear()
 				daybox.refresh(datestring)
 				self.days[datestring] = daybox
@@ -388,7 +385,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 					daybox.show()
 				i = i - 1
 		gc.collect()
-	
+
 class HTagBrowser(gtk.VBox):
 	
 	def __init__(self):
@@ -402,7 +399,7 @@ class HTagBrowser(gtk.VBox):
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
 		
-		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT )]
+		self.fromImage = [( "text/plain", 0, TARGET_TYPE_TEXT )]
 
 		self.combobox = gtk.combo_box_new_text()
 		self.combobox.append_text(_("Recently used tags"))
@@ -467,7 +464,6 @@ class HTagBrowser(gtk.VBox):
 	
 	def sendCallback(self, widget, context, selection, targetType, eventTime):
 		selection.set(selection.target, 8, "tag://"+widget.get_label())
-
 	
 	def get_recent_tags(self, x=None):
 		
@@ -499,7 +495,7 @@ class HTagBrowser(gtk.VBox):
 	
 	def toggle(self, x=None):
 		
-		timeline.search=""
+		timeline.search = ""
 		search.entry.set_text("")
 		using_tags = False
 		
@@ -531,8 +527,7 @@ class HTagBrowser(gtk.VBox):
 			bb.set_time_browsing(True)
 			
 		bookmarks.get_bookmarks(text =  tags)
-		
-		
+	
 	def is_any_toggled(self):
 		for w in self.view:
 			if w.get_active():
@@ -632,7 +627,6 @@ class CheckBox(gtk.CheckButton):
 		self.ready = False
 		
 		self.connect("toggled", self.toggle_source)
-		
 	
 	def toggle_source(self, widget=None):
 		if self.ready:
@@ -791,7 +785,7 @@ class BrowserBar(gtk.VBox):
 		icon = gtk.image_new_from_pixbuf(pixbuf)
 		del pixbuf
 		self.search.set_icon_widget(icon)
-		self.tooltips.set_tip(self.search, _("Search for acitvites"))
+		self.tooltips.set_tip(self.search, _("Search for activities"))
 		self.search.connect("toggled", self.toggle_search)
 		
 		self.tags = gtk.ToggleToolButton()

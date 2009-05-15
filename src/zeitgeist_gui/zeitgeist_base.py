@@ -144,7 +144,7 @@ class Data(gobject.GObject):
 	
 	def populate_popup(self, menu):
 		open = gtk.ImageMenuItem (gtk.STOCK_OPEN)
-		open.connect("activate", lambda w: self.open())
+		open.connect("activate", lambda *discard: self.open())
 		open.show()
 		menu.append(open)
 		
@@ -164,7 +164,7 @@ class Data(gobject.GObject):
 		bookmark.show()
 		menu.append(bookmark)
 		
-		relate = gtk.MenuItem(_("Show related stuff"))
+		relate = gtk.MenuItem(_("Show related activities"))
 		relate.connect("activate", lambda w: self.relate())
 		relate.show()
 		menu.append(relate)
@@ -185,10 +185,10 @@ class Data(gobject.GObject):
 		tag.show()
 		menu.append(tag)
 	
-	def relate(self, x=None):
+	def relate(self, *discard):
 		self.emit("relate")
 	
-	def add_bookmark(self, x=None):
+	def add_bookmark(self, *discard):
 		
 		self.bookmark = not self.bookmark
 		from zeitgeist_engine_wrapper import engine
