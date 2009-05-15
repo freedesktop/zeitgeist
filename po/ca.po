@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
-"POT-Creation-Date: 2009-05-15 20:02+0200\n"
+"POT-Creation-Date: 2009-05-15 20:38+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad.net>\n"
@@ -160,27 +160,31 @@ msgstr "Error: No s'està executant el servei del Zeitgeist."
 msgid "Recently used tags"
 msgstr "Etiquetes utilitzades recentment"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:650
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:407
+msgid "All tags"
+msgstr "Totes les etiquetes"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:654
 msgid "Search"
 msgstr "Cerca"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:767
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:771
 msgid "Show recent activities"
 msgstr "Mostra les activats recents"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:770
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:774
 msgid "Filter your current view"
 msgstr "Filtreu la vista actual"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:779
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:783
 msgid "View journal for a specific date"
 msgstr "Veieu el diari per a una data específica"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:788
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:792
 msgid "Search for activities"
 msgstr "Cerca activitats"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:796
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:800
 msgid "View tagged activities"
 msgstr "Mostra activitats etiquetades"
 

@@ -404,6 +404,7 @@ class HTagBrowser(gtk.VBox):
 		self.combobox = gtk.combo_box_new_text()
 		self.combobox.append_text(_("Recently used tags"))
 		self.combobox.append_text(_("Most used tags"))
+		self.combobox.append_text(_("All tags"))
 		
 		self.pack_start(self.combobox, False, False)
 		
@@ -431,20 +432,16 @@ class HTagBrowser(gtk.VBox):
 		
 		self.reset_begin_timestamp = timeline.begin
 		self.reset_end_timestamp = timeline.end
-
-	def reload_tags(self, x=None):
-		index = self.combobox.get_active()
-		if index == 0:
-			self.func = self.get_recent_tags
-		else:
-			self.func = self.get_most_tags
-
+	
 	def changed_cb(self, combobox=None):
 		index = self.combobox.get_active()
 		if index == 0:
-			self.func = self.get_recent_tags()
+			self.func = self.get_recent_tags
+		elif index == 1:
+			self.func = self.get_most_tags
 		else:
-			self.func = self.get_most_tags()
+			self.func = self.get_all_tags
+		self.func()
 	
 	def _tag_toggle_button(self, tag):
 		
@@ -465,30 +462,37 @@ class HTagBrowser(gtk.VBox):
 	def sendCallback(self, widget, context, selection, targetType, eventTime):
 		selection.set(selection.target, 8, "tag://"+widget.get_label())
 	
-	def get_recent_tags(self, x=None):
+	def get_recent_tags(self, *discard):
 		
 		date = calendar.get_date()
 		
-		begin = time.mktime((date[0], date[1]+1, 1, 0,0,0,0,0,0))
-		end = time.mktime((date[0], date[1]+2, 0, 0,0,0,0,0,0))
+		begin = time.mktime((date[0], date[1] + 1, 1, 0,0,0,0,0,0))
+		end = time.mktime((date[0], date[1] + 2, 0, 0,0,0,0,0,0))
 		
 		for w in self.view:
 			self.view.remove(w)
 		
 		for tag in engine.get_recent_used_tags(10, begin, end):
 			self.tag_widgets[tag] = self._tag_toggle_button(tag)
-			
+		
 		self.show_all()
 	
-	def get_most_tags(self, x=None):
-		
-		begin = timeline.begin
-		end = timeline.end
+	def get_most_tags(self, *discard):
 		
 		for w in self.view:
 			self.view.remove(w)
 		
-		for tag in engine.get_most_used_tags(10, begin, end):
+		for tag in engine.get_most_used_tags(10, timeline.begin, timeline.end):
+			self.tag_widgets[tag] = self._tag_toggle_button(tag)
+		
+		self.show_all()
+	
+	def get_all_tags(self, *discard):
+		
+		for w in self.view:
+			self.view.remove(w)
+		
+		for tag in engine.get_all_tags():
 			self.tag_widgets[tag] = self._tag_toggle_button(tag)
 		
 		self.show_all()
@@ -507,7 +511,7 @@ class HTagBrowser(gtk.VBox):
 				timeline.load_month(begin=begin, end=end, tags=tags)
 				using_tags = True		
 				timeline.search = ""
-				
+		
 		else:
 			if tags.count(x.get_label()) > 0:
 				tags.remove(x.get_label())

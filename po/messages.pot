@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist \n"
 "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
-"POT-Creation-Date: 2009-05-15 20:02+0200\n"
+"POT-Creation-Date: 2009-05-15 20:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -162,27 +162,31 @@ msgstr ""
 msgid "Recently used tags"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:650
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:407
+msgid "All tags"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:654
 msgid "Search"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:767
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:771
 msgid "Show recent activities"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:770
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:774
 msgid "Filter your current view"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:779
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:783
 msgid "View journal for a specific date"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:788
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:792
 msgid "Search for activities"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:796
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:800
 msgid "View tagged activities"
 msgstr ""
 

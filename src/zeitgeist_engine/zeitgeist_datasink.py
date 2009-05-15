@@ -175,6 +175,9 @@ class DataSinkSource(DataProvider):
 			# will continue to call this function in idle cpu time
 			return True
 	
+	def get_all_tags(self):
+		return db.get_all_tags()
+	
 	def get_most_used_tags(self, count=20, min=0, max=sys.maxint):
 		if not count: count = 20
 		if not min: min = 0

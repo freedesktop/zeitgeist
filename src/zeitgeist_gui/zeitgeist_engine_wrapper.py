@@ -30,6 +30,9 @@ class BaseEngineInterface:
 		for related_item in self._interface.get_related_items(*args):
 			yield self._data_from_engine(related_item)
 	
+	def get_all_tags(self, *args):
+		return self._interface.get_all_tags(*args)
+	
 	def get_most_used_tags(self, *args):
 		return self._interface.get_most_used_tags(*args)
 	

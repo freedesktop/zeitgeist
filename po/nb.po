@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
-"POT-Creation-Date: 2009-05-15 20:02+0200\n"
+"POT-Creation-Date: 2009-05-15 20:38+0200\n"
 "PO-Revision-Date: 2009-05-07 16:32+0000\n"
 "Last-Translator: Ketil Wendelbo Aanensen <ketil.w.aanensen@gmail.com>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -166,28 +166,32 @@ msgstr "Feil: Zeitgeist-tjeneste kjører ikke."
 msgid "Recently used tags"
 msgstr "Tidligere brukte etiketter"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:650
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:407
+msgid "All tags"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:654
 msgid "Search"
 msgstr "Søk"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:767
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:771
 msgid "Show recent activities"
 msgstr "Vis nylige aktiviteter"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:770
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:774
 msgid "Filter your current view"
 msgstr "Filtrer nåværende visning"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:779
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:783
 msgid "View journal for a specific date"
 msgstr "Vis journal for en spesifikk dato"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:788
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:792
 #, fuzzy
 msgid "Search for activities"
 msgstr "Vis nylige aktiviteter"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:796
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:800
 msgid "View tagged activities"
 msgstr "Vis aktiviteter med etikett"
 

@@ -241,6 +241,8 @@ class DBConnector:
 		desired condition (eg., most used tags, recently used tags...).
 		"""
 		
+		# TODO: This is awful.
+		
 		uris = [] 
 		tags = []
 		
@@ -272,10 +274,15 @@ class DBConnector:
 					if tags.count(tag) <= 0:
 						if len(tags) < count:
 							tags.append(tag)
-							
-		if tags ==[]:
-			return ""
+		
 		return tags
+	
+	def get_all_tags(self):
+		"""
+		Returns a list containing the name of all tags.
+		"""
+		
+		return [x[0] for x in self.cursor.execute("SELECT DISTINCT(tagid) FROM tags").fetchall()]
 	
 	def get_recent_tags(self, count=20, min=0, max=sys.maxint):
 		"""
@@ -287,9 +294,8 @@ class DBConnector:
 	
 	def get_most_tags(self, count=20, min=0, max=sys.maxint):
 		"""
-		Yields the tags between min and max which are used the most often.
-		
-		At most, count tags will be yielded.
+		Returns a list containing up to the `count' most used
+		tags from between timestamps `min' and `max'.
 		"""
 		
 		return self._get_tags("uri", count, min, max)
