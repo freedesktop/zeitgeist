@@ -79,21 +79,17 @@ class Journal(gtk.Window):
 		self.vBox.pack_start(self.hBox, True, True)
 		
 		self.hBox.pack_start(bb, False, False)
-		self.hBox.pack_start(searchbox,False,False,5)
-		self.hBox.pack_start(self.sidebar, False, False)
+		self.hBox.pack_start(filtertime, False, False)
 		self.hBox.pack_start(self.notebook,True,True)
 		self.vBox.pack_start(statusbar, False, False)
 		
 		# Show everything
 		self.show_all()
-		filtersBox.option_box.hide_all()
-		calendar.hide_all()
-		searchbox.hide_all()
-		
 		self.set_focus(None)
 		self.create_toolbar_buttons()
 		self.notebook.set_current_page(1)
 		self.set_size_request(800,-1)
+		filtertime.hide_all()
 		
 		
 	def create_toolbar_buttons(self):

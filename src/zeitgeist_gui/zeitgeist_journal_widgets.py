@@ -31,6 +31,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
 		
+		self.group = True
 		# Add children widgets
 		self.hbox = gtk.HBox()
 		self.view = DataIconView(True)
@@ -233,7 +234,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 				continue
 			
 			if self.search.strip() =="" and len(self.tags) ==0:
-				self._append_to_day(item, False)
+				self._append_to_day(item, self.group)
 				continue
 				
 			for tag in self.tags:
@@ -769,21 +770,6 @@ class BrowserBar(gtk.VBox):
 		self.home.set_label("Recent")
 		self.home.connect("clicked", self.focus_today)
 		self.tooltips.set_tip(self.home, _("Show recent activities"))
-
-		self.options = gtk.ToggleToolButton("gtk-select-color")
-		self.tooltips.set_tip(self.options, _("Filter your current view"))
-		self.options.set_label("Filters")
-		self.options.connect("toggled",self.toggle_options)
-		
-		self.calendar = gtk.ToggleToolButton()
-		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/calendar.svg" % BASEDIR, 24, 24)
-		icon = gtk.image_new_from_pixbuf(pixbuf)
-		del pixbuf
-		self.calendar.set_icon_widget(icon)
-		self.tooltips.set_tip(self.calendar, _("View journal for a specific date"))
-		self.calendar.set_label("Calendar")
-		self.calendar.connect("toggled",self.toggle_calendar)
-		
 		self.search = gtk.ToggleToolButton()
 		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/logo/32x32/apps/gnome-zeitgeist.png" % BASEDIR, 24, 24)
 		icon = gtk.image_new_from_pixbuf(pixbuf)
@@ -792,86 +778,30 @@ class BrowserBar(gtk.VBox):
 		self.tooltips.set_tip(self.search, _("Search for activities"))
 		self.search.connect("toggled", self.toggle_search)
 		
-		self.tags = gtk.ToggleToolButton()
-		icon = gtk.image_new_from_file("%s/data/tag3.svg" % BASEDIR)
-		icon.set_pixel_size(24)
-		self.tags.set_icon_widget(icon)
-		self.tags.set_label("Tags")
-		self.tooltips.set_tip(self.tags, _("View tagged activities"))
-		#self.tags.connect("toggled", self.toggle_tags)
-		
-		#self.toolbar = gtk.Toolbar()
-		#self.toolbar.insert(self.home, -1)
-		
-		#self.sep = gtk.SeparatorToolItem()
-		
-		#self.toolbar.insert(self.sep,-1)
-		#self.toolbar.insert(self.options, -1)
-		#self.toolbar.insert(self.calendar, -1)
-		#self.toolbar.set_style(gtk.TOOLBAR_ICONS)
-		
 		self.pack_start(self.search, False,False)
 		
-		self.pack_end(self.options,False,False)
-		self.pack_end(self.calendar,False,False)
 		self.pack_end(self.home,False,False)
-		
-		#vbox = gtk.VBox()
-		#vbox.pack_start(self.toolbar,True,True)
-		
-		#searchbox = gtk.HBox()
-		# Search Area
-		#searchbox.pack_start(search, True, True)
-		#clear_btn = gtk.ToolButton("gtk-clear")
-		#clear_btn.connect("clicked", lambda x: search.do_clear())
-		#searchbox.pack_start(clear_btn, False, False)
-		#	self.searchbox.pack_start(gtk.Label("ahsha"), False, False)
-		#self.searchbox.pack_start(self.tags, True, True)
 			
-		#self.pack_start(vbox, True, True)
-		#self.pack_start(hbox2, False, False)
-
-	
 	def set_time_browsing(self, bool):
 		if bool:
-				
-				self.calendar.set_sensitive(True)
-				self.options.set_sensitive(True)
-				self.tags.set_sensitive(True)
-				self.home.set_sensitive(True)
-				self.timebrowse=True
+			filtersBox.set_sensitive(True)
+			self.home.set_sensitive(True)
+			self.timebrowse=True
 		else:
-				self.home.set_sensitive(False)
-				self.options.set_sensitive(False)
-				#self.tags.set_sensitive(False)
-				self.calendar.set_sensitive(False)
-				self.timebrowse=False
-				self.calendar.set_active(False)
-				self.options.set_active(False)
-				#self.tags.set_active(False)
-	
-	def toggle_options(self, x=None):
-		if self.options.get_active():
-			filtersBox.option_box.show_all()
-		else:
-			filtersBox.option_box.hide_all()
+			filtersBox.set_sensitive(False)
+			self.home.set_sensitive(False)
+			self.timebrowse=False
 			
 	def toggle_search(self, w=None):
 		if w.get_active():
-			searchbox.show_all()
+			filtertime.show_all()
 			x, y = searchbox.get_size_request()
 			timeline.clean_up_dayboxes(timeline.width - x)
 		else:
-			searchbox.hide_all()
+			filtertime.hide_all()
 			x, y = search.get_size_request()
 			timeline.clean_up_dayboxes(timeline.width +x)
 		print x
-	
-	def toggle_calendar(self, x=None):
-		if self.calendar.get_active():
-			calendar.show_all()
-		else:
-			calendar.hide_all()
 	
 
 	def focus_today(self, x=None):
@@ -892,6 +822,36 @@ class SearchBox(gtk.VBox):
 		searchbox.pack_start(clear_btn, False, False)
 		self.pack_start(searchbox, False, False)
 		self.pack_start(htb,True,True)
+
+class FilterAndTimeBox(gtk.Notebook):
+	def __init__(self):
+		gtk.Notebook.__init__(self)
+		label = self.create_tab_label(_("Search"), searchbox)
+		self.append_page(searchbox, label)
+		self.set_tab_label_packing(searchbox, True, True, gtk.PACK_START)
+		
+		label = self.create_tab_label(_("Filters"), filtersBox)
+		self.append_page(filtersBox, label)
+		self.set_tab_label_packing(filtersBox, True, True, gtk.PACK_START)
+		
+		label = self.create_tab_label(_("Date & Time"), calendar)
+		vbox = gtk.VBox()
+		vbox.pack_start(calendar,False,False)
+		self.append_page(vbox, label)
+		self.set_tab_label_packing(vbox, False, False, gtk.PACK_START)
+		
+	def create_tab_label(self, title, stock):
+		icon = gtk.image_new_from_pixbuf(icon_factory.load_icon(stock, icon_size = 16 ,cache = False))
+		label = gtk.Label(title)
+		
+		box = gtk.HBox()	
+		box.pack_start(icon, False, False)
+		box.pack_start(label, True, True)
+		box.show_all()
+		
+		del label
+		del icon
+		return box
 		
 class ItemInfo(gtk.VBox): 
 	def __init__(self):
@@ -922,4 +882,5 @@ htb = HTagBrowser()
 search = SearchToolItem()
 searchbox = SearchBox()
 filtersBox = FilterBox()
+filtertime = FilterAndTimeBox()
 bb = BrowserBar(htb)
