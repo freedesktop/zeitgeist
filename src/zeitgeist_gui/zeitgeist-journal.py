@@ -60,7 +60,7 @@ class Journal(gtk.Window):
 		self.notebook.set_tab_label_packing(timeline, True, True, gtk.PACK_START)
 		
 		
-		box = gtk.VBox()
+		box = gtk.VBox(False,5)
 		self.notebook.append_page(box, gtk.Label("Most Used Stuff (not yet  implemented)"))
 		self.notebook.set_tab_label_packing(box, True, True, gtk.PACK_START)
 		
@@ -80,7 +80,7 @@ class Journal(gtk.Window):
 		
 		self.hBox.pack_start(bb, False, False)
 		self.hBox.pack_start(filtertime, False, False)
-		self.hBox.pack_start(self.notebook,True,True)
+		self.hBox.pack_start(self.notebook,True,True, 5)
 		self.vBox.pack_start(statusbar, False, False)
 		
 		# Show everything
@@ -161,13 +161,22 @@ class Journal(gtk.Window):
 			return box
 
 	def window_state_event_cb(self, window):
+		x = filtertime.allocation.width
+		
 		
 		width, height = self.get_size()
 		
-		if width < 800:
+		if bb.search.get_active():
+			width = width - x
+			self.set_size_request(800+x,-1)
+		
+		elif width < 800:
 			self.set_size_request(800,-1)
 			width = 800
 	
+		else:
+			self.set_size_request(800,-1)
+			
 		timeline.clean_up_dayboxes(width/3 - 38)
 		bookmarks.clean_up_dayboxes(width)
 

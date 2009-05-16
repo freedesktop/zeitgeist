@@ -770,6 +770,7 @@ class BrowserBar(gtk.VBox):
 		self.home.set_label("Recent")
 		self.home.connect("clicked", self.focus_today)
 		self.tooltips.set_tip(self.home, _("Show recent activities"))
+		
 		self.search = gtk.ToggleToolButton()
 		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/logo/32x32/apps/gnome-zeitgeist.png" % BASEDIR, 24, 24)
 		icon = gtk.image_new_from_pixbuf(pixbuf)
@@ -792,17 +793,11 @@ class BrowserBar(gtk.VBox):
 			self.home.set_sensitive(False)
 			self.timebrowse=False
 			
-	def toggle_search(self, w=None):
+	def toggle_search(self, w=None): 
 		if w.get_active():
 			filtertime.show_all()
-			x, y = searchbox.get_size_request()
-			timeline.clean_up_dayboxes(timeline.width - x)
 		else:
 			filtertime.hide_all()
-			x, y = search.get_size_request()
-			timeline.clean_up_dayboxes(timeline.width +x)
-		print x
-	
 
 	def focus_today(self, x=None):
 		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
