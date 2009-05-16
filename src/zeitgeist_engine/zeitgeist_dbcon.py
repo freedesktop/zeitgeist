@@ -282,7 +282,8 @@ class DBConnector:
 		Returns a list containing the name of all tags.
 		"""
 		
-		return [x[0] for x in self.cursor.execute("SELECT DISTINCT(tagid) FROM tags").fetchall()]
+		return [unicode(x[0]) for x in self.cursor.execute(
+			"SELECT DISTINCT(tagid) FROM tags").fetchall()]
 	
 	def get_recent_tags(self, count=20, min=0, max=sys.maxint):
 		"""
