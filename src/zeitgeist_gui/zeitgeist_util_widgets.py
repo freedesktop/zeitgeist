@@ -98,7 +98,6 @@ class DataIconView(gtk.TreeView):
 		self.set_model(self.store)
 		self.set_headers_visible(False)
 			
-		self.set_enable_tree_lines(True)
 		self.set_expander_column(icon_column)
 		
 		self.connect("row-activated", self._open_item)
