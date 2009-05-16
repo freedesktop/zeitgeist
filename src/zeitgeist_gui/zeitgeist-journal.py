@@ -33,8 +33,6 @@ class Journal(gtk.Window):
 		# Sidebar
 		self.sidebar = gtk.VBox()
 		
-		#self.hBox.pack_start(bookmarks, False, False)
-		
 		# Filter/options box
 		self.sidebar.pack_start(calendar, False, False)
 		self.sidebar.pack_start(filtersBox, True, True)
@@ -68,10 +66,8 @@ class Journal(gtk.Window):
 		statusbar = gtk.Statusbar()
 		
 		
-		
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox(False)
-		#self.vBox.pack_start(bb, False, False)
 		self.add(self.vBox)
 		
 		# Horizontal box (contains the main content and a sidebar)
@@ -91,19 +87,15 @@ class Journal(gtk.Window):
 		self.set_size_request(800,-1)
 		filtertime.hide_all()
 		
-		
 	def create_toolbar_buttons(self):
 		self.star_button = gtk.ToggleToolButton()
-		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.svg" % BASEDIR, 24, 24)
+		pixbuf = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.svg" % BASEDIR, 24, 24)
 		icon = gtk.image_new_from_pixbuf(pixbuf)
-		del pixbuf
 		self.star_button.set_icon_widget(icon)
-				
-		self.star_button.connect("toggled",self.toggled_starred)
+		self.star_button.connect("toggled", self.toggled_starred)
 			
-		bb.pack_start(self.star_button,False,False)
+		bb.pack_start(self.star_button, False, False)
 		bb.show_all()
-		
 	
 	def toggled_starred(self,widget):
 		if widget.get_active():
@@ -112,39 +104,36 @@ class Journal(gtk.Window):
 		else:
 			self.notebook.set_current_page(1)
 			bb.set_time_browsing(True)
-		
-		
 	
 	def ignore_toggle(self,widget):
 		pass
-		
+	
 	'''
 	Check which tab is active and bind the keys event to it
 	'''
 	def on_window_key_press_event(self,timelime,event):
-		
-		if bb.timebrowse==True:
-			if event.keyval==65360:
+		if bb.timebrowse:
+			if event.keyval == 65360:
 				timeline.jump_to_day(str(datetime.datetime.today().strftime("%d %m %Y")).split(" "))
 				self.set_focus(None)
-				
+			
 			# KEY == LEFT
-			if event.keyval==65361:
+			if event.keyval == 65361:
 				timeline.step_in_time(-1)
 				self.set_focus(None)
 			
 			# KEY == Right
-			if event.keyval==65363:
+			if event.keyval == 65363:
 				timeline.step_in_time(+1)
 				self.set_focus(None)
-		
+	
 	def switch_page(self, notebook, page, page_num):	
 		if page_num == 0 or page_num ==2:
 			
 			bb.set_time_browsing(False)
 		else:
 			bb.set_time_browsing(True)
-			
+	
 	def create_tab_label(self, title, stock):
 			icon = gtk.Image()
 			icon = gtk.image_new_from_pixbuf(icon_factory.load_icon(stock, icon_size = 16 ,cache = False))
@@ -156,10 +145,8 @@ class Journal(gtk.Window):
 			box.pack_start(label, True, True)
 			box.show_all()
 			
-			del label
-			del icon
 			return box
-
+	
 	def window_state_event_cb(self, window):
 		x = filtertime.allocation.width
 		
