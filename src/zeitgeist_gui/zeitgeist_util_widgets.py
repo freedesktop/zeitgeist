@@ -68,11 +68,13 @@ class DataIconView(gtk.TreeView):
 		self.set_tooltip_column(5)
 		
 		icon_cell = gtk.CellRendererPixbuf()
+		icon_cell.set_property("yalign", 0.0)
 		icon_column = gtk.TreeViewColumn("",icon_cell,pixbuf=0)
 		#icon_column.set_fixed_width(32)
 		icon_column.set_expand(False)
 		
 		name_cell = gtk.CellRendererText()
+		name_cell.set_property("yalign", 0.0)
 		name_cell.set_property("wrap-mode", pango.WRAP_WORD_CHAR)
 		name_cell.set_property("wrap-width", 125)
 		name_column = gtk.TreeViewColumn(_("Name"), name_cell, markup=1)
@@ -81,11 +83,13 @@ class DataIconView(gtk.TreeView):
 		self.name_cell = name_cell
 		
 		time_cell = gtk.CellRendererText()
+		time_cell.set_property("yalign", 0.0)
 		time_column = gtk.TreeViewColumn(_("Time"), time_cell, markup=2)
 		#time_column.set_fixed_width(32)
 		time_column.set_expand(False)
 		
 		bookmark_cell = CellRendererPixbuf()
+		bookmark_cell.set_property("yalign", 0.0)
 		bookmark_cell.connect("toggled", self.toggle_bookmark, self.store )
 		bookmark_column = gtk.TreeViewColumn("bookmark", bookmark_cell, pixbuf =6)
 		bookmark_column.set_expand(False)
