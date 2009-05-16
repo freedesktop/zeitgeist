@@ -12,16 +12,16 @@ from zeitgeist_shared.zeitgeist_shared import *
 
 sys.path.append(os.path.dirname(__file__))
 
-class DataSinkSource(DataProvider):
-	'''
-	Aggregates all of the item-sources together and feeds them into the database when they update.
-	'''
+class ZeitgeistEngine(gobject.GObject):
 	
-	def __init__(self, note_path=None):
-		DataProvider.__init__(self,
-							name="Sink",
-							icon=None,
-							uri="source:///Datasink")
+	__gsignals__ = {
+		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
+	}
+	
+	def __init__(self):
+		
+		gobject.GObject.__init__(self)
+		
 		self.sources = []
 		self._sources_queue = []
 		self.threads = []
@@ -128,9 +128,6 @@ class DataSinkSource(DataProvider):
 	def delete_item(self, item):
 		print _("Deleting item: %s") % item
 		db.delete_item(item)
-		# optimize this, no full reload required, so no signal should
-		# be emitted, instead the GUI should know to delete it
-		self.emit("reload")
 	
 	def get_items_by_time(self, min=0, max=sys.maxint, tags=""):
 		"Datasink getting all items from DataProviders"
@@ -218,4 +215,4 @@ class DataSinkSource(DataProvider):
 	def register_source(self, name, icon_string):
 		self.external_sources.append((name, icon_string, True))
 
-datasink = DataSinkSource()
+datasink = ZeitgeistEngine()

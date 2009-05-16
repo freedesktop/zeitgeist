@@ -14,7 +14,6 @@ class DataProvider(gobject.GObject, Thread):
 	
 	__gsignals__ = {
 		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
-		"reload_send" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_PYOBJECT, ()),
 	}
 	
 	def __init__(self,

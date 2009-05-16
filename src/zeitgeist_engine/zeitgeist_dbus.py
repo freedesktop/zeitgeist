@@ -11,9 +11,8 @@ class RemoteInterface(dbus.service.Object):
 	# Initialization
 	
 	def __init__(self, start_dbus=True, mainloop=None):
-		if start_dbus:
-			bus_name = dbus.service.BusName("org.gnome.Zeitgeist", dbus.SessionBus())
-			dbus.service.Object.__init__(self, bus_name, "/org/gnome/zeitgeist")
+		bus_name = dbus.service.BusName("org.gnome.Zeitgeist", dbus.SessionBus())
+		dbus.service.Object.__init__(self, bus_name, "/org/gnome/zeitgeist")
 		self._mainloop = mainloop
 	
 	# Reading stuff
@@ -114,6 +113,7 @@ class RemoteInterface(dbus.service.Object):
 		self.signal_updated()
 	
 	# Commands
+	
 	@dbus.service.method("org.gnome.Zeitgeist")
 	def quit(self):
 		if self._mainloop:
