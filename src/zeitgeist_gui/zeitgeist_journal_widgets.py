@@ -777,7 +777,7 @@ class BrowserBar(gtk.VBox):
 
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
-		self.home.connect("clicked", self.focus_today)
+		self.home.connect("clicked", timeline.focus_today)
 		self.tooltips.set_tip(self.home, _("Show recent activities"))
 		
 		self.search = gtk.ToggleToolButton()
