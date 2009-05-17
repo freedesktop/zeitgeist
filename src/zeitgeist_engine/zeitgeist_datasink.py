@@ -6,7 +6,6 @@ import gettext
 import gobject
 import gc
 
-from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_dbcon import db
 from zeitgeist_shared.zeitgeist_shared import *
 
@@ -14,80 +13,10 @@ sys.path.append(os.path.dirname(__file__))
 
 class ZeitgeistEngine(gobject.GObject):
 	
-	__gsignals__ = {
-		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
-	}
-	
 	def __init__(self):
-		
 		gobject.GObject.__init__(self)
-		
-		self.sources = []
-		self._sources_queue = []
-		self.threads = []
-		self.reload_callbacks = []
-		
-		self._db_update_in_progress = False
-		
-		logger_sources = {
-			"recent": (
-				"RecentlyUsedVideo", "RecentlyUsedMusic",
-				"RecentlyUsedImages", "RecentlyUsedDocuments","RecentlyUsedOthers",
-				),
-			"firefox": ("Firefox",),
-			"tomboy": ("Tomboy",),
-			"evolution": ("Evolution",),
-			# Missing: Pidgin, Twitter...
-		}
-		
-		self.sources = []
-		for namespace in logger_sources:
-			sourcefile = __import__('zeitgeist_' + namespace)
-			for item in logger_sources[namespace]:
-				instance = getattr(sourcefile, item + "Source")()
-				instance.connect("reload", self._update_db_with_source)
-				self.sources.append(instance)
-		self.external_sources = []
-		
-		# Update the database
-		self._update_db()
+		self.reload_callback = None
 	
-	def _update_db(self):
-		'''
-		Add new items from all sources into the database.
-		'''
-		
-		# Update the list of sources;
-		# (Note: It's important that we copy the list and don't just reference it.
-		#  If we simply used 'self._sources_queue = self.sources' then removing items
-		#  from the queue would also remove them from self.sources.)
-		self._sources_queue = list(self.sources)
-		
-		# Add a new idle callback to update the db only if one doesn't already exist
-		if not self._db_update_in_progress and len(self._sources_queue) > 0:
-			self.db_update_in_progress = True
-			gobject.idle_add(self._update_db_async)
-	
-	def _update_db_with_source(self, source):
-		'''
-		Add new items from source into the database. This funcion
-		should not be called directly, but instead activated through
-		the "reload" signal.
-		'''
-		
-		# If the source is already in the queue then just return
-		if source in self._sources_queue:
-			return False
-		
-		print "Adding new source to update queue %s" % source
-		# Add the source into the queue
-		self._sources_queue.append(source)
-		
-		# Add a new idle callback to update the db only if one doesn't already exist
-		if not self._db_update_in_progress and len(self._sources_queue) > 0:
-			self.db_update_in_progress = True
-			gobject.idle_add(self._update_db_async)
-			
 	def get_items(self, min=0, max=sys.maxint, tags=""):
 		# Emulate optional argument for the D-Bus interface
 		if not max: max = sys.maxint
@@ -140,38 +69,6 @@ class ZeitgeistEngine(gobject.GObject):
 				items.append(item)
 		return items
 	
-	def _update_db_async(self):
-		
-		if len(self._sources_queue) > 0:
-			print _("Updating database with new %s items") % self._sources_queue[0].name
-			# Update the database with items from the first source in the queue
-			items = self._sources_queue[0].get_items()
-			
-			if db.insert_items(items):
-				# If we inserted at least one item...
-				# Propagate the reload signal to other interested
-				# functions (eg., the D-Bus interface)
-				for callback in self.reload_callbacks:
-					callback()
-			
-			gc.enable()		
-			gc.set_debug(gc.DEBUG_LEAK)
-			# Remove the source from the queue
-			del self._sources_queue[0]
-			
-			# If there are no more items in the queue then finish up
-			if len(self._sources_queue) == 0:
-				self.db_update_in_progress = False
-				gc.collect()
-				self.emit("reload")
-				# Important: return False to stop this callback from being called again
-				return False
-			
-			gc.collect()
-			# Otherwise, if there are more items in the queue return True so that gtk+
-			# will continue to call this function in idle cpu time
-			return True
-	
 	def get_all_tags(self):
 		return db.get_all_tags()
 	
@@ -206,13 +103,11 @@ class ZeitgeistEngine(gobject.GObject):
 		return db.get_items_related_by_tags(item)
 	
 	def insert_item(self, item):
-		return db.insert_item(item)
+		if db.insert_item(item):
+			self.reload_callback()
 	
-	def get_sources_list(self):
-		return [plainify_dataprovider(source) for source in self.sources] + \
-			self.external_sources
-	
-	def register_source(self, name, icon_string):
-		self.external_sources.append((name, icon_string, True))
+	def insert_items(self, items):
+		if db.insert_items(items):
+			self.reload_callback()
 
 datasink = ZeitgeistEngine()

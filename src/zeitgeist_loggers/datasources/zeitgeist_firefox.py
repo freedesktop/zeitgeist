@@ -7,8 +7,8 @@ import gettext
 from os.path import join, expanduser, isfile
 from ConfigParser import ConfigParser, NoOptionError
 
-from zeitgeist_engine.zeitgeist_util import FileMonitor
-from zeitgeist_engine.zeitgeist_base import DataProvider
+from zeitgeist_base import DataProvider
+from zeitgeist_loggers.zeitgeist_util import FileMonitor
 
 class FirefoxSource(DataProvider):
     FIREFOX_DIR = expanduser("~/.mozilla/firefox")
@@ -161,3 +161,5 @@ class FirefoxSource(DataProvider):
         shutil.copy2(self.history_db,  self.LOCATION)
         self.connection = db.connect(self.LOCATION, True)
         self.cursor = self.connection.cursor()
+
+__datasource__ = FirefoxSource()

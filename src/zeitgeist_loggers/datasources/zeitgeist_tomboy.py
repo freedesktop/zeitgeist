@@ -10,8 +10,8 @@ import gnomevfs
 import W3CDate
 import gettext
 
-from zeitgeist_engine.zeitgeist_base import DataProvider
-from zeitgeist_engine.zeitgeist_util import FileMonitor
+from zeitgeist_base import DataProvider
+from zeitgeist_loggers.zeitgeist_util import FileMonitor
 
 # FIXME: This should really just use Beagle or Tracker.
 
@@ -145,3 +145,5 @@ class TomboySource(DataProvider):
                                     
 		except (OSError, IOError), err:
 			pass  #print " !!! Error loading Tomboy notes:", err
+
+__datasource__ = TomboySource()

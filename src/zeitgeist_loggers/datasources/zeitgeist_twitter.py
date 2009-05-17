@@ -40,3 +40,6 @@ class TwitterSource(DataProvider):
 				"count": 0,
 				"use": u"tweet",
 				}
+
+if twitter is not None:
+	__datasource__ = TwitterSource()

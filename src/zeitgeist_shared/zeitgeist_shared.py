@@ -34,10 +34,3 @@ def dictify_data(item_list):
 		"bookmark": item_list[9],
 		"icon": item_list[10]
 		}
-
-
-sig_plain_dataprovider = "(ssb)"
-def plainify_dataprovider(obj):
-	''' Takes a DataSource object and converts it into an object
-		suitable for transmission through D-Bus. '''
-	return (obj.get_name(), obj.get_icon_string(), obj.get_active())

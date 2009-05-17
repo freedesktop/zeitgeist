@@ -11,7 +11,7 @@ import gtk
 import gc
 import gettext
 
-from zeitgeist_engine.zeitgeist_base import DataProvider
+from zeitgeist_base import DataProvider
 
 DOCUMENT_MIMETYPES = [
 		# Covers:
@@ -222,3 +222,7 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 										filter_name=_("Videos"))
 
 recent_model = RecentlyUsedManagerGtk()
+
+__datasource__ = (RecentlyUsedDocumentsSource(),
+	RecentlyUsedImagesSource(), RecentlyUsedMusicSource(),
+	RecentlyUsedOthersSource(), RecentlyUsedVideoSource())

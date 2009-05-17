@@ -66,11 +66,6 @@ class RemoteInterface(dbus.service.Object):
 		return items
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
-						in_signature="", out_signature="a"+sig_plain_dataprovider)
-	def get_sources_list(self):
-		return datasink.get_sources_list()
-	
-	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="(uu)")
 	def get_timestamps_for_tag(self, tag):
 		return datasink.get_timestamps_for_tag(tag)
@@ -87,6 +82,11 @@ class RemoteInterface(dbus.service.Object):
 		self.emit_signal_updated()
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
+						in_signature="a"+sig_plain_data, out_signature="")
+	def insert_items(self, items_list):
+		datasink.insert_items([dictify_data(x) for x in items_list])
+	
+	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature=sig_plain_data, out_signature="")
 	def update_item(self, item_list):
 		datasink.update_item(dictify_data(item_list))
@@ -95,11 +95,6 @@ class RemoteInterface(dbus.service.Object):
 						in_signature="s", out_signature="")
 	def delete_item(self, item_uri):
 		datasink.delete_item(item_uri)
-	
-	@dbus.service.method("org.gnome.Zeitgeist",
-						in_signature="ss", out_signature="")
-	def register_source(self, name, icon_string):
-		datasink.register_source(name, icon_string)
 	
 	# Signals and signal emitters
 	

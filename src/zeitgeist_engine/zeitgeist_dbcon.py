@@ -6,7 +6,6 @@ import sys
 import gc
 import os
 
-from zeitgeist_engine.zeitgeist_base import DataProvider
 from zeitgeist_shared.basics import BASEDIR
 
 class DBConnector:

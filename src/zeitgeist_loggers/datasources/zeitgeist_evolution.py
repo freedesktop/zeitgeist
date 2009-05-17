@@ -7,8 +7,7 @@ import shutil
 import sqlite3 as db
 import gettext
 
-from zeitgeist_engine.zeitgeist_base import DataProvider
-
+from zeitgeist_base import DataProvider
 
 class EvolutionSource(DataProvider):
 	
@@ -72,3 +71,5 @@ class EvolutionSource(DataProvider):
 			return newloc
 		except Exception:
 			return -1
+
+__datasource__ = EvolutionSource()

@@ -51,9 +51,6 @@ class EngineInterface:
 			items.append(self._data_from_engine(item))
 		return items
 	
-	def get_sources_list(self, *args):
-		return self._interface.get_sources_list()
-	
 	def update_item(self, item):
 		return self._interface.update_item(self._data_to_engine(item))
 	
