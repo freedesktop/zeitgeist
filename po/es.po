@@ -29,11 +29,7 @@ msgstr "Borrando elemento: %s"
 #: src/zeitgeist_engine/zeitgeist_datasink.py:149
 #, python-format
 msgid "Updating database with new %s items"
-<<<<<<< TREE
-msgstr "Actualizando base de datos con nuevos elementos %s"
-=======
 msgstr "Actualizando la base de datos con elementos nuevos: %s"
->>>>>>> MERGE-SOURCE
 
 #: src/zeitgeist_engine/zeitgeist_recent.py:171
 msgid "Documents"
@@ -93,7 +89,7 @@ msgstr "Abrir el Diario"
 #: src/zeitgeist_gui/zeitgeist-journal.py:69
 #, fuzzy
 msgid "Bookmarks"
-msgstr "Marcar"
+msgstr "Marcadores"
 
 #: src/zeitgeist_gui/zeitgeist-trayicon.py:34
 msgid "Open Journal"
@@ -112,13 +108,13 @@ msgid ""
 "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
 "computer."
 msgstr ""
-"GNOME Zeitgeist es una herramienta para navegar y encontrar fácilmentes "
+"GNOME Zeitgeist es una herramienta para navegar y encontrar fácilmente "
 "archivos en tu ordenador."
 
 #: src/zeitgeist_gui/zeitgeist_base.py:160
 #, fuzzy
 msgid "Unbookmark"
-msgstr "Marcar"
+msgstr "Quitar Marcador"
 
 #: src/zeitgeist_gui/zeitgeist_base.py:162
 msgid "Bookmark"
@@ -127,16 +123,16 @@ msgstr "Marcar"
 #: src/zeitgeist_gui/zeitgeist_base.py:167
 #, fuzzy
 msgid "Show related files"
-msgstr "Archivos relacionados"
+msgstr "Mostrar Archivos relacionados"
 
 #: src/zeitgeist_gui/zeitgeist_base.py:172
 #, fuzzy
 msgid "Edit tags..."
-msgstr "Cambiar las etiquetas para %s"
+msgstr "Editar etiquetas..."
 
 #: src/zeitgeist_gui/zeitgeist_base.py:183
 msgid "Delete item from Zeitgeist"
-msgstr ""
+msgstr "Borrar elemento de Zeitgeist"
 
 #: src/zeitgeist_gui/zeitgeist_base.py:213
 #, python-format

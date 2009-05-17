@@ -253,12 +253,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 					self._append_to_day(item, False)
 					continue	
 		
+
+
 	def jump_to_day(self, widget,focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
 		'''
 		
 		date = calendar.get_date()
+		print date
 		self.begin =  time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,-1])
 		self.end =  time.mktime([date[0],date[1]+1,date[2]+2,0,0,0,0,0,-1]) - 1
 		
