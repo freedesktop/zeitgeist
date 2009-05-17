@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
-"POT-Creation-Date: 2009-05-15 20:38+0200\n"
+"POT-Creation-Date: 2009-05-17 18:19+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
-"Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad.net>\n"
+"Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad."
+"net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,7 +31,7 @@ msgstr "S'està actualitzant l'activitat: %s"
 msgid "Deleting item: %s"
 msgstr "S'està suprimint l'activitat: %s"
 
-#: src/zeitgeist_engine/zeitgeist_datasink.py:149
+#: src/zeitgeist_engine/zeitgeist_datasink.py:146
 #, python-format
 msgid "Updating database with new %s items"
 msgstr "S'està actualitzant la base de dades amb noves activitats: %s"
@@ -85,8 +86,8 @@ msgid "GNOME Zeitgeist Timeline"
 msgstr "Línia del temps del GNOME Zeitgeist"
 
 #: src/zeitgeist_experimental/zeitgeist_timeline_widgets.py:64
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:512
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:533
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:515
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:536
 msgid "Today"
 msgstr "Avui"
 
@@ -94,11 +95,11 @@ msgstr "Avui"
 msgid "Yesterday"
 msgstr "Ahir"
 
-#: src/zeitgeist_gui/zeitgeist-journal.py:53
+#: src/zeitgeist_gui/zeitgeist-journal.py:51
 msgid "Stars"
 msgstr "Activitats destacades"
 
-#: src/zeitgeist_gui/zeitgeist-journal.py:58
+#: src/zeitgeist_gui/zeitgeist-journal.py:56
 msgid "Journal"
 msgstr "Diari"
 
@@ -107,7 +108,9 @@ msgid "Open Journal"
 msgstr "Obre el diari"
 
 #: src/zeitgeist_gui/zeitgeist-trayicon.py:109
-msgid "GNOME Zeitgeist is a tool for easily browsing and finding files on your computer."
+msgid ""
+"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
+"computer."
 msgstr "El GNOME Zeitgeist és una eina per a navegar i trobar "
 
 #: src/zeitgeist_gui/zeitgeist_base.py:160
@@ -144,7 +147,7 @@ msgid "Cancel"
 msgstr "Aborta"
 
 #: src/zeitgeist_gui/zeitgeist_base.py:250
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:406
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:407
 msgid "Most used tags"
 msgstr "Etiquetes més utilitzades"
 
@@ -156,93 +159,109 @@ msgstr "Error: No s'ha pogut establir una connexió amb el D-Bus."
 msgid "Error: Zeitgeist service not running."
 msgstr "Error: No s'està executant el servei del Zeitgeist."
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:405
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:406
 msgid "Recently used tags"
 msgstr "Etiquetes utilitzades recentment"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:407
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:408
 msgid "All tags"
 msgstr "Totes les etiquetes"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:654
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:655
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:824
 msgid "Search"
 msgstr "Cerca"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:771
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:772
 msgid "Show recent activities"
 msgstr "Mostra les activats recents"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:774
-msgid "Filter your current view"
-msgstr "Filtreu la vista actual"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:783
-msgid "View journal for a specific date"
-msgstr "Veieu el diari per a una data específica"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:792
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:779
 msgid "Search for activities"
 msgstr "Cerca activitats"
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:800
-msgid "View tagged activities"
-msgstr "Mostra activitats etiquetades"
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:828
+msgid "Filters"
+msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:78
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:832
+msgid "Date, Time & View"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:837
+msgid "Enable Grouping"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:80
 msgid "Name"
 msgstr "Nom"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:84
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:87
 msgid "Time"
 msgstr "Hora"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:367
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:370
 msgid "Tagged with:"
 msgstr "Etiquetat amb:"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:369
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:372
 msgid "The file has been removed from"
 msgstr "El fitxer ha estat esborrat de"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:391
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:394
 msgid "New Document"
 msgstr "Document nou"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:437
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:440
 msgid "Related files"
 msgstr "Fitxers relacionats"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:460
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:463
 msgid "Last usage:"
 msgstr "Utilitzat per darrera vegada:"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:462
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:465
 msgid "Tags:"
 msgstr "Etiquetes:"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:464
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:467
 #, python-format
 msgid "Files related to %s"
 msgstr "Fitxers relacionats amb %s"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:582
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:585
 msgid "All favourites"
 msgstr "Totes les destacades"
 
+#~ msgid "Filter your current view"
+#~ msgstr "Filtreu la vista actual"
+
+#~ msgid "View journal for a specific date"
+#~ msgstr "Veieu el diari per a una data específica"
+
+#~ msgid "View tagged activities"
+#~ msgstr "Mostra activitats etiquetades"
+
 #~ msgid "Bookmarks"
 #~ msgstr "Activitats destacades"
+
 #~ msgid "Open Project Viewer"
 #~ msgstr "Obre el visualitzador de projectes"
+
 #~ msgid "Open Timeline"
 #~ msgstr "Obre la línia del temps"
+
 #~ msgid "Show related files"
 #~ msgstr "Mostra activitats relacionades"
+
 #~ msgid "Create New Document..."
 #~ msgstr "Crea un document nou..."
+
 #~ msgid "Go back in time"
 #~ msgstr "Retrocedeix en el temps"
+
 #~ msgid "Go forward in time"
 #~ msgstr "Avança en el temps"
+
 #~ msgid "Go to the future"
 #~ msgstr "Avança en el temps"
-
