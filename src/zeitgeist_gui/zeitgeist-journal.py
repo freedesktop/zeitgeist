@@ -114,7 +114,7 @@ class Journal(gtk.Window):
 	def on_window_key_press_event(self,timelime,event):
 		if bb.timebrowse:
 			if event.keyval == 65360:
-				bb.focus_today()
+				timeline.focus_today()
 				self.set_focus(None)
 			
 			# KEY == LEFT

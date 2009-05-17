@@ -389,6 +389,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 					daybox.show()
 				i = i - 1
 		gc.collect()
+	def focus_today(self, x=None):
+		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
+		date = calendar.get_date()
+		calendar.select_day(int(today[0]))
+		if not int(today[1])-1 == int(date[1]):
+			calendar.select_month(int(today[1])-1, int(today[2]))
 
 class HTagBrowser(gtk.VBox):
 	
@@ -802,12 +808,7 @@ class BrowserBar(gtk.VBox):
 		else:
 			filtertime.hide_all()
 
-	def focus_today(self, x=None):
-		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
-		date = calendar.get_date()
-		calendar.select_day(int(today[0]))
-		if not int(today[1])-1 == int(date[1]):
-			calendar.select_month(int(today[1])-1, int(today[2]))
+	
 		
 class SearchBox(gtk.VBox):
 	def __init__(self):
