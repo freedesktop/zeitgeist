@@ -2,29 +2,28 @@ PREFIX = /usr/local
 MO_PREFIX = /usr
 
 all:
-	@echo "Makefile: Available actions: install, uninstall, clean, tarball, generate-pot, build-translations, install-translations, update-po."
+	@echo "Makefile: Available actions: install, uninstall, clean, tarball, generate-pot, build-translations, install-translations, update-po, build-docs."
 
 # install
-install:
+install: clean build-docs install-translations
 	mkdir -p $(PREFIX)/share/gnome-zeitgeist/data
-	mkdir -p $(PREFIX)/share/doc/gnome-zeitgeist/
+	mkdir -p $(PREFIX)/share/doc/gnome-zeitgeist/html
 	mkdir -p $(PREFIX)/share/applications
 	mkdir -p $(PREFIX)/share/pixmaps
 	mkdir -p $(PREFIX)/share/dbus-1/services
 	mkdir -p $(PREFIX)/bin
 	
 	cp -r src $(PREFIX)/share/gnome-zeitgeist
+	rm -r $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_experimental
 	-install data/* $(PREFIX)/share/gnome-zeitgeist/data
 	install extra/zeitgeist-journal.desktop $(PREFIX)/share/applications
 	install extra/org.gnome.Zeitgeist.service $(PREFIX)/share/dbus-1/services
-	install AUTHORS MAINTAINERS TODO $(PREFIX)/share/doc/gnome-zeitgeist
+	install TODO $(PREFIX)/share/doc/gnome-zeitgeist
+	install doc/gzg-userdocs.html $(PREFIX)/share/doc/gnome-zeitgeist/html
 	
 	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist-daemon.py
 	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-journal.py
 	chmod +x $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_gui/zeitgeist-trayicon.py
-	
-	rm -f $(PREFIX)/bin/zeitgeist-daemon \
-		$(PREFIX)/bin/zeitgeist-journal
 	
 	ln -s $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist-daemon.py \
 		$(PREFIX)/bin/zeitgeist-daemon
@@ -45,12 +44,17 @@ uninstall:
 
 clean:
 	find src/ -name "*\.pyc" -delete
+	find src/ -name "*~" -delete
+	rm -f po/*.mo doc/gzg-userdocs.html
 	@echo "Makefile: Cleaned up."
 
 # build a source release
 tarball:
 	@echo "Not yet implemented."
 	#@echo "Makefile: Tarball is ready and waiting in ./dist ..."
+
+build-docs:
+	asciidoc doc/gzg-userdocs.txt
 
 # generate translations template (POT)
 generate-pot:
@@ -72,6 +76,7 @@ build-translations:
 # install translations
 install-translations: build-translations
 	cd po/; for file in *.mo; do \
+		mkdir -p $(MO_PREFIX)/share/locale/$${file%.*}/LC_MESSAGES/; \
 		sudo mv $$file \
 			$(MO_PREFIX)/share/locale/$${file%.*}/LC_MESSAGES/gnome-zeitgeist.mo; \
 	done

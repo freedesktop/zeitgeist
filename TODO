@@ -19,6 +19,10 @@ FOR RELEASE:
 - Both:
 	+ Fix unicode support.
 
+- Documentation:
+    + Use the original images whenever possible, instead of a
+	  copy of them.
+
 
 FUTURE:
 ------------
