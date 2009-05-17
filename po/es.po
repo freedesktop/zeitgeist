@@ -108,13 +108,13 @@ msgid ""
 "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
 "computer."
 msgstr ""
-"GNOME Zeitgeist es una herramienta para navegar y encontrar fácilmentes "
+"GNOME Zeitgeist es una herramienta para navegar y encontrar fácilmente "
 "archivos en tu ordenador."
 
 #: src/zeitgeist_gui/zeitgeist_base.py:160
 #, fuzzy
 msgid "Unbookmark"
-msgstr "Marcar"
+msgstr "Desmarcar"
 
 #: src/zeitgeist_gui/zeitgeist_base.py:162
 msgid "Bookmark"
@@ -166,7 +166,7 @@ msgstr "Etiquetas usadas recientemente"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:408
 msgid "All tags"
-msgstr ""
+msgstr "Todas las etiquetas"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:655
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:824
@@ -180,7 +180,7 @@ msgstr "Mostrar actividades recientes"
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:779
 #, fuzzy
 msgid "Search for activities"
-msgstr "Mostrar actividades recientes"
+msgstr "Buscar actividades"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:828
 msgid "Filters"
@@ -188,11 +188,11 @@ msgstr ""
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:832
 msgid "Date, Time & View"
-msgstr ""
+msgstr "Fecha, Hora y Vista"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:837
 msgid "Enable Grouping"
-msgstr ""
+msgstr "Activar Agrupado"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:80
 msgid "Name"
@@ -220,11 +220,11 @@ msgstr "Archivos relacionados"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:463
 msgid "Last usage:"
-msgstr ""
+msgstr "Último uso:"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:465
 msgid "Tags:"
-msgstr ""
+msgstr "Etiquetas:"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:467
 #, python-format
@@ -233,7 +233,7 @@ msgstr "Archivos relacionados con %s"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:585
 msgid "All favourites"
-msgstr ""
+msgstr "Todos los favoritos"
 
 #, fuzzy
 #~ msgid "Bookmarks"
