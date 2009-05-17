@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist \n"
 "Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
-"POT-Creation-Date: 2009-05-17 18:19+0200\n"
+"POT-Creation-Date: 2009-05-18 00:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,64 +16,18 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/zeitgeist-daemon.py:29
+#: src/zeitgeist-daemon.py:34
 msgid "Starting Zeitgeist service..."
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_datasink.py:125
+#: src/zeitgeist_engine/zeitgeist_datasink.py:54
 #, python-format
 msgid "Updating item: %s"
 msgstr ""
 
-#: src/zeitgeist_engine/zeitgeist_datasink.py:129
+#: src/zeitgeist_engine/zeitgeist_datasink.py:58
 #, python-format
 msgid "Deleting item: %s"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_datasink.py:146
-#, python-format
-msgid "Updating database with new %s items"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_firefox.py:20
-msgid "Firefox History"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_firefox.py:23
-msgid "Websites visited with Firefox"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_recent.py:171
-msgid "Documents"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_recent.py:183
-msgid "Other"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_recent.py:202
-msgid "Images"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_recent.py:212
-msgid "Music"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_recent.py:222
-msgid "Videos"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_tomboy.py:85
-#: src/zeitgeist_engine/zeitgeist_tomboy.py:88
-msgid "Notes"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_tomboy.py:90
-msgid "Create New Note"
-msgstr ""
-
-#: src/zeitgeist_engine/zeitgeist_tomboy.py:91
-msgid "Make a new Tomboy note"
 msgstr ""
 
 #: src/zeitgeist_experimental/zeitgeist-projectviewer.py:24
@@ -85,8 +39,8 @@ msgid "GNOME Zeitgeist Timeline"
 msgstr ""
 
 #: src/zeitgeist_experimental/zeitgeist_timeline_widgets.py:64
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:515
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:536
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:530
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:551
 msgid "Today"
 msgstr ""
 
@@ -146,48 +100,40 @@ msgid "Cancel"
 msgstr ""
 
 #: src/zeitgeist_gui/zeitgeist_base.py:250
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:407
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:416
 msgid "Most used tags"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_dbus.py:13
-msgid "Error: Could not connect to D-Bus."
-msgstr ""
-
-#: src/zeitgeist_gui/zeitgeist_dbus.py:18
-msgid "Error: Zeitgeist service not running."
-msgstr ""
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:406
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:415
 msgid "Recently used tags"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:408
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:417
 msgid "All tags"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:655
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:824
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:664
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:828
 msgid "Search"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:772
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:781
 msgid "Show recent activities"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:779
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:788
 msgid "Search for activities"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:828
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:832
 msgid "Filters"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:832
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:836
 msgid "Date, Time & View"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:837
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:841
 msgid "Enable Grouping"
 msgstr ""
 
@@ -199,35 +145,53 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:370
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:385
 msgid "Tagged with:"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:372
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:387
 msgid "The file has been removed from"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:394
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:409
 msgid "New Document"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:440
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:455
 msgid "Related files"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:463
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:478
 msgid "Last usage:"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:465
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:480
 msgid "Tags:"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:467
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:482
 #, python-format
 msgid "Files related to %s"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:585
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:600
 msgid "All favourites"
+msgstr ""
+
+#: src/zeitgeist_loggers/zeitgeist-datahub.py:50
+#, python-format
+msgid "Error: Could not load file: %s"
+msgstr ""
+
+#: src/zeitgeist_loggers/zeitgeist-datahub.py:76
+#, python-format
+msgid "Updating database with new %s items"
+msgstr ""
+
+#: src/zeitgeist_shared/zeitgeist_dbus.py:13
+msgid "Error: Could not connect to D-Bus."
+msgstr ""
+
+#: src/zeitgeist_shared/zeitgeist_dbus.py:18
+msgid "Error: Zeitgeist service not running."
 msgstr ""
