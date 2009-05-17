@@ -95,12 +95,3 @@ Items that are bookmarked will go into the bookmarked tab. When you bookmark one
 In addition to checking the star, you can star an item by right clicking on an item and choose By right-clicking an item and choose "Bookmark".
 
 Removing the star is done by the same ways: Right click the item, and choose "Unbookmark", or click the highlighted star.
-
-== Using the Project Viewer ==
-Not implemented
-
-== Using the Timeline ==
-Not implemented
-
-
-

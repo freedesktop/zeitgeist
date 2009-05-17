@@ -45,12 +45,16 @@ uninstall:
 
 clean:
 	find src/ -name "*\.pyc" -delete
+	rm -f po/*.mo doc/gzg-userdocs.html
 	@echo "Makefile: Cleaned up."
 
 # build a source release
 tarball:
 	@echo "Not yet implemented."
 	#@echo "Makefile: Tarball is ready and waiting in ./dist ..."
+
+build-docs:
+	asciidoc doc/gzg-userdocs.txt
 
 # generate translations template (POT)
 generate-pot:
