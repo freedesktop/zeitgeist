@@ -359,17 +359,17 @@ class DataIconView(gtk.TreeView):
 				self.item_type_count[item.type] +=1
 				iter = self.types[item.type] 
 				if self.item_type_count[item.type] > 1:
-					self.store.set(iter,1,"<span size='large' color='%s'>%s</span>"\
+					self.store.set(iter,1,"<span color='%s'>%s</span>"\
 								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
 										 ("black", item.type, self.item_type_count[item.type]) )
 				else:
-					self.store.set(iter,1,"<span size='large' color='%s'>%s</span>"\
+					self.store.set(iter,1,"<span  color='%s'>%s</span>"\
 								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
 										 ("black", item.type, self.item_type_count[item.type]) )
 				
 			self.last_iter = self.store.append(self.types[item.type], 
 				[item.get_icon(24),
-				name,
+				"<span size='small'>%s</span>" % name,
 				date,
 				bookmark,
 				item,
