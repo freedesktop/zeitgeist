@@ -30,13 +30,17 @@ class DataHub(gobject.GObject):
 		self._sources = []
 		for datasource_file in glob.glob(datasource_dir + '/*.py'):
 			self._load_datasource_file(os.path.basename(datasource_file))
-		for source in self._sources:
-			source.connect("reload", self._update_db_with_source)
 		
 		# Start by fetch new items from all sources
 		self._sources_queue = list(self._sources)
 		self._db_update_in_progress = True
 		gobject.idle_add(self._update_db_async)
+		
+		for source in self._sources:
+			source.connect("reload", self._update_db_with_source)
+		
+		mainloop = gobject.MainLoop()
+		mainloop.run()
 	
 	def _load_datasource_file(self, datasource_file):
 		
@@ -62,10 +66,9 @@ class DataHub(gobject.GObject):
 		'''
 		
 		if not source in self._sources_queue:
-			print "Adding new source to update queue: %s" % source # TODO: Remove this
 			self._sources_queue.append(source)
 			if not self._db_update_in_progress:
-				self.db_update_in_progress = True
+				self._db_update_in_progress = True
 				gobject.idle_add(self._update_db_async)
 	
 	def _update_db_async(self):
@@ -78,7 +81,7 @@ class DataHub(gobject.GObject):
 		del self._sources_queue[0]
 		
 		if len(self._sources_queue) == 0:
-			self.db_update_in_progress = False
+			self._db_update_in_progress = False
 			return False # Return False to stop this callback
 		
 		# Otherwise, if there are more items in the queue return True so
