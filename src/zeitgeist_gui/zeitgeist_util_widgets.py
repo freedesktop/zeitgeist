@@ -128,6 +128,7 @@ class DataIconView(gtk.TreeView):
 		self.types = {}
 		self.days={}
 		self.items_uris=[]
+		self.item_type_count = {}
 			
 	def _do_refresh_rows(self):
 		
@@ -314,6 +315,8 @@ class DataIconView(gtk.TreeView):
 		
 		if not self.types.has_key(item.type):
 			if group:
+				self.item_type_count[item.type] = 0
+			
 				iter = self.store.append(None, [icon_factory.load_icon(item.icon, 24),
 									 "<span size='large' color='%s'>%s</span>" % \
 			("black", item.type),
@@ -352,6 +355,18 @@ class DataIconView(gtk.TreeView):
 					])
 		
 		else:
+			if group:
+				self.item_type_count[item.type] +=1
+				iter = self.types[item.type] 
+				if self.item_type_count[item.type] > 1:
+					self.store.set(iter,1,"<span size='large' color='%s'>%s</span>"\
+								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
+										 ("black", item.type, self.item_type_count[item.type]) )
+				else:
+					self.store.set(iter,1,"<span size='large' color='%s'>%s</span>"\
+								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
+										 ("black", item.type, self.item_type_count[item.type]) )
+				
 			self.last_iter = self.store.append(self.types[item.type], 
 				[item.get_icon(24),
 				name,
