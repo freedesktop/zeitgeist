@@ -253,12 +253,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 					self._append_to_day(item, False)
 					continue	
 		
+
+
 	def jump_to_day(self, widget,focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
 		'''
 		
 		date = calendar.get_date()
+		print date
 		self.begin =  time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,-1])
 		self.end =  time.mktime([date[0],date[1]+1,date[2]+2,0,0,0,0,0,-1]) - 1
 		
@@ -386,6 +389,12 @@ class TimelineWidget(gtk.ScrolledWindow):
 					daybox.show()
 				i = i - 1
 		gc.collect()
+	def focus_today(self, x=None):
+		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
+		date = calendar.get_date()
+		calendar.select_day(int(today[0]))
+		if not int(today[1])-1 == int(date[1]):
+			calendar.select_month(int(today[1])-1, int(today[2]))
 
 class HTagBrowser(gtk.VBox):
 	
@@ -768,7 +777,7 @@ class BrowserBar(gtk.VBox):
 
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
-		self.home.connect("clicked", self.focus_today)
+		self.home.connect("clicked", timeline.focus_today)
 		self.tooltips.set_tip(self.home, _("Show recent activities"))
 		
 		self.search = gtk.ToggleToolButton()
@@ -799,12 +808,7 @@ class BrowserBar(gtk.VBox):
 		else:
 			filtertime.hide_all()
 
-	def focus_today(self, x=None):
-		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
-		date = calendar.get_date()
-		calendar.select_day(int(today[0]))
-		if not int(today[1])-1 == int(date[1]):
-			calendar.select_month(int(today[1])-1, int(today[2]))
+	
 		
 class SearchBox(gtk.VBox):
 	def __init__(self):
