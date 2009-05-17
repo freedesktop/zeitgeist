@@ -13,6 +13,9 @@ installation_dir = os.path.dirname(os.path.realpath(__file__))
 datasource_dir = os.path.join(installation_dir, 'datasources')
 sys.path.extend((os.path.join(installation_dir, '../'), datasource_dir))
 
+from zeitgeist_shared.zeitgeist_dbus import iface
+from zeitgeist_shared.zeitgeist_shared import plainify_dict
+
 class DataHub(gobject.GObject):
 	
 	__gsignals__ = {
@@ -69,7 +72,9 @@ class DataHub(gobject.GObject):
 		
 		print _("Updating database with new %s items") % \
 			self._sources_queue[0].name
-		db.insert_items(self._sources_queue[0].get_items())
+		items = self._sources_queue[0].get_items()
+		if items:
+			iface.insert_items([plainify_dict(item) for item in items])
 		del self._sources_queue[0]
 		
 		if len(self._sources_queue) == 0:

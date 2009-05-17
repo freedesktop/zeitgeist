@@ -94,15 +94,15 @@ class RecentlyUsedManagerGtk(DataProvider):
 					}
 					
 					item["timestamp"] = info.get_added()
-					item["use"] = unicode( "first usage")
+					item["use"] = unicode("first usage")
 					yield item
 					
 					item["timestamp"] = info.get_visited()
-					item["use"] = unicode( "opened")
+					item["use"] = unicode("opened")
 					yield item
 					
 					item["timestamp"] = info.get_modified()
-					item["use"] = unicode( "modified")
+					item["use"] = unicode("modified")
 					yield item
 
 					

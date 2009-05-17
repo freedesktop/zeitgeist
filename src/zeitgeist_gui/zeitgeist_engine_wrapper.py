@@ -5,7 +5,7 @@ import time
 from zeitgeist_gui.zeitgeist_base import Data
 from zeitgeist_shared.zeitgeist_shared import plainify_data, dictify_data
 from zeitgeist_gui.zeitgeist_base import objectify_data
-from zeitgeist_gui.zeitgeist_dbus import iface, dbus_connect
+from zeitgeist_shared.zeitgeist_dbus import iface, dbus_connect
 
 class EngineInterface:
 	

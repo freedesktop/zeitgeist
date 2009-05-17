@@ -80,6 +80,7 @@ class RemoteInterface(dbus.service.Object):
 	def insert_item(self, item_list):
 		datasink.insert_item(dictify_data(item_list))
 		self.emit_signal_updated()
+		return ""
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="a"+sig_plain_data, out_signature="")
@@ -100,7 +101,6 @@ class RemoteInterface(dbus.service.Object):
 	
 	@dbus.service.signal("org.gnome.Zeitgeist")
 	def signal_updated(self):
-		# We forward the "reload" signal, but only if something changed.
 		pass
 	
 	@dbus.service.method("org.gnome.Zeitgeist")

@@ -19,32 +19,10 @@ class DBConnector:
 	def _result2data(self, result, timestamp=0):
 		
 		res = self.cursor.execute(
-					"""SELECT tagid FROM tags WHERE uri = ?""",
-					(result[0],)).fetchall()
+			"""SELECT tagid FROM tags WHERE uri = ?""",(result[0],)
+			).fetchall()
 		
-		tags = ""
-		if len(res)>0:
-			for tag in res:
-				if not tags=="":
-					tags = tags + "," + str(tag[0])
-				else:
-					tags = str(tag[0])
-		
-		'''
-		s = " "
-		print (str(type(timestamp)) + s +
-			     str(type(result[0])) + s + 
-			     str(type(result[1])) + s +	
-			     str(type(result[2] or "")) + s + 
-			     str(type(tags)) + s + 
-			     str(type(result[4])) + s + 
-			     str(type(result[5])) + s + 
-			     str(type(result[6])) + s +	
-			     str(type(result[7] or "N/A")) + s +
-			     str(type(result[8] or 1)) + s + 
-				 str(type(result[9] or "N/A"))
-					)
-		'''
+		tags = ",".join([unicode(tag[0]) for tag in res]) or ""
 		
 		return (
 			timestamp,
