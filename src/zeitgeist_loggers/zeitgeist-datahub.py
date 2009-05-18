@@ -6,6 +6,7 @@ import os
 import glob
 import gettext
 import gobject
+import dbus.exceptions
 
 gettext.install('gnome-zeitgeist', '/usr/share/locale', unicode=1)
 
@@ -39,8 +40,8 @@ class DataHub(gobject.GObject):
 		for source in self._sources:
 			source.connect("reload", self._update_db_with_source)
 		
-		mainloop = gobject.MainLoop()
-		mainloop.run()
+		self._mainloop = gobject.MainLoop()
+		self._mainloop.run()
 	
 	def _load_datasource_file(self, datasource_file):
 		
@@ -75,9 +76,18 @@ class DataHub(gobject.GObject):
 		
 		print _("Updating database with new %s items") % \
 			self._sources_queue[0].name
-		items = self._sources_queue[0].get_items()
+		items = [plainify_dict(item) for item in \
+			self._sources_queue[0].get_items()]
 		if items:
-			iface.insert_items([plainify_dict(item) for item in items])
+			try:
+				iface.insert_items(items)
+			except dbus.exceptions.DBusException, error:
+				error = error.get_dbus_name()
+				if error == "org.freedesktop.DBus.Error.ServiceUnknown":
+					self._mainloop.quit()
+				else:
+					raise
+		
 		del self._sources_queue[0]
 		
 		if len(self._sources_queue) == 0:
