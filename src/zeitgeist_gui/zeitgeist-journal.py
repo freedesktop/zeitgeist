@@ -25,6 +25,7 @@ class Journal(gtk.Window):
 		self.set_resizable(True)
 		self.set_default_size(800, -1)
 		self.set_icon_from_file("%s/data/logo/scalable/apps/gnome-zeitgeist.svg" % BASEDIR)
+		self._visible = True
 		self.connect("destroy", gtk.main_quit)
 		self.connect('check-resize', self.window_state_event_cb)
 		self.connect("key-press-event",self.on_window_key_press_event)
@@ -85,7 +86,8 @@ class Journal(gtk.Window):
 		filtertime.hide_all()
 	
 	def _toggle_visibility(self, *discard):
-		pass
+		self.hide() if self._visible else self.show()
+		self._visible ^= True
 	
 	def _create_toolbar_buttons(self):
 		self.star_button = gtk.ToggleToolButton()
