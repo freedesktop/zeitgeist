@@ -87,6 +87,9 @@ class DataHub(gobject.GObject):
 					self._mainloop.quit()
 				else:
 					raise
+			except TypeError, error:
+				print _("Type error logging item from \"%s\": %s" % \
+					(self._sources_queue[0].name, error))
 		
 		del self._sources_queue[0]
 		
