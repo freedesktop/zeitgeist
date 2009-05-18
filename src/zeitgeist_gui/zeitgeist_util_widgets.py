@@ -369,7 +369,7 @@ class DataIconView(gtk.TreeView):
 				
 			self.last_iter = self.store.append(self.types[item.type], 
 				[item.get_icon(24),
-				"<span size='small'>%s</span>" % name,
+				name,#"<span size='small'>%s</span>" % name,
 				date,
 				bookmark,
 				item,
