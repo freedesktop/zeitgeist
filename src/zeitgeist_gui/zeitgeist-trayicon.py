@@ -50,6 +50,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		self.set_tooltip("GNOME Zeitgeist")
 		self.connect('popup-menu', self.popup_menu_cb, menu)
 		self.connect('activate', self._open_frontend, 'journal')
+		
 	
 	def _open_frontend(self, widget, frontend):
 		# If .poll does return None the process hasn't terminated yet.
