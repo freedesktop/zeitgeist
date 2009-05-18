@@ -130,7 +130,11 @@ class AboutWindow(gtk.AboutDialog):
 		gplv3 = "/usr/share/common-licenses/GPL-3"
 		if not os.path.isfile(gplv3):
 			gplv3 = "%s/COPYING" % BASEDIR
-		self.set_license(open(gplv3).read())
+		if os.path.isfile(gplv3):
+			self.set_license(open(gplv3).read())
+		else:
+			self.set_license(
+				"GNU General Public License, version 3 or later")
 		
 		self.connect("response", self.close)
 		self.hide()

@@ -37,8 +37,6 @@ class Journal(gtk.Window):
 		self.sidebar.pack_start(calendar, False, False)
 		self.sidebar.pack_start(filtersBox, True, True)
 		
-		# Event box
-		
 		# Notebook
 		self.notebook = gtk.Notebook()
 		self.notebook.connect("switch-page",self.switch_page)
@@ -57,14 +55,12 @@ class Journal(gtk.Window):
 		self.notebook.append_page(timeline, label)
 		self.notebook.set_tab_label_packing(timeline, True, True, gtk.PACK_START)
 		
-		
 		box = gtk.VBox(False,5)
 		self.notebook.append_page(box, gtk.Label("Most Used Stuff (not yet  implemented)"))
 		self.notebook.set_tab_label_packing(box, True, True, gtk.PACK_START)
 		
 		# Status bar
 		statusbar = gtk.Statusbar()
-		
 		
 		# Vertical box (contains self.hBox and a status bar)
 		self.vBox = gtk.VBox(False)
@@ -82,12 +78,15 @@ class Journal(gtk.Window):
 		# Show everything
 		self.show_all()
 		self.set_focus(None)
-		self.create_toolbar_buttons()
+		self._create_toolbar_buttons()
 		self.notebook.set_current_page(1)
 		self.set_size_request(800,-1)
 		filtertime.hide_all()
-		
-	def create_toolbar_buttons(self):
+	
+	def _toggle_visibility(self):
+		pass
+	
+	def _create_toolbar_buttons(self):
 		self.star_button = gtk.ToggleToolButton()
 		pixbuf = gtk.gdk.pixbuf_new_from_file_at_size("%s/data/bookmark-new.svg" % BASEDIR, 24, 24)
 		icon = gtk.image_new_from_pixbuf(pixbuf)
@@ -97,7 +96,7 @@ class Journal(gtk.Window):
 		bb.pack_start(self.star_button, False, False)
 		bb.show_all()
 	
-	def toggled_starred(self,widget):
+	def toggled_starred(self, widget):
 		if widget.get_active():
 			self.notebook.set_current_page(0)
 			bb.set_time_browsing(False)
@@ -105,13 +104,10 @@ class Journal(gtk.Window):
 			self.notebook.set_current_page(1)
 			bb.set_time_browsing(True)
 	
-	def ignore_toggle(self,widget):
-		pass
-	
-	'''
-	Check which tab is active and bind the keys event to it
-	'''
-	def on_window_key_press_event(self,timelime,event):
+	def on_window_key_press_event(self, timelime, event):
+		'''
+		Check which tab is active and bind the keys event to it.
+		'''
 		if bb.timebrowse:
 			if event.keyval == 65360:
 				timeline.focus_today()

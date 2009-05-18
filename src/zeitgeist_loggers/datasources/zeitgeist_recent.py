@@ -145,20 +145,18 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 	
 	def get_items_uncached(self):
 		for item in RecentlyUsed.get_items_uncached(self):
+			
 			counter = 0
 			info = recent_model.recent_manager.lookup_item(item["uri"])
 			
 			for app in info.get_applications():
-				appinfo=info.get_application_info(app)
-				counter=counter+appinfo[1]
-			
+				appinfo = info.get_application_info(app)
+				counter = counter + appinfo[1]
 				item["count"] = counter
 				item["type"] = self.name
 			 	item["icon"] = self.icon
 			
 			yield item
-			del item
-		gc.collect()
 
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):

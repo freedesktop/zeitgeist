@@ -51,7 +51,7 @@ class EvolutionSource(DataProvider):
 								"comment": u"",
 								"mimetype": u"mail",
 								"tags": u"",
-								"count": u""
+								"count": 0
 								}
 					except Exception:
 						print "error fetching sent mail"
