@@ -56,6 +56,8 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		if frontend not in self._procs or self._procs[frontend].poll() != None:
 			self._procs[frontend] = subprocess.Popen(
 				"%s/src/zeitgeist_gui/zeitgeist-%s.py" % (BASEDIR, frontend))
+		else:
+			os.kill(self._procs[frontend].pid, signal.SIGUSR2)
 	
 	def open_about(self, widget):
 		if not self._about:

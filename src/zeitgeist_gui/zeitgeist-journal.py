@@ -29,6 +29,7 @@ class Journal(gtk.Window):
 		self.connect('check-resize', self.window_state_event_cb)
 		self.connect("key-press-event",self.on_window_key_press_event)
 		signal.signal(signal.SIGUSR1, lambda *discard: self.emit(gtk.main_quit))
+		signal.signal(signal.SIGUSR2, self._toggle_visibility)
 		
 		# Sidebar
 		self.sidebar = gtk.VBox()
@@ -83,7 +84,7 @@ class Journal(gtk.Window):
 		self.set_size_request(800,-1)
 		filtertime.hide_all()
 	
-	def _toggle_visibility(self):
+	def _toggle_visibility(self, *discard):
 		pass
 	
 	def _create_toolbar_buttons(self):
@@ -168,7 +169,7 @@ if __name__ == "__main__":
 	journal = Journal()
 	# Load data
 	timeline.ready()
-
+	
 	try:
 		gtk.main()
 	except KeyboardInterrupt:

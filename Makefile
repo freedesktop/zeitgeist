@@ -15,7 +15,9 @@ install: clean build-docs install-translations
 	
 	cp -r src $(PREFIX)/share/gnome-zeitgeist
 	rm -r $(PREFIX)/share/gnome-zeitgeist/src/zeitgeist_experimental
-	-install data/* $(PREFIX)/share/gnome-zeitgeist/data
+	install data/*.png $(PREFIX)/share/gnome-zeitgeist/data
+	install data/*.svg $(PREFIX)/share/gnome-zeitgeist/data
+	install data/*.sqlite $(PREFIX)/share/gnome-zeitgeist/data
 	install extra/zeitgeist-journal.desktop $(PREFIX)/share/applications
 	install extra/org.gnome.Zeitgeist.service $(PREFIX)/share/dbus-1/services
 	install TODO $(PREFIX)/share/doc/gnome-zeitgeist
@@ -46,6 +48,7 @@ clean:
 	find src/ -name "*\.pyc" -delete
 	find src/ -name "*~" -delete
 	rm -f po/*.mo doc/gzg-userdocs.html
+	rm -rf doc/images/22
 	@echo "Makefile: Cleaned up."
 
 # build a source release
@@ -55,6 +58,11 @@ tarball:
 
 build-docs:
 	asciidoc doc/gzg-userdocs.txt
+	mkdir -p doc/images/22
+	for file in data/*.svg; do \
+		convert $$file -resize 22x22 \
+			doc/images/22/$$(basename $$file .svg).png; \
+	done
 
 # generate translations template (POT)
 generate-pot:
