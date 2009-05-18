@@ -23,7 +23,7 @@ class Journal(gtk.Window):
 		# Window
 		self.set_title("GNOME Zeitgeist")
 		self.set_resizable(True)
-		self.set_default_size(800, -1)
+		self.set_default_size(800, 450)
 		self.set_icon_from_file("%s/data/logo/scalable/apps/gnome-zeitgeist.svg" % BASEDIR)
 		self._visible = True
 		self.connect("destroy", gtk.main_quit)

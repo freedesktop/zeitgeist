@@ -831,17 +831,23 @@ class FilterAndTimeBox(gtk.Notebook):
 		
 		
 		
-		self.set_tab_label_packing(filtersBox, True, True, gtk.PACK_START)
+		#self.set_tab_label_packing(filtersBox, True, True, gtk.PACK_END)
 		vbox = gtk.VBox()
 		vbox.pack_start(calendar,False,False)
-		label = self.create_tab_label(_("Filters & View"), vbox)
+		label = self.create_tab_label(_("Filters, Date & View"), vbox)
 		enable_grouping = gtk.CheckButton()
 		enable_grouping.set_label(_("Enable Grouping"))
 		enable_grouping.set_active(True)
 		enable_grouping.connect("toggled",self.toggle_grouping)
 		vbox.pack_start(enable_grouping,False,False)
-		filtersBox.add(vbox)
-		self.append_page(filtersBox, label)
+		
+		
+		self.append_page(vbox, label)
+		scrolled=gtk.ScrolledWindow()
+		scrolled.set_policy(gtk.POLICY_NEVER,gtk.POLICY_AUTOMATIC)
+		vbox.set_child_packing(filtersBox,1,1,0,True)
+		scrolled.add_with_viewport(filtersBox)
+		vbox.pack_start(scrolled)
 		self.set_tab_label_packing(vbox, False, False, gtk.PACK_START)
 		
 	def toggle_grouping(self, widget):
