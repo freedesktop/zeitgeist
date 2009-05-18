@@ -157,7 +157,7 @@ class DBConnector:
 		
 		func = self._result2data
 		
-		res =self.cursor.execute(query, (str(min), str(max))).fetchall()
+		res = self.cursor.execute(query, (str(min), str(max))).fetchall()
 		
 		for start, uri in res:
 			# Retrieve the item from the data table
@@ -247,7 +247,7 @@ class DBConnector:
 					(uri[0],)).fetchall()
 			
 				for tag in res:
-					tag = str(tag[0])
+					tag = unicode(tag[0])
 					if tags.count(tag) <= 0:
 						if len(tags) < count:
 							tags.append(tag)
