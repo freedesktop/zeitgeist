@@ -15,8 +15,8 @@ gettext.install('gnome-zeitgeist', config.localedir, unicode=1)
 installation_dir = os.path.dirname(os.path.realpath(__file__))
 datasource_dir = os.path.join(installation_dir, 'datasources')
 
-from zeitgeist.shared.dbus import iface
-from zeitgeist.shared.shared import plainify_dict
+from zeitgeist.shared.zeitgeist_dbus import iface
+from zeitgeist.shared.zeitgeist_shared import plainify_dict
 
 class DataHub(gobject.GObject):
 	

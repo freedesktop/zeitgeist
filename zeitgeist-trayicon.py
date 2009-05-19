@@ -54,7 +54,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 		# If .poll does return None the process hasn't terminated yet.
 		if frontend not in self._procs or self._procs[frontend].poll() != None:
 			self._procs[frontend] = subprocess.Popen(
-				"%s/bin/zeitgeist-%s.py" % (config.prefix, frontend))
+				"%s/zeitgeist-%s.py" % (config.bindir, frontend))
 		else:
 			os.kill(self._procs[frontend].pid, signal.SIGUSR2)
 	

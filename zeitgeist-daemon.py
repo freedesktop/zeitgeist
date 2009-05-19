@@ -22,11 +22,11 @@ mainloop = gobject.MainLoop()
 object = RemoteInterface(mainloop = mainloop)
 datasink.reload_callback = object.signal_updated
 
-trayicon_app = "%s/bin/zeitgeist-trayicon.py" % config.prefix
+trayicon_app = "%s/zeitgeist-trayicon.py" % config.bindir
 if not '--no-trayicon' in sys.argv:
 	subprocess.Popen(trayicon_app)
 
-passive_loggers = "%s/bin/zeitgeist-datahub.py" % config.prefix
+passive_loggers = "%s/zeitgeist-datahub.py" % config.bindir
 print passive_loggers
 if not '--no-passive-loggers' in sys.argv and os.path.isfile(passive_loggers):
 	subprocess.Popen(passive_loggers)
