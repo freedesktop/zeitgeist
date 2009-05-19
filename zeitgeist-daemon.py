@@ -13,14 +13,14 @@ from zeitgeist import config
 
 gettext.install('gnome-zeitgeist', config.localedir, unicode=1)
 
-from zeitgeist.engine.zeitgeist_dbus import RemoteInterface
-from zeitgeist.engine.zeitgeist_datasink import datasink
+from zeitgeist.engine.engine import engine
+from zeitgeist.engine.remote import RemoteInterface
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = gobject.MainLoop()
 
 object = RemoteInterface(mainloop = mainloop)
-datasink.reload_callback = object.signal_updated
+engine.reload_callback = object.signal_updated
 
 trayicon_app = "%s/zeitgeist-trayicon.py" % config.bindir
 if not '--no-trayicon' in sys.argv:

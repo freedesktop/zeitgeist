@@ -78,7 +78,7 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 			os.kill(proc.pid, signal.SIGUSR1)
 		
 		# Stop the daemon
-		from zeitgeist_gui.zeitgeist_engine_wrapper import engine
+		from zeitgeist.gui.zeitgeist_engine_wrapper import engine
 		engine.quit()
 		
 		# Quit

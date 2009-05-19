@@ -1,19 +1,30 @@
 # -.- encoding: utf-8 -.-
 
+import sys
+import os
 import shutil
 import sqlite3
-import sys
-import gc
-import os
+import gettext
+import gobject
 
 from zeitgeist import config
+from zeitgeist.shared.zeitgeist_shared import *
 
-class DBConnector:
+class ZeitgeistEngine(gobject.GObject):
 	
 	def __init__(self):
+		
+		gobject.GObject.__init__(self)
+		self.reload_callback = None
+		
 		path = os.path.expanduser("~/.zeitgeist/gzg.sqlite")
-		self.create_db(path)
-		self.connection = sqlite3.connect(path, True, check_same_thread=False)
+		self._create_db(path)
+		try:
+			self.connection = sqlite3.connect(path, True,
+				check_same_thread = False)
+		except sqlite3.OperationalError, error:
+			print "Error connecting with database: %s" % error
+			sys.exit(1)
 		self.cursor = self.connection.cursor()
 	
 	def _result2data(self, result, timestamp=0):
@@ -62,19 +73,25 @@ class DBConnector:
 		
 		return item
 	
-	def create_db(self, path):
+	def _create_db(self, path):
 		"""
 		Create the database at path if it doesn't already exist.
 		"""
+		
 		# If the database doesn't already exists
 		if not os.path.isdir(os.path.dirname(path)):
 			try:
 				os.mkdir(os.path.dirname(path))
 			except OSError, e:
 				print 'Could not create the data directory: %s' % e.strerror
-			else:
+				sys.exit(1)
+		if not os.path.isfile(path):
+			try:
 				# Copy the empty database skeleton into .zeitgeist
 				shutil.copy("%s/gzg.sqlite" % config.pkgdatadir, path)
+			except OSError, e:
+				print 'Could not create database: %s' % e.strerror
+				sys.exit(1)
 	
 	def get_last_timestamp(self):
 		"""
@@ -148,14 +165,25 @@ class DBConnector:
 		self.connection.commit()
 		return amount_items
 	
-	def get_items(self, min, max):
+	def get_items(self, min=0, max=sys.maxint, tags=""):
 		"""
-		Yields all items from the database between the timestamps min and max.
+		Yields all items from the database between the indicated
+		timestamps `min' and `max'. Optionally the argument `tags'
+		may be used to filter on tags.
 		"""
-		# Loop over all items in the timetable table which are between min and max
-		query = '''SELECT start, uri FROM timetable WHERE usage!='linked' and start >= ? and start <= ? ORDER BY start ASC'''
 		
-		func = self._result2data
+		# Emulate optional arguments for the D-Bus interface
+		if not max: max = sys.maxint
+		
+		# Get a list of all tags
+		if tags:
+			tags = tags.replace(",", " ")
+			tagsplit = [tag.lower() for tag in tags.split(" ")]
+		
+		# Loop over all items in the timetable table which are between min and max
+		query = '''SELECT start, uri FROM timetable
+			WHERE usage != 'linked' AND start >= ? AND start <= ?
+			ORDER BY start ASC'''
 		
 		res = self.cursor.execute(query, (str(min), str(max))).fetchall()
 		
@@ -167,10 +195,22 @@ class DBConnector:
 			
 			# TODO: Can item ever be None?
 			if item:
-				item = func(item, timestamp = start)
-				#print item
-				yield item
-				
+				if tags:
+					for tag in tagsplit:
+						matches = True
+						# If the document doesn't have all the requested
+						# tags, skip it.
+						if not tag in item[3].lower().split(',') and \
+						not item[0].lower().find(tag) > -1:
+							matches = False
+							break
+						if not matches:
+							continue
+				yield self._result2data(item, timestamp = start)
+			else:
+				print "HEY -- `item' can be none, line 196. ' \
+					'You can now remove the TODO line there!"
+	
 	def update_item(self, item):
 		"""
 		Updates an item already in the database.
@@ -218,6 +258,10 @@ class DBConnector:
 		desired condition (eg., most used tags, recently used tags...).
 		"""
 		
+		# We simulate optional values in D-Bus; reset the defaults
+		if not count: count = 20
+		if not max: max = sys.maxint
+		
 		# TODO: This is awful.
 		
 		uris = [] 
@@ -262,7 +306,15 @@ class DBConnector:
 		return [unicode(x[0]) for x in self.cursor.execute(
 			"SELECT DISTINCT(tagid) FROM tags").fetchall()]
 	
-	def get_recent_tags(self, count=20, min=0, max=sys.maxint):
+	def get_types(self):
+		"""
+		Returns a list of all different types in the database.
+		"""
+		
+		return [(unicode(x[0]), x[1]) for x in self.cursor.execute(
+			"SELECT DISTINCT(type), icon FROM data").fetchall()]
+	
+	def get_recently_used_tags(self, count=20, min=0, max=sys.maxint):
 		"""
 		Returns a list containing up to `count' recently used
 		tags from between timestamps `min' and `max'.
@@ -270,7 +322,7 @@ class DBConnector:
 		
 		return self._get_tags("key", count, min, max)
 	
-	def get_most_tags(self, count=20, min=0, max=sys.maxint):
+	def get_most_used_tags(self, count=20, min=0, max=sys.maxint):
 		"""
 		Returns a list containing up to the `count' most used
 		tags from between timestamps `min' and `max'.
@@ -278,21 +330,19 @@ class DBConnector:
 		
 		return self._get_tags("uri", count, min, max)
 	
-	def get_items_for_tag(self,tag):
+	def get_items_for_tag(self, tag):
 		"""
 		Gets all of the items with tag.
 		"""
-		func = self._result2data
-		res = self.cursor.execute("""SELECT uri
-									FROM tags
-									WHERE tagid= ?
-									""",
-									(tag,)).fetchall()
+		
+		res = self.cursor.execute(
+			"""SELECT uri FROM tags WHERE tagid= ?""", (tag,)).fetchall()
 		
 		for uri in res:
-			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",(uri[0],)).fetchone()
+			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
+				(uri[0],)).fetchone()
 			if item:
-				yield func(item, timestamp = -1)
+				yield self._result2data(item, timestamp = -1)
 	
 	def get_min_timestamp_for_tag(self,tag):
 		timestamp = sys.maxint
@@ -320,6 +370,20 @@ class DBConnector:
 		else:
 			return None
 	
+	def get_timestamps_for_tag(self, tag):
+		
+		begin = self.get_min_timestamp_for_tag(tag)
+		end = self.get_max_timestamp_for_tag(tag)
+		
+		if begin and end:
+			if end - begin > 86400:
+				# TODO: Why do we do this?
+				end = end + 86400
+		else:
+			begin = end = 0
+		
+		return (begin, end)
+	
 	def get_items_related_by_tags(self, item):
 		# TODO: Is one matching tag enough or should more/all of them
 		# match?
@@ -333,7 +397,6 @@ class DBConnector:
 	def get_related_items(self, item):
 		# TODO: Only neighboorhood in time is considered? A bit poor,
 		# this needs serious improvement.
-		
 		
 		list = []
 		dict = {}
@@ -372,17 +435,16 @@ class DBConnector:
 					counter = counter +1
 			
 		return list
-
-	def get_bookmarked_items(self):
+	
+	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
+		items = []
+		for item in self.get_items(min, max, tags):
+			if item[4] in mimetype.split(','):
+				items.append(item)
+		return items
+	
+	def get_bookmarks(self):
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
 			yield self._result2data(item, timestamp = -1)
-	
-	def get_types(self):
-		"""
-		Returns a list of all different types in the database.
-		"""
-		
-		return [(unicode(x[0]), x[1]) for x in self.cursor.execute(
-			"SELECT DISTINCT(type), icon FROM data").fetchall()]
 
-db = DBConnector()
+engine = ZeitgeistEngine()
