@@ -1,19 +1,22 @@
 # -.- encoding: utf-8 -.-
 
+import os.path
 import shutil
 import sqlite3 as db
 import gettext
-
-from os.path import join, expanduser, isfile
 from ConfigParser import ConfigParser, NoOptionError
+from xdg import BaseDirectory
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
 from zeitgeist.loggers.util import FileMonitor
 
 class FirefoxSource(DataProvider):
-    FIREFOX_DIR = expanduser("~/.mozilla/firefox")
-    PROFILE_FILE = join(FIREFOX_DIR, "profiles.ini")
-    LOCATION = expanduser("~/.zeitgeist/firefox.sqlite")
+    
+    FIREFOX_DIR = os.path.expanduser("~/.mozilla/firefox")
+    PROFILE_FILE = os.path.join(FIREFOX_DIR, "profiles.ini")
+    LOCATION = os.path.join(
+        BaseDirectory.save_config_path("gnome-zeitgeist"),
+        "firefox.sqlite")
     
     def __init__(self):
         DataProvider.__init__(self,
@@ -33,10 +36,10 @@ class FirefoxSource(DataProvider):
         self.history_db = ""
         
         for profile_dir in self.get_profile_dirs():
-            db_file = join(profile_dir, "places.sqlite")
+            db_file = os.path.join(profile_dir, "places.sqlite")
             
             # Make sure that this particular places.sqlite file exists.
-            if isfile(db_file):
+            if os.path.isfile(db_file):
                 self.history_dbs.append(db_file)
         
         if self.history_dbs:
@@ -96,7 +99,7 @@ class FirefoxSource(DataProvider):
                     is_default = False
                 
                 if is_relative:
-                    path = join(cls.FIREFOX_DIR, path)
+                    path = os.path.join(cls.FIREFOX_DIR, path)
                 
                 if is_default:
                     profiles.insert(0, path)

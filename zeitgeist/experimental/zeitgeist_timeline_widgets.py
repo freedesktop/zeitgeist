@@ -14,7 +14,6 @@ import gettext
 
 from zeitgeist.gui.zeitgeist_util import launcher, gconf_bridge
 from zeitgeist.gui.zeitgeist_util_widgets import *
-from zeitgeist.shared.xdgdirs import xdg_directory
 from zeitgeist.gui.zeitgeist_util import launcher, icon_factory
 from zeitgeist.gui.zeitgeist_engine_wrapper import engine
 from zeitgeist.shared.zeitgeist_shared import *

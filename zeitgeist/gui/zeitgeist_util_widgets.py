@@ -11,7 +11,6 @@ import pango
 import gettext
 
 from zeitgeist.gui.zeitgeist_util import launcher, icon_factory
-from zeitgeist.shared.xdgdirs import xdg_directory
 from zeitgeist.gui.zeitgeist_util import launcher, color_palette
 from zeitgeist.gui.zeitgeist_engine_wrapper import engine
 from zeitgeist.gui.zeitgeist_bookmarker import bookmarker
@@ -412,10 +411,10 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 									   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
 										gtk.STOCK_SAVE, gtk.RESPONSE_ACCEPT))
 		self.set_current_name(name)
-		self.set_current_folder(xdg_directory("", "~/"))
+		self.set_current_folder(os.path.expanduser("~/"))
 		self.set_do_overwrite_confirmation(True)
 		self.set_default_response(gtk.RESPONSE_ACCEPT)
-
+	
 	def do_response(self, response):
 		if response == gtk.RESPONSE_ACCEPT:
 			file_uri = self.get_filename()

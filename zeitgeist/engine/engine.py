@@ -6,6 +6,7 @@ import shutil
 import sqlite3
 import gettext
 import gobject
+from xdg import BaseDirectory
 
 from zeitgeist import config
 from zeitgeist.shared.zeitgeist_shared import *
@@ -17,14 +18,9 @@ class ZeitgeistEngine(gobject.GObject):
 		gobject.GObject.__init__(self)
 		self.reload_callback = None
 		
-		path = os.path.expanduser("~/.zeitgeist/gzg.sqlite")
-		self._create_db(path)
-		try:
-			self.connection = sqlite3.connect(path, True,
-				check_same_thread = False)
-		except sqlite3.OperationalError, error:
-			print "Error connecting with database: %s" % error
-			sys.exit(1)
+		path = BaseDirectory.save_config_path("gnome-zeitgeist")
+		database = os.path.join(path, "gzg.sqlite")
+		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 	
 	def _result2data(self, result, timestamp=0):
@@ -61,7 +57,7 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		
 		# Is it a string (can be str, dbus.String, etc.)?
-		if hasattr(item, 'capitalize'):
+		if hasattr(item, "capitalize"):
 			if uri_only:
 				return item
 			else:
@@ -73,25 +69,29 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		return item
 	
-	def _create_db(self, path):
+	def _get_database(self, database):
 		"""
-		Create the database at path if it doesn't already exist.
+		Return a connection to the indicated SQLite 3 database. If
+		it doesn't already exist, create it. If something fails, abort
+		the execution with error code 1.
 		"""
 		
-		# If the database doesn't already exists
-		if not os.path.isdir(os.path.dirname(path)):
-			try:
-				os.mkdir(os.path.dirname(path))
-			except OSError, e:
-				print 'Could not create the data directory: %s' % e.strerror
-				sys.exit(1)
-		if not os.path.isfile(path):
+		if not os.path.isfile(database):
 			try:
 				# Copy the empty database skeleton into .zeitgeist
-				shutil.copy("%s/gzg.sqlite" % config.pkgdatadir, path)
+				shutil.copy("%s/gzg.sqlite" % config.pkgdatadir, database)
 			except OSError, e:
-				print 'Could not create database: %s' % e.strerror
+				print _("Could not create database: %s") % e.strerror
 				sys.exit(1)
+		
+		try:
+			connection = sqlite3.connect(database, True,
+				check_same_thread = False)
+		except sqlite3.OperationalError, error:
+			print _("Error connecting with database: %s") % error
+			sys.exit(1)
+		else:
+			return connection
 	
 	def get_last_timestamp(self):
 		"""
