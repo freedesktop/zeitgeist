@@ -230,4 +230,3 @@ class W3CDate:
 		self.dateMiniTuple = self.dateFullTuple = None
 		self._cacheTuples()
 		if self.dateMiniTuple != origMiniTuple: print "Error: dateMiniTuples don't match (%s became %s)" % (repr(origMiniTuple), repr(self.dateMiniTuple))
-	

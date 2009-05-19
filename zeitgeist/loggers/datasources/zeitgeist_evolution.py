@@ -7,7 +7,7 @@ import shutil
 import sqlite3 as db
 import gettext
 
-from zeitgeist.base import DataProvider
+from zeitgeist.loggers.zeitgeist_base import DataProvider
 
 class EvolutionSource(DataProvider):
 	

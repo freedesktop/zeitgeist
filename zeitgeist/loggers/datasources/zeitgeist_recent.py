@@ -11,7 +11,7 @@ import gtk
 import gc
 import gettext
 
-from zeitgeist.base import DataProvider
+from zeitgeist.loggers.zeitgeist_base import DataProvider
 
 DOCUMENT_MIMETYPES = [
 		# Covers:

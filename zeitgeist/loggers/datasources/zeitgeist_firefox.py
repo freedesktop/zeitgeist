@@ -7,7 +7,7 @@ import gettext
 from os.path import join, expanduser, isfile
 from ConfigParser import ConfigParser, NoOptionError
 
-from zeitgeist.base import DataProvider
+from zeitgeist.loggers.zeitgeist_base import DataProvider
 from zeitgeist.loggers.util import FileMonitor
 
 class FirefoxSource(DataProvider):

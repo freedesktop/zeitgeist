@@ -4,14 +4,13 @@ import os
 import re
 from xml.dom.minidom import parse
 from xml.parsers.expat import ExpatError
-
 import gtk
 import gnomevfs
-import W3CDate
 import gettext
 
-from zeitgeist.base import DataProvider
+from zeitgeist.loggers.zeitgeist_base import DataProvider
 from zeitgeist.loggers.util import FileMonitor
+from zeitgeist.loggers.W3CDate import W3CDate
 
 # FIXME: This should really just use Beagle or Tracker.
 
@@ -50,7 +49,7 @@ class NoteData:
 			changed_node = note_doc.getElementsByTagName("last-change-date")[0]
 			changed_str = changed_node.childNodes[0].data
 			changed_str = re.sub("\.[0-9]*", "", changed_str) # W3Date chokes on partial seconds
-			self.timestamp = int(W3CDate.W3CDate(changed_str).getSeconds())
+			self.timestamp = int(W3CDate(changed_str).getSeconds())
 		except (ValueError, IndexError, AttributeError):
 			pass
 

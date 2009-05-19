@@ -12,8 +12,9 @@ from zeitgeist import config
 
 gettext.install('gnome-zeitgeist', config.localedir, unicode=1)
 
-installation_dir = os.path.dirname(os.path.realpath(__file__))
-datasource_dir = os.path.join(installation_dir, 'datasources')
+installation_dir = os.path.dirname(os.path.realpath(config.__file__))
+datasource_dir = os.path.join(installation_dir, 'loggers/datasources')
+sys.path.append(datasource_dir)
 
 from zeitgeist.shared.zeitgeist_dbus import iface
 from zeitgeist.shared.zeitgeist_shared import plainify_dict

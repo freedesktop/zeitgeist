@@ -1,6 +1,6 @@
 # -.- encoding: utf-8 -.-
 
-from zeitgeist.base import DataProvider
+from zeitgeist.loggers.zeitgeist_base import DataProvider
 
 try:
 	import twitter
