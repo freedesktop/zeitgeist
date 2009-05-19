@@ -15,3 +15,4 @@ pkgdata_DATA = \
 	tag6.svg \
 	twitter.png
 
+EXTRA_DIST = $(pkgdata_DATA)
