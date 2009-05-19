@@ -19,6 +19,11 @@ if '--listen' in sys.argv:
 	remote_object.connect_to_signal("signal_updated", updated_signal_handler, dbus_interface="org.gnome.Zeitgeist")
 iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist")
 
+print '\nDifferent types in the database:'
+for name, icon in iface.get_types():
+	print '- %s (%s)' % (name, icon)
+print
+
 print 'Your bookmarks are:'
 bookmarks = iface.get_bookmarks()
 first_item = None

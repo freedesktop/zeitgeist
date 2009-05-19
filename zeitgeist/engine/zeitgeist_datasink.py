@@ -46,6 +46,9 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_bookmarks(self):
 		return db.get_bookmarked_items()
 	
+	def get_types(self):
+		return db.get_types()
+	
 	def update_item(self, item):
 		print _("Updating item: %s") % item
 		db.update_item(item)		 

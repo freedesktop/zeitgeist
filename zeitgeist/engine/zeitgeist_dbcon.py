@@ -376,5 +376,13 @@ class DBConnector:
 	def get_bookmarked_items(self):
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
 			yield self._result2data(item, timestamp = -1)
+	
+	def get_types(self):
+		"""
+		Returns a list of all different types in the database.
+		"""
+		
+		return [(unicode(x[0]), x[1]) for x in self.cursor.execute(
+			"SELECT DISTINCT(type), icon FROM data").fetchall()]
 
 db = DBConnector()

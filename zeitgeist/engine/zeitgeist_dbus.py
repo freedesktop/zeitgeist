@@ -71,7 +71,9 @@ class RemoteInterface(dbus.service.Object):
 		return datasink.get_timestamps_for_tag(tag)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
-						in_signature="", out_signature="a"+sig_plain_data)
+						in_signature="", out_signature="a(ss)")
+	def get_types(self):
+		return datasink.get_types()
 	
 	# Writing stuff
 	
