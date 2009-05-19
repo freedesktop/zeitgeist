@@ -1,9 +1,9 @@
 SUBDIRS = \
-	zeitgeist_engine \
-	zeitgeist_experimental \
-	zeitgeist_gui \
-	zeitgeist_loggers \
-	zeitgeist_shared
+	engine \
+	experimental \
+	gui \
+	loggers \
+	shared
 
 bin_SCRIPTS = zeitgeist-daemon.py
 

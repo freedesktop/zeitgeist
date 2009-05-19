@@ -1,5 +1,5 @@
 AC_INIT([gnome-zeitgeist], [0.0.6])
-AC_CONFIG_SRCDIR(src/zeitgeist-daemon.py)
+AC_CONFIG_SRCDIR(zeitgeist-daemon.py)
 AM_INIT_AUTOMAKE([1.9 foreign])
 GNOME_COMMON_INIT
 AM_MAINTAINER_MODE
@@ -27,12 +27,12 @@ AC_CONFIG_FILES([
 	data/logo/scalable/Makefile
 	extra/Makefile
 	po/Makefile.in
-	src/Makefile
-	src/zeitgeist_shared/Makefile
-	src/zeitgeist_loggers/datasources/Makefile
-	src/zeitgeist_loggers/Makefile
-	src/zeitgeist_gui/Makefile
-	src/zeitgeist_experimental/Makefile
-	src/zeitgeist_engine/Makefile
+	zeitgeist/Makefile
+	zeitgeist/shared/Makefile
+	zeitgeist/loggers/datasources/Makefile
+	zeitgeist/loggers/Makefile
+	zeitgeist/gui/Makefile
+	zeitgeist/experimental/Makefile
+	zeitgeist/engine/Makefile
 ])
 AC_OUTPUT
