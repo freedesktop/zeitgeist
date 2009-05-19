@@ -261,11 +261,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		
 		date = calendar.get_date()
-		print date
 		self.begin =  time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,-1])
 		self.end =  time.mktime([date[0],date[1]+1,date[2]+2,0,0,0,0,0,-1]) - 1
-		
-		print "jump to day"
 		
 		self.load_month()
 		

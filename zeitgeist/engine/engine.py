@@ -295,6 +295,9 @@ class ZeitgeistEngine(gobject.GObject):
 					if tags.count(tag) <= 0:
 						if len(tags) < count:
 							tags.append(tag)
+				
+				if len(tags) == count:
+					break
 		
 		return tags
 	
@@ -303,16 +306,18 @@ class ZeitgeistEngine(gobject.GObject):
 		Returns a list containing the name of all tags.
 		"""
 		
-		return [unicode(x[0]) for x in self.cursor.execute(
-			"SELECT DISTINCT(tagid) FROM tags").fetchall()]
+		for tag in self.cursor.execute(
+		"SELECT DISTINCT(tagid) FROM tags").fetchall():
+			yield unicode(x[0])
 	
 	def get_types(self):
 		"""
 		Returns a list of all different types in the database.
 		"""
 		
-		return [(unicode(x[0]), x[1]) for x in self.cursor.execute(
-			"SELECT DISTINCT(type), icon FROM data").fetchall()]
+		for type in self.cursor.execute(
+		"SELECT DISTINCT(type), icon FROM data").fetchall():
+			yield(unicode(x[0]), x[1])
 	
 	def get_recently_used_tags(self, count=20, min=0, max=sys.maxint):
 		"""
@@ -404,6 +409,7 @@ class ZeitgeistEngine(gobject.GObject):
 		item_uri = self._ensure_item(item, uri_only=True)
 		items = self.cursor.execute("SELECT * FROM timetable WHERE start >? AND uri=? ORDER BY start DESC",
 			(current_timestamp, item_uri)).fetchall()
+		
 		for uri in items:
 			# min and max define the neighbourhood radius
 			min = uri[0]-(60*60)
@@ -437,11 +443,9 @@ class ZeitgeistEngine(gobject.GObject):
 		return list
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
-		items = []
 		for item in self.get_items(min, max, tags):
 			if item[4] in mimetype.split(','):
-				items.append(item)
-		return items
+				yield item
 	
 	def get_bookmarks(self):
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
