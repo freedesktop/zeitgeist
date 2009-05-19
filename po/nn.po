@@ -77,8 +77,7 @@ msgstr "Fjern bokmerke"
 msgid "Bookmark"
 msgstr "Bokmerke"
 
-#: src/zeitgeist_gui/zeitgeist_base.py:167
-#, fuzzy
+#: src/zeitgeist_gui/zeitgeist_base.py:
 msgid "Show related activities"
 msgstr "Vis nylige aktivitetar"
 
@@ -114,7 +113,7 @@ msgstr "Tidlagere brukte etikettar"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:417
 msgid "All tags"
-msgstr ""
+msgstr "Alle merkelappar"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:664
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:828
@@ -126,21 +125,20 @@ msgid "Show recent activities"
 msgstr "Vis nylige aktivitetar"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:788
-#, fuzzy
 msgid "Search for activities"
-msgstr "Vis nylige aktivitetar"
+msgstr "Søk etter aktivitetar"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:832
 msgid "Filters"
-msgstr ""
+msgstr "Filter"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:836
 msgid "Date, Time & View"
-msgstr ""
+msgstr "Dato, tid og vising"
 
 #: src/zeitgeist_gui/zeitgeist_journal_widgets.py:841
 msgid "Enable Grouping"
-msgstr ""
+msgstr "Aktiver gruppering"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:80
 msgid "Name"
@@ -172,7 +170,7 @@ msgstr ""
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:480
 msgid "Tags:"
-msgstr ""
+msgstr "Merelappar:"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:482
 #, python-format
@@ -181,12 +179,12 @@ msgstr "Filer som er beslekta med %s"
 
 #: src/zeitgeist_gui/zeitgeist_util_widgets.py:600
 msgid "All favourites"
-msgstr ""
+msgstr "Alle favorittar"
 
 #: src/zeitgeist_loggers/zeitgeist-datahub.py:50
-#, fuzzy, python-format
+#, python-format
 msgid "Error: Could not load file: %s"
-msgstr "Feil: Kunne ikkje kopla til D-Bus."
+msgstr "Feil: Kunne ikkje lasta fil: %s"
 
 #: src/zeitgeist_loggers/zeitgeist-datahub.py:76
 #, python-format
