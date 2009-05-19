@@ -4,7 +4,6 @@ import sys
 import os
 import gettext
 import gobject
-import gc
 
 from zeitgeist_dbcon import db
 from zeitgeist_shared.zeitgeist_shared import *
@@ -41,8 +40,6 @@ class ZeitgeistEngine(gobject.GObject):
 						break
 				if matches:
 					yield item
-		
-		gc.collect()
 	
 	def get_items_for_tag(self, tag):
 		return (item for item in db.get_items_for_tag(tag))
