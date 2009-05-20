@@ -56,14 +56,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# A dict of daybox widgets for recycling
 		self.days = {}
 		self.width = 0
+		
 		# Set up default properties
 		self.set_border_width(0)
 		self.set_size_request(600, 200)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		
-		self.hbox.pack_start(self.back,False,False)
+		self.hbox.pack_start(self.back, False, False)
 		self.hbox.pack_start(self.dayboxes)
-		self.hbox.pack_start(self.forward,False,False)
+		self.hbox.pack_start(self.forward, False, False)
 		
 		self.add_with_viewport(self.hbox)
 		
@@ -750,7 +751,7 @@ class BrowserBar(gtk.VBox):
 		
 		self.htb = htb
 		gtk.VBox.__init__(self)   
-
+		
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
 		self.home.connect("clicked", search.do_clear)

@@ -95,6 +95,7 @@ class Journal(gtk.Window):
 		icon = gtk.image_new_from_pixbuf(pixbuf)
 		self.star_button.set_icon_widget(icon)
 		self.star_button.connect("toggled", self.toggled_starred)
+		self.star_button.set_tooltip_text(_("Stars"))
 			
 		bb.pack_start(self.star_button, False, False)
 		bb.show_all()
