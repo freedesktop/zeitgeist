@@ -45,6 +45,9 @@ class EngineInterface:
 	def get_timestamps_for_tag(self, *args):
 		return self._interface.get_timestamps_for_tag(*args)
 	
+	def get_types(self, *args):
+		return self._interface.get_types(*args)
+	
 	def get_bookmarks(self, *args):
 		items = []
 		for item in self._interface.get_bookmarks(*args):
