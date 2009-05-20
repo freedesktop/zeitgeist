@@ -112,11 +112,12 @@ class Journal(gtk.Window):
 		Check which tab is active and bind the keys event to it.
 		'''
 		if bb.timebrowse:
+			# KEY == Home
 			if event.keyval == 65360:
-				timeline.focus_today()
+				search.do_clear()
 				self.set_focus(None)
 			
-			# KEY == LEFT
+			# KEY == Left
 			if event.keyval == 65361:
 				timeline.step_in_time(-1)
 				self.set_focus(None)
@@ -127,11 +128,7 @@ class Journal(gtk.Window):
 				self.set_focus(None)
 	
 	def switch_page(self, notebook, page, page_num):	
-		if page_num == 0 or page_num ==2:
-			
-			bb.set_time_browsing(False)
-		else:
-			bb.set_time_browsing(True)
+		bb.set_time_browsing(page_num not in (0, 2))
 	
 	def create_tab_label(self, title, stock):
 			icon = gtk.Image()
@@ -147,9 +144,8 @@ class Journal(gtk.Window):
 			return box
 	
 	def window_state_event_cb(self, window):
+		
 		x = filtertime.allocation.width
-		
-		
 		width, height = self.get_size()
 		
 		if bb.search.get_active():
