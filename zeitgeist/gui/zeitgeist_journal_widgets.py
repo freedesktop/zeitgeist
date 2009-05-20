@@ -193,12 +193,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Benchmarking
 		print "Time to apply search on %s items: %s" % (len(self.items), str(t4 -t3))
 		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
-		
+	
 	def reset_date(self):
+		# TODO: Clean this up
+		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
 		date = calendar.get_date()
-		# Get the begin and end of this month
-		# each tuple is of format (year, month, day, hours, minutes,
-		# seconds, weekday, day_of_year, daylight savings) 
+		calendar.select_day(int(today[0]))
+		if not int(today[1])-1 == int(date[1]):
+			calendar.select_month(int(today[1])-1, int(today[2]))
 		day = date[2]
 		self.begin = (date[0], date[1]+1, day-1,0,0,0,0,0,-1)
 		self.end = (date[0], date[1]+1, day+2,0,0,0,0,0,-1)
@@ -253,8 +255,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		'''
 		
 		date = calendar.get_date()
-		self.begin =  time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,-1])
-		self.end =  time.mktime([date[0],date[1]+1,date[2]+2,0,0,0,0,0,-1]) - 1
+		self.begin = time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,-1])
+		self.end = time.mktime([date[0],date[1]+1,date[2]+2,0,0,0,0,0,-1]) - 1
 		
 		self.load_month()
 		
@@ -375,13 +377,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 					daybox.show()
 				
 				i = i - 1
-	
-	def focus_today(self, x=None):
-		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
-		date = calendar.get_date()
-		calendar.select_day(int(today[0]))
-		if not int(today[1])-1 == int(date[1]):
-			calendar.select_month(int(today[1])-1, int(today[2]))
 
 class HTagBrowser(gtk.VBox):
 	
@@ -679,7 +674,7 @@ class SearchToolItem(gtk.ToolItem):
 		self.add(box)
 		self.show_all()
 	
-	def do_clear(self):
+	def do_clear(self, *discard):
 		if self.clearbtn and self.clearbtn.child:
 			self.clearbtn.remove(self.clearbtn.child)
 		self._entry_clear_no_change_handler()
@@ -758,7 +753,7 @@ class BrowserBar(gtk.VBox):
 
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
-		self.home.connect("clicked", timeline.focus_today)
+		self.home.connect("clicked", search.do_clear)
 		self.tooltips.set_tip(self.home, _("Show recent activities"))
 		
 		self.search = gtk.ToggleToolButton()
