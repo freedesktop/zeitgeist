@@ -139,7 +139,7 @@ class DataIconView(gtk.TreeView):
 		try:
 			item = self.store.get_value(iter, 4)
 			self.check_rows(iter)
-		except Exception:
+		except Exception, ex:
 			pass
 		
 		while True:
@@ -157,6 +157,20 @@ class DataIconView(gtk.TreeView):
 		name = self.store.get_value(iter,1)
 		
 		try:
+			type = self.store.get_value(iter, 1)
+			substrings = type.split("\n")
+			type = substrings[0].replace("<span color='black'>","")
+			type = type.replace("</span>","")
+			type = type.strip()
+			path = self.store.get_path(iter)
+			exp =  expanded_views[self.datestring][type]
+			if exp:
+				self.expand_row(path, True)
+		except Exception, ex:
+			pass
+			
+		
+		try:
 			self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
 			icon = self.inactive_image
 			if bookmarker.get_bookmark(item.uri) == True:
@@ -164,7 +178,7 @@ class DataIconView(gtk.TreeView):
 			self.store.set(iter,6,icon)
 			
 		except Exception, ex:
-			print ex
+			pass
 		
 		return self.store.iter_next(iter)
 	
@@ -174,7 +188,6 @@ class DataIconView(gtk.TreeView):
 		type = substrings[0].replace("<span color='black'>","")
 		type = type.replace("</span>","")
 		type = type.strip()
-		print type
 		expanded_views[self.datestring][type] = True
 		
 	def _collapse_row(self,model,iter,path):
@@ -183,7 +196,6 @@ class DataIconView(gtk.TreeView):
 		type = substrings[0].replace("<span color='black'>","")
 		type = type.replace("</span>","")
 		type = type.strip()
-		print type
 		expanded_views[self.datestring][type] = False
 	
 	
@@ -359,10 +371,8 @@ class DataIconView(gtk.TreeView):
 		else:
 			if group:
 				if not expanded_views.has_key(item.get_datestring()):
-					print "No expanded view for "+item.get_datestring()
 					expanded_views[item.get_datestring()] = {}
 				if not expanded_views[item.get_datestring()].has_key(item.type.strip()):
-					print "No expanded view for "+item.get_datestring()+"	"+item.type.strip()
 					expanded_views[item.get_datestring()][item.type.strip()] = False
 				
 				self.item_type_count[item.type.strip()] +=1
@@ -378,8 +388,6 @@ class DataIconView(gtk.TreeView):
 				
 				path = self.store.get_path(iter)
 				exp =  expanded_views[item.get_datestring()][item.type.strip()]
-				print item.type.strip()
-				print exp
 				if exp:
 					self.expand_row(path, True)
 					

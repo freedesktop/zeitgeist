@@ -375,6 +375,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 					daybox.view.set_size_request(width-20,-1)
 					daybox.view.reload_name_cell_size(width-24)
 					daybox.show()
+				daybox.view._do_refresh_rows()
 				
 				i = i - 1
 
