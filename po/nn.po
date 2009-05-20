@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
-"Report-Msgid-Bugs-To: gnome-zeitgeist-users@lists.launchpad.net\n"
-"POT-Creation-Date: 2009-05-18 00:42+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-05-20 20:55+0200\n"
 "PO-Revision-Date: 2009-05-09 21:20+0000\n"
 "Last-Translator: Ketil Wendelbo Aanensen <ketil.w.aanensen@gmail.com>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
@@ -17,51 +17,11 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-05-09 21:24+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/zeitgeist-daemon.py:34
-msgid "Starting Zeitgeist service..."
-msgstr "Startar Zeitgeist-tjeneste..."
-
-#: src/zeitgeist_engine/zeitgeist_datasink.py:54
-#, python-format
-msgid "Updating item: %s"
-msgstr "Oppdaterar gjenstand: %s"
-
-#: src/zeitgeist_engine/zeitgeist_datasink.py:58
-#, python-format
-msgid "Deleting item: %s"
-msgstr "Slettar gjenstand: %s"
-
-#: src/zeitgeist_experimental/zeitgeist-projectviewer.py:24
-msgid "GNOME Zeitgeist Project Viewer"
-msgstr "GNOME Zeitgeist Prosjektframvisar"
-
-#: src/zeitgeist_experimental/zeitgeist-timeline.py:24
-msgid "GNOME Zeitgeist Timeline"
-msgstr "GNOME Zeitgeist Tidslinje"
-
-#: src/zeitgeist_experimental/zeitgeist_timeline_widgets.py:64
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:530
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:551
-msgid "Today"
-msgstr "I dag"
-
-#: src/zeitgeist_experimental/zeitgeist_timeline_widgets.py:66
-msgid "Yesterday"
-msgstr "I går"
-
-#: src/zeitgeist_gui/zeitgeist-journal.py:51
-msgid "Stars"
-msgstr ""
-
-#: src/zeitgeist_gui/zeitgeist-journal.py:56
-msgid "Journal"
-msgstr "Journal"
-
-#: src/zeitgeist_gui/zeitgeist-trayicon.py:34
+#: ../zeitgeist-trayicon.py:34
 msgid "Open Journal"
 msgstr "Åpne journal"
 
-#: src/zeitgeist_gui/zeitgeist-trayicon.py:109
+#: ../zeitgeist-trayicon.py:114
 msgid ""
 "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
 "computer."
@@ -69,159 +29,253 @@ msgstr ""
 "GNOME Zeitgeist er eit verktyg for å enkelt bla gjennom og finne filer på "
 "datamaskina di."
 
-#: src/zeitgeist_gui/zeitgeist_base.py:160
-msgid "Unbookmark"
-msgstr "Fjern bokmerke"
-
-#: src/zeitgeist_gui/zeitgeist_base.py:162
-msgid "Bookmark"
-msgstr "Bokmerke"
-
-#: src/zeitgeist_gui/zeitgeist_base.py:
-msgid "Show related activities"
-msgstr "Vis nylige aktivitetar"
-
-#: src/zeitgeist_gui/zeitgeist_base.py:172
-msgid "Edit tags..."
-msgstr "Rediger etikettar..."
-
-#: src/zeitgeist_gui/zeitgeist_base.py:183
-msgid "Delete item from Zeitgeist"
-msgstr "Slett gjenstand frå Zeitgeist"
-
-#: src/zeitgeist_gui/zeitgeist_base.py:213
-#, python-format
-msgid "Edit tags for %s"
-msgstr "Rediger etikett for %s"
-
-#: src/zeitgeist_gui/zeitgeist_base.py:218
-msgid "Add"
-msgstr "Legg til"
-
-#: src/zeitgeist_gui/zeitgeist_base.py:219
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: src/zeitgeist_gui/zeitgeist_base.py:250
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:416
-msgid "Most used tags"
-msgstr "Mest brukte etikettar"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:415
-msgid "Recently used tags"
-msgstr "Tidlagere brukte etikettar"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:417
-msgid "All tags"
-msgstr "Alle merkelappar"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:664
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:828
-msgid "Search"
-msgstr "Søk"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:781
-msgid "Show recent activities"
-msgstr "Vis nylige aktivitetar"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:788
-msgid "Search for activities"
-msgstr "Søk etter aktivitetar"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:832
-msgid "Filters"
-msgstr "Filter"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:836
-msgid "Date, Time & View"
-msgstr "Dato, tid og vising"
-
-#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:841
-msgid "Enable Grouping"
-msgstr "Aktiver gruppering"
-
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:80
-msgid "Name"
-msgstr "Namn"
-
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:87
-msgid "Time"
-msgstr "Tid"
-
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:385
-msgid "Tagged with:"
-msgstr "Brukte etikettar"
-
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:387
-msgid "The file has been removed from"
-msgstr "Fila har blitt fjerna frå"
-
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:409
-msgid "New Document"
-msgstr "Nytt dokument"
-
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:455
-msgid "Related files"
-msgstr "Beslekta filer"
-
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:478
-msgid "Last usage:"
+#: ../zeitgeist-journal.py:51
+msgid "Stars"
 msgstr ""
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:480
-msgid "Tags:"
-msgstr "Merelappar:"
+#: ../zeitgeist-journal.py:56
+msgid "Journal"
+msgstr "Journal"
 
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:482
-#, python-format
-msgid "Files related to %s"
-msgstr "Filer som er beslekta med %s"
-
-#: src/zeitgeist_gui/zeitgeist_util_widgets.py:600
-msgid "All favourites"
-msgstr "Alle favorittar"
-
-#: src/zeitgeist_loggers/zeitgeist-datahub.py:50
+#: ../zeitgeist-datahub.py:53
 #, python-format
 msgid "Error: Could not load file: %s"
 msgstr "Feil: Kunne ikkje lasta fil: %s"
 
-#: src/zeitgeist_loggers/zeitgeist-datahub.py:76
+#: ../zeitgeist-datahub.py:79
 #, python-format
 msgid "Updating database with new %s items"
 msgstr "Oppdaterar database med nye %s-gjenstandar"
 
-#: src/zeitgeist_shared/zeitgeist_dbus.py:13
+#: ../zeitgeist-datahub.py:93
+#, python-format
+msgid "Type error logging item from \"%s\": %s"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:34
+msgid "Starting Zeitgeist service..."
+msgstr "Startar Zeitgeist-tjeneste..."
+
+#: ../zeitgeist/shared/zeitgeist_dbus.py:13
 msgid "Error: Could not connect to D-Bus."
 msgstr "Feil: Kunne ikkje kopla til D-Bus."
 
-#: src/zeitgeist_shared/zeitgeist_dbus.py:18
+#: ../zeitgeist/shared/zeitgeist_dbus.py:18
 msgid "Error: Zeitgeist service not running."
 msgstr "Feil: Zeitgeist-tjeneste kjøyrer ikkje."
 
-#~ msgid "Documents"
-#~ msgstr "Dokument"
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:84
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:87
+msgid "Notes"
+msgstr "Notat"
 
-#~ msgid "Other"
-#~ msgstr "Anna"
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:89
+msgid "Create New Note"
+msgstr "Lag nytt notat"
 
-#~ msgid "Images"
-#~ msgstr "Bilde"
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:90
+msgid "Make a new Tomboy note"
+msgstr "Lag eit nytt Tomboy-notat"
 
-#~ msgid "Music"
-#~ msgstr "Musikk"
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:169
+msgid "Documents"
+msgstr "Dokument"
 
-#~ msgid "Videos"
-#~ msgstr "Filmar"
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:181
+msgid "Other"
+msgstr "Anna"
 
-#~ msgid "Notes"
-#~ msgstr "Notat"
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:200
+msgid "Images"
+msgstr "Bilde"
 
-#~ msgid "Create New Note"
-#~ msgstr "Lag nytt notat"
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:210
+msgid "Music"
+msgstr "Musikk"
 
-#~ msgid "Make a new Tomboy note"
-#~ msgstr "Lag eit nytt Tomboy-notat"
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:220
+msgid "Videos"
+msgstr "Filmar"
+
+#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:23
+msgid "Firefox History"
+msgstr ""
+
+#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:26
+msgid "Websites visited with Firefox"
+msgstr ""
+
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:411
+msgid "Recently used tags"
+msgstr "Tidlagere brukte etikettar"
+
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:412
+#: ../zeitgeist/gui/zeitgeist_base.py:250
+msgid "Most used tags"
+msgstr "Mest brukte etikettar"
+
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:413
+msgid "All tags"
+msgstr "Alle merkelappar"
+
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:660
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:824
+msgid "Search"
+msgstr "Søk"
+
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:777
+msgid "Show recent activities"
+msgstr "Vis nylige aktivitetar"
+
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:784
+msgid "Search for activities"
+msgstr "Søk etter aktivitetar"
+
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:833
+#, fuzzy
+msgid "Filters, Date & View"
+msgstr "Dato, tid og vising"
+
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:835
+msgid "Enable Grouping"
+msgstr "Aktiver gruppering"
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:79
+msgid "Name"
+msgstr "Namn"
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:86
+msgid "Time"
+msgstr "Tid"
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:384
+msgid "Tagged with:"
+msgstr "Brukte etikettar"
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:386
+msgid "The file has been removed from"
+msgstr "Fila har blitt fjerna frå"
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:408
+msgid "New Document"
+msgstr "Nytt dokument"
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:454
+msgid "Related files"
+msgstr "Beslekta filer"
+
+#. TODO: Use proper, separate widgets for this
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:477
+msgid "Last usage:"
+msgstr ""
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:479
+msgid "Tags:"
+msgstr "Merelappar:"
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:481
+#, python-format
+msgid "Files related to %s"
+msgstr "Filer som er beslekta med %s"
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:529
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:550
+#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:63
+msgid "Today"
+msgstr "I dag"
+
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:599
+msgid "All favourites"
+msgstr "Alle favorittar"
+
+#: ../zeitgeist/gui/zeitgeist_base.py:160
+msgid "Unbookmark"
+msgstr "Fjern bokmerke"
+
+#: ../zeitgeist/gui/zeitgeist_base.py:162
+msgid "Bookmark"
+msgstr "Bokmerke"
+
+#: ../zeitgeist/gui/zeitgeist_base.py:167
+msgid "Show related activities"
+msgstr "Vis nylige aktivitetar"
+
+#: ../zeitgeist/gui/zeitgeist_base.py:172
+msgid "Edit tags..."
+msgstr "Rediger etikettar..."
+
+#: ../zeitgeist/gui/zeitgeist_base.py:183
+msgid "Delete item from Zeitgeist"
+msgstr "Slett gjenstand frå Zeitgeist"
+
+#: ../zeitgeist/gui/zeitgeist_base.py:213
+#, python-format
+msgid "Edit tags for %s"
+msgstr "Rediger etikett for %s"
+
+#. Use real Cancel/OK buttons. Those are not compliant with HIG.
+#: ../zeitgeist/gui/zeitgeist_base.py:218
+msgid "Add"
+msgstr "Legg til"
+
+#: ../zeitgeist/gui/zeitgeist_base.py:219
+msgid "Cancel"
+msgstr "Avbryt"
+
+#. Window
+#: ../zeitgeist/experimental/zeitgeist-projectviewer.py:24
+msgid "GNOME Zeitgeist Project Viewer"
+msgstr "GNOME Zeitgeist Prosjektframvisar"
+
+#. Window
+#: ../zeitgeist/experimental/zeitgeist-timeline.py:24
+msgid "GNOME Zeitgeist Timeline"
+msgstr "GNOME Zeitgeist Tidslinje"
+
+#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:65
+msgid "Yesterday"
+msgstr "I går"
+
+#: ../zeitgeist/engine/engine.py:84
+#, python-format
+msgid "Could not create database: %s"
+msgstr ""
+
+#: ../zeitgeist/engine/engine.py:91
+#, python-format
+msgid "Error connecting with database: %s"
+msgstr ""
+
+#: ../extra/zeitgeist-journal.desktop.in.in.h:1
+msgid "Browse a journal of recently used files"
+msgstr ""
+
+#: ../extra/zeitgeist-journal.desktop.in.in.h:2
+#, fuzzy
+msgid "File Journal"
+msgstr "Åpne journal"
+
+#: ../extra/zeitgeist-journal.desktop.in.in.h:3
+msgid "Zeitgeist File Journal"
+msgstr ""
+
+#: ../extra/zeitgeist-trayicon.desktop.in.in.h:1
+#, fuzzy
+msgid "Start the Zeitgeist engine"
+msgstr "Startar Zeitgeist-tjeneste..."
+
+#: ../extra/zeitgeist-trayicon.desktop.in.in.h:2
+msgid "Zeitgeist Tray Icon"
+msgstr ""
+
+#~ msgid "Updating item: %s"
+#~ msgstr "Oppdaterar gjenstand: %s"
+
+#~ msgid "Deleting item: %s"
+#~ msgstr "Slettar gjenstand: %s"
+
+#~ msgid "Filters"
+#~ msgstr "Filter"
 
 #~ msgid "Filter your current view"
 #~ msgstr "Filtrer noverande visning"

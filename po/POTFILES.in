@@ -6,7 +6,6 @@ zeitgeist/__init__.py
 zeitgeist/shared/zeitgeist_shared.py
 zeitgeist/shared/basics.py
 zeitgeist/shared/__init__.py
-zeitgeist/shared/xdgdirs.py
 zeitgeist/shared/zeitgeist_dbus.py
 zeitgeist/loggers/zeitgeist_base.py
 zeitgeist/loggers/W3CDate.py
@@ -30,7 +29,9 @@ zeitgeist/experimental/zeitgeist-timeline.py
 zeitgeist/experimental/zeitgeist_timeline_widgets.py
 zeitgeist/experimental/__init__.py
 zeitgeist/engine/__init__.py
-zeitgeist/engine/zeitgeist_dbus.py
-zeitgeist/engine/zeitgeist_dbcon.py
-zeitgeist/engine/zeitgeist_datasink.py
+zeitgeist/engine/engine.py
+zeitgeist/engine/remote.py
+zeitgeist/shared/zeitgeist_dbus.py
 extra/test-daemon.py
+extra/zeitgeist-journal.desktop.in.in
+extra/zeitgeist-trayicon.desktop.in.in

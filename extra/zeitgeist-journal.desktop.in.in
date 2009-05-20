@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=Zeitgeist File Journal
-GenericName=File Journal
-Comment=Browse a journal of recently used files
+_Name=Zeitgeist File Journal
+_GenericName=File Journal
+_Comment=Browse a journal of recently used files
 Exec=zeitgeist-journal
 TryExec=zeitgeist-journal
 Icon=zeitgeist
