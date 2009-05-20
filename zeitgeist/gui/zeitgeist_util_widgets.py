@@ -47,7 +47,6 @@ class DataIconView(gtk.TreeView):
 		
 		self.parentdays = parentdays
 		self.datestring = None
-		self.expanded_views = {}
 		
 		self.set_property("can-default", False)
 		self.set_property("can-focus", False)
@@ -174,31 +173,16 @@ class DataIconView(gtk.TreeView):
 		type = substrings[0].replace("<span color='black'>","")
 		type = type.replace("</span>","")
 		type = type.strip()
-		self.expanded_views[self.datestring][type] = True
-	
+		expanded_views[self.datestring][type] = True
+		
 	def _collapse_row(self,model,iter,path):
 		type = self.store.get_value(iter, 1)
 		substrings = type.split("\n")
 		type = substrings[0].replace("<span color='black'>","")
 		type = type.replace("</span>","")
 		type = type.strip()
-		self.expanded_views[self.datestring][type] = False
+		expanded_views[self.datestring][type] = False
 	
-	def button_press_handler(self, treeview, event):
-		if event.button == 3:
-			# Figure out which item they right clicked on
-			path = treeview.get_path_at_pos(int(event.x),int(event.y))
-			# Get the selection
-			selection = treeview.get_selection()
-	
-			#Get the selected path(s)
-			rows = selection.get_rows()
-			# If they didnt right click on a currently selected row, change the selection
-			if path[0] not in rows[1]:
-				selection.unselect_all()
-				selection.select_path(path[0])
-		
-		return True
 	
 	def reload_name_cell_size(self,width):
 		self.name_cell.set_property("wrap-width",width -125)
@@ -251,17 +235,16 @@ class DataIconView(gtk.TreeView):
 			pass
 	
 	def _show_item_popup(self, view, ev):
-		try:
-			if ev.button == 3:
-				item = self.get_selected_item()
-				if item:
-					menu = gtk.Menu()
-					menu.attach_to_widget(view, None)
-					item.populate_popup(menu)
-					menu.popup(None, None, None, ev.button, ev.time)
-					return True
-		except Exception:
-			pass
+		if ev.button == 3:
+			(path,col,x,y) = view.get_path_at_pos(int(ev.x),int(ev.y))
+			iter = self.store.get_iter(path)
+			item = self.store.get_value(iter, 4)	
+			menu = gtk.Menu()
+			menu.attach_to_widget(view, None)
+			item.populate_popup(menu)
+			menu.popup(None, None, None, ev.button, ev.time)
+					
+					
 	
 	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
 		# TODO: Prefer ACTION_LINK if available
@@ -348,7 +331,6 @@ class DataIconView(gtk.TreeView):
 			self.types[item.type] = iter
 		
 		if parent:
-			print parent
 			if self.last_item and self.last_item.comment.strip() != "" and self.last_item.comment == item.comment:
 				self.store.append(self.last_iter, 
 					[item.get_icon(24),
@@ -373,10 +355,10 @@ class DataIconView(gtk.TreeView):
 		
 		else:
 			if group:
-				if not self.expanded_views.has_key(item.get_datestring()):
-					self.expanded_views[item.get_datestring()] = {}
-				if not self.expanded_views[item.get_datestring()].has_key(item.type):
-					self.expanded_views[item.get_datestring()][item.type] = False
+				if not expanded_views.has_key(item.get_datestring()):
+					expanded_views[item.get_datestring()] = {}
+				if not expanded_views[item.get_datestring()].has_key(item.type):
+					expanded_views[item.get_datestring()][item.type] = False
 				
 				self.item_type_count[item.type] +=1
 				iter = self.types[item.type] 
@@ -388,7 +370,7 @@ class DataIconView(gtk.TreeView):
 					self.store.set(iter,1,"<span color='%s'>%s</span>"\
 								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
 										 ("black", item.type, self.item_type_count[item.type]) )
-				if self.expanded_views[item.get_datestring()][item.type]:
+				if expanded_views[item.get_datestring()][item.type]:
 					path = self.store.get_path(iter)
 					self.expand_row(path,True)
 					
@@ -696,3 +678,5 @@ class TagWindow(gtk.Window):
 	def edit_tags(self,item):
 		for tag in item.get_tags():
 			pass
+
+expanded_views = {}
