@@ -29,7 +29,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
 		
-		
 		self.group = True
 		# Add children widgets
 		self.hbox = gtk.HBox()
@@ -103,14 +102,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.begin = time.mktime(self.begin) 
 		self.end = time.mktime(self.end) -1
 	
-	def set_time_browsing(self, bool):
-		if bool:
-			self.back.set_sensitive(True)
-			self.forward.set_sensitive(True)
-		else:
-			self.back.set_sensitive(False)
-			self.forward.set_sensitive(False)
-
+	def set_time_browsing(self, boolean):
+		self.back.set_sensitive(boolean)
+		self.forward.set_sensitive(boolean)
+	
 	def ready(self):
 		'''
 		Only call this one time, once the GUI has loaded and we can
@@ -122,7 +117,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		engine.connect("signal_updated", lambda *discard: self.load_month_proxy())
 		
 		# Load the GUI
-		self.load_month()#
+		self.load_month()
 	
 	def load_month_proxy(self):
 		today = time.time()
@@ -650,7 +645,9 @@ class SearchToolItem(gtk.ToolItem):
 		}
 	
 	def __init__(self, accel_group = None):
+		
 		gtk.ToolItem.__init__(self)
+		
 		self.search_timeout = None
 		self.default_search_text = _("Search")
 		box = gtk.HBox(False, 5)
@@ -676,12 +673,9 @@ class SearchToolItem(gtk.ToolItem):
 		
 		if accel_group:
 			# Focus on Ctrl-L
-			self.entry.add_accelerator("grab-focus",
-									   accel_group,
-									   ord('l'),
-									   gtk.gdk.CONTROL_MASK,
-									   0)
-
+			self.entry.add_accelerator("grab-focus", accel_group,
+				ord('l'), gtk.gdk.CONTROL_MASK, 0)
+		
 		self.add(box)
 		self.show_all()
 	
@@ -701,22 +695,18 @@ class SearchToolItem(gtk.ToolItem):
 			img = icon_factory.load_image(gtk.STOCK_CLOSE, 16)
 			img.show()
 			self.clearbtn.add(img)
-		if not text.strip() == "":
+		
+		if text.strip():
 			date = calendar.get_date()
 			begin = (date[0], date[1]+1, 0, 0,0,0,0,0,0)
 			begin =  time.mktime(begin)
 			end = (date[0], date[1]+2, 0, 0,0,0,0,0,0)
 			end = time.mktime(end) -1
-			#timeline.load_month(begin=begin, end=end, tags = timeline.tags)
 			
-			print "------------------------"
-			print text.lower()
-			print "------------------------"
 			htb.untoggle_all()
 			timeline.load_month(begin=begin, end=end, search = text.lower())
 			bookmarks.get_bookmarks(text = [text.lower()])
-		
-
+	
 	def _entry_clear_no_change_handler(self):
 		'''Avoids sending \'changed\' signal when clearing text.'''
 		self.entry.handler_block(self.change_handler_id)
@@ -781,17 +771,12 @@ class BrowserBar(gtk.VBox):
 		self.pack_start(self.search, False, False)
 		self.pack_end(self.home, False, False)
 	
-	def set_time_browsing(self, bool):
-		if bool:
-			filtersBox.set_sensitive(True)
-			self.home.set_sensitive(True)
-			self.timebrowse=True
-		else:
-			filtersBox.set_sensitive(False)
-			self.home.set_sensitive(False)
-			self.timebrowse=False
+	def set_time_browsing(self, boolean):
+		filtersBox.set_sensitive(boolean)
+		self.home.set_sensitive(boolean)
+		self.timebrowse = boolean
 	
-	def toggle_search(self, w=None):
+	def toggle_search(self, w):
 		if w.get_active():
 			filtertime.show_all()
 		else:
