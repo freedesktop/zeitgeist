@@ -56,14 +56,15 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# A dict of daybox widgets for recycling
 		self.days = {}
 		self.width = 0
+		
 		# Set up default properties
 		self.set_border_width(0)
 		self.set_size_request(600, 200)
 		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
 		
-		self.hbox.pack_start(self.back,False,False)
+		self.hbox.pack_start(self.back, False, False)
 		self.hbox.pack_start(self.dayboxes)
-		self.hbox.pack_start(self.forward,False,False)
+		self.hbox.pack_start(self.forward, False, False)
 		
 		self.add_with_viewport(self.hbox)
 		
@@ -758,19 +759,18 @@ class BrowserBar(gtk.VBox):
 		
 		self.htb = htb
 		gtk.VBox.__init__(self)   
-		self.tooltips = gtk.Tooltips()
-
+		
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
 		self.home.connect("clicked", search.do_clear)
-		self.tooltips.set_tip(self.home, _("Show recent activities"))
+		self.home.set_tooltip_text(_("Show recent activities"))
 		
 		self.search = gtk.ToggleToolButton()
 		pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
 			"%s/logo/32x32/apps/gnome-zeitgeist.png" % config.pkgdatadir, 24, 24)
 		icon = gtk.image_new_from_pixbuf(pixbuf)
 		self.search.set_icon_widget(icon)
-		self.tooltips.set_tip(self.search, _("Search for activities"))
+		self.search.set_tooltip_text(_("Search for activities"))
 		self.search.connect("toggled", self.toggle_search)
 		self.pack_start(self.search, False, False)
 		self.pack_end(self.home, False, False)
