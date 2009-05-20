@@ -162,8 +162,9 @@ class DataIconView(gtk.TreeView):
 			if bookmarker.get_bookmark(item.uri) == True:
 				icon = self.active_image
 			self.store.set(iter,6,icon)
+			
 		except Exception, ex:
-			pass
+			print ex
 		
 		return self.store.iter_next(iter)
 	
@@ -173,6 +174,7 @@ class DataIconView(gtk.TreeView):
 		type = substrings[0].replace("<span color='black'>","")
 		type = type.replace("</span>","")
 		type = type.strip()
+		print type
 		expanded_views[self.datestring][type] = True
 		
 	def _collapse_row(self,model,iter,path):
@@ -181,6 +183,7 @@ class DataIconView(gtk.TreeView):
 		type = substrings[0].replace("<span color='black'>","")
 		type = type.replace("</span>","")
 		type = type.strip()
+		print type
 		expanded_views[self.datestring][type] = False
 	
 	
@@ -356,25 +359,31 @@ class DataIconView(gtk.TreeView):
 		else:
 			if group:
 				if not expanded_views.has_key(item.get_datestring()):
+					print "No expanded view for "+item.get_datestring()
 					expanded_views[item.get_datestring()] = {}
-				if not expanded_views[item.get_datestring()].has_key(item.type):
-					expanded_views[item.get_datestring()][item.type] = False
+				if not expanded_views[item.get_datestring()].has_key(item.type.strip()):
+					print "No expanded view for "+item.get_datestring()+"	"+item.type.strip()
+					expanded_views[item.get_datestring()][item.type.strip()] = False
 				
-				self.item_type_count[item.type] +=1
-				iter = self.types[item.type] 
-				if self.item_type_count[item.type] > 1:
+				self.item_type_count[item.type.strip()] +=1
+				iter = self.types[item.type.strip()] 
+				if self.item_type_count[item.type.strip()] > 1:
 					self.store.set(iter,1,"<span color='%s'>%s</span>"\
 								    "\n<span size='small' color='blue'> (%i activities)</span>"  % \
-										 ("black", item.type, self.item_type_count[item.type]) )
+										 ("black", item.type.strip(), self.item_type_count[item.type.strip()]) )
 				else:
 					self.store.set(iter,1,"<span color='%s'>%s</span>"\
 								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
-										 ("black", item.type, self.item_type_count[item.type]) )
-				if expanded_views[item.get_datestring()][item.type]:
-					path = self.store.get_path(iter)
-					self.expand_row(path,True)
+										 ("black", item.type.strip(), self.item_type_count[item.type.strip()]) )
+				
+				path = self.store.get_path(iter)
+				exp =  expanded_views[item.get_datestring()][item.type.strip()]
+				print item.type.strip()
+				print exp
+				if exp:
+					self.expand_row(path, True)
 					
-			self.last_iter = self.store.append(self.types[item.type], 
+			self.last_iter = self.store.append(self.types[item.type.strip()], 
 				[item.get_icon(24),
 				name,#"<span size='small'>%s</span>" % name,
 				date,
@@ -383,6 +392,8 @@ class DataIconView(gtk.TreeView):
 				self.get_tooltip(item),
 				icon,
 				])
+			
+			
 		
 		self.datestring = item.get_datestring()
 		self.last_item = item
