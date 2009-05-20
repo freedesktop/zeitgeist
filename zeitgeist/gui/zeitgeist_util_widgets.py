@@ -42,20 +42,20 @@ class DataIconView(gtk.TreeView):
 	'''
 	
 	def __init__(self,parentdays=False):
-		gtk.TreeView.__init__(self)
-		self.parentdays = parentdays
 		
+		gtk.TreeView.__init__(self)
+		
+		self.parentdays = parentdays
 		self.datestring = None
+		self.expanded_views = {}
 		
 		self.set_property("can-default", False)
 		self.set_property("can-focus", False)
 		
-		
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
-
-		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT ), ( "image/x-xpixmap", 0, TARGET_TYPE_PIXMAP ) ]
 		
+		self.fromImage = [ ( "text/plain", 0, TARGET_TYPE_TEXT ), ( "image/x-xpixmap", 0, TARGET_TYPE_PIXMAP ) ]
 		
 		self.active_image = gtk.gdk.pixbuf_new_from_file_at_size(
 			"%s/bookmark-new.svg" % config.pkgdatadir, 24, 24) 
@@ -106,12 +106,12 @@ class DataIconView(gtk.TreeView):
 		self.set_expander_column(icon_column)
 		
 		self.connect("row-activated", self._open_item)
-		self.connect("row-expanded",self._expand_row)
-		self.connect("row-collapsed",self._collapse_row)
+		self.connect("row-expanded", self._expand_row)
+		self.connect("row-collapsed", self._collapse_row)
 		self.connect("button-press-event", self._show_item_popup)
 		self.connect("drag-data-get", self._item_drag_data_get)
 		self.connect("drag_data_received", self.drag_data_received_data)
-		self.connect("focus-out-event",self.unselect_all)
+		self.connect("focus-out-event", self.unselect_all)
 		
 		self.set_double_buffered(True)
 		#self.get_selection().set_mode(gtk.SELECTION_MULTIPLE)		
@@ -174,17 +174,15 @@ class DataIconView(gtk.TreeView):
 		type = substrings[0].replace("<span color='black'>","")
 		type = type.replace("</span>","")
 		type = type.strip()
-		expanded_views[self.datestring][type] = True
-		print type
-		
+		self.expanded_views[self.datestring][type] = True
+	
 	def _collapse_row(self,model,iter,path):
 		type = self.store.get_value(iter, 1)
 		substrings = type.split("\n")
 		type = substrings[0].replace("<span color='black'>","")
 		type = type.replace("</span>","")
 		type = type.strip()
-		expanded_views[self.datestring][type] = False
-		print type
+		self.expanded_views[self.datestring][type] = False
 	
 	def button_press_handler(self, treeview, event):
 		if event.button == 3:
@@ -199,7 +197,7 @@ class DataIconView(gtk.TreeView):
 			if path[0] not in rows[1]:
 				selection.unselect_all()
 				selection.select_path(path[0])
-			
+		
 		return True
 	
 	def reload_name_cell_size(self,width):
@@ -210,9 +208,9 @@ class DataIconView(gtk.TreeView):
 	
 	def prepend_item(self, item,group=True):
 		self._set_item(item, False, group=group)
-		
+	
 	def remove_item(self,item):
-		# Maybe filtering should be done on a UI level
+		# TODO: Maybe filtering should be done on a UI level
 		pass
 	
 	def clear_store(self):
@@ -266,7 +264,7 @@ class DataIconView(gtk.TreeView):
 			pass
 	
 	def _item_drag_data_get(self, view, drag_context, selection_data, info, timestamp):
-		# FIXME: Prefer ACTION_LINK if available
+		# TODO: Prefer ACTION_LINK if available
 		uris = []
 		uris.append(self.last_item.get_uri())
 		selection_data.set_uris(uris)
@@ -375,10 +373,10 @@ class DataIconView(gtk.TreeView):
 		
 		else:
 			if group:
-				if not expanded_views.has_key(item.get_datestring()):
-					expanded_views[item.get_datestring()]={}
-				if not expanded_views[item.get_datestring()].has_key(item.type):
-					expanded_views[item.get_datestring()][item.type]=False
+				if not self.expanded_views.has_key(item.get_datestring()):
+					self.expanded_views[item.get_datestring()] = {}
+				if not self.expanded_views[item.get_datestring()].has_key(item.type):
+					self.expanded_views[item.get_datestring()][item.type] = False
 				
 				self.item_type_count[item.type] +=1
 				iter = self.types[item.type] 
@@ -390,7 +388,7 @@ class DataIconView(gtk.TreeView):
 					self.store.set(iter,1,"<span color='%s'>%s</span>"\
 								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
 										 ("black", item.type, self.item_type_count[item.type]) )
-				if expanded_views[item.get_datestring()][item.type]:
+				if self.expanded_views[item.get_datestring()][item.type]:
 					path = self.store.get_path(iter)
 					self.expand_row(path,True)
 					
@@ -423,7 +421,7 @@ class NewFromTemplateDialog(gtk.FileChooserDialog):
 	__gsignals__ = {
 		"response" : "override"
 		}
-
+	
 	def __init__(self, name, source_uri):
 		# Extract the template's file extension
 		try:
@@ -698,10 +696,3 @@ class TagWindow(gtk.Window):
 	def edit_tags(self,item):
 		for tag in item.get_tags():
 			pass
-
-		
-		
-
-expanded_views={}	
-	
-			
