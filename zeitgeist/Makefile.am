@@ -5,8 +5,6 @@ SUBDIRS = \
 	loggers \
 	shared
 
-bin_SCRIPTS = zeitgeist-daemon.py
-
 appdir = $(pythondir)/zeitgeist/
 
 app_PYTHON = \

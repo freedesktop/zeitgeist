@@ -1,7 +1,5 @@
 appdir = $(pythondir)/zeitgeist/gui/
 
-bin_SCRIPTS = zeitgeist-journal.py zeitgeist-trayicon.py
-
 app_PYTHON = \
 	__init__.py \
 	zeitgeist_base.py \
