@@ -3,7 +3,6 @@
 import datetime
 import time
 import math
-import gc
 import os
 import time
 import sys
@@ -245,16 +244,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 					self._append_to_day(item, False)
 					continue
 			
-			if self.search.strip() != "":
+			if self.search.strip():
 				if self.search.strip().lower() in item.name.lower():
 					self._append_to_day(item, False)
-					continue	
+					continue
 				elif self.search.strip().lower() in item.tags.lower():
 					self._append_to_day(item, False)
-					continue	
-		
-
-
+					continue
+	
 	def jump_to_day(self, widget,focus=False):
 		'''
 		Jump to the currently selected day in the calendar.
@@ -282,7 +279,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 	def set_relation(self, item):
 		related = RelatedWindow()
 		related.set_relation(item)
-
+	
 	#def focus_in(self, widget, event, adj):
 	#	alloc = widget.get_allocation() 
 	#	if alloc.x < adj.value or alloc.x > adj.value + adj.page_size:
@@ -314,17 +311,17 @@ class TimelineWidget(gtk.ScrolledWindow):
 			daybox = self.days[item.get_datestring()]
 			daybox.append_item(item, group=group)
 			self.days[item.get_datestring()] = daybox
-		except:
+		except Exception:
 			self.days[item.get_datestring()]=DayBox(item.get_datestring())
 			self.dayboxes.pack_start(self.days[item.get_datestring()])
 			daybox = self.days[item.get_datestring()]
 			daybox.append_item(item, group=group)
 			self.days[item.get_datestring()] = daybox
-				
+	
 	def review_days(self):
 		print "reviewing days"
 		
-		if self.search.strip() != "":
+		if self.search.strip():
 			begin = sys.maxint
 			end = -sys.maxint-1
 			for item in self.items:
@@ -335,7 +332,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		try:
 			self.days_range = int((self.end - self.begin) / 86400) + 1 # get the days range
-		except:
+		except Exception:
 			self.days_range = 3
 		
 		'''
@@ -380,15 +377,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 					daybox.set_size_request(width,-1)
 					daybox.view.set_size_request(width-20,-1)
 					daybox.view.reload_name_cell_size(width-24)
-					#daybox.view.set_size_request(width-30,-1)
-					#daybox.set_size_request(width-10,-1)
-					#daybox.view.reload_name_cell_size(width-20)
 					daybox.show()
 				
-				#daybox.view._do_refresh_rows()
-				
 				i = i - 1
-		gc.collect()
+	
 	def focus_today(self, x=None):
 		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
 		date = calendar.get_date()
@@ -598,7 +590,6 @@ class FilterBox(gtk.VBox):
 			self.voptionbox.pack_start(filter, False, False, 0)
 			self.filters[source] = filter
 			if not self.filters_active.has_key(source):
-				print source + "	added"
 				self.filters_active[source] = True
 			filter.set_active(self.filters_active[source])
 			filter.connect("toggled", self.toggle_source)
@@ -781,17 +772,15 @@ class BrowserBar(gtk.VBox):
 		self.tooltips.set_tip(self.home, _("Show recent activities"))
 		
 		self.search = gtk.ToggleToolButton()
-		pixbuf= gtk.gdk.pixbuf_new_from_file_at_size("%s/logo/32x32/apps/gnome-zeitgeist.png" % config.pkgdatadir, 24, 24)
+		pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
+			"%s/logo/32x32/apps/gnome-zeitgeist.png" % config.pkgdatadir, 24, 24)
 		icon = gtk.image_new_from_pixbuf(pixbuf)
-		del pixbuf
 		self.search.set_icon_widget(icon)
 		self.tooltips.set_tip(self.search, _("Search for activities"))
 		self.search.connect("toggled", self.toggle_search)
-		
-		self.pack_start(self.search, False,False)
-		
-		self.pack_end(self.home,False,False)
-			
+		self.pack_start(self.search, False, False)
+		self.pack_end(self.home, False, False)
+	
 	def set_time_browsing(self, bool):
 		if bool:
 			filtersBox.set_sensitive(True)
@@ -801,17 +790,17 @@ class BrowserBar(gtk.VBox):
 			filtersBox.set_sensitive(False)
 			self.home.set_sensitive(False)
 			self.timebrowse=False
-			
-	def toggle_search(self, w=None): 
+	
+	def toggle_search(self, w=None):
 		if w.get_active():
 			filtertime.show_all()
 		else:
 			filtertime.hide_all()
 
-	
-		
 class SearchBox(gtk.VBox):
+	
 	def __init__(self):
+		
 		gtk.VBox.__init__(self)
 		
 		searchbox = gtk.HBox()
@@ -823,38 +812,34 @@ class SearchBox(gtk.VBox):
 		self.pack_start(htb,True,True)
 
 class FilterAndTimeBox(gtk.Notebook):
+	
 	def __init__(self):
+		
 		gtk.Notebook.__init__(self)
+		
 		label = self.create_tab_label(_("Search"), searchbox)
 		self.append_page(searchbox, label)
 		self.set_tab_label_packing(searchbox, True, True, gtk.PACK_START)
 		
-		
-		
-		#self.set_tab_label_packing(filtersBox, True, True, gtk.PACK_END)
 		vbox = gtk.VBox()
-		vbox.pack_start(calendar,False,False)
+		vbox.pack_start(calendar, False, False)
 		label = self.create_tab_label(_("Filters, Date & View"), vbox)
 		enable_grouping = gtk.CheckButton()
 		enable_grouping.set_label(_("Enable Grouping"))
 		enable_grouping.set_active(True)
-		enable_grouping.connect("toggled",self.toggle_grouping)
-		vbox.pack_start(enable_grouping,False,False)
-		
+		enable_grouping.connect("toggled", self.toggle_grouping)
+		vbox.pack_start(enable_grouping, False, False)
 		
 		self.append_page(vbox, label)
-		scrolled=gtk.ScrolledWindow()
+		scrolled = gtk.ScrolledWindow()
 		scrolled.set_policy(gtk.POLICY_NEVER,gtk.POLICY_AUTOMATIC)
 		vbox.set_child_packing(filtersBox,1,1,0,True)
 		scrolled.add_with_viewport(filtersBox)
 		vbox.pack_start(scrolled)
 		self.set_tab_label_packing(vbox, False, False, gtk.PACK_START)
-		
+	
 	def toggle_grouping(self, widget):
-		if widget.get_active():
-			timeline.group = True
-		else:
-			timeline.group = False
+		timeline.group = widget.get_active()
 		timeline.load_month()
 	
 	def create_tab_label(self, title, stock):
@@ -866,13 +851,14 @@ class FilterAndTimeBox(gtk.Notebook):
 		box.pack_start(label, True, True)
 		box.show_all()
 		
-		del label
-		del icon
 		return box
-		
-class ItemInfo(gtk.VBox): 
+
+class ItemInfo(gtk.VBox):
+	
 	def __init__(self):
+		
 		gtk.VBox.__init__(self)
+		
 		self.frame = gtk.Frame()
 		self.label = gtk.Label("Item Info")
 		self.frame.set_label_align(0.5, 0.5)
@@ -885,12 +871,6 @@ class ItemInfo(gtk.VBox):
 		self.comment = ""
 		self.icon = None
 		self.tags = []
-		
-	def set_item(self,item):
-		pass
-			
-	def set_tag_btn(self,tag):
-		pass
 
 calendar = CalendarWidget()
 bookmarks = BookmarksView()
