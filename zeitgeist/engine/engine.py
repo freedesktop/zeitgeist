@@ -308,7 +308,7 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		for tag in self.cursor.execute(
 		"SELECT DISTINCT(tagid) FROM tags").fetchall():
-			yield unicode(x[0])
+			yield unicode(tag[0])
 	
 	def get_types(self):
 		"""
