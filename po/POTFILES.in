@@ -34,3 +34,5 @@ zeitgeist/engine/zeitgeist_dbus.py
 zeitgeist/engine/zeitgeist_dbcon.py
 zeitgeist/engine/zeitgeist_datasink.py
 extra/test-daemon.py
+extra/zeitgeist-journal.desktop.in.in
+extra/zeitgeist-trayicon.desktop.in.in

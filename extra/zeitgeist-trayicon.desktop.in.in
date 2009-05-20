@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=Zeitgeist Tray Icon
-Comment=Start the Zeitgeist engine
+_Name=Zeitgeist Tray Icon
+_Comment=Start the Zeitgeist engine
 Exec=zeitgeist-trayicon
 TryExec=zeitgeist-trayicon
 Icon=zeitgeist
