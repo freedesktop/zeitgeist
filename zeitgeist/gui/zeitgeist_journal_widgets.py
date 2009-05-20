@@ -131,6 +131,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 			search.entry.set_text("")
 		except:
 			pass
+		
 		self.load_month()
 	
 	def load_month(self, widget=None, begin=None, end=None, offset = 0, cached=False, tags=None , search=None):
@@ -215,6 +216,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.end = (date[0], date[1]+1, day+2,0,0,0,0,0,-1)
 		self.begin = time.mktime(self.begin) 
 		self.end = time.mktime(self.end) -1
+		print self.begin
+		print self.end
+		self.load_month()
 	
 	def apply_search(self, tags=[]):
 		'''
@@ -762,7 +766,7 @@ class BrowserBar(gtk.VBox):
 		
 		self.home = gtk.ToolButton("gtk-home")
 		self.home.set_label("Recent")
-		self.home.connect("clicked", search.do_clear)
+		self.home.connect("clicked",self.go_today)
 		self.home.set_tooltip_text(_("Show recent activities"))
 		
 		self.search = gtk.ToggleToolButton()
@@ -774,6 +778,14 @@ class BrowserBar(gtk.VBox):
 		self.search.connect("toggled", self.toggle_search)
 		self.pack_start(self.search, False, False)
 		self.pack_end(self.home, False, False)
+	
+	def go_today(self, widget=None):
+		begin = int(time.time())/ 86400
+		begin = begin * 86400
+		begin =begin
+		end = begin + 2*86400
+		timeline.load_month(begin=begin,end=end)
+	
 	
 	def set_time_browsing(self, boolean):
 		filtersBox.set_sensitive(boolean)
