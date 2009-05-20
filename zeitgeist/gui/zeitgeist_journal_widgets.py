@@ -30,6 +30,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Initialize superclass
 		gtk.ScrolledWindow.__init__(self)
 		
+		
 		self.group = True
 		# Add children widgets
 		self.hbox = gtk.HBox()
@@ -383,6 +384,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 					#daybox.set_size_request(width-10,-1)
 					#daybox.view.reload_name_cell_size(width-20)
 					daybox.show()
+				
+				#daybox.view._do_refresh_rows()
+				
 				i = i - 1
 		gc.collect()
 	def focus_today(self, x=None):
