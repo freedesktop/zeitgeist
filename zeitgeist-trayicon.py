@@ -5,6 +5,7 @@ import sys
 import os
 import gtk
 import gobject
+import dbus
 import signal
 import subprocess
 import webbrowser
@@ -78,8 +79,11 @@ class ZeitgeistTrayIcon(gtk.StatusIcon):
 			os.kill(proc.pid, signal.SIGUSR1)
 		
 		# Stop the daemon
-		from zeitgeist.gui.zeitgeist_engine_wrapper import engine
-		engine.quit()
+		try:
+			from zeitgeist.gui.zeitgeist_engine_wrapper import engine
+			engine.quit()
+		except dbus.exceptions.DBusException:
+			pass
 		
 		# Quit
 		self._mainloop.quit()
