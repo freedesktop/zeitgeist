@@ -45,9 +45,11 @@ class DataIconView(gtk.TreeView):
 		gtk.TreeView.__init__(self)
 		self.parentdays = parentdays
 		
+		self.datestring = None
+		
 		self.set_property("can-default", False)
 		self.set_property("can-focus", False)
-
+		
 		
 		TARGET_TYPE_TEXT = 80
 		TARGET_TYPE_PIXMAP = 81
@@ -104,6 +106,8 @@ class DataIconView(gtk.TreeView):
 		self.set_expander_column(icon_column)
 		
 		self.connect("row-activated", self._open_item)
+		self.connect("row-expanded",self._expand_row)
+		self.connect("row-collapsed",self._collapse_row)
 		self.connect("button-press-event", self._show_item_popup)
 		self.connect("drag-data-get", self._item_drag_data_get)
 		self.connect("drag_data_received", self.drag_data_received_data)
@@ -135,11 +139,7 @@ class DataIconView(gtk.TreeView):
 		
 		try:
 			item = self.store.get_value(iter, 4)
-			self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
-			icon = self.inactive_image
-			if bookmarker.get_bookmark(item.uri) == True:
-				icon = self.active_image
-			self.store.set(iter,6,icon)
+			self.check_rows(iter)
 		except Exception:
 			pass
 		
@@ -155,16 +155,36 @@ class DataIconView(gtk.TreeView):
 	
 	def check_rows(self,iter):
 		item = self.store.get_value(iter, 4)
+		name = self.store.get_value(iter,1)
+		
 		try:
 			self.store.set(iter,3,bookmarker.get_bookmark(item.uri))
 			icon = self.inactive_image
 			if bookmarker.get_bookmark(item.uri) == True:
 				icon = self.active_image
 			self.store.set(iter,6,icon)
-		except Exception:
+		except Exception, ex:
 			pass
+		
 		return self.store.iter_next(iter)
 	
+	def _expand_row(self,model,iter,path):
+		type = self.store.get_value(iter, 1)
+		substrings = type.split("\n")
+		type = substrings[0].replace("<span color='black'>","")
+		type = type.replace("</span>","")
+		type = type.strip()
+		expanded_views[self.datestring][type] = True
+		print type
+		
+	def _collapse_row(self,model,iter,path):
+		type = self.store.get_value(iter, 1)
+		substrings = type.split("\n")
+		type = substrings[0].replace("<span color='black'>","")
+		type = type.replace("</span>","")
+		type = type.strip()
+		expanded_views[self.datestring][type] = False
+		print type
 	
 	def button_press_handler(self, treeview, event):
 		if event.button == 3:
@@ -355,17 +375,25 @@ class DataIconView(gtk.TreeView):
 		
 		else:
 			if group:
+				if not expanded_views.has_key(item.get_datestring()):
+					expanded_views[item.get_datestring()]={}
+				if not expanded_views[item.get_datestring()].has_key(item.type):
+					expanded_views[item.get_datestring()][item.type]=False
+				
 				self.item_type_count[item.type] +=1
 				iter = self.types[item.type] 
 				if self.item_type_count[item.type] > 1:
 					self.store.set(iter,1,"<span color='%s'>%s</span>"\
-								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
+								    "\n<span size='small' color='blue'> (%i activities)</span>"  % \
 										 ("black", item.type, self.item_type_count[item.type]) )
 				else:
-					self.store.set(iter,1,"<span  color='%s'>%s</span>"\
+					self.store.set(iter,1,"<span color='%s'>%s</span>"\
 								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
 										 ("black", item.type, self.item_type_count[item.type]) )
-				
+				if expanded_views[item.get_datestring()][item.type]:
+					path = self.store.get_path(iter)
+					self.expand_row(path,True)
+					
 			self.last_iter = self.store.append(self.types[item.type], 
 				[item.get_icon(24),
 				name,#"<span size='small'>%s</span>" % name,
@@ -376,6 +404,7 @@ class DataIconView(gtk.TreeView):
 				icon,
 				])
 		
+		self.datestring = item.get_datestring()
 		self.last_item = item
 	
 	def get_tooltip(self,item):
@@ -672,5 +701,7 @@ class TagWindow(gtk.Window):
 
 		
 		
-		
+
+expanded_views={}	
+	
 			

@@ -193,7 +193,7 @@ class Data(gobject.GObject):
 		self.bookmark = not self.bookmark
 		from zeitgeist_engine_wrapper import engine
 		engine.update_item(self)
-		from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
+		from zeitgeist.gui.zeitgeist_bookmarker import bookmarker
 		bookmarker.reload_bookmarks()
 	
 	def set_bookmark(self, bookmark):
@@ -201,7 +201,7 @@ class Data(gobject.GObject):
 		self.bookmark = bookmark
 		from zeitgeist_engine_wrapper import engine
 		engine.update_item(self)
-		from zeitgeist_gui.zeitgeist_bookmarker import bookmarker
+		from zeitgeist.gui.zeitgeist_bookmarker import bookmarker
 		bookmarker.reload_bookmarks()
 	
 	def tag_item(self):
