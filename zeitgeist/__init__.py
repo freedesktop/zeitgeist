@@ -3,15 +3,19 @@ try:
 
 except ImportError:
     # No config module, this is straight from the repository
+    
+    import os
+    
     class MockConfig:
         __file__ = __file__
         prefix = ""
         datadir = ""
-        bindir = "."
+        bindir = os.path.join(os.path.dirname(__file__), "..")
         localedir = "/usr/share/locale"
-        pkgdatadir = "./data/"
+        pkgdatadir = os.path.join(bindir, "data")
         libdir = ""
         libexecdir = ""
         PACKAGE = "gnome-zeitgeist"
         VERSION = "bzr"
+    
     config = MockConfig()
