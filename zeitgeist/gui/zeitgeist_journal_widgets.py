@@ -82,7 +82,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.sources_icons = {}
 		
 		# Connect to the calendar's (displayed in the sidebar) signals
-		calendar.connect("month-changed", self.load_month)
+		calendar.connect("month-changed", self._month_changed)
 		calendar.connect("day-selected", self.jump_to_day)
 		calendar.connect("day-selected-double-click", self.jump_to_day, True)
 		
@@ -123,6 +123,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 		today = time.time()
 		if today >= self.begin and today <= (self.end + 86400):
 			self.load_month()
+	
+	def _month_changed(self, widget=None):
+		self.search = ""
+		try:
+			search.entry.set_text("")
+		except:
+			pass
+		self.load_month()
 	
 	def load_month(self, widget=None, begin=None, end=None, offset = 0, cached=False, tags=None , search=None):
 		'''
@@ -659,7 +667,7 @@ class SearchToolItem(gtk.ToolItem):
 		self.entry.show()
 		
 		# Needs cleanup
-		calendar.connect("month-changed", lambda w: self.emit("clear"))
+		#calendar.connect_after("month-changed", lambda w: self.emit("clear"))
 		self.entry.connect("activate", lambda w: self._typing_timeout())
 		self.entry.connect("focus-in-event", lambda w, x: self._entry_focus_in())
 		self.entry.connect("key-press-event", self._entry_key_press)
