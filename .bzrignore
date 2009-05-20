@@ -3,3 +3,12 @@ setup.py
 command
 gzg-userdocs.html
 doc/images/22
+*Makefile.in*
+intltool-*
+aclocal.m4
+autom4te.cache
+configure
+install-sh
+missing
+mkinstalldirs
+py-compile
