@@ -35,11 +35,12 @@ def cleanup():
 
 passive_loggers = "%s/zeitgeist-datahub.py" % config.bindir
 print passive_loggers
-P = None
+p = None
 if not '--no-passive-loggers' in sys.argv and os.path.isfile(passive_loggers):
 	p =	subprocess.Popen(passive_loggers)
 
-atexit.register(cleanup)
+if p:
+	atexit.register(cleanup)
 	
 	
 print _("Starting Zeitgeist service...")
