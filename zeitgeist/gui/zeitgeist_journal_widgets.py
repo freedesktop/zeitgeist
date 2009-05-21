@@ -273,7 +273,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.load_month()
 		
 		ctimestamp = time.mktime([date[0],date[1]+1,date[2],0,0,0,0,0,0])
-		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime("%d %b %Y")
+		datestring = datetime.datetime.fromtimestamp(ctimestamp).strftime("%a %d %b %Y")
 		if focus == False:
 			for w in self.dayboxes:
 				w.show_all()
@@ -282,6 +282,8 @@ class TimelineWidget(gtk.ScrolledWindow):
 		else:
 			for w in self.dayboxes:
 				w.hide_all()
+				print w.date
+				print datestring
 				if w.date == datestring:
 					w.show_all()
 	
