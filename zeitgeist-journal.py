@@ -115,7 +115,7 @@ class Journal(gtk.Window):
 		if bb.timebrowse:
 			# KEY == Home
 			if event.keyval == 65360:
-				search.do_clear()
+				search.go_today()
 				self.set_focus(None)
 			
 			# KEY == Left
