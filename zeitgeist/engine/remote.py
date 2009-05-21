@@ -107,6 +107,10 @@ class RemoteInterface(dbus.service.Object):
 	def signal_updated(self):
 		pass
 	
+	@dbus.service.signal("org.gnome.Zeitgeist")
+	def signal_exit(self):
+		pass
+	
 	@dbus.service.method("org.gnome.Zeitgeist")
 	def emit_signal_updated(self):
 		self.signal_updated()
