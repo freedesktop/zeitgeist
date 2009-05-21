@@ -27,21 +27,11 @@ trayicon_app = "%s/zeitgeist-trayicon.py" % config.bindir
 if not '--no-trayicon' in sys.argv:
 	subprocess.Popen(trayicon_app)
 
-
-def cleanup():
-	p.kill() # supported from python 2.6
-	print 'cleaned up!'
-
-
 passive_loggers = "%s/zeitgeist-datahub.py" % config.bindir
-print passive_loggers
-p = None
 if not '--no-passive-loggers' in sys.argv and os.path.isfile(passive_loggers):
-	p =	subprocess.Popen(passive_loggers)
+	subprocess.Popen(passive_loggers)
 
-if p:
-	atexit.register(cleanup)
-	
-	
+atexit.register(lambda: object.signal_exit())
+
 print _("Starting Zeitgeist service...")
 mainloop.run()

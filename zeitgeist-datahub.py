@@ -16,7 +16,7 @@ installation_dir = os.path.dirname(os.path.realpath(config.__file__))
 datasource_dir = os.path.join(installation_dir, 'loggers/datasources')
 sys.path.append(datasource_dir)
 
-from zeitgeist.shared.zeitgeist_dbus import iface
+from zeitgeist.shared.zeitgeist_dbus import iface, dbus_connect
 from zeitgeist.shared.zeitgeist_shared import plainify_dict
 
 class DataHub(gobject.GObject):
@@ -28,6 +28,7 @@ class DataHub(gobject.GObject):
 	def __init__(self):
 		
 		gobject.GObject.__init__(self)
+		dbus_connect("signal_exit", self._daemon_exit)
 		
 		# Load the data sources
 		self._sources = []
@@ -44,6 +45,9 @@ class DataHub(gobject.GObject):
 		
 		self._mainloop = gobject.MainLoop()
 		self._mainloop.run()
+	
+	def _daemon_exit(self):
+		self._mainloop.quit()
 	
 	def _load_datasource_file(self, datasource_file):
 		
@@ -86,7 +90,7 @@ class DataHub(gobject.GObject):
 			except dbus.exceptions.DBusException, error:
 				error = error.get_dbus_name()
 				if error == "org.freedesktop.DBus.Error.ServiceUnknown":
-					self._mainloop.quit()
+					self._daemon_exit()
 				else:
 					raise
 			except TypeError, error:
