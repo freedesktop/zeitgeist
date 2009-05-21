@@ -134,7 +134,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		self.load_month()
 	
-	def load_month(self, widget=None, begin=None, end=None, offset = 0, cached=False, tags=None , search=None):
+	def load_month(self, widget=None, begin=None, end=None, offset=0, cached=False, tags=None, search=None):
 		'''
 		Loads the current month selected on the calendar into the GUI.
 		
@@ -157,7 +157,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 			if begin:
 				self.begin = begin
 			if end:
-				print end
 				self.end = end
 				
 			elif len(self.tags) > 0:
@@ -695,6 +694,9 @@ class SearchToolItem(gtk.ToolItem):
 		timeline.reset_date()
 		bookmarks.get_bookmarks(text="")
 		timeline.search = ""
+	
+	def do_clear_proxy(self, *discard):
+		self.do_clear()
 		timeline.load_month()
 	
 	def do_search(self, text):
@@ -755,7 +757,7 @@ class SearchToolItem(gtk.ToolItem):
 	def cancel(self):
 		'''Cancel a pending/active search without sending the \'clear\' signal.'''
 		if self.entry.get_text() != self.default_search_text:
-			self.do_clear()
+			self.do_clear_proxy()
 
 class BrowserBar(gtk.VBox):
 	
@@ -780,12 +782,10 @@ class BrowserBar(gtk.VBox):
 		self.pack_end(self.home, False, False)
 	
 	def go_today(self, widget=None):
-		begin = int(time.time())/ 86400
-		begin = begin * 86400
-		begin =begin
-		end = begin + 2*86400
-		timeline.load_month(begin=begin,end=end)
-	
+		begin = int(time.time()) - 86400
+		end = begin + 2 * 86400
+		search.do_clear()
+		timeline.load_month(begin=begin, end=end)
 	
 	def set_time_browsing(self, boolean):
 		filtersBox.set_sensitive(boolean)
@@ -807,7 +807,7 @@ class SearchBox(gtk.VBox):
 		searchbox = gtk.HBox()
 		searchbox.pack_start(search, True, True)
 		clear_btn = gtk.ToolButton("gtk-clear")
-		clear_btn.connect("clicked", lambda x: search.do_clear())
+		clear_btn.connect("clicked", lambda x: search.do_clear_proxy())
 		searchbox.pack_start(clear_btn, False, False)
 		self.pack_start(searchbox, False, False)
 		self.pack_start(htb,True,True)
