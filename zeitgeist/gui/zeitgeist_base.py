@@ -37,9 +37,13 @@ class Data(gobject.GObject):
 		if name:
 			name = name.replace("<","")
 			name = name.replace(">","")
-			
 		
-		self.uri = uri.replace("%20"," ")
+		self.exists = True
+		self.uri = uri
+		if uri:
+			self.uri = uri.replace("%20"," ")
+			self.exists = exists(self.uri)
+			
 		self.name = name
 		self.count = count
 		self.comment = comment
@@ -55,8 +59,6 @@ class Data(gobject.GObject):
 		self.thumbnailer = None
 		self.original_source = None
 		self.textview = None
-		
-		self.exists = exists(self.uri)
 	
 	def get_timestamp(self):
 		return self.timestamp
@@ -65,28 +67,29 @@ class Data(gobject.GObject):
 		return datetime.datetime.fromtimestamp(self.timestamp).strftime("%a %d %b %Y")
 	
 	def get_icon(self, icon_size):
-		if  self.exists and self.uri.startswith("file"):
-			thumb = thumbnailer.get_icon(self.get_uri(), self.get_mimetype(), icon_size, self.timestamp)
-			return thumb
+		if self.uri:
+			if  self.exists and self.uri.startswith("file"):
+				thumb = thumbnailer.get_icon(self.get_uri(), self.get_mimetype(), icon_size, self.timestamp)
+				return thumb
 		
-		'''
-		if self.uri.startswith("http") and not self.comment.strip()=="":
-			if self.comment[0] == ".":
-				uri = "http://" + self.comment[1:] +"/"
-			else: 
-				uri = "http://" + self.comment +"/"
-			icon =  favicons.get_icon(uri)
-			if icon:
+			'''
+			if self.uri.startswith("http") and not self.comment.strip()=="":
+				if self.comment[0] == ".":
+					uri = "http://" + self.comment[1:] +"/"
+				else: 
+					uri = "http://" + self.comment +"/"
+				icon =  favicons.get_icon(uri)
+				if icon:
+					return icon
+			'''
+		
+			if self.icon:
+				icon =  icon_factory.load_icon(self.icon, icon_size)
+				if not self.exists:
+					icon = icon_factory.transparentize(icon,75)
 				return icon
-		'''
 		
-		if self.icon:
-			icon =  icon_factory.load_icon(self.icon, icon_size)
-			if not self.exists:
-				icon = icon_factory.transparentize(icon,75)
-			return icon
-		
-		return None
+			return None
 	
 	def open(self):
 		if self.get_mimetype() == "x-tomboy/note":

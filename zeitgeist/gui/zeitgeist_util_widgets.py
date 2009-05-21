@@ -14,6 +14,7 @@ from zeitgeist.gui.zeitgeist_util import launcher, icon_factory
 from zeitgeist.gui.zeitgeist_util import launcher, color_palette
 from zeitgeist.gui.zeitgeist_engine_wrapper import engine
 from zeitgeist.gui.zeitgeist_bookmarker import bookmarker
+from zeitgeist.gui.zeitgeist_base import Data
 from zeitgeist.shared.zeitgeist_shared import *
 from zeitgeist import config
 
@@ -183,20 +184,14 @@ class DataIconView(gtk.TreeView):
 		return self.store.iter_next(iter)
 	
 	def _expand_row(self,model,iter,path):
-		type = self.store.get_value(iter, 1)
-		substrings = type.split("\n")
-		type = substrings[0].replace("<span color='black'>","")
-		type = type.replace("</span>","")
-		type = type.strip()
-		expanded_views[self.datestring][type] = True
+		type = self.store.get_value(iter, 5)
+		if expanded_views[self.datestring].has_key(type):
+			expanded_views[self.datestring][type] = True
 		
 	def _collapse_row(self,model,iter,path):
-		type = self.store.get_value(iter, 1)
-		substrings = type.split("\n")
-		type = substrings[0].replace("<span color='black'>","")
-		type = type.replace("</span>","")
-		type = type.strip()
-		expanded_views[self.datestring][type] = False
+		type = self.store.get_value(iter, 5)
+		if expanded_views[self.datestring].has_key(type):
+			expanded_views[self.datestring][type] = False
 	
 	
 	def reload_name_cell_size(self,width):
@@ -308,6 +303,7 @@ class DataIconView(gtk.TreeView):
 				
 	def _set_item(self, item, append=True, group=False, parent=False):
 				
+		self.datestring = item.get_datestring()
 		bookmark = bookmarker.get_bookmark(item.uri)
 		self.items_uris.append(item.uri)
 			
@@ -328,84 +324,83 @@ class DataIconView(gtk.TreeView):
 			icon = self.active_image
 		
 		
+		
+		'''
+		Creating parent for grouping
+		'''
 		if not self.types.has_key(item.type):
+			iter = None
 			if group:
 				self.item_type_count[item.type] = 0
-			
+				
+				parent = self.create_parent(item)
+				
 				iter = self.store.append(None, [icon_factory.load_icon(item.icon, 24),
-									 "<span size='large' color='%s'>%s</span>" % \
-			("black", item.type),
+									"<span size='large' color='%s'>%s</span>" % ("black", parent.type),
 									"",
 									True,
 									None,
-									"Bookmarked "+item.type,
+									item.type,
 									None,
 									])
-			else:
-				iter = None
 			self.types[item.type] = iter
 		
-		if parent:
-			if self.last_item and self.last_item.comment.strip() != "" and self.last_item.comment == item.comment:
-				self.store.append(self.last_iter, 
-					[item.get_icon(24),
-					name,
-					date,
-					bookmark,
-					item,
-					self.get_tooltip(item),
-					icon,
-					])
 		
-			elif self.last_item and self.last_item.tags != "" and self.last_item.tags == item.tags:
-				self.store.append(self.last_iter, 
-					[item.get_icon(24),
-					name,
-					date,
-					bookmark,
-					item,
-					self.get_tooltip(item),
-					icon,
-					])
+		'''
+		Assigning the item to either be in a group or standalone
+		'''
 		
-		else:
-			if group:
-				if not expanded_views.has_key(item.get_datestring()):
-					expanded_views[item.get_datestring()] = {}
-				if not expanded_views[item.get_datestring()].has_key(item.type.strip()):
-					expanded_views[item.get_datestring()][item.type.strip()] = False
+		
 				
-				self.item_type_count[item.type.strip()] +=1
-				iter = self.types[item.type.strip()] 
-				if self.item_type_count[item.type.strip()] > 1:
-					self.store.set(iter,1,"<span color='%s'>%s</span>"\
-								    "\n<span size='small' color='blue'> (%i activities)</span>"  % \
-										 ("black", item.type.strip(), self.item_type_count[item.type.strip()]) )
-				else:
-					self.store.set(iter,1,"<span color='%s'>%s</span>"\
-								    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
-										 ("black", item.type.strip(), self.item_type_count[item.type.strip()]) )
-				
-				path = self.store.get_path(iter)
-				exp =  expanded_views[item.get_datestring()][item.type.strip()]
-				if exp:
-					self.expand_row(path, True)
-					
-			self.last_iter = self.store.append(self.types[item.type.strip()], 
-				[item.get_icon(24),
-				name,#"<span size='small'>%s</span>" % name,
-				date,
-				bookmark,
-				item,
-				self.get_tooltip(item),
-				icon,
-				])
+		self.last_iter = self.store.append(self.types[item.type.strip()], 
+			[item.get_icon(24),
+			name,#"<span size='small'>%s</span>" % name,
+			date,
+			bookmark,
+			item,
+			self.get_tooltip(item),
+			icon,
+			])
 			
+		if group:
+			if not expanded_views.has_key(item.get_datestring()):
+				expanded_views[item.get_datestring()] = {}
+			if not expanded_views[item.get_datestring()].has_key(item.type.strip()):
+				expanded_views[item.get_datestring()][item.type.strip()] = False
 			
+			self.item_type_count[item.type.strip()] +=1
+			iter = self.types[item.type.strip()] 
+			if self.item_type_count[item.type.strip()] > 1:
+				self.store.set(iter,1,"<span color='%s'>%s</span>"\
+							    "\n<span size='small' color='blue'> (%i activities)</span>"  % \
+									 ("black", item.type.strip(), self.item_type_count[item.type.strip()]) )
+			else:
+				self.store.set(iter,1,"<span color='%s'>%s</span>"\
+							    "\n<span size='small' color='blue'> (%i activity)</span>"  % \
+									 ("black", item.type.strip(), self.item_type_count[item.type.strip()]) )
+			
+			path = self.store.get_path(iter)
+			exp =  expanded_views[item.get_datestring()][item.type.strip()]
+			if exp:
+				self.expand_row(path, True)
 		
-		self.datestring = item.get_datestring()
 		self.last_item = item
 	
+	def create_parent(self,item):
+		parent = Data(
+				 uri		= None,
+				 name		= item.type,
+				 comment	= "",
+				 timestamp	= item.timestamp,
+				 mimetype	= "N/A",
+				 icon		= item.icon,
+				 tags		= "",
+				 count		= 1,
+				 use		= "first use",
+				 type		=  item.type,
+				 bookmark	= False)
+		return parent
+		
 	def get_tooltip(self,item):
 		tooltip = item.uri + "\n\n" + item.comment
 		if not len(item.tags) == 0:
