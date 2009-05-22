@@ -32,13 +32,6 @@ class Journal(gtk.Window):
 		signal.signal(signal.SIGUSR1, lambda *discard: self.emit(gtk.main_quit))
 		signal.signal(signal.SIGUSR2, self._toggle_visibility)
 		
-		# Sidebar
-		self.sidebar = gtk.VBox()
-		
-		# Filter/options box
-		self.sidebar.pack_start(calendar, False, False)
-		self.sidebar.pack_start(filtersBox, True, True)
-		
 		# Notebook
 		self.notebook = gtk.Notebook()
 		self.notebook.connect("switch-page",self.switch_page)
@@ -70,9 +63,11 @@ class Journal(gtk.Window):
 		
 		# Horizontal box (contains the main content and a sidebar)
 		self.hBox = gtk.HBox()
+		
+		self.vBox.pack_start(bb, False, False)
 		self.vBox.pack_start(self.hBox, True, True)
 		
-		self.hBox.pack_start(bb, False, False)
+		#self.hBox.pack_start(bb, False, False)
 		self.hBox.pack_start(filtertime, False, False)
 		self.hBox.pack_start(self.notebook,True,True, 5)
 		self.vBox.pack_start(statusbar, False, False)

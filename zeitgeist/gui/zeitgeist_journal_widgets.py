@@ -574,16 +574,11 @@ class FilterBox(gtk.VBox):
 		self.pack_start(self.option_box)
 		self.voptionbox = gtk.VBox(False)
 		
-		self.frame2 = gtk.Frame()
-		self.label2 = gtk.Label("Filter")
-		self.frame2.set_label_align(0.5, 0.5)
-		self.frame2.set_label_widget(self.label2)
-		self.option_box.pack_start(self.frame2,False, False)
+		self.option_box.pack_start(self.voptionbox,False, False)
 		
 		self.timelinefilter = gtk.CheckButton()
 		self.reload()
 		
-		self.frame2.add(self.voptionbox)
 		self.date_dict = None
 		
 		# GConf settings
@@ -767,14 +762,14 @@ class SearchToolItem(gtk.ToolItem):
 		if self.entry.get_text() != self.default_search_text:
 			self.do_clear_proxy()
 
-class BrowserBar(gtk.VBox):
+class BrowserBar(gtk.HBox):
 	
 	def __init__(self, htb):
 		
 		self.htb = htb
-		gtk.VBox.__init__(self)   
+		gtk.HBox.__init__(self)   
 		
-		self.home = gtk.ToolButton("gtk-home")
+		self.home = gtk.ToolButton("gtk-refresh")
 		self.home.set_label("Recent")
 		self.home.connect("clicked",self.go_today)
 		self.home.set_tooltip_text(_("Show recent activities"))
@@ -787,7 +782,9 @@ class BrowserBar(gtk.VBox):
 		self.search.set_tooltip_text(_("Search for activities"))
 		self.search.connect("toggled", self.toggle_search)
 		self.pack_start(self.search, False, False)
-		self.pack_end(self.home, False, False)
+		self.pack_start(self.home, False, False)
+		self.pack_end(searchbox,False,False)
+		
 	
 	def go_today(self, widget=None):
 		begin = int(time.time()) - 86400
@@ -818,7 +815,6 @@ class SearchBox(gtk.VBox):
 		clear_btn.connect("clicked", lambda x: search.do_clear_proxy())
 		searchbox.pack_start(clear_btn, False, False)
 		self.pack_start(searchbox, False, False)
-		self.pack_start(htb,True,True)
 
 class FilterAndTimeBox(gtk.Notebook):
 	
@@ -826,13 +822,17 @@ class FilterAndTimeBox(gtk.Notebook):
 		
 		gtk.Notebook.__init__(self)
 		
-		label = self.create_tab_label(_("Search"), searchbox)
-		self.append_page(searchbox, label)
-		self.set_tab_label_packing(searchbox, True, True, gtk.PACK_START)
+		label = self.create_tab_label(_("Tags"), htb)
+		self.append_page(htb, label)
+		self.set_tab_label_packing(htb, True, True, gtk.PACK_START)
+		
+		label = self.create_tab_label(_("Calendar"), calendar)
+		self.append_page(calendar, label)
+		self.set_tab_label_packing(calendar, True, True, gtk.PACK_START)
 		
 		vbox = gtk.VBox()
-		vbox.pack_start(calendar, False, False)
-		label = self.create_tab_label(_("Filters, Date & View"), vbox)
+		#vbox.pack_start(calendar, False, False)
+		label = self.create_tab_label(_("Filters"), vbox)
 		enable_grouping = gtk.CheckButton()
 		enable_grouping.set_label(_("Enable Grouping"))
 		enable_grouping.set_active(True)
