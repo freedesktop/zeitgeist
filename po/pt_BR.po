@@ -1,0 +1,200 @@
+# Brazilian Portuguese translation for gnome-zeitgeist
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# This file is distributed under the same license as the gnome-zeitgeist package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gnome-zeitgeist\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2009-05-18 00:42+0200\n"
+"PO-Revision-Date: 2009-05-16 14:08+0000\n"
+"Last-Translator: Rossano C. Nunes <rossano@gpveritas.org>\n"
+"Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-05-22 17:00+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: src/zeitgeist-daemon.py:34
+msgid "Starting Zeitgeist service..."
+msgstr "Iniciando serviço do Zeitgeist"
+
+#: src/zeitgeist_engine/zeitgeist_datasink.py:54
+#, python-format
+msgid "Updating item: %s"
+msgstr "Atualizando item: %s"
+
+#: src/zeitgeist_engine/zeitgeist_datasink.py:58
+#, python-format
+msgid "Deleting item: %s"
+msgstr "Deletando item: %s"
+
+#: src/zeitgeist_experimental/zeitgeist-projectviewer.py:24
+msgid "GNOME Zeitgeist Project Viewer"
+msgstr "Visualizador de Projetos GNOME Zeitgeist"
+
+#: src/zeitgeist_experimental/zeitgeist-timeline.py:24
+msgid "GNOME Zeitgeist Timeline"
+msgstr "Linha do Tempo GNOME Zeitgeist"
+
+#: src/zeitgeist_experimental/zeitgeist_timeline_widgets.py:64
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:530
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:551
+msgid "Today"
+msgstr "Hoje"
+
+#: src/zeitgeist_experimental/zeitgeist_timeline_widgets.py:66
+msgid "Yesterday"
+msgstr "Ontem"
+
+#: src/zeitgeist_gui/zeitgeist-journal.py:51
+msgid "Stars"
+msgstr "Estrelas"
+
+#: src/zeitgeist_gui/zeitgeist-journal.py:56
+msgid "Journal"
+msgstr "Diário"
+
+#: src/zeitgeist_gui/zeitgeist-trayicon.py:34
+msgid "Open Journal"
+msgstr "Abrir diário"
+
+#: src/zeitgeist_gui/zeitgeist-trayicon.py:109
+msgid ""
+"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
+"computer."
+msgstr ""
+"O GNOME Zeitgeist é uma ferramenta para facilmente navegar e encontrar "
+"arquivos no seu computador."
+
+#: src/zeitgeist_gui/zeitgeist_base.py:160
+msgid "Unbookmark"
+msgstr "Desmarcar"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:162
+msgid "Bookmark"
+msgstr "Marcar"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:167
+msgid "Show related activities"
+msgstr "Mostrar atividades relacionadas"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:172
+msgid "Edit tags..."
+msgstr "Editar tags..."
+
+#: src/zeitgeist_gui/zeitgeist_base.py:183
+msgid "Delete item from Zeitgeist"
+msgstr "Deletar item do Zeitgeist"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:213
+#, python-format
+msgid "Edit tags for %s"
+msgstr "Editar tags para %s"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:218
+msgid "Add"
+msgstr "Adicionar"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:219
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: src/zeitgeist_gui/zeitgeist_base.py:250
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:416
+msgid "Most used tags"
+msgstr "Tags mais usadas"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:415
+msgid "Recently used tags"
+msgstr "Tags recentemente usadas"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:417
+msgid "All tags"
+msgstr "Todas as tags"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:664
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:828
+msgid "Search"
+msgstr "Pesquisa"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:781
+msgid "Show recent activities"
+msgstr "Mostrar atividades recentes"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:788
+msgid "Search for activities"
+msgstr "Pesquisar por atividades"
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:832
+msgid "Filters"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:836
+msgid "Date, Time & View"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_journal_widgets.py:841
+msgid "Enable Grouping"
+msgstr ""
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:80
+msgid "Name"
+msgstr "Nome"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:87
+msgid "Time"
+msgstr "Tempo"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:385
+msgid "Tagged with:"
+msgstr "Com a tag:"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:387
+msgid "The file has been removed from"
+msgstr "O arquivo foi removido do"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:409
+msgid "New Document"
+msgstr "Novo documento"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:455
+msgid "Related files"
+msgstr "Arquivos relacionados"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:478
+msgid "Last usage:"
+msgstr "Última utilização"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:480
+msgid "Tags:"
+msgstr "Tags:"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:482
+#, python-format
+msgid "Files related to %s"
+msgstr "Arquivos relacionados à %s"
+
+#: src/zeitgeist_gui/zeitgeist_util_widgets.py:600
+msgid "All favourites"
+msgstr "Todos os favoritos"
+
+#: src/zeitgeist_loggers/zeitgeist-datahub.py:50
+#, python-format
+msgid "Error: Could not load file: %s"
+msgstr ""
+
+#: src/zeitgeist_loggers/zeitgeist-datahub.py:76
+#, python-format
+msgid "Updating database with new %s items"
+msgstr "Atualizando banco de dados com os novos %s items"
+
+#: src/zeitgeist_shared/zeitgeist_dbus.py:13
+msgid "Error: Could not connect to D-Bus."
+msgstr "Erro: Não é possível conectar ao D-Bus."
+
+#: src/zeitgeist_shared/zeitgeist_dbus.py:18
+msgid "Error: Zeitgeist service not running."
+msgstr "Erro: O serviço do Zeitgeist não está rodando."
