@@ -33,7 +33,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Add children widgets
 		self.hbox = gtk.HBox()
 		self.view = DataIconView(True)
-		self.dayboxes=gtk.HBox(False,False)
+		self.dayboxes=gtk.HBox(False,5)
 		
 		self.back=gtk.Button(stock="gtk-go-back")
 		label=self.back.get_children()[0]

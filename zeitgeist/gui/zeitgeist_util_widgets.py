@@ -563,7 +563,7 @@ class DayBox(gtk.VBox):
 		self.scroll = gtk.ScrolledWindow()		
 		self.scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 		self.scroll.add_with_viewport(self.view)
-		self.pack_start(self.scroll)
+		self.pack_start(self.scroll,True,True,5)
 		self.show_all()
 		self.item_count = 0
 	
