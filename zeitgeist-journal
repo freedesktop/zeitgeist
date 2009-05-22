@@ -28,7 +28,7 @@ class Journal(gtk.Window):
 		self._visible = True
 		self.connect("destroy", gtk.main_quit)
 		self.connect_after("check-resize", self.window_state_event_cb)
-		self.connect("key-press-event",self.on_window_key_press_event)
+		self.connect("key-press-event", self.on_window_key_press_event)
 		signal.signal(signal.SIGUSR1, lambda *discard: self.emit(gtk.main_quit))
 		signal.signal(signal.SIGUSR2, self._toggle_visibility)
 		
@@ -50,7 +50,7 @@ class Journal(gtk.Window):
 		self.notebook.append_page(timeline, label)
 		self.notebook.set_tab_label_packing(timeline, True, True, gtk.PACK_START)
 		
-		box = gtk.VBox(False,5)
+		box = gtk.VBox(False, 5)
 		self.notebook.append_page(box, gtk.Label("Most Used Stuff (not yet  implemented)"))
 		self.notebook.set_tab_label_packing(box, True, True, gtk.PACK_START)
 		
@@ -65,11 +65,11 @@ class Journal(gtk.Window):
 		self.hBox = gtk.HBox()
 		
 		self.vBox.pack_start(bb, False, False)
-		self.vBox.pack_start(self.hBox, True, True,5)
+		self.vBox.pack_start(self.hBox, True, True, 5)
 		
 		#self.hBox.pack_start(bb, False, False)
 		self.hBox.pack_start(filtertime, False, False)
-		self.hBox.pack_start(self.notebook,True,True)
+		self.hBox.pack_start(self.notebook, True, True)
 		self.vBox.pack_start(statusbar, False, False)
 		
 		# Show everything
@@ -77,7 +77,7 @@ class Journal(gtk.Window):
 		self.set_focus(None)
 		self._create_toolbar_buttons()
 		self.notebook.set_current_page(1)
-		self.set_size_request(800,-1)
+		self.set_size_request(800, -1)
 		filtertime.hide_all()
 	
 	def _toggle_visibility(self, *discard):
@@ -87,10 +87,10 @@ class Journal(gtk.Window):
 	def _create_toolbar_buttons(self):
 		self.star_button = gtk.ToggleToolButton()
 		pixbuf = gtk.gdk.pixbuf_new_from_file_at_size("%s/bookmark-new.svg" % config.pkgdatadir, 24, 24)
-		icon = gtk.image_new_from_pixbuf(pixbuf)
-		self.star_button.set_icon_widget(icon)
-		self.star_button.connect("toggled", self.toggled_starred)
+		self.star_button.set_icon_widget(gtk.image_new_from_pixbuf(pixbuf))
+		self.star_button.set_label(_("Stars"))
 		self.star_button.set_tooltip_text(_("Stars"))
+		self.star_button.connect("toggled", self.toggled_starred)
 			
 		bb.toolbar.insert(self.star_button,-1)
 		bb.show_all()

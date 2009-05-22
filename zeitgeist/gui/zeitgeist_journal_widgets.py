@@ -33,21 +33,21 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# Add children widgets
 		self.hbox = gtk.HBox()
 		self.view = DataIconView(True)
-		self.dayboxes=gtk.HBox(False,5)
+		self.dayboxes = gtk.HBox(False, 5)
 		
-		self.back=gtk.Button(stock="gtk-go-back")
-		label=self.back.get_children()[0]
-		label=label.get_children()[0].get_children()[1]
-		label=label.set_label("")
+		self.back = gtk.Button(stock="gtk-go-back")
+		label = self.back.get_children()[0]
+		label = label.get_children()[0].get_children()[1]
+		label.set_label("")
 		self.back.set_size_request(32,-1)
 		self.back.connect("clicked", lambda x: self.step_in_time(-1))
 		self.back.set_relief(gtk.RELIEF_NONE)
 		self.back.set_focus_on_click(False)
 
-		self.forward=gtk.Button(stock="gtk-go-forward")
-		label=self.forward.get_children()[0]
-		label=label.get_children()[0].get_children()[1]
-		label=label.set_label("")
+		self.forward = gtk.Button(stock="gtk-go-forward")
+		label = self.forward.get_children()[0]
+		label = label.get_children()[0].get_children()[1]
+		label.set_label("")
 		self.forward.set_size_request(32,-1)
 		self.forward.connect("clicked", lambda x: self.step_in_time(1))
 		self.forward.set_relief(gtk.RELIEF_NONE)
@@ -769,16 +769,16 @@ class BrowserBar(gtk.HBox):
 		
 		self.htb = htb
 		gtk.HBox.__init__(self)
-		self.home = gtk.ToolButton("gtk-refresh")
-		self.home.set_label("Recent")
-		self.home.connect("clicked", timeline.reset_date)
+		self.home = gtk.ToolButton("gtk-home")
+		self.home.set_label(_("Recent"))
 		self.home.set_tooltip_text(_("Show recent activities"))
+		self.home.connect("clicked", timeline.reset_date)
 		
 		self.search = gtk.ToggleToolButton()
 		pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
 			"%s/logo/32x32/apps/gnome-zeitgeist.png" % config.pkgdatadir, 24, 24)
-		icon = gtk.image_new_from_pixbuf(pixbuf)
-		self.search.set_icon_widget(icon)
+		self.search.set_icon_widget(gtk.image_new_from_pixbuf(pixbuf))
+		self.search.set_label(_("Search"))
 		self.search.set_tooltip_text(_("Search for activities"))
 		self.search.connect("toggled", self.toggle_search)
 		
@@ -794,12 +794,8 @@ class BrowserBar(gtk.HBox):
 		toolbar2.add(searchbox)
 		hbox2.pack_start(toolbar2)
 		
-		self.pack_start(hbox1,True,True)
-		self.pack_start(hbox2,False,False)
-		
-		#self.pack_start(self.search, False, False)
-		#self.pack_start(self.home, False, False)
-		#self.pack_end(searchbox,False,False)
+		self.pack_start(hbox1, True, True)
+		self.pack_start(hbox2, False, False)
 	
 	def set_time_browsing(self, boolean):
 		filtersBox.set_sensitive(boolean)
