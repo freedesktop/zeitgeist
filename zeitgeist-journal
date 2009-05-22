@@ -69,7 +69,7 @@ class Journal(gtk.Window):
 		
 		#self.hBox.pack_start(bb, False, False)
 		self.hBox.pack_start(filtertime, False, False)
-		self.hBox.pack_start(self.notebook,True,True, 5)
+		self.hBox.pack_start(self.notebook,True,True)
 		self.vBox.pack_start(statusbar, False, False)
 		
 		# Show everything
@@ -92,7 +92,7 @@ class Journal(gtk.Window):
 		self.star_button.connect("toggled", self.toggled_starred)
 		self.star_button.set_tooltip_text(_("Stars"))
 			
-		bb.pack_start(self.star_button, False, False)
+		bb.toolbar.insert(self.star_button,-1)
 		bb.show_all()
 	
 	def toggled_starred(self, widget):

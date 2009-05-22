@@ -1,5 +1,5 @@
 # -.- encoding: utf-8 -.-
-
+import gc
 import sys
 import os
 import shutil
@@ -163,6 +163,7 @@ class ZeitgeistEngine(gobject.GObject):
 				amount_items += 1
 		
 		self.connection.commit()
+		del items
 		return amount_items
 	
 	def get_items(self, min=0, max=sys.maxint, tags=""):
@@ -206,6 +207,8 @@ class ZeitgeistEngine(gobject.GObject):
 						if not matches:
 							continue
 				yield self._result2data(item, timestamp = start)
+			del item
+			gc.collect()
 	
 	def update_item(self, item):
 		"""

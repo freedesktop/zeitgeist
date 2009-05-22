@@ -767,8 +767,7 @@ class BrowserBar(gtk.HBox):
 	def __init__(self, htb):
 		
 		self.htb = htb
-		gtk.HBox.__init__(self)   
-		
+		gtk.HBox.__init__(self)
 		self.home = gtk.ToolButton("gtk-refresh")
 		self.home.set_label("Recent")
 		self.home.connect("clicked", timeline.reset_date)
@@ -781,9 +780,25 @@ class BrowserBar(gtk.HBox):
 		self.search.set_icon_widget(icon)
 		self.search.set_tooltip_text(_("Search for activities"))
 		self.search.connect("toggled", self.toggle_search)
-		self.pack_start(self.search, False, False)
-		self.pack_start(self.home, False, False)
-		self.pack_end(searchbox,False,False)
+		
+		self.toolbar = gtk.Toolbar()
+		self.toolbar.add(self.search)
+		self.toolbar.add(self.home)
+		
+		hbox1 = gtk.HBox()
+		hbox1.pack_start(self.toolbar,True,True)
+		
+		hbox2 = gtk.HBox(True)
+		toolbar2 = gtk.Toolbar()
+		toolbar2.add(searchbox)
+		hbox2.pack_start(toolbar2)
+		
+		self.pack_start(hbox1,True,True)
+		self.pack_start(hbox2,False,False)
+		
+		#self.pack_start(self.search, False, False)
+		#self.pack_start(self.home, False, False)
+		#self.pack_end(searchbox,False,False)
 	
 	def set_time_browsing(self, boolean):
 		filtersBox.set_sensitive(boolean)
@@ -796,18 +811,16 @@ class BrowserBar(gtk.HBox):
 		else:
 			filtertime.hide_all()
 
-class SearchBox(gtk.VBox):
+class SearchBox(gtk.HBox):
 	
 	def __init__(self):
 		
-		gtk.VBox.__init__(self)
+		gtk.HBox.__init__(self)
 		
-		searchbox = gtk.HBox()
-		searchbox.pack_start(search, True, True)
+		self.pack_start(search, True, True)
 		clear_btn = gtk.ToolButton("gtk-clear")
 		clear_btn.connect("clicked", lambda x: search.do_clear_proxy())
-		searchbox.pack_start(clear_btn, False, False)
-		self.pack_start(searchbox, False, False)
+		self.pack_start(clear_btn, False, False)
 
 class FilterAndTimeBox(gtk.Notebook):
 	
