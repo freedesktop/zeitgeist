@@ -27,7 +27,7 @@ class Journal(gtk.Window):
 		self.set_icon_from_file("%s/logo/scalable/apps/gnome-zeitgeist.svg" % config.pkgdatadir)
 		self._visible = True
 		self.connect("destroy", gtk.main_quit)
-		self.connect("check-resize", self.window_state_event_cb)
+		self.connect_after("check-resize", self.window_state_event_cb)
 		self.connect("key-press-event",self.on_window_key_press_event)
 		signal.signal(signal.SIGUSR1, lambda *discard: self.emit(gtk.main_quit))
 		signal.signal(signal.SIGUSR2, self._toggle_visibility)
@@ -155,8 +155,10 @@ class Journal(gtk.Window):
 		else:
 			self.set_size_request(800,-1)
 			
-		timeline.clean_up_dayboxes(width/3 - 38)
+		#timeline.clean_up_dayboxes(width/3 - 38)
 		bookmarks.clean_up_dayboxes(width)
+		timeline.load_month()
+		timeline.clean_up_dayboxes(width/3 - 38)
 
 if __name__ == "__main__":
 	
