@@ -1,5 +1,5 @@
 AC_INIT([gnome-zeitgeist], [0.0.6])
-AC_CONFIG_SRCDIR(zeitgeist-daemon.py)
+AC_CONFIG_SRCDIR(zeitgeist-daemon)
 AM_INIT_AUTOMAKE([1.9 foreign])
 GNOME_COMMON_INIT
 AM_MAINTAINER_MODE

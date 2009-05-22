@@ -11,30 +11,51 @@ Wouldn't it be nice if there was somewhere you could turn to bring up all the di
 Well, there is. GZG will do that for you.
 
 == What you see on startup ==
-When you start GZG you see a small icon: image:images/22/gnome-zeitgeist.png[] in your system tray (commonly also called "notification area"). That is the visible evidence that your daemon is running. A daemon is a computer program that runs in the background, rather than under the direct control of a user; they are usually initiated as background processes: http://en.wikipedia.org/wiki/Daemon_(computer_software)
+When you start GZG you see a small icon in your system tray (commonly also called "notification area"). This is the GZG daemon running. A daemon is a computer program that runs in the background, rather than under the direct control of a user; they are usually initiated as background processes: http://en.wikipedia.org/wiki/Daemon_(computer_software)
 
-Click the GZG icon, and a window opens. This is your Journal:
+Open GZG journal:
+Click the GZG icon or right click and click open Journal. 
 
-image:images/main_window_thumb.png["Main window",link="images/main_window.png"]
 
-You also have some other options from this icon: Right click and you'll be able to open Project Viewer and Timeline, however, these are works in progress.
-
-As you'll see, the open window has tabs, and we'll begin going through the Journal tab
 
 == Using the Journal ==
-The journal has a main area, which is your timeline, each day separated. Each day has different items of your history, each with a fitting icon, so you can tell what it is (web history, document, etc).
+The journal has a main area, which is your timeline. You can open the activities displayed here. Each day and each different activity type are separated. The activities are web history, documents, music etc.
 
-If you look in the top part of your journal window, you'll see some buttons, we'll discuss these first.
+Next to the timeline are left and right buttons 
+These are the buttons that bring you back, and forward in your timeline.
+There is another way of going back in timeline, if you need to jump far. See [Link to Calendar button] for that.
 
-=== Back, forth and home buttons ===
-These are the buttons that bring you back: image:images/22/go-previous.png[], and forward: image:images/22/go-next.png[], in your timeline. The home button: image:images/22/go-home.png[], will bring you to your current date.
+On the left side of your journal window, you'll see some buttons.
+These are the search, Favourite and the home buttons.
 
-There is another way of going back in time, if you need to jump far. See [Link to Calendar button] for that.
+If you right click on an item in the journal you will get more options.
+These options are open, bookmark, show related activities, edit tags and delete from Zeitgeist.
 
-The other buttons are toggles, meaning when you click them, they remain pressed until you click them again.
+=== The Search button ===
+Clicking this button will open a sidebar that contains filters and date view and the search. 
 
+The calendar section:
+This is a calendar, and you can pick a date to move your starting point to a particular date. If you single click the journal shows the day you select and also the two days before the selected date. If you double click the journal shows only the date selected.
 
-=== The Tag button ===
+The activity filters section:
+This section contains the different activity types. If an activity is not checked that type of activity will not be appear in the journal.
+
+The search tab:
+This tab contains a search bar and a filter containing the most recently used tags. You can search by the name of the file and the files tag. Beside the search box is a clean up button to clear the box. The recent tags filter, filters the items in the journal using tags. If you click on the tag it filters using that tag, if you click it again it deselects that filter.
+
+=== The Favourite button ===
+The Bookmarks tab is empty the first time you run GZG. This will contain the items that you have chosen to have fast access to. The star image:images/22/bookmark-new-grey.png[] next to all items is a checkable button. It will light up when checked: image:images/22/bookmark-new.png[]
+
+Note that GZG bookmarks doesn't have anything to do with the bookmarks in your web browser. Adding or deleting bookmarks in one, will not change anything in the other.
+
+== The Bookmark ==
+Items that are bookmarked will go into the bookmarked tab. When you bookmark one item, all instances of this item gets bookmarked.
+
+Checking the star next to an item bookmarks it, you can star an item by right clicking on an item and choose By right-clicking an item and choose "Bookmark".
+
+Removing the star is done by the same ways: Right click the item, and choose "Unbookmark", or click the highlighted star.
+
+=== Editing tags ===
 Clicking the tag button image:images/22/tag.png[] will bring in a sidebar to the left of the window. 
 
 Tagging is great for easy sorting stuff that relates to work, private, family, etc. You can use as many tags as you'd like.
@@ -53,27 +74,8 @@ There are several ways to add or remove tags to your items:
 
 .. Click a tag button to add it. You'll see the button looks pressed. Click it once more to remove the tag.
 
-
-==== Viewing your tags ====
-You can view your tags in several ways:
-
-. If you let your cursor hover over an item, you'll see that the tags for that item are put in the bottom of the box that shows.
-
-. Using the input box on the right side of the main Journal window, you can write in the name (or part of the name) of a tag, and the main area of the journal viewer will show only those items that match by tag or name.
-
-. Using Filters, see next section
-
-=== The Filters button ===
-Clicking the filters button image:images/22/filter.png[] will open a sidebar on the right side of the Journal window. This is where you choose what GZG will keep in its history. If you want to turn off logging of something, this is the place. Categories that are not checked will not be appearing as items.
-
-=== The Calendar button ===
-Clicking the calendar button image:images/22/calendar.png[] will bring in another piece in the sidebar on the right side of the Journal window. This is a calendar, and you can pick a date to move your starting point to a particular date.
-
-=== The input box ===
-In the top right corner of the Journal window is the input box that we discussed in [Viewing your tags]
-
 === Related items ===
-Moving down the right-click option menu, we have the "Show related items" https://bugs.launchpad.net/gnome-zeitgeist/+bug/374394 option. Choosing this will open a new window that lists items that could be related to the item you're looking at. This is based on what items were used at the same time, and if that usually happens. So, it is prone to mistakes, because it will also contain not related items that you just often happen to use at the same time.
+Moving down the right-click option menu, we have the "Show related items" option. Choosing this will open a new window that lists items that could be related to the item you're looking at. This is based on what items were used at the same time, and if that usually happens. So, it is prone to mistakes, because it will also contain not related items that you just often happen to use at the same time.
 
 === Removing items from Zeitgeist ===
 Sometimes you'll want to delete items from Zeitgeist due to various reasons. It may be crowding the window, because you always open that web page, or it might be something that you'd rather not want anyone else using your computer to see in your history. You can then use the right click menu on that item and choose to delete it from Zeitgeist.
@@ -84,14 +86,3 @@ Choose carefully when you remove stuff from Zeitgeist. It might just happen that
 
 For example, it might seem like a good idea to leave all your Gmail conversations out of Zeitgeist, but what happens when you need to track down that particular conversation that includes the source of what you were working on?
 ===============================
-
-== The Bookmarks tab ==
-The Bookmarks tab is empty the first time you run GZG. This will contain the items that you have chosen to have fast access to. The star image:images/22/bookmark-new-grey.png[] next to all items is a checkable button. It will light up when checked: image:images/22/bookmark-new.png[]
-
-Note that GZG bookmarks doesn't have anything to do with the bookmarks in your web browser. Adding or deleting bookmarks in one, will not change anything in the other.
-
-Items that are bookmarked will go into the bookmarked tab. When you bookmark one item, all instances of this item gets bookmarked.
-
-In addition to checking the star, you can star an item by right clicking on an item and choose By right-clicking an item and choose "Bookmark".
-
-Removing the star is done by the same ways: Right click the item, and choose "Unbookmark", or click the highlighted star.

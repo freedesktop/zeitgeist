@@ -3,6 +3,7 @@ setup.py
 command
 gzg-userdocs.html
 doc/images/22
+*Makefile
 *Makefile.in*
 intltool-*
 aclocal.m4
@@ -12,3 +13,8 @@ install-sh
 missing
 mkinstalldirs
 py-compile
+config.log
+config.status
+po/POTFILES
+stamp-it
+*.desktop.in

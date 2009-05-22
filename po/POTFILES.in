@@ -1,7 +1,7 @@
-zeitgeist-trayicon.py
-zeitgeist-journal.py
-zeitgeist-datahub.py
-zeitgeist-daemon.py
+zeitgeist-trayicon
+zeitgeist-journal
+zeitgeist-datahub
+zeitgeist-daemon
 zeitgeist/__init__.py
 zeitgeist/shared/zeitgeist_shared.py
 zeitgeist/shared/basics.py
