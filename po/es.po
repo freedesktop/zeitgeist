@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-22 18:10+0200\n"
+"POT-Creation-Date: 2009-05-22 19:24+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad."
@@ -125,21 +125,21 @@ msgstr "Mostrar actividades recientes"
 msgid "Search for activities"
 msgstr "Buscar actividades"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:818
 #, fuzzy
 msgid "Tags"
 msgstr "Etiquetas:"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:826
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
 msgid "Calendar"
 msgstr ""
 
 #. vbox.pack_start(calendar, False, False)
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:832
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:828
 msgid "Filters"
 msgstr "Filtros"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:834
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:830
 msgid "Enable Grouping"
 msgstr "Activar Agrupado"
 
