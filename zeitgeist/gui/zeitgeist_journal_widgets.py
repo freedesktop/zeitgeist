@@ -127,11 +127,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 	
 	def _month_changed(self, widget=None):
 		self.search = ""
-		try:
-			search.entry.set_text("")
-		except:
-			pass
-		
+		search.entry.set_text("")
 		self.load_month()
 	
 	def load_month(self, widget=None, begin=None, end=None, offset=0, cached=False, tags=None, search=None):
@@ -146,46 +142,35 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		# Begin benchmarking
 		t1 = time.time()
+		
+		if not cached:
 			
-		if not cached:	
 			self.items = []
+			
 			# Use old properties if new ones are None else replace them
-			if tags:
+			if tags is not None:
 				self.tags = tags
-			if search:
+			if search is not None:
 				self.search = search
-			if begin:
+			if begin is not None:
 				self.begin = begin
-			if end:
+			if end is not None:
 				self.end = end
-				
-			elif len(self.tags) > 0:
-				print self.tags
-				print "if len(self.tags) > 0:"
-				self.begin = sys.maxint
-				self.end = - sys.maxint - 1
-				for tag in self.tags:
-					start, fin = engine.get_timestamps_for_tag(tag)
-					if start < self.begin:
-						self.begin = start
-					if fin > self.end:
-						self.end = fin
-						
-			elif not search or search.strip()=="":
-				self.begin = self.begin + (offset*86400)
-				self.end =self.end + (offset*86400)
+			
+			elif not search or search.strip() == "":
+				self.begin = self.begin + (offset * 86400)
+				self.end = self.end + (offset * 86400)
 			
 			calendar.clear_marks()
 			
 			# Get all items in the date range and add them to self.items
-			for item in engine.get_items(self.begin, self.end, ""):
-				if item.timestamp <= self.end:
-					if not self.sources.has_key(item.type):
-						self.sources[item.type]=False
-						self.sources_icons[item.type] = item.icon
-					
-					self.items.append(item)
-					item.connect("relate", self.set_relation)
+			for item in engine.get_items(self.begin, self.end, ','.join(self.tags)):
+				if not self.sources.has_key(item.type):
+					self.sources[item.type] = False
+					self.sources_icons[item.type] = item.icon
+				
+				self.items.append(item)
+				item.connect("relate", self.set_relation)
 			
 			try:
 				filtersBox.reload()
@@ -223,8 +208,6 @@ class TimelineWidget(gtk.ScrolledWindow):
 		
 		if not int(today[1])-1 == int(date[1]):
 			calendar.select_month(int(today[1])-1, int(today[2]))
-			
-		#self.load_month(self.begin,self.end)
 	
 	def apply_search(self, tags=[]):
 		'''
@@ -382,7 +365,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if self.compress_empty_days:
 			i = len(self.dayboxes) -1
 			for daybox in self.dayboxes:
-				if daybox.item_count == 0 and (self.tags or self.search!=""):
+				if daybox.item_count == 0 and (self.tags or self.search):
 					if i == len(self.dayboxes) -1 or i == 0:
 						daybox.hide()
 					else:
@@ -521,9 +504,11 @@ class HTagBrowser(gtk.VBox):
 		if x.get_active():
 			if tags.count(x.get_label()) == 0:
 				tags.append(x.get_label())
-				begin, end = engine.get_timestamps_for_tag(x.get_label())
-				timeline.load_month(begin=begin, end=end, tags=tags)
-				using_tags = True		
+				#begin, end = engine.get_timestamps_for_tag(x.get_label())
+				print "AHAAAAA"
+				timeline.load_month(begin=0, end=0, tags=tags)
+				print "AHEEEEE"
+				using_tags = True
 				timeline.search = ""
 		
 		else:
@@ -536,7 +521,7 @@ class HTagBrowser(gtk.VBox):
 				timeline.reset_date()
 				search.entry.set_text(self.default_search_text)
 				timeline.search = ""
-			except:
+			except Exception:
 				pass
 			timeline.set_time_browsing(True)
 			bb.set_time_browsing(True)
