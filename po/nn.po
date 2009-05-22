@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-22 18:10+0200\n"
-"PO-Revision-Date: 2009-05-09 21:20+0000\n"
-"Last-Translator: Ketil Wendelbo Aanensen <ketil.w.aanensen@gmail.com>\n"
+"POT-Creation-Date: 2009-05-22 19:24+0200\n"
+"PO-Revision-Date: 2009-05-22 19:23+0100\n"
+"Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -130,21 +130,20 @@ msgstr "Vis nylige aktivitetar"
 msgid "Search for activities"
 msgstr "Søk etter aktivitetar"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
-#, fuzzy
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:818
 msgid "Tags"
-msgstr "Merelappar:"
+msgstr "Merelappar"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:826
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
 msgid "Calendar"
 msgstr ""
 
 #. vbox.pack_start(calendar, False, False)
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:832
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:828
 msgid "Filters"
 msgstr "Filter"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:834
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:830
 msgid "Enable Grouping"
 msgstr "Aktiver gruppering"
 

@@ -1,25 +1,21 @@
-SUBDIRS = data extra po zeitgeist
+SUBDIRS = data extra po zeitgeist doc
 
-INTLTOOL = 			\
-	intltool-extract.in 	\
-	intltool-merge.in 	\
+INTLTOOL = \
+	intltool-extract.in \
+	intltool-merge.in \
 	intltool-update.in
 
-bin_SCRIPTS =  \
+bin_SCRIPTS = \
 	zeitgeist-daemon \
 	zeitgeist-datahub \
 	zeitgeist-journal \
 	zeitgeist-trayicon
 
 EXTRA_DIST = \
-	doc/gzg-userdocs.txt \
-	doc/images/main_window_thumb.png \
-	doc/images/main_window.png \
 	$(bin_SCRIPTS) \
 	$(INTLTOOL)
 
-DISTCLEANFILES = 		\
-	intltool-extract 	\
-	intltool-merge 		\
+DISTCLEANFILES = \
+	intltool-extrac \
+	intltool-merge \
 	intltool-update
-

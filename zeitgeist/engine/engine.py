@@ -193,7 +193,6 @@ class ZeitgeistEngine(gobject.GObject):
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
 									(uri,)).fetchone()
 			
-			# TODO: Can item ever be None?
 			if item:
 				if tags:
 					for tag in tagsplit:
@@ -207,8 +206,6 @@ class ZeitgeistEngine(gobject.GObject):
 						if not matches:
 							continue
 				yield self._result2data(item, timestamp = start)
-			else:
-				pass
 	
 	def update_item(self, item):
 		"""

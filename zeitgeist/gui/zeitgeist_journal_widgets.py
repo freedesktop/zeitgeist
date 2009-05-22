@@ -209,7 +209,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 	def compare(self, a, b):
 		return cmp(a.type, b.type) # compare as integers
 	
-	def reset_date(self):
+	def reset_date(self, *discard):
 		# TODO: Clean this up
 		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
 		date = calendar.get_date()
@@ -771,7 +771,7 @@ class BrowserBar(gtk.HBox):
 		
 		self.home = gtk.ToolButton("gtk-refresh")
 		self.home.set_label("Recent")
-		self.home.connect("clicked",self.go_today)
+		self.home.connect("clicked", timeline.reset_date)
 		self.home.set_tooltip_text(_("Show recent activities"))
 		
 		self.search = gtk.ToggleToolButton()
@@ -784,10 +784,6 @@ class BrowserBar(gtk.HBox):
 		self.pack_start(self.search, False, False)
 		self.pack_start(self.home, False, False)
 		self.pack_end(searchbox,False,False)
-		
-	
-	def go_today(self, widget=None):
-		timeline.reset_date()
 	
 	def set_time_browsing(self, boolean):
 		filtersBox.set_sensitive(boolean)

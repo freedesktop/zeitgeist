@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
+"Project-Id-Version: GNOME Zeitgeist 0.0.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-22 18:10+0200\n"
+"POT-Creation-Date: 2009-05-22 19:24+0200\n"
 "PO-Revision-Date: \n"
-"Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
+"Last-Translator: José Luis Ricón <artirj@gmail.com>\n"
 "Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad."
 "net>\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,7 @@ msgstr ""
 
 #: ../zeitgeist-journal:44 ../zeitgeist-journal:93
 msgid "Stars"
-msgstr ""
+msgstr "Estrellas"
 
 #: ../zeitgeist-journal:49
 msgid "Journal"
@@ -35,7 +35,7 @@ msgstr "Diario"
 #: ../zeitgeist-datahub:57
 #, fuzzy, c-format
 msgid "Error: Could not load file: %s"
-msgstr "Error: No se pudo conectar con D-Bus."
+msgstr "Error: No se pudo cargar el archivo %s."
 
 #: ../zeitgeist-datahub:83
 #, c-format
@@ -45,7 +45,7 @@ msgstr "Actualizando la base de datos con elementos nuevos: %s"
 #: ../zeitgeist-datahub:97
 #, c-format
 msgid "Type error logging item from \"%s\": %s"
-msgstr ""
+msgstr "Error de tipo al grabar elemento para \"%s\": %s"
 
 #: ../zeitgeist-daemon:36
 msgid "Starting Zeitgeist service..."
@@ -94,11 +94,11 @@ msgstr "Vídeos"
 
 #: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:23
 msgid "Firefox History"
-msgstr ""
+msgstr "Historial de Firefox"
 
 #: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:26
 msgid "Websites visited with Firefox"
-msgstr ""
+msgstr "Páginas visitadas con Firefox"
 
 #: ../zeitgeist/gui/zeitgeist_journal_widgets.py:418
 msgid "Recently used tags"
@@ -125,21 +125,21 @@ msgstr "Mostrar actividades recientes"
 msgid "Search for activities"
 msgstr "Buscar actividades"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:818
 #, fuzzy
 msgid "Tags"
 msgstr "Etiquetas:"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:826
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
 msgid "Calendar"
-msgstr ""
+msgstr "Calendario"
 
 #. vbox.pack_start(calendar, False, False)
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:832
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:828
 msgid "Filters"
 msgstr "Filtros"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:834
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:830
 msgid "Enable Grouping"
 msgstr "Activar Agrupado"
 
@@ -242,16 +242,16 @@ msgstr "Ayer"
 #: ../zeitgeist/engine/engine.py:84
 #, python-format
 msgid "Could not create database: %s"
-msgstr ""
+msgstr "No se pudo crear base de datos %s"
 
 #: ../zeitgeist/engine/engine.py:91
 #, python-format
 msgid "Error connecting with database: %s"
-msgstr ""
+msgstr "Error conectando con la base de datos %s"
 
 #: ../extra/zeitgeist-journal.desktop.in.in.h:1
 msgid "Browse a journal of recently used files"
-msgstr ""
+msgstr "Navegar por un diario de los archivos recientemente usados"
 
 #: ../extra/zeitgeist-journal.desktop.in.in.h:2
 #, fuzzy
@@ -260,7 +260,7 @@ msgstr "Abrir el Diario"
 
 #: ../extra/zeitgeist-journal.desktop.in.in.h:3
 msgid "Zeitgeist File Journal"
-msgstr ""
+msgstr "Diario de Archivos Zeitgeist"
 
 #: ../extra/zeitgeist-trayicon.desktop.in.in.h:1
 #, fuzzy
@@ -269,7 +269,7 @@ msgstr "Iniciando el servicio de Zeitgeist..."
 
 #: ../extra/zeitgeist-trayicon.desktop.in.in.h:2
 msgid "Zeitgeist Tray Icon"
-msgstr ""
+msgstr "Icono de Notificación de Zeitgeist"
 
 #, fuzzy
 #~ msgid "Filters, Date & View"
