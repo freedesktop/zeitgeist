@@ -110,7 +110,7 @@ class Journal(gtk.Window):
 		if bb.timebrowse:
 			# KEY == Home
 			if event.keyval == 65360:
-				search.go_today()
+				timeline.reset_date()
 				self.set_focus(None)
 			
 			# KEY == Left
