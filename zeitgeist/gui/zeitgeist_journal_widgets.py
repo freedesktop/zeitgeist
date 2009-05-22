@@ -213,16 +213,17 @@ class TimelineWidget(gtk.ScrolledWindow):
 		# TODO: Clean this up
 		today = str(datetime.datetime.today().strftime("%d %m %Y")).split(" ")
 		date = calendar.get_date()
+		
+		day = date[2]
+		begin = (date[0], date[1]+1, day-1,0,0,0,0,0,-1)
+		end = (date[0], date[1]+1, day+2,0,0,0,0,0,-1)
+		self.begin = time.mktime(begin) 
+		self.end = time.mktime(end) -1
 		calendar.select_day(int(today[0]))
+		
 		if not int(today[1])-1 == int(date[1]):
 			calendar.select_month(int(today[1])-1, int(today[2]))
-		day = date[2]
-		self.begin = (date[0], date[1]+1, day-1,0,0,0,0,0,-1)
-		self.end = (date[0], date[1]+1, day+2,0,0,0,0,0,-1)
-		self.begin = time.mktime(self.begin) 
-		self.end = time.mktime(self.end) -1
-		print self.begin
-		print self.end
+			
 		#self.load_month(self.begin,self.end)
 	
 	def apply_search(self, tags=[]):
