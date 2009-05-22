@@ -196,12 +196,18 @@ class TimelineWidget(gtk.ScrolledWindow):
 		t3 = time.time()
 		print "Time to get items: %s" % str(t3-t1)
 		
+		if self.group:
+			self.items.sort(self.compare)
+		
 		self.apply_search(self.tags)
 		
 		t4 = time.time()
 		# Benchmarking
 		print "Time to apply search on %s items: %s" % (len(self.items), str(t4 -t3))
 		print "Time for operation on %s items: %s \n" % (len(self.items), str(t4 -t1))
+	
+	def compare(self, a, b):
+		return cmp(a.type, b.type) # compare as integers
 	
 	def reset_date(self):
 		# TODO: Clean this up
