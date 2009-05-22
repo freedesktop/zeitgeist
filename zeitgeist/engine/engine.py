@@ -185,7 +185,7 @@ class ZeitgeistEngine(gobject.GObject):
 				condition.append("""(data.uri LIKE '%%%s%%'
 					OR data.name LIKE '%%%s%%'
 					OR tags LIKE '%%%s%%')""" % (tag, tag, tag))
-			condition = "(" + " OR ".join(condition) + ")"
+			condition = "(" + " AND ".join(condition) + ")"
 		else:
 			condition = "1"
 		
