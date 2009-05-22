@@ -504,17 +504,16 @@ class HTagBrowser(gtk.VBox):
 		if x.get_active():
 			if tags.count(x.get_label()) == 0:
 				tags.append(x.get_label())
-				#begin, end = engine.get_timestamps_for_tag(x.get_label())
-				print "AHAAAAA"
 				timeline.load_month(begin=0, end=0, tags=tags)
-				print "AHEEEEE"
 				using_tags = True
 				timeline.search = ""
 		
 		else:
 			if tags.count(x.get_label()) > 0:
 				tags.remove(x.get_label())
-				timeline.load_month(tags=tags)
+				if not tags:
+					timeline.tags = []
+					timeline.reset_date()
 		
 		if not using_tags:
 			try:

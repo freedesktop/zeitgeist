@@ -154,8 +154,7 @@ class Journal(gtk.Window):
 	
 		else:
 			self.set_size_request(800,-1)
-			
-		#timeline.clean_up_dayboxes(width/3 - 38)
+		
 		bookmarks.clean_up_dayboxes(width)
 		timeline.load_month(cached=True)
 		timeline.clean_up_dayboxes(width/3 - 38)
