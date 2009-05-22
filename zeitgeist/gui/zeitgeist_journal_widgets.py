@@ -184,7 +184,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if self.group:
 			self.items.sort(self.compare)
 		
-		self.apply_search(self.tags)
+		self.apply_search()
 		
 		t4 = time.time()
 		# Benchmarking
@@ -209,11 +209,11 @@ class TimelineWidget(gtk.ScrolledWindow):
 		if not int(today[1])-1 == int(date[1]):
 			calendar.select_month(int(today[1])-1, int(today[2]))
 	
-	def apply_search(self, tags=[]):
+	def apply_search(self):
 		'''
 		Adds all items which match tags to the GUI.
 		'''	
-		self.tags = tags
+		
 		self.days.clear()
 		self.review_days()
 		self.build_days()
@@ -231,17 +231,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 			if self.sources[item.type]:
 				continue
 			
-			if self.search.strip() =="" and len(self.tags) ==0:
+			if self.search.strip() == "":
 				self._append_to_day(item, self.group)
 				continue
-				
-			for tag in self.tags:
-				if (tag.lower() in item.name.lower()):
-					self._append_to_day(item, False)
-					continue
-				elif tag.lower() in item.tags.lower().split(","):
-					self._append_to_day(item, False)
-					continue
 			
 			if self.search.strip():
 				if self.search.strip().lower() in item.name.lower():
