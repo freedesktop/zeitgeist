@@ -157,7 +157,7 @@ class Journal(gtk.Window):
 			
 		#timeline.clean_up_dayboxes(width/3 - 38)
 		bookmarks.clean_up_dayboxes(width)
-		timeline.load_month()
+		timeline.load_month(cached=True)
 		timeline.clean_up_dayboxes(width/3 - 38)
 
 if __name__ == "__main__":
