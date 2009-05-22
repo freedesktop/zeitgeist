@@ -194,7 +194,7 @@ msgid "Today"
 msgstr "Aujourd'hui"
 
 #: ../zeitgeist/gui/zeitgeist_util_widgets.py:622
-msgid "All favourites"
+msgid "All favorites"
 msgstr "Tous les favoris"
 
 #: ../zeitgeist/gui/zeitgeist_base.py:163

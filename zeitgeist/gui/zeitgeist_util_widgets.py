@@ -619,7 +619,7 @@ class BookmarksView(gtk.ScrolledWindow):
 		
 		self.all_star = BookmarksBox()
 		starred = "%s/bookmark-new.svg" % config.pkgdatadir
-		box = self.create_tab_label(_("All favourites"),starred)
+		box = self.create_tab_label(_("All favorites"),starred)
 		self.notebook.append_page((self.all_star),box)
 		self.notebook.set_tab_label_packing(self.all_star, True, True, gtk.PACK_START)
 		
