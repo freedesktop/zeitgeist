@@ -28,4 +28,3 @@ CLEANFILES = config.py
 EXTRA_DIST = config.py.in
 
 all-local: config.py
-
