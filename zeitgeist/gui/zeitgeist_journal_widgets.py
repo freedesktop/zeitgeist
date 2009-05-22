@@ -530,18 +530,18 @@ class HTagBrowser(gtk.VBox):
 				tags.remove(x.get_label())
 				timeline.load_month(tags=tags)
 		
-		if using_tags:
+		if not using_tags:
 			try:
 				timeline.reset_date()
 				search.entry.set_text(self.default_search_text)
 				timeline.search = ""
 			except:
 				pass
-			timeline.set_time_browsing(False)
-			bb.set_time_browsing(False)
-		else:
 			timeline.set_time_browsing(True)
 			bb.set_time_browsing(True)
+		else:
+			timeline.set_time_browsing(False)
+			bb.set_time_browsing(False)
 			
 		bookmarks.get_bookmarks(text =  tags)
 	
@@ -787,10 +787,7 @@ class BrowserBar(gtk.HBox):
 		
 	
 	def go_today(self, widget=None):
-		begin = int(time.time()) - 86400
-		end = begin + 2 * 86400
-		search.do_clear()
-		timeline.load_month(begin=begin, end=end)
+		timeline.reset_date()
 	
 	def set_time_browsing(self, boolean):
 		filtersBox.set_sensitive(boolean)
