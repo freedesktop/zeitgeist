@@ -208,9 +208,7 @@ class ZeitgeistEngine(gobject.GObject):
 							continue
 				yield self._result2data(item, timestamp = start)
 			else:
-				print uri
-				print "HEY -- `item' can be none, line 196. ' \
-					'You can now remove the TODO line there!"
+				pass
 	
 	def update_item(self, item):
 		"""

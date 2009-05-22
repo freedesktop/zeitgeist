@@ -325,7 +325,7 @@ class FavIconFactory():
 			if self.favicons.has_key(uri):
 				return self.favicons[uri]
 			else:
-				print uri
+				#print uri
 				picurl = urllib2.urlopen(uri+"/favicon.ico")
 				pic = gtk.gdk.PixbufLoader()
 				pic.write(picurl.read())
