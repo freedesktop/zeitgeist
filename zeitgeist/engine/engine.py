@@ -178,16 +178,27 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		# Get a list of all tags
 		if tags:
-			tags = tags.replace(",", " ")
-			tagsplit = [tag.lower() for tag in tags.split(" ")]
+			tagsplit = [tag.lower() for tag in tags.split(",")]
+		
+			condition = []
+			for tag in tagsplit:
+				condition.append("""(data.uri LIKE '%%%s%%'
+					OR data.name LIKE '%%%s%%'
+					OR tags LIKE '%%%s%%')""" % (tag, tag, tag))
+			condition = "(" + " OR ".join(condition) + ")"
+		else:
+			condition = "1"
 		
 		# Loop over all items in the timetable table which are between min and max
-		query = '''SELECT start, uri FROM timetable
+		query = """
+			SELECT start, data.uri FROM timetable
+			JOIN data ON (data.uri=timetable.uri)
 			WHERE usage != 'linked' AND start >= ? AND start <= ?
-			ORDER BY start ASC'''
+			AND %s
+			ORDER BY start ASC
+			""" % condition
 		
 		res = self.cursor.execute(query, (str(min), str(max))).fetchall()
-		
 		for start, uri in res:
 			# Retrieve the item from the data table
 			
@@ -195,20 +206,7 @@ class ZeitgeistEngine(gobject.GObject):
 									(uri,)).fetchone()
 			
 			if item:
-				if tags:
-					for tag in tagsplit:
-						matches = True
-						# If the document doesn't have all the requested
-						# tags, skip it.
-						if not tag in item[3].lower().split(',') and \
-						not item[0].lower().find(tag) > -1:
-							matches = False
-							break
-						if not matches:
-							continue
 				yield self._result2data(item, timestamp = start)
-			del item
-			gc.collect()
 	
 	def update_item(self, item):
 		"""
