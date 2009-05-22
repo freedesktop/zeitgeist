@@ -348,29 +348,29 @@ class ZeitgeistEngine(gobject.GObject):
 			if item:
 				yield self._result2data(item, timestamp = -1)
 	
-	def get_min_timestamp_for_tag(self,tag):
-		timestamp = sys.maxint
-		res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ?',(tag,)).fetchall()
+	def get_min_timestamp_for_tag(self, tag):
+		res = self.cursor.execute("""
+			SELECT
+				(SELECT min(start) FROM timetable WHERE uri=tags.uri)
+				AS value
+			FROM tags WHERE tagid=?
+			ORDER BY value ASC LIMIT 1
+			""", (tag,)).fetchall()
 		if res:
-			for uri in res:
-				res = self.cursor.execute('SELECT start FROM timetable WHERE uri=? ORDER BY start ',(uri[0],)).fetchone()
-				if res:
-					if res[0] < timestamp:
-						timestamp = res[0]
-			return timestamp
+			return res[0][0]
 		else:
 			return None
 	
-	def get_max_timestamp_for_tag(self,tag):
-		timestamp = 0
-		res = self.cursor.execute('SELECT uri FROM tags WHERE tagid = ?',(tag,)).fetchall()
+	def get_max_timestamp_for_tag(self, tag):
+		res = self.cursor.execute("""
+			SELECT
+				(SELECT max(start) FROM timetable WHERE uri=tags.uri)
+				AS value
+			FROM tags WHERE tagid=?
+			ORDER BY value DESC LIMIT 1
+			""", (tag,)).fetchall()
 		if res:
-			for uri in res:
-				res = self.cursor.execute('SELECT start FROM timetable WHERE uri=? ORDER BY start DESC',(uri[0],)).fetchone()
-				if res:
-					if res[0] > timestamp:
-						timestamp = res[0]
-			return timestamp
+			return res[0][0]
 		else:
 			return None
 	
