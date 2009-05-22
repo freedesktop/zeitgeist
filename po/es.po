@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-20 20:55+0200\n"
+"POT-Creation-Date: 2009-05-22 18:10+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad."
@@ -12,11 +12,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Spanish\n"
 
-#: ../zeitgeist-trayicon.py:34
+#: ../zeitgeist-trayicon:34
 msgid "Open Journal"
 msgstr "Abrir el Diario"
 
-#: ../zeitgeist-trayicon.py:114
+#: ../zeitgeist-trayicon:114
 msgid ""
 "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
 "computer."
@@ -24,30 +24,30 @@ msgstr ""
 "GNOME Zeitgeist es una herramienta para navegar y encontrar fácilmente "
 "archivos en tu ordenador."
 
-#: ../zeitgeist-journal.py:51
+#: ../zeitgeist-journal:44 ../zeitgeist-journal:93
 msgid "Stars"
 msgstr ""
 
-#: ../zeitgeist-journal.py:56
+#: ../zeitgeist-journal:49
 msgid "Journal"
 msgstr "Diario"
 
-#: ../zeitgeist-datahub.py:53
-#, fuzzy, python-format
+#: ../zeitgeist-datahub:57
+#, fuzzy, c-format
 msgid "Error: Could not load file: %s"
 msgstr "Error: No se pudo conectar con D-Bus."
 
-#: ../zeitgeist-datahub.py:79
-#, python-format
+#: ../zeitgeist-datahub:83
+#, c-format
 msgid "Updating database with new %s items"
 msgstr "Actualizando la base de datos con elementos nuevos: %s"
 
-#: ../zeitgeist-datahub.py:93
-#, python-format
+#: ../zeitgeist-datahub:97
+#, c-format
 msgid "Type error logging item from \"%s\": %s"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:34
+#: ../zeitgeist-daemon:36
 msgid "Starting Zeitgeist service..."
 msgstr "Iniciando el servicio de Zeitgeist..."
 
@@ -100,120 +100,128 @@ msgstr ""
 msgid "Websites visited with Firefox"
 msgstr ""
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:411
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:418
 msgid "Recently used tags"
 msgstr "Etiquetas usadas recientemente"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:412
-#: ../zeitgeist/gui/zeitgeist_base.py:250
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:419
+#: ../zeitgeist/gui/zeitgeist_base.py:253
 msgid "Most used tags"
 msgstr "Etiquetas más usadas"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:413
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:420
 msgid "All tags"
 msgstr "Todas las etiquetas"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:660
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:824
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:663
 msgid "Search"
 msgstr "Buscar"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:777
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:775
 msgid "Show recent activities"
 msgstr "Mostrar actividades recientes"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:784
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:782
 msgid "Search for activities"
 msgstr "Buscar actividades"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:833
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
 #, fuzzy
-msgid "Filters, Date & View"
-msgstr "Fecha, Hora y Vista"
+msgid "Tags"
+msgstr "Etiquetas:"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:835
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:826
+msgid "Calendar"
+msgstr ""
+
+#. vbox.pack_start(calendar, False, False)
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:832
+msgid "Filters"
+msgstr "Filtros"
+
+#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:834
 msgid "Enable Grouping"
 msgstr "Activar Agrupado"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:79
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:81
 msgid "Name"
 msgstr "Nombre"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:86
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:88
 msgid "Time"
 msgstr "Hora"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:384
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:407
 msgid "Tagged with:"
 msgstr "Etiquetado con:"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:386
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:409
 msgid "The file has been removed from"
 msgstr "El archivo ha sido borrado de"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:408
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:431
 msgid "New Document"
 msgstr "Nuevo documento"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:454
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:477
 msgid "Related files"
 msgstr "Archivos relacionados"
 
 #. TODO: Use proper, separate widgets for this
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:477
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:500
 msgid "Last usage:"
 msgstr "Último uso:"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:479
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:502
 msgid "Tags:"
 msgstr "Etiquetas:"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:481
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:504
 #, python-format
 msgid "Files related to %s"
 msgstr "Archivos relacionados con %s"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:529
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:550
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:552
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:573
 #: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:63
 msgid "Today"
 msgstr "Hoy"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:599
+#: ../zeitgeist/gui/zeitgeist_util_widgets.py:622
 msgid "All favourites"
 msgstr "Todos los favoritos"
 
-#: ../zeitgeist/gui/zeitgeist_base.py:160
+#: ../zeitgeist/gui/zeitgeist_base.py:163
 msgid "Unbookmark"
 msgstr "Desmarcar"
 
-#: ../zeitgeist/gui/zeitgeist_base.py:162
+#: ../zeitgeist/gui/zeitgeist_base.py:165
 msgid "Bookmark"
 msgstr "Marcar"
 
-#: ../zeitgeist/gui/zeitgeist_base.py:167
+#: ../zeitgeist/gui/zeitgeist_base.py:170
 msgid "Show related activities"
 msgstr "Mostrar actividades relacionadas"
 
-#: ../zeitgeist/gui/zeitgeist_base.py:172
+#: ../zeitgeist/gui/zeitgeist_base.py:175
 msgid "Edit tags..."
 msgstr "Editar etiquetas..."
 
-#: ../zeitgeist/gui/zeitgeist_base.py:183
+#: ../zeitgeist/gui/zeitgeist_base.py:186
 msgid "Delete item from Zeitgeist"
 msgstr "Borrar elemento de Zeitgeist"
 
-#: ../zeitgeist/gui/zeitgeist_base.py:213
+#: ../zeitgeist/gui/zeitgeist_base.py:216
 #, python-format
 msgid "Edit tags for %s"
 msgstr "Cambiar las etiquetas para %s"
 
 #. Use real Cancel/OK buttons. Those are not compliant with HIG.
-#: ../zeitgeist/gui/zeitgeist_base.py:218
+#: ../zeitgeist/gui/zeitgeist_base.py:221
 msgid "Add"
 msgstr "Añadir"
 
-#: ../zeitgeist/gui/zeitgeist_base.py:219
+#: ../zeitgeist/gui/zeitgeist_base.py:222
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -263,14 +271,15 @@ msgstr "Iniciando el servicio de Zeitgeist..."
 msgid "Zeitgeist Tray Icon"
 msgstr ""
 
+#, fuzzy
+#~ msgid "Filters, Date & View"
+#~ msgstr "Fecha, Hora y Vista"
+
 #~ msgid "Updating item: %s"
 #~ msgstr "Actualizando elemento: %s"
 
 #~ msgid "Deleting item: %s"
 #~ msgstr "Borrando elemento: %s"
-
-#~ msgid "Filters"
-#~ msgstr "Filtros"
 
 #, fuzzy
 #~ msgid "Bookmarks"
