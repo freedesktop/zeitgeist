@@ -25,6 +25,7 @@ AC_CONFIG_FILES([
 	data/logo/32x32/Makefile
 	data/logo/scalable/apps/Makefile
 	data/logo/scalable/Makefile
+	doc/Makefile
 	extra/Makefile
 	extra/zeitgeist-journal.desktop.in
 	extra/zeitgeist-trayicon.desktop.in
