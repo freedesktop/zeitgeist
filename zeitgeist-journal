@@ -65,7 +65,7 @@ class Journal(gtk.Window):
 		self.hBox = gtk.HBox()
 		
 		self.vBox.pack_start(bb, False, False)
-		self.vBox.pack_start(self.hBox, True, True)
+		self.vBox.pack_start(self.hBox, True, True,5)
 		
 		#self.hBox.pack_start(bb, False, False)
 		self.hBox.pack_start(filtertime, False, False)
