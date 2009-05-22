@@ -193,7 +193,7 @@ msgid "Today"
 msgstr "I dag"
 
 #: ../zeitgeist/gui/zeitgeist_util_widgets.py:622
-msgid "All favourites"
+msgid "All favorites"
 msgstr "Alle favoritter"
 
 #: ../zeitgeist/gui/zeitgeist_base.py:163
