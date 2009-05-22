@@ -223,7 +223,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.end = time.mktime(self.end) -1
 		print self.begin
 		print self.end
-		self.load_month()
+		#self.load_month(self.begin,self.end)
 	
 	def apply_search(self, tags=[]):
 		'''
