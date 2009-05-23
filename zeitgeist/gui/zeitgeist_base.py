@@ -1,12 +1,12 @@
 # -.- encoding: utf-8 -.-
 
 import datetime
-import gc
 import time
 import os
 import gobject
 import gtk
 import gettext
+import urllib
 
 from zeitgeist.gui.zeitgeist_util import icon_factory, thumbnailer, launcher, favicons
 # Some imports are in-place to avoid a circular dependency
@@ -344,10 +344,5 @@ def objectify_data(item_list):
 
 
 def exists(uri):
-	if not uri.startswith("file"):
-		return True
-	
-	if os.path.exists(uri[7:]):
-		return True
-	
-	return False
+	return not uri.startswith("file://") or os.path.exists(
+		urllib.unquote(str(uri[7:])))

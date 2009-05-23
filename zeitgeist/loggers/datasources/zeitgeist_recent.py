@@ -8,7 +8,6 @@ import os
 import re
 import urllib
 import gtk
-import gc
 import gettext
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
