@@ -335,7 +335,7 @@ class DataIconView(gtk.TreeView):
 				
 				parent = self.create_parent(item)
 				
-				iter = self.store.append(None, [icon_factory.load_icon(item.icon, 24),
+				iter = self.store.append(None, [icon_factory.load_icon(item.icon, 32,cache = False),
 									"<span size='large' color='%s'>%s</span>" % ("black", parent.type),
 									"",
 									True,
