@@ -9,6 +9,7 @@ import gobject
 import gettext
 
 from zeitgeist import config
+from zeitgeist.gui.zeitgeist_util import gconf_bridge
 
 gettext.install('gnome-zeitgeist', config.localedir, unicode=1)
 
@@ -23,20 +24,33 @@ class Journal(gtk.Window):
 		# Window
 		self.set_title("GNOME Zeitgeist")
 		self.set_resizable(True)
-		self.set_default_size(800, -1)
 		self.set_icon_from_file("%s/scalable/apps/gnome-zeitgeist.svg" % config.hicolordir)
 		self._visible = True
 		self.connect("destroy", gtk.main_quit)
 		self.connect_after("check-resize", self.window_state_event_cb)
 		self.connect("key-press-event", self.on_window_key_press_event)
+		self.connect("configure_event", self._save_size)
 		signal.signal(signal.SIGUSR1, lambda *discard: self.emit(gtk.main_quit))
 		signal.signal(signal.SIGUSR2, self._toggle_visibility)
 		
+		# Window size
+		x = y = None
+		if gconf_bridge.get("size_x") and gconf_bridge.get("size_y"):
+			x = gconf_bridge.get("size_x").get_int()
+			y = gconf_bridge.get("size_y").get_int()
+		if not x or x > self.get_screen().get_width():
+			x = 800
+		if not y or y > self.get_screen().get_height():
+			y = -1
+		
+		self.set_default_size(x, y)
+		
+		
 		# Notebook
 		self.notebook = gtk.Notebook()
-		self.notebook.connect("switch-page",self.switch_page)
+		self.notebook.connect("switch-page", self.switch_page)
 		self.notebook.set_homogeneous_tabs(True)
-		self.notebook.set_property("tab-pos",gtk.POS_BOTTOM)
+		self.notebook.set_property("tab-pos", gtk.POS_BOTTOM)
 		self.notebook.set_show_tabs(False)
 		
 		# Notebook components
@@ -79,6 +93,11 @@ class Journal(gtk.Window):
 		self.notebook.set_current_page(1)
 		self.set_size_request(800, -1)
 		filtertime.hide_all()
+	
+	def _save_size(self, widget, event):
+		x, y = self.get_size()
+		gconf_bridge.set("size_x", x)
+		gconf_bridge.set("size_y", y)
 	
 	def _toggle_visibility(self, *discard):
 		self.hide() if self._visible else self.show()
