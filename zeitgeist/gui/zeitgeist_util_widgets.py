@@ -36,11 +36,11 @@ class CellRendererPixbuf(gtk.CellRendererPixbuf):
 			self.emit("toggled",path)
 		
 class DataIconView(gtk.TreeView):
-	'''
+	"""
 	Icon view which displays Datas in the style of the Nautilus horizontal mode,
 	where icons are right aligned and each column is of a uniform width.  Also
 	handles opening an item and displaying the item context menu.
-	'''
+	"""
 	
 	def __init__(self,parentdays=False):
 		
@@ -325,9 +325,9 @@ class DataIconView(gtk.TreeView):
 		
 		
 		
-		'''
+		"""
 		Creating parent for grouping
-		'''
+		"""
 		if not self.types.has_key(item.type):
 			iter = None
 			if group:
@@ -346,9 +346,9 @@ class DataIconView(gtk.TreeView):
 			self.types[item.type] = iter
 		
 		
-		'''
+		"""
 		Assigning the item to either be in a group or standalone
-		'''
+		"""
 		
 		
 				
@@ -410,9 +410,9 @@ class DataIconView(gtk.TreeView):
 		return tooltip
 		
 class NewFromTemplateDialog(gtk.FileChooserDialog):
-	'''
+	"""
 	Dialog to create a new document from a template
-	'''
+	"""
 	
 	__gsignals__ = {
 		"response" : "override"
@@ -491,10 +491,10 @@ class RelatedWindow(gtk.Window):
 		self.items = []
 	
 	def set_relation(self, item):
-		'''
+		"""
 		Find the items that share same tags with the current item
 		Later to be done by monitoring the active files
-		'''
+		"""
 		self.img.set_from_pixbuf(item.get_icon(64))
 		# TODO: Use proper, separate widgets for this
 		string = item.get_name() + "\n\n" + _("Last usage:") + "\t" + \
@@ -539,10 +539,10 @@ class DayBox(gtk.VBox):
 		
 		self.ev = gtk.EventBox()
 			
-		'''
+		"""
 		FIXME: export the code somehwere else
 		This makes the headers of the days fit the tooltip color
-		'''
+		"""
 		
 		#self.ev.modify_bg(gtk.STATE_NORMAL, color_palette.get_tooltip_color())
 		

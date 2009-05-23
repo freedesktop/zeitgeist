@@ -108,10 +108,10 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.forward.set_sensitive(boolean)
 	
 	def ready(self):
-		'''
+		"""
 		Only call this one time, once the GUI has loaded and we can
 		start listening to events.
-		'''
+		"""
 		
 		assert self._ready == False
 		self._ready = True
@@ -131,14 +131,14 @@ class TimelineWidget(gtk.ScrolledWindow):
 		self.load_month()
 	
 	def load_month(self, widget=None, begin=None, end=None, offset=0, cached=False, tags=None, search=None):
-		'''
+		"""
 		Loads the current month selected on the calendar into the GUI.
 		
 		This is called when a new date is selected on the calendar
 		or when the user types into the search bar. In the second case,
 		we need to reload the GUI and only show items that match the tags
 		parameter.
-		'''
+		"""
 		
 		# Begin benchmarking
 		t1 = time.time()
@@ -210,9 +210,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 			calendar.select_month(int(today[1])-1, int(today[2]))
 	
 	def apply_search(self):
-		'''
+		"""
 		Adds all items which match tags to the GUI.
-		'''	
+		"""	
 		
 		self.days.clear()
 		self.review_days()
@@ -244,9 +244,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 					continue
 	
 	def jump_to_day(self, widget,focus=False):
-		'''
+		"""
 		Jump to the currently selected day in the calendar.
-		'''
+		"""
 		
 		date = calendar.get_date()
 		self.begin = time.mktime([date[0],date[1]+1,date[2]-1,0,0,0,0,0,-1])
@@ -328,9 +328,9 @@ class TimelineWidget(gtk.ScrolledWindow):
 		except Exception:
 			self.days_range = 3
 		
-		'''
+		"""
 		Try avoiding rebuiling boxes and use currently available
-		'''
+		"""
 		
 		if self.days_range == len(self.dayboxes):
 			for i, daybox in enumerate(self.dayboxes):
@@ -543,9 +543,9 @@ class FilterBox(gtk.VBox):
 		self.filters = {}
 		self.filters_active={}
 		
-		'''
+		"""
 		Filter Box
-		'''
+		"""
 		
 		self.option_box.set_size_request(-1,-1)
 		self.pack_start(self.option_box)
@@ -699,13 +699,13 @@ class SearchToolItem(gtk.ToolItem):
 			bookmarks.get_bookmarks(text = [text.lower()])
 	
 	def _entry_clear_no_change_handler(self):
-		'''Avoids sending \'changed\' signal when clearing text.'''
+		"""Avoids sending \'changed\' signal when clearing text."""
 		self.entry.handler_block(self.change_handler_id)
 		self.entry.set_text("")
 		self.entry.handler_unblock(self.change_handler_id)
 
 	def _entry_focus_in(self):
-		'''Clear default search text'''
+		"""Clear default search text"""
 		if self.entry.get_text() == self.default_search_text:
 			self._entry_clear_no_change_handler()
 
@@ -735,7 +735,7 @@ class SearchToolItem(gtk.ToolItem):
 		return self.entry.get_text()
 
 	def cancel(self):
-		'''Cancel a pending/active search without sending the \'clear\' signal.'''
+		"""Cancel a pending/active search without sending the \'clear\' signal."""
 		if self.entry.get_text() != self.default_search_text:
 			self.do_clear_proxy()
 

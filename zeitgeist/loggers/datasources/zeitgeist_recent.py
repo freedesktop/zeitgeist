@@ -1,8 +1,8 @@
 # -.- encoding: utf-8 -.-
 
-'''
+"""
 Copyright (C) 2007 Alex Graveley <alex@beatniksoftware.com>
-'''
+"""
 
 import os
 import re
@@ -108,9 +108,9 @@ class RecentlyUsedManagerGtk(DataProvider):
 					
 
 class RecentlyUsed(DataProvider):
-	'''
+	"""
 	Recently-used documents, log stored in ~/.recently-used.
-	'''
+	"""
 	def __init__(self, name, icon="stock_calendar"):
 		DataProvider.__init__(self, name=name, icon=icon)
 		recent_model.connect("reload", lambda m: self.emit("reload"))
@@ -126,9 +126,9 @@ class RecentlyUsed(DataProvider):
 
 
 class RecentlyUsedOfMimeType(RecentlyUsed):
-	'''
+	"""
 	Recently-used items filtered by a set of mimetypes.
-	'''
+	"""
 	def __init__(self, name, icon, mimetype_list, filter_name,inverse=False):
 		RecentlyUsed.__init__(self, name, icon)
 		self.mimetype_list = mimetype_list

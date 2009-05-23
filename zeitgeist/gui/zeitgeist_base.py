@@ -72,7 +72,7 @@ class Data(gobject.GObject):
 				thumb = thumbnailer.get_icon(self.get_uri(), self.get_mimetype(), icon_size, self.timestamp)
 				return thumb
 		
-			'''
+			"""
 			if self.uri.startswith("http") and not self.comment.strip()=="":
 				if self.comment[0] == ".":
 					uri = "http://" + self.comment[1:] +"/"
@@ -81,7 +81,7 @@ class Data(gobject.GObject):
 				icon =  favicons.get_icon(uri)
 				if icon:
 					return icon
-			'''
+			"""
 		
 			if self.icon:
 				icon =  icon_factory.load_icon(self.icon, icon_size)
@@ -139,10 +139,10 @@ class Data(gobject.GObject):
 		return [tag.strip() for tag in self.tags.split(",") if tag.strip()]
 	
 	def open_from_timestamp(self):
-		'''
+		"""
 		path = difffactory.restore_file(self)
 		launcher.launch_uri(path, self.get_mimetype())
-		'''
+		"""
 		pass
 	
 	def populate_popup(self, menu):
@@ -151,14 +151,14 @@ class Data(gobject.GObject):
 		open.show()
 		menu.append(open)
 		
-		'''
+		"""
 		if self.type=="Documents" or self.type=="Other":
 			timemachine = gtk.MenuItem("Open from timestamp")
 			timemachine.connect("activate", lambda w: self.open_from_timestamp())
 			timemachine.show()
 			menu.append(timemachine)
 			del timemachine
-		'''
+		"""
 		if self.bookmark:
 			bookmark = gtk.MenuItem(_("Unbookmark"))
 		else:

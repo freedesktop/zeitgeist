@@ -66,11 +66,11 @@ class DataHub(gobject.GObject):
 				self._sources.append(object)
 	
 	def _update_db_with_source(self, source):
-		'''
+		"""
 		Add new items into the database. This funcion should not be
 		called directly, but instead activated through the "reload"
 		signal.
-		'''
+		"""
 		
 		if not source in self._sources_queue:
 			self._sources_queue.append(source)

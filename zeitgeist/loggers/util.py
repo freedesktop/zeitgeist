@@ -8,11 +8,11 @@ import tempfile
 
 
 class FileMonitor(gobject.GObject):
-	'''
+	"""
 	A simple wrapper around GNOME VFS file monitors.  Emits created, deleted,
 	and changed events.  Incoming events are queued, with the latest event
 	cancelling prior undelivered events.
-	'''
+	"""
 	
 	__gsignals__ = {
 		"event" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,

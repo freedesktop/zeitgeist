@@ -156,9 +156,9 @@ class FirefoxSource(DataProvider):
                     yield item
     
     def __copy_sqlite(self):
-        '''
+        """
         Copy the sqlite file to avoid file locks when it's being used by Firefox.
-        '''
+        """
         if self.cursor:
             self.cursor.close()
         shutil.copy2(self.history_db,  self.LOCATION)

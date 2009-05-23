@@ -104,9 +104,9 @@ class Journal(gtk.Window):
 			bb.set_time_browsing(True)
 	
 	def on_window_key_press_event(self, timelime, event):
-		'''
+		"""
 		Check which tab is active and bind the keys event to it.
-		'''
+		"""
 		if bb.timebrowse:
 			# KEY == Home
 			if event.keyval == 65360:

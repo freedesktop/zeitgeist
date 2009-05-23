@@ -62,9 +62,9 @@ class EvolutionSource(DataProvider):
 				pass
 	
 	def __copy_sqlite(self):
-		'''
+		"""
 		Copy the sqlite file to avoid file locks when it's being used by evolution.
-		'''
+		"""
 		try:
 			historydb = glob.glob(os.path.expanduser(
 				"~/.evolution/mail/local/folders.db"))

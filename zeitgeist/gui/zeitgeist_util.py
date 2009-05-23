@@ -1,8 +1,8 @@
 # -.- encoding: utf-8 -.-
 
-'''
+"""
 Copyright (C) 2007 Alex Graveley <alex@beatniksoftware.com>
-'''
+"""
 
 import os
 import gtk
@@ -12,7 +12,7 @@ import gconf
 import urllib2
 
 class LaunchManager:
-	'''
+	"""
 	A program lauching utility which handles opening a URI or executing a
 	program or .desktop launcher, handling variable expansion in the Exec
 	string.
@@ -23,7 +23,7 @@ class LaunchManager:
 
 	See the startup notification spec for more information on
 	DESKTOP_STARTUP_IDs.
-	'''
+	"""
 	
 	def __init__(self):
 		self.recent_model = None
@@ -148,9 +148,9 @@ class LaunchManager:
 		    return (child, startup_id)
 
 class IconFactory():
-	'''
+	"""
 	Icon lookup swiss-army knife (from menutreemodel.py)
-	'''
+	"""
 	
 	def __init__(self):
 		self.icon_dict={}

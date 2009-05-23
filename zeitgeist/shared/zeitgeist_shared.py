@@ -2,8 +2,8 @@
 
 sig_plain_data = "(issssssusbs)"
 def plainify_data(obj):
-	''' Takes a Data object or a dictionary and converts it into a
-		tuple suitable for transmission through D-Bus. '''
+	""" Takes a Data object or a dictionary and converts it into a
+		tuple suitable for transmission through D-Bus. """
 	
 	return (
 		int(obj.get_timestamp()),

@@ -56,9 +56,9 @@ class EngineInterface:
 		return self._interface.emit_signal_updated(*args)
 	
 	def quit(self):
-		'''
+		"""
 		Stops the daemon. Use carefully!
-		'''
+		"""
 		return self._interface.quit()
 
 engine = EngineInterface(iface)
