@@ -343,7 +343,7 @@ class GConfBridge(gobject.GObject):
         'show_file_button'      : True
     }
 	
-    ZEITGEIST_PREFIX = "/apps/zeitgeist/"
+    ZEITGEIST_PREFIX = "/apps/gnome-zeitgeist/"
 
     __gsignals__ = {
         'changed' : (gobject.SIGNAL_RUN_LAST | gobject.SIGNAL_DETAILED, gobject.TYPE_NONE, ()),
