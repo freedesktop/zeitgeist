@@ -3,24 +3,24 @@ pixmapdir = $(datadir)/pixmaps
 
 hicolordir = $(datadir)/icons/hicolor
 tango_icons = \
-	22x22.png \
-	24x24.png \
-	32x32.png \
-	gnome-zeitgeist.svg
+	22x22/apps/gnome-zeitgeist.png \
+	24x24/apps/gnome-zeitgeist.png \
+	32x32/apps/gnome-zeitgeist.png \
+	scalable/apps/gnome-zeitgeist.svg
 
 install-data-local:
-	@-$(mkinstalldirs) $(DESTDIR)$(hicolordir)/scalable/apps
-	$(INSTALL_DATA) $(srcdir)/gnome-zeitgeist.svg \
-		$(DESTDIR)$(hicolordir)/scalable/apps/gnome-zeitgeist.svg
 	@-$(mkinstalldirs) $(DESTDIR)$(hicolordir)/22x22/apps
-	$(INSTALL_DATA) $(srcdir)/22x22.png \
+	$(INSTALL_DATA) $(srcdir)22x22/apps/gnome-zeitgeist.png \
 		$(DESTDIR)$(hicolordir)/22x22/apps/gnome-zeitgeist.png
 	@-$(mkinstalldirs) $(DESTDIR)$(hicolordir)/24x24/apps
-	$(INSTALL_DATA) $(srcdir)/24x24.png \
+	$(INSTALL_DATA) $(srcdir)/24x24/apps/gnome-zeitgeist.png \
 		$(DESTDIR)$(hicolordir)/24x24/apps/gnome-zeitgeist.png
 	@-$(mkinstalldirs) $(DESTDIR)$(hicolordir)/32x32/apps
-	$(INSTALL_DATA) $(srcdir)/32x32.png \
+	$(INSTALL_DATA) $(srcdir)/32x32/apps/gnome-zeitgeist.png \
 		$(DESTDIR)$(hicolordir)/32x32/apps/gnome-zeitgeist.png
+	@-$(mkinstalldirs) $(DESTDIR)$(hicolordir)/scalable/apps
+	$(INSTALL_DATA) $(srcdir)/scalable/apps/gnome-zeitgeist.svg \
+		$(DESTDIR)$(hicolordir)/scalable/apps/gnome-zeitgeist.svg
 
 gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
 

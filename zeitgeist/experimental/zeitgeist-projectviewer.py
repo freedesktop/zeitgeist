@@ -26,7 +26,7 @@ class ProjectViewer(gtk.Window):
 		self.set_default_size(300, 600)
 		self.connect("destroy", gtk.main_quit)
 		signal.signal(signal.SIGUSR1, lambda *discard: self.emit(gtk.main_quit))
-		self.set_icon_from_file("%s/logo/scalable/apps/gnome-zeitgeist.svg" % config.pkgdatadir)
+		self.set_icon_from_file("%s/scalable/apps/gnome-zeitgeist.svg" % config.hicolordir)
 		
 		vtb = VTagBrowser()
 		

@@ -3,7 +3,6 @@
 import datetime
 import time
 import math
-import gc
 import os
 import time
 import sys

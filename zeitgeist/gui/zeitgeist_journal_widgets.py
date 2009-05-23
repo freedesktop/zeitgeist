@@ -752,7 +752,7 @@ class BrowserBar(gtk.HBox):
 		
 		self.search = gtk.ToggleToolButton()
 		pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
-			"%s/logo/32x32/apps/gnome-zeitgeist.png" % config.pkgdatadir, 24, 24)
+			"%s/32x32/apps/gnome-zeitgeist.png" % config.hicolordir, 24, 24)
 		self.search.set_icon_widget(gtk.image_new_from_pixbuf(pixbuf))
 		self.search.set_label(_("Search"))
 		self.search.set_tooltip_text(_("Search for activities"))
