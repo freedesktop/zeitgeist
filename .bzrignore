@@ -5,7 +5,7 @@ gzg-userdocs.html
 doc/images/22
 *Makefile
 *Makefile.in*
-intltool-*
+*intltool-*
 aclocal.m4
 autom4te.cache
 configure
@@ -18,3 +18,5 @@ config.status
 po/POTFILES
 stamp-it
 *.desktop.in
+extra/*.desktop
+gnome-zeitgeist-*.tar.gz

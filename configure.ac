@@ -17,14 +17,6 @@ AC_CONFIG_FILES([
 	Makefile
 	data/Makefile
 	data/logo/Makefile
-	data/logo/22x22/apps/Makefile
-	data/logo/22x22/Makefile
-	data/logo/24x24/apps/Makefile
-	data/logo/24x24/Makefile
-	data/logo/32x32/apps/Makefile
-	data/logo/32x32/Makefile
-	data/logo/scalable/apps/Makefile
-	data/logo/scalable/Makefile
 	doc/Makefile
 	extra/Makefile
 	extra/zeitgeist-journal.desktop.in
