@@ -1,5 +1,5 @@
-pixmapdir = $(datadir)/pixmaps
-#pixmap_DATA = gnome-zeitgeist.png
+pixmapdir = $(datadir)
+pixmap_DATA = gnome-zeitgeist.xpm
 
 hicolordir = $(datadir)/icons/hicolor
 tango_icons = \
@@ -39,4 +39,4 @@ uninstall-hook:
 	rm -f $(DESTDIR)$(hicolordir)/32x32/apps/gnome-zeitgeist.png
 	rm -f $(DESTDIR)$(hicolordir)/scalable/apps/gnome-zeitgeist.svg
 
-EXTRA_DIST = $(tango_icons)
+EXTRA_DIST = $(tango_icons) $(pixmap_DATA)

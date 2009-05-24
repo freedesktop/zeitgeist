@@ -4,7 +4,6 @@ zeitgeist-datahub
 zeitgeist-daemon
 zeitgeist/__init__.py
 zeitgeist/shared/zeitgeist_shared.py
-zeitgeist/shared/basics.py
 zeitgeist/shared/__init__.py
 zeitgeist/shared/zeitgeist_dbus.py
 zeitgeist/loggers/zeitgeist_base.py
