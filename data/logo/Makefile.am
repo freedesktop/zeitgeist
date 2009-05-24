@@ -10,7 +10,7 @@ tango_icons = \
 
 install-data-local:
 	@-$(mkinstalldirs) $(DESTDIR)$(hicolordir)/22x22/apps
-	$(INSTALL_DATA) $(srcdir)22x22/apps/gnome-zeitgeist.png \
+	$(INSTALL_DATA) $(srcdir)/22x22/apps/gnome-zeitgeist.png \
 		$(DESTDIR)$(hicolordir)/22x22/apps/gnome-zeitgeist.png
 	@-$(mkinstalldirs) $(DESTDIR)$(hicolordir)/24x24/apps
 	$(INSTALL_DATA) $(srcdir)/24x24/apps/gnome-zeitgeist.png \
