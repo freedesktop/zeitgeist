@@ -1,9 +1,5 @@
 # -.- encoding: utf-8 -.-
 
-"""
-Copyright (C) 2007 Alex Graveley <alex@beatniksoftware.com>
-"""
-
 import os
 import re
 import urllib
@@ -78,33 +74,33 @@ class RecentlyUsedManagerGtk(DataProvider):
 				tmp = info.get_uri()[info.get_uri().find('://') + 3:]
 				tmp = os.path.dirname(tmp)		# remove the filename from the string
 				home = os.path.expanduser("~")	# get the users home folder
+				
 				if tmp.startswith(home):
-					tmp = tmp.replace(home + "/", "", 1)
-					if tmp != "":
-						tmp = unicode(urllib.unquote(tmp))
-						tags = tmp.replace("/", ",")
-					
-					item = {
-						"uri": unicode((info.get_uri()), 'utf-8'),
-						"name": unicode(urllib.unquote(info.get_display_name())),
-						"comment": unicode(info.get_display_name()),
-						"mimetype": unicode(info.get_mime_type()),
-						"tags": unicode(tags),
-					}
-					
-					item["timestamp"] = info.get_added()
-					item["use"] = unicode("first usage")
-					yield item
-					
-					item["timestamp"] = info.get_visited()
-					item["use"] = unicode("opened")
-					yield item
-					
-					item["timestamp"] = info.get_modified()
-					item["use"] = unicode("modified")
-					yield item
+					tmp = tmp[len(home)+1:]
+				if tmp != "":
+					tmp = unicode(urllib.unquote(tmp))
+					tags = tmp.replace("/", ",")
+				
+				item = {
+					"uri": unicode((info.get_uri()), 'utf-8'),
+					"name": unicode(urllib.unquote(info.get_display_name())),
+					"comment": unicode(info.get_display_name()),
+					"mimetype": unicode(info.get_mime_type()),
+					"tags": unicode(tags),
+				}
+				
+				item["timestamp"] = info.get_added()
+				item["use"] = unicode("first usage")
+				yield item
+				
+				item["timestamp"] = info.get_visited()
+				item["use"] = unicode("opened")
+				yield item
+				
+				item["timestamp"] = info.get_modified()
+				item["use"] = unicode("modified")
+				yield item
 
-					
 
 class RecentlyUsed(DataProvider):
 	"""
