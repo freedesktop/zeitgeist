@@ -28,11 +28,6 @@ class RemoteInterface(dbus.service.Object):
 		return engine.get_items(min_timestamp, max_timestamp, tags, mimetype)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
-						in_signature="s", out_signature="a"+sig_plain_data)
-	def get_items_for_tag(self, tag):
-		return engine.get_items_for_tag(tag)
-	
-	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="siis", out_signature="a"+sig_plain_data)
 	def get_items_with_mimetype(self, mimetype, min_timestamp, max_timestamp, tags):
 		return engine.get_items_with_mimetype(mimetype, min_timestamp, max_timestamp, tags)

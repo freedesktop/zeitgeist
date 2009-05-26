@@ -341,20 +341,6 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		return self._get_tags("uri", count, min, max)
 	
-	def get_items_for_tag(self, tag):
-		"""
-		Gets all of the items with tag.
-		"""
-		
-		res = self.cursor.execute(
-			"""SELECT uri FROM tags WHERE tagid= ?""", (tag,)).fetchall()
-		
-		for uri in res:
-			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
-				(uri[0],)).fetchone()
-			if item:
-				yield self._result2data(item, timestamp = -1)
-	
 	def get_min_timestamp_for_tag(self, tag):
 		res = self.cursor.execute("""
 			SELECT
