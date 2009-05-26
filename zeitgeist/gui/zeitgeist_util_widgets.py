@@ -1,7 +1,6 @@
 # -.- encoding: utf-8 -.-
 
 import datetime
-import gc
 import os
 import time
 import sys
@@ -119,18 +118,16 @@ class DataIconView(gtk.TreeView):
 		self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [("text/uri-list", 0, 100)], gtk.gdk.ACTION_LINK | gtk.gdk.ACTION_COPY)
 		self.enable_model_drag_dest(self.fromImage, gtk.gdk.ACTION_MOVE) 
 		
-		self.last_item=None
+		self.last_item = None
 		self.last_iter = None
-		
 		self.intype = False
-		
-		self.day=None
+		self.day = None
 		engine.connect("signal_updated", lambda *args: self._do_refresh_rows())
 		
 		#self.store.set_sort_column_id(2, gtk.SORT_ASCENDING)
 		self.types = {}
-		self.days={}
-		self.items_uris=[]
+		self.days = {}
+		self.items_uris = []
 		self.item_type_count = {}
 			
 	def _do_refresh_rows(self):
@@ -140,7 +137,7 @@ class DataIconView(gtk.TreeView):
 		try:
 			item = self.store.get_value(iter, 4)
 			self.check_rows(iter)
-		except Exception, ex:
+		except Exception:
 			pass
 		
 		while True:
@@ -150,7 +147,7 @@ class DataIconView(gtk.TreeView):
 					iter = self.check_rows(iter)
 				else:
 					break
-			except:
+			except Exception:
 				break
 	
 	def check_rows(self,iter):
@@ -323,11 +320,7 @@ class DataIconView(gtk.TreeView):
 		if bookmark == True:
 			icon = self.active_image
 		
-		
-		
-		"""
-		Creating parent for grouping
-		"""
+		# Creating parent for grouping
 		if not self.types.has_key(item.type):
 			iter = None
 			if group:
@@ -345,13 +338,7 @@ class DataIconView(gtk.TreeView):
 									])
 			self.types[item.type] = iter
 		
-		
-		"""
-		Assigning the item to either be in a group or standalone
-		"""
-		
-		
-				
+		# Assigning the item to either be in a group or standalone
 		self.last_iter = self.store.append(self.types[item.type.strip()], 
 			[item.get_icon(24),
 			name,#"<span size='small'>%s</span>" % name,
@@ -361,7 +348,7 @@ class DataIconView(gtk.TreeView):
 			self.get_tooltip(item),
 			icon,
 			])
-			
+		
 		if group:
 			if not expanded_views.has_key(item.get_datestring()):
 				expanded_views[item.get_datestring()] = {}
