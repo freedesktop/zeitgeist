@@ -14,9 +14,8 @@ class FirefoxSource(DataProvider):
     
     FIREFOX_DIR = os.path.expanduser("~/.mozilla/firefox")
     PROFILE_FILE = os.path.join(FIREFOX_DIR, "profiles.ini")
-    LOCATION = os.path.join(
-        BaseDirectory.save_config_path("gnome-zeitgeist"),
-        "firefox.sqlite")
+    PATH = os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist")
+    LOCATION = os.path.join(PATH, "firefox.sqlite")
     
     def __init__(self):
         DataProvider.__init__(self,
@@ -159,6 +158,8 @@ class FirefoxSource(DataProvider):
         """
         Copy the sqlite file to avoid file locks when it's being used by Firefox.
         """
+        if not os.path.isdir(self.PATH):
+            os.mkdir(self.PATH)
         if self.cursor:
             self.cursor.close()
         shutil.copy2(self.history_db,  self.LOCATION)

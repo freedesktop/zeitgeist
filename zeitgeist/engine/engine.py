@@ -19,8 +19,8 @@ class ZeitgeistEngine(gobject.GObject):
 		gobject.GObject.__init__(self)
 		self.reload_callback = None
 		
-		path = BaseDirectory.save_config_path("gnome-zeitgeist")
-		database = os.path.join(path, "gzg.sqlite")
+		path = BaseDirectory.save_config_path("zeitgeist")
+		database = os.path.join(path, "zeitgeist.sqlite")
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 	

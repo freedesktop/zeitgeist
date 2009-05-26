@@ -68,9 +68,10 @@ class EvolutionSource(DataProvider):
 		try:
 			historydb = glob.glob(os.path.expanduser(
 				"~/.evolution/mail/local/folders.db"))
-			newloc = os.path.join(
-				BaseDirectory.save_config_path("gnome-zeitgeist"),
-				"firefox.sqlite")
+			path = os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist")
+			if not os.path.isdir(path):
+				os.mkdir(path)
+			newloc = os.path.join(path, "firefox.sqlite")
 			shutil.copy2(historydb[0], newloc)
 			return newloc
 		except Exception:
