@@ -8,14 +8,13 @@ FOR RELEASE:
  - Fix all milestoned Launchpad bugs.
  - The tray icon should start the daemon, instead of the other way
    around.
- - Ensure that the datahub ends when the daemon dies.
- - Ensure that everything works correctly and a .deb can be created.
 
 FUTURE:
 ------------
 
 - Backend:
 	+ Add on Tracker support.
+	+ Add time-machine with bzr.
 	+ Extend DB to support location of usage
 	+ Related Items should be automatically determined by currently used URI.
 	+ Auto Tagging e.g: tasks, locations, and relations.
