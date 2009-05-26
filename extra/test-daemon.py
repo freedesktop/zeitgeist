@@ -39,7 +39,7 @@ print '-', ', '.join(iface.get_recent_used_tags(0, 0, 0))
 
 mimetype = 'text/plain'
 print '\nItems with mimetype «%s»:' % mimetype
-for item in iface.get_items_with_mimetype(mimetype, 0, 0, "")[:5]:
+for item in iface.get_items_with_mimetype(mimetype, 0, 0, '')[:5]:
 	print '-', item[2]
 
 if first_item:
@@ -61,7 +61,7 @@ if first_item:
 	last_tag = first_item[4].split(',')[-1]
 	if last_tag:
 		print u'\nItems with tag «%s»:' % last_tag
-		tag_items = iface.get_items(0, 0, last_tag)
+		tag_items = iface.get_items(0, 0, last_tag, '')
 		for tag_item in tag_items[:5]:
 			print '-', tag_item[2] + ':', ', '.join(tag_item[6].split(','))
 

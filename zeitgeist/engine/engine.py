@@ -62,9 +62,7 @@ class ZeitgeistEngine(gobject.GObject):
 			if uri_only:
 				return item
 			else:
-				item = self._result2data(
-					self.cursor.execute(
-						"SELECT * FROM data WHERE uri=?", (item,)).fetchone())
+				item = self.get_item(item)
 		elif uri_only:
 			return item["uri"]
 		
@@ -164,8 +162,16 @@ class ZeitgeistEngine(gobject.GObject):
 				amount_items += 1
 		
 		self.connection.commit()
-		del items
 		return amount_items
+	
+	def get_item(self, uri):
+		"""Returns basic information about the indicated URI."""
+		
+		item = self.cursor.execute(
+			"SELECT * FROM data WHERE uri=?", (uri,)).fetchone()
+		
+		if item:
+			return self._result2data(item)
 	
 	def get_items(self, min=0, max=sys.maxint, tags="", mimetypes=""):
 		"""
