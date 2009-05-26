@@ -1,5 +1,6 @@
 # -.- encoding: utf-8 -.-
-import gc
+
+import time
 import sys
 import os
 import shutil
