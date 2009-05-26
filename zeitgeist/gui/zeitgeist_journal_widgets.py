@@ -164,7 +164,7 @@ class TimelineWidget(gtk.ScrolledWindow):
 			calendar.clear_marks()
 			
 			# Get all items in the date range and add them to self.items
-			for item in engine.get_items(self.begin, self.end, ','.join(self.tags)):
+			for item in engine.get_items(self.begin, self.end, ",".join(self.tags), ""):
 				if not self.sources.has_key(item.type):
 					self.sources[item.type] = False
 					self.sources_icons[item.type] = item.icon

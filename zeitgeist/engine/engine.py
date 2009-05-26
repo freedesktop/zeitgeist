@@ -167,7 +167,7 @@ class ZeitgeistEngine(gobject.GObject):
 		del items
 		return amount_items
 	
-	def get_items(self, min=0, max=sys.maxint, tags=""):
+	def get_items(self, min=0, max=sys.maxint, tags="", mimetypes=""):
 		"""
 		Yields all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
@@ -179,16 +179,18 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		# Get a list of all tags
 		if tags:
-			tagsplit = [tag.lower() for tag in tags.split(",")]
-		
-			condition = []
-			for tag in tagsplit:
-				condition.append("""(data.uri LIKE '%%%s%%'
+			tagsql = []
+			for tag in tags.split(","):
+				tagsql.append("""(data.uri LIKE '%%%s%%'
 					OR data.name LIKE '%%%s%%'
 					OR tags LIKE '%%%s%%')""" % (tag, tag, tag))
-			condition = "(" + " AND ".join(condition) + ")"
+			condition = "(" + " AND ".join(tagsql) + ")"
 		else:
 			condition = "1"
+		
+		if mimetypes:
+			condition += " AND data.mimetype IN (%s)" % \
+				",".join(("\"%s\"" % mime for mime in mimetypes.split(",")))
 		
 		# Loop over all items in the timetable table which are between min and max
 		query = """
@@ -441,9 +443,7 @@ class ZeitgeistEngine(gobject.GObject):
 		return list
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
-		for item in self.get_items(min, max, tags):
-			if item[8] == mimetype:
-				yield item
+		return self.get_items(min, max, tags, mimetype)
 	
 	def get_bookmarks(self):
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
