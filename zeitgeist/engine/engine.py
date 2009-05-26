@@ -390,7 +390,7 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_items_related_by_tags(self, item):
 		# TODO: Is one matching tag enough or should more/all of them
 		# match?
-		for tag in self._ensure_item(item).get_tags():
+		for tag in self._ensure_item(item)[4]:
 			res = self.cursor.execute('SELECT uri FROM tags WHERE tagid=? GROUP BY uri ORDER BY COUNT(uri) DESC', (tag,)).fetchall()
 			for raw in res:
 				item = self.cursor.execute("SELECT * FROM data WHERE uri=?", (raw[0],)).fetchone()
@@ -442,7 +442,7 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
 		for item in self.get_items(min, max, tags):
-			if item[4] in mimetype.split(','):
+			if item[8] == mimetype:
 				yield item
 	
 	def get_bookmarks(self):

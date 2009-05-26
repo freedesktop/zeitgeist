@@ -44,7 +44,7 @@ for item in iface.get_items_with_mimetype(mimetype, 0, 0, "")[:5]:
 
 if first_item:
 	print u'\nTags for item «%s»:' % first_item[2]
-	print '-', ', '.join(first_item[6].split(','))
+	print '-', ', '.join(first_item[4].split(','))
 	
 	print u'\nItems related to «%s»:' % first_item[2]
 	related_items = iface.get_related_items(first_item[1])
@@ -58,7 +58,7 @@ if first_item:
 		print '-', related_item[2] + ':', ', '.join(related_item[6].split(','))
 	del related_items
 	
-	last_tag = first_item[6].split(',')[-1]
+	last_tag = first_item[4].split(',')[-1]
 	if last_tag:
 		print u'\nItems with tag «%s»:' % last_tag
 		tag_items = iface.get_items(0, 0, last_tag)
