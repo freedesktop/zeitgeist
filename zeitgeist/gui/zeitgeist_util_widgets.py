@@ -80,7 +80,7 @@ class DataIconView(gtk.TreeView):
 		name_cell.set_property("wrap-width", 125)
 		name_column = gtk.TreeViewColumn(_("Name"), name_cell, markup=1)
 		name_column.set_expand(True)
-		name_column.set_properties("sensitive",False)
+		name_column.set_properties("sensitive", False)
 		self.name_cell = name_cell
 		
 		time_cell = gtk.CellRendererText()
@@ -193,9 +193,9 @@ class DataIconView(gtk.TreeView):
 		if expanded_views[self.datestring].has_key(type):
 			expanded_views[self.datestring][type] = False
 	
-	
 	def reload_name_cell_size(self,width):
-		self.name_cell.set_property("wrap-width",width -125)
+		self.name_cell.set_property("wrap-width",
+			(width - 125) if (width - 125) > 0 else 125)
 		
 	def append_item(self, item, group=True):
 		self._set_item(item, group=group)
