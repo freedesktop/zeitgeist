@@ -1,6 +1,6 @@
 # -.- encoding: utf-8 -.-
 
-sig_plain_data = "(issssssusbs)"
+sig_plain_data = "(issssssbsus)"
 def plainify_data(obj):
 	""" Takes a Data object or a dictionary and converts it into a
 		tuple suitable for transmission through D-Bus. """
@@ -11,7 +11,7 @@ def plainify_data(obj):
 		obj.get_name(),
 		obj.get_type(),
 		obj.get_mimetype(), 
-		','.join(obj.get_tags()),
+		",".join(obj.get_tags()),
 		obj.get_comment(),
 		obj.get_count(),
 		obj.get_use(),

@@ -38,12 +38,12 @@ class ZeitgeistEngine(gobject.GObject):
 			result[1], # name
 			result[2] or "", # comment
 			tags, # tags
-			result[4] or "first use", # use
-			result[5], # icon
-			result[6], # bookmark
-			result[7] or "N/A", # mimetype
-			result[8] or 1, # count
-			result[9] or "N/A", # type
+			"first use", # use
+			result[3], # icon
+			result[4], # bookmark
+			result[5] or "N/A", # mimetype
+			result[6] or 1, # count
+			result[7] or "N/A", # type
 			)
 	
 	def _ensure_item(self, item, uri_only=False):
@@ -123,12 +123,10 @@ class ZeitgeistEngine(gobject.GObject):
 			
 			# Insert into data, if it isn't there yet
 			try:
-				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
+				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',
 					(item["uri"],
 					item["name"],
 					item["comment"],
-					item["tags"],
-					item["use"],
 					item["icon"],
 					0,
 					item["mimetype"],
