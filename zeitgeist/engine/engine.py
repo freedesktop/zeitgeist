@@ -437,6 +437,11 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
 		return self.get_items(min, max, tags, mimetype)
 	
+	def get_uris_for_timestamp(self, timestamp):
+		return [x[0] for x in
+			self.cursor.execute("SELECT uri FROM timetable WHERE start=?",
+			(timestamp,)).fetchall()]
+	
 	def get_bookmarks(self):
 		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
 			yield self._result2data(item, timestamp = -1)
