@@ -24,7 +24,7 @@ object = RemoteInterface(mainloop = mainloop)
 engine.reload_callback = object.signal_updated
 
 trayicon_app = "%s/zeitgeist-trayicon" % config.bindir
-if not '--no-trayicon' in sys.argv:
+if not '--no-trayicon' in sys.argv  and os.path.isfile(trayicon_app):
 	subprocess.Popen(trayicon_app)
 
 passive_loggers = "%s/zeitgeist-datahub" % config.bindir
