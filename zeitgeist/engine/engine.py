@@ -142,6 +142,14 @@ class ZeitgeistEngine(gobject.GObject):
 						(tag.capitalize(), item["uri"]))
 			except Exception, ex:
 				print "Error inserting tags: %s" % ex
+				
+				
+			try:
+				# Add app into the database
+				self.cursor.execute('INSERT INTO app VALUES (?,?)',
+					(item["app"],0))
+			except Exception, ex:
+				print "Error inserting tags: %s" % ex
 		
 		except sqlite3.IntegrityError, ex:
 			return False
