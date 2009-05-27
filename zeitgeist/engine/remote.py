@@ -38,6 +38,11 @@ class RemoteInterface(dbus.service.Object):
 		return engine.get_uris_for_timestamp(timestamp)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
+						in_signature="i", out_signature="i")
+	def get_last_timestamp(self, uri):
+		return engine.get_last_timestamp(uri)
+	
+	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="", out_signature="a"+sig_plain_data)
 	def get_bookmarks(self):
 		return engine.get_bookmarks()

@@ -99,13 +99,22 @@ class ZeitgeistEngine(gobject.GObject):
 		else:
 			return connection
 	
-	def get_last_timestamp(self):
+	def get_last_timestamp(self, uri=None):
 		"""
-		Gets the timestamp of the most recent item in the database.
+		Gets the timestamp of the most recent item in the database. If
+		`uri' is not empty, it will give the last timestamp for the
+		indicated URI.
 		
 		Returns 0 if there are no items in the database.
 		"""
-		query = "SELECT * FROM timetable LIMIT 1"
+		
+		if uri:
+			filter = "WHERE uri=\"%s\"" % uri
+		else:
+			filter = ""
+		
+		query = "SELECT * FROM timetable %s LIMIT 1" % filter
+		
 		result = self.cursor.execute(query).fetchone()
 		if result is None:
 			return 0
