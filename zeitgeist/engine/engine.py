@@ -45,9 +45,14 @@ class ZeitgeistEngine(gobject.GObject):
 			result[4], # bookmark
 			result[3], # icon
 			"", # app
-			result[7], # count
+			self.get_total_count_for_item(result[0]), # count
 			)
 	
+	def get_total_count_for_item(self,uri):
+		query = "SELECT COUNT(uri) FROM timetable where uri=?"
+		result = self.cursor.execute(query,(uri,)).fetchone()
+		return result[0]
+		
 	def _ensure_item(self, item, uri_only=False):
 		"""
 		Takes either a Data object or an URI for an item in the
@@ -244,16 +249,13 @@ class ZeitgeistEngine(gobject.GObject):
 		self.cursor.execute('DELETE FROM data where uri=?',(item["uri"],))
 		
 		# (Re)insert the item into the database
-		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?)',
+		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?)',
 							 (item["uri"],
 								unicode(item["name"]),
 								item["comment"],
-								item["tags"],
-								item["use"],
 								item["icon"],
 								item["bookmark"],
 								item["mimetype"],
-								item["count"],
 								item["type"]))
 		self.connection.commit()
 		
