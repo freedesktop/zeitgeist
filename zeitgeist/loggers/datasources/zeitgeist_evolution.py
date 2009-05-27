@@ -53,7 +53,7 @@ class EvolutionSource(DataProvider):
 								"comment": u"",
 								"mimetype": u"mail",
 								"tags": u"",
-								"app": u"/usr/share/applications/evolution.desktop",
+								"app": u"Evolution",
 								}
 					except Exception:
 						print "error fetching sent mail"

@@ -138,7 +138,7 @@ class TomboySource(DataProvider):
                 	        		"mimetype": unicode(note.mimetype),
                 	        		"tags": u"",
                 	        		"icon": unicode(note.icon),
-									"app": "",
+									"app": "Tomboy",
                 	        		}
 	                                yield item
                                     
