@@ -14,7 +14,6 @@ class Item():
     def __init__(self):
         pass
     
-    
 class UI():
     
     def __init__(self):
@@ -38,7 +37,6 @@ class UI():
         self.timeline.set_position(0,240)
         self.stage.add(self.timeline)
         
-        
         '''
         Setting up stage background widgets
         '''
@@ -53,7 +51,6 @@ class UI():
         for i in xrange(7):
             days.append(today-i*86400)
         return days
-        
     
     def set_days(self, start = 0, days=7):
         
@@ -64,9 +61,8 @@ class UI():
             dayline.set_position(50+space*days.index(day),0)
             self.daylines.append(dayline)
             self.stage.add(dayline)
-        
-        
+
 if __name__ == "__main__":
 
-    gui=UI()
+    gui = UI()
     gtk.main()
