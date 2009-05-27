@@ -342,11 +342,11 @@ def objectify_data(item_list):
 			mimetype = item_list[4] or "N/A", # mimetype
             tags = item_list[5], # tags
 			comment = item_list[6], # comment
-			count = item_list[7] or 1, # count
-			use = item_list[8] or "", #use
-			bookmark = item_list[9], # bookmark
-            icon =  item_list[10], # icon
-			app = item_list[11] or "", # app
+			use = item_list[7] or "", #use
+			bookmark = item_list[8], # bookmark
+            icon =  item_list[9], # icon
+			app = item_list[10] or "", # app
+			count = item_list[11] or 1, # count
             )
 
 def exists(uri):
