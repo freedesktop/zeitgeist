@@ -23,6 +23,7 @@ class ZeitgeistEngine(gobject.GObject):
 		database = os.path.join(path, "zeitgeist.sqlite")
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
+		self._apps = set()
 	
 	def _result2data(self, result, timestamp=0):
 		
@@ -144,14 +145,15 @@ class ZeitgeistEngine(gobject.GObject):
 						(tag.capitalize(), item["uri"]))
 			except Exception, ex:
 				print "Error inserting tags: %s" % ex
-				
-				
-			try:
-				# Add app into the database
-				self.cursor.execute('INSERT INTO app VALUES (?,?)',
-					(item["app"],0))
-			except Exception, ex:
-				print "Error inserting application: %s" % ex
+			
+			if not item["app"] in self._apps:
+				self._apps.add(item["app"])
+				try:
+					# Add app into the database
+					self.cursor.execute('INSERT INTO app VALUES (?,?)',
+						(item["app"],0))
+				except Exception, ex:
+					print "Error inserting application: %s" % ex
 		
 		except sqlite3.IntegrityError, ex:
 			return False
