@@ -42,8 +42,7 @@ class ZeitgeistEngine(gobject.GObject):
 			result[3], # icon
 			result[4], # bookmark
 			result[5] or "N/A", # mimetype
-			result[6] or 1, # count
-			result[7] or "N/A", # type
+			result[6] or "N/A", # type
 			)
 	
 	def _ensure_item(self, item, uri_only=False):
@@ -114,23 +113,24 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		try:
 			# Insert into timetable
-			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?)',
+			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?)',
 				(item["timestamp"],
 				None,
 				item["uri"],
 				item["use"],
-				"%d-%s" % (item["timestamp"], item["uri"])))
+				"%d-%s" % (item["timestamp"], item["uri"]),
+				item["app"]
+				))
 			
 			# Insert into data, if it isn't there yet
 			try:
-				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?,?)',
+				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?)',
 					(item["uri"],
 					item["name"],
 					item["comment"],
 					item["icon"],
 					0,
 					item["mimetype"],
-					item["count"],
 					item["type"]))
 			except sqlite3.IntegrityError:
 				pass
