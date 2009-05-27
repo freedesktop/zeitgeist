@@ -509,7 +509,7 @@ class RelatedWindow(gtk.Window):
 				items.append(uri)
 				self.view.append_item(uris[uri])
 		
-		for related_item in engine.get_related_items(item):
+		for related_item in engine.get_related_items(item.get_uri()):
 			if items.count(related_item.uri) == 0:
 				items.append(related_item.uri)
 				self.view.append_item(related_item)
