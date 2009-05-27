@@ -219,30 +219,6 @@ class Dayline (Box):
         dayline.set_size(1,480)
         self.pack_start(dayline)
         
-        texture = CairoTexture(32, 32)
-        texture.set_position(400,240)
-        cr = texture.cairo_create()
-        cr.scale(300, 300)#texture.get_width(), texture.get_height())
-        self.drawClock(cr)
-        texture.show()
-    
-    
-    def drawClock(self, cr):
-        cr.set_operator (cairo.OPERATOR_CLEAR)
-        cr.paint()
-        cr.set_operator(cairo.OPERATOR_OVER)
-        
-        # who doesn't want all those nice line settings :)
-        cr.set_line_cap(cairo.LINE_CAP_ROUND)
-        cr.set_line_width(0.1)
-        
-        # translate to the center of the rendering context and draw a black
-        # clock outline
-        cr.set_source_rgba(0, 0, 0, 1)
-        cr.translate(0.5, 0.5)
-        cr.arc(0, 0, 0.4, 0, math.pi * 2)
-        cr.stroke()
-        
         # draw a white dot on the current second.
     
     
