@@ -33,6 +33,11 @@ class RemoteInterface(dbus.service.Object):
 		return engine.get_items_with_mimetype(mimetype, min_timestamp, max_timestamp, tags)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
+						in_signature="siis", out_signature="a"+sig_plain_data)
+	def get_count_for_item(self, uri, start, end):
+		return engine.get_count_for_item(self, uri, start, end)
+	
+	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="i", out_signature="as")
 	def get_uris_for_timestamp(self, timestamp):
 		return engine.get_uris_for_timestamp(timestamp)
