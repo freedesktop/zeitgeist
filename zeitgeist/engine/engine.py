@@ -25,7 +25,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self.cursor = self.connection.cursor()
 		self._apps = set()
 	
-	def _result2data(self, result, timestamp=0):
+	def _result2data(self, result, timestamp=0, start=0, end=sys.maxint):
 		
 		res = self.cursor.execute(
 			"""SELECT tagid FROM tags WHERE uri = ?""",(result[0],)
@@ -45,12 +45,12 @@ class ZeitgeistEngine(gobject.GObject):
 			result[4], # bookmark
 			result[3], # icon
 			"", # app
-			0, # count
+			self.get_total_count_for_item(result[0],start,end), # count
 			)
 	
-	def get_total_count_for_item(self,uri):
-		query = "SELECT COUNT(uri) FROM timetable where uri=?"
-		result = self.cursor.execute(query,(uri,)).fetchone()
+	def get_total_count_for_item(self,uri, start=0, end=sys.maxint):
+		query = "SELECT COUNT(uri) FROM timetable where start >=? and end<=? and uri=?"
+		result = self.cursor.execute(query,(start, end, uri,)).fetchone()
 		return result[0]
 	
 	def _ensure_item(self, item, uri_only=False):
