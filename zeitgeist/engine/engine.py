@@ -41,11 +41,11 @@ class ZeitgeistEngine(gobject.GObject):
 			result[5] or "N/A", # mimetype
 			tags, # tags
 			result[2] or "", # comment
-			result[7], # count
 			"first use", # use
 			result[4], # bookmark
 			result[3], # icon
 			"", # app
+			result[7], # count
 			)
 	
 	def _ensure_item(self, item, uri_only=False):
