@@ -27,6 +27,7 @@ class Data(gobject.GObject):
 				 icon		= None,
 				 tags		= "",
 				 count		= 1,
+				 use        = "",
 				 type		= "N/A",
 				 bookmark	= False,
 				 app        = ""):
@@ -65,6 +66,9 @@ class Data(gobject.GObject):
 	
 	def get_datestring(self):
 		return datetime.datetime.fromtimestamp(self.timestamp).strftime("%a %d %b %Y")
+	
+	def get_use(self):
+		return self.use
 	
 	def get_app(self):
 		return self.app
@@ -329,22 +333,21 @@ class Data(gobject.GObject):
 				return True
 		return False
 
-
 def objectify_data(item_list):
 	return Data(
 			timestamp = item_list[0],
 			uri = item_list[1], # uri
             name = item_list[2], # name
-            comment = item_list[3], # comment
-            tags = item_list[4], # tags
-            icon =  item_list[5], # icon
-            bookmark = item_list[6], # bookmark
-            mimetype = item_list[7] or "N/A", # mimetype
-            count = item_list[8] or 1, # count
-            type = item_list[9] or "N/A", # type
-			app = item_list[10] or "", # app
+			type = item_list[3] or "N/A", # type
+			mimetype = item_list[4] or "N/A", # mimetype
+            tags = item_list[5], # tags
+			comment = item_list[6], # comment
+			count = item_list[7] or 1, # count
+			use = item_list[8] or "", #use
+			bookmark = item_list[9], # bookmark
+            icon =  item_list[10], # icon
+			app = item_list[11] or "", # app
             )
-
 
 def exists(uri):
 	return not uri.startswith("file://") or os.path.exists(

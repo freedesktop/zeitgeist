@@ -150,9 +150,10 @@ class FirefoxSource(DataProvider):
                         "mimetype": u"", # TODO: Can we get a mime-type here?
                         "tags": u"",
                         "icon": u"gnome-globe",
-                        "app": u"/usr/share/applications/firefox.desktop"
+                        "app": u"/usr/share/applications/firefox.desktop",
+                        "count": 0
                         }
-                    yield item
+                    return (item,)
     
     def __copy_sqlite(self):
         """
