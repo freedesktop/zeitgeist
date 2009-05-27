@@ -182,11 +182,8 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
 		
-		item = self.cursor.execute("""
-			SELECT data.*, COUNT(timetable.rowid) AS count
-			FROM data
-			INNER JOIN timetable ON (timetable.uri=data.uri)
-			WHERE data.uri=?""", (uri,)).fetchone()
+		item = self.cursor.execute(
+			"""SELECT * FROM data WHERE data.uri=?""", (uri,)).fetchone()
 		
 		if item:
 			return self._result2data(item)
@@ -229,12 +226,8 @@ class ZeitgeistEngine(gobject.GObject):
 		for start, uri in res:
 			# Retrieve the item from the data table
 			# TODO: Integrate this into the previous SQL query.
-			item = self.cursor.execute("""
-				SELECT data.*, COUNT(timetable.rowid) AS count
-				FROM data
-				INNER JOIN timetable ON (timetable.uri=data.uri)
-				WHERE data.uri=?""",
-				(uri,)).fetchone()
+			item = self.cursor.execute(
+				"""SELECT * FROM data WHERE data.uri=?""", (uri,)).fetchone()
 			
 			if item:
 				yield self._result2data(item, timestamp = start)
