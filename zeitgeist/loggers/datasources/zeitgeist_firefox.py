@@ -151,7 +151,6 @@ class FirefoxSource(DataProvider):
                         "tags": u"",
                         "icon": u"gnome-globe",
                         "app": u"/usr/share/applications/firefox.desktop",
-                        "count": 0
                         }
                     yield item
     

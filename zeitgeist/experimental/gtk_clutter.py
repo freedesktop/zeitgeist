@@ -214,7 +214,11 @@ class Dayline (Box):
         
         dayline = clutter.Rectangle()
         dayline.set_opacity(100)
-        dayline.set_size(1,480)
+        dayline.set_size(1, 480)
         self.pack_start(dayline)
         
-        # draw a white dot on the current second.
+        daycircle = clutter.Rectangle()
+        daycircle.set_opacity(100)
+        daycircle.set_size(40, 40)
+        daycircle.set_position(50, 50)
+        self.pack_start(daycircle)

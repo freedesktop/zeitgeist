@@ -346,7 +346,6 @@ def objectify_data(item_list):
 			bookmark = item_list[8], # bookmark
             icon =  item_list[9], # icon
 			app = item_list[10] or "", # app
-			count = item_list[11] or 1, # count
             )
 
 def exists(uri):

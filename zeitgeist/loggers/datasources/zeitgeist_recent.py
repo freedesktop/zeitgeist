@@ -148,7 +148,6 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 			for app in info.get_applications():
 				appinfo = info.get_application_info(app)
 				counter = counter + appinfo[1]
-				item["count"] = counter
 				item["type"] = self.name
 			 	item["icon"] = self.icon
 			

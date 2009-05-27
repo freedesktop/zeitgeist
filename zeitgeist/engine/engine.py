@@ -45,7 +45,6 @@ class ZeitgeistEngine(gobject.GObject):
 			result[4], # bookmark
 			result[3], # icon
 			"", # app
-			self.get_total_count_for_item(result[0],start,end), # count
 			)
 	
 	def get_total_count_for_item(self,uri, start=0, end=sys.maxint):

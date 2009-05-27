@@ -53,7 +53,6 @@ class EvolutionSource(DataProvider):
 								"comment": u"",
 								"mimetype": u"mail",
 								"tags": u"",
-								"count": 0,
 								"app": u"/usr/share/applications/evolution.desktop",
 								}
 					except Exception:

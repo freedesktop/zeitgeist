@@ -13,7 +13,7 @@ class Item():
     
     def __init__(self):
         pass
-    
+
 class UI():
     
     def __init__(self):
@@ -25,7 +25,6 @@ class UI():
         self.stage.set_size(800,480)
         self.stage.set_color(clutter.color_parse("#00000000"))
         self.stage.show()    
-        
         
         '''
         Setting up stage timeline widgets
@@ -52,13 +51,13 @@ class UI():
             days.append(today-i*86400)
         return days
     
-    def set_days(self, start = 0, days=7):
+    def set_days(self, start=0, days=7):
         
         space = 115
         days = self.get_days()
         for day in days:
             dayline = Dayline(day)
-            dayline.set_position(50+space*days.index(day),0)
+            dayline.set_position(50 + space * days.index(day), 0)
             self.daylines.append(dayline)
             self.stage.add(dayline)
 

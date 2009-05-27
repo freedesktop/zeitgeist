@@ -48,7 +48,6 @@ def page_changed(embed, load_status, window):
 			"", # mimetype
 			"",	 # tags
 			"", # comment
-			0, # count
 			"visited",	# use
 			False, # bookmark
 			"gnome-globe", # icon

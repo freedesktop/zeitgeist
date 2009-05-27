@@ -37,7 +37,6 @@ class TwitterSource(DataProvider):
 				"uri": unicode("http://explore.twitter.com/" + tweet.user.screen_name + "/status/" + str(tweet.id)),
 				"name": unicode(tweet.user.name + ":\n" + tweet.text),
 				"type": u"Twitter",
-				"count": 0,
 				"use": u"tweet",
 				"app": u"",
 				}

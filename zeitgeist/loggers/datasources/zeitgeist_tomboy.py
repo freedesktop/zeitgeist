@@ -134,7 +134,6 @@ class TomboySource(DataProvider):
                 	        		"name": unicode(note.title),
                 	        		"comment": unicode(note.content_text),
                 	        		"type": unicode(note.type),
-                	        		"count": 0,
                 	        		"use": u"",
                 	        		"mimetype": unicode(note.mimetype),
                 	        		"tags": u"",
