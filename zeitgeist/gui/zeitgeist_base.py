@@ -27,9 +27,9 @@ class Data(gobject.GObject):
 				 icon		= None,
 				 tags		= "",
 				 count		= 1,
-				 use		= "first use",
 				 type		= "N/A",
-				 bookmark	= False):
+				 bookmark	= False,
+				 app        = ""):
 		
 		gobject.GObject.__init__(self)
 		
@@ -65,6 +65,9 @@ class Data(gobject.GObject):
 	
 	def get_datestring(self):
 		return datetime.datetime.fromtimestamp(self.timestamp).strftime("%a %d %b %Y")
+	
+	def get_app(self):
+		return self.app
 	
 	def get_icon(self, icon_size):
 		if self.uri:
@@ -334,12 +337,12 @@ def objectify_data(item_list):
             name = item_list[2], # name
             comment = item_list[3], # comment
             tags = item_list[4], # tags
-            use = item_list[5] or "first use", # use
-            icon =  item_list[6], # icon
-            bookmark = item_list[7], # bookmark
-            mimetype = item_list[8] or "N/A", # mimetype
-            count = item_list[9] or 1, # count
-            type = item_list[10] or "N/A", # type
+            icon =  item_list[5], # icon
+            bookmark = item_list[6], # bookmark
+            mimetype = item_list[7] or "N/A", # mimetype
+            count = item_list[8] or 1, # count
+            type = item_list[9] or "N/A", # type
+			app = item_list[10] or "", # app
             )
 
 
