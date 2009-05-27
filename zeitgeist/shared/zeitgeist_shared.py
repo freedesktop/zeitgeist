@@ -29,15 +29,16 @@ def plainify_dict(item_list):
 		item_list["mimetype"], 
 		item_list["tags"],
 		item_list["comment"],
-		item_list["count"],
 		item_list["use"],
 		item_list["bookmark"] if "bookmark" in item_list else False,
 		item_list["icon"],
 		item_list["app"],
+        item_list["count"],
 		)
 
 def dictify_data(item_list):
-	return {
+    print item_list
+    return {
 		"timestamp": item_list[0],
 		"uri": item_list[1],
 		"name": item_list[2],
@@ -45,9 +46,9 @@ def dictify_data(item_list):
 		"mimetype": item_list[4],
 		"tags": item_list[5],
 		"comment": item_list[6],
-		"count": item_list[11],
 		"use": item_list[7],
 		"bookmark": item_list[8],
 		"icon": item_list[9],
 		"app": item_list[10],
+        "count": item_list[11],
 		}
