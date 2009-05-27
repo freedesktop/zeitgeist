@@ -47,7 +47,11 @@ class ZeitgeistEngine(gobject.GObject):
 			"", # app
 			)
 	
-	def get_total_count_for_item(self,uri, start=0, end=sys.maxint):
+	def get_count_for_item(self, uri, start=0, end=sys.maxint):
+		# Emulate optional arguments for D-Bus
+		if not end:
+			end = sys.maxint
+		
 		query = "SELECT COUNT(uri) FROM timetable where start >=? and end<=? and uri=?"
 		result = self.cursor.execute(query,(start, end, uri,)).fetchone()
 		return result[0]
