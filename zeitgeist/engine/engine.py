@@ -36,13 +36,15 @@ class ZeitgeistEngine(gobject.GObject):
 			timestamp,
 			result[0], # uri
 			result[1], # name
-			result[2] or "", # comment
-			tags, # tags
-			"first use", # use
-			result[3], # icon
-			result[4], # bookmark
-			result[5] or "N/A", # mimetype
 			result[6] or "N/A", # type
+			result[5] or "N/A", # mimetype
+			tags, # tags
+			result[2] or "", # comment
+			result[7], # count
+			"first use", # use
+			result[4], # bookmark
+			result[3], # icon
+			"", # app
 			)
 	
 	def _ensure_item(self, item, uri_only=False):
@@ -173,8 +175,11 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
 		
-		item = self.cursor.execute(
-			"SELECT * FROM data WHERE uri=?", (uri,)).fetchone()
+		item = self.cursor.execute("""
+			SELECT data.*, COUNT(timetable.rowid) AS count
+			FROM data
+			INNER JOIN timetable ON (timetable.uri=data.uri)
+			WHERE data.uri=?""", (uri,)).fetchone()
 		
 		if item:
 			return self._result2data(item)
@@ -216,9 +221,13 @@ class ZeitgeistEngine(gobject.GObject):
 		res = self.cursor.execute(query, (str(min), str(max))).fetchall()
 		for start, uri in res:
 			# Retrieve the item from the data table
-			
-			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
-									(uri,)).fetchone()
+			# TODO: Integrate this into the previous SQL query.
+			item = self.cursor.execute("""
+				SELECT data.*, COUNT(timetable.rowid) AS count
+				FROM data
+				INNER JOIN timetable ON (timetable.uri=data.uri)
+				WHERE data.uri=?""",
+				(uri,)).fetchone()
 			
 			if item:
 				yield self._result2data(item, timestamp = start)

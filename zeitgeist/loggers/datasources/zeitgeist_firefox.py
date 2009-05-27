@@ -153,7 +153,7 @@ class FirefoxSource(DataProvider):
                         "app": u"/usr/share/applications/firefox.desktop",
                         "count": 0
                         }
-                    return (item,)
+                    yield item
     
     def __copy_sqlite(self):
         """

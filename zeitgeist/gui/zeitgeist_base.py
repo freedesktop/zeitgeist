@@ -53,7 +53,7 @@ class Data(gobject.GObject):
 		self.diff = ""
 		self.bookmark = bookmark
 		self.timestamp = timestamp
-		
+		self.app = app
 		self.type = type
 		self.icon = icon
 		self.tags = tags
