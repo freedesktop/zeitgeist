@@ -1,3 +1,4 @@
+import time
 import math
 import gobject
 import pango
@@ -58,9 +59,7 @@ class Box (clutter.Group):
                 child.set_position (x/2, y)
                 #child.set_size (width, height)
                 #y += child.get_height () + self.spacing
-            
-   
-    
+
 class Label (clutter.Label):
     COLOR = clutter.color_parse ('#FFFFFFFFF')
 
@@ -113,8 +112,6 @@ class Button (clutter.Group):
 
         self.label_actor = Label ()
         self.label_actor.set_text (self.label)
-        
-        #self.set_color
         
         self.rectangle_actor = clutter.Rectangle ()
         self.rectangle_actor.set_color (self.NORMAL_COLOR)
@@ -207,11 +204,12 @@ class Button (clutter.Group):
         self.rectangle_actor.set_color (self.NORMAL_COLOR)
 
 class Dayline (Box):
+    
     def __init__(self, date=""):
+        
         Box.__init__(self, self.VERTICAL, 0)
         
-        
-        self.date= Label(str(date))
+        self.date = Label(time.strftime("%d %B", time.gmtime(date)))
         self.pack_start(self.date)
         
         dayline = clutter.Rectangle()
@@ -220,10 +218,3 @@ class Dayline (Box):
         self.pack_start(dayline)
         
         # draw a white dot on the current second.
-    
-    
-            
-        
-        
-    
-   
