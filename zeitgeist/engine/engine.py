@@ -451,12 +451,10 @@ class ZeitgeistEngine(gobject.GObject):
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
 				(uri,)).fetchone() 
 			if item:
-				if counter <= 5:
-					d = self._result2data(item, timestamp = -1)
-					list.append(d) 
-					counter = counter +1
-			
-		return list
+				yield self._result2data(item, timestamp = -1)
+				counter += 1
+			if counter == 5:
+				break
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
 		return self.get_items(min, max, tags, mimetype)
