@@ -87,7 +87,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					"comment": unicode(info.get_display_name()),
 					"mimetype": unicode(info.get_mime_type()),
 					"tags": unicode(tags),
-					"app": "",
+					"app": info.last_application(),
 				}
 				
 				item["timestamp"] = info.get_added()
