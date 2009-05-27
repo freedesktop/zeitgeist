@@ -146,11 +146,11 @@ class FirefoxSource(DataProvider):
                         "name": unicode(item[2]),
                         "comment": unicode(item[4][::-1] if item[4] else u""),
                         "type": u"Firefox History",
-                        "count": item[3],
                         "use": unicode(use),
                         "mimetype": u"", # TODO: Can we get a mime-type here?
                         "tags": u"",
-                        "icon": u"gnome-globe"
+                        "icon": u"gnome-globe",
+                        "app": u"/usr/share/applications/firefox.desktop"
                         }
                     yield item
     
