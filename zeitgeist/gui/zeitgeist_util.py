@@ -10,6 +10,7 @@ import gnome.ui
 import gobject
 import gconf
 import urllib2
+import numpy # for pixbuf.get_pixels_array
 
 class LaunchManager:
 	"""
@@ -185,14 +186,14 @@ class IconFactory():
 			if retval:
 				return retval
 		return None
-
+	
 	def transparentize(self, pixbuf, percent):
 		pixbuf = pixbuf.add_alpha(False, '0', '0', '0')
-	        for row in pixbuf.get_pixels_array():
-        	    for pix in row:
-               		 pix[3] = min(int(pix[3]), 255 - (percent * 0.01 * 255))
-       		return pixbuf
-
+		for row in pixbuf.get_pixels_array():
+			for pix in row:
+				pix[3] = min(int(pix[3]), 255 - (percent * 0.01 * 255))
+		return pixbuf
+	
 	def greyscale(self, pixbuf):
 		pixbuf = pixbuf.copy()
 	        for row in pixbuf.get_pixels_array():
