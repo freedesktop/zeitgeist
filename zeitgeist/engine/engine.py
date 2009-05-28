@@ -215,8 +215,9 @@ class ZeitgeistEngine(gobject.GObject):
 			tagsql = []
 			for tag in tags.split(","):
 				tagsql.append("""(data.uri LIKE '%%%s%%'
-					OR data.name LIKE '%%%s%%'
-					OR tags LIKE '%%%s%%')""" % (tag, tag, tag))
+					OR data.name LIKE '%%%s%%' OR '%s' in
+					(SELECT tags.tagid FROM tags
+						WHERE tags.uri=data.uri))""" % (tag, tag, tag))
 			condition = "(" + " AND ".join(tagsql) + ")"
 		else:
 			condition = "1"
@@ -233,7 +234,7 @@ class ZeitgeistEngine(gobject.GObject):
 			AND %s
 			ORDER BY start ASC
 			""" % condition
-		
+		print query
 		res = self.cursor.execute(query, (str(min), str(max))).fetchall()
 		for start, uri in res:
 			# Retrieve the item from the data table
