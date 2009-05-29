@@ -420,9 +420,8 @@ class ZeitgeistEngine(gobject.GObject):
 				if item:
 					yield self._result2data(item)
 	
-	def get_related_items( self, uri ):
-		# TODO: Only neighboorhood in time is considered? A bit poor,
-		# this needs serious improvement.
+	def get_related_items(self, uri):
+		
 		print uri
 		print "\n\n\n"
 		list = []
