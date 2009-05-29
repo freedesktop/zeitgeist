@@ -208,8 +208,6 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		func = self._result2data
 		
-		t1 = time.time()
-		
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
@@ -237,7 +235,7 @@ class ZeitgeistEngine(gobject.GObject):
 			AND %s
 			ORDER BY start ASC
 			""" % condition
-		print query
+		#print query
 		res = self.cursor.execute(query, (str(min), str(max))).fetchall()
 		pack = []
 		for start, uri, app, usage in res:
@@ -248,13 +246,6 @@ class ZeitgeistEngine(gobject.GObject):
 			
 			if item:
 				pack.append(func(item, timestamp = start, usage=usage, app=app))
-	
-		t2 = time.time()
-		
-		print "\n--------------------------------------------"
-		print t2-t1
-		print "\n--------------------------------------------"
-		
 		return pack
 	
 	def update_item(self, item):
@@ -448,7 +439,7 @@ class ZeitgeistEngine(gobject.GObject):
 		'''
 		Determine neighbourhoods
 		'''
-		nbhs = []
+		nbhs = {}
 		for p in pins:
 
 			start = p - radius
@@ -471,27 +462,41 @@ class ZeitgeistEngine(gobject.GObject):
 			except Exception, ex:
 				pass
 			
+			nbh = []
 			for i in self.get_items(info["start"],info["end"]):
-				nbh = 
-			
-
-			nbhs.append( nbh )
-
+				nbh.append(self._result2data(i))
+			nbhs[p] = nbh 
+		
+		self.compare_nbhs(nbhs)
+		print "----------------------------------"
+		print self.common_items
+		print "----------------------------------"
+		
 
 		'''
 		get items for each nbh and store in a list in a hash'
 		'''
-		'''
-		for v in values:
-			uri = v[1]
-			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
-				(uri,)).fetchone() 
-			if item:
-				yield self._result2data(item, timestamp = -1)
-				counter += 1
-			if counter == 5:
-				break
-		'''
+		for item in self.common_items.values():
+			yield item
+	
+
+	def compare_nbhs(self,nbhs):
+		print "++++++++++++++++"
+		print nbhs
+		print "++++++++++++++++"
+		self.common_items = {}
+		for nbh in nbhs.values():
+			try:
+				for item in nbh:
+					for tempnbh in nbhs.values(): 
+						for tempitem in tempnbh:
+							if tempitem[0] == item[0]:
+								self.common_items[item[0]] = item
+			except Exception, ex:
+				print "\n"
+				print ex
+				print "\n"
+	
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
 		return self.get_items(min, max, tags, mimetype)
