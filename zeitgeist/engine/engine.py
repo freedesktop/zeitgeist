@@ -25,7 +25,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self.cursor = self.connection.cursor()
 		self._apps = set()
 	
-	def _result2data(self, result, timestamp=0, start=0, end=sys.maxint):
+	def _result2data(self, result, timestamp=0, start=0, end=sys.maxint, app="", usage=""):
 		
 		res = self.cursor.execute(
 			"""SELECT tagid FROM tags WHERE uri = ?""",(result[0],)
@@ -41,10 +41,10 @@ class ZeitgeistEngine(gobject.GObject):
 			result[5] or "N/A", # mimetype
 			tags, # tags
 			result[2] or "", # comment
-			"first use", # use
+			usage, # use
 			result[4], # bookmark
 			result[3], # icon
-			"", # app
+			app, # app
 			)
 	
 	def get_count_for_item(self, uri, start=0, end=sys.maxint):
@@ -206,6 +206,9 @@ class ZeitgeistEngine(gobject.GObject):
 		timestamps `min' and `max'. Optionally the argument `tags'
 		may be used to filter on tags.
 		"""
+		func = self._result2data
+		
+		t1 = time.time()
 		
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
@@ -228,7 +231,7 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		# Loop over all items in the timetable table which are between min and max
 		query = """
-			SELECT start, data.uri FROM timetable
+			SELECT start, data.uri, app, usage FROM timetable
 			JOIN data ON (data.uri=timetable.uri)
 			WHERE usage != 'linked' AND start >= ? AND start <= ?
 			AND %s
@@ -236,14 +239,23 @@ class ZeitgeistEngine(gobject.GObject):
 			""" % condition
 		print query
 		res = self.cursor.execute(query, (str(min), str(max))).fetchall()
-		for start, uri in res:
+		pack = []
+		for start, uri, app, usage in res:
 			# Retrieve the item from the data table
 			# TODO: Integrate this into the previous SQL query.
 			item = self.cursor.execute(
 				"""SELECT * FROM data WHERE data.uri=?""", (uri,)).fetchone()
 			
 			if item:
-				yield self._result2data(item, timestamp = start)
+				pack.append(func(item, timestamp = start, usage=usage, app=app))
+	
+		t2 = time.time()
+		
+		print "\n--------------------------------------------"
+		print t2-t1
+		print "\n--------------------------------------------"
+		
+		return pack
 	
 	def update_item(self, item):
 		"""
@@ -407,6 +419,7 @@ class ZeitgeistEngine(gobject.GObject):
 		return (begin, end)
 	
 	def get_items_related_by_tags(self, item):
+		
 		# TODO: Is one matching tag enough or should more/all of them
 		# match?
 		for tag in self._ensure_item(item)[4]:
@@ -416,37 +429,59 @@ class ZeitgeistEngine(gobject.GObject):
 				if item:
 					yield self._result2data(item)
 	
-	def get_related_items(self, item):
+	def get_related_items( self, uri ):
 		# TODO: Only neighboorhood in time is considered? A bit poor,
 		# this needs serious improvement.
-		
+		print uri
+		print "\n\n\n"
 		list = []
 		dict = {}
-		current_timestamp = time.time() - (90*24*60*60)
-		item_uri = self._ensure_item(item, uri_only=True)
-		items = self.cursor.execute("SELECT * FROM timetable WHERE start >? AND uri=? ORDER BY start DESC",
-			(current_timestamp, item_uri)).fetchall()
-		
-		for uri in items:
-			# min and max define the neighbourhood radius
-			min = uri[0]-(60*60)
-			max = uri[0]+(60*60)
+		radius = 86400 / 2 #radius is half a day
+
+		'''
+		Create pins to create neighbourhoods around 
+		'''
+		results = self.cursor.execute( "SELECT start FROM timetable WHERE uri=? ORDER BY start",
+			( uri, ) ).fetchall()
+		pins = [r[0] for r in results]
+
+		'''
+		Determine neighbourhoods
+		'''
+		nbhs = []
+		for p in pins:
+
+			start = p - radius
+			end = p + radius
+
+			info = {"start":start, "pin":p, "end":end, "uri":uri}
+
+			try:
+				start = ( p + pins[pins.index( p ) - 1] ) / 2
+				print + "+ " + start + " +"
+				if p - start < radius:
+					info["start"] = start
+			except Exception, ex:
+				pass
+
+			try:
+				end = ( p + pins[pins.index( p ) + 1] ) / 2
+				if end - p < radius:
+						info["end"] = end
+			except Exception, ex:
+				pass
 			
-			res = self.cursor.execute("SELECT uri FROM timetable WHERE start >=? and start <=? and uri!=?",
-				(min, max, uri[2])).fetchall()
+			for i in self.get_items(info["start"],info["end"]):
+				nbh = 
 			
-			for r in res:
-				if dict.has_key(r[0]):
-					dict[r[0]]=dict[r[0]]+1
-				else:
-					dict[r[0]]=0
-		
-		values = [(v, k) for (k, v) in dict.iteritems()]
-		dict.clear()
-		values.sort()
-		values.reverse()
-		 
-		counter = 0
+
+			nbhs.append( nbh )
+
+
+		'''
+		get items for each nbh and store in a list in a hash'
+		'''
+		'''
 		for v in values:
 			uri = v[1]
 			item = self.cursor.execute("SELECT * FROM data WHERE uri=?",
@@ -456,6 +491,7 @@ class ZeitgeistEngine(gobject.GObject):
 				counter += 1
 			if counter == 5:
 				break
+		'''
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
 		return self.get_items(min, max, tags, mimetype)
