@@ -245,7 +245,9 @@ class ZeitgeistEngine(gobject.GObject):
 				"""SELECT * FROM data WHERE data.uri=?""", (uri,)).fetchone()
 			
 			if item:
-				pack.append(func(item, timestamp = start, usage=usage, app=app))
+				item = func(item, timestamp = start, usage=usage, app=app)
+				print item
+				pack.append(item)
 		return pack
 	
 	def update_item(self, item):
@@ -426,7 +428,7 @@ class ZeitgeistEngine(gobject.GObject):
 		print "\n\n\n"
 		list = []
 		dict = {}
-		radius = 86400 / 2 #radius is half a day
+		radius = 120 #radius is half a day
 
 		'''
 		Create pins to create neighbourhoods around 
@@ -463,34 +465,33 @@ class ZeitgeistEngine(gobject.GObject):
 			
 			nbh = []
 			for i in self.get_items(info["start"],info["end"]):
-				nbh.append(self._result2data(i))
+				nbh.append(i)
 			nbhs[p] = nbh 
 		
-		self.compare_nbhs(nbhs)
-		print "----------------------------------"
-		print self.common_items
-		print "----------------------------------"
-		
+		self.compare_nbhs(nbhs)		
 
 		'''
 		get items for each nbh and store in a list in a hash'
 		'''
 		for item in self.common_items.values():
-			yield item
+			if item[1] >= 3:
+				print len(nbhs)
+				yield item[0]
 	
 
 	def compare_nbhs(self,nbhs):
-		print "++++++++++++++++"
-		print nbhs
-		print "++++++++++++++++"
 		self.common_items = {}
 		for nbh in nbhs.values():
 			try:
 				for item in nbh:
 					for tempnbh in nbhs.values(): 
 						for tempitem in tempnbh:
-							if tempitem[0] == item[0]:
-								self.common_items[item[0]] = item
+							if tempitem[2] == item[2]:
+								if self.common_items.has_key(item[2]):
+								    self.common_items[item[2]][1] +=1
+								else:
+								    self.common_items[item[2]] = [item,1]
+									
 			except Exception, ex:
 				print "\n"
 				print ex
