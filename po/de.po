@@ -22,11 +22,12 @@ msgid "Open Journal"
 msgstr ""
 
 #: ../zeitgeist-trayicon:114
-msgid "GNOME Zeitgeist is a tool for easily browsing and finding files on your computer."
+msgid ""
+"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
+"computer."
 msgstr ""
 
-#: ../zeitgeist-journal:44
-#: ../zeitgeist-journal:93
+#: ../zeitgeist-journal:44 ../zeitgeist-journal:93
 msgid "Stars"
 msgstr "Sterne"
 
@@ -272,6 +273,6 @@ msgstr ""
 
 #~ msgid "Updating item: %s"
 #~ msgstr "Aktualisierung des Objekts: %s"
+
 #~ msgid "Deleting item: %s"
 #~ msgstr "Entfernung des Objekts: %s"
-

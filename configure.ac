@@ -22,7 +22,6 @@ AC_CONFIG_FILES([
 	zeitgeist/shared/Makefile
 	zeitgeist/loggers/datasources/Makefile
 	zeitgeist/loggers/Makefile
-	zeitgeist/experimental/Makefile
 	zeitgeist/engine/Makefile
 ])
 AC_OUTPUT
