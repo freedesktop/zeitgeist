@@ -4,10 +4,14 @@ TODO
 FOR RELEASE:
 -------------------
 
- - Fix the auto-start from the .service file.
+ - Fix the auto-start from the .service file. (Working now?)
  - Fix all milestoned Launchpad bugs.
  - The tray icon should start the daemon, instead of the other way
    around.
+ - Take tags from Firefox bookmarks.
+ - Log package installations/removals/updates.
+ - Use Pylint
+ - Add test cases to ensure the API doesn't break
 
 FUTURE:
 ------------
@@ -18,7 +22,3 @@ FUTURE:
 	+ Extend DB to support location of usage
 	+ Related Items should be automatically determined by currently used URI.
 	+ Auto Tagging e.g: tasks, locations, and relations.
-
-- Frontend:
-	+ Do not show an item twice one beneath the other.
-	+ create a bar displaying the related files to currently opened files (inspired by Gimmie)

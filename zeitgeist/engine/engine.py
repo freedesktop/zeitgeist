@@ -88,7 +88,7 @@ class ZeitgeistEngine(gobject.GObject):
 		if not os.path.isfile(database):
 			try:
 				# Copy the empty database skeleton into .zeitgeist
-				shutil.copy("%s/gzg.sqlite" % config.pkgdatadir, database)
+				shutil.copy("%s/zeitgeist.sqlite" % config.pkgdatadir, database)
 			except OSError, e:
 				print _("Could not create database: %s") % e.strerror
 				sys.exit(1)

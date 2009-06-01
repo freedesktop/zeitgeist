@@ -4,7 +4,7 @@
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
-PKG_NAME=gnome-zeitgeist
+PKG_NAME=zeitgeist
 
 (test -f $srcdir/zeitgeist-daemon) || {
 	echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
@@ -23,4 +23,3 @@ REQUIRED_AUTOMAKE_VERSION=1.9 \
 REQUIRED_INTLTOOL_VERSION=0.35.0 \
 REQUIRED_PKG_CONFIG_VERSION=0.16.0 \
 	USE_GNOME2_MACROS=1 . gnome-autogen.sh --enable-uninstalled-build "$@"
-

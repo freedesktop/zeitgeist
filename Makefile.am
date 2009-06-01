@@ -1,4 +1,4 @@
-SUBDIRS = data extra po zeitgeist doc
+SUBDIRS = data extra po zeitgeist
 
 INTLTOOL = \
 	intltool-extract.in \
@@ -7,9 +7,7 @@ INTLTOOL = \
 
 bin_SCRIPTS = \
 	zeitgeist-daemon \
-	zeitgeist-datahub \
-	zeitgeist-journal \
-	zeitgeist-trayicon
+	zeitgeist-datahub
 
 EXTRA_DIST = \
 	$(bin_SCRIPTS) \

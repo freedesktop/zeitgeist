@@ -1,7 +1,5 @@
-zeitgeist-trayicon
-zeitgeist-journal
-zeitgeist-datahub
 zeitgeist-daemon
+zeitgeist-datahub
 zeitgeist/__init__.py
 zeitgeist/shared/zeitgeist_shared.py
 zeitgeist/shared/__init__.py
@@ -16,13 +14,6 @@ zeitgeist/loggers/datasources/zeitgeist_evolution.py
 zeitgeist/loggers/datasources/zeitgeist_twitter.py
 zeitgeist/loggers/datasources/zeitgeist_recent.py
 zeitgeist/loggers/datasources/zeitgeist_firefox.py
-zeitgeist/gui/zeitgeist_journal_widgets.py
-zeitgeist/gui/zeitgeist_util_widgets.py
-zeitgeist/gui/zeitgeist_engine_wrapper.py
-zeitgeist/gui/zeitgeist_bookmarker.py
-zeitgeist/gui/zeitgeist_base.py
-zeitgeist/gui/__init__.py
-zeitgeist/gui/zeitgeist_util.py
 zeitgeist/experimental/zeitgeist-projectviewer.py
 zeitgeist/experimental/zeitgeist-timeline.py
 zeitgeist/experimental/zeitgeist_timeline_widgets.py
@@ -32,5 +23,3 @@ zeitgeist/engine/engine.py
 zeitgeist/engine/remote.py
 zeitgeist/shared/zeitgeist_dbus.py
 extra/test-daemon.py
-extra/zeitgeist-journal.desktop.in.in
-extra/zeitgeist-trayicon.desktop.in.in

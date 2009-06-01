@@ -1,7 +1,6 @@
 SUBDIRS = \
 	engine \
 	experimental \
-	gui \
 	loggers \
 	shared
 
