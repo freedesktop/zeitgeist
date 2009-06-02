@@ -17,6 +17,7 @@ AC_CONFIG_FILES([
 	Makefile
 	data/Makefile
 	extra/Makefile
+	extra/epiphany/Makefile
 	po/Makefile.in
 	zeitgeist/Makefile
 	zeitgeist/shared/Makefile
