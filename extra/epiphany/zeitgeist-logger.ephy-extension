@@ -1,9 +1,9 @@
 [Epiphany Extension]
-Name=GNOME Zeitgeist Logger
-Description=Push browse history to GNOME Zeitgeist
+Name=Zeitgeist Logger
+Description=Push browse history to Zeitgeist
 Authors=Seif Lotfy & Siegfried Gevatter
 Version=1
-URL=https://launchpad.net/gnome-zeitgeist
+URL=https://launchpad.net/zeitgeist
 
 [Loader]
 Type=python

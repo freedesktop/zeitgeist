@@ -1,6 +1,6 @@
-# Catalan translation for gnome-zeitgeist
+# Catalan translation for zeitgeist
 # Copyright (c) 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
-# This file is distributed under the same license as the gnome-zeitgeist package.
+# This file is distributed under the same license as the zeitgeist package.
 # Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>, 2009.
 #
 msgid ""
@@ -10,7 +10,7 @@ msgstr ""
 "POT-Creation-Date: 2009-05-22 19:24+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
-"Language-Team: The Zeitgeist Team <gnome-zeitgeist-users@lists.launchpad."
+"Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad."
 "net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
