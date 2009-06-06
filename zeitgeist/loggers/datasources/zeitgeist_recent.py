@@ -232,7 +232,7 @@ class RecentlyUsedDevelopmentSource(RecentlyUsedOfMimeType):
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Development",
-										icon="gnome-applications-development",
+										icon="applications-development",
 										mimetype_list=DEVELOPMENT_MIMETYPES,
 										filter_name=_("Development"))
 
