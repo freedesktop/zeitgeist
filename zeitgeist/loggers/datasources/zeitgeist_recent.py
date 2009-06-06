@@ -53,6 +53,19 @@ VIDEO_MIMETYPES = [
 		u"application/ogg"
 		]
 
+DEVELOPMENT_MIMETYPES = [
+		u"text/x-python",
+		u"application/x-perl",	
+		u"application/x-sql",	
+		u"application/x-jar", 	
+		u"text/x-c",
+		u"text/x-c++",
+		u"text/x-css",
+		u"application/x-php",
+		u"application/x-ruby",
+		u"text/x-java-source",
+		u"text/x-boo"
+		]
 
 class RecentlyUsedManagerGtk(DataProvider):
 	
@@ -166,7 +179,7 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 	
-	OTHER_MIMETYPES = DOCUMENT_MIMETYPES + IMAGE_MIMETYPES + AUDIO_MIMETYPES + VIDEO_MIMETYPES
+	OTHER_MIMETYPES = DOCUMENT_MIMETYPES + IMAGE_MIMETYPES + AUDIO_MIMETYPES + VIDEO_MIMETYPES + DEVELOPMENT_MIMETYPES
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
@@ -214,8 +227,18 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 										mimetype_list=VIDEO_MIMETYPES,
 										filter_name=_("Videos"))
 
+class RecentlyUsedDevelopmentSource(RecentlyUsedOfMimeType):
+
+	def __init__(self):
+		RecentlyUsedOfMimeType.__init__(self,
+										name="Development",
+										icon="gnome-applications-development",
+										mimetype_list=DEVELOPMENT_MIMETYPES,
+										filter_name=_("Development"))
+
 recent_model = RecentlyUsedManagerGtk()
 
 __datasource__ = (RecentlyUsedDocumentsSource(),
 	RecentlyUsedImagesSource(), RecentlyUsedMusicSource(),
-	RecentlyUsedOthersSource(), RecentlyUsedVideoSource())
+	RecentlyUsedOthersSource(), RecentlyUsedVideoSource(),
+	RecentlyUsedDevelopmentSource())
