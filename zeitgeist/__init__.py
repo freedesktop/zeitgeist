@@ -16,7 +16,7 @@ except ImportError:
         hicolordir = os.path.join(pkgdatadir, "logo")
         libdir = ""
         libexecdir = ""
-        PACKAGE = "gnome-zeitgeist"
+        PACKAGE = "gnome-zeitgeist"  # TODO: change this
         VERSION = "bzr"
     
     config = MockConfig()

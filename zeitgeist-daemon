@@ -12,7 +12,7 @@ import gettext
 
 from zeitgeist import config
 
-gettext.install('gnome-zeitgeist', config.localedir, unicode=1)
+gettext.install("zeitgeist", config.localedir, unicode=1)
 
 from zeitgeist.engine.engine import engine
 from zeitgeist.engine.remote import RemoteInterface
@@ -24,11 +24,11 @@ object = RemoteInterface(mainloop = mainloop)
 engine.reload_callback = object.signal_updated
 
 trayicon_app = "%s/zeitgeist-trayicon" % config.bindir
-if not '--no-trayicon' in sys.argv and os.path.isfile(trayicon_app):
+if not "--no-trayicon" in sys.argv and os.path.isfile(trayicon_app):
 	subprocess.Popen(trayicon_app)
 
 passive_loggers = "%s/zeitgeist-datahub" % config.bindir
-if not '--no-passive-loggers' in sys.argv and os.path.isfile(passive_loggers):
+if not "--no-passive-loggers" in sys.argv and os.path.isfile(passive_loggers):
 	subprocess.Popen(passive_loggers)
 
 atexit.register(lambda: object.signal_exit())
