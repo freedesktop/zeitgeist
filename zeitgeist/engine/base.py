@@ -45,7 +45,7 @@ class Item(object):
     source_id = Int()
     source = Reference(source_id, Source.id)
     
-    caption = Unicode()
+    text = Unicode()
     mimetype = Unicode()
     payload = RawStr() # Storm lingo for BLOB/BYTEA
 
@@ -104,20 +104,18 @@ class App(ProxyItem):
     
     def __init__ (self, uri):
         super(App,self).__init__(uri)
-   
-class Annotation(ProxyItem):
-    # We use a compound primary key because the same annotation can point to
-    # several subjects, so that only the (id,subject_id) pair is unique
-    __storm_table__= "annotation"
-    __storm_primary__ = "item_id", "subject_id"
+
+class ReferencingProxyItem(ProxyItem):
+    """Base class for items which point to a subject URI. The primary subclasses
+       are Annotation and Event"""
     
     subject_id = Int(allow_none=False)
     subject = Reference(subject_id, Item.id)
     
     def __init__ (self, uri, subject_uri):
-        """Create a new annotation and add it to the store. The 'subject_uri'
+        """Create a new ReferencingProxyItem. The 'subject_uri'
            argument may be a 'str', 'unicode', or 'URI'"""
-        super(Annotation,self).__init__(uri)
+        super(ReferencingProxyItem,self).__init__(uri)
         
         # Resolve the subject_id from a uri string or URI object
         if isinstance(subject_uri, str) or isinstance(subject_uri, unicode):
@@ -130,36 +128,53 @@ class Annotation(ProxyItem):
             finally:
                 store.unblock_implicit_flushes()
             if not uri:
+                store.rollback()
                 raise ValueError("Creating annotation for "
                                  "non-registered uri %s" % subject_uri)
             self.subject_id = uri.id
         elif isinstance(subject_uri, URI):            
             if not self.subject_id:
+                store.rollback()
                 raise ValueError("Creating annotation for unresolved URI")
             self.subject_id = uri.id
             return # No need to resolve the URI        
         else:
+            store.rollback()
             raise ValueError("The 'subject_uri' argument must be a 'str', "
                              "'unicode', or 'URI'. Found %s" % type(subject_uri))
-        
-        # Add the new annotation to the store
-        store.add(self)
+
+class Annotation(ReferencingProxyItem):
+    # We use a compound primary key because the same annotation can point to
+    # several subjects, so that only the (id,subject_id) pair is unique
+    __storm_table__= "annotation"
+    __storm_primary__ = "item_id", "subject_id"       
+    
+    def __init__ (self, uri, subject_uri):
+        """Create a new annotation and add it to the store. The 'subject_uri'
+           argument may be a 'str', 'unicode', or 'URI' and points at the
+           object being the subject of the annotations"""
+        super(Annotation,self).__init__(uri, subject_uri)
                 
-        
-        
+        # Add the new annotation to the store
+        store.add(self)      
    
-class Event(ProxyItem):
+class Event(ReferencingProxyItem):
     __storm_table__= "event"
     __storm_primary__ = "item_id"
-    subject_id = Int()
-    subject = Reference(subject_id, Item.id)
+    
     start = Int(allow_none=False)
     end = Int(allow_none=False)
     app_id = Int(allow_none=False)
     app = Reference(app_id, Item.id)
     
-    def __init__ (self, uri):
-        super(Event,self).__init__(uri)
+    def __init__ (self, uri, subject_uri):
+        """Create a new Event and add it to the store. The 'subject_uri'
+           argument may be a 'str', 'unicode', or 'URI' and points to the
+           subject which have been effected by the event"""
+        super(Event,self).__init__(uri, subject_uri)
+        
+        # Add the new event to the store
+        store.add(self)
     
 print "DB setup"
 
@@ -183,7 +198,7 @@ except:
 
 try:
     store.execute("CREATE TABLE item" 
-              "(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, caption VARCHAR, mimetype VARCHAR, payload BLOB)")
+              "(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, text VARCHAR, mimetype VARCHAR, payload BLOB)")
 except:
     pass
 
