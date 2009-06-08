@@ -144,7 +144,6 @@ class ZeitgeistEngine(gobject.GObject):
 			if not source:
 				source = Source(type)
 				store.add(source)
-				store.commit()
 			
 			'''
 			Init URI
@@ -153,7 +152,6 @@ class ZeitgeistEngine(gobject.GObject):
 			if not uri:
 				uri = URI(ritem["uri"])
 				store.add(uri)
-				store.commit()
 				
 			'''
 			Init Content
@@ -162,15 +160,17 @@ class ZeitgeistEngine(gobject.GObject):
 			if not content:
 				content = Content(ritem["type"])
 				store.add(content)
-				store.commit()
-				
+			
+			'''
+			Init Item
+			'''		
 			item = store.find(Item, Item.id == uri.id).one()
 			if not item:
 				item = Item(uri)
 				item.content = content.id
 				item.source = source.id
+				item.text = ritem["name"]
 				store.add(item)
-				store.commit()
 				
 			'''
 			# Insert into timetable
@@ -232,6 +232,7 @@ class ZeitgeistEngine(gobject.GObject):
 				amount_items += 1
 		
 		#self.connection.commit()
+		store.commit()
 		print "DONE"
 		return amount_items
 	
