@@ -114,6 +114,7 @@ class Item(object):
     def clone_item (self, item):
         """Read all properties of 'item' into 'self'"""
         self.id = item.id
+        self.uri = item.uri
         self.content_id = item.content_id
         self.source_id = item.source_id
         self.icon = item.icon

@@ -141,7 +141,7 @@ class ZeitgeistEngine(gobject.GObject):
 			item = Item(ritem["uri"])		
 			item.content = Content(ritem["type"])
 			item.source = Source(u"file")
-			item.text = ritem["name"]
+			item.text = unicode(ritem["name"])
 			
 			if commit:
 				store.commit()
