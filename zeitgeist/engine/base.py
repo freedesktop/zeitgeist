@@ -152,7 +152,7 @@ class ProxyItem(object):
 class App(ProxyItem):
     __storm_table__= "app"
     __storm_primary__ = "item_id"
-    value = Unicode()
+    info = Unicode()
     
     def __init__ (self, uri):
         super(App,self).__init__(uri)
@@ -212,7 +212,7 @@ class Annotation(ReferencingProxyItem):
    
 class Event(ReferencingProxyItem):
     __storm_table__= "event"
-    __storm_primary__ = "item_id", "subject_id","start"
+    __storm_primary__ = "item_id"
     
     start = Int(allow_none=False)
     end = Int(allow_none=False)
@@ -275,8 +275,8 @@ except Exception, ex:
 
 try:
     store.execute("CREATE TABLE IF NOT EXISTS event" 
-              "(item_id INTEGER KEY, subject_id INTEGER, start INTEGER, end INTEGER, app_id INTEGER)")
-    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS event_link ON event(subject_id,item_id,start)")
+              "(item_id INTEGER PRIMARY KEY, subject_id INTEGER, start INTEGER, end INTEGER, app_id INTEGER)")
+    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS event_link ON event(subject_id,item_id)")
 except Exception, ex:
     print ex
 
