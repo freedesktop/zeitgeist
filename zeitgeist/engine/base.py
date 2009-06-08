@@ -1,7 +1,7 @@
 '''
 Created on Jun 6, 2009
 
-@author: seif
+@author: seif, kamstrup
 '''
 
 from storm.locals import *
@@ -9,43 +9,56 @@ from storm.locals import *
 _database = create_database("sqlite:stormtest.sqlite")
 store = Store(_database)
 
-class Content(object):
+class Entity(object):
+    """Generic base class for anything that has an 'id' and a 'value'"""
+    id = Int()
+    value = Unicode()
+    
+    def __init__ (self, value=None, id=None):
+        """Look up an Entity in the store, and create a new one if it was not
+           found an the keyword argument 'value' is not None. Any created entity
+           will be added to the store (but the store still need flushing)"""
+        if value:
+            value = unicode(value) # A no-op if value is already a unicode
+            ent = store.find(self.__class__, self.__class__.value == value).one()
+            if ent:
+                self.id = ent.id
+                self.value = value
+            else:
+                # This is a new entity, we don't have an id yet,
+                # store.flush() will set the id for us
+                self.value = value
+                store.add(self)
+        elif id:
+            ent = store.find(self.__class__, self.__class__.id == id).one()
+            if ent:
+                self.id = id
+                self.value = ent.value
+            else:
+                # Requested a URI, by id, but none was found
+                store.rollback()
+                raise ValueError("No URI registered for id %s" % id)
+
+class Content(Entity):
     __storm_table__= "content"
-    id = Int(primary=True)
-    value = Unicode()
+    __storm_primary__= "id"
     
     def __init__ (self, value):                
-        super(Content, self).__init__()
-        if not isinstance(value, unicode):
-            self.value = unicode(value)
-        else:
-            self.value = value
+        super(Content, self).__init__(value=value)        
     
-class Source(object):
+class Source(Entity):
     __storm_table__= "source"
-    id = Int(primary=True)
-    value = Unicode()
-    
+    __storm_primary__= "id"
+
     def __init__ (self, value):                
-        super(Source, self).__init__()
-        if not isinstance(value, unicode):
-            self.value = unicode(value)
-        else:
-            self.value = value
+        super(Source, self).__init__(value=value)       
     
-class URI(object):
+class URI(Entity):
     __storm_table__= "uri"
-    id = Int(primary=True)
-    value = Unicode()
+    __storm_primary__= "id"
     
     def __init__ (self, uri_string):                
-        super(URI, self).__init__()
-        if not isinstance(uri_string, unicode):
-            self.value = unicode(uri_string)
-        else:
-            self.value = uri_string
-    
-    
+        super(URI, self).__init__(value=uri_string)    
 
 class Item(object):
     __storm_table__= "item"
@@ -66,27 +79,49 @@ class Item(object):
     payload = RawStr() # Storm lingo for BLOB/BYTEA
 
     def __init__ (self, uri):
-        """Create a new Item and add it to the store. The 'uri' argument
+        """Lookup and item based on its URI or create a new Item and add it to
+           the store if no item can be found for the URI. The 'uri' argument
            may be a 'str', 'unicode' or 'URI' instance"""
         super(Item, self).__init__()
-        if isinstance(uri, str):
-            self.uri = URI(unicode(uri))
-        elif isinstance(uri, unicode):
-            self.uri = URI(uri)
+        if isinstance(uri, str) or isinstance(uri,unicode):
+            uri = unicode(uri) # A no-op if value is already a unicode
+            this = store.find(Item, Item.id == URI.id, URI.value == uri).one()
+            if this:
+                self.clone_item(this)
+            else:
+                # This is a new item, we don't have an id yet,
+                # store.flush() will set the id for us
+                self.uri = URI(uri)
+                store.add(self.uri)
+                store.flush() # We need to flush the uri to get an id assigned
+                self.id = self.uri.id
+                assert self.id is not None
+                store.add(self) # All good, add us to the store
         elif isinstance(uri, URI):
-            self.uri = uri
-        else:
-            raise ValueError("'uri' argument must be a 'str', "
-                             "'unicode', or 'URI'. Found %s" % type(uri))
+            if uri.id is None:
+                store.rollback()
+                raise ValueError("Creating item on non-registered URI")            
+            this = store.find(Item, Item.id == uri.id).one()
+            if this:
+                # The item was already known
+                self.clone_item(this)
+            else:
+                # Create a new item on the given URI
+                self.uri = uri
+                self.id = uri.id
+                store.add(self)
+    
+    def clone_item (self, item):
+        """Read all properties of 'item' into 'self'"""
+        self.id = item.id
+        self.content_id = item.content_id
+        self.source_id = item.source_id
+        self.icon = item.icon
+        self.text = item.text
+        self.mimetype = item.mimetype
+        self.payload = item.payload
+            
         
-        # Prepare the URI of the item, we need the id
-        store.add(self.uri)
-        store.flush() # resolves the URI id
-        self.id = self.uri.id
-        assert self.id is not None
-        
-        # Add us to the store
-        store.add(self)
 #
 # Storm does not handle multi-table classes. The following design pattern is
 # a simplifaction of Infoheritance described here:
@@ -195,50 +230,52 @@ class Event(ReferencingProxyItem):
 print "DB setup"
 
 try:
-    store.execute("CREATE TABLE content" 
+    store.execute("CREATE TABLE IF NOT EXISTS content" 
               "(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
+    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS content_value ON content(value)")
 except Exception, ex:
     print ex
 
 try:
-    store.execute("CREATE TABLE source" 
+    store.execute("CREATE TABLE IF NOT EXISTS source" 
               "(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
-
+    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS source_value ON source(value)")
 except Exception, ex:
     print ex
 
 try:
-    store.execute("CREATE TABLE uri" 
+    store.execute("CREATE TABLE IF NOT EXISTS uri" 
               "(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
-
+    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS uri_value ON uri(value)")
 except Exception, ex:
     print ex
 
 try:
-    store.execute("CREATE TABLE item" 
-              "(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, text VARCHAR, mimetype VARCHAR,  icon VARCHAR, payload BLOB)")
-
+    store.execute("CREATE TABLE IF NOT EXISTS item" 
+              "(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, text VARCHAR, mimetype VARCHAR, icon VARCHAR, payload BLOB)")
+    # FIXME: Consider which indexes we need on the item table
 except Exception, ex:
     print ex
 
 try:
-    store.execute("CREATE TABLE app" 
+    store.execute("CREATE TABLE IF NOT EXISTS app" 
               "(item_id INTEGER PRIMARY KEY, value VARCHAR)")
-
+    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS app_value ON app(value)")
 except Exception, ex:
     print ex
 
 try:
-    store.execute("CREATE TABLE annotation" 
-              "(item_id INTEGER PRIMARY KEY, subject_id INTEGER)")
-
+    store.execute("CREATE TABLE IF NOT EXISTS annotation" 
+              "(item_id INTEGER, subject_id INTEGER)")
+    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS "
+                  "annotation_link ON annotation(item_id,subject_id)")
 except Exception, ex:
     print ex
 
 try:
-    store.execute("CREATE TABLE event" 
+    store.execute("CREATE TABLE IF NOT EXISTS event" 
               "(item_id INTEGER PRIMARY KEY, subject_id INTEGER, start INTEGER, end INTEGER, app_id INTEGER)")
-
+    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS event_link ON event(subject_id,item_id)")
 except Exception, ex:
     print ex
 
