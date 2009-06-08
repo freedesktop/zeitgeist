@@ -205,7 +205,7 @@ class ZeitgeistEngine(gobject.GObject):
 			except sqlite3.IntegrityError:
 				pass
 			
-			try:
+			try: 
 				# Add tags into the database
 				for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
 					self.cursor.execute('INSERT INTO tags VALUES (?,?)',
