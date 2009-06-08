@@ -164,6 +164,14 @@ class ZeitgeistEngine(gobject.GObject):
 				store.add(content)
 				store.commit()
 				
+			item = store.find(Item, Item.id == uri.id).one()
+			if not item:
+				item = Item(uri)
+				item.content = content.id
+				item.source = source.id
+				store.add(item)
+				store.commit()
+				
 			'''
 			# Insert into timetable
 			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?)',
@@ -224,6 +232,7 @@ class ZeitgeistEngine(gobject.GObject):
 				amount_items += 1
 		
 		#self.connection.commit()
+		print "DONE"
 		return amount_items
 	
 	def get_item(self, uri):

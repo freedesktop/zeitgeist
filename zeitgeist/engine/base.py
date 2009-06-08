@@ -216,7 +216,7 @@ except Exception, ex:
 
 try:
     store.execute("CREATE TABLE item" 
-              "(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, text VARCHAR, mimetype VARCHAR, payload BLOB)")
+              "(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, text VARCHAR, mimetype VARCHAR,  icon VARCHAR, payload BLOB)")
 
 except Exception, ex:
     print ex
