@@ -1,0 +1,6 @@
+#! /usr/bin/python
+
+from zeitgeist.engine.base import *
+
+for u in store.find(URI) : print u.value, u.id
+
