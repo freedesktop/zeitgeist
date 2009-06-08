@@ -177,7 +177,7 @@ class ZeitgeistEngine(gobject.GObject):
 			Init Event
 			'''
 			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(uri.id)+"/"+str(ritem["timestamp"])
-			e = Event(e_uri, item.id)
+			e = Event(e_uri, item.uri.value)
 				
 			'''
 			# Insert into timetable
