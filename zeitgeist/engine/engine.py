@@ -126,7 +126,7 @@ class ZeitgeistEngine(gobject.GObject):
 		else:
 			return result[0]
 	
-	def insert_item(self, ritem):
+	def insert_item(self, ritem, commit=True):
 		"""
 		Inserts an item into the database. Returns True on success,
 		False otherwise (for example, if the item already is in the
@@ -134,44 +134,17 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		
 		
-		try:
-		
-			'''
-			Init Source
-			'''
-			type = u"file"
-			source = store.find(Source, Source.value == type).one()
-			if not source:
-				source = Source(type)
-				store.add(source)
-			
-			'''
-			Init URI
-			'''		
-			uri = store.find(URI, URI.value == unicode(ritem["uri"])).one()
-			if not uri:
-				uri = URI(ritem["uri"])
-				store.add(uri)
-				
-			'''
-			Init Content
-			'''		
-			content = store.find(Content, Content.value == unicode(ritem["type"])).one()
-			if not content:
-				content = Content(ritem["type"])
-				store.add(content)
-			
+		try:		
 			'''
 			Init Item
 			'''		
-			item = store.find(Item, Item.id == uri.id).one()
-			if not item:
-				item = Item(uri)
-				item.content = content.id
-				item.source = source.id
-				item.text = ritem["name"]
-				store.add(item)
-				
+			item = Item(ritem["uri"])		
+			item.content = Content(ritem["type"])
+			item.source = Source(u"file")
+			item.text = ritem["name"]
+			
+			if commit:
+				store.commit()
 			'''
 			# Insert into timetable
 			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?)',
@@ -228,7 +201,8 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		amount_items = 0
 		for item in items:
-			if self.insert_item(item):
+			# Insert without committing. We commit it as one transaction later
+			if self.insert_item(item, commit=False):
 				amount_items += 1
 		
 		#self.connection.commit()
