@@ -173,12 +173,21 @@ class ZeitgeistEngine(gobject.GObject):
 				item.icon = ritem["icon"]
 				store.add(item)
 				
+			
+				
 			'''
 			Init Event
 			'''
-			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(uri.id)+"/"+str(ritem["timestamp"])
-			e = Event(e_uri, item.uri.value)
-				
+			try:
+				e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(uri.id)+"/"+str(ritem["timestamp"])
+				event = Event(e_uri, item.uri.value)
+				event.start = ritem["timestamp"]
+				event.app = app
+				#event.item.source = Content(u"http://gnome.org/zeitgeist/schema/Event#activity")
+				#event.item.content = Content(ritem["use"])
+				store.add(event)
+			except:
+				pass
 			'''
 			# Insert into timetable
 			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?)',

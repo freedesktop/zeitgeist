@@ -128,6 +128,7 @@ class Item(object):
 # a simplifaction of Infoheritance described here:
 # https://storm.canonical.com/Infoheritance
 #
+
 class ProxyItem(object):
     
     # Don't declare primary key here, because Annotation needs a compound key
