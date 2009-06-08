@@ -4,10 +4,8 @@ Created on Jun 6, 2009
 @author: seif, kamstrup
 '''
 
+import os
 from storm.locals import *
-
-_database = create_database("sqlite:stormtest.sqlite")
-store = Store(_database)
 
 class Entity(object):
     """Generic base class for anything that has an 'id' and a 'value'"""
@@ -20,7 +18,16 @@ class Entity(object):
            will be added to the store (but the store still need flushing)"""
         if value:
             value = unicode(value) # A no-op if value is already a unicode
-            ent = store.find(self.__class__, self.__class__.value == value).one()
+            self.value = value
+            ent = None
+            try:
+                # The store.find() triggers an implicit flush() and the
+                # entity we are creating is in an illegal state atm
+                store.block_implicit_flushes()
+                ent = store.find(self.__class__, self.__class__.value == value).one()
+            finally:
+                store.unblock_implicit_flushes()
+            
             if ent:
                 self.id = ent.id
                 self.value = value
@@ -137,8 +144,7 @@ class ProxyItem(object):
     
     def __init__ (self, uri):
         super(ProxyItem, self).__init__()
-        if not isinstance(uri, unicode):
-            uri = unicode(uri)
+        uri = unicode(uri)
         
         # Prepare the URI of the annotation, we need the id
         uri = URI(uri)
@@ -182,14 +188,13 @@ class ReferencingProxyItem(ProxyItem):
                 store.unblock_implicit_flushes()
             if not uri:
                 store.rollback()
-                raise ValueError("Creating annotation for "
-                                 "non-registered uri %s" % subject_uri)
+                raise ValueError("Creating reference to "
+                                 "non-registered URI %s" % subject_uri)
             self.subject_id = uri.id
         elif isinstance(subject_uri, URI):            
             if not self.subject_id:
-                store.rollback()
-                raise ValueError("Creating annotation for unresolved URI")
-            self.subject_id = uri.id
+                store.flush() # This should set the id                
+            self.subject_id = subject_uri.id
             return # No need to resolve the URI        
         else:
             store.rollback()
@@ -227,61 +232,78 @@ class Event(ReferencingProxyItem):
         super(Event,self).__init__(uri, subject_uri)
         
         # Add the new event to the store
-        store.add(self)
-    
-print "DB setup"
+        store.add(self)    
 
-try:
-    store.execute("CREATE TABLE IF NOT EXISTS content" 
-              "(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
-    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS content_value ON content(value)")
-except Exception, ex:
-    print ex
+def create_store(storm_url):
+	print "DB setup, %s" % storm_url
+	db = create_database(storm_url)
+	store = Store(db)
+	try:
+		store.execute("CREATE TABLE IF NOT EXISTS content" 
+				"(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
+		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS content_value ON content(value)")
+	except Exception, ex:
+		print ex
+	
+	try:
+		store.execute("CREATE TABLE IF NOT EXISTS source" 
+				"(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
+		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS source_value ON source(value)")
+	except Exception, ex:
+		print ex
 
-try:
-    store.execute("CREATE TABLE IF NOT EXISTS source" 
-              "(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
-    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS source_value ON source(value)")
-except Exception, ex:
-    print ex
+	try:
+		store.execute("CREATE TABLE IF NOT EXISTS uri" 
+				"(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
+		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS uri_value ON uri(value)")
+	except Exception, ex:
+		print ex
+	
+	try:
+		store.execute("CREATE TABLE IF NOT EXISTS item" 
+				"(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, text VARCHAR, mimetype VARCHAR, icon VARCHAR, payload BLOB)")
+		# FIXME: Consider which indexes we need on the item table
+	except Exception, ex:
+		print ex
+	
+	try:
+		store.execute("CREATE TABLE IF NOT EXISTS app" 
+				"(item_id INTEGER PRIMARY KEY, value VARCHAR)")
+		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS app_value ON app(value)")
+	except Exception, ex:
+		print ex
+	
+	try:
+		store.execute("CREATE TABLE IF NOT EXISTS annotation" 
+				"(item_id INTEGER, subject_id INTEGER)")
+		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS "
+					"annotation_link ON annotation(item_id,subject_id)")
+	except Exception, ex:
+		print ex
+	
+	try:
+		store.execute("CREATE TABLE IF NOT EXISTS event" 
+				"(item_id INTEGER PRIMARY KEY, subject_id INTEGER, start INTEGER, end INTEGER, app_id INTEGER)")
+		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS event_link ON event(subject_id,item_id)")
+	except Exception, ex:
+		print ex
 
-try:
-    store.execute("CREATE TABLE IF NOT EXISTS uri" 
-              "(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
-    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS uri_value ON uri(value)")
-except Exception, ex:
-    print ex
+	store.commit()
+	return store
 
-try:
-    store.execute("CREATE TABLE IF NOT EXISTS item" 
-              "(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, text VARCHAR, mimetype VARCHAR, icon VARCHAR, payload BLOB)")
-    # FIXME: Consider which indexes we need on the item table
-except Exception, ex:
-    print ex
+store = create_store("sqlite:stormtest.sqlite")
 
-try:
-    store.execute("CREATE TABLE IF NOT EXISTS app" 
-              "(item_id INTEGER PRIMARY KEY, value VARCHAR)")
-    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS app_value ON app(value)")
-except Exception, ex:
-    print ex
-
-try:
-    store.execute("CREATE TABLE IF NOT EXISTS annotation" 
-              "(item_id INTEGER, subject_id INTEGER)")
-    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS "
-                  "annotation_link ON annotation(item_id,subject_id)")
-except Exception, ex:
-    print ex
-
-try:
-    store.execute("CREATE TABLE IF NOT EXISTS event" 
-              "(item_id INTEGER PRIMARY KEY, subject_id INTEGER, start INTEGER, end INTEGER, app_id INTEGER)")
-    store.execute("CREATE UNIQUE INDEX IF NOT EXISTS event_link ON event(subject_id,item_id)")
-except Exception, ex:
-    print ex
-
-store.commit()
-
-print "Data fiddling"
-
+def reset_store(storm_url):
+	"""Mainly used for debugging and unit tests - closes, and removes the global
+	   store. Then sets the global store to point at storm_url"""
+	global store
+	print "Resetting store", store, "to ", storm_url
+	if isinstance(store, Store):
+		store.close()
+	
+	db_file = storm_url.split(":")[1]
+	if os.path.exists(db_file):
+		os.remove(db_file)
+	
+	store = create_store(storm_url)
+	return store
