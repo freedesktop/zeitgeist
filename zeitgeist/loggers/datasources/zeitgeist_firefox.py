@@ -133,23 +133,29 @@ class FirefoxSource(DataProvider):
         else:
             for j, i in enumerate(history):
                 # TODO: Fetch full rows above so that we don't need to do another query here
-                contents = "id, url, title, visit_count, rev_host"
+                contents = "id, url, title, visit_count, rev_host, favicon_id"
                 item = self.cursor.execute("SELECT " + contents + " FROM moz_places WHERE title!='' and id=" + str(i[1])).fetchone()
                 if item:
+                    if item[5]:
+                        icon = self.cursor.execute("SELECT url FROM moz_favicons WHERE id=" + str(item[5])).fetchone()
+                        icon = unicode(icon[0])
+                    else:
+                        icon = u"gnome-globe"
+                    
                     self.last_timestamp = history[j][2]
-                    use = "linked"
+                    use = "http://gnome.org/zeitgeist/schema/Event#link"
                     if history[j][3] in (2, 3, 5):
-                        use = "visited"
+                        use = "http://gnome.org/zeitgeist/schema/Event#visit"
                     item = {
                         "timestamp": int(self.last_timestamp / (1000000)),
                         "uri": unicode(item[1]),
-                        "name": unicode(item[2]),
-                        "comment": unicode(item[4][::-1] if item[4] else u""),
-                        "type": u"Firefox History",
+                        "text": unicode(item[2]),
+                        "source": unicode(item[4][::-1][1:] if item[4] else u""),
+                        "content": u"Web",
                         "use": unicode(use),
-                        "mimetype": u"", # TODO: Can we get a mime-type here?
+                        "mimetype": u"text/html", # TODO: Can we get a mime-type here?
                         "tags": u"",
-                        "icon": u"gnome-globe",
+                        "icon": icon,
                         "app": u"/usr/share/applications/firefox.desktop",
                         }
                     yield item
