@@ -11,6 +11,7 @@ from xdg import BaseDirectory
 
 from zeitgeist import config
 from zeitgeist.shared.zeitgeist_shared import *
+from zeitgeist.engine.base import *
 
 class ZeitgeistEngine(gobject.GObject):
 	
@@ -18,11 +19,12 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		gobject.GObject.__init__(self)
 		self.reload_callback = None
-		
+		'''
 		path = BaseDirectory.save_config_path("zeitgeist")
 		database = os.path.join(path, "zeitgeist.sqlite")
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
+		'''
 		self._apps = set()
 	
 	def _result2data(self, result, timestamp=0, start=0, end=sys.maxint, app="", usage=""):
@@ -124,14 +126,45 @@ class ZeitgeistEngine(gobject.GObject):
 		else:
 			return result[0]
 	
-	def insert_item(self, item):
+	def insert_item(self, ritem):
 		"""
 		Inserts an item into the database. Returns True on success,
 		False otherwise (for example, if the item already is in the
 		database).
 		"""
 		
+		
 		try:
+		
+			'''
+			Init Source
+			'''
+			type = u"file"
+			source = store.find(Source, Source.value == type).one()
+			if not source:
+				source = Source(type)
+				store.add(source)
+				store.commit()
+			
+			'''
+			Init URI
+			'''		
+			uri = store.find(URI, URI.value == unicode(ritem["uri"])).one()
+			if not uri:
+				uri = URI(ritem["uri"])
+				store.add(uri)
+				store.commit()
+				
+			'''
+			Init Content
+			'''		
+			content = store.find(Content, Content.value == unicode(ritem["type"])).one()
+			if not content:
+				content = Content(ritem["type"])
+				store.add(content)
+				store.commit()
+				
+			'''
 			# Insert into timetable
 			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?)',
 				(item["timestamp"],
@@ -141,6 +174,8 @@ class ZeitgeistEngine(gobject.GObject):
 				"%d-%s" % (item["timestamp"], item["uri"]),
 				item["app"]
 				))
+			# Insert into timetable
+			
 			
 			# Insert into data, if it isn't there yet
 			try:
@@ -171,7 +206,7 @@ class ZeitgeistEngine(gobject.GObject):
 						(item["app"],0))
 				except Exception, ex:
 					print "Error inserting application: %s" % ex
-		
+		'''
 		except sqlite3.IntegrityError, ex:
 			return False
 		
@@ -188,7 +223,7 @@ class ZeitgeistEngine(gobject.GObject):
 			if self.insert_item(item):
 				amount_items += 1
 		
-		self.connection.commit()
+		#self.connection.commit()
 		return amount_items
 	
 	def get_item(self, uri):

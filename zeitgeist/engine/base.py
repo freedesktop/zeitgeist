@@ -14,10 +14,24 @@ class Content(object):
     id = Int(primary=True)
     value = Unicode()
     
+    def __init__ (self, value):                
+        super(Content, self).__init__()
+        if not isinstance(value, unicode):
+            self.value = unicode(value)
+        else:
+            self.value = value
+    
 class Source(object):
     __storm_table__= "source"
     id = Int(primary=True)
     value = Unicode()
+    
+    def __init__ (self, value):                
+        super(Source, self).__init__()
+        if not isinstance(value, unicode):
+            self.value = unicode(value)
+        else:
+            self.value = value
     
 class URI(object):
     __storm_table__= "uri"
@@ -44,6 +58,8 @@ class Item(object):
     
     source_id = Int()
     source = Reference(source_id, Source.id)
+    
+    icon = Unicode()
     
     text = Unicode()
     mimetype = Unicode()
@@ -180,45 +196,51 @@ print "DB setup"
 
 try:
     store.execute("CREATE TABLE content" 
-              "(id INTEGER PRIMARY KEY, value VARCHAR)")
-except:
-    pass
+              "(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
+except Exception, ex:
+    print ex
 
 try:
     store.execute("CREATE TABLE source" 
-              "(id INTEGER PRIMARY KEY, value VARCHAR)")
-except:
-    pass
+              "(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
+
+except Exception, ex:
+    print ex
 
 try:
     store.execute("CREATE TABLE uri" 
-              "(id INTEGER PRIMARY KEY, value VARCHAR)")
-except:
-    pass
+              "(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
+
+except Exception, ex:
+    print ex
 
 try:
     store.execute("CREATE TABLE item" 
               "(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, text VARCHAR, mimetype VARCHAR, payload BLOB)")
-except:
-    pass
+
+except Exception, ex:
+    print ex
 
 try:
     store.execute("CREATE TABLE app" 
               "(item_id INTEGER PRIMARY KEY, value VARCHAR)")
-except:
-    pass
+
+except Exception, ex:
+    print ex
 
 try:
     store.execute("CREATE TABLE annotation" 
               "(item_id INTEGER PRIMARY KEY, subject_id INTEGER)")
-except:
-    pass
+
+except Exception, ex:
+    print ex
 
 try:
     store.execute("CREATE TABLE event" 
-              "(item_id INTEGER PRIMARY KEY, subject_id INTEGER, start INTEGER, end INTEGER, app_id INTEGER")
-except:
-    pass
+              "(item_id INTEGER PRIMARY KEY, subject_id INTEGER, start INTEGER, end INTEGER, app_id INTEGER)")
+
+except Exception, ex:
+    print ex
 
 store.commit()
 
