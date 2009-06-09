@@ -162,7 +162,7 @@ class ZeitgeistEngine(gobject.GObject):
 			
 			'''
 			Init Item
-			'''		
+			'''
 			item = store.find(Item, Item.id == uri.id).one()
 			if not item:
 				item = Item(uri)
@@ -178,16 +178,30 @@ class ZeitgeistEngine(gobject.GObject):
 			'''
 			Init Event
 			'''
-			try:
-				e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(uri.id)+"/"+str(ritem["timestamp"])
+			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(uri.id)+"/"+str(ritem["timestamp"])
+			event = store.find(URI, URI.value == e_uri).one()
+			if not event:
 				event = Event(e_uri, item.uri.value)
 				event.start = ritem["timestamp"]
-				event.app = app
-				#event.item.source = Content(u"http://gnome.org/zeitgeist/schema/Event#activity")
-				#event.item.content = Content(ritem["use"])
+				event.item.text = u"Activity"
+				
+				'''
+				Init Event.content
+				'''
+				source = store.find(Source, Source.value == u"http://gnome.org/zeitgeist/schema/Event#activity").one()
+				if not source:
+					source = Source(u"http://gnome.org/zeitgeist/schema/Event#activity")
+				event.item.source = source
+				'''
+				Init Event.content
+				'''
+				content = store.find(Content, Content.value == ritem["use"]).one()
+				if not content:
+					content = Content(ritem["use"])
+				event.item.content = content
+				
 				store.add(event)
-			except:
-				pass
+			
 			'''
 			# Insert into timetable
 			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?)',
