@@ -7,6 +7,16 @@ Created on Jun 6, 2009
 import os
 from storm.locals import *
 
+class Symbol:
+	"""A simple structure to hold a URI and a short label.
+	   Used in Source and Content for pre defined types"""
+	def __init__ (self, identifier_uri):
+		self.symbol = identifier_uri
+		self.name = identifier_uri.split("#")[1]
+	
+	def __str__ (self):
+		return self.symbol
+
 class Entity(object):
 	"""Generic base class for anything that has an 'id' and a 'value'.
 		It is assumed that there is a unique index on the value column"""
@@ -53,13 +63,37 @@ class Content(Entity):
 	__storm_table__= "content"
 	__storm_primary__= "id"
 	
+	#
+	# When we add more Content types here, we should strive to take them from
+	# http://xesam.org/main/XesamOntology100 when possible
+	#	
+	TAG = Symbol("http://freedesktop.org/standards/xesam/1.0/core#Tag")
+	BOOKMARK = Symbol("http://freedesktop.org/standards/xesam/1.0/core#Bookmark")
+	COMMENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#Comment")
+	DOCUMENT = Symbol("http://freedesktop.org/standards/xesam/1.0/core#Document")
+	CREATE_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#CreateEvent")
+	MODIFY_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#ModifyEvent")
+	VISIT_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#VisitEvent")
+	LINK_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#LinkEvent")
+	RECEIVE_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#ReceiveEvent")
+	WARN_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#WarnEvent")
+	ERROR_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#ErrorEvent")
+
 	def __init__ (self, value):				
 		super(Content, self).__init__(value)		
 	
 class Source(Entity):
 	__storm_table__= "source"
 	__storm_primary__= "id"
-
+	
+	#
+	# When we add more Content types here, we should strive to take them from
+	# http://xesam.org/main/XesamOntology100 when possible
+	#		
+	WEB_HISTORY = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#WebHistory")
+	USER_ACTIVITY = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#UserActivity")
+	USER_NOTIFICATION = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#UserNotification")	
+	
 	def __init__ (self, value):				
 		super(Source, self).__init__(value)	   
 	
@@ -180,19 +214,28 @@ class ReferencingProxyItem(ProxyItem):
 	subject_id = Int()
 	subject = Reference(subject_id, Item.id)
 	
-	def __init__ (self, uri, subject_uri=None):
-		"""Create a new ReferencingProxyItem. The 'subject_uri'
-		   argument may be a 'str', 'unicode', or 'URI'"""
+	def __init__ (self, uri, subject=None):
+		"""Create a new ReferencingProxyItem. The 'subject' argument
+		   may be a 'str', 'unicode', 'URI', 'Item', or 'ProxyItem'"""
 		super(ReferencingProxyItem,self).__init__(uri)
 		
 		# Resolve the subject_id from a uri string or URI object
-		if isinstance(subject_uri, str) or isinstance(subject_uri, unicode):
-			uri = URI.lookup_or_create(subject_uri)
+		if isinstance(subject, str) or isinstance(subject, unicode):
+			uri = URI.lookup_or_create(subject)
 			uri.resolve()
 			self.subject_id = uri.id
-		elif isinstance(subject_uri, URI):
-			subject_uri.resolve()				
-			self.subject_id = subject_uri.id		
+		elif isinstance(subject, URI):
+			subject.resolve()				
+			self.subject_id = subject.id
+		elif isinstance(subject, Item):
+			self.subject_id = subject.uri.id
+		elif isinstance(subject, ProxyItem):
+			self.subject_id = subject.item.uri.id
+		elif subject is None:
+			pass
+		else:
+			raise TypeError("Expected 'str', 'unicode', 'URI', 'Item', "
+							"or 'ProxyItem', got %s" % type(subject))
 	
 class Annotation(ReferencingProxyItem):
 	# We use a compound primary key because the same annotation can point to
@@ -200,11 +243,11 @@ class Annotation(ReferencingProxyItem):
 	__storm_table__= "annotation"
 	__storm_primary__ = "item_id", "subject_id"	   
 	
-	def __init__ (self, uri, subject_uri=None):
-		"""Create a new annotation and add it to the store. The 'subject_uri'
-		   argument may be a 'str', 'unicode', or 'URI' and points at the
-		   object being the subject of the annotations"""
-		super(Annotation,self).__init__(uri, subject_uri)
+	def __init__ (self, uri, subject=None):
+		"""Create a new annotation and add it to the store. The 'subject'
+		   argument may be a 'str', 'unicode', 'URI', 'Item', or 'ProxyItem'
+		   and points at the object being the subject of the annotations"""
+		super(Annotation,self).__init__(uri, subject)
 		store.add(self)
 
 class Event(ReferencingProxyItem):
@@ -216,11 +259,11 @@ class Event(ReferencingProxyItem):
 	app_id = Int()
 	app = Reference(app_id, App.item_id)
 	
-	def __init__ (self, uri, subject_uri=None):
-		"""Create a new Event and add it to the store. The 'subject_uri'
-		   argument may be a 'str', 'unicode', or 'URI' and points to the
-		   subject which have been effected by the event"""
-		super(Event,self).__init__(uri, subject_uri)
+	def __init__ (self, uri, subject=None):
+		"""Create a new annotation and add it to the store. The 'subject'
+		   argument may be a 'str', 'unicode', 'URI', 'Item', or 'ProxyItem'
+		   and points at the object being the subject of the annotations"""
+		super(Event,self).__init__(uri, subject)
 		store.add(self)	
 
 def create_store(storm_url):
@@ -266,7 +309,7 @@ def create_store(storm_url):
 		store.execute("CREATE TABLE IF NOT EXISTS annotation" 
 				"(item_id INTEGER, subject_id INTEGER)")
 		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS "
-					"annotation_link ON annotation(item_id,subject_id,start)")
+					"annotation_link ON annotation(item_id,subject_id)")
 	except Exception, ex:
 		print ex
 	

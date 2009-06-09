@@ -9,6 +9,20 @@ from zeitgeist.engine.base import *
 from storm.locals import *
 import unittest
 
+class SourceTest (unittest.TestCase):
+	"""
+	This class tests that the zeitgeist.engine.base.Source class
+	"""
+	def setUp (self):
+		self.store = reset_store("sqlite:unittest.sqlite")		
+		
+	def tearDown (self):
+		pass
+	
+	def testSingleSource(self):
+		s = Source.lookup_or_create(Source.WEB_HISTORY)
+		self.assertEquals(Source.WEB_HISTORY.symbol, s.value)
+
 class URITest (unittest.TestCase):
 	"""
 	This class tests that the zeitgeist.engine.base.URI class
@@ -240,8 +254,8 @@ class AnnotationTest (unittest.TestCase):
 		a1 = Annotation("an1", i.uri) # Create by direct ref
 		a2 = Annotation("an2", i.uri.value) # Create by indirect lookup via uri
 
-		self.assertTrue(a1.subject is i)
-		self.assertTrue(a2.subject is i)
+		self.assertEquals(i.uri.value, a1.subject.uri.value)
+		self.assertEquals(i.uri.value, a2.subject.uri.value)
 	
 	def testLookupNoFlush (self):
 		i = Item("it1")
@@ -253,6 +267,18 @@ class AnnotationTest (unittest.TestCase):
 		
 		self.assertEquals("an1", a.uri.value)
 		self.assertEquals("an1", aa.uri.value)
+	
+	def testLookupOrCreate(self):
+		i = Item("it1")
+		a = Annotation.lookup_or_create("an1")
+		a.subject = i
+		self.store.flush()
+		aa = Annotation.lookup("an1")
+		self.assertEquals("an1", aa.uri.value)
+		self.assertEquals(1, i.id)
+		self.assertEquals(1, a.subject_id)
+		self.assertEquals(1, aa.subject_id)
+		
 	
 if __name__ == '__main__':
 	unittest.main()
