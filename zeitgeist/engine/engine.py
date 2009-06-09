@@ -108,10 +108,9 @@ class ZeitgeistEngine(gobject.GObject):
 		else:
 			return connection
 	
-	@classmethod
-	def _next_salt(klass):
-		klass._salt += 1
-		return klass._salt
+	def _next_salt(self):
+		self._salt += 1
+		return self._salt
 
 	def get_last_timestamp(self, uri=None):
 		"""
@@ -169,14 +168,14 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		try:
 			# Store a new event for this
-			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(ZeitgeistEngine._next_salt())
+			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(self._next_salt())
 			e = Event(e_uri, ritem["uri"])
 			e.start = ritem["timestamp"]
 			e.item.text = u"Activity"
 			e.item.source = Source.lookup_or_create("http://gnome.org/zeitgeist/schema/Event#activity")
 			e.item.content = Content.lookup_or_create(ritem["use"])
 			e.app = App.lookup_or_create(ritem["app"])
-			e.app.text = u"Application" # FIXME: App constructor could parse out appliction name from .desktop file
+			e.app.info = u"Application" # FIXME: App constructor could parse out appliction name from .desktop file
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
