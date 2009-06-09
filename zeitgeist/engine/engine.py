@@ -159,6 +159,7 @@ class ZeitgeistEngine(gobject.GObject):
 			e.item.source = Source.lookup_or_create("http://gnome.org/zeitgeist/schema/Event#activity")
 			e.item.content = Content.lookup_or_create(ritem["use"])
 			e.app = App.lookup_or_create(ritem["app"])
+			e.app.item.text = u"Application"
 			e.app.info = u"Application" # FIXME: App constructor could parse out appliction name from .desktop file
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
@@ -167,7 +168,7 @@ class ZeitgeistEngine(gobject.GObject):
 			return False
 		
 		# Extract tags
-		if ritem.has_key("tags"):			
+		if ritem.has_key("tags") and ritem["tags"].strip() != "":			
 			# Iterate over non-empty strings only
 			for tag in filter(lambda t : bool(t), ritem["tags"].split(",")):
 				print "TAG:", tag
@@ -176,7 +177,7 @@ class ZeitgeistEngine(gobject.GObject):
 				a.subject = item
 				a.item.text = tag
 				a.item.source = Source.create_or_lookup("http://gnome.org/zeitgeist/schema/Event#activity")
-				a.item.content = Content.create_or_lookup("Tag")
+				a.item.content = Content.lookup_or_create("Tag")
 		
 		# Extract bookmarks
 		if ritem.has_key("bookmark") and ritem["bookmark"]:
@@ -184,9 +185,9 @@ class ZeitgeistEngine(gobject.GObject):
 			a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
 			a = Annotation.lookup_or_create(a_uri)
 			a.subject = item
-			a.item.text = u"FIXME"
-			a.item.source = Source.create_or_lookup("http://gnome.org/zeitgeist/schema/Event#activity")
-			a.item.content = Content.create_or_lookup("Bookmark")
+			a.item.text = u"Bookmark"
+			a.item.source = Source.lookup_or_create("http://gnome.org/zeitgeist/schema/Event#activity")
+			a.item.content = Content.lookup_or_create("http://gnome.org/zeitgeist/schema/Annotation#favorite")
 
 		if commit:
 			store.flush()		
