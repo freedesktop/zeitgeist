@@ -141,6 +141,7 @@ class ZeitgeistEngine(gobject.GObject):
 		False otherwise (for example, if the item already is in the
 		database).
 		"""
+		
 		if not ritem.has_key("uri") or not ritem["uri"]:
 			print >> sys.stderr, "Discarding item without a URI: %s" % ritem
 			return False
@@ -150,8 +151,6 @@ class ZeitgeistEngine(gobject.GObject):
 		if not ritem.has_key("source") or not ritem["source"]:
 			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
 			return False
-		
-		print "INSERT", ritem
 		
 		try:
 			# The item may already exist in the db,
@@ -172,6 +171,12 @@ class ZeitgeistEngine(gobject.GObject):
 			# Store a new event for this
 			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(ZeitgeistEngine._next_salt())
 			e = Event(e_uri, ritem["uri"])
+			e.start = ritem["timestamp"]
+			e.item.text = u"Activity"
+			e.item.source = Source.lookup_or_create("http://gnome.org/zeitgeist/schema/Event#activity")
+			e.item.content = Content.lookup_or_create(ritem["use"])
+			e.app = App.lookup_or_create(ritem["app"])
+			e.app.text = u"Application" # FIXME: App constructor could parse out appliction name from .desktop file
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
@@ -179,54 +184,9 @@ class ZeitgeistEngine(gobject.GObject):
 			return False
 	
 		if commit:
-			store.flush()
-			'''
-			# Insert into timetable
-			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?)',
-				(item["timestamp"],
-				None,
-				item["uri"],
-				item["use"],
-				"%d-%s" % (item["timestamp"], item["uri"]),
-				item["app"]
-				))
-			# Insert into timetable
-			
-			
-			# Insert into data, if it isn't there yet
-			try:
-				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?)',
-					(item["uri"],
-					item["name"],
-					item["comment"],
-					item["icon"],
-					0,
-					item["mimetype"],
-					item["type"]))
-			except sqlite3.IntegrityError:
-				pass
-			
-			try: 
-				# Add tags into the database
-				for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
-					self.cursor.execute('INSERT INTO tags VALUES (?,?)',
-						(tag.capitalize(), item["uri"]))
-			except Exception, ex:
-				print "Error inserting tags: %s" % ex
-			
-			if not item["app"] in self._apps:
-				self._apps.add(item["app"])
-				try:
-					# Add app into the database
-					self.cursor.execute('INSERT INTO app VALUES (?,?)',
-						(item["app"],0))
-				except Exception, ex:
-					print "Error inserting application: %s" % ex
-		'''
+			store.flush()		
 		
-		
-		else:
-			return True
+		return True
 	
 	def insert_items(self, items):
 		"""

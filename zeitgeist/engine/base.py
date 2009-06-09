@@ -170,6 +170,7 @@ class App(ProxyItem):
 	
 	def __init__ (self, uri):
 		super(App,self).__init__(uri)
+		# FIXME: Somehow parse the application name out of the .desktop file
 		store.add(self)
 
 class ReferencingProxyItem(ProxyItem):
