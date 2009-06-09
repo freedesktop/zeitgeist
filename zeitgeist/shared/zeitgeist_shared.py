@@ -33,23 +33,3 @@ def dictify_data(item_list):
 		"app": item_list[10],
 		"origin": item_list[11]
 		}
-
-def resolve_dot_desktop(path):
-	attr = ["Name=",
-		    "Comment=",
-		    "GenericName=",
-		    "Exec=",
-		    "Type=",
-		    "Icon=",
-		    "MimeType="
-		    "Categories="]
-	f = open(path)
-	data  = {}
-	
-	i = 0
-	for line in f.readlines():
-		if line.startswith(attr[i]):
-			data[attr[i][0:len(attr[i])-1].lower()] = line[len(attr[i]):len(line)-1]
-			i += 1
-			
-	return data

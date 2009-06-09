@@ -9,6 +9,7 @@ import sqlite3
 import gettext
 import gobject
 from xdg import BaseDirectory
+from xdg.DesktopEntry import DesktopEntry
 
 import traceback
 from random import randint
@@ -162,25 +163,23 @@ class ZeitgeistEngine(gobject.GObject):
 			
 			#FIXME: Lots of info from the applications, try to sort them out here properly
 			
-			app_info = resolve_dot_desktop(ritem["app"])
+			app_info = DesktopEntry(ritem["app"])
 			
 			e.app = App.lookup_or_create(ritem["app"])
 			#print app_info
-			e.app.item.text = unicode(app_info["name"])
-			e.app.item.content = Content.lookup_or_create(app_info["type"])
-			e.app.item.source = Source.lookup_or_create(app_info["exec"])
-			e.app.item.icon = unicode(app_info["icon"])
+			e.app.item.text = unicode(app_info.getName())
+			e.app.item.content = Content.lookup_or_create(app_info.getType())
+			e.app.item.source = Source.lookup_or_create(app_info.getExec())
+			e.app.item.icon = unicode(app_info.getIcon())
 			e.app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop file
-			if app_info.has_key("categories") and app_info["categories"].strip() != "":			
-				# Iterate over non-empty strings only
-				for tag in filter(lambda t : bool(t), app_info["categories"].split(";")):
-					print "TAG:", tag
-					a_uri = "zeitgeist://tag/%s" % tag
-					a = Annotation.lookup_or_create(a_uri)
-					a.subject = e.app.item
-					a.item.text = tag
-					a.item.source_id = Source.APPLICATION.id
-					a.item.content_id = Content.TAG.id
+			for tag in app_info.getCategories():
+				print "TAG:", tag
+				a_uri = "zeitgeist://tag/%s" % tag
+				a = Annotation.lookup_or_create(a_uri)
+				a.subject = e.app.item
+				a.item.text = unicode(tag)
+				a.item.source_id = Source.APPLICATION.id
+				a.item.content_id = Content.TAG.id
 			
 			
 		except sqlite3.IntegrityError, ex:
