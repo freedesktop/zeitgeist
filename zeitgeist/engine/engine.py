@@ -159,6 +159,7 @@ class ZeitgeistEngine(gobject.GObject):
 			e.item.source = Source.lookup_or_create(Source.USER_ACTIVITY)
 			e.item.content = Content.lookup_or_create(ritem["use"])
 			e.app = App.lookup_or_create(ritem["app"])
+			e.app.item.text = u"Application"
 			e.app.info = u"Application" # FIXME: App constructor could parse out appliction name from .desktop file
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
@@ -167,7 +168,7 @@ class ZeitgeistEngine(gobject.GObject):
 			return False
 		
 		# Extract tags
-		if ritem.has_key("tags"):			
+		if ritem.has_key("tags") and ritem["tags"].strip() != "":			
 			# Iterate over non-empty strings only
 			for tag in filter(lambda t : bool(t), ritem["tags"].split(",")):
 				print "TAG:", tag
@@ -184,7 +185,7 @@ class ZeitgeistEngine(gobject.GObject):
 			a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
 			a = Annotation.lookup_or_create(a_uri)
 			a.subject = item
-			a.item.text = u"FIXME"
+			a.item.text = u"Bookmark"
 			a.item.source = Source.lookup_or_create(Source.USER_ACTIVITY)
 			a.item.content = Content.lookup_or_create(Content.BOOKMARK)
 
