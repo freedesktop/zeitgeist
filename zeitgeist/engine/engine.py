@@ -182,9 +182,9 @@ class ZeitgeistEngine(gobject.GObject):
 		if ritem.has_key("bookmark") and ritem["bookmark"]:
 			print "BOOKMARK:", ritem["uri"]
 			a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
-			a = Annotation().lookup_or_create(a_uri)
+			a = Annotation.lookup_or_create(a_uri)
 			a.subject = item
-			a.item.text = "FIXME"
+			a.item.text = u"FIXME"
 			a.item.source = Source.create_or_lookup("http://gnome.org/zeitgeist/schema/Event#activity")
 			a.item.content = Content.create_or_lookup("Bookmark")
 

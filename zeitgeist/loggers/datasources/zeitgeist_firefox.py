@@ -146,6 +146,12 @@ class FirefoxSource(DataProvider):
                     use = "http://gnome.org/zeitgeist/schema/Event#link"
                     if history[j][3] in (2, 3, 5):
                         use = "http://gnome.org/zeitgeist/schema/Event#visit"
+                    
+                    bookmark = False
+                    temp = self.cursor.execute("SELECT * FROM moz_bookmarks WHERE fk=" + str(item[0])).fetchone()
+                    if temp:
+                        bookmark = True
+                        
                     item = {
                         "timestamp": int(self.last_timestamp / (1000000)),
                         "uri": unicode(item[1]),
@@ -156,6 +162,7 @@ class FirefoxSource(DataProvider):
                         "mimetype": u"text/html", # TODO: Can we get a mime-type here?
                         "tags": u"",
                         "icon": icon,
+                        "bookmark": bookmark,
                         "app": u"/usr/share/applications/firefox.desktop",
                         }
                     yield item
