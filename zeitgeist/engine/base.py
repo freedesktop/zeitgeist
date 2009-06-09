@@ -82,10 +82,10 @@ class Item(object):
 	source_id = Int()
 	source = Reference(source_id, Source.id)
 	
-	icon = Unicode()
-	
+	origin = Unicode()
 	text = Unicode()
 	mimetype = Unicode()
+	icon = Unicode()
 	payload = RawStr() # Storm lingo for BLOB/BYTEA
 
 	def __init__ (self, uri):
@@ -250,7 +250,7 @@ def create_store(storm_url):
 	
 	try:
 		store.execute("CREATE TABLE IF NOT EXISTS item" 
-				"(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, text VARCHAR, mimetype VARCHAR, icon VARCHAR, payload BLOB)")
+				"(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, origin VARCHAR, text VARCHAR, mimetype VARCHAR, icon VARCHAR, payload BLOB)")
 		# FIXME: Consider which indexes we need on the item table
 	except Exception, ex:
 		print ex
