@@ -166,8 +166,8 @@ class ZeitgeistEngine(gobject.GObject):
 			print >> sys.stderr, "Error was: %s" % ex			
 			return False
 		
-		try:
-			# Store a new event for this
+		# Store a new event for this
+		try:			
 			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(self._next_salt())
 			e = Event.lookup_or_create(e_uri)
 			e.subject = item
@@ -182,7 +182,29 @@ class ZeitgeistEngine(gobject.GObject):
 			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
 			print >> sys.stderr, "Error was: %s" % ex			
 			return False
-	
+		
+		# Extract tags
+		if ritem.has_key("tags"):			
+			# Iterate over non-empty strings only
+			for tag in filter(lambda t : bool(t), ritem["tags"].split(",")):
+				print "TAG:", tag
+				a_uri = "zeitgeist://tag/%s" % tag
+				a = Annotation.lookup_or_create(a_uri)
+				a.subject = item
+				a.item.text = tag
+				a.item.source = Source.create_or_lookup("http://gnome.org/zeitgeist/schema/Event#activity")
+				a.item.content = Content.create_or_lookup("Tag")
+		
+		# Extract bookmarks
+		if ritem.has_key("bookmark") and ritem["bookmark"]:
+			print "BOOKMARK:", ritem["uri"]
+			a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
+			a = Annotation().lookup_or_create(a_uri)
+			a.subject = item
+			a.item.text = "FIXME"
+			a.item.source = Source.create_or_lookup("http://gnome.org/zeitgeist/schema/Event#activity")
+			a.item.content = Content.create_or_lookup("Bookmark")
+
 		if commit:
 			store.flush()		
 		
