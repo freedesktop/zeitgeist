@@ -169,7 +169,8 @@ class ZeitgeistEngine(gobject.GObject):
 		try:
 			# Store a new event for this
 			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(self._next_salt())
-			e = Event(e_uri, ritem["uri"])
+			e = Event.lookup_or_create(e_uri)
+			e.subject = item
 			e.start = ritem["timestamp"]
 			e.item.text = u"Activity"
 			e.item.source = Source.lookup_or_create("http://gnome.org/zeitgeist/schema/Event#activity")

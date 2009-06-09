@@ -180,7 +180,7 @@ class ReferencingProxyItem(ProxyItem):
 	subject_id = Int()
 	subject = Reference(subject_id, Item.id)
 	
-	def __init__ (self, uri, subject_uri):
+	def __init__ (self, uri, subject_uri=None):
 		"""Create a new ReferencingProxyItem. The 'subject_uri'
 		   argument may be a 'str', 'unicode', or 'URI'"""
 		super(ReferencingProxyItem,self).__init__(uri)
@@ -192,11 +192,7 @@ class ReferencingProxyItem(ProxyItem):
 			self.subject_id = uri.id
 		elif isinstance(subject_uri, URI):
 			subject_uri.resolve()				
-			self.subject_id = subject_uri.id
-		else:
-			store.rollback()
-			raise TypeError("The 'subject_uri' argument must be a 'str', "
-							 "'unicode', or 'URI'. Found %s" % type(subject_uri))
+			self.subject_id = subject_uri.id		
 	
 class Annotation(ReferencingProxyItem):
 	# We use a compound primary key because the same annotation can point to
@@ -204,7 +200,7 @@ class Annotation(ReferencingProxyItem):
 	__storm_table__= "annotation"
 	__storm_primary__ = "item_id", "subject_id"	   
 	
-	def __init__ (self, uri, subject_uri):
+	def __init__ (self, uri, subject_uri=None):
 		"""Create a new annotation and add it to the store. The 'subject_uri'
 		   argument may be a 'str', 'unicode', or 'URI' and points at the
 		   object being the subject of the annotations"""
@@ -220,7 +216,7 @@ class Event(ReferencingProxyItem):
 	app_id = Int()
 	app = Reference(app_id, App.item_id)
 	
-	def __init__ (self, uri, subject_uri):
+	def __init__ (self, uri, subject_uri=None):
 		"""Create a new Event and add it to the store. The 'subject_uri'
 		   argument may be a 'str', 'unicode', or 'URI' and points to the
 		   subject which have been effected by the event"""
@@ -286,16 +282,12 @@ def create_store(storm_url):
 store = create_store("sqlite:stormtest.sqlite")
 
 def reset_store(storm_url):
-	"""Mainly used for debugging and unit tests - closes, and removes the global
+	"""Mainly used for debugging and unit tests - closes, and reloads the global
 	   store. Then sets the global store to point at storm_url"""
 	global store
 	print "Resetting store", store, "to ", storm_url
 	if isinstance(store, Store):
-		store.close()
-	
-	db_file = storm_url.split(":")[1]
-	if os.path.exists(db_file):
-		os.remove(db_file)
+		store.close()	
 	
 	store = create_store(storm_url)
 	return store

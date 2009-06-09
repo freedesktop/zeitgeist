@@ -14,10 +14,14 @@ class URITest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.URI class
 	"""
 	def setUp (self):
-		self.store = reset_store("sqlite:unittest.sqlite")		
+		storm_url = "sqlite:unittest.sqlite"
+		db_file = storm_url.split(":")[1]
+		if os.path.exists(db_file):
+			os.remove(db_file)
+		self.store = reset_store(storm_url)
 		
 	def tearDown (self):
-		pass
+		self.store.close()
 	
 	def testCreateUnFlushedWithLookup(self):
 		u = URI("u1")
@@ -37,10 +41,14 @@ class ItemTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.Item class
 	"""
 	def setUp (self):
-		self.store = reset_store("sqlite:unittest.sqlite")
+		storm_url = "sqlite:unittest.sqlite"
+		db_file = storm_url.split(":")[1]
+		if os.path.exists(db_file):
+			os.remove(db_file)
+		self.store = reset_store(storm_url)
 		
 	def tearDown (self):
-		pass
+		self.store.close()
 	
 	def testCreateItem(self):
 		i = Item("i1")
@@ -81,6 +89,14 @@ class ItemTest (unittest.TestCase):
 		self.assertEquals("i1", ii.uri.value)
 		self.assertEquals(1, i.uri.id)
 		self.assertEquals(1, ii.uri.id)
+	
+	def testResetLookup(self):
+		i = Item("i1")
+		self.store.flush()
+		self.store.close()
+		self.setUp()
+		i = Item.lookup_or_create("i1")
+		self.assertEquals("i1", i.uri.value)
 
 class EventTest (unittest.TestCase):
 	"""
