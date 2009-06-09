@@ -156,7 +156,7 @@ class FirefoxSource(DataProvider):
                         "timestamp": int(self.last_timestamp / (1000000)),
                         "uri": unicode(item[1]),
                         "text": unicode(item[2]),
-                        "source": unicode(item[4][::-1][1:] if item[4] else u""),
+                        "source": u"Firefox History",
                         "content": u"Web",
                         "use": unicode(use),
                         "mimetype": u"text/html", # TODO: Can we get a mime-type here?
@@ -164,6 +164,7 @@ class FirefoxSource(DataProvider):
                         "icon": icon,
                         "bookmark": bookmark,
                         "app": u"/usr/share/applications/firefox.desktop",
+                        "origin":  unicode(item[4][::-1][1:] if item[4] else u"")
                         }
                     yield item
     

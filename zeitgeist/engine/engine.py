@@ -143,6 +143,7 @@ class ZeitgeistEngine(gobject.GObject):
 			item.text = unicode(ritem["text"])
 			item.mimetype = unicode(ritem["mimetype"])
 			item.icon = unicode(ritem["icon"])
+			item.origin = ritem["origin"]
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert item:\n%s" % ritem
@@ -158,9 +159,30 @@ class ZeitgeistEngine(gobject.GObject):
 			e.item.text = u"Activity"
 			e.item.source_id = Source.USER_ACTIVITY.id
 			e.item.content = Content.lookup_or_create(ritem["use"])
+			
+			#FIXME: Lots of info from the applications, try to sort them out here properly
+			
+			app_info = resolve_dot_desktop(ritem["app"])
+			
 			e.app = App.lookup_or_create(ritem["app"])
-			e.app.item.text = u"Application"
-			e.app.info = u"Application" # FIXME: App constructor could parse out appliction name from .desktop file
+			#print app_info
+			e.app.item.text = unicode(app_info["name"])
+			e.app.item.content = Content.lookup_or_create(app_info["type"])
+			e.app.item.source = Source.lookup_or_create(app_info["exec"])
+			e.app.item.icon = unicode(app_info["icon"])
+			e.app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop file
+			if app_info.has_key("categories") and app_info["categories"].strip() != "":			
+				# Iterate over non-empty strings only
+				for tag in filter(lambda t : bool(t), app_info["categories"].split(";")):
+					print "TAG:", tag
+					a_uri = "zeitgeist://tag/%s" % tag
+					a = Annotation.lookup_or_create(a_uri)
+					a.subject = e.app.item
+					a.item.text = tag
+					a.item.source_id = Source.APPLICATION.id
+					a.item.content_id = Content.TAG.id
+			
+			
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
@@ -170,7 +192,7 @@ class ZeitgeistEngine(gobject.GObject):
 		# Extract tags
 		if ritem.has_key("tags") and ritem["tags"].strip() != "":			
 			# Iterate over non-empty strings only
-			for tag in filter(lambda t : bool(t), ritem["tags"].split(",")):
+			for tag in filter(lambda t : bool(t), ritem["tags"].split(";")):
 				print "TAG:", tag
 				a_uri = "zeitgeist://tag/%s" % tag
 				a = Annotation.lookup_or_create(a_uri)
@@ -221,7 +243,6 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		if item:
 			return self._result2data(item)
-	
 	
 	def get_items(self, min=0, max=sys.maxint, tags="", mimetypes=""):
 		"""
@@ -349,7 +370,6 @@ class ZeitgeistEngine(gobject.GObject):
 		pass
 	
 	def get_bookmarks(self):
-		print "xxxxxxxxxxxxxxxxxxxx"
 		return []
 
 engine = ZeitgeistEngine()

@@ -109,6 +109,7 @@ Content.ERROR_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/cor
 Source.WEB_HISTORY = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#WebHistory")
 Source.USER_ACTIVITY = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#UserActivity")
 Source.USER_NOTIFICATION = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#UserNotification")
+Source.APPLICATION = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#Application")
 	
 class URI(Entity):
 	__storm_table__= "uri"
