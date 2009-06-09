@@ -156,7 +156,7 @@ class ZeitgeistEngine(gobject.GObject):
 			e.subject = item
 			e.start = ritem["timestamp"]
 			e.item.text = u"Activity"
-			e.item.source = Source.lookup_or_create("http://gnome.org/zeitgeist/schema/Event#activity")
+			e.item.source = Source.lookup_or_create(Source.USER_ACTIVITY)
 			e.item.content = Content.lookup_or_create(ritem["use"])
 			e.app = App.lookup_or_create(ritem["app"])
 			e.app.info = u"Application" # FIXME: App constructor could parse out appliction name from .desktop file
@@ -175,8 +175,8 @@ class ZeitgeistEngine(gobject.GObject):
 				a = Annotation.lookup_or_create(a_uri)
 				a.subject = item
 				a.item.text = tag
-				a.item.source = Source.create_or_lookup("http://gnome.org/zeitgeist/schema/Event#activity")
-				a.item.content = Content.create_or_lookup("Tag")
+				a.item.source = Source.lookup_or_create(Source.USER_ACTIVITY)
+				a.item.content = Content.lookup_or_create(Content.TAG)
 		
 		# Extract bookmarks
 		if ritem.has_key("bookmark") and ritem["bookmark"]:
@@ -185,8 +185,8 @@ class ZeitgeistEngine(gobject.GObject):
 			a = Annotation.lookup_or_create(a_uri)
 			a.subject = item
 			a.item.text = u"FIXME"
-			a.item.source = Source.create_or_lookup("http://gnome.org/zeitgeist/schema/Event#activity")
-			a.item.content = Content.create_or_lookup("Bookmark")
+			a.item.source = Source.lookup_or_create(Source.USER_ACTIVITY)
+			a.item.content = Content.lookup_or_create(Content.BOOKMARK)
 
 		if commit:
 			store.flush()		
