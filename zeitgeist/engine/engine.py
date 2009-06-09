@@ -39,12 +39,6 @@ class ZeitgeistEngine(gobject.GObject):
 		#FIXME: Get bookmark
 		bookmark = False
 		
-		print "-------------------------"
-		print result
-		print timestamp
-		print usage
-		print "-------------------------"
-		
 		return (
 			timestamp,
 			store.find(URI.value, URI.id == result.id), # uri
@@ -200,7 +194,7 @@ class ZeitgeistEngine(gobject.GObject):
 
 				store.add(event)
 				
-				#del event, app, uri, content, source, item, e_uri
+				del event, app, uri, content, source, item, e_uri
 			
 		except Exception, ex:
 			return False
@@ -362,6 +356,7 @@ class ZeitgeistEngine(gobject.GObject):
 		pass
 	
 	def get_bookmarks(self):
-		pass
+		print "xxxxxxxxxxxxxxxxxxxx"
+		return []
 
 engine = ZeitgeistEngine()
