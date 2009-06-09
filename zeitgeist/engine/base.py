@@ -8,14 +8,29 @@ import os
 from storm.locals import *
 
 class Symbol:
-	"""A simple structure to hold a URI and a short label.
+	"""A simple structure to hold a URI and a short label and magically
+	   cache and entity (integer) id.
 	   Used in Source and Content for pre defined types"""
-	def __init__ (self, identifier_uri):
-		self.symbol = identifier_uri
-		self.name = identifier_uri.split("#")[1]
+	def __init__ (self, entity_class, uri):
+		self.value = uri
+		self.name = uri.split("#")[1]
+		self._entity_class = entity_class
+		self._id = None
 	
 	def __str__ (self):
-		return self.symbol
+		return self.value
+	
+	def __getattr__ (self, name):
+		"""This small piece of magic make self.id resolve to the actual
+		   integer id of the entity class"""
+		if name == "id":
+			if not self._id :
+				ent = self._entity_class.lookup_or_create(self.value)
+				ent.resolve()
+				self._id = ent.id
+			return self._id
+		else:
+			raise AttributeError("Unknown attribute %s" % name)
 
 class Entity(object):
 	"""Generic base class for anything that has an 'id' and a 'value'.
@@ -62,40 +77,38 @@ class Entity(object):
 class Content(Entity):
 	__storm_table__= "content"
 	__storm_primary__= "id"
-	
-	#
-	# When we add more Content types here, we should strive to take them from
-	# http://xesam.org/main/XesamOntology100 when possible
-	#	
-	TAG = Symbol("http://freedesktop.org/standards/xesam/1.0/core#Tag")
-	BOOKMARK = Symbol("http://freedesktop.org/standards/xesam/1.0/core#Bookmark")
-	COMMENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#Comment")
-	DOCUMENT = Symbol("http://freedesktop.org/standards/xesam/1.0/core#Document")
-	CREATE_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#CreateEvent")
-	MODIFY_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#ModifyEvent")
-	VISIT_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#VisitEvent")
-	LINK_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#LinkEvent")
-	RECEIVE_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#ReceiveEvent")
-	WARN_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#WarnEvent")
-	ERROR_EVENT = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#ErrorEvent")
-
+		
 	def __init__ (self, value):				
 		super(Content, self).__init__(value)		
-	
+
 class Source(Entity):
 	__storm_table__= "source"
-	__storm_primary__= "id"
-	
-	#
-	# When we add more Content types here, we should strive to take them from
-	# http://xesam.org/main/XesamOntology100 when possible
-	#		
-	WEB_HISTORY = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#WebHistory")
-	USER_ACTIVITY = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#UserActivity")
-	USER_NOTIFICATION = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#UserNotification")
+	__storm_primary__= "id"		
 	
 	def __init__ (self, value):				
-		super(Source, self).__init__(value)	   
+		super(Source, self).__init__(value)
+
+#
+# Content and source symbols are created outside the classes because we can not
+# refer to, fx. the Content class, from within the Content class scope
+#
+# When we add more Content types here, we should strive to take them from
+# http://xesam.org/main/XesamOntology100 when possible
+#		
+Content.TAG = Symbol(Content, "http://freedesktop.org/standards/xesam/1.0/core#Tag")
+Content.BOOKMARK = Symbol(Content, "http://freedesktop.org/standards/xesam/1.0/core#Bookmark")
+Content.COMMENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#Comment")
+Content.DOCUMENT = Symbol(Content, "http://freedesktop.org/standards/xesam/1.0/core#Document")
+Content.CREATE_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#CreateEvent")
+Content.MODIFY_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#ModifyEvent")
+Content.VISIT_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#VisitEvent")
+Content.LINK_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#LinkEvent")
+Content.RECEIVE_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#ReceiveEvent")
+Content.WARN_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#WarnEvent")
+Content.ERROR_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#ErrorEvent")
+Source.WEB_HISTORY = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#WebHistory")
+Source.USER_ACTIVITY = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#UserActivity")
+Source.USER_NOTIFICATION = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#UserNotification")
 	
 class URI(Entity):
 	__storm_table__= "uri"

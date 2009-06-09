@@ -156,7 +156,7 @@ class ZeitgeistEngine(gobject.GObject):
 			e.subject = item
 			e.start = ritem["timestamp"]
 			e.item.text = u"Activity"
-			e.item.source = Source.lookup_or_create(Source.USER_ACTIVITY)
+			e.item.source_id = Source.USER_ACTIVITY.id
 			e.item.content = Content.lookup_or_create(ritem["use"])
 			e.app = App.lookup_or_create(ritem["app"])
 			e.app.item.text = u"Application"
@@ -176,8 +176,8 @@ class ZeitgeistEngine(gobject.GObject):
 				a = Annotation.lookup_or_create(a_uri)
 				a.subject = item
 				a.item.text = tag
-				a.item.source = Source.lookup_or_create(Source.USER_ACTIVITY)
-				a.item.content = Content.lookup_or_create(Content.TAG)
+				a.item.source_id = Source.USER_ACTIVITY.id
+				a.item.content_id = Content.TAG.id
 		
 		# Extract bookmarks
 		if ritem.has_key("bookmark") and ritem["bookmark"]:
@@ -186,8 +186,8 @@ class ZeitgeistEngine(gobject.GObject):
 			a = Annotation.lookup_or_create(a_uri)
 			a.subject = item
 			a.item.text = u"Bookmark"
-			a.item.source = Source.lookup_or_create(Source.USER_ACTIVITY)
-			a.item.content = Content.lookup_or_create(Content.BOOKMARK)
+			a.item.source_id = Source.USER_ACTIVITY.id
+			a.item.content_id = Content.BOOKMARK.id
 
 		if commit:
 			store.flush()		

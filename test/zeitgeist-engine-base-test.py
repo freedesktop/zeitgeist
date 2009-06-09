@@ -9,19 +9,84 @@ from zeitgeist.engine.base import *
 from storm.locals import *
 import unittest
 
+class SymbolTest (unittest.TestCase):
+	"""
+	This class tests that the zeitgeist.engine.base.Symbol class
+	"""
+	# Since the symbols in the Source and Content are defined in class
+	# scope they will not be reloaded even if we nuke the test environment
+	# Therefore we need to have a globally persisten store for this test
+	store = reset_store("sqlite:unittest.sqlite")
+	def setUp (self):
+		pass
+		
+	def tearDown (self):
+		pass
+	
+	def testSingleSymbol(self):
+		s = Source.WEB_HISTORY
+		self.assertEquals(Source.WEB_HISTORY.value, s.value)
+		self.assertEquals(1, Source.WEB_HISTORY.id)
+		self.assertEquals("WebHistory", Source.WEB_HISTORY.name)
+	
+	def testContentSourceSymbols(self):
+		s = Source.WEB_HISTORY
+		c = Content.TAG
+		
+		self.assertEquals(Source.WEB_HISTORY.value, s.value)
+		self.assertEquals(1, Source.WEB_HISTORY.id)
+		self.assertEquals(1, s.id)
+		self.assertEquals("WebHistory", Source.WEB_HISTORY.name)
+		
+		self.assertEquals(Content.TAG.value, c.value)
+		self.assertEquals(1, Content.TAG.id) # First element in the content table
+		self.assertEquals(1, c.id)
+		self.assertEquals("Tag", Content.TAG.name)
+	
+	def testTwoSourceSymbols(self):
+		web = Source.WEB_HISTORY
+		act = Source.USER_ACTIVITY
+		
+		self.assertEquals("WebHistory", Source.WEB_HISTORY.name)
+		self.assertEquals("WebHistory", web.name)
+		self.assertEquals(Source.WEB_HISTORY.value, web.value)
+		self.assertEquals(1, Source.WEB_HISTORY.id) # First element in the source table
+		self.assertEquals(1, web.id)		
+		
+		self.assertEquals("UserActivity", Source.USER_ACTIVITY.name)
+		self.assertEquals("UserActivity", act.name)
+		self.assertEquals(Source.USER_ACTIVITY.value, act.value)
+		self.assertEquals(2, Source.USER_ACTIVITY.id) # Second element in the source table
+		self.assertEquals(2, act.id)		
+
 class SourceTest (unittest.TestCase):
 	"""
 	This class tests that the zeitgeist.engine.base.Source class
 	"""
 	def setUp (self):
-		self.store = reset_store("sqlite:unittest.sqlite")		
+		storm_url = "sqlite:unittest.sqlite"
+		db_file = storm_url.split(":")[1]
+		if os.path.exists(db_file):
+			os.remove(db_file)
+		self.store = reset_store(storm_url)
 		
 	def tearDown (self):
-		pass
+		store.close()
 	
 	def testSingleSource(self):
 		s = Source.lookup_or_create(Source.WEB_HISTORY)
-		self.assertEquals(Source.WEB_HISTORY.symbol, s.value)
+		self.assertEquals(Source.WEB_HISTORY.value, s.value)
+	
+	def testTwoSources(self):		
+		s1 = Source.lookup_or_create(Source.WEB_HISTORY)
+		s2 = Source.lookup_or_create(Source.USER_ACTIVITY)
+		s1.resolve()
+		s2.resolve()
+		
+		self.assertEquals(Source.WEB_HISTORY.value, s1.value)
+		self.assertEquals(Source.USER_ACTIVITY.value, s2.value)
+		self.assertEquals(1, s1.id)
+		self.assertEquals(2, s2.id)
 
 class URITest (unittest.TestCase):
 	"""
