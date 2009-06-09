@@ -159,7 +159,7 @@ class ProxyItem(object):
 class App(ProxyItem):
     __storm_table__= "app"
     __storm_primary__ = "item_id"
-    info = Unicode()
+    value = Unicode()
     
     def __init__ (self, uri):
         super(App,self).__init__(uri)

@@ -198,7 +198,23 @@ class ZeitgeistEngine(gobject.GObject):
 				content = store.find(Content, Content.value == ritem["use"]).one()
 				if not content:
 					content = Content(ritem["use"])
-				event.item.content = content
+				event.item.content = content				
+				'''
+				Init Event.app
+				'''
+				app = store.find(URI,URI.value == ritem["app"]).one()
+				if not app:
+					app = App(ritem["app"])
+					app.value = ritem["app"]
+					app.item.text = u"Application"
+					store.add(app)
+				else:
+					print app
+					app = store.find(App,App.item_id == app.id).one()
+					pass
+					#app = store.find(App,App)
+				event.app_id = app.item_id
+				
 				
 				store.add(event)
 			
