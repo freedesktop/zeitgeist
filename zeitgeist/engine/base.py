@@ -92,7 +92,7 @@ class Source(Entity):
 	#		
 	WEB_HISTORY = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#WebHistory")
 	USER_ACTIVITY = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#UserActivity")
-	USER_NOTIFICATION = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#UserNotification")	
+	USER_NOTIFICATION = Symbol("http://gnome.org/zeitgeist/schema/1.0/core#UserNotification")
 	
 	def __init__ (self, value):				
 		super(Source, self).__init__(value)	   
