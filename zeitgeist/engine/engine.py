@@ -9,12 +9,16 @@ import gettext
 import gobject
 from xdg import BaseDirectory
 
+import traceback
+from random import randint
+
 from zeitgeist import config
 from zeitgeist.shared.zeitgeist_shared import *
 from zeitgeist.engine.base import *
 
 class ZeitgeistEngine(gobject.GObject):
-	
+	_salt = 0
+
 	def __init__(self):
 		
 		gobject.GObject.__init__(self)
@@ -104,6 +108,11 @@ class ZeitgeistEngine(gobject.GObject):
 		else:
 			return connection
 	
+	@classmethod
+	def _next_salt(klass):
+		klass._salt += 1
+		return klass._salt
+
 	def get_last_timestamp(self, uri=None):
 		"""
 		Gets the timestamp of the most recent item in the database. If
@@ -126,68 +135,51 @@ class ZeitgeistEngine(gobject.GObject):
 		else:
 			return result[0]
 	
-	def insert_item(self, ritem):
+	def insert_item(self, ritem, commit=True):
 		"""
 		Inserts an item into the database. Returns True on success,
 		False otherwise (for example, if the item already is in the
 		database).
 		"""
+		if not ritem.has_key("uri") or not ritem["uri"]:
+			print >> sys.stderr, "Discarding item without a URI: %s" % ritem
+			return False
+		if not ritem.has_key("content") or not ritem["content"]:
+			print >> sys.stderr, "Discarding item without a Content type: %s" % ritem
+			return False
+		if not ritem.has_key("source") or not ritem["source"]:
+			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
+			return False
 		
+		print "INSERT", ritem
 		
 		try:
+			# The item may already exist in the db,
+			# so only create it if necessary
+			item = Item.lookup_or_create(ritem["uri"])
+			item.content = Content.lookup_or_create(ritem["content"])
+			item.source = Source.lookup_or_create(ritem["source"])
+			item.text = unicode(ritem["text"])
+			item.mimetype = unicode(ritem["mimetype"])
+			item.icon = unicode(ritem["icon"])
+		except sqlite3.IntegrityError, ex:
+			traceback.print_exc()
+			print >> sys.stderr, "Failed to insert item:\n%s" % ritem
+			print >> sys.stderr, "Error was: %s" % ex			
+			return False
 		
-			'''
-			Init Source
-			'''
-			source = store.find(Source, Source.value == ritem["source"]).one()
-			if not source:
-				source = Source(ritem["source"])
-				store.add(source)
-			
-			'''
-			Init URI
-			'''		
-			uri = store.find(URI, URI.value == unicode(ritem["uri"])).one()
-			if not uri:
-				uri = URI(ritem["uri"])
-				store.add(uri)
-				
-			'''
-			Init Content
-			'''		
-			content = store.find(Content, Content.value == unicode(ritem["content"])).one()
-			if not content:
-				content = Content(ritem["content"])
-				store.add(content)
-			
-			'''
-			Init Item
-			'''		
-			item = store.find(Item, Item.id == uri.id).one()
-			if not item:
-				item = Item(uri)
-				item.content = content.id
-				item.source = source.id
-				item.text = ritem["text"]
-				item.mimetype = ritem["mimetype"]
-				item.icon = ritem["icon"]
-				store.add(item)
-				
-			
-				
-			'''
-			Init Event
-			'''
-			try:
-				e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(uri.id)+"/"+str(ritem["timestamp"])
-				event = Event(e_uri, item.uri.value)
-				event.start = ritem["timestamp"]
-				event.app = app
-				#event.item.source = Content(u"http://gnome.org/zeitgeist/schema/Event#activity")
-				#event.item.content = Content(ritem["use"])
-				store.add(event)
-			except:
-				pass
+		try:
+			# Store a new event for this
+			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(ZeitgeistEngine._next_salt())
+			e = Event(e_uri, ritem["uri"])
+		except sqlite3.IntegrityError, ex:
+			traceback.print_exc()
+			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
+			print >> sys.stderr, "Error was: %s" % ex			
+			return False
+	
+		if commit:
+			store.flush()
 			'''
 			# Insert into timetable
 			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?)',
@@ -231,8 +223,7 @@ class ZeitgeistEngine(gobject.GObject):
 				except Exception, ex:
 					print "Error inserting application: %s" % ex
 		'''
-		except sqlite3.IntegrityError, ex:
-			return False
+		
 		
 		else:
 			return True
@@ -244,10 +235,11 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		amount_items = 0
 		for item in items:
-			if self.insert_item(item):
+			if self.insert_item(item, commit=False):
 				amount_items += 1
+			else:
+				print >> sys.stderr, "Error inserting %s" % item["uri"]
 		
-		#self.connection.commit()
 		store.commit()
 		print "DONE"
 		return amount_items
