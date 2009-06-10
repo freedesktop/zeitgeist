@@ -3,58 +3,59 @@
 import time
 import sys
 import os
+import gc
 import shutil
 import sqlite3
 import gettext
 import gobject
 from xdg import BaseDirectory
 
+import traceback
+from random import randint
+
 from zeitgeist import config
 from zeitgeist.shared.zeitgeist_shared import *
+from zeitgeist.engine.base import *
 
 class ZeitgeistEngine(gobject.GObject):
-	
+	_salt = 0
+
 	def __init__(self):
 		
 		gobject.GObject.__init__(self)
 		self.reload_callback = None
-		
+		'''
 		path = BaseDirectory.save_config_path("zeitgeist")
 		database = os.path.join(path, "zeitgeist.sqlite")
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
+		'''
 		self._apps = set()
 	
-	def _result2data(self, result, timestamp=0, start=0, end=sys.maxint, app="", usage=""):
+	def _result2data(self, result, timestamp=0, app="", usage=""):
 		
-		res = self.cursor.execute(
-			"""SELECT tagid FROM tags WHERE uri = ?""",(result[0],)
-			).fetchall()
+		'''
+		Get Tags
+		'''
+		# FIXME: Get tag
+		tags = ""
 		
-		tags = ",".join([unicode(tag[0]) for tag in res]) or ""
+		#FIXME: Get bookmark
+		bookmark = False
 		
 		return (
 			timestamp,
-			result[0], # uri
-			result[1], # name
-			result[6] or "N/A", # type
-			result[5] or "N/A", # mimetype
+			store.find(URI.value, URI.id == result.id), # uri
+			result.text, # name
+			store.find(URI.value, URI.id == Item.id) or "N/A", # type
+			result.mimetype, # mimetype
 			tags, # tags
-			result[2] or "", # comment
+			"", # comment
 			usage, # use
-			result[4], # bookmark
-			result[3], # icon
+			bookmark, # bookmark
+			result.icon, # icon
 			app, # app
 			)
-	
-	def get_count_for_item(self, uri, start=0, end=sys.maxint):
-		# Emulate optional arguments for D-Bus
-		if not end:
-			end = sys.maxint
-		
-		query = "SELECT COUNT(uri) FROM timetable where start >=? and end<=? and uri=?"
-		result = self.cursor.execute(query,(start, end, uri,)).fetchone()
-		return result[0]
 	
 	def _ensure_item(self, item, uri_only=False):
 		"""
@@ -102,6 +103,10 @@ class ZeitgeistEngine(gobject.GObject):
 		else:
 			return connection
 	
+	def _next_salt(self):
+		self._salt += 1
+		return self._salt
+
 	def get_last_timestamp(self, uri=None):
 		"""
 		Gets the timestamp of the most recent item in the database. If
@@ -110,73 +115,106 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		Returns 0 if there are no items in the database.
 		"""
-		
-		if uri:
-			filter = "WHERE uri=\"%s\"" % uri
-		else:
-			filter = ""
-		
-		query = "SELECT * FROM timetable %s LIMIT 1" % filter
-		
-		result = self.cursor.execute(query).fetchone()
-		if result is None:
-			return 0
-		else:
-			return result[0]
+		return 0
 	
-	def insert_item(self, item):
+	def insert_item(self, ritem, commit=True):
 		"""
 		Inserts an item into the database. Returns True on success,
 		False otherwise (for example, if the item already is in the
 		database).
 		"""
 		
-		try:
-			# Insert into timetable
-			self.cursor.execute('INSERT INTO timetable VALUES (?,?,?,?,?,?)',
-				(item["timestamp"],
-				None,
-				item["uri"],
-				item["use"],
-				"%d-%s" % (item["timestamp"], item["uri"]),
-				item["app"]
-				))
-			
-			# Insert into data, if it isn't there yet
-			try:
-				self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?)',
-					(item["uri"],
-					item["name"],
-					item["comment"],
-					item["icon"],
-					0,
-					item["mimetype"],
-					item["type"]))
-			except sqlite3.IntegrityError:
-				pass
-			
-			try:
-				# Add tags into the database
-				for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
-					self.cursor.execute('INSERT INTO tags VALUES (?,?)',
-						(tag.capitalize(), item["uri"]))
-			except Exception, ex:
-				print "Error inserting tags: %s" % ex
-			
-			if not item["app"] in self._apps:
-				self._apps.add(item["app"])
-				try:
-					# Add app into the database
-					self.cursor.execute('INSERT INTO app VALUES (?,?)',
-						(item["app"],0))
-				except Exception, ex:
-					print "Error inserting application: %s" % ex
-		
-		except sqlite3.IntegrityError, ex:
+		if not ritem.has_key("uri") or not ritem["uri"]:
+			print >> sys.stderr, "Discarding item without a URI: %s" % ritem
+			return False
+		if not ritem.has_key("content") or not ritem["content"]:
+			print >> sys.stderr, "Discarding item without a Content type: %s" % ritem
+			return False
+		if not ritem.has_key("source") or not ritem["source"]:
+			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
 			return False
 		
-		else:
-			return True
+		try:
+			# The item may already exist in the db,
+			# so only create it if necessary
+			item = Item.lookup_or_create(ritem["uri"])
+			item.content = Content.lookup_or_create(ritem["content"])
+			item.source = Source.lookup_or_create(ritem["source"])
+			item.text = unicode(ritem["text"])
+			item.mimetype = unicode(ritem["mimetype"])
+			item.icon = unicode(ritem["icon"])
+			item.origin = ritem["origin"]
+		except sqlite3.IntegrityError, ex:
+			traceback.print_exc()
+			print >> sys.stderr, "Failed to insert item:\n%s" % ritem
+			print >> sys.stderr, "Error was: %s" % ex			
+			return False
+		
+		# Store a new event for this
+		try:			
+			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(self._next_salt())
+			e = Event.lookup_or_create(e_uri)
+			e.subject = item
+			e.start = ritem["timestamp"]
+			e.item.text = u"Activity"
+			e.item.source_id = Source.USER_ACTIVITY.id
+			e.item.content = Content.lookup_or_create(ritem["use"])
+			
+			#FIXME: Lots of info from the applications, try to sort them out here properly
+			
+			app_info = resolve_dot_desktop(ritem["app"])
+			
+			e.app = App.lookup_or_create(ritem["app"])
+			#print app_info
+			e.app.item.text = unicode(app_info["name"])
+			e.app.item.content = Content.lookup_or_create(app_info["type"])
+			e.app.item.source = Source.lookup_or_create(app_info["exec"])
+			e.app.item.icon = unicode(app_info["icon"])
+			e.app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop file
+			if app_info.has_key("categories") and app_info["categories"].strip() != "":			
+				# Iterate over non-empty strings only
+				for tag in filter(lambda t : bool(t), app_info["categories"].split(";")):
+					print "TAG:", tag
+					a_uri = "zeitgeist://tag/%s" % tag
+					a = Annotation.lookup_or_create(a_uri)
+					a.subject = e.app.item
+					a.item.text = tag
+					a.item.source_id = Source.APPLICATION.id
+					a.item.content_id = Content.TAG.id
+			
+			
+		except sqlite3.IntegrityError, ex:
+			traceback.print_exc()
+			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
+			print >> sys.stderr, "Error was: %s" % ex			
+			return False
+		
+		# Extract tags
+		if ritem.has_key("tags") and ritem["tags"].strip() != "":			
+			# Iterate over non-empty strings only
+			for tag in filter(lambda t : bool(t), ritem["tags"].split(";")):
+				print "TAG:", tag
+				a_uri = "zeitgeist://tag/%s" % tag
+				a = Annotation.lookup_or_create(a_uri)
+				a.subject = item
+				a.item.text = tag
+				a.item.source_id = Source.USER_ACTIVITY.id
+				a.item.content_id = Content.TAG.id
+		
+		# Extract bookmarks
+		if ritem.has_key("bookmark") and ritem["bookmark"]:
+			print "BOOKMARK:", ritem["uri"]
+			a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
+			a = Annotation.lookup_or_create(a_uri)
+			a.subject = item
+			a.item.text = u"Bookmark"
+			a.item.source_id = Source.USER_ACTIVITY.id
+			a.item.content_id = Content.BOOKMARK.id
+
+		if commit:
+			store.flush()		
+		
+		return True
 	
 	def insert_items(self, items):
 		"""
@@ -185,17 +223,23 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		amount_items = 0
 		for item in items:
-			if self.insert_item(item):
+			if self.insert_item(item, commit=False):
 				amount_items += 1
+			else:
+				print >> sys.stderr, "Error inserting %s" % item["uri"]
 		
-		self.connection.commit()
+		store.commit()
+		gc.collect()
+		print "DONE"
+		print "got items"
+		
 		return amount_items
 	
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
 		
-		item = self.cursor.execute(
-			"""SELECT * FROM data WHERE data.uri=?""", (uri,)).fetchone()
+		id = store.find(URI, URI.value == uri)
+		item = store.find(Item, Item)
 		
 		if item:
 			return self._result2data(item)
@@ -207,47 +251,23 @@ class ZeitgeistEngine(gobject.GObject):
 		may be used to filter on tags.
 		"""
 		func = self._result2data
-		
+		pack = []
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
-		# Get a list of all tags
-		if tags:
-			tagsql = []
-			for tag in tags.split(","):
-				tagsql.append("""(data.uri LIKE '%%%s%%'
-					OR data.name LIKE '%%%s%%' OR '%s' in
-					(SELECT tags.tagid FROM tags
-						WHERE tags.uri=data.uri))""" % (tag, tag, tag))
-			condition = "(" + " AND ".join(tagsql) + ")"
-		else:
-			condition = "1"
-		
-		if mimetypes:
-			condition += " AND data.mimetype IN (%s)" % \
-				",".join(("\"%s\"" % mime for mime in mimetypes.split(",")))
-		
-		# Loop over all items in the timetable table which are between min and max
-		query = """
-			SELECT start, data.uri, app, usage FROM timetable
-			JOIN data ON (data.uri=timetable.uri)
-			WHERE usage != 'linked' AND start >= ? AND start <= ?
-			AND %s
-			ORDER BY start ASC
-			""" % condition
-		#print query
-		res = self.cursor.execute(query, (str(min), str(max))).fetchall()
-		pack = []
-		for start, uri, app, usage in res:
-			# Retrieve the item from the data table
-			# TODO: Integrate this into the previous SQL query.
-			item = self.cursor.execute(
-				"""SELECT * FROM data WHERE data.uri=?""", (uri,)).fetchone()
+		for event in store.find(Event, Event.start >= min, Event.start <= max):
+			start = event.start
+			
+			usage_id = store.find(URI, URI.id == event.item_id).one()
+			usage = store.find(Item.content_id, Item.id == usage_id.id).one()
+			usage = store.find(Content.value, Content.id == usage).one()
+			
+			item = store.find(Item, Item.id == event.subject_id).one()
+			
+			app= ""
 			
 			if item:
-				item = func(item, timestamp = start, usage=usage, app=app)
-				print item
-				pack.append(item)
+				pack.append(func(item, timestamp = start, usage=usage, app=app))
 		return pack
 	
 	def update_item(self, item):
@@ -283,68 +303,20 @@ class ZeitgeistEngine(gobject.GObject):
 		self.connection.commit()
 	
 	def delete_item(self, item):
-		item_uri = self._ensure_item(item, uri_only=True)
-		self.cursor.execute('DELETE FROM data where uri=?', (item_uri,))
-		self.cursor.execute('DELETE FROM tags where uri=?', (item_uri,))
-		self.connection.commit()
+		pass
 	
 	def _get_tags(self, order_by, count, min, max):
 		"""
 		Private class used to retrive a list of tags according to a
 		desired condition (eg., most used tags, recently used tags...).
 		"""
-		
-		# We simulate optional values in D-Bus; reset the defaults
-		if not count: count = 20
-		if not max: max = sys.maxint
-		
-		# TODO: This is awful.
-		
-		uris = [] 
-		tags = []
-		
-		# Get uri's in in time interval sorted desc by time
-		query = """SELECT uri 
-				FROM timetable
-				WHERE usage != 'linked'
-					AND start >= ?
-					AND start <= ?
-				ORDER BY %s DESC""" % order_by
-		
-		for uri in self.cursor.execute(query, (str(int(min)), str(int(max)))).fetchall():
-			
-			# Retrieve the item from the data table:
-			uri = uri[0]
-			
-			if uris.count(uri) <= 0 and len(tags) < count:
-				uris.append(uri)
-				uri = self.cursor.execute(
-					"SELECT * FROM data WHERE uri=?", (uri,)).fetchone()
-			
-			if uri:
-				res = self.cursor.execute(
-					"""SELECT tagid FROM tags WHERE uri = ?""",
-					(uri[0],)).fetchall()
-			
-				for tag in res:
-					tag = unicode(tag[0])
-					if tags.count(tag) <= 0:
-						if len(tags) < count:
-							tags.append(tag)
-				
-				if len(tags) == count:
-					break
-		
-		return tags
+		return []
 	
 	def get_all_tags(self):
 		"""
 		Returns a list containing the name of all tags.
 		"""
-		
-		for tag in self.cursor.execute(
-		"SELECT DISTINCT(tagid) FROM tags").fetchall():
-			yield unicode(tag[0])
+		return []
 	
 	def get_types(self):
 		"""
@@ -372,142 +344,32 @@ class ZeitgeistEngine(gobject.GObject):
 		return self._get_tags("uri", count, min, max)
 	
 	def get_min_timestamp_for_tag(self, tag):
-		res = self.cursor.execute("""
-			SELECT
-				(SELECT min(start) FROM timetable WHERE uri=tags.uri)
-				AS value
-			FROM tags WHERE tagid=?
-			ORDER BY value ASC LIMIT 1
-			""", (tag,)).fetchall()
-		if res:
-			return res[0][0]
-		else:
 			return None
 	
 	def get_max_timestamp_for_tag(self, tag):
-		res = self.cursor.execute("""
-			SELECT
-				(SELECT max(start) FROM timetable WHERE uri=tags.uri)
-				AS value
-			FROM tags WHERE tagid=?
-			ORDER BY value DESC LIMIT 1
-			""", (tag,)).fetchall()
-		if res:
-			return res[0][0]
-		else:
 			return None
 	
 	def get_timestamps_for_tag(self, tag):
-		
-		begin = self.get_min_timestamp_for_tag(tag)
-		end = self.get_max_timestamp_for_tag(tag)
-		
-		if begin and end:
-			if end - begin > 86400:
-				# TODO: Why do we do this?
-				end = end + 86400
-		else:
-			begin = end = 0
-		
-		return (begin, end)
+		pass
 	
 	def get_items_related_by_tags(self, item):
-		
 		# TODO: Is one matching tag enough or should more/all of them
 		# match?
-		for tag in self._ensure_item(item)[4]:
-			res = self.cursor.execute('SELECT uri FROM tags WHERE tagid=? GROUP BY uri ORDER BY COUNT(uri) DESC', (tag,)).fetchall()
-			for raw in res:
-				item = self.cursor.execute("SELECT * FROM data WHERE uri=?", (raw[0],)).fetchone()
-				if item:
-					yield self._result2data(item)
+		pass
 	
 	def get_related_items(self, uri):
-		
-		print uri
-		print "\n\n\n"
-		list = []
-		dict = {}
-		radius = 120 #radius is half a day
-
-		'''
-		Create pins to create neighbourhoods around 
-		'''
-		results = self.cursor.execute( "SELECT start FROM timetable WHERE uri=? ORDER BY start",
-			( uri, ) ).fetchall()
-		pins = [r[0] for r in results]
-
-		'''
-		Determine neighbourhoods
-		'''
-		nbhs = {}
-		for p in pins:
-
-			start = p - radius
-			end = p + radius
-
-			info = {"start":start, "pin":p, "end":end, "uri":uri}
-
-			try:
-				start = ( p + pins[pins.index( p ) - 1] ) / 2
-				print + "+ " + start + " +"
-				if p - start < radius:
-					info["start"] = start
-			except Exception, ex:
-				pass
-
-			try:
-				end = ( p + pins[pins.index( p ) + 1] ) / 2
-				if end - p < radius:
-						info["end"] = end
-			except Exception, ex:
-				pass
-			
-			nbh = []
-			for i in self.get_items(info["start"],info["end"]):
-				nbh.append(i)
-			nbhs[p] = nbh 
-		
-		self.compare_nbhs(nbhs)		
-
-		'''
-		get items for each nbh and store in a list in a hash'
-		'''
-		for item in self.common_items.values():
-			if item[1] >= 3:
-				print len(nbhs)
-				yield item[0]
+		pass
 	
-
 	def compare_nbhs(self,nbhs):
-		self.common_items = {}
-		for nbh in nbhs.values():
-			try:
-				for item in nbh:
-					for tempnbh in nbhs.values(): 
-						for tempitem in tempnbh:
-							if tempitem[2] == item[2]:
-								if self.common_items.has_key(item[2]):
-								    self.common_items[item[2]][1] +=1
-								else:
-								    self.common_items[item[2]] = [item,1]
-									
-			except Exception, ex:
-				print "\n"
-				print ex
-				print "\n"
-	
+		pass
 	
 	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
-		return self.get_items(min, max, tags, mimetype)
+		pass
 	
 	def get_uris_for_timestamp(self, timestamp):
-		return [x[0] for x in
-			self.cursor.execute("SELECT uri FROM timetable WHERE start=?",
-			(timestamp,)).fetchall()]
+		pass
 	
 	def get_bookmarks(self):
-		for item in self.cursor.execute("SELECT * FROM data WHERE boomark=1").fetchall():
-			yield self._result2data(item, timestamp = -1)
+		return []
 
 engine = ZeitgeistEngine()

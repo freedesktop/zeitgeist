@@ -20,3 +20,5 @@ stamp-it
 *.desktop.in
 extra/*.desktop
 gnome-zeitgeist-*.tar.gz
+.pydevproject
+.project
