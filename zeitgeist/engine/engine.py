@@ -169,16 +169,19 @@ class ZeitgeistEngine(gobject.GObject):
 			e.item.content = Content.lookup_or_create(ritem["use"])
 			
 			#FIXME: Lots of info from the applications, try to sort them out here properly
-			bool =	self.store.execute("SELECT * FROM app WHERE info=?",(ritem["app"],)).get_one()
-			if not bool:
+			app = App.lookup(ritem["app"])
+			if not app:
 				app_info = DesktopEntry(ritem["app"])
-				e.app = App.lookup_or_create(ritem["app"])
+				app = App.lookup_or_create(ritem["app"])
 				#print app_info
-				e.app.item.text = unicode(app_info.getName())
-				e.app.item.content = Content.lookup_or_create(app_info.getType())
-				e.app.item.source = Source.lookup_or_create(app_info.getExec())
-				e.app.item.icon = unicode(app_info.getIcon())
-				e.app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop file
+				app.item.text = unicode(app_info.getName())
+				app.item.content = Content.lookup_or_create(app_info.getType())
+				app.item.source = Source.lookup_or_create(app_info.getExec())
+				app.item.icon = unicode(app_info.getIcon())
+				app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop file
+				
+				e.app = app.item.id
+				
 				for tag in app_info.getCategories():
 					print "TAG:", tag
 					a_uri = "zeitgeist://tag/%s" % tag
@@ -187,7 +190,7 @@ class ZeitgeistEngine(gobject.GObject):
 					a.item.text = unicode(tag)
 					a.item.source_id = Source.APPLICATION.id
 					a.item.content_id = Content.TAG.id
-			del e
+			e.app = app
 			
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
