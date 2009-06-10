@@ -82,32 +82,3 @@ class FileMonitor(gobject.GObject):
 
 		self._clear_timeout(info_uri)
 		return False
-
-
-class DiffFactory:
-	def __init__(self):
-		pass
-	
-	def create_diff(self,uri1,content):
-		fd, path = tempfile.mkstemp()
-		os.write(fd, content)
-		diff =	os.popen("diff -u "+path+" "+uri1.replace("file://","",1)).read()
-		os.close(fd)
-		os.remove(path)
-		return diff
-		
-	def restore_file(self,item):
-		fd1, orginalfile = tempfile.mkstemp()
-		fd2, patch = tempfile.mkstemp()
-		
-		os.write(fd1, item.original_source)
-		os.write(fd2, item.diff)
-		
-		os.close(fd1)
-		os.close(fd2)
-		
-		os.system("patch %s < %s" % (orginalfile, patch))
-		return orginalfile
-
-
-difffactory = DiffFactory()
