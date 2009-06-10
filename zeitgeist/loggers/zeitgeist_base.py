@@ -56,13 +56,11 @@ class DataProvider(gobject.GObject, Thread):
 	
 	def get_items(self, min=0, max=sys.maxint):
 		"""
-		Return cached items if available, otherwise get_items_uncached() is
-		called to create a new cache, yielding each result along the way.  A
-		timeout is set to invalidate the cached items to free memory.
+		Return the items for the indicated time periode.
 		"""
 		
 		return (i for i in self.get_items_uncached() if i["timestamp"] >= min and i["timestamp"] < max)
-
+	
 	def get_items_uncached(self):
 		"""Subclasses should override this to return/yield Datas. The results
 		will be cached."""

@@ -88,13 +88,13 @@ class Source(Entity):
 	def __init__ (self, value):				
 		super(Source, self).__init__(value)
 
-#
+
 # Content and source symbols are created outside the classes because we can not
 # refer to, fx. the Content class, from within the Content class scope
 #
 # When we add more Content types here, we should strive to take them from
 # http://xesam.org/main/XesamOntology100 when possible
-#		
+
 Content.TAG = Symbol(Content, "http://freedesktop.org/standards/xesam/1.0/core#Tag")
 Content.BOOKMARK = Symbol(Content, "http://freedesktop.org/standards/xesam/1.0/core#Bookmark")
 Content.COMMENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#Comment")
@@ -110,7 +110,7 @@ Source.WEB_HISTORY = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#
 Source.USER_ACTIVITY = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#UserActivity")
 Source.USER_NOTIFICATION = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#UserNotification")
 Source.APPLICATION = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#Application")
-	
+
 class URI(Entity):
 	__storm_table__= "uri"
 	__storm_primary__= "id"
@@ -140,7 +140,7 @@ class Item(object):
 		"""Create an item on a given URI and add it to the store.
 		   The 'uri' argument may be a 'str', 'unicode' or 'URI' instance"""
 		super(Item, self).__init__()
-		if isinstance(uri, str) or isinstance(uri,unicode):
+		if isinstance(uri, (str, unicode)):
 			uri = URI.lookup_or_create(uri)
 			uri.resolve()
 			self.uri = uri			

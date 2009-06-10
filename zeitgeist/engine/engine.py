@@ -3,7 +3,6 @@
 import time
 import sys
 import os
-import gc
 import shutil
 import sqlite3
 import gettext
@@ -107,7 +106,7 @@ class ZeitgeistEngine(gobject.GObject):
 	def _next_salt(self):
 		self._salt += 1
 		return self._salt
-
+	
 	def get_last_timestamp(self, uri=None):
 		"""
 		Gets the timestamp of the most recent item in the database. If
@@ -124,7 +123,8 @@ class ZeitgeistEngine(gobject.GObject):
 		False otherwise (for example, if the item already is in the
 		database).
 		"""
-		
+		print ritem
+		return True
 		if not ritem.has_key("uri") or not ritem["uri"]:
 			print >> sys.stderr, "Discarding item without a URI: %s" % ritem
 			return False
@@ -180,8 +180,7 @@ class ZeitgeistEngine(gobject.GObject):
 				a.item.text = unicode(tag)
 				a.item.source_id = Source.APPLICATION.id
 				a.item.content_id = Content.TAG.id
-			
-			
+		
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
@@ -189,9 +188,9 @@ class ZeitgeistEngine(gobject.GObject):
 			return False
 		
 		# Extract tags
-		if ritem.has_key("tags") and ritem["tags"].strip() != "":			
+		if ritem.has_key("tags") and ritem["tags"].strip():			
 			# Iterate over non-empty strings only
-			for tag in filter(lambda t : bool(t), ritem["tags"].split(";")):
+			for tag in filter(x for x in ritem["tags"].split(";") if x):
 				print "TAG:", tag
 				a_uri = "zeitgeist://tag/%s" % tag
 				a = Annotation.lookup_or_create(a_uri)
@@ -209,7 +208,7 @@ class ZeitgeistEngine(gobject.GObject):
 			a.item.text = u"Bookmark"
 			a.item.source_id = Source.USER_ACTIVITY.id
 			a.item.content_id = Content.BOOKMARK.id
-
+		
 		if commit:
 			store.flush()		
 		
@@ -228,7 +227,6 @@ class ZeitgeistEngine(gobject.GObject):
 				print >> sys.stderr, "Error inserting %s" % item["uri"]
 		
 		store.commit()
-		gc.collect()
 		print "DONE"
 		print "got items"
 		
