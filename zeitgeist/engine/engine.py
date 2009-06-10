@@ -40,7 +40,7 @@ from zeitgeist.engine.base import *
 class ZeitgeistEngine(gobject.GObject):
 	_salt = 0
 
-	def __init__(self):
+	def __init__(self, storm_store):
 		
 		gobject.GObject.__init__(self)
 		self.reload_callback = None
@@ -51,8 +51,9 @@ class ZeitgeistEngine(gobject.GObject):
 		self.cursor = self.connection.cursor()
 		'''
 		self._apps = set()
+		self.store = storm_store
 	
-	def _result2data(self, result, timestamp=0, app="", usage=""):
+	def _result2data(self, item, event=None):
 		
 		'''
 		Get Tags
@@ -64,17 +65,18 @@ class ZeitgeistEngine(gobject.GObject):
 		bookmark = False
 		
 		return (
-			timestamp,
-			store.find(URI.value, URI.id == result.id), # uri
-			result.text, # name
-			store.find(URI.value, URI.id == Item.id) or "N/A", # type
-			result.mimetype, # mimetype
+			event and event.start or 0, # timestamp
+			item.uri.value, # uri
+			item.text, # name
+			item.source.value, # source
+			item.content.value, # content
+			item.mimetype, # mimetype
 			tags, # tags
-			"", # comment
-			usage, # use
+			event and event.item.content.value or "",# usage is determined by the event Content type
 			bookmark, # bookmark
-			result.icon, # icon
-			app, # app
+			item.icon, # icon
+			event and event.app.info or "", # app
+			item.origin # origin
 			)
 	
 	def _ensure_item(self, item, uri_only=False):
@@ -98,30 +100,6 @@ class ZeitgeistEngine(gobject.GObject):
 			return item["uri"]
 		
 		return item
-	
-	def _get_database(self, database):
-		"""
-		Return a connection to the indicated SQLite 3 database. If
-		it doesn't already exist, create it. If something fails, abort
-		the execution with error code 1.
-		"""
-		
-		if not os.path.isfile(database):
-			try:
-				# Copy the empty database skeleton into .zeitgeist
-				shutil.copy("%s/zeitgeist.sqlite" % config.pkgdatadir, database)
-			except OSError, e:
-				print _("Could not create database: %s") % e.strerror
-				sys.exit(1)
-		
-		try:
-			connection = sqlite3.connect(database, True,
-				check_same_thread = False)
-		except sqlite3.OperationalError, error:
-			print _("Error connecting with database: %s") % error
-			sys.exit(1)
-		else:
-			return connection
 	
 	def _next_salt(self):
 		self._salt += 1
@@ -163,7 +141,7 @@ class ZeitgeistEngine(gobject.GObject):
 			item.text = unicode(ritem["text"])
 			item.mimetype = unicode(ritem["mimetype"])
 			item.icon = unicode(ritem["icon"])
-			item.origin = ritem["origin"]
+			item.origin = unicode(ritem["origin"])
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert item:\n%s" % ritem
@@ -229,7 +207,7 @@ class ZeitgeistEngine(gobject.GObject):
 			a.item.content_id = Content.BOOKMARK.id
 		
 		if commit:
-			store.flush()		
+			self.store.flush()		
 		
 		return True
 	
@@ -245,7 +223,7 @@ class ZeitgeistEngine(gobject.GObject):
 			else:
 				print >> sys.stderr, "Error inserting %s" % item["uri"]
 		
-		store.commit()
+		self.store.commit()
 		print "DONE"
 		print "got items"
 		
@@ -253,10 +231,8 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
-		
-		id = store.find(URI, URI.value == uri)
-		item = store.find(Item, Item)
-		
+		item = self.store.find(Item, Item.id == URI.id,
+							   URI.value == unicode(uri)).one()		
 		if item:
 			return self._result2data(item)
 	
@@ -271,6 +247,9 @@ class ZeitgeistEngine(gobject.GObject):
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
+		items = self.store.find(Item, Event.start >= min, Event.start <= max,
+						         Item.id == Event.subject_id)
+		"""
 		for event in store.find(Event, Event.start >= min, Event.start <= max):
 			start = event.start
 			
@@ -285,6 +264,7 @@ class ZeitgeistEngine(gobject.GObject):
 			if item:
 				pack.append(func(item, timestamp = start, usage=usage, app=app))
 		return pack
+		"""
 	
 	def update_item(self, item):
 		"""
@@ -388,4 +368,9 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_bookmarks(self):
 		return []
 
-engine = ZeitgeistEngine()
+_engine = None
+def get_default_engine():
+	global _engine
+	if not _engine :
+		_engine = ZeitgeistEngine(get_default_store())
+	return _engine

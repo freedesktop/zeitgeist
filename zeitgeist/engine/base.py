@@ -60,13 +60,13 @@ class Entity(object):
 			raise ValueError("Can not create Entity with value None")
 		
 		self.value = unicode(value) # A no-op if value is already a unicode	
-		store.add(self)
+		_store.add(self)
 	
 	def resolve (self):
 		"""Make sure that the id property of this object has been resolved.
 			If the entity already has an id, this method is a no-op"""
 		if not self.id:
-			store.flush()
+			_store.flush()
 		assert self.id
 
 	@classmethod
@@ -75,9 +75,9 @@ class Entity(object):
 		   entity is not known"""
 		if value:
 			value = unicode(value)
-			return store.find(klass, klass.value == value).one()
+			return _store.find(klass, klass.value == value).one()
 		elif id:
-			return store.find(klass, klass.id == id).one()
+			return _store.find(klass, klass.id == id).one()
 		else:
 			raise ValueError("Looking up Entity without a value or id")
 	
@@ -117,6 +117,7 @@ Content.CREATE_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/co
 Content.MODIFY_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#ModifyEvent")
 Content.VISIT_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#VisitEvent")
 Content.LINK_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#LinkEvent")
+Content.SEND_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#SendEvent")
 Content.RECEIVE_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#ReceiveEvent")
 Content.WARN_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#WarnEvent")
 Content.ERROR_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#ErrorEvent")
@@ -167,17 +168,17 @@ class Item(object):
 		else:
 			raise TypeError("Expected 'str', 'unicode', or 'URI', got %s" % type(uri))
 		
-		store.add(self) # All good, add us to the store
+		_store.add(self) # All good, add us to the store
 	
 	@classmethod
 	def lookup(klass, uri):
 		if isinstance(uri, str) or isinstance(uri,unicode):
 			uri = unicode(uri)
-			return store.find(Item,
+			return _store.find(Item,
 							Item.id == URI.id,
 							URI.value == uri).one()
 		elif isinstance(uri, URI):
-			return store.find(Item, Item.id == uri.id).one()
+			return _store.find(Item, Item.id == uri.id).one()
 	
 	@classmethod
 	def lookup_or_create(klass, uri):
@@ -214,9 +215,9 @@ class ProxyItem(object):
 	def lookup (klass, uri):
 		if isinstance(uri, str) or isinstance(uri, unicode):
 			uri = unicode(uri)
-			return store.find(klass, klass.item_id == URI.id, URI.value == uri).one()
+			return _store.find(klass, klass.item_id == URI.id, URI.value == uri).one()
 		elif isinstance(uri, URI):
-			return store.find(klass, klass.item_id == uri.id).one()
+			return _store.find(klass, klass.item_id == uri.id).one()
 	
 	@classmethod
 	def lookup_or_create(klass, uri):
@@ -233,7 +234,7 @@ class App(ProxyItem):
 	def __init__ (self, uri):
 		super(App,self).__init__(uri)
 		# FIXME: Somehow parse the application name out of the .desktop file
-		store.add(self)
+		_store.add(self)
 
 class ReferencingProxyItem(ProxyItem):
 	"""Base class for items which point to a subject URI. The primary subclasses
@@ -276,7 +277,7 @@ class Annotation(ReferencingProxyItem):
 		   argument may be a 'str', 'unicode', 'URI', 'Item', or 'ProxyItem'
 		   and points at the object being the subject of the annotations"""
 		super(Annotation,self).__init__(uri, subject)
-		store.add(self)
+		_store.add(self)
 
 class Event(ReferencingProxyItem):
 	__storm_table__= "event"
@@ -288,11 +289,11 @@ class Event(ReferencingProxyItem):
 	app = Reference(app_id, App.item_id)
 	
 	def __init__ (self, uri, subject=None):
-		"""Create a new annotation and add it to the store. The 'subject'
+		"""Create a new annotation and add it to the _store. The 'subject'
 		   argument may be a 'str', 'unicode', 'URI', 'Item', or 'ProxyItem'
 		   and points at the object being the subject of the annotations"""
 		super(Event,self).__init__(uri, subject)
-		store.add(self)	
+		_store.add(self)	
 
 def create_store(storm_url):
 	print "DB setup, %s" % storm_url
@@ -350,15 +351,15 @@ def create_store(storm_url):
 	store.commit()
 	return store
 
-store = create_store("sqlite:stormtest.sqlite")
+_store = None
+def get_default_store():
+	global _store
+	if not _store:
+		_store = create_store("sqlite:stormtest.sqlite")
+	return _store
 
-def reset_store(storm_url):
-	"""Mainly used for debugging and unit tests - closes, and reloads the global
-	   store. Then sets the global store to point at storm_url"""
-	global store
-	print "Resetting store", store, "to ", storm_url
-	if isinstance(store, Store):
-		store.close()	
-	
-	store = create_store(storm_url)
-	return store
+def set_store(storm_store):
+	global _store
+	if _store :
+		_store.close()
+	_store = storm_store

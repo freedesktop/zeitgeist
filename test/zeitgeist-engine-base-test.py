@@ -15,8 +15,9 @@ class SymbolTest(unittest.TestCase):
 	"""
 	# Since the symbols in the Source and Content are defined in class
 	# scope they will not be reloaded even if we nuke the test environment
-	# Therefore we need to have a globally persisten store for this test
-	store = reset_store("sqlite:unittest.sqlite")
+	# Therefore we need to have a globally persistent store for this test
+	store = create_store("sqlite:unittest.sqlite")
+	set_store(store)
 	def setUp (self):
 		pass
 		
@@ -68,10 +69,11 @@ class SourceTest (unittest.TestCase):
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
-		self.store = reset_store(storm_url)
+		self.store = create_store(storm_url)
+		set_store(self.store)
 		
 	def tearDown (self):
-		store.close()
+		self.store.close()
 	
 	def testSingleSource(self):
 		s = Source.lookup_or_create(Source.WEB_HISTORY)
@@ -97,7 +99,8 @@ class URITest (unittest.TestCase):
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
-		self.store = reset_store(storm_url)
+		self.store = create_store(storm_url)
+		set_store(self.store)
 		
 	def tearDown (self):
 		self.store.close()
@@ -124,7 +127,8 @@ class ItemTest (unittest.TestCase):
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
-		self.store = reset_store(storm_url)
+		self.store = create_store(storm_url)
+		set_store(self.store)
 		
 	def tearDown (self):
 		self.store.close()
@@ -182,10 +186,15 @@ class EventTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.Event class
 	"""
 	def setUp (self):
-		self.store = reset_store("sqlite:unittest.sqlite")		
+		storm_url = "sqlite:unittest.sqlite"
+		db_file = storm_url.split(":")[1]
+		if os.path.exists(db_file):
+			os.remove(db_file)
+		self.store = create_store(storm_url)
+		set_store(self.store)
 		
 	def tearDown (self):
-		pass
+		self.store.close()
 	
 	def testCreateEvent (self):
 		i = Item("it1")
@@ -301,10 +310,15 @@ class AnnotationTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.Annotation class
 	"""
 	def setUp (self):
-		self.store = reset_store("sqlite:unittest.sqlite")		
+		storm_url = "sqlite:unittest.sqlite"
+		db_file = storm_url.split(":")[1]
+		if os.path.exists(db_file):
+			os.remove(db_file)
+		self.store = create_store(storm_url)
+		set_store(self.store)
 		
 	def tearDown (self):
-		pass
+		self.store.close()
 	
 	def testCreateAnnotation (self):
 		i = Item("it1")

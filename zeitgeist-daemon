@@ -14,8 +14,10 @@ from zeitgeist import config
 
 gettext.install("zeitgeist", config.localedir, unicode=1)
 
-from zeitgeist.engine.engine import engine
+from zeitgeist.engine.engine import get_default_engine
 from zeitgeist.engine.remote import RemoteInterface
+
+engine = get_default_engine()
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = gobject.MainLoop()
