@@ -123,8 +123,7 @@ class ZeitgeistEngine(gobject.GObject):
 		False otherwise (for example, if the item already is in the
 		database).
 		"""
-		print ritem
-		return True
+		
 		if not ritem.has_key("uri") or not ritem["uri"]:
 			print >> sys.stderr, "Discarding item without a URI: %s" % ritem
 			return False
