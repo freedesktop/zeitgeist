@@ -50,6 +50,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 		'''
+		if storm_store is None : raise ValueError("Storm Store is None")
 		self._apps = set()
 		self.store = storm_store
 	
@@ -68,7 +69,7 @@ class ZeitgeistEngine(gobject.GObject):
 			event and event.start or 0, # timestamp
 			item.uri.value, # uri
 			item.text, # name
-			item.source.value, # source
+			item.source.value or "N/A", # source
 			item.content.value, # content
 			item.mimetype, # mimetype
 			tags, # tags
@@ -77,7 +78,7 @@ class ZeitgeistEngine(gobject.GObject):
 			item.icon, # icon
 			event and event.app.info or "", # app
 			item.origin # origin
-			)
+			)		
 	
 	def _ensure_item(self, item, uri_only=False):
 		"""
@@ -132,10 +133,18 @@ class ZeitgeistEngine(gobject.GObject):
 			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
 			return False
 		
+		#check if the event already exists: if so don't bother inserting
+		item = Item.lookup(ritem["uri"])
+		if item:
+			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(self._next_salt())
+			if Event.lookup(e_uri):
+				return False
+			
 		try:
 			# The item may already exist in the db,
 			# so only create it if necessary
-			item = Item.lookup_or_create(ritem["uri"])
+			if not item :
+				item = Item(ritem["uri"])
 			item.content = Content.lookup_or_create(ritem["content"])
 			item.source = Source.lookup_or_create(ritem["source"])
 			item.text = unicode(ritem["text"])
@@ -146,6 +155,7 @@ class ZeitgeistEngine(gobject.GObject):
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert item:\n%s" % ritem
 			print >> sys.stderr, "Error was: %s" % ex			
+			del item
 			return False
 		
 		# Store a new event for this
@@ -159,29 +169,31 @@ class ZeitgeistEngine(gobject.GObject):
 			e.item.content = Content.lookup_or_create(ritem["use"])
 			
 			#FIXME: Lots of info from the applications, try to sort them out here properly
+			bool =	self.store.execute("SELECT * FROM app WHERE info=?",(ritem["app"],)).get_one()
+			if not bool:
+				app_info = DesktopEntry(ritem["app"])
+				e.app = App.lookup_or_create(ritem["app"])
+				#print app_info
+				e.app.item.text = unicode(app_info.getName())
+				e.app.item.content = Content.lookup_or_create(app_info.getType())
+				e.app.item.source = Source.lookup_or_create(app_info.getExec())
+				e.app.item.icon = unicode(app_info.getIcon())
+				e.app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop file
+				for tag in app_info.getCategories():
+					print "TAG:", tag
+					a_uri = "zeitgeist://tag/%s" % tag
+					a = Annotation.lookup_or_create(a_uri)
+					a.subject = e.app.item
+					a.item.text = unicode(tag)
+					a.item.source_id = Source.APPLICATION.id
+					a.item.content_id = Content.TAG.id
+			del e
 			
-			app_info = DesktopEntry(ritem["app"])
-			
-			e.app = App.lookup_or_create(ritem["app"])
-			#print app_info
-			e.app.item.text = unicode(app_info.getName())
-			e.app.item.content = Content.lookup_or_create(app_info.getType())
-			e.app.item.source = Source.lookup_or_create(app_info.getExec())
-			e.app.item.icon = unicode(app_info.getIcon())
-			e.app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop file
-			for tag in app_info.getCategories():
-				print "TAG:", tag
-				a_uri = "zeitgeist://tag/%s" % tag
-				a = Annotation.lookup_or_create(a_uri)
-				a.subject = e.app.item
-				a.item.text = unicode(tag)
-				a.item.source_id = Source.APPLICATION.id
-				a.item.content_id = Content.TAG.id
-		
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
 			print >> sys.stderr, "Error was: %s" % ex			
+			del e
 			return False
 		
 		# Extract tags
@@ -247,24 +259,22 @@ class ZeitgeistEngine(gobject.GObject):
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
-		items = self.store.find(Item, Event.start >= min, Event.start <= max,
-						         Item.id == Event.subject_id)
-		"""
-		for event in store.find(Event, Event.start >= min, Event.start <= max):
+		t1 = time.time()
+		events = self.store.find(Event, Event.start >= min, Event.start <= max)
+		
+		for event in events:
 			start = event.start
 			
-			usage_id = store.find(URI, URI.id == event.item_id).one()
-			usage = store.find(Item.content_id, Item.id == usage_id.id).one()
-			usage = store.find(Content.value, Content.id == usage).one()
-			
-			item = store.find(Item, Item.id == event.subject_id).one()
+			usage = event.item.content.value
+			item = event.subject
 			
 			app= ""
 			
 			if item:
 				pack.append(func(item, timestamp = start, usage=usage, app=app))
+		t2 = time.time()
+		print "--------------------------> "+str(t2-t1)
 		return pack
-		"""
 	
 	def update_item(self, item):
 		"""

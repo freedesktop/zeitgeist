@@ -73,6 +73,7 @@ class Entity(object):
 	def lookup(klass, value=None, id=None):
 		"""Look up an entity by value or id, return None if the
 		   entity is not known"""
+		global _store
 		if value:
 			value = unicode(value)
 			return _store.find(klass, klass.value == value).one()
@@ -80,7 +81,7 @@ class Entity(object):
 			return _store.find(klass, klass.id == id).one()
 		else:
 			raise ValueError("Looking up Entity without a value or id")
-	
+	    
 	@classmethod
 	def lookup_or_create(klass, value):
 		ent = klass.lookup(value)		
@@ -172,6 +173,7 @@ class Item(object):
 	
 	@classmethod
 	def lookup(klass, uri):
+		global _store
 		if isinstance(uri, str) or isinstance(uri,unicode):
 			uri = unicode(uri)
 			return _store.find(Item,
@@ -213,6 +215,7 @@ class ProxyItem(object):
 	
 	@classmethod
 	def lookup (klass, uri):
+		global _store
 		if isinstance(uri, str) or isinstance(uri, unicode):
 			uri = unicode(uri)
 			return _store.find(klass, klass.item_id == URI.id, URI.value == uri).one()
