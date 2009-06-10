@@ -37,6 +37,9 @@ class DataHub(gobject.GObject):
 		
 		# Start by fetch new items from all sources
 		self._sources_queue = list(self._sources)
+		if not self._sources_queue:
+			print _("No passive loggers found, bye.")
+			sys.exit(1) # Mainloop doesn't exit yet, exit directly
 		self._db_update_in_progress = True
 		gobject.idle_add(self._update_db_async)
 		
