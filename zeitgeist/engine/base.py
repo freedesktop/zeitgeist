@@ -80,7 +80,7 @@ class Entity(object):
 			return store.find(klass, klass.id == id).one()
 		else:
 			raise ValueError("Looking up Entity without a value or id")
-	
+	    
 	@classmethod
 	def lookup_or_create(klass, value):
 		ent = klass.lookup(value)		
