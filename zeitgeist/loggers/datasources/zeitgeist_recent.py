@@ -188,7 +188,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 				mimetype = unicode(info.get_mime_type())
 				last_application = info.last_application()
 				# this causes a  *** glibc detected *** python: double free or corruption (!prev): 0x0000000001614850 ***
-				# bug in pygtk
+				# bug in pygtk, reported as (lp: #386035) and upstream
 				application_info = info.get_application_info(last_application)
 				#
 				application = application_info[0].split()[0]
