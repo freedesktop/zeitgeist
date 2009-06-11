@@ -54,7 +54,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self._apps = set()
 		self.store = storm_store
 	
-	def _result2data(self, item, event=None):
+	def _result2data(self, event=None):
 		
 		'''
 		Get Tags
@@ -64,19 +64,20 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		#FIXME: Get bookmark
 		bookmark = False
+		item = event.subject
 		
 		return (
-			event and event.start or 0, # timestamp
+			event.start or 0, # timestamp
 			item.uri.value, # uri
 			item.text, # name
 			item.source.value or "N/A", # source
 			item.content.value, # content
 			item.mimetype, # mimetype
 			tags, # tags
-			event and event.item.content.value or "",# usage is determined by the event Content type
+			event.item.content.value or "",# usage is determined by the event Content type
 			bookmark, # bookmark
 			item.icon, # icon
-			event and event.app.info or "", # app
+			"", # app
 			item.origin # origin
 			)		
 	
@@ -143,8 +144,7 @@ class ZeitgeistEngine(gobject.GObject):
 		try:
 			# The item may already exist in the db,
 			# so only create it if necessary
-			if not item :
-				item = Item(ritem["uri"])
+			item = Item.lookup_or_create(ritem["uri"])
 			item.content = Content.lookup_or_create(ritem["content"])
 			item.source = Source.lookup_or_create(ritem["source"])
 			item.text = unicode(ritem["text"])
@@ -213,13 +213,14 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		# Extract bookmarks
 		if ritem.has_key("bookmark") and ritem["bookmark"]:
-			print "BOOKMARK:", ritem["uri"]
 			a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
-			a = Annotation.lookup_or_create(a_uri)
-			a.subject = item
-			a.item.text = u"Bookmark"
-			a.item.source_id = Source.USER_ACTIVITY.id
-			a.item.content_id = Content.BOOKMARK.id
+			if not Annotation.lookup(a_uri):
+				print "BOOKMARK:", ritem["uri"]
+				a = Annotation.lookup_or_create(a_uri)
+				a.subject = item
+				a.item.text = u"Bookmark"
+				a.item.source_id = Source.USER_ACTIVITY.id
+				a.item.content_id = Content.BOOKMARK.id
 		
 		if commit:
 			self.store.flush()		
@@ -264,19 +265,17 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		t1 = time.time()
 		events = self.store.find(Event, Event.start >= min, Event.start <= max)
+		events.order_by(Event.start)
 		
-		for event in events:
-			start = event.start
-			
-			usage = event.item.content.value
-			item = event.subject
-			
-			app= ""
-			
-			if item:
-				pack.append(func(item, timestamp = start, usage=usage, app=app))
+		print events
+		
 		t2 = time.time()
 		print "--------------------------> "+str(t2-t1)
+		
+		for event in events:
+			pack.append(func(event))
+		t3 = time.time()
+		print "-------------------------------------------> "+str(t3-t2)
 		return pack
 	
 	def update_item(self, item):
@@ -285,9 +284,6 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		If the item has tags, then the tags will also be updated.
 		"""
-		# Delete this item from the database if it's already present.
-		self.cursor.execute('DELETE FROM data where uri=?',(item["uri"],))
-		
 		# (Re)insert the item into the database
 		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?)',
 							 (item["uri"],
@@ -297,8 +293,11 @@ class ZeitgeistEngine(gobject.GObject):
 								item["bookmark"],
 								item["mimetype"],
 								item["type"]))
-		self.connection.commit()
 		
+		
+		
+
+		'''
 		# Delete old tags for this item
 		self.cursor.execute('DELETE FROM tags where uri=?', (item["uri"],))
 		
@@ -309,6 +308,8 @@ class ZeitgeistEngine(gobject.GObject):
 					(unicode(tag.capitalize()), item["uri"]))
 			except sqlite3.IntegrityError:
 				pass
+		'''
+		
 		self.connection.commit()
 	
 	def delete_item(self, item):
