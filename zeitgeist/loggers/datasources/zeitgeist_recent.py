@@ -186,7 +186,11 @@ class RecentlyUsedManagerGtk(DataProvider):
 				uri = unicode(info.get_uri_display())
 				text = u""
 				mimetype = unicode(info.get_mime_type())
-				application_info = info.get_application_info(info.last_application())
+				last_application = info.last_application()
+				# this causes a  *** glibc detected *** python: double free or corruption (!prev): 0x0000000001614850 ***
+				# bug in pygtk
+				application_info = info.get_application_info(last_application)
+				#
 				application = application_info[0].split()[0]
 				desktopfile, desktopentry = get_desktopentry_for_application(application)
 				icon = desktopentry.getIcon()
