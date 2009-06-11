@@ -89,7 +89,7 @@ class DataHub(gobject.GObject):
 		items = set()
 		for num, item in enumerate(self._sources_queue[0].get_items()):
 			items.add(plainify_dict(item))
-			if num % 25 == 0:
+			if num % 50 == 0:
 				self._insert_items(self._sources_queue[0].name, items)
 				items = set()
 		if items:

@@ -50,7 +50,8 @@ class ZeitgeistEngine(gobject.GObject):
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 		'''
-		if storm_store is None : raise ValueError("Storm Store is None")
+		if storm_store is None:
+			raise ValueError("Storm Store is None")
 		self._apps = set()
 		self.store = storm_store
 	
@@ -154,8 +155,7 @@ class ZeitgeistEngine(gobject.GObject):
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert item:\n%s" % ritem
-			print >> sys.stderr, "Error was: %s" % ex			
-			del item
+			print >> sys.stderr, "Error was: %s" % ex
 			return False
 		
 		# Store a new event for this
@@ -195,8 +195,7 @@ class ZeitgeistEngine(gobject.GObject):
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
 			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
-			print >> sys.stderr, "Error was: %s" % ex			
-			del e
+			print >> sys.stderr, "Error was: %s" % ex
 			return False
 		
 		# Extract tags
@@ -294,9 +293,6 @@ class ZeitgeistEngine(gobject.GObject):
 								item["mimetype"],
 								item["type"]))
 		
-		
-		
-
 		'''
 		# Delete old tags for this item
 		self.cursor.execute('DELETE FROM tags where uri=?', (item["uri"],))
@@ -385,6 +381,6 @@ class ZeitgeistEngine(gobject.GObject):
 _engine = None
 def get_default_engine():
 	global _engine
-	if not _engine :
+	if not _engine:
 		_engine = ZeitgeistEngine(get_default_store())
 	return _engine
