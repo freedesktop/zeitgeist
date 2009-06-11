@@ -7,9 +7,13 @@ import urllib
 import gtk
 import gettext
 
+
 from xdg import DesktopEntry, BaseDirectory
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
+from zeitgeist import config
+
+gettext.install("zeitgeist", config.localedir, unicode=1)
 		
 # helpers
 
@@ -17,14 +21,17 @@ def get_desktopentry_for_application(application):
 	desktopfiles = list(
 		BaseDirectory.load_data_paths("applications", "%s.desktop" %application)
 	)
-	if len(desktopfiles) == 1:
-		filename = desktopfiles.pop()
+	if desktopfiles:
+		# What do we do in cases where multible .desktop files are found for one application?
+		# take the one in the users $HOME? or raise an error?
+		filename = desktopfiles.pop(0)
 		return filename, DesktopEntry.DesktopEntry(filename)
 	else:
-		if not desktopfiles:
-			raise ValueError("no desktop file found for '%s'" %application)
-		else:
-			raise RuntimeError("found more then one matching desktop file %s" %desktopfiles)
+		# What to do when there is no .desktop file for an application?
+		# raise an error? or try to get an alternative file?
+		# Example gimp-s.6 has no .desktop file
+		return get_desktopentry_for_application("firefox") #just for now, for testing
+			
 
 class SimpleMatch(object):
 
@@ -191,7 +198,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					(info.get_modified(), u"ModifyEvent")
 				)
 				
-				for timestamp, use in (times):
+				for timestamp, use in times:
 					
 					item = {
 						"timestamp": timestamp,
