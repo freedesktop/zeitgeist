@@ -7,53 +7,37 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-22 19:24+0200\n"
+"POT-Creation-Date: 2009-06-11 16:22+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
-"Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad."
-"net>\n"
+"Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Catalan\n"
 
-#: ../zeitgeist-trayicon:34
-msgid "Open Journal"
-msgstr "Obre el diari"
+#: ../zeitgeist-daemon:38
+msgid "Starting Zeitgeist service..."
+msgstr "S'està iniciant el servei Zeitgeist..."
 
-#: ../zeitgeist-trayicon:114
-msgid ""
-"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
-"computer."
-msgstr "El GNOME Zeitgeist és una eina per a navegar i trobar "
+#: ../zeitgeist-datahub:41
+msgid "No passive loggers found, bye."
+msgstr ""
 
-#: ../zeitgeist-journal:44 ../zeitgeist-journal:93
-msgid "Stars"
-msgstr "Activitats destacades"
-
-#: ../zeitgeist-journal:49
-msgid "Journal"
-msgstr "Diari"
-
-#: ../zeitgeist-datahub:57
+#: ../zeitgeist-datahub:60
 #, c-format
 msgid "Error: Could not load file: %s"
 msgstr "Error: No s'ha pogut carregar el fitxer: %s"
 
-#: ../zeitgeist-datahub:83
+#: ../zeitgeist-datahub:86
 #, c-format
 msgid "Updating database with new %s items"
 msgstr "S'està actualitzant la base de dades amb noves activitats: %s"
 
-#: ../zeitgeist-datahub:97
+#: ../zeitgeist-datahub:119
 #, c-format
 msgid "Type error logging item from \"%s\": %s"
-msgstr ""
-"Tipus de variable errònia al intentar registrar una activitat de «%s»: %s"
-
-#: ../zeitgeist-daemon:36
-msgid "Starting Zeitgeist service..."
-msgstr "S'està iniciant el servei Zeitgeist..."
+msgstr "Tipus de variable errònia al intentar registrar una activitat de «%s»: %s"
 
 #: ../zeitgeist/shared/zeitgeist_dbus.py:13
 msgid "Error: Could not connect to D-Bus."
@@ -63,253 +47,47 @@ msgstr "Error: No s'ha pogut establir una connexió amb el D-Bus."
 msgid "Error: Zeitgeist service not running."
 msgstr "Error: No s'està executant el servei del Zeitgeist."
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:84
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:87
-msgid "Notes"
-msgstr "Notes"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:89
-msgid "Create New Note"
-msgstr "Crea una nota nova"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:90
-msgid "Make a new Tomboy note"
-msgstr "Crea una nota nova"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:169
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:202
 msgid "Documents"
 msgstr "Documents"
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:181
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:214
 msgid "Other"
 msgstr "Altres"
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:200
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:233
 msgid "Images"
 msgstr "Imatges"
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:210
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:243
 msgid "Music"
 msgstr "Música"
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:220
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:253
 msgid "Videos"
 msgstr "Vídeos"
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:23
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:262
+msgid "Development"
+msgstr "Desenvolupament"
+
+#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:22
 msgid "Firefox History"
 msgstr "Historial del Firefox"
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:26
+#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:25
 msgid "Websites visited with Firefox"
 msgstr "Pàgines web visitades amb el Firefox"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:418
-msgid "Recently used tags"
-msgstr "Etiquetes utilitzades recentment"
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py.in:84
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py.in:87
+msgid "Notes"
+msgstr "Notes"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:419
-#: ../zeitgeist/gui/zeitgeist_base.py:253
-msgid "Most used tags"
-msgstr "Etiquetes més utilitzades"
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py.in:89
+msgid "Create New Note"
+msgstr "Crea una nota nova"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:420
-msgid "All tags"
-msgstr "Totes les etiquetes"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:663
-msgid "Search"
-msgstr "Cerca"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:775
-msgid "Show recent activities"
-msgstr "Mostra les activats recents"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:782
-msgid "Search for activities"
-msgstr "Cerca activitats"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:818
-msgid "Tags"
-msgstr "Etiquetes"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
-msgid "Calendar"
-msgstr "Calendari"
-
-#. vbox.pack_start(calendar, False, False)
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:828
-msgid "Filters"
-msgstr "Filtres"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:830
-msgid "Enable Grouping"
-msgstr "Mostra agrupats per tipus"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:81
-msgid "Name"
-msgstr "Nom"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:88
-msgid "Time"
-msgstr "Hora"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:407
-msgid "Tagged with:"
-msgstr "Etiquetat amb:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:409
-msgid "The file has been removed from"
-msgstr "El fitxer ha estat esborrat de"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:431
-msgid "New Document"
-msgstr "Document nou"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:477
-msgid "Related files"
-msgstr "Fitxers relacionats"
-
-#. TODO: Use proper, separate widgets for this
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:500
-msgid "Last usage:"
-msgstr "Utilitzat per darrera vegada:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:502
-msgid "Tags:"
-msgstr "Etiquetes:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:504
-#, python-format
-msgid "Files related to %s"
-msgstr "Fitxers relacionats amb %s"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:552
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:573
-#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:63
-msgid "Today"
-msgstr "Avui"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:622
-msgid "All favorites"
-msgstr "Totes les destacades"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:163
-msgid "Unbookmark"
-msgstr "Suprimeix de les activitats destacades"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:165
-msgid "Bookmark"
-msgstr "Afegeix a les activitats destacades"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:170
-msgid "Show related activities"
-msgstr "Mostra activitats relacionades"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:175
-msgid "Edit tags..."
-msgstr "Canvia les etiquetes..."
-
-#: ../zeitgeist/gui/zeitgeist_base.py:186
-msgid "Delete item from Zeitgeist"
-msgstr "Suprimeix l'activitat del Zeitgeist"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:216
-#, python-format
-msgid "Edit tags for %s"
-msgstr "Canvia les etiquetes per a %s"
-
-#. Use real Cancel/OK buttons. Those are not compliant with HIG.
-#: ../zeitgeist/gui/zeitgeist_base.py:221
-msgid "Add"
-msgstr "Afegeix"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:222
-msgid "Cancel"
-msgstr "Aborta"
-
-#. Window
-#: ../zeitgeist/experimental/zeitgeist-projectviewer.py:24
-msgid "GNOME Zeitgeist Project Viewer"
-msgstr "Visualitzador de projectes del GNOME Zeitgeist"
-
-#. Window
-#: ../zeitgeist/experimental/zeitgeist-timeline.py:24
-msgid "GNOME Zeitgeist Timeline"
-msgstr "Línia del temps del GNOME Zeitgeist"
-
-#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:65
-msgid "Yesterday"
-msgstr "Ahir"
-
-#: ../zeitgeist/engine/engine.py:84
-#, python-format
-msgid "Could not create database: %s"
-msgstr "No s'ha pogut crear la base de dades: %s"
-
-#: ../zeitgeist/engine/engine.py:91
-#, python-format
-msgid "Error connecting with database: %s"
-msgstr "S'ha produït un error al connectar amb la base de dades: %s"
-
-#: ../extra/zeitgeist-journal.desktop.in.in.h:1
-msgid "Browse a journal of recently used files"
-msgstr "Navegueu un diari de fitxers utilitzats recentment"
-
-#: ../extra/zeitgeist-journal.desktop.in.in.h:2
-msgid "File Journal"
-msgstr "Diari"
-
-#: ../extra/zeitgeist-journal.desktop.in.in.h:3
-msgid "Zeitgeist File Journal"
-msgstr "Diari del Zeitgeist"
-
-#: ../extra/zeitgeist-trayicon.desktop.in.in.h:1
-msgid "Start the Zeitgeist engine"
-msgstr "Inicia el servei Zeitgeist"
-
-#: ../extra/zeitgeist-trayicon.desktop.in.in.h:2
-msgid "Zeitgeist Tray Icon"
-msgstr "Icona del Zeitgeist"
-
-#~ msgid "Filters, Date & View"
-#~ msgstr "Filtres, Data & Vista"
-
-#~ msgid "Updating item: %s"
-#~ msgstr "S'està actualitzant l'activitat: %s"
-
-#~ msgid "Deleting item: %s"
-#~ msgstr "S'està suprimint l'activitat: %s"
-
-#~ msgid "Filter your current view"
-#~ msgstr "Filtreu la vista actual"
-
-#~ msgid "View journal for a specific date"
-#~ msgstr "Veieu el diari per a una data específica"
-
-#~ msgid "View tagged activities"
-#~ msgstr "Mostra activitats etiquetades"
-
-#~ msgid "Bookmarks"
-#~ msgstr "Activitats destacades"
-
-#~ msgid "Open Project Viewer"
-#~ msgstr "Obre el visualitzador de projectes"
-
-#~ msgid "Open Timeline"
-#~ msgstr "Obre la línia del temps"
-
-#~ msgid "Show related files"
-#~ msgstr "Mostra activitats relacionades"
-
-#~ msgid "Create New Document..."
-#~ msgstr "Crea un document nou..."
-
-#~ msgid "Go back in time"
-#~ msgstr "Retrocedeix en el temps"
-
-#~ msgid "Go forward in time"
-#~ msgstr "Avança en el temps"
-
-#~ msgid "Go to the future"
-#~ msgstr "Avança en el temps"
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py.in:90
+msgid "Make a new Tomboy note"
+msgstr "Crea una nota nova"
