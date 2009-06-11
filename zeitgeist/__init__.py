@@ -13,7 +13,6 @@ except ImportError:
         bindir = os.path.join(os.path.dirname(__file__), "..")
         localedir = "/usr/share/locale"
         pkgdatadir = os.path.join(bindir, "data")
-        hicolordir = os.path.join(pkgdatadir, "logo")
         libdir = ""
         libexecdir = ""
         PACKAGE = "gnome-zeitgeist"  # TODO: change this
