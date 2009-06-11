@@ -2,11 +2,67 @@
 
 import os
 import re
+import fnmatch
 import urllib
 import gtk
 import gettext
 
+from xdg import DesktopEntry, BaseDirectory
+
 from zeitgeist.loggers.zeitgeist_base import DataProvider
+		
+# helpers
+
+def get_desktopentry_for_application(application):
+	desktopfiles = list(
+		BaseDirectory.load_data_paths("applications", "%s.desktop" %application)
+	)
+	if len(desktopfiles) == 1:
+		filename = desktopfiles.pop()
+		return filename, DesktopEntry.DesktopEntry(filename)
+	else:
+		if not desktopfiles:
+			raise ValueError("no desktop file found for '%s'" %application)
+		else:
+			raise RuntimeError("found more then one matching desktop file %s" %desktopfiles)
+
+class SimpleMatch(object):
+
+	def __init__(self, pattern):
+		self.__pattern = pattern
+
+	def match(self, text):
+		return fnmatch.fnmatch(text, self.__pattern)
+
+	def __repr__(self):
+		return "%s(%r)" %(self.__class__.__name__, self.__pattern)
+
+
+class MimeTypeSet(set):
+
+	def __init__(self, *items):
+		super(MimeTypeSet, self).__init__()
+		self.__pattern = set()
+		for item in items:
+			if isinstance(item, (str, unicode)):
+				self.add(item)
+			elif hasattr(item, "match"):
+				self.__pattern.add(item)
+			else:
+				raise ValueError("Bad mimetype '%s'" %item)
+
+	def __contains__(self, mimetype):
+		result = super(MimeTypeSet, self).__contains__(mimetype)
+		if not result:
+			for pattern in self.__pattern:
+				if pattern.match(mimetype):
+					return True
+		return result
+
+	def __repr__(self):
+		items = ", ".join(map(repr, self | self.__pattern))
+		return "%s(%s)" %(self.__class__.__name__, items)
+		
 
 DOCUMENT_MIMETYPES = [
 		# Covers:
@@ -16,9 +72,9 @@ DOCUMENT_MIMETYPES = [
 		#	 vnd.oasis.opendocument.*
 		#	 vnd.stardivision.*
 		#	 vnd.sun.xml.*
-		re.compile(u"application/vnd.*"),
+		SimpleMatch(u"application/vnd.*"),
 		# Covers: x-applix-word, x-applix-spreadsheet, x-applix-presents
-		re.compile(u"application/x-applix-*"),
+		SimpleMatch(u"application/x-applix-*"),
 		# Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
 		re.compile(u"application/x-k(word|spread|presenter|illustrator)"),
 		u"application/ms-powerpoint",
@@ -30,26 +86,26 @@ DOCUMENT_MIMETYPES = [
 		u"application/x-abiword",
 		u"application/x-gnucash",
 		u"application/x-gnumeric",
-		u"application/x-java*",
+		SimpleMatch("application/x-java*"),
 		u"text/plain"
 		]
 
 IMAGE_MIMETYPES = [
 		# Covers:
 		#	 vnd.corel-draw
-		re.compile(u"application/vnd.corel-draw"),
+		u"application/vnd.corel-draw",
 		# Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
-		re.compile(u"application/x-k(illustrator)"),
-		re.compile(u"image/*"),
+		re.compile(u"application/x-k(word|spread|presenter|illustrator)"),
+		SimpleMatch(u"image/*"),
 		]
 
 AUDIO_MIMETYPES = [
-		re.compile(u"audio/*"),
+		SimpleMatch(u"audio/*"),
 		u"application/ogg"
 		]
 
 VIDEO_MIMETYPES = [
-		re.compile(u"video/*"),
+		SimpleMatch(u"video/*"),
 		u"application/ogg"
 		]
 
@@ -91,6 +147,7 @@ DEVELOPMENT_MIMETYPES = [
 		u"text/x-sql",
 		u"application/x-desktop"
 		]
+		
 
 class RecentlyUsedManagerGtk(DataProvider):
 	
@@ -102,43 +159,54 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 	def get_items_uncached(self):
 		for info in self.recent_manager.get_items():
-			if info.exists() and not info.get_private_hint() and info.get_uri().find("/tmp") < 0:
+			if info.exists() and not info.get_private_hint() and "/tmp" not in info.get_uri_display():
 				use = None
 				
 				# Create a string of tags based on the file's path
 				# e.g. the file /home/natan/foo/bar/example.py would be tagged with "foo" and "bar"
 				# Note: we only create tags for files under the users home folder
 				tags = ""
-				tmp = info.get_uri()[info.get_uri().find('://') + 3:]
+				tmp = info.get_uri_display()
 				tmp = os.path.dirname(tmp)		# remove the filename from the string
 				home = os.path.expanduser("~")	# get the users home folder
 				
 				if tmp.startswith(home):
 					tmp = tmp[len(home)+1:]
-				if tmp != "":
+				if tmp:
 					tmp = unicode(urllib.unquote(tmp))
-					tags = tmp.replace("/", ",")
+					tags = tmp.replace("/", ";")
 				
-				item = {
-					"uri": unicode((info.get_uri()), 'utf-8'),
-					"name": unicode(urllib.unquote(info.get_display_name())),
-					"comment": unicode(info.get_display_name()),
-					"mimetype": unicode(info.get_mime_type()),
-					"tags": unicode(tags),
-					"app": info.last_application(),
-				}
+				uri = unicode(info.get_uri_display())
+				text = u""
+				mimetype = unicode(info.get_mime_type())
+				application_info = info.get_application_info(info.last_application())
+				application = application_info[0].split()[0]
+				desktopfile, desktopentry = get_desktopentry_for_application(application)
+				icon = desktopentry.getIcon()
+				origin = u"%s:///" %info.get_uri().split(":///")[0]
 				
-				item["timestamp"] = info.get_added()
-				item["use"] = unicode("first usage")
-				yield item
+				times = (
+					(info.get_added(), u"CreateEvent"),
+					(info.get_visited(), u"VisitEvent"),
+					(info.get_modified(), u"ModifyEvent")
+				)
 				
-				item["timestamp"] = info.get_visited()
-				item["use"] = unicode("opened")
-				yield item
-				
-				item["timestamp"] = info.get_modified()
-				item["use"] = unicode("modified")
-				yield item
+				for timestamp, use in (times):
+					
+					item = {
+						"timestamp": timestamp,
+						"uri": uri,
+						"text": text,
+						"source": u"File",
+						"content": u"File",
+						"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
+						"mimetype": mimetype,
+						"tags": tags,
+						"icon": icon,
+						"app": unicode(desktopfile),
+						"origin":  origin,
+					}
+					yield item
 
 
 class RecentlyUsed(DataProvider):
@@ -163,102 +231,104 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 	"""
 	Recently-used items filtered by a set of mimetypes.
 	"""
-	def __init__(self, name, icon, mimetype_list, filter_name,inverse=False):
+	mimetype_list = MimeTypeSet()
+	
+	def __init__(self, name, icon, filter_name,inverse=False):
 		RecentlyUsed.__init__(self, name, icon)
-		self.mimetype_list = mimetype_list
 		self.filter_name = filter_name
 		self.inverse = inverse
 		self.icon = icon
 
 	def include_item(self, item):
-		item_mime = item["mimetype"]
-		for mimetype in self.mimetype_list:
-			if hasattr(mimetype, "match") and mimetype.match(item_mime) or item_mime == mimetype:
-				return True
-		return False
+		return item["mimetype"] in self.mimetype_list
 	
 	def get_items_uncached(self):
 		for item in RecentlyUsed.get_items_uncached(self):
 			
-			counter = 0
-			info = recent_model.recent_manager.lookup_item(item["uri"])
+			#~ counter = 0
+			#~ info = recent_model.recent_manager.lookup_item(item["uri"])
 			
-			for app in info.get_applications():
-				appinfo = info.get_application_info(app)
-				counter = counter + appinfo[1]
-				item["type"] = self.name
-			 	item["icon"] = self.icon
+			#~ for app in info.get_applications():
+				#~ appinfo = info.get_application_info(app)
+				#~ counter = counter + appinfo[1]
+			#~ item["type"] = self.name
+			item["icon"] = self.icon
 			
 			yield item
 
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 	
+	mimetype_list = MimeTypeSet(*DOCUMENT_MIMETYPES)
+	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Documents",
 										icon="stock_new-presentation",
-										mimetype_list=DOCUMENT_MIMETYPES,
 										filter_name=_("Documents"))
 
 
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 	
-	OTHER_MIMETYPES = DOCUMENT_MIMETYPES + IMAGE_MIMETYPES + AUDIO_MIMETYPES + VIDEO_MIMETYPES + DEVELOPMENT_MIMETYPES
+	mimetype_list = MimeTypeSet(*(DOCUMENT_MIMETYPES +\
+								  IMAGE_MIMETYPES +\
+								  AUDIO_MIMETYPES +\
+								  VIDEO_MIMETYPES +\
+								  DEVELOPMENT_MIMETYPES)
+								)
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Other",
 										icon="applications-other",
-										mimetype_list=self.OTHER_MIMETYPES,
 										filter_name=_("Other"),
 										inverse = True)
 	
 	def include_item(self, item):
-		item_mime = item["mimetype"]
-		for mimetype in self.mimetype_list:
-			if hasattr(mimetype, "match") and mimetype.match(item_mime) or item_mime == mimetype:
-				return False		
-		item["icon"]=self.icon
-		return True
+		#~ item["icon"]=self.icon #waht is this supposed to do???
+		return not item["mimetype"] in self.mimetype_list
 
 
 class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
+	
+	mimetype_list = MimeTypeSet(*IMAGE_MIMETYPES)
 	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Images",
 										icon="gnome-mime-image",
-										mimetype_list=IMAGE_MIMETYPES,
 										filter_name=_("Images"))
 
 
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 	
+	mimetype_list = MimeTypeSet(*AUDIO_MIMETYPES)
+	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Music",
 										icon="gnome-mime-audio",
-										mimetype_list=AUDIO_MIMETYPES,
 										filter_name=_("Music"))
 
 
 class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 	
+	mimetype_list = MimeTypeSet(*VIDEO_MIMETYPES)
+	
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Videos",
 										icon="gnome-mime-video",
-										mimetype_list=VIDEO_MIMETYPES,
 										filter_name=_("Videos"))
 
 class RecentlyUsedDevelopmentSource(RecentlyUsedOfMimeType):
+
+	mimetype_list = MimeTypeSet(*DEVELOPMENT_MIMETYPES)
 
 	def __init__(self):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Development",
 										icon="applications-development",
-										mimetype_list=DEVELOPMENT_MIMETYPES,
 										filter_name=_("Development"))
 
 recent_model = RecentlyUsedManagerGtk()
