@@ -168,7 +168,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 		for info in self.recent_manager.get_items():
 			if info.exists() and not info.get_private_hint() and "/tmp" not in info.get_uri_display():
 				use = None
-				print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 				# Create a string of tags based on the file's path
 				# e.g. the file /home/natan/foo/bar/example.py would be tagged with "foo" and "bar"
 				# Note: we only create tags for files under the users home folder
@@ -184,7 +183,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					tags = tmp.replace("/", ";")
 				
 				uri = unicode(info.get_uri_display())
-				text = u""
+				text = info.get_display_name()
 				mimetype = unicode(info.get_mime_type())
 				
 				origin = u"%s:///" %info.get_uri().split(":///")[0]
@@ -194,24 +193,22 @@ class RecentlyUsedManagerGtk(DataProvider):
 					(info.get_modified(), u"ModifyEvent")
 				)
 				
-				print times
+				app = get_desktopentry_for_application(info.last_application())
+				
 				items=[]
 				for timestamp, use in times:
 					item = {
 						"timestamp": timestamp,
 						"uri": uri,
 						"text": text,
-						"source": u"File",
 						"content": u"File",
 						"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
 						"mimetype": mimetype,
 						"tags": tags,
-						"app": "",
+						"app": app[0],
 						"origin":  origin,
 					}
-					print "-----------------------------------------------------------"
-					items.append(item)
-				print "oooooooooooooooooooooooooooooooooooo"
+					yield item
 
 
 class RecentlyUsed(DataProvider):
@@ -227,9 +224,11 @@ class RecentlyUsed(DataProvider):
 	def get_items_uncached(self):
 		self.counter = self.counter + 1
 		print "RecentlyUsed"
-		for item in recent_model.get_items():
-			if self.include_item(item):
-				yield item
+		print recent_model
+		if recent_model:
+			for item in recent_model.get_items_uncached():
+				if self.include_item(item):
+					yield item
 				
 	def include_item(self, item):
 		return True
@@ -262,7 +261,7 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 				#~ counter = counter + appinfo[1]
 			#~ item["type"] = self.name
 			item["icon"] = self.icon
-			
+			item["source"]=unicode(self.filter_name)
 			yield item
 
 

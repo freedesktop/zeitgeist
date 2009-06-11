@@ -201,14 +201,16 @@ class ZeitgeistEngine(gobject.GObject):
 		# Extract tags
 		if ritem.has_key("tags") and ritem["tags"].strip():			
 			# Iterate over non-empty strings only
-			for tag in filter(x for x in ritem["tags"].split(";") if x):
-				print "TAG:", tag
-				a_uri = "zeitgeist://tag/%s" % tag
-				a = Annotation.lookup_or_create(a_uri)
-				a.subject = item
-				a.item.text = tag
-				a.item.source_id = Source.USER_ACTIVITY.id
-				a.item.content_id = Content.TAG.id
+			for tag in ritem["tags"].split(";"):
+				print tag
+				if tag:
+					print "TAG:", tag
+					a_uri = "zeitgeist://tag/%s" % tag
+					a = Annotation.lookup_or_create(a_uri)
+					a.subject = item
+					a.item.text = tag
+					a.item.source_id = Source.USER_ACTIVITY.id
+					a.item.content_id = Content.TAG.id
 		
 		# Extract bookmarks
 		if ritem.has_key("bookmark") and ritem["bookmark"]:
