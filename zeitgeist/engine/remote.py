@@ -116,14 +116,14 @@ class RemoteInterface(dbus.service.Object):
 	def InsertItem(self, item_list):
 		result = _engine.insert_item(dictify_data(item_list))
 		if result:
-			self._emit_signal_updated()
+			self.EmitSignalUpdated()
 		return result
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="a"+sig_plain_data, out_signature="")
 	def InsertItems(self, items_list):
 		if _engine.insert_items([dictify_data(x) for x in items_list]):
-			self.emit_signal_updated()
+			self.Emit_Signal_Updated()
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature=sig_plain_data, out_signature="")
