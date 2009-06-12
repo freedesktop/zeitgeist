@@ -177,6 +177,14 @@ DEVELOPMENT_MIMETYPES = [
 		u"application/ecmascript",
 		u"text/x-haskell"
 		]
+		
+
+BROKEN_APPS = [
+			   u"Document Viewer",
+			   u"Text Editor",
+			   u"Totem Movie Player",
+			   u"File Manager"
+			   ]
 
 class RecentlyUsedManagerGtk(DataProvider):
 	
@@ -207,31 +215,38 @@ class RecentlyUsedManagerGtk(DataProvider):
 				uri = unicode(info.get_uri_display())
 				text = info.get_display_name()
 				mimetype = unicode(info.get_mime_type())
-				
-				origin = u"%s:///" %info.get_uri().split(":///")[0]
-				times = (
-					(info.get_added(), u"CreateEvent"),
-					(info.get_visited(), u"VisitEvent"),
-					(info.get_modified(), u"ModifyEvent")
-				)
-				
-				app = info.last_application()
-				#app = get_desktopentry_for_application(info.last_application())
-				
-				items=[]
-				for timestamp, use in times:
-					item = {
-						"timestamp": timestamp,
-						"uri": uri,
-						"text": text,
-						"content": u"File",
-						"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
-						"mimetype": mimetype,
-						"tags": tags,
-						"app": app,
-						"origin":  origin,
-					}
-					yield item
+				last_application = info.last_application().strip()
+				# this causes a  *** glibc detected *** python: double free or corruption (!prev): 0x0000000001614850 ***
+				# bug in pygtk, reported as (lp: #386035) and upstream
+				print last_application
+				if BROKEN_APPS.count(unicode(last_application.strip())) == 0:
+					print BROKEN_APPS
+					application_info = info.get_application_info(last_application)
+					#
+					application = application_info[0].split()[0]
+					desktopfile, desktopentry = get_desktopentry_for_application(application)
+					icon = desktopentry.getIcon()
+					origin = u"%s:///" %info.get_uri().split(":///")[0]
+					times = (
+						(info.get_added(), u"CreateEvent"),
+						(info.get_visited(), u"VisitEvent"),
+						(info.get_modified(), u"ModifyEvent")
+					)
+					
+					for timestamp, use in times:
+						item = {
+							"timestamp": timestamp,
+							"uri": uri,
+							"text": text,
+							#~ "source": u"File",
+							"content": u"File",
+							"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
+							"mimetype": mimetype,
+							"tags": tags,
+							"icon": icon,
+							"app": unicode(desktopfile),
+						}
+						yield item
 
 
 class RecentlyUsed(DataProvider):
@@ -275,16 +290,9 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 	def get_items_uncached(self):
 		print "RecentlyUsedOfMimeType"
 		for item in RecentlyUsed.get_items_uncached(self):
-			
-			#~ counter = 0
-			#~ info = recent_model.recent_manager.lookup_item(item["uri"])
-			
-			#~ for app in info.get_applications():
-				#~ appinfo = info.get_application_info(app)
-				#~ counter = counter + appinfo[1]
-			#~ item["type"] = self.name
+			print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 			item["icon"] = self.icon
-			item["source"]=unicode(self.filter_name)
+			item["source"] = unicode(self.filter_name)
 			yield item
 
 
