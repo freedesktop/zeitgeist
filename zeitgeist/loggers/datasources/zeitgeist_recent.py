@@ -172,7 +172,8 @@ DEVELOPMENT_MIMETYPES = [
 		u"application/x-designer",
 		u"text/x-makefile",
 		u"text/x-sql",
-		u"application/x-desktop"
+		u"application/x-desktop",
+		u"text/x-csharp"
 		]
 		
 
