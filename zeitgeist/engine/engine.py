@@ -43,24 +43,25 @@ class ZeitgeistEngine(gobject.GObject):
 	def __init__(self, storm_store):
 		
 		gobject.GObject.__init__(self)
+		
+		assert storm_store is not None
+		self.store = storm_store
+		self._apps = set()
 		self.reload_callback = None
+		
 		'''
-		path = BaseDirectory.save_config_path("zeitgeist")
+		path = BaseDirectory.save_data_path("zeitgeist")
 		database = os.path.join(path, "zeitgeist.sqlite")
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 		'''
-		if storm_store is None:
-			raise ValueError("Storm Store is None")
-		self._apps = set()
-		self.store = storm_store
 	
 	def _result2data(self, event=None):
 		
 		# FIXME: Get tag
 		tags = ""
 		
-		#FIXME: Get bookmark
+		# FIXME: Get bookmark
 		bookmark = False
 		item = event.subject
 		
@@ -77,7 +78,7 @@ class ZeitgeistEngine(gobject.GObject):
 			item.icon, # icon
 			"", # app
 			item.origin # origin
-			)		
+			)
 	
 	def _ensure_item(self, item, uri_only=False):
 		"""
@@ -113,6 +114,7 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		Returns 0 if there are no items in the database.
 		"""
+		
 		return 0
 	
 	def insert_item(self, ritem, commit=True):
@@ -132,67 +134,54 @@ class ZeitgeistEngine(gobject.GObject):
 			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
 			return False
 		
+		e_uri = "zeitgeist://event/%s/%%s/%s#%d" % (ritem["use"],
+			ritem["timestamp"], self._next_salt())
 		
-		#check if the event already exists: if so don't bother inserting
+		# Check if the event already exists: if so, don't bother inserting
 		item = Item.lookup(ritem["uri"])
 		if item:
-			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(self._next_salt())
-			if Event.lookup(e_uri):
+			if Event.lookup(e_uri % item.id):
 				return False
-			
-		try:
-			# The item may already exist in the db,
-			# so only create it if necessary
-			item = Item.lookup_or_create(ritem["uri"])
-			item.content = Content.lookup_or_create(ritem["content"])
-			item.source = Source.lookup_or_create(ritem["source"])
-			item.text = unicode(ritem["text"])
-			item.mimetype = unicode(ritem["mimetype"])
-			item.icon = unicode(ritem["icon"])
-			item.origin = unicode(ritem["origin"])
-		except sqlite3.IntegrityError, ex:
-			traceback.print_exc()
-			print >> sys.stderr, "Failed to insert item:\n%s" % ritem
-			print >> sys.stderr, "Error was: %s" % ex
-			return False
 		
-		# Store a new event for this
-		try:			
-			e_uri = "zeitgeist://event/"+ritem["use"]+"/"+str(item.id)+"/"+str(ritem["timestamp"]) + "#" + str(self._next_salt())
-			e = Event.lookup_or_create(e_uri)
-			e.subject = item
-			e.start = ritem["timestamp"]
-			e.item.text = u"Activity"
-			e.item.source_id = Source.USER_ACTIVITY.id
-			e.item.content = Content.lookup_or_create(ritem["use"])
-			
-			#FIXME: Lots of info from the applications, try to sort them out here properly
-			app_info = DesktopEntry(ritem["app"])
-			app = App.lookup_or_create(ritem["app"])
-			#print app_info
-			app.item.text = unicode(app_info.getName())
-			app.item.content = Content.lookup_or_create(app_info.getType())
-			app.item.source = Source.lookup_or_create(app_info.getExec())
-			app.item.icon = unicode(app_info.getIcon())
-			app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop )
-			
-			e.app = app.item.id
+		# Store the item
+		item = Item.lookup_or_create(ritem["uri"])
+		item.content = Content.lookup_or_create(ritem["content"])
+		item.source = Source.lookup_or_create(ritem["source"])
+		item.text = unicode(ritem["text"])
+		item.mimetype = unicode(ritem["mimetype"])
+		item.icon = unicode(ritem["icon"])
+		item.origin = unicode(ritem["origin"])
+		e_uri = e_uri % item.id
 		
-			for tag in app_info.getCategories():
-				print "TAG:", tag
-				a_uri = "zeitgeist://tag/%s" % tag
-				a = Annotation.lookup_or_create(a_uri)
-				a.subject = e.app.item
-				a.item.text = unicode(tag)
-				a.item.source_id = Source.APPLICATION.id
-				a.item.content_id = Content.TAG.id
-			e.app = app
-			
-		except sqlite3.IntegrityError, ex:
-			traceback.print_exc()
-			print >> sys.stderr, "Failed to insert event, '%s':\n%s" % (e_uri, ritem)
-			print >> sys.stderr, "Error was: %s" % ex
-			return False
+		# Store the event
+		e = Event.lookup_or_create(e_uri)
+		e.subject = item
+		e.start = ritem["timestamp"]
+		e.item.text = u"Activity"
+		e.item.source_id = Source.USER_ACTIVITY.id
+		e.item.content = Content.lookup_or_create(ritem["use"])
+		
+		# FIXME: Lots of info from the applications, try to sort them out here properly
+		app_info = DesktopEntry(ritem["app"])
+		app = App.lookup_or_create(ritem["app"])
+		print app_info
+		app.item.text = unicode(app_info.getName())
+		app.item.content = Content.lookup_or_create(app_info.getType())
+		app.item.source = Source.lookup_or_create(app_info.getExec())
+		app.item.icon = unicode(app_info.getIcon())
+		app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop )
+		
+		e.app = app.item.id
+	
+		for tag in app_info.getCategories():
+			print "TAG:", tag
+			a_uri = "zeitgeist://tag/%s" % tag
+			a = Annotation.lookup_or_create(a_uri)
+			a.subject = e.app.item
+			a.item.text = unicode(tag)
+			a.item.source_id = Source.APPLICATION.id
+			a.item.content_id = Content.TAG.id
+		e.app = app
 		
 		# Extract tags
 		if ritem.has_key("tags") and ritem["tags"].strip():			
@@ -232,31 +221,22 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		amount_items = 0
 		
-		#check if event is before the last logs
-		try:
-			app = App.lookup(items[0]["app"])
-			last_entry = self.store.find(Event.start, Event.app == app.item.id).order_by(Event.start).last()
-		except:
+		# Check if event is before the last logs
+		app = App.lookup(items[0]["app"])
+		if app:
+			last_entry = self.store.find(Event.start,
+				Event.app == app.item.id).order_by(Event.start).last()
+		else:
 			last_entry = 0
-		
 		
 		for item in items:
 			if item["timestamp"] >= last_entry:
 				if self.insert_item(item, commit=False):
 					amount_items += 1
-					print item["uri"]
-				#else:
-					#print >> sys.stderr, "Error inserting %s" % item["uri"]
-			
+		
 		self.store.commit()
-			#print "got items"
 		
 		return amount_items
-	
-	def compare(self, a, b):
-		return cmp(b["timestamp"],a["timestamp"]) # compare as integers
-
-
 	
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
