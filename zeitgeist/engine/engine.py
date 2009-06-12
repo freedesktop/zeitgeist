@@ -237,12 +237,12 @@ class ZeitgeistEngine(gobject.GObject):
 		for item in items:
 			if self.insert_item(item, commit=False):
 				amount_items += 1
-			else:
-				print >> sys.stderr, "Error inserting %s" % item["uri"]
+			#else:
+				#print >> sys.stderr, "Error inserting %s" % item["uri"]
 		
 		self.store.commit()
 		print "DONE"
-		print "got items"
+		#print "got items"
 		
 		return amount_items
 	
