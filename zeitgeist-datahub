@@ -108,7 +108,7 @@ class DataHub(gobject.GObject):
 	def _insert_items(self, source_name, items):
 		if items:
 			try:
-				iface.insert_items(items)
+				iface.InsertItems(items)
 			except dbus.exceptions.DBusException, error:
 				error = error.get_dbus_name()
 				if error == "org.freedesktop.DBus.Error.ServiceUnknown":
