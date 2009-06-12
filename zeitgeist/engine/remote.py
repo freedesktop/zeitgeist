@@ -31,7 +31,7 @@ class RemoteInterface(dbus.service.Object):
 	
 	def __init__(self, start_dbus=True, mainloop=None):
 		bus_name = dbus.service.BusName("org.gnome.Zeitgeist", dbus.SessionBus())
-		dbus.service.Object.__init__(self, bus_name, "/org/gnome/zeitgeist")
+		dbus.service.Object.__init__(self, bus_name, "/org/gnome/Zeitgeist")
 		self._mainloop = mainloop
 	
 	# Reading stuff

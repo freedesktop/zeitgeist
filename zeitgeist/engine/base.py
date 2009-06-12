@@ -24,7 +24,8 @@ from storm.locals import *
 class Symbol:
 	"""A simple structure to hold a URI and a short label and magically
 	   cache and entity (integer) id.
-	   Used in Source and Content for pre defined types"""
+	   Used in Source and Content for pre-defined types"""
+	
 	def __init__ (self, entity_class, uri):
 		self.value = uri
 		self.name = uri.split("#")[1]
@@ -81,13 +82,13 @@ class Entity(object):
 			return _store.find(klass, klass.id == id).one()
 		else:
 			raise ValueError("Looking up Entity without a value or id")
-	    
+	
 	@classmethod
 	def lookup_or_create(klass, value):
 		ent = klass.lookup(value)		
 		if ent : return ent
 		return klass(value)
-		
+
 
 class Content(Entity):
 	__storm_table__= "content"
@@ -187,8 +188,8 @@ class Item(object):
 		item = klass.lookup(uri)
 		if item : return item
 		return klass(uri)
-			
-		
+
+
 #
 # Storm does not handle multi-table classes. The following design pattern is
 # a simplifaction of Infoheritance described here:

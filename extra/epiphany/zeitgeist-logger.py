@@ -28,7 +28,7 @@ import urllib
 # Connect to D-Bus
 bus = dbus.SessionBus()
 try:
-	remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/zeitgeist")
+	remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/Zeitgeist")
 except dbus.exceptions.DBusException:
 	print >>sys.stderr, "GNOME Zeitgeist Logger: Error: Could not connect to D-Bus."
 else:
