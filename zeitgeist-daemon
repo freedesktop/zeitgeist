@@ -23,7 +23,7 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = gobject.MainLoop()
 
 object = RemoteInterface(mainloop = mainloop)
-engine.reload_callback = object.signal_updated
+engine.reload_callback = object.SignalUpdated
 
 trayicon_app = "%s/zeitgeist-trayicon" % config.bindir
 if not "--no-trayicon" in sys.argv and os.path.isfile(trayicon_app):
@@ -33,7 +33,7 @@ passive_loggers = "%s/zeitgeist-datahub" % config.bindir
 if not "--no-passive-loggers" in sys.argv and os.path.isfile(passive_loggers):
 	subprocess.Popen(passive_loggers)
 
-atexit.register(lambda: object.signal_exit())
+atexit.register(lambda: object.SignalExit())
 
 print _("Starting Zeitgeist service...")
 mainloop.run()

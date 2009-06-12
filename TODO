@@ -12,13 +12,13 @@ FOR RELEASE:
  - Log package installations/removals/updates.
  - Use Pylint
  - Add test cases to ensure the API doesn't break
+ - Either get ride of zeitgeist/shared, or make it a public module
+   available to the GUI and remove it from there.
 
 FUTURE:
 ------------
 
-- Backend:
-	+ Add on Tracker support.
-	+ Add time-machine with bzr.
-	+ Extend DB to support location of usage
-	+ Related Items should be automatically determined by currently used URI.
-	+ Auto Tagging e.g: tasks, locations, and relations.
+ - Add on Tracker support.
+ - Add time-machine with bzr.
+ - Extend DB to support location of usage
+ - Better Auto-Tagging; e.g: tasks, locations, and relations.

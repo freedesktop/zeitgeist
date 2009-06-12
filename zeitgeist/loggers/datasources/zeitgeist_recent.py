@@ -1,4 +1,24 @@
-# -.- encoding: utf-8 -.-
+# -.- encoding: utf-8 -.-# -.- encoding: utf-8 -.-
+
+# Zeitgeist
+#
+# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009 Natan Yellin <aantny@gmail.com>
+# Copyright © 2009 Alex Graveley <alex.graveley@beatniksoftewarel.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import re
@@ -152,7 +172,10 @@ DEVELOPMENT_MIMETYPES = [
 		u"application/x-designer",
 		u"text/x-makefile",
 		u"text/x-sql",
-		u"application/x-desktop"
+		u"application/x-desktop",
+		u"text/x-csharp",
+		u"application/ecmascript",
+		u"text/x-haskell"
 		]
 		
 
@@ -168,7 +191,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 		for info in self.recent_manager.get_items():
 			if info.exists() and not info.get_private_hint() and "/tmp" not in info.get_uri_display():
 				use = None
-				
 				# Create a string of tags based on the file's path
 				# e.g. the file /home/natan/foo/bar/example.py would be tagged with "foo" and "bar"
 				# Note: we only create tags for files under the users home folder
@@ -184,7 +206,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					tags = tmp.replace("/", ";")
 				
 				uri = unicode(info.get_uri_display())
-				text = u""
+				text = info.get_display_name()
 				mimetype = unicode(info.get_mime_type())
 				last_application = info.last_application()
 				# this causes a  *** glibc detected *** python: double free or corruption (!prev): 0x0000000001614850 ***
@@ -195,7 +217,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 				desktopfile, desktopentry = get_desktopentry_for_application(application)
 				icon = desktopentry.getIcon()
 				origin = u"%s:///" %info.get_uri().split(":///")[0]
-				
 				times = (
 					(info.get_added(), u"CreateEvent"),
 					(info.get_visited(), u"VisitEvent"),
@@ -203,19 +224,17 @@ class RecentlyUsedManagerGtk(DataProvider):
 				)
 				
 				for timestamp, use in times:
-					
 					item = {
 						"timestamp": timestamp,
 						"uri": uri,
 						"text": text,
-						"source": u"File",
+						#~ "source": u"File",
 						"content": u"File",
 						"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
 						"mimetype": mimetype,
 						"tags": tags,
 						"icon": icon,
 						"app": unicode(desktopfile),
-						"origin":  origin,
 					}
 					yield item
 
@@ -232,8 +251,13 @@ class RecentlyUsed(DataProvider):
 	
 	def get_items_uncached(self):
 		self.counter = self.counter + 1
-		return (item for item in recent_model.get_items() if self.include_item(item))
-	
+		print "RecentlyUsed"
+		print recent_model
+		if recent_model:
+			for item in recent_model.get_items_uncached():
+				if self.include_item(item):
+					yield item
+				
 	def include_item(self, item):
 		return True
 
@@ -254,17 +278,10 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 		return item["mimetype"] in self.mimetype_list
 	
 	def get_items_uncached(self):
+		print "RecentlyUsedOfMimeType"
 		for item in RecentlyUsed.get_items_uncached(self):
-			
-			#~ counter = 0
-			#~ info = recent_model.recent_manager.lookup_item(item["uri"])
-			
-			#~ for app in info.get_applications():
-				#~ appinfo = info.get_application_info(app)
-				#~ counter = counter + appinfo[1]
-			#~ item["type"] = self.name
 			item["icon"] = self.icon
-			
+			item["source"] = unicode(self.filter_name)
 			yield item
 
 

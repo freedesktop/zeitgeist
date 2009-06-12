@@ -22,3 +22,4 @@ extra/*.desktop
 gnome-zeitgeist-*.tar.gz
 .pydevproject
 .project
+stormtest.sqlite*

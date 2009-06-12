@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-22 19:24+0200\n"
+"POT-Creation-Date: 2009-06-11 16:22+0200\n"
 "PO-Revision-Date: 2009-05-16 14:08+0000\n"
 "Last-Translator: Rossano C. Nunes <rossano@gpveritas.org>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -17,44 +17,28 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-05-22 17:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-trayicon:34
-msgid "Open Journal"
-msgstr "Abrir diário"
+#: ../zeitgeist-daemon:38
+msgid "Starting Zeitgeist service..."
+msgstr "Iniciando serviço do Zeitgeist"
 
-#: ../zeitgeist-trayicon:114
-msgid ""
-"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
-"computer."
+#: ../zeitgeist-datahub:41
+msgid "No passive loggers found, bye."
 msgstr ""
-"O GNOME Zeitgeist é uma ferramenta para facilmente navegar e encontrar "
-"arquivos no seu computador."
 
-#: ../zeitgeist-journal:44 ../zeitgeist-journal:93
-msgid "Stars"
-msgstr "Estrelas"
-
-#: ../zeitgeist-journal:49
-msgid "Journal"
-msgstr "Diário"
-
-#: ../zeitgeist-datahub:57
+#: ../zeitgeist-datahub:60
 #, c-format
 msgid "Error: Could not load file: %s"
 msgstr ""
 
-#: ../zeitgeist-datahub:83
+#: ../zeitgeist-datahub:86
 #, c-format
 msgid "Updating database with new %s items"
 msgstr "Atualizando banco de dados com os novos %s items"
 
-#: ../zeitgeist-datahub:97
+#: ../zeitgeist-datahub:119
 #, c-format
 msgid "Type error logging item from \"%s\": %s"
 msgstr ""
-
-#: ../zeitgeist-daemon:36
-msgid "Starting Zeitgeist service..."
-msgstr "Iniciando serviço do Zeitgeist"
 
 #: ../zeitgeist/shared/zeitgeist_dbus.py:13
 msgid "Error: Could not connect to D-Bus."
@@ -64,221 +48,49 @@ msgstr "Erro: Não é possível conectar ao D-Bus."
 msgid "Error: Zeitgeist service not running."
 msgstr "Erro: O serviço do Zeitgeist não está rodando."
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:84
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:87
-msgid "Notes"
-msgstr ""
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:89
-msgid "Create New Note"
-msgstr ""
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:90
-msgid "Make a new Tomboy note"
-msgstr ""
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:169
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:202
 #, fuzzy
 msgid "Documents"
 msgstr "Novo documento"
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:181
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:214
 msgid "Other"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:200
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:233
 msgid "Images"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:210
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:243
 msgid "Music"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:220
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:253
 msgid "Videos"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:23
+#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py.in:262
+#, fuzzy
+msgid "Development"
+msgstr "Novo documento"
+
+#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:22
 msgid "Firefox History"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:26
+#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:25
 msgid "Websites visited with Firefox"
 msgstr ""
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:418
-msgid "Recently used tags"
-msgstr "Tags recentemente usadas"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:419
-#: ../zeitgeist/gui/zeitgeist_base.py:253
-msgid "Most used tags"
-msgstr "Tags mais usadas"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:420
-msgid "All tags"
-msgstr "Todas as tags"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:663
-msgid "Search"
-msgstr "Pesquisa"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:775
-msgid "Show recent activities"
-msgstr "Mostrar atividades recentes"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:782
-msgid "Search for activities"
-msgstr "Pesquisar por atividades"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:818
-#, fuzzy
-msgid "Tags"
-msgstr "Tags:"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
-msgid "Calendar"
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py.in:84
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py.in:87
+msgid "Notes"
 msgstr ""
 
-#. vbox.pack_start(calendar, False, False)
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:828
-msgid "Filters"
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py.in:89
+msgid "Create New Note"
 msgstr ""
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:830
-msgid "Enable Grouping"
+#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py.in:90
+msgid "Make a new Tomboy note"
 msgstr ""
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:81
-msgid "Name"
-msgstr "Nome"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:88
-msgid "Time"
-msgstr "Tempo"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:407
-msgid "Tagged with:"
-msgstr "Com a tag:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:409
-msgid "The file has been removed from"
-msgstr "O arquivo foi removido do"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:431
-msgid "New Document"
-msgstr "Novo documento"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:477
-msgid "Related files"
-msgstr "Arquivos relacionados"
-
-#. TODO: Use proper, separate widgets for this
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:500
-msgid "Last usage:"
-msgstr "Última utilização"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:502
-msgid "Tags:"
-msgstr "Tags:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:504
-#, python-format
-msgid "Files related to %s"
-msgstr "Arquivos relacionados à %s"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:552
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:573
-#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:63
-msgid "Today"
-msgstr "Hoje"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:622
-msgid "All favorites"
-msgstr "Todos os favoritos"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:163
-msgid "Unbookmark"
-msgstr "Desmarcar"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:165
-msgid "Bookmark"
-msgstr "Marcar"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:170
-msgid "Show related activities"
-msgstr "Mostrar atividades relacionadas"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:175
-msgid "Edit tags..."
-msgstr "Editar tags..."
-
-#: ../zeitgeist/gui/zeitgeist_base.py:186
-msgid "Delete item from Zeitgeist"
-msgstr "Deletar item do Zeitgeist"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:216
-#, python-format
-msgid "Edit tags for %s"
-msgstr "Editar tags para %s"
-
-#. Use real Cancel/OK buttons. Those are not compliant with HIG.
-#: ../zeitgeist/gui/zeitgeist_base.py:221
-msgid "Add"
-msgstr "Adicionar"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:222
-msgid "Cancel"
-msgstr "Cancelar"
-
-#. Window
-#: ../zeitgeist/experimental/zeitgeist-projectviewer.py:24
-msgid "GNOME Zeitgeist Project Viewer"
-msgstr "Visualizador de Projetos GNOME Zeitgeist"
-
-#. Window
-#: ../zeitgeist/experimental/zeitgeist-timeline.py:24
-msgid "GNOME Zeitgeist Timeline"
-msgstr "Linha do Tempo GNOME Zeitgeist"
-
-#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:65
-msgid "Yesterday"
-msgstr "Ontem"
-
-#: ../zeitgeist/engine/engine.py:84
-#, python-format
-msgid "Could not create database: %s"
-msgstr ""
-
-#: ../zeitgeist/engine/engine.py:91
-#, python-format
-msgid "Error connecting with database: %s"
-msgstr ""
-
-#: ../extra/zeitgeist-journal.desktop.in.in.h:1
-msgid "Browse a journal of recently used files"
-msgstr ""
-
-#: ../extra/zeitgeist-journal.desktop.in.in.h:2
-#, fuzzy
-msgid "File Journal"
-msgstr "Abrir diário"
-
-#: ../extra/zeitgeist-journal.desktop.in.in.h:3
-msgid "Zeitgeist File Journal"
-msgstr ""
-
-#: ../extra/zeitgeist-trayicon.desktop.in.in.h:1
-#, fuzzy
-msgid "Start the Zeitgeist engine"
-msgstr "Iniciando serviço do Zeitgeist"
-
-#: ../extra/zeitgeist-trayicon.desktop.in.in.h:2
-msgid "Zeitgeist Tray Icon"
-msgstr ""
-
-#~ msgid "Updating item: %s"
-#~ msgstr "Atualizando item: %s"
-
-#~ msgid "Deleting item: %s"
-#~ msgstr "Deletando item: %s"

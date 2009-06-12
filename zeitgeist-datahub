@@ -84,18 +84,18 @@ class DataHub(gobject.GObject):
 	def _update_db_async(self):
 		
 		print _("Updating database with new %s items") % \
-			self._sources_queue[0].name
+			self._sources_queue[0].get_name()
 		
 		items = set()
 		for num, item in enumerate(self._sources_queue[0].get_items()):
 			items.add(plainify_dict(item))
-			if num % 25 == 0:
-				self._insert_items(self._sources_queue[0].name, items)
+			if num % 50 == 0:
+				self._insert_items(self._sources_queue[0].get_name(), items)
 				items = set()
 		if items:
-			self._insert_items(self._sources_queue[0].name, items)
-		
-		del self._sources_queue[0]
+			self._insert_items(self._sources_queue[0].get_name(), items)
+ 		
+ 		del self._sources_queue[0]
 		
 		if len(self._sources_queue) == 0:
 			self._db_update_in_progress = False
@@ -108,7 +108,7 @@ class DataHub(gobject.GObject):
 	def _insert_items(self, source_name, items):
 		if items:
 			try:
-				iface.insert_items(items)
+				iface.InsertItems(items)
 			except dbus.exceptions.DBusException, error:
 				error = error.get_dbus_name()
 				if error == "org.freedesktop.DBus.Error.ServiceUnknown":

@@ -1,0 +1,55 @@
+.TH ZEITGEIST\-DAEMON 1 "May 20, 2009" "GNOME Zeitgeist"
+
+.SH NAME
+zeitgeist\-daemon \- D\-Bus interface providing a log of activities
+
+.SH SYNOPSIS
+\fBzeitgeist\-daemon\fP \fI[OPTION]\fP
+
+.SH DESCRIPTION
+\fBzeitgeist\-daemon\fP is a daemon which keeps track of activities
+on your system (file usage, browser history, calendar events, etc.)
+and logs them into a central database. It does not only create a
+chronologic register, but also supports tagging and can establish
+relationships between activities.
+.PP
+All this information is provided by external applications which
+communicate with \fBzeitgeist\-daemon\fP over D-Bus. Interested
+programs can connect with it and request information, insert new
+items or modify existing information (delete items, add tags,
+bookmark items and so on).
+.PP
+By default, \fBzeitgeist\-daemon\fP will also start the bundled
+logging application \fBzeitgeist\-datahub\fP.
+
+.SH OPTIONS
+The program follows the usual GNU command line syntax, with
+options starting with two dashes (`--'). A summary of options is
+included below.
+.TP
+.B \-\-no\-passive\-loggers
+Do not start \fBzeitgeist\-datahub\fP together with this daemon.
+
+.SH SEE ALSO
+\fBzeitgeist-trayicon\fR, \fBzeitgeist-journal\fR, \fBzeitgeist-datahub\fR
+
+.SH BUGS
+Please report any bugs on https://bugs.launchpad.net/gnome-zeitgeist.
+
+.SH AUTHORS
+Please see the AUTHORS file bundled with this application for
+a complete list of contributors.
+
+.SH LICENSE
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+.PP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
