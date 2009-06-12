@@ -147,7 +147,7 @@ class RemoteInterface(dbus.service.Object):
 	
 	@dbus.service.method("org.gnome.Zeitgeist")
 	def EmitSignalUpdated(self):
-		self.signal_updated()
+		self.SignalUpdated()
 	
 	# Commands
 	
