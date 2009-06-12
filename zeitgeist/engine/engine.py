@@ -135,6 +135,7 @@ class ZeitgeistEngine(gobject.GObject):
 			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
 			return False
 		
+		
 		#check if the event already exists: if so don't bother inserting
 		item = Item.lookup(ritem["uri"])
 		if item:
@@ -170,27 +171,34 @@ class ZeitgeistEngine(gobject.GObject):
 			
 			#FIXME: Lots of info from the applications, try to sort them out here properly
 			app = App.lookup(ritem["app"])
-			if not app:
-				app_info = DesktopEntry(ritem["app"])
-				app = App.lookup_or_create(ritem["app"])
-				#print app_info
-				app.item.text = unicode(app_info.getName())
-				app.item.content = Content.lookup_or_create(app_info.getType())
-				app.item.source = Source.lookup_or_create(app_info.getExec())
-				app.item.icon = unicode(app_info.getIcon())
-				app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop file
-				
-				e.app = app.item.id
-				
-				for tag in app_info.getCategories():
-					print "TAG:", tag
-					a_uri = "zeitgeist://tag/%s" % tag
-					a = Annotation.lookup_or_create(a_uri)
-					a.subject = e.app.item
-					a.item.text = unicode(tag)
-					a.item.source_id = Source.APPLICATION.id
-					a.item.content_id = Content.TAG.id
-			e.app = app
+			if not app:	
+				if not App.lookup(ritem["app"]):
+					try:
+						app_info = DesktopEntry(ritem["app"])
+						app = App.lookup_or_create(ritem["app"])
+						#print app_info
+						app.item.text = unicode(app_info.getName())
+						app.item.content = Content.lookup_or_create(app_info.getType())
+						app.item.source = Source.lookup_or_create(app_info.getExec())
+						app.item.icon = unicode(app_info.getIcon())
+						app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop )
+						
+						e.app = app.item.id
+					
+						for tag in app_info.getCategories():
+							print "TAG:", tag
+							a_uri = "zeitgeist://tag/%s" % tag
+							a = Annotation.lookup_or_create(a_uri)
+							a.subject = e.app.item
+							a.item.text = unicode(tag)
+							a.item.source_id = Source.APPLICATION.id
+							a.item.content_id = Content.TAG.id
+					except:
+						app = App.lookup_or_create(ritem["app"])
+						app.item.text = ritem["app"]
+				else:
+					app = App.lookup_or_create(ritem["app"])
+				e.app = app
 			
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
@@ -233,16 +241,30 @@ class ZeitgeistEngine(gobject.GObject):
 		Inserts items into the database and returns the amount of
 		items it inserted.
 		"""
-		amount_items = 0
-		for item in items:
-			if self.insert_item(item, commit=False):
-				amount_items += 1
-			#else:
-				#print >> sys.stderr, "Error inserting %s" % item["uri"]
 		
+		amount_items = 0
+		
+		
+		#check if event is before the last logs
+		try:
+			app = App.lookup(items[0]["app"])
+			print "-------------------"
+			print items[0]["app"]
+			print "-------------------"
+			last_entry = self.store.find(Event, Event.app == app.item.id).order_by(Desc(Event.start)).first()
+		except:
+			last_entry = 0
+		
+		for item in items:
+			if item["timestamp"] >= last_entry:
+				if self.insert_item(item, commit=False):
+					amount_items += 1
+				#else:
+					#print >> sys.stderr, "Error inserting %s" % item["uri"]
+			
 		self.store.commit()
 		print "DONE"
-		#print "got items"
+			#print "got items"
 		
 		return amount_items
 	

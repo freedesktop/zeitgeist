@@ -213,7 +213,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 					(info.get_modified(), u"ModifyEvent")
 				)
 				
-				app = get_desktopentry_for_application(info.last_application())
+				app = info.last_application()
+				#app = get_desktopentry_for_application(info.last_application())
 				
 				items=[]
 				for timestamp, use in times:
@@ -225,7 +226,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 						"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
 						"mimetype": mimetype,
 						"tags": tags,
-						"app": app[0],
+						"app": app,
 						"origin":  origin,
 					}
 					yield item
