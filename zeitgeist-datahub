@@ -86,14 +86,8 @@ class DataHub(gobject.GObject):
 		print _("Updating database with new %s items") % \
 			self._sources_queue[0].get_name()
 		
-		items = set()
-		for num, item in enumerate(self._sources_queue[0].get_items()):
-			items.add(plainify_dict(item))
-			if num % 50 == 0:
-				self._insert_items(self._sources_queue[0].get_name(), items)
-				items = set()
-		if items:
-			self._insert_items(self._sources_queue[0].get_name(), items)
+		self._insert_items(self._sources_queue[0].get_name(),
+			[plainify_dict(item) for item in self._sources_queue[0].get_items()])
 		
 		del self._sources_queue[0]
 		
