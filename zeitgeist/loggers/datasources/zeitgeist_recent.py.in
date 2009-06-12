@@ -202,7 +202,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					tmp = tmp[len(home)+1:]
 				if tmp:
 					tmp = unicode(urllib.unquote(tmp))
-					tags = tmp.replace("/", ";")
+					tags = tmp.replace(",", " ").replace("/", ",")
 				
 				uri = unicode(info.get_uri_display())
 				text = info.get_display_name()

@@ -22,9 +22,9 @@ import os
 from storm.locals import *
 
 class Symbol:
-	"""A simple structure to hold a URI and a short label and magically
-	   cache and entity (integer) id.
-	   Used in Source and Content for pre-defined types"""
+	""" A simple structure to hold a URI and a short label and magically
+		cache and entity (integer) id.
+		Used in Source and Content for pre-defined types. """
 	
 	def __init__ (self, entity_class, uri):
 		self.value = uri
@@ -36,8 +36,8 @@ class Symbol:
 		return self.value
 	
 	def __getattr__ (self, name):
-		"""This small piece of magic make self.id resolve to the actual
-		   integer id of the entity class"""
+		""" This small piece of magic make self.id resolve to the actual
+		   integer id of the entity class. """
 		if name == "id":
 			if not self._id :
 				ent = self._entity_class.lookup_or_create(self.value)
@@ -48,8 +48,10 @@ class Symbol:
 			raise AttributeError("Unknown attribute %s" % name)
 
 class Entity(object):
-	"""Generic base class for anything that has an 'id' and a 'value'.
-		It is assumed that there is a unique index on the value column"""
+	""" Generic base class for anything that has an 'id' and a 'value'.
+		It is assumed that there is a unique index on the value column
+	"""
+	
 	id = Int(allow_none=False)
 	value = Unicode()
 	
@@ -69,7 +71,7 @@ class Entity(object):
 		if not self.id:
 			_store.flush()
 		assert self.id
-
+	
 	@classmethod
 	def lookup(klass, value=None, id=None):
 		"""Look up an entity by value or id, return None if the
@@ -84,16 +86,14 @@ class Entity(object):
 			raise ValueError("Looking up Entity without a value or id")
 	
 	@classmethod
-	def lookup_or_create(klass, value):
-		ent = klass.lookup(value)		
-		if ent : return ent
-		return klass(value)
-
+	def lookup_or_create(self, value):
+		ent = self.lookup(value)		
+		return ent if ent else self(value)
 
 class Content(Entity):
 	__storm_table__= "content"
 	__storm_primary__= "id"
-		
+	
 	def __init__ (self, value):				
 		super(Content, self).__init__(value)		
 
@@ -190,11 +190,9 @@ class Item(object):
 		return klass(uri)
 
 
-#
 # Storm does not handle multi-table classes. The following design pattern is
 # a simplifaction of Infoheritance described here:
 # https://storm.canonical.com/Infoheritance
-#
 
 class ProxyItem(object):
 	
@@ -204,9 +202,10 @@ class ProxyItem(object):
 	uri = Reference(item_id, URI.id)
 	
 	def __init__ (self, uri):
-		"""Create a ProxyItem with a given URI. If the URI is not already 
-		   registered it will be so. The 'uri' argument may be a 'str',
-		   'unicode', or 'URI' instance"""
+		""" Create a ProxyItem with a given URI. If the URI is not
+			already registered it will be soon. The 'uri' argument
+			may be a 'str', 'unicode', or 'URI' instance. """
+		
 		super(ProxyItem, self).__init__()
 		
 		# The Item constructor will register the URI if needed
@@ -215,21 +214,19 @@ class ProxyItem(object):
 		self.uri = self.item.uri
 	
 	@classmethod
-	def lookup (klass, uri):
+	def lookup(self, uri):
 		global _store
 		if isinstance(uri, str) or isinstance(uri, unicode):
 			uri = unicode(uri)
-			return _store.find(klass, klass.item_id == URI.id, URI.value == uri).one()
+			return _store.find(self, self.item_id == URI.id, URI.value == uri).one()
 		elif isinstance(uri, URI):
-			return _store.find(klass, klass.item_id == uri.id).one()
+			return _store.find(self, self.item_id == uri.id).one()
 	
 	@classmethod
-	def lookup_or_create(klass, uri):
-		proxy = klass.lookup(uri)
-		if proxy : return proxy
-		return klass(uri)
-	
-	
+	def lookup_or_create(self, uri):
+		proxy = self.lookup(uri)
+		return proxy if proxy else self(uri)
+
 class App(ProxyItem):
 	__storm_table__= "app"
 	__storm_primary__ = "item_id"
@@ -269,7 +266,7 @@ class ReferencingProxyItem(ProxyItem):
 		else:
 			raise TypeError("Expected 'str', 'unicode', 'URI', 'Item', "
 							"or 'ProxyItem', got %s" % type(subject))
-	
+
 class Annotation(ReferencingProxyItem):
 	# We use a compound primary key because the same annotation can point to
 	# several subjects, so that only the (id,subject_id) pair is unique
@@ -300,59 +297,60 @@ class Event(ReferencingProxyItem):
 		_store.add(self)	
 
 def create_store(storm_url):
-	print "DB setup, %s" % storm_url
+	print _("Creating database... %s") % storm_url
 	db = create_database(storm_url)
 	store = Store(db)
-	try:
-		store.execute("CREATE TABLE IF NOT EXISTS content" 
-				"(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
-		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS content_value ON content(value)")
-	except Exception, ex:
-		print ex
-	
-	try:
-		store.execute("CREATE TABLE IF NOT EXISTS source" 
-				"(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
-		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS source_value ON source(value)")
-	except Exception, ex:
-		print ex
-
-	try:
-		store.execute("CREATE TABLE IF NOT EXISTS uri" 
-				"(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)")
-		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS uri_value ON uri(value)")
-	except Exception, ex:
-		print ex
-	
-	try:
-		store.execute("CREATE TABLE IF NOT EXISTS item" 
-				"(id INTEGER PRIMARY KEY, content_id INTEGER, source_id INTEGER, origin VARCHAR, text VARCHAR, mimetype VARCHAR, icon VARCHAR, payload BLOB)")
-		# FIXME: Consider which indexes we need on the item table
-	except Exception, ex:
-		print ex
-	
-	try:
-		store.execute("CREATE TABLE IF NOT EXISTS app" 
-				"(item_id INTEGER PRIMARY KEY, info VARCHAR)")
-		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS app_value ON app(info)")
-	except Exception, ex:
-		print ex
-	
-	try:
-		store.execute("CREATE TABLE IF NOT EXISTS annotation" 
-				"(item_id INTEGER, subject_id INTEGER)")
-		store.execute("CREATE UNIQUE INDEX IF NOT EXISTS "
-					"annotation_link ON annotation(item_id,subject_id)")
-	except Exception, ex:
-		print ex
-	
-	try:
-		store.execute("CREATE TABLE IF NOT EXISTS event" 
-				"(item_id INTEGER PRIMARY KEY, subject_id INTEGER, start INTEGER, end INTEGER, app_id INTEGER)")
-	except Exception, ex:
-		print ex
-
+	store.execute("""
+		CREATE TABLE IF NOT EXISTS content
+			(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)
+		""")
+	store.execute("""
+		CREATE UNIQUE INDEX IF NOT EXISTS content_value
+			ON content(value)
+		""")
+	store.execute("""
+		CREATE TABLE IF NOT EXISTS source
+			(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)
+		""")
+	store.execute("""
+		CREATE UNIQUE INDEX IF NOT EXISTS source_value
+			ON source(value)""")
+	store.execute("""
+		CREATE TABLE IF NOT EXISTS uri
+			(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)
+		""")
+	store.execute("""
+		CREATE UNIQUE INDEX IF NOT EXISTS uri_value ON uri(value)
+		""")
+	store.execute("""
+		CREATE TABLE IF NOT EXISTS item
+			(id INTEGER PRIMARY KEY, content_id INTEGER,
+				source_id INTEGER, origin VARCHAR, text VARCHAR,
+				mimetype VARCHAR, icon VARCHAR, payload BLOB)
+		""")
+	# FIXME: Consider which indexes we need on the item table
+	store.execute("""
+		CREATE TABLE IF NOT EXISTS app
+			(item_id INTEGER PRIMARY KEY, info VARCHAR)
+		""")
+	store.execute("""
+		CREATE UNIQUE INDEX IF NOT EXISTS app_value ON app(info)
+		""")
+	store.execute("""
+		CREATE TABLE IF NOT EXISTS annotation
+			(item_id INTEGER, subject_id INTEGER)
+		""")
+	store.execute("""
+		CREATE UNIQUE INDEX IF NOT EXISTS
+			annotation_link ON annotation(item_id, subject_id)
+		""")
+	store.execute("""
+	CREATE TABLE IF NOT EXISTS event 
+		(item_id INTEGER PRIMARY KEY, subject_id INTEGER, start INTEGER,
+			end INTEGER, app_id INTEGER)
+		""")
 	store.commit()
+	
 	return store
 
 _store = None

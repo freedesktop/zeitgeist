@@ -161,47 +161,37 @@ class ZeitgeistEngine(gobject.GObject):
 		e.item.source_id = Source.USER_ACTIVITY.id
 		e.item.content = Content.lookup_or_create(ritem["use"])
 		
-		# FIXME: Lots of info from the applications, try to sort them out here properly
+		# Store the application
 		app_info = DesktopEntry(ritem["app"])
 		app = App.lookup_or_create(ritem["app"])
-		print app_info
 		app.item.text = unicode(app_info.getName())
 		app.item.content = Content.lookup_or_create(app_info.getType())
-		app.item.source = Source.lookup_or_create(app_info.getExec())
+		# Use only the first word (eg. "firefox" out of "firefox %u")
+		app.item.source = Source.lookup_or_create(app_info.getExec().split()[0])
 		app.item.icon = unicode(app_info.getIcon())
-		app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop )
+		app.info = unicode(ritem["app"])
+		e.app = app
 		
-		e.app = app.item.id
-	
-		for tag in app_info.getCategories():
-			print "TAG:", tag
-			a_uri = "zeitgeist://tag/%s" % tag
-			a = Annotation.lookup_or_create(a_uri)
+		for tag in app_info.getCategories(): 
+			a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
 			a.subject = e.app.item
 			a.item.text = unicode(tag)
 			a.item.source_id = Source.APPLICATION.id
 			a.item.content_id = Content.TAG.id
-		e.app = app
 		
 		# Extract tags
-		if ritem.has_key("tags") and ritem["tags"].strip():			
-			# Iterate over non-empty strings only
-			for tag in ritem["tags"].split(";"):
-				print tag
-				if tag:
-					print "TAG:", tag
-					a_uri = "zeitgeist://tag/%s" % tag
-					a = Annotation.lookup_or_create(a_uri)
-					a.subject = item
-					a.item.text = tag
-					a.item.source_id = Source.USER_ACTIVITY.id
-					a.item.content_id = Content.TAG.id
+		if ritem.has_key("tags") and ritem["tags"].strip():
+			for tag in (tag for tag in ritem["tags"].split(",") if tag):
+				a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
+				a.subject = item
+				a.item.text = tag
+				a.item.source_id = Source.USER_ACTIVITY.id
+				a.item.content_id = Content.TAG.id
 		
 		# Extract bookmarks
 		if ritem.has_key("bookmark") and ritem["bookmark"]:
 			a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
 			if not Annotation.lookup(a_uri):
-				print "BOOKMARK:", ritem["uri"]
 				a = Annotation.lookup_or_create(a_uri)
 				a.subject = item
 				a.item.text = u"Bookmark"
