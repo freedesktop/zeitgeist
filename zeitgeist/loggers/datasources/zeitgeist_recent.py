@@ -173,9 +173,10 @@ DEVELOPMENT_MIMETYPES = [
 		u"text/x-makefile",
 		u"text/x-sql",
 		u"application/x-desktop",
-		u"text/x-csharp"
+		u"text/x-csharp",
+		u"application/ecmascript",
+		u"text/x-haskell"
 		]
-		
 
 class RecentlyUsedManagerGtk(DataProvider):
 	

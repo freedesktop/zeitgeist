@@ -68,3 +68,6 @@ if first_item:
 if '--listen' in sys.argv:
 	loop = gobject.MainLoop()
 	loop.run()
+
+# For copy-pasting into an interactive Python shell:
+## import dbus; bus = dbus.SessionBus(); remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/Zeitgeist"); iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist");

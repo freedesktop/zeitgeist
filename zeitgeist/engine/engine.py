@@ -57,9 +57,6 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def _result2data(self, event=None):
 		
-		'''
-		Get Tags
-		'''
 		# FIXME: Get tag
 		tags = ""
 		
@@ -271,7 +268,7 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
 		item = self.store.find(Item, Item.id == URI.id,
-							   URI.value == unicode(uri)).one()		
+			URI.value == unicode(uri)).one()		
 		if item:
 			return self._result2data(item)
 	
