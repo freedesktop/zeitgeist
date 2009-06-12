@@ -167,35 +167,26 @@ class ZeitgeistEngine(gobject.GObject):
 			e.item.content = Content.lookup_or_create(ritem["use"])
 			
 			#FIXME: Lots of info from the applications, try to sort them out here properly
-			app = App.lookup(ritem["app"])
-			if not app:	
-				if not App.lookup(ritem["app"]):
-					try:
-						app_info = DesktopEntry(ritem["app"])
-						app = App.lookup_or_create(ritem["app"])
-						#print app_info
-						app.item.text = unicode(app_info.getName())
-						app.item.content = Content.lookup_or_create(app_info.getType())
-						app.item.source = Source.lookup_or_create(app_info.getExec())
-						app.item.icon = unicode(app_info.getIcon())
-						app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop )
-						
-						e.app = app.item.id
-					
-						for tag in app_info.getCategories():
-							print "TAG:", tag
-							a_uri = "zeitgeist://tag/%s" % tag
-							a = Annotation.lookup_or_create(a_uri)
-							a.subject = e.app.item
-							a.item.text = unicode(tag)
-							a.item.source_id = Source.APPLICATION.id
-							a.item.content_id = Content.TAG.id
-					except:
-						app = App.lookup_or_create(ritem["app"])
-						app.item.text = ritem["app"]
-				else:
-					app = App.lookup_or_create(ritem["app"])
-				e.app = app
+			app_info = DesktopEntry(ritem["app"])
+			app = App.lookup_or_create(ritem["app"])
+			#print app_info
+			app.item.text = unicode(app_info.getName())
+			app.item.content = Content.lookup_or_create(app_info.getType())
+			app.item.source = Source.lookup_or_create(app_info.getExec())
+			app.item.icon = unicode(app_info.getIcon())
+			app.info = unicode(ritem["app"]) # FIXME: App constructor could parse out appliction name from .desktop )
+			
+			e.app = app.item.id
+		
+			for tag in app_info.getCategories():
+				print "TAG:", tag
+				a_uri = "zeitgeist://tag/%s" % tag
+				a = Annotation.lookup_or_create(a_uri)
+				a.subject = e.app.item
+				a.item.text = unicode(tag)
+				a.item.source_id = Source.APPLICATION.id
+				a.item.content_id = Content.TAG.id
+			e.app = app
 			
 		except sqlite3.IntegrityError, ex:
 			traceback.print_exc()
@@ -241,29 +232,31 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		amount_items = 0
 		
-		
 		#check if event is before the last logs
 		try:
 			app = App.lookup(items[0]["app"])
-			print "-------------------"
-			print items[0]["app"]
-			print "-------------------"
-			last_entry = self.store.find(Event, Event.app == app.item.id).order_by(Desc(Event.start)).first()
+			last_entry = self.store.find(Event.start, Event.app == app.item.id).order_by(Event.start).last()
 		except:
 			last_entry = 0
+		
 		
 		for item in items:
 			if item["timestamp"] >= last_entry:
 				if self.insert_item(item, commit=False):
 					amount_items += 1
+					print item["uri"]
 				#else:
 					#print >> sys.stderr, "Error inserting %s" % item["uri"]
 			
 		self.store.commit()
-		print "DONE"
 			#print "got items"
 		
 		return amount_items
+	
+	def compare(self, a, b):
+		return cmp(b["timestamp"],a["timestamp"]) # compare as integers
+
+
 	
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
