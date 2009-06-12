@@ -31,7 +31,7 @@ except dbus.exceptions.DBusException:
 	print _("Error: Could not connect to D-Bus.")
 	sys.exit(1)
 try:
-	remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/zeitgeist")
+	remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/Zeitgeist")
 except dbus.exceptions.DBusException:
 	print _("Error: Zeitgeist service not running.")
 	sys.exit(1)

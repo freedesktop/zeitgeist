@@ -4,16 +4,10 @@ Copyright © 2008-2009 by the following:
 If you have contributed to this project then you deserve to be on this list.
 Contact us (see: AUTHORS) and we'll add you.
 
-David Siegel <djsiegel@gmail.com>
-Federico Mena-Quintero <federico@gnome.org>
-Jason Smith <jassmith@gmai.com>
-José Luis Ricón <artirj@gmail.com>
-Kalle Persson <kalle@kallepersson.se>
-Ketil W. Aanensen <ketil.w.aanensen@gmail.com>
+Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 Natan Yellin <aantny@gmail.com>
 Seif Lotfy <seif@lotfy.com>
 Siegfried-Angel Gevatter <rainct@ubuntu.com>
-Thorsten Prante <thorsten@prante.eu>
 
 src/zeitgeist_engine/zeitgeist_util.py
 src/zeitgeist_engine/zeitgeist_recent.py
