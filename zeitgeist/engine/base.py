@@ -136,8 +136,8 @@ class URI(Entity):
 		super(URI, self).__init__(value)
 
 class Item(object):
-	__storm_table__= "item"
-
+	__storm_table__ = "item"
+	
 	id = Int(primary=True, allow_none=False)
 	uri = Reference(id, URI.id)
 	
