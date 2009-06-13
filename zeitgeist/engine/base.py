@@ -87,11 +87,8 @@ class Entity(object):
 	
 	@classmethod
 	def lookup_or_create(self, value):
-                try:
-		      ent = self.lookup(value)		
-                      return ent if ent else self(value)
-                except:
-                        pass
+	      ent = self.lookup(value)		
+              return ent if ent else self(value)
 
 class Content(Entity):
 	__storm_table__= "content"
