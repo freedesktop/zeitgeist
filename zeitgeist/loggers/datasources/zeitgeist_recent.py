@@ -60,11 +60,12 @@ def create_app_map():
 		# add entry for name attribute
 		yield (unicode(entry.getName()), (desktopfile, entry))
 		# add entry for executable
-		yield (unicode(entry.getExec().split()[0].split("/")[-1])
-			if entry.getExec().split() else "", (desktopfile, entry))
+		if entry.getExec():
+			yield (unicode(entry.getExec().split()[0].split("/")[-1]),
+				(desktopfile, entry))
 	for identifier, desktopfile in ADDITIONS:
 		yield (unicode(identifier), (desktopfile, DesktopEntry.DesktopEntry(desktopfile)))
-		
+
 DESKTOPFILE_MAP = dict(create_app_map())
 
 def get_desktopentry_for_application(application):
