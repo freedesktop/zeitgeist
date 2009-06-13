@@ -295,8 +295,6 @@ class RecentlyUsed(DataProvider):
 	
 	def get_items_uncached(self):
 		self.counter = self.counter + 1
-		print "RecentlyUsed"
-		print recent_model
 		if recent_model:
 			for item in recent_model.get_items_uncached():
 				if self.include_item(item):
@@ -322,7 +320,6 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 		return item["mimetype"] in self.mimetype_list
 	
 	def get_items_uncached(self):
-		print "RecentlyUsedOfMimeType"
 		for item in RecentlyUsed.get_items_uncached(self):
 			item["icon"] = self.icon
 			item["source"] = unicode(self.filter_name)
