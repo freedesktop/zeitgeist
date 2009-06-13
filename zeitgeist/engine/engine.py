@@ -134,79 +134,73 @@ class ZeitgeistEngine(gobject.GObject):
 			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
 			return False
 		
-                if not Item.lookup(ritem["uri"]) or force:
-                    item = Item.lookup_or_create(ritem["uri"])
-                    item.content = Content.lookup_or_create(ritem["content"])
-                    item.source = Source.lookup_or_create(ritem["source"])
-                    item.text = unicode(ritem["text"])
-                    item.mimetype = unicode(ritem["mimetype"])
-                    item.icon = unicode(ritem["icon"])
-                    item.origin = unicode(ritem["origin"])
-                    
-                    # Extract tags
-                    if ritem.has_key("tags") and ritem["tags"].strip():
-                            for tag in (tag for tag in ritem["tags"].split(",") if tag):
-                                    a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
-                                    a.subject = item
-                                    a.item.text = tag
-                                    a.item.source_id = Source.USER_ACTIVITY.id
-                                    a.item.content_id = Content.TAG.id
-                    
-                    # Extract bookmarks
-                    if ritem.has_key("bookmark") and ritem["bookmark"]:
-                            a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
-                            if not Annotation.lookup(a_uri):
-                                    a = Annotation.lookup_or_create(a_uri)
-                                    a.subject = item
-                                    a.item.text = u"Bookmark"
-                                    a.item.source_id = Source.USER_ACTIVITY.id
-                                    a.item.content_id = Content.BOOKMARK.id
-                    if force:
-                           return True
-                else:
-                    item = Item.lookup_or_create(ritem["uri"])
-		
-                e_uri = "zeitgeist://event/%s/%%s/%s#%d" % (ritem["use"],
+		if not Item.lookup(ritem["uri"]) or force:
+			item = Item.lookup_or_create(ritem["uri"])
+			item.content = Content.lookup_or_create(ritem["content"])
+			item.source = Source.lookup_or_create(ritem["source"])
+			item.text = unicode(ritem["text"])
+			item.mimetype = unicode(ritem["mimetype"])
+			item.icon = unicode(ritem["icon"])
+			item.origin = unicode(ritem["origin"])
+			
+			# Extract tags
+			if ritem.has_key("tags") and ritem["tags"].strip():
+					for tag in (tag for tag in ritem["tags"].split(",") if tag):
+							a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
+							a.subject = item
+							a.item.text = tag
+							a.item.source_id = Source.USER_ACTIVITY.id
+							a.item.content_id = Content.TAG.id
+			
+			# Extract bookmarks
+			if ritem.has_key("bookmark") and ritem["bookmark"]:
+					a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
+					if not Annotation.lookup(a_uri):
+							a = Annotation.lookup_or_create(a_uri)
+							a.subject = item
+							a.item.text = u"Bookmark"
+							a.item.source_id = Source.USER_ACTIVITY.id
+							a.item.content_id = Content.BOOKMARK.id
+			if force:
+				   return True
+		else:
+			item = Item.lookup_or_create(ritem["uri"])
+
+		e_uri = "zeitgeist://event/%s/%%s/%s#%d" % (ritem["use"],
 			ritem["timestamp"], item.id)
 		
 		# Check if the event already exists: if so, don't bother inserting
 		if not Event.lookup(e_uri):
-    		# Store the item
-                    
-                        print e_uri
-            		
-            		# Store the event
-            		e = Event.lookup_or_create(e_uri)
-            		e.subject = item
-            		e.start = ritem["timestamp"]
-            		e.item.text = u"Activity"
-            		e.item.source_id = Source.USER_ACTIVITY.id
-            		e.item.content = Content.lookup_or_create(ritem["use"])
-            		
-            		# Store the application
-            		app_info = DesktopEntry(ritem["app"])
-            		app = App.lookup_or_create(ritem["app"])
-            		app.item.text = unicode(app_info.getName())
-            		app.item.content = Content.lookup_or_create(app_info.getType())
-            		# Use only the first word (eg. "firefox" out of "firefox %u")
-            		app.item.source = Source.lookup_or_create(app_info.getExec().split()[0])
-            		app.item.icon = unicode(app_info.getIcon())
-            		app.info = unicode(ritem["app"])
-            		e.app = app
-            		
-            		for tag in app_info.getCategories(): 
-            			a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
-            			a.subject = e.app.item
-            			a.item.text = unicode(tag)
-            			a.item.source_id = Source.APPLICATION.id
-            			a.item.content_id = Content.TAG.id
-	
-	
-	
-        	if commit:
-        		self.store.flush()		
-        	
-        	return True
+			# Store the event
+			e = Event.lookup_or_create(e_uri)
+			e.subject = item
+			e.start = ritem["timestamp"]
+			e.item.text = u"Activity"
+			e.item.source_id = Source.USER_ACTIVITY.id
+			e.item.content = Content.lookup_or_create(ritem["use"])
+			
+			# Store the application
+			app_info = DesktopEntry(ritem["app"])
+			app = App.lookup_or_create(ritem["app"])
+			app.item.text = unicode(app_info.getName())
+			app.item.content = Content.lookup_or_create(app_info.getType())
+			# Use only the first word (eg. "firefox" out of "firefox %u")
+			app.item.source = Source.lookup_or_create(app_info.getExec().split()[0])
+			app.item.icon = unicode(app_info.getIcon())
+			app.info = unicode(ritem["app"])
+			e.app = app
+			
+			for tag in app_info.getCategories(): 
+				a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
+				a.subject = e.app.item
+				a.item.text = unicode(tag)
+				a.item.source_id = Source.APPLICATION.id
+				a.item.content_id = Content.TAG.id
+		
+		if commit:
+			self.store.flush()		
+		
+		return True
 	
 	def insert_items(self, items):
 		"""
@@ -253,8 +247,6 @@ class ZeitgeistEngine(gobject.GObject):
 		if unique:
 			events.group_by(Event.subject_id)
 		
-		print events
-		
 		t2 = time.time()
 		print "--------------------------> "+str(t2-t1)
 		
@@ -269,9 +261,9 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		If the item has tags, then the tags will also be updated.
 		"""
-                #FIXME Delete all annotations of the ITEM
-		self.insert_item(item, True, True)
 		
+		#FIXME Delete all annotations of the ITEM
+		self.insert_item(item, True, True)
 	
 	def delete_item(self, item):
 		pass

@@ -226,8 +226,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 		self.recent_manager.connect("changed", lambda m: self.emit("reload"))
 		
 	def get_items_uncached(self):
-	        infos = self.recent_manager.get_items()
-	        infos.reverse()
 		for info in self.recent_manager.get_items():
 			if info.exists() and not info.get_private_hint() and "/tmp" not in info.get_uri_display():
 				use = None
