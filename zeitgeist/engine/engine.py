@@ -163,7 +163,6 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		# Store the application
 		app_info = DesktopEntry(ritem["app"])
-                print app_info.getType()
 		app = App.lookup_or_create(ritem["app"])
 		app.item.text = unicode(app_info.getName())
 		app.item.content = Content.lookup_or_create(app_info.getType())
