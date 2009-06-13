@@ -163,6 +163,7 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		# Store the application
 		app_info = DesktopEntry(ritem["app"])
+                print app_info.getType()
 		app = App.lookup_or_create(ritem["app"])
 		app.item.text = unicode(app_info.getName())
 		app.item.content = Content.lookup_or_create(app_info.getType())
@@ -212,12 +213,10 @@ class ZeitgeistEngine(gobject.GObject):
 		amount_items = 0
 		
 		# Check if event is before the last logs
-		last_entry = self.get_last_insertion_date(items[0]["app"])
 		
 		for item in items:
-			if item["timestamp"] >= last_entry:
-				if self.insert_item(item, commit=False):
-					amount_items += 1
+			if self.insert_item(item, commit=False):
+				amount_items += 1
 		
 		self.store.commit()
 		
