@@ -286,6 +286,7 @@ class RecentlyUsedManagerGtk(DataProvider):
     						}
     						yield item
 
+
 class RecentlyUsed(DataProvider):
 	"""
 	Recently-used documents, log stored in ~/.recently-used.
