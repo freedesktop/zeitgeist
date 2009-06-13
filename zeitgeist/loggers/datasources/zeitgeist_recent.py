@@ -6,6 +6,7 @@
 # Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Natan Yellin <aantny@gmail.com>
 # Copyright © 2009 Alex Graveley <alex.graveley@beatniksoftewarel.com>
+# Copyright © 2009 Markus Korn <thekorn@gmx.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +27,7 @@ import fnmatch
 import urllib
 import gtk
 import gettext
-
+import glob
 
 from xdg import DesktopEntry, BaseDirectory
 
@@ -36,6 +37,33 @@ from zeitgeist import config
 gettext.install("zeitgeist", config.localedir, unicode=1)
 		
 # helpers
+
+#workaround pygtk bug
+def find_desktopfiles():
+	for dir in BaseDirectory.load_data_paths("applications"):
+		for desktopfile in glob.glob("%s/*.desktop" %dir):
+			yield desktopfile
+			
+ADDITIONS = (
+	(u"Text Editor", "/usr/share/applications/gedit.desktop"),
+	(u"File Roller", "/usr/share/applications/file-roller.desktop"),
+	(u"Document Viewer", "/usr/share/applications/evince.desktop"),
+	(u"Eye of GNOME Image Viewer", "/usr/share/applications/eog.desktop"),
+	(u"GNU Image Manipulation Program", "/usr/share/applications/gimp.desktop"),
+	(u"Totem Video-Player", "/usr/share/applications/totem.desktop"),
+	(u"File Manager", "/usr/share/applications/nautilus.desktop"),
+)
+def create_app_map():
+	for desktopfile in find_desktopfiles():
+		entry = DesktopEntry.DesktopEntry(desktopfile)
+		# add entry for name attribute
+		yield (unicode(entry.getName()), (desktopfile, entry))
+		# add entry for executable
+		yield (unicode(entry.getExec().split()[0].split("/")[-1]), (desktopfile, entry))
+	for identifier, desktopfile in ADDITIONS:
+		yield (unicode(identifier), (desktopfile, DesktopEntry.DesktopEntry(desktopfile)))
+		
+DESKTOPFILE_MAP = dict(create_app_map())
 
 def get_desktopentry_for_application(application):
 	desktopfiles = list(
@@ -216,39 +244,41 @@ class RecentlyUsedManagerGtk(DataProvider):
 				text = info.get_display_name()
 				mimetype = unicode(info.get_mime_type())
 				last_application = info.last_application().strip()
+				
 				# this causes a  *** glibc detected *** python: double free or corruption (!prev): 0x0000000001614850 ***
 				# bug in pygtk, reported as (lp: #386035) and upstream
-				print last_application
-				if BROKEN_APPS.count(unicode(last_application.strip())) == 0:
-					print BROKEN_APPS
-					application_info = info.get_application_info(last_application)
-					#
-					application = application_info[0].split()[0]
-					desktopfile, desktopentry = get_desktopentry_for_application(application)
-					icon = desktopentry.getIcon()
-					origin = u"%s:///" %info.get_uri().split(":///")[0]
-					times = (
-						(info.get_added(), u"CreateEvent"),
-						(info.get_visited(), u"VisitEvent"),
-						(info.get_modified(), u"ModifyEvent")
-					)
-					
-					for timestamp, use in times:
-						item = {
-							"timestamp": timestamp,
-							"uri": uri,
-							"text": text,
-							#~ "source": u"File",
-							"content": u"File",
-							"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
-							"mimetype": mimetype,
-							"tags": tags,
-							"icon": icon,
-							"app": unicode(desktopfile),
-							"origin": "",
-						}
-						yield item
-
+				#application_info = info.get_application_info(last_application)
+				#application = application_info[0].split()[0]
+				#desktopfile, desktopentry = get_desktopentry_for_application(application)
+				try:
+					desktopfile, desktopentry = DESKTOPFILE_MAP[last_application]
+				except KeyError:
+					print ">>> please add an addition for '%s' to DESKTOPFILE_MAP" %last_application
+					raise
+				# ^^ please change the code above once the fix for the pygtk bug landed
+				icon = desktopentry.getIcon()
+				origin = u"%s:///" %info.get_uri().split(":///")[0]
+				times = (
+					(info.get_added(), u"CreateEvent"),
+					(info.get_visited(), u"VisitEvent"),
+					(info.get_modified(), u"ModifyEvent")
+				)
+				
+				for timestamp, use in times:
+					item = {
+						"timestamp": timestamp,
+						"uri": uri,
+						"text": text,
+						#~ "source": u"File",
+						"content": u"File",
+						"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
+						"mimetype": mimetype,
+						"tags": tags,
+						"icon": icon,
+						"app": unicode(desktopfile),
+						"origin": origin,
+					}
+					yield item
 
 class RecentlyUsed(DataProvider):
 	"""
@@ -291,7 +321,6 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 	def get_items_uncached(self):
 		print "RecentlyUsedOfMimeType"
 		for item in RecentlyUsed.get_items_uncached(self):
-			print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 			item["icon"] = self.icon
 			item["source"] = unicode(self.filter_name)
 			yield item
