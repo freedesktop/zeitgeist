@@ -198,7 +198,7 @@ class ZeitgeistEngine(gobject.GObject):
 				a.item.content_id = Content.TAG.id
 		
 		if commit:
-			self.store.flush()		
+			self.store.flush()
 		
 		return True
 	
@@ -209,8 +209,6 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		
 		amount_items = 0
-		
-		# Check if event is before the last logs
 		
 		for item in items:
 			if self.insert_item(item, commit=False):
