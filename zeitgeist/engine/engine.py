@@ -334,8 +334,9 @@ class ZeitgeistEngine(gobject.GObject):
 		pass
 	
 	def get_bookmarks(self):
-		uris = store.find(URI, Item.content_id == Content.BOOKMARK.id, Item.id== URI.id, Annotation.subject_id == URI.id)
-
+		#uris = store.find(URI, Item.content_id == Content.BOOKMARK.id, Item.id== URI.id, Annotation.subject_id == URI.id)
+                return []
+                
 _engine = None
 def get_default_engine():
 	global _engine
