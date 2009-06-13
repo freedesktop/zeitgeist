@@ -230,9 +230,10 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_items(self, min=0, max=sys.maxint, limit=0,
 	sorting_asc=True, unique=False, tags="", mimetypes=""):
 		"""
-		Yields all items from the database between the indicated
+		Returns all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
-		may be used to filter on tags.
+		may be used to filter on tags or `mimetypes' to filter on
+		mimetypes.
 		"""
 		
 		# Emulate optional arguments for the D-Bus interface
@@ -331,9 +332,6 @@ class ZeitgeistEngine(gobject.GObject):
 		pass
 	
 	def compare_nbhs(self,nbhs):
-		pass
-	
-	def get_items_with_mimetype(self, mimetype, min=0, max=sys.maxint, tags=""):
 		pass
 	
 	def get_uris_for_timestamp(self, timestamp):
