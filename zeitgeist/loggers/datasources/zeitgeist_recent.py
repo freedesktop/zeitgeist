@@ -79,7 +79,7 @@ def get_desktopentry_for_application(application):
 		# raise an error? or try to get an alternative file?
 		# Example gimp-s.6 has no .desktop file
 		return get_desktopentry_for_application("firefox") #just for now, for testing
-			
+
 
 class SimpleMatch(object):
 
@@ -117,7 +117,7 @@ class MimeTypeSet(set):
 	def __repr__(self):
 		items = ", ".join(map(repr, self | self.__pattern))
 		return "%s(%s)" %(self.__class__.__name__, items)
-		
+
 
 DOCUMENT_MIMETYPES = [
 		# Covers:

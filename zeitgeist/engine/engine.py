@@ -230,7 +230,7 @@ class ZeitgeistEngine(gobject.GObject):
 		if item:
 			return self._result2data(item)
 	
-	def get_items(self, min=0, max=sys.maxint, limit=0, tags="", mimetypes=""):
+	def get_items(self, min=0, max=sys.maxint, limit=0, sorting_asc=True, tags="", mimetypes=""):
 		"""
 		Yields all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
@@ -243,7 +243,7 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		t1 = time.time()
 		events = self.store.find(Event, Event.start >= min, Event.start <= max)
-		events.order_by(Event.start)
+		events.order_by(Event.start if sorting_asc else Desc(Event.start))
 		
 		if limit > 0:
 			print "====>", limit
