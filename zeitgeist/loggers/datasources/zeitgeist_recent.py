@@ -245,6 +245,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 							"tags": tags,
 							"icon": icon,
 							"app": unicode(desktopfile),
+							"origin": "",
 						}
 						yield item
 
