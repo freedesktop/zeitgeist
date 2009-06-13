@@ -52,16 +52,16 @@ if first_item:
 		print '-', related_item[2]
 	del related_items
 	
-	print u'\nItems sharing some tag with «%s»:' % first_item[2]
-	related_items = iface.GetItemsRelatedByTags(first_item[1])
-	for related_item in related_items[:5]:
-		print '-', related_item[2] + ':', ', '.join(related_item[6].split(','))
-	del related_items
+	#print u'\nItems sharing some tag with «%s»:' % first_item[2]
+	#related_items = iface.GetItemsRelatedByTags(first_item[1])
+	#for related_item in related_items[:5]:
+	#	print '-', related_item[2] + ':', ', '.join(related_item[6].split(','))
+	#del related_items
 	
 	last_tag = first_item[4].split(',')[-1]
 	if last_tag:
 		print u'\nItems with tag «%s»:' % last_tag
-		tag_items = iface.GetItems(0, 0, last_tag, '')
+		tag_items = iface.GetItems(0, 0, 0, last_tag, '')
 		for tag_item in tag_items[:5]:
 			print '-', tag_item[2] + ':', ', '.join(tag_item[6].split(','))
 
