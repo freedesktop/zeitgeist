@@ -248,7 +248,7 @@ class ZeitgeistEngine(gobject.GObject):
 		if limit > 0:
 			events = events[:limit]
 		if unique:
-			events.group_by(Event.item_id)
+			events.group_by(Event.subject_id)
 		
 		print events
 		
