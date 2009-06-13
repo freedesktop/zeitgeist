@@ -212,12 +212,7 @@ class ZeitgeistEngine(gobject.GObject):
 		amount_items = 0
 		
 		# Check if event is before the last logs
-		app = App.lookup(items[0]["app"])
-		if app:
-			last_entry = self.store.find(Event.start,
-				Event.app == app.item.id).order_by(Event.start).last()
-		else:
-			last_entry = 0
+		last_entry = self.get_last_insertion_date(items[0]["app"])
 		
 		for item in items:
 			if item["timestamp"] >= last_entry:
@@ -342,10 +337,17 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_timestamps_for_tag(self, tag):
 		pass
 	
-	def get_items_related_by_tags(self, item):
-		# TODO: Is one matching tag enough or should more/all of them
-		# match?
-		pass
+	def get_last_insertion_date(self, application):
+		"""
+		Returns the timestamp of the last item which was inserted
+		related to the given application. If there is no such record,
+		0 is returned.
+		"""
+		
+		app = App.lookup(application)
+		
+		return self.store.find(Event.start, Event.app == app.item.id
+			).order_by(Event.start).last() if app else 0
 	
 	def get_related_items(self, uri):
 		pass

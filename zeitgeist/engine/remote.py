@@ -92,17 +92,14 @@ class RemoteInterface(dbus.service.Object):
 		return _engine.get_related_items(item_uri)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
-						in_signature="s", out_signature="a"+sig_plain_data)
-	def GetItemsRelatedByTags(self, item_uri):
-		items = []
-		for item in _engine.get_items_related_by_tags(item_uri):
-			items.append(item)
-		return items
-	
-	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="(uu)")
 	def GetTimestampsForTag(self, tag):
 		return _engine.get_timestamps_for_tag(tag)
+	
+	@dbus.service.method("org.gnome.Zeitgeist",
+						in_signature="s", out_signature="i")
+	def GetLastInsertionDate(self, application):
+		return _engine.get_last_insertion_date(application)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="", out_signature="a(ss)")
