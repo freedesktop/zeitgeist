@@ -42,11 +42,11 @@ class RemoteInterface(dbus.service.Object):
 		return _engine.get_item(uri)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
-						in_signature="iiiss", out_signature="a"+sig_plain_data)
+						in_signature="iiibbss", out_signature="a"+sig_plain_data)
 	def GetItems(self, min_timestamp, max_timestamp, limit,
-	sorting_asc, tags, mimetype):
+	sorting_asc, unique, tags, mimetype):
 		return _engine.get_items(min_timestamp, max_timestamp, limit,
-			sorting_asc, tags, mimetype)
+			sorting_asc, unique, tags, mimetype)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="siis", out_signature="a"+sig_plain_data)

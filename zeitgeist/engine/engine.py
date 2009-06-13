@@ -230,14 +230,14 @@ class ZeitgeistEngine(gobject.GObject):
 		if item:
 			return self._result2data(item)
 	
-	def get_items(self, min=0, max=sys.maxint, limit=0, sorting_asc=True, tags="", mimetypes=""):
+	def get_items(self, min=0, max=sys.maxint, limit=0,
+	sorting_asc=True, unique=False, tags="", mimetypes=""):
 		"""
 		Yields all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
 		may be used to filter on tags.
 		"""
-		func = self._result2data
-		pack = []
+		
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
@@ -246,16 +246,16 @@ class ZeitgeistEngine(gobject.GObject):
 		events.order_by(Event.start if sorting_asc else Desc(Event.start))
 		
 		if limit > 0:
-			print "====>", limit
 			events = events[:limit]
+		if unique:
+			events.group_by()		
 		
 		print events
 		
 		t2 = time.time()
 		print "--------------------------> "+str(t2-t1)
 		
-		for event in events:
-			pack.append(func(event))
+		pack = [self._result2data(event) for event in events]
 		t3 = time.time()
 		print "-------------------------------------------> "+str(t3-t2)
 		return pack

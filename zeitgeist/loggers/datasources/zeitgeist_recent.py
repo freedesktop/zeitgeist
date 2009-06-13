@@ -38,12 +38,12 @@ gettext.install("zeitgeist", config.localedir, unicode=1)
 		
 # helpers
 
-#workaround pygtk bug
+# workaround pygtk bug
 def find_desktopfiles():
 	for dir in BaseDirectory.load_data_paths("applications"):
-		for desktopfile in glob.glob("%s/*.desktop" %dir):
+		for desktopfile in glob.glob("%s/*.desktop" % dir):
 			yield desktopfile
-			
+
 ADDITIONS = (
 	(u"Text Editor", "/usr/share/applications/gedit.desktop"),
 	(u"File Roller", "/usr/share/applications/file-roller.desktop"),
@@ -53,13 +53,15 @@ ADDITIONS = (
 	(u"Totem Video-Player", "/usr/share/applications/totem.desktop"),
 	(u"File Manager", "/usr/share/applications/nautilus.desktop"),
 )
+
 def create_app_map():
 	for desktopfile in find_desktopfiles():
 		entry = DesktopEntry.DesktopEntry(desktopfile)
 		# add entry for name attribute
 		yield (unicode(entry.getName()), (desktopfile, entry))
 		# add entry for executable
-		yield (unicode(entry.getExec().split()[0].split("/")[-1]), (desktopfile, entry))
+		yield (unicode(entry.getExec().split()[0].split("/")[-1])
+			if entry.getExec().split() else "", (desktopfile, entry))
 	for identifier, desktopfile in ADDITIONS:
 		yield (unicode(identifier), (desktopfile, DesktopEntry.DesktopEntry(desktopfile)))
 		
