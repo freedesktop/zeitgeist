@@ -117,7 +117,7 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		return 0
 	
-	def insert_item(self, ritem, commit=True):
+	def insert_item(self, ritem, commit=True, force=False):
 		"""
 		Inserts an item into the database. Returns True on success,
 		False otherwise (for example, if the item already is in the
@@ -140,7 +140,7 @@ class ZeitgeistEngine(gobject.GObject):
 		# Check if the event already exists: if so, don't bother inserting
 		item = Item.lookup(ritem["uri"])
 		if item:
-			if Event.lookup(e_uri % item.id):
+			if Event.lookup(e_uri % item.id) and not force:
 				return False
 		
 		# Store the item
@@ -264,30 +264,11 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		If the item has tags, then the tags will also be updated.
 		"""
-		# (Re)insert the item into the database
-		self.cursor.execute('INSERT INTO data VALUES (?,?,?,?,?,?,?)',
-							 (item["uri"],
-								unicode(item["name"]),
-								item["comment"],
-								item["icon"],
-								item["bookmark"],
-								item["mimetype"],
-								item["type"]))
+                
+                #FIXME Delete all annotations of the ITEM
+                
+		self.insert_item(item, True, True)
 		
-		'''
-		# Delete old tags for this item
-		self.cursor.execute('DELETE FROM tags where uri=?', (item["uri"],))
-		
-		# (Re)insert tags into the database
-		for tag in (tag.strip() for tag in item["tags"].split(",") if tag.strip()):
-			try:
-				self.cursor.execute('INSERT INTO tags VALUES (?,?)',
-					(unicode(tag.capitalize()), item["uri"]))
-			except sqlite3.IntegrityError:
-				pass
-		'''
-		
-		self.connection.commit()
 	
 	def delete_item(self, item):
 		pass
