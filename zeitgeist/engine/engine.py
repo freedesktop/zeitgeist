@@ -38,7 +38,6 @@ from zeitgeist.shared.zeitgeist_shared import *
 from zeitgeist.engine.base import *
 
 class ZeitgeistEngine(gobject.GObject):
-	_salt = 0
 
 	def __init__(self, storm_store):
 		
@@ -101,10 +100,6 @@ class ZeitgeistEngine(gobject.GObject):
 			return item["uri"]
 		
 		return item
-	
-	def _next_salt(self):
-		self._salt += 1
-		return self._salt
 	
 	def get_last_timestamp(self, uri=None):
 		"""
