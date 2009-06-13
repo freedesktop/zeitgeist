@@ -48,7 +48,8 @@ class ZeitgeistEngine(gobject.GObject):
 		self.store = storm_store
 		self._apps = set()
 		self.reload_callback = None
-		
+		self._last_time_from_app = {}
+                
 		'''
 		path = BaseDirectory.save_data_path("zeitgeist")
 		database = os.path.join(path, "zeitgeist.sqlite")
@@ -134,14 +135,12 @@ class ZeitgeistEngine(gobject.GObject):
 			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
 			return False
 		
-		if not Item.lookup(ritem["uri"]) or force:
-			item = Item.lookup_or_create(ritem["uri"])
+                item =  Item.lookup(ritem["uri"])
+		if not item or force:
+                        if not item:
+                                item = Item.lookup_or_create(ritem["uri"])
 			item.content = Content.lookup_or_create(ritem["content"])
 			item.source = Source.lookup_or_create(ritem["source"])
-			item.text = unicode(ritem["text"])
-			item.mimetype = unicode(ritem["mimetype"])
-			item.icon = unicode(ritem["icon"])
-			item.origin = unicode(ritem["origin"])
 			
 			# Extract tags
 			if ritem.has_key("tags") and ritem["tags"].strip():
@@ -163,14 +162,13 @@ class ZeitgeistEngine(gobject.GObject):
 							a.item.content_id = Content.BOOKMARK.id
 			if force:
 				   return True
-		else:
-			item = Item.lookup_or_create(ritem["uri"])
 
 		e_uri = "zeitgeist://event/%s/%%s/%s#%d" % (ritem["use"],
 			ritem["timestamp"], item.id)
 		
 		# Check if the event already exists: if so, don't bother inserting
-		if not Event.lookup(e_uri):
+                e = Event.lookup(e_uri)
+		if not e:
 			# Store the event
 			e = Event.lookup_or_create(e_uri)
 			e.subject = item
@@ -211,12 +209,14 @@ class ZeitgeistEngine(gobject.GObject):
 		amount_items = 0
 		
 		# Check if event is before the last logs
-		
+                t1 = time.time()
 		for item in items:
-			if self.insert_item(item, commit=False):
-				amount_items += 1
+                                if self.insert_item(item, commit=False):
+				                                    amount_items += 1
 		
 		self.store.commit()
+                t2 = time.time()
+                print ">>>>>>>>>>>>>> "+str(t2-t1)
 		
 		return amount_items
 	
@@ -339,7 +339,7 @@ class ZeitgeistEngine(gobject.GObject):
 		pass
 	
 	def get_bookmarks(self):
-		return []
+		uris = store.find(URI, Item.content_id == Content.BOOKMARK.id, Item.id== URI.id, Annotation.subject_id == URI.id)
 
 _engine = None
 def get_default_engine():
