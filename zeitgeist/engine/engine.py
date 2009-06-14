@@ -70,16 +70,16 @@ class ZeitgeistEngine(gobject.GObject):
 		return (
 			event.start if event else 0, # timestamp
 			item.uri.value, # uri
-			item.text, # name
-			item.source.value or "N/A", # source
-			item.content.value, # content
-			item.mimetype, # mimetype
-			tags, # tags
+			item.text or os.path.basename(item.uri.value), # name
+			item.source.value or "", # source
+			item.content.value or "", # content
+			item.mimetype or "", # mimetype
+			tags or "", # tags
 			event.item.content.value if event else "",# usage is determined by the event Content type
 			bookmark, # bookmark
-			item.icon, # icon
+			item.icon or "", # icon
 			"", # app
-			item.origin # origin
+			item.origin or "" # origin
 			)
 	
 	def _ensure_item(self, item, uri_only=False):
