@@ -25,11 +25,11 @@ import shutil
 import sqlite3 as db
 import gettext
 import dbus
+import gio
 from ConfigParser import ConfigParser, NoOptionError
 from xdg import BaseDirectory
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
-from zeitgeist.loggers.util import FileMonitor
 from zeitgeist import config
 
 gettext.install("zeitgeist", config.localedir, unicode=1)
@@ -82,9 +82,9 @@ class FirefoxSource(DataProvider):
 			self.history_db = self.history_dbs[0]
 			
 			try:
-				note_path_monitor = FileMonitor(self.history_db)
-				note_path_monitor.connect("event", self.reload_proxy)
-				note_path_monitor.open()
+				file_object = gio.File(self.history_db)
+				self.note_path_monitor = file_object.monitor_file()
+				self.note_path_monitor.connect("changed", self.reload_proxy)
 			except Exception, e:
 				print("Unable to monitor Firefox history %s: %s" % 
 					(self.history_db, str(e)))
@@ -147,10 +147,16 @@ class FirefoxSource(DataProvider):
 		else:
 			self.timestamp = history[0]
 	
-	def reload_proxy(self,x=None,y=None,z=None):
-		self.last_timestamp = self.get_last_timestamp()
-		self.__copy_sqlite()
-		self.emit("reload")
+	def reload_proxy(self, filemonitor, file, other_file, event_type):
+		if event_type in (
+				gio.FILE_MONITOR_EVENT_CHANGED,
+				gio.FILE_MONITOR_EVENT_CREATED,
+				gio.FILE_MONITOR_EVENT_DELETED,
+				gio.FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED
+		):
+			self.last_timestamp = self.get_last_timestamp()
+			self.__copy_sqlite()
+			self.emit("reload")
 	
 	def get_items_uncached(self):
 		# create a connection to firefox's sqlite database
@@ -199,7 +205,7 @@ class FirefoxSource(DataProvider):
 						"bookmark": bookmark,
 						"app": u"/usr/share/applications/firefox.desktop",
 						"origin":  unicode(item[4][::-1][1:] if item[4] else u"")
-						}
+					}
 					yield item
 	
 	def __copy_sqlite(self):
