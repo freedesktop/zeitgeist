@@ -1,9 +1,8 @@
 zeitgeist-daemon
 zeitgeist-datahub
 zeitgeist/__init__.py
-zeitgeist/shared/zeitgeist_shared.py
-zeitgeist/shared/__init__.py
-zeitgeist/shared/zeitgeist_dbus.py
+zeitgeist/datamodel.py
+zeitgeist/dbusutils.py
 zeitgeist/loggers/zeitgeist_base.py
 zeitgeist/loggers/W3CDate.py
 zeitgeist/loggers/util.py
@@ -17,5 +16,4 @@ zeitgeist/loggers/datasources/zeitgeist_tomboy.py
 zeitgeist/engine/__init__.py
 zeitgeist/engine/engine.py
 zeitgeist/engine/remote.py
-zeitgeist/shared/zeitgeist_dbus.py
 extra/test-daemon.py

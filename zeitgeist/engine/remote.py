@@ -21,7 +21,7 @@ import dbus
 import dbus.service
 
 from zeitgeist.engine.engine import get_default_engine
-from zeitgeist.shared.zeitgeist_shared import *
+from zeitgeist.dbusutils import dictify_data, sig_plain_data
 
 _engine = get_default_engine()
 

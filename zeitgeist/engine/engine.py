@@ -34,7 +34,6 @@ import traceback
 from random import randint
 
 from zeitgeist import config
-from zeitgeist.shared.zeitgeist_shared import *
 from zeitgeist.engine.base import *
 
 class ZeitgeistEngine(gobject.GObject):

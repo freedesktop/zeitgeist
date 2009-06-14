@@ -21,7 +21,6 @@ AC_CONFIG_FILES([
 	extra/epiphany/Makefile
 	po/Makefile.in
 	zeitgeist/Makefile
-	zeitgeist/shared/Makefile
 	zeitgeist/loggers/datasources/Makefile
 	zeitgeist/loggers/Makefile
 	zeitgeist/engine/Makefile
