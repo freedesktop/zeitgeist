@@ -349,6 +349,10 @@ def create_store(storm_url):
 		(item_id INTEGER PRIMARY KEY, subject_id INTEGER, start INTEGER,
 			end INTEGER, app_id INTEGER)
 		""")
+	store.execute("""
+		CREATE INDEX IF NOT EXISTS
+			event_subject_id ON annotation(subject_id)
+		""")
 	store.commit()
 	
 	return store

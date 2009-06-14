@@ -283,7 +283,7 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_all_tags(self):
 		"""
 		Returns a list containing the name of all tags.
-		"""
+		"""		
 		return []
 	
 	def get_types(self):
