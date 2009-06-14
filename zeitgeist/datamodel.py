@@ -1,7 +1,23 @@
+"""
+This module provides the abstract datamodel used by the Zeitgeist framework.
+In addition to providing useful constructs for dealing with the Zeitgeist data
+it also defines symbolic values for the common item types. Using symbolic values
+instead of Uri string will help detect programmer typos.
+"""
+
 # FIXME: gettext support
 def _(s) : return s
 
 class Category:
+	"""
+	Base class for the Content and Source classes. A category provides
+	access to four public members:
+	
+	uri : Fully classifying Uri string for the category
+	name : Short name for the category
+	display_name : Internationalized string suitable for display, like list headers and such
+	doc: Developer help describing the category
+	"""
 	CACHE = {}
 	
 	def __init__ (self, uri, display_name=None, name=None, doc=None):
@@ -21,16 +37,27 @@ class Category:
 
 	@classmethod
 	def get(klass, uri):
+		"""
+		This method should be called through either Content.get(uri) or
+		Source.get(uri). It looks up an object representing the category
+		provided by 'uri' and creates it if necessary
+		"""
 		if not uri in klass.CACHE:
 			this = klass(uri)
 			klass.CACHE[uri] = this
 		return klass.CACHE[uri]
 
 class Content(Category):
+	"""
+	See doc for Category
+	"""
 	def __init__ (self, url, display_name=None, name=None, doc=None):
 		Category.__init__(self, url, display_name, name, doc)
 
 class Source(Category):
+	"""
+	See doc for Category
+	"""
 	def __init__ (self, url, display_name=None, name=None, doc=None):
 		Category.__init__(self, url, display_name, name, doc)
 

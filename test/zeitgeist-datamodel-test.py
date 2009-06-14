@@ -50,6 +50,13 @@ class ContentTest (unittest.TestCase):
 		foo2 = Content.get(foo_url)
 		self.assertEquals(id(foo1), id(foo2))
 
+	def testPredefined(self):
+		tag = Content.TAG
+		self.assertTrue(tag.name != None)
+		self.assertTrue(tag.uri != None)
+		self.assertTrue(tag.display_name != None)
+		self.assertTrue(tag.doc != None)
+
 class SourceTest (unittest.TestCase):
 	"""
 	This class tests that the zeitgeist.datamodel.Source class
@@ -75,6 +82,13 @@ class SourceTest (unittest.TestCase):
 		foo1 = Source(foo_url)
 		foo2 = Source.get(foo_url)
 		self.assertEquals(id(foo1), id(foo2))
+	
+	def testPredefined(self):
+		f = Source.FILE
+		self.assertTrue(f.name != None)
+		self.assertTrue(f.uri != None)
+		self.assertTrue(f.display_name != None)
+		self.assertTrue(f.doc != None)
 
 if __name__ == '__main__':
 	unittest.main()
