@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 
 from zeitgeist.engine.base import *
 from zeitgeist.engine.engine import ZeitgeistEngine
-from zeitgeist.shared.zeitgeist_shared import *
+from zeitgeist.dbusutils import *
 
 import unittest
 
