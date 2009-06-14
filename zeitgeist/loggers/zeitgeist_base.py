@@ -77,8 +77,16 @@ class DataProvider(gobject.GObject, Thread):
 		"""
 		Return the items for the indicated time periode.
 		"""
-		
-		return (i for i in self.get_items_uncached() if i["timestamp"] >= min and i["timestamp"] < max)
+		def _wrapper():
+			for n, i in enumerate(self.get_items_uncached()):
+				if i["timestamp"] >= min and i["timestamp"] < max:
+					yield i
+				if not n % 200: #not sure when to check pending events, maybe for each iteration?
+					ctx = gobject.main_context_default()
+					while ctx.pending():
+						#~ print "events pending"
+						ctx.iteration()
+		return _wrapper()
 	
 	def get_items_uncached(self):
 		"""Subclasses should override this to return/yield Datas. The results
