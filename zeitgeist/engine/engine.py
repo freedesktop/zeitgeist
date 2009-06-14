@@ -284,18 +284,15 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		Returns a list containing the name of all tags.
 		"""		
-		return []
+		tags = self.store.find(Item, Item.content_id == Content.TAG.id)
+		return [tag.text for tag in tags]
 	
 	def get_types(self):
 		"""
 		Returns a list of all different types in the database.
 		"""
-		
-		return [type[0] for type in self.store.execute("""
-			SELECT value FROM source WHERE id IN
-				(SELECT content_id FROM item WHERE id IN
-					(SELECT subject_id FROM event))
-			""")]
+		contents = self.store.find(Content)
+		return [content.value for content in contents]
 	
 	def get_recently_used_tags(self, count=20, min=0, max=sys.maxint):
 		"""

@@ -59,7 +59,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		assert_cmp_dict(orig, result)
 		
 		types = [str(type) for type in self.engine.get_types()]
-		self.assertTrue(type == ["Image"])
+		self.assertEquals(types, ["Image"])
 	
 if __name__ == '__main__':
 	unittest.main()

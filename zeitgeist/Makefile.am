@@ -1,12 +1,10 @@
-SUBDIRS = \
-	engine \
-	loggers \
-	shared
+SUBDIRS = engine loggers shared
 
 appdir = $(pythondir)/zeitgeist/
 
 app_PYTHON = \
 	__init__.py
+	datamodel.py
 
 nodist_app_PYTHON = config.py
 

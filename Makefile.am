@@ -14,6 +14,6 @@ EXTRA_DIST = \
 	$(INTLTOOL)
 
 DISTCLEANFILES = \
-	intltool-extrac \
+	intltool-extract \
 	intltool-merge \
 	intltool-update
