@@ -5,7 +5,8 @@ import sys, os
 from os.path import dirname, join, abspath
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 
-from zeitgeist.engine.base import *
+from zeitgeist.engine.base import create_store, set_store
+from zeitgeist.datamodel import *
 from zeitgeist.engine.engine import ZeitgeistEngine
 from zeitgeist.dbusutils import *
 
@@ -36,14 +37,14 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testSingleInsertGet(self):
 		orig = {	"uri" : "test://mytest",
-					"content" : "Image",
-					"source" : Source.USER_ACTIVITY.value,
+					"content" : Content.IMAGE.uri,
+					"source" : Source.USER_ACTIVITY.uri,
 					"app" : "/usr/share/applications/gnome-about.desktop",
 					"timestamp" : 0,
 					"text" : "Text",
 					"mimetype" : "mime/type",
 					"icon" : "stock_left",
-					"use" : Content.CREATE_EVENT.value,
+					"use" : Content.CREATE_EVENT.uri,
 					"origin" : "http://example.org" }
 		self.engine.insert_item(orig)		
 		result = self.engine.get_item("test://mytest")		
@@ -51,15 +52,15 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		# Clean result, from extra data, and add missing data
 		result = dictify_data(result)
-		result["use"] = Content.CREATE_EVENT.value
+		result["use"] = Content.CREATE_EVENT.uri
 		result["app"] = "/usr/share/applications/gnome-about.desktop"
 		result.pop("tags")
 		result.pop("bookmark")
 	
 		assert_cmp_dict(orig, result)
 		
-		types = [str(type) for type in self.engine.get_types()]
-		self.assertEquals(types, ["Image"])
+		content_types = [str(ctype) for ctype in self.engine.get_types()]
+		self.assertTrue(Content.IMAGE.uri in content_types)
 	
 if __name__ == '__main__':
 	unittest.main()

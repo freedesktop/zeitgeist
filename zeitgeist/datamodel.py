@@ -80,6 +80,38 @@ Content.DOCUMENT = Content("http://freedesktop.org/standards/xesam/1.0/core#Docu
 						   display_name=_("Documents"),
 						   doc="A document, presentation, spreadsheet, or other content centric item"
 )
+Content.IMAGE = Content("http://freedesktop.org/standards/xesam/1.0/core#Image",
+						display_name=_("Images"),
+						doc="A photography, painting, or other digital image"
+)
+Content.VIDEO = Content("http://freedesktop.org/standards/xesam/1.0/core#Video",
+						display_name=_("Videos"),
+						doc="Any form of digital video, streaming and non-streaming alike"
+)
+Content.MUSIC = Content("http://freedesktop.org/standards/xesam/1.0/core#Music",
+						display_name=_("Music"),
+						doc="Digital music or other creative audio work"
+)
+Content.VIDEO = Content("http://freedesktop.org/standards/xesam/1.0/core#Video",
+						display_name=_("Videos"),
+						doc="Any form of digital video, streaming and non-streaming alike"
+)
+Content.EMAIL = Content("http://freedesktop.org/standards/xesam/1.0/core#Email",
+						display_name=_("Email"),
+						doc="An email is an email is an email"
+)
+Content.IM_MESSAGE = Content("http://freedesktop.org/standards/xesam/1.0/core#IMMessage",
+						display_name=_("Messages"),
+						doc="A message received from an instant messaging service"
+)
+Content.RSS_MESSAGE = Content("http://freedesktop.org/standards/xesam/1.0/core#RSSMessage",
+						display_name=_("Feeds"),
+						doc="Any syndicated item, RSS, Atom, or other"
+)
+Content.BROADCAST_MESSAGE = Content("http://gnome.org/zeitgeist/schema/1.0/core#BroadcastMessage",
+						display_name=_("Broadcasts"), # FIXME: better display name
+						doc="Small broadcasted message, like Twitter/Identica micro blogging"
+)
 Content.CREATE_EVENT = Content("http://gnome.org/zeitgeist/schema/1.0/core#CreateEvent",
 						   display_name=_("Created"),
 						   doc="Event type triggered when an item is created"
