@@ -213,14 +213,13 @@ class ZeitgeistEngine(gobject.GObject):
 		amount_items = 0
 		
 		# Check if event is before the last logs
-                t1 = time.time()
+		t1 = time.time()
 		for item in items:
-                                if self.insert_item(item, commit=False):
-				                                    amount_items += 1
-		
+			if self.insert_item(item, commit=False):
+				amount_items += 1
 		self.store.commit()
-                t2 = time.time()
-                print ">>>>>>>>>>>>>> "+str(t2-t1)
+		t2 = time.time()
+		print ">>>>>> Inserted %s items in %ss" % (len(items),t2-t1)
 		
 		return amount_items
 	
