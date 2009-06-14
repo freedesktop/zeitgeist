@@ -158,6 +158,7 @@ class ZeitgeistEngine(gobject.GObject):
 			# Extract bookmarks
 			if ritem.has_key("bookmark") and ritem["bookmark"]:
 				a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
+				print "bookmarking ---> "+ ritem["uri"]
 				a = Annotation.lookup_or_create(a_uri)
 				a.subject = item
 				a.item.text = u"Bookmark"
@@ -251,12 +252,12 @@ class ZeitgeistEngine(gobject.GObject):
 			events.max(Event.start)
 			events.group_by(Event.subject_id)
 		
-		t2 = time.time()
-		print "--------------------------> "+str(t2-t1)
+		#t2 = time.time()
+		#print "--------------------------> "+str(t2-t1)
 		
 		pack = [self._result2data(event) for event in events]
-		t3 = time.time()
-		print "-------------------------------------------> "+str(t3-t2)
+		#t3 = time.time()
+		#print "-------------------------------------------> "+str(t3-t2)
 		return pack
 	
 	def update_item(self, item):
@@ -267,7 +268,6 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		
 		#FIXME Delete all annotations of the ITEM
-		print "bookmarking ---> "+ item["uri"]
 		self.insert_item(item, True, True)
 	
 	def delete_item(self, item):
@@ -343,9 +343,10 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def get_bookmarks(self):
 		uris = self.store.find(URI, Item.content_id == Content.BOOKMARK.id, Item.id== URI.id, Annotation.subject_id == URI.id)
-		
+		print " BOOKMARKS "
 		for uri in uris:
 			print uri.value
+		print "--------------------"
 		
                 return []
                 
