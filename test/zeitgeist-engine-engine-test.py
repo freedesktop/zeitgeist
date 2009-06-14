@@ -62,5 +62,22 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		content_types = [str(ctype) for ctype in self.engine.get_types()]
 		self.assertTrue(Content.IMAGE.uri in content_types)
 	
+	def testBookmark (self):
+		self.assertEquals(0, len(self.engine.get_bookmarks()))
+		orig = {	"uri" : "test://mytest",
+					"content" : Content.IMAGE.uri,
+					"source" : Source.USER_ACTIVITY.uri,
+					"app" : "/usr/share/applications/gnome-about.desktop",
+					"timestamp" : 0,
+					"text" : "Text",
+					"mimetype" : "mime/type",
+					"icon" : "stock_left",
+					"use" : Content.CREATE_EVENT.uri,
+					"origin" : "http://example.org",
+					"bookmark" : True}
+		self.engine.insert_item(orig)
+		bookmarks = self.engine.get_bookmarks()
+		self.assertEquals(1, len(bookmarks))
+		self.assertEquals("test://mytest", bookmarks[0])
 if __name__ == '__main__':
 	unittest.main()
