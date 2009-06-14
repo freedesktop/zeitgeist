@@ -1,0 +1,30 @@
+The Zeitgeist Engine
+--------------------
+
+Zeitgeist is a service that logs the users activities and determines
+which files are relevant to one another. It supports simple searching,
+filtering by type and mimetype, tagging, etc.
+
+Note that this package only contains the daemon, which you can use
+together with several different user interfaces. If you don't know
+which to use, try out https://launchpad.net/gnome-zeitgeist/.
+
+For more information, see:
+ - https://launchpad.net/zeitgeist
+ - http://zeitgeist-project.com/
+
+----------------------------------------------------------------------
+
+Dependencies:
+
+ - python 2.5 or higher
+ - python-gtk2 (2.14.1, *)
+ - python-gobject
+ - python-dbus
+
+ * Zeitgeist requires a PyGTK patch which hasn't been released yet.
+   You can either recompile manually including the patch
+   (http://git.gnome.org/cgit/pygtk/commit/?id=956592c614c567623510dccf5fc1edaee9c766c1)
+   or, if you use Ubuntu, get the patched python-glade and python-gtk2
+   packages from https://launchpad.net/~rainct/+archive/ppa.
+   
