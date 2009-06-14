@@ -23,7 +23,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.engine.ZeitgeistEngine class
 	"""
 	def setUp (self):
-		storm_url = "sqlite:unittest.sqlite"
+		storm_url = "sqlite:/tmp/unittest.sqlite"
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
@@ -36,7 +36,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testSingleInsertGet(self):
 		orig = {	"uri" : "test://mytest",
-					"content" : Content.TAG.value,
+					"content" : "Image",
 					"source" : Source.USER_ACTIVITY.value,
 					"app" : "/usr/share/applications/gnome-about.desktop",
 					"timestamp" : 0,
@@ -48,15 +48,18 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.engine.insert_item(orig)		
 		result = self.engine.get_item("test://mytest")		
 		self.assertTrue(result is not None)
-
+		
 		# Clean result, from extra data, and add missing data
 		result = dictify_data(result)
 		result["use"] = Content.CREATE_EVENT.value
 		result["app"] = "/usr/share/applications/gnome-about.desktop"
 		result.pop("tags")
-		result.pop("bookmark")		
+		result.pop("bookmark")
 	
 		assert_cmp_dict(orig, result)
+		
+		types = [str(type) for type in self.engine.get_types()]
+		self.assertTrue(type == ["Image"])
 	
 if __name__ == '__main__':
 	unittest.main()

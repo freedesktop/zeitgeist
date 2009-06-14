@@ -313,7 +313,7 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 	"""
 	mimetype_list = MimeTypeSet()
 	
-	def __init__(self, name, icon, filter_name,inverse=False):
+	def __init__(self, name, icon, filter_name, inverse=False):
 		RecentlyUsed.__init__(self, name, icon)
 		self.filter_name = filter_name
 		self.inverse = inverse
@@ -337,7 +337,7 @@ class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Documents",
 										icon="stock_new-presentation",
-										filter_name=_("Documents"))
+										filter_name="Documents")
 
 
 class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
@@ -353,7 +353,7 @@ class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Other",
 										icon="applications-other",
-										filter_name=_("Other"),
+										filter_name="Other",
 										inverse = True)
 	
 	def include_item(self, item):
@@ -369,7 +369,7 @@ class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Images",
 										icon="gnome-mime-image",
-										filter_name=_("Images"))
+										filter_name="Images")
 
 
 class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
@@ -380,7 +380,7 @@ class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Music",
 										icon="gnome-mime-audio",
-										filter_name=_("Music"))
+										filter_name="Music")
 
 
 class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
@@ -391,7 +391,7 @@ class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Videos",
 										icon="gnome-mime-video",
-										filter_name=_("Videos"))
+										filter_name="Videos")
 
 class RecentlyUsedDevelopmentSource(RecentlyUsedOfMimeType):
 
@@ -401,7 +401,7 @@ class RecentlyUsedDevelopmentSource(RecentlyUsedOfMimeType):
 		RecentlyUsedOfMimeType.__init__(self,
 										name="Development",
 										icon="applications-development",
-										filter_name=_("Development"))
+										filter_name="Development")
 
 recent_model = RecentlyUsedManagerGtk()
 

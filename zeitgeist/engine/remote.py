@@ -99,7 +99,7 @@ class RemoteInterface(dbus.service.Object):
 		return _engine.get_last_insertion_date(application)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
-						in_signature="", out_signature="a(ss)")
+						in_signature="", out_signature="as")
 	def GetTypes(self):
 		return _engine.get_types()
 	

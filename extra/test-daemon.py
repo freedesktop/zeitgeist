@@ -20,8 +20,8 @@ if '--listen' in sys.argv:
 iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist")
 
 print '\nDifferent types in the database:'
-for name, icon in iface.GetTypes():
-	print '- %s (%s)' % (name, icon)
+for name in iface.GetTypes():
+	print '- %s' % name
 print
 
 print 'Your bookmarks are:'

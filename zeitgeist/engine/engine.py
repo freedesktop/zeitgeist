@@ -291,9 +291,11 @@ class ZeitgeistEngine(gobject.GObject):
 		Returns a list of all different types in the database.
 		"""
 		
-		for type, icon in self.cursor.execute(
-		"SELECT DISTINCT(type), icon FROM data").fetchall():
-			yield(unicode(type), icon)
+		return [type[0] for type in self.store.execute("""
+			SELECT value FROM source WHERE id IN
+				(SELECT content_id FROM item WHERE id IN
+					(SELECT subject_id FROM event))
+			""")]
 	
 	def get_recently_used_tags(self, count=20, min=0, max=sys.maxint):
 		"""

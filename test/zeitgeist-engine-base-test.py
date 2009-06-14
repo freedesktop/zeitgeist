@@ -17,7 +17,7 @@ class SymbolTest(unittest.TestCase):
 	# scope they will not be reloaded even if we nuke the test environment
 	# Therefore we need to use custom instances of the symbols in the tests
 	def setUp (self):
-		storm_url = "sqlite:unittest.sqlite"
+		storm_url = "sqlite:/tmp/unittest.sqlite"
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
@@ -63,7 +63,7 @@ class SourceTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.Source class
 	"""
 	def setUp (self):
-		storm_url = "sqlite:unittest.sqlite"
+		storm_url = "sqlite:/tmp/unittest.sqlite"
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
@@ -93,7 +93,7 @@ class URITest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.URI class
 	"""
 	def setUp (self):
-		storm_url = "sqlite:unittest.sqlite"
+		storm_url = "sqlite:/tmp/unittest.sqlite"
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
@@ -121,7 +121,7 @@ class ItemTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.Item class
 	"""
 	def setUp (self):
-		storm_url = "sqlite:unittest.sqlite"
+		storm_url = "sqlite:/tmp/unittest.sqlite"
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
@@ -184,7 +184,7 @@ class EventTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.Event class
 	"""
 	def setUp (self):
-		storm_url = "sqlite:unittest.sqlite"
+		storm_url = "sqlite:/tmp/unittest.sqlite"
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
@@ -308,7 +308,7 @@ class AnnotationTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.Annotation class
 	"""
 	def setUp (self):
-		storm_url = "sqlite:unittest.sqlite"
+		storm_url = "sqlite:/tmp/unittest.sqlite"
 		db_file = storm_url.split(":")[1]
 		if os.path.exists(db_file):
 			os.remove(db_file)
@@ -357,5 +357,5 @@ class AnnotationTest (unittest.TestCase):
 		self.assertEquals(1, aa.subject_id)
 		
 	
-if __name__ == '__main__':
+if __name__ == "__main__":
 	unittest.main()
