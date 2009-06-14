@@ -52,6 +52,7 @@ ADDITIONS = (
 	(u"GNU Image Manipulation Program", "/usr/share/applications/gimp.desktop"),
 	(u"Totem Video-Player", "/usr/share/applications/totem.desktop"),
 	(u"File Manager", "/usr/share/applications/nautilus.desktop"),
+	(u"Anjuta", "/usr/share/applications/anjuta.desktop")
 )
 
 def create_app_map():

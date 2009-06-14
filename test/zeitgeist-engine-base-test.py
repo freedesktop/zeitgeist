@@ -15,50 +15,48 @@ class SymbolTest(unittest.TestCase):
 	"""
 	# Since the symbols in the Source and Content are defined in class
 	# scope they will not be reloaded even if we nuke the test environment
-	# Therefore we need to have a globally persistent store for this test
-	store = create_store("sqlite:unittest.sqlite")
-	set_store(store)
+	# Therefore we need to use custom instances of the symbols in the tests
 	def setUp (self):
-		pass
+		storm_url = "sqlite:unittest.sqlite"
+		db_file = storm_url.split(":")[1]
+		if os.path.exists(db_file):
+			os.remove(db_file)
+		self.store = create_store(storm_url)
+		set_store(self.store)
 		
 	def tearDown (self):
-		pass
+		self.store.close()
 	
 	def testSingleSymbol(self):
-		s = Source.WEB_HISTORY
+		s = Symbol(Source, Source.WEB_HISTORY.value)
 		self.assertEquals(Source.WEB_HISTORY.value, s.value)
 		self.assertEquals(1, Source.WEB_HISTORY.id)
 		self.assertEquals("WebHistory", Source.WEB_HISTORY.name)
 	
 	def testContentSourceSymbols(self):
-		s = Source.WEB_HISTORY
-		c = Content.TAG
+		s = Symbol(Source, Source.WEB_HISTORY.value)
+		c = Symbol(Content, Content.TAG.value)
 		
 		self.assertEquals(Source.WEB_HISTORY.value, s.value)
-		self.assertEquals(1, Source.WEB_HISTORY.id)
-		self.assertEquals(1, s.id)
-		self.assertEquals("WebHistory", Source.WEB_HISTORY.name)
+		self.assertEquals(1, s.id) # First element in the source table
+		self.assertEquals("WebHistory", s.name)
 		
 		self.assertEquals(Content.TAG.value, c.value)
-		self.assertEquals(1, Content.TAG.id) # First element in the content table
-		self.assertEquals(1, c.id)
-		self.assertEquals("Tag", Content.TAG.name)
+		self.assertEquals(1, c.id) # First element in the content table
+		self.assertEquals("Tag", c.name)
 	
 	def testTwoSourceSymbols(self):
-		web = Source.WEB_HISTORY
-		act = Source.USER_ACTIVITY
+		web = Symbol(Source, Source.WEB_HISTORY.value)
+		act = Symbol(Source, Source.USER_ACTIVITY.value)
 		
-		self.assertEquals("WebHistory", Source.WEB_HISTORY.name)
 		self.assertEquals("WebHistory", web.name)
 		self.assertEquals(Source.WEB_HISTORY.value, web.value)
-		self.assertEquals(1, Source.WEB_HISTORY.id) # First element in the source table
-		self.assertEquals(1, web.id)		
+		self.assertEquals(1, web.id) # First element in the source table
 		
-		self.assertEquals("UserActivity", Source.USER_ACTIVITY.name)
 		self.assertEquals("UserActivity", act.name)
 		self.assertEquals(Source.USER_ACTIVITY.value, act.value)
-		self.assertEquals(2, Source.USER_ACTIVITY.id) # Second element in the source table
-		self.assertEquals(2, act.id)		
+		self.assertEquals(2, act.id) # Second element in the source table
+		
 
 class SourceTest (unittest.TestCase):
 	"""

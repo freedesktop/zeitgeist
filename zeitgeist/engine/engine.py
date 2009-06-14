@@ -56,24 +56,26 @@ class ZeitgeistEngine(gobject.GObject):
 		self.cursor = self.connection.cursor()
 		'''
 	
-	def _result2data(self, event=None):
+	def _result2data(self, event=None, item=None):
 		
 		# FIXME: Get tag
 		tags = ""
 		
 		# FIXME: Get bookmark
 		bookmark = False
-		item = event.subject
+		
+		if not item :
+			item = event.subject
 		
 		return (
-			event.start or 0, # timestamp
+			event.start if event else 0, # timestamp
 			item.uri.value, # uri
 			item.text, # name
 			item.source.value or "N/A", # source
 			item.content.value, # content
 			item.mimetype, # mimetype
 			tags, # tags
-			event.item.content.value or "",# usage is determined by the event Content type
+			event.item.content.value if event else "",# usage is determined by the event Content type
 			bookmark, # bookmark
 			item.icon, # icon
 			"", # app
@@ -129,32 +131,39 @@ class ZeitgeistEngine(gobject.GObject):
 		if not ritem.has_key("source") or not ritem["source"]:
 			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
 			return False
+		if not ritem.has_key("mimetype") or not ritem["mimetype"]:
+			print >> sys.stderr, "Discarding item without a mimetype: %s" % ritem
+			return False
 		
-                item =  Item.lookup(ritem["uri"])
+		item =  Item.lookup(ritem["uri"])
 		if not item or force:
-                        if not item:
-                                item = Item.lookup_or_create(ritem["uri"])
+			if not item:
+				item = Item.lookup_or_create(ritem["uri"])
 			item.content = Content.lookup_or_create(ritem["content"])
 			item.source = Source.lookup_or_create(ritem["source"])
+			item.mimetype = unicode(ritem["mimetype"])
+			item.text = unicode(ritem["text"]) if ritem.has_key("text") else None
+			item.origin = unicode(ritem["origin"]) if ritem.has_key("origin") else None
+			item.icon = unicode(ritem["icon"]) if ritem.has_key("icon") else None
 			
 			# Extract tags
 			if ritem.has_key("tags") and ritem["tags"].strip():
-					for tag in (tag for tag in ritem["tags"].split(",") if tag):
-							a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
-							a.subject = item
-							a.item.text = tag
-							a.item.source_id = Source.USER_ACTIVITY.id
-							a.item.content_id = Content.TAG.id
+				for tag in (tag for tag in ritem["tags"].split(",") if tag):
+					a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
+					a.subject = item
+					a.item.text = tag
+					a.item.source_id = Source.USER_ACTIVITY.id
+					a.item.content_id = Content.TAG.id
 			
 			# Extract bookmarks
 			if ritem.has_key("bookmark") and ritem["bookmark"]:
-					a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
-					if not Annotation.lookup(a_uri):
-							a = Annotation.lookup_or_create(a_uri)
-							a.subject = item
-							a.item.text = u"Bookmark"
-							a.item.source_id = Source.USER_ACTIVITY.id
-							a.item.content_id = Content.BOOKMARK.id
+				a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
+				if not Annotation.lookup(a_uri):
+					a = Annotation.lookup_or_create(a_uri)
+					a.subject = item
+					a.item.text = u"Bookmark"
+					a.item.source_id = Source.USER_ACTIVITY.id
+					a.item.content_id = Content.BOOKMARK.id
 			if force:
 				   return True
 
@@ -162,7 +171,7 @@ class ZeitgeistEngine(gobject.GObject):
 			ritem["timestamp"], item.id)
 		
 		# Check if the event already exists: if so, don't bother inserting
-                e = Event.lookup(e_uri)
+		e = Event.lookup(e_uri)
 		if not e:
 			# Store the event
 			e = Event.lookup_or_create(e_uri)
@@ -220,7 +229,7 @@ class ZeitgeistEngine(gobject.GObject):
 		item = self.store.find(Item, Item.id == URI.id,
 			URI.value == unicode(uri)).one()		
 		if item:
-			return self._result2data(item)
+			return self._result2data(item=item)
 	
 	def get_items(self, min=0, max=sys.maxint, limit=0,
 	sorting_asc=True, unique=False, tags="", mimetypes=""):

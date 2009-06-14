@@ -86,9 +86,9 @@ class Entity(object):
 			raise ValueError("Looking up Entity without a value or id")
 	
 	@classmethod
-	def lookup_or_create(self, value):
-	      ent = self.lookup(value)		
-              return ent if ent else self(value)
+	def lookup_or_create(klass, value):
+		ent = klass.lookup(value)		
+		return ent if ent else klass(value)
 
 class Content(Entity):
 	__storm_table__= "content"
@@ -297,7 +297,7 @@ class Event(ReferencingProxyItem):
 		_store.add(self)	
 
 def create_store(storm_url):
-	print _("Creating database... %s") % storm_url
+	print "Creating database... %s" % storm_url
 	db = create_database(storm_url)
 	store = Store(db)
 	store.execute("""
