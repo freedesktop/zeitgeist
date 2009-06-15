@@ -23,7 +23,6 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = gobject.MainLoop()
 
 object = RemoteInterface(mainloop = mainloop)
-engine.reload_callback = object.SignalUpdated
 
 trayicon_app = "%s/zeitgeist-trayicon" % config.bindir
 if not "--no-trayicon" in sys.argv and os.path.isfile(trayicon_app):

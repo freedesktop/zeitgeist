@@ -34,7 +34,7 @@ def get_session_bus():
 	
 	if _bus :
 		return bus
-		
+	
 	try:
 		_bus = dbus.SessionBus()
 		return _bus
@@ -55,7 +55,7 @@ def get_engine_proxy():
 	except dbus.exceptions.DBusException:
 		print _("Error: Zeitgeist service not running.")
 		sys.exit(1)
-		
+
 def get_engine_interface():
 	global _engine_iface
 	
@@ -64,8 +64,6 @@ def get_engine_interface():
 	
 	_engine_iface = dbus.Interface(get_engine_proxy(), "org.gnome.Zeitgeist")
 	return _engine_iface
-	
-sig_plain_data = "(isssssssbsss)"
 
 def dbus_connect(signal, callback, arg0=None):
 	if not arg0:
@@ -76,6 +74,8 @@ def dbus_connect(signal, callback, arg0=None):
 		# way to do it.
 		get_engine_proxy().connect_to_signal(signal, callback,
 			dbus_interface="org.gnome.Zeitgeist", arg0=arg0)
+
+sig_plain_data = "(isssssssbsss)"
 
 def plainify_dict(item_list):
 	return (
@@ -108,5 +108,3 @@ def dictify_data(item_list):
 		"app": item_list[10],
 		"origin": item_list[11]
 		}
-			
-			

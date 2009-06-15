@@ -45,9 +45,8 @@ class ZeitgeistEngine(gobject.GObject):
 		assert storm_store is not None
 		self.store = storm_store
 		self._apps = set()
-		self.reload_callback = None
 		self._last_time_from_app = {}
-                
+        
 		'''
 		path = BaseDirectory.save_data_path("zeitgeist")
 		database = os.path.join(path, "zeitgeist.sqlite")
@@ -224,11 +223,12 @@ class ZeitgeistEngine(gobject.GObject):
 		# Check if event is before the last logs
 		t1 = time.time()
 		for item in items:
-			if self.insert_item(item, commit=False):
+			bool = self.insert_item(item, commit=False)
+			if bool:
 				amount_items += 1
 		self.store.commit()
 		t2 = time.time()
-		print ">>>>>> Inserted %s items in %ss" % (len(items),t2-t1)
+		print ">>>>>> Inserted %s items in %ss" % (amount_items,t2-t1)
 		
 		return amount_items
 	
