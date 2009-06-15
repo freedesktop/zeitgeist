@@ -238,12 +238,20 @@ class ZeitgeistEngine(gobject.GObject):
 			return self._result2data(item=item)
 	
 	def get_items(self, min=0, max=sys.maxint, limit=0,
-	sorting_asc=True, unique=False, tags="", mimetypes=""):
+	sorting_asc=True, unique=False, filters=()):
 		"""
 		Returns all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
 		may be used to filter on tags or `mimetypes' to filter on
 		mimetypes.
+		
+		Parameter filters is an array of structs containing: (text
+		to search in the name, text to search in the URI, tags,
+		mimetypes, source, content). The filter between characteristics
+		inside the same struct is of type AND (all need to match), but
+		between diferent structs it is OR-like (only the conditions
+		described in one of the structs need to match for the item to
+		be returned).
 		"""
 		
 		# Emulate optional arguments for the D-Bus interface
@@ -259,13 +267,7 @@ class ZeitgeistEngine(gobject.GObject):
 			events.max(Event.start)
 			events.group_by(Event.subject_id)
 		
-		#t2 = time.time()
-		#print "--------------------------> "+str(t2-t1)
-		
-		pack = [self._result2data(event) for event in events]
-		#t3 = time.time()
-		#print "-------------------------------------------> "+str(t3-t2)
-		return pack
+		return [self._result2data(event) for event in events]
 	
 	def update_item(self, item):
 		"""
