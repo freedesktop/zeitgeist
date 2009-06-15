@@ -70,7 +70,6 @@ class ZeitgeistEngine(gobject.GObject):
 		if bool:
 			bookmark = True
 		
-		print bookmark
 		return (
 			event.start if event else 0, # timestamp
 			item.uri.value, # uri
@@ -139,8 +138,11 @@ class ZeitgeistEngine(gobject.GObject):
 			print >> sys.stderr, "Discarding item without a mimetype: %s" % ritem
 			return False
 		
-		item =  Item.lookup(ritem["uri"])
+		item_changed = False
+		
+		item = Item.lookup(ritem["uri"])
 		if not item or force:
+			item_changed = True
 			if not item:
 				item = Item.lookup_or_create(ritem["uri"])
 			item.content = Content.lookup_or_create(ritem["content"])
@@ -177,6 +179,7 @@ class ZeitgeistEngine(gobject.GObject):
 		# Check if the event already exists: if so, don't bother inserting
 		e = Event.lookup(e_uri)
 		if not e:
+			item_changed = True
 			# Store the event
 			e = Event.lookup_or_create(e_uri)
 			e.subject = item
@@ -206,7 +209,7 @@ class ZeitgeistEngine(gobject.GObject):
 		if commit:
 			self.store.flush()
 		
-		return True
+		return item_changed
 	
 	def insert_items(self, items):
 		"""
