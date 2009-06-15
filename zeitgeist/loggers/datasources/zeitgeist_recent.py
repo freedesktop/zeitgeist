@@ -255,36 +255,36 @@ class RecentlyUsedManagerGtk(DataProvider):
 				#application_info = info.get_application_info(last_application)
 				#application = application_info[0].split()[0]
 				#desktopfile, desktopentry = get_desktopentry_for_application(application)
-        		        if not "totem" in last_application.lower():
-    					try:
-    						desktopfile, desktopentry = DESKTOPFILE_MAP[last_application]
-    					except KeyError:
-    						print ">>> please add an addition for '%s' to DESKTOPFILE_MAP" %last_application
-    						raise
-    					# ^^ please change the code above once the fix for the pygtk bug landed
-    					icon = desktopentry.getIcon()
-    					origin = u"%s:///" %info.get_uri().split(":///")[0]
-    					times = (
-    						(info.get_added(), u"CreateEvent"),
-    						(info.get_visited(), u"VisitEvent"),
-    						(info.get_modified(), u"ModifyEvent")
-    					)
-    					
-    					for timestamp, use in times:
-    						item = {
-    							"timestamp": timestamp,
-    							"uri": uri,
-    							"text": text,
-    							#~ "source": u"File",
-    							"content": u"File",
-    							"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
-    							"mimetype": mimetype,
-    							"tags": tags,
-    							"icon": icon,
-    							"app": unicode(desktopfile),
-    							"origin": origin,
-    						}
-    						yield item
+				if not "totem" in last_application.lower():
+					try:
+						desktopfile, desktopentry = DESKTOPFILE_MAP[last_application]
+					except KeyError:
+						print ">>> please add an addition for '%s' to DESKTOPFILE_MAP" %last_application
+						raise
+					# ^^ please change the code above once the fix for the pygtk bug landed
+					icon = desktopentry.getIcon()
+					origin = u"%s:///" %info.get_uri().split(":///")[0]
+					times = (
+						(info.get_added(), u"CreateEvent"),
+						(info.get_visited(), u"VisitEvent"),
+						(info.get_modified(), u"ModifyEvent")
+					)
+					for timestamp, use in times:
+						item = {
+							"timestamp": timestamp,
+							"uri": uri if uri[uri.find('/')-1:uri.find('/')+2] == '://' \
+								else unicode(origin[:-1] + uri),
+							"text": text,
+							#~ "source": u"File",
+							"content": u"File",
+							"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
+							"mimetype": mimetype,
+							"tags": tags,
+							"icon": icon,
+							"app": unicode(desktopfile),
+							"origin": origin,
+						}
+						yield item
 
 class RecentlyUsed(DataProvider):
 	"""
