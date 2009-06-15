@@ -71,7 +71,6 @@ class ZeitgeistEngine(gobject.GObject):
 		if bool:
 			bookmark = True
 		
-		print bookmark
 		return (
 			event.start if event else 0, # timestamp
 			item.uri.value, # uri
@@ -152,13 +151,18 @@ class ZeitgeistEngine(gobject.GObject):
 			item.icon = unicode(ritem["icon"]) if ritem.has_key("icon") else None
 			
 			# Extract tags
-			if ritem.has_key("tags") and ritem["tags"].strip():
-				for tag in (tag for tag in ritem["tags"].split(",") if tag):
-					a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
-					a.subject = item
-					a.item.text = tag
-					a.item.source_id = Source.USER_ACTIVITY.id
-					a.item.content_id = Content.TAG.id
+			
+			self.store.find(Annotation, Annotation.subject_id==item.id).remove()
+			
+			if ritem.has_key("tags"):
+				if ritem["tags"].strip() != "":
+					for tag in (tag for tag in ritem["tags"].split(",") if tag):
+						a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
+						a.subject = item
+						a.item.text = tag
+						a.item.source_id = Source.USER_ACTIVITY.id
+						a.item.content_id = Content.TAG.id
+						
 			
 			# Extract bookmarks
 			if ritem.has_key("bookmark") and ritem["bookmark"]:
