@@ -65,7 +65,13 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		if not item :
 			item = event.subject
+		#check if the item is bookmarked
+		#FIXME: this seems redundant if i am fetching bookmarked items
+		bool = self.store.find(Item, Item.content_id == Content.BOOKMARK.id, Annotation.subject_id == item.id , Annotation.item_id == Item.id).one()
+		if bool:
+			bookmark = True
 		
+		print bookmark
 		return (
 			event.start if event else 0, # timestamp
 			item.uri.value, # uri
@@ -341,12 +347,10 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def get_bookmarks(self):
 		uris = self.store.find(URI, Item.content_id == Content.BOOKMARK.id, URI.id == Annotation.subject_id, Annotation.item_id == Item.id)
-		print " BOOKMARKS "
 		for uri in uris:
-			print uri.value
-		print "--------------------"
-		
-		return [uri.value for uri in uris]
+			#Get the item for the uri
+			item = self.store.find(Item, Item.id == uri.id).one()
+			yield self._result2data(None, item)
                 
 _engine = None
 def get_default_engine():
