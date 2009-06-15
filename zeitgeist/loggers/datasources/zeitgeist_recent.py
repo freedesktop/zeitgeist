@@ -271,7 +271,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 					for timestamp, use in times:
 						item = {
 							"timestamp": timestamp,
-							"uri": uri,
+							"uri": uri if uri[uri.find('/')-1:uri.find('/')+2] == '://' \
+								else unicode(origin[:-1] + uri),
 							"text": text,
 							#~ "source": u"File",
 							"content": u"File",
