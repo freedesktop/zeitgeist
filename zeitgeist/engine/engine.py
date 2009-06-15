@@ -277,9 +277,28 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		
 		#FIXME Delete all annotations of the ITEM
+		self.delete_item(item)
+		self.store.commit()
+		self.store.flush()
 		self.insert_item(item, True, True)
+		self.store.commit()
+		self.store.flush()
+	
 	
 	def delete_item(self, item):
+		
+		uri_id = self.store.execute("SELECT id FROM URI WHERE value=?",(item["uri"],)).get_one()
+		uri_id = uri_id[0]
+		annotation_ids = self.store.execute("SELECT item_id FROM Annotation WHERE subject_id=?",(uri_id,)).get_all()
+		print annotation_ids
+		if len(annotation_ids) > 0:
+			for anno in annotation_ids[0]:
+				self.store.execute("DELETE FROM Annotation WHERE subject_id=?",(uri_id,))
+				print anno
+				self.store.execute("DELETE FROM Item WHERE id=?",(anno,))
+		
+		self.store.execute("DELETE FROM Item WHERE id=?",(uri_id,))
+		
 		pass
 	
 	def _get_tags(self, order_by, count, min, max):

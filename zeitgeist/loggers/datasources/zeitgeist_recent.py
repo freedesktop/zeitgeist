@@ -25,6 +25,7 @@ import os
 import re
 import fnmatch
 import urllib
+import time
 import gtk
 import gettext
 import glob
@@ -285,7 +286,6 @@ class RecentlyUsedManagerGtk(DataProvider):
     						}
     						yield item
 
-
 class RecentlyUsed(DataProvider):
 	"""
 	Recently-used documents, log stored in ~/.recently-used.
@@ -293,6 +293,7 @@ class RecentlyUsed(DataProvider):
 	def __init__(self, name, icon="stock_calendar"):
 		DataProvider.__init__(self, name=name, icon=icon)
 		recent_model.connect("reload", lambda m: self.emit("reload"))
+		self.timestamp_flag = 0
 		self.counter = 0
 		self.last_uri = None
 	
@@ -324,9 +325,11 @@ class RecentlyUsedOfMimeType(RecentlyUsed):
 	
 	def get_items_uncached(self):
 		for item in RecentlyUsed.get_items_uncached(self):
-			item["icon"] = self.icon
-			item["source"] = unicode(self.filter_name)
-			yield item
+			if item["timestamp"] >= self.timestamp_flag:
+				item["icon"] = self.icon
+				item["source"] = unicode(self.filter_name)
+				yield item
+		self.timestamp_flag = time.time()
 
 
 class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
