@@ -6,6 +6,7 @@ from os.path import dirname, join, abspath
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 
 from zeitgeist.engine.base import create_store, set_store
+from zeitgeist.engine import base
 from zeitgeist.datamodel import *
 from zeitgeist.engine.engine import ZeitgeistEngine
 from zeitgeist.dbusutils import *
@@ -63,7 +64,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertTrue(Content.IMAGE.uri in content_types)
 	
 	def testBookmark (self):
-		self.assertEquals(0, len(self.engine.get_bookmarks()))
+		self.assertEquals(0, len(list(self.engine.get_bookmarks())))
 		orig = {	"uri" : "test://mytest",
 					"content" : Content.IMAGE.uri,
 					"source" : Source.USER_ACTIVITY.uri,
@@ -76,8 +77,64 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"origin" : "http://example.org",
 					"bookmark" : True}
 		self.engine.insert_item(orig)
-		bookmarks = self.engine.get_bookmarks()
+		bookmarks = map(dictify_data, self.engine.get_bookmarks())		
 		self.assertEquals(1, len(bookmarks))
-		self.assertEquals("test://mytest", bookmarks[0])
+		self.assertEquals("test://mytest", bookmarks[0]["uri"])
+	
+	def testTags(self):
+		items = (
+			{
+				"uri" : "test://mytest",
+				"content" : Content.IMAGE.uri,
+				"source" : Source.USER_ACTIVITY.uri,
+				"app" : "/usr/share/applications/gnome-about.desktop",
+				"timestamp" : 0,
+				"text" : "Text",
+				"mimetype" : "mime/type",
+				"icon" : "stock_left",
+				"use" : Content.CREATE_EVENT.uri,
+				"origin" : "http://example.org",
+				"tags" : u"boo"
+			},
+			{
+				"uri" : "test://mytest2",
+				"content" : Content.IMAGE.uri,
+				"source" : Source.USER_ACTIVITY.uri,
+				"app" : "/usr/share/applications/gnome-about.desktop",
+				"timestamp" : 0,
+				"text" : "Text",
+				"mimetype" : "mime/type",
+				"icon" : "stock_left",
+				"use" : Content.CREATE_EVENT.uri,
+				"origin" : "http://example.org",
+				"tags" : u"eins"
+			},
+			{
+				"uri" : "test://mytest3",
+				"content" : Content.IMAGE.uri,
+				"source" : Source.USER_ACTIVITY.uri,
+				"app" : "/usr/share/applications/gnome-about.desktop",
+				"timestamp" : 0,
+				"text" : "Text",
+				"mimetype" : "mime/type",
+				"icon" : "stock_left",
+				"use" : Content.CREATE_EVENT.uri,
+				"origin" : "http://example.org",
+				"tags" : u"eins"
+			},
+		)
+		for item in items:
+			self.assertTrue(self.engine.insert_item(item))
+		
+		tags = list(self.engine.get_all_tags())
+		
+		self.assertTrue("eins" in tags)
+		self.assertTrue("boo" in tags)
+		
+		eins = self.store.find(base.Annotation,
+							   base.Annotation.item_id == base.URI.id,
+							   base.URI.value == "zeitgeist://tag/eins")
+		self.assertEquals(2, eins.count())
+
 if __name__ == '__main__':
 	unittest.main()

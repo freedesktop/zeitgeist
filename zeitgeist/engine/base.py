@@ -338,11 +338,7 @@ def create_store(storm_url):
 		""")
 	store.execute("""
 		CREATE TABLE IF NOT EXISTS annotation
-			(item_id INTEGER, subject_id INTEGER)
-		""")
-	store.execute("""
-		CREATE UNIQUE INDEX IF NOT EXISTS
-			annotation_link ON annotation(item_id, subject_id)
+			(item_id INTEGER, subject_id INTEGER, PRIMARY KEY (item_id, subject_id))
 		""")
 	store.execute("""
 	CREATE TABLE IF NOT EXISTS event 
