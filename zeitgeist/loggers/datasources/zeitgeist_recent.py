@@ -25,65 +25,13 @@ import os
 import re
 import fnmatch
 import urllib
-import time
 import gtk
-import gettext
-import glob
+import time
 
 from xdg import DesktopEntry, BaseDirectory
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
 from zeitgeist import config
-
-gettext.install("zeitgeist", config.localedir, unicode=1)
-		
-# helpers
-
-# workaround pygtk bug
-def find_desktopfiles():
-	for dir in BaseDirectory.load_data_paths("applications"):
-		for desktopfile in glob.glob("%s/*.desktop" % dir):
-			yield desktopfile
-
-ADDITIONS = (
-	(u"Text Editor", "/usr/share/applications/gedit.desktop"),
-	(u"File Roller", "/usr/share/applications/file-roller.desktop"),
-	(u"Document Viewer", "/usr/share/applications/evince.desktop"),
-	(u"Eye of GNOME Image Viewer", "/usr/share/applications/eog.desktop"),
-	(u"GNU Image Manipulation Program", "/usr/share/applications/gimp.desktop"),
-	(u"Totem Video-Player", "/usr/share/applications/totem.desktop"),
-	(u"File Manager", "/usr/share/applications/nautilus.desktop"),
-	(u"Anjuta", "/usr/share/applications/anjuta.desktop")
-)
-
-def create_app_map():
-	for desktopfile in find_desktopfiles():
-		entry = DesktopEntry.DesktopEntry(desktopfile)
-		# add entry for name attribute
-		yield (unicode(entry.getName()), (desktopfile, entry))
-		# add entry for executable
-		if entry.getExec():
-			yield (unicode(entry.getExec().split()[0].split("/")[-1]),
-				(desktopfile, entry))
-	for identifier, desktopfile in ADDITIONS:
-		yield (unicode(identifier), (desktopfile, DesktopEntry.DesktopEntry(desktopfile)))
-
-DESKTOPFILE_MAP = dict(create_app_map())
-
-def get_desktopentry_for_application(application):
-	desktopfiles = list(
-		BaseDirectory.load_data_paths("applications", "%s.desktop" %application)
-	)
-	if desktopfiles:
-		# What do we do in cases where multible .desktop files are found for one application?
-		# take the one in the users $HOME? or raise an error?
-		filename = desktopfiles.pop(0)
-		return filename, DesktopEntry.DesktopEntry(filename)
-	else:
-		# What to do when there is no .desktop file for an application?
-		# raise an error? or try to get an alternative file?
-		# Example gimp-s.6 has no .desktop file
-		return get_desktopentry_for_application("firefox") #just for now, for testing
 
 
 class SimpleMatch(object):
@@ -96,33 +44,7 @@ class SimpleMatch(object):
 
 	def __repr__(self):
 		return "%s(%r)" %(self.__class__.__name__, self.__pattern)
-
-
-class MimeTypeSet(set):
-
-	def __init__(self, *items):
-		super(MimeTypeSet, self).__init__()
-		self.__pattern = set()
-		for item in items:
-			if isinstance(item, (str, unicode)):
-				self.add(item)
-			elif hasattr(item, "match"):
-				self.__pattern.add(item)
-			else:
-				raise ValueError("Bad mimetype '%s'" %item)
-
-	def __contains__(self, mimetype):
-		result = super(MimeTypeSet, self).__contains__(mimetype)
-		if not result:
-			for pattern in self.__pattern:
-				if pattern.match(mimetype):
-					return True
-		return result
-
-	def __repr__(self):
-		items = ", ".join(map(repr, self | self.__pattern))
-		return "%s(%s)" %(self.__class__.__name__, items)
-
+		
 
 DOCUMENT_MIMETYPES = [
 		# Covers:
@@ -148,7 +70,7 @@ DOCUMENT_MIMETYPES = [
 		u"application/x-gnumeric",
 		SimpleMatch("application/x-java*"),
 		u"text/plain"
-		]
+]
 
 IMAGE_MIMETYPES = [
 		# Covers:
@@ -157,17 +79,17 @@ IMAGE_MIMETYPES = [
 		# Covers: x-kword, x-kspread, x-kpresenter, x-killustrator
 		re.compile(u"application/x-k(word|spread|presenter|illustrator)"),
 		SimpleMatch(u"image/*"),
-		]
+]
 
 AUDIO_MIMETYPES = [
 		SimpleMatch(u"audio/*"),
 		u"application/ogg"
-		]
+]
 
 VIDEO_MIMETYPES = [
 		SimpleMatch(u"video/*"),
 		u"application/ogg"
-		]
+]
 
 DEVELOPMENT_MIMETYPES = [
 		u"text/x-python",
@@ -208,29 +130,88 @@ DEVELOPMENT_MIMETYPES = [
 		u"application/x-desktop",
 		u"text/x-csharp",
 		u"application/ecmascript",
-		u"text/x-haskell"
-		]
+		u"text/x-haskell",
+		u"text/x-copying"
+]
+
+ALL_MIMETYPES = DOCUMENT_MIMETYPES + IMAGE_MIMETYPES + AUDIO_MIMETYPES +\
+				VIDEO_MIMETYPES + DEVELOPMENT_MIMETYPES
+		
+# helpers
+
+def get_desktopentry_for_application(application):
+	desktopfiles = list(
+		BaseDirectory.load_data_paths("applications", "%s.desktop" %application)
+	)
+	if desktopfiles:
+		# What do we do in cases where multible .desktop files are found for one application?
+		# take the one in the users $HOME? or raise an error?
+		filename = desktopfiles.pop(0)
+		return filename, DesktopEntry.DesktopEntry(filename)
+	else:
+		# What to do when there is no .desktop file for an application?
+		# raise an error? or try to get an alternative file?
+		# Example gimp-s.6 has no .desktop file
+		return get_desktopentry_for_application("firefox") #just for now, for testing
+
+
+class MimeTypeSet(set):
+
+	def __init__(self, *items):
+		super(MimeTypeSet, self).__init__()
+		self.__pattern = set()
+		for item in items:
+			if isinstance(item, (str, unicode)):
+				self.add(item)
+			elif hasattr(item, "match"):
+				self.__pattern.add(item)
+			else:
+				raise ValueError("Bad mimetype '%s'" %item)
+
+	def __contains__(self, mimetype):
+		result = super(MimeTypeSet, self).__contains__(mimetype)
+		if not result:
+			for pattern in self.__pattern:
+				if pattern.match(mimetype):
+					return True
+		return result
+
+	def __repr__(self):
+		items = ", ".join(map(repr, self | self.__pattern))
+		return "%s(%s)" %(self.__class__.__name__, items)
+		
+		
+class InverseMimeTypeSet(MimeTypeSet):
+	
+	def __contains__(self, mimetype):
+		return not super(InverseMimeTypeSet, self).__contains__(mimetype)
 		
 
-BROKEN_APPS = [
-			   u"Document Viewer",
-			   u"Text Editor",
-			   u"Totem Movie Player",
-			   u"File Manager"
-			   ]
-
 class RecentlyUsedManagerGtk(DataProvider):
+	
+	FILTERS = {
+		# dict of name as key and a tuple of matching mimetypes and icon as value
+		# if the mimetype value is None this filter matches all mimetypes
+		# if the icon value is None "stock_calendar" will be used
+		u"Documents": (MimeTypeSet(*DOCUMENT_MIMETYPES), u"stock_new-presentation"),
+		u"Other": (InverseMimeTypeSet(*ALL_MIMETYPES), u"applications-other"),
+		u"Images": (MimeTypeSet(*IMAGE_MIMETYPES), u"gnome-mime-image"),
+		u"Music": (MimeTypeSet(*AUDIO_MIMETYPES), u"gnome-mime-audio"),
+		u"Videos": (MimeTypeSet(*VIDEO_MIMETYPES), u"gnome-mime-video"),
+		u"Development": (MimeTypeSet(*DEVELOPMENT_MIMETYPES), u"applications-development"),		
+	}
 	
 	def __init__(self):
 		DataProvider.__init__(self)
 		self.recent_manager = gtk.recent_manager_get_default()
 		self.recent_manager.set_limit(-1)
 		self.recent_manager.connect("changed", lambda m: self.emit("reload"))
+		self._timestamp_last_run = 0
 		
 	def get_items_uncached(self):
+		timestamp_last_run = time.time()
 		for info in self.recent_manager.get_items():
 			if info.exists() and not info.get_private_hint() and "/tmp" not in info.get_uri_display():
-				use = None
 				# Create a string of tags based on the file's path
 				# e.g. the file /home/natan/foo/bar/example.py would be tagged with "foo" and "bar"
 				# Note: we only create tags for files under the users home folder
@@ -245,170 +226,40 @@ class RecentlyUsedManagerGtk(DataProvider):
 					tmp = unicode(urllib.unquote(tmp))
 					tags = tmp.replace(",", " ").replace("/", ",")
 				
-				uri = unicode(info.get_uri_display())
+				uri = unicode(info.get_uri())
 				text = info.get_display_name()
 				mimetype = unicode(info.get_mime_type())
 				last_application = info.last_application().strip()
+				application_info = info.get_application_info(last_application)
+				application = application_info[0].split()[0]
+				desktopfile, desktopentry = get_desktopentry_for_application(application)
+				times = (
+					(info.get_added(), u"CreateEvent"),
+					(info.get_visited(), u"VisitEvent"),
+					(info.get_modified(), u"ModifyEvent")
+				)
 				
-				# this causes a  *** glibc detected *** python: double free or corruption (!prev): 0x0000000001614850 ***
-				# bug in pygtk, reported as (lp: #386035) and upstream
-				#application_info = info.get_application_info(last_application)
-				#application = application_info[0].split()[0]
-				#desktopfile, desktopentry = get_desktopentry_for_application(application)
-				if not "totem" in last_application.lower():
-					try:
-						desktopfile, desktopentry = DESKTOPFILE_MAP[last_application]
-					except KeyError:
-						print ">>> please add an addition for '%s' to DESKTOPFILE_MAP" %last_application
-						raise
-					# ^^ please change the code above once the fix for the pygtk bug landed
-					icon = desktopentry.getIcon()
-					origin = u"%s:///" %info.get_uri().split(":///")[0]
-					times = (
-						(info.get_added(), u"CreateEvent"),
-						(info.get_visited(), u"VisitEvent"),
-						(info.get_modified(), u"ModifyEvent")
-					)
-					for timestamp, use in times:
-						item = {
-							"timestamp": timestamp,
-							"uri": uri if uri[uri.find('/')-1:uri.find('/')+2] == '://' \
-								else unicode(origin[:-1] + uri),
-							"text": text,
-							#~ "source": u"File",
-							"content": u"File",
-							"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
-							"mimetype": mimetype,
-							"tags": tags,
-							"icon": icon,
-							"app": unicode(desktopfile),
-							"origin": origin,
-						}
-						yield item
-
-class RecentlyUsed(DataProvider):
-	"""
-	Recently-used documents, log stored in ~/.recently-used.
-	"""
-	def __init__(self, name, icon="stock_calendar"):
-		DataProvider.__init__(self, name=name, icon=icon)
-		recent_model.connect("reload", lambda m: self.emit("reload"))
-		self.timestamp_flag = 0
-		self.counter = 0
-		self.last_uri = None
-	
-	def get_items_uncached(self):
-		self.counter = self.counter + 1
-		if recent_model:
-			for item in recent_model.get_items_uncached():
-				if self.include_item(item):
-					yield item
-				
-	def include_item(self, item):
-		return True
+				for timestamp, use in times:
+					if timestamp < self._timestamp_last_run:
+						continue
+					for filter_name, (mimetypes, icon) in self.FILTERS.iteritems():
+						if mimetype in mimetypes:
+							item = {
+								"timestamp": timestamp,
+								"uri": uri,
+								"text": text,
+								"source": filter_name,
+								"content": u"File",
+								"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
+								"mimetype": mimetype,
+								"tags": tags,
+								"icon": icon,
+								"app": unicode(desktopfile),
+								"origin": u"", 	# we are not sure about the origin of this item,
+												# let's make it NULL, it has to be a string
+							}
+							yield item
+		self._timestamp_last_run = timestamp_last_run
 
 
-class RecentlyUsedOfMimeType(RecentlyUsed):
-	"""
-	Recently-used items filtered by a set of mimetypes.
-	"""
-	mimetype_list = MimeTypeSet()
-	
-	def __init__(self, name, icon, filter_name, inverse=False):
-		RecentlyUsed.__init__(self, name, icon)
-		self.filter_name = filter_name
-		self.inverse = inverse
-		self.icon = icon
-
-	def include_item(self, item):
-		return item["mimetype"] in self.mimetype_list
-	
-	def get_items_uncached(self):
-		for item in RecentlyUsed.get_items_uncached(self):
-			if item["timestamp"] >= self.timestamp_flag:
-				item["icon"] = self.icon
-				item["source"] = unicode(self.filter_name)
-				yield item
-		self.timestamp_flag = time.time()
-
-
-class RecentlyUsedDocumentsSource(RecentlyUsedOfMimeType):
-	
-	mimetype_list = MimeTypeSet(*DOCUMENT_MIMETYPES)
-	
-	def __init__(self):
-		RecentlyUsedOfMimeType.__init__(self,
-										name="Documents",
-										icon="stock_new-presentation",
-										filter_name="Documents")
-
-
-class RecentlyUsedOthersSource(RecentlyUsedOfMimeType):
-	
-	mimetype_list = MimeTypeSet(*(DOCUMENT_MIMETYPES +\
-								  IMAGE_MIMETYPES +\
-								  AUDIO_MIMETYPES +\
-								  VIDEO_MIMETYPES +\
-								  DEVELOPMENT_MIMETYPES)
-								)
-	
-	def __init__(self):
-		RecentlyUsedOfMimeType.__init__(self,
-										name="Other",
-										icon="applications-other",
-										filter_name="Other",
-										inverse = True)
-	
-	def include_item(self, item):
-		#~ item["icon"]=self.icon #waht is this supposed to do???
-		return not item["mimetype"] in self.mimetype_list
-
-
-class RecentlyUsedImagesSource(RecentlyUsedOfMimeType):
-	
-	mimetype_list = MimeTypeSet(*IMAGE_MIMETYPES)
-	
-	def __init__(self):
-		RecentlyUsedOfMimeType.__init__(self,
-										name="Images",
-										icon="gnome-mime-image",
-										filter_name="Images")
-
-
-class RecentlyUsedMusicSource(RecentlyUsedOfMimeType):
-	
-	mimetype_list = MimeTypeSet(*AUDIO_MIMETYPES)
-	
-	def __init__(self):
-		RecentlyUsedOfMimeType.__init__(self,
-										name="Music",
-										icon="gnome-mime-audio",
-										filter_name="Music")
-
-
-class RecentlyUsedVideoSource(RecentlyUsedOfMimeType):
-	
-	mimetype_list = MimeTypeSet(*VIDEO_MIMETYPES)
-	
-	def __init__(self):
-		RecentlyUsedOfMimeType.__init__(self,
-										name="Videos",
-										icon="gnome-mime-video",
-										filter_name="Videos")
-
-class RecentlyUsedDevelopmentSource(RecentlyUsedOfMimeType):
-
-	mimetype_list = MimeTypeSet(*DEVELOPMENT_MIMETYPES)
-
-	def __init__(self):
-		RecentlyUsedOfMimeType.__init__(self,
-										name="Development",
-										icon="applications-development",
-										filter_name="Development")
-
-recent_model = RecentlyUsedManagerGtk()
-
-__datasource__ = (RecentlyUsedDocumentsSource(),
-	RecentlyUsedImagesSource(), RecentlyUsedMusicSource(),
-	RecentlyUsedOthersSource(), RecentlyUsedVideoSource(),
-	RecentlyUsedDevelopmentSource())
+__datasource__ = RecentlyUsedManagerGtk()
