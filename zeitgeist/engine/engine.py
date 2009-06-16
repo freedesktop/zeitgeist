@@ -66,9 +66,19 @@ class ZeitgeistEngine(gobject.GObject):
 			item = event.subject
 		#check if the item is bookmarked
 		#FIXME: this seems redundant if i am fetching bookmarked items
-		bool = self.store.find(Item, Item.content_id == Content.BOOKMARK.id, Annotation.subject_id == item.id , Annotation.item_id == Item.id).one()
-		if bool:
-			bookmark = True
+		if item:
+			bool = self.store.find(Item, Item.content_id == Content.BOOKMARK.id, Annotation.subject_id == item.id , Annotation.item_id == Item.id).one()
+			if bool:
+				bookmark = True
+		
+		result = self.get_tags_for_item(item)
+		if len(result)>0:
+			for tag in result:
+				if result.index(tag) == 0:
+					tags = tag
+				else:
+					tags = tags +"," + tag
+		print tags
 		
 		return (
 			event.start if event else 0, # timestamp
@@ -295,18 +305,24 @@ class ZeitgeistEngine(gobject.GObject):
 		self.store.commit()
 		self.store.flush()
 	
+	def get_tags_for_item(self, item):
+		package = []
+		id = item.id
+		tags = self.store.find(Annotation.item_id, Annotation.subject_id == id)
+		for tag in tags:
+			tag = self.store.find(Item.text, Item.id == tag).one()
+			package.append(tag)
+		return package
 	
 	def delete_item(self, item):
 		
 		uri_id = self.store.execute("SELECT id FROM URI WHERE value=?",(item["uri"],)).get_one()
 		uri_id = uri_id[0]
 		annotation_ids = self.store.execute("SELECT item_id FROM Annotation WHERE subject_id=?",(uri_id,)).get_all()
-		print annotation_ids
 		if len(annotation_ids) > 0:
 			for anno in annotation_ids[0]:
 				self.store.execute("DELETE FROM Annotation WHERE subject_id=?",(uri_id,))
-				print anno
-				self.store.execute("DELETE FROM Item WHERE id=?",(anno,))
+				self.store.execute("DELETE FROM Item WHERE id=?",(anno,))	
 		
 		self.store.execute("DELETE FROM Item WHERE id=?",(uri_id,))
 		
