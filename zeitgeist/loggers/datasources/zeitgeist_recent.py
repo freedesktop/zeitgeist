@@ -216,7 +216,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 				application = application_info[0].split()[0]
 				desktopfile, desktopentry = get_desktopentry_for_application(application)
 				icon = desktopentry.getIcon()
-				origin = None # we are not sure about the origin of this item, let's make it NULL
 				times = (
 					(info.get_added(), u"CreateEvent"),
 					(info.get_visited(), u"VisitEvent"),
@@ -228,13 +227,15 @@ class RecentlyUsedManagerGtk(DataProvider):
 						"timestamp": timestamp,
 						"uri": uri,
 						"text": text,
-						#~ "source": u"File",
+						#~ "source": u"File", # this is set later
 						"content": u"File",
 						"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
 						"mimetype": mimetype,
 						"tags": tags,
 						"icon": icon,
 						"app": unicode(desktopfile),
+						"origin": u"", 	# we are not sure about the origin of this item,
+										# let's make it NULL, it has to be a string
 					}
 					yield item
 		self._timestamp_last_run = timestamp_last_run
