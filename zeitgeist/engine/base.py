@@ -54,11 +54,15 @@ class Entity(object):
 	
 	id = Int(allow_none=False)
 	value = Unicode()
+	CACHE = {}
 	
 	def __init__ (self, value):
 		"""Create an Entity in the store. Any created entity will automatically
 		   be added to the store (but the store still need flushing) before an
 		   id is assigned to the entity"""
+		if self.__class__ == Entity:
+			raise ValueError("Entity is an abstract class an "
+							 "can not be instantiated")
 		if value is None :
 			raise ValueError("Can not create Entity with value None")
 		
@@ -79,7 +83,12 @@ class Entity(object):
 		global _store
 		if value:
 			value = unicode(value)
-			return _store.find(klass, klass.value == value).one()
+			if value in klass.CACHE:
+				return klass.CACHE[value]
+			ent = _store.find(klass, klass.value == value).one()
+			if ent:
+				klass.CACHE[value] = ent
+			return ent
 		elif id:
 			return _store.find(klass, klass.id == id).one()
 		else:
@@ -88,7 +97,10 @@ class Entity(object):
 	@classmethod
 	def lookup_or_create(klass, value):
 		ent = klass.lookup(value)		
-		return ent if ent else klass(value)
+		if not ent:
+			ent = klass(value)
+			klass.CACHE[value] = ent
+		return ent
 
 class Content(Entity):
 	__storm_table__= "content"
@@ -131,6 +143,11 @@ Source.APPLICATION = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#
 class URI(Entity):
 	__storm_table__= "uri"
 	__storm_primary__= "id"
+	
+	# FIXME: URI uses the standard Entity cache,
+	#        but this might grow very big in long sessions,
+	#        unlike Source and Content which will always remain small.
+	#        Consider making an LRUCache for the URI class specifically
 	
 	def __init__ (self, value):				
 		super(URI, self).__init__(value)
@@ -189,7 +206,6 @@ class Item(object):
 		if item : return item
 		return klass(uri)
 
-
 # Storm does not handle multi-table classes. The following design pattern is
 # a simplifaction of Infoheritance described here:
 # https://storm.canonical.com/Infoheritance
@@ -209,7 +225,7 @@ class ProxyItem(object):
 		super(ProxyItem, self).__init__()
 		
 		# The Item constructor will register the URI if needed
-		self.item = Item(uri)
+		self.item = Item.lookup_or_create(uri)
 		self.uri_id = self.item.uri.id
 		self.uri = self.item.uri
 	
@@ -218,9 +234,9 @@ class ProxyItem(object):
 		global _store
 		if isinstance(uri, str) or isinstance(uri, unicode):
 			uri = unicode(uri)
-			return _store.find(self, self.item_id == URI.id, URI.value == uri).one()
+			return _store.find(self, self.item_id == URI.id, URI.value == uri).any()
 		elif isinstance(uri, URI):
-			return _store.find(self, self.item_id == uri.id).one()
+			return _store.find(self, self.item_id == uri.id).any()
 	
 	@classmethod
 	def lookup_or_create(self, uri):
@@ -266,6 +282,25 @@ class ReferencingProxyItem(ProxyItem):
 		else:
 			raise TypeError("Expected 'str', 'unicode', 'URI', 'Item', "
 							"or 'ProxyItem', got %s" % type(subject))
+	
+	@classmethod
+	def subjects_of(klass, uri):
+		""""""
+		global _store
+		if isinstance(uri, str) or isinstance(uri, unicode):
+			uri = unicode(uri)
+			return _store.find(Item,
+							   klass.item_id == URI.id,
+							   URI.value == uri,
+							   Item.id == klass.subject_id)
+		elif isinstance(uri, URI):
+			return _store.find(self,
+							   klass.item_id == uri.id,
+							   Item.id == klass.subject_id)
+	
+	def find_subjects(self):
+		global _store
+		return _store.find(Item, Item.id == self.subject_id)
 
 class Annotation(ReferencingProxyItem):
 	# We use a compound primary key because the same annotation can point to
@@ -278,7 +313,7 @@ class Annotation(ReferencingProxyItem):
 		   argument may be a 'str', 'unicode', 'URI', 'Item', or 'ProxyItem'
 		   and points at the object being the subject of the annotations"""
 		super(Annotation,self).__init__(uri, subject)
-		_store.add(self)
+		_store.add(self)		
 
 class Event(ReferencingProxyItem):
 	__storm_table__= "event"
@@ -295,6 +330,12 @@ class Event(ReferencingProxyItem):
 		   and points at the object being the subject of the annotations"""
 		super(Event,self).__init__(uri, subject)
 		_store.add(self)	
+
+#
+# Many-to-many relationships
+#
+Item.annotations = ReferenceSet(Item.id, Annotation.subject_id)
+Item.events = ReferenceSet(Item.id, Event.subject_id)
 
 def create_store(storm_url):
 	print "Creating database... %s" % storm_url
@@ -353,15 +394,23 @@ def create_store(storm_url):
 	
 	return store
 
+def clear_entity_cache():
+	Entity.CACHE = {}
+	URI.CACHE = {}
+	Content.CACHE = {}
+	Source.CACHE = {}
+
 _store = None
 def get_default_store():
 	global _store
 	if not _store:
 		_store = create_store("sqlite:stormtest.sqlite")
+		clear_entity_cache()
 	return _store
 
 def set_store(storm_store):
 	global _store
 	if _store :
+		clear_entity_cache()
 		_store.close()
 	_store = storm_store

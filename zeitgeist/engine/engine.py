@@ -155,21 +155,31 @@ class ZeitgeistEngine(gobject.GObject):
 			# Extract tags
 			if ritem.has_key("tags") and ritem["tags"].strip():
 				for tag in (tag for tag in ritem["tags"].split(",") if tag):
-					a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
-					a.subject = item
+					tag_uri = "zeitgeist://tag/%s" % tag
+					print "Tagging ---> ", ritem["uri"], "with", tag_uri
+					a = Annotation(tag_uri)
+					item.annotations.add(a)#Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
 					a.item.text = tag
 					a.item.source_id = Source.USER_ACTIVITY.id
 					a.item.content_id = Content.TAG.id
+					try:
+						self.store.flush()
+					except sqlite3.IntegrityError:
+						print "Tagging relation", tag_uri, "-->", ritem["uri"], "already known"
 			
 			# Extract bookmarks
 			if ritem.has_key("bookmark") and ritem["bookmark"]:
 				a_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
-				print "bookmarking ---> "+ ritem["uri"]
-				a = Annotation.lookup_or_create(a_uri)
-				a.subject = item
+				print "Bookmarking ---> "+ ritem["uri"]
+				a = Annotation(a_uri)
+				item.annotations.add(a)
 				a.item.text = u"Bookmark"
 				a.item.source_id = Source.USER_ACTIVITY.id
 				a.item.content_id = Content.BOOKMARK.id
+				try:
+					self.store.flush()
+				except sqlite3.IntegrityError:
+					print "Bookmark", a_uri, "-->", ritem["uri"], "already known"
 			if force:
 				   return True
 
@@ -182,11 +192,11 @@ class ZeitgeistEngine(gobject.GObject):
 			item_changed = True
 			# Store the event
 			e = Event.lookup_or_create(e_uri)
-			e.subject = item
+			item.events.add(e)
 			e.start = ritem["timestamp"]
 			e.item.text = u"Activity"
 			e.item.source_id = Source.USER_ACTIVITY.id
-			e.item.content = Content.lookup_or_create(ritem["use"])
+			e.item.content_id = Content.lookup_or_create(ritem["use"]).id
 			
 			# Store the application
 			app_info = DesktopEntry(ritem["app"])
@@ -199,12 +209,13 @@ class ZeitgeistEngine(gobject.GObject):
 			app.info = unicode(ritem["app"])
 			e.app = app
 			
-			for tag in app_info.getCategories(): 
+			# FIXME: This seems to pollute the user provided tags
+			"""for tag in app_info.getCategories(): 
 				a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
 				a.subject = e.app.item
 				a.item.text = unicode(tag)
 				a.item.source_id = Source.APPLICATION.id
-				a.item.content_id = Content.TAG.id
+				a.item.content_id = Content.TAG.id"""
 		
 		if commit:
 			self.store.flush()
@@ -313,7 +324,7 @@ class ZeitgeistEngine(gobject.GObject):
 		Returns a list containing the name of all tags.
 		"""		
 		tags = self.store.find(Item, Item.content_id == Content.TAG.id)
-		return [tag.text for tag in tags]
+		return [tag.text for tag in tags]		
 	
 	def get_types(self):
 		"""

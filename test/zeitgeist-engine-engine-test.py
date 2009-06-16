@@ -33,6 +33,12 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		set_store(self.store)
 		self.engine = ZeitgeistEngine(self.store)
 		
+		# Assert before each test that the db is indeed empty
+		self.assertEquals(0, self.store.find(base.URI).count())
+		self.assertEquals(0, self.store.find(base.Item).count())
+		self.assertEquals(0, self.store.find(base.Annotation).count())
+		self.assertEquals(0, self.store.find(base.Event).count())
+		
 	def tearDown (self):
 		self.store.close()
 	
@@ -81,23 +87,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(1, len(bookmarks))
 		self.assertEquals("test://mytest", bookmarks[0]["uri"])
 	
-	def testTags(self):
+	def testSameTagOnTwoItems(self):
 		items = (
 			{
-				"uri" : "test://mytest",
-				"content" : Content.IMAGE.uri,
-				"source" : Source.USER_ACTIVITY.uri,
-				"app" : "/usr/share/applications/gnome-about.desktop",
-				"timestamp" : 0,
-				"text" : "Text",
-				"mimetype" : "mime/type",
-				"icon" : "stock_left",
-				"use" : Content.CREATE_EVENT.uri,
-				"origin" : "http://example.org",
-				"tags" : u"boo"
-			},
-			{
-				"uri" : "test://mytest2",
+				"uri" : "test://mytest1",
 				"content" : Content.IMAGE.uri,
 				"source" : Source.USER_ACTIVITY.uri,
 				"app" : "/usr/share/applications/gnome-about.desktop",
@@ -110,7 +103,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"tags" : u"eins"
 			},
 			{
-				"uri" : "test://mytest3",
+				"uri" : "test://mytest2",
 				"content" : Content.IMAGE.uri,
 				"source" : Source.USER_ACTIVITY.uri,
 				"app" : "/usr/share/applications/gnome-about.desktop",
@@ -127,14 +120,93 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			self.assertTrue(self.engine.insert_item(item))
 		
 		tags = list(self.engine.get_all_tags())
+		self.assertEquals(["eins"], tags)
 		
-		self.assertTrue("eins" in tags)
-		self.assertTrue("boo" in tags)
+		i = base.Item.lookup("test://mytest1")
+		self.assertTrue(i is not None)
+		self.assertEquals(["zeitgeist://tag/eins"],
+						  [item.uri.value for item in i.annotations])
 		
-		eins = self.store.find(base.Annotation,
-							   base.Annotation.item_id == base.URI.id,
-							   base.URI.value == u"zeitgeist://tag/eins")
-		self.assertEquals(2, eins.count())
+		i = base.Item.lookup("test://mytest2")
+		self.assertTrue(i is not None)
+		self.assertEquals(["zeitgeist://tag/eins"],
+						  [item.uri.value for item in i.annotations])
+				
+		eins = base.Annotation.subjects_of("zeitgeist://tag/eins")
+		self.assertEquals(["test://mytest1", "test://mytest2"],
+						  [item.uri.value for item in eins])
+	
+	def testThreeTagsOnSameItem(self):				
+		item = {
+				"uri" : "test://mytest1",
+				"content" : Content.IMAGE.uri,
+				"source" : Source.USER_ACTIVITY.uri,
+				"app" : "/usr/share/applications/gnome-about.desktop",
+				"timestamp" : 0,
+				"text" : "Text",
+				"mimetype" : "mime/type",
+				"icon" : "stock_left",
+				"use" : Content.CREATE_EVENT.uri,
+				"origin" : "http://example.org",
+				"tags" : u"eins,zwei,drei"
+		}
+		self.assertTrue(self.engine.insert_item(item))
+		tags = list(self.engine.get_all_tags())
+		self.assertEquals(["eins", "zwei", "drei"], tags)
+		
+		i = base.Item.lookup("test://mytest1")
+		self.assertTrue(i is not None)
+		annots = filter(lambda a : a.item.content_id == base.Content.TAG.id,
+						i.annotations)
+		self.assertEquals(["zeitgeist://tag/eins",
+						   "zeitgeist://tag/zwei",
+						   "zeitgeist://tag/drei"],
+						  [item.uri.value for item in annots])
+		
+		eins = base.Annotation.lookup("zeitgeist://tag/eins")
+		self.assertTrue(eins is not None)
+		self.assertEquals(["test://mytest1"],
+						  [item.uri.value for item in eins.find_subjects()])
+						  
+		zwei = base.Annotation.lookup("zeitgeist://tag/zwei")
+		self.assertTrue(zwei is not None)
+		self.assertEquals(["test://mytest1"],
+						  [item.uri.value for item in zwei.find_subjects()])
+
+		drei = base.Annotation.lookup("zeitgeist://tag/drei")
+		self.assertTrue(drei is not None)
+		self.assertEquals(["test://mytest1"],
+						  [item.uri.value for item in drei.find_subjects()])
+						  	
+	def testTagAndBookmark(self):
+		item = {
+				"uri" : "test://mytest1",
+				"content" : Content.IMAGE.uri,
+				"source" : Source.USER_ACTIVITY.uri,
+				"app" : "/usr/share/applications/gnome-about.desktop",
+				"timestamp" : 0,
+				"text" : "Text",
+				"mimetype" : "mime/type",
+				"icon" : "stock_left",
+				"use" : Content.CREATE_EVENT.uri,
+				"origin" : "http://example.org",
+				"tags" : u"boo",
+				"bookmark" : True
+			}
+		self.assertTrue(self.engine.insert_item(item))
+		
+		item = base.Item.lookup("test://mytest1")
+		self.assertTrue(item is not None)
+		self.assertEquals(2, item.annotations.count())
+		self.assertEquals(["zeitgeist://tag/boo",
+						   "zeitgeist://bookmark/test://mytest1"],
+						  [item.uri.value for item in item.annotations])
+		
+		boo = base.Annotation.subjects_of("zeitgeist://tag/boo")
+		self.assertTrue(boo is not None)
+		self.assertEquals(["test://mytest1"],
+						  [item.uri.value for item in boo])
+
 
 if __name__ == '__main__':
 	unittest.main()
