@@ -56,9 +56,6 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def _result2data(self, event=None, item=None):
 		
-		# FIXME: Get tag
-		tags = ""
-		
 		# FIXME: Get bookmark
 		bookmark = False
 		
@@ -72,13 +69,7 @@ class ZeitgeistEngine(gobject.GObject):
 				bookmark = True
 		
 		result = self.get_tags_for_item(item)
-		if len(result)>0:
-			for tag in result:
-				if result.index(tag) == 0:
-					tags = tag
-				else:
-					tags = tags +"," + tag
-		print tags
+		tags = ",".join(set(result)) if result else ""
 		
 		return (
 			event.start if event else 0, # timestamp
@@ -88,7 +79,8 @@ class ZeitgeistEngine(gobject.GObject):
 			item.content.value or "", # content
 			item.mimetype or "", # mimetype
 			tags or "", # tags
-			event.item.content.value if event else "",# usage is determined by the event Content type
+			# FIXME: I guess event.item.content below should never be None
+			event.item.content.value if (event and event.item.content) else "",# usage is determined by the event Content type
 			bookmark, # bookmark
 			item.icon or "", # icon
 			"", # app
