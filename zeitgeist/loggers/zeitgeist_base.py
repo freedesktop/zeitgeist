@@ -46,6 +46,8 @@ class DataProvider(gobject.GObject, Thread):
 		Thread.__init__(self)
 		gobject.GObject.__init__(self)
 		
+		self.__ctx = gobject.main_context_default()
+		
 		self.name = name
 		self.icon = icon
 		self.comment = comment
@@ -77,8 +79,17 @@ class DataProvider(gobject.GObject, Thread):
 		"""
 		Return the items for the indicated time periode.
 		"""
-		
-		return (i for i in self.get_items_uncached() if i["timestamp"] >= min and i["timestamp"] < max)
+		def _wrapper():
+			for n, i in enumerate(self.get_items_uncached()):
+				if i["timestamp"] >= min and i["timestamp"] < max:
+					yield i
+				if not n % 50:
+					# check for pending gobject events on long running updates
+					# not sure when to check pending events, maybe for each iteration?
+					while self.__ctx.pending():
+						#~ print "events pending"
+						self.__ctx.iteration()
+		return _wrapper()
 	
 	def get_items_uncached(self):
 		"""Subclasses should override this to return/yield Datas. The results
