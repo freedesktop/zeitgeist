@@ -133,7 +133,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		eins = self.store.find(base.Annotation,
 							   base.Annotation.item_id == base.URI.id,
-							   base.URI.value == "zeitgeist://tag/eins")
+							   base.URI.value == u"zeitgeist://tag/eins")
 		self.assertEquals(2, eins.count())
 
 if __name__ == '__main__':
