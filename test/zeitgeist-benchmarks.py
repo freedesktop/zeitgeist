@@ -10,6 +10,7 @@ from zeitgeist.engine import base
 from zeitgeist.datamodel import *
 from zeitgeist.engine.engine import ZeitgeistEngine
 from zeitgeist.dbusutils import *
+from time import time
 
 import unittest
 
@@ -56,6 +57,20 @@ class EngineInsertTest (unittest.TestCase):
 			if len(batch) % 200 == 0:
 				self.engine.insert_items(batch)
 				batch = []
+	
+	def testURICreation(self):
+		start = time()	
+		for i in range(1,1001):
+			base.URI("test://item%s" % i)
+		self.store.commit()
+		print "Inserted 1000 URIs with Storm in: %ss" % (time()-start)
+		self.tearDown()
+		self.setUp()
+		start = time()
+		for i in range(1,1001):
+			self.store.execute("INSERT INTO uri(value) VALUES ('test://item%s')" % i)
+		self.store.commit()
+		print "Inserted 1000 URIs with raw Sql in: %ss" % (time()-start)
 
 if __name__ == '__main__':
 	unittest.main()
