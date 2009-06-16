@@ -26,5 +26,4 @@ Dependencies:
    You can either recompile manually including the patch
    (http://git.gnome.org/cgit/pygtk/commit/?id=956592c614c567623510dccf5fc1edaee9c766c1)
    or, if you use Ubuntu, get the patched python-glade and python-gtk2
-   packages from https://launchpad.net/~rainct/+archive/ppa.
-   
+   packages from https://launchpad.net/~zeitgeist/+archive/ppa.
