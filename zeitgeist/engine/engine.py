@@ -59,14 +59,15 @@ class ZeitgeistEngine(gobject.GObject):
 		# FIXME: Get bookmark
 		bookmark = False
 		
-		if not item :
+		if not item:
 			item = event.subject
-		#check if the item is bookmarked
-		#FIXME: this seems redundant if i am fetching bookmarked items
-		if item:
-			bool = self.store.find(Item, Item.content_id == Content.BOOKMARK.id, Annotation.subject_id == item.id , Annotation.item_id == Item.id).one()
-			if bool:
-				bookmark = True
+		
+		# Check if the item is bookmarked
+		# FIXME: this seems redundant if i am fetching bookmarked items
+		bookmark = bool(self.store.find(Item,
+			Item.content_id == Content.BOOKMARK.id,
+			Annotation.subject_id == item.id,
+			Annotation.item_id == Item.id).one())
 		
 		result = self.get_tags_for_item(item)
 		tags = ",".join(set(result)) if result else ""
@@ -78,10 +79,11 @@ class ZeitgeistEngine(gobject.GObject):
 			item.source.value or "", # source
 			item.content.value or "", # content
 			item.mimetype or "", # mimetype
-			tags or "", # tags
-			# FIXME: I guess event.item.content below should never be None
-			event.item.content.value if (event and event.item.content) else "",# usage is determined by the event Content type
+			tags, # tags
+			"", # comment
 			bookmark, # bookmark
+			# FIXME: I guess event.item.content below should never be None
+			event.item.content.value if (event and event.item.content) else "", # usage is determined by the event Content type
 			item.icon or "", # icon
 			"", # app
 			item.origin or "" # origin

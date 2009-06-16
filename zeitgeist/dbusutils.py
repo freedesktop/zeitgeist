@@ -75,7 +75,7 @@ def dbus_connect(signal, callback, arg0=None):
 		get_engine_proxy().connect_to_signal(signal, callback,
 			dbus_interface="org.gnome.Zeitgeist", arg0=arg0)
 
-sig_plain_data = "(isssssssbsss)"
+sig_plain_data = "(isssssssbssss)"
 
 def plainify_dict(item_list):
 	return (
@@ -83,11 +83,12 @@ def plainify_dict(item_list):
 		item_list["uri"],
 		item_list["text"],
 		item_list["source"],
-		item_list["content"],
+		item_list["content"] if "content" in item_list else "",
 		item_list["mimetype"], 
 		item_list["tags"],
+		item_list["comment"] if "comment" in item_list else "",
+		item_list["bookmark"] if "bookmark" in item_list else "",
 		item_list["use"],
-		item_list["bookmark"] if "bookmark" in item_list else False,
 		item_list["icon"],
 		item_list["app"],
 		item_list["origin"],
@@ -102,9 +103,10 @@ def dictify_data(item_list):
 		"content": item_list[4],
 		"mimetype": item_list[5],
 		"tags": item_list[6],
-		"use": item_list[7],
+		"comment": item_list[7],
 		"bookmark": item_list[8],
-		"icon": item_list[9],
-		"app": item_list[10],
-		"origin": item_list[11]
+		"use": item_list[9],
+		"icon": item_list[10],
+		"app": item_list[11],
+		"origin": item_list[12]
 		}
