@@ -35,6 +35,9 @@ from zeitgeist import config
 
 
 class SimpleMatch(object):
+	""" Wrapper around fnmatch.fnmatch which allows to define mimetype
+	patterns by using shell-style wildcards.
+	"""
 
 	def __init__(self, pattern):
 		self.__pattern = pattern
@@ -140,6 +143,11 @@ ALL_MIMETYPES = DOCUMENT_MIMETYPES + IMAGE_MIMETYPES + AUDIO_MIMETYPES +\
 # helpers
 
 def get_desktopentry_for_application(application):
+	""" searches for a .desktop file for a given application in
+	$XDG_DATADIRS and returns a tuple of the path to the found file and
+	the related DesktopEntry object. If no .desktop file for the
+	application was found it returns the result for 'firefox'
+	"""
 	desktopfiles = list(
 		BaseDirectory.load_data_paths("applications", "%s.desktop" %application)
 	)
@@ -152,10 +160,15 @@ def get_desktopentry_for_application(application):
 		# What to do when there is no .desktop file for an application?
 		# raise an error? or try to get an alternative file?
 		# Example gimp-s.6 has no .desktop file
-		return get_desktopentry_for_application("firefox") #just for now, for testing
+		return get_desktopentry_for_application("firefox") # just for now, for testing
+														   # this might cause an endless loop
+														   # if firefox.desktop is not found
 
 
 class MimeTypeSet(set):
+	""" Set which allows to match against a string or an object with a
+	match() method.
+	"""
 
 	def __init__(self, *items):
 		super(MimeTypeSet, self).__init__()
