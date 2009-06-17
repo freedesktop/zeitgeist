@@ -145,7 +145,57 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		item_changed = False
 		
-		item = Item.lookup(ritem["uri"])
+		
+		print ritem["icon"]
+		
+		try:
+			
+			'''
+			Init URI, Content and Source
+			'''
+			try:
+				self.store.execute("INSERT INTO uri (value) VALUES (?)",(ritem["uri"], ))
+				print "Inserted item: "+ritem["uri"]
+			except Exception, ex:
+				pass
+			uri_id = self.store.execute("SELECT id  FROM uri WHERE VALUE =?",(ritem["uri"], )).get_one()[0]
+				
+				
+				
+			try:
+				self.store.execute("INSERT INTO source (value) VALUES(?)",(ritem["source"], ))
+				print "Inserted item: "+ritem["source"]
+			except Exception, ex:
+				pass
+			source_id = self.store.execute("SELECT id  FROM source WHERE VALUE =?",(ritem["source"], )).get_one()[0]
+				
+				
+				
+			try:
+				self.store.execute("INSERT INTO content (value) VALUES(?)",(ritem["content"], ))
+				print "Inserted item: "+ritem["content"]
+			except Exception, ex:
+				pass
+			content_id = self.store.execute("SELECT id  FROM content WHERE VALUE =?",(ritem["content"], )).get_one()[0]
+			
+			'''
+			Create Item for Data
+			'''
+			
+			try:
+				self.store.execute("INSERT INTO Item (id,content_id,source_id,origin,text,mimetype,icon) VALUES(?,?,?,?,?,?,?)",
+						   (uri_id, content_id, source_id,ritem["origin"],ritem["text"],ritem["mimetype"], ritem["icon"]))
+			except:
+				self.store.execute("UPDATE Item SET content_id=?, source_id=?, origin=?, text=?, mimetype=?, icon=? WHERE id=?",
+						   (content_id, source_id,ritem["origin"],ritem["text"],ritem["mimetype"], ritem["icon"], uri_id))
+			
+		except Exception, ex:
+			print ex
+		
+		
+		
+		'''	
+		
 		if not item or force:
 			item_changed = True
 			if not item:
@@ -156,7 +206,7 @@ class ZeitgeistEngine(gobject.GObject):
 			item.text = unicode(ritem["text"]) if ritem.has_key("text") else None
 			item.origin = unicode(ritem["origin"]) if ritem.has_key("origin") else None
 			item.icon = unicode(ritem["icon"]) if ritem.has_key("icon") else None
-			
+		
 			# Extract tags
 			if ritem.has_key("tags") and ritem["tags"].strip():
 				for tag in (tag for tag in ritem["tags"].split(",") if tag):
@@ -187,7 +237,7 @@ class ZeitgeistEngine(gobject.GObject):
 					print "Bookmark", a_uri, "-->", ritem["uri"], "already known"
 			if force:
 				   return True
-
+		
 		e_uri = "zeitgeist://event/%s/%%s/%s#%d" % (ritem["use"],
 			ritem["timestamp"], item.id)
 		
@@ -213,20 +263,12 @@ class ZeitgeistEngine(gobject.GObject):
 			app.item.icon = unicode(app_info.getIcon())
 			app.info = unicode(ritem["app"])
 			e.app = app
-			
-			# FIXME: This seems to pollute the user provided tags
-			"""for tag in app_info.getCategories(): 
-				a = Annotation.lookup_or_create("zeitgeist://tag/%s" % tag)
-				a.subject = e.app.item
-				a.item.text = unicode(tag)
-				a.item.source_id = Source.APPLICATION.id
-				a.item.content_id = Content.TAG.id"""
-		
+					
 		if commit:
 			self.store.flush()
 		
 		return item_changed
-	
+		'''
 	def insert_items(self, items):
 		"""
 		Inserts items into the database and returns the amount of
