@@ -252,7 +252,7 @@ class ZeitgeistEngine(gobject.GObject):
 		if item:
 			return self._result2data(item=item)
 	
-	def get_items(self, min=0, max=sys.maxint, limit=0,
+	def find_events(self, min=0, max=sys.maxint, limit=0,
 	sorting_asc=True, unique=False, filters=()):
 		"""
 		Returns all items from the database between the indicated

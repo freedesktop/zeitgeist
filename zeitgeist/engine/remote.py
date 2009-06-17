@@ -37,21 +37,21 @@ class RemoteInterface(dbus.service.Object):
 	# Reading stuff
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
-						in_signature="s", out_signature=sig_plain_data)
-	def GetItem(self, uri):
-		return _engine.get_item(uri)
+						in_signature="as", out_signature="a"+sig_plain_data)
+	def GetItems(self, uris):
+		return map(_engine.get_item, uris)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="iiibba(ssssss)", out_signature="a"+sig_plain_data)
-	def GetItems(self, min_timestamp, max_timestamp, limit,
+	def FindEvents(self, min_timestamp, max_timestamp, limit,
 	sorting_asc, unique, filters):
 		# filters: (text_name, text_uri, tags, mimetypes, source, content)
-		return _engine.get_items(min_timestamp, max_timestamp, limit,
+		return _engine.find_events(min_timestamp, max_timestamp, limit,
 			sorting_asc, unique, filters)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="sii", out_signature="i")
-	def GetCountForItem(self, uri, start, end):
+	def GetCountForUri(self, uri, start, end):
 		return _engine.get_count_for_item(self, uri, start, end)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
