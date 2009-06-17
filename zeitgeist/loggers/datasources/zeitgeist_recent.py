@@ -175,9 +175,12 @@ class MimeTypeSet(set):
 				if pattern.match(mimetype):
 					return True
 		return result
+		
+	def __len__(self):
+		return super(MimeTypeSet, self).__len__() + len(self.__pattern)
 
 	def __repr__(self):
-		items = ", ".join(map(repr, self | self.__pattern))
+		items = ", ".join(sorted(map(repr, self | self.__pattern)))
 		return "%s(%s)" %(self.__class__.__name__, items)
 		
 		
