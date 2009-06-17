@@ -21,6 +21,7 @@ import dbus
 import dbus.service
 import gobject
 import gconf
+import glib
 
 import dbus.mainloop.glib
 import ConfigParser
@@ -28,6 +29,50 @@ import ConfigParser
 from ConfigParser import SafeConfigParser
 from xdg import BaseDirectory
 from StringIO import StringIO
+
+
+class SetupService(dbus.service.Object):
+	
+	def __init__(self, datasource, root_config, mainloop=None):
+		bus_name = dbus.service.BusName("org.gnome.Zeitgeist.dataprovider", dbus.SessionBus())
+		dbus.service.Object.__init__(self,
+			bus_name, "/org/gnome/Zeitgeist/DataProvider/%s" %datasource)
+		self._mainloop = mainloop
+		self.__configuration = root_config
+		if not isinstance(self.__configuration, _Configuration):
+			raise TypeError
+		self.__setup_is_running = None
+		
+	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
+						 in_signature="iss")
+	def set_configuration(self, token, option, value):
+		if token != self.__setup_is_running:
+			raise RuntimeError("wrong client")
+		self.__configuration.set_attribute(option, value)
+		
+	@dbus.service.signal("org.gnome.Zeitgeist.dataprovider")
+	def NeedsSetup(self):
+		pass
+		
+	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
+						 in_signature="i", out_signature="b")
+	def RequestSetupRun(self, token):
+		if self.__setup_is_running is None:
+			self.__setup_is_running = token
+			return True
+		else:
+			raise False
+		
+	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
+						 out_signature="a(sb)")
+	def GetOptions(self, token):
+		if token != self.__setup_is_running:
+			raise RuntimeError("wrong client")
+		return self.__configuration.get_options()		
+			
+	def needs_setup(self):
+		return not self.__configuration.isConfigured()
+		
 
 class _Configuration(gobject.GObject):
 	
@@ -42,42 +87,52 @@ class _Configuration(gobject.GObject):
 		else:
 			raise ValueError
 	
-	def __init__(self, internal_name=None):
+	def __init__(self, internal_name, use_dbus=True, mainloop=None):
 		gobject.GObject.__init__(self)
 		self.__required = set()
 		self.__items = dict()
 		self.__internal_name = internal_name
+		if use_dbus:
+			self.__dbus_service = SetupService(self.__internal_name, self, mainloop)
+		else:
+			self.__dbus_service = None
 		
 	def get_internal_name(self):
 		return self.__internal_name
 		
-	def add_option(self, name, type=str, default=None, required=True, secret=False):
+	def add_option(self, name, to_type=str, to_string=str, default=None,
+					required=True, secret=False):
 		if name in self.__items:
 			raise ValueError
 		if required:
 			self.__required.add(name)
-		if type is None:
-			type = lambda x: x
-		self.__items[name] = (type(default), type, secret)
+		if to_type is None:
+			to_type = lambda x: x
+		self.__items[name] = (to_type(default), (to_type, to_string), secret)
 		
 	def __getattr__(self, name):
+		if not self.isConfigured():
+			raise RuntimeError
 		return self.__items[name][0]
 		
 	def get_as_string(self, name):
-		return str(getattr(self, name))
+		if not self.isConfigured():
+			raise RuntimeError
+		try:
+			value, (_, to_string), _ = self.__items[name]
+		except KeyError:
+			raise AttributeError
+		return str(to_string(value))
 		
 	def set_attribute(self, name, value, check_configured=True):
 		if name not in self.__items:
 			raise ValueError
-		_, type, secret = self.__items[name]
-		self.__items[name] = (type(value), type, secret)
+		_, (to_type, to_string), secret = self.__items[name]
+		self.__items[name] = (to_type(value), (to_type, to_string), secret)
 		if name in self.__required:
 			self.remove_requirement(name)
 		if check_configured and self.isConfigured():
-			print "BOOO"
-			import glib
 			glib.idle_add(self.emit, "configured")
-			print "BAR"
 			
 	def remove_requirement(self, name):
 		self.__required.remove(name)
@@ -149,76 +204,19 @@ class DefaultConfiguration(_Configuration):
 			config.write(f)
 			with open(self.CONFIGFILE, "w") as configfile:
 				config.write(configfile)
-		
-			
-
-class MetaClass(dbus.service.InterfaceType, gobject.GObjectMeta):
-	pass
-
-class SetupService(dbus.service.Object, gobject.GObject):
-	
-	__metaclass__ = MetaClass
-	
-	def __init__(self, datasource, default_config=None, mainloop=None):
-		bus_name = dbus.service.BusName("org.gnome.Zeitgeist.dataprovider", dbus.SessionBus())
-		dbus.service.Object.__init__(self,
-			bus_name, "/org/gnome/Zeitgeist/DataProvider/%s" %datasource)
-		self._mainloop = mainloop
-		gobject.GObject.__init__(self)
-		self.__configuration = default_config or DefaultConfiguration
-		if not isinstance(self.__configuration, _Configuration):
-			raise TypeError
-		self.__setup_is_running = None
-		self.__configuration.connect_object("configured", self.emit, "reconfigured")
-		
-	def get_configuration(self):
-		if self.needs_setup():
-			raise RuntimeError("Needs Configuration")
-		return self.__configuration
-		
-	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
-						 in_signature="iss")
-	def set_configuration(self, token, option, value):
-		if token != self.__setup_is_running:
-			raise RuntimeError("wrong client")
-		self.__configuration.set_attribute(option, value)
-		
-	@dbus.service.signal("org.gnome.Zeitgeist.dataprovider")
-	def NeedsSetup(self):
-		pass
-		
-	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
-						 in_signature="i", out_signature="b")
-	def RequestSetupRun(self, token):
-		if self.__setup_is_running is None:
-			self.__setup_is_running = token
-			return True
-		else:
-			raise False
-		
-	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
-						 out_signature="a(sb)")
-	def GetOptions(self, token):
-		if token != self.__setup_is_running:
-			raise RuntimeError("wrong client")
-		return self.__configuration.get_options()		
-			
-	def needs_setup(self):
-		return not self.__configuration.isConfigured()
-		
-gobject.signal_new("reconfigured", SetupService,
-				   gobject.SIGNAL_RUN_LAST,
-				   gobject.TYPE_NONE,
-				   tuple())
-		
+				
 		
 if __name__ == '__main__':
+	
+	def test(config):
+		for option, required in config.get_options():
+			print option, getattr(config, option)
 	
 	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 	mainloop = gobject.MainLoop()
 	
-	config = _Configuration()
-	config.add_option("enabled", Configuration.like_bool, False)
-	object = SetupService("test", config, mainloop=None)
+	config = _Configuration("test", True, mainloop)
+	config.add_option("enabled", _Configuration.like_bool, default=False)
+	config.connect("configured", test)
 	mainloop.run()
 
