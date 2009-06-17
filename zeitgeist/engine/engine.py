@@ -365,9 +365,6 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_max_timestamp_for_tag(self, tag):
 			return None
 	
-	def get_timestamps_for_tag(self, tag):
-		pass
-	
 	def get_last_insertion_date(self, application):
 		"""
 		Returns the timestamp of the last item which was inserted

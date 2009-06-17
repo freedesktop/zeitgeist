@@ -87,12 +87,9 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="a"+sig_plain_data)
 	def GetRelatedItems(self, item_uri):
+		# FIXME: Merge this into FindEvents so that matches can be
+		# filtered?
 		return _engine.get_related_items(item_uri)
-	
-	@dbus.service.method("org.gnome.Zeitgeist",
-						in_signature="s", out_signature="(uu)")
-	def GetTimestampsForTag(self, tag):
-		return _engine.get_timestamps_for_tag(tag)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="s", out_signature="i")
