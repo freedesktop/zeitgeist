@@ -91,7 +91,7 @@ class _Configuration(gobject.GObject):
 		gobject.GObject.__init__(self)
 		self.__required = set()
 		self.__items = dict()
-		self.__internal_name = internal_name
+		self.__internal_name = internal_name.replace(" ", "")
 		if use_dbus:
 			self.__dbus_service = SetupService(self.__internal_name, self, mainloop)
 		else:
@@ -185,7 +185,7 @@ class DefaultConfiguration(_Configuration):
 	
 	CONFIGFILE = BaseDirectory.load_first_config("zeitgeist", "dataprovider.conf")
 	DEFAULTS = [
-		("enabled", _Configuration.like_bool, True, False),
+		("enabled", _Configuration.like_bool, str, True, False),
 	]
 	
 	def __init__(self, dataprovider):
@@ -193,7 +193,7 @@ class DefaultConfiguration(_Configuration):
 		for default in self.DEFAULTS:
 			self.add_option(*default)
 		if self.CONFIGFILE:
-			self.read_config(self.CONFIGFILE, dataprovider)
+			self.read_config(self.CONFIGFILE, self.get_internal_name())
 				
 	def save_config(self):
 		if self.CONFIGFILE:

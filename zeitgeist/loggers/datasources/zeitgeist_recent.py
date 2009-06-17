@@ -220,10 +220,11 @@ class RecentlyUsedManagerGtk(DataProvider):
 	DEFAULT_ICON = u"stock_calendar"
 	
 	def __init__(self):
-		DataProvider.__init__(self)
+		DataProvider.__init__(self, name="Recently Used Documents")
 		self.recent_manager = gtk.recent_manager_get_default()
 		self.recent_manager.set_limit(-1)
 		self.recent_manager.connect("changed", lambda m: self.emit("reload"))
+		self.config.connect("configured", lambda m: self.emit("reload"))
 		self._timestamp_last_run = 0
 		
 	def get_items_uncached(self):

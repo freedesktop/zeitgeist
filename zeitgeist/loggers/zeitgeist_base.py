@@ -28,6 +28,10 @@ from threading import Thread
 import gobject
 import gettext
 
+from zeitgeist.loggers.zeitgeist_setup_service import _Configuration, DefaultConfiguration
+
+NAMES = set()
+
 class DataProvider(gobject.GObject, Thread):
 	# Clear cached items after 4 minutes of inactivity
 	CACHE_CLEAR_TIMEOUT_MS = 1000 * 60 * 4
@@ -36,12 +40,8 @@ class DataProvider(gobject.GObject, Thread):
 		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 	}
 	
-	def __init__(self,
-				name=None,
-				icon=None,
-				comment=None,
-				uri=None,
-				filter_by_date=True):
+	def __init__(self, name, icon=None, comment=None, uri=None,
+					filter_by_date=True, config=None):
 		
 		# Initialize superclasses
 		Thread.__init__(self)
@@ -49,7 +49,10 @@ class DataProvider(gobject.GObject, Thread):
 		
 		self.__ctx = gobject.main_context_default()
 		
+		if name in NAMES:
+			raise RuntimeError
 		self.name = name
+		NAMES.add(name)
 		self.icon = icon
 		self.comment = comment
 		self.uri = uri
@@ -66,9 +69,23 @@ class DataProvider(gobject.GObject, Thread):
 		self.counter = 0
 		self.needs_view = True
 		self.active = True
+		if config is None:
+			self.config = DefaultConfiguration(self.name)
+		else:
+			if not isinstance(config, _Configuration):
+				raise TypeError
+			self.config = config
 	
 	def run(self):
 		self.get_items()
+		
+	def checkEnabled(self):
+		try:
+			enabled = self.config.enabled
+		except AttributeError:
+			return True
+		else:
+			return enabled
 	
 	def get_name(self):
 		return self.name
@@ -80,8 +97,13 @@ class DataProvider(gobject.GObject, Thread):
 		"""
 		Return the items for the indicated time periode.
 		"""
+		if not self.config.isConfigured() or not self.checkEnabled():
+			print "'%s' is not enabled or configured" %self.config.get_internal_name()
+			return []
 		def _wrapper():
 			for n, i in enumerate(self.get_items_uncached()):
+				if not self.checkEnabled(): #on each iteration???
+					raise StopIteration
 				if i["timestamp"] >= min and i["timestamp"] < max:
 					yield i
 				if not n % 50:

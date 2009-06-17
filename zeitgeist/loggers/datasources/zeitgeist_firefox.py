@@ -84,7 +84,7 @@ class FirefoxSource(DataProvider):
 			try:
 				file_object = gio.File(self.history_db)
 				self.note_path_monitor = file_object.monitor_file()
-				self.note_path_monitor.connect("changed", self.reload_proxy)
+				self.note_path_monitor.connect("changed", self.reload_proxy_filemonitor)
 			except Exception, e:
 				print("Unable to monitor Firefox history %s: %s" % 
 					(self.history_db, str(e)))
@@ -95,6 +95,7 @@ class FirefoxSource(DataProvider):
 				self.__copy_sqlite()
 		else:
 			print("No Firefox profile found")
+		self.config.connect("configured", self.reload_proxy_config)
 	
 	@classmethod
 	def get_profile_dirs(cls):
@@ -147,16 +148,22 @@ class FirefoxSource(DataProvider):
 		else:
 			self.timestamp = history[0]
 	
-	def reload_proxy(self, filemonitor, file, other_file, event_type):
+	def reload_proxy_filemonitor(self, filemonitor, file, other_file, event_type):
 		if event_type in (
 				gio.FILE_MONITOR_EVENT_CHANGED,
 				gio.FILE_MONITOR_EVENT_CREATED,
 				gio.FILE_MONITOR_EVENT_DELETED,
 				gio.FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED
 		):
-			self.last_timestamp = self.get_last_timestamp()
-			self.__copy_sqlite()
-			self.emit("reload")
+			self.reload_proxy()
+			
+	def reload_proxy_config(self, configuration):
+		self.reload_proxy()
+			
+	def reload_proxy(self):
+		self.last_timestamp = self.get_last_timestamp()
+		self.__copy_sqlite()
+		self.emit("reload")
 	
 	def get_items_uncached(self):
 		# create a connection to firefox's sqlite database
