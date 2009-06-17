@@ -77,7 +77,7 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="iii", out_signature="as")
 	def GetMostUsedTags(self, amount, min_timestamp, max_timestamp):
-		return _engine.get_recently_used_tags(amount, min_timestamp, max_timestamp)
+		return _engine.get_most_used_tags(amount, min_timestamp, max_timestamp)
 	
 	@dbus.service.method("org.gnome.Zeitgeist",
 						in_signature="iii", out_signature="as")

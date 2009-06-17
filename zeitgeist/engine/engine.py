@@ -53,6 +53,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 		'''
+		self.get_most_used_tags()
 	
 	def _result2data(self, event=None, item=None):
 		
@@ -322,20 +323,6 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		pass
 	
-	def _get_tags(self, order_by, count, min, max):
-		"""
-		Private class used to retrive a list of tags according to a
-		desired condition (eg., most used tags, recently used tags...).
-		"""
-		return []
-	
-	def get_all_tags(self):
-		"""
-		Returns a list containing the name of all tags.
-		"""		
-		tags = self.store.find(Item, Item.content_id == Content.TAG.id)
-		return [tag.text for tag in tags]		
-	
 	def get_types(self):
 		"""
 		Returns a list of all different types in the database.
@@ -343,13 +330,25 @@ class ZeitgeistEngine(gobject.GObject):
 		contents = self.store.find(Content)
 		return [content.value for content in contents]
 	
+	def get_all_tags(self):
+		"""
+		Returns a list containing the name of all tags.
+		"""		
+		tags = self.store.find(Item, Item.content_id == Content.TAG.id)
+		return [tag.text for tag in tags]
+	
 	def get_recently_used_tags(self, count=20, min=0, max=sys.maxint):
 		"""
 		Returns a list containing up to `count' recently used
 		tags from between timestamps `min' and `max'.
 		"""
 		
-		return self._get_tags("key", count, min, max)
+		# FIXME: What do we consider "Recent"?
+		# Does it make sense to returns a list of which were the last
+		# tags given to applications? Maybe instead the GUI should keep
+		# track itself of which Tags the users use when they filter
+		# stuff and show those. Or remove this alltogether?
+		return []
 	
 	def get_most_used_tags(self, count=20, min=0, max=sys.maxint):
 		"""
@@ -357,7 +356,22 @@ class ZeitgeistEngine(gobject.GObject):
 		tags from between timestamps `min' and `max'.
 		"""
 		
-		return self._get_tags("uri", count, min, max)
+		# Simulate optional arguments
+		if not count:
+			count = 20
+		if not max:
+			max = sys.maxint
+		
+		tags = self.store.execute("""
+			SELECT text, (SELECT COUNT(rowid)
+				FROM annotation WHERE item_id=item.id) AS occurencies
+			FROM item
+			WHERE content_id=%d
+			ORDER BY occurencies DESC
+			LIMIT %d
+			""" % (Content.TAG.id, count))
+		
+		return [tag[0] for tag in tags]
 	
 	def get_min_timestamp_for_tag(self, tag):
 			return None
