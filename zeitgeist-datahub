@@ -9,6 +9,7 @@ import gobject
 import dbus.exceptions
 
 from zeitgeist import config
+from zeitgeist.loggers.zeitgeist_setup_service import DataProviderService
 
 gettext.install("zeitgeist", config.localedir, unicode=1)
 
@@ -48,6 +49,7 @@ class DataHub(gobject.GObject):
 			source.connect("reload", self._update_db_with_source)
 		
 		self._mainloop = gobject.MainLoop()
+		self.dbus_service = DataProviderService(self._sources, None)
 		self._mainloop.run()
 	
 	def _daemon_exit(self):

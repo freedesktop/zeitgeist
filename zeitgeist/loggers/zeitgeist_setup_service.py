@@ -30,6 +30,22 @@ from ConfigParser import SafeConfigParser
 from xdg import BaseDirectory
 from StringIO import StringIO
 
+class DataProviderService(dbus.service.Object):
+	
+	def __init__(self, datasources, mainloop=None):
+		bus_name = dbus.service.BusName("org.gnome.Zeitgeist.dataprovider", dbus.SessionBus())
+		dbus.service.Object.__init__(self, bus_name, "/org/gnome/Zeitgeist/DataProvider")
+		self._mainloop = mainloop
+		self.__datasources = datasources
+		
+	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
+						 out_signature="as")
+	def GetDataProviders(self):
+		return [i.config.get_internal_name() for i in self.__datasources if i.config.has_dbus_service()]
+			
+	def needs_setup(self):
+		return not self.__configuration.isConfigured()
+
 
 class SetupService(dbus.service.Object):
 	
@@ -96,6 +112,9 @@ class _Configuration(gobject.GObject):
 			self.__dbus_service = SetupService(self.__internal_name, self, mainloop)
 		else:
 			self.__dbus_service = None
+			
+	def has_dbus_service(self):
+		return self.__dbus_service is not None
 		
 	def get_internal_name(self):
 		return self.__internal_name
