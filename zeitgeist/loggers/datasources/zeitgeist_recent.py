@@ -206,18 +206,15 @@ class InverseMimeTypeSet(MimeTypeSet):
 class RecentlyUsedManagerGtk(DataProvider):
 	
 	FILTERS = {
-		# dict of name as key and a tuple of matching mimetypes and icon as value
-		# if the mimetype value is None this filter matches all mimetypes
-		# if the icon value is None DEFAULT_ICON will be used
-		u"Documents": (MimeTypeSet(*DOCUMENT_MIMETYPES), u"stock_new-presentation"),
-		u"Other": (InverseMimeTypeSet(*ALL_MIMETYPES), u"applications-other"),
-		u"Images": (MimeTypeSet(*IMAGE_MIMETYPES), u"gnome-mime-image"),
-		u"Music": (MimeTypeSet(*AUDIO_MIMETYPES), u"gnome-mime-audio"),
-		u"Videos": (MimeTypeSet(*VIDEO_MIMETYPES), u"gnome-mime-video"),
-		u"Development": (MimeTypeSet(*DEVELOPMENT_MIMETYPES), u"applications-development"),		
+		# dict of name as key and  the matching mimetypes as value
+		# if the value is None this filter matches all mimetypes
+		u"Documents": MimeTypeSet(*DOCUMENT_MIMETYPES),
+		u"Other": InverseMimeTypeSet(*ALL_MIMETYPES),
+		u"Images": MimeTypeSet(*IMAGE_MIMETYPES),
+		u"Music": MimeTypeSet(*AUDIO_MIMETYPES),
+		u"Videos": MimeTypeSet(*VIDEO_MIMETYPES),
+		u"Development": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
 	}
-	
-	DEFAULT_ICON = u"stock_calendar"
 	
 	def __init__(self):
 		DataProvider.__init__(self, name="Recently Used Documents")
@@ -261,10 +258,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 				for timestamp, use in times:
 					if timestamp < self._timestamp_last_run:
 						continue
-					for filter_name, (mimetypes, icon) in self.FILTERS.iteritems():
+					for filter_name, mimetypes in self.FILTERS.iteritems():
 						if mimetype is None or mimetype in mimetypes:
-							if icon is None:
-								icon = self.DEFAULT_ICON
 							item = {
 								"timestamp": timestamp,
 								"uri": uri,
@@ -274,7 +269,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 								"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
 								"mimetype": mimetype,
 								"tags": tags,
-								"icon": icon,
+								"icon": u"",
 								"app": unicode(desktopfile),
 								"origin": u"", 	# we are not sure about the origin of this item,
 												# let's make it NULL, it has to be a string
