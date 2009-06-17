@@ -208,7 +208,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 	FILTERS = {
 		# dict of name as key and a tuple of matching mimetypes and icon as value
 		# if the mimetype value is None this filter matches all mimetypes
-		# if the icon value is None "stock_calendar" will be used
+		# if the icon value is None DEFAULT_ICON will be used
 		u"Documents": (MimeTypeSet(*DOCUMENT_MIMETYPES), u"stock_new-presentation"),
 		u"Other": (InverseMimeTypeSet(*ALL_MIMETYPES), u"applications-other"),
 		u"Images": (MimeTypeSet(*IMAGE_MIMETYPES), u"gnome-mime-image"),
@@ -216,6 +216,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 		u"Videos": (MimeTypeSet(*VIDEO_MIMETYPES), u"gnome-mime-video"),
 		u"Development": (MimeTypeSet(*DEVELOPMENT_MIMETYPES), u"applications-development"),		
 	}
+	
+	DEFAULT_ICON = u"stock_calendar"
 	
 	def __init__(self):
 		DataProvider.__init__(self)
@@ -259,7 +261,9 @@ class RecentlyUsedManagerGtk(DataProvider):
 					if timestamp < self._timestamp_last_run:
 						continue
 					for filter_name, (mimetypes, icon) in self.FILTERS.iteritems():
-						if mimetype in mimetypes:
+						if mimetype is None or mimetype in mimetypes:
+							if icon is None:
+								icon = self.DEFAULT_ICON
 							item = {
 								"timestamp": timestamp,
 								"uri": uri,
