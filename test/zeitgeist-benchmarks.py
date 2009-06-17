@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Update python path to use local xesam module
+# Update python path to use local zeitgeist module
 import sys, os
 from os.path import dirname, join, abspath
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
