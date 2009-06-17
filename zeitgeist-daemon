@@ -22,7 +22,7 @@ engine = get_default_engine()
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = gobject.MainLoop()
 
-object = RemoteInterface(mainloop = mainloop)
+obj = RemoteInterface(mainloop = mainloop)
 
 trayicon_app = "%s/zeitgeist-trayicon" % config.bindir
 if not "--no-trayicon" in sys.argv and os.path.isfile(trayicon_app):
@@ -35,7 +35,7 @@ if not "--no-passive-loggers" in sys.argv:
 	else:
 		print "%s not found, not starting datahub" % passive_loggers
 
-atexit.register(lambda: object.SignalExit())
+atexit.register(lambda: obj.SignalExit())
 
 print _("Starting Zeitgeist service...")
 mainloop.run()
