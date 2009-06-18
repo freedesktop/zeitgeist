@@ -47,7 +47,10 @@ class EngineInsertTest (unittest.TestCase):
 			"mimetype" : "mime/type",
 			"icon" : "stock_left",
 			"use" : Content.CREATE_EVENT.uri,
-			"origin" : "http://example.org"
+			"origin" : "http://example.org",
+			"bookmark" : False,
+			"comment" : "This is a sample comment",
+			"tags" : u""
 		}
 	
 	def testInsert1000in200Chunks(self):

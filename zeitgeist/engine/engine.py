@@ -208,7 +208,6 @@ class ZeitgeistEngine(gobject.GObject):
 		if not ritem["mimetype"].strip():
 			print >> sys.stderr, "Discarding item without a mimetype: %s" % ritem
 			return False
-		
 		ritem = dict((key, TYPES_DICT[key](value)) for key, value in ritem.iteritems())
 		
 		try:
