@@ -75,38 +75,28 @@ def dbus_connect(signal, callback, arg0=None):
 		get_engine_proxy().connect_to_signal(signal, callback,
 			dbus_interface="org.gnome.Zeitgeist", arg0=arg0)
 
-sig_plain_data = "(isssssssbssss)"
+ITEM_STRUCTURE = (
+	("timestamp", "i"),
+	("uri", "s"),
+	("text", "s"),
+	("source", "s"),
+	("content", "s"),
+	("mimetype", "s"),
+	("tags", "s"),
+	("comment", "s"),
+	("bookmark", "b"),
+	("use", "s"),
+	("icon", "s"),
+	("app", "s"),
+	("origin", "s"),
+)
+
+DEFAULTS = {"i": 0, "s": "", "b": False}
+
+sig_plain_data = "(%s)" %"".join(i[1] for i in ITEM_STRUCTURE)
 
 def plainify_dict(item_list):
-	return (
-		item_list["timestamp"],
-		item_list["uri"],
-		item_list["text"],
-		item_list["source"],
-		item_list.get("content", ""),
-		item_list["mimetype"], 
-		item_list["tags"],
-		item_list.get("comment", ""),
-		item_list.get("bookmark", ""),
-		item_list["use"],
-		item_list["icon"],
-		item_list["app"],
-		item_list["origin"],
-		)
+	return tuple(item_list.get(name, DEFAULTS[type]) for name, type in ITEM_STRUCTURE)
 
 def dictify_data(item_list):
-    return {
-		"timestamp": item_list[0],
-		"uri": item_list[1],
-		"text": item_list[2],
-		"source": item_list[3],
-		"content": item_list[4],
-		"mimetype": item_list[5],
-		"tags": item_list[6],
-		"comment": item_list[7],
-		"bookmark": item_list[8],
-		"use": item_list[9],
-		"icon": item_list[10],
-		"app": item_list[11],
-		"origin": item_list[12]
-		}
+    return dict((key[0], item_list[i]) for i, key in enumerate(ITEM_STRUCTURE))
