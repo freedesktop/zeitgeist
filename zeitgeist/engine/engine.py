@@ -59,9 +59,6 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def _result2data(self, event=None, item=None):
 		
-		# FIXME: Get bookmark
-		bookmark = False
-		
 		if not item:
 			item = event.subject
 		
@@ -88,7 +85,7 @@ class ZeitgeistEngine(gobject.GObject):
 			# FIXME: I guess event.item.content below should never be None
 			event.item.content.value if (event and event.item.content) else "", # usage is determined by the event Content type
 			item.icon or "", # icon
-			"", # app
+			"", # app      # FIXME!
 			item.origin or "" # origin
 			)
 	
@@ -129,15 +126,18 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		self._insert_basics(uri, content, source)
 		if uri:
-			uri_id = self.store.execute("SELECT id  FROM uri WHERE VALUE =?",(uri, )).get_one()[0]
+			uri_id = self.store.execute(
+				"SELECT id  FROM uri WHERE VALUE=?", (uri, )).get_one()[0]
 		else:
 			uri_id = None
 		if source:
-			source_id = self.store.execute("SELECT id  FROM source WHERE VALUE =?",(source, )).get_one()[0]
+			source_id = self.store.execute(
+				"SELECT id FROM source WHERE VALUE=?", (source, )).get_one()[0]
 		else:
 			source_id = None
 		if content:
-		      content_id = self.store.execute("SELECT id  FROM content WHERE VALUE =?",(content, )).get_one()[0]
+		      content_id = self.store.execute(
+				"SELECT id FROM content WHERE VALUE=?", (content, )).get_one()[0]
 		else:
 			content_id = None
 		
@@ -146,19 +146,19 @@ class ZeitgeistEngine(gobject.GObject):
 	def _insert_basics(self, uri, content, source):
 		try:
 			if uri:
-				self.store.execute("INSERT INTO uri (value) VALUES (?)",(uri, ))
+				self.store.execute("INSERT INTO uri (value) VALUES (?)", (uri, ))
 				#print "Inserted item: "+ uri
 		except Exception, ex:
 			pass
 		try:
 			if source:
-				self.store.execute("INSERT INTO source (value) VALUES(?)",(source, ))
+				self.store.execute("INSERT INTO source (value) VALUES (?)", (source, ))
 				#print "Inserted source: "+ source
 		except Exception, ex:
 			pass
 		try:
 			if content:
-				self.store.execute("INSERT INTO content (value) VALUES(?)",(content, ))
+				self.store.execute("INSERT INTO content (value) VALUES (?)", (content, ))
 				#print "Inserted content: "+ content
 		except Exception, ex:
 			pass
@@ -170,12 +170,17 @@ class ZeitgeistEngine(gobject.GObject):
 			
 	def _insert_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
 		try:
-			self.store.execute("INSERT INTO Item (id,content_id,source_id, origin, text, mimetype,icon) VALUES(?,?,?,?,?,?,?)",
-					   (id, content_id, source_id, origin, text, mimetype, icon))
+			self.store.execute("""
+				INSERT INTO Item
+					(id, content_id, source_id, origin, text, mimetype, icon)
+				VALUES (?,?,?,?,?,?,?)
+				""", (id, content_id, source_id, origin, text, mimetype, icon))
 		except:
-			self.store.execute("UPDATE Item SET content_id=?, source_id=?,   origin=?,  text=?, mimetype=?, icon=? WHERE id=?",
-					   (content_id, source_id, origin, text, mimetype, icon, id))
-	
+			self.store.execute("""
+				UPDATE Item SET
+					content_id=?, source_id=?, origin=?, text=?,
+					mimetype=?, icon=? WHERE id=?
+				""", (content_id, source_id, origin, text, mimetype, icon, id))
 	
 	def insert_item(self, ritem, commit=True, force=False):
 		"""
@@ -416,10 +421,10 @@ class ZeitgeistEngine(gobject.GObject):
 			SELECT text, (SELECT COUNT(rowid)
 				FROM annotation WHERE item_id=item.id) AS occurencies
 			FROM item
-			WHERE content_id=%d
+			WHERE content_id=?
 			ORDER BY occurencies DESC
-			LIMIT %d
-			""" % (Content.TAG.id, count))
+			LIMIT ?
+			""", (Content.TAG.id, count))
 		
 		return [tag[0] for tag in tags]
 	
