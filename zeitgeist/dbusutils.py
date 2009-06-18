@@ -4,6 +4,7 @@
 #
 # Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2009 Markus Korn <thekorn@gmx.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -75,38 +76,33 @@ def dbus_connect(signal, callback, arg0=None):
 		get_engine_proxy().connect_to_signal(signal, callback,
 			dbus_interface="org.gnome.Zeitgeist", arg0=arg0)
 
-sig_plain_data = "(isssssssbssss)"
+# (isssssssbssss)
+ITEM_STRUCTURE = (
+	("timestamp", int),
+	("uri", unicode),
+	("text", unicode),
+	("source", unicode),
+	("content", unicode),
+	("mimetype", unicode),
+	("tags", unicode),
+	("comment", unicode),
+	("bookmark", bool),
+	("use", unicode),
+	("icon", unicode),
+	("app", unicode),
+	("origin", unicode),
+)
+
+ITEM_STRUCTURE_KEYS = set(i[0] for i in ITEM_STRUCTURE)
+
+DEFAULTS = {"i": 0, "s": "", "b": False}
+TYPES = {int: "i", unicode: "s", bool: "b"}
+TYPES_DICT = dict(ITEM_STRUCTURE) 
+
+sig_plain_data = "(%s)" %"".join(TYPES[i[1]] for i in ITEM_STRUCTURE)
 
 def plainify_dict(item_list):
-	return (
-		item_list["timestamp"],
-		item_list["uri"],
-		item_list["text"],
-		item_list["source"],
-		item_list["content"] if "content" in item_list else "",
-		item_list["mimetype"], 
-		item_list["tags"],
-		item_list["comment"] if "comment" in item_list else "",
-		item_list["bookmark"] if "bookmark" in item_list else "",
-		item_list["use"],
-		item_list["icon"],
-		item_list["app"],
-		item_list["origin"],
-		)
+	return tuple(item_list.get(name, DEFAULTS[type]) for name, type in ITEM_STRUCTURE)
 
 def dictify_data(item_list):
-    return {
-		"timestamp": item_list[0],
-		"uri": item_list[1],
-		"text": item_list[2],
-		"source": item_list[3],
-		"content": item_list[4],
-		"mimetype": item_list[5],
-		"tags": item_list[6],
-		"comment": item_list[7],
-		"bookmark": item_list[8],
-		"use": item_list[9],
-		"icon": item_list[10],
-		"app": item_list[11],
-		"origin": item_list[12]
-		}
+    return dict((key[0], item_list[i]) for i, key in enumerate(ITEM_STRUCTURE))
