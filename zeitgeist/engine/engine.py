@@ -36,7 +36,7 @@ from random import randint
 
 from zeitgeist import config
 from zeitgeist.engine.base import *
-from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS
+from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT
 
 class ZeitgeistEngine(gobject.GObject):
 
@@ -201,6 +201,7 @@ class ZeitgeistEngine(gobject.GObject):
 			print >> sys.stderr, "Discarding item without a mimetype: %s" % ritem
 			return False
 		
+		ritem = dict((key, TYPES_DICT[key](value)) for key, value in ritem.iteritems())
 		
 		try:
 			'''

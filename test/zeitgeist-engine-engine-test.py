@@ -52,7 +52,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"mimetype" : "mime/type",
 					"icon" : "stock_left",
 					"use" : Content.CREATE_EVENT.uri,
-					"origin" : "http://example.org" }
+					"origin" : "http://example.org",
+					"comment": "",
+					"tags": "",
+					"bookmark": False, 
+					}
 		self.engine.insert_item(orig)		
 		result = self.engine.get_item("test://mytest")		
 		self.assertTrue(result is not None)
@@ -61,8 +65,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = dictify_data(result)
 		result["use"] = Content.CREATE_EVENT.uri
 		result["app"] = "/usr/share/applications/gnome-about.desktop"
-		result.pop("tags")
-		result.pop("bookmark")
 	
 		assert_cmp_dict(orig, result)
 		
@@ -81,7 +83,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"icon" : "stock_left",
 					"use" : Content.CREATE_EVENT.uri,
 					"origin" : "http://example.org",
-					"bookmark" : True}
+					"bookmark" : True,
+					"comment": "",
+					"tags": ""
+		}
 		self.engine.insert_item(orig)
 		bookmarks = map(dictify_data, self.engine.get_bookmarks())		
 		self.assertEquals(1, len(bookmarks))
@@ -100,7 +105,9 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"icon" : "stock_left",
 				"use" : Content.CREATE_EVENT.uri,
 				"origin" : "http://example.org",
-				"tags" : u"eins"
+				"tags" : u"eins",
+				"comment": "",
+				"bookmark": False
 			},
 			{
 				"uri" : "test://mytest2",
@@ -113,7 +120,9 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"icon" : "stock_left",
 				"use" : Content.CREATE_EVENT.uri,
 				"origin" : "http://example.org",
-				"tags" : u"eins"
+				"tags" : u"eins",
+				"comment": "",
+				"bookmark": False,
 			},
 		)
 		for item in items:
@@ -148,7 +157,9 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"icon" : "stock_left",
 				"use" : Content.CREATE_EVENT.uri,
 				"origin" : "http://example.org",
-				"tags" : u"eins,zwei,drei"
+				"tags" : u"eins,zwei,drei",
+				"comment": "",
+				"bookmark": False,
 		}
 		self.assertTrue(self.engine.insert_item(item))
 		tags = list(self.engine.get_all_tags())
@@ -191,7 +202,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"use" : Content.CREATE_EVENT.uri,
 				"origin" : "http://example.org",
 				"tags" : u"boo",
-				"bookmark" : True
+				"bookmark" : True,
+				"comment": "",
 			}
 		self.assertTrue(self.engine.insert_item(item))
 		

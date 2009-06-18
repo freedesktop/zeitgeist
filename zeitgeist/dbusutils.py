@@ -77,26 +77,28 @@ def dbus_connect(signal, callback, arg0=None):
 			dbus_interface="org.gnome.Zeitgeist", arg0=arg0)
 
 ITEM_STRUCTURE = (
-	("timestamp", "i"),
-	("uri", "s"),
-	("text", "s"),
-	("source", "s"),
-	("content", "s"),
-	("mimetype", "s"),
-	("tags", "s"),
-	("comment", "s"),
-	("bookmark", "b"),
-	("use", "s"),
-	("icon", "s"),
-	("app", "s"),
-	("origin", "s"),
+	("timestamp", int),
+	("uri", unicode),
+	("text", unicode),
+	("source", unicode),
+	("content", unicode),
+	("mimetype", unicode),
+	("tags", unicode),
+	("comment", unicode),
+	("bookmark", bool),
+	("use", unicode),
+	("icon", unicode),
+	("app", unicode),
+	("origin", unicode),
 )
 
 ITEM_STRUCTURE_KEYS = set(i[0] for i in ITEM_STRUCTURE)
 
 DEFAULTS = {"i": 0, "s": "", "b": False}
+TYPES = {int: "i", unicode: "s", bool: "b"}
+TYPES_DICT = dict(ITEM_STRUCTURE) 
 
-sig_plain_data = "(%s)" %"".join(i[1] for i in ITEM_STRUCTURE)
+sig_plain_data = "(%s)" %"".join(TYPES[i[1]] for i in ITEM_STRUCTURE)
 
 def plainify_dict(item_list):
 	return tuple(item_list.get(name, DEFAULTS[type]) for name, type in ITEM_STRUCTURE)
