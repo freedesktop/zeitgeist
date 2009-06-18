@@ -6,6 +6,7 @@
 # Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Natan Yellin <aantny@gmail.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2009 Markus Korn <thekorn@gmx.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,6 +36,7 @@ from random import randint
 
 from zeitgeist import config
 from zeitgeist.engine.base import *
+from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS
 
 class ZeitgeistEngine(gobject.GObject):
 
@@ -181,17 +183,21 @@ class ZeitgeistEngine(gobject.GObject):
 		False otherwise (for example, if the item already is in the
 		database).
 		"""
-		
-		if not ritem.has_key("uri") or not ritem["uri"]:
+		# we require all  all keys here
+		missing = ITEM_STRUCTURE_KEYS - set(ritem.keys())
+		if missing:
+			raise KeyError(("these keys are missing in order to add "
+							"this item properly: %s" %", ".join(missing)))
+		if not ritem["uri"].strip():
 			print >> sys.stderr, "Discarding item without a URI: %s" % ritem
 			return False
-		if not ritem.has_key("content") or not ritem["content"]:
+		if not ritem["content"].strip():
 			print >> sys.stderr, "Discarding item without a Content type: %s" % ritem
 			return False
-		if not ritem.has_key("source") or not ritem["source"]:
+		if not ritem["source"].strip():
 			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
 			return False
-		if not ritem.has_key("mimetype") or not ritem["mimetype"]:
+		if not ritem["mimetype"].strip():
 			print >> sys.stderr, "Discarding item without a mimetype: %s" % ritem
 			return False
 		

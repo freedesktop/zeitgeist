@@ -92,6 +92,8 @@ ITEM_STRUCTURE = (
 	("origin", "s"),
 )
 
+ITEM_STRUCTURE_KEYS = set(i[0] for i in ITEM_STRUCTURE)
+
 DEFAULTS = {"i": 0, "s": "", "b": False}
 
 sig_plain_data = "(%s)" %"".join(i[1] for i in ITEM_STRUCTURE)
