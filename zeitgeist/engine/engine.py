@@ -48,7 +48,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self.store = storm_store
 		self._apps = set()
 		self._last_time_from_app = {}
-        
+		
 		'''
 		path = BaseDirectory.save_data_path("zeitgeist")
 		database = os.path.join(path, "zeitgeist.sqlite")
@@ -85,7 +85,7 @@ class ZeitgeistEngine(gobject.GObject):
 			# FIXME: I guess event.item.content below should never be None
 			event.item.content.value if (event and event.item.content) else "", # usage is determined by the event Content type
 			item.icon or "", # icon
-			"", # app      # FIXME!
+			"", # app	  # FIXME!
 			item.origin or "" # origin
 			)
 	
@@ -136,7 +136,7 @@ class ZeitgeistEngine(gobject.GObject):
 		else:
 			source_id = None
 		if content:
-		      content_id = self.store.execute(
+			  content_id = self.store.execute(
 				"SELECT id FROM content WHERE VALUE=?", (content, )).get_one()[0]
 		else:
 			content_id = None
@@ -212,14 +212,15 @@ class ZeitgeistEngine(gobject.GObject):
 			'''
 			Init URI, Content and Source
 			'''
-			uri_id, content_id, source_id = self._get_basics(ritem["uri"],ritem["content"], ritem["source"])
-			##########################################################################
+			uri_id, content_id, source_id = self._get_basics(
+				ritem["uri"], ritem["content"], ritem["source"])
+			
 			'''
 			Create Item for Data
 			'''
-			item = self._get_item(uri_id, content_id, source_id, ritem["text"], ritem["origin"], ritem["mimetype"], ritem["icon"])
+			item = self._get_item(uri_id, content_id, source_id,
+				ritem["text"], ritem["origin"], ritem["mimetype"], ritem["icon"])
 			
-			##########################################################################
 			'''
 			 Extract tags
 			'''
@@ -235,12 +236,11 @@ class ZeitgeistEngine(gobject.GObject):
 					self.store.execute("INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",(anno_id, uri_id))
 				except Exception, ex:
 					pass
-			##########################################################################
+			
 			'''
 			Bookmark
 			'''
 			if ritem["bookmark"]:
-				
 				anno_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
 				anno_id, x, y = self._get_basics(anno_uri,None,None)
 				anno_item = self._get_item(anno_id, Content.BOOKMARK.id, Source.USER_ACTIVITY.id, u"Bookmark")
@@ -248,10 +248,10 @@ class ZeitgeistEngine(gobject.GObject):
 					self.store.execute("INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",(anno_id, uri_id))
 				except Exception, ex:
 					pass
-			##########################################################################
+			
 			if force:
-				   return True
-			##########################################################################
+				return True
+			
 			'''
 			Init App
 			'''
@@ -263,7 +263,7 @@ class ZeitgeistEngine(gobject.GObject):
 				self.store.execute("INSERT INTO app (item_id, info) VALUES (?,?)",(app_uri_id, unicode(ritem["app"])))
 			except Exception, ex:
 				pass
-			##########################################################################
+			
 			'''
 			Set event 
 			'''
@@ -461,7 +461,7 @@ class ZeitgeistEngine(gobject.GObject):
 			#Get the item for the uri
 			item = self.store.find(Item, Item.id == uri.id).one()
 			yield self._result2data(None, item)
-                
+				
 _engine = None
 def get_default_engine():
 	global _engine
