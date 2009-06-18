@@ -211,7 +211,7 @@ class ZeitgeistEngine(gobject.GObject):
 			'''
 			 Extract tags
 			'''
-			for tag in (tag for tag in ritem["tags"].split(",") if tag):
+			for tag in (tag for tag in ritem["tags"].split(",") if tag and tag.strip()!=""):
 					
 				anno_uri = "zeitgeist://tag/%s" % tag
 				anno_id, x, y = self._get_basics(anno_uri,None,None)
