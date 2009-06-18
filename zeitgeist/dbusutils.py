@@ -95,7 +95,7 @@ ITEM_STRUCTURE = (
 
 ITEM_STRUCTURE_KEYS = set(i[0] for i in ITEM_STRUCTURE)
 
-DEFAULTS = {"i": 0, "s": "", "b": False}
+DEFAULTS = {int: 0, unicode: "", bool: False}
 TYPES = {int: "i", unicode: "s", bool: "b"}
 TYPES_DICT = dict(ITEM_STRUCTURE) 
 
