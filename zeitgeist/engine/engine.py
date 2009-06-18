@@ -55,7 +55,6 @@ class ZeitgeistEngine(gobject.GObject):
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 		'''
-		self.get_most_used_tags()
 	
 	def _result2data(self, event=None, item=None):
 		
@@ -146,41 +145,45 @@ class ZeitgeistEngine(gobject.GObject):
 	def _insert_basics(self, uri, content, source):
 		try:
 			if uri:
-				self.store.execute("INSERT INTO uri (value) VALUES (?)", (uri, ))
+				self.store.execute("INSERT INTO uri (value) VALUES (?)",
+					(uri, ), noresult=True)
 				#print "Inserted item: "+ uri
 		except Exception, ex:
 			pass
 		try:
 			if source:
-				self.store.execute("INSERT INTO source (value) VALUES (?)", (source, ))
+				self.store.execute("INSERT INTO source (value) VALUES (?)",
+					(source, ), noresult=True)
 				#print "Inserted source: "+ source
 		except Exception, ex:
 			pass
 		try:
 			if content:
-				self.store.execute("INSERT INTO content (value) VALUES (?)", (content, ))
+				self.store.execute("INSERT INTO content (value) VALUES (?)",
+					(content, ), noresult=True)
 				#print "Inserted content: "+ content
 		except Exception, ex:
 			pass
-		
+	
 	def _get_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
 		self._insert_item(id, content_id, source_id, text, origin, mimetype, icon)
-		item = self.store.find(Item, Item.id == id)
-		return item
-			
+		return self.store.find(Item, Item.id == id)
+	
 	def _insert_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
 		try:
 			self.store.execute("""
 				INSERT INTO Item
 					(id, content_id, source_id, origin, text, mimetype, icon)
 				VALUES (?,?,?,?,?,?,?)
-				""", (id, content_id, source_id, origin, text, mimetype, icon))
-		except:
+				""", (id, content_id, source_id, origin, text, mimetype,
+				icon), noresult=True)
+		except Exception:
 			self.store.execute("""
 				UPDATE Item SET
 					content_id=?, source_id=?, origin=?, text=?,
 					mimetype=?, icon=? WHERE id=?
-				""", (content_id, source_id, origin, text, mimetype, icon, id))
+				""", (content_id, source_id, origin, text, mimetype,
+				icon, id), noresult=True)
 	
 	def insert_item(self, ritem, commit=True, force=False):
 		"""
@@ -233,7 +236,9 @@ class ZeitgeistEngine(gobject.GObject):
 				anno_id, x, y = self._get_basics(anno_uri,None,None)
 				anno_item = self._get_item(anno_id, Content.TAG.id, Source.USER_ACTIVITY.id, tag)
 				try:
-					self.store.execute("INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",(anno_id, uri_id))
+					self.store.execute(
+						"INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",
+						(anno_id, uri_id), noresult=True)
 				except Exception, ex:
 					pass
 			
@@ -245,7 +250,9 @@ class ZeitgeistEngine(gobject.GObject):
 				anno_id, x, y = self._get_basics(anno_uri,None,None)
 				anno_item = self._get_item(anno_id, Content.BOOKMARK.id, Source.USER_ACTIVITY.id, u"Bookmark")
 				try:
-					self.store.execute("INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",(anno_id, uri_id))
+					self.store.execute(
+						"INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",
+						(anno_id, uri_id), noresult=True)
 				except Exception, ex:
 					pass
 			
@@ -260,7 +267,8 @@ class ZeitgeistEngine(gobject.GObject):
 			app_uri_id, app_content_id, app_source_id = self._get_basics(ritem["app"], unicode(app_info.getType()), unicode(app_info.getExec()).split()[0])
 			app_item = self._get_item(app_uri_id, app_content_id, app_source_id, unicode(app_info.getName()),icon=unicode(app_info.getIcon()) )
 			try:
-				self.store.execute("INSERT INTO app (item_id, info) VALUES (?,?)",(app_uri_id, unicode(ritem["app"])))
+				self.store.execute("INSERT INTO app (item_id, info) VALUES (?,?)",
+					(app_uri_id, unicode(ritem["app"])), noresult=True)
 			except Exception, ex:
 				pass
 			
@@ -272,15 +280,15 @@ class ZeitgeistEngine(gobject.GObject):
 			e_item = self._get_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
 			
 			try:
-				self.store.execute("INSERT INTO event (item_id, subject_id, start, app_id) VALUES (?,?,?,?)",
-						   (e_id, uri_id, ritem["timestamp"] ,app_uri_id))
+				self.store.execute(
+					"INSERT INTO event (item_id, subject_id, start, app_id) VALUES (?,?,?,?)",
+					(e_id, uri_id, ritem["timestamp"], app_uri_id), noresult=True)
 			except Exception, ex:
 				print ex
 			return True
-										
+		
 		except Exception, ex:
 			print ex
-		
 	
 	def insert_items(self, items):
 		"""
@@ -371,12 +379,12 @@ class ZeitgeistEngine(gobject.GObject):
 		annotation_ids = self.store.execute("SELECT item_id FROM Annotation WHERE subject_id=?",(uri_id,)).get_all()
 		if len(annotation_ids) > 0:
 			for anno in annotation_ids[0]:
-				self.store.execute("DELETE FROM Annotation WHERE subject_id=?",(uri_id,))
-				self.store.execute("DELETE FROM Item WHERE id=?",(anno,))	
-		
-		self.store.execute("DELETE FROM Item WHERE id=?",(uri_id,))
-		
-		pass
+				self.store.execute("DELETE FROM Annotation WHERE subject_id=?",
+					(uri_id,), noresult=True)
+				self.store.execute("DELETE FROM Item WHERE id=?",
+					(anno,), noresult=True)		
+		self.store.execute("DELETE FROM Item WHERE id=?",
+			(uri_id,), noresult=True)
 	
 	def get_types(self):
 		"""
