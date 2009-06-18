@@ -33,12 +33,12 @@ from StringIO import StringIO
 class DataProviderService(dbus.service.Object):
 	
 	def __init__(self, datasources, mainloop=None):
-		bus_name = dbus.service.BusName("org.gnome.Zeitgeist.dataprovider", dbus.SessionBus())
-		dbus.service.Object.__init__(self, bus_name, "/org/gnome/Zeitgeist/DataProvider")
+		bus_name = dbus.service.BusName("org.gnome.zeitgeist.datahub", dbus.SessionBus())
+		dbus.service.Object.__init__(self, bus_name, "/org/gnome/zeitgeist/datahub")
 		self._mainloop = mainloop
 		self.__datasources = datasources
 		
-	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
+	@dbus.service.method("org.gnome.zeitgeist.DataHub",
 						 out_signature="as")
 	def GetDataProviders(self):
 		return [i.config.get_internal_name() for i in self.__datasources if i.config.has_dbus_service()]
@@ -50,27 +50,27 @@ class DataProviderService(dbus.service.Object):
 class SetupService(dbus.service.Object):
 	
 	def __init__(self, datasource, root_config, mainloop=None):
-		bus_name = dbus.service.BusName("org.gnome.Zeitgeist.dataprovider", dbus.SessionBus())
+		bus_name = dbus.service.BusName("org.gnome.zeitgeist.datahub", dbus.SessionBus())
 		dbus.service.Object.__init__(self,
-			bus_name, "/org/gnome/Zeitgeist/DataProvider/%s" %datasource)
+			bus_name, "/org/gnome/zeitgeist/datahub/dataprovider/%s" %datasource)
 		self._mainloop = mainloop
 		self.__configuration = root_config
 		if not isinstance(self.__configuration, _Configuration):
 			raise TypeError
 		self.__setup_is_running = None
 		
-	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
+	@dbus.service.method("org.gnome.zeitgeist.DataHub",
 						 in_signature="iss")
-	def set_configuration(self, token, option, value):
+	def SetConfiguration(self, token, option, value):
 		if token != self.__setup_is_running:
 			raise RuntimeError("wrong client")
 		self.__configuration.set_attribute(option, value)
 		
-	@dbus.service.signal("org.gnome.Zeitgeist.dataprovider")
+	@dbus.service.signal("org.gnome.zeitgeist.DataHub")
 	def NeedsSetup(self):
 		pass
 		
-	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
+	@dbus.service.method("org.gnome.zeitgeist.DataHub",
 						 in_signature="i", out_signature="b")
 	def RequestSetupRun(self, token):
 		if self.__setup_is_running is None:
@@ -79,7 +79,7 @@ class SetupService(dbus.service.Object):
 		else:
 			raise False
 		
-	@dbus.service.method("org.gnome.Zeitgeist.dataprovider",
+	@dbus.service.method("org.gnome.zeitgeist.DataHub",
 						 out_signature="a(sb)")
 	def GetOptions(self, token):
 		if token != self.__setup_is_running:
@@ -107,7 +107,7 @@ class _Configuration(gobject.GObject):
 		gobject.GObject.__init__(self)
 		self.__required = set()
 		self.__items = dict()
-		self.__internal_name = internal_name.replace(" ", "")
+		self.__internal_name = internal_name.replace(" ", "_").lower()
 		if use_dbus:
 			self.__dbus_service = SetupService(self.__internal_name, self, mainloop)
 		else:
