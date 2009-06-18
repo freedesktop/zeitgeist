@@ -135,7 +135,7 @@ class ZeitgeistEngine(gobject.GObject):
 		else:
 			source_id = None
 		if content:
-			  content_id = self.store.execute(
+			content_id = self.store.execute(
 				"SELECT id FROM content WHERE VALUE=?", (content, )).get_one()[0]
 		else:
 			content_id = None
@@ -395,7 +395,7 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_all_tags(self):
 		"""
 		Returns a list containing the name of all tags.
-		"""		
+		"""
 		tags = self.store.find(Item, Item.content_id == Content.TAG.id)
 		return [tag.text for tag in tags]
 	

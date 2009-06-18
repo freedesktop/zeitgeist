@@ -145,7 +145,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(["test://mytest1", "test://mytest2"],
 						  [item.uri.value for item in eins])
 	
-	def testThreeTagsOnSameItem(self):				
+	def testThreeTagsOnSameItem(self):		
 		item = {
 				"uri" : "test://mytest1",
 				"content" : Content.IMAGE.uri,
@@ -188,7 +188,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertTrue(drei is not None)
 		self.assertEquals(["test://mytest1"],
 						  [item.uri.value for item in drei.find_subjects()])
-						  	
+	
 	def testTagAndBookmark(self):
 		item = {
 				"uri" : "test://mytest1",
