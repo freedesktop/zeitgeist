@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Update python path to use local zeitgeist module
-import sys, os
+import sys, os, tempfile, shutil
 from os.path import dirname, join, abspath
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 
@@ -115,21 +115,33 @@ class URITest (unittest.TestCase):
 		uu = URI.lookup("u1")
 		self.assertEquals(u.id, uu.id)
 		self.assertEquals(u.value, uu.value)
+		
+	def testLookupOrCreateTwo(self):
+		u1 = URI.lookup_or_create("u1")
+		u2 = URI.lookup_or_create("u2")
+		u3 = URI("u3")
+		
+		self.assertEquals(id(u1), id(URI.lookup_or_create("u1")))
+		self.assertEquals(id(u2), id(URI.lookup_or_create("u2")))
+		self.assertEquals(id(u3), id(URI.lookup_or_create("u3")))
+		self.assertTrue(id(u2) != id(u1))
+		self.assertEquals(1, u1.id)
+		self.assertEquals(2, u2.id)
+		self.assertEquals(3, u3.id)
 
 class ItemTest (unittest.TestCase):
 	"""
 	This class tests that the zeitgeist.engine.base.Item class
-	"""
+	"""	
 	def setUp (self):
-		storm_url = "sqlite:/tmp/unittest.sqlite"
-		db_file = storm_url.split(":")[1]
-		if os.path.exists(db_file):
-			os.remove(db_file)
+		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
+		storm_url = "sqlite:%s/unittest.sqlite" % self.tmp_dir
 		self.store = create_store(storm_url)
 		set_store(self.store)
 		
-	def tearDown (self):
+	def tearDown (self):		
 		self.store.close()
+		shutil.rmtree(self.tmp_dir)
 	
 	def testCreateItem(self):
 		i = Item("i1")
@@ -178,6 +190,13 @@ class ItemTest (unittest.TestCase):
 		self.setUp()
 		i = Item.lookup_or_create("i1")
 		self.assertEquals("i1", i.uri.value)
+	
+	def testLookupOrCreateTwo(self):
+		i1 = Item.lookup_or_create("i1")
+		i2 = Item.lookup_or_create("i2")
+		
+		self.assertEquals(id(i1), id(Item.lookup_or_create("i1")))
+		self.assertEquals(id(i2), id(Item.lookup_or_create("i2")))
 
 class EventTest (unittest.TestCase):
 	"""

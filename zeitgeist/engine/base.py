@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
+import os, sys
 from storm.locals import *
 
 class Symbol:
@@ -56,7 +56,7 @@ class Entity(object):
 	value = Unicode()
 	CACHE = {}
 	
-	def __init__ (self, value):
+	def __init__ (self, value, add_to_store=True):
 		"""Create an Entity in the store. Any created entity will automatically
 		   be added to the store (but the store still need flushing) before an
 		   id is assigned to the entity"""
@@ -66,8 +66,12 @@ class Entity(object):
 		if value is None :
 			raise ValueError("Can not create Entity with value None")
 		
-		self.value = unicode(value) # A no-op if value is already a unicode	
-		_store.add(self)
+		self.value = unicode(value) # A no-op if value is already a unicode
+		
+		if add_to_store:
+			_store.add(self)
+			_store.flush()
+			self.__class__.CACHE[value] = self
 	
 	def resolve (self):
 		"""Make sure that the id property of this object has been resolved.
@@ -96,26 +100,51 @@ class Entity(object):
 	
 	@classmethod
 	def lookup_or_create(klass, value):
-		ent = klass.lookup(value)		
-		if not ent:
-			ent = klass(value)
-			klass.CACHE[value] = ent
-			_store.flush()
+		"""Find the entity matching the uri 'value' or create it if necessary"""
+		#
+		# The algorithm used here is as follows:
+		#  1) Return it if we have it cached
+		#  2) Try to create it
+		#  3) Look it up and return it
+		#		
+		if value in klass.CACHE:
+			return klass.CACHE[value]
+			
+		value = unicode(value)
+		ent = klass(value, add_to_store=False)
+		try:
+			_store.execute(
+			"INSERT INTO %s (value) VALUES (?)" % klass.__storm_table__,
+			(value, ), noresult=True)
+			#print "Inserted %s: %s" % (klass.__storm_table__,value)
+		except Exception, ex:
+			pass
+			#print "Not inserting %s, %s: %s" % (klass.__storm_table__, value, ex)
+				
+		id_query = _store.execute(
+					"SELECT id FROM %s WHERE VALUE=?" % klass.__storm_table__,
+					(value, )).get_one()
+		if not id_query:
+			print >> sys.stderr, "Failed to insert %s entity: %s" \
+								 % (klass.__storm_table__,value)
+			return None
+		ent.id = id_query[0]
+		klass.CACHE[value] = ent
 		return ent
 
 class Content(Entity):
 	__storm_table__= "content"
 	__storm_primary__= "id"
 	
-	def __init__ (self, value):				
-		super(Content, self).__init__(value)		
+	def __init__ (self, value, add_to_store=True):				
+		super(Content, self).__init__(value, add_to_store=add_to_store)		
 
 class Source(Entity):
 	__storm_table__= "source"
 	__storm_primary__= "id"		
 	
-	def __init__ (self, value):				
-		super(Source, self).__init__(value)
+	def __init__ (self, value, add_to_store=True):
+		super(Source, self).__init__(value, add_to_store=add_to_store)
 
 
 # Content and source symbols are created outside the classes because we can not
@@ -150,8 +179,8 @@ class URI(Entity):
 	#        unlike Source and Content which will always remain small.
 	#        Consider making an LRUCache for the URI class specifically
 	
-	def __init__ (self, value):				
-		super(URI, self).__init__(value)
+	def __init__ (self, value, add_to_store=True):				
+		super(URI, self).__init__(value, add_to_store=add_to_store)
 
 class Item(object):
 	__storm_table__ = "item"
@@ -177,12 +206,9 @@ class Item(object):
 		super(Item, self).__init__()
 		if isinstance(uri, (str, unicode)):
 			uri = URI.lookup_or_create(uri)
-			uri.resolve()
-			self.uri = uri			
-			self.id = self.uri.id
+			self.id = uri.id
 			assert self.id is not None			
 		elif isinstance(uri, URI):
-			uri.resolve()
 			self.uri = uri
 			self.id = uri.id
 		else:
