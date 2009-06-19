@@ -31,17 +31,19 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		set_store(self.store)
 		self.engine = ZeitgeistEngine(self.store)
 		
+	def tearDown (self):
+		self.store.close()
+		shutil.rmtree(self.tmp_dir)
+	
+	def assertEmptyDB (self):
 		# Assert before each test that the db is indeed empty
 		self.assertEquals(0, self.store.find(base.URI).count())
 		self.assertEquals(0, self.store.find(base.Item).count())
 		self.assertEquals(0, self.store.find(base.Annotation).count())
 		self.assertEquals(0, self.store.find(base.Event).count())
 		
-	def tearDown (self):
-		self.store.close()
-		shutil.rmtree(self.tmp_dir)
-	
 	def testSingleInsertGet(self):
+		self.assertEmptyDB()
 		orig = {	"uri" : "test://mytest",
 					"content" : Content.IMAGE.uri,
 					"source" : Source.USER_ACTIVITY.uri,
@@ -71,6 +73,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertTrue(Content.IMAGE.uri in content_types)
 	
 	def testBookmark (self):
+		self.assertEmptyDB()
 		self.assertEquals(0, len(list(self.engine.get_bookmarks())))
 		orig = {	"uri" : "test://mytest",
 					"content" : Content.IMAGE.uri,
@@ -92,6 +95,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals("test://mytest", bookmarks[0]["uri"])
 	
 	def testSameTagOnTwoItems(self):
+		self.assertEmptyDB()
 		items = (
 			{
 				"uri" : "test://mytest1",
@@ -145,6 +149,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 						  [item.uri.value for item in eins])
 	
 	def testThreeTagsOnSameItem(self):		
+		self.assertEmptyDB()
 		item = {
 				"uri" : "test://mytest1",
 				"content" : Content.IMAGE.uri,
@@ -189,6 +194,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 						  [item.uri.value for item in drei.find_subjects()])
 	
 	def testTagAndBookmark(self):
+		self.assertEmptyDB()
 		item = {
 				"uri" : "test://mytest1",
 				"content" : Content.IMAGE.uri,
