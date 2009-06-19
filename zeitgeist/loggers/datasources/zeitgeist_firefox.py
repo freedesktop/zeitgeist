@@ -46,7 +46,7 @@ class FirefoxSource(DataProvider):
 		# Connect to D-Bus
 		bus = dbus.SessionBus()
 		try:
-			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/eitgeist")
+			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
 		except dbus.exceptions.DBusException:
 			print >> sys.stderr, "Zeitgeist Logger: Error: Could not connect to D-Bus."
 			return 0
