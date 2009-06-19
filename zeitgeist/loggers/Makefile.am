@@ -4,7 +4,7 @@ appdir = $(pythondir)/zeitgeist/loggers/
 
 app_PYTHON = \
 	__init__.py \
-	util.py \
 	W3CDate.py \
+	zeitgeist_setup_service.py \
 	zeitgeist_base.py
 

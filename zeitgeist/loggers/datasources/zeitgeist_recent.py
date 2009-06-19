@@ -2,11 +2,12 @@
 
 # Zeitgeist
 #
-# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
-# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
-# Copyright © 2009 Natan Yellin <aantny@gmail.com>
 # Copyright © 2009 Alex Graveley <alex.graveley@beatniksoftewarel.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
+# Copyright © 2009 Natan Yellin <aantny@gmail.com>
+# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009 Shane Fagan <shanepatrickfagan@yahoo.ie>
+# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
