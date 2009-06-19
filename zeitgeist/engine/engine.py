@@ -121,49 +121,23 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		return 0
 	
-	def _get_basics(self, uri, content, source):
-		
-		self._insert_basics(uri, content, source)
+	def _get_ids(self, uri, content, source):	
 		if uri:
-			uri_id = self.store.execute(
-				"SELECT id  FROM uri WHERE VALUE=?", (uri, )).get_one()[0]
+			uri_id = URI.lookup_or_create(uri).id
 		else:
 			uri_id = None
+			
 		if source:
-			source_id = self.store.execute(
-				"SELECT id FROM source WHERE VALUE=?", (source, )).get_one()[0]
+			source_id = Source.lookup_or_create(source).id
 		else:
 			source_id = None
+			
 		if content:
-			content_id = self.store.execute(
-				"SELECT id FROM content WHERE VALUE=?", (content, )).get_one()[0]
+			content_id = Content.lookup_or_create(content).id
 		else:
 			content_id = None
 		
 		return uri_id, content_id, source_id
-	
-	def _insert_basics(self, uri, content, source):
-		try:
-			if uri:
-				self.store.execute("INSERT INTO uri (value) VALUES (?)",
-					(uri, ), noresult=True)
-				#print "Inserted item: "+ uri
-		except Exception, ex:
-			pass
-		try:
-			if source:
-				self.store.execute("INSERT INTO source (value) VALUES (?)",
-					(source, ), noresult=True)
-				#print "Inserted source: "+ source
-		except Exception, ex:
-			pass
-		try:
-			if content:
-				self.store.execute("INSERT INTO content (value) VALUES (?)",
-					(content, ), noresult=True)
-				#print "Inserted content: "+ content
-		except Exception, ex:
-			pass
 	
 	def _get_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
 		self._insert_item(id, content_id, source_id, text, origin, mimetype, icon)
@@ -214,7 +188,7 @@ class ZeitgeistEngine(gobject.GObject):
 			'''
 			Init URI, Content and Source
 			'''
-			uri_id, content_id, source_id = self._get_basics(
+			uri_id, content_id, source_id = self._get_ids(
 				ritem["uri"], ritem["content"], ritem["source"])
 			
 			'''
@@ -232,7 +206,7 @@ class ZeitgeistEngine(gobject.GObject):
 					# ignore empty tags
 					continue
 				anno_uri = "zeitgeist://tag/%s" % tag
-				anno_id, x, y = self._get_basics(anno_uri,None,None)
+				anno_id, x, y = self._get_ids(anno_uri,None,None)
 				anno_item = self._get_item(anno_id, Content.TAG.id, Source.USER_ACTIVITY.id, tag)
 				try:
 					self.store.execute(
@@ -246,7 +220,7 @@ class ZeitgeistEngine(gobject.GObject):
 			'''
 			if ritem["bookmark"]:
 				anno_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
-				anno_id, x, y = self._get_basics(anno_uri,None,None)
+				anno_id, x, y = self._get_ids(anno_uri,None,None)
 				anno_item = self._get_item(anno_id, Content.BOOKMARK.id, Source.USER_ACTIVITY.id, u"Bookmark")
 				try:
 					self.store.execute(
@@ -263,7 +237,7 @@ class ZeitgeistEngine(gobject.GObject):
 			'''
 			# Store the application
 			app_info = DesktopEntry(ritem["app"])			
-			app_uri_id, app_content_id, app_source_id = self._get_basics(ritem["app"], unicode(app_info.getType()), unicode(app_info.getExec()).split()[0])
+			app_uri_id, app_content_id, app_source_id = self._get_ids(ritem["app"], unicode(app_info.getType()), unicode(app_info.getExec()).split()[0])
 			app_item = self._get_item(app_uri_id, app_content_id, app_source_id, unicode(app_info.getName()),icon=unicode(app_info.getIcon()) )
 			try:
 				self.store.execute("INSERT INTO app (item_id, info) VALUES (?,?)",
@@ -275,7 +249,7 @@ class ZeitgeistEngine(gobject.GObject):
 			Set event 
 			'''
 			e_uri = "zeitgeist://event/%s/%%s/%s#%d" % (ritem["use"],ritem["timestamp"], uri_id)		
-			e_id , e_content_id, e_subject_id = self._get_basics(e_uri,ritem["use"],None )
+			e_id , e_content_id, e_subject_id = self._get_ids(e_uri,ritem["use"],None )
 			e_item = self._get_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
 			
 			try:

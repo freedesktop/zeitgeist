@@ -100,6 +100,7 @@ class Entity(object):
 		if not ent:
 			ent = klass(value)
 			klass.CACHE[value] = ent
+			_store.flush()
 		return ent
 
 class Content(Entity):
@@ -395,6 +396,9 @@ def create_store(storm_url):
 	return store
 
 def clear_entity_cache():
+	"""All entity ids are cached because they can be assumed to remain stable
+	   across a session. In cases like unit tests where the db is often reset,
+	   this cache needs to be reset in order to provide correct results"""
 	Entity.CACHE = {}
 	URI.CACHE = {}
 	Content.CACHE = {}
