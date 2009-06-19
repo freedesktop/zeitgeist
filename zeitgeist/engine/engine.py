@@ -264,11 +264,12 @@ class ZeitgeistEngine(gobject.GObject):
 					"INSERT INTO event (item_id, subject_id, start, app_id) VALUES (?,?,?,?)",
 					(e_id, uri_id, ritem["timestamp"], app_uri_id), noresult=True)
 			except Exception, ex:
-				print ex
+				#print ex
+                                pass
 			return True
 		
 		except Exception, ex:
-			print ex
+			pass
 	
 	def insert_items(self, items):
 		"""

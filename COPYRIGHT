@@ -4,6 +4,7 @@ Copyright © 2008-2009 by the following:
 If you have contributed to this project then you deserve to be on this list.
 Contact us (see: AUTHORS) and we'll add you.
 
+Markus Korn <thekorn@gmx.de>
 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 Natan Yellin <aantny@gmail.com>
 Seif Lotfy <seif@lotfy.com>
@@ -11,6 +12,7 @@ Siegfried-Angel Gevatter <rainct@ubuntu.com>
 
 src/zeitgeist_engine/zeitgeist_util.py
 src/zeitgeist_engine/zeitgeist_recent.py
+src/zeitgeist_engine/zeitgeist_tomboy.py
 
 The utility package and RecentlyUsed dataproviders are taken from the Gimmie project.
 The Gimmie homepage is located at http://www.beatniksoftware.com/gimmie.
