@@ -28,11 +28,11 @@ import urllib
 # Connect to D-Bus
 bus = dbus.SessionBus()
 try:
-	remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/Zeitgeist")
+	remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
 except dbus.exceptions.DBusException:
 	print >>sys.stderr, "GNOME Zeitgeist Logger: Error: Could not connect to D-Bus."
 else:
-	iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist")
+	iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
 
 def page_changed(embed, load_status, window):
 	if not embed.get_property('load-status'):

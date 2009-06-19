@@ -30,18 +30,18 @@ class RemoteInterface(dbus.service.Object):
 	# Initialization
 	
 	def __init__(self, start_dbus=True, mainloop=None):
-		bus_name = dbus.service.BusName("org.gnome.Zeitgeist", dbus.SessionBus())
-		dbus.service.Object.__init__(self, bus_name, "/org/gnome/Zeitgeist")
+		bus_name = dbus.service.BusName("org.gnome.zeitgeist", dbus.SessionBus())
+		dbus.service.Object.__init__(self, bus_name, "/org/gnome/zeitgeist")
 		self._mainloop = mainloop
 	
 	# Reading stuff
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="as", out_signature="a"+sig_plain_data)
 	def GetItems(self, uris):
 		return map(_engine.get_item, uris)
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="iiibba(ssssss)", out_signature="a"+sig_plain_data)
 	def FindEvents(self, min_timestamp, max_timestamp, limit,
 	sorting_asc, unique, filters):
@@ -49,61 +49,61 @@ class RemoteInterface(dbus.service.Object):
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
 			sorting_asc, unique, filters)
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="sii", out_signature="i")
 	def GetCountForUri(self, uri, start, end):
 		return _engine.get_count_for_item(self, uri, start, end)
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="i", out_signature="as")
 	def GetURIsForTimestamp(self, timestamp):
 		return _engine.get_uris_for_timestamp(timestamp)
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="i", out_signature="i")
 	def GetLastTimestamp(self, uri):
 		return _engine.get_last_timestamp(uri)
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="", out_signature="a"+sig_plain_data)
 	def GetBookmarks(self):
 		return _engine.get_bookmarks()
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="", out_signature="as")
 	def GetAllTags(self):
 		return _engine.get_all_tags()
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="iii", out_signature="as")
 	def GetMostUsedTags(self, amount, min_timestamp, max_timestamp):
 		return _engine.get_most_used_tags(amount, min_timestamp, max_timestamp)
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="iii", out_signature="as")
 	def GetRecentUsedTags(self, amount, min_timestamp, max_timestamp):
 		return _engine.get_recently_used_tags(amount, min_timestamp, max_timestamp)
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="s", out_signature="a"+sig_plain_data)
 	def GetRelatedItems(self, item_uri):
 		# FIXME: Merge this into FindEvents so that matches can be
 		# filtered?
 		return _engine.get_related_items(item_uri)
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="s", out_signature="i")
 	def GetLastInsertionDate(self, application):
 		return _engine.get_last_insertion_date(application)
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="", out_signature="as")
 	def GetTypes(self):
 		return _engine.get_types()
 	
 	# Writing stuff
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature=sig_plain_data, out_signature="b")
 	def InsertItem(self, item_list):
 		result = _engine.insert_item(dictify_data(item_list))
@@ -111,39 +111,39 @@ class RemoteInterface(dbus.service.Object):
 			self.EmitSignalUpdated()
 		return result
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="a"+sig_plain_data, out_signature="")
 	def InsertItems(self, items_list):
 		if _engine.insert_items([dictify_data(x) for x in items_list]):
 			self.EmitSignalUpdated()
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature=sig_plain_data, out_signature="")
 	def UpdateItem(self, item_list):
 		_engine.update_item(dictify_data(item_list))
 	
-	@dbus.service.method("org.gnome.Zeitgeist",
+	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="s", out_signature="")
 	def DeleteItem(self, item_uri):
 		_engine.delete_item(item_uri)
 	
 	# Signals and signal emitters
 	
-	@dbus.service.signal("org.gnome.Zeitgeist")
+	@dbus.service.signal("org.gnome.zeitgeist")
 	def SignalUpdated(self):
 		pass
 	
-	@dbus.service.signal("org.gnome.Zeitgeist")
+	@dbus.service.signal("org.gnome.zeitgeist")
 	def SignalExit(self):
 		pass
 	
-	@dbus.service.method("org.gnome.Zeitgeist")
+	@dbus.service.method("org.gnome.zeitgeist")
 	def EmitSignalUpdated(self):
 		self.SignalUpdated()
 	
 	# Commands
 	
-	@dbus.service.method("org.gnome.Zeitgeist")
+	@dbus.service.method("org.gnome.zeitgeist")
 	def Quit(self):
 		if self._mainloop:
 			self._mainloop.quit()

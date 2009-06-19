@@ -46,11 +46,11 @@ class FirefoxSource(DataProvider):
 		# Connect to D-Bus
 		bus = dbus.SessionBus()
 		try:
-			remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/Zeitgeist")
+			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/eitgeist")
 		except dbus.exceptions.DBusException:
 			print >> sys.stderr, "Zeitgeist Logger: Error: Could not connect to D-Bus."
 			return 0
-		iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist")
+		iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
 		return iface.GetLastInsertionDate(u"/usr/share/applications/firefox.desktop")
 	
 	def __init__(self):

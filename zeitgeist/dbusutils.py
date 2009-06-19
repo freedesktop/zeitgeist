@@ -50,8 +50,8 @@ def get_engine_proxy():
 		return _engine_proxy
 	
 	try:
-		_engine_proxy = get_session_bus().get_object("org.gnome.Zeitgeist",
-													 "/org/gnome/Zeitgeist")
+		_engine_proxy = get_session_bus().get_object("org.gnome.zeitgeist",
+													 "/org/gnome/zeitgeist")
 		return _engine_proxy
 	except dbus.exceptions.DBusException:
 		print _("Error: Zeitgeist service not running.")
@@ -63,18 +63,18 @@ def get_engine_interface():
 	if _engine_iface:
 		return _engine_iface
 	
-	_engine_iface = dbus.Interface(get_engine_proxy(), "org.gnome.Zeitgeist")
+	_engine_iface = dbus.Interface(get_engine_proxy(), "org.gnome.zeitgeist")
 	return _engine_iface
 
 def dbus_connect(signal, callback, arg0=None):
 	if not arg0:
 		get_engine_proxy().connect_to_signal(signal, callback,
-			dbus_interface="org.gnome.Zeitgeist")
+			dbus_interface="org.gnome.zeitgeist")
 	else:
 		# TODO: This is ugly and limited to 1 argument. Find a better
 		# way to do it.
 		get_engine_proxy().connect_to_signal(signal, callback,
-			dbus_interface="org.gnome.Zeitgeist", arg0=arg0)
+			dbus_interface="org.gnome.zeitgeist", arg0=arg0)
 
 # (isssssssbssss)
 ITEM_STRUCTURE = (

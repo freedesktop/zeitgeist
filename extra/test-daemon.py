@@ -14,10 +14,10 @@ if '--listen' in sys.argv:
 	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 bus = dbus.SessionBus()
 
-remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/Zeitgeist")
+remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
 if '--listen' in sys.argv:
-	remote_object.connect_to_signal("signal_updated", updated_signal_handler, dbus_interface="org.gnome.Zeitgeist")
-iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist")
+	remote_object.connect_to_signal("SignalUpdated", updated_signal_handler, dbus_interface="org.gnome.zeitgeist")
+iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
 
 print '\nDifferent types in the database:'
 for name in iface.GetTypes():
@@ -70,4 +70,4 @@ if '--listen' in sys.argv:
 	loop.run()
 
 # For copy-pasting into an interactive Python shell:
-## import dbus; bus = dbus.SessionBus(); remote_object = bus.get_object("org.gnome.Zeitgeist", "/org/gnome/Zeitgeist"); iface = dbus.Interface(remote_object, "org.gnome.Zeitgeist");
+## import dbus; bus = dbus.SessionBus(); remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist"); iface = dbus.Interface(remote_object, "org.gnome.zeitgeist");
