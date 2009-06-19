@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Update python path to use local zeitgeist module
-import sys, os
+import sys, os, tempfile, shutil
 from os.path import dirname, join, abspath
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 
@@ -25,10 +25,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.engine.ZeitgeistEngine class
 	"""
 	def setUp (self):
-		storm_url = "sqlite:/tmp/unittest.sqlite"
-		db_file = storm_url.split(":")[1]
-		if os.path.exists(db_file):
-			os.remove(db_file)
+		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
+		storm_url = "sqlite:%s/unittest.sqlite" % self.tmp_dir
 		self.store = create_store(storm_url)
 		set_store(self.store)
 		self.engine = ZeitgeistEngine(self.store)
@@ -41,6 +39,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 	def tearDown (self):
 		self.store.close()
+		shutil.rmtree(self.tmp_dir)
 	
 	def testSingleInsertGet(self):
 		orig = {	"uri" : "test://mytest",
