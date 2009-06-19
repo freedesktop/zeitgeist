@@ -147,17 +147,17 @@ class ZeitgeistEngine(gobject.GObject):
 		try:
 			self.store.execute("""
 				INSERT INTO Item
-					(id, content_id, source_id, origin, text, mimetype, icon)
-				VALUES (?,?,?,?,?,?,?)
-				""", (id, content_id, source_id, origin, text, mimetype,
-				icon), noresult=True)
+				(id, content_id, source_id, text, origin, mimetype, icon)
+				VALUES (?,?,?,?,?,?,?)""",
+				(id, content_id, source_id, text, origin, mimetype, icon),
+				noresult=True)
 		except Exception:
 			self.store.execute("""
 				UPDATE Item SET
-					content_id=?, source_id=?, origin=?, text=?,
-					mimetype=?, icon=? WHERE id=?
-				""", (content_id, source_id, origin, text, mimetype,
-				icon, id), noresult=True)
+				content_id=?, source_id=?, text=?, origin=?,
+				mimetype=?, icon=? WHERE id=?""",
+				(content_id, source_id, text, origin, mimetype, icon, id),
+				noresult=True)
 	
 	def insert_item(self, ritem, commit=True, force=False):
 		"""
@@ -237,8 +237,15 @@ class ZeitgeistEngine(gobject.GObject):
 			'''
 			# Store the application
 			app_info = DesktopEntry(ritem["app"])			
-			app_uri_id, app_content_id, app_source_id = self._get_ids(ritem["app"], unicode(app_info.getType()), unicode(app_info.getExec()).split()[0])
-			app_item = self._get_item(app_uri_id, app_content_id, app_source_id, unicode(app_info.getName()),icon=unicode(app_info.getIcon()) )
+			app_uri_id, app_content_id, app_source_id = \
+							self._get_ids(ritem["app"],
+										  unicode(app_info.getType()),
+										  unicode(app_info.getExec()).split()[0])
+			app_item = self._get_item(app_uri_id,
+									  app_content_id,
+									  app_source_id,
+									  unicode(app_info.getName()),
+									  icon=unicode(app_info.getIcon()))
 			try:
 				self.store.execute("INSERT INTO app (item_id, info) VALUES (?,?)",
 					(app_uri_id, unicode(ritem["app"])), noresult=True)

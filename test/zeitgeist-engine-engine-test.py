@@ -31,7 +31,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		set_store(self.store)
 		self.engine = ZeitgeistEngine(self.store)
 		
-	def tearDown (self):
+	def tearDown (self):		
 		self.store.close()
 		shutil.rmtree(self.tmp_dir)
 	
@@ -71,6 +71,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		content_types = [str(ctype) for ctype in self.engine.get_types()]
 		self.assertTrue(Content.IMAGE.uri in content_types)
+		self.assertEquals([], list(self.engine.get_all_tags()))
 	
 	def testBookmark (self):
 		self.assertEmptyDB()
@@ -93,6 +94,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		bookmarks = map(dictify_data, self.engine.get_bookmarks())		
 		self.assertEquals(1, len(bookmarks))
 		self.assertEquals("test://mytest", bookmarks[0]["uri"])
+		self.assertEquals([], list(self.engine.get_all_tags()))
 	
 	def testSameTagOnTwoItems(self):
 		self.assertEmptyDB()
