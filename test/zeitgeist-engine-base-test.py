@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
-# Update python path to use local zeitgeist module
 import sys, os, tempfile, shutil
 from os.path import dirname, join, abspath
+
+# Update python path to use local zeitgeist module
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 
 from zeitgeist.engine.base import *
@@ -134,7 +135,7 @@ class ItemTest (unittest.TestCase):
 	This class tests that the zeitgeist.engine.base.Item class
 	"""	
 	def setUp (self):
-		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
+		self.tmp_dir = tempfile.mkdtemp() # Create a directory in /tmp/ with a random name
 		storm_url = "sqlite:%s/unittest.sqlite" % self.tmp_dir
 		self.store = create_store(storm_url)
 		set_store(self.store)
@@ -357,9 +358,9 @@ class AnnotationTest (unittest.TestCase):
 		i = Item("it1")
 		a = Annotation("an1", i.uri) # Create by direct ref
 		aa = Annotation.lookup("an1")
-
+		
 		self.assertEquals(i.uri.value, a.subject.uri.value)
-		self.assertTrue(i.uri.value, aa.subject.uri.value)
+		self.assertEquals(i.uri.value, aa.subject.uri.value)
 		
 		self.assertEquals("an1", a.uri.value)
 		self.assertEquals("an1", aa.uri.value)
@@ -374,7 +375,7 @@ class AnnotationTest (unittest.TestCase):
 		self.assertEquals(1, i.id)
 		self.assertEquals(1, a.subject_id)
 		self.assertEquals(1, aa.subject_id)
-		
+
 	
 if __name__ == "__main__":
 	unittest.main()

@@ -84,7 +84,6 @@ class Entity(object):
 	def lookup(klass, value=None, id=None):
 		"""Look up an entity by value or id, return None if the
 		   entity is not known"""
-		global _store
 		if value:
 			value = unicode(value)
 			if value in klass.CACHE:
@@ -106,7 +105,7 @@ class Entity(object):
 		#  1) Return it if we have it cached
 		#  2) Try to create it
 		#  3) Look it up and return it
-		#		
+		#
 		if value in klass.CACHE:
 			return klass.CACHE[value]
 			
@@ -218,7 +217,6 @@ class Item(object):
 	
 	@classmethod
 	def lookup(klass, uri):
-		global _store
 		if isinstance(uri, str) or isinstance(uri,unicode):
 			uri = unicode(uri)
 			return _store.find(Item,
@@ -258,7 +256,6 @@ class ProxyItem(object):
 	
 	@classmethod
 	def lookup(self, uri):
-		global _store
 		if isinstance(uri, str) or isinstance(uri, unicode):
 			uri = unicode(uri)
 			return _store.find(self, self.item_id == URI.id, URI.value == uri).any()
@@ -298,7 +295,7 @@ class ReferencingProxyItem(ProxyItem):
 			uri.resolve()
 			self.subject_id = uri.id
 		elif isinstance(subject, URI):
-			subject.resolve()				
+			subject.resolve()
 			self.subject_id = subject.id
 		elif isinstance(subject, Item):
 			self.subject_id = subject.uri.id
@@ -313,7 +310,6 @@ class ReferencingProxyItem(ProxyItem):
 	@classmethod
 	def subjects_of(klass, uri):
 		""""""
-		global _store
 		if isinstance(uri, str) or isinstance(uri, unicode):
 			uri = unicode(uri)
 			return _store.find(Item,
@@ -326,7 +322,6 @@ class ReferencingProxyItem(ProxyItem):
 							   Item.id == klass.subject_id)
 	
 	def find_subjects(self):
-		global _store
 		return _store.find(Item, Item.id == self.subject_id)
 
 class Annotation(ReferencingProxyItem):
@@ -340,7 +335,7 @@ class Annotation(ReferencingProxyItem):
 		   argument may be a 'str', 'unicode', 'URI', 'Item', or 'ProxyItem'
 		   and points at the object being the subject of the annotations"""
 		super(Annotation,self).__init__(uri, subject)
-		_store.add(self)		
+		_store.add(self)
 
 class Event(ReferencingProxyItem):
 	__storm_table__= "event"
