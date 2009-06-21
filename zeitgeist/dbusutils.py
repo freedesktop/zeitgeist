@@ -23,6 +23,7 @@ import sys
 import dbus
 import dbus.mainloop.glib
 import gettext
+import logging
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
@@ -40,7 +41,7 @@ def get_session_bus():
 		_bus = dbus.SessionBus()
 		return _bus
 	except dbus.exceptions.DBusException:
-		print _("Error: Could not connect to D-Bus.")
+		logging.error(_("Could not connect to D-Bus."))
 		sys.exit(1)
 
 def get_engine_proxy():
@@ -54,7 +55,7 @@ def get_engine_proxy():
 													 "/org/gnome/zeitgeist")
 		return _engine_proxy
 	except dbus.exceptions.DBusException:
-		print _("Error: Zeitgeist service not running.")
+		logging.error(_("Error: Zeitgeist service not running."))
 		sys.exit(1)
 
 def get_engine_interface():

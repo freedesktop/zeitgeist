@@ -9,10 +9,12 @@ import signal
 import subprocess
 import dbus.mainloop.glib
 import gettext
+import logging
 
 from zeitgeist import config
 
 gettext.install("zeitgeist", config.localedir, unicode=1)
+
 
 from zeitgeist.engine.engine import get_default_engine
 from zeitgeist.engine.remote import RemoteInterface
@@ -33,9 +35,9 @@ if not "--no-passive-loggers" in sys.argv:
 	if os.path.isfile(passive_loggers):
 		subprocess.Popen(passive_loggers)
 	else:
-		print "%s not found, not starting datahub" % passive_loggers
+		logging.warning("%s not found, not starting datahub" % passive_loggers)
 
 atexit.register(lambda: obj.SignalExit())
 
-print _("Starting Zeitgeist service...")
+logging.info(_("Starting Zeitgeist service..."))
 mainloop.run()

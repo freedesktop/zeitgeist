@@ -20,6 +20,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import datetime
 import sys
 import time
@@ -27,6 +28,7 @@ import os
 from threading import Thread
 import gobject
 import gettext
+import logging
 
 from zeitgeist.loggers.zeitgeist_setup_service import _Configuration, DefaultConfiguration
 
@@ -98,7 +100,8 @@ class DataProvider(gobject.GObject, Thread):
 		Return the items for the indicated time periode.
 		"""
 		if not self.config.isConfigured() or not self.checkEnabled():
-			print "'%s' is not enabled or configured" %self.config.get_internal_name()
+			logging.warning("'%s' is not enabled or configured." % \
+				self.config.get_internal_name())
 			return []
 		def _wrapper():
 			for n, i in enumerate(self.get_items_uncached()):
@@ -110,7 +113,6 @@ class DataProvider(gobject.GObject, Thread):
 					# check for pending gobject events on long running updates
 					# not sure when to check pending events, maybe for each iteration?
 					while self.__ctx.pending():
-						#~ print "events pending"
 						self.__ctx.iteration()
 		return _wrapper()
 	

@@ -2,6 +2,7 @@
 
 import re
 import time
+import logging
 
 __author__ = "Andrew Shearer, ashearerw@shearersoftware.com"
 __version__ = "1.1.1"
@@ -225,8 +226,12 @@ class W3CDate:
 		origSecs = self.dateSecs
 		self.dateSecs = None
 		self._cacheSeconds()
-		if int(self.dateSecs) != int(origSecs): print "Error: dateSecs don't match (%f became %f)" % (origSecs, self.dateSecs)
+		if int(self.dateSecs) != int(origSecs):
+			logging.error("dateSecs don't match (%f became %f)" % (origSecs,
+				self.dateSecs))
 		origMiniTuple = self.dateMiniTuple
 		self.dateMiniTuple = self.dateFullTuple = None
 		self._cacheTuples()
-		if self.dateMiniTuple != origMiniTuple: print "Error: dateMiniTuples don't match (%s became %s)" % (repr(origMiniTuple), repr(self.dateMiniTuple))
+		if self.dateMiniTuple != origMiniTuple:
+			logging.error("dateMiniTuples don't match (%s became %s)" % (
+				repr(origMiniTuple), repr(self.dateMiniTuple)))

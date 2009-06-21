@@ -5,6 +5,7 @@ import sys
 import os
 import glob
 import gettext
+import logging
 import gobject
 import dbus.exceptions
 
@@ -12,6 +13,7 @@ from zeitgeist import config
 from zeitgeist.loggers.zeitgeist_setup_service import DataProviderService
 
 gettext.install("zeitgeist", config.localedir, unicode=1)
+logging.basicConfig(level=logging.DEBUG)
 
 installation_dir = os.path.dirname(os.path.realpath(config.__file__))
 datasource_dir = os.path.join(installation_dir, "loggers/datasources")
@@ -40,7 +42,7 @@ class DataHub(gobject.GObject):
 		# Start by fetch new items from all sources
 		self._sources_queue = list(self._sources)
 		if not self._sources_queue:
-			print _("No passive loggers found, bye.")
+			logging.warning(_("No passive loggers found, bye."))
 			sys.exit(1) # Mainloop doesn't exit yet, exit directly
 		self._db_update_in_progress = True
 		gobject.idle_add(self._update_db_async)
@@ -60,8 +62,7 @@ class DataHub(gobject.GObject):
 		try:
 			datasource_object = __import__(datasource_file[:-3])
 		except ImportError, err:
-			print _("Error: Could not load file: %s" % datasource_file)
-			print " ->", err
+			logging.exception(_("Could not load file: %s" % datasource_file))
 			return False
 		
 		if hasattr(datasource_object, "__datasource__"):
@@ -86,8 +87,8 @@ class DataHub(gobject.GObject):
 	
 	def _update_db_async(self):
 		
-		print _("Updating database with new %s items") % \
-			self._sources_queue[0].get_name()
+		logging.debug(_("Updating database with new %s items") % \
+			self._sources_queue[0].get_name())
 		
 		items = set()
 		for num, item in enumerate(self._sources_queue[0].get_items()):
@@ -119,7 +120,7 @@ class DataHub(gobject.GObject):
 				else:
 					raise
 			except TypeError, error:
-				print _("Type error logging item from \"%s\": %s" % \
-					(source_name, error))
+				logging.exception(_("Type error logging item from \"%s\": %s" % \
+					(source_name, error)))
 
 datahub = DataHub()

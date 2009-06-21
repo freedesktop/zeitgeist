@@ -25,6 +25,7 @@ import gobject
 import shutil
 import sqlite3 as db
 import gettext
+import logging
 from xdg import BaseDirectory
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
@@ -75,7 +76,7 @@ class EvolutionSource(DataProvider):
 								"app": u"Evolution",
 								}
 					except Exception:
-						print "error fetching sent mail"
+						logging.exception("Error fetching sent mail")
 				cursor.close()
 		except Exception:
 				pass

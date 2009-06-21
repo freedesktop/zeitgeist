@@ -19,13 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 from zeitgeist.loggers.zeitgeist_base import DataProvider
 
 try:
 	import twitter
 except ImportError:
 	twitter = None
-	print "Twitter support is disabled. Please install python-twitter to enable it."
+	logging.warning("Twitter support is disabled. ' \
+		'Please install python-twitter to enable it.")
 
 class TwitterSource(DataProvider):
 	"""

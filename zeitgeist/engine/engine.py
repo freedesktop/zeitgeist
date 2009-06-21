@@ -28,6 +28,7 @@ import shutil
 import sqlite3
 import gettext
 import gobject
+import logging
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
@@ -171,16 +172,16 @@ class ZeitgeistEngine(gobject.GObject):
 			raise KeyError(("these keys are missing in order to add "
 							"this item properly: %s" %", ".join(missing)))
 		if not ritem["uri"].strip():
-			print >> sys.stderr, "Discarding item without a URI: %s" % ritem
+			logging.warning("Discarding item without a URI: %s" % ritem)
 			return False
 		if not ritem["content"].strip():
-			print >> sys.stderr, "Discarding item without a Content type: %s" % ritem
+			logging.warning("Discarding item without a Content type: %s" % ritem)
 			return False
 		if not ritem["source"].strip():
-			print >> sys.stderr, "Discarding item without a Source type: %s" % ritem
+			logging.warning("Discarding item without a Source type: %s" % ritem)
 			return False
 		if not ritem["mimetype"].strip():
-			print >> sys.stderr, "Discarding item without a mimetype: %s" % ritem
+			logging.warning("Discarding item without a mimetype: %s" % ritem)
 			return False
 		ritem = dict((key, TYPES_DICT[key](value)) for key, value in ritem.iteritems())
 		
@@ -264,8 +265,7 @@ class ZeitgeistEngine(gobject.GObject):
 					"INSERT INTO event (item_id, subject_id, start, app_id) VALUES (?,?,?,?)",
 					(e_id, uri_id, ritem["timestamp"], app_uri_id), noresult=True)
 			except Exception, ex:
-				#print ex
-                                pass
+				pass
 			return True
 		
 		except Exception, ex:
@@ -286,7 +286,7 @@ class ZeitgeistEngine(gobject.GObject):
 				amount_items += 1
 		self.store.commit()
 		t2 = time.time()
-		print ">>>>>> Inserted %s items in %ss" % (amount_items,t2-t1)
+		logging.debug("Inserted %s items in %.5f s" % (amount_items,t2-t1))
 		
 		return amount_items
 	

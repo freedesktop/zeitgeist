@@ -18,7 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os
+import sys
+import logging
 from storm.locals import *
 
 class Symbol:
@@ -115,17 +117,17 @@ class Entity(object):
 			_store.execute(
 			"INSERT INTO %s (value) VALUES (?)" % klass.__storm_table__,
 			(value, ), noresult=True)
-			#print "Inserted %s: %s" % (klass.__storm_table__,value)
+			#logging.debug("Inserted %s: %s" % (klass.__storm_table__,value))
 		except Exception, ex:
 			pass
-			#print "Not inserting %s, %s: %s" % (klass.__storm_table__, value, ex)
+			#logging.exception("Not inserting %s, %s: %s" % (klass.__storm_table__, value, ex))
 				
 		id_query = _store.execute(
 					"SELECT id FROM %s WHERE VALUE=?" % klass.__storm_table__,
 					(value, )).get_one()
 		if not id_query:
-			print >> sys.stderr, "Failed to insert %s entity: %s" \
-								 % (klass.__storm_table__,value)
+			logging.error("Failed to insert %s entity: %s" % (
+				klass.__storm_table__,value))
 			return None
 		ent.id = id_query[0]
 		klass.CACHE[value] = ent
@@ -360,7 +362,7 @@ Item.annotations = ReferenceSet(Item.id, Annotation.subject_id)
 Item.events = ReferenceSet(Item.id, Event.subject_id)
 
 def create_store(storm_url):
-	print "Creating database... %s" % storm_url
+	logging.info("Creating database... %s" % storm_url)
 	db = create_database(storm_url)
 	store = Store(db)
 	store.execute("""
