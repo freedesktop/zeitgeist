@@ -45,7 +45,7 @@ class RemoteInterface(dbus.service.Object):
 						in_signature="iiibba(ssssss)", out_signature="a"+sig_plain_data)
 	def FindEvents(self, min_timestamp, max_timestamp, limit,
 	sorting_asc, unique, filters):
-		# filters: (text_name, text_uri, tags, mimetypes, source, content)
+		# filters: ((text_name, text_uri, tags, mimetypes, source, content),)
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
 			sorting_asc, unique, filters)
 	

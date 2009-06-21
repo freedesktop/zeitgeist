@@ -24,16 +24,11 @@
 import time
 import sys
 import os
-import shutil
-import sqlite3
 import gettext
 import gobject
 import logging
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
-
-import traceback
-from random import randint
 
 from zeitgeist import config
 from zeitgeist.engine.base import *
@@ -317,8 +312,18 @@ class ZeitgeistEngine(gobject.GObject):
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
+		# filters: ((text_name, text_uri, tags, mimetypes, source, content),)
+		expressions = []
+		for filter in filters:
+			filterset = []
+			if filter[1]:
+				# FIXME - WHY THE HELL DOESN'T THIS WORK?!
+				filterset += [ Event.item.uri.value.like(filter[1]) ]
+			expressions += filterset
+		
 		t1 = time.time()
-		events = self.store.find(Event, Event.start >= min, Event.start <= max)
+		events = self.store.find(Event, Event.start >= min, Event.start <= max,
+			Or(*expressions) if expressions else True)
 		events.order_by(Event.start if sorting_asc else Desc(Event.start))
 		
 		if limit > 0:
