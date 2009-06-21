@@ -14,7 +14,7 @@ import logging
 from zeitgeist import config
 
 gettext.install("zeitgeist", config.localedir, unicode=1)
-
+logging.basicConfig(level=logging.DEBUG)
 
 from zeitgeist.engine.engine import get_default_engine
 from zeitgeist.engine.remote import RemoteInterface
