@@ -317,12 +317,12 @@ class ZeitgeistEngine(gobject.GObject):
 		for filter in filters:
 			filterset = []
 			if filter[1]:
-				# FIXME - WHY THE HELL DOESN'T THIS WORK?!
-				filterset += [ Event.item.uri.value.like(filter[1]) ]
+				filterset += [ URI.value.like(filter[1]) ]
 			expressions += filterset
 		
 		t1 = time.time()
 		events = self.store.find(Event, Event.start >= min, Event.start <= max,
+			URI.id == Event.subject_id,
 			Or(*expressions) if expressions else True)
 		events.order_by(Event.start if sorting_asc else Desc(Event.start))
 		
