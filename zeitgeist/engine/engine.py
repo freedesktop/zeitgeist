@@ -312,17 +312,27 @@ class ZeitgeistEngine(gobject.GObject):
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
-		# filters: ((text_name, text_uri, tags, mimetypes, source, content),)
+		# filters: ((text_name, text_uri, (tags), (mimetypes), source, content),)
 		expressions = []
 		for filter in filters:
 			filterset = []
+			if filter[0]:
+				filterset += [ Item.text.like(filter[0]) ]
 			if filter[1]:
 				filterset += [ URI.value.like(filter[1]) ]
+			if filter[2]:
+				pass # tags...
+			if filter[3]:
+				filterset += [ Item.mimetype.is_in(filter[3]) ]
+			if filter[4]:
+				pass # source ...
+			if filter[5]:
+				pass # content
 			expressions += filterset
 		
 		t1 = time.time()
 		events = self.store.find(Event, Event.start >= min, Event.start <= max,
-			URI.id == Event.subject_id,
+			URI.id == Event.subject_id, Item.id == Event.item_id,
 			Or(*expressions) if expressions else True)
 		events.order_by(Event.start if sorting_asc else Desc(Event.start))
 		
@@ -455,7 +465,7 @@ class ZeitgeistEngine(gobject.GObject):
 			#Get the item for the uri
 			item = self.store.find(Item, Item.id == uri.id).one()
 			yield self._result2data(None, item)
-				
+
 _engine = None
 def get_default_engine():
 	global _engine

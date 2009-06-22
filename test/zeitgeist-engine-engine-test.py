@@ -226,6 +226,83 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(["test://mytest1"],
 						  [item.uri.value for item in boo])
 
+	def testMultipleInsertionAndRetrievals(self):
+		self.assertEmptyDB()
+		
+		# Test insert_items()
+		item1 = {
+			"uri": u"file:///tmp/test/example.jpg",
+			"content": Content.IMAGE.uri,
+			"source": Source.USER_ACTIVITY.uri,
+			"app": u"/usr/share/applications/eog.desktop",
+			"timestamp": 1219324, # keep it lower than in item3!
+			"text": u"example.png",
+			"mimetype": u"image/jpg",
+			"icon": u"",
+			"use": Content.CREATE_EVENT.uri,
+			"origin": u"",
+			"comment": u"",
+			"tags": u"",
+			"bookmark": False, 
+			}
+		item2 = {
+			"uri": u"http://image.host/cool_pictures/01.png",
+			"content": Content.IMAGE.uri,
+			"source": Source.USER_ACTIVITY.uri,
+			"app": u"/usr/share/applications/firefox.desktop",
+			"timestamp": 3563534,
+			"text": u"Cool Picture 1",
+			"mimetype": u"image/png",
+			"icon": u"",
+			"use": Content.CREATE_EVENT.uri,
+			"origin": u"http://google.com",
+			"comment": u"",
+			"tags": u"",
+			"bookmark": True, 
+			}
+		item3 = dict(item2) # Create a copy (without dict() we get a reference)
+		item3["timestamp"] = 4563534
+		last_insertion_app = u"/usr/share/applications/eog.desktop"
+		last_insertion_date = 1248324
+		item4 = {
+			"uri": u"file:///tmp/files/example.png",
+			"content": Content.IMAGE.uri,
+			"source": Source.USER_ACTIVITY.uri,
+			"app": last_insertion_app,
+			"timestamp": last_insertion_date,
+			"text": u"example.png",
+			"mimetype": u"image/png",
+			"icon": u"",
+			"use": Content.CREATE_EVENT.uri,
+			"origin": u"",
+			"comment": u"",
+			"tags": u"",
+			"bookmark": False, 
+			}
+		items = (item1, item2, item3, item4)
+		self.engine.insert_items(items)
+		
+		# Test get_last_insertion_date()
+		result = self.engine.get_last_insertion_date(last_insertion_app)
+		self.assertEquals(result, last_insertion_date)
+		
+		# Test get_bookmarks()
+		result = self.engine.get_bookmarks()
+		self.assertEquals(len([x for x in result]), 1)
+		
+		# Test find_events(): timestamps
+		result = self.engine.find_events(1000000, 1250000, 0, True, False, [])
+		self.assertEquals(len([x for x in result]), 2)
+		
+		# Test find_events(): unique
+		result = self.engine.find_events(0, 0, 0, True, True, [])
+		print [x[5] for x in result]
+		self.assertEquals(len([x for x in result]), 3)
+		
+		# Test find_events(): mimetype
+		result = self.engine.find_events(0, 0, 0, True, False,
+			[(u"", u"", [], [u"image/png"], u"", u"")])
+		self.assertEquals(len([x for x in result]), 3)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 	unittest.main()
