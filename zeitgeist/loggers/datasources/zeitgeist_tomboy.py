@@ -89,6 +89,9 @@ class TomboyNote(object):
 		if date_changed:
 			self.date_changed = iso_strptime(date_changed)
 			self.date_changed = int(time.mktime(self.date_changed.timetuple()))
+			
+	def __repr__(self):
+		return u"<%s %s>" %(self.__class__.__name__, self.uri)
 
 class TomboyNotes(gobject.GObject):
 	
@@ -150,7 +153,9 @@ class TomboySource(DataProvider):
 		self.emit("reload")
 
 	def get_items_uncached(self):
-		for note in self.__notes_queue:
+		while self.__notes_queue:
+			note = self.__notes_queue.pop(0)
+			_tomboy_logger.debug("processing %r" %note)
 			times = [(note.date_created, u"CreateEvent"),]
 			if note.date_changed is not None:
 				times.append((note.date_changed, u"ModifyEvent"))
