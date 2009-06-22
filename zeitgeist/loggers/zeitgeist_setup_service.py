@@ -30,6 +30,8 @@ from ConfigParser import SafeConfigParser
 from xdg import BaseDirectory
 from StringIO import StringIO
 
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
 class DataProviderService(dbus.service.Object):
 	
 	def __init__(self, datasources, mainloop=None):
