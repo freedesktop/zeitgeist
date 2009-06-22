@@ -31,6 +31,8 @@ from xdg import BaseDirectory
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
 
+_evolution_logger = logging.getLogger("zeitgeist.logger.datasources.evolution")
+
 class EvolutionSource(DataProvider):
 	
 	EVOLUTION_DIR = os.path.expanduser("~/.evolution/mail/local")
@@ -45,7 +47,7 @@ class EvolutionSource(DataProvider):
 		try:
 			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
 		except dbus.exceptions.DBusException:
-			logging.error("Could not connect to D-Bus.")
+			_evolution_logger.error("Could not connect to D-Bus.")
 			return 0
 		iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
 		return iface.GetLastInsertionDate(u"/usr/share/applications/evolution.desktop")
@@ -58,10 +60,10 @@ class EvolutionSource(DataProvider):
 			self.note_path_monitor = file_object.monitor_file()
 			self.note_path_monitor.connect("changed", self.reload_proxy_filemonitor)
 		except Exception, e:
-			logging.exception(_("Unable to monitor Evolution's folders.db %s: %s") % \
+			_evolution_logger.exception(_("Unable to monitor Evolution's folders.db %s: %s") % \
 				(self.DATABASE, str(e)))
 		else:
-			logging.debug(_("Monitoring Evolution's '%s'") % (self.DATABASE))
+			_evolution_logger.debug(_("Monitoring Evolution's '%s'") % (self.DATABASE))
 			
 			self.last_timestamp = self.get_last_timestamp()
 			self.__copy_sqlite()
@@ -86,7 +88,7 @@ class EvolutionSource(DataProvider):
 	
 	def get_items_uncached(self):
 		if self.cursor is None:
-			logging.warning("cannot connected to '%s'" %self.DATABASE)
+			_evolution_logger.warning("cannot connected to '%s'" %self.DATABASE)
 			raise StopIteration
 		try:
 			# retrieve all urls from evolution's history
@@ -94,10 +96,10 @@ class EvolutionSource(DataProvider):
 			history = self.cursor.execute("SELECT " + contents + 
 				" FROM Sent WHERE dsent>?", (self.last_timestamp,)).fetchall()
 		except db.OperationalError:
-			logging.exception("Evolution database error.")
+			_evolution_logger.exception("Evolution database error.")
 		else:
 			for timestamp, subject, mail_to in history:
-				#~ logging.debug("add evolution item 't=%i, s=%s, to=%s'" %(timestamp, subject, mail_to))
+				#~ _evolution_logger.debug("add evolution item 't=%i, s=%s, to=%s'" %(timestamp, subject, mail_to))
 				item = {
 					"timestamp": int(timestamp),
 					"uri": u"mailto:%s" %mail_to,
