@@ -139,16 +139,6 @@ class FirefoxSource(DataProvider):
 		
 		return profiles
 	
-	def get_latest_timestamp(self): 
-		
-		contents = "visit_date"
-		try:
-			history = self.cursor.execute("SELECT " + contents + " FROM moz_historyvisits ORDER BY visit_date DESC").fetchone()
-		except db.OperationalError, e:
-			raise
-		else:
-			self.timestamp = history[0]
-	
 	def reload_proxy_filemonitor(self, filemonitor, file, other_file, event_type):
 		if event_type in (
 				gio.FILE_MONITOR_EVENT_CHANGED,
