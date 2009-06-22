@@ -32,6 +32,8 @@ from xml.parsers.expat import ExpatError
 from zeitgeist.loggers.zeitgeist_base import DataProvider
 from zeitgeist.loggers.iso_strptime import iso_strptime
 
+_tomboy_logger = logging.getLogger("zeitgeist.logger.database.tomboy")
+
 # FIXME: This should really just use Beagle or Tracker.
 
 def flatten_text(node):
@@ -54,7 +56,7 @@ class TomboyNote(object):
 		try:
 			note = parseString(content)
 		except (IOError, ExpatError), err:
-			logging.error("could not parse note '%s'" %uri)
+			_tomboy_logger.error("could not parse note '%s'" %uri)
 			return None
 		else:
 			nodes = note.getElementsByTagName("title")
@@ -72,7 +74,7 @@ class TomboyNote(object):
 		try:
 			note_obj = cls(**result)
 		except:
-			logging.exception("error initializing '%s'" %uri)
+			_tomboy_logger.exception("error initializing '%s'" %uri)
 			note_obj = None
 		note.unlink()
 		return note_obj
@@ -94,7 +96,7 @@ class TomboyNotes(gobject.GObject):
 	
 	def __init__(self):
 		gobject.GObject.__init__(self)
-		logging.debug("watching '%s' for tomboy notes" %self.PATH)
+		_tomboy_logger.debug("watching '%s' for tomboy notes" %self.PATH)
 		path_object = gio.File(self.PATH)
 		self.notes_monitor = path_object.monitor_directory()
 		self.notes_monitor.connect("changed", self.notes_changed)
@@ -114,13 +116,13 @@ class TomboyNotes(gobject.GObject):
 		if os.path.splitext(filename)[-1] == ".note":
 			if event in (gio.FILE_MONITOR_EVENT_CHANGED,
 					gio.FILE_MONITOR_EVENT_CREATED):
-				logging.debug("changed note '%s'" %filename)
+				_tomboy_logger.debug("changed note '%s'" %filename)
 				note = TomboyNote.parse_content(fileobj.load_contents(),
 					fileobj.get_uri())
 				if note is not None:
 					self.emit("note-changed", note)
 			elif event == gio.FILE_MONITOR_EVENT_DELETED:
-				logging.debug("deleted note '%s'" %filename)
+				_tomboy_logger.debug("deleted note '%s'" %filename)
 				# send one last item for this note to the engine :)
 				# this idea is not easy, as tomboy does not change a file,
 				# but delete a .note and recreates this file on changes
