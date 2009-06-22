@@ -14,6 +14,7 @@ FOR RELEASE:
  - Add test cases to ensure the API doesn't break
  - Either get ride of zeitgeist/shared, or make it a public module
    available to the GUI and remove it from there.
+ - Check the source with pyflakes.
 
 FUTURE:
 ------------
