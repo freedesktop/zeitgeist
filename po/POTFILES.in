@@ -4,7 +4,7 @@ zeitgeist/__init__.py
 zeitgeist/datamodel.py
 zeitgeist/dbusutils.py
 zeitgeist/loggers/zeitgeist_base.py
-zeitgeist/loggers/W3CDate.py
+zeitgeist/loggers/iso_strptime.py
 zeitgeist/loggers/util.py
 zeitgeist/loggers/__init__.py
 zeitgeist/loggers/datasources/__init__.py
