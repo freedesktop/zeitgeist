@@ -26,6 +26,7 @@ import gio
 import os.path
 import logging
 import time
+import dbus
 from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
 
@@ -138,10 +139,23 @@ gobject.signal_new("note-changed", TomboyNotes,
 
 class TomboySource(DataProvider):
 	
+	@staticmethod
+	def get_last_timestamp():
+		# Connect to D-Bus
+		bus = dbus.SessionBus()
+		try:
+			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
+		except dbus.exceptions.DBusException:
+			_tomboy_logger.error("Could not connect to D-Bus.")
+			return 0
+		iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
+		return iface.GetLastInsertionDate(u"/usr/share/applications/tomboy.desktop")
+	
 	def __init__(self, note_path=None):
 		DataProvider.__init__(self, name="tomboy notes")
 		self.notes = TomboyNotes()
 		self.__notes_queue = list(self.notes.load_all())
+		self.last_timestamp = self.get_last_timestamp()
 		self.notes.connect("note-changed", self.item_changed)
 		self.config.connect("configured", self.reload_proxy_config)
 		
@@ -153,6 +167,7 @@ class TomboySource(DataProvider):
 		self.emit("reload")
 
 	def get_items_uncached(self):
+		last_timestamp = self.last_timestamp
 		while self.__notes_queue:
 			note = self.__notes_queue.pop(0)
 			_tomboy_logger.debug("processing %r" %note)
@@ -160,6 +175,9 @@ class TomboySource(DataProvider):
 			if note.date_changed is not None:
 				times.append((note.date_changed, u"ModifyEvent"))
 			for timestamp, use in times:
+				if timestamp < self.last_timestamp:
+					continue
+				last_timestamp = max(timestamp, last_timestamp)
 				item = {
 					"timestamp": timestamp,
 					"uri": note.uri,
@@ -174,7 +192,8 @@ class TomboySource(DataProvider):
 					"origin": u"", 	# we are not sure about the origin of this item,
 									# let's make it NULL, it has to be a string
 				}
+				_tomboy_logger.debug("sending %r to the engine" %note)
 				yield item
-			
+		self.last_timestamp = last_timestamp
 
 __datasource__ = TomboySource()
