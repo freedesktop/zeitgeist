@@ -123,8 +123,12 @@ class EvolutionSource(DataProvider):
 			os.mkdir(self.PATH)
 		if self.cursor:
 			self.cursor.close()
-		shutil.copy2(self.DATABASE,  self.LOCATION)
-		self.connection = db.connect(self.LOCATION, True)
-		self.cursor = self.connection.cursor()
+		try:
+			shutil.copy2(self.DATABASE,  self.LOCATION)
+		except IOError:
+			self.cursor = None
+		else:
+			self.connection = db.connect(self.LOCATION, True)
+			self.cursor = self.connection.cursor()
 
 __datasource__ = EvolutionSource()
