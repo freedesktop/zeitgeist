@@ -21,149 +21,153 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import re
-from xml.dom.minidom import parse
+import gobject
+import gio
+import os.path
+import logging
+import time
+from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
-import gtk
-import gnomevfs
-import gettext
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
-from zeitgeist.loggers.util import FileMonitor
-from zeitgeist.loggers.W3CDate import W3CDate
+from zeitgeist.loggers.iso_strptime import iso_strptime
 
 # FIXME: This should really just use Beagle or Tracker.
 
-class NoteData:
+def flatten_text(node):
+	if node.nodeType == node.TEXT_NODE:
+		return node.data
+	else:
+		return "".join([flatten_text(x) for x in node.childNodes])
 	
-	# TODO: Needs to be updated and eventually moved out of here.
+
+class TomboyNote(object):
 	
-	def __init__(self, uri, timestamp=None): 
-		self.title = None
-		self.content_text = None
-		self.timestamp = timestamp
-		self.uri = uri
-		self.type = "Notes"
-		self.do_reload()
-		self.name = str(self.title)
-		self.icon = "stock_notes"
-		self.mimetype = "x-tomboy/note"
-	
-	def do_reload(self):
+	@classmethod
+	def parse_content(cls, content, uri=None):
 		try:
-			note_doc = parse(self.get_uri())
+			content, length, tag = content
+		except ValueError:
+			pass
+		assert isinstance(content, (unicode, str))
+		result = {"uri": uri}
+		try:
+			note = parseString(content)
 		except (IOError, ExpatError), err:
-			#print " !!! Error parsing note '%s': %s" % (self.get_uri(), err)
-			return
-
-		try:
-			title_node = note_doc.getElementsByTagName("title")[0]
-			self.title = title_node.childNodes[0].data
-		except (ValueError, IndexError, AttributeError):
-			pass
-
-		try:
-			# Parse the ISO timestamp format .NET's XmlConvert class uses:
-			# yyyy-MM-ddTHH:mm:ss.fffffffzzzzzz, where f* is a 7-digit partial
-			# second, and z* is the timezone offset from UTC in the form -08:00.
-			changed_node = note_doc.getElementsByTagName("last-change-date")[0]
-			changed_str = changed_node.childNodes[0].data
-			changed_str = re.sub("\.[0-9]*", "", changed_str) # W3Date chokes on partial seconds
-			self.timestamp = int(W3CDate(changed_str).getSeconds())
-		except (ValueError, IndexError, AttributeError):
-			pass
-
-		try:
-			content_node = note_doc.getElementsByTagName("note-content")[0]
-			self.content_text = self._get_text_from_node(content_node).lower()
-		except (ValueError, IndexError, AttributeError):
-			pass
-
-		note_doc.unlink()
-	
-	def _get_text_from_node(self, node):
-		if node.nodeType == node.TEXT_NODE:
-			return node.data
+			logging.error("could not parse note '%s'" %uri)
+			return None
 		else:
-			return "".join([self._get_text_from_node(x) for x in node.childNodes])
+			nodes = note.getElementsByTagName("title")
+			if nodes:
+				result["title"] = nodes[0].childNodes[0].data
+			nodes = note.getElementsByTagName("note-content")
+			if nodes:
+				result["content"] = flatten_text(nodes[0])
+			nodes = note.getElementsByTagName("last-change-date")
+			if nodes:
+				result["date_changed"] = nodes[0].childNodes[0].data
+			nodes = note.getElementsByTagName("create-date")
+			if nodes:
+				result["date_created"] = nodes[0].childNodes[0].data
+		try:
+			note_obj = cls(**result)
+		except:
+			logging.exception("error initializing '%s'" %uri)
+			note_obj = None
+		note.unlink()
+		return note_obj
 	
-	def get_name(self):
-		return self.title or os.path.basename(self.get_uri())
+	def __init__(self, uri, date_created, title=None, content=None,
+			date_changed=None):
+		self.uri = uri
+		self.date_created = iso_strptime(date_created)
+		self.date_created = int(time.mktime(self.date_created.timetuple()))
+		self.title = title
+		self.content = content
+		if date_changed:
+			self.date_changed = iso_strptime(date_changed)
+			self.date_changed = int(time.mktime(self.date_changed.timetuple()))
+
+class TomboyNotes(gobject.GObject):
 	
-	def get_uri(self):
-		return self.uri
+	PATH = os.path.expanduser("~/.tomboy")
 	
-	def __getitem__(self, name):
-		return getattr(self, name)
+	def __init__(self):
+		gobject.GObject.__init__(self)
+		logging.debug("watching '%s' for tomboy notes" %self.PATH)
+		path_object = gio.File(self.PATH)
+		self.notes_monitor = path_object.monitor_directory()
+		self.notes_monitor.connect("changed", self.notes_changed)
+		
+	def load_all(self):
+		for filename in os.listdir(self.PATH):
+			filename = os.path.join(self.PATH, filename)
+			if os.path.splitext(filename)[-1] == ".note":
+				with open(filename) as fileobj:
+					note = TomboyNote.parse_content(fileobj.read(),
+							u"file://%s" %filename)
+				if note is not None:
+					yield note
+		
+	def notes_changed(self, monitor, fileobj, _, event):
+		filename = fileobj.get_path()
+		if os.path.splitext(filename)[-1] == ".note":
+			if event in (gio.FILE_MONITOR_EVENT_CHANGED,
+					gio.FILE_MONITOR_EVENT_CREATED):
+				logging.debug("changed note '%s'" %filename)
+				note = TomboyNote.parse_content(fileobj.load_contents(),
+					fileobj.get_uri())
+				if note is not None:
+					self.emit("note-changed", note)
+			elif event == gio.FILE_MONITOR_EVENT_DELETED:
+				logging.debug("deleted note '%s'" %filename)
+				# send one last item for this note to the engine :)
+				# this idea is not easy, as tomboy does not change a file,
+				# but delete a .note and recreates this file on changes
+				
+gobject.signal_new("note-changed", TomboyNotes,
+					gobject.SIGNAL_RUN_LAST,
+					gobject.TYPE_NONE,
+					(gobject.TYPE_PYOBJECT,))
 
 
 class TomboySource(DataProvider):
 	
 	def __init__(self, note_path=None):
-		DataProvider.__init__(self,
-							name=_("Notes"),
-							icon="stock_notes",
-							uri="source:///Documents/Tomboy")
-		self.name = _("Notes")
-		self.new_note_item = {
-			"name": _(u"Create New Note"),
-			"comment": _(u"Make a new Tomboy note"),
-			"icon": gtk.STOCK_NEW,
-			}
+		DataProvider.__init__(self, name="tomboy notes")
+		self.notes = TomboyNotes()
+		self.__notes_queue = list(self.notes.load_all())
+		self.notes.connect("note-changed", self.item_changed)
+		self.config.connect("configured", self.reload_proxy_config)
 		
-		if not note_path:
-			if os.environ.has_key("TOMBOY_PATH"):
-				note_path = os.environ["TOMBOY_PATH"]
-			else:
-				note_path = "~/.tomboy"
-			note_path = os.path.expanduser(note_path)
-		self.note_path = unicode(note_path)
-		self.comment = u"Notes from Tomboy"
-		self.notes = {}
+	def item_changed(self, monitor, note):
+		self.__notes_queue.append(note)
+		self.emit("reload")
 		
-		self.note_path_monitor = FileMonitor(self.note_path)
-		self.note_path_monitor.connect("event", self._file_event)
-		self.note_path_monitor.open()
-		
-		# Load notes in an idle handler
-		#gobject.idle_add(self._idle_load_notes().next, priority=gobject.PRIORITY_LOW)
-	
-	def _file_event(self, monitor, info_uri, ev):
-		filename = os.path.basename(info_uri)
-
-		if ev == gnomevfs.MONITOR_EVENT_CREATED:
-			notepath = os.path.join(self.note_path, filename)
-			self.notes[filename] = NoteData(notepath)
-			self.emit("reload")
-		elif self.notes.has_key(filename):
-			if ev == gnomevfs.MONITOR_EVENT_DELETED:
-			   # delself.notes[filename]
-				self.emit("reload")
-			else:
-				self.notes[filename].emit("reload")
+	def reload_proxy_config(self, configuration):
+		self.emit("reload")
 
 	def get_items_uncached(self):
-		try:
-			for filename in os.listdir(self.note_path):
-				if filename.endswith(".note"):
-					notepath = os.path.join(self.note_path, filename)
-					note =  NoteData(notepath)
-		                        item = {
-            			        	"timestamp": note.timestamp,
-                		        	"uri": unicode(note.get_uri()),
-                	        		"name": unicode(note.title),
-                	        		"comment": unicode(note.content_text),
-                	        		"type": unicode(note.type),
-                	        		"use": u"",
-                	        		"mimetype": unicode(note.mimetype),
-                	        		"tags": u"",
-                	        		"icon": unicode(note.icon),
-									"app": "Tomboy",
-                	        		}
-	                                yield item
-                                    
-		except (OSError, IOError), err:
-			pass  #print " !!! Error loading Tomboy notes:", err
+		for note in self.__notes_queue:
+			times = [(note.date_created, u"CreateEvent"),]
+			if note.date_changed is not None:
+				times.append((note.date_changed, u"ModifyEvent"))
+			for timestamp, use in times:
+				item = {
+					"timestamp": timestamp,
+					"uri": note.uri,
+					"text": note.title, # or note.content
+					"source": "Tomboy Notes",
+					"content": u"Note",
+					"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
+					"mimetype": u"text/plain",
+					"tags": u"",
+					"icon": u"",
+					"app": u"/usr/share/applications/tomboy.desktop",
+					"origin": u"", 	# we are not sure about the origin of this item,
+									# let's make it NULL, it has to be a string
+				}
+				yield item
+			
 
 __datasource__ = TomboySource()
