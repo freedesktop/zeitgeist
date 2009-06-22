@@ -28,12 +28,14 @@ import fnmatch
 import urllib
 import gtk
 import time
+import logging
 
 from xdg import DesktopEntry, BaseDirectory
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
 from zeitgeist import config
 
+_recently_used_logger = logging.getLogger("zeitgeist.logger.datasources.recently_used")
 
 class SimpleMatch(object):
 	""" Wrapper around fnmatch.fnmatch which allows to define mimetype
