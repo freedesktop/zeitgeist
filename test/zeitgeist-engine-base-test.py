@@ -368,8 +368,8 @@ class AnnotationTest (unittest.TestCase):
 	def testLookupOrCreate(self):
 		i = Item("it1")
 		a = Annotation.lookup_or_create("an1")
-		a.subject = i
-		self.store.flush()
+		# there is one annotation in the DB, update the subject_id properly
+		self.store.find(Annotation).set(subject_id=i.id)
 		aa = Annotation.lookup("an1")
 		self.assertEquals("an1", aa.uri.value)
 		self.assertEquals(1, i.id)
