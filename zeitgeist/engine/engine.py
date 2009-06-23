@@ -288,7 +288,7 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
 		item = self.store.find(Item, Item.id == URI.id,
-			URI.value == unicode(uri)).one()		
+			URI.value == unicode(uri)).one()
 		if item:
 			return self._result2data(item=item)
 	
@@ -351,13 +351,16 @@ class ZeitgeistEngine(gobject.GObject):
 		If the item has tags, then the tags will also be updated.
 		"""
 		
-		#FIXME Delete all annotations of the ITEM
+		#FIXME Delete all tags of the ITEM
 		self.delete_item(item)
 		self.store.commit()
 		self.store.flush()
 		self.insert_item(item, True, True)
 		self.store.commit()
 		self.store.flush()
+	
+	def update_items(self, items):
+		map(self.update_item, items)
 	
 	def get_tags_for_item(self, item):
 		package = []
@@ -381,6 +384,9 @@ class ZeitgeistEngine(gobject.GObject):
 					(anno,), noresult=True)		
 		self.store.execute("DELETE FROM Item WHERE id=?",
 			(uri_id,), noresult=True)
+	
+	def delete_items(self, items):
+		map(self.delete_items, items)
 	
 	def get_types(self):
 		"""

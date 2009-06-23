@@ -105,14 +105,14 @@ class RemoteInterface(dbus.service.Object):
 		return result if (result and self.EventsChanged()) else 0
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature=sig_plain_data, out_signature="")
-	def UpdateItem(self, item_list):
-		_engine.update_item(dictify_data(item_list))
+						in_signature="a"+sig_plain_data, out_signature="")
+	def UpdateItems(self, item_list):
+		_engine.update_items(dictify_data(item_list))
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="s", out_signature="")
-	def DeleteItem(self, item_uri):
-		_engine.delete_item(item_uri)
+						in_signature="as", out_signature="")
+	def DeleteItems(self, uris):
+		_engine.delete_items(uris)
 	
 	# Signals and signal emitters
 	
