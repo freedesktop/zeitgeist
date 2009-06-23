@@ -312,7 +312,10 @@ class ZeitgeistEngine(gobject.GObject):
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
-		# filters: ((text_name, text_uri, (tags), (mimetypes), source, content),)
+		assert hasattr(filters[0], "__iter__"), \
+				"Expected a struct, got %s." % type(filters[0]).__name__
+		
+		# filters: ((text_name, text_uri, (tags), (mimetypes), source, content, bookmarked),)
 		expressions = []
 		for filter in filters:
 			filterset = []
@@ -328,6 +331,13 @@ class ZeitgeistEngine(gobject.GObject):
 				pass # source ...
 			if filter[5]:
 				pass # content
+			if filter[6] == 1:
+				filterset += [
+					Item.content_id == Content.BOOKMARK.id,
+					Item.id == Annotation.item_id,
+					Annotation.subject_id == URI.id,
+					URI.id == Event.subject_id
+					]
 			expressions += filterset
 		
 		t1 = time.time()
@@ -458,13 +468,6 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def get_related_items(self, uri):
 		return []
-	
-	def get_bookmarks(self):
-		uris = self.store.find(URI, Item.content_id == Content.BOOKMARK.id, URI.id == Annotation.subject_id, Annotation.item_id == Item.id)
-		for uri in uris:
-			#Get the item for the uri
-			item = self.store.find(Item, Item.id == uri.id).one()
-			yield self._result2data(None, item)
 
 _engine = None
 def get_default_engine():

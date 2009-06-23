@@ -79,7 +79,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testBookmark (self):
 		self.assertEmptyDB()
-		self.assertEquals(0, len(list(self.engine.get_bookmarks())))
+		self.assertEquals(0, len(list(self.engine.find_events(0, 0, 0, True,
+			False, [(u"", u"", [], [], u"", u"", 1)]))))
 		orig = {	"uri" : "test://mytest",
 					"content" : Content.IMAGE.uri,
 					"source" : Source.USER_ACTIVITY.uri,
@@ -95,7 +96,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"tags": ""
 		}
 		self.engine.insert_item(orig)
-		bookmarks = map(dictify_data, self.engine.get_bookmarks())		
+		bookmarks = map(dictify_data, self.engine.find_events(0, 0, 0, True,
+			False, [(u"", u"", [], [], u"", u"", 1)]))
 		self.assertEquals(1, len(bookmarks))
 		self.assertEquals("test://mytest", bookmarks[0]["uri"])
 		self.assertEquals([], list(self.engine.get_all_tags()))
@@ -290,8 +292,9 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.get_last_insertion_date(last_insertion_app)
 		self.assertEquals(result, last_insertion_date)
 		
-		# Test get_bookmarks()
-		result = self.engine.get_bookmarks()
+		# Test find_events(): bookmarks
+		result = self.engine.find_events(0, 0, 0, True, False,
+			[(u"", u"", [], [], u"", u"", 1)])
 		self.assertEquals(len([x for x in result]), 1)
 		
 		# Test find_events(): timestamps
@@ -304,7 +307,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		# Test find_events(): mimetype
 		result = self.engine.find_events(0, 0, 0, True, False,
-			[(u"", u"", [], [u"image/png"], u"", u"")])
+			[(u"", u"", [], [u"image/png"], u"", u"", 0)])
 		self.assertEquals(len([x for x in result]), 3)
 
 if __name__ == "__main__":

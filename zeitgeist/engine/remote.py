@@ -42,10 +42,11 @@ class RemoteInterface(dbus.service.Object):
 		return map(_engine.get_item, uris)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="iiibba(ssasasss)", out_signature="a"+sig_plain_data)
+						in_signature="iiibba(ssasasssn)", out_signature="a"+sig_plain_data)
 	def FindEvents(self, min_timestamp, max_timestamp, limit,
 	sorting_asc, unique, filters):
-		# filters: ((text_name, text_uri, tags, mimetypes, source, content),)
+		# filters: ((text_name, text_uri, tags, mimetypes, source, content, bookmarked),)
+		# bookmarked: 0 - no filter, 1 - only bookmarked, 2 - no bookmarked items
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
 			sorting_asc, unique, filters)
 	
@@ -58,11 +59,6 @@ class RemoteInterface(dbus.service.Object):
 						in_signature="i", out_signature="i")
 	def GetLastTimestamp(self, uri):
 		return _engine.get_last_timestamp(uri)
-	
-	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="", out_signature="a"+sig_plain_data)
-	def GetBookmarks(self):
-		return _engine.get_bookmarks()
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="", out_signature="as")
