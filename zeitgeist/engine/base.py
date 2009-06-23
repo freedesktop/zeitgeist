@@ -257,17 +257,17 @@ class ProxyItem(object):
 		self.uri = self.item.uri
 	
 	@classmethod
-	def lookup(self, uri):
+	def lookup(cls, uri):
 		if isinstance(uri, str) or isinstance(uri, unicode):
 			uri = unicode(uri)
-			return _store.find(self, self.item_id == URI.id, URI.value == uri).any()
+			return _store.find(cls, cls.item_id == URI.id, URI.value == uri).any()
 		elif isinstance(uri, URI):
-			return _store.find(self, self.item_id == uri.id).any()
+			return _store.find(cls, cls.item_id == uri.id).any()
 	
 	@classmethod
-	def lookup_or_create(self, uri):
-		proxy = self.lookup(uri)
-		return proxy if proxy else self(uri)
+	def lookup_or_create(cls, uri):
+		proxy = cls.lookup(uri)
+		return proxy if proxy else cls(uri)
 
 class App(ProxyItem):
 	__storm_table__= "app"
