@@ -332,7 +332,7 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		t1 = time.time()
 		events = self.store.find(Event, Event.start >= min, Event.start <= max,
-			URI.id == Event.subject_id, Item.id == Event.item_id,
+			URI.id == Event.subject_id, Item.id == Event.subject_id,
 			Or(*expressions) if expressions else True)
 		events.order_by(Event.start if sorting_asc else Desc(Event.start))
 		

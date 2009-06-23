@@ -13,6 +13,10 @@ from zeitgeist.dbusutils import *
 
 import unittest
 
+# use this to print sql statements used by storm to stdout
+#~ from storm.tracer import debug
+#~ debug(True, stream=sys.stdout)
+
 def assert_cmp_dict(a, b, cross_check=True):	
 	for k,v in a.items():
 		if not b.has_key(k) : raise AssertionError("Dict b does not contain '%s'" % k)
@@ -296,12 +300,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		# Test find_events(): unique
 		result = self.engine.find_events(0, 0, 0, True, True, [])
-		print [x[5] for x in result]
+		#~ print [x[5] for x in result]
 		self.assertEquals(len([x for x in result]), 3)
 		
 		# Test find_events(): mimetype
 		result = self.engine.find_events(0, 0, 0, True, False,
 			[(u"", u"", [], [u"image/png"], u"", u"")])
+		#~ print [x for x in result]
 		self.assertEquals(len([x for x in result]), 3)
 
 if __name__ == "__main__":
