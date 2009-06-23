@@ -16,7 +16,7 @@ bus = dbus.SessionBus()
 
 remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
 if '--listen' in sys.argv:
-	remote_object.connect_to_signal("SignalUpdated", updated_signal_handler, dbus_interface="org.gnome.zeitgeist")
+	remote_object.connect_to_signal("EventsChanged", updated_signal_handler, dbus_interface="org.gnome.zeitgeist")
 iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
 
 print '\nDifferent types in the database:'

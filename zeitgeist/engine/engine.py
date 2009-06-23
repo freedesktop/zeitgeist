@@ -451,13 +451,7 @@ class ZeitgeistEngine(gobject.GObject):
 			).order_by(Event.start).last() if app else 0
 	
 	def get_related_items(self, uri):
-		pass
-	
-	def compare_nbhs(self,nbhs):
-		pass
-	
-	def get_uris_for_timestamp(self, timestamp):
-		pass
+		return []
 	
 	def get_bookmarks(self):
 		uris = self.store.find(URI, Item.content_id == Content.BOOKMARK.id, URI.id == Annotation.subject_id, Annotation.item_id == Item.id)

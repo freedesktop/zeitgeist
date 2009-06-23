@@ -55,11 +55,6 @@ class RemoteInterface(dbus.service.Object):
 		return _engine.get_count_for_item(self, uri, start, end)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="i", out_signature="as")
-	def GetURIsForTimestamp(self, timestamp):
-		return _engine.get_uris_for_timestamp(timestamp)
-	
-	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="i", out_signature="i")
 	def GetLastTimestamp(self, uri):
 		return _engine.get_last_timestamp(uri)
@@ -104,18 +99,10 @@ class RemoteInterface(dbus.service.Object):
 	# Writing stuff
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature=sig_plain_data, out_signature="b")
-	def InsertItem(self, item_list):
-		result = _engine.insert_item(dictify_data(item_list))
-		if result:
-			self.EmitSignalUpdated()
-		return result
-	
-	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="a"+sig_plain_data, out_signature="")
+						in_signature="a"+sig_plain_data, out_signature="i")
 	def InsertItems(self, items_list):
-		if _engine.insert_items([dictify_data(x) for x in items_list]):
-			self.EmitSignalUpdated()
+		result = _engine.insert_items([dictify_data(x) for x in items_list])
+		return result if (result and self.EventsChanged()) else 0
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature=sig_plain_data, out_signature="")
@@ -130,16 +117,16 @@ class RemoteInterface(dbus.service.Object):
 	# Signals and signal emitters
 	
 	@dbus.service.signal("org.gnome.zeitgeist")
-	def SignalUpdated(self):
-		pass
+	def EventsChanged(self):
+		return True
 	
 	@dbus.service.signal("org.gnome.zeitgeist")
-	def SignalExit(self):
-		pass
+	def EngineStart(self):
+		return True
 	
-	@dbus.service.method("org.gnome.zeitgeist")
-	def EmitSignalUpdated(self):
-		self.SignalUpdated()
+	@dbus.service.signal("org.gnome.zeitgeist")
+	def EngineExit(self):
+		return True
 	
 	# Commands
 	

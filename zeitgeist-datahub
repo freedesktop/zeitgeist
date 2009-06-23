@@ -30,7 +30,7 @@ class DataHub(gobject.GObject):
 	def __init__(self):
 		
 		gobject.GObject.__init__(self)
-		dbus_connect("SignalExit", self._daemon_exit)
+		dbus_connect("EngineExit", self._daemon_exit)
 		
 		self._client = get_engine_interface()
 		

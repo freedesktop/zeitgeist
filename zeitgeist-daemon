@@ -37,7 +37,8 @@ if not "--no-passive-loggers" in sys.argv:
 	else:
 		logging.warning("%s not found, not starting datahub" % passive_loggers)
 
-atexit.register(lambda: obj.SignalExit())
+obj.EngineStart()
+atexit.register(lambda: obj.EngineExit())
 
 logging.info(_("Starting Zeitgeist service..."))
 mainloop.run()
