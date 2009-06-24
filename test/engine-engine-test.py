@@ -75,7 +75,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		content_types = [str(ctype) for ctype in self.engine.get_types()]
 		self.assertTrue(Content.IMAGE.uri in content_types)
-		self.assertEquals([], list(self.engine.get_all_tags()))
+		self.assertEquals([], list(self.engine.get_tags()))
 	
 	def testBookmark (self):
 		self.assertEmptyDB()
@@ -100,7 +100,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			False, [(u"", u"", [], [], u"", u"", 1)]))
 		self.assertEquals(1, len(bookmarks))
 		self.assertEquals("test://mytest", bookmarks[0]["uri"])
-		self.assertEquals([], list(self.engine.get_all_tags()))
+		self.assertEquals([], list(self.engine.get_tags()))
 	
 	def testSameTagOnTwoItems(self):
 		self.assertEmptyDB()
@@ -110,7 +110,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"content" : Content.IMAGE.uri,
 				"source" : Source.USER_ACTIVITY.uri,
 				"app" : "/usr/share/applications/gnome-about.desktop",
-				"timestamp" : 0,
+				"timestamp" : 100,
 				"text" : "Text",
 				"mimetype" : "mime/type",
 				"icon" : "stock_left",
@@ -125,7 +125,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"content" : Content.IMAGE.uri,
 				"source" : Source.USER_ACTIVITY.uri,
 				"app" : "/usr/share/applications/gnome-about.desktop",
-				"timestamp" : 0,
+				"timestamp" : 1000,
 				"text" : "Text",
 				"mimetype" : "mime/type",
 				"icon" : "stock_left",
@@ -139,8 +139,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		for item in items:
 			self.assertTrue(self.engine.insert_item(item))
 		
-		tags = list(self.engine.get_all_tags())
-		self.assertEquals(["eins"], tags)
+		tags = list(self.engine.get_tags())
+		self.assertEquals([("eins", 2)], tags)
 		
 		i = base.Item.lookup("test://mytest1")
 		self.assertTrue(i is not None)
@@ -174,8 +174,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"bookmark": False,
 		}
 		self.assertTrue(self.engine.insert_item(item))
-		tags = list(self.engine.get_all_tags())
-		self.assertEquals(["eins", "zwei", "drei"], tags)
+		tags = self.engine.get_tags()
+		self.assertEquals([(u"eins", 1), (u"zwei", 1), (u"drei", 1)], tags)
 		
 		i = base.Item.lookup("test://mytest1")
 		self.assertTrue(i is not None)
@@ -248,7 +248,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"use": Content.CREATE_EVENT.uri,
 			"origin": u"",
 			"comment": u"",
-			"tags": u"",
+			"tags": u"test, examples, filtertest",
 			"bookmark": False,
 			}
 		item2 = {
@@ -263,7 +263,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"use": Content.CREATE_EVENT.uri,
 			"origin": u"http://google.com",
 			"comment": u"",
-			"tags": u"",
+			"tags": u"cool_pictures, examples",
 			"bookmark": True,
 			}
 		item3 = dict(item2) # Create a copy (without dict() we get a reference)
@@ -282,7 +282,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"use": Content.CREATE_EVENT.uri,
 			"origin": u"",
 			"comment": u"",
-			"tags": u"",
+			"tags": u"files, examples",
 			"bookmark": False,
 			}
 		item5 = {
@@ -346,6 +346,23 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.find_events(0, 0, 0, True, True,
 			[(u"", u"", [], [u"image/png"], u"", u"", 1)])
 		self.assertEquals(len([x for x in result]), 2)
+	
+	def testGetTagsNameFilter(self):
+		self._init_with_various_events()
+		result = self.engine.get_tags(u"f%")
+		self.assertEquals(result, [(u'filtertest', 1),
+			(u'files', 1)])
+	
+	def testGetTagsLimit(self):
+		self._init_with_various_events()
+		result = self.engine.get_tags(u"", 1)
+		self.assertEquals(result[0][0], u"examples")
+	
+	def testGetTagsTimestamp(self):
+		self._init_with_various_events()
+		result = self.engine.get_tags(u"", 0, 1219330, 4000000)
+		self.assertEquals([x[0] for x in result], [u"examples",
+			u"cool_pictures", u"files", u"images", u"holidays"])
 
 if __name__ == "__main__":
 	unittest.main()

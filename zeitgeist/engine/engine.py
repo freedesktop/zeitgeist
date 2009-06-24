@@ -350,11 +350,9 @@ class ZeitgeistEngine(gobject.GObject):
 		t1 = time.time()
 		events = self.store.find(Event, Event.start >= min, Event.start <= max,
 			URI.id == Event.subject_id, Item.id == Event.subject_id,
-			Or(*expressions) if expressions else True)
+			Or(*expressions) if expressions else True)[:limit or None]
 		events.order_by(Event.start if sorting_asc else Desc(Event.start))
 		
-		if limit > 0:
-			events = events[:limit]
 		if unique:
 			events.max(Event.start)
 			events.group_by(Event.subject_id)
@@ -412,54 +410,28 @@ class ZeitgeistEngine(gobject.GObject):
 		contents = self.store.find(Content)
 		return [content.value for content in contents]
 	
-	def get_all_tags(self):
+	def get_tags(self, name_filter="", limit=0, min_timestamp=0, max_timestamp=0):
 		"""
-		Returns a list containing the name of all tags.
-		"""
-		tags = self.store.find(Item, Item.content_id == Content.TAG.id)
-		return [tag.text for tag in tags]
-	
-	def get_recently_used_tags(self, count=20, min=0, max=sys.maxint):
-		"""
-		Returns a list containing up to `count' recently used
-		tags from between timestamps `min' and `max'.
+		Returns a list containing tuples with the name and the number of
+		occurencies of the tags matching `name_filter', or all existing
+		tags in case it's empty, sorted from most used to least used. `limit'
+		can base used to limit the amount of results.
+		
+		Use `min_timestamp' and `max_timestamp' to limit the time frames you
+		want to consider.
 		"""
 		
-		# FIXME: What do we consider "Recent"?
-		# Does it make sense to returns a list of which were the last
-		# tags given to applications? Maybe instead the GUI should keep
-		# track itself of which Tags the users use when they filter
-		# stuff and show those. Or remove this alltogether?
-		return []
-	
-	def get_most_used_tags(self, count=20, min=0, max=sys.maxint):
-		"""
-		Returns a list containing up to the `count' most used
-		tags from between timestamps `min' and `max'.
-		"""
-		
-		# Simulate optional arguments
-		if not count:
-			count = 20
-		if not max:
-			max = sys.maxint
-		
-		tags = self.store.execute("""
-			SELECT text, (SELECT COUNT(rowid)
-				FROM annotation WHERE item_id=item.id) AS occurencies
+		return self.store.execute("""
+			SELECT item.text, (SELECT COUNT(rowid) FROM annotation
+				WHERE annotation.item_id = item.id) AS amount
 			FROM item
-			WHERE content_id=?
-			ORDER BY occurencies DESC
-			LIMIT ?
-			""", (Content.TAG.id, count))
-		
-		return [tag[0] for tag in tags]
-	
-	def get_min_timestamp_for_tag(self, tag):
-			return None
-	
-	def get_max_timestamp_for_tag(self, tag):
-			return None
+			WHERE item.id IN (SELECT annotation.item_id FROM annotation
+				INNER JOIN event ON (event.subject_id = annotation.subject_id)
+				WHERE event.start >= ? AND event.start <= ?)
+				AND item.content_id = ? AND item.text LIKE ?
+			ORDER BY amount DESC LIMIT ?
+			""", (min_timestamp, max_timestamp or sys.maxint, Content.TAG.id,
+			name_filter or "%", limit or sys.maxint)).get_all()
 	
 	def get_last_insertion_date(self, application):
 		"""

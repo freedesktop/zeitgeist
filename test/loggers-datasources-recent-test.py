@@ -6,7 +6,7 @@ from os.path import dirname, join, abspath
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 
 import re
-from zeitgeist.loggers.datasources.zeitgeist_recent import (SimpleMatch,
+from zeitgeist.loggers.datasources.recent import (SimpleMatch,
 	MimeTypeSet, InverseMimeTypeSet)
 
 import unittest
