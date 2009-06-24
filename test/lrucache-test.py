@@ -6,7 +6,7 @@ from os.path import dirname, join, abspath
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 
 import unittest
-from zeitgeist._lrucache import LRUCache
+from zeitgeist.lrucache import LRUCache
 
 class LRUCacheTest (unittest.TestCase):
 	"""
