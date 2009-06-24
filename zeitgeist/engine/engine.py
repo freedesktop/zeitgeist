@@ -336,7 +336,8 @@ class ZeitgeistEngine(gobject.GObject):
 					Item.content_id == Content.BOOKMARK.id,
 					Annotation.item_id == Item.id))
 				filterset += [Event.subject_id.is_in(bookmarks)]
-			expressions += [ And(*filterset) ]
+			if filterset:
+				expressions += [ And(*filterset) ]
 		
 		t1 = time.time()
 		events = self.store.find(Event, Event.start >= min, Event.start <= max,
