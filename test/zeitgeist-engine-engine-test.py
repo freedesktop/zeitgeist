@@ -241,7 +241,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"content": Content.IMAGE.uri,
 			"source": Source.USER_ACTIVITY.uri,
 			"app": u"/usr/share/applications/eog.desktop",
-			"timestamp": 1219324, # keep it lower than in item3!
+			"timestamp": 1219324, # keep it lower than in item4!
 			"text": u"example.png",
 			"mimetype": u"image/jpg",
 			"icon": u"",
@@ -249,7 +249,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"origin": u"",
 			"comment": u"",
 			"tags": u"",
-			"bookmark": False, 
+			"bookmark": False,
 			}
 		item2 = {
 			"uri": u"http://image.host/cool_pictures/01.png",
@@ -264,7 +264,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"origin": u"http://google.com",
 			"comment": u"",
 			"tags": u"",
-			"bookmark": True, 
+			"bookmark": True,
 			}
 		item3 = dict(item2) # Create a copy (without dict() we get a reference)
 		item3["timestamp"] = 4563534
@@ -283,9 +283,24 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"origin": u"",
 			"comment": u"",
 			"tags": u"",
-			"bookmark": False, 
+			"bookmark": False,
 			}
-		items = (item1, item2, item3, item4)
+		item5 = {
+			"uri": u"file:///home/foo/images/holidays/picture.png",
+			"content": Content.IMAGE.uri,
+			"source": Source.USER_ACTIVITY.uri,
+			"app": last_insertion_app,
+			"timestamp": 1219335,
+			"text": u"picture.png",
+			"mimetype": u"image/png",
+			"icon": u"",
+			"use": Content.CREATE_EVENT.uri,
+			"origin": u"",
+			"comment": u"",
+			"tags": u"images, holidays",
+			"bookmark": True,
+			}
+		items = (item1, item2, item3, item4, item5)
 		self.engine.insert_items(items)
 		
 		# Test get_last_insertion_date()
@@ -295,25 +310,34 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		# Test find_events(): bookmarks
 		result = self.engine.find_events(0, 0, 0, True, False,
 			[(u"", u"", [], [], u"", u"", 1)])
-		self.assertEquals(len([x for x in result]), 2)
+		self.assertEquals(len([x for x in result]), 3)
+		
+		# Test find_events(): bookmarks (invalid value)
+		self.assertRaises(Exception, self.engine.find_events, 0, 0, 0,
+			True, False, [(u"", u"", [], [], u"", u"", 3)])
 		
 		# Test find_events(): timestamps
 		result = self.engine.find_events(1000000, 1250000, 0, True, False, [])
-		self.assertEquals(len([x for x in result]), 2)
+		self.assertEquals(len([x for x in result]), 3)
 		
 		# Test find_events(): unique
 		result = self.engine.find_events(0, 0, 0, True, True, [])
-		self.assertEquals(len([x for x in result]), 3)
+		self.assertEquals(len([x for x in result]), 4)
 		
 		# Test find_events(): mimetype
 		result = self.engine.find_events(0, 0, 0, True, False,
 			[(u"", u"", [], [u"image/png"], u"", u"", 0)])
-		self.assertEquals(len([x for x in result]), 3)
+		self.assertEquals(len([x for x in result]), 4)
 		
 		# Test find_events(): mimetype and bookmarks
 		result = self.engine.find_events(0, 0, 0, True, False,
 			[(u"", u"", [], [u"image/jpg"], u"", u"", 1)])
 		self.assertEquals(len([x for x in result]), 0)
+		
+		# Test find_events(): unique and (not) bookmarks
+		result = self.engine.find_events(0, 0, 0, True, True,
+			[(u"", u"", [], [u"image/png"], u"", u"", 1)])
+		self.assertEquals(len([x for x in result]), 2)
 
 if __name__ == "__main__":
 	unittest.main()

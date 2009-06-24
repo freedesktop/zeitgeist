@@ -330,12 +330,20 @@ class ZeitgeistEngine(gobject.GObject):
 				pass # source ...
 			if filter[5]:
 				pass # content
-			if filter[6] == 1:
-				# Only get bookmarks
+			if filter[6] > 0:
 				bookmarks = Select(Annotation.subject_id, And(
 					Item.content_id == Content.BOOKMARK.id,
 					Annotation.item_id == Item.id))
-				filterset += [Event.subject_id.is_in(bookmarks)]
+				if filter[6] == 1:
+					# Only get bookmarked items
+					filterset += [Event.subject_id.is_in(bookmarks)]
+				elif filter[6] == 2:
+					# Only get items that aren't bookmarked
+					filterset += [Not(Event.subject_id.is_in(bookmarks))]
+				else:
+					raise ValueError(
+						"Unsupported bookmark filter: %d. Expected 0, 1 or 2." \
+						 % filter[6])
 			if filterset:
 				expressions += [ And(*filterset) ]
 		
