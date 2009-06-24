@@ -309,6 +309,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.find_events(0, 0, 0, True, False,
 			[(u"", u"", [], [u"image/png"], u"", u"", 0)])
 		self.assertEquals(len([x for x in result]), 3)
+		
+		# Test find_events(): mimetype and bookmarks
+		result = self.engine.find_events(0, 0, 0, True, False,
+			[(u"", u"", [], [u"image/jpg"], u"", u"", 1)])
+		self.assertEquals(len([x for x in result]), 0)
 
 if __name__ == "__main__":
 	unittest.main()
