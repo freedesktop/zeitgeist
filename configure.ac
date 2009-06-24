@@ -15,7 +15,6 @@ IT_PROG_INTLTOOL([0.35.0])
 
 AC_CONFIG_FILES([
 	Makefile
-	data/Makefile
 	doc/Makefile
 	extra/Makefile
 	extra/epiphany/Makefile

@@ -1,4 +1,4 @@
-SUBDIRS = data extra po zeitgeist doc
+SUBDIRS = extra po zeitgeist doc
 
 INTLTOOL = \
 	intltool-extract.in \
