@@ -295,7 +295,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		# Test find_events(): bookmarks
 		result = self.engine.find_events(0, 0, 0, True, False,
 			[(u"", u"", [], [], u"", u"", 1)])
-		self.assertEquals(len([x for x in result]), 1)
+		self.assertEquals(len([x for x in result]), 2)
 		
 		# Test find_events(): timestamps
 		result = self.engine.find_events(1000000, 1250000, 0, True, False, [])

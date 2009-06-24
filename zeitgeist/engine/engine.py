@@ -312,12 +312,11 @@ class ZeitgeistEngine(gobject.GObject):
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
-		assert hasattr(filters[0], "__iter__"), \
-				"Expected a struct, got %s." % type(filters[0]).__name__
-		
 		# filters: ((text_name, text_uri, (tags), (mimetypes), source, content, bookmarked),)
 		expressions = []
 		for filter in filters:
+			if not isinstance(filter, (list, tuple)) and len(filter) == 7:
+				raise TypeError("Expected a struct, got %s." % type(filter).__name__)
 			filterset = []
 			if filter[0]:
 				filterset += [ Item.text.like(filter[0]) ]
@@ -332,12 +331,11 @@ class ZeitgeistEngine(gobject.GObject):
 			if filter[5]:
 				pass # content
 			if filter[6] == 1:
-				filterset += [
+				# Only get bookmarks
+				bookmarks = Select(Annotation.subject_id, And(
 					Item.content_id == Content.BOOKMARK.id,
-					Item.id == Annotation.item_id,
-					Annotation.subject_id == URI.id,
-					URI.id == Event.subject_id
-					]
+					Annotation.item_id == Item.id))
+				filterset += [Event.subject_id.is_in(bookmarks)]
 			expressions += filterset
 		
 		t1 = time.time()
