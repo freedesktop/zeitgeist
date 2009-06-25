@@ -7,4 +7,3 @@ app_PYTHON = \
 	iso_strptime.py \
 	zeitgeist_setup_service.py \
 	zeitgeist_base.py
-
