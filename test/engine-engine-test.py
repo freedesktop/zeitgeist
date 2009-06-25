@@ -335,6 +335,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			[(u"", u"", [], [u"image/png"], u"", u"", 0)])
 		self.assertEquals(len([x for x in result]), 4)
 	
+	def testFindEventsMimetypeWithWildcard(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, True, False,
+			[(u"", u"", [], [u"image/j%", u"image/_n_"], u"", u"", 0)])
+		self.assertEquals(set([x[5] for x in result]),
+			set([u"image/jpg", u"image/png"]))
+	
 	def testFindEventsMimetypeAndBookmarks(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, False,

@@ -319,13 +319,18 @@ class ZeitgeistEngine(gobject.GObject):
 				raise TypeError("Expected a struct, got %s." % type(filter).__name__)
 			filterset = []
 			if filter[0]:
-				filterset += [ Item.text.like(filter[0]) ]
+				filterset += [ Item.text.like(filter[0], escape="\\") ]
 			if filter[1]:
-				filterset += [ URI.value.like(filter[1]) ]
+				filterset += [ URI.value.like(filter[1], escape="\\") ]
 			if filter[2]:
 				pass # tags...
 			if filter[3]:
-				filterset += [ Item.mimetype.is_in(filter[3]) ]
+				condition = ' OR '.join(
+					['mimetype LIKE ? ESCAPE "\\"'] * len(filter[3]))
+				mimetypes = [m[0] for m in self.store.execute("""
+						SELECT DISTINCT(mimetype) FROM item
+						WHERE %s""" % condition, filter[3]).get_all()]
+				filterset += [ Item.mimetype.is_in(mimetypes) ]
 			if filter[4]:
 				pass # source ...
 			if filter[5]:
@@ -428,7 +433,7 @@ class ZeitgeistEngine(gobject.GObject):
 			WHERE item.id IN (SELECT annotation.item_id FROM annotation
 				INNER JOIN event ON (event.subject_id = annotation.subject_id)
 				WHERE event.start >= ? AND event.start <= ?)
-				AND item.content_id = ? AND item.text LIKE ?
+				AND item.content_id = ? AND item.text LIKE ? ESCAPE "\\"
 			ORDER BY amount DESC LIMIT ?
 			""", (min_timestamp, max_timestamp or sys.maxint, Content.TAG.id,
 			name_filter or "%", limit or sys.maxint)).get_all()
