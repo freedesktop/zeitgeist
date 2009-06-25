@@ -64,7 +64,7 @@ class ZeitgeistEngine(gobject.GObject):
 			Annotation.subject_id == item.id,
 			Annotation.item_id == Item.id).one())
 		
-		result = self.get_tags_for_item(item)
+		result = self._get_tags_for_item(item)
 		tags = ",".join(set(result)) if result else ""
 		
 		return (
@@ -359,7 +359,7 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		return [self._result2data(event) for event in events]
 	
-	def update_item(self, item):
+	def _update_item(self, item):
 		"""
 		Updates an item already in the database.
 		
@@ -375,9 +375,9 @@ class ZeitgeistEngine(gobject.GObject):
 		self.store.flush()
 	
 	def update_items(self, items):
-		map(self.update_item, items)
+		map(self._update_item, items)
 	
-	def get_tags_for_item(self, item):
+	def _get_tags_for_item(self, item):
 		package = []
 		id = item.id
 		tags = self.store.find(Annotation.item_id, Annotation.subject_id == id)
@@ -386,7 +386,7 @@ class ZeitgeistEngine(gobject.GObject):
 			package.append(tag)
 		return package
 	
-	def delete_item(self, item):
+	def _delete_item(self, item):
 		
 		uri_id = self.store.execute("SELECT id FROM URI WHERE value=?",(item["uri"],)).get_one()
 		uri_id = uri_id[0]
@@ -401,7 +401,7 @@ class ZeitgeistEngine(gobject.GObject):
 			(uri_id,), noresult=True)
 	
 	def delete_items(self, items):
-		map(self.delete_items, items)
+		map(self._delete_item, items)
 	
 	def get_types(self):
 		"""
