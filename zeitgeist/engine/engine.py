@@ -293,7 +293,7 @@ class ZeitgeistEngine(gobject.GObject):
 			return self._result2data(item=item)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
-	sorting_asc=True, unique=False, filters=()):
+			sorting_asc=True, unique=False, filters=()):
 		"""
 		Returns all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
@@ -315,40 +315,43 @@ class ZeitgeistEngine(gobject.GObject):
 		# filters: ((text_name, text_uri, (tags), (mimetypes), source, content, bookmarked),)
 		expressions = []
 		for filter in filters:
-			if not isinstance(filter, (list, tuple)) and len(filter) == 7:
-				raise TypeError("Expected a struct, got %s." % type(filter).__name__)
+			if not isinstance(filter, dict):
+				raise TypeError("Expected a dict, got %s." % type(filter).__name__)
 			filterset = []
-			if filter[0]:
-				filterset += [ Item.text.like(filter[0], escape="\\") ]
-			if filter[1]:
-				filterset += [ URI.value.like(filter[1], escape="\\") ]
-			if filter[2]:
+			text_name = filter.get("text_name", None)
+			text_uri = filter.get("text_uri", None)
+			tags = filter.get("tags", None)
+			mimetypes = filter.get("mimetypes", None)
+			source = filter.get("source", None)
+			content = filter.get("content", None)
+			bookmarked = filter.get("bookmarked", None)
+			if text_name is not None:
+				filterset += [ Item.text.like(unicode(text_name), escape="\\") ]
+			if text_uri is not None:
+				filterset += [ URI.value.like(unicode(text_uri), escape="\\") ]
+			if tags is not None:
 				pass # tags...
-			if filter[3]:
+			if mimetypes is not None:
 				condition = ' OR '.join(
-					['mimetype LIKE ? ESCAPE "\\"'] * len(filter[3]))
+					['mimetype LIKE ? ESCAPE "\\"'] * len(mimetypes))
 				mimetypes = [m[0] for m in self.store.execute("""
 						SELECT DISTINCT(mimetype) FROM item
-						WHERE %s""" % condition, filter[3]).get_all()]
+						WHERE %s""" % condition, mimetypes).get_all()]
 				filterset += [ Item.mimetype.is_in(mimetypes) ]
-			if filter[4]:
+			if source is not None:
 				pass # source ...
-			if filter[5]:
+			if content is not None:
 				pass # content
-			if filter[6] > 0:
+			if bookmarked is not None:
 				bookmarks = Select(Annotation.subject_id, And(
 					Item.content_id == Content.BOOKMARK.id,
 					Annotation.item_id == Item.id))
-				if filter[6] == 1:
+				if bookmarked:
 					# Only get bookmarked items
 					filterset += [Event.subject_id.is_in(bookmarks)]
-				elif filter[6] == 2:
+				else:
 					# Only get items that aren't bookmarked
 					filterset += [Not(Event.subject_id.is_in(bookmarks))]
-				else:
-					raise ValueError(
-						"Unsupported bookmark filter: %d. Expected 0, 1 or 2." \
-						 % filter[6])
 			if filterset:
 				expressions += [ And(*filterset) ]
 		
