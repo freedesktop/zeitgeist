@@ -18,6 +18,9 @@ class Category:
 	display_name : Internationalized string suitable for display, like list headers and such
 	doc: Developer help describing the category
 	"""
+	
+	# We use a real dict rather than an LRUCache here because the number of
+	# cached categories (Content and Source) will remain at a constant ~< 50
 	CACHE = {}
 	
 	def __init__ (self, uri, display_name=None, name=None, doc=None):

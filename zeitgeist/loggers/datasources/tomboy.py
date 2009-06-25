@@ -154,7 +154,11 @@ class TomboySource(DataProvider):
 	def __init__(self, note_path=None):
 		DataProvider.__init__(self, name="tomboy notes")
 		self.notes = TomboyNotes()
-		self.__notes_queue = list(self.notes.load_all())
+		self.__notes_queue = list()
+		try:
+			self.__notes_queue = list(self.notes.load_all())
+		except OSError, e:
+			_tomboy_logger.debug("Can't run DataProvider for tomboy, is tomboy installed? (error: %s)" %e)
 		self.last_timestamp = self.get_last_timestamp()
 		self.notes.connect("note-changed", self.item_changed)
 		self.config.connect("configured", self.reload_proxy_config)

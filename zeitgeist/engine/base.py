@@ -23,6 +23,8 @@ import sys
 import logging
 from storm.locals import *
 
+from zeitgeist.lrucache import LRUCache
+
 class Symbol:
 	""" A simple structure to hold a URI and a short label and magically
 		cache and entity (integer) id.
@@ -175,10 +177,9 @@ class URI(Entity):
 	__storm_table__= "uri"
 	__storm_primary__= "id"
 	
-	# FIXME: URI uses the standard Entity cache,
-	#        but this might grow very big in long sessions,
-	#        unlike Source and Content which will always remain small.
-	#        Consider making an LRUCache for the URI class specifically
+	# URI uses an LRUCache rather than a plain dict because it may end up
+	# storing thousands and thousands of itemss
+	CACHE = LRUCache(500)
 	
 	def __init__ (self, value, add_to_store=True):				
 		super(URI, self).__init__(value, add_to_store=add_to_store)
@@ -423,7 +424,7 @@ def clear_entity_cache():
 	   across a session. In cases like unit tests where the db is often reset,
 	   this cache needs to be reset in order to provide correct results"""
 	Entity.CACHE = {}
-	URI.CACHE = {}
+	URI.CACHE = LRUCache(500)
 	Content.CACHE = {}
 	Source.CACHE = {}
 
