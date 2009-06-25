@@ -57,6 +57,11 @@ class ZeitgeistEngine(gobject.GObject):
 		if not item:
 			item = event.subject
 		
+		# The SQL calls to get the bookmark status and the tags here
+		# is really time consuming when done for a set of results from
+		# find_events. Rather, the SQL queries getting the events should
+		# also fetch this information.
+		
 		# Check if the item is bookmarked
 		# FIXME: this seems redundant if i am fetching bookmarked items
 		bookmark = bool(self.store.find(Item,
@@ -358,14 +363,14 @@ class ZeitgeistEngine(gobject.GObject):
 		t1 = time.time()
 		events = self.store.find(Event, Event.start >= min, Event.start <= max,
 			URI.id == Event.subject_id, Item.id == Event.subject_id,
-			Or(*expressions) if expressions else True)[:limit or None]
+			Or(*expressions) if expressions else True)
 		events.order_by(Event.start if sorting_asc else Desc(Event.start))
 		
 		if unique:
 			events.max(Event.start)
 			events.group_by(Event.subject_id)
 		
-		return [self._result2data(event) for event in events]
+		return [self._result2data(event) for event in events[:limit or None]]
 	
 	def _update_item(self, item):
 		"""
