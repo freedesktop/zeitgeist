@@ -293,7 +293,7 @@ class ZeitgeistEngine(gobject.GObject):
 			return self._result2data(item=item)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
-	sorting_asc=True, unique=False, filters=()):
+			sorting_asc=True, unique=False, filters=()):
 		"""
 		Returns all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
@@ -312,43 +312,46 @@ class ZeitgeistEngine(gobject.GObject):
 		# Emulate optional arguments for the D-Bus interface
 		if not max: max = sys.maxint
 		
-		# filters: ((text_name, text_uri, (tags), (mimetypes), source, content, bookmarked),)
+		# filters is a list of dicts, where each dict can have the following items:
+		#   text_name: <str>
+		#   text_uri: <str>
+		#   tags: <list> of <str>
+		#   mimetypes: <list> or <str>
+		#   source: <str>
+		#   content: <str>
+		#   bookmarked: <bool> (True means bookmarked items, and vice versa
 		expressions = []
 		for filter in filters:
-			if not isinstance(filter, (list, tuple)) and len(filter) == 7:
-				raise TypeError("Expected a struct, got %s." % type(filter).__name__)
+			if not isinstance(filter, dict):
+				raise TypeError("Expected a dict, got %s." % type(filter).__name__)
 			filterset = []
-			if filter[0]:
-				filterset += [ Item.text.like(filter[0], escape="\\") ]
-			if filter[1]:
-				filterset += [ URI.value.like(filter[1], escape="\\") ]
-			if filter[2]:
+			if "text_name" in filter:
+				filterset += [ Item.text.like(unicode(filter["text_name"]), escape="\\") ]
+			if "text_uri" in filter:
+				filterset += [ URI.value.like(unicode(filter["text_uri"]), escape="\\") ]
+			if "tags" in filter:
 				pass # tags...
-			if filter[3]:
+			if "mimetypes" in filter:
 				condition = ' OR '.join(
-					['mimetype LIKE ? ESCAPE "\\"'] * len(filter[3]))
+					['mimetype LIKE ? ESCAPE "\\"'] * len(filter["mimetypes"]))
 				mimetypes = [m[0] for m in self.store.execute("""
 						SELECT DISTINCT(mimetype) FROM item
-						WHERE %s""" % condition, filter[3]).get_all()]
+						WHERE %s""" % condition, filter["mimetypes"]).get_all()]
 				filterset += [ Item.mimetype.is_in(mimetypes) ]
-			if filter[4]:
+			if "source" in filter:
 				pass # source ...
-			if filter[5]:
+			if "content" in filter:
 				pass # content
-			if filter[6] > 0:
+			if "bookmarked" in filter:
 				bookmarks = Select(Annotation.subject_id, And(
 					Item.content_id == Content.BOOKMARK.id,
 					Annotation.item_id == Item.id))
-				if filter[6] == 1:
+				if filter["bookmarked"]:
 					# Only get bookmarked items
 					filterset += [Event.subject_id.is_in(bookmarks)]
-				elif filter[6] == 2:
+				else:
 					# Only get items that aren't bookmarked
 					filterset += [Not(Event.subject_id.is_in(bookmarks))]
-				else:
-					raise ValueError(
-						"Unsupported bookmark filter: %d. Expected 0, 1 or 2." \
-						 % filter[6])
 			if filterset:
 				expressions += [ And(*filterset) ]
 		

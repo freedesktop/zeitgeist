@@ -80,7 +80,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testBookmark (self):
 		self.assertEmptyDB()
 		self.assertEquals(0, len(list(self.engine.find_events(0, 0, 0, True,
-			False, [(u"", u"", [], [], u"", u"", 1)]))))
+			False, [{"bookmarked": True}]))))
 		orig = {	"uri" : "test://mytest",
 					"content" : Content.IMAGE.uri,
 					"source" : Source.USER_ACTIVITY.uri,
@@ -97,7 +97,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		}
 		self.engine.insert_item(orig)
 		bookmarks = map(dictify_data, self.engine.find_events(0, 0, 0, True,
-			False, [(u"", u"", [], [], u"", u"", 1)]))
+			False, [{"bookmarked": True}]))
 		self.assertEquals(1, len(bookmarks))
 		self.assertEquals("test://mytest", bookmarks[0]["uri"])
 		self.assertEquals([], list(self.engine.get_tags()))
@@ -311,13 +311,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsBookmarks(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, False,
-			[(u"", u"", [], [], u"", u"", 1)])
+			[{"bookmarked": True}])
 		self.assertEquals(len([x for x in result]), 3)
-	
-	def testFindEventsBookmarksInvalidValue(self):
-		self._init_with_various_events()
-		self.assertRaises(Exception, self.engine.find_events, 0, 0, 0,
-			True, False, [(u"", u"", [], [], u"", u"", 3)])
 	
 	def testFindEventsTimestamp(self):
 		self._init_with_various_events()
@@ -332,26 +327,26 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsMimetype(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, False,
-			[(u"", u"", [], [u"image/png"], u"", u"", 0)])
+			[{"mimetypes": [u"image/png"]}])
 		self.assertEquals(len([x for x in result]), 4)
 	
 	def testFindEventsMimetypeWithWildcard(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, False,
-			[(u"", u"", [], [u"image/j%", u"image/_n_"], u"", u"", 0)])
+			[{"mimetypes": [u"image/j%", u"image/_n_"]}])
 		self.assertEquals(set([x[5] for x in result]),
 			set([u"image/jpg", u"image/png"]))
 	
 	def testFindEventsMimetypeAndBookmarks(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, False,
-			[(u"", u"", [], [u"image/jpg"], u"", u"", 1)])
+			[{"mimetypes": [u"image/jpg"], "bookmarked": True}])
 		self.assertEquals(len([x for x in result]), 0)
 	
 	def testFindEventsUniqueAndNotBookmarked(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, True,
-			[(u"", u"", [], [u"image/png"], u"", u"", 2)])
+			[{"mimetypes": [u"image/jpg"], "bookmarked": False}])
 		self.assertEquals(len([x for x in result]), 1)
 	
 	def testGetTagsNameFilter(self):

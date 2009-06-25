@@ -19,11 +19,14 @@
 
 import dbus
 import dbus.service
+import logging
 
 from zeitgeist.engine.engine import get_default_engine
 from zeitgeist.dbusutils import dictify_data, sig_plain_data
 
 _engine = get_default_engine()
+
+_remote_logger = logging.getLogger("zeitgeist.engine.remote")
 
 class RemoteInterface(dbus.service.Object):
 	
@@ -42,11 +45,19 @@ class RemoteInterface(dbus.service.Object):
 		return map(_engine.get_item, uris)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="iiibba(ssasasssn)", out_signature="a"+sig_plain_data)
+						in_signature="iiibbaa{sv}", out_signature="a"+sig_plain_data)
 	def FindEvents(self, min_timestamp, max_timestamp, limit,
-	sorting_asc, unique, filters):
-		# filters: ((text_name, text_uri, tags, mimetypes, source, content, bookmarked),)
-		# bookmarked: 0 - no filter, 1 - only bookmarked, 2 - no bookmarked items
+			sorting_asc, unique, filters):
+		# filters is a list of dicts, where each dict can have the following items:
+		#   text_name: <str>
+		#   text_uri: <str>
+		#   tags: <list> of <str>
+		#   mimetypes: <list> or <str>
+		#   source: <str>
+		#   content: <str>
+		#   bookmarked: <bool> (True means bookmarked items, and vice versa
+		_remote_logger.debug("FindEvents: requested %s" %", ".join(map(repr, \
+			(min_timestamp, max_timestamp, limit, sorting_asc, unique, filters))))
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
 			sorting_asc, unique, filters)
 	
