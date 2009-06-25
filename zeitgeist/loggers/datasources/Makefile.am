@@ -5,5 +5,4 @@ app_PYTHON = \
 	evolution.py \
 	firefox.py \
 	recent.py \
-	tomboy.py \
-	twitter.py
+	tomboy.py

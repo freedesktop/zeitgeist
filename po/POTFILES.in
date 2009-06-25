@@ -11,7 +11,6 @@ zeitgeist/loggers/datasources/__init__.py
 zeitgeist/loggers/datasources/zeitgeist_recent.py
 zeitgeist/loggers/datasources/zeitgeist_firefox.py
 zeitgeist/loggers/datasources/zeitgeist_evolution.py
-zeitgeist/loggers/datasources/zeitgeist_twitter.py
 zeitgeist/loggers/datasources/zeitgeist_tomboy.py
 zeitgeist/engine/__init__.py
 zeitgeist/engine/engine.py
