@@ -63,7 +63,7 @@ class FirefoxSource(DataProvider):
 			uri="gzg/firefox",
 			comment=_(u"Websites visited with Firefox"))
 		
-		self.type = "Firefox History"
+		self.type = "Web History"
 		
 		# Holds a list of all places.sqlite files. The file that belongs to the
 		# default profile will be the at the top of the list.
