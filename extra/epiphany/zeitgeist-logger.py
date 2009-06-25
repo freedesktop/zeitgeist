@@ -27,38 +27,41 @@ import urllib
 
 # Connect to D-Bus
 bus = dbus.SessionBus()
+
 try:
 	remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
 except dbus.exceptions.DBusException:
 	print >>sys.stderr, "GNOME Zeitgeist Logger: Error: Could not connect to D-Bus."
 else:
 	iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
-
-def page_changed(embed, load_status, window):
-	if not embed.get_property('load-status'):
-		# Send this info via D-Bus
-		icon = "gnome-globe"
-		
-		item =(
-			int(time.time()),	# timestamp
-			urllib.unquote(embed.get_location(True)), 	# uri
-			embed.get_title(),	# name
-			"Epiphany History", # type
-			"", # mimetype
-			"",	 # tags
-			"", # comment
-			"visited",	# use
-			False, # bookmark
-			"gnome-globe", # icon
-			)
-		
-		# Insert it into Zeitgeist
-		iface.insert_item(item)
-
-def attach_tab(window, tab):
-	tab.connect_after("notify::load-status", page_changed, window)
-
-def detach_tab(window, tab):
-	if hasattr(tab, "_page_changed"):
-		tab.disconnect(tab._page_changed)
-		delattr(tab, "_page_changed")
+	
+	def page_changed(embed, load_status, window):
+		if not embed.get_property('load-status'):
+			item = (
+				int(time.time()), # timestamp
+				unicode(urllib.unquote(embed.get_location(True))), # uri
+				unicode(embed.get_title()), # text
+				u"Web History", # source
+				u"Web", # content
+				u"text/html", # TODO: Can we get a mime-type here?
+				u"", # tags
+				u"", # comment
+				False, # bookmark
+				u"visited", # use
+				u"", # icon
+				u"/usr/share/applications/epiphany.desktop", # app
+				u"", # origin
+					# FIXME: In case the user reaches this page by
+					# by clicking on a link, put there the page with the link.
+				)
+			
+			# Insert it into Zeitgeist
+			iface.InsertItems([item])
+	
+	def attach_tab(window, tab):
+		tab.connect_after("notify::load-status", page_changed, window)
+	
+	def detach_tab(window, tab):
+		if hasattr(tab, "_page_changed"):
+			tab.disconnect(tab._page_changed)
+			delattr(tab, "_page_changed")
