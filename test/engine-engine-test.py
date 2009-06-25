@@ -351,8 +351,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsUniqueAndNotBookmarked(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, True,
-			[(u"", u"", [], [u"image/png"], u"", u"", 1)])
-		self.assertEquals(len([x for x in result]), 2)
+			[(u"", u"", [], [u"image/png"], u"", u"", 2)])
+		self.assertEquals(len([x for x in result]), 1)
 	
 	def testGetTagsNameFilter(self):
 		self._init_with_various_events()
