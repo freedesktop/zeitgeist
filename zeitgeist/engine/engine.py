@@ -62,15 +62,16 @@ class ZeitgeistEngine(gobject.GObject):
 			INNER JOIN annotation ON annotation.item_id=item.id
 			WHERE annotation.subject_id=(
 				SELECT id FROM uri WHERE uri.value = ?)
-			""", (value[0],)).get_all()
+			AND item.content_id = ?
+			""", (value[0], Content.TAG.id)).get_all()
 		
 		return (
 			value[1], # timestamp
-			item[0], # uri
-			item[5] or os.path.basename(item[0]), # name
+			value[0], # uri
+			value[6] or os.path.basename(value[0]), # name
 			item.source.value or "", # source
 			item.content.value or "", # content
-			item.mimetype or "", # mimetype
+			item[7], # mimetype
 			tags, # tags
 			"", # comment
 			bookmark, # bookmark
@@ -317,12 +318,18 @@ class ZeitgeistEngine(gobject.GObject):
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
 		item = self.store.execute("""
-			SELECT uri.value, item.*
+			SELECT uri.value, 0 AS timestamp, item.id, item.content_id, item.source_id,
+				item.origin, item.text, item.mimetype, item.icon
 			FROM item
 			INNER JOIN uri ON (item.id = uri.id)
 			WHERE uri.value = ?
 			LIMIT 1
 			""", (unicode(uri),)).get_one()
+		
+		bookmark = bool(self.store.find(Item,
+			Item.content_id == Content.BOOKMARK.id,
+			Annotation.subject_id == item.id,
+			Annotation.item_id == Item.id).one())
 		
 		print "\"%s\"" % uri, item
 		if item:
