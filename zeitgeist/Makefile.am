@@ -3,9 +3,10 @@ SUBDIRS = engine loggers
 appdir = $(pythondir)/zeitgeist/
 
 app_PYTHON = \
-	__init__.py		\
-	datamodel.py	\
-	dbusutils.py
+	__init__.py \
+	datamodel.py \
+	dbusutils.py \
+	lrucache.py
 
 nodist_app_PYTHON = config.py
 
