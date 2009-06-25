@@ -116,6 +116,8 @@ class DataHub(gobject.GObject):
 			except dbus.exceptions.DBusException, error:
 				error = error.get_dbus_name()
 				if error == "org.freedesktop.DBus.Error.ServiceUnknown":
+					logging.warning(
+						_("Lost connection to zeitgeist-daemon, terminating."))
 					self._daemon_exit()
 				else:
 					raise
