@@ -255,23 +255,24 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def insert_items(self, items):
 		"""
-		Inserts items into the database and returns the amount of
-		items it inserted.
+		Inserts items into the database and returns those items which were
+		successfully inserted. If an item fails, that's usually because it
+		already was in the database.
 		"""
 		
-		amount_items = 0
+		inserted_items = []
 		
-		# Check if event is before the last logs
-		t1 = time.time()
+		time1 = time.time()
 		for item in items:
 			if self.insert_item(item, commit=False):
-				amount_items += 1
+				inserted_items.append(item)
 		self.store.commit()
-		t2 = time.time()
-		logging.debug("Inserted %s items in %.5f s." % (amount_items,t2-t1))
+		time2 = time.time()
+		logging.debug("Inserted %s items in %.5f s." % (len(inserted_items),
+			time2 - time1))
 		
 		self._set_bookmarks()
-		return amount_items
+		return inserted_items
 	
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
