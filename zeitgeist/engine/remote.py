@@ -23,16 +23,17 @@ import logging
 
 from zeitgeist.engine.engine import get_default_engine
 from zeitgeist.dbusutils import dictify_data, sig_plain_data
+from zeitgeist.singleton import SingletonApplication
 
 _engine = get_default_engine()
 
-class RemoteInterface(dbus.service.Object):
+class RemoteInterface(SingletonApplication):
 	
 	# Initialization
 	
 	def __init__(self, start_dbus=True, mainloop=None):
-		bus_name = dbus.service.BusName("org.gnome.zeitgeist", dbus.SessionBus())
-		dbus.service.Object.__init__(self, bus_name, "/org/gnome/zeitgeist")
+		SingletonApplication.__init__(self, bus_name = "org.gnome.zeitgeist",
+											path_name = "/org/gnome/zeitgeist")
 		self._mainloop = mainloop
 	
 	# Reading stuff
