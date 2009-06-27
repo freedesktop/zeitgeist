@@ -29,6 +29,7 @@ import gobject
 import logging
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
+import sqlite3
 
 from zeitgeist import config
 from zeitgeist.engine.base import *
@@ -125,21 +126,9 @@ class ZeitgeistEngine(gobject.GObject):
 		return 0
 	
 	def _get_ids(self, uri, content, source):	
-		if uri:
-			uri_id = URI.lookup_or_create(uri).id
-		else:
-			uri_id = None
-			
-		if source:
-			source_id = Source.lookup_or_create(source).id
-		else:
-			source_id = None
-			
-		if content:
-			content_id = Content.lookup_or_create(content).id
-		else:
-			content_id = None
-		
+		uri_id = URI.lookup_or_create(uri).id if uri else None
+		content_id = Content.lookup_or_create(content).id if content else None
+		source_id = Source.lookup_or_create(source).id if source else None
 		return uri_id, content_id, source_id
 	
 	def _get_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
@@ -188,91 +177,81 @@ class ZeitgeistEngine(gobject.GObject):
 			return False
 		ritem = dict((key, TYPES_DICT[key](value)) for key, value in ritem.iteritems())
 		
-		try:
-			'''
-			Init URI, Content and Source
-			'''
-			uri_id, content_id, source_id = self._get_ids(
-				ritem["uri"], ritem["content"], ritem["source"])
-			
-			'''
-			Create Item for Data
-			'''
-			item = self._get_item(uri_id, content_id, source_id,
-				ritem["text"], ritem["origin"], ritem["mimetype"], ritem["icon"])
-			
-			'''
-			 Extract tags
-			'''
-			for tag in ritem["tags"].split(","):
-				tag = tag.strip()
-				if not tag:
-					# ignore empty tags
-					continue
-				anno_uri = "zeitgeist://tag/%s" % tag
-				anno_id, x, y = self._get_ids(anno_uri,None,None)
-				anno_item = self._get_item(anno_id, Content.TAG.id, Source.USER_ACTIVITY.id, tag)
-				try:
-					self.store.execute(
-						"INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",
-						(anno_id, uri_id), noresult=True)
-				except Exception, ex:
-					pass
-			
-			'''
-			Bookmark
-			'''
-			if ritem["bookmark"]:
-				anno_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
-				anno_id, x, y = self._get_ids(anno_uri,None,None)
-				anno_item = self._get_item(anno_id, Content.BOOKMARK.id, Source.USER_ACTIVITY.id, u"Bookmark")
-				try:
-					self.store.execute(
-						"INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",
-						(anno_id, uri_id), noresult=True)
-				except Exception, ex:
-					pass
-			
-			if force:
-				return True
-			
-			'''
-			Init App
-			'''
-			# Store the application
-			app_info = DesktopEntry(ritem["app"])			
-			app_uri_id, app_content_id, app_source_id = \
-							self._get_ids(ritem["app"],
-										  unicode(app_info.getType()),
-										  unicode(app_info.getExec()).split()[0])
-			app_item = self._get_item(app_uri_id,
-									  app_content_id,
-									  app_source_id,
-									  unicode(app_info.getName()),
-									  icon=unicode(app_info.getIcon()))
-			try:
-				self.store.execute("INSERT INTO app (item_id, info) VALUES (?,?)",
-					(app_uri_id, unicode(ritem["app"])), noresult=True)
-			except Exception, ex:
-				pass
-			
-			'''
-			Set event 
-			'''
-			e_uri = "zeitgeist://event/%s/%%s/%s#%d" % (ritem["use"],ritem["timestamp"], uri_id)		
-			e_id , e_content_id, e_subject_id = self._get_ids(e_uri,ritem["use"],None )
-			e_item = self._get_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
-			
+		# Get the IDs for the URI, the content and the source
+		uri_id, content_id, source_id = self._get_ids(ritem["uri"],
+			ritem["content"], ritem["source"])
+		
+		# Generate the URI for the event
+		event_uri = "zeitgeist://event/%s/%%s/%s#%d" % (ritem["use"],
+			ritem["timestamp"], uri_id)
+		
+		# Check whether the events is already in the database. If so,
+		# don't do anything. If it isn't there yet, we proceed with the
+		# process. Except if `force' is true, then we always proceed.
+		if not force and self.store.execute(
+		"SELECT id FROM uri WHERE value = ?", (event_uri,)).get_one():
+			return False
+		
+		# Insert or update the item
+		item = self._get_item(uri_id, content_id, source_id, ritem["text"],
+			ritem["origin"], ritem["mimetype"], ritem["icon"])
+		
+		# Insert or update the tags
+		for tag in (tag.strip() for tag in ritem["tags"].split(",") if tag):
+			anno_uri = "zeitgeist://tag/%s" % tag
+			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
+			anno_item = self._get_item(anno_id, Content.TAG.id, Source.USER_ACTIVITY.id, tag)
 			try:
 				self.store.execute(
-					"INSERT INTO event (item_id, subject_id, start, app_id) VALUES (?,?,?,?)",
-					(e_id, uri_id, ritem["timestamp"], app_uri_id), noresult=True)
-			except Exception, ex:
-				pass
+					"INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",
+					(anno_id, uri_id), noresult=True)
+			except sqlite3.IntegrityError:
+				pass # Tag already registered
+		
+		# Set the item as bookmarked, if it should be
+		if ritem["bookmark"]:
+			anno_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
+			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
+			anno_item = self._get_item(anno_id, Content.BOOKMARK.id,
+				Source.USER_ACTIVITY.id, u"Bookmark")
+			try:
+				self.store.execute(
+					"INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",
+					(anno_id, uri_id), noresult=True)
+			except sqlite3.IntegrityError:
+				pass # Item already bookmarked
+		
+		# Do not update the application nor insert the event if `force' is
+		# True, ie., if we are updating an existing item.
+		if force:
 			return True
 		
-		except Exception, ex:
+		# Insert the application
+		# FIXME: Is reading the .desktop file and storing that stuff into
+		# the DB really required?
+		app_info = DesktopEntry(ritem["app"])
+		app_uri_id, app_content_id, app_source_id = self._get_ids(ritem["app"],
+			unicode(app_info.getType()), unicode(app_info.getExec()).split()[0])
+		app_item = self._get_item(app_uri_id, app_content_id, app_source_id,
+			unicode(app_info.getName()), icon=unicode(app_info.getIcon()))
+		try:
+			self.store.execute("INSERT INTO app (item_id, info) VALUES (?,?)",
+				(app_uri_id, unicode(ritem["app"])), noresult=True)
+		except sqlite3.IntegrityError:
 			pass
+		
+		# Insert the event
+		e_id, e_content_id, e_subject_id = self._get_ids(event_uri, ritem["use"], None)
+		e_item = self._get_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
+		try:
+			self.store.execute(
+				"INSERT INTO event (item_id, subject_id, start, app_id) VALUES (?,?,?,?)",
+				(e_id, uri_id, ritem["timestamp"], app_uri_id), noresult=True)
+		except sqlite3.IntegrityError:
+			# This shouldn't happen.
+			logging.exception("Couldn't insert event into DB.")
+		
+		return True
 	
 	def insert_items(self, items):
 		"""
@@ -289,7 +268,7 @@ class ZeitgeistEngine(gobject.GObject):
 				amount_items += 1
 		self.store.commit()
 		t2 = time.time()
-		logging.debug("Inserted %s items in %.5f s" % (amount_items,t2-t1))
+		logging.debug("Inserted %s items in %.5f s." % (amount_items,t2-t1))
 		
 		self._set_bookmarks()
 		return amount_items
