@@ -26,8 +26,6 @@ from zeitgeist.dbusutils import dictify_data, sig_plain_data
 
 _engine = get_default_engine()
 
-_remote_logger = logging.getLogger("zeitgeist.engine.remote")
-
 class RemoteInterface(dbus.service.Object):
 	
 	# Initialization
@@ -56,8 +54,6 @@ class RemoteInterface(dbus.service.Object):
 		#   source: <str>
 		#   content: <str>
 		#   bookmarked: <bool> (True means bookmarked items, and vice versa
-		_remote_logger.debug("FindEvents: requested %s" %", ".join(map(repr, \
-			(min_timestamp, max_timestamp, limit, sorting_asc, unique, filters))))
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
 			sorting_asc, unique, filters)
 	

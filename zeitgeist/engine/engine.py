@@ -35,7 +35,7 @@ from zeitgeist.engine.base import *
 from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT
 
 class ZeitgeistEngine(gobject.GObject):
-
+	
 	def __init__(self, storm_store):
 		
 		gobject.GObject.__init__(self)
@@ -43,7 +43,7 @@ class ZeitgeistEngine(gobject.GObject):
 		assert storm_store is not None
 		self.store = storm_store
 		self._apps = set()
-		self.bookmarks = []
+		self._bookmarks = []
 		self._last_time_from_app = {}
 		
 		'''
@@ -52,15 +52,11 @@ class ZeitgeistEngine(gobject.GObject):
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 		'''
-
+	
 	def _set_bookmarks(self):
-		self.bookmarks = []
-		for b in self.store.find(Annotation.subject_id,
+		self._bookmarks = self.store.find(Annotation.subject_id,
 			Item.content_id == Content.BOOKMARK.id,
-			Annotation.item_id == Item.id):
-			
-			self.bookmarks.append(b)
-		
+			Annotation.item_id == Item.id).values(Annotation.subject_id)
 	
 	def _result2data(self, event=None, item=None):
 		
@@ -73,10 +69,7 @@ class ZeitgeistEngine(gobject.GObject):
 		# also fetch this information.
 		
 		# Check if the item is bookmarked
-		# FIXME: this seems redundant if i am fetching bookmarked items
-		bookmark = False
-		if self.bookmarks.count(item.id) >0:
-			bookmark = True
+		bookmark = item.id in self._bookmarks
 		
 		result = self._get_tags_for_item(item)
 		tags = ",".join(set(result)) if result else ""
