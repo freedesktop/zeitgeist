@@ -43,6 +43,7 @@ class ZeitgeistEngine(gobject.GObject):
 		assert storm_store is not None
 		self.store = storm_store
 		self._apps = set()
+		self.bookmarks = []
 		self._last_time_from_app = {}
 		
 		'''
@@ -51,6 +52,15 @@ class ZeitgeistEngine(gobject.GObject):
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 		'''
+
+	def _set_bookmarks(self):
+		self.bookmarks = []
+		for b in self.store.find(Annotation.subject_id,
+			Item.content_id == Content.BOOKMARK.id,
+			Annotation.item_id == Item.id):
+			
+			self.bookmarks.append(b)
+		
 	
 	def _result2data(self, event=None, item=None):
 		
@@ -64,10 +74,9 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		# Check if the item is bookmarked
 		# FIXME: this seems redundant if i am fetching bookmarked items
-		bookmark = bool(self.store.find(Item,
-			Item.content_id == Content.BOOKMARK.id,
-			Annotation.subject_id == item.id,
-			Annotation.item_id == Item.id).one())
+		bookmark = False
+		if self.bookmarks.count(item.id) >0:
+			bookmark = True
 		
 		result = self._get_tags_for_item(item)
 		tags = ",".join(set(result)) if result else ""
@@ -159,6 +168,7 @@ class ZeitgeistEngine(gobject.GObject):
 				mimetype=?, icon=? WHERE id=?""",
 				(content_id, source_id, text, origin, mimetype, icon, id),
 				noresult=True)
+		
 	
 	def insert_item(self, ritem, commit=True, force=False):
 		"""
@@ -288,6 +298,7 @@ class ZeitgeistEngine(gobject.GObject):
 		t2 = time.time()
 		logging.debug("Inserted %s items in %.5f s" % (amount_items,t2-t1))
 		
+		self._set_bookmarks()
 		return amount_items
 	
 	def get_item(self, uri):
@@ -386,6 +397,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self.insert_item(item, True, True)
 		self.store.commit()
 		self.store.flush()
+		self._set_bookmarks()
 	
 	def update_items(self, items):
 		map(self._update_item, items)
