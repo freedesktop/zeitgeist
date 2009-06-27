@@ -150,13 +150,14 @@ class ZeitgeistEngine(gobject.GObject):
 				mimetype=?, icon=? WHERE id=?""",
 				(content_id, source_id, text, origin, mimetype, icon, id),
 				noresult=True)
-		
 	
 	def insert_item(self, ritem, commit=True, force=False):
 		"""
-		Inserts an item into the database. Returns True on success,
-		False otherwise (for example, if the item already is in the
-		database).
+		Inserts an item into the database. Returns a positive number on success,
+		zero otherwise (for example, if the item already is in the
+		database). In case the positive number is 1, the inserted event is new,
+		in case it's 2 the event already existed and was updated (this only
+		happens when `force' is True).
 		"""
 		# we require all  all keys here
 		missing = ITEM_STRUCTURE_KEYS - set(ritem.keys())
@@ -188,9 +189,10 @@ class ZeitgeistEngine(gobject.GObject):
 		# Check whether the events is already in the database. If so,
 		# don't do anything. If it isn't there yet, we proceed with the
 		# process. Except if `force' is true, then we always proceed.
-		if not force and self.store.execute(
-		"SELECT id FROM uri WHERE value = ?", (event_uri,)).get_one():
-			return False
+		event_exists = bool(self.store.execute(
+			"SELECT id FROM uri WHERE value = ?", (event_uri,)).get_one())
+		if not force and event_exists:
+			return 0
 		
 		# Insert or update the item
 		item = self._get_item(uri_id, content_id, source_id, ritem["text"],
@@ -224,7 +226,7 @@ class ZeitgeistEngine(gobject.GObject):
 		# Do not update the application nor insert the event if `force' is
 		# True, ie., if we are updating an existing item.
 		if force:
-			return True
+			return 2 if event_exists else 1
 		
 		# Insert the application
 		# FIXME: Is reading the .desktop file and storing that stuff into
@@ -251,7 +253,7 @@ class ZeitgeistEngine(gobject.GObject):
 			# This shouldn't happen.
 			logging.exception("Couldn't insert event into DB.")
 		
-		return True
+		return 1
 	
 	def insert_items(self, items):
 		"""
