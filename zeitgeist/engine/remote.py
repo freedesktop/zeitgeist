@@ -100,7 +100,7 @@ class RemoteInterface(dbus.service.Object):
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="a"+sig_plain_data, out_signature="")
 	def UpdateItems(self, item_list):
-		_engine.update_items(dictify_data(item_list))
+		_engine.update_items([dictify_data(x) for x in item_list])
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="as", out_signature="")
