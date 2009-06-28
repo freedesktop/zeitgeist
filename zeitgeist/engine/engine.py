@@ -362,7 +362,7 @@ class ZeitgeistEngine(gobject.GObject):
 		args += [ limit or sys.maxint ]
 		
 		events = self.store.execute("""
-			SELECT uri.value, 0 AS timestamp, main_item.id, content.value,
+			SELECT uri.value, event.start, main_item.id, content.value,
 				"" AS use, source.value, main_item.origin, main_item.text,
 				main_item.mimetype, main_item.icon, "" AS app,
 				(SELECT id
