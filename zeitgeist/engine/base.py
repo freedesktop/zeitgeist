@@ -25,6 +25,9 @@ from storm.locals import *
 
 from zeitgeist.lrucache import LRUCache
 
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("zeitgeist.engine.base")
+
 class Symbol:
 	""" A simple structure to hold a URI and a short label and magically
 		cache and entity (integer) id.
@@ -119,16 +122,16 @@ class Entity(object):
 			_store.execute(
 			"INSERT INTO %s (value) VALUES (?)" % klass.__storm_table__,
 			(value, ), noresult=True)
-			#logging.debug("Inserted %s: %s" % (klass.__storm_table__,value))
+			#log.debug("Inserted %s: %s" % (klass.__storm_table__,value))
 		except Exception, ex:
 			pass
-			#logging.exception("Not inserting %s, %s: %s" % (klass.__storm_table__, value, ex))
+			#log.exception("Not inserting %s, %s: %s" % (klass.__storm_table__, value, ex))
 				
 		id_query = _store.execute(
 					"SELECT id FROM %s WHERE VALUE=?" % klass.__storm_table__,
 					(value, )).get_one()
 		if not id_query:
-			logging.error("Failed to insert %s entity: %s" % (
+			log.error("Failed to insert %s entity: %s" % (
 				klass.__storm_table__,value))
 			return None
 		ent.id = id_query[0]
@@ -363,7 +366,7 @@ Item.annotations = ReferenceSet(Item.id, Annotation.subject_id)
 Item.events = ReferenceSet(Item.id, Event.subject_id)
 
 def create_store(storm_url):
-	logging.info("Creating database... %s" % storm_url)
+	log.info("Creating database... %s" % storm_url)
 	db = create_database(storm_url)
 	store = Store(db)
 	store.execute("""

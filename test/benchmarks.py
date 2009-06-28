@@ -13,6 +13,10 @@ from zeitgeist.dbusutils import *
 from time import time
 
 import unittest
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("test.benchmarks")
 
 class EngineInsertTest (unittest.TestCase):
 	"""
@@ -55,11 +59,15 @@ class EngineInsertTest (unittest.TestCase):
 	
 	def testInsert1000in200Chunks(self):
 		batch = []
+		full_start = time()
 		for i in range(1,1001):
 			batch.append(self.newDummyItem("test://item%s" % i))
 			if len(batch) % 200 == 0:
+				start = time()
 				self.engine.insert_items(batch)
+				log.info("Inserted 200 items in: %ss" % (time()-start))
 				batch = []
+		log.info("Total insertion time for 1000 items: %ss" % (time()-full_start))
 	
 	def testURICreation(self):
 		start = time()	

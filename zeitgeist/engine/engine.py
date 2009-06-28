@@ -35,6 +35,9 @@ from zeitgeist import config
 from zeitgeist.engine.base import *
 from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT
 
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("zeitgeist.engine")
+
 class ZeitgeistEngine(gobject.GObject):
 	
 	def __init__(self, storm_store):
@@ -165,16 +168,16 @@ class ZeitgeistEngine(gobject.GObject):
 			raise KeyError(("these keys are missing in order to add "
 							"this item properly: %s" %", ".join(missing)))
 		if not ritem["uri"].strip():
-			logging.warning("Discarding item without a URI: %s" % ritem)
+			log.warning("Discarding item without a URI: %s" % ritem)
 			return False
 		if not ritem["content"].strip():
-			logging.warning("Discarding item without a Content type: %s" % ritem)
+			log.warning("Discarding item without a Content type: %s" % ritem)
 			return False
 		if not ritem["source"].strip():
-			logging.warning("Discarding item without a Source type: %s" % ritem)
+			log.warning("Discarding item without a Source type: %s" % ritem)
 			return False
 		if not ritem["mimetype"].strip():
-			logging.warning("Discarding item without a mimetype: %s" % ritem)
+			log.warning("Discarding item without a mimetype: %s" % ritem)
 			return False
 		ritem = dict((key, TYPES_DICT[key](value)) for key, value in ritem.iteritems())
 		
@@ -251,7 +254,7 @@ class ZeitgeistEngine(gobject.GObject):
 				(e_id, uri_id, ritem["timestamp"], app_uri_id), noresult=True)
 		except sqlite3.IntegrityError:
 			# This shouldn't happen.
-			logging.exception("Couldn't insert event into DB.")
+			log.exception("Couldn't insert event into DB.")
 		
 		return 1
 	
@@ -270,7 +273,7 @@ class ZeitgeistEngine(gobject.GObject):
 				inserted_items.append(item)
 		self.store.commit()
 		time2 = time.time()
-		logging.debug("Inserted %s items in %.5f s." % (len(inserted_items),
+		log.debug("Inserted %s items in %.5f s." % (len(inserted_items),
 			time2 - time1))
 		
 		self._set_bookmarks()
