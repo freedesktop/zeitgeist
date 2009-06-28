@@ -35,7 +35,7 @@ def get_session_bus():
 	global _bus
 	
 	if _bus :
-		return bus
+		return _bus
 	
 	try:
 		_bus = dbus.SessionBus()
