@@ -85,7 +85,7 @@ class ZeitgeistEngine(gobject.GObject):
 			value[5], # source
 			value[3], # content
 			value[8], # mimetype
-			value[12], # tags
+			value[12] or "", # tags
 			"", # comment
 			bool(value[11]), # bookmark
 			value[4], # usage is determined by the event Content type # event.item.content.value
@@ -334,9 +334,10 @@ class ZeitgeistEngine(gobject.GObject):
 			INNER JOIN content ON (content.id == main_item.content_id)
 			INNER JOIN source ON (source.id == main_item.source_id)
 			LEFT JOIN annotation ON (annotation.subject_id = main_item.id)
-			INNER JOIN item tagitem ON (annotation.item_id = tagitem.id)
-			WHERE uri.value = ? AND tagitem.content_id = ? LIMIT 1
-			""", (Content.BOOKMARK.id, unicode(uri), Content.TAG.id)).get_one()
+			LEFT JOIN item tagitem ON (annotation.item_id = tagitem.id
+				AND tagitem.content_id = ?)
+			WHERE uri.value = ? LIMIT 1
+			""", (Content.BOOKMARK.id, Content.TAG.id, unicode(uri))).get_one()
 		
 		if item:
 			return self._format_result(item)
