@@ -59,7 +59,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"use" : Content.CREATE_EVENT.uri,
 					"origin" : "http://example.org",
 					"comment": "",
-					"tags": "example, test, tagtest",
+					"tags": u"example, test, tagtest",
 					"bookmark": False, 
 					}
 		self.engine.insert_item(orig)		
@@ -75,7 +75,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		content_types = [str(ctype) for ctype in self.engine.get_types()]
 		self.assertTrue(Content.IMAGE.uri in content_types)
-		self.assertEquals([], list(self.engine.get_tags()))
+		self.assertEquals([(u"example", 1), (u"test", 1), (u"tagtest", 1)],
+			list(self.engine.get_tags()))
 	
 	def testBookmark (self):
 		self.assertEmptyDB()

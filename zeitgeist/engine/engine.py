@@ -67,29 +67,28 @@ class ZeitgeistEngine(gobject.GObject):
 		information and converts it into a tuple suitable for transmission
 		over D-Bus. """
 		
-		tags = self.store.execute("""
+		tags = u', '.join([tag[0] for tag in self.store.execute("""
 			SELECT text FROM item
 			INNER JOIN annotation ON annotation.item_id=item.id
 			WHERE annotation.subject_id=(
 				SELECT id FROM uri WHERE uri.value = ?)
 			AND item.content_id = ?
-			""", (value[0], Content.TAG.id)).get_all()
+			""", (value[0], Content.TAG.id)).get_all()])
 		
 		return (
 			value[1], # timestamp
 			value[0], # uri
-			value[6] or os.path.basename(value[0]), # name
-			item.source.value or "", # source
-			item.content.value or "", # content
-			item[7], # mimetype
+			value[7] or os.path.basename(value[0]), # name
+			value[5], # source
+			value[3], # content
+			value[8], # mimetype
 			tags, # tags
 			"", # comment
-			bookmark, # bookmark
-			# FIXME: I guess event.item.content below should never be None
-			event.item.content.value if (event and event.item.content) else "", # usage is determined by the event Content type
-			item.icon or "", # icon
-			"", # app	  # FIXME!
-			item.origin or "" # origin
+			False, # bookmark
+			value[4], # usage is determined by the event Content type # event.item.content.value
+			value[9], # icon
+			value[10], # app
+			value[6] # origin
 			)
 	
 	def _result2data(self, event=None, item=None):
@@ -312,22 +311,26 @@ class ZeitgeistEngine(gobject.GObject):
 		return inserted_items
 	
 	def get_item(self, uri):
-		"""Returns basic information about the indicated URI."""
+		""" Returns basic information about the indicated URI. As we are
+			fetching an item, and not an event, `timestamp' is 0 and `use'
+			and `app' are empty strings."""
+		
 		item = self.store.execute("""
-			SELECT uri.value, 0 AS timestamp, item.id, item.content_id, item.source_id,
-				item.origin, item.text, item.mimetype, item.icon
+			SELECT uri.value, 0 AS timestamp, item.id, content.value, "" AS use,
+				source.value, item.origin, item.text, item.mimetype, item.icon,
+				"" AS app
 			FROM item
-			INNER JOIN uri ON (item.id = uri.id)
-			WHERE uri.value = ?
-			LIMIT 1
+			INNER JOIN uri ON (uri.id = item.id)
+			INNER JOIN content ON (content.id == item.content_id)
+			INNER JOIN source ON (source.id == item.source_id)
+			WHERE uri.value = ? LIMIT 1
 			""", (unicode(uri),)).get_one()
 		
 		bookmark = bool(self.store.find(Item,
 			Item.content_id == Content.BOOKMARK.id,
-			Annotation.subject_id == item.id,
+			Annotation.subject_id == item[2],
 			Annotation.item_id == Item.id).one())
 		
-		print "\"%s\"" % uri, item
 		if item:
 			return self._format_result(item)
 	
