@@ -269,6 +269,8 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		time1 = time.time()
 		for item in items:
+			# This is always 0 or 1, no need to consider 2 as we don't
+			# use the `force' option.
 			if self.insert_item(item, commit=False):
 				inserted_items.append(item)
 		self.store.commit()
@@ -369,7 +371,7 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		
 		#FIXME Delete all tags of the ITEM
-		self.delete_item(item)
+		self._delete_item(item)
 		self.store.commit()
 		self.store.flush()
 		self.insert_item(item, True, True)
