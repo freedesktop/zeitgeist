@@ -25,7 +25,6 @@ from storm.locals import *
 
 from zeitgeist.lrucache import LRUCache
 
-logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("zeitgeist.engine.base")
 
 class Symbol:
@@ -115,19 +114,16 @@ class Entity(object):
 		#
 		if klass.CACHE is not None and value in klass.CACHE:
 			return klass.CACHE[value]
-			
+		
 		value = unicode(value)
 		ent = klass(value, add_to_store=False)
 		try:
 			_store.execute(
 			"INSERT INTO %s (value) VALUES (?)" % klass.__storm_table__,
 			(value, ), noresult=True)
-			log.debug("Inserted %s: %s" % (klass.__storm_table__,value))
 		except Exception, ex:
 			pass
-			log.exception("Not inserting %s, %s: %s" \
-								% (klass.__storm_table__, value, ex))
-				
+		
 		id_query = _store.execute(
 					"SELECT id FROM %s WHERE VALUE=?" % klass.__storm_table__,
 					(value, )).get_one()
