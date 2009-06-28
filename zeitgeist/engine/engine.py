@@ -338,8 +338,6 @@ class ZeitgeistEngine(gobject.GObject):
 			WHERE uri.value = ? AND tagitem.content_id = ? LIMIT 1
 			""", (Content.BOOKMARK.id, unicode(uri), Content.TAG.id)).get_one()
 		
-		print item
-		
 		if item:
 			return self._format_result(item)
 	
