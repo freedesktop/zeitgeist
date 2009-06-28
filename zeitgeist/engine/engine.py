@@ -62,6 +62,36 @@ class ZeitgeistEngine(gobject.GObject):
 			Item.content_id == Content.BOOKMARK.id,
 			Annotation.item_id == Item.id).values(Annotation.subject_id)
 	
+	def _format_result(self, value):
+		""" Takes a row from SQL containing all necessary event and item
+		information and converts it into a tuple suitable for transmission
+		over D-Bus. """
+		
+		tags = self.store.execute("""
+			SELECT text FROM item
+			INNER JOIN annotation ON annotation.item_id=item.id
+			WHERE annotation.subject_id=(
+				SELECT id FROM uri WHERE uri.value = ?)
+			AND item.content_id = ?
+			""", (value[0], Content.TAG.id)).get_all()
+		
+		return (
+			value[1], # timestamp
+			value[0], # uri
+			value[6] or os.path.basename(value[0]), # name
+			item.source.value or "", # source
+			item.content.value or "", # content
+			item[7], # mimetype
+			tags, # tags
+			"", # comment
+			bookmark, # bookmark
+			# FIXME: I guess event.item.content below should never be None
+			event.item.content.value if (event and event.item.content) else "", # usage is determined by the event Content type
+			item.icon or "", # icon
+			"", # app	  # FIXME!
+			item.origin or "" # origin
+			)
+	
 	def _result2data(self, event=None, item=None):
 		
 		if not item:
@@ -283,10 +313,23 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def get_item(self, uri):
 		"""Returns basic information about the indicated URI."""
-		item = self.store.find(Item, Item.id == URI.id,
-			URI.value == unicode(uri)).one()
+		item = self.store.execute("""
+			SELECT uri.value, 0 AS timestamp, item.id, item.content_id, item.source_id,
+				item.origin, item.text, item.mimetype, item.icon
+			FROM item
+			INNER JOIN uri ON (item.id = uri.id)
+			WHERE uri.value = ?
+			LIMIT 1
+			""", (unicode(uri),)).get_one()
+		
+		bookmark = bool(self.store.find(Item,
+			Item.content_id == Content.BOOKMARK.id,
+			Annotation.subject_id == item.id,
+			Annotation.item_id == Item.id).one())
+		
+		print "\"%s\"" % uri, item
 		if item:
-			return self._result2data(item=item)
+			return self._format_result(item)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
 			sorting_asc=True, unique=False, filters=()):

@@ -59,7 +59,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"use" : Content.CREATE_EVENT.uri,
 					"origin" : "http://example.org",
 					"comment": "",
-					"tags": "",
+					"tags": "example, test, tagtest",
 					"bookmark": False, 
 					}
 		self.engine.insert_item(orig)		
