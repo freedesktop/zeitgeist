@@ -433,7 +433,7 @@ def clear_entity_cache():
 	   across a session. In cases like unit tests where the db is often reset,
 	   this cache needs to be reset in order to provide correct results"""
 	Entity.CACHE = {}
-	URI.CACHE = LRUCache(500)
+	URI.CACHE = LRUCache(10)
 	Content.CACHE = {}
 	Source.CACHE = {}
 
