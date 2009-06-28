@@ -364,7 +364,11 @@ class ZeitgeistEngine(gobject.GObject):
 		events = self.store.execute("""
 			SELECT uri.value, event.start, main_item.id, content.value,
 				"" AS use, source.value, main_item.origin, main_item.text,
-				main_item.mimetype, main_item.icon, "" AS app,
+				main_item.mimetype, main_item.icon,
+				(SELECT info
+					FROM app
+					WHERE app.item_id = event.app_id
+					) AS app,
 				(SELECT id
 					FROM item
 					INNER JOIN annotation ON annotation.item_id = item.id
