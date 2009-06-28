@@ -94,7 +94,7 @@ class ZeitgeistEngine(gobject.GObject):
 			value[8], # mimetype
 			tags, # tags
 			"", # comment
-			False, # bookmark
+			bool(value[11]), # bookmark
 			value[4], # usage is determined by the event Content type # event.item.content.value
 			value[9], # icon
 			value[10], # app
@@ -327,20 +327,20 @@ class ZeitgeistEngine(gobject.GObject):
 			and `app' are empty strings."""
 		
 		item = self.store.execute("""
-			SELECT uri.value, 0 AS timestamp, item.id, content.value, "" AS use,
-				source.value, item.origin, item.text, item.mimetype, item.icon,
-				"" AS app
-			FROM item
-			INNER JOIN uri ON (uri.id = item.id)
-			INNER JOIN content ON (content.id == item.content_id)
-			INNER JOIN source ON (source.id == item.source_id)
+			SELECT uri.value, 0 AS timestamp, main_item.id, content.value,
+				"" AS use, source.value, main_item.origin, main_item.text,
+				main_item.mimetype, main_item.icon, "" AS app,
+				(SELECT id
+					FROM item
+					INNER JOIN annotation ON annotation.item_id = item.id
+					WHERE annotation.subject_id = main_item.id AND
+						item.content_id = ?) AS bookmark
+			FROM item main_item
+			INNER JOIN uri ON (uri.id = main_item.id)
+			INNER JOIN content ON (content.id == main_item.content_id)
+			INNER JOIN source ON (source.id == main_item.source_id)
 			WHERE uri.value = ? LIMIT 1
-			""", (unicode(uri),)).get_one()
-		
-		bookmark = bool(self.store.find(Item,
-			Item.content_id == Content.BOOKMARK.id,
-			Annotation.subject_id == item[2],
-			Annotation.item_id == Item.id).one())
+			""", (Content.BOOKMARK.id, unicode(uri))).get_one()
 		
 		if item:
 			return self._format_result(item)
