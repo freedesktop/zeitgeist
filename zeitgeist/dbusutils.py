@@ -106,4 +106,7 @@ def plainify_dict(item_list):
 	return tuple(item_list.get(name, DEFAULTS[type]) for name, type in ITEM_STRUCTURE)
 
 def dictify_data(item_list):
-    return dict((key[0], item_list[i]) for i, key in enumerate(ITEM_STRUCTURE))
+	print "*******************"
+	print item_list
+	print "*******************"
+	return dict((key[0], item_list[i]) for i, key in enumerate(ITEM_STRUCTURE))

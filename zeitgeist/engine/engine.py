@@ -49,6 +49,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self._apps = set()
 		self._bookmarks = []
 		self._last_time_from_app = {}
+		self._apps_id = {}
 		
 		'''
 		path = BaseDirectory.save_data_path("zeitgeist")
@@ -57,6 +58,15 @@ class ZeitgeistEngine(gobject.GObject):
 		self.cursor = self.connection.cursor()
 		'''
 	
+	def _get_app(self, id):
+		if self._apps_id.has_key(id):
+			return self._apps_id[id]
+		
+		info = self.store.execute("SELECT info FROM app WHERE item_id=?",(id,)).get_one()
+		if info:
+			self._apps_id[id] = info[0]
+			return info[0]
+		
 	def _set_bookmarks(self):
 		self._bookmarks = self.store.find(Annotation.subject_id,
 			Item.content_id == Content.BOOKMARK.id,
@@ -78,6 +88,7 @@ class ZeitgeistEngine(gobject.GObject):
 		result = self._get_tags_for_item(item)
 		tags = ",".join(set(result)) if result else ""
 		
+		
 		return (
 			event.start if event else 0, # timestamp
 			item.uri.value, # uri
@@ -91,7 +102,7 @@ class ZeitgeistEngine(gobject.GObject):
 			# FIXME: I guess event.item.content below should never be None
 			event.item.content.value if (event and event.item.content) else "", # usage is determined by the event Content type
 			item.icon or "", # icon
-			"", # app	  # FIXME!
+			self._get_app(event.app_id),
 			item.origin or "" # origin
 			)
 	
