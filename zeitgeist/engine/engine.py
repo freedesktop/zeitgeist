@@ -47,7 +47,6 @@ class ZeitgeistEngine(gobject.GObject):
 		assert storm_store is not None
 		self.store = storm_store
 		self._apps = set()
-		self._bookmarks = []
 		self._last_time_from_app = {}
 		self._apps_id = {}
 		
@@ -67,11 +66,6 @@ class ZeitgeistEngine(gobject.GObject):
 		if info:
 			self._apps_id[id] = info[0]
 			return info[0]
-		
-	def _set_bookmarks(self):
-		self._bookmarks = self.store.find(Annotation.subject_id,
-			Item.content_id == Content.BOOKMARK.id,
-			Annotation.item_id == Item.id).values(Annotation.subject_id)
 	
 	def _format_result(self, value):
 		""" Takes a row from SQL containing all necessary event and item
@@ -93,62 +87,6 @@ class ZeitgeistEngine(gobject.GObject):
 			value[10], # app
 			value[6] # origin
 			)
-	
-	def _result2data(self, event=None, item=None):
-		
-		if not item:
-			item = event.subject
-		
-		# The SQL calls to get the bookmark status and the tags here
-		# is really time consuming when done for a set of results from
-		# find_events. Rather, the SQL queries getting the events should
-		# also fetch this information.
-		
-		# Check if the item is bookmarked
-		bookmark = item.id in self._bookmarks
-		
-		result = self._get_tags_for_item(item)
-		tags = ",".join(set(result)) if result else ""
-		
-		
-		return (
-			event.start if event else 0, # timestamp
-			item.uri.value, # uri
-			item.text or os.path.basename(item.uri.value), # name
-			item.source.value or "", # source
-			item.content.value or "", # content
-			item.mimetype or "", # mimetype
-			tags, # tags
-			"", # comment
-			bookmark, # bookmark
-			# FIXME: I guess event.item.content below should never be None
-			event.item.content.value if (event and event.item.content) else "", # usage is determined by the event Content type
-			item.icon or "", # icon
-			self._get_app(event.app_id) or "",
-			item.origin or "" # origin
-			)
-	
-	def _ensure_item(self, item, uri_only=False):
-		"""
-		Takes either a Data object or an URI for an item in the
-		database. If it's a Data object it is returned unchanged,
-		but if it's an URI it's looked up in the database and the
-		its returned converted into a complete Data object.
-		
-		If uri_only is True, only the URI of the item is returned
-		(and no database query needs to take place).
-		"""
-		
-		# Is it a string (can be str, dbus.String, etc.)?
-		if hasattr(item, "capitalize"):
-			if uri_only:
-				return item
-			else:
-				item = self.get_item(item)
-		elif uri_only:
-			return item["uri"]
-		
-		return item
 	
 	def get_last_timestamp(self, uri=None):
 		"""
@@ -311,7 +249,6 @@ class ZeitgeistEngine(gobject.GObject):
 		log.debug("Inserted %s items in %.5f s." % (len(inserted_items),
 			time2 - time1))
 		
-		self._set_bookmarks()
 		return inserted_items
 	
 	def get_item(self, uri):
@@ -328,14 +265,16 @@ class ZeitgeistEngine(gobject.GObject):
 					INNER JOIN annotation ON annotation.item_id = item.id
 					WHERE annotation.subject_id = main_item.id AND
 						item.content_id = ?) AS bookmark,
-				group_concat(tagitem.text, ", ")
+				(SELECT group_concat(item.text, ", ")
+					FROM item
+					INNER JOIN annotation ON annotation.item_id = item.id
+					WHERE annotation.subject_id = main_item.id AND
+						item.content_id = ?
+					) AS tags
 			FROM item main_item
 			INNER JOIN uri ON (uri.id = main_item.id)
 			INNER JOIN content ON (content.id == main_item.content_id)
 			INNER JOIN source ON (source.id == main_item.source_id)
-			LEFT JOIN annotation ON (annotation.subject_id = main_item.id)
-			LEFT JOIN item tagitem ON (annotation.item_id = tagitem.id
-				AND tagitem.content_id = ?)
 			WHERE uri.value = ? LIMIT 1
 			""", (Content.BOOKMARK.id, Content.TAG.id, unicode(uri))).get_one()
 		
@@ -360,7 +299,8 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		
 		# Emulate optional arguments for the D-Bus interface
-		if not max: max = sys.maxint
+		if not max:
+			max = sys.maxint
 		
 		# filters is a list of dicts, where each dict can have the following items:
 		#   text_name: <str>
@@ -371,14 +311,17 @@ class ZeitgeistEngine(gobject.GObject):
 		#   content: <str>
 		#   bookmarked: <bool> (True means bookmarked items, and vice versa
 		expressions = []
+		additional_args = []
 		for filter in filters:
 			if not isinstance(filter, dict):
 				raise TypeError("Expected a dict, got %s." % type(filter).__name__)
 			filterset = []
 			if "text_name" in filter:
-				filterset += [ Item.text.like(unicode(filter["text_name"]), escape="\\") ]
+				filterset += [ "main_item.text LIKE ? ESCAPE \"\\\"" ]
+				additional_args += [ filter["text_name"] ]
 			if "text_uri" in filter:
-				filterset += [ URI.value.like(unicode(filter["text_uri"]), escape="\\") ]
+				filterset += [ "uri.value LIKE ? ESCAPE \"\\\"" ]
+				additional_args += [ filter["text_uri"] ]
 			if "tags" in filter:
 				pass # tags...
 			if "mimetypes" in filter:
@@ -387,35 +330,64 @@ class ZeitgeistEngine(gobject.GObject):
 				mimetypes = [m[0] for m in self.store.execute("""
 						SELECT DISTINCT(mimetype) FROM item
 						WHERE %s""" % condition, filter["mimetypes"]).get_all()]
-				filterset += [ Item.mimetype.is_in(mimetypes) ]
+				filterset += [ "main_item.mimetype IN (%s)" % \
+					",".join(["\"%s\"" % name for name in mimetypes]) ]
 			if "source" in filter:
 				pass # source ...
 			if "content" in filter:
 				pass # content
 			if "bookmarked" in filter:
-				bookmarks = Select(Annotation.subject_id, And(
-					Item.content_id == Content.BOOKMARK.id,
-					Annotation.item_id == Item.id))
 				if filter["bookmarked"]:
 					# Only get bookmarked items
-					filterset += [Event.subject_id.is_in(bookmarks)]
+					filterset += [ "bookmark > 0" ]
 				else:
 					# Only get items that aren't bookmarked
-					filterset += [Not(Event.subject_id.is_in(bookmarks))]
+					pass # FIXME
+					#filterset += [ "bookmark < 1" ]
 			if filterset:
-				expressions += [ And(*filterset) ]
+				expressions += [ "(" + " AND ".join(filterset) + ")" ]
 		
-		t1 = time.time()
-		events = self.store.find(Event, Event.start >= min, Event.start <= max,
-			URI.id == Event.subject_id, Item.id == Event.subject_id,
-			Or(*expressions) if expressions else True)
-		events.order_by(Event.start if sorting_asc else Desc(Event.start))
+		if expressions:
+			expressions = ("AND (" + " OR ".join(expressions) + ")")
+		else:
+			expressions = ""
+		preexpressions = ""
 		
 		if unique:
-			events.max(Event.start)
-			events.group_by(Event.subject_id)
+			preexpressions += ", MAX(event.start)"
+			expressions += " GROUP BY event.subject_id"
 		
-		return [self._result2data(event) for event in events[:limit or None]]
+		args = [ Content.BOOKMARK.id, Content.TAG.id, min, max ]
+		args += additional_args
+		args += [ limit or sys.maxint ]
+		
+		events = self.store.execute("""
+			SELECT uri.value, 0 AS timestamp, main_item.id, content.value,
+				"" AS use, source.value, main_item.origin, main_item.text,
+				main_item.mimetype, main_item.icon, "" AS app,
+				(SELECT id
+					FROM item
+					INNER JOIN annotation ON annotation.item_id = item.id
+					WHERE annotation.subject_id = main_item.id AND
+						item.content_id = ?) AS bookmark,
+				(SELECT group_concat(item.text, ", ")
+					FROM item
+					INNER JOIN annotation ON annotation.item_id = item.id
+					WHERE annotation.subject_id = main_item.id AND
+						item.content_id = ?
+					) AS tags
+					%s
+			FROM item main_item
+			INNER JOIN event ON (main_item.id = event.subject_id)
+			INNER JOIN uri ON (uri.id = main_item.id)
+			INNER JOIN content ON (content.id == main_item.content_id)
+			INNER JOIN source ON (source.id == main_item.source_id)
+			WHERE event.start >= ? AND event.start <= ? %s
+			ORDER BY event.start %s LIMIT ?
+			""" % (preexpressions, expressions,
+				"ASC" if sorting_asc else "DESC"), args).get_all()
+		
+		return [self._format_result(event) for event in events]
 	
 	def _update_item(self, item):
 		"""
@@ -431,19 +403,9 @@ class ZeitgeistEngine(gobject.GObject):
 		self.insert_item(item, True, True)
 		self.store.commit()
 		self.store.flush()
-		self._set_bookmarks()
 	
 	def update_items(self, items):
 		map(self._update_item, items)
-	
-	def _get_tags_for_item(self, item):
-		package = []
-		id = item.id
-		tags = self.store.find(Annotation.item_id, Annotation.subject_id == id)
-		for tag in tags:
-			tag = self.store.find(Item.text, Item.id == tag).one()
-			package.append(tag)
-		return package
 	
 	def _delete_item(self, item):
 		
