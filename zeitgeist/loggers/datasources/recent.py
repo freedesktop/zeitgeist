@@ -211,12 +211,12 @@ class RecentlyUsedManagerGtk(DataProvider):
 	FILTERS = {
 		# dict of name as key and  the matching mimetypes as value
 		# if the value is None this filter matches all mimetypes
-		u"Documents": MimeTypeSet(*DOCUMENT_MIMETYPES),
-		u"Other": InverseMimeTypeSet(*ALL_MIMETYPES),
-		u"Images": MimeTypeSet(*IMAGE_MIMETYPES),
-		u"Music": MimeTypeSet(*AUDIO_MIMETYPES),
-		u"Videos": MimeTypeSet(*VIDEO_MIMETYPES),
-		u"Development": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
+		u"Documents": (MimeTypeSet(*DOCUMENT_MIMETYPES),"stock_new-presentation"),
+		u"Other": (InverseMimeTypeSet(*ALL_MIMETYPES),"applications-other"),
+		u"Images": (MimeTypeSet(*IMAGE_MIMETYPES),"gnome-mime-image"),
+		u"Music": (MimeTypeSet(*AUDIO_MIMETYPES),"gnome-mime-audio"),
+		u"Videos": (MimeTypeSet(*VIDEO_MIMETYPES),"gnome-mime-video"),
+		u"Development": (MimeTypeSet(*DEVELOPMENT_MIMETYPES),"applications-development",),
 	}
 	
 	def __init__(self):
@@ -262,7 +262,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					if timestamp < self._timestamp_last_run:
 						continue
 					for filter_name, mimetypes in self.FILTERS.iteritems():
-						if mimetype is None or mimetype in mimetypes:
+						if mimetype is None or mimetype in mimetypes[0]:
 							item = {
 								"timestamp": timestamp,
 								"uri": uri,
@@ -272,7 +272,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 								"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
 								"mimetype": mimetype,
 								"tags": tags,
-								"icon": u"",
+								"icon": mimetypes[1],
 								"app": unicode(desktopfile),
 								"origin": u"", 	# we are not sure about the origin of this item,
 												# let's make it NULL, it has to be a string
