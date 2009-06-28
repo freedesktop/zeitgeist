@@ -25,7 +25,7 @@ from storm.locals import *
 
 from zeitgeist.lrucache import LRUCache
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("zeitgeist.engine.base")
 
 class Symbol:
@@ -93,14 +93,14 @@ class Entity(object):
 		   entity is not known"""
 		if value:
 			value = unicode(value)
-			if value in klass.CACHE:
+			if klass.CACHE is not None and value in klass.CACHE:
 				return klass.CACHE[value]
 			ent = _store.find(klass, klass.value == value).one()
-			if ent:
+			if klass.CACHE is not None and ent:
 				klass.CACHE[value] = ent
 			return ent
 		elif id:
-			return _store.find(klass, klass.id == id).one()
+			return _store.get(id) # Lookup on primary key
 		else:
 			raise ValueError("Looking up Entity without a value or id")
 	
@@ -113,7 +113,7 @@ class Entity(object):
 		#  2) Try to create it
 		#  3) Look it up and return it
 		#
-		if value in klass.CACHE:
+		if klass.CACHE is not None and value in klass.CACHE:
 			return klass.CACHE[value]
 			
 		value = unicode(value)
@@ -122,10 +122,11 @@ class Entity(object):
 			_store.execute(
 			"INSERT INTO %s (value) VALUES (?)" % klass.__storm_table__,
 			(value, ), noresult=True)
-			#log.debug("Inserted %s: %s" % (klass.__storm_table__,value))
+			log.debug("Inserted %s: %s" % (klass.__storm_table__,value))
 		except Exception, ex:
 			pass
-			#log.exception("Not inserting %s, %s: %s" % (klass.__storm_table__, value, ex))
+			log.exception("Not inserting %s, %s: %s" \
+								% (klass.__storm_table__, value, ex))
 				
 		id_query = _store.execute(
 					"SELECT id FROM %s WHERE VALUE=?" % klass.__storm_table__,
@@ -135,7 +136,10 @@ class Entity(object):
 				klass.__storm_table__,value))
 			return None
 		ent.id = id_query[0]
-		klass.CACHE[value] = ent
+		
+		if klass.CACHE is not None:
+			klass.CACHE[value] = ent
+		
 		return ent
 
 class Content(Entity):
@@ -181,8 +185,10 @@ class URI(Entity):
 	__storm_primary__= "id"
 	
 	# URI uses an LRUCache rather than a plain dict because it may end up
-	# storing thousands and thousands of itemss
-	CACHE = LRUCache(500)
+	# storing thousands and thousands of items.
+	# kamstrup played a lot around with cache sizes (and no caches at all)
+	# and found the best avg. performance with a small cache size of ~10s
+	CACHE = LRUCache(10)
 	
 	def __init__ (self, value, add_to_store=True):				
 		super(URI, self).__init__(value, add_to_store=add_to_store)
@@ -366,7 +372,7 @@ Item.annotations = ReferenceSet(Item.id, Annotation.subject_id)
 Item.events = ReferenceSet(Item.id, Event.subject_id)
 
 def create_store(storm_url):
-	log.info("Creating database... %s" % storm_url)
+	log.info("Creating database: %s" % storm_url)
 	db = create_database(storm_url)
 	store = Store(db)
 	store.execute("""
