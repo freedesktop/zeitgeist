@@ -62,7 +62,8 @@ class ZeitgeistEngine(gobject.GObject):
 		if self._apps_id.has_key(id):
 			return self._apps_id[id]
 		
-		info = self.store.execute("SELECT info FROM app WHERE item_id=?",(id,)).get_one()
+		info = self.store.execute("SELECT info FROM app WHERE item_id=?",
+			(id,)).get_one()
 		if info:
 			self._apps_id[id] = info[0]
 			return info[0]
@@ -77,14 +78,6 @@ class ZeitgeistEngine(gobject.GObject):
 		information and converts it into a tuple suitable for transmission
 		over D-Bus. """
 		
-		tags = u', '.join([tag[0] for tag in self.store.execute("""
-			SELECT text FROM item
-			INNER JOIN annotation ON annotation.item_id=item.id
-			WHERE annotation.subject_id=(
-				SELECT id FROM uri WHERE uri.value = ?)
-			AND item.content_id = ?
-			""", (value[0], Content.TAG.id)).get_all()])
-		
 		return (
 			value[1], # timestamp
 			value[0], # uri
@@ -92,7 +85,7 @@ class ZeitgeistEngine(gobject.GObject):
 			value[5], # source
 			value[3], # content
 			value[8], # mimetype
-			tags, # tags
+			value[12], # tags
 			"", # comment
 			bool(value[11]), # bookmark
 			value[4], # usage is determined by the event Content type # event.item.content.value
@@ -334,13 +327,18 @@ class ZeitgeistEngine(gobject.GObject):
 					FROM item
 					INNER JOIN annotation ON annotation.item_id = item.id
 					WHERE annotation.subject_id = main_item.id AND
-						item.content_id = ?) AS bookmark
+						item.content_id = ?) AS bookmark,
+				group_concat(tagitem.text, ", ")
 			FROM item main_item
 			INNER JOIN uri ON (uri.id = main_item.id)
 			INNER JOIN content ON (content.id == main_item.content_id)
 			INNER JOIN source ON (source.id == main_item.source_id)
-			WHERE uri.value = ? LIMIT 1
-			""", (Content.BOOKMARK.id, unicode(uri))).get_one()
+			LEFT JOIN annotation ON (annotation.subject_id = main_item.id)
+			INNER JOIN item tagitem ON (annotation.item_id = tagitem.id)
+			WHERE uri.value = ? AND tagitem.content_id = ? LIMIT 1
+			""", (Content.BOOKMARK.id, unicode(uri), Content.TAG.id)).get_one()
+		
+		print item
 		
 		if item:
 			return self._format_result(item)
