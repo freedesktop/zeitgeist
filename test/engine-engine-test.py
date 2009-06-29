@@ -350,6 +350,15 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			[{"mimetypes": [u"image/jpg"], "bookmarked": False}])
 		self.assertEquals(len([x for x in result]), 1)
 	
+	def testFindEventsWithTags(self):
+		self._init_with_various_events()
+		result1 = [x[1] for x in self.engine.find_events(0, 0, 0, True, False,
+			[{"tags": [u"files"]}])]
+		result2 = [x[1] for x in self.engine.find_events(0, 0, 0, True, False,
+			[{"tags": [u"files", u"examples"]}])]
+		self.assertEquals(result1, result2)
+		self.assertEquals(result1, [u"file:///tmp/files/example.png"])
+	
 	def testGetTagsNameFilter(self):
 		self._init_with_various_events()
 		result = self.engine.get_tags(u"f%")

@@ -323,7 +323,10 @@ class ZeitgeistEngine(gobject.GObject):
 				filterset += [ "uri.value LIKE ? ESCAPE \"\\\"" ]
 				additional_args += [ filter["text_uri"] ]
 			if "tags" in filter:
-				pass # tags...
+				for tag in filter["tags"]:
+					filterset += [ "(tags == \"%s\" OR tags LIKE \"%s, %%\" OR "
+						"tags LIKE \"%%, %s, %%\" OR tags LIKE \"%%, %s\")" \
+						% (tag, tag, tag, tag) ]
 			if "mimetypes" in filter:
 				condition = ' OR '.join(
 					['mimetype LIKE ? ESCAPE "\\"'] * len(filter["mimetypes"]))
