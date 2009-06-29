@@ -44,7 +44,7 @@ class RemoteInterface(SingletonApplication):
 		return map(_engine.get_item, uris)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="iiibbaa{sv}", out_signature="a"+sig_plain_data)
+						in_signature="iiibsaa{sv}", out_signature="a"+sig_plain_data)
 	def FindEvents(self, min_timestamp, max_timestamp, limit,
 			sorting_asc, unique, filters):
 		# filters is a list of dicts, where each dict can have the following items:
@@ -56,7 +56,7 @@ class RemoteInterface(SingletonApplication):
 		#   content: <str>
 		#   bookmarked: <bool> (True means bookmarked items, and vice versa
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
-			sorting_asc, unique, filters)
+			sorting_asc, mode, filters)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="sii", out_signature="i")

@@ -282,14 +282,20 @@ class ZeitgeistEngine(gobject.GObject):
 			return self._format_result(item)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
-			sorting_asc=True, unique=False, filters=()):
+			sorting_asc=True, mode="event", filters=()):
 		"""
 		Returns all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
 		may be used to filter on tags or `mimetypes' to filter on
 		mimetypes.
 		
-		Parameter filters is an array of structs containing: (text
+		Parameter `mode' can be one of "event", "item" or "mostused".
+		The first mode returns all events, the second one only returns
+		the last event when items are repeated and the "mostused" mode
+		is like "item" but returns the results sorted by the number of
+		events.
+		
+		Parameter `filters' is an array of structs containing: (text
 		to search in the name, text to search in the URI, tags,
 		mimetypes, source, content). The filter between characteristics
 		inside the same struct is of type AND (all need to match), but
@@ -301,6 +307,13 @@ class ZeitgeistEngine(gobject.GObject):
 		# Emulate optional arguments for the D-Bus interface
 		if not max:
 			max = sys.maxint
+		if not mode:
+			mode = "event"
+		
+		if not mode in ("event", "item", "mostused"):
+			logging.error("Bad find_events call: mode \"%s\" not recongized." \
+				% mode)
+			return ()
 		
 		# filters is a list of dicts, where each dict can have the following items:
 		#   text_name: <str>
@@ -356,7 +369,7 @@ class ZeitgeistEngine(gobject.GObject):
 			expressions = ""
 		preexpressions = ""
 		
-		if unique:
+		if mode in ("item", "mostused"):
 			preexpressions += ", MAX(event.start)"
 			expressions += " GROUP BY event.subject_id"
 		
