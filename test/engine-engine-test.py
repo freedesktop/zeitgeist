@@ -325,6 +325,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.find_events(0, 0, 0, True, "item", [])
 		self.assertEquals(len([x for x in result]), 4)
 	
+	def testFindEventsMostUsed(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, True, "mostused", [])
+		self.assertEquals(result[0][2], u"Cool Picture 1")
+	
 	def testFindEventsMimetype(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event",

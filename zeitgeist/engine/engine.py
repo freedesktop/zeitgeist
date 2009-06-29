@@ -367,11 +367,15 @@ class ZeitgeistEngine(gobject.GObject):
 			expressions = ("AND (" + " OR ".join(expressions) + ")")
 		else:
 			expressions = ""
+		
 		preexpressions = ""
+		additional_orderby = ""
 		
 		if mode in ("item", "mostused"):
 			preexpressions += ", MAX(event.start)"
 			expressions += " GROUP BY event.subject_id"
+			if mode == "mostused":
+				additional_orderby = "COUNT(event.rowid) DESC,"
 		
 		args = [ Content.BOOKMARK.id, Content.TAG.id, min, max ]
 		args += additional_args
@@ -403,8 +407,8 @@ class ZeitgeistEngine(gobject.GObject):
 			INNER JOIN content ON (content.id == main_item.content_id)
 			INNER JOIN source ON (source.id == main_item.source_id)
 			WHERE event.start >= ? AND event.start <= ? %s
-			ORDER BY event.start %s LIMIT ?
-			""" % (preexpressions, expressions,
+			ORDER BY %s event.start %s LIMIT ?
+			""" % (preexpressions, expressions, additional_orderby,
 				"ASC" if sorting_asc else "DESC"), args).get_all()
 		
 		return [self._format_result(event) for event in events]
