@@ -46,7 +46,7 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="iiibsaa{sv}", out_signature="a"+sig_plain_data)
 	def FindEvents(self, min_timestamp, max_timestamp, limit,
-			sorting_asc, unique, filters):
+			sorting_asc, mode, filters):
 		# filters is a list of dicts, where each dict can have the following items:
 		#   text_name: <str>
 		#   text_uri: <str>
