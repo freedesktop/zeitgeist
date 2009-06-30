@@ -7,7 +7,8 @@ INTLTOOL = \
 
 bin_SCRIPTS = \
 	zeitgeist-daemon \
-	zeitgeist-datahub
+	zeitgeist-datahub \
+	COPYING.GPL
 
 EXTRA_DIST = \
 	$(bin_SCRIPTS) \
