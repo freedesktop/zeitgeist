@@ -340,14 +340,11 @@ class ZeitgeistEngine(gobject.GObject):
 					filterset += [ "(tags == \"%s\" OR tags LIKE \"%s, %%\" OR "
 						"tags LIKE \"%%, %s, %%\" OR tags LIKE \"%%, %s\")" \
 						% (tag, tag, tag, tag) ]
-			if "mimetypes" in filter:
-				condition = ' OR '.join(
-					['mimetype LIKE ? ESCAPE "\\"'] * len(filter["mimetypes"]))
-				mimetypes = [m[0] for m in self.store.execute("""
-						SELECT DISTINCT(mimetype) FROM item
-						WHERE %s""" % condition, filter["mimetypes"]).get_all()]
-				filterset += [ "main_item.mimetype IN (%s)" % \
-					",".join(["\"%s\"" % name for name in mimetypes]) ]
+			if "mimetypes" in filter and len(filter["mimetypes"]):
+				filterset += [ "(" + " OR ".join(
+					['main_item.mimetype LIKE ? ESCAPE "\\"'] * \
+					len(filter["mimetypes"])) + ")" ]
+				additional_args += filter["mimetypes"]
 			if "source" in filter:
 				pass # source ...
 			if "content" in filter:
