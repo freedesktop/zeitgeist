@@ -6,7 +6,8 @@ app_PYTHON = \
 	__init__.py \
 	datamodel.py \
 	dbusutils.py \
-	lrucache.py
+	lrucache.py \
+	singleton.py
 
 nodist_app_PYTHON = config.py
 
