@@ -102,11 +102,13 @@ class RemoteInterface(SingletonApplication):
 						in_signature="a"+sig_plain_data, out_signature="")
 	def UpdateItems(self, item_list):
 		_engine.update_items([dictify_data(x) for x in item_list])
+		self.EventsChanged()
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="as", out_signature="")
 	def DeleteItems(self, uris):
 		_engine.delete_items(uris)
+		self.EventsChanged()
 	
 	# Signals and signal emitters
 	

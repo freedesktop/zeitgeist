@@ -431,11 +431,12 @@ class ZeitgeistEngine(gobject.GObject):
 	def update_items(self, items):
 		map(self._update_item, items)
 	
-	def _delete_item(self, item):
+	def _delete_item(self, uri):
 		
-		uri_id = self.store.execute("SELECT id FROM URI WHERE value=?",(item["uri"],)).get_one()
+		uri_id = self.store.execute("SELECT id FROM URI WHERE value=?", (uri,)).get_one()
 		uri_id = uri_id[0]
-		annotation_ids = self.store.execute("SELECT item_id FROM Annotation WHERE subject_id=?",(uri_id,)).get_all()
+		annotation_ids = self.store.execute(
+			"SELECT item_id FROM Annotation WHERE subject_id=?", (uri_id,)).get_all()
 		if len(annotation_ids) > 0:
 			for anno in annotation_ids[0]:
 				self.store.execute("DELETE FROM Annotation WHERE subject_id=?",
