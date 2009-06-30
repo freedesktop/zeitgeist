@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-22 19:24+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-06-30 14:22+0200\n"
 "PO-Revision-Date: 2009-06-10 20:56+0000\n"
 "Last-Translator: Serhey Kusyumoff (Сергій Кусюмов) <sergemine@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
@@ -17,259 +17,307 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-06-11 14:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-trayicon:34
-msgid "Open Journal"
-msgstr "Відкрити журнал дій"
+#: ../zeitgeist-daemon:43
+msgid "Starting Zeitgeist service..."
+msgstr "Файло-облікова/пошукова система Зайтгайст завантажується..."
 
-#: ../zeitgeist-trayicon:114
-msgid ""
-"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
-"computer."
+#: ../zeitgeist-datahub:45
+msgid "No passive loggers found, bye."
 msgstr ""
-"Файло-облікова/пошукова система Зайтгайст є інструментом швидкого пошуку та "
-"перегляду файлів на Вашому компютері"
 
-#: ../zeitgeist-journal:44 ../zeitgeist-journal:93
-msgid "Stars"
-msgstr "Зірки"
-
-#: ../zeitgeist-journal:49
-msgid "Journal"
-msgstr "Журнал"
-
-#: ../zeitgeist-datahub:57
-#, c-format
-msgid "Error: Could not load file: %s"
+#: ../zeitgeist-datahub:65
+#, fuzzy, c-format
+msgid "Could not load file: %s"
 msgstr "Помилка: Неможливо завантажити файл: %s"
 
-#: ../zeitgeist-datahub:83
+#: ../zeitgeist-datahub:90
 #, c-format
 msgid "Updating database with new %s items"
 msgstr "До бази даних додаються нові %s елементи"
 
-#: ../zeitgeist-datahub:97
+#: ../zeitgeist-datahub:120
+msgid "Lost connection to zeitgeist-daemon, terminating."
+msgstr ""
+
+#: ../zeitgeist-datahub:125
 #, c-format
 msgid "Type error logging item from \"%s\": %s"
 msgstr "Пункт журналу помилок вводу \"%s\": %s"
 
-#: ../zeitgeist-daemon:36
-msgid "Starting Zeitgeist service..."
-msgstr "Файло-облікова/пошукова система Зайтгайст завантажується..."
+#: ../zeitgeist/datamodel.py:71
+msgid "Tags"
+msgstr "Мітки"
 
-#: ../zeitgeist/shared/zeitgeist_dbus.py:13
-msgid "Error: Could not connect to D-Bus."
+#: ../zeitgeist/datamodel.py:75
+#, fuzzy
+msgid "Bookmarks"
+msgstr "Встановити закладку"
+
+#: ../zeitgeist/datamodel.py:79
+#, fuzzy
+msgid "Comments"
+msgstr "Документи"
+
+#: ../zeitgeist/datamodel.py:83
+msgid "Documents"
+msgstr "Документи"
+
+#: ../zeitgeist/datamodel.py:87
+msgid "Images"
+msgstr "Зображення"
+
+#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
+msgid "Videos"
+msgstr "Відео"
+
+#: ../zeitgeist/datamodel.py:95
+msgid "Music"
+msgstr "Музика"
+
+#: ../zeitgeist/datamodel.py:103
+msgid "Email"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:107
+msgid "Messages"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:111
+msgid "Feeds"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:115
+msgid "Broadcasts"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:119
+msgid "Created"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:123
+msgid "Modified"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:127
+msgid "Visited"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:131
+msgid "Send"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:135
+msgid "Received"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:139
+msgid "Warnings"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:143
+msgid "Errors"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:147
+msgid "Applications"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:155
+#, fuzzy
+msgid "Web History"
+msgstr "Історія веб-переглядів Браузера Firefox"
+
+#: ../zeitgeist/datamodel.py:159
+msgid "Activities"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:163
+msgid "Notifications"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:167
+#, fuzzy
+msgid "Files"
+msgstr "Фільтри"
+
+#: ../zeitgeist/datamodel.py:171
+msgid "System Resources"
+msgstr ""
+
+#: ../zeitgeist/dbusutils.py:44
+#, fuzzy
+msgid "Could not connect to D-Bus."
 msgstr "Помилка: Неможливо зєднатись з D-Bus."
 
-#: ../zeitgeist/shared/zeitgeist_dbus.py:18
+#: ../zeitgeist/dbusutils.py:58
 msgid "Error: Zeitgeist service not running."
 msgstr ""
 "Помилка: Служба Файло-облікової/пошукової системи Зайтгайст не запущена"
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:84
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:87
-msgid "Notes"
-msgstr "Нотатки"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:89
-msgid "Create New Note"
-msgstr "Створити новий запис"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:90
-msgid "Make a new Tomboy note"
-msgstr "Створити нову нотатку Tomboy"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:169
-msgid "Documents"
-msgstr "Документи"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:181
-msgid "Other"
-msgstr "Решта"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:200
-msgid "Images"
-msgstr "Зображення"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:210
-msgid "Music"
-msgstr "Музика"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:220
-msgid "Videos"
-msgstr "Відео"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:23
+#: ../zeitgeist/loggers/datasources/firefox.py:61
 msgid "Firefox History"
 msgstr "Історія веб-переглядів Браузера Firefox"
 
-#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:26
+#: ../zeitgeist/loggers/datasources/firefox.py:64
 msgid "Websites visited with Firefox"
 msgstr "Веб-сторінки, що відкривались в Firefox"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:418
-msgid "Recently used tags"
-msgstr "Нещодавно використані мітки"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:419
-#: ../zeitgeist/gui/zeitgeist_base.py:253
-msgid "Most used tags"
-msgstr "Найчастіш вживані мітки"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:420
-msgid "All tags"
-msgstr "Всі мітки"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:663
-msgid "Search"
-msgstr "Пошук"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:775
-msgid "Show recent activities"
-msgstr "Відобразити нещодавні дії, події"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:782
-msgid "Search for activities"
-msgstr "Знайти записи своєї діяльності"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:818
-msgid "Tags"
-msgstr "Мітки"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
-msgid "Calendar"
-msgstr "Календар"
-
-#. vbox.pack_start(calendar, False, False)
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:828
-msgid "Filters"
-msgstr "Фільтри"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:830
-msgid "Enable Grouping"
-msgstr "Запровадити групування елементів"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:81
-msgid "Name"
-msgstr "Назва"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:88
-msgid "Time"
-msgstr "Час"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:407
-msgid "Tagged with:"
-msgstr "Має мітку:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:409
-msgid "The file has been removed from"
-msgstr "Файл було меренесено з"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:431
-msgid "New Document"
-msgstr "Новий документ"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:477
-msgid "Related files"
-msgstr "Повязані файли"
-
-#. TODO: Use proper, separate widgets for this
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:500
-msgid "Last usage:"
-msgstr "Востаннє використано:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:502
-msgid "Tags:"
-msgstr "Мітки:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:504
+#: ../zeitgeist/loggers/datasources/firefox.py:92
 #, python-format
-msgid "Files related to %s"
-msgstr "Файли, що мають стосунок до %s"
+msgid "Unable to monitor Firefox history %s: %s"
+msgstr ""
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:552
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:573
-#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:63
-msgid "Today"
-msgstr "Сьогодні"
+#: ../zeitgeist/loggers/datasources/firefox.py:95
+#, fuzzy, python-format
+msgid "Monitoring Firefox history: %s"
+msgstr "Історія веб-переглядів Браузера Firefox"
 
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:622
-msgid "All favorites"
-msgstr "Всі закладки"
+#: ../zeitgeist/loggers/datasources/firefox.py:100
+msgid "No Firefox profile found."
+msgstr ""
 
-#: ../zeitgeist/gui/zeitgeist_base.py:163
-msgid "Unbookmark"
-msgstr "Зняти закладку"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:165
-msgid "Bookmark"
-msgstr "Встановити закладку"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:170
-msgid "Show related activities"
-msgstr "Відобразити повязані з елементом дії"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:175
-msgid "Edit tags..."
-msgstr "Керування мітками..."
-
-#: ../zeitgeist/gui/zeitgeist_base.py:186
-msgid "Delete item from Zeitgeist"
-msgstr "Видалити елемент з бази Зайтгайст"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:216
+#: ../zeitgeist/loggers/datasources/evolution.py:63
 #, python-format
-msgid "Edit tags for %s"
-msgstr "Керування мітками %s ..."
+msgid "Unable to monitor Evolution's folders.db %s: %s"
+msgstr ""
 
-#. Use real Cancel/OK buttons. Those are not compliant with HIG.
-#: ../zeitgeist/gui/zeitgeist_base.py:221
-msgid "Add"
-msgstr "Додати"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:222
-msgid "Cancel"
-msgstr "Скасувати"
-
-#. Window
-#: ../zeitgeist/experimental/zeitgeist-projectviewer.py:24
-msgid "GNOME Zeitgeist Project Viewer"
-msgstr "Перегляд Проекту Зайтгайст для GNOME"
-
-#. Window
-#: ../zeitgeist/experimental/zeitgeist-timeline.py:24
-msgid "GNOME Zeitgeist Timeline"
-msgstr "Графік Зайстгайст для GNOME"
-
-#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:65
-msgid "Yesterday"
-msgstr "Вчора"
-
-#: ../zeitgeist/engine/engine.py:84
+#: ../zeitgeist/loggers/datasources/evolution.py:66
 #, python-format
-msgid "Could not create database: %s"
-msgstr "Помилка створення бази даних: %s"
+msgid "Monitoring Evolution's '%s'"
+msgstr ""
 
-#: ../zeitgeist/engine/engine.py:91
-#, python-format
-msgid "Error connecting with database: %s"
-msgstr "Помилка зєднання з базою даних: %s"
+#~ msgid "Open Journal"
+#~ msgstr "Відкрити журнал дій"
 
-#: ../extra/zeitgeist-journal.desktop.in.in.h:1
-msgid "Browse a journal of recently used files"
-msgstr "Переглянути журнал нещодавно використаних файлів"
+#~ msgid ""
+#~ "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
+#~ "computer."
+#~ msgstr ""
+#~ "Файло-облікова/пошукова система Зайтгайст є інструментом швидкого пошуку "
+#~ "та перегляду файлів на Вашому компютері"
 
-#: ../extra/zeitgeist-journal.desktop.in.in.h:2
-msgid "File Journal"
-msgstr "Журнал файлів"
+#~ msgid "Stars"
+#~ msgstr "Зірки"
 
-#: ../extra/zeitgeist-journal.desktop.in.in.h:3
-msgid "Zeitgeist File Journal"
-msgstr "Журнал файлів в Зайтгайст"
+#~ msgid "Journal"
+#~ msgstr "Журнал"
 
-#: ../extra/zeitgeist-trayicon.desktop.in.in.h:1
-msgid "Start the Zeitgeist engine"
-msgstr "Запустити службу Зайтгайст"
+#~ msgid "Notes"
+#~ msgstr "Нотатки"
 
-#: ../extra/zeitgeist-trayicon.desktop.in.in.h:2
-msgid "Zeitgeist Tray Icon"
-msgstr "Значок Зайтгайст в зоні сповіщення"
+#~ msgid "Create New Note"
+#~ msgstr "Створити новий запис"
+
+#~ msgid "Make a new Tomboy note"
+#~ msgstr "Створити нову нотатку Tomboy"
+
+#~ msgid "Other"
+#~ msgstr "Решта"
+
+#~ msgid "Recently used tags"
+#~ msgstr "Нещодавно використані мітки"
+
+#~ msgid "Most used tags"
+#~ msgstr "Найчастіш вживані мітки"
+
+#~ msgid "All tags"
+#~ msgstr "Всі мітки"
+
+#~ msgid "Search"
+#~ msgstr "Пошук"
+
+#~ msgid "Show recent activities"
+#~ msgstr "Відобразити нещодавні дії, події"
+
+#~ msgid "Search for activities"
+#~ msgstr "Знайти записи своєї діяльності"
+
+#~ msgid "Calendar"
+#~ msgstr "Календар"
+
+#~ msgid "Enable Grouping"
+#~ msgstr "Запровадити групування елементів"
+
+#~ msgid "Name"
+#~ msgstr "Назва"
+
+#~ msgid "Time"
+#~ msgstr "Час"
+
+#~ msgid "Tagged with:"
+#~ msgstr "Має мітку:"
+
+#~ msgid "The file has been removed from"
+#~ msgstr "Файл було меренесено з"
+
+#~ msgid "New Document"
+#~ msgstr "Новий документ"
+
+#~ msgid "Related files"
+#~ msgstr "Повязані файли"
+
+#~ msgid "Last usage:"
+#~ msgstr "Востаннє використано:"
+
+#~ msgid "Tags:"
+#~ msgstr "Мітки:"
+
+#~ msgid "Files related to %s"
+#~ msgstr "Файли, що мають стосунок до %s"
+
+#~ msgid "Today"
+#~ msgstr "Сьогодні"
+
+#~ msgid "All favorites"
+#~ msgstr "Всі закладки"
+
+#~ msgid "Unbookmark"
+#~ msgstr "Зняти закладку"
+
+#~ msgid "Show related activities"
+#~ msgstr "Відобразити повязані з елементом дії"
+
+#~ msgid "Edit tags..."
+#~ msgstr "Керування мітками..."
+
+#~ msgid "Delete item from Zeitgeist"
+#~ msgstr "Видалити елемент з бази Зайтгайст"
+
+#~ msgid "Edit tags for %s"
+#~ msgstr "Керування мітками %s ..."
+
+#~ msgid "Add"
+#~ msgstr "Додати"
+
+#~ msgid "Cancel"
+#~ msgstr "Скасувати"
+
+#~ msgid "GNOME Zeitgeist Project Viewer"
+#~ msgstr "Перегляд Проекту Зайтгайст для GNOME"
+
+#~ msgid "GNOME Zeitgeist Timeline"
+#~ msgstr "Графік Зайстгайст для GNOME"
+
+#~ msgid "Yesterday"
+#~ msgstr "Вчора"
+
+#~ msgid "Could not create database: %s"
+#~ msgstr "Помилка створення бази даних: %s"
+
+#~ msgid "Error connecting with database: %s"
+#~ msgstr "Помилка зєднання з базою даних: %s"
+
+#~ msgid "Browse a journal of recently used files"
+#~ msgstr "Переглянути журнал нещодавно використаних файлів"
+
+#~ msgid "File Journal"
+#~ msgstr "Журнал файлів"
+
+#~ msgid "Zeitgeist File Journal"
+#~ msgstr "Журнал файлів в Зайтгайст"
+
+#~ msgid "Start the Zeitgeist engine"
+#~ msgstr "Запустити службу Зайтгайст"
+
+#~ msgid "Zeitgeist Tray Icon"
+#~ msgstr "Значок Зайтгайст в зоні сповіщення"

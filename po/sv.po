@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-22 19:24+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-06-30 14:22+0200\n"
 "PO-Revision-Date: 2009-05-25 23:44+0000\n"
 "Last-Translator: Morgan B <bengtsson.morgan@gmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -17,258 +17,299 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-06-11 14:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-trayicon:34
-msgid "Open Journal"
-msgstr "Öppna Dagbok"
+#: ../zeitgeist-daemon:43
+msgid "Starting Zeitgeist service..."
+msgstr "Startar Zeitgeist tjänsten..."
 
-#: ../zeitgeist-trayicon:114
-msgid ""
-"GNOME Zeitgeist is a tool for easily browsing and finding files on your "
-"computer."
+#: ../zeitgeist-datahub:45
+msgid "No passive loggers found, bye."
 msgstr ""
-"GNOME Zeitgeist är ett verktyg för att enkelt bläddra igenom och hitta filer "
-"på din dator."
 
-#: ../zeitgeist-journal:44 ../zeitgeist-journal:93
-msgid "Stars"
-msgstr "Stjärnor"
-
-#: ../zeitgeist-journal:49
-msgid "Journal"
-msgstr "Dagbok"
-
-#: ../zeitgeist-datahub:57
-#, c-format
-msgid "Error: Could not load file: %s"
+#: ../zeitgeist-datahub:65
+#, fuzzy, c-format
+msgid "Could not load file: %s"
 msgstr "Fel: Kunde inte ladda fil: %s"
 
-#: ../zeitgeist-datahub:83
+#: ../zeitgeist-datahub:90
 #, c-format
 msgid "Updating database with new %s items"
 msgstr "Uppdaterar databas med nya %s element."
 
-#: ../zeitgeist-datahub:97
+#: ../zeitgeist-datahub:120
+msgid "Lost connection to zeitgeist-daemon, terminating."
+msgstr ""
+
+#: ../zeitgeist-datahub:125
 #, c-format
 msgid "Type error logging item from \"%s\": %s"
 msgstr ""
 
-#: ../zeitgeist-daemon:36
-msgid "Starting Zeitgeist service..."
-msgstr "Startar Zeitgeist tjänsten..."
-
-#: ../zeitgeist/shared/zeitgeist_dbus.py:13
-msgid "Error: Could not connect to D-Bus."
-msgstr "Fel: Kunde inte kontakta D-Bus."
-
-#: ../zeitgeist/shared/zeitgeist_dbus.py:18
-msgid "Error: Zeitgeist service not running."
-msgstr "Fel: Zeitgeist tjänsten körs inte."
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:84
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:87
-msgid "Notes"
-msgstr "Anteckningar"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:89
-msgid "Create New Note"
-msgstr "Skapa Ny Anteckning"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_tomboy.py:90
-msgid "Make a new Tomboy note"
-msgstr "Skapa en ny Tomboy anteckning"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:169
-msgid "Documents"
-msgstr "Dokument"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:181
-msgid "Other"
-msgstr "Andra"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:200
-msgid "Images"
-msgstr "Bilder"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:210
-msgid "Music"
-msgstr "Musik"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_recent.py:220
-msgid "Videos"
-msgstr "Filmer"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:23
-msgid "Firefox History"
-msgstr "Firefox Historik"
-
-#: ../zeitgeist/loggers/datasources/zeitgeist_firefox.py:26
-msgid "Websites visited with Firefox"
-msgstr "Webbplatser besökta med Firefox"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:418
-msgid "Recently used tags"
-msgstr "Nyligen använda etiketter"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:419
-#: ../zeitgeist/gui/zeitgeist_base.py:253
-msgid "Most used tags"
-msgstr "Mest använda etiketter"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:420
-msgid "All tags"
-msgstr "Alla etiketter"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:663
-msgid "Search"
-msgstr "Sök"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:775
-msgid "Show recent activities"
-msgstr "Visa nya aktiviteter"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:782
-msgid "Search for activities"
-msgstr "Sök aktiviteter"
-
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:818
+#: ../zeitgeist/datamodel.py:71
 msgid "Tags"
 msgstr "Etiketter"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:822
-msgid "Calendar"
-msgstr "Kalender"
+#: ../zeitgeist/datamodel.py:75
+msgid "Bookmarks"
+msgstr ""
 
-#. vbox.pack_start(calendar, False, False)
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:828
-msgid "Filters"
+#: ../zeitgeist/datamodel.py:79
+#, fuzzy
+msgid "Comments"
+msgstr "Dokument"
+
+#: ../zeitgeist/datamodel.py:83
+msgid "Documents"
+msgstr "Dokument"
+
+#: ../zeitgeist/datamodel.py:87
+msgid "Images"
+msgstr "Bilder"
+
+#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
+msgid "Videos"
+msgstr "Filmer"
+
+#: ../zeitgeist/datamodel.py:95
+msgid "Music"
+msgstr "Musik"
+
+#: ../zeitgeist/datamodel.py:103
+msgid "Email"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:107
+msgid "Messages"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:111
+msgid "Feeds"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:115
+msgid "Broadcasts"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:119
+msgid "Created"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:123
+msgid "Modified"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:127
+msgid "Visited"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:131
+msgid "Send"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:135
+msgid "Received"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:139
+msgid "Warnings"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:143
+msgid "Errors"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:147
+msgid "Applications"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:155
+#, fuzzy
+msgid "Web History"
+msgstr "Firefox Historik"
+
+#: ../zeitgeist/datamodel.py:159
+msgid "Activities"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:163
+msgid "Notifications"
+msgstr ""
+
+#: ../zeitgeist/datamodel.py:167
+#, fuzzy
+msgid "Files"
 msgstr "Filter"
 
-#: ../zeitgeist/gui/zeitgeist_journal_widgets.py:830
-msgid "Enable Grouping"
-msgstr "Aktivera Gruppering"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:81
-msgid "Name"
-msgstr "Namn"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:88
-msgid "Time"
-msgstr "Tid"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:407
-msgid "Tagged with:"
-msgstr "Etiketterad med:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:409
-msgid "The file has been removed from"
-msgstr "Filen har blivit borttagen från"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:431
-msgid "New Document"
-msgstr "Nytt Dokument"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:477
-msgid "Related files"
-msgstr "Relaterade filer"
-
-#. TODO: Use proper, separate widgets for this
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:500
-msgid "Last usage:"
-msgstr "Senast använda:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:502
-msgid "Tags:"
-msgstr "Etiketter:"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:504
-#, python-format
-msgid "Files related to %s"
-msgstr "Filer relaterade till %s"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:552
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:573
-#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:63
-msgid "Today"
-msgstr "I Dag"
-
-#: ../zeitgeist/gui/zeitgeist_util_widgets.py:622
-msgid "All favorites"
-msgstr "Alla favoriter"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:163
-msgid "Unbookmark"
+#: ../zeitgeist/datamodel.py:171
+msgid "System Resources"
 msgstr ""
 
-#: ../zeitgeist/gui/zeitgeist_base.py:165
-msgid "Bookmark"
+#: ../zeitgeist/dbusutils.py:44
+#, fuzzy
+msgid "Could not connect to D-Bus."
+msgstr "Fel: Kunde inte kontakta D-Bus."
+
+#: ../zeitgeist/dbusutils.py:58
+msgid "Error: Zeitgeist service not running."
+msgstr "Fel: Zeitgeist tjänsten körs inte."
+
+#: ../zeitgeist/loggers/datasources/firefox.py:61
+msgid "Firefox History"
+msgstr "Firefox Historik"
+
+#: ../zeitgeist/loggers/datasources/firefox.py:64
+msgid "Websites visited with Firefox"
+msgstr "Webbplatser besökta med Firefox"
+
+#: ../zeitgeist/loggers/datasources/firefox.py:92
+#, python-format
+msgid "Unable to monitor Firefox history %s: %s"
 msgstr ""
 
-#: ../zeitgeist/gui/zeitgeist_base.py:170
-msgid "Show related activities"
-msgstr "Visa relaterade aktiviteter"
+#: ../zeitgeist/loggers/datasources/firefox.py:95
+#, fuzzy, python-format
+msgid "Monitoring Firefox history: %s"
+msgstr "Firefox Historik"
 
-#: ../zeitgeist/gui/zeitgeist_base.py:175
-msgid "Edit tags..."
-msgstr "Redigera etiketter..."
-
-#: ../zeitgeist/gui/zeitgeist_base.py:186
-msgid "Delete item from Zeitgeist"
-msgstr "Radera post från Zeitgeist"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:216
-#, python-format
-msgid "Edit tags for %s"
-msgstr "Redigera etiketter för %s"
-
-#. Use real Cancel/OK buttons. Those are not compliant with HIG.
-#: ../zeitgeist/gui/zeitgeist_base.py:221
-msgid "Add"
-msgstr "Lägg till"
-
-#: ../zeitgeist/gui/zeitgeist_base.py:222
-msgid "Cancel"
-msgstr "Ångra"
-
-#. Window
-#: ../zeitgeist/experimental/zeitgeist-projectviewer.py:24
-msgid "GNOME Zeitgeist Project Viewer"
-msgstr "GNOME Zeitgeist Projekt Visare"
-
-#. Window
-#: ../zeitgeist/experimental/zeitgeist-timeline.py:24
-msgid "GNOME Zeitgeist Timeline"
-msgstr "GNOME Zeitgeist Tidslinje"
-
-#: ../zeitgeist/experimental/zeitgeist_timeline_widgets.py:65
-msgid "Yesterday"
-msgstr "Igår"
-
-#: ../zeitgeist/engine/engine.py:84
-#, python-format
-msgid "Could not create database: %s"
-msgstr "Kunde inte skapa databas: %s"
-
-#: ../zeitgeist/engine/engine.py:91
-#, python-format
-msgid "Error connecting with database: %s"
-msgstr "Fel vid kontakt med databas: %s"
-
-#: ../extra/zeitgeist-journal.desktop.in.in.h:1
-msgid "Browse a journal of recently used files"
-msgstr "Bläddra i en dagbok med nyligen använda filer"
-
-#: ../extra/zeitgeist-journal.desktop.in.in.h:2
-msgid "File Journal"
-msgstr "Fildagbok"
-
-#: ../extra/zeitgeist-journal.desktop.in.in.h:3
-msgid "Zeitgeist File Journal"
-msgstr "Zeitgeist Fildagbok"
-
-#: ../extra/zeitgeist-trayicon.desktop.in.in.h:1
-msgid "Start the Zeitgeist engine"
-msgstr "Starta Zeitgeist motorn"
-
-#: ../extra/zeitgeist-trayicon.desktop.in.in.h:2
-msgid "Zeitgeist Tray Icon"
+#: ../zeitgeist/loggers/datasources/firefox.py:100
+msgid "No Firefox profile found."
 msgstr ""
+
+#: ../zeitgeist/loggers/datasources/evolution.py:63
+#, python-format
+msgid "Unable to monitor Evolution's folders.db %s: %s"
+msgstr ""
+
+#: ../zeitgeist/loggers/datasources/evolution.py:66
+#, python-format
+msgid "Monitoring Evolution's '%s'"
+msgstr ""
+
+#~ msgid "Open Journal"
+#~ msgstr "Öppna Dagbok"
+
+#~ msgid ""
+#~ "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
+#~ "computer."
+#~ msgstr ""
+#~ "GNOME Zeitgeist är ett verktyg för att enkelt bläddra igenom och hitta "
+#~ "filer på din dator."
+
+#~ msgid "Stars"
+#~ msgstr "Stjärnor"
+
+#~ msgid "Journal"
+#~ msgstr "Dagbok"
+
+#~ msgid "Notes"
+#~ msgstr "Anteckningar"
+
+#~ msgid "Create New Note"
+#~ msgstr "Skapa Ny Anteckning"
+
+#~ msgid "Make a new Tomboy note"
+#~ msgstr "Skapa en ny Tomboy anteckning"
+
+#~ msgid "Other"
+#~ msgstr "Andra"
+
+#~ msgid "Recently used tags"
+#~ msgstr "Nyligen använda etiketter"
+
+#~ msgid "Most used tags"
+#~ msgstr "Mest använda etiketter"
+
+#~ msgid "All tags"
+#~ msgstr "Alla etiketter"
+
+#~ msgid "Search"
+#~ msgstr "Sök"
+
+#~ msgid "Show recent activities"
+#~ msgstr "Visa nya aktiviteter"
+
+#~ msgid "Search for activities"
+#~ msgstr "Sök aktiviteter"
+
+#~ msgid "Calendar"
+#~ msgstr "Kalender"
+
+#~ msgid "Enable Grouping"
+#~ msgstr "Aktivera Gruppering"
+
+#~ msgid "Name"
+#~ msgstr "Namn"
+
+#~ msgid "Time"
+#~ msgstr "Tid"
+
+#~ msgid "Tagged with:"
+#~ msgstr "Etiketterad med:"
+
+#~ msgid "The file has been removed from"
+#~ msgstr "Filen har blivit borttagen från"
+
+#~ msgid "New Document"
+#~ msgstr "Nytt Dokument"
+
+#~ msgid "Related files"
+#~ msgstr "Relaterade filer"
+
+#~ msgid "Last usage:"
+#~ msgstr "Senast använda:"
+
+#~ msgid "Tags:"
+#~ msgstr "Etiketter:"
+
+#~ msgid "Files related to %s"
+#~ msgstr "Filer relaterade till %s"
+
+#~ msgid "Today"
+#~ msgstr "I Dag"
+
+#~ msgid "All favorites"
+#~ msgstr "Alla favoriter"
+
+#~ msgid "Show related activities"
+#~ msgstr "Visa relaterade aktiviteter"
+
+#~ msgid "Edit tags..."
+#~ msgstr "Redigera etiketter..."
+
+#~ msgid "Delete item from Zeitgeist"
+#~ msgstr "Radera post från Zeitgeist"
+
+#~ msgid "Edit tags for %s"
+#~ msgstr "Redigera etiketter för %s"
+
+#~ msgid "Add"
+#~ msgstr "Lägg till"
+
+#~ msgid "Cancel"
+#~ msgstr "Ångra"
+
+#~ msgid "GNOME Zeitgeist Project Viewer"
+#~ msgstr "GNOME Zeitgeist Projekt Visare"
+
+#~ msgid "GNOME Zeitgeist Timeline"
+#~ msgstr "GNOME Zeitgeist Tidslinje"
+
+#~ msgid "Yesterday"
+#~ msgstr "Igår"
+
+#~ msgid "Could not create database: %s"
+#~ msgstr "Kunde inte skapa databas: %s"
+
+#~ msgid "Error connecting with database: %s"
+#~ msgstr "Fel vid kontakt med databas: %s"
+
+#~ msgid "Browse a journal of recently used files"
+#~ msgstr "Bläddra i en dagbok med nyligen använda filer"
+
+#~ msgid "File Journal"
+#~ msgstr "Fildagbok"
+
+#~ msgid "Zeitgeist File Journal"
+#~ msgstr "Zeitgeist Fildagbok"
+
+#~ msgid "Start the Zeitgeist engine"
+#~ msgstr "Starta Zeitgeist motorn"
