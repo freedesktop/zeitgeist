@@ -180,7 +180,7 @@ class FirefoxSource(DataProvider):
 						icon = self.cursor.execute("SELECT url FROM moz_favicons WHERE id=" + str(item[5])).fetchone()
 						icon = unicode(icon[0])
 					else:
-						icon = u"gnome-globe"
+						icon = u""
 					
 					self.last_timestamp = history[j][2]
 					use = "http://gnome.org/zeitgeist/schema/Event#link"
