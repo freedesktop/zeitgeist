@@ -262,7 +262,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					if timestamp < self._timestamp_last_run:
 						continue
 					for filter_name, mimetypes in self.FILTERS.iteritems():
-						if mimetype:
+						if mimetype and mimetype in mimetypes:
 							item = {
 								"timestamp": timestamp,
 								"uri": uri,
@@ -275,7 +275,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 								"icon": u"",
 								"app": unicode(desktopfile),
 								"origin": u"", 	# we are not sure about the origin of this item,
-												# let's make it NULL, it has to be a string
+												# let's make it NULL; it has to be a string
 							}
 							yield item
 		self._timestamp_last_run = timestamp_last_run
