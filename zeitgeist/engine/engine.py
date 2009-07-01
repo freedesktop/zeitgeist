@@ -304,6 +304,8 @@ class ZeitgeistEngine(gobject.GObject):
 		be returned).
 		"""
 		
+		time1 = time.time()
+		
 		# Emulate optional arguments for the D-Bus interface
 		if not max:
 			max = sys.maxint
@@ -408,7 +410,12 @@ class ZeitgeistEngine(gobject.GObject):
 			""" % (preexpressions, expressions, additional_orderby,
 				"ASC" if sorting_asc else "DESC"), args).get_all()
 		
-		return [self._format_result(event) for event in events]
+		result = [self._format_result(event) for event in events]
+		
+		time2 = time.time()
+		log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
+		
+		return result
 	
 	def _update_item(self, item):
 		"""
