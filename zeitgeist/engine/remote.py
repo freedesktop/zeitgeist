@@ -56,7 +56,15 @@ class RemoteInterface(SingletonApplication):
 		#   content: <str>
 		#   bookmarked: <bool> (True means bookmarked items, and vice versa
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
-			sorting_asc, mode, filters)
+			sorting_asc, mode, filters, False)
+	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature="iisaa{sv}", out_signature="a"+sig_plain_data)
+	def CountEvents(self, min_timestamp, max_timestamp, mode, filters):
+		# The parameteres are the same as for FindEvents, except for sorting
+		# which wouldn't make a difference, and limit.
+		return _engine.find_events(min_timestamp, max_timestamp, 0, True,
+			mode, filters, True)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="sii", out_signature="i")

@@ -282,7 +282,7 @@ class ZeitgeistEngine(gobject.GObject):
 			return self._format_result(item)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
-			sorting_asc=True, mode="event", filters=()):
+			sorting_asc=True, mode="event", filters=(), only_count=False):
 		"""
 		Returns all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
@@ -376,12 +376,9 @@ class ZeitgeistEngine(gobject.GObject):
 			if mode == "mostused":
 				additional_orderby = "COUNT(event.rowid) DESC,"
 		
-		args = [ Content.BOOKMARK.id, Content.TAG.id, min, max ]
-		args += additional_args
-		args += [ limit or sys.maxint ]
-		
-		events = self.store.execute("""
-			SELECT uri.value, event.start, main_item.id, content.value,
+		if not only_count:
+			select = """
+				uri.value, event.start, main_item.id, content.value,
 				"" AS use, source.value, main_item.origin, main_item.text,
 				main_item.mimetype, main_item.icon,
 				(SELECT info
@@ -399,7 +396,18 @@ class ZeitgeistEngine(gobject.GObject):
 					WHERE annotation.subject_id = main_item.id AND
 						item.content_id = ?
 					) AS tags
-					%s
+				"""
+			args = [ Content.BOOKMARK.id, Content.TAG.id, min, max ]
+		else:
+			select = "COUNT(event.rowid)"
+			args = [ min, max ]
+		
+		args += additional_args
+		args += [ limit or sys.maxint ]
+		
+		events = self.store.execute("""
+			SELECT %s
+				%s
 			FROM item main_item
 			INNER JOIN event ON (main_item.id = event.subject_id)
 			INNER JOIN uri ON (uri.id = main_item.id)
@@ -407,13 +415,16 @@ class ZeitgeistEngine(gobject.GObject):
 			INNER JOIN source ON (source.id == main_item.source_id)
 			WHERE event.start >= ? AND event.start <= ? %s
 			ORDER BY %s event.start %s LIMIT ?
-			""" % (preexpressions, expressions, additional_orderby,
+			""" % (select, preexpressions, expressions, additional_orderby,
 				"ASC" if sorting_asc else "DESC"), args).get_all()
 		
-		result = [self._format_result(event) for event in events]
-		
-		time2 = time.time()
-		log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
+		if not only_count:
+			result = [self._format_result(event) for event in events]
+			
+			time2 = time.time()
+			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
+		else:
+			result = events[0][0]
 		
 		return result
 	
