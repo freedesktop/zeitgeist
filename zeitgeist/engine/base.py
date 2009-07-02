@@ -22,6 +22,7 @@ import os
 import sys
 import logging
 from storm.locals import *
+from xdg import BaseDirectory
 
 from zeitgeist.lrucache import LRUCache
 
@@ -437,7 +438,9 @@ _store = None
 def get_default_store():
 	global _store
 	if not _store:
-		_store = create_store("sqlite:stormtest.sqlite")
+		file = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
+			"database.sqlite")
+		_store = create_store("sqlite:" + file)
 		clear_entity_cache()
 	return _store
 
