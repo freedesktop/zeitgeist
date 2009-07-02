@@ -3,4 +3,5 @@ man_MANS = \
 	zeitgeist-datahub.1
 
 EXTRA_DIST = \
-	$(man_MANS)
+	$(man_MANS) \
+	dbus
