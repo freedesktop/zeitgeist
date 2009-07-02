@@ -67,7 +67,7 @@ class RemoteInterface(SingletonApplication):
 			mode, filters, True)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="i", out_signature="i")
+						in_signature="s", out_signature="i")
 	def GetLastTimestamp(self, uri):
 		return _engine.get_last_timestamp(uri)
 	
