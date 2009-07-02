@@ -1,5 +1,5 @@
-# Makefile for Sphinx documentation
-#
+# Makefile for Zeitgeist's API documentation
+# This needs the Sphinx Documentation Generator (http://sphinx.pocoo.org/)
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
