@@ -64,7 +64,7 @@ class EngineInsertTest (unittest.TestCase):
 			batch.append(self.newDummyItem("test://item%s" % i))
 			if len(batch) % 200 == 0:
 				start = time()
-				self.engine.insert_items(batch)
+				self.engine.insert_events(batch)
 				log.info("Inserted 200 items in: %ss" % (time()-start))
 				batch = []
 		log.info("Total insertion time for 1000 items: %ss" % (time()-full_start))

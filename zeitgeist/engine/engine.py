@@ -106,10 +106,10 @@ class ZeitgeistEngine(gobject.GObject):
 		return uri_id, content_id, source_id
 	
 	def _get_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
-		self._insert_item(id, content_id, source_id, text, origin, mimetype, icon)
+		self._insert_event(id, content_id, source_id, text, origin, mimetype, icon)
 		return self.store.find(Item, Item.id == id)
 	
-	def _insert_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
+	def _insert_event(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
 		try:
 			self.store.execute("""
 				INSERT INTO Item
@@ -125,7 +125,7 @@ class ZeitgeistEngine(gobject.GObject):
 				(content_id, source_id, text, origin, mimetype, icon, id),
 				noresult=True)
 	
-	def insert_item(self, ritem, commit=True, force=False):
+	def insert_event(self, ritem, commit=True, force=False):
 		"""
 		Inserts an item into the database. Returns a positive number on success,
 		zero otherwise (for example, if the item already is in the
@@ -229,7 +229,7 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		return 1
 	
-	def insert_items(self, items):
+	def insert_events(self, items):
 		"""
 		Inserts items into the database and returns those items which were
 		successfully inserted. If an item fails, that's usually because it
@@ -242,7 +242,7 @@ class ZeitgeistEngine(gobject.GObject):
 		for item in items:
 			# This is always 0 or 1, no need to consider 2 as we don't
 			# use the `force' option.
-			if self.insert_item(item, commit=False):
+			if self.insert_event(item, commit=False):
 				inserted_items.append(item)
 		self.store.commit()
 		time2 = time.time()
@@ -439,7 +439,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self._delete_item(item)
 		self.store.commit()
 		self.store.flush()
-		self.insert_item(item, True, True)
+		self.insert_event(item, True, True)
 		self.store.commit()
 		self.store.flush()
 	

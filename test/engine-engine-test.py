@@ -62,7 +62,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"tags": u"example, test, tagtest",
 					"bookmark": False, 
 					}
-		self.engine.insert_item(orig)		
+		self.engine.insert_event(orig)		
 		result = self.engine.get_item("test://mytest")		
 		self.assertTrue(result is not None)
 		
@@ -96,7 +96,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"comment": "",
 					"tags": ""
 		}
-		self.engine.insert_item(orig)
+		self.engine.insert_event(orig)
 		bookmarks = map(dictify_data, self.engine.find_events(0, 0, 0, True,
 			"event", [{"bookmarked": True}]))
 		self.assertEquals(1, len(bookmarks))
@@ -138,7 +138,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			},
 		)
 		for item in items:
-			self.assertTrue(self.engine.insert_item(item))
+			self.assertTrue(self.engine.insert_event(item))
 		
 		tags = list(self.engine.get_tags())
 		self.assertEquals([("eins", 2)], tags)
@@ -174,7 +174,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"comment": "",
 				"bookmark": False,
 		}
-		self.assertTrue(self.engine.insert_item(item))
+		self.assertTrue(self.engine.insert_event(item))
 		tags = self.engine.get_tags()
 		self.assertEquals([(u"eins", 1), (u"zwei", 1), (u"drei", 1)], tags)
 		
@@ -219,7 +219,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				"bookmark" : True,
 				"comment": "",
 			}
-		self.assertTrue(self.engine.insert_item(item))
+		self.assertTrue(self.engine.insert_event(item))
 		
 		item = base.Item.lookup("test://mytest1")
 		self.assertTrue(item is not None)
@@ -236,7 +236,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def _init_with_various_events(self):
 		self.assertEmptyDB()
 		
-		# Test insert_items()
+		# Test insert_events()
 		item1 = {
 			"uri": u"file:///tmp/test/example.jpg",
 			"content": Content.IMAGE.uri,
@@ -302,7 +302,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"bookmark": True,
 			}
 		items = (item1, item2, item3, item4, item5)
-		self.engine.insert_items(items)
+		self.engine.insert_events(items)
 	
 	def testGetLastInsertionDate(self):
 		self._init_with_various_events()

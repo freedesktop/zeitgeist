@@ -94,10 +94,10 @@ class DataHub(gobject.GObject):
 		for num, item in enumerate(self._sources_queue[0].get_items()):
 			items.add(plainify_dict(item))
 			if num % 200 == 0:
-				self._insert_items(self._sources_queue[0].get_name(), items)
+				self._insert_events(self._sources_queue[0].get_name(), items)
 				items = set()
 		if items:
-			self._insert_items(self._sources_queue[0].get_name(), items)
+			self._insert_events(self._sources_queue[0].get_name(), items)
  		
  		del self._sources_queue[0]
 		
@@ -109,10 +109,10 @@ class DataHub(gobject.GObject):
 		# that GTK+ will continue to call this function in idle CPU time
 		return True
 	
-	def _insert_items(self, source_name, items):
-		if items:
+	def _insert_events(self, source_name, events):
+		if events:
 			try:
-				self._client.InsertItems(items)
+				self._client.InsertEvents(events)
 			except dbus.exceptions.DBusException, error:
 				error = error.get_dbus_name()
 				if error == "org.freedesktop.DBus.Error.ServiceUnknown":

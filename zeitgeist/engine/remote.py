@@ -185,16 +185,16 @@ class RemoteInterface(SingletonApplication):
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="a"+sig_plain_data, out_signature="i")
-	def InsertItems(self, items_list):
-		"""Inserts an item into the database. Returns ``1`` if any item
+	def InsertEvents(self, event_list):
+		"""Inserts events into the database. Returns ``1`` if any event
 		has been added successfully or ``0`` otherwise
 		
-		:param item_list: list of items to be inserted in the database
-		:type item_list: list of tuples presenting an :ref:`item-label`
+		:param event_list: list of events to be inserted in the database
+		:type item_list: list of tuples presenting an :ref:`event-label`
 		:returns: ``1`` on success, ``0`` otherwise
 		:rtype: Integer
 		"""
-		result = _engine.insert_items([dictify_data(x) for x in items_list])
+		result = _engine.insert_events([dictify_data(x) for x in event_list])
 		return result if (result and self.EventsChanged()) else 0
 	
 	@dbus.service.method("org.gnome.zeitgeist",

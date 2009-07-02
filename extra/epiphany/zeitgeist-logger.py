@@ -56,7 +56,7 @@ else:
 				)
 			
 			# Insert it into Zeitgeist
-			iface.InsertItems([item])
+			iface.InsertEvents([item])
 	
 	def attach_tab(window, tab):
 		tab.connect_after("notify::load-status", page_changed, window)
