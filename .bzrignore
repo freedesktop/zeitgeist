@@ -24,3 +24,4 @@ gnome-zeitgeist-*.tar.gz
 .project
 stormtest.sqlite*
 doc/dbus/build
+extra/org.gnome.zeitgeist.service
