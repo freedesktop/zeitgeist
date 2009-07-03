@@ -7,12 +7,13 @@ INTLTOOL = \
 
 bin_SCRIPTS = \
 	zeitgeist-daemon \
-	zeitgeist-datahub \
-	COPYING.GPL
+	zeitgeist-datahub
 
 EXTRA_DIST = \
 	$(bin_SCRIPTS) \
-	$(INTLTOOL)
+	$(INTLTOOL) \
+	COPYING.GPL \
+	COPYRIGHT
 
 DISTCLEANFILES = \
 	intltool-extract \
