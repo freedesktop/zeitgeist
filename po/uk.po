@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-30 14:22+0200\n"
-"PO-Revision-Date: 2009-06-10 20:56+0000\n"
-"Last-Translator: Serhey Kusyumoff (Сергій Кусюмов) <sergemine@gmail.com>\n"
+"PO-Revision-Date: 2009-07-03 22:22+0100\n"
+"Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -26,9 +26,9 @@ msgid "No passive loggers found, bye."
 msgstr ""
 
 #: ../zeitgeist-datahub:65
-#, fuzzy, c-format
+#, c-format
 msgid "Could not load file: %s"
-msgstr "Помилка: Неможливо завантажити файл: %s"
+msgstr "Неможливо завантажити файл: %s"
 
 #: ../zeitgeist-datahub:90
 #, c-format
@@ -66,7 +66,8 @@ msgstr "Документи"
 msgid "Images"
 msgstr "Зображення"
 
-#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
+#: ../zeitgeist/datamodel.py:91
+#: ../zeitgeist/datamodel.py:99
 msgid "Videos"
 msgstr "Відео"
 
@@ -145,14 +146,12 @@ msgid "System Resources"
 msgstr ""
 
 #: ../zeitgeist/dbusutils.py:44
-#, fuzzy
 msgid "Could not connect to D-Bus."
-msgstr "Помилка: Неможливо зєднатись з D-Bus."
+msgstr "Неможливо зєднатись з D-Bus."
 
 #: ../zeitgeist/dbusutils.py:58
 msgid "Error: Zeitgeist service not running."
-msgstr ""
-"Помилка: Служба Файло-облікової/пошукової системи Зайтгайст не запущена"
+msgstr "Помилка: Служба Файло-облікової/пошукової системи Зайтгайст не запущена"
 
 #: ../zeitgeist/loggers/datasources/firefox.py:61
 msgid "Firefox History"
@@ -188,136 +187,94 @@ msgstr ""
 
 #~ msgid "Open Journal"
 #~ msgstr "Відкрити журнал дій"
-
 #~ msgid ""
 #~ "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
 #~ "computer."
 #~ msgstr ""
 #~ "Файло-облікова/пошукова система Зайтгайст є інструментом швидкого пошуку "
 #~ "та перегляду файлів на Вашому компютері"
-
 #~ msgid "Stars"
 #~ msgstr "Зірки"
-
 #~ msgid "Journal"
 #~ msgstr "Журнал"
-
 #~ msgid "Notes"
 #~ msgstr "Нотатки"
-
 #~ msgid "Create New Note"
 #~ msgstr "Створити новий запис"
-
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Створити нову нотатку Tomboy"
-
 #~ msgid "Other"
 #~ msgstr "Решта"
-
 #~ msgid "Recently used tags"
 #~ msgstr "Нещодавно використані мітки"
-
 #~ msgid "Most used tags"
 #~ msgstr "Найчастіш вживані мітки"
-
 #~ msgid "All tags"
 #~ msgstr "Всі мітки"
-
 #~ msgid "Search"
 #~ msgstr "Пошук"
-
 #~ msgid "Show recent activities"
 #~ msgstr "Відобразити нещодавні дії, події"
-
 #~ msgid "Search for activities"
 #~ msgstr "Знайти записи своєї діяльності"
-
 #~ msgid "Calendar"
 #~ msgstr "Календар"
-
 #~ msgid "Enable Grouping"
 #~ msgstr "Запровадити групування елементів"
-
 #~ msgid "Name"
 #~ msgstr "Назва"
-
 #~ msgid "Time"
 #~ msgstr "Час"
-
 #~ msgid "Tagged with:"
 #~ msgstr "Має мітку:"
-
 #~ msgid "The file has been removed from"
 #~ msgstr "Файл було меренесено з"
-
 #~ msgid "New Document"
 #~ msgstr "Новий документ"
-
 #~ msgid "Related files"
 #~ msgstr "Повязані файли"
-
 #~ msgid "Last usage:"
 #~ msgstr "Востаннє використано:"
-
 #~ msgid "Tags:"
 #~ msgstr "Мітки:"
-
 #~ msgid "Files related to %s"
 #~ msgstr "Файли, що мають стосунок до %s"
-
 #~ msgid "Today"
 #~ msgstr "Сьогодні"
-
 #~ msgid "All favorites"
 #~ msgstr "Всі закладки"
-
 #~ msgid "Unbookmark"
 #~ msgstr "Зняти закладку"
-
 #~ msgid "Show related activities"
 #~ msgstr "Відобразити повязані з елементом дії"
-
 #~ msgid "Edit tags..."
 #~ msgstr "Керування мітками..."
-
 #~ msgid "Delete item from Zeitgeist"
 #~ msgstr "Видалити елемент з бази Зайтгайст"
-
 #~ msgid "Edit tags for %s"
 #~ msgstr "Керування мітками %s ..."
-
 #~ msgid "Add"
 #~ msgstr "Додати"
-
 #~ msgid "Cancel"
 #~ msgstr "Скасувати"
-
 #~ msgid "GNOME Zeitgeist Project Viewer"
 #~ msgstr "Перегляд Проекту Зайтгайст для GNOME"
-
 #~ msgid "GNOME Zeitgeist Timeline"
 #~ msgstr "Графік Зайстгайст для GNOME"
-
 #~ msgid "Yesterday"
 #~ msgstr "Вчора"
-
 #~ msgid "Could not create database: %s"
 #~ msgstr "Помилка створення бази даних: %s"
-
 #~ msgid "Error connecting with database: %s"
 #~ msgstr "Помилка зєднання з базою даних: %s"
-
 #~ msgid "Browse a journal of recently used files"
 #~ msgstr "Переглянути журнал нещодавно використаних файлів"
-
 #~ msgid "File Journal"
 #~ msgstr "Журнал файлів"
-
 #~ msgid "Zeitgeist File Journal"
 #~ msgstr "Журнал файлів в Зайтгайст"
-
 #~ msgid "Start the Zeitgeist engine"
 #~ msgstr "Запустити службу Зайтгайст"
-
 #~ msgid "Zeitgeist Tray Icon"
 #~ msgstr "Значок Зайтгайст в зоні сповіщення"
+

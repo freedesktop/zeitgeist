@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-30 14:22+0200\n"
-"PO-Revision-Date: 2009-05-25 23:44+0000\n"
-"Last-Translator: Morgan B <bengtsson.morgan@gmail.com>\n"
+"PO-Revision-Date: 2009-07-03 22:21+0100\n"
+"Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -26,9 +26,9 @@ msgid "No passive loggers found, bye."
 msgstr ""
 
 #: ../zeitgeist-datahub:65
-#, fuzzy, c-format
+#, c-format
 msgid "Could not load file: %s"
-msgstr "Fel: Kunde inte ladda fil: %s"
+msgstr "Kunde inte ladda fil: %s"
 
 #: ../zeitgeist-datahub:90
 #, c-format
@@ -53,9 +53,8 @@ msgid "Bookmarks"
 msgstr ""
 
 #: ../zeitgeist/datamodel.py:79
-#, fuzzy
 msgid "Comments"
-msgstr "Dokument"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:83
 msgid "Documents"
@@ -65,7 +64,8 @@ msgstr "Dokument"
 msgid "Images"
 msgstr "Bilder"
 
-#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
+#: ../zeitgeist/datamodel.py:91
+#: ../zeitgeist/datamodel.py:99
 msgid "Videos"
 msgstr "Filmer"
 
@@ -135,18 +135,16 @@ msgid "Notifications"
 msgstr ""
 
 #: ../zeitgeist/datamodel.py:167
-#, fuzzy
 msgid "Files"
-msgstr "Filter"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:171
 msgid "System Resources"
 msgstr ""
 
 #: ../zeitgeist/dbusutils.py:44
-#, fuzzy
 msgid "Could not connect to D-Bus."
-msgstr "Fel: Kunde inte kontakta D-Bus."
+msgstr "Kunde inte kontakta D-Bus."
 
 #: ../zeitgeist/dbusutils.py:58
 msgid "Error: Zeitgeist service not running."
@@ -166,9 +164,9 @@ msgid "Unable to monitor Firefox history %s: %s"
 msgstr ""
 
 #: ../zeitgeist/loggers/datasources/firefox.py:95
-#, fuzzy, python-format
+#, python-format
 msgid "Monitoring Firefox history: %s"
-msgstr "Firefox Historik"
+msgstr ""
 
 #: ../zeitgeist/loggers/datasources/firefox.py:100
 msgid "No Firefox profile found."
@@ -186,130 +184,90 @@ msgstr ""
 
 #~ msgid "Open Journal"
 #~ msgstr "Öppna Dagbok"
-
 #~ msgid ""
 #~ "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
 #~ "computer."
 #~ msgstr ""
 #~ "GNOME Zeitgeist är ett verktyg för att enkelt bläddra igenom och hitta "
 #~ "filer på din dator."
-
 #~ msgid "Stars"
 #~ msgstr "Stjärnor"
-
 #~ msgid "Journal"
 #~ msgstr "Dagbok"
-
 #~ msgid "Notes"
 #~ msgstr "Anteckningar"
-
 #~ msgid "Create New Note"
 #~ msgstr "Skapa Ny Anteckning"
-
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Skapa en ny Tomboy anteckning"
-
 #~ msgid "Other"
 #~ msgstr "Andra"
-
 #~ msgid "Recently used tags"
 #~ msgstr "Nyligen använda etiketter"
-
 #~ msgid "Most used tags"
 #~ msgstr "Mest använda etiketter"
-
 #~ msgid "All tags"
 #~ msgstr "Alla etiketter"
-
 #~ msgid "Search"
 #~ msgstr "Sök"
-
 #~ msgid "Show recent activities"
 #~ msgstr "Visa nya aktiviteter"
-
 #~ msgid "Search for activities"
 #~ msgstr "Sök aktiviteter"
-
 #~ msgid "Calendar"
 #~ msgstr "Kalender"
-
 #~ msgid "Enable Grouping"
 #~ msgstr "Aktivera Gruppering"
-
 #~ msgid "Name"
 #~ msgstr "Namn"
-
 #~ msgid "Time"
 #~ msgstr "Tid"
-
 #~ msgid "Tagged with:"
 #~ msgstr "Etiketterad med:"
-
 #~ msgid "The file has been removed from"
 #~ msgstr "Filen har blivit borttagen från"
-
 #~ msgid "New Document"
 #~ msgstr "Nytt Dokument"
-
 #~ msgid "Related files"
 #~ msgstr "Relaterade filer"
-
 #~ msgid "Last usage:"
 #~ msgstr "Senast använda:"
-
 #~ msgid "Tags:"
 #~ msgstr "Etiketter:"
-
 #~ msgid "Files related to %s"
 #~ msgstr "Filer relaterade till %s"
-
 #~ msgid "Today"
 #~ msgstr "I Dag"
-
 #~ msgid "All favorites"
 #~ msgstr "Alla favoriter"
-
 #~ msgid "Show related activities"
 #~ msgstr "Visa relaterade aktiviteter"
-
 #~ msgid "Edit tags..."
 #~ msgstr "Redigera etiketter..."
-
 #~ msgid "Delete item from Zeitgeist"
 #~ msgstr "Radera post från Zeitgeist"
-
 #~ msgid "Edit tags for %s"
 #~ msgstr "Redigera etiketter för %s"
-
 #~ msgid "Add"
 #~ msgstr "Lägg till"
-
 #~ msgid "Cancel"
 #~ msgstr "Ångra"
-
 #~ msgid "GNOME Zeitgeist Project Viewer"
 #~ msgstr "GNOME Zeitgeist Projekt Visare"
-
 #~ msgid "GNOME Zeitgeist Timeline"
 #~ msgstr "GNOME Zeitgeist Tidslinje"
-
 #~ msgid "Yesterday"
 #~ msgstr "Igår"
-
 #~ msgid "Could not create database: %s"
 #~ msgstr "Kunde inte skapa databas: %s"
-
 #~ msgid "Error connecting with database: %s"
 #~ msgstr "Fel vid kontakt med databas: %s"
-
 #~ msgid "Browse a journal of recently used files"
 #~ msgstr "Bläddra i en dagbok med nyligen använda filer"
-
 #~ msgid "File Journal"
 #~ msgstr "Fildagbok"
-
 #~ msgid "Zeitgeist File Journal"
 #~ msgstr "Zeitgeist Fildagbok"
-
 #~ msgid "Start the Zeitgeist engine"
 #~ msgstr "Starta Zeitgeist motorn"
+

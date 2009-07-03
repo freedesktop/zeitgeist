@@ -22,7 +22,7 @@ msgstr "S'està iniciant el servei Zeitgeist..."
 
 #: ../zeitgeist-datahub:45
 msgid "No passive loggers found, bye."
-msgstr ""
+msgstr "No s'han trobat monitors passius; adéu."
 
 #: ../zeitgeist-datahub:65
 #, c-format
@@ -41,8 +41,7 @@ msgstr "S'ha perdut la connexió al zeitgeist-daemon; finalitzant el programa."
 #: ../zeitgeist-datahub:125
 #, c-format
 msgid "Type error logging item from \"%s\": %s"
-msgstr ""
-"Tipus de variable errònia al intentar registrar una activitat de «%s»: %s"
+msgstr "Tipus de variable errònia al intentar registrar una activitat de «%s»: %s"
 
 #: ../zeitgeist/datamodel.py:71
 msgid "Tags"
@@ -64,7 +63,8 @@ msgstr "Documents"
 msgid "Images"
 msgstr "Imatges"
 
-#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
+#: ../zeitgeist/datamodel.py:91
+#: ../zeitgeist/datamodel.py:99
 msgid "Videos"
 msgstr "Vídeos"
 
@@ -182,15 +182,12 @@ msgstr "S'està enregistrant activitats de l'Evolution de: %s"
 
 #~ msgid "Other"
 #~ msgstr "Altres"
-
 #~ msgid "Development"
 #~ msgstr "Desenvolupament"
-
 #~ msgid "Notes"
 #~ msgstr "Notes"
-
 #~ msgid "Create New Note"
 #~ msgstr "Crea una nota nova"
-
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Crea una nota nova"
+
