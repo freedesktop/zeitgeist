@@ -513,9 +513,6 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		return self.store.find(Event.start, Event.app == app.item.id
 			).order_by(Event.start).last() if app else 0
-	
-	def get_related_items(self, uri):
-		return []
 
 _engine = None
 def get_default_engine():

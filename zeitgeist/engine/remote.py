@@ -151,13 +151,6 @@ class RemoteInterface(SingletonApplication):
 		return _engine.get_tags(name_filter, amount, min_timestamp, max_timestamp)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="s", out_signature="a"+sig_plain_data)
-	def GetRelatedItems(self, item_uri):
-		# FIXME: Merge this into FindEvents so that matches can be
-		# filtered?
-		return _engine.get_related_items(item_uri)
-	
-	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="s", out_signature="i")
 	def GetLastInsertionDate(self, application):
 		"""Returns the timestamp of the last item which was inserted
