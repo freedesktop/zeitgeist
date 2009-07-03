@@ -179,16 +179,20 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="a"+sig_plain_data, out_signature="i")
 	def InsertEvents(self, event_list):
-		"""Inserts events into the database. Returns ``1`` if any event
-		has been added successfully or ``0`` otherwise
+		"""Inserts events into the database. Returns the amount of sucessfully
+		inserted events
 		
 		:param event_list: list of events to be inserted in the database
 		:type item_list: list of tuples presenting an :ref:`event-label`
-		:returns: ``1`` on success, ``0`` otherwise
+		:returns: a positive value on success, ``0`` otherwise
 		:rtype: Integer
 		"""
 		result = _engine.insert_events([dictify_data(x) for x in event_list])
-		return result if (result and self.EventsChanged()) else 0
+		if result:
+			self.EventsChanged({"added": result})
+			return len(result)
+		else:
+			return 0
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="a"+sig_plain_data, out_signature="")
@@ -198,26 +202,35 @@ class RemoteInterface(SingletonApplication):
 		:param item_list: list of items to be inserted in the database
 		:type item_list: list of tuples presenting an :ref:`item-label`
 		"""
-		_engine.update_items([dictify_data(x) for x in item_list])
-		self.EventsChanged()
+		result = _engine.update_items([dictify_data(x) for x in item_list])
+		self.EventsChanged({"modified": result})
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="as", out_signature="")
 	def DeleteItems(self, uris):
 		"""Delete items from the database
 		
-		:param uris: list of uris representing an item
+		:param uris: list of URIs representing an item
 		:type uris: list of strings
 		"""
-		_engine.delete_items(uris)
-		self.EventsChanged()
+		result = _engine.delete_items(uris)
+		self.EventsChanged({"deleted": result})
 	
 	# Signals and signal emitters
 	
-	@dbus.service.signal("org.gnome.zeitgeist")
-	def EventsChanged(self):
-		"""This Signal is emmitted whenever one or more items have been changed"""
-		return True
+	@dbus.service.signal("org.gnome.zeitgeist",
+						signature="a{sv}")
+	def EventsChanged(self, value):
+		"""This Signal is emmitted whenever one or more items have been changed
+		
+		It contains a list of dictionaries containing one or more of `added`,
+		`modified` and `deleted`, where the first two contain the affected
+		items and the later only their URI.
+		
+		:returns: added and modified items and URIs of deleted items
+		:rtype: list of dictionaries
+		"""
+		return value
 	
 	@dbus.service.signal("org.gnome.zeitgeist")
 	def EngineStart(self):

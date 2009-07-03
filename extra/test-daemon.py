@@ -1,14 +1,16 @@
 #! /usr/bin/env python
 # -.- coding: utf-8 -.-
 
+# FIXME: THIS IS OUTDATED AND WON'T WORK!
+
 import sys
 import dbus
 import dbus.mainloop.glib
 import gobject
 import urllib
 
-def updated_signal_handler():
-	print "Received reload signal."
+def updated_signal_handler(value):
+	print "Received signal: ", value
 
 if '--listen' in sys.argv:
 	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)

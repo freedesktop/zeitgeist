@@ -33,7 +33,7 @@ import sqlite3
 
 from zeitgeist import config
 from zeitgeist.engine.base import *
-from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT
+from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT, plainify_dict
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -249,7 +249,7 @@ class ZeitgeistEngine(gobject.GObject):
 			# This is always 0 or 1, no need to consider 2 as we don't
 			# use the `force' option.
 			if self.insert_event(item, commit=False):
-				inserted_items.append(item)
+				inserted_items.append(plainify_dict(item))
 		self.store.commit()
 		time2 = time.time()
 		log.debug("Inserted %s items in %.5f s." % (len(inserted_items),
@@ -444,7 +444,7 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		
 		#FIXME Delete all tags of the ITEM
-		self._delete_item(item)
+		self._delete_item(item["uri"])
 		self.store.commit()
 		self.store.flush()
 		self.insert_event(item, True, True)
@@ -453,6 +453,7 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def update_items(self, items):
 		map(self._update_item, items)
+		return [plainify_dict(item) for item in items]
 	
 	def _delete_item(self, uri):
 		
@@ -471,6 +472,7 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def delete_items(self, items):
 		map(self._delete_item, items)
+		return items
 	
 	def get_types(self):
 		"""

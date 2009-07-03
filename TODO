@@ -4,7 +4,6 @@ TODO
 FOR RELEASE:
 -------------------
 
- - Fix the auto-start from the .service file. (Working now?)
  - Fix all milestoned Launchpad bugs.
  - The tray icon should start the daemon, instead of the other way
    around.
