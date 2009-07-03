@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [0.0.9])
+AC_INIT([zeitgeist], [0.1.0])
 AC_CONFIG_SRCDIR(zeitgeist-daemon)
 AM_INIT_AUTOMAKE([1.9 foreign])
 GNOME_COMMON_INIT
