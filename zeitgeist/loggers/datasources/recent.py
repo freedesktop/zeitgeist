@@ -26,16 +26,22 @@ import os
 import re
 import fnmatch
 import urllib
-import gtk
 import time
 import logging
-
 from xdg import DesktopEntry, BaseDirectory
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
 from zeitgeist import config
 
-_recently_used_logger = logging.getLogger("zeitgeist.logger.datasources.recently_used")
+log = logging.getLogger("zeitgeist.logger.datasources.recently_used")
+
+try:
+	import gtk
+except ImportError:
+	log.exception(_("Could not import GTK; logger disabled."))
+	enabled = False
+else:
+	enabled = True
 
 class SimpleMatch(object):
 	""" Wrapper around fnmatch.fnmatch which allows to define mimetype
@@ -280,5 +286,5 @@ class RecentlyUsedManagerGtk(DataProvider):
 							yield item
 		self._timestamp_last_run = timestamp_last_run
 
-
-__datasource__ = RecentlyUsedManagerGtk()
+if enabled:
+	__datasource__ = RecentlyUsedManagerGtk()
