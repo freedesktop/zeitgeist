@@ -388,10 +388,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			u"cool_pictures", u"files", u"images", u"holidays"])
 			
 	def testFindEventsInvalidFilterValues(self):
-		self._init_with_various_events()
-		result = self.engine.find_events(0, 0, 0, False, "event",
-			[{"mimetype": [u"image/jpg"], "bookmarke": False}])
-		self.assertFalse(result)
+		self.assertRaises(ValueError,
+			self.engine.find_events, 0, 0, 0, False, "event",
+			[{"mimetype": [u"image/jpg"], "bookmarke": False}]
+		)
 
 if __name__ == "__main__":
 	unittest.main()

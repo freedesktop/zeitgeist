@@ -136,11 +136,12 @@ class ZeitgeistEngine(gobject.GObject):
 		in case it's 2 the event already existed and was updated (this only
 		happens when `force' is True).
 		"""
-		# we require all  all keys here
+		
+		# We require all keys here
 		missing = ITEM_STRUCTURE_KEYS - set(ritem.keys())
 		if missing:
-			raise KeyError(("these keys are missing in order to add "
-							"this item properly: %s" %", ".join(missing)))
+			raise KeyError(("Some keys are missing in order to add "
+				"this item properly: %s" % ", ".join(missing)))
 		if not ritem["uri"].strip():
 			log.warning("Discarding item without a URI: %s" % ritem)
 			return False
@@ -153,6 +154,8 @@ class ZeitgeistEngine(gobject.GObject):
 		if not ritem["mimetype"].strip():
 			log.warning("Discarding item without a mimetype: %s" % ritem)
 			return False
+		
+		# Ensure all items have the correct type (str -> unicode)
 		ritem = dict((key, TYPES_DICT[key](value)) for key, value in ritem.iteritems())
 		
 		# Get the IDs for the URI, the content and the source
@@ -331,15 +334,10 @@ class ZeitgeistEngine(gobject.GObject):
 		expressions = []
 		additional_args = []
 		for filter in filters:
-			if not isinstance(filter, dict):
-				logging.error("Expected a dict, got %s." % type(filter).__name__)
-				return ()
 			invalid_filter_keys = set(filter.keys()) - self.ALLOWED_FILTER_KEYS
 			if invalid_filter_keys:
-				logging.error("Invalid key(s) for filter in "
-					"ZeitgeistEngine.find_events: %s" % \
-					", ".join(invalid_filter_keys))
-				return ()
+				raise ValueError, "Invalid key(s) for filter in FindEvents: %s" %\
+					", ".join(invalid_filter_keys)
 			filterset = []
 			if "text_name" in filter:
 				filterset += [ "main_item.text LIKE ? ESCAPE \"\\\"" ]
