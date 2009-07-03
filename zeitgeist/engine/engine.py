@@ -40,6 +40,9 @@ log = logging.getLogger("zeitgeist.engine")
 
 class ZeitgeistEngine(gobject.GObject):
 	
+	ALLOWED_FILTER_KEYS = set(["text_name", "text_uri", "tags", "mimetypes",
+		"source", "content", "bookmarked"])
+	
 	def __init__(self, storm_store):
 		
 		gobject.GObject.__init__(self)
@@ -329,7 +332,14 @@ class ZeitgeistEngine(gobject.GObject):
 		additional_args = []
 		for filter in filters:
 			if not isinstance(filter, dict):
-				raise TypeError("Expected a dict, got %s." % type(filter).__name__)
+				logging.error("Expected a dict, got %s." % type(filter).__name__)
+				return ()
+			invalid_filter_keys = set(filter.keys()) - self.ALLOWED_FILTER_KEYS
+			if invalid_filter_keys:
+				logging.error("Invalid key(s) for filter in "
+					"ZeitgeistEngine.find_events: %s" % \
+					", ".join(invalid_filter_keys))
+				return ()
 			filterset = []
 			if "text_name" in filter:
 				filterset += [ "main_item.text LIKE ? ESCAPE \"\\\"" ]
