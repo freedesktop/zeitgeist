@@ -1,19 +1,16 @@
 TODO
 ================================
 
-FOR RELEASE:
+SOON:
 -------------------
 
+ - Do not start a new zeitgeist-datahub instance if one is already running.
  - Fix all milestoned Launchpad bugs.
  - The tray icon should start the daemon, instead of the other way
    around.
- - Take tags from Firefox bookmarks.
+ - Take tags from Firefox's bookmarks.
  - Log package installations/removals/updates.
- - Use Pylint
- - Add test cases to ensure the API doesn't break
- - Either get ride of zeitgeist/shared, or make it a public module
-   available to the GUI and remove it from there.
- - Check the source with pyflakes.
+ - Use Pylint / pyflakes
 
 FUTURE:
 ------------
