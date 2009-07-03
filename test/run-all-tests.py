@@ -2,6 +2,10 @@
 
 import os
 import unittest
+import logging
+
+# hide logging output
+logging.basicConfig(filename="/dev/null")
 
 # Create a test suite to run all tests
 suite = unittest.TestSuite()
