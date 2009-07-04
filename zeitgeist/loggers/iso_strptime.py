@@ -1,6 +1,8 @@
-# Copyright 2009 Canonical Ltd.  All rights reserved.
+# -.- encoding: utf-8 -.-
 
 # This file is part of wadllib.
+#
+# Copyright © 2009 Canonical Ltd.
 #
 # wadllib is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free
@@ -13,6 +15,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with wadllib. If not, see <http://www.gnu.org/licenses/>.
+
 """
 Parser for ISO 8601 time strings
 ================================
@@ -33,7 +36,6 @@ datetime.datetime(2008, 1, 7, 5, 30, 30)
 >>> iso_strptime("2008-01-07T05:30:30+02:00")
 datetime.datetime(2008, 1, 7, 5, 30, 30, tzinfo=TimeZone(7200))
 """
-
 
 import re
 import datetime
