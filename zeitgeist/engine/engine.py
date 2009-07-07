@@ -327,9 +327,9 @@ class ZeitgeistEngine(gobject.GObject):
 		#   text_name: <str>
 		#   text_uri: <str>
 		#   tags: <list> of <str>
-		#   mimetypes: <list> or <str>
-		#   source: <str>
-		#   content: <str>
+		#   mimetypes: <list> of <str>
+		#   source: <list> of <str>
+		#   content: <list> of <str>
 		#   bookmarked: <bool> (True means bookmarked items, and vice versa
 		expressions = []
 		additional_args = []
@@ -352,13 +352,16 @@ class ZeitgeistEngine(gobject.GObject):
 						% (tag, tag, tag, tag) ]
 			if "mimetypes" in filter and len(filter["mimetypes"]):
 				filterset += [ "(" + " OR ".join(
-					['main_item.mimetype LIKE ? ESCAPE "\\"'] * \
+					["main_item.mimetype LIKE ? ESCAPE \"\\\""] * \
 					len(filter["mimetypes"])) + ")" ]
 				additional_args += filter["mimetypes"]
 			if "source" in filter:
 				pass # source ...
 			if "content" in filter:
-				pass # content
+				filterset += [ "main_item.content_id IN (SELECT id "
+					" FROM content WHERE value IN (%s))" % \
+					",".join("?" * len(filter["content"])) ]
+				additional_args += filter["content"]
 			if "bookmarked" in filter:
 				if filter["bookmarked"]:
 					# Only get bookmarked items

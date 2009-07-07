@@ -236,7 +236,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def _init_with_various_events(self):
 		self.assertEmptyDB()
 		
-		# Test insert_events()
 		item1 = {
 			"uri": u"file:///tmp/test/example.jpg",
 			"content": Content.IMAGE.uri,
@@ -288,7 +287,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			}
 		item5 = {
 			"uri": u"file:///home/foo/images/holidays/picture.png",
-			"content": Content.IMAGE.uri,
+			"content": Content.VIDEO.uri,
 			"source": Source.USER_ACTIVITY.uri,
 			"app": u"/usr/share/applications/eog.desktop",
 			"timestamp": 1219335,
@@ -363,6 +362,22 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			[{"tags": [u"files", u"examples"]}])]
 		self.assertEquals(result1, result2)
 		self.assertEquals(result1, [u"file:///tmp/files/example.png"])
+	
+	def testFindEventsWithContent(self):
+		self._init_with_various_events()
+		result1 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"content": [Content.IMAGE.uri]}])
+		result2 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"content": [Content.IMAGE.uri, Content.MUSIC.uri]}])
+		result3 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"content": [Content.VIDEO.uri]}])
+		result4 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"content": [Content.MUSIC.uri]}])
+		self.assertEquals(result1, result2)
+		self.assertEquals([x[4] for x in result1], [Content.IMAGE.uri] * 4)
+		self.assertEquals(result3[0][2],  u"picture.png")
+		self.assertEquals(len(result3), 1)
+		self.assertEquals(len(result4), 0)
 	
 	def testCountEventsMimetype(self):
 		self._init_with_various_events()
