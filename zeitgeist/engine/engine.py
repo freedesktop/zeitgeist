@@ -373,11 +373,10 @@ class ZeitgeistEngine(gobject.GObject):
 			if "bookmarked" in filter:
 				if filter["bookmarked"]:
 					# Only get bookmarked items
-					filterset += [ "bookmark > 0" ]
+					filterset += [ "bookmark == 1" ]
 				else:
 					# Only get items that aren't bookmarked
-					pass # FIXME
-					#filterset += [ "bookmark < 1" ]
+					filterset += [ "bookmark == 0" ]
 			if filterset:
 				expressions += [ "(" + " AND ".join(filterset) + ")" ]
 		
@@ -407,7 +406,7 @@ class ZeitgeistEngine(gobject.GObject):
 					FROM app
 					WHERE app.item_id = event.app_id
 					) AS app,
-				(SELECT id
+				(SELECT COUNT(id)
 					FROM item
 					INNER JOIN annotation ON annotation.item_id = item.id
 					WHERE annotation.subject_id = main_item.id AND

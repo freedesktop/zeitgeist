@@ -351,8 +351,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsUniqueAndNotBookmarked(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "item",
-			[{"mimetypes": [u"image/jpg"], "bookmarked": False}])
-		self.assertEquals(len([x for x in result]), 1)
+			[{"bookmarked": False}])
+		self.assertEquals(len([x for x in result]), 2)
 	
 	def testFindEventsWithTags(self):
 		self._init_with_various_events()
