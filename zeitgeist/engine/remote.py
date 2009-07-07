@@ -88,7 +88,7 @@ class RemoteInterface(SingletonApplication):
 			sorting_asc, mode, filters, False)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="iisaa{sv}", out_signature="a"+sig_plain_data)
+						in_signature="iisaa{sv}", out_signature="i")
 	def CountEvents(self, min_timestamp, max_timestamp, mode, filters):
 		"""This method takes a subset of the parameters from ``FindEvents()``
 		and returns the amount of results a ``FindEvents()`` call with the
