@@ -112,20 +112,6 @@ class RemoteInterface(SingletonApplication):
 			mode, filters, True)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="s", out_signature="i")
-	def GetLastTimestamp(self, uri):
-		"""Gets the timestamp of the most recent item in the database. If
-		``uri`` is not empty, it will give the last timestamp for the
-		indicated URI. Returns 0 if there are no items in the database.
-		
-		:param uri: URI of item
-		:type uri: string
-		:returns: timestamp of most recent item
-		:rtype: Integer
-		"""
-		return _engine.get_last_timestamp(uri)
-	
-	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="siii", out_signature="a(si)")
 	def GetTags(self, name_filter, amount, min_timestamp, max_timestamp):
 		"""Returns a list containing tuples with the name and the number of

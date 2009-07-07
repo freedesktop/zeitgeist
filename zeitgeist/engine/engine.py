@@ -91,17 +91,6 @@ class ZeitgeistEngine(gobject.GObject):
 			value[6] # origin
 			)
 	
-	def get_last_timestamp(self, uri=None):
-		"""
-		Gets the timestamp of the most recent item in the database. If
-		`uri' is not empty, it will give the last timestamp for the
-		indicated URI.
-		
-		Returns 0 if there are no items in the database.
-		"""
-		
-		return 0
-	
 	def _get_ids(self, uri, content, source):	
 		uri_id = URI.lookup_or_create(uri).id if uri else None
 		content_id = Content.lookup_or_create(content).id if content else None
