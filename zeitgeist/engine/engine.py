@@ -435,7 +435,7 @@ class ZeitgeistEngine(gobject.GObject):
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
 		else:
-			result = events[0][0]
+			result = events[0][0] if events else 0
 		
 		return result
 	
