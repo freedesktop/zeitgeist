@@ -41,7 +41,7 @@ log = logging.getLogger("zeitgeist.engine")
 class ZeitgeistEngine(gobject.GObject):
 	
 	ALLOWED_FILTER_KEYS = set(["name", "uri", "tags", "mimetypes",
-		"source", "content", "bookmarked"])
+		"source", "content", "application", "bookmarked"])
 	
 	def __init__(self, storm_store):
 		
@@ -365,6 +365,11 @@ class ZeitgeistEngine(gobject.GObject):
 					" FROM content WHERE value IN (%s))" % \
 					",".join("?" * len(filter["content"])) ]
 				additional_args += filter["content"]
+			if "application" in filter:
+				filterset += [ "event.app_id IN (SELECT item_id "
+					" FROM app WHERE info IN (%s))" % \
+					",".join("?" * len(filter["application"])) ]
+				additional_args += filter["application"]
 			if "bookmarked" in filter:
 				if filter["bookmarked"]:
 					# Only get bookmarked items

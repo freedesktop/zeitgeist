@@ -393,6 +393,18 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(len(result2), 2)
 		self.assertEquals(len(result3), 0)
 	
+	def testFindEventsWithApplication(self):
+		self._init_with_various_events()
+		result1 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"application": [u"/usr/share/applications/eog.desktop"]}])
+		result2 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"application": [u"/usr/share/applications/firefox.desktop"]}])
+		result3 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"application": [u"/usr/share/applications/gedit.desktop"]}])
+		self.assertEquals(len(result1), 3)
+		self.assertEquals(len(result2), 2)
+		self.assertEquals(len(result3), 0)
+	
 	def testCountEventsMimetype(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event",
