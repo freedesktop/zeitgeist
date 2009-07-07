@@ -40,7 +40,7 @@ log = logging.getLogger("zeitgeist.engine")
 
 class ZeitgeistEngine(gobject.GObject):
 	
-	ALLOWED_FILTER_KEYS = set(["text_name", "text_uri", "tags", "mimetypes",
+	ALLOWED_FILTER_KEYS = set(["name", "uri", "tags", "mimetypes",
 		"source", "content", "bookmarked"])
 	
 	def __init__(self, storm_store):
@@ -324,8 +324,8 @@ class ZeitgeistEngine(gobject.GObject):
 			return ()
 		
 		# filters is a list of dicts, where each dict can have the following items:
-		#   text_name: <str>
-		#   text_uri: <str>
+		#   name: <str>
+		#   uri: <str>
 		#   tags: <list> of <str>
 		#   mimetypes: <list> of <str>
 		#   source: <list> of <str>
@@ -339,12 +339,12 @@ class ZeitgeistEngine(gobject.GObject):
 				raise ValueError, "Invalid key(s) for filter in FindEvents: %s" %\
 					", ".join(invalid_filter_keys)
 			filterset = []
-			if "text_name" in filter:
+			if "name" in filter:
 				filterset += [ "main_item.text LIKE ? ESCAPE \"\\\"" ]
-				additional_args += [ filter["text_name"] ]
-			if "text_uri" in filter:
+				additional_args += [ filter["name"] ]
+			if "uri" in filter:
 				filterset += [ "uri.value LIKE ? ESCAPE \"\\\"" ]
-				additional_args += [ filter["text_uri"] ]
+				additional_args += [ filter["uri"] ]
 			if "tags" in filter:
 				for tag in filter["tags"]:
 					filterset += [ "(tags == \"%s\" OR tags LIKE \"%s, %%\" OR "

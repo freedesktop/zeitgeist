@@ -77,8 +77,8 @@ class RemoteInterface(SingletonApplication):
 		:rtype: list of tuples presenting an :ref:`item-label`
 		"""
 		# filters is a list of dicts, where each dict can have the following items:
-		#   text_name: <str>
-		#   text_uri: <str>
+		#   name: <str>
+		#   uri: <str>
 		#   tags: <list> of <str>
 		#   mimetypes: <list> or <str>
 		#   source: <str>
