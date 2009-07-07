@@ -411,6 +411,12 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			[{"mimetypes": [u"image/png"]}], True)
 		self.assertEquals(result, 4)
 	
+	def testCountEventsItemsContent(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, True, "item",
+			[{"content": [Content.IMAGE.uri]}], True)
+		self.assertEquals(result, 3)
+	
 	def testGetTagsNameFilter(self):
 		self._init_with_various_events()
 		result = self.engine.get_tags(u"f%")

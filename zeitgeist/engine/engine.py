@@ -395,9 +395,12 @@ class ZeitgeistEngine(gobject.GObject):
 			if mode == "mostused":
 				additional_orderby = "COUNT(event.rowid) DESC,"
 		
-		if not only_count:
-			select = """
-				uri.value, event.start, main_item.id, content.value,
+		args = [ Content.BOOKMARK.id, Content.TAG.id, min, max ]
+		args += additional_args
+		args += [ limit or sys.maxint ]
+		
+		events = self.store.execute("""
+			SELECT uri.value, event.start, main_item.id, content.value,
 				"" AS use, source.value, main_item.origin, main_item.text,
 				main_item.mimetype, main_item.icon,
 				(SELECT info
@@ -415,17 +418,6 @@ class ZeitgeistEngine(gobject.GObject):
 					WHERE annotation.subject_id = main_item.id AND
 						item.content_id = ?
 					) AS tags
-				"""
-			args = [ Content.BOOKMARK.id, Content.TAG.id, min, max ]
-		else:
-			select = "COUNT(event.rowid)"
-			args = [ min, max ]
-		
-		args += additional_args
-		args += [ limit or sys.maxint ]
-		
-		events = self.store.execute("""
-			SELECT %s
 				%s
 			FROM item main_item
 			INNER JOIN event ON (main_item.id = event.subject_id)
@@ -434,7 +426,7 @@ class ZeitgeistEngine(gobject.GObject):
 			INNER JOIN source ON (source.id == main_item.source_id)
 			WHERE event.start >= ? AND event.start <= ? %s
 			ORDER BY %s event.start %s LIMIT ?
-			""" % (select, preexpressions, expressions, additional_orderby,
+			""" % (preexpressions, expressions, additional_orderby,
 				"ASC" if sorting_asc else "DESC"), args).get_all()
 		
 		if not only_count:
@@ -443,7 +435,11 @@ class ZeitgeistEngine(gobject.GObject):
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
 		else:
-			result = events[0][0] if events else 0
+			# We could change the query above to "SELECT COUNT(*) FROM (...)",
+			# where "..." is the complete query converted into a temporary
+			# table, and get the result directly but there isn't enough of
+			# a speed gain in doing that as that it'd be worth doing.
+			result = len(events)
 		
 		return result
 	
