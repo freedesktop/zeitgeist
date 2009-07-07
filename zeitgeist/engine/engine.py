@@ -319,9 +319,8 @@ class ZeitgeistEngine(gobject.GObject):
 			mode = "event"
 		
 		if not mode in ("event", "item", "mostused"):
-			logging.error("Bad find_events call: mode \"%s\" not recongized." \
-				% mode)
-			return ()
+			raise ValueError, \
+				"Bad find_events call: mode \"%s\" not recongized." % mode
 		
 		# filters is a list of dicts, where each dict can have the following items:
 		#   name: <str>
