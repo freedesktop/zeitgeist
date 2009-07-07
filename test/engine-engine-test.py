@@ -254,7 +254,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		item2 = {
 			"uri": u"http://image.host/cool_pictures/01.png",
 			"content": Content.IMAGE.uri,
-			"source": Source.USER_ACTIVITY.uri,
+			"source": Source.WEB_HISTORY.uri,
 			"app": u"/usr/share/applications/firefox.desktop",
 			"timestamp": 3563534,
 			"text": u"Cool Picture 1",
@@ -378,6 +378,20 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(result3[0][2],  u"picture.png")
 		self.assertEquals(len(result3), 1)
 		self.assertEquals(len(result4), 0)
+	
+	def testFindEventsWithSource(self):
+		self._init_with_various_events()
+		result1 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"source": [Source.USER_ACTIVITY.uri, Source.FILE.uri]}])
+		result2 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"source": [Source.WEB_HISTORY.uri]}])
+		result3 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"source": [Source.USER_NOTIFICATION.uri]}])
+		self.assertEquals(len(result1), 3)
+		self.assertEquals(set(x[3] for x in result2),
+			set([Source.WEB_HISTORY.uri]))
+		self.assertEquals(len(result2), 2)
+		self.assertEquals(len(result3), 0)
 	
 	def testCountEventsMimetype(self):
 		self._init_with_various_events()

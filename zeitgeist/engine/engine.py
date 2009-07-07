@@ -356,7 +356,10 @@ class ZeitgeistEngine(gobject.GObject):
 					len(filter["mimetypes"])) + ")" ]
 				additional_args += filter["mimetypes"]
 			if "source" in filter:
-				pass # source ...
+				filterset += [ "main_item.source_id IN (SELECT id "
+					" FROM source WHERE value IN (%s))" % \
+					",".join("?" * len(filter["source"])) ]
+				additional_args += filter["source"]
 			if "content" in filter:
 				filterset += [ "main_item.content_id IN (SELECT id "
 					" FROM content WHERE value IN (%s))" % \
