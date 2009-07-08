@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# zeitgeist DBus API documentation build configuration file, created by
+# Zeitgeist DBus API documentation build configuration file, created by
 # sphinx-quickstart on Thu Jul  2 09:25:53 2009.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,8 +41,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'zeitgeist DBus API'
-copyright = u'2009, Markus Korn'
+project = u'Zeitgeist DBus API'
+copyright = u'2009, The Zeitgeist Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -169,7 +169,7 @@ htmlhelp_basename = 'zeitgeistDBusAPIdoc'
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
   ('index', 'zeitgeistDBusAPI.tex', ur'Zeitgeist DBus API Documentation',
-   ur'Markus Korn', 'manual'),
+   ur'The Zeitgeist Team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -188,7 +188,6 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_use_modindex = True
-
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/dev': None}

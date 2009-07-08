@@ -51,4 +51,5 @@ A dict which can have the following items:
  * **mimetypes** (list of strings) - filter by mimetypes (``AND`` Condition)
  * **source** (list of strings) - filter by source (``AND`` Condition)
  * **content** (list of strings) - filter by source (``AND`` Condition)
+ * **application** (list of strings) - filter by application (ie., path to its .desktop file) (``AND`` Condition)
  * **bookmarked** (boolean) -
