@@ -35,8 +35,6 @@ from zeitgeist.loggers.iso_strptime import iso_strptime
 
 _tomboy_logger = logging.getLogger("zeitgeist.logger.database.tomboy")
 
-# FIXME: This should really just use Beagle or Tracker.
-
 def flatten_text(node):
 	if node.nodeType == node.TEXT_NODE:
 		return node.data
