@@ -31,7 +31,7 @@ A tuple representing an item, with the following elements:
  #. **content** (string) -
  #. **mimetype** (string) -
  #. **tags** (string) -
- #. **comment** (string) -
+ #. **comment** (string) - (not used)
  #. **bookmark** (boolean) -
  #. **use** (string) -
  #. **icon** (string) -
@@ -45,11 +45,10 @@ Filter
 
 A dict which can have the following items:
 
- * **text_name** (string) - some text
-    some multi line test
- * **text_uri** (string) - some text
+ * **name** (string) - 
+ * **uri** (string) - 
  * **tags** (list of strings) - filter by tags (``AND`` Condition)
  * **mimetypes** (list of strings) - filter by mimetypes (``AND`` Condition)
- * **source** (string) -
- * **content** (string) -
+ * **source** (list of strings) - filter by source (``AND`` Condition)
+ * **content** (list of strings) - filter by source (``AND`` Condition)
  * **bookmarked** (boolean) -
