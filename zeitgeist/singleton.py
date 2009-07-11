@@ -38,8 +38,9 @@ class SingletonApplication (dbus.service.Object):
 		sbus = DBusInterface.get_session_bus()
 		try:
 			interface = DBusInterface()
-		except dbus.exceptions.DBusException, e:
-			if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
+		except (dbus.exceptions.DBusException, RuntimeError), e:
+			if isinstance(e, RuntimeError) or \
+					e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
 				# servie is not running, save to start
 				logging.info("No other instances found.")
 				bus = dbus.service.BusName(DBusInterface.BUS_NAME, sbus, do_not_queue=True)
