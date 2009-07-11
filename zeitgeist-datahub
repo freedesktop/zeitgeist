@@ -36,7 +36,7 @@ installation_dir = os.path.dirname(os.path.realpath(config.__file__))
 datasource_dir = os.path.join(installation_dir, "loggers/datasources")
 sys.path.append(datasource_dir)
 
-from zeitgeist.dbusutils import *
+from zeitgeist.dbusutils import DBusInterface, plainify_dict
 
 class DataHub(gobject.GObject):
 	
@@ -47,10 +47,10 @@ class DataHub(gobject.GObject):
 	def __init__(self):
 		
 		gobject.GObject.__init__(self)
-		dbus_connect("EngineExit", self._daemon_exit)
 		
-		self._client = get_engine_interface()
-		
+		self._client = DBusInterface()
+		self._client.dbus_connect("EngineExit", self._daemon_exit)
+				
 		# Load the data sources
 		self._sources = []
 		for datasource_file in glob.glob(datasource_dir + '/*.py'):

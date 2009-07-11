@@ -22,23 +22,24 @@ import dbus.service
 import logging
 
 from zeitgeist.engine.engine import get_default_engine
-from zeitgeist.dbusutils import dictify_data, sig_plain_data
+from zeitgeist.dbusutils import DBusInterface, dictify_data, sig_plain_data
 from zeitgeist.singleton import SingletonApplication
 
 _engine = get_default_engine()
+
+DBUS_INTERFACE = DBusInterface.INTERFACE_NAME
 
 class RemoteInterface(SingletonApplication):
 	
 	# Initialization
 	
 	def __init__(self, start_dbus=True, mainloop=None):
-		SingletonApplication.__init__(self, bus_name = "org.gnome.zeitgeist",
-											path_name = "/org/gnome/zeitgeist")
+		SingletonApplication.__init__(self)
 		self._mainloop = mainloop
 	
 	# Reading stuff
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="as", out_signature="a"+sig_plain_data)
 	def GetItems(self, uris):
 		"""Get items by URI
@@ -50,7 +51,7 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return map(_engine.get_item, uris)
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="iiibsaa{sv}", out_signature="a"+sig_plain_data)
 	def FindEvents(self, min_timestamp, max_timestamp, limit,
 			sorting_asc, mode, filters):
@@ -87,7 +88,7 @@ class RemoteInterface(SingletonApplication):
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
 			sorting_asc, mode, filters, False)
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="iisaa{sv}", out_signature="i")
 	def CountEvents(self, min_timestamp, max_timestamp, mode, filters):
 		"""This method takes a subset of the parameters from ``FindEvents()``
@@ -111,7 +112,7 @@ class RemoteInterface(SingletonApplication):
 		return _engine.find_events(min_timestamp, max_timestamp, 0, True,
 			mode, filters, True)
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="siii", out_signature="a(si)")
 	def GetTags(self, name_filter, amount, min_timestamp, max_timestamp):
 		"""Returns a list containing tuples with the name and the number of
@@ -136,7 +137,7 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return _engine.get_tags(name_filter, amount, min_timestamp, max_timestamp)
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="s", out_signature="i")
 	def GetLastInsertionDate(self, application):
 		"""Returns the timestamp of the last item which was inserted
@@ -150,7 +151,7 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return _engine.get_last_insertion_date(application)
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="", out_signature="as")
 	def GetTypes(self):
 		"""Returns a list of all different types in the database.
@@ -162,7 +163,7 @@ class RemoteInterface(SingletonApplication):
 	
 	# Writing stuff
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="a"+sig_plain_data, out_signature="i")
 	def InsertEvents(self, event_list):
 		"""Inserts events into the database. Returns the amount of sucessfully
@@ -180,7 +181,7 @@ class RemoteInterface(SingletonApplication):
 		else:
 			return 0
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="a"+sig_plain_data, out_signature="")
 	def UpdateItems(self, item_list):
 		"""Update items in the database
@@ -191,7 +192,7 @@ class RemoteInterface(SingletonApplication):
 		result = _engine.update_items([dictify_data(x) for x in item_list])
 		self.EventsChanged({"modified": result})
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="as", out_signature="")
 	def DeleteItems(self, uris):
 		"""Delete items from the database
@@ -204,7 +205,7 @@ class RemoteInterface(SingletonApplication):
 	
 	# Signals and signal emitters
 	
-	@dbus.service.signal("org.gnome.zeitgeist",
+	@dbus.service.signal(DBUS_INTERFACE,
 						signature="a{sv}")
 	def EventsChanged(self, value):
 		"""This Signal is emmitted whenever one or more items have been changed
@@ -218,20 +219,20 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return value
 	
-	@dbus.service.signal("org.gnome.zeitgeist")
+	@dbus.service.signal(DBUS_INTERFACE)
 	def EngineStart(self):
 		"""This signal is emmitted once the engine successfully started and
 		is ready to process requests
 		"""
 		return True
 	
-	@dbus.service.signal("org.gnome.zeitgeist")
+	@dbus.service.signal(DBUS_INTERFACE)
 	def EngineExit(self):
 		return True
 	
 	# Commands
 	
-	@dbus.service.method("org.gnome.zeitgeist")
+	@dbus.service.method(DBUS_INTERFACE)
 	def Quit(self):
 		"""Terminate the running RemoteInterface process; use with caution,
 		this action must only be triggered with the user's explicit consent,

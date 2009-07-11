@@ -9,7 +9,6 @@ from zeitgeist.engine.base import create_store, set_store
 from zeitgeist.engine import base
 from zeitgeist.datamodel import *
 from zeitgeist.engine.engine import ZeitgeistEngine
-from zeitgeist.dbusutils import *
 from time import time
 
 import unittest

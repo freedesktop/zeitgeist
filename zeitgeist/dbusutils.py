@@ -27,55 +27,74 @@ import logging
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-_bus = None
-_engine_proxy = None
-_engine_iface = None
 
-def get_session_bus():
-	global _bus
+class DBusInterface(dbus.Interface):
+	""" Central DBus interface to the zeitgeist engine
 	
-	if _bus :
-		return _bus
+	There doe not necessarily have to be one single instance of this
+	interface class, but all instances should share the same state
+	(like use the same bus and be connected to the same proxy). This is
+	achieved by extending the `Borg Pattern` as described by Alex Martelli	
+	"""
+	__shared_state = {}
 	
-	try:
-		_bus = dbus.SessionBus()
-		return _bus
-	except dbus.exceptions.DBusException:
-		logging.error(_("Could not connect to D-Bus."))
-		sys.exit(1)
-
-def get_engine_proxy():
-	global _engine_proxy
+	INTERFACE_NAME = BUS_NAME = "org.gnome.zeitgeist"
+	OBJECT_PATH = "/org/gnome/zeitgeist"
 	
-	if _engine_proxy :
-		return _engine_proxy
+	@classmethod
+	def get_session_bus(cls):
+		try:
+			return cls.__shared_state["_bus"]
+		except KeyError, e:
+			cls.__shared_state["_bus"] = dbus.SessionBus()
+			return cls.__shared_state["_bus"]
+		
+	@classmethod
+	def _get_proxy(cls):
+		try:
+			return cls.__shared_state["proxy_object"]
+		except KeyError, e:
+			bus = cls.get_session_bus()
+			try:
+				cls.__shared_state["proxy_object"] = bus.get_object(
+					cls.BUS_NAME,
+					cls.OBJECT_PATH
+				)
+			except dbus.exceptions.DBusException, e:
+				if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
+					raise RuntimeError(("No running instance of the "
+						"zeitgeist daemon found: %s") %e.get_dbus_message())
+				else:
+					raise
+			return cls.__shared_state["proxy_object"]
+		
+	@classmethod
+	def dbus_connect(cls, signal, callback, arg0=None):
+		proxy = cls._get_proxy()
+		if arg0 is None:
+			proxy.connect_to_signal(
+				signal,
+				callback,
+				dbus_interface=cls.INTERFACE_NAME
+			)
+		else:
+			# TODO: This is ugly and limited to 1 argument. Find a better
+			# way to do it.
+			proxy.connect_to_signal(
+				signal,
+				callback,
+				dbus_interface=cls.INTERFACE_NAME,
+				arg0=arg0
+			)
 	
-	try:
-		_engine_proxy = get_session_bus().get_object("org.gnome.zeitgeist",
-													 "/org/gnome/zeitgeist")
-		return _engine_proxy
-	except dbus.exceptions.DBusException:
-		logging.error(_("Error: Zeitgeist service not running."))
-		sys.exit(1)
-
-def get_engine_interface():
-	global _engine_iface
-	
-	if _engine_iface:
-		return _engine_iface
-	
-	_engine_iface = dbus.Interface(get_engine_proxy(), "org.gnome.zeitgeist")
-	return _engine_iface
-
-def dbus_connect(signal, callback, arg0=None):
-	if not arg0:
-		get_engine_proxy().connect_to_signal(signal, callback,
-			dbus_interface="org.gnome.zeitgeist")
-	else:
-		# TODO: This is ugly and limited to 1 argument. Find a better
-		# way to do it.
-		get_engine_proxy().connect_to_signal(signal, callback,
-			dbus_interface="org.gnome.zeitgeist", arg0=arg0)
+	def __init__(self):
+		self.__dict__ = self.__shared_state
+		proxy = self._get_proxy()
+		dbus.Interface.__init__(
+				self,
+				proxy,
+				self.BUS_NAME
+		)
 
 # (isssssssbssss)
 ITEM_STRUCTURE = (
