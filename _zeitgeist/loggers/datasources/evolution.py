@@ -29,7 +29,7 @@ import dbus
 import gio
 from xdg import BaseDirectory
 
-from zeitgeist.loggers.zeitgeist_base import DataProvider
+from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 _evolution_logger = logging.getLogger("zeitgeist.logger.datasources.evolution")
 

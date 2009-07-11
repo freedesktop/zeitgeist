@@ -64,8 +64,7 @@ msgstr "Dokument"
 msgid "Images"
 msgstr "Bilder"
 
-#: ../zeitgeist/datamodel.py:91
-#: ../zeitgeist/datamodel.py:99
+#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
 msgid "Videos"
 msgstr "Filmer"
 
@@ -184,90 +183,130 @@ msgstr ""
 
 #~ msgid "Open Journal"
 #~ msgstr "Öppna Dagbok"
+
 #~ msgid ""
 #~ "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
 #~ "computer."
 #~ msgstr ""
 #~ "GNOME Zeitgeist är ett verktyg för att enkelt bläddra igenom och hitta "
 #~ "filer på din dator."
+
 #~ msgid "Stars"
 #~ msgstr "Stjärnor"
+
 #~ msgid "Journal"
 #~ msgstr "Dagbok"
+
 #~ msgid "Notes"
 #~ msgstr "Anteckningar"
+
 #~ msgid "Create New Note"
 #~ msgstr "Skapa Ny Anteckning"
+
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Skapa en ny Tomboy anteckning"
+
 #~ msgid "Other"
 #~ msgstr "Andra"
+
 #~ msgid "Recently used tags"
 #~ msgstr "Nyligen använda etiketter"
+
 #~ msgid "Most used tags"
 #~ msgstr "Mest använda etiketter"
+
 #~ msgid "All tags"
 #~ msgstr "Alla etiketter"
+
 #~ msgid "Search"
 #~ msgstr "Sök"
+
 #~ msgid "Show recent activities"
 #~ msgstr "Visa nya aktiviteter"
+
 #~ msgid "Search for activities"
 #~ msgstr "Sök aktiviteter"
+
 #~ msgid "Calendar"
 #~ msgstr "Kalender"
+
 #~ msgid "Enable Grouping"
 #~ msgstr "Aktivera Gruppering"
+
 #~ msgid "Name"
 #~ msgstr "Namn"
+
 #~ msgid "Time"
 #~ msgstr "Tid"
+
 #~ msgid "Tagged with:"
 #~ msgstr "Etiketterad med:"
+
 #~ msgid "The file has been removed from"
 #~ msgstr "Filen har blivit borttagen från"
+
 #~ msgid "New Document"
 #~ msgstr "Nytt Dokument"
+
 #~ msgid "Related files"
 #~ msgstr "Relaterade filer"
+
 #~ msgid "Last usage:"
 #~ msgstr "Senast använda:"
+
 #~ msgid "Tags:"
 #~ msgstr "Etiketter:"
+
 #~ msgid "Files related to %s"
 #~ msgstr "Filer relaterade till %s"
+
 #~ msgid "Today"
 #~ msgstr "I Dag"
+
 #~ msgid "All favorites"
 #~ msgstr "Alla favoriter"
+
 #~ msgid "Show related activities"
 #~ msgstr "Visa relaterade aktiviteter"
+
 #~ msgid "Edit tags..."
 #~ msgstr "Redigera etiketter..."
+
 #~ msgid "Delete item from Zeitgeist"
 #~ msgstr "Radera post från Zeitgeist"
+
 #~ msgid "Edit tags for %s"
 #~ msgstr "Redigera etiketter för %s"
+
 #~ msgid "Add"
 #~ msgstr "Lägg till"
+
 #~ msgid "Cancel"
 #~ msgstr "Ångra"
+
 #~ msgid "GNOME Zeitgeist Project Viewer"
 #~ msgstr "GNOME Zeitgeist Projekt Visare"
+
 #~ msgid "GNOME Zeitgeist Timeline"
 #~ msgstr "GNOME Zeitgeist Tidslinje"
+
 #~ msgid "Yesterday"
 #~ msgstr "Igår"
+
 #~ msgid "Could not create database: %s"
 #~ msgstr "Kunde inte skapa databas: %s"
+
 #~ msgid "Error connecting with database: %s"
 #~ msgstr "Fel vid kontakt med databas: %s"
+
 #~ msgid "Browse a journal of recently used files"
 #~ msgstr "Bläddra i en dagbok med nyligen använda filer"
+
 #~ msgid "File Journal"
 #~ msgstr "Fildagbok"
+
 #~ msgid "Zeitgeist File Journal"
 #~ msgstr "Zeitgeist Fildagbok"
+
 #~ msgid "Start the Zeitgeist engine"
 #~ msgstr "Starta Zeitgeist motorn"
-

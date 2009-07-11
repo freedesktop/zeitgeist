@@ -20,8 +20,9 @@ AC_CONFIG_FILES([
 	extra/epiphany/Makefile
 	po/Makefile.in
 	zeitgeist/Makefile
-	zeitgeist/loggers/datasources/Makefile
-	zeitgeist/loggers/Makefile
-	zeitgeist/engine/Makefile
+	_zeitgeist/Makefile
+	_zeitgeist/loggers/Makefile
+	_zeitgeist/loggers/datasources/Makefile
+	_zeitgeist/engine/Makefile
 ])
 AC_OUTPUT

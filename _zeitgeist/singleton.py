@@ -19,10 +19,9 @@
 
 import logging
 import sys
-
 import dbus
 
-from dbusutils import get_session_bus, get_engine_interface
+from zeitgeist.dbusutils import get_session_bus, get_engine_interface
 
 class SingletonApplication (dbus.service.Object):
 	"""

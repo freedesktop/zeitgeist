@@ -30,10 +30,10 @@ import gio
 from ConfigParser import ConfigParser, NoOptionError
 from xdg import BaseDirectory
 
-from zeitgeist.loggers.zeitgeist_base import DataProvider
-from zeitgeist import config
+from zeitgeist import _config
+from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
-gettext.install("zeitgeist", config.localedir, unicode=1)
+gettext.install("zeitgeist", _config.localedir, unicode=1)
 
 _firefox_logger = logging.getLogger("zeitgeist.logger.datasources.firefox")
 

@@ -30,7 +30,7 @@ import gobject
 import gettext
 import logging
 
-from zeitgeist.loggers.zeitgeist_setup_service import _Configuration, DefaultConfiguration
+from _zeitgeist.loggers.zeitgeist_setup_service import _Configuration, DefaultConfiguration
 
 NAMES = set()
 

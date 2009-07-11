@@ -22,10 +22,7 @@ import dbus.service
 import gobject
 import gconf
 import glib
-
 import dbus.mainloop.glib
-import ConfigParser
-
 from ConfigParser import SafeConfigParser
 from xdg import BaseDirectory
 from StringIO import StringIO
@@ -225,9 +222,8 @@ class DefaultConfiguration(_Configuration):
 			config.write(f)
 			with open(self.CONFIGFILE, "w") as configfile:
 				config.write(configfile)
-				
-		
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 	
 	def test(config):
 		for option, required in config.get_options():
@@ -240,4 +236,3 @@ if __name__ == '__main__':
 	config.add_option("enabled", _Configuration.like_bool, default=False)
 	config.connect("configured", test)
 	mainloop.run()
-

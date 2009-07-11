@@ -64,8 +64,7 @@ msgstr ""
 msgid "Images"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:91
-#: ../zeitgeist/datamodel.py:99
+#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
 msgid "Videos"
 msgstr ""
 
@@ -184,4 +183,3 @@ msgstr ""
 #, fuzzy
 #~ msgid "Development"
 #~ msgstr "Novo Documento"
-

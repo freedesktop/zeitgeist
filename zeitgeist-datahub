@@ -26,17 +26,16 @@ import logging
 import gobject
 import dbus.exceptions
 
-from zeitgeist import config
-from zeitgeist.loggers.zeitgeist_setup_service import DataProviderService
-
-gettext.install("zeitgeist", config.localedir, unicode=1)
-logging.basicConfig(level=logging.DEBUG)
-
-installation_dir = os.path.dirname(os.path.realpath(config.__file__))
-datasource_dir = os.path.join(installation_dir, "loggers/datasources")
-sys.path.append(datasource_dir)
+from zeitgeist import _config
+_config.setup_path()
 
 from zeitgeist.dbusutils import *
+from _zeitgeist.loggers.zeitgeist_setup_service import DataProviderService
+
+gettext.install("zeitgeist", _config.localedir, unicode=1)
+logging.basicConfig(level=logging.DEBUG)
+
+sys.path.append(_config.datasourcedir)
 
 class DataHub(gobject.GObject):
 	
@@ -53,7 +52,7 @@ class DataHub(gobject.GObject):
 		
 		# Load the data sources
 		self._sources = []
-		for datasource_file in glob.glob(datasource_dir + '/*.py'):
+		for datasource_file in glob.glob(_config.datasourcedir + '/*.py'):
 			self._load_datasource_file(os.path.basename(datasource_file))
 		
 		# Start by fetch new items from all sources
