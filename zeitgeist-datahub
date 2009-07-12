@@ -137,9 +137,7 @@ class DataHub(gobject.GObject):
 						_("Lost connection to zeitgeist-daemon, terminating."))
 					self._daemon_exit()
 				else:
-					raise
-			except TypeError, error:
-				logging.exception(_("Type error logging item from \"%s\": %s" % \
-					(source_name, error)))
+					logging.exception(_("Error logging item from \"%s\": %s" % \
+						(source_name, error)))
 
 datahub = DataHub()
