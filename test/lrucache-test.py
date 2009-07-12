@@ -1,12 +1,13 @@
 #!/usr/bin/python
 
 # Update python path to use local zeitgeist module
-import sys, os
-from os.path import dirname, join, abspath
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from _zeitgeist.lrucache import LRUCache
 
 import unittest
-from zeitgeist.lrucache import LRUCache
 
 class LRUCacheTest (unittest.TestCase):
 	"""
@@ -50,9 +51,6 @@ class LRUCacheTest (unittest.TestCase):
 		cache["foo1"] = "bar1"
 		self.assertFalse("bork" in cache)
 		self.assertTrue("foo1" in cache)
-	
-	
-	
 
 if __name__ == '__main__':
 	unittest.main()

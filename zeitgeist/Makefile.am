@@ -1,17 +1,13 @@
-SUBDIRS = engine loggers
-
 appdir = $(pythondir)/zeitgeist/
 
 app_PYTHON = \
 	__init__.py \
 	datamodel.py \
-	dbusutils.py \
-	lrucache.py \
-	singleton.py
+	dbusutils.py
 
-nodist_app_PYTHON = config.py
+nodist_app_PYTHON = _config.py
 
-config.py: config.py.in
+_config.py: _config.py.in
 	sed						\
 		-e s!\@prefix\@!$(prefix)!		\
 		-e s!\@datadir\@!$(datadir)!		\
@@ -21,9 +17,9 @@ config.py: config.py.in
 		-e s!\@PACKAGE\@!$(PACKAGE)!		\
 		-e s!\@VERSION\@!$(VERSION)!		\
 		< $< > $@
-config.py: Makefile
+_config.py: Makefile
 
-CLEANFILES = config.py
-EXTRA_DIST = config.py.in
+CLEANFILES = _config.py
+EXTRA_DIST = _config.py.in
 
-all-local: config.py
+all-local: _config.py

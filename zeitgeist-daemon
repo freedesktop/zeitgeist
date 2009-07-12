@@ -28,13 +28,14 @@ import dbus.mainloop.glib
 import gettext
 import logging
 
-from zeitgeist import config
+from zeitgeist import _config
+_config.setup_path()
 
-gettext.install("zeitgeist", config.localedir, unicode=1)
+gettext.install("zeitgeist", _config.localedir, unicode=1)
 logging.basicConfig(level=logging.DEBUG)
 
-from zeitgeist.engine.engine import get_default_engine
-from zeitgeist.engine.remote import RemoteInterface
+from _zeitgeist.engine.engine import get_default_engine
+from _zeitgeist.engine.remote import RemoteInterface
 
 engine = get_default_engine()
 
@@ -43,11 +44,11 @@ mainloop = gobject.MainLoop()
 
 obj = RemoteInterface(mainloop = mainloop)
 
-trayicon_app = "%s/zeitgeist-trayicon" % config.bindir
+trayicon_app = "%s/zeitgeist-trayicon" % _config.bindir
 if not "--no-trayicon" in sys.argv and os.path.isfile(trayicon_app):
 	subprocess.Popen(trayicon_app)
 
-passive_loggers = "%s/zeitgeist-datahub" % config.bindir
+passive_loggers = "%s/zeitgeist-datahub" % _config.bindir
 if not "--no-passive-loggers" in sys.argv:
 	if os.path.isfile(passive_loggers):
 		subprocess.Popen(passive_loggers)

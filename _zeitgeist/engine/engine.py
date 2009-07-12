@@ -31,8 +31,7 @@ from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 import sqlite3
 
-from zeitgeist import config
-from zeitgeist.engine.base import *
+from _zeitgeist.engine.base import *
 from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT, plainify_dict
 
 logging.basicConfig(level=logging.DEBUG)

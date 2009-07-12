@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 # Update python path to use local zeitgeist module
-import sys, os
-from os.path import dirname, join, abspath
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from zeitgeist.datamodel import *
 

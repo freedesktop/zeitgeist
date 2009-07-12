@@ -1,17 +1,19 @@
 #!/usr/bin/python
 
 # Update python path to use local zeitgeist module
-import sys, os, tempfile, shutil
-from os.path import dirname, join, abspath
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from zeitgeist.engine.base import create_store, set_store
-from zeitgeist.engine import base
+from _zeitgeist.engine.base import create_store, set_store
+from _zeitgeist.engine import base
 from zeitgeist.datamodel import *
-from zeitgeist.engine.engine import ZeitgeistEngine
-from zeitgeist.dbusutils import *
+from zeitgeist.dbusutils import dictify_data
+from _zeitgeist.engine.engine import ZeitgeistEngine
 
 import unittest
+import tempfile
+import shutil
 
 # Use this to print sql statements used by Storm to stdout
 #from storm.tracer import debug

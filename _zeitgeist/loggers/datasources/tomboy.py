@@ -30,8 +30,8 @@ import dbus
 from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
 
-from zeitgeist.loggers.zeitgeist_base import DataProvider
-from zeitgeist.loggers.iso_strptime import iso_strptime
+from _zeitgeist.loggers.zeitgeist_base import DataProvider
+from _zeitgeist.loggers.iso_strptime import iso_strptime
 
 _tomboy_logger = logging.getLogger("zeitgeist.logger.database.tomboy")
 

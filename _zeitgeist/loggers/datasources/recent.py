@@ -30,8 +30,8 @@ import time
 import logging
 from xdg import DesktopEntry, BaseDirectory
 
-from zeitgeist.loggers.zeitgeist_base import DataProvider
-from zeitgeist import config
+from zeitgeist import _config
+from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 log = logging.getLogger("zeitgeist.logger.datasources.recently_used")
 
