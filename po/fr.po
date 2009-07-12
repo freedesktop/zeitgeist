@@ -18,6 +18,7 @@ msgstr ""
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../zeitgeist-daemon:43
+#, fuzzy
 msgid "Starting Zeitgeist service..."
 msgstr "Démarrage du service d'indexation de Zeitgeist..."
 
@@ -148,6 +149,7 @@ msgid "Could not connect to D-Bus."
 msgstr "Erreur: impossible de se connecter à D-Bus."
 
 #: ../zeitgeist/dbusutils.py:58
+#, fuzzy
 msgid "Error: Zeitgeist service not running."
 msgstr "Erreur: le service d'indexation de Zeitgeist n'est pas actif."
 
