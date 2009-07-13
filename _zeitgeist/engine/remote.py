@@ -22,7 +22,7 @@ import dbus.service
 import logging
 
 from _zeitgeist.engine.engine import get_default_engine
-from zeitgeist.dbusutils import DBusInterface, check_dict
+from zeitgeist.dbusutils import DBusInterface
 from _zeitgeist.singleton import SingletonApplication
 
 _engine = get_default_engine()
@@ -175,7 +175,7 @@ class RemoteInterface(SingletonApplication):
 		:returns: a positive value on success, ``0`` otherwise
 		:rtype: Integer
 		"""
-		result = _engine.insert_events(map(check_dict, event_list))
+		result = _engine.insert_events(event_list)
 		if result:
 			self.EventsChanged(("added", result))
 			return len(result)

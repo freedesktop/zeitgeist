@@ -32,7 +32,7 @@ from xdg.DesktopEntry import DesktopEntry
 import sqlite3
 
 from _zeitgeist.engine.base import *
-from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, check_dict
+from zeitgeist.dbusutils import EventDict
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -69,27 +69,6 @@ class ZeitgeistEngine(gobject.GObject):
 			self._apps_id[id] = info[0]
 			return info[0]
 	
-	def _format_result(self, value):
-		""" Takes a row from SQL containing all necessary event and item
-		information and converts it into a tuple suitable for transmission
-		over D-Bus. """
-		
-		return {
-			"timestamp": value[1],
-			"uri": value[0],
-			"text": value[7] or os.path.basename(value[0]), # FIXME: why not u"" as alternative value?
-			"source": value[5], 
-			"content": value[3],
-			"mimetype": value[8],
-			"tags": value[12] or u"",
-			"comment": u"",
-			"bookmark": bool(value[11]),
-			"use": value[4], # usage is determined by the event Content type # event.item.content.value
-			"icon": value[9],
-			"app": value[10],
-			"origin": value[6],
-		}
-	
 	def _get_ids(self, uri, content, source):	
 		uri_id = URI.lookup_or_create(uri).id if uri else None
 		content_id = Content.lookup_or_create(content).id if content else None
@@ -125,11 +104,9 @@ class ZeitgeistEngine(gobject.GObject):
 		happens when `force' is True).
 		"""
 		
-		# We require all keys here
-		missing = ITEM_STRUCTURE_KEYS - set(ritem.keys())
-		if missing:
-			raise KeyError(("Some keys are missing in order to add "
-				"this item properly: %s" % ", ".join(missing)))
+		# check for required items and make sure all items have the correct type
+		ritem = EventDict.check_missing_items(ritem)
+		
 		if not ritem["uri"].strip():
 			log.warning("Discarding item without a URI: %s" % ritem)
 			return False
@@ -142,9 +119,6 @@ class ZeitgeistEngine(gobject.GObject):
 		if not ritem["mimetype"].strip():
 			log.warning("Discarding item without a mimetype: %s" % ritem)
 			return False
-		
-		# Ensure all items have the correct type (str -> unicode)
-		ritem = check_dict(ritem)
 		
 		# Get the IDs for the URI, the content and the source
 		uri_id, content_id, source_id = self._get_ids(ritem["uri"],
@@ -273,7 +247,7 @@ class ZeitgeistEngine(gobject.GObject):
 			""", (Content.BOOKMARK.id, Content.TAG.id, unicode(uri))).get_one()
 		
 		if item:
-			return self._format_result(item)
+			return EventDict.convert_result_to_dict(item)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
 			sorting_asc=True, mode="event", filters=(), only_count=False):
@@ -416,7 +390,7 @@ class ZeitgeistEngine(gobject.GObject):
 				"ASC" if sorting_asc else "DESC"), args).get_all()
 		
 		if not only_count:
-			result = [self._format_result(event) for event in events]
+			result = [EventDict.convert_result_to_dict(event) for event in events]
 			
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))

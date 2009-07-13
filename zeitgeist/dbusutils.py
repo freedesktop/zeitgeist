@@ -22,6 +22,7 @@
 import dbus
 import dbus.mainloop.glib
 import logging
+import os.path
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
@@ -102,29 +103,65 @@ class DBusInterface(dbus.Interface):
 				self.BUS_NAME
 		)
 
-ITEM_STRUCTURE = {
-	"timestamp": int,
-	"uri": unicode,
-	"text": unicode,
-	"source": unicode,
-	"content": unicode,
-	"mimetype": unicode,
-	"tags": unicode,
-	"comment": unicode,
-	"bookmark": bool,
-	"use": unicode,
-	"icon": unicode,
-	"app": unicode,
-	"origin": unicode,
-}
-
-ITEM_STRUCTURE_KEYS = set(ITEM_STRUCTURE.keys())
-
-def check_dict(event_dict):
-	""" Function to check an event dict.
+class EventDict(dict):
 	
-	It autamatically changes the type of all values to the expected on.
-	If a value is not given an item with a default value is added
-	"""
-	return dict((key, type(event_dict.get(key, type()))) for key, type in ITEM_STRUCTURE.iteritems())
+	_ITEM_TYPE_MAP = {
+		"timestamp": (int, True),
+		"uri": (unicode, True),
+		"text": (unicode, False),
+		"source": (unicode, True),
+		"content": (unicode, True),
+		"mimetype": (unicode, False),
+		"tags": (unicode, False),
+		"comment": (unicode, False),
+		"bookmark": (bool, False),
+		"use": (unicode, False),
+		"icon": (unicode, False),
+		"app": (unicode, False),
+		"origin": (unicode, False),
+	}
+	
+	_REQUIRED_ITEMS = set(
+		key for key, (type, required) in _ITEM_TYPE_MAP.iteritems() if required
+	)
+	
+	@staticmethod
+	def check_missing_items(event_dict):
+		missing = EventDict._REQUIRED_ITEMS - set(event_dict.keys())
+		if missing:
+			raise KeyError(("Some keys are missing in order to add "
+				"this item properly: %s" % ", ".join(missing)))
+		return EventDict.check_dict(event_dict)
+	
+	@staticmethod
+	def check_dict(event_dict):
+		""" Function to check an event dict.
+		
+		It autamatically changes the type of all values to the expected on.
+		If a value is not given an item with a default value is added
+		"""
+		return dict((key, type(event_dict.get(key, type()))) \
+						for key, (type, required) \
+						in EventDict._ITEM_TYPE_MAP.iteritems()
+		)
+		
+	@classmethod
+	def convert_result_to_dict(cls, result_tuple):
+		return cls(
+			timestamp = result_tuple[1],
+			uri = result_tuple[0],
+			text = result_tuple[7] or os.path.basename(result_tuple[0]), # FIXME: why not u"" as alternative value?
+			source = result_tuple[5], 
+			content = result_tuple[3],
+			mimetype = result_tuple[8],
+			tags = result_tuple[12] or u"",
+			comment = u"",
+			bookmark = bool(result_tuple[11]),
+			use = result_tuple[4], # usage is determined by the event Content type # event.item.content.value
+			icon = result_tuple[9],
+			app = result_tuple[10],
+			origin = result_tuple[6],
+		)
+
+
 		
