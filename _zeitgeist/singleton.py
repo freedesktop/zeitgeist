@@ -35,23 +35,13 @@ class SingletonApplication (dbus.service.Object):
 	def __init__ (self):
 		logging.debug("Checking for another running instance...")
 		sbus = DBusInterface.get_session_bus()
-		try:
-			interface = DBusInterface()
-		except (dbus.exceptions.DBusException, RuntimeError), e:
-			if isinstance(e, RuntimeError) or \
-					e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
-				# service is not running, save to start
-				logging.debug("No other instances found.")
-				bus = dbus.service.BusName(DBusInterface.BUS_NAME, sbus, do_not_queue=True)
-				dbus.service.Object.__init__(self, bus, DBusInterface.OBJECT_PATH)
-			else:
-				# different error, reraise this one
-				raise
-		else:
+		running_services = sbus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus").ListNames()
+		if DBusInterface.BUS_NAME in running_services:
 			# already running daemon instance
 			if "--replace" in sys.argv:
 				logging.debug("Replacing currently running process.")
 				# TODO: This only works for the engine and wont work for the DataHub
+				interface = DBusInterface()
 				interface.Quit()
 				# Try to initialize our service again
 				# TODO: We should somehow set a timeout and kill the old process
@@ -64,3 +54,8 @@ class SingletonApplication (dbus.service.Object):
 					("An existing instance was found. Please use "
 					 "--replace to quit it and start a new instance.")
 				)
+		else:
+			# service is not running, save to start
+			logging.debug("No other instances found.")
+			bus = dbus.service.BusName(DBusInterface.BUS_NAME, sbus, do_not_queue=True)
+			dbus.service.Object.__init__(self, bus, DBusInterface.OBJECT_PATH)
