@@ -202,12 +202,12 @@ class RemoteInterface(SingletonApplication):
 		:type uris: list of strings
 		"""
 		result = _engine.delete_items(uris)
-		self.EventsChanged(("deleted", result)) #FIXME, this will not work
+		self.EventsChanged(("deleted", result))
 	
 	# Signals and signal emitters
 	
 	@dbus.service.signal(DBUS_INTERFACE,
-						signature="(sa%s)" %SIG_EVENT)
+						signature="(sav)")
 	def EventsChanged(self, value):
 		"""This Signal is emmitted whenever one or more items have been changed
 		
@@ -219,7 +219,6 @@ class RemoteInterface(SingletonApplication):
 		:returns: added and modified items and URIs of deleted items
 		:rtype: list of dictionaries
 		"""
-		# FIXME: this is broken in case of "deleted" actions
 		return value
 	
 	@dbus.service.signal(DBUS_INTERFACE)
