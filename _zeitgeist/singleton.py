@@ -43,12 +43,9 @@ class SingletonApplication (dbus.service.Object):
 				# TODO: This only works for the engine and wont work for the DataHub
 				interface = DBusInterface()
 				interface.Quit()
-				# Try to initialize our service again
 				# TODO: We should somehow set a timeout and kill the old process
 				# if it doesn't quit when we ask it to. (Perhaps we should at least
 				# steal the bus using replace_existing=True)
-				bus = dbus.service.BusName(DBusInterface.BUS_NAME, sbus, do_not_queue=False)
-				dbus.service.Object.__init__(self, bus, DBusInterface.OBJECT_PATH)
 			else:
 				raise RuntimeError(
 					("An existing instance was found. Please use "
@@ -57,5 +54,5 @@ class SingletonApplication (dbus.service.Object):
 		else:
 			# service is not running, save to start
 			logging.debug("No other instances found.")
-			bus = dbus.service.BusName(DBusInterface.BUS_NAME, sbus, do_not_queue=True)
-			dbus.service.Object.__init__(self, bus, DBusInterface.OBJECT_PATH)
+		bus = dbus.service.BusName(DBusInterface.BUS_NAME, sbus, do_not_queue=True)
+		dbus.service.Object.__init__(self, bus, DBusInterface.OBJECT_PATH)
