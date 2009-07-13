@@ -107,6 +107,10 @@ class ZeitgeistEngine(gobject.GObject):
 		# check for required items and make sure all items have the correct type
 		ritem = EventDict.check_missing_items(ritem)
 		
+		# FIXME: uri, content, source are now required items, the statement above
+		# will raise an KeyError if they are not there. What about mimetype?
+		# and why are we printing a warning and returning False here instead of raising
+		# an error at all? - Markus Korn
 		if not ritem["uri"].strip():
 			log.warning("Discarding item without a URI: %s" % ritem)
 			return False
