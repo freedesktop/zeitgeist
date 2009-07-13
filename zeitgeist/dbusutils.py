@@ -104,7 +104,10 @@ class DBusInterface(dbus.Interface):
 		)
 
 class EventDict(dict):
+	""" A dict representing an event """
 	
+	# a dict of all possible keys of an event dict and the type of its
+	# values and whether this item is required or not
 	_ITEM_TYPE_MAP = {
 		"timestamp": (int, True),
 		"uri": (unicode, True),
@@ -121,32 +124,39 @@ class EventDict(dict):
 		"origin": (unicode, False),
 	}
 	
+	# set containing the keys of all required items
 	_REQUIRED_ITEMS = set(
 		key for key, (type, required) in _ITEM_TYPE_MAP.iteritems() if required
 	)
 	
 	@staticmethod
 	def check_missing_items(event_dict):
+		""" Method to check for required items.
+		
+		In case one or more required items are missing a KeyError is raised,
+		otherwise an EventDict is returned
+		"""
 		missing = EventDict._REQUIRED_ITEMS - set(event_dict.keys())
 		if missing:
 			raise KeyError(("Some keys are missing in order to add "
 				"this item properly: %s" % ", ".join(missing)))
 		return EventDict.check_dict(event_dict)
 	
-	@staticmethod
-	def check_dict(event_dict):
-		""" Function to check an event dict.
+	@classmethod
+	def check_dict(cls, event_dict):
+		""" Method to check an event dict.
 		
 		It autamatically changes the type of all values to the expected on.
 		If a value is not given an item with a default value is added
 		"""
-		return dict((key, type(event_dict.get(key, type()))) \
+		return cls((key, type(event_dict.get(key, type()))) \
 						for key, (type, required) \
 						in EventDict._ITEM_TYPE_MAP.iteritems()
 		)
 		
 	@classmethod
 	def convert_result_to_dict(cls, result_tuple):
+		""" Method to convert a sql result tuple into an EventDict """
 		return cls(
 			timestamp = result_tuple[1],
 			uri = result_tuple[0],
