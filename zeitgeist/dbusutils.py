@@ -146,7 +146,7 @@ class EventDict(dict):
 	def check_dict(cls, event_dict):
 		""" Method to check an event dict.
 		
-		It autamatically changes the type of all values to the expected on.
+		It automatically changes the type of all values to the expected on.
 		If a value is not given an item with a default value is added
 		"""
 		return cls((key, type(event_dict.get(key, type()))) \
