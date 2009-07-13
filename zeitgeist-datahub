@@ -48,7 +48,7 @@ class DataHub(gobject.GObject):
 		gobject.GObject.__init__(self)
 		
 		self._client = DBusInterface()
-		self._client.dbus_connect("EngineExit", self._daemon_exit)
+		self._client.connect("EngineExit", self._daemon_exit)
 				
 		# Load the data sources
 		self._sources = []

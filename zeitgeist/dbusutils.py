@@ -75,7 +75,7 @@ class DBusInterface(dbus.Interface):
 			return cls.__shared_state["proxy_object"]
 		
 	@classmethod
-	def dbus_connect(cls, signal, callback, arg0=None):
+	def connect(cls, signal, callback, arg0=None):
 		"""Connect a callback to a signal of the current proxy instance """
 		proxy = cls._get_proxy()
 		if arg0 is None:
@@ -172,6 +172,3 @@ class EventDict(dict):
 			app = result_tuple[10],
 			origin = result_tuple[6],
 		)
-
-
-		

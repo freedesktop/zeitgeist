@@ -394,7 +394,7 @@ class ZeitgeistEngine(gobject.GObject):
 				"ASC" if sorting_asc else "DESC"), args).get_all()
 		
 		if not only_count:
-			result = [EventDict.convert_result_to_dict(event) for event in events]
+			result = map(EventDict.convert_result_to_dict, events)
 			
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
