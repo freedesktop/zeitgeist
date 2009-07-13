@@ -87,7 +87,27 @@ class RemoteInterface(SingletonApplication):
 		#   content: <str>
 		#   bookmarked: <bool> (True means bookmarked items, and vice versa
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
-					sorting_asc, mode, filters, False)
+			sorting_asc, mode, filters, False)
+	
+	@dbus.service.method("org.gnome.zeitgeist",
+						in_signature="iiaa{sv}", out_signature="a(si)")
+	def FindApplications(self, min_timestamp, max_timestamp, filters):
+		"""This method takes a subset of the parameters from ``FindEvents()``
+		and returns the path to the .desktop file of the applications which
+		were used for the matching events.
+		
+		:param min_timestamp: search for application beginning after this timestamp
+		:type min_timestamp: integer
+		:param max_timestamp: search for applications beginning before this timestamp;
+			``max_timestamp`` equals ``0`` means indefinite time
+		:type max_timestamp: integer
+		:param filters: list of filter, multiple filters are connected by an ``OR`` condition
+		:type filters: list of tuples presenting a :ref:`filter-label`
+		:returns: list of tuples containing the path to a .desktop file and the amount of matches for it
+		:rtype: list of tuples containing a string and an integer
+		"""
+		return _engine.find_events(min_timestamp, max_timestamp, 0, True,
+			u"event", filters, return_mode=2)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="iisaa{sv}", out_signature="i")
@@ -111,7 +131,7 @@ class RemoteInterface(SingletonApplication):
 		:rtype: list of tuples presenting an :ref:`item-label`
 		"""
 		return _engine.find_events(min_timestamp, max_timestamp, 0, True,
-			mode, filters, True)
+			mode, filters, return_mode=1)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="siii", out_signature="a(si)")

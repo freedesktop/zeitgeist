@@ -417,11 +417,33 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			[{"content": [Content.IMAGE.uri]}], True)
 		self.assertEquals(result, 3)
 	
+	def testFindApplications(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, True, u"event", [],
+			return_mode=2)
+		self.assertEquals(result, [(u"/usr/share/applications/eog.desktop", 3),
+			(u"/usr/share/applications/firefox.desktop", 2)])
+	
+	def testFindApplications(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, True, u"event",
+			[], return_mode=2)
+		self.assertEquals(result, [(u"/usr/share/applications/eog.desktop", 3),
+			(u"/usr/share/applications/firefox.desktop", 2)])
+	
+	def testFindApplicationsTimestampMimetypeTags(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(1219325, 4563533, 0, True, u"event",
+			[{"mimetypes": [u"image/png"], "tags": [u"examples"]}],
+			return_mode=2)
+		self.assertEquals(result, [(u"/usr/share/applications/eog.desktop", 1),
+			(u"/usr/share/applications/firefox.desktop", 1)])
+	
 	def testGetTagsNameFilter(self):
 		self._init_with_various_events()
 		result = self.engine.get_tags(u"f%")
-		self.assertEquals(result, [(u'filtertest', 1),
-			(u'files', 1)])
+		self.assertEquals(result, [(u"filtertest", 1),
+			(u"files", 1)])
 	
 	def testGetTagsLimit(self):
 		self._init_with_various_events()

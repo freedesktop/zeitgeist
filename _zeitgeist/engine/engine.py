@@ -254,7 +254,7 @@ class ZeitgeistEngine(gobject.GObject):
 			return EventDict.convert_result_to_dict(item)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
-			sorting_asc=True, mode="event", filters=(), only_count=False):
+			sorting_asc=True, mode="event", filters=(), return_mode=0):
 		"""
 		Returns all items from the database between the indicated
 		timestamps `min' and `max'. Optionally the argument `tags'
@@ -274,6 +274,12 @@ class ZeitgeistEngine(gobject.GObject):
 		between diferent structs it is OR-like (only the conditions
 		described in one of the structs need to match for the item to
 		be returned).
+		
+		Possible values for return_mode, which is an internal variable
+		not exposed in the API:
+		 - 0: Return the events/items.
+		 - 1: Return the amount of events/items which would be returned.
+		 - 2: Return only the applications for the matching events.
 		"""
 		
 		time1 = time.time()
@@ -357,7 +363,11 @@ class ZeitgeistEngine(gobject.GObject):
 			preexpressions += ", MAX(event.start)"
 			expressions += " GROUP BY event.subject_id"
 			if mode == "mostused":
-				additional_orderby = "COUNT(event.rowid) DESC,"
+				additional_orderby += " COUNT(event.rowid) DESC,"
+		elif return_mode == 2:
+			preexpressions += " , COUNT(event.app_id) AS app_count"
+			expressions += " GROUP BY event.app_id"
+			additional_orderby += " app_count DESC,"
 		
 		args = [ Content.BOOKMARK.id, Content.TAG.id, min, max ]
 		args += additional_args
@@ -393,17 +403,19 @@ class ZeitgeistEngine(gobject.GObject):
 			""" % (preexpressions, expressions, additional_orderby,
 				"ASC" if sorting_asc else "DESC"), args).get_all()
 		
-		if not only_count:
+		if return_mode == 0:
 			result = map(EventDict.convert_result_to_dict, events)
 			
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
-		else:
+		elif return_mode == 1:
 			# We could change the query above to "SELECT COUNT(*) FROM (...)",
 			# where "..." is the complete query converted into a temporary
 			# table, and get the result directly but there isn't enough of
 			# a speed gain in doing that as that it'd be worth doing.
 			result = len(events)
+		elif return_mode == 2:
+			return [(event[10], event[13]) for event in events]
 		
 		return result
 	
