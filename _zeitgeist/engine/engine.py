@@ -32,7 +32,7 @@ from xdg.DesktopEntry import DesktopEntry
 import sqlite3
 
 from _zeitgeist.engine.base import *
-from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT
+from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, check_dict
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -144,7 +144,7 @@ class ZeitgeistEngine(gobject.GObject):
 			return False
 		
 		# Ensure all items have the correct type (str -> unicode)
-		ritem = dict((key, TYPES_DICT[key](value)) for key, value in ritem.iteritems())
+		ritem = check_dict(ritem)
 		
 		# Get the IDs for the URI, the content and the source
 		uri_id, content_id, source_id = self._get_ids(ritem["uri"],

@@ -22,12 +22,13 @@ import dbus.service
 import logging
 
 from _zeitgeist.engine.engine import get_default_engine
-from zeitgeist.dbusutils import DBusInterface, sig_plain_data, check_dict
+from zeitgeist.dbusutils import DBusInterface, check_dict
 from _zeitgeist.singleton import SingletonApplication
 
 _engine = get_default_engine()
 
 DBUS_INTERFACE = DBusInterface.INTERFACE_NAME
+SIG_EVENT = "a{sv}"
 
 class RemoteInterface(SingletonApplication):
 	
@@ -40,7 +41,7 @@ class RemoteInterface(SingletonApplication):
 	# Reading stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="as", out_signature="a"+sig_plain_data)
+						in_signature="as", out_signature="a"+SIG_EVENT)
 	def GetItems(self, uris):
 		"""Get items by URI
 		
@@ -52,7 +53,7 @@ class RemoteInterface(SingletonApplication):
 		return map(_engine.get_item, uris)
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="iiibsaa{sv}", out_signature="a"+sig_plain_data)
+						in_signature="iiibsaa{sv}", out_signature="a"+SIG_EVENT)
 	def FindEvents(self, min_timestamp, max_timestamp, limit,
 			sorting_asc, mode, filters):
 		"""Search for items which match different criterias
@@ -164,7 +165,7 @@ class RemoteInterface(SingletonApplication):
 	# Writing stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="a"+sig_plain_data, out_signature="i")
+						in_signature="a"+SIG_EVENT, out_signature="i")
 	def InsertEvents(self, event_list):
 		"""Inserts events into the database. Returns the amount of sucessfully
 		inserted events
@@ -182,7 +183,7 @@ class RemoteInterface(SingletonApplication):
 			return 0
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="a"+sig_plain_data, out_signature="")
+						in_signature="a"+SIG_EVENT, out_signature="")
 	def UpdateItems(self, item_list):
 		"""Update items in the database
 		
@@ -206,7 +207,7 @@ class RemoteInterface(SingletonApplication):
 	# Signals and signal emitters
 	
 	@dbus.service.signal(DBUS_INTERFACE,
-						signature="(sa%s)" %sig_plain_data)
+						signature="(sa%s)" %SIG_EVENT)
 	def EventsChanged(self, value):
 		"""This Signal is emmitted whenever one or more items have been changed
 		

@@ -112,13 +112,11 @@ ITEM_STRUCTURE = {
 
 ITEM_STRUCTURE_KEYS = set(ITEM_STRUCTURE.keys())
 
-DEFAULTS = {int: 0, unicode: "", bool: False} #can be reomved
-TYPES = {int: "i", unicode: "s", bool: "b"}
-TYPES_DICT = dict(ITEM_STRUCTURE) 
-
-#~ sig_plain_data = "(%s)" %"".join(TYPES[i[1]] for i in ITEM_STRUCTURE)
-sig_plain_data = "a{sv}"
-
 def check_dict(event_dict):
-	return dict((key, event_dict.get(key, type())) for key, type in TYPES_DICT.iteritems())
+	""" Function to check an event dict.
+	
+	It autamatically changes the type of all values to the expected on.
+	If a value is not given an item with a default value is added
+	"""
+	return dict((key, type(event_dict.get(key, type()))) for key, type in ITEM_STRUCTURE.iteritems())
 		
