@@ -144,7 +144,7 @@ class EventDict(dict):
 	
 	@classmethod
 	def check_dict(cls, event_dict):
-		""" Method to check an event dict.
+		""" Method to check the type of the items in an event dict.
 		
 		It automatically changes the type of all values to the expected on.
 		If a value is not given an item with a default value is added
