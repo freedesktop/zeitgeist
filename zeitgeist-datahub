@@ -46,10 +46,10 @@ class DataHub(gobject.GObject):
 	def __init__(self):
 		
 		gobject.GObject.__init__(self)
-		dbus_connect("EngineExit", self._daemon_exit)
 		
-		self._client = get_engine_interface()
-		
+		self._client = DBusInterface()
+		self._client.connect("EngineExit", self._daemon_exit)
+				
 		# Load the data sources
 		self._sources = []
 		for datasource_file in glob.glob(_config.datasourcedir + '/*.py'):
@@ -106,12 +106,12 @@ class DataHub(gobject.GObject):
 		logging.debug(_("Updating database with new %s items") % \
 			self._sources_queue[0].get_name())
 		
-		items = set()
+		items = list()
 		for num, item in enumerate(self._sources_queue[0].get_items()):
-			items.add(plainify_dict(item))
+			items.append(item)
 			if num % 200 == 0:
 				self._insert_events(self._sources_queue[0].get_name(), items)
-				items = set()
+				items = list()
 		if items:
 			self._insert_events(self._sources_queue[0].get_name(), items)
  		

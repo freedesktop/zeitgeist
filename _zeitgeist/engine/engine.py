@@ -32,7 +32,7 @@ from xdg.DesktopEntry import DesktopEntry
 import sqlite3
 
 from _zeitgeist.engine.base import *
-from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT, plainify_dict
+from zeitgeist.dbusutils import EventDict
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -69,27 +69,6 @@ class ZeitgeistEngine(gobject.GObject):
 			self._apps_id[id] = info[0]
 			return info[0]
 	
-	def _format_result(self, value):
-		""" Takes a row from SQL containing all necessary event and item
-		information and converts it into a tuple suitable for transmission
-		over D-Bus. """
-		
-		return (
-			value[1], # timestamp
-			value[0], # uri
-			value[7] or os.path.basename(value[0]), # name
-			value[5], # source
-			value[3], # content
-			value[8], # mimetype
-			value[12] or "", # tags
-			"", # comment
-			bool(value[11]), # bookmark
-			value[4], # usage is determined by the event Content type # event.item.content.value
-			value[9], # icon
-			value[10], # app
-			value[6] # origin
-			)
-	
 	def _get_ids(self, uri, content, source):	
 		uri_id = URI.lookup_or_create(uri).id if uri else None
 		content_id = Content.lookup_or_create(content).id if content else None
@@ -125,11 +104,13 @@ class ZeitgeistEngine(gobject.GObject):
 		happens when `force' is True).
 		"""
 		
-		# We require all keys here
-		missing = ITEM_STRUCTURE_KEYS - set(ritem.keys())
-		if missing:
-			raise KeyError(("Some keys are missing in order to add "
-				"this item properly: %s" % ", ".join(missing)))
+		# check for required items and make sure all items have the correct type
+		ritem = EventDict.check_missing_items(ritem)
+		
+		# FIXME: uri, content, source are now required items, the statement above
+		# will raise an KeyError if they are not there. What about mimetype?
+		# and why are we printing a warning and returning False here instead of raising
+		# an error at all? - Markus Korn
 		if not ritem["uri"].strip():
 			log.warning("Discarding item without a URI: %s" % ritem)
 			return False
@@ -142,9 +123,6 @@ class ZeitgeistEngine(gobject.GObject):
 		if not ritem["mimetype"].strip():
 			log.warning("Discarding item without a mimetype: %s" % ritem)
 			return False
-		
-		# Ensure all items have the correct type (str -> unicode)
-		ritem = dict((key, TYPES_DICT[key](value)) for key, value in ritem.iteritems())
 		
 		# Get the IDs for the URI, the content and the source
 		uri_id, content_id, source_id = self._get_ids(ritem["uri"],
@@ -237,7 +215,7 @@ class ZeitgeistEngine(gobject.GObject):
 			# This is always 0 or 1, no need to consider 2 as we don't
 			# use the `force' option.
 			if self.insert_event(item, commit=False):
-				inserted_items.append(plainify_dict(item))
+				inserted_items.append(item)
 		self.store.commit()
 		time2 = time.time()
 		log.debug("Inserted %s items in %.5f s." % (len(inserted_items),
@@ -273,7 +251,7 @@ class ZeitgeistEngine(gobject.GObject):
 			""", (Content.BOOKMARK.id, Content.TAG.id, unicode(uri))).get_one()
 		
 		if item:
-			return self._format_result(item)
+			return EventDict.convert_result_to_dict(item)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
 			sorting_asc=True, mode="event", filters=(), only_count=False):
@@ -416,7 +394,7 @@ class ZeitgeistEngine(gobject.GObject):
 				"ASC" if sorting_asc else "DESC"), args).get_all()
 		
 		if not only_count:
-			result = [self._format_result(event) for event in events]
+			result = map(EventDict.convert_result_to_dict, events)
 			
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
@@ -446,7 +424,7 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def update_items(self, items):
 		map(self._update_item, items)
-		return [plainify_dict(item) for item in items]
+		return items
 	
 	def _delete_item(self, uri):
 		

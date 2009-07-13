@@ -42,7 +42,11 @@ engine = get_default_engine()
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = gobject.MainLoop()
 
-obj = RemoteInterface(mainloop = mainloop)
+try:
+	obj = RemoteInterface(mainloop = mainloop)
+except RuntimeError, e:
+	logging.error(str(e))
+	sys.exit(1)
 
 trayicon_app = "%s/zeitgeist-trayicon" % _config.bindir
 if not "--no-trayicon" in sys.argv and os.path.isfile(trayicon_app):

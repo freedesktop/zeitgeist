@@ -19,91 +19,156 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import dbus
 import dbus.mainloop.glib
-import gettext
 import logging
+import os.path
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-_bus = None
-_engine_proxy = None
-_engine_iface = None
 
-def get_session_bus():
-	global _bus
+class DBusInterface(dbus.Interface):
+	""" Central DBus interface to the zeitgeist engine
 	
-	if _bus :
-		return _bus
+	There doe not necessarily have to be one single instance of this
+	interface class, but all instances should share the same state
+	(like use the same bus and be connected to the same proxy). This is
+	achieved by extending the `Borg Pattern` as described by Alex Martelli	
+	"""
+	__shared_state = {}
 	
-	try:
-		_bus = dbus.SessionBus()
-		return _bus
-	except dbus.exceptions.DBusException:
-		logging.error(_("Could not connect to D-Bus."))
-		sys.exit(1)
-
-def get_engine_proxy():
-	global _engine_proxy
+	INTERFACE_NAME = BUS_NAME = "org.gnome.zeitgeist"
+	OBJECT_PATH = "/org/gnome/zeitgeist"
 	
-	if _engine_proxy :
-		return _engine_proxy
+	@classmethod
+	def get_session_bus(cls):
+		"""Returns the bus used by the interface.
+		
+		If there is no bus set, the '_bus' attribute is set to
+		dbus.SessionBus() and returned
+		"""
+		return cls.__shared_state.setdefault("_bus", dbus.SessionBus())
+		
+	@classmethod
+	def _get_proxy(cls):
+		"""Returns the proxy instance used by the interface.
+		
+		If the current interface has no proxy object set, it tries to
+		generate one. If this fails because no zeitgeist-daemon is
+		running a RuntimeError will be raised
+		"""
+		try:
+			return cls.__shared_state["proxy_object"]
+		except KeyError, e:
+			bus = cls.get_session_bus()
+			try:
+				cls.__shared_state["proxy_object"] = bus.get_object(
+					cls.BUS_NAME,
+					cls.OBJECT_PATH
+				)
+			except dbus.exceptions.DBusException, e:
+				if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
+					raise RuntimeError(("No running instance of the "
+						"zeitgeist daemon found: %s") %e.get_dbus_message())
+				else:
+					raise
+			return cls.__shared_state["proxy_object"]
+		
+	@classmethod
+	def connect(cls, signal, callback, arg0=None):
+		"""Connect a callback to a signal of the current proxy instance """
+		proxy = cls._get_proxy()
+		if arg0 is None:
+			proxy.connect_to_signal(
+				signal,
+				callback,
+				dbus_interface=cls.INTERFACE_NAME
+			)
+		else:
+			# TODO: This is ugly and limited to 1 argument. Find a better
+			# way to do it.
+			proxy.connect_to_signal(
+				signal,
+				callback,
+				dbus_interface=cls.INTERFACE_NAME,
+				arg0=arg0
+			)
 	
-	try:
-		_engine_proxy = get_session_bus().get_object("org.gnome.zeitgeist",
-													 "/org/gnome/zeitgeist")
-		return _engine_proxy
-	except dbus.exceptions.DBusException:
-		logging.error(_("Error: Zeitgeist service not running."))
-		sys.exit(1)
+	def __init__(self):
+		self.__dict__ = self.__shared_state
+		proxy = self._get_proxy()
+		dbus.Interface.__init__(
+				self,
+				proxy,
+				self.BUS_NAME
+		)
 
-def get_engine_interface():
-	global _engine_iface
+class EventDict(dict):
+	""" A dict representing an event """
 	
-	if _engine_iface:
-		return _engine_iface
+	# a dict of all possible keys of an event dict and the type of its
+	# values and whether this item is required or not
+	_ITEM_TYPE_MAP = {
+		"timestamp": (int, True),
+		"uri": (unicode, True),
+		"text": (unicode, False),
+		"source": (unicode, True),
+		"content": (unicode, True),
+		"mimetype": (unicode, False),
+		"tags": (unicode, False),
+		"comment": (unicode, False),
+		"bookmark": (bool, False),
+		"use": (unicode, False),
+		"icon": (unicode, False),
+		"app": (unicode, False),
+		"origin": (unicode, False),
+	}
 	
-	_engine_iface = dbus.Interface(get_engine_proxy(), "org.gnome.zeitgeist")
-	return _engine_iface
-
-def dbus_connect(signal, callback, arg0=None):
-	if not arg0:
-		get_engine_proxy().connect_to_signal(signal, callback,
-			dbus_interface="org.gnome.zeitgeist")
-	else:
-		# TODO: This is ugly and limited to 1 argument. Find a better
-		# way to do it.
-		get_engine_proxy().connect_to_signal(signal, callback,
-			dbus_interface="org.gnome.zeitgeist", arg0=arg0)
-
-# (isssssssbssss)
-ITEM_STRUCTURE = (
-	("timestamp", int),
-	("uri", unicode),
-	("text", unicode),
-	("source", unicode),
-	("content", unicode),
-	("mimetype", unicode),
-	("tags", unicode),
-	("comment", unicode),
-	("bookmark", bool),
-	("use", unicode),
-	("icon", unicode),
-	("app", unicode),
-	("origin", unicode),
-)
-
-ITEM_STRUCTURE_KEYS = set(i[0] for i in ITEM_STRUCTURE)
-
-DEFAULTS = {int: 0, unicode: "", bool: False}
-TYPES = {int: "i", unicode: "s", bool: "b"}
-TYPES_DICT = dict(ITEM_STRUCTURE) 
-
-sig_plain_data = "(%s)" %"".join(TYPES[i[1]] for i in ITEM_STRUCTURE)
-
-def plainify_dict(item_list):
-	return tuple(item_list.get(name, DEFAULTS[type]) for name, type in ITEM_STRUCTURE)
-
-def dictify_data(item_list):
-	return dict((key[0], item_list[i]) for i, key in enumerate(ITEM_STRUCTURE))
+	# set containing the keys of all required items
+	_REQUIRED_ITEMS = set(
+		key for key, (type, required) in _ITEM_TYPE_MAP.iteritems() if required
+	)
+	
+	@staticmethod
+	def check_missing_items(event_dict):
+		""" Method to check for required items.
+		
+		In case one or more required items are missing a KeyError is raised,
+		otherwise an EventDict is returned
+		"""
+		missing = EventDict._REQUIRED_ITEMS - set(event_dict.keys())
+		if missing:
+			raise KeyError(("Some keys are missing in order to add "
+				"this item properly: %s" % ", ".join(missing)))
+		return EventDict.check_dict(event_dict)
+	
+	@classmethod
+	def check_dict(cls, event_dict):
+		""" Method to check the type of the items in an event dict.
+		
+		It automatically changes the type of all values to the expected on.
+		If a value is not given an item with a default value is added
+		"""
+		return cls((key, type(event_dict.get(key, type()))) \
+						for key, (type, required) \
+						in EventDict._ITEM_TYPE_MAP.iteritems()
+		)
+		
+	@classmethod
+	def convert_result_to_dict(cls, result_tuple):
+		""" Method to convert a sql result tuple into an EventDict """
+		return cls(
+			timestamp = result_tuple[1],
+			uri = result_tuple[0],
+			text = result_tuple[7] or os.path.basename(result_tuple[0]), # FIXME: why not u"" as alternative value?
+			source = result_tuple[5], 
+			content = result_tuple[3],
+			mimetype = result_tuple[8],
+			tags = result_tuple[12] or u"",
+			comment = u"",
+			bookmark = bool(result_tuple[11]),
+			use = result_tuple[4], # usage is determined by the event Content type # event.item.content.value
+			icon = result_tuple[9],
+			app = result_tuple[10],
+			origin = result_tuple[6],
+		)
