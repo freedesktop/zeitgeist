@@ -22,7 +22,7 @@ import dbus.service
 import logging
 
 from zeitgeist.engine.engine import get_default_engine
-from zeitgeist.dbusutils import DBusInterface, dictify_data, sig_plain_data
+from zeitgeist.dbusutils import DBusInterface, sig_plain_data, check_dict
 from zeitgeist.singleton import SingletonApplication
 
 _engine = get_default_engine()
@@ -86,7 +86,7 @@ class RemoteInterface(SingletonApplication):
 		#   content: <str>
 		#   bookmarked: <bool> (True means bookmarked items, and vice versa
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
-			sorting_asc, mode, filters, False)
+					sorting_asc, mode, filters, False)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="iisaa{sv}", out_signature="i")
@@ -174,9 +174,9 @@ class RemoteInterface(SingletonApplication):
 		:returns: a positive value on success, ``0`` otherwise
 		:rtype: Integer
 		"""
-		result = _engine.insert_events([dictify_data(x) for x in event_list])
+		result = _engine.insert_events(map(check_dict, event_list))
 		if result:
-			self.EventsChanged({"added": result})
+			self.EventsChanged(("added", result))
 			return len(result)
 		else:
 			return 0
@@ -189,8 +189,8 @@ class RemoteInterface(SingletonApplication):
 		:param item_list: list of items to be inserted in the database
 		:type item_list: list of tuples presenting an :ref:`item-label`
 		"""
-		result = _engine.update_items([dictify_data(x) for x in item_list])
-		self.EventsChanged({"modified": result})
+		result = _engine.update_items(item_list)
+		self.EventsChanged(("modified", result))
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="as", out_signature="")
@@ -201,22 +201,24 @@ class RemoteInterface(SingletonApplication):
 		:type uris: list of strings
 		"""
 		result = _engine.delete_items(uris)
-		self.EventsChanged({"deleted": result})
+		self.EventsChanged(("deleted", result)) #FIXME, this will not work
 	
 	# Signals and signal emitters
 	
 	@dbus.service.signal(DBUS_INTERFACE,
-						signature="a{sv}")
+						signature="(sa%s)" %sig_plain_data)
 	def EventsChanged(self, value):
 		"""This Signal is emmitted whenever one or more items have been changed
 		
-		It contains a list of dictionaries containing one or more of `added`,
-		`modified` and `deleted`, where the first two contain the affected
-		items and the later only their URI.
+		It contains a tuple, where the first item is one of `added`,
+		`modified` and `deleted`. If the first item is `added` or `modified`
+		the second item is a list of :ref:`item-label`, otherwise it is
+		a list of uris.
 		
 		:returns: added and modified items and URIs of deleted items
 		:rtype: list of dictionaries
 		"""
+		# FIXME: this is broken in case of "deleted" actions
 		return value
 	
 	@dbus.service.signal(DBUS_INTERFACE)

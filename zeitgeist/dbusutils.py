@@ -94,33 +94,31 @@ class DBusInterface(dbus.Interface):
 				self.BUS_NAME
 		)
 
-# (isssssssbssss)
-ITEM_STRUCTURE = (
-	("timestamp", int),
-	("uri", unicode),
-	("text", unicode),
-	("source", unicode),
-	("content", unicode),
-	("mimetype", unicode),
-	("tags", unicode),
-	("comment", unicode),
-	("bookmark", bool),
-	("use", unicode),
-	("icon", unicode),
-	("app", unicode),
-	("origin", unicode),
-)
+ITEM_STRUCTURE = {
+	"timestamp": int,
+	"uri": unicode,
+	"text": unicode,
+	"source": unicode,
+	"content": unicode,
+	"mimetype": unicode,
+	"tags": unicode,
+	"comment": unicode,
+	"bookmark": bool,
+	"use": unicode,
+	"icon": unicode,
+	"app": unicode,
+	"origin": unicode,
+}
 
-ITEM_STRUCTURE_KEYS = set(i[0] for i in ITEM_STRUCTURE)
+ITEM_STRUCTURE_KEYS = set(ITEM_STRUCTURE.keys())
 
-DEFAULTS = {int: 0, unicode: "", bool: False}
+DEFAULTS = {int: 0, unicode: "", bool: False} #can be reomved
 TYPES = {int: "i", unicode: "s", bool: "b"}
 TYPES_DICT = dict(ITEM_STRUCTURE) 
 
-sig_plain_data = "(%s)" %"".join(TYPES[i[1]] for i in ITEM_STRUCTURE)
+#~ sig_plain_data = "(%s)" %"".join(TYPES[i[1]] for i in ITEM_STRUCTURE)
+sig_plain_data = "a{sv}"
 
-def plainify_dict(item_list):
-	return tuple(item_list.get(name, DEFAULTS[type]) for name, type in ITEM_STRUCTURE)
-
-def dictify_data(item_list):
-	return dict((key[0], item_list[i]) for i, key in enumerate(ITEM_STRUCTURE))
+def check_dict(event_dict):
+	return dict((key, event_dict.get(key, type())) for key, type in TYPES_DICT.iteritems())
+		

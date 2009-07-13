@@ -67,7 +67,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertTrue(result is not None)
 		
 		# Clean result, from extra data, and add missing data
-		result = dictify_data(result)
 		result["use"] = Content.CREATE_EVENT.uri
 		result["app"] = "/usr/share/applications/gnome-about.desktop"
 	
@@ -97,8 +96,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"tags": ""
 		}
 		self.engine.insert_event(orig)
-		bookmarks = map(dictify_data, self.engine.find_events(0, 0, 0, True,
-			"event", [{"bookmarked": True}]))
+		bookmarks = self.engine.find_events(0, 0, 0, True,
+						"event", [{"bookmarked": True}])
 		self.assertEquals(1, len(bookmarks))
 		self.assertEquals("test://mytest", bookmarks[0]["uri"])
 		self.assertEquals([], list(self.engine.get_tags()))
@@ -327,7 +326,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsMostUsed(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "mostused", [])
-		self.assertEquals(result[0][2], u"Cool Picture 1")
+		self.assertEquals(result[0]["text"], u"Cool Picture 1")
 	
 	def testFindEventsMimetype(self):
 		self._init_with_various_events()
@@ -339,7 +338,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event",
 			[{"mimetypes": [u"image/j%", u"image/_n_"]}])
-		self.assertEquals(set([x[5] for x in result]),
+		self.assertEquals(set([x["mimetype"] for x in result]),
 			set([u"image/jpg", u"image/png"]))
 	
 	def testFindEventsMimetypeAndBookmarks(self):
@@ -356,9 +355,9 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testFindEventsWithTags(self):
 		self._init_with_various_events()
-		result1 = [x[1] for x in self.engine.find_events(0, 0, 0, True, "event",
+		result1 = [x["uri"] for x in self.engine.find_events(0, 0, 0, True, "event",
 			[{"tags": [u"files"]}])]
-		result2 = [x[1] for x in self.engine.find_events(0, 0, 0, True, "event",
+		result2 = [x["uri"] for x in self.engine.find_events(0, 0, 0, True, "event",
 			[{"tags": [u"files", u"examples"]}])]
 		self.assertEquals(result1, result2)
 		self.assertEquals(result1, [u"file:///tmp/files/example.png"])
@@ -374,8 +373,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result4 = self.engine.find_events(0, 0, 0, True, "event",
 			[{"content": [Content.MUSIC.uri]}])
 		self.assertEquals(result1, result2)
-		self.assertEquals([x[4] for x in result1], [Content.IMAGE.uri] * 4)
-		self.assertEquals(result3[0][2],  u"picture.png")
+		self.assertEquals([x["content"] for x in result1], [Content.IMAGE.uri] * 4)
+		self.assertEquals(result3[0]["text"],  u"picture.png")
 		self.assertEquals(len(result3), 1)
 		self.assertEquals(len(result4), 0)
 	
@@ -388,7 +387,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result3 = self.engine.find_events(0, 0, 0, True, "event",
 			[{"source": [Source.USER_NOTIFICATION.uri]}])
 		self.assertEquals(len(result1), 3)
-		self.assertEquals(set(x[3] for x in result2),
+		self.assertEquals(set(x["source"] for x in result2),
 			set([Source.WEB_HISTORY.uri]))
 		self.assertEquals(len(result2), 2)
 		self.assertEquals(len(result3), 0)

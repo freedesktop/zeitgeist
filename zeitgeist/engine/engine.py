@@ -33,7 +33,7 @@ import sqlite3
 
 from zeitgeist import config
 from zeitgeist.engine.base import *
-from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT, plainify_dict
+from zeitgeist.dbusutils import ITEM_STRUCTURE_KEYS, TYPES_DICT
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -75,21 +75,21 @@ class ZeitgeistEngine(gobject.GObject):
 		information and converts it into a tuple suitable for transmission
 		over D-Bus. """
 		
-		return (
-			value[1], # timestamp
-			value[0], # uri
-			value[7] or os.path.basename(value[0]), # name
-			value[5], # source
-			value[3], # content
-			value[8], # mimetype
-			value[12] or "", # tags
-			"", # comment
-			bool(value[11]), # bookmark
-			value[4], # usage is determined by the event Content type # event.item.content.value
-			value[9], # icon
-			value[10], # app
-			value[6] # origin
-			)
+		return {
+			"timestamp": value[1],
+			"uri": value[0],
+			"text": value[7] or os.path.basename(value[0]), # FIXME: why not u"" as alternative value?
+			"source": value[5], 
+			"content": value[3],
+			"mimetype": value[8],
+			"tags": value[12] or u"",
+			"comment": u"",
+			"bookmark": bool(value[11]),
+			"use": value[4], # usage is determined by the event Content type # event.item.content.value
+			"icon": value[9],
+			"app": value[10],
+			"origin": value[6],
+		}
 	
 	def _get_ids(self, uri, content, source):	
 		uri_id = URI.lookup_or_create(uri).id if uri else None
@@ -238,7 +238,7 @@ class ZeitgeistEngine(gobject.GObject):
 			# This is always 0 or 1, no need to consider 2 as we don't
 			# use the `force' option.
 			if self.insert_event(item, commit=False):
-				inserted_items.append(plainify_dict(item))
+				inserted_items.append(item)
 		self.store.commit()
 		time2 = time.time()
 		log.debug("Inserted %s items in %.5f s." % (len(inserted_items),
@@ -447,7 +447,7 @@ class ZeitgeistEngine(gobject.GObject):
 	
 	def update_items(self, items):
 		map(self._update_item, items)
-		return [plainify_dict(item) for item in items]
+		return items
 	
 	def _delete_item(self, uri):
 		
