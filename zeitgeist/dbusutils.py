@@ -26,7 +26,6 @@ import os.path
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-
 class DBusInterface(dbus.Interface):
 	""" Central DBus interface to the zeitgeist engine
 	
@@ -48,7 +47,7 @@ class DBusInterface(dbus.Interface):
 		dbus.SessionBus() and returned
 		"""
 		return cls.__shared_state.setdefault("_bus", dbus.SessionBus())
-		
+	
 	@classmethod
 	def _get_proxy(cls):
 		"""Returns the proxy instance used by the interface.
@@ -68,12 +67,12 @@ class DBusInterface(dbus.Interface):
 				)
 			except dbus.exceptions.DBusException, e:
 				if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
-					raise RuntimeError(("No running instance of the "
-						"zeitgeist daemon found: %s") %e.get_dbus_message())
+					raise RuntimeError(("Found no running instance of the "
+						"Zeitgeist daemon: %s") % e.get_dbus_message())
 				else:
 					raise
 			return cls.__shared_state["proxy_object"]
-		
+	
 	@classmethod
 	def connect(cls, signal, callback, arg0=None):
 		"""Connect a callback to a signal of the current proxy instance """

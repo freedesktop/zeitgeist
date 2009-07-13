@@ -25,10 +25,10 @@ import shutil
 import sqlite3 as db
 import gettext
 import logging
-import dbus
 import gio
 from xdg import BaseDirectory
 
+from zeitgeist import dbusutils
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 log = logging.getLogger("zeitgeist.logger.datasources.evolution")
@@ -42,14 +42,7 @@ class EvolutionSource(DataProvider):
 	
 	@staticmethod
 	def get_last_timestamp():
-		# Connect to D-Bus
-		bus = dbus.SessionBus()
-		try:
-			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
-		except dbus.exceptions.DBusException:
-			log.error("Could not connect to D-Bus.")
-			return 0
-		iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
+		iface = dbusutils.DBusInterface()
 		return iface.GetLastInsertionDate(u"/usr/share/applications/evolution.desktop")
 	
 	def __init__(self, name="Mail", icon="stock_mail", uri="gzg/evolution"):

@@ -1,25 +1,38 @@
 #! /usr/bin/env python
 # -.- coding: utf-8 -.-
 
-# FIXME: THIS IS OUTDATED AND WON'T WORK!
+# Zeitgeist - Example / Test script
+#
+# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import dbus
-import dbus.mainloop.glib
+import os
 import gobject
 import urllib
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from zeitgeist import dbusutils
+
+iface = dbusutils.DBusInterface()
 
 def updated_signal_handler(value):
 	print "Received signal: ", value
 
 if '--listen' in sys.argv:
-	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-bus = dbus.SessionBus()
-
-remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
-if '--listen' in sys.argv:
-	remote_object.connect_to_signal("EventsChanged", updated_signal_handler, dbus_interface="org.gnome.zeitgeist")
-iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
+	iface.connect("EventsChanged", updated_signal_handler)
 
 print '\nDifferent types in the database:'
 for name in iface.GetTypes():
@@ -68,8 +81,4 @@ if first_item:
 			print '-', tag_item[2] + ':', ', '.join(tag_item[6].split(','))
 
 if '--listen' in sys.argv:
-	loop = gobject.MainLoop()
-	loop.run()
-
-# For copy-pasting into an interactive Python shell:
-## import dbus; bus = dbus.SessionBus(); remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist"); iface = dbus.Interface(remote_object, "org.gnome.zeitgeist");
+	gobject.MainLoop().run()

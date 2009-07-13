@@ -21,20 +21,17 @@
 
 import epiphany
 import sys
-import dbus
 import time
 import urllib
 
-# Connect to D-Bus
-bus = dbus.SessionBus()
+from zeitgeist import dbusutils
 
 try:
-	remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
-except dbus.exceptions.DBusException:
-	print >>sys.stderr, "GNOME Zeitgeist Logger: Error: Could not connect to D-Bus."
+	iface = dbusutils.DBusInterface()
+except RuntimeError:
+	print >>sys.stderr, "GNOME Zeitgeist Logger: " \
+		"The Zeitgeist service isn't running."
 else:
-	iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
-	
 	def page_changed(embed, load_status, window):
 		if not embed.get_property('load-status'):
 			item = (

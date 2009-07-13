@@ -26,10 +26,10 @@ import gio
 import os.path
 import logging
 import time
-import dbus
 from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
 
+from zeitgeist import dbusutils
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 from _zeitgeist.loggers.iso_strptime import iso_strptime
 
@@ -136,14 +136,7 @@ class TomboySource(DataProvider):
 	
 	@staticmethod
 	def get_last_timestamp():
-		# Connect to D-Bus
-		bus = dbus.SessionBus()
-		try:
-			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
-		except dbus.exceptions.DBusException:
-			log.error("Could not connect to D-Bus.")
-			return 0
-		iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
+		iface = dbusutils.DBusInterface()
 		return iface.GetLastInsertionDate(u"/usr/share/applications/tomboy.desktop")
 	
 	def __init__(self, note_path=None):
@@ -153,7 +146,7 @@ class TomboySource(DataProvider):
 		try:
 			self.__notes_queue = list(self.notes.load_all())
 		except OSError, e:
-			log.debug("Can't run DataProvider for Tomboy, "
+			log.debug("Can't run DataProvider for Tomboy, " \
 				"is Tomboy installed? (error: %s)" % e)
 		self.last_timestamp = self.get_last_timestamp()
 		self.notes.connect("note-changed", self.item_changed)

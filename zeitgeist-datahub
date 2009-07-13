@@ -35,7 +35,7 @@ from _zeitgeist.loggers.zeitgeist_setup_service import DataProviderService
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 logging.basicConfig(level=logging.DEBUG)
 
-sys.path.append(_config.datasourcedir)
+sys.path.insert(0, _config.datasourcedir)
 
 class DataHub(gobject.GObject):
 	

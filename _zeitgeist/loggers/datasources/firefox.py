@@ -25,12 +25,11 @@ import shutil
 import sqlite3 as db
 import gettext
 import logging
-import dbus
 import gio
 from ConfigParser import ConfigParser, NoOptionError
 from xdg import BaseDirectory
 
-from zeitgeist import _config
+from zeitgeist import _config, dbusutils
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
@@ -46,14 +45,7 @@ class FirefoxSource(DataProvider):
 	
 	@staticmethod
 	def get_last_timestamp():
-		# Connect to D-Bus
-		bus = dbus.SessionBus()
-		try:
-			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
-		except dbus.exceptions.DBusException:
-			log.error("Could not connect to D-Bus.")
-			return 0
-		iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
+		iface = dbusutils.DBusInterface()
 		return iface.GetLastInsertionDate(u"/usr/share/applications/firefox.desktop")
 	
 	def __init__(self):
