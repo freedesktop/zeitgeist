@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-30 14:22+0200\n"
+"POT-Creation-Date: 2009-07-14 01:02+0200\n"
 "PO-Revision-Date: 2009-07-03 22:22+0100\n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
@@ -17,173 +17,180 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-06-11 14:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon:43
+#: ../zeitgeist-daemon:65
 msgid "Starting Zeitgeist service..."
 msgstr "Файло-облікова/пошукова система Зайтгайст завантажується..."
 
-#: ../zeitgeist-datahub:45
+#: ../zeitgeist-datahub:61
 msgid "No passive loggers found, bye."
 msgstr ""
 
-#: ../zeitgeist-datahub:65
+#: ../zeitgeist-datahub:81
 #, c-format
 msgid "Could not load file: %s"
 msgstr "Неможливо завантажити файл: %s"
 
-#: ../zeitgeist-datahub:90
+#: ../zeitgeist-datahub:106
 #, c-format
 msgid "Updating database with new %s items"
 msgstr "До бази даних додаються нові %s елементи"
 
-#: ../zeitgeist-datahub:120
+#: ../zeitgeist-datahub:136
 msgid "Lost connection to zeitgeist-daemon, terminating."
 msgstr ""
 
-#: ../zeitgeist-datahub:125
-#, c-format
-msgid "Type error logging item from \"%s\": %s"
+#: ../zeitgeist-datahub:139
+#, fuzzy, c-format
+msgid "Error logging item from \"%s\": %s"
 msgstr "Пункт журналу помилок вводу \"%s\": %s"
 
-#: ../zeitgeist/datamodel.py:71
+#: ../zeitgeist/datamodel.py:90
 msgid "Tags"
 msgstr "Мітки"
 
-#: ../zeitgeist/datamodel.py:75
+#: ../zeitgeist/datamodel.py:94
 #, fuzzy
 msgid "Bookmarks"
 msgstr "Встановити закладку"
 
-#: ../zeitgeist/datamodel.py:79
+#: ../zeitgeist/datamodel.py:98
 #, fuzzy
 msgid "Comments"
 msgstr "Документи"
 
-#: ../zeitgeist/datamodel.py:83
+#: ../zeitgeist/datamodel.py:102
 msgid "Documents"
 msgstr "Документи"
 
-#: ../zeitgeist/datamodel.py:87
+#: ../zeitgeist/datamodel.py:106
 msgid "Images"
 msgstr "Зображення"
 
-#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
+#: ../zeitgeist/datamodel.py:110
 msgid "Videos"
 msgstr "Відео"
 
-#: ../zeitgeist/datamodel.py:95
+#: ../zeitgeist/datamodel.py:114
 msgid "Music"
 msgstr "Музика"
 
-#: ../zeitgeist/datamodel.py:103
+#: ../zeitgeist/datamodel.py:118
 msgid "Email"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:107
+#: ../zeitgeist/datamodel.py:122
 msgid "Messages"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:111
+#: ../zeitgeist/datamodel.py:126
 msgid "Feeds"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:115
+#: ../zeitgeist/datamodel.py:130
 msgid "Broadcasts"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:119
+#: ../zeitgeist/datamodel.py:134
 msgid "Created"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:123
+#: ../zeitgeist/datamodel.py:138
 msgid "Modified"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:127
+#: ../zeitgeist/datamodel.py:142
 msgid "Visited"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:131
+#: ../zeitgeist/datamodel.py:146
 msgid "Send"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:135
+#: ../zeitgeist/datamodel.py:150
 msgid "Received"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:139
+#: ../zeitgeist/datamodel.py:154
 msgid "Warnings"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:143
+#: ../zeitgeist/datamodel.py:158
 msgid "Errors"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:147
+#: ../zeitgeist/datamodel.py:162
 msgid "Applications"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:155
+#: ../zeitgeist/datamodel.py:170
 #, fuzzy
 msgid "Web History"
 msgstr "Історія веб-переглядів Браузера Firefox"
 
-#: ../zeitgeist/datamodel.py:159
+#: ../zeitgeist/datamodel.py:174
 msgid "Activities"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:163
+#: ../zeitgeist/datamodel.py:178
 msgid "Notifications"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:167
+#: ../zeitgeist/datamodel.py:182
 #, fuzzy
 msgid "Files"
 msgstr "Фільтри"
 
-#: ../zeitgeist/datamodel.py:171
+#: ../zeitgeist/datamodel.py:186
 msgid "System Resources"
 msgstr ""
 
-#: ../zeitgeist/dbusutils.py:44
-msgid "Could not connect to D-Bus."
-msgstr "Неможливо зєднатись з D-Bus."
-
-#: ../zeitgeist/dbusutils.py:58
-msgid "Error: Zeitgeist service not running."
+#: ../_zeitgeist/loggers/datasources/recent.py:41
+msgid "Could not import GTK; data source disabled."
 msgstr ""
-"Помилка: Служба Файло-облікової/пошукової системи Зайтгайст не запущена"
 
-#: ../zeitgeist/loggers/datasources/firefox.py:61
+#: ../_zeitgeist/loggers/datasources/firefox.py:61
 msgid "Firefox History"
 msgstr "Історія веб-переглядів Браузера Firefox"
 
-#: ../zeitgeist/loggers/datasources/firefox.py:64
+#: ../_zeitgeist/loggers/datasources/firefox.py:64
 msgid "Websites visited with Firefox"
 msgstr "Веб-сторінки, що відкривались в Firefox"
 
-#: ../zeitgeist/loggers/datasources/firefox.py:92
-#, python-format
-msgid "Unable to monitor Firefox history %s: %s"
-msgstr ""
-
-#: ../zeitgeist/loggers/datasources/firefox.py:95
+#: ../_zeitgeist/loggers/datasources/firefox.py:92
 #, fuzzy, python-format
-msgid "Monitoring Firefox history: %s"
+msgid "Unable to monitor Firefox's history: %s: %s"
 msgstr "Історія веб-переглядів Браузера Firefox"
 
-#: ../zeitgeist/loggers/datasources/firefox.py:100
+#: ../_zeitgeist/loggers/datasources/firefox.py:95
+#, fuzzy, python-format
+msgid "Monitoring Firefox's history: %s"
+msgstr "Історія веб-переглядів Браузера Firefox"
+
+#: ../_zeitgeist/loggers/datasources/firefox.py:100
 msgid "No Firefox profile found."
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/evolution.py:63
+#: ../_zeitgeist/loggers/datasources/evolution.py:63
 #, python-format
-msgid "Unable to monitor Evolution's folders.db %s: %s"
+msgid "Unable to monitor Evolution: %s: %s"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/evolution.py:66
+#: ../_zeitgeist/loggers/datasources/evolution.py:66
+#, fuzzy, python-format
+msgid "Monitoring Evolution: %s"
+msgstr "Історія веб-переглядів Браузера Firefox"
+
+#: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
-msgid "Monitoring Evolution's '%s'"
+msgid "Watching for Tomboy notes in \"%s\"."
 msgstr ""
+
+#~ msgid "Could not connect to D-Bus."
+#~ msgstr "Неможливо зєднатись з D-Bus."
+
+#~ msgid "Error: Zeitgeist service not running."
+#~ msgstr ""
+#~ "Помилка: Служба Файло-облікової/пошукової системи Зайтгайст не запущена"
 
 #~ msgid "Open Journal"
 #~ msgstr "Відкрити журнал дій"

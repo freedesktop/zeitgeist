@@ -33,12 +33,12 @@ from xdg import DesktopEntry, BaseDirectory
 from zeitgeist import _config
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
-log = logging.getLogger("zeitgeist.logger.datasources.recently_used")
+log = logging.getLogger("zeitgeist.logger.datasources.recent")
 
 try:
 	import gtk
 except ImportError:
-	log.exception(_("Could not import GTK; logger disabled."))
+	log.exception(_("Could not import GTK; data source disabled."))
 	enabled = False
 else:
 	enabled = True

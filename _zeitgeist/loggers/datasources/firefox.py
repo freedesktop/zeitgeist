@@ -35,7 +35,7 @@ from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 
-_firefox_logger = logging.getLogger("zeitgeist.logger.datasources.firefox")
+log = logging.getLogger("zeitgeist.logger.datasources.firefox")
 
 class FirefoxSource(DataProvider):
 	
@@ -51,7 +51,7 @@ class FirefoxSource(DataProvider):
 		try:
 			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
 		except dbus.exceptions.DBusException:
-			_firefox_logger.error("Could not connect to D-Bus.")
+			log.error("Could not connect to D-Bus.")
 			return 0
 		iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
 		return iface.GetLastInsertionDate(u"/usr/share/applications/firefox.desktop")
@@ -89,15 +89,15 @@ class FirefoxSource(DataProvider):
 				self.note_path_monitor = file_object.monitor_file()
 				self.note_path_monitor.connect("changed", self.reload_proxy_filemonitor)
 			except Exception, e:
-				_firefox_logger.exception(_("Unable to monitor Firefox history %s: %s") % \
-					(self.history_db, str(e)))
+				log.exception(_("Unable to monitor Firefox's history: %s: %s") % \
+					(self.history_db, e))
 			else:
-				_firefox_logger.debug(_("Monitoring Firefox history: %s") % (self.history_db))
+				log.debug(_("Monitoring Firefox's history: %s") % (self.history_db))
 				
 				self.last_timestamp = self.get_last_timestamp()
 				self.__copy_sqlite()
 		else:
-			_firefox_logger.warning(_("No Firefox profile found."))
+			log.warning(_("No Firefox profile found."))
 		self.config.connect("configured", self.reload_proxy_config)
 	
 	@classmethod
@@ -168,8 +168,8 @@ class FirefoxSource(DataProvider):
 				"SELECT " + contents + " FROM moz_historyvisits WHERE visit_date>?",
 				(self.last_timestamp*1000000,)
 			).fetchall()
-		except db.OperationalError:
-			_firefox_logger.exception("Firefox database error.")
+		except db.OperationalError, e:
+			log.exception("Firefox database error: %s", e)
 		else:
 			for j, i in enumerate(history):
 				# TODO: Fetch full rows above so that we don't need to do another query here

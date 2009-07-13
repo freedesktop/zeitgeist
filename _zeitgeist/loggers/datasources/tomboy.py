@@ -33,7 +33,7 @@ from xml.parsers.expat import ExpatError
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 from _zeitgeist.loggers.iso_strptime import iso_strptime
 
-_tomboy_logger = logging.getLogger("zeitgeist.logger.database.tomboy")
+log = logging.getLogger("zeitgeist.logger.database.tomboy")
 
 def flatten_text(node):
 	if node.nodeType == node.TEXT_NODE:
@@ -55,7 +55,7 @@ class TomboyNote(object):
 		try:
 			note = parseString(content)
 		except (IOError, ExpatError), err:
-			_tomboy_logger.error("could not parse note '%s'" %uri)
+			log.error("Couldn't parse note: %s" % uri)
 			return None
 		else:
 			nodes = note.getElementsByTagName("title")
@@ -72,8 +72,8 @@ class TomboyNote(object):
 				result["date_created"] = nodes[0].childNodes[0].data
 		try:
 			note_obj = cls(**result)
-		except:
-			_tomboy_logger.exception("error initializing '%s'" %uri)
+		except Exception:
+			log.exception("Error initializing \"%s\"" % uri)
 			note_obj = None
 		note.unlink()
 		return note_obj
@@ -98,7 +98,7 @@ class TomboyNotes(gobject.GObject):
 	
 	def __init__(self):
 		gobject.GObject.__init__(self)
-		_tomboy_logger.debug("watching '%s' for tomboy notes" %self.PATH)
+		log.debug(_("Watching for Tomboy notes in \"%s\".") % self.PATH)
 		path_object = gio.File(self.PATH)
 		self.notes_monitor = path_object.monitor_directory()
 		self.notes_monitor.connect("changed", self.notes_changed)
@@ -118,21 +118,18 @@ class TomboyNotes(gobject.GObject):
 		if os.path.splitext(filename)[-1] == ".note":
 			if event in (gio.FILE_MONITOR_EVENT_CHANGED,
 					gio.FILE_MONITOR_EVENT_CREATED):
-				_tomboy_logger.debug("changed note '%s'" %filename)
 				note = TomboyNote.parse_content(fileobj.load_contents(),
 					fileobj.get_uri())
 				if note is not None:
 					self.emit("note-changed", note)
 			elif event == gio.FILE_MONITOR_EVENT_DELETED:
-				_tomboy_logger.debug("deleted note '%s'" %filename)
 				# send one last item for this note to the engine :)
 				# this idea is not easy, as tomboy does not change a file,
 				# but delete a .note and recreates this file on changes
-				
-gobject.signal_new("note-changed", TomboyNotes,
-					gobject.SIGNAL_RUN_LAST,
-					gobject.TYPE_NONE,
-					(gobject.TYPE_PYOBJECT,))
+				pass
+	
+gobject.signal_new("note-changed", TomboyNotes, gobject.SIGNAL_RUN_LAST,
+	gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
 
 
 class TomboySource(DataProvider):
@@ -144,7 +141,7 @@ class TomboySource(DataProvider):
 		try:
 			remote_object = bus.get_object("org.gnome.zeitgeist", "/org/gnome/zeitgeist")
 		except dbus.exceptions.DBusException:
-			_tomboy_logger.error("Could not connect to D-Bus.")
+			log.error("Could not connect to D-Bus.")
 			return 0
 		iface = dbus.Interface(remote_object, "org.gnome.zeitgeist")
 		return iface.GetLastInsertionDate(u"/usr/share/applications/tomboy.desktop")
@@ -156,7 +153,8 @@ class TomboySource(DataProvider):
 		try:
 			self.__notes_queue = list(self.notes.load_all())
 		except OSError, e:
-			_tomboy_logger.debug("Can't run DataProvider for tomboy, is tomboy installed? (error: %s)" %e)
+			log.debug("Can't run DataProvider for Tomboy, "
+				"is Tomboy installed? (error: %s)" % e)
 		self.last_timestamp = self.get_last_timestamp()
 		self.notes.connect("note-changed", self.item_changed)
 		self.config.connect("configured", self.reload_proxy_config)
@@ -172,7 +170,6 @@ class TomboySource(DataProvider):
 		last_timestamp = self.last_timestamp
 		while self.__notes_queue:
 			note = self.__notes_queue.pop(0)
-			_tomboy_logger.debug("processing %r" %note)
 			times = [(note.date_created, u"CreateEvent"),]
 			if note.date_changed is not None:
 				times.append((note.date_changed, u"ModifyEvent"))
@@ -194,7 +191,6 @@ class TomboySource(DataProvider):
 					"origin": u"", 	# we are not sure about the origin of this item,
 									# let's make it NULL, it has to be a string
 				}
-				_tomboy_logger.debug("sending %r to the engine" %note)
 				yield item
 		self.last_timestamp = last_timestamp
 

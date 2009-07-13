@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-30 14:22+0200\n"
+"POT-Creation-Date: 2009-07-14 01:02+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
@@ -16,181 +16,182 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Catalan\n"
 
-#: ../zeitgeist-daemon:43
+#: ../zeitgeist-daemon:65
 msgid "Starting Zeitgeist service..."
 msgstr "S'està iniciant el servei Zeitgeist..."
 
-#: ../zeitgeist-datahub:45
+#: ../zeitgeist-datahub:61
 msgid "No passive loggers found, bye."
 msgstr "No s'han trobat monitors passius; adéu."
 
-#: ../zeitgeist-datahub:65
+#: ../zeitgeist-datahub:81
 #, c-format
 msgid "Could not load file: %s"
 msgstr "No s'ha pogut carregar el fitxer: %s"
 
-#: ../zeitgeist-datahub:90
+#: ../zeitgeist-datahub:106
 #, c-format
 msgid "Updating database with new %s items"
 msgstr "S'està actualitzant la base de dades amb noves activitats: %s"
 
-#: ../zeitgeist-datahub:120
+#: ../zeitgeist-datahub:136
 msgid "Lost connection to zeitgeist-daemon, terminating."
 msgstr "S'ha perdut la connexió al zeitgeist-daemon; finalitzant el programa."
 
-#: ../zeitgeist-datahub:125
+#: ../zeitgeist-datahub:139
 #, c-format
-msgid "Type error logging item from \"%s\": %s"
-msgstr ""
-"Tipus de variable errònia al intentar registrar una activitat de «%s»: %s"
+msgid "Error logging item from \"%s\": %s"
+msgstr "S'ha trobat un error al intentar enregistrar una activitat de «%s»: %s"
 
-#: ../zeitgeist/datamodel.py:71
+#: ../zeitgeist/datamodel.py:90
 msgid "Tags"
 msgstr "Etiquetes"
 
-#: ../zeitgeist/datamodel.py:75
+#: ../zeitgeist/datamodel.py:94
 msgid "Bookmarks"
 msgstr "Activitats destacades"
 
-#: ../zeitgeist/datamodel.py:79
+#: ../zeitgeist/datamodel.py:98
 msgid "Comments"
 msgstr "Comentaris"
 
-#: ../zeitgeist/datamodel.py:83
+#: ../zeitgeist/datamodel.py:102
 msgid "Documents"
 msgstr "Documents"
 
-#: ../zeitgeist/datamodel.py:87
+#: ../zeitgeist/datamodel.py:106
 msgid "Images"
 msgstr "Imatges"
 
-#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
+#: ../zeitgeist/datamodel.py:110
 msgid "Videos"
 msgstr "Vídeos"
 
-#: ../zeitgeist/datamodel.py:95
+#: ../zeitgeist/datamodel.py:114
 msgid "Music"
 msgstr "Música"
 
-#: ../zeitgeist/datamodel.py:103
+#: ../zeitgeist/datamodel.py:118
 msgid "Email"
 msgstr "Correu electrònic"
 
-#: ../zeitgeist/datamodel.py:107
+#: ../zeitgeist/datamodel.py:122
 msgid "Messages"
 msgstr "Missatges"
 
-#: ../zeitgeist/datamodel.py:111
+#: ../zeitgeist/datamodel.py:126
 msgid "Feeds"
 msgstr "Canals"
 
-#: ../zeitgeist/datamodel.py:115
+#: ../zeitgeist/datamodel.py:130
 msgid "Broadcasts"
 msgstr "Emès"
 
-#: ../zeitgeist/datamodel.py:119
+#: ../zeitgeist/datamodel.py:134
 msgid "Created"
 msgstr "Creat"
 
-#: ../zeitgeist/datamodel.py:123
+#: ../zeitgeist/datamodel.py:138
 msgid "Modified"
 msgstr "Modificat"
 
-#: ../zeitgeist/datamodel.py:127
+#: ../zeitgeist/datamodel.py:142
 msgid "Visited"
 msgstr "Visitat"
 
-#: ../zeitgeist/datamodel.py:131
+#: ../zeitgeist/datamodel.py:146
 msgid "Send"
 msgstr "Enviat"
 
-#: ../zeitgeist/datamodel.py:135
+#: ../zeitgeist/datamodel.py:150
 msgid "Received"
 msgstr "Rebut"
 
-#: ../zeitgeist/datamodel.py:139
+#: ../zeitgeist/datamodel.py:154
 msgid "Warnings"
 msgstr "Avisos"
 
-#: ../zeitgeist/datamodel.py:143
+#: ../zeitgeist/datamodel.py:158
 msgid "Errors"
 msgstr "Errors"
 
-#: ../zeitgeist/datamodel.py:147
+#: ../zeitgeist/datamodel.py:162
 msgid "Applications"
 msgstr "Aplicacions"
 
-#: ../zeitgeist/datamodel.py:155
+#: ../zeitgeist/datamodel.py:170
 msgid "Web History"
 msgstr "Historial web"
 
-#: ../zeitgeist/datamodel.py:159
+#: ../zeitgeist/datamodel.py:174
 msgid "Activities"
 msgstr "Activitats"
 
-#: ../zeitgeist/datamodel.py:163
+#: ../zeitgeist/datamodel.py:178
 msgid "Notifications"
 msgstr "Notificacions"
 
-#: ../zeitgeist/datamodel.py:167
+#: ../zeitgeist/datamodel.py:182
 msgid "Files"
 msgstr "Fitxers"
 
-#: ../zeitgeist/datamodel.py:171
+#: ../zeitgeist/datamodel.py:186
 msgid "System Resources"
 msgstr "Recursos del sistema"
 
-#: ../zeitgeist/dbusutils.py:44
-msgid "Could not connect to D-Bus."
-msgstr "No s'ha pogut establir una connexió amb el D-Bus."
+#: ../_zeitgeist/loggers/datasources/recent.py:41
+msgid "Could not import GTK; data source disabled."
+msgstr "No s'ha pogut importar el mòdul PyGTK; s'ha inhabilitat aquesta font."
 
-#: ../zeitgeist/dbusutils.py:58
-msgid "Error: Zeitgeist service not running."
-msgstr "Error: No s'està executant el servei del Zeitgeist."
-
-#: ../zeitgeist/loggers/datasources/firefox.py:61
+#: ../_zeitgeist/loggers/datasources/firefox.py:61
 msgid "Firefox History"
 msgstr "Historial del Firefox"
 
-#: ../zeitgeist/loggers/datasources/firefox.py:64
+#: ../_zeitgeist/loggers/datasources/firefox.py:64
 msgid "Websites visited with Firefox"
 msgstr "Pàgines web visitades amb el Firefox"
 
-#: ../zeitgeist/loggers/datasources/firefox.py:92
+#: ../_zeitgeist/loggers/datasources/firefox.py:92
 #, python-format
-msgid "Unable to monitor Firefox history %s: %s"
-msgstr "No ses pot fer un seguiment del fitxer «%s» del Firefox: %s"
+msgid "Unable to monitor Firefox's history: %s: %s"
+msgstr "No es pot fer un seguiment del fitxer «%s» del Firefox: %s"
 
-#: ../zeitgeist/loggers/datasources/firefox.py:95
+#: ../_zeitgeist/loggers/datasources/firefox.py:95
 #, python-format
-msgid "Monitoring Firefox history: %s"
-msgstr "S'està enregistrant l'historial del Firefox de: %s"
+msgid "Monitoring Firefox's history: %s"
+msgstr "S'està enregistrant l'historial del Firefox: %s"
 
-#: ../zeitgeist/loggers/datasources/firefox.py:100
+#: ../_zeitgeist/loggers/datasources/firefox.py:100
 msgid "No Firefox profile found."
 msgstr "No s'ha trobat cap perfil del Firefox."
 
-#: ../zeitgeist/loggers/datasources/evolution.py:63
+#: ../_zeitgeist/loggers/datasources/evolution.py:63
 #, python-format
-msgid "Unable to monitor Evolution's folders.db %s: %s"
+msgid "Unable to monitor Evolution: %s: %s"
 msgstr "No es pot fer un seguiment del fitxer «%s» de l'Evolution: %s"
 
-#: ../zeitgeist/loggers/datasources/evolution.py:66
+#: ../_zeitgeist/loggers/datasources/evolution.py:66
 #, python-format
-msgid "Monitoring Evolution's '%s'"
-msgstr "S'està enregistrant activitats de l'Evolution de: %s"
+msgid "Monitoring Evolution: %s"
+msgstr "S'està enregistrant les activitats de l'Evolution: %s"
 
+#: ../_zeitgeist/loggers/datasources/tomboy.py:101
+#, python-format
+msgid "Watching for Tomboy notes in \"%s\"."
+msgstr "S'està enregistrant les notes del Tomboy de «%s»."
+
+#~ msgid "Could not connect to D-Bus."
+#~ msgstr "No s'ha pogut establir una connexió amb el D-Bus."
+#~ msgid "Error: Zeitgeist service not running."
+#~ msgstr "Error: No s'està executant el servei del Zeitgeist."
 #~ msgid "Other"
 #~ msgstr "Altres"
-
 #~ msgid "Development"
 #~ msgstr "Desenvolupament"
-
 #~ msgid "Notes"
 #~ msgstr "Notes"
-
 #~ msgid "Create New Note"
 #~ msgstr "Crea una nota nova"
-
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Crea una nota nova"
+

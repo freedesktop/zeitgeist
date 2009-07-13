@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-30 14:22+0200\n"
+"POT-Creation-Date: 2009-07-14 01:02+0200\n"
 "PO-Revision-Date: 2009-05-22 19:23+0100\n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
@@ -17,171 +17,178 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-05-09 21:24+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon:43
+#: ../zeitgeist-daemon:65
 msgid "Starting Zeitgeist service..."
 msgstr "Startar Zeitgeist-tjeneste..."
 
-#: ../zeitgeist-datahub:45
+#: ../zeitgeist-datahub:61
 msgid "No passive loggers found, bye."
 msgstr ""
 
-#: ../zeitgeist-datahub:65
+#: ../zeitgeist-datahub:81
 #, fuzzy, c-format
 msgid "Could not load file: %s"
 msgstr "Feil: Kunne ikkje lasta fil: %s"
 
-#: ../zeitgeist-datahub:90
+#: ../zeitgeist-datahub:106
 #, c-format
 msgid "Updating database with new %s items"
 msgstr "Oppdaterar database med nye %s-gjenstandar"
 
-#: ../zeitgeist-datahub:120
+#: ../zeitgeist-datahub:136
 msgid "Lost connection to zeitgeist-daemon, terminating."
 msgstr ""
 
-#: ../zeitgeist-datahub:125
+#: ../zeitgeist-datahub:139
 #, c-format
-msgid "Type error logging item from \"%s\": %s"
+msgid "Error logging item from \"%s\": %s"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:71
+#: ../zeitgeist/datamodel.py:90
 #, fuzzy
 msgid "Tags"
 msgstr "Bilde"
 
-#: ../zeitgeist/datamodel.py:75
+#: ../zeitgeist/datamodel.py:94
 msgid "Bookmarks"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:79
+#: ../zeitgeist/datamodel.py:98
 #, fuzzy
 msgid "Comments"
 msgstr "Dokument"
 
-#: ../zeitgeist/datamodel.py:83
+#: ../zeitgeist/datamodel.py:102
 msgid "Documents"
 msgstr "Dokument"
 
-#: ../zeitgeist/datamodel.py:87
+#: ../zeitgeist/datamodel.py:106
 msgid "Images"
 msgstr "Bilde"
 
-#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
+#: ../zeitgeist/datamodel.py:110
 msgid "Videos"
 msgstr "Filmar"
 
-#: ../zeitgeist/datamodel.py:95
+#: ../zeitgeist/datamodel.py:114
 msgid "Music"
 msgstr "Musikk"
 
-#: ../zeitgeist/datamodel.py:103
+#: ../zeitgeist/datamodel.py:118
 msgid "Email"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:107
+#: ../zeitgeist/datamodel.py:122
 msgid "Messages"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:111
+#: ../zeitgeist/datamodel.py:126
 msgid "Feeds"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:115
+#: ../zeitgeist/datamodel.py:130
 msgid "Broadcasts"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:119
+#: ../zeitgeist/datamodel.py:134
 msgid "Created"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:123
+#: ../zeitgeist/datamodel.py:138
 msgid "Modified"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:127
+#: ../zeitgeist/datamodel.py:142
 msgid "Visited"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:131
+#: ../zeitgeist/datamodel.py:146
 msgid "Send"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:135
+#: ../zeitgeist/datamodel.py:150
 msgid "Received"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:139
+#: ../zeitgeist/datamodel.py:154
 msgid "Warnings"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:143
+#: ../zeitgeist/datamodel.py:158
 msgid "Errors"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:147
+#: ../zeitgeist/datamodel.py:162
 msgid "Applications"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:155
+#: ../zeitgeist/datamodel.py:170
 msgid "Web History"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:159
+#: ../zeitgeist/datamodel.py:174
 msgid "Activities"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:163
+#: ../zeitgeist/datamodel.py:178
 msgid "Notifications"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:167
+#: ../zeitgeist/datamodel.py:182
 msgid "Files"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:171
+#: ../zeitgeist/datamodel.py:186
 msgid "System Resources"
 msgstr ""
 
-#: ../zeitgeist/dbusutils.py:44
-#, fuzzy
-msgid "Could not connect to D-Bus."
-msgstr "Feil: Kunne ikkje kopla til D-Bus."
+#: ../_zeitgeist/loggers/datasources/recent.py:41
+msgid "Could not import GTK; data source disabled."
+msgstr ""
 
-#: ../zeitgeist/dbusutils.py:58
-msgid "Error: Zeitgeist service not running."
-msgstr "Feil: Zeitgeist-tjeneste kjøyrer ikkje."
-
-#: ../zeitgeist/loggers/datasources/firefox.py:61
+#: ../_zeitgeist/loggers/datasources/firefox.py:61
 msgid "Firefox History"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/firefox.py:64
+#: ../_zeitgeist/loggers/datasources/firefox.py:64
 msgid "Websites visited with Firefox"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/firefox.py:92
+#: ../_zeitgeist/loggers/datasources/firefox.py:92
 #, python-format
-msgid "Unable to monitor Firefox history %s: %s"
+msgid "Unable to monitor Firefox's history: %s: %s"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/firefox.py:95
+#: ../_zeitgeist/loggers/datasources/firefox.py:95
 #, python-format
-msgid "Monitoring Firefox history: %s"
+msgid "Monitoring Firefox's history: %s"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/firefox.py:100
+#: ../_zeitgeist/loggers/datasources/firefox.py:100
 msgid "No Firefox profile found."
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/evolution.py:63
+#: ../_zeitgeist/loggers/datasources/evolution.py:63
 #, python-format
-msgid "Unable to monitor Evolution's folders.db %s: %s"
+msgid "Unable to monitor Evolution: %s: %s"
 msgstr ""
 
-#: ../zeitgeist/loggers/datasources/evolution.py:66
+#: ../_zeitgeist/loggers/datasources/evolution.py:66
 #, python-format
-msgid "Monitoring Evolution's '%s'"
+msgid "Monitoring Evolution: %s"
 msgstr ""
+
+#: ../_zeitgeist/loggers/datasources/tomboy.py:101
+#, python-format
+msgid "Watching for Tomboy notes in \"%s\"."
+msgstr ""
+
+#, fuzzy
+#~ msgid "Could not connect to D-Bus."
+#~ msgstr "Feil: Kunne ikkje kopla til D-Bus."
+
+#~ msgid "Error: Zeitgeist service not running."
+#~ msgstr "Feil: Zeitgeist-tjeneste kjøyrer ikkje."
 
 #~ msgid "Other"
 #~ msgstr "Anna"
