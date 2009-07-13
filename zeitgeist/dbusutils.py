@@ -41,14 +41,21 @@ class DBusInterface(dbus.Interface):
 	
 	@classmethod
 	def get_session_bus(cls):
-		try:
-			return cls.__shared_state["_bus"]
-		except KeyError, e:
-			cls.__shared_state["_bus"] = dbus.SessionBus()
-			return cls.__shared_state["_bus"]
+		"""Returns the bus used by the interface.
+		
+		If there is no bus set, the '_bus' attribute is set to
+		dbus.SessionBus() and returned
+		"""
+		return cls.__shared_state.setdefault("_bus", dbus.SessionBus())
 		
 	@classmethod
 	def _get_proxy(cls):
+		"""Returns the proxy instance used by the interface.
+		
+		If the current interface has no proxy object set, it tries to
+		generate one. If this fails because no zeitgeist-daemon is
+		running a RuntimeError will be raised
+		"""
 		try:
 			return cls.__shared_state["proxy_object"]
 		except KeyError, e:
@@ -68,6 +75,7 @@ class DBusInterface(dbus.Interface):
 		
 	@classmethod
 	def dbus_connect(cls, signal, callback, arg0=None):
+		"""Connect a callback to a signal of the current proxy instance """
 		proxy = cls._get_proxy()
 		if arg0 is None:
 			proxy.connect_to_signal(
