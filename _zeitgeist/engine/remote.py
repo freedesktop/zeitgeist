@@ -21,9 +21,9 @@ import dbus
 import dbus.service
 import logging
 
-from zeitgeist.engine.engine import get_default_engine
+from _zeitgeist.engine.engine import get_default_engine
 from zeitgeist.dbusutils import DBusInterface, sig_plain_data, check_dict
-from zeitgeist.singleton import SingletonApplication
+from _zeitgeist.singleton import SingletonApplication
 
 _engine = get_default_engine()
 

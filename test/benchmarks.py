@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
 # Update python path to use local zeitgeist module
-import sys, os
-from os.path import dirname, join, abspath
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from zeitgeist.engine.base import create_store, set_store
-from zeitgeist.engine import base
+from _zeitgeist.engine.base import create_store, set_store
+from _zeitgeist.engine import base
 from zeitgeist.datamodel import *
-from zeitgeist.engine.engine import ZeitgeistEngine
-from time import time
+from _zeitgeist.engine.engine import ZeitgeistEngine
 
+from time import time
 import unittest
 import logging
 

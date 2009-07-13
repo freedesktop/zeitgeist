@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
 # Update python path to use local zeitgeist module
-import sys, os
-from os.path import dirname, join, abspath
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import re
-from zeitgeist.loggers.datasources.recent import (SimpleMatch,
+from _zeitgeist.loggers.datasources.recent import (SimpleMatch,
 	MimeTypeSet, InverseMimeTypeSet)
 
 import unittest

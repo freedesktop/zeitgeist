@@ -1,14 +1,16 @@
 #!/usr/bin/python
 
-import sys, os, tempfile, shutil
-from os.path import dirname, join, abspath
-
 # Update python path to use local zeitgeist module
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from zeitgeist.engine.base import *
+from _zeitgeist.engine.base import *
 from storm.locals import *
+
 import unittest
+import tempfile
+import shutil
 
 class SymbolTest(unittest.TestCase):
 	"""

@@ -1,17 +1,18 @@
 #!/usr/bin/python
 
 # Update python path to use local zeitgeist module
-import sys, os, tempfile, shutil
-from os.path import dirname, join, abspath
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from zeitgeist.engine.base import create_store, set_store
-from zeitgeist.engine import base
+from _zeitgeist.engine.base import create_store, set_store
+from _zeitgeist.engine import base
 from zeitgeist.datamodel import *
-from zeitgeist.engine.engine import ZeitgeistEngine
-from zeitgeist.dbusutils import *
+from _zeitgeist.engine.engine import ZeitgeistEngine
 
 import unittest
+import tempfile
+import shutil
 
 # Use this to print sql statements used by Storm to stdout
 #from storm.tracer import debug
@@ -241,7 +242,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"source": Source.USER_ACTIVITY.uri,
 			"app": u"/usr/share/applications/eog.desktop",
 			"timestamp": 1219324, # keep it lower than in item4!
-			"text": u"example.png",
+			"text": u"example.jpg",
 			"mimetype": u"image/jpg",
 			"icon": u"",
 			"use": Content.CREATE_EVENT.uri,
@@ -432,7 +433,22 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.get_tags(u"", 0, 1219330, 4000000)
 		self.assertEquals([x[0] for x in result], [u"examples",
 			u"cool_pictures", u"files", u"images", u"holidays"])
-			
+	
+	def testDeleteItems(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, True, "event", [], True)
+		self.assertEquals(result, 5)
+		result = self.engine.get_tags()
+		self.assertEquals(len(result), 7)
+		self.assertTrue(u"filtertest" in (x[0] for x in result))
+		self.engine.delete_items([u"file:///tmp/test/example.jpg"])
+		result = self.engine.find_events(0, 0, 0, True, "event", [], False)
+		self.assertEquals(len(result), 4)
+		self.assertFalse([x for x in result if x["text"] == u"example.jpg"])
+		result = self.engine.get_tags()
+		self.assertEquals(len(result), 5)
+		self.assertFalse(u"filtertest" in (x[0] for x in result))
+	
 	def testFindEventsInvalidFilterValues(self):
 		self.assertRaises(ValueError,
 			self.engine.find_events, 0, 0, 0, False, "event",

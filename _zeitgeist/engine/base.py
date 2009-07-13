@@ -24,7 +24,7 @@ import logging
 from storm.locals import *
 from xdg import BaseDirectory
 
-from zeitgeist.lrucache import LRUCache
+from _zeitgeist.lrucache import LRUCache
 
 log = logging.getLogger("zeitgeist.engine.base")
 

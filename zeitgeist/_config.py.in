@@ -1,0 +1,16 @@
+import sys
+import os
+
+prefix = "@prefix@"
+datadir = "@datadir@"
+bindir = "@prefix@/bin"
+localedir = "@datadir@/locale"
+pkgdatadir = "@pkgdatadir@"
+datasourcedir = "@prefix@/share/zeitgeist/_zeitgeist/loggers/datasources"
+libdir = "@libdir@"
+libexecdir = "@libexecdir@"
+PACKAGE = "@PACKAGE@"
+VERSION = "@VERSION@"
+
+def setup_path():
+    sys.path.insert(0, os.path.join(prefix, 'share/zeitgeist'))

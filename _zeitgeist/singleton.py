@@ -20,10 +20,9 @@
 
 import logging
 import sys
-
 import dbus
 
-from dbusutils import DBusInterface
+from zeitgeist.dbusutils import DBusInterface
 
 class SingletonApplication (dbus.service.Object):
 	"""

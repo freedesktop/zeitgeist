@@ -58,8 +58,7 @@ msgstr "Documentos"
 msgid "Images"
 msgstr "Imágenes"
 
-#: ../zeitgeist/datamodel.py:91
-#: ../zeitgeist/datamodel.py:99
+#: ../zeitgeist/datamodel.py:91 ../zeitgeist/datamodel.py:99
 msgid "Videos"
 msgstr "Vídeos"
 
@@ -181,10 +180,12 @@ msgstr ""
 #, fuzzy
 #~ msgid "Development"
 #~ msgstr "Documentos"
+
 #~ msgid "Notes"
 #~ msgstr "Notas"
+
 #~ msgid "Create New Note"
 #~ msgstr "Crear una nota nueva"
+
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Crear una nueva nota de Tomboy"
-
