@@ -21,7 +21,7 @@
 
 import logging
 
-from zeitgeist.loggers.zeitgeist_base import DataProvider
+from _zeitgeist.loggers.zeitgeist_base import DataProvider
 log = logging.getLogger("zeigeist.logger.datasources.twitter")
 
 try:
