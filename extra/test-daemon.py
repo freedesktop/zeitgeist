@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# -.- coding: utf-8 -.-
+# -.- encoding: utf-8 -.-
 
 # Zeitgeist - Example / Test script
 #
@@ -40,10 +40,10 @@ for name in iface.GetTypes():
 print
 
 print 'Your bookmarks are:'
-bookmarks = iface.GetBookmarks()
+bookmarks = iface.FindEvents(0, 0, 0, True, "item", [{"bookmarked": True])
 first_item = None
 for bookmark in bookmarks:
-	print '-', bookmark[2], '«' +  urllib.unquote(str(bookmark[1])) + '»'
+	print '-', bookmark[2], '«' +  urllib.unquote(str(bookmark["text"])) + '»'
 	if not first_item: first_item = bookmark
 
 print '\nYour most used tags are:'

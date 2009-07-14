@@ -457,7 +457,7 @@ class ZeitgeistEngine(gobject.GObject):
 		contents = self.store.find(Content)
 		return [content.value for content in contents]
 	
-	def get_tags(self, name_filter="", limit=0, min_timestamp=0, max_timestamp=0):
+	def get_tags(self, min_timestamp=0, max_timestamp=0, limit=0, name_filter=""):
 		"""
 		Returns a list containing tuples with the name and the number of
 		occurencies of the tags matching `name_filter', or all existing

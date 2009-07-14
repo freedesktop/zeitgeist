@@ -135,7 +135,7 @@ class RemoteInterface(SingletonApplication):
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="siii", out_signature="a(si)")
-	def GetTags(self, name_filter, amount, min_timestamp, max_timestamp):
+	def GetTags(self, min_timestamp, max_timestamp, limit, name_filter):
 		"""Returns a list containing tuples with the name and the number of
 		occurencies of the tags matching ``name_filter``, or all existing
 		tags in case it's empty, sorted from most used to least used. ``amount``
@@ -144,19 +144,19 @@ class RemoteInterface(SingletonApplication):
 		Use ``min_timestamp`` and ``max_timestamp`` to limit the time frames you
 		want to consider.
 		
-		:param name_filter: 
-		:type name_filter: string
-		:param amount: max amount of returned elements, ``amount`` equals ``0``
-			means the result not beeing limited
-		:type amount: integer
 		:param min_timestamp:
 		:type min_timestamp: Integer
 		:param max_timestamp:
 		:type max_timestamp: Integer
+		:param name_filter: 
+		:type name_filter: string
+		:param limit: max amount of returned elements, ``limit`` equals ``0``
+			means the result not beeing limited
+		:type amount: integer
 		:returns: list of tuple containing the name and number of occurencies
 		:rtype: list of tuples
 		"""
-		return _engine.get_tags(name_filter, amount, min_timestamp, max_timestamp)
+		return _engine.get_tags(min_timestamp, max_timestamp, limit, name_filter)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="s", out_signature="i")

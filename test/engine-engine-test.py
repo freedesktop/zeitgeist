@@ -441,18 +441,18 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testGetTagsNameFilter(self):
 		self._init_with_various_events()
-		result = self.engine.get_tags(u"f%")
+		result = self.engine.get_tags(0, 0, 0, u"f%")
 		self.assertEquals(result, [(u"filtertest", 1),
 			(u"files", 1)])
 	
 	def testGetTagsLimit(self):
 		self._init_with_various_events()
-		result = self.engine.get_tags(u"", 1)
+		result = self.engine.get_tags(0, 0, 1, u"")
 		self.assertEquals(result[0][0], u"examples")
 	
 	def testGetTagsTimestamp(self):
 		self._init_with_various_events()
-		result = self.engine.get_tags(u"", 0, 1219330, 4000000)
+		result = self.engine.get_tags(1219330, 4000000, 0, u"")
 		self.assertEquals([x[0] for x in result], [u"examples",
 			u"cool_pictures", u"files", u"images", u"holidays"])
 	
