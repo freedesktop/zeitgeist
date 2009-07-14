@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
 import logging
 import sys
 import dbus
@@ -43,6 +44,10 @@ class SingletonApplication (dbus.service.Object):
 				# TODO: This only works for the engine and wont work for the DataHub
 				interface = DBusInterface()
 				interface.Quit()
+				# Wait until the engine is dead
+				# FIXME: It'd be better to wait for the EngineExit signal but
+				# somehow that didn't work.
+				time.sleep(0.1)
 				# TODO: We should somehow set a timeout and kill the old process
 				# if it doesn't quit when we ask it to. (Perhaps we should at least
 				# steal the bus using replace_existing=True)
