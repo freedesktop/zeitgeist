@@ -45,8 +45,6 @@ class SingletonApplication (dbus.service.Object):
 				interface = DBusInterface()
 				interface.Quit()
 				# Wait until the engine is dead
-				# FIXME: It'd be better to wait for the EngineExit signal but
-				# somehow that didn't work.
 				time.sleep(0.1)
 				# TODO: We should somehow set a timeout and kill the old process
 				# if it doesn't quit when we ask it to. (Perhaps we should at least
