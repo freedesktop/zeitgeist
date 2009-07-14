@@ -81,7 +81,7 @@ class EvolutionSource(DataProvider):
 	
 	def get_items_uncached(self):
 		if self.cursor is None:
-			logr.warning("Can not connect to: %s" % self.DATABASE)
+			log.warning("Can not connect to: %s" % self.DATABASE)
 			raise StopIteration
 		try:
 			# retrieve all urls from evolution's history
