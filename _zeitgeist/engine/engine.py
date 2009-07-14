@@ -29,7 +29,10 @@ import gobject
 import logging
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
-import sqlite3
+try:
+	import pysqlite2.dbapi2 as sqlite3 # Storm prefers this module
+except ExceptionError:
+	import sqlite3
 
 from _zeitgeist.engine.base import *
 from _zeitgeist.lrucache import LRUCache
