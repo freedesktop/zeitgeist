@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time
 import logging
 import sys
 import dbus
@@ -36,16 +35,21 @@ class SingletonApplication (dbus.service.Object):
 	def __init__ (self):
 		logging.debug("Checking for another running instance...")
 		sbus = DBusInterface.get_session_bus()
-		running_services = sbus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus").ListNames()
-		if DBusInterface.BUS_NAME in running_services:
+		
+		def running_daemon():
+			running_services = sbus.get_object("org.freedesktop.DBus",
+				"/org/freedesktop/DBus").ListNames()
+			return DBusInterface.BUS_NAME in running_services
+		
+		if running_daemon():
 			# already running daemon instance
 			if "--replace" in sys.argv:
 				logging.debug("Replacing currently running process.")
 				# TODO: This only works for the engine and wont work for the DataHub
 				interface = DBusInterface()
 				interface.Quit()
-				# Wait until the engine is dead
-				time.sleep(0.1)
+				while running_daemon():
+					pass
 				# TODO: We should somehow set a timeout and kill the old process
 				# if it doesn't quit when we ask it to. (Perhaps we should at least
 				# steal the bus using replace_existing=True)
@@ -57,5 +61,6 @@ class SingletonApplication (dbus.service.Object):
 		else:
 			# service is not running, save to start
 			logging.debug("No other instances found.")
+		
 		bus = dbus.service.BusName(DBusInterface.BUS_NAME, sbus, do_not_queue=True)
 		dbus.service.Object.__init__(self, bus, DBusInterface.OBJECT_PATH)
