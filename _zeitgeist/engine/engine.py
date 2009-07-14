@@ -168,7 +168,7 @@ class ZeitgeistEngine(gobject.GObject):
 		# Insert the application
 		if ritem["app"] in self._applications:
 			app_uri_id = self._applications[ritem["app"]]
-		else:
+		elif ritem["app"]:
 			try:
 				self.store.execute("INSERT INTO app (info) VALUES (?)",
 					(ritem["app"],), noresult=True)
@@ -177,6 +177,9 @@ class ZeitgeistEngine(gobject.GObject):
 			app_uri_id = self.store.execute(
 				"SELECT item_id FROM app WHERE info=?", (ritem["app"],)).get_one()[0]
 			self._applications[ritem["app"]] = app_uri_id
+		else:
+			# No application specified:
+			app_uri_id = 0
 		
 		# Insert the event
 		e_id, e_content_id, e_subject_id = self._get_ids(event_uri, ritem["use"], None)

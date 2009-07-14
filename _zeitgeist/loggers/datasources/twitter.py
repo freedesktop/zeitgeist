@@ -22,13 +22,13 @@
 import logging
 
 from zeitgeist.loggers.zeitgeist_base import DataProvider
+log = logging.getLogger("zeigeist.logger.datasources.twitter")
 
 try:
 	import twitter
 except ImportError:
 	twitter = None
-	logging.warning("Twitter support is disabled. ' \
-		'Please install python-twitter to enable it.")
+	log.warning("Twitter support is disabled; please install python-twitter.")
 
 class TwitterSource(DataProvider):
 	"""
@@ -36,7 +36,7 @@ class TwitterSource(DataProvider):
 	"""
 	
 	def __init__(self):
-		# TODO: Store the user's username and password using GNOME Keychain.
+		# TODO: Store the user's username and password using GNOME Keyring.
 		DataProvider.__init__(self, uri="gzg/twitter", name="Twitter")
 		self.username = ""
 		self.password = ""
@@ -48,16 +48,18 @@ class TwitterSource(DataProvider):
 		
 	def get_items_uncached(self):
 		# If twitter isn't installed or if we don't have a username and password
-		if twitter is None or self.username=="" or self.password=="":
+		if twitter is None or not self.username or not self.password:
 			return
 		
 		# Connect to twitter, loop over statuses, and create items for each status
 		self.api = twitter.Api(username=self.username, password=self.password)
 		for status in self.api.GetUserTimeline(count = 500):
 			yield {
-				"timestamp": tweet.created_at_in_seconds,
-				"uri": unicode("http://explore.twitter.com/" + tweet.user.screen_name + "/status/" + str(tweet.id)),
-				"name": unicode(tweet.user.name + ":\n" + tweet.text),
+				"timestamp": int(time.mktime(time.strptime(status['created_at'],
+					"%a %b %d %H:%M:%S +0000 %Y"))),
+				"uri": unicode("http://explore.twitter.com/%s/status/%s" % \
+					(status["user"]["screen_name"], str(status["id"]))),
+				"name": unicode(status["user"]["name"] + ":\n" + status["text"]),
 				"type": u"Twitter",
 				"use": u"tweet",
 				"app": u"",
