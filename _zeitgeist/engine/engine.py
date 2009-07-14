@@ -32,6 +32,7 @@ from xdg.DesktopEntry import DesktopEntry
 import sqlite3
 
 from _zeitgeist.engine.base import *
+from _zeitgeist.lrucache import LRUCache
 from zeitgeist.dbusutils import EventDict
 
 logging.basicConfig(level=logging.DEBUG)
@@ -50,7 +51,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self.store = storm_store
 		self._apps = set()
 		self._last_time_from_app = {}
-		self._apps_id = {}
+		self._applications = LRUCache(10)
 		
 		'''
 		path = BaseDirectory.save_data_path("zeitgeist")
@@ -58,16 +59,6 @@ class ZeitgeistEngine(gobject.GObject):
 		self.connection = self._get_database(database)
 		self.cursor = self.connection.cursor()
 		'''
-	
-	def _get_app(self, id):
-		if self._apps_id.has_key(id):
-			return self._apps_id[id]
-		
-		info = self.store.execute("SELECT info FROM app WHERE item_id=?",
-			(id,)).get_one()
-		if info:
-			self._apps_id[id] = info[0]
-			return info[0]
 	
 	def _get_ids(self, uri, content, source):	
 		uri_id = URI.lookup_or_create(uri).id if uri else None
@@ -175,18 +166,17 @@ class ZeitgeistEngine(gobject.GObject):
 			return 2 if event_exists else 1
 		
 		# Insert the application
-		# FIXME: Is reading the .desktop file and storing that stuff into
-		# the DB really required?
-		app_info = DesktopEntry(ritem["app"])
-		app_uri_id, app_content_id, app_source_id = self._get_ids(ritem["app"],
-			unicode(app_info.getType()), unicode(app_info.getExec()).split()[0])
-		app_item = self._get_item(app_uri_id, app_content_id, app_source_id,
-			unicode(app_info.getName()), icon=unicode(app_info.getIcon()))
-		try:
-			self.store.execute("INSERT INTO app (item_id, info) VALUES (?,?)",
-				(app_uri_id, unicode(ritem["app"])), noresult=True)
-		except sqlite3.IntegrityError:
-			pass
+		if ritem["app"] in self._applications:
+			app_uri_id = self._applications[ritem["app"]]
+		else:
+			try:
+				self.store.execute("INSERT INTO app (info) VALUES (?)",
+					(ritem["app"],), noresult=True)
+			except sqlite3.IntegrityError:
+				pass
+			app_uri_id = self.store.execute(
+				"SELECT item_id FROM app WHERE info=?", (ritem["app"],)).get_one()[0]
+			self._applications[ritem["app"]] = app_uri_id
 		
 		# Insert the event
 		e_id, e_content_id, e_subject_id = self._get_ids(event_uri, ritem["use"], None)
@@ -494,10 +484,12 @@ class ZeitgeistEngine(gobject.GObject):
 		0 is returned.
 		"""
 		
-		app = App.lookup(application)
-		
-		return self.store.find(Event.start, Event.app == app.item.id
-			).order_by(Event.start).last() if app else 0
+		query = self.store.execute("""
+			SELECT start FROM event
+			WHERE app_id = (SELECT item_id FROM app WHERE info = ?)
+			ORDER BY start DESC LIMIT 1
+			""", (application,)).get_one()
+		return query[0] if query else 0
 
 _engine = None
 def get_default_engine():
