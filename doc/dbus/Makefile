@@ -25,44 +25,50 @@ help:
 
 clean:
 	rm -rf build/* source/.static
+	[ ! -e $(CURDIR)/../../_zeitgeist/engine/zeitgeist ]  | \
+		unlink $(CURDIR)/../../_zeitgeist/engine/zeitgeist
 
-html:
+init:
+	mkdir -p build/changes build/doctrees source/.static
+	ln -sf $(CURDIR)/../../zeitgeist $(CURDIR)/../../_zeitgeist/engine/
+
+html: init
 	mkdir -p build/html build/doctrees source/.static
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) build/html
 	@echo
 	@echo "Build finished. The HTML pages are in build/html."
 
-pickle:
-	mkdir -p build/pickle build/doctrees source/.static
+pickle: init
+	mkdir -p build/pickle
 	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) build/pickle
 	@echo
 	@echo "Build finished; now you can process the pickle files."
 
-web: pickle
+web: init pickle
 
-json:
-	mkdir -p build/json build/doctrees source/.static
+json: init
+	mkdir -p build/json
 	$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) build/json
 	@echo
 	@echo "Build finished; now you can process the JSON files."
 
-htmlhelp:
-	mkdir -p build/htmlhelp build/doctrees source/.static
+htmlhelp: init
+	mkdir -p build/htmlhelp
 	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) build/htmlhelp
 	@echo
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
 	      ".hhp project file in build/htmlhelp."
 
-latex:
-	mkdir -p build/latex build/doctrees source/.static
+latex: init
+	mkdir -p build/latex
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) build/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in build/latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
 	      "run these through (pdf)latex."
 
-changes:
-	mkdir -p build/changes build/doctrees source/.static
+changes: init
+	mkdir -p build/changes
 	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) build/changes
 	@echo
 	@echo "The overview file is in build/changes."

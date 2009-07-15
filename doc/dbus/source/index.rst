@@ -2,7 +2,7 @@
 DBus API
 ========
 
-.. module:: zeitgeist.engine.remote
+.. module:: _zeitgeist.engine.remote
 
 Engine
 ======
