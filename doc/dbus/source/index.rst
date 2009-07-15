@@ -22,7 +22,7 @@ Data Types
 Item
 ++++
 
-A tuple representing an item, with the following elements:
+A dict representing an item, with the following elements:
 
  #. **timestamp** (integer) -
  #. **uri** (string) -
