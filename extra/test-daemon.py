@@ -39,15 +39,15 @@ for name in iface.GetTypes():
 	print '- %s' % name
 print
 
-print 'Your bookmarks are:'
-bookmarks = iface.FindEvents(0, 0, 0, True, "item", [{"bookmarked": True])
+print 'Some of your bookmarks are:'
+bookmarks = iface.FindEvents(0, 0, 5, True, "item", [{"bookmarked": True}])
 first_item = None
 for bookmark in bookmarks:
-	print '-', bookmark[2], '«' +  urllib.unquote(str(bookmark["text"])) + '»'
+	print '-', bookmark["text"], '«' +  urllib.unquote(str(bookmark["uri"])) + '»'
 	if not first_item: first_item = bookmark
 
 print '\nYour most used tags are:'
-print '-', ', '.join(iface.GetMostUsedTags(0, 0, 0))
+print '-', ', '.join(iface.GetTags(0, 0, 5, u""))
 
 print '\nYour recently used tags are:'
 print '-', ', '.join(iface.GetRecentUsedTags(0, 0, 0))

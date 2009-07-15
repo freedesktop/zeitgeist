@@ -134,7 +134,7 @@ class RemoteInterface(SingletonApplication):
 			mode, filters, return_mode=1)
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="siii", out_signature="a(si)")
+						in_signature="iiis", out_signature="a(si)")
 	def GetTags(self, min_timestamp, max_timestamp, limit, name_filter):
 		"""Returns a list containing tuples with the name and the number of
 		occurencies of the tags matching ``name_filter``, or all existing
