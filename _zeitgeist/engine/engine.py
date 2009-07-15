@@ -102,7 +102,7 @@ class ZeitgeistEngine(gobject.GObject):
 		ritem = EventDict.check_missing_items(ritem)
 		
 		# FIXME: uri, content, source are now required items, the statement above
-		# will raise an KeyError if they are not there. What about mimetype?
+		# will raise a KeyError if they are not there. What about mimetype?
 		# and why are we printing a warning and returning False here instead of raising
 		# an error at all? - Markus Korn
 		if not ritem["uri"].strip():
@@ -303,7 +303,7 @@ class ZeitgeistEngine(gobject.GObject):
 		for filter in filters:
 			invalid_filter_keys = set(filter.keys()) - self.ALLOWED_FILTER_KEYS
 			if invalid_filter_keys:
-				raise ValueError, "Invalid key(s) for filter in FindEvents: %s" %\
+				raise KeyError, "Invalid key(s) for filter in FindEvents: %s" %\
 					", ".join(invalid_filter_keys)
 			filterset = []
 			if "name" in filter:
@@ -313,6 +313,9 @@ class ZeitgeistEngine(gobject.GObject):
 				filterset += [ "uri.value LIKE ? ESCAPE \"\\\"" ]
 				additional_args += [ filter["uri"] ]
 			if "tags" in filter:
+				if not hasattr(filter["tags"], "__iter__"):
+					raise TypeError, "Expected a container type, found %s" % \
+						type(filter["tags"])
 				for tag in filter["tags"]:
 					filterset += [ "(tags == \"%s\" OR tags LIKE \"%s, %%\" OR "
 						"tags LIKE \"%%, %s, %%\" OR tags LIKE \"%%, %s\")" \
