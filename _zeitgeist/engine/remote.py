@@ -229,7 +229,7 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.signal(DBUS_INTERFACE,
 						signature="(sav)")
 	def EventsChanged(self, value):
-		"""This Signal is emmitted whenever one or more items have been changed
+		"""This Signal is emitted whenever one or more items have been changed
 		
 		It contains a tuple, where the first item is one of `added`,
 		`modified` and `deleted`. If the first item is `added` or `modified`
