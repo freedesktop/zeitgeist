@@ -31,7 +31,7 @@ from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 try:
 	import pysqlite2.dbapi2 as sqlite3 # Storm prefers this module
-except ExceptionError:
+except ImportError:
 	import sqlite3
 
 from _zeitgeist.engine.base import *
