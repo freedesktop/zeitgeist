@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-14 01:02+0200\n"
+"POT-Creation-Date: 2009-07-15 13:08+0200\n"
 "PO-Revision-Date: 2009-05-30 14:48+0000\n"
 "Last-Translator: clever_fox <clever_fox@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -148,34 +148,34 @@ msgstr ""
 msgid "Could not import GTK; data source disabled."
 msgstr ""
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:61
+#: ../_zeitgeist/loggers/datasources/firefox.py:53
 msgid "Firefox History"
 msgstr "Histroie Firefox"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:64
+#: ../_zeitgeist/loggers/datasources/firefox.py:56
 msgid "Websites visited with Firefox"
 msgstr "Stránky navštívené ve Firefox"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:92
+#: ../_zeitgeist/loggers/datasources/firefox.py:84
 #, fuzzy, python-format
 msgid "Unable to monitor Firefox's history: %s: %s"
 msgstr "Histroie Firefox"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:95
+#: ../_zeitgeist/loggers/datasources/firefox.py:87
 #, fuzzy, python-format
 msgid "Monitoring Firefox's history: %s"
 msgstr "Histroie Firefox"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:100
+#: ../_zeitgeist/loggers/datasources/firefox.py:92
 msgid "No Firefox profile found."
 msgstr ""
 
-#: ../_zeitgeist/loggers/datasources/evolution.py:63
+#: ../_zeitgeist/loggers/datasources/evolution.py:56
 #, python-format
 msgid "Unable to monitor Evolution: %s: %s"
 msgstr ""
 
-#: ../_zeitgeist/loggers/datasources/evolution.py:66
+#: ../_zeitgeist/loggers/datasources/evolution.py:59
 #, fuzzy, python-format
 msgid "Monitoring Evolution: %s"
 msgstr "Histroie Firefox"
