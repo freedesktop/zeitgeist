@@ -472,7 +472,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertFalse(u"filtertest" in (x[0] for x in result))
 	
 	def testFindEventsInvalidFilterValues(self):
-		self.assertRaises(ValueError,
+		self.assertRaises(KeyError,
 			self.engine.find_events, 0, 0, 0, False, "event",
 			[{"mimetype": [u"image/jpg"], "bookmarke": False}]
 		)
