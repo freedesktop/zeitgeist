@@ -34,23 +34,22 @@ except RuntimeError:
 else:
 	def page_changed(embed, load_status, window):
 		if not embed.get_property('load-status'):
-			item = (
-				int(time.time()), # timestamp
-				unicode(urllib.unquote(embed.get_location(True))), # uri
-				unicode(embed.get_title()), # text
-				u"Web History", # source
-				u"Web", # content
-				u"text/html", # TODO: Can we get a mime-type here?
-				u"", # tags
-				u"", # comment
-				False, # bookmark
-				u"visited", # use
-				u"", # icon
-				u"/usr/share/applications/epiphany.desktop", # app
-				u"", # origin
-					# FIXME: In case the user reaches this page by
+			item = {
+				"timestamp": int(time.time()),
+				"uri": unicode(urllib.unquote(embed.get_location(True))),
+				"text": unicode(embed.get_title()),
+				"source": u"Web History",
+				"content": u"Web",
+				"mimetype": u"text/html", # TODO: Can we get a mime-type here?
+				"tags": u"",
+				"comment": u"",
+				"bookmark": False,
+				"use": u"visited",
+				"icon": u"",
+				"app": u"/usr/share/applications/epiphany.desktop",
+				"origin": u"", # FIXME: In case the user reaches this page by
 					# by clicking on a link, put there the page with the link.
-				)
+				}
 			
 			# Insert it into Zeitgeist
 			iface.InsertEvents([item])
