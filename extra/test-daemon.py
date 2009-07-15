@@ -34,51 +34,45 @@ def updated_signal_handler(value):
 if '--listen' in sys.argv:
 	iface.connect("EventsChanged", updated_signal_handler)
 
-print '\nDifferent types in the database:'
-for name in iface.GetTypes():
+print '\nSome of the different types in the database:'
+for name in iface.GetTypes()[:5]:
 	print '- %s' % name
 print
 
-print 'Some of your bookmarks are:'
-bookmarks = iface.FindEvents(0, 0, 5, True, "item", [{"bookmarked": True}])
-first_item = None
+print 'Your most recently used bookmarks are:'
+bookmarks = iface.FindEvents(0, 0, 5, False, "item", [{"bookmarked": True}])
+sample_item = None
 for bookmark in bookmarks:
 	print '-', bookmark["text"], '«' +  urllib.unquote(str(bookmark["uri"])) + '»'
-	if not first_item: first_item = bookmark
+	if not sample_item or (not sample_item["tags"] and bookmark["tags"]):
+		sample_item = bookmark
 
 print '\nYour most used tags are:'
-print '-', ', '.join(iface.GetTags(0, 0, 5, u""))
-
-print '\nYour recently used tags are:'
-print '-', ', '.join(iface.GetRecentUsedTags(0, 0, 0))
+print '-', ', '.join([tag[0] for tag in iface.GetTags(0, 0, 5, u"")])
 
 mimetype = 'text/plain'
-print '\nItems with mimetype «%s»:' % mimetype
-for item in iface.GetItemsWithMimetype(mimetype, 0, 0, '')[:5]:
-	print '-', item[2]
+print '\nMost recent items with mimetype «%s»:' % mimetype
+for item in iface.FindEvents(0, 0, 5, False, "item", [{"mimetypes": [mimetype]}]):
+	print '-', item["text"]
 
-if first_item:
-	print u'\nTags for item «%s»:' % first_item[2]
-	print '-', ', '.join(first_item[4].split(','))
+if sample_item:
+	print u'\nTags for item «%s»:' % sample_item["text"]
+	print '-', ', '.join(sample_item["tags"].split(','))
 	
-	print u'\nItems related to «%s»:' % first_item[2]
-	related_items = iface.GetRelatedItems(first_item[1])
-	for related_item in related_items[:5]:
-		print '-', related_item[2]
-	del related_items
-	
-	#print u'\nItems sharing some tag with «%s»:' % first_item[2]
-	#related_items = iface.GetItemsRelatedByTags(first_item[1])
-	#for related_item in related_items[:5]:
-	#	print '-', related_item[2] + ':', ', '.join(related_item[6].split(','))
-	#del related_items
-	
-	last_tag = first_item[4].split(',')[-1]
-	if last_tag:
-		print u'\nItems with tag «%s»:' % last_tag
-		tag_items = iface.GetItems(0, 0, 0, last_tag, '')
-		for tag_item in tag_items[:5]:
-			print '-', tag_item[2] + ':', ', '.join(tag_item[6].split(','))
+	if sample_item["tags"]:
+		print u'\nMost recent items sharing some tag with «%s»:' % sample_item["text"]
+		related_items = iface.FindEvents(0, 0, 5, False, "item",
+			[{"tags": [tag.strip()]} for tag in sample_item["tags"].split(",")])
+		for related_item in related_items:
+			print '- %s: %s' % (related_item["text"], related_item["tags"])
+		del related_items
+		
+		last_tag = sample_item["tags"].split(",")[-1].strip()
+		print u'\nMost recent items with tag «%s»:' % last_tag
+		tag_items = iface.FindEvents(0, 0, 5, False, "item",
+			[{"tags": [last_tag]}])
+		for tag_item in tag_items:
+			print '- %s: %s' % (tag_item["text"], tag_item["tags"])
 
 if '--listen' in sys.argv:
 	gobject.MainLoop().run()
