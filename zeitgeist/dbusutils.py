@@ -118,6 +118,19 @@ class DBusInterface(dbus.Interface):
 				dbus_interface=cls.INTERFACE_NAME,
 				arg0=arg0
 			)
+			
+	@classmethod
+	def connect_exit(cls, callback):
+		"""executes callback when the RemoteInterface exists"""
+		bus = cls.get_session_bus()
+		bus_obj = bus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus")
+		bus_obj.connect_to_signal(
+			"NameOwnerChanged",
+			lambda *args: callback(),
+			dbus_interface="org.freedesktop.DBus",
+			arg0=cls.INTERFACE_NAME, #only match dying zeitgeist remote interfaces
+			arg2="", #only match services with no new owner
+		)
 	
 	def __init__(self):
 		self.__dict__ = self.__shared_state
