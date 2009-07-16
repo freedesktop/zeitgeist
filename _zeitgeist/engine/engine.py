@@ -99,7 +99,7 @@ class ZeitgeistEngine(gobject.GObject):
 		"""
 		
 		# check for required items and make sure all items have the correct type
-		ritem = EventDict.check_missing_items(ritem)
+		EventDict.check_missing_items(ritem, True)
 		
 		# FIXME: uri, content, source are now required items, the statement above
 		# will raise a KeyError if they are not there. What about mimetype?
@@ -197,13 +197,6 @@ class ZeitgeistEngine(gobject.GObject):
 		
 		return 1
 	
-	def _check_item(self, item):
-		if not item.has_key("comment"):
-			item["comment"] = u""
-		if not item.has_key("bookmark"):
-			item["bookmark"] = False
-			
-	
 	def insert_events(self, items):
 		"""
 		Inserts items into the database and returns those items which were
@@ -217,7 +210,6 @@ class ZeitgeistEngine(gobject.GObject):
 		for item in items:
 			# This is always 0 or 1, no need to consider 2 as we don't
 			# use the `force' option.
-			self._check_item(item)
 			if self.insert_event(item, commit=False):
 				inserted_items.append(item)
 		self.store.commit()

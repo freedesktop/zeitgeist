@@ -113,7 +113,7 @@ class EventDict(dict):
 		"text": (unicode, False),
 		"source": (unicode, True),
 		"content": (unicode, True),
-		"mimetype": (unicode, False),
+		"mimetype": (unicode, True),
 		"tags": (unicode, False),
 		"comment": (unicode, False),
 		"bookmark": (bool, False),
@@ -129,29 +129,39 @@ class EventDict(dict):
 	)
 	
 	@staticmethod
-	def check_missing_items(event_dict):
+	def check_missing_items(event_dict, inplace=False):
 		""" Method to check for required items.
 		
-		In case one or more required items are missing a KeyError is raised,
-		otherwise an EventDict is returned
+		In case one or more required items are missing a KeyError is raised.
+		If 'inplace' is False (default) an Event dict is returned, otherwise
+		the given dict will be filled with missing optional items inplace.
 		"""
-		missing = EventDict._REQUIRED_ITEMS - set(event_dict.keys())
+		keys = set(event_dict.keys())
+		missing = EventDict._REQUIRED_ITEMS - keys
 		if missing:
 			raise KeyError(("Some keys are missing in order to add "
 				"this item properly: %s" % ", ".join(missing)))
-		return EventDict.check_dict(event_dict)
+		unknown = keys - set(EventDict._ITEM_TYPE_MAP.keys())
+		if unknown:
+			raise KeyError("There are some invalid values in the item: %s" %", ".join(unknown))
+		result = EventDict.check_dict(event_dict, inplace)
+		if not inplace:
+			return result
 	
 	@classmethod
-	def check_dict(cls, event_dict):
+	def check_dict(cls, event_dict, inplace=False):
 		""" Method to check the type of the items in an event dict.
 		
 		It automatically changes the type of all values to the expected on.
-		If a value is not given an item with a default value is added
+		If a value is not given an item with a default value is added.
+		If 'inplace' is False (default) a new EventDict instance is returned,
+		otherwise the dict given as argument will be ckecked (and changed)
+		in place.
 		"""
-		return cls((key, type(event_dict.get(key, type()))) \
-						for key, (type, required) \
-						in EventDict._ITEM_TYPE_MAP.iteritems()
-		)
+		for key, (type, required) in EventDict._ITEM_TYPE_MAP.iteritems():
+			event_dict[key] = type(event_dict.get(key, type()))
+		if not inplace:
+			return cls(event_dict)
 		
 	@classmethod
 	def convert_result_to_dict(cls, result_tuple):

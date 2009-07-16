@@ -19,8 +19,26 @@ class EventDictTest(unittest.TestCase):
 		self.assertRaises(KeyError, EventDict.check_missing_items, {"timestamp": 1, "content": "boo", "uri": "foo"})
 		self.assertRaises(KeyError, EventDict.check_missing_items, {"source": "bar", "content": "boo", "uri": "foo"})
 		self.assertEqual(
-			EventDict.check_missing_items({"timestamp": 1, "source": "bar", "content": "boo", "uri": "foo"}),
-			{'comment': u'', 'origin': u'', 'use': u'', 'tags': u'', 'bookmark': False, 'text': u'', 'app': u'', 'uri': u'foo', 'content': u'boo', 'source': u'bar', 'mimetype': u'', 'timestamp': 1, 'icon': u''}
+			EventDict.check_missing_items({"timestamp": 1, "source": "bar", "content": "boo", "uri": "foo", "mimetype": "a/b"}),
+			{'comment': u'', 'origin': u'', 'use': u'', 'tags': u'', 'bookmark': False, 'text': u'', 'app': u'', 'uri': u'foo', 'content': u'boo', 'source': u'bar', 'mimetype': u'a/b', 'timestamp': 1, 'icon': u''}
+		)
+		# invalid key
+		self.assertRaises(
+			KeyError,
+			EventDict.check_missing_items, {"timestamp": 1, "source": "bar", "content": "boo", "uri": "foo", "mimetype": "a/b", "booo": "bar"},
+		)
+		# invalid type of one item
+		self.assertRaises(
+			ValueError,
+			EventDict.check_missing_items, {"timestamp": "sometext", "source": "bar", "content": "boo", "uri": "foo", "mimetype": "a/b"},
+		)
+		
+	def test_missing_items_inplace(self):
+		d = {"timestamp": 1, "source": "bar", "content": "boo", "uri": "foo", "mimetype": "a/b"}
+		self.assertEqual(None, EventDict.check_missing_items(d, True))
+		self.assertEqual(
+			d,
+			{'comment': u'', 'origin': u'', 'use': u'', 'tags': u'', 'bookmark': False, 'text': u'', 'app': u'', 'uri': u'foo', 'content': u'boo', 'source': u'bar', 'mimetype': u'a/b', 'timestamp': 1, 'icon': u''}
 		)
 		
 	def test_check_dict(self):
