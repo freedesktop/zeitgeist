@@ -248,10 +248,6 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return True
 	
-	@dbus.service.signal(DBUS_INTERFACE)
-	def EngineExit(self):
-		return True
-	
 	# Commands
 	
 	@dbus.service.method(DBUS_INTERFACE)

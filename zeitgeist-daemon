@@ -19,7 +19,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import atexit
 import os
 import gobject
 import signal
@@ -60,7 +59,6 @@ if not "--no-passive-loggers" in sys.argv:
 		logging.warning("%s not found, not starting datahub" % passive_loggers)
 
 obj.EngineStart()
-atexit.register(lambda: obj.EngineExit())
 
 logging.info(_("Starting Zeitgeist service..."))
 mainloop.run()
