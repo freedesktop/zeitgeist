@@ -1,4 +1,4 @@
-# -.- encoding: utf-8 -.-
+# -.- coding: utf-8 -.-
 
 # Zeitgeist
 #
@@ -24,6 +24,8 @@ import dbus.mainloop.glib
 import logging
 import os.path
 
+from xml.dom.minidom import parseString as minidom_parse
+
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 class DBusInterface(dbus.Interface):
@@ -38,6 +40,23 @@ class DBusInterface(dbus.Interface):
 	
 	INTERFACE_NAME = BUS_NAME = "org.gnome.zeitgeist"
 	OBJECT_PATH = "/org/gnome/zeitgeist"
+	
+	@staticmethod
+	def get_members(introspection_xml):
+		"""Parses the xml context returned by Introspect() and returns
+		a tuple, where the first item is a list of all methods and the
+		second one a list of all signals for the related interface
+		"""
+		doc = minidom_parse(introspection_xml)
+		nodes = doc.getElementsByTagName("signal")
+		signals = [node.getAttribute("name") for node in nodes]
+		nodes = doc.getElementsByTagName("method")
+		methods = [node.getAttribute("name") for node in nodes]
+		try:
+			methods.remove("Introspect") # Introspect is not part of the API
+		except ValueError:
+			pass
+		return methods, signals
 	
 	@classmethod
 	def get_session_bus(cls):
@@ -71,12 +90,19 @@ class DBusInterface(dbus.Interface):
 						"Zeitgeist daemon: %s") % e.get_dbus_message())
 				else:
 					raise
+			else:
+				introspection_xml = cls.__shared_state["proxy_object"].Introspect()
+				methods, signals = cls.get_members(introspection_xml)
+				cls.__shared_state["__methods"] = methods
+				cls.__shared_state["__signals"] = signals
 			return cls.__shared_state["proxy_object"]
 	
 	@classmethod
 	def connect(cls, signal, callback, arg0=None):
 		"""Connect a callback to a signal of the current proxy instance """
 		proxy = cls._get_proxy()
+		if signal not in cls.__shared_state["__signals"]:
+			raise TypeError("unknown signal name: %s" %signal)
 		if arg0 is None:
 			proxy.connect_to_signal(
 				signal,
@@ -92,6 +118,19 @@ class DBusInterface(dbus.Interface):
 				dbus_interface=cls.INTERFACE_NAME,
 				arg0=arg0
 			)
+			
+	@classmethod
+	def connect_exit(cls, callback):
+		"""executes callback when the RemoteInterface exists"""
+		bus = cls.get_session_bus()
+		bus_obj = bus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus")
+		bus_obj.connect_to_signal(
+			"NameOwnerChanged",
+			lambda *args: callback(),
+			dbus_interface="org.freedesktop.DBus",
+			arg0=cls.INTERFACE_NAME, #only match dying zeitgeist remote interfaces
+			arg2="", #only match services with no new owner
+		)
 	
 	def __init__(self):
 		self.__dict__ = self.__shared_state

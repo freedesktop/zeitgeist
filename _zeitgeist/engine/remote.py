@@ -1,4 +1,4 @@
-# -.- encoding: utf-8 -.-
+# -.- coding: utf-8 -.-
 
 # Zeitgeist
 #
@@ -246,10 +246,6 @@ class RemoteInterface(SingletonApplication):
 		"""This signal is emmitted once the engine successfully started and
 		is ready to process requests
 		"""
-		return True
-	
-	@dbus.service.signal(DBUS_INTERFACE)
-	def EngineExit(self):
 		return True
 	
 	# Commands

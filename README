@@ -19,8 +19,11 @@ Dependencies:
 
  - python 2.5 or higher
  - python-gtk2 (2.14.1, *)
+ - python-gconf
  - python-gobject
  - python-dbus
+ - python-xdg
+ - python-storm
 
  * Zeitgeist requires a PyGTK patch which hasn't been released yet.
    You can either recompile manually including the patch
