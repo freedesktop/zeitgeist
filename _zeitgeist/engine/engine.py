@@ -54,7 +54,7 @@ class ZeitgeistEngine(gobject.GObject):
 		self.store = storm_store
 		self._apps = set()
 		self._last_time_from_app = {}
-		self._applications = LRUCache(10)
+		self._applications = LRUCache(100)
 		
 		'''
 		path = BaseDirectory.save_data_path("zeitgeist")
