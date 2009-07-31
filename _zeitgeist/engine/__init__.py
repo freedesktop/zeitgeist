@@ -12,7 +12,7 @@ def create_engine(engine_type=None):
 		1.) it has to be in _zeitgeist/engine/SOMENAME_engine.py
 			(where SOMENAME defines the type)
 		2.) the name of the class has to be ZeitgeistEngine and the class
-			itself has to be a sublass of _zeitgeist.engine.engine_base.ZeitgeistEngine
+			itself has to be a sublass of _zeitgeist.engine.engine_base.BaseEngine
 	"""	
 	global _engine
 	if engine_type is None:
