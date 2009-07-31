@@ -30,7 +30,7 @@ class BaseEngine(gobject.GObject):
 		
 		self._apps = set()
 		self._last_time_from_app = {}
-		self._applications = LRUCache(10)
+		self._applications = LRUCache(100)
 		
 	def insert_event(self, ritem, commit=True, force=False):
 		"""

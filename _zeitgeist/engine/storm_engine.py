@@ -43,7 +43,6 @@ log = logging.getLogger("zeitgeist.engine")
 class ZeitgeistEngine(BaseEngine):
 	
 	def __init__(self, store=None):
-		
 		super(ZeitgeistEngine, self).__init__()
 		if store is not None:
 			self.store = store

@@ -182,10 +182,8 @@ class URI(Entity):
 	__storm_primary__= "id"
 	
 	# URI uses an LRUCache rather than a plain dict because it may end up
-	# storing thousands and thousands of items.
-	# kamstrup played a lot around with cache sizes (and no caches at all)
-	# and found the best avg. performance with a small cache size of ~10s
-	CACHE = LRUCache(10)
+	# storing thousands and thousands of items
+	CACHE = LRUCache(1000)
 	
 	def __init__ (self, value, add_to_store=True):				
 		super(URI, self).__init__(value, add_to_store=add_to_store)
