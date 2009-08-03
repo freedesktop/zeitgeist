@@ -40,10 +40,13 @@ class LRUCache:
 		"""The size of the cache (in number of cached items) is guaranteed to
 		   never exceed 'size'"""
 		self._max_size = max_size
+		self.clear()
+		
+	def clear(self):
 		self._list_end = None # The newest item
 		self._list_start = None # Oldest item
 		self._map = {}
-		self._current_id = 0
+		self._current_id = 0		
 	
 	def __len__(self):
 		return len(self._map)
