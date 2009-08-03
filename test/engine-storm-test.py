@@ -5,7 +5,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from _zeitgeist.engine.base import *
+from _zeitgeist.engine.storm_base import *
 from storm.locals import *
 
 import unittest
