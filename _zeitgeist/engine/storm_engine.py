@@ -25,7 +25,6 @@ import time
 import sys
 import os
 import gettext
-import gobject
 import logging
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
@@ -34,34 +33,22 @@ try:
 except ImportError:
 	import sqlite3
 
-from _zeitgeist.engine.base import *
-from _zeitgeist.lrucache import LRUCache
+from _zeitgeist.engine.storm_base import *
+from _zeitgeist.engine.engine_base import BaseEngine
 from zeitgeist.dbusutils import EventDict
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
-class ZeitgeistEngine(gobject.GObject):
+class ZeitgeistEngine(BaseEngine):
 	
-	ALLOWED_FILTER_KEYS = set(["name", "uri", "tags", "mimetypes",
-		"source", "content", "application", "bookmarked"])
-	
-	def __init__(self, storm_store):
-		
-		gobject.GObject.__init__(self)
-		
-		assert storm_store is not None
-		self.store = storm_store
-		self._apps = set()
-		self._last_time_from_app = {}
-		self._applications = LRUCache(100)
-		
-		'''
-		path = BaseDirectory.save_data_path("zeitgeist")
-		database = os.path.join(path, "zeitgeist.sqlite")
-		self.connection = self._get_database(database)
-		self.cursor = self.connection.cursor()
-		'''
+	def __init__(self, store=None):
+		super(ZeitgeistEngine, self).__init__()
+		if store is not None:
+			self.store = store
+		else:
+			self.store = get_default_store()
+		assert self.store is not None
 	
 	def _get_ids(self, uri, content, source):	
 		uri_id = URI.lookup_or_create(uri).id if uri else None
@@ -203,21 +190,9 @@ class ZeitgeistEngine(gobject.GObject):
 		successfully inserted. If an item fails, that's usually because it
 		already was in the database.
 		"""
-		
-		inserted_items = []
-		
-		time1 = time.time()
-		for item in items:
-			# This is always 0 or 1, no need to consider 2 as we don't
-			# use the `force' option.
-			if self.insert_event(item, commit=False):
-				inserted_items.append(item)
-		self.store.commit()
-		time2 = time.time()
-		log.debug("Inserted %s items in %.5f s." % (len(inserted_items),
-			time2 - time1))
-		
-		return inserted_items
+		result = super(ZeitgeistEngine, self).insert_events(items)
+		self.store.commit()		
+		return result
 	
 	def get_item(self, uri):
 		""" Returns basic information about the indicated URI. As we are
@@ -499,10 +474,3 @@ class ZeitgeistEngine(gobject.GObject):
 			ORDER BY start DESC LIMIT 1
 			""", (application,)).get_one()
 		return query[0] if query else 0
-
-_engine = None
-def get_default_engine():
-	global _engine
-	if not _engine:
-		_engine = ZeitgeistEngine(get_default_store())
-	return _engine

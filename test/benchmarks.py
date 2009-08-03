@@ -5,10 +5,10 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from _zeitgeist.engine.base import create_store, set_store
-from _zeitgeist.engine import base
+from _zeitgeist.engine.storm_base import create_store, set_store
+from _zeitgeist.engine import storm_base as base
 from zeitgeist.datamodel import *
-from _zeitgeist.engine.engine import ZeitgeistEngine
+from _zeitgeist.engine.storm_engine import ZeitgeistEngine
 
 from time import time
 import unittest

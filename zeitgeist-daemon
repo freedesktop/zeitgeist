@@ -33,10 +33,7 @@ _config.setup_path()
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 logging.basicConfig(level=logging.DEBUG)
 
-from _zeitgeist.engine.engine import get_default_engine
 from _zeitgeist.engine.remote import RemoteInterface
-
-engine = get_default_engine()
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = gobject.MainLoop()
