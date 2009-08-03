@@ -31,33 +31,27 @@ class SymbolTest(unittest.TestCase):
 		self.store.close()
 	
 	def testSingleSymbol(self):
-		s = Symbol(Source, Source.WEB_HISTORY.value)
-		self.assertEquals(Source.WEB_HISTORY.value, s.value)
 		self.assertEquals(1, Source.WEB_HISTORY.id)
 		self.assertEquals("WebHistory", Source.WEB_HISTORY.name)
 	
 	def testContentSourceSymbols(self):
-		s = Symbol(Source, Source.WEB_HISTORY.value)
-		c = Symbol(Content, Content.TAG.value)
+		s = Source.WEB_HISTORY
+		c = Content.TAG
 		
-		self.assertEquals(Source.WEB_HISTORY.value, s.value)
 		self.assertEquals(1, s.id) # First element in the source table
 		self.assertEquals("WebHistory", s.name)
 		
-		self.assertEquals(Content.TAG.value, c.value)
 		self.assertEquals(1, c.id) # First element in the content table
 		self.assertEquals("Tag", c.name)
 	
 	def testTwoSourceSymbols(self):
-		web = Symbol(Source, Source.WEB_HISTORY.value)
-		act = Symbol(Source, Source.USER_ACTIVITY.value)
+		web = Source.WEB_HISTORY
+		act = Source.USER_ACTIVITY
 		
 		self.assertEquals("WebHistory", web.name)
-		self.assertEquals(Source.WEB_HISTORY.value, web.value)
 		self.assertEquals(1, web.id) # First element in the source table
 		
 		self.assertEquals("UserActivity", act.name)
-		self.assertEquals(Source.USER_ACTIVITY.value, act.value)
 		self.assertEquals(2, act.id) # Second element in the source table
 		
 
@@ -85,7 +79,6 @@ class SourceTest (unittest.TestCase):
 		s2 = Source.lookup_or_create(Source.USER_ACTIVITY)
 		s1.resolve()
 		s2.resolve()
-		
 		self.assertEquals(Source.WEB_HISTORY.value, s1.value)
 		self.assertEquals(Source.USER_ACTIVITY.value, s2.value)
 		self.assertEquals(1, s1.id)

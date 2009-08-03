@@ -24,35 +24,9 @@ import logging
 from storm.locals import *
 from xdg import BaseDirectory
 
-from _zeitgeist.lrucache import LRUCache
+from zeitgeist.datamodel import Content, Source, DictCache, LRUCache
 
 log = logging.getLogger("zeitgeist.engine.base")
-
-class Symbol:
-	""" A simple structure to hold a URI and a short label and magically
-		cache and entity (integer) id.
-		Used in Source and Content for pre-defined types. """
-	
-	def __init__ (self, entity_class, uri):
-		self.value = uri
-		self.name = uri.split("#")[1]
-		self._entity_class = entity_class
-		self._id = None
-	
-	def __str__ (self):
-		return self.value
-	
-	def __getattr__ (self, name):
-		""" This small piece of magic make self.id resolve to the actual
-		   integer id of the entity class. """
-		if name == "id":
-			if not self._id :
-				ent = self._entity_class.lookup_or_create(self.value)
-				ent.resolve()
-				self._id = ent.id
-			return self._id
-		else:
-			raise AttributeError("Unknown attribute %s" % name)
 
 class Entity(object):
 	""" Generic base class for anything that has an 'id' and a 'value'.
@@ -61,7 +35,6 @@ class Entity(object):
 	
 	id = Int(allow_none=False)
 	value = Unicode()
-	CACHE = {}
 	
 	def __init__ (self, value, add_to_store=True):
 		"""Create an Entity in the store. Any created entity will automatically
@@ -78,7 +51,7 @@ class Entity(object):
 		if add_to_store:
 			_store.add(self)
 			_store.flush()
-			self.__class__.CACHE[value] = self
+			self.__class__._CACHE[value] = self
 	
 	def resolve (self):
 		"""Make sure that the id property of this object has been resolved.
@@ -93,11 +66,11 @@ class Entity(object):
 		   entity is not known"""
 		if value:
 			value = unicode(value)
-			if klass.CACHE is not None and value in klass.CACHE:
-				return klass.CACHE[value]
+			if klass._CACHE is not None and value in klass._CACHE:
+				return klass._CACHE[value]
 			ent = _store.find(klass, klass.value == value).one()
-			if klass.CACHE is not None and ent:
-				klass.CACHE[value] = ent
+			if klass._CACHE is not None and ent:
+				klass._CACHE[value] = ent
 			return ent
 		elif id:
 			return _store.get(id) # Lookup on primary key
@@ -113,8 +86,8 @@ class Entity(object):
 		#  2) Try to create it
 		#  3) Look it up and return it
 		#
-		if klass.CACHE is not None and value in klass.CACHE:
-			return klass.CACHE[value]
+		if klass._CACHE is not None and value in klass._CACHE:
+			return klass._CACHE[value]
 		
 		value = unicode(value)
 		ent = klass(value, add_to_store=False)
@@ -124,6 +97,7 @@ class Entity(object):
 			(value, ), noresult=True)
 		except Exception, ex:
 			pass
+		_store.flush()
 		
 		id_query = _store.execute(
 					"SELECT id FROM %s WHERE VALUE=?" % klass.__storm_table__,
@@ -133,49 +107,25 @@ class Entity(object):
 				klass.__storm_table__,value))
 			return None
 		ent.id = id_query[0]
-		
-		if klass.CACHE is not None:
-			klass.CACHE[value] = ent
+		if klass._CACHE is not None:
+			klass._CACHE[value] = ent
 		
 		return ent
 
-class Content(Entity):
+
+class _Content(Entity):
 	__storm_table__= "content"
 	__storm_primary__= "id"
-	
-	def __init__ (self, value, add_to_store=True):				
-		super(Content, self).__init__(value, add_to_store=add_to_store)		
+	__metaclass__ = DictCache
+Content.bind_database(_Content)
 
-class Source(Entity):
+
+class _Source(Entity):
 	__storm_table__= "source"
-	__storm_primary__= "id"		
-	
-	def __init__ (self, value, add_to_store=True):
-		super(Source, self).__init__(value, add_to_store=add_to_store)
+	__storm_primary__= "id"
+	__metaclass__ = DictCache
+Source.bind_database(_Source)
 
-
-# Content and source symbols are created outside the classes because we can not
-# refer to, fx. the Content class, from within the Content class scope
-#
-# When we add more Content types here, we should strive to take them from
-# http://xesam.org/main/XesamOntology100 when possible
-
-Content.TAG = Symbol(Content, "http://freedesktop.org/standards/xesam/1.0/core#Tag")
-Content.BOOKMARK = Symbol(Content, "http://freedesktop.org/standards/xesam/1.0/core#Bookmark")
-Content.COMMENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#Comment")
-Content.DOCUMENT = Symbol(Content, "http://freedesktop.org/standards/xesam/1.0/core#Document")
-Content.CREATE_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#CreateEvent")
-Content.MODIFY_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#ModifyEvent")
-Content.VISIT_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#VisitEvent")
-Content.LINK_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#LinkEvent")
-Content.SEND_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#SendEvent")
-Content.RECEIVE_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#ReceiveEvent")
-Content.WARN_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#WarnEvent")
-Content.ERROR_EVENT = Symbol(Content, "http://gnome.org/zeitgeist/schema/1.0/core#ErrorEvent")
-Source.WEB_HISTORY = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#WebHistory")
-Source.USER_ACTIVITY = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#UserActivity")
-Source.USER_NOTIFICATION = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#UserNotification")
-Source.APPLICATION = Symbol(Source, "http://gnome.org/zeitgeist/schema/1.0/core#Application")
 
 class URI(Entity):
 	__storm_table__= "uri"
@@ -183,10 +133,7 @@ class URI(Entity):
 	
 	# URI uses an LRUCache rather than a plain dict because it may end up
 	# storing thousands and thousands of items
-	CACHE = LRUCache(1000)
-	
-	def __init__ (self, value, add_to_store=True):				
-		super(URI, self).__init__(value, add_to_store=add_to_store)
+	__metaclass__ = LRUCache
 
 class Item(object):
 	__storm_table__ = "item"
@@ -427,10 +374,9 @@ def clear_entity_cache():
 	"""All entity ids are cached because they can be assumed to remain stable
 	   across a session. In cases like unit tests where the db is often reset,
 	   this cache needs to be reset in order to provide correct results"""
-	Entity.CACHE = {}
-	URI.CACHE = LRUCache(10)
-	Content.CACHE = {}
-	Source.CACHE = {}
+	URI._clear_cache()
+	Content._clear_cache()
+	Source._clear_cache()
 
 _store = None
 def get_default_store():

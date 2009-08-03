@@ -34,6 +34,7 @@ except ImportError:
 	import sqlite3
 
 from _zeitgeist.engine.storm_base import *
+from _zeitgeist.engine.storm_base import _Content, _Source
 from _zeitgeist.engine.engine_base import BaseEngine
 from zeitgeist.dbusutils import EventDict
 
@@ -52,8 +53,8 @@ class ZeitgeistEngine(BaseEngine):
 	
 	def _get_ids(self, uri, content, source):	
 		uri_id = URI.lookup_or_create(uri).id if uri else None
-		content_id = Content.lookup_or_create(content).id if content else None
-		source_id = Source.lookup_or_create(source).id if source else None
+		content_id = _Content.lookup_or_create(content).id if content else None
+		source_id = _Source.lookup_or_create(source).id if source else None
 		return uri_id, content_id, source_id
 	
 	def _get_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
@@ -435,7 +436,7 @@ class ZeitgeistEngine(BaseEngine):
 		"""
 		Returns a list of all different types in the database.
 		"""
-		contents = self.store.find(Content)
+		contents = self.store.find(_Content)
 		return [content.value for content in contents]
 	
 	def get_tags(self, min_timestamp=0, max_timestamp=0, limit=0, name_filter=""):
