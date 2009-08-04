@@ -24,7 +24,8 @@ import logging
 from storm.locals import *
 from xdg import BaseDirectory
 
-from zeitgeist.datamodel import Content, Source, DictCache, LRUCache
+from zeitgeist.datamodel import Content, Source, DictCache
+from _zeitgeist.lrucache import LRUCacheMetaclass
 
 log = logging.getLogger("zeitgeist.engine.base")
 
@@ -133,7 +134,7 @@ class URI(Entity):
 	
 	# URI uses an LRUCache rather than a plain dict because it may end up
 	# storing thousands and thousands of items
-	__metaclass__ = LRUCache
+	__metaclass__ = LRUCacheMetaclass
 
 class Item(object):
 	__storm_table__ = "item"

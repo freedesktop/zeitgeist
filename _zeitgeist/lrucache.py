@@ -122,3 +122,26 @@ class LRUCache:
 			if self._list_start:
 				self._list_start.prev = None
 			return old
+			
+			
+class LRUCacheMetaclass(type):
+	""" Metaclass which has a _CACHE attribute, each subclass has its own,
+	fresh cache. As a cache we are using a LRUCache.
+	"""
+	
+	def __init__(cls, name, bases, d):
+		super(LRUCacheMetaclass, cls).__init__(name, bases, d)
+		cls.__CACHE = LRUCache(1000)
+		
+	def _new_cache(cls, cache=None):
+		if cache is None:
+			cls.__CACHE.clear()
+		else:
+			cls.__CACHE = cache
+		
+	def _clear_cache(self):
+		return self._new_cache()
+		
+	@property
+	def _CACHE(cls):
+		return cls.__CACHE

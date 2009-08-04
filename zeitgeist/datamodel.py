@@ -28,8 +28,6 @@ instead of Uri string will help detect programmer typos.
 import gettext
 gettext.install("zeitgeist")
 
-from _zeitgeist.lrucache import LRUCache as _LRUCache
-
 class DictCache(type):
 	""" Metaclass which has a _CACHE attribute, each subclass has its own, fresh cache """
 	
@@ -51,26 +49,6 @@ class DictCache(type):
 		return cls.__CACHE
 		
 		
-class LRUCache(type):
-	
-	def __init__(cls, name, bases, d):
-		super(LRUCache, cls).__init__(name, bases, d)
-		cls.__CACHE = _LRUCache(1000)
-		
-	def _new_cache(cls, cache=None):
-		if cache is None:
-			cls.__CACHE.clear()
-		else:
-			cls.__CACHE = cache
-		
-	def _clear_cache(self):
-		return self._new_cache()
-		
-	@property
-	def _CACHE(cls):
-		return cls.__CACHE
-
-
 class Symbol(DictCache):
 	
 	def __init__(cls, name, bases, d):
