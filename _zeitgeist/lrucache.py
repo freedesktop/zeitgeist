@@ -3,6 +3,7 @@
 # lrucache.py
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2009 Markus Korn <thekorn@gmx.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -40,10 +41,13 @@ class LRUCache:
 		"""The size of the cache (in number of cached items) is guaranteed to
 		   never exceed 'size'"""
 		self._max_size = max_size
+		self.clear()
+		
+	def clear(self):
 		self._list_end = None # The newest item
 		self._list_start = None # Oldest item
 		self._map = {}
-		self._current_id = 0
+		self._current_id = 0		
 	
 	def __len__(self):
 		return len(self._map)
@@ -119,3 +123,26 @@ class LRUCache:
 			if self._list_start:
 				self._list_start.prev = None
 			return old
+			
+			
+class LRUCacheMetaclass(type):
+	""" Metaclass which has a _CACHE attribute, each subclass has its own,
+	fresh cache. As a cache we are using a LRUCache.
+	"""
+	
+	def __init__(cls, name, bases, d):
+		super(LRUCacheMetaclass, cls).__init__(name, bases, d)
+		cls.__CACHE = LRUCache(1000)
+		
+	def _new_cache(cls, cache=None):
+		if cache is None:
+			cls.__CACHE.clear()
+		else:
+			cls.__CACHE = cache
+		
+	def _clear_cache(self):
+		return self._new_cache()
+		
+	@property
+	def _CACHE(cls):
+		return cls.__CACHE
