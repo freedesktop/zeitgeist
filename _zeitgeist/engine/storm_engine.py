@@ -401,8 +401,7 @@ class ZeitgeistEngine(BaseEngine):
 		If the item has tags, then the tags will also be updated.
 		"""
 		
-		#FIXME Delete all tags of the ITEM
-		self._delete_item(item["uri"])
+		self.delete_items([item["uri"]])
 		self.store.commit()
 		self.store.flush()
 		self.insert_event(item, True, True)
@@ -413,24 +412,20 @@ class ZeitgeistEngine(BaseEngine):
 		map(self._update_item, items)
 		return items
 	
-	def _delete_item(self, uri):
+	def delete_items(self, uris):
+		uri_placeholder = ",".join("?" * len(uris))
+		self.store.execute("""
+			DELETE FROM Annotation WHERE subject_id IN
+				(SELECT id FROM uri WHERE value IN (%s))
+			""" % uri_placeholder, uris, noresult=True)
+		self.store.execute("""
+			DELETE FROM Item WHERE id IN
+				(SELECT id FROM uri WHERE value IN (%s)) OR id IN
+				(SELECT item_id FROM Annotation WHERE subject_id IN
+					(SELECT id FROM uri WHERE value IN (%s)))
+			""" % (uri_placeholder, uri_placeholder), uris * 2, noresult=True)
 		
-		uri_id = self.store.execute("SELECT id FROM URI WHERE value=?", (uri,)).get_one()
-		uri_id = uri_id[0]
-		annotation_ids = self.store.execute(
-			"SELECT item_id FROM Annotation WHERE subject_id=?", (uri_id,)).get_all()
-		if len(annotation_ids) > 0:
-			for anno in annotation_ids[0]:
-				self.store.execute("DELETE FROM Annotation WHERE subject_id=?",
-					(uri_id,), noresult=True)
-				self.store.execute("DELETE FROM Item WHERE id=?",
-					(anno,), noresult=True)		
-		self.store.execute("DELETE FROM Item WHERE id=?",
-			(uri_id,), noresult=True)
-	
-	def delete_items(self, items):
-		map(self._delete_item, items)
-		return items
+		return uris
 	
 	def get_types(self):
 		"""
