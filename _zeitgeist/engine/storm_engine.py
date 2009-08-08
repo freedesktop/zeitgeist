@@ -394,22 +394,20 @@ class ZeitgeistEngine(BaseEngine):
 		
 		return result
 	
-	def _update_item(self, item):
-		"""
-		Updates an item already in the database.
-		
-		If the item has tags, then the tags will also be updated.
-		"""
-		
-		self.delete_items([item["uri"]])
-		self.store.commit()
-		self.store.flush()
-		self.insert_event(item, True, True)
-		self.store.commit()
-		self.store.flush()
-	
 	def update_items(self, items):
-		map(self._update_item, items)
+		""" Updates the given items, and their annotations, in the database. """
+		
+		# FIXME: This will remove *all* annotations, but only put back
+		# the bookmarked status and the tags.
+		self.delete_items([item["uri"] for item in items])
+		self.store.commit()
+		self.store.flush()
+		
+		for item in items:
+			self.insert_event(item, True, True)
+			self.store.commit()
+			self.store.flush()
+		
 		return items
 	
 	def delete_items(self, uris):
