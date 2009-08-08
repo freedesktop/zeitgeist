@@ -192,7 +192,7 @@ class ZeitgeistEngine(BaseEngine):
 		already was in the database.
 		"""
 		result = super(ZeitgeistEngine, self).insert_events(items)
-		self.store.commit()		
+		self.store.commit()
 		return result
 	
 	def get_item(self, uri):
@@ -400,13 +400,10 @@ class ZeitgeistEngine(BaseEngine):
 		# FIXME: This will remove *all* annotations, but only put back
 		# the bookmarked status and the tags.
 		self.delete_items([item["uri"] for item in items])
-		self.store.commit()
-		self.store.flush()
 		
 		for item in items:
-			self.insert_event(item, True, True)
-			self.store.commit()
-			self.store.flush()
+			self.insert_event(item, commit=False, force=True)
+		self.store.commit()
 		
 		return items
 	
