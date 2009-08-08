@@ -220,8 +220,11 @@ class DefaultConfiguration(_Configuration):
 			self.dump_config(config)
 			f = StringIO()
 			config.write(f)
-			with open(self.CONFIGFILE, "w") as configfile:
+			configfile = open(self.CONFIGFILE, "w")
+			try:
 				config.write(configfile)
+			finally:
+				configfile.close()
 
 if __name__ == "__main__":
 	

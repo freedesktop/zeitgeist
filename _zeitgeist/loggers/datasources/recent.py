@@ -169,7 +169,7 @@ def get_desktopentry_for_application(application):
 		# What to do when there is no .desktop file for an application?
 		# raise an error? or try to get an alternative file?
 		# Example gimp-s.6 has no .desktop file
-		return get_desktopentry_for_application("firefox") # just for now, for testing
+		return get_desktopentry_for_application("firefox") # TODO: just for now, for testing
 														   # this might cause an endless loop
 														   # if firefox.desktop is not found
 
