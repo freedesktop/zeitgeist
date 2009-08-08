@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-15 13:08+0200\n"
+"POT-Creation-Date: 2009-08-08 19:40+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Catalan\n"
 
-#: ../zeitgeist-daemon:65
+#: ../zeitgeist-daemon:56
 msgid "Starting Zeitgeist service..."
 msgstr "S'està iniciant el servei Zeitgeist..."
 
@@ -43,99 +43,99 @@ msgstr "S'ha perdut la connexió al zeitgeist-daemon; finalitzant el programa."
 msgid "Error logging item from \"%s\": %s"
 msgstr "S'ha trobat un error al intentar enregistrar una activitat de «%s»: %s"
 
-#: ../zeitgeist/datamodel.py:90
+#: ../zeitgeist/datamodel.py:206
 msgid "Tags"
 msgstr "Etiquetes"
 
-#: ../zeitgeist/datamodel.py:94
+#: ../zeitgeist/datamodel.py:212
 msgid "Bookmarks"
 msgstr "Activitats destacades"
 
-#: ../zeitgeist/datamodel.py:98
+#: ../zeitgeist/datamodel.py:218
 msgid "Comments"
 msgstr "Comentaris"
 
-#: ../zeitgeist/datamodel.py:102
+#: ../zeitgeist/datamodel.py:224
 msgid "Documents"
 msgstr "Documents"
 
-#: ../zeitgeist/datamodel.py:106
+#: ../zeitgeist/datamodel.py:230
 msgid "Images"
 msgstr "Imatges"
 
-#: ../zeitgeist/datamodel.py:110
+#: ../zeitgeist/datamodel.py:236
 msgid "Videos"
 msgstr "Vídeos"
 
-#: ../zeitgeist/datamodel.py:114
+#: ../zeitgeist/datamodel.py:242
 msgid "Music"
 msgstr "Música"
 
-#: ../zeitgeist/datamodel.py:118
+#: ../zeitgeist/datamodel.py:248
 msgid "Email"
 msgstr "Correu electrònic"
 
-#: ../zeitgeist/datamodel.py:122
+#: ../zeitgeist/datamodel.py:254
 msgid "Messages"
 msgstr "Missatges"
 
-#: ../zeitgeist/datamodel.py:126
+#: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
 msgstr "Canals"
 
-#: ../zeitgeist/datamodel.py:130
+#: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
 msgstr "Emès"
 
-#: ../zeitgeist/datamodel.py:134
+#: ../zeitgeist/datamodel.py:272
 msgid "Created"
 msgstr "Creat"
 
-#: ../zeitgeist/datamodel.py:138
+#: ../zeitgeist/datamodel.py:278
 msgid "Modified"
 msgstr "Modificat"
 
-#: ../zeitgeist/datamodel.py:142
+#: ../zeitgeist/datamodel.py:284
 msgid "Visited"
 msgstr "Visitat"
 
-#: ../zeitgeist/datamodel.py:146
+#: ../zeitgeist/datamodel.py:290
 msgid "Send"
 msgstr "Enviat"
 
-#: ../zeitgeist/datamodel.py:150
+#: ../zeitgeist/datamodel.py:296
 msgid "Received"
 msgstr "Rebut"
 
-#: ../zeitgeist/datamodel.py:154
+#: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
 msgstr "Avisos"
 
-#: ../zeitgeist/datamodel.py:158
+#: ../zeitgeist/datamodel.py:308
 msgid "Errors"
 msgstr "Errors"
 
-#: ../zeitgeist/datamodel.py:162
+#: ../zeitgeist/datamodel.py:314
 msgid "Applications"
 msgstr "Aplicacions"
 
-#: ../zeitgeist/datamodel.py:170
+#: ../zeitgeist/datamodel.py:324
 msgid "Web History"
 msgstr "Historial web"
 
-#: ../zeitgeist/datamodel.py:174
+#: ../zeitgeist/datamodel.py:330
 msgid "Activities"
 msgstr "Activitats"
 
-#: ../zeitgeist/datamodel.py:178
+#: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
 msgstr "Notificacions"
 
-#: ../zeitgeist/datamodel.py:182
+#: ../zeitgeist/datamodel.py:342
 msgid "Files"
 msgstr "Fitxers"
 
-#: ../zeitgeist/datamodel.py:186
+#: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
 msgstr "Recursos del sistema"
 

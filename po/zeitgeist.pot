@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-15 13:08+0200\n"
+"POT-Creation-Date: 2009-08-08 19:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../zeitgeist-daemon:65
+#: ../zeitgeist-daemon:56
 msgid "Starting Zeitgeist service..."
 msgstr ""
 
@@ -43,99 +43,99 @@ msgstr ""
 msgid "Error logging item from \"%s\": %s"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:90
+#: ../zeitgeist/datamodel.py:206
 msgid "Tags"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:94
+#: ../zeitgeist/datamodel.py:212
 msgid "Bookmarks"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:98
+#: ../zeitgeist/datamodel.py:218
 msgid "Comments"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:102
+#: ../zeitgeist/datamodel.py:224
 msgid "Documents"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:106
+#: ../zeitgeist/datamodel.py:230
 msgid "Images"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:110
+#: ../zeitgeist/datamodel.py:236
 msgid "Videos"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:114
+#: ../zeitgeist/datamodel.py:242
 msgid "Music"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:118
+#: ../zeitgeist/datamodel.py:248
 msgid "Email"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:122
+#: ../zeitgeist/datamodel.py:254
 msgid "Messages"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:126
+#: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:130
+#: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:134
+#: ../zeitgeist/datamodel.py:272
 msgid "Created"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:138
+#: ../zeitgeist/datamodel.py:278
 msgid "Modified"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:142
+#: ../zeitgeist/datamodel.py:284
 msgid "Visited"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:146
+#: ../zeitgeist/datamodel.py:290
 msgid "Send"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:150
+#: ../zeitgeist/datamodel.py:296
 msgid "Received"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:154
+#: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:158
+#: ../zeitgeist/datamodel.py:308
 msgid "Errors"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:162
+#: ../zeitgeist/datamodel.py:314
 msgid "Applications"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:170
+#: ../zeitgeist/datamodel.py:324
 msgid "Web History"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:174
+#: ../zeitgeist/datamodel.py:330
 msgid "Activities"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:178
+#: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:182
+#: ../zeitgeist/datamodel.py:342
 msgid "Files"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:186
+#: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
 msgstr ""
 

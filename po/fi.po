@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-15 13:08+0200\n"
+"POT-Creation-Date: 2009-08-08 19:40+0200\n"
 "PO-Revision-Date: 2009-06-06 19:16+0000\n"
 "Last-Translator: Petri Rosenström <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-06-11 14:12+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon:65
+#: ../zeitgeist-daemon:56
 msgid "Starting Zeitgeist service..."
 msgstr "Käynnistetään Zeitgeist palvelua..."
 
@@ -44,103 +44,103 @@ msgstr ""
 msgid "Error logging item from \"%s\": %s"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:90
+#: ../zeitgeist/datamodel.py:206
 msgid "Tags"
 msgstr "Tägejä"
 
-#: ../zeitgeist/datamodel.py:94
+#: ../zeitgeist/datamodel.py:212
 #, fuzzy
 msgid "Bookmarks"
 msgstr "Kirjainmerkki"
 
-#: ../zeitgeist/datamodel.py:98
+#: ../zeitgeist/datamodel.py:218
 #, fuzzy
 msgid "Comments"
 msgstr "Dokumentit"
 
-#: ../zeitgeist/datamodel.py:102
+#: ../zeitgeist/datamodel.py:224
 msgid "Documents"
 msgstr "Dokumentit"
 
-#: ../zeitgeist/datamodel.py:106
+#: ../zeitgeist/datamodel.py:230
 msgid "Images"
 msgstr "Kuvat"
 
-#: ../zeitgeist/datamodel.py:110
+#: ../zeitgeist/datamodel.py:236
 msgid "Videos"
 msgstr "Videot"
 
-#: ../zeitgeist/datamodel.py:114
+#: ../zeitgeist/datamodel.py:242
 msgid "Music"
 msgstr "Musiikki"
 
-#: ../zeitgeist/datamodel.py:118
+#: ../zeitgeist/datamodel.py:248
 msgid "Email"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:122
+#: ../zeitgeist/datamodel.py:254
 msgid "Messages"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:126
+#: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:130
+#: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:134
+#: ../zeitgeist/datamodel.py:272
 msgid "Created"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:138
+#: ../zeitgeist/datamodel.py:278
 msgid "Modified"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:142
+#: ../zeitgeist/datamodel.py:284
 msgid "Visited"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:146
+#: ../zeitgeist/datamodel.py:290
 msgid "Send"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:150
+#: ../zeitgeist/datamodel.py:296
 msgid "Received"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:154
+#: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:158
+#: ../zeitgeist/datamodel.py:308
 msgid "Errors"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:162
+#: ../zeitgeist/datamodel.py:314
 msgid "Applications"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:170
+#: ../zeitgeist/datamodel.py:324
 #, fuzzy
 msgid "Web History"
 msgstr "Firefoxin Historia"
 
-#: ../zeitgeist/datamodel.py:174
+#: ../zeitgeist/datamodel.py:330
 msgid "Activities"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:178
+#: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
 msgstr ""
 
-#: ../zeitgeist/datamodel.py:182
+#: ../zeitgeist/datamodel.py:342
 #, fuzzy
 msgid "Files"
 msgstr "Suodatin"
 
-#: ../zeitgeist/datamodel.py:186
+#: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
 msgstr ""
 

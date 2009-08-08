@@ -53,5 +53,5 @@ if not "--no-passive-loggers" in sys.argv:
 
 obj.EngineStart()
 
-logging.info(_("Starting Zeitgeist service..."))
+logging.info(_(u"Starting Zeitgeist service..."))
 mainloop.run()
