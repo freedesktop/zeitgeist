@@ -17,7 +17,7 @@ except ImportError:
         datasourcedir = os.path.join(bindir, "_zeitgeist/loggers/datasources")
         libdir = ""
         libexecdir = ""
-        PACKAGE = "gnome-zeitgeist"  # TODO: change this
+        PACKAGE = "zeitgeist"
         VERSION = "bzr"
         
         def setup_path(self):
