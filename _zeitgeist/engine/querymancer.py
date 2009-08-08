@@ -118,7 +118,7 @@ class String(ColumnType):
 	@classmethod
 	def format(klass, value):
 		# Escape quotes to avoid sql injection
-		return "'%s'" % value.relpace('"', '\\"')
+		return "'%s'" % value.replace('"', '\\"')
 	
 class EchoCursor:
 	"""
@@ -303,11 +303,11 @@ class Table:
 																% (self,name))
 			coltype = self._cols[name]
 			if cols:
-				cols += ", " + coltype.__class__.format(name)
-				vals += ", " + value
+				cols += ", " + name
+				vals += ", " + coltype.__class__.format(value)
 			else:
 				cols = name
-				vals = value
+				vals = coltype.__class__.format(value)
 		
 		return stmt % (self, cols, vals)
 	
