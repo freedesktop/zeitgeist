@@ -10,6 +10,7 @@ version 0.2, and it focuses on compatibility and performance enhancements.
  - Fixed a problem with the contents of the EventsChanged signal.
  - Fixed InsertEvents to enforce "mimetype" as a required value.
  - Highly improved caching.
+ - Add a "--quit" option to zeitgeist-daemon to stop any running daemon.
  - General code improvements, new test cases and other minor fixes.
 
 

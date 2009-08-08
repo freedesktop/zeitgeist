@@ -117,8 +117,8 @@ class String(ColumnType):
 	"""
 	@classmethod
 	def format(klass, value):
-		# Escape quotes to avoid sql injection
-		return "'%s'" % value.replace('"', '\\"')
+		# Escape quotes to avoid SQL injection
+		return "'%s'" % value.replace("'", "\\'")
 	
 class EchoCursor:
 	"""
