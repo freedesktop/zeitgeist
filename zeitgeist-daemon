@@ -26,6 +26,7 @@ import subprocess
 import dbus.mainloop.glib
 import gettext
 import logging
+import atexit
 
 from zeitgeist import _config
 _config.setup_path()
@@ -52,6 +53,7 @@ if not "--no-passive-loggers" in sys.argv:
 		logging.warning("%s not found, not starting datahub" % passive_loggers)
 
 obj.EngineStart()
+atexit.register(lambda: obj.EngineExit())
 
 logging.info(_("Starting Zeitgeist service..."))
 mainloop.run()
