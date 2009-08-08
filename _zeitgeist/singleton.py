@@ -39,8 +39,11 @@ class SingletonApplication (dbus.service.Object):
 		
 		if dbus_service.NameHasOwner(DBusInterface.BUS_NAME):
 			# already running daemon instance
-			if "--replace" in sys.argv:
-				logging.debug("Replacing currently running process.")
+			if "--replace" in sys.argv or "--quit" in sys.argv:
+				if "--quit" in sys.argv:
+					logging.info("Stopping the currenty running instance.")
+				else:
+					logging.debug("Replacing currently running process.")
 				# TODO: This only works for the engine and wont work for the DataHub
 				interface = DBusInterface()
 				interface.Quit()
@@ -54,9 +57,14 @@ class SingletonApplication (dbus.service.Object):
 					("An existing instance was found. Please use "
 					 "--replace to quit it and start a new instance.")
 				)
+		elif "--quit" in sys.argv:
+			logging.info("There is no running instance; doing nothing.")
 		else:
 			# service is not running, save to start
-			logging.debug("No other instances found.")
+			logging.debug("No running instances found.")
+		
+		if "--quit" in sys.argv:
+			sys.exit(0)
 		
 		bus = dbus.service.BusName(DBusInterface.BUS_NAME, sbus, do_not_queue=True)
 		dbus.service.Object.__init__(self, bus, DBusInterface.OBJECT_PATH)
