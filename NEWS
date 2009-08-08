@@ -1,0 +1,19 @@
+Version 0.2.1
+------------------------------
+
+This version's D-Bus API and database is completely backwards-compatible with
+version 0.2, and it focuses on compatibility and performance enhancements.
+
+ - Added compatibility with Python version 2.5.
+ - Removed the Storm dependency, obtaining general performance improvements.
+ - Improved performance of DeleteItems and UpdateItems.
+ - Fixed a problem with the contents of the EventsChanged signal.
+ - Fixed InsertEvents to enforce "mimetype" as a required value.
+ - Highly improved caching.
+ - General code improvements, new test cases and other minor fixes.
+
+
+Version 0.2
+------------------------------
+
+Initial release, because we are that cool :).
