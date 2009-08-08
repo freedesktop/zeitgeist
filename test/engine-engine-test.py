@@ -456,7 +456,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals([x[0] for x in result], [u"examples",
 			u"cool_pictures", u"files", u"images", u"holidays"])
 	
-	def testDeleteItems(self):
+	def testDeleteItem(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event", [], True)
 		self.assertEquals(result, 5)
@@ -470,6 +470,22 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.get_tags()
 		self.assertEquals(len(result), 5)
 		self.assertFalse(u"filtertest" in (x[0] for x in result))
+	
+	def testModifyItem(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, True, "event",
+			[{"uri": u"file:///tmp/test/example.jpg"}], False)
+		self.assertEquals(len(result), 1)
+		item = result[0]
+		self.assertEquals(item["uri"], u"file:///tmp/test/example.jpg")
+		self.assertEquals(item["tags"], u"test, examples, filtertest")
+		taglist = [x for x in item["tags"].split(", ") if x != "examples"]
+		item["tags"] = ", ".join(taglist + [u"modification test"])
+		self.engine.update_items([item])
+		result = self.engine.find_events(0, 0, 0, True, "event",
+			[{"tags": [u"modification test"]}], False)
+		self.assertEquals(len(result), 1)
+		self.assertEquals(item, result[0])
 	
 	def testFindEventsInvalidFilterValues(self):
 		self.assertRaises(KeyError,

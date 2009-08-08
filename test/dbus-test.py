@@ -5,9 +5,7 @@ import unittest
 import sys
 import os.path
 import time
-
 from subprocess import Popen, PIPE
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from zeitgeist.dbusutils import DBusInterface
@@ -38,7 +36,7 @@ class TestDaemon(unittest.TestCase):
 			# skip test, unfortunatly there is not SKIP method in stdlib's unittest module
 			raise RuntimeError("service is already running, skip test")
 		self.__processes = list()
-		
+	
 	def tearDown(self):
 		while self.__processes:
 			p = self.__processes.pop()
@@ -47,10 +45,10 @@ class TestDaemon(unittest.TestCase):
 			except OSError:
 				# already terminated process
 				pass
-			
+	
 	def test_not_running(self):
 		self.assertRaises(RuntimeError, DBusInterface)
-		
+	
 	def test_run(self):
 		# start the first daemon instance
 		p1 = Popen([DAEMON,], stderr=PIPE, stdout=PIPE)
@@ -70,7 +68,6 @@ class TestDaemon(unittest.TestCase):
 		wait_until(10, 0.2, lambda : p1.poll() is not None)
 		self.assertEqual(p1.poll(), 0)
 		self.assertEqual(p3.poll(), None)
-		
-		
+
 if __name__ == '__main__':
 	unittest.main()
