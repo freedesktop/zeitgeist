@@ -463,6 +463,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.get_tags()
 		self.assertEquals(len(result), 7)
 		self.assertTrue(u"filtertest" in (x[0] for x in result))
+		# Delete one item
 		self.engine.delete_items([u"file:///tmp/test/example.jpg"])
 		result = self.engine.find_events(0, 0, 0, True, "event", [], False)
 		self.assertEquals(len(result), 4)
@@ -470,6 +471,19 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.get_tags()
 		self.assertEquals(len(result), 5)
 		self.assertFalse(u"filtertest" in (x[0] for x in result))
+	
+	def testDeleteItems(self):
+		self.testDeleteItem()
+		# Delete two items more
+		uris = [u"http://image.host/cool_pictures/01.png",
+			u"file:///home/foo/images/holidays/picture.png"]
+		self.engine.delete_items(uris)
+		result = self.engine.find_events(0, 0, 0, True, "event", [], False)
+		self.assertEquals(len(result), 1)
+		self.assertFalse([x for x in result if x["text"] in uris])
+		result = self.engine.get_tags()
+		self.assertEquals(set([x[0] for x in result]).intersection(
+			set(["holidays", "cool_pictures", "examples"])), set(["examples"]))
 	
 	def testModifyItem(self):
 		self._init_with_various_events()
