@@ -246,7 +246,8 @@ class Table:
 		"""
 		Like L{find} but return the first element from the result set
 		"""
-		res = self.find(resultspec, *where)
+		res = self._cursor.execute(self.SELECT(resultspec, *where)
+									+ " LIMIT 1")
 		return res.fetchone()
 	
 	def add(self, **rowspec):

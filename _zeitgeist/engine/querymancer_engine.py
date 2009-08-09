@@ -42,7 +42,10 @@ log = logging.getLogger("zeitgeist.engine")
 class Entity:
 	def __init__(self, id, value):
 		self.id = id
-		self.value = value	
+		self.value = value
+	
+	def __repr___ (self):
+		return "%s (id: %s)" % (self.value, self.id)
 
 class EntityTable(Table):
 	"""
@@ -56,22 +59,28 @@ class EntityTable(Table):
 			raise ValueError("Can not create EntityTable with name None")
 		
 		Table.__init__(self, table_name, id=Integer(), value=String())
+		self._CACHE = LRUCache(1000)
 		self.set_cursor(get_default_cursor())	
 	
 	def lookup(self, value):
 		"""Look up an entity by value or id, return None if the
 		   entity is not known"""
-		if value:
-			value = unicode(value)
-			self.find(self.id, self.value == value)
-			row = self.get_cursor().fetchone()
-			if row :
-				id = row["id"]
-				log.debug("Found %s for %s %s" % (self, id, value))
-				return Entity(id, value)
-			return None
-		else:
+		if not value:
 			raise ValueError("Looking up %s without a value" % self)
+		
+		try:
+			return self._CACHE[value]
+		except KeyError:
+			pass # We didn't have it cached; fall through and handle it below
+		
+		row = self.find_one(self.id, self.value == value)
+		if row :			
+			ent = Entity(row[0], value)
+			self._CACHE[value] = ent
+			log.debug("Found %s: %s" % (self, ent))
+			return ent
+		return None
+			
 	
 	def lookup_or_create(self, value):
 		"""Find the entity matching the uri 'value' or create it if necessary"""
@@ -80,12 +89,14 @@ class EntityTable(Table):
 		
 		try:
 			row_id = self.add(value=value)
-		except Exception, ex:
-			pass
+		except sqlite3.IntegrityError, e:
+			log.warn("Unexpected integrity error when inserting %s %s: %s" % (self, value, e))
+			return None
 		
 		# We can peek the last insert row id from SQLite,
 		# this saves us a whole SELECT
 		ent = Entity(row_id, value)
+		self._CACHE[value] = ent
 		log.debug("Created %s %s %s" % (self, ent.id, ent.value))
 				
 		return ent
@@ -98,23 +109,6 @@ _item = None
 _app = None
 _annotation = None
 _event = None
-
-class URI:
-	__metaclass__ = LRUCacheMetaclass
-	
-	def __init__ (self, value):
-		self.value = value
-	
-	@property
-	def id(self):
-		try:
-			return URI._CACHE[self.value]
-		except KeyError:
-			row = _uri.find_one(_uri.id, _uri.value == self.value)
-			if not row:
-				row_id = _uri.add(value=self.value)
-				return URI._CACHE.setdefault(self.value, row_id)
-			return URI._CACHE.setdefault(self.value, row[0])
 
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
@@ -228,7 +222,7 @@ class ZeitgeistEngine(BaseEngine):
 		assert self.cursor is not None
 	
 	def _get_ids(self, uri, content, source):	
-		uri_id = URI(uri).id if uri else None
+		uri_id = _uri.lookup_or_create(uri).id if uri else None
 		content_id = Content.get(content).id if content else None
 		source_id = Source.get(source).id if source else None
 		return uri_id, content_id, source_id
@@ -358,15 +352,15 @@ class ZeitgeistEngine(BaseEngine):
 	#@ EVERTHING BELOW HERE IS NOT FULLY PORTED TO QUERYMANCER
 	#@
 	
-	def insert_events(self, items):
-		"""
-		Inserts items into the database and returns those items which were
-		successfully inserted. If an item fails, that's usually because it
-		already was in the database.
-		"""
-		result = super(ZeitgeistEngine, self).insert_events(items)
-		self.cursor.commit()		
-		return result
+	#def insert_events(self, items):
+	#	"""
+	#	Inserts items into the database and returns those items which were
+	#	successfully inserted. If an item fails, that's usually because it
+	#	already was in the database.
+	#	"""
+	#	result = super(ZeitgeistEngine, self).insert_events(items)
+	#	#self.cursor.commit()		
+	#	return result
 	
 	def get_item(self, uri):
 		""" Returns basic information about the indicated URI. As we are
@@ -395,8 +389,7 @@ class ZeitgeistEngine(BaseEngine):
 			WHERE uri.value = ? LIMIT 1
 			""", (Content.BOOKMARK.id, Content.TAG.id, unicode(uri))).fetchone()
 		
-		if item:
-			return EventDict.convert_result_to_dict(item)
+		return item # Fixme: this is really an sqlite3.Row that acts as a dict
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
 			sorting_asc=True, mode="event", filters=(), return_mode=0):
@@ -549,10 +542,11 @@ class ZeitgeistEngine(BaseEngine):
 			WHERE event.start >= ? AND event.start <= ? %s
 			ORDER BY %s event.start %s LIMIT ?
 			""" % (preexpressions, expressions, additional_orderby,
-				"ASC" if sorting_asc else "DESC"), args).get_all()
+				"ASC" if sorting_asc else "DESC"), args).fetchall()
 		
 		if return_mode == 0:
-			result = map(EventDict.convert_result_to_dict, events)
+			#result = map(EventDict.convert_result_to_dict, events)
+			#result is a list of sqlite3.Rows, which each acts as a dict
 			
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
@@ -563,6 +557,7 @@ class ZeitgeistEngine(BaseEngine):
 			# a speed gain in doing that as that it'd be worth doing.
 			result = len(events)
 		elif return_mode == 2:
+			# FIXME: What exactly are we returning here?
 			return [(event[10], event[13]) for event in events]
 		
 		return result
@@ -574,24 +569,25 @@ class ZeitgeistEngine(BaseEngine):
 		self.delete_items([item["uri"] for item in items])
 		
 		for item in items:
-			self.insert_event(item, commit=False, force=True)
+			self.insert_event(item, force=True) #commit=False
 		#self.cursor.commit()
 		
 		return items
 	
 	def _delete_item(self, uri):
-		
-		uri_id = URI(uri).id
+		uri_id = _uri.lookup_or_create(uri).id
 		annotation_ids = _annotations.find(_annotation.item_id,
 											_annotation.subject_id == uri_id).fetchall()
 		if len(annotation_ids) > 0:
 			for anno_id in annotation_ids:
 				_annotation.delete(_annotation.item_id==anno_id)
 				_item.delete(_item.id == anno_id)
+				_uri.delete(_uri.id == anno_id)
+		_uri.delete(_uri.id == uri_id)
 		_item.delete(_item.id == uri_id)
 	
-	def delete_items(self, items):
-		map(self._delete_item, items)
+	def delete_items(self, uri_list):
+		map(self._delete_item, uri_list)
 		return items
 	
 	def get_types(self):
@@ -610,7 +606,8 @@ class ZeitgeistEngine(BaseEngine):
 		Use `min_timestamp' and `max_timestamp' to limit the time frames you
 		want to consider.
 		"""
-		
+		# FIXME: Here we return a list of dicts (really sqlite.Rows), but
+		#        should we reallu use Items - but they are only defined for Storm...
 		return self.cursor.execute("""
 			SELECT item.text, (SELECT COUNT(rowid) FROM annotation
 				WHERE annotation.item_id = item.id) AS amount
@@ -621,7 +618,7 @@ class ZeitgeistEngine(BaseEngine):
 				AND item.content_id = ? AND item.text LIKE ? ESCAPE "\\"
 			ORDER BY amount DESC LIMIT ?
 			""", (min_timestamp, max_timestamp or sys.maxint, Content.TAG.id,
-			name_filter or "%", limit or sys.maxint)).get_all()
+			name_filter or "%", limit or sys.maxint)).fetchall()
 	
 	def get_last_insertion_date(self, application):
 		"""
@@ -635,6 +632,6 @@ class ZeitgeistEngine(BaseEngine):
 			WHERE app_id = (SELECT item_id FROM app WHERE info = ?)
 			ORDER BY start DESC LIMIT 1
 			""", (application,)).fetchone()
-		return query[0] if query else 0
+		return query["start"] if query else 0
 
 
