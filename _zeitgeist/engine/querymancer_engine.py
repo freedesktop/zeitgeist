@@ -42,7 +42,7 @@ log = logging.getLogger("zeitgeist.engine")
 class Entity:
 	def __init__(self, id, value):
 		self.id = id
-		self.value = value
+		self.value = value	
 
 class EntityTable(Table):
 	"""
@@ -79,13 +79,13 @@ class EntityTable(Table):
 		if ent : return ent
 		
 		try:
-			self.add(value=value)
+			row_id = self.add(value=value)
 		except Exception, ex:
 			pass
 		
 		# We can peek the last insert row id from SQLite,
 		# this saves us a whole SELECT
-		ent = Entity(self.get_cursor().lastrowid, value)
+		ent = Entity(row_id, value)
 		log.debug("Created %s %s %s" % (self, ent.id, ent.value))
 				
 		return ent
@@ -110,15 +110,11 @@ class URI:
 		try:
 			return URI._CACHE[self.value]
 		except KeyError:
-			_uri.find(_uri.id, _uri.value == self.value)
-			row = _uri.get_cursor().fetchone()
+			row = _uri.find_one(_uri.id, _uri.value == self.value)
 			if not row:
-				_uri.add(value=self.value)
-				return URI._CACHE.setdefault(self.value,
-											  _uri.get_cursor().lastrowid)
+				row_id = _uri.add(value=self.value)
+				return URI._CACHE.setdefault(self.value, row_id)
 			return URI._CACHE.setdefault(self.value, row[0])
-	
-
 
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
@@ -232,30 +228,24 @@ class ZeitgeistEngine(BaseEngine):
 		assert self.cursor is not None
 	
 	def _get_ids(self, uri, content, source):	
-		uri_id = URI.lookup_or_create(uri).id if uri else None
+		uri_id = URI(uri).id if uri else None
 		content_id = Content.get(content).id if content else None
 		source_id = Source.get(source).id if source else None
 		return uri_id, content_id, source_id
 	
 	def _get_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
 		self._insert_event(id, content_id, source_id, text, origin, mimetype, icon)
-		return _item.find("*", _item.id == id)
+		return _item.find_one("*", _item.id == id)
 	
-	def _insert_event(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
+	def _insert_event(self, id, content_id, source_id, text,
+					  origin=None, mimetype=None, icon=None):
 		try:
-			self.cursor.execute("""
-				INSERT INTO Item
-				(id, content_id, source_id, text, origin, mimetype, icon)
-				VALUES (?,?,?,?,?,?,?)""",
-				(id, content_id, source_id, text, origin, mimetype, icon),
-				noresult=True)
+			_item.add(item_id=id, content_id=content_id, source_id=source_id,
+						text=text, origin=origin, mimetype=mimetype, icon=icon)
 		except Exception:
-			self.cursor.execute("""
-				UPDATE Item SET
-				content_id=?, source_id=?, text=?, origin=?,
-				mimetype=?, icon=? WHERE id=?""",
-				(content_id, source_id, text, origin, mimetype, icon, id),
-				noresult=True)
+			_item.update(_item.id == id,
+							content_id=content_id, source_id=source_id, text=text,
+							origin=origin, mimetype=mimetype, icon=icon)			
 	
 	def insert_event(self, ritem, commit=True, force=False):
 		"""
@@ -297,8 +287,7 @@ class ZeitgeistEngine(BaseEngine):
 		# Check whether the events is already in the database. If so,
 		# don't do anything. If it isn't there yet, we proceed with the
 		# process. Except if `force' is true, then we always proceed.
-		event_exists = bool(self.cursor.execute(
-			"SELECT id FROM uri WHERE value = ?", (event_uri,)).fetchone())
+		event_exists = bool(_uri.find_one(_uri.id, _uri.value == event_uri))
 		if not force and event_exists:
 			return 0
 		
@@ -312,9 +301,7 @@ class ZeitgeistEngine(BaseEngine):
 			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
 			anno_item = self._get_item(anno_id, Content.TAG.id, Source.USER_ACTIVITY.id, tag)
 			try:
-				self.cursor.execute(
-					"INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",
-					(anno_id, uri_id), noresult=True)
+				_annotation.add(item_id=anno_id, subject_id=uri_id)
 			except sqlite3.IntegrityError:
 				pass # Tag already registered
 		
@@ -325,9 +312,7 @@ class ZeitgeistEngine(BaseEngine):
 			anno_item = self._get_item(anno_id, Content.BOOKMARK.id,
 				Source.USER_ACTIVITY.id, u"Bookmark")
 			try:
-				self.cursor.execute(
-					"INSERT INTO annotation (item_id, subject_id) VALUES (?,?)",
-					(anno_id, uri_id), noresult=True)
+				_annotation.add(item_id=anno_id, subject_id=uri_id)
 			except sqlite3.IntegrityError:
 				pass # Item already bookmarked
 		
@@ -340,14 +325,19 @@ class ZeitgeistEngine(BaseEngine):
 		if ritem["app"] in self._applications:
 			app_uri_id = self._applications[ritem["app"]]
 		elif ritem["app"]:
+			app_uri_id = None
 			try:
-				self.cursor.execute("INSERT INTO app (info) VALUES (?)",
-					(ritem["app"],), noresult=True)
+				app_uri_id = _app.add(info=ritem["app"])				
 			except sqlite3.IntegrityError:
 				pass
-			app_uri_id = self.cursor.execute(
-				"SELECT item_id FROM app WHERE info=?", (ritem["app"],)).fetchone()[0]
-			self._applications[ritem["app"]] = app_uri_id
+			if not app_uri_id:
+				row = _apps.find_one(_app.id, _app.info == ritem["app"])
+				if row : app_uri_id = row["item_id"]
+	
+			if app_uri_id :
+				self._applications[ritem["app"]] = app_uri_id
+			else:
+				log.warn("Unable to create or lookup app: %s" % ritem["app"])
 		else:
 			# No application specified:
 			app_uri_id = 0
@@ -356,14 +346,17 @@ class ZeitgeistEngine(BaseEngine):
 		e_id, e_content_id, e_subject_id = self._get_ids(event_uri, ritem["use"], None)
 		e_item = self._get_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
 		try:
-			self.cursor.execute(
-				"INSERT INTO event (item_id, subject_id, start, app_id) VALUES (?,?,?,?)",
-				(e_id, uri_id, ritem["timestamp"], app_uri_id), noresult=True)
+			_event.add(item_id=e_id, subject_id=uri_id,
+						start=ritem["timestamp"], app_id=app_uri_id)				
 		except sqlite3.IntegrityError:
 			# This shouldn't happen.
 			log.exception("Couldn't insert event into DB.")
 		
 		return 1
+	
+	#@
+	#@ EVERTHING BELOW HERE IS NOT FULLY PORTED TO QUERYMANCER
+	#@
 	
 	def insert_events(self, items):
 		"""
@@ -582,24 +575,20 @@ class ZeitgeistEngine(BaseEngine):
 		
 		for item in items:
 			self.insert_event(item, commit=False, force=True)
-		self.cursor.commit()
+		#self.cursor.commit()
 		
 		return items
 	
 	def _delete_item(self, uri):
 		
-		uri_id = self.cursor.execute("SELECT id FROM URI WHERE value=?", (uri,)).fetchone()
-		uri_id = uri_id[0]
-		annotation_ids = self.cursor.execute(
-			"SELECT item_id FROM Annotation WHERE subject_id=?", (uri_id,)).get_all()
+		uri_id = URI(uri).id
+		annotation_ids = _annotations.find(_annotation.item_id,
+											_annotation.subject_id == uri_id).fetchall()
 		if len(annotation_ids) > 0:
-			for anno in annotation_ids[0]:
-				self.cursor.execute("DELETE FROM Annotation WHERE subject_id=?",
-					(uri_id,), noresult=True)
-				self.cursor.execute("DELETE FROM Item WHERE id=?",
-					(anno,), noresult=True)		
-		self.cursor.execute("DELETE FROM Item WHERE id=?",
-			(uri_id,), noresult=True)
+			for anno_id in annotation_ids:
+				_annotation.delete(_annotation.item_id==anno_id)
+				_item.delete(_item.id == anno_id)
+		_item.delete(_item.id == uri_id)
 	
 	def delete_items(self, items):
 		map(self._delete_item, items)
@@ -609,8 +598,7 @@ class ZeitgeistEngine(BaseEngine):
 		"""
 		Returns a list of all different types in the database.
 		"""
-		contents = self.cursor.find(_Content)
-		return [content.value for content in contents]
+		return [content["value"] for content in _contents.find("*")]
 	
 	def get_tags(self, min_timestamp=0, max_timestamp=0, limit=0, name_filter=""):
 		"""
