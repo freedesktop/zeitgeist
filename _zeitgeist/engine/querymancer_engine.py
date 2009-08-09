@@ -574,21 +574,20 @@ class ZeitgeistEngine(BaseEngine):
 		
 		return items
 	
-	def _delete_item(self, uri):
-		uri_id = _uri.lookup_or_create(uri).id
-		annotation_ids = _annotations.find(_annotation.item_id,
-											_annotation.subject_id == uri_id).fetchall()
-		if len(annotation_ids) > 0:
-			for anno_id in annotation_ids:
-				_annotation.delete(_annotation.item_id==anno_id)
-				_item.delete(_item.id == anno_id)
-				_uri.delete(_uri.id == anno_id)
-		_uri.delete(_uri.id == uri_id)
-		_item.delete(_item.id == uri_id)
-	
-	def delete_items(self, uri_list):
-		map(self._delete_item, uri_list)
-		return items
+	def delete_items(self, uris):
+		uri_placeholder = ",".join("?" * len(uris))
+		self.cursor.execute("""
+			DELETE FROM annotation WHERE subject_id IN
+				(SELECT id FROM uri WHERE value IN (%s))
+			""" % uri_placeholder, uris, noresult=True)
+		self.cursor.execute("""
+			DELETE FROM item WHERE id IN
+				(SELECT id FROM uri WHERE value IN (%s)) OR id IN
+				(SELECT item_id FROM Annotation WHERE subject_id IN
+					(SELECT id FROM uri WHERE value IN (%s)))
+			""" % (uri_placeholder, uri_placeholder), uris * 2, noresult=True)
+		
+		return uris
 	
 	def get_types(self):
 		"""
