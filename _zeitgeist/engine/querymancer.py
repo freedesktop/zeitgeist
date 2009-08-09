@@ -239,20 +239,30 @@ class Table:
 		    target values
 		@return: A result set directly from the installed cursor
 		"""
-		return self._cursor.execute(self.SELECT(resultspec, *where))
+		self._cursor.execute(self.SELECT(resultspec, *where))
+		return self._cursor
+	
+	def find_one(self, resultspec, *where):
+		"""
+		Like L{find} but return the first element from the result set
+		"""
+		res = self.find(resultspec, *where)
+		return res.fetchone()
 	
 	def add(self, **rowspec):
 		"""
-		Execute an INSERT statement on the table.
+		Execute an INSERT statement on the table and return the row id of the
+		inserted row
 		
 		To insert a new custormer with a zero debt:
 		
 		    customers.add(name="John Doe", debt=0)
 		
 		@param rowspec: A list of keyword arguments C{column=value}
-		@return: A result set directly from the installed cursor
+		@return: The row id of the inserted row
 		"""
-		return self._cursor.execute(self.INSERT(**rowspec))
+		self._cursor.execute(self.INSERT(**rowspec))
+		return self._cursor.lastrowid
 	
 	def update(self, *where, **rowspec):
 		"""
@@ -262,11 +272,24 @@ class Table:
 		
 		    customers.update(customers.name == "Bob", debt=200)
 		
+		@param where: A where clause as provided to the L{find} method
 		@param rowspec: A list of keyword arguments C{column=value}
 		@return: A result set directly from the installed cursor
 		"""
 		return self._cursor.execute(self.UPDATE(*where, **rowspec))
 	
+	def delete(self, *where):
+		"""
+		Execute a DELETE statement on the table. To delete all custormers
+		named "Bob" issue:
+		
+		    customers.delete(customers.name == "Bob")
+		
+		@param where: A where clause as provided to the L{find} method
+		@return: The cursor used for executing the statement
+		"""
+		return self._cursor.execute(self.DELETE(*where))
+		
 	def SELECT(self, resultspec, *where):
 		"""
 		Create an SQL statement as defined in L{find} and return it as a string.
@@ -337,7 +360,18 @@ class Table:
 				values = "%s=%s" % (col, coltype.__class__.format(value))
 		
 		return stmt % (self, values)
+	
+	def DELETE(self, *where):
+		"""
+		Create an SQL DELETE statement and return it as a string.
 		
+		This method will not touch the database in any way.
+		"""
+		if not where:
+			raise ValueError("No WHERE clause specified for DELETE")
+					
+		return "DELETE FROM %s %s" % (self, self.WHERE(*where))
+	
 	def WHERE(self, *where):
 		"""
 		Create an SQL WHERE clause and return it as a string. Used internally
