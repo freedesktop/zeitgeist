@@ -77,7 +77,7 @@ class EntityTable(Table):
 		if row :			
 			ent = Entity(row[0], value)
 			self._CACHE[value] = ent
-			log.debug("Found %s: %s" % (self, ent))
+			#log.debug("Found %s: %s" % (self, ent))
 			return ent
 		return None
 			
@@ -97,10 +97,13 @@ class EntityTable(Table):
 		# this saves us a whole SELECT
 		ent = Entity(row_id, value)
 		self._CACHE[value] = ent
-		log.debug("Created %s %s %s" % (self, ent.id, ent.value))
+		#log.debug("Created %s %s %s" % (self, ent.id, ent.value))
 				
 		return ent
-
+	
+	def _clear_cache(self):
+		self._CACHE.clear()
+		
 # Table defs are assigned in create_db()
 _content = None
 _source = None
