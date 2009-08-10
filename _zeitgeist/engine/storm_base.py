@@ -26,6 +26,7 @@ from xdg import BaseDirectory
 
 from zeitgeist.datamodel import Content, Source, DictCache
 from _zeitgeist.lrucache import LRUCacheMetaclass
+import _zeitgeist.engine
 
 log = logging.getLogger("zeitgeist.engine.base")
 
@@ -382,8 +383,7 @@ _store = None
 def get_default_store():
 	global _store
 	if not _store:
-		file = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
-			"database.sqlite")
+		file = _zeitgeist.engine.DB_PATH
 		_store = create_store("sqlite:" + file)
 		clear_entity_cache()
 	return _store

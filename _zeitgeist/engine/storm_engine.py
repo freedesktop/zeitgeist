@@ -465,3 +465,10 @@ class ZeitgeistEngine(BaseEngine):
 			ORDER BY start DESC LIMIT 1
 			""", (application,)).get_one()
 		return query[0] if query else 0
+	
+	def close(self):
+		set_store(None)
+		self.store = None
+	
+	def is_closed(self):
+		return self.store is None

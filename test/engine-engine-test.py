@@ -5,10 +5,9 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from _zeitgeist.engine.storm_base import create_store, set_store
-from _zeitgeist.engine import storm_base as base
+import _zeitgeist.engine
+from _zeitgeist.engine import get_default_engine
 from zeitgeist.datamodel import *
-from _zeitgeist.engine.storm_engine import ZeitgeistEngine
 
 import unittest
 import tempfile
@@ -31,21 +30,16 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	"""
 	def setUp (self):
 		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
-		storm_url = "sqlite:%s/unittest.sqlite" % self.tmp_dir
-		self.store = create_store(storm_url)
-		set_store(self.store)
-		self.engine = ZeitgeistEngine(self.store)
+		_zeitgeist.engine.DB_PATH = "%s/unittest.sqlite" % self.tmp_dir
+		self.engine = get_default_engine()
 		
 	def tearDown (self):		
-		self.store.close()
+		self.engine.close()
 		shutil.rmtree(self.tmp_dir)
 	
 	def assertEmptyDB (self):
 		# Assert before each test that the db is indeed empty
-		self.assertEquals(0, self.store.find(base.URI).count())
-		self.assertEquals(0, self.store.find(base.Item).count())
-		self.assertEquals(0, self.store.find(base.Annotation).count())
-		self.assertEquals(0, self.store.find(base.Event).count())
+		self.assertEquals([], self.engine.find_events(0, limit=1))		
 		
 	def testSingleInsertGet(self):
 		self.assertEmptyDB()
@@ -143,19 +137,18 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		tags = list(self.engine.get_tags())
 		self.assertEquals([("eins", 2)], tags)
 		
-		i = base.Item.lookup("test://mytest1")
+		i = self.engine.get_item("test://mytest1")
 		self.assertTrue(i is not None)
-		self.assertEquals(["zeitgeist://tag/eins"],
-						  [item.uri.value for item in i.annotations])
+		self.assertEquals("eins", i["tags"])
 		
-		i = base.Item.lookup("test://mytest2")
+		i = self.engine.get_item("test://mytest2")
 		self.assertTrue(i is not None)
-		self.assertEquals(["zeitgeist://tag/eins"],
-						  [item.uri.value for item in i.annotations])
+		self.assertEquals("eins", i["tags"])
 				
-		eins = base.Annotation.subjects_of("zeitgeist://tag/eins")
-		self.assertEquals(["test://mytest1", "test://mytest2"],
-						  [item.uri.value for item in eins])
+		eins = self.engine.find_events(filters=[{"tags" : ["eins"]}])
+		self.assertEquals(2, len(eins))
+		self.assertEquals("test://mytest1", eins[0]["uri"])
+		self.assertEquals("test://mytest2", eins[1]["uri"])
 	
 	def testThreeTagsOnSameItem(self):		
 		self.assertEmptyDB()
@@ -178,29 +171,14 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		tags = self.engine.get_tags()
 		self.assertEquals([(u"eins", 1), (u"zwei", 1), (u"drei", 1)], tags)
 		
-		i = base.Item.lookup("test://mytest1")
+		i = self.engine.get_item("test://mytest1")
 		self.assertTrue(i is not None)
-		annots = filter(lambda a : a.item.content_id == base.Content.TAG.id,
-						i.annotations)
-		self.assertEquals(["zeitgeist://tag/eins",
-						   "zeitgeist://tag/zwei",
-						   "zeitgeist://tag/drei"],
-						  [item.uri.value for item in annots])
+		self.assertEquals("eins, zwei, drei",
+						  i["tags"])		
 		
-		eins = base.Annotation.lookup("zeitgeist://tag/eins")
-		self.assertTrue(eins is not None)
-		self.assertEquals(["test://mytest1"],
-						  [item.uri.value for item in eins.find_subjects()])
-						  
-		zwei = base.Annotation.lookup("zeitgeist://tag/zwei")
-		self.assertTrue(zwei is not None)
-		self.assertEquals(["test://mytest1"],
-						  [item.uri.value for item in zwei.find_subjects()])
-
-		drei = base.Annotation.lookup("zeitgeist://tag/drei")
-		self.assertTrue(drei is not None)
-		self.assertEquals(["test://mytest1"],
-						  [item.uri.value for item in drei.find_subjects()])
+		self.assertEquals([("eins", 1), ("zwei", 1), ("drei", 1)],
+						  self.engine.get_tags())				
+				
 	
 	def testTagAndBookmark(self):
 		self.assertEmptyDB()
@@ -221,17 +199,16 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			}
 		self.assertTrue(self.engine.insert_event(item))
 		
-		item = base.Item.lookup("test://mytest1")
+		item = self.engine.get_item("test://mytest1")
 		self.assertTrue(item is not None)
-		self.assertEquals(2, item.annotations.count())
-		self.assertEquals(["zeitgeist://tag/boo",
-						   "zeitgeist://bookmark/test://mytest1"],
-						  [item.uri.value for item in item.annotations])
+		self.assertEquals("boo", item["tags"])
+		self.assertTrue(item["bookmark"])
 		
-		boo = base.Annotation.subjects_of("zeitgeist://tag/boo")
-		self.assertTrue(boo is not None)
-		self.assertEquals(["test://mytest1"],
-						  [item.uri.value for item in boo])
+		
+		boo = self.engine.find_events(filters=[{"tags" : ["boo"]}])
+		self.assertEquals(1, len(boo))
+		self.assertEquals("test://mytest1",
+						  boo[0]["uri"])
 
 	def _init_with_various_events(self):
 		self.assertEmptyDB()

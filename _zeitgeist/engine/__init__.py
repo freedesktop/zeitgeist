@@ -1,10 +1,13 @@
 import os
 import logging
+from xdg import BaseDirectory
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
 ENGINE_FALLBACK = "storm"
+DB_PATH = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
+                       "database.sqlite")
 
 _engine = None
 def create_engine(engine_type=None):
@@ -22,8 +25,9 @@ def create_engine(engine_type=None):
 		engine_type = ENGINE_FALLBACK
 	engine_type = engine_type.lower()		
 	
-	if _engine is not None:
-		running_type = engine.__module__.split(".").pop().lower()
+	# See if we can reuse _engine
+	if _engine and not _engine.is_closed():
+		running_type = _engine.__module__.split(".").pop().lower()
 		if not running_type == engine_type:
 			raise RuntimeError(
 				("There is already a zeitgeist engine running. But this "
@@ -49,6 +53,6 @@ def get_default_engine():
 	environment variable. If this is not defined, it uses the engine type
 	defined by ENGINE_FALLBACK.
 	"""
-	if _engine is not None:
-		return _engine
-	return create_engine(engine_type=os.environ.get("ZEITGEIST_ENGINE", ENGINE_FALLBACK))
+	if _engine is None or _engine.is_closed() :
+		return create_engine(engine_type=os.environ.get("ZEITGEIST_ENGINE", ENGINE_FALLBACK))
+	return _engine

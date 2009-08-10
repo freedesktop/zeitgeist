@@ -210,6 +210,21 @@ def set_cursor(cursor):
 	_app.set_cursor(cursor)	
 	_event.set_cursor(cursor)
 
+def reset():
+	global _cursor, _content, _source, _uri, _item, _event, _annotation, _app
+	
+	if _cursor :		
+		_cursor.connection.close()
+	
+	_cursor = None
+	_content = None
+	_source = None
+	_uri = None
+	_item = None
+	_annotation = None
+	_app = None
+	_event = None
+
 class ZeitgeistEngine(BaseEngine):
 	
 	def __init__(self, cursor=None):
@@ -631,5 +646,12 @@ class ZeitgeistEngine(BaseEngine):
 			ORDER BY start DESC LIMIT 1
 			""", (application,)).fetchone()
 		return query["start"] if query else 0
-
+	
+	def close(self):
+		reset()
+		self._cursor = None
+	
+	def is_closed(self):
+		return self._cursor is None
+		
 

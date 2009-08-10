@@ -142,3 +142,16 @@ class BaseEngine(gobject.GObject):
 		0 is returned.
 		"""
 		raise NotImplementedError
+	
+	def close(self):
+		"""
+		Close the engine and free any resources associated with it.
+		After calling close() on an engine all other method calls will fail.		
+		"""
+		raise NotImplementedError
+		
+	def is_closed(self):
+		"""
+		Returns True if close() has been called on this engine instance
+		"""
+		raise NotImplementedError
