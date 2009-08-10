@@ -31,6 +31,7 @@ from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
 from zeitgeist.datamodel import *
+import _zeitgeist.engine
 from _zeitgeist.engine.engine_base import BaseEngine
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
@@ -190,8 +191,7 @@ _cursor = None
 def get_default_cursor():
 	global _cursor
 	if not _cursor:
-		dbfile = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
-			"database.sqlite")
+		dbfile = _zeitgeist.engine.DB_PATH
 		_cursor = create_db(dbfile)
 	return _cursor
 
@@ -561,7 +561,7 @@ class ZeitgeistEngine(BaseEngine):
 		if return_mode == 0:
 			#result = map(EventDict.convert_result_to_dict, events)
 			#result is a list of sqlite3.Rows, which each acts as a dict
-			
+			result = events
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
 		elif return_mode == 1:
