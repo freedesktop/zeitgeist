@@ -631,7 +631,7 @@ class ZeitgeistEngine(BaseEngine):
 		"""
 		# FIXME: Here we return a list of dicts (really sqlite.Rows), but
 		#        should we reallu use Items - but they are only defined for Storm...
-		return self.cursor.execute("""
+		result = self.cursor.execute("""
 			SELECT item.text, (SELECT COUNT(rowid) FROM annotation
 				WHERE annotation.item_id = item.id) AS amount
 			FROM item
@@ -642,6 +642,7 @@ class ZeitgeistEngine(BaseEngine):
 			ORDER BY amount DESC LIMIT ?
 			""", (min_timestamp, max_timestamp or sys.maxint, Content.TAG.id,
 			name_filter or "%", limit or sys.maxint)).fetchall()
+		return map(lambda x : (x[0], x[1]), result)
 	
 	def get_last_insertion_date(self, application):
 		"""
