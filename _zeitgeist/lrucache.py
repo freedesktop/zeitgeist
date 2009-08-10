@@ -42,7 +42,14 @@ class LRUCache:
 		   never exceed 'size'"""
 		self._max_size = max_size
 		self.clear()
-		
+	
+	def setdefault(self, key, value):
+		try:
+			return self[key].value
+		except KeyError:
+			self[key] = value
+			return value
+	
 	def clear(self):
 		self._list_end = None # The newest item
 		self._list_start = None # Oldest item

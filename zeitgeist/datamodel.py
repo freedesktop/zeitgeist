@@ -208,49 +208,49 @@ Content.register(
 )
 Content.register(
 	"BOOKMARK",
-	u"http://freedesktop.org/standards/xesam/1.0/core#Bookmark",
+	u"http://www.semanticdesktop.org/ontologies/nfo/#Bookmark",
 	display_name=_("Bookmarks"),
 	doc="A user defined bookmark. The same bookmark may only refer exectly one item"
 )
 Content.register(
 	"COMMENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#Comment",
+	u"http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#comment",
 	display_name=_("Comments"),
 	doc="User provided comment"
 )
 Content.register(
 	"DOCUMENT",
-	u"http://freedesktop.org/standards/xesam/1.0/core#Document",
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Document",
 	display_name=_("Documents"),
 	doc="A document, presentation, spreadsheet, or other content centric item"
 )
 Content.register(
 	"IMAGE",
-	u"http://freedesktop.org/standards/xesam/1.0/core#Image",
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Image",
 	display_name=_("Images"),
 	doc="A photography, painting, or other digital image"
 )
 Content.register(
 	"VIDEO",
-	u"http://freedesktop.org/standards/xesam/1.0/core#Video",
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Video",
 	display_name=_("Videos"),
 	doc="Any form of digital video, streaming and non-streaming alike"
 )
 Content.register(
-	"MUSIC",
-	u"http://freedesktop.org/standards/xesam/1.0/core#Music",
+	"Audio",
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Audio",
 	display_name=_("Music"),
 	doc="Digital music or other creative audio work"
 )
 Content.register(
 	"EMAIL",
-	u"http://freedesktop.org/standards/xesam/1.0/core#Email",
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#Email",
 	display_name=_("Email"),
 	doc="An email is an email is an email"
 )
 Content.register(
 	"IM_MESSAGE",
-	u"http://freedesktop.org/standards/xesam/1.0/core#IMMessage",
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#IMMessage",
 	display_name=_("Messages"),
 	doc="A message received from an instant messaging service"
 )
@@ -320,7 +320,7 @@ Content.register(
 #
 Source.register(
 	"WEB_HISTORY",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#WebHistory",
+	u"http://www.semanticdesktop.org/ontologies/nfo/#Website",
 	display_name=_("Web History"),
 	doc="An item that has been extracted from the user's browsing history"
 )
@@ -338,7 +338,7 @@ Source.register(
 )
 Source.register(
 	"FILE",
-	u"http://freedesktop.org/standards/xesam/1.0/core#File",
+	u"http://www.semanticdesktop.org/ontologies/nfo/#FileDataObject",
 	display_name=_("Files"),
 	doc="An item stored on the local filesystem"
 )
