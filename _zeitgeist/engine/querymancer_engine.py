@@ -61,7 +61,6 @@ class EntityTable(Table):
 		
 		Table.__init__(self, table_name, id=Integer(), value=String())
 		self._CACHE = LRUCache(1000)
-		self.set_cursor(get_default_cursor())	
 	
 	def lookup(self, value):
 		"""Look up an entity by value or id, return None if the
@@ -175,13 +174,23 @@ def create_db(file_path):
 	_uri = EntityTable("uri")
 	_item = Table("item", id=Integer(), content_id=Integer(),
 					source_id=Integer(), origin=String(), text=String(),
-					mimetype=String(), icon=String(), payload=String()) # FIXME: _item.payload should be a BLOB type
-	_app = Table("app", item_id=Integer(), info=String())
-	_annotation = Table("annotation", item_id=Integer(), subject_id=Integer())
+					mimetype=String(), icon=String(), payload=String()) # FIXME: _item.payload should be a BLOB type	
+	_app = Table("app", item_id=Integer(), info=String())	
+	_annotation = Table("annotation", item_id=Integer(), subject_id=Integer())	
 	_event = Table("event", item_id=Integer(), subject_id=Integer(), start=Integer(),
-					end=Integer(), app_id=Integer())	
+					end=Integer(), app_id=Integer())
+	
+	_content.set_cursor(_cursor)
+	_source.set_cursor(_cursor)
+	_uri.set_cursor(_cursor)
+	_item.set_cursor(_cursor)
+	_app.set_cursor(_cursor)
+	_annotation.set_cursor(_cursor)
+	_event.set_cursor(_cursor)
 
 	# Bind the db into the datamodel module
+	Content._clear_cache()
+	Source._clear_cache()
 	Content.bind_database(_content)
 	Source.bind_database(_source)
 	
@@ -254,7 +263,7 @@ class ZeitgeistEngine(BaseEngine):
 		except Exception:
 			_item.update(_item.id == id,
 							content_id=content_id, source_id=source_id, text=text,
-							origin=origin, mimetype=mimetype, icon=icon)			
+							origin=origin, mimetype=mimetype, icon=icon)
 	
 	def insert_event(self, ritem, commit=True, force=False):
 		"""
@@ -308,7 +317,8 @@ class ZeitgeistEngine(BaseEngine):
 		for tag in (tag.strip() for tag in ritem["tags"].split(",") if tag):
 			anno_uri = "zeitgeist://tag/%s" % tag
 			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
-			anno_item = self._get_item(anno_id, Content.TAG.id, Source.USER_ACTIVITY.id, tag)
+			anno_item = self._get_item(anno_id, Content.TAG.id,
+                                       Source.USER_ACTIVITY.id, tag)
 			try:
 				_annotation.add(item_id=anno_id, subject_id=uri_id)
 			except sqlite3.IntegrityError:
@@ -362,7 +372,7 @@ class ZeitgeistEngine(BaseEngine):
 			log.exception("Couldn't insert event into DB.")
 		
 		if commit:
-			self._cursor.connection.commit()
+			self.cursor.connection.commit()
 		
 		return 1
 		
@@ -373,7 +383,7 @@ class ZeitgeistEngine(BaseEngine):
 		already was in the database.
 		"""
 		result = super(ZeitgeistEngine, self).insert_events(items)
-		self.cursor.commit()
+		self.cursor.connection.commit()
 		return result
 	
 	def get_item(self, uri):

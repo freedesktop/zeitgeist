@@ -57,8 +57,9 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					"tags": u"example, test, tagtest",
 					"bookmark": False, 
 					}
-		self.engine.insert_event(orig)		
-		result = self.engine.get_item("test://mytest")		
+		num_inserts = self.engine.insert_event(orig)
+		self.assertEquals(1, num_inserts)
+		result = self.engine.get_item("test://mytest")
 		self.assertTrue(result is not None)
 		
 		# Clean result, from extra data, and add missing data

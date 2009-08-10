@@ -118,7 +118,8 @@ class String(ColumnType):
 	@classmethod
 	def format(klass, value):
 		# Escape quotes to avoid SQL injection
-		return "'%s'" % value.replace("'", "\\'")
+		if value : return "'%s'" % value.replace("'", "\\'")
+		return "''"
 	
 class EchoCursor:
 	"""
@@ -299,14 +300,13 @@ class Table:
 		"""
 		stmt = "SELECT %s FROM %s"
 		
-		# Calc result columns
-		result_part = self._expand_result_spec(resultspec)
+		# Calc result columns and FROM clause
+		stmt = stmt % (self._expand_result_spec(resultspec), self)
 		
 		# Calc where clause
 		if where:
 			stmt += " " + self.WHERE(*where)
-		
-		return stmt % (result_part, self)
+		return stmt
 	
 	def INSERT(self, **rowspec):
 		"""
