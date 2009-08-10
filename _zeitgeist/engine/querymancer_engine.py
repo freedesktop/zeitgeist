@@ -174,7 +174,10 @@ def create_db(file_path):
 	_uri = EntityTable("uri")
 	_item = Table("item", id=Integer(), content_id=Integer(),
 					source_id=Integer(), origin=String(), text=String(),
-					mimetype=String(), icon=String(), payload=String()) # FIXME: _item.payload should be a BLOB type	
+					mimetype=String(), icon=String(), payload=String(),
+					comment=String())
+	# FIXME: _item.payload should be a BLOB type
+	# FIXME: _item.comment is really not in the table, it should be an annotation type
 	_app = Table("app", item_id=Integer(), info=String())	
 	_annotation = Table("annotation", item_id=Integer(), subject_id=Integer())	
 	_event = Table("event", item_id=Integer(), subject_id=Integer(), start=Integer(),
@@ -251,20 +254,17 @@ class ZeitgeistEngine(BaseEngine):
 		source_id = Source.get(source).id if source else None
 		return uri_id, content_id, source_id
 	
-	def _get_item(self, id, content_id, source_id, text, origin=None, mimetype=None, icon=None):
-		self._insert_event(id, content_id, source_id, text, origin, mimetype, icon)
-		return _item.find_one("*", _item.id == id)
-	
-	def _insert_event(self, id, content_id, source_id, text,
-					  origin=None, mimetype=None, icon=None):
+	def _store_item(self, id, content_id, source_id,
+					text, origin=None, mimetype=None, icon=None):
 		try:
-			_item.add(item_id=id, content_id=content_id, source_id=source_id,
+			_item.add(id=id, content_id=content_id, source_id=source_id,
 						text=text, origin=origin, mimetype=mimetype, icon=icon)
-		except Exception:
+		except sqlite3.IntegrityError:
 			_item.update(_item.id == id,
 							content_id=content_id, source_id=source_id, text=text,
 							origin=origin, mimetype=mimetype, icon=icon)
-	
+		return _item.find_one("*", _item.id == id)
+			
 	def insert_event(self, ritem, commit=True, force=False):
 		"""
 		Inserts an item into the database. Returns a positive number on success,
@@ -310,14 +310,14 @@ class ZeitgeistEngine(BaseEngine):
 			return 0
 		
 		# Insert or update the item
-		item = self._get_item(uri_id, content_id, source_id, ritem["text"],
+		item = self._store_item(uri_id, content_id, source_id, ritem["text"],
 			ritem["origin"], ritem["mimetype"], ritem["icon"])
 		
 		# Insert or update the tags
 		for tag in (tag.strip() for tag in ritem["tags"].split(",") if tag):
 			anno_uri = "zeitgeist://tag/%s" % tag
 			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
-			anno_item = self._get_item(anno_id, Content.TAG.id,
+			anno_item = self._store_item(anno_id, Content.TAG.id,
                                        Source.USER_ACTIVITY.id, tag)
 			try:
 				_annotation.add(item_id=anno_id, subject_id=uri_id)
@@ -328,7 +328,7 @@ class ZeitgeistEngine(BaseEngine):
 		if ritem["bookmark"]:
 			anno_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
 			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
-			anno_item = self._get_item(anno_id, Content.BOOKMARK.id,
+			anno_item = self._store_item(anno_id, Content.BOOKMARK.id,
 				Source.USER_ACTIVITY.id, u"Bookmark")
 			try:
 				_annotation.add(item_id=anno_id, subject_id=uri_id)
@@ -363,7 +363,7 @@ class ZeitgeistEngine(BaseEngine):
 		
 		# Insert the event
 		e_id, e_content_id, e_subject_id = self._get_ids(event_uri, ritem["use"], None)
-		e_item = self._get_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
+		e_item = self._store_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
 		try:
 			_event.add(item_id=e_id, subject_id=uri_id,
 						start=ritem["timestamp"], app_id=app_uri_id)				
@@ -659,9 +659,9 @@ class ZeitgeistEngine(BaseEngine):
 	
 	def close(self):
 		reset()
-		self._cursor = None
+		self.cursor = None
 	
 	def is_closed(self):
-		return self._cursor is None
+		return self.cursor is None
 		
 

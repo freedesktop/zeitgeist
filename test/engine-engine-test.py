@@ -62,7 +62,9 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.get_item("test://mytest")
 		self.assertTrue(result is not None)
 		
-		# Clean result, from extra data, and add missing data
+		# Clean result, from extra data, and add missing data,
+		# we clone the result because we can not assume it is writable
+		result = dict(result)
 		result["use"] = Content.CREATE_EVENT.uri
 		result["app"] = "/usr/share/applications/gnome-about.desktop"
 	
