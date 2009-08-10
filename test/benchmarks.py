@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from _zeitgeist.engine.storm_base import create_store, set_store
-from _zeitgeist.engine import storm_base as base
+from _zeitgeist.engine import storm_base as base, get_default_engine
 from zeitgeist.datamodel import *
 from _zeitgeist.engine.storm_engine import ZeitgeistEngine
 
@@ -28,7 +28,7 @@ class EngineInsertTest (unittest.TestCase):
 			os.remove(db_file)
 		self.store = create_store(storm_url)
 		set_store(self.store)
-		self.engine = ZeitgeistEngine(self.store)
+		self.engine = get_default_engine()
 		
 		# Assert before each test that the db is indeed empty
 		self.assertEquals(0, self.store.find(base.URI).count())
