@@ -346,21 +346,20 @@ class ZeitgeistEngine(BaseEngine):
 			# This shouldn't happen.
 			log.exception("Couldn't insert event into DB.")
 		
+		if commit:
+			self._cursor.connection.commit()
+		
 		return 1
-	
-	#@
-	#@ EVERTHING BELOW HERE IS NOT FULLY PORTED TO QUERYMANCER
-	#@
-	
-	#def insert_events(self, items):
-	#	"""
-	#	Inserts items into the database and returns those items which were
-	#	successfully inserted. If an item fails, that's usually because it
-	#	already was in the database.
-	#	"""
-	#	result = super(ZeitgeistEngine, self).insert_events(items)
-	#	#self.cursor.commit()		
-	#	return result
+		
+	def insert_events(self, items):
+		"""
+		Inserts items into the database and returns those items which were
+		successfully inserted. If an item fails, that's usually because it
+		already was in the database.
+		"""
+		result = super(ZeitgeistEngine, self).insert_events(items)
+		self.cursor.commit()
+		return result
 	
 	def get_item(self, uri):
 		""" Returns basic information about the indicated URI. As we are
@@ -569,8 +568,8 @@ class ZeitgeistEngine(BaseEngine):
 		self.delete_items([item["uri"] for item in items])
 		
 		for item in items:
-			self.insert_event(item, force=True) #commit=False
-		#self.cursor.commit()
+			self.insert_event(item, force=True, commit=False)
+		self.cursor.connection.commit()
 		
 		return items
 	
@@ -586,7 +585,7 @@ class ZeitgeistEngine(BaseEngine):
 				(SELECT item_id FROM Annotation WHERE subject_id IN
 					(SELECT id FROM uri WHERE value IN (%s)))
 			""" % (uri_placeholder, uri_placeholder), uris * 2, noresult=True)
-		
+		self.cursor.connection.commit()
 		return uris
 	
 	def get_types(self):

@@ -1,6 +1,9 @@
 import os
 import logging
 
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("zeitgeist.engine")
+
 ENGINE_FALLBACK = "storm"
 
 _engine = None
@@ -17,7 +20,8 @@ def create_engine(engine_type=None):
 	global _engine
 	if engine_type is None:
 		engine_type = ENGINE_FALLBACK
-	engine_type = engine_type.lower()
+	engine_type = engine_type.lower()		
+	
 	if _engine is not None:
 		running_type = engine.__module__.split(".").pop().lower()
 		if not running_type == engine_type:
@@ -28,6 +32,7 @@ def create_engine(engine_type=None):
 			)
 		return _engine
 	try:
+		log.debug("Creating engine '%s'" % engine_type)
 		engine_cls = __import__(
 			"_zeitgeist.engine.%s_engine" %engine_type,
 			globals(), locals(), ["ZeitgeistEngine",], -1
