@@ -6,6 +6,9 @@ version 0.2, and it focuses on compatibility and performance enhancements.
 
  - Added compatibility with Python version 2.5.
  - Removed the Storm dependency, obtaining general performance improvements.
+ - Removed the need for a patched PyGTK.
+ - Made the GtkRecentlyUser logger more robust (fixes an infinit loop on some
+   systems).
  - Improved performance of DeleteItems and UpdateItems.
  - Fixed a problem with the contents of the EventsChanged signal.
  - Fixed InsertEvents to enforce "mimetype" as a required value.
