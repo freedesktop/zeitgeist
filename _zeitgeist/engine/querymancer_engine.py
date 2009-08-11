@@ -417,7 +417,8 @@ class ZeitgeistEngine(BaseEngine):
 			WHERE uri.value = ? LIMIT 1
 			""", (Content.BOOKMARK.id, Content.TAG.id, unicode(uri))).fetchone()
 		
-		return item # Fixme: this is really an sqlite3.Row that acts as a dict
+		# We need convert_result_to_dict to set the defaults for empty rows
+		return EventDict.convert_result_to_dict(item)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
 			sorting_asc=True, mode="event", filters=(), return_mode=0):
@@ -573,9 +574,8 @@ class ZeitgeistEngine(BaseEngine):
 				"ASC" if sorting_asc else "DESC"), args).fetchall()
 		
 		if return_mode == 0:
-			#result = map(EventDict.convert_result_to_dict, events)
-			#result is a list of sqlite3.Rows, which each acts as a dict
-			result = events
+			# We need convert_result_to_dict to set the defaults for empty rows
+			result = map(EventDict.convert_result_to_dict, events)
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
 		elif return_mode == 1:
@@ -585,7 +585,7 @@ class ZeitgeistEngine(BaseEngine):
 			# a speed gain in doing that as that it'd be worth doing.
 			result = len(events)
 		elif return_mode == 2:
-			# FIXME: What exactly are we returning here?
+			# Return the applications and the amount of matches for each
 			return [(event[10], event[13]) for event in events]
 		
 		return result
@@ -607,13 +607,13 @@ class ZeitgeistEngine(BaseEngine):
 		self.cursor.execute("""
 			DELETE FROM annotation WHERE subject_id IN
 				(SELECT id FROM uri WHERE value IN (%s))
-			""" % uri_placeholder, uris, noresult=True)
+			""" % uri_placeholder, uris)
 		self.cursor.execute("""
 			DELETE FROM item WHERE id IN
 				(SELECT id FROM uri WHERE value IN (%s)) OR id IN
 				(SELECT item_id FROM Annotation WHERE subject_id IN
 					(SELECT id FROM uri WHERE value IN (%s)))
-			""" % (uri_placeholder, uri_placeholder), uris * 2, noresult=True)
+			""" % (uri_placeholder, uri_placeholder), uris * 2)
 		self.cursor.connection.commit()
 		return uris
 	
@@ -621,7 +621,7 @@ class ZeitgeistEngine(BaseEngine):
 		"""
 		Returns a list of all different types in the database.
 		"""
-		return [content["value"] for content in _contents.find("*")]
+		return [content["value"] for content in _content.find("*")]
 	
 	def get_tags(self, min_timestamp=0, max_timestamp=0, limit=0, name_filter=""):
 		"""

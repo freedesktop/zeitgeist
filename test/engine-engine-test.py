@@ -67,7 +67,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = dict(result)
 		result["use"] = Content.CREATE_EVENT.uri
 		result["app"] = "/usr/share/applications/gnome-about.desktop"
-	
+		
 		assert_cmp_dict(orig, result)
 		
 		content_types = [str(ctype) for ctype in self.engine.get_types()]
