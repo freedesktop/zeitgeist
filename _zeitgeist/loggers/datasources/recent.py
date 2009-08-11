@@ -28,7 +28,7 @@ import fnmatch
 import urllib
 import time
 import logging
-from xdg import DesktopEntry, BaseDirectory
+from xdg import BaseDirectory
 
 from zeitgeist import _config
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
@@ -61,7 +61,6 @@ class SimpleMatch(object):
 
 	def __repr__(self):
 		return "%s(%r)" %(self.__class__.__name__, self.__pattern)
-		
 
 DOCUMENT_MIMETYPES = [
 		# Covers:
@@ -153,31 +152,6 @@ DEVELOPMENT_MIMETYPES = [
 
 ALL_MIMETYPES = DOCUMENT_MIMETYPES + IMAGE_MIMETYPES + AUDIO_MIMETYPES +\
 				VIDEO_MIMETYPES + DEVELOPMENT_MIMETYPES
-		
-# helpers
-
-def get_desktopentry_for_application(application):
-	""" searches for a .desktop file for a given application in
-	$XDG_DATADIRS and returns a tuple of the path to the found file and
-	the related DesktopEntry object. If no .desktop file for the
-	application was found it returns the result for 'firefox'
-	"""
-	desktopfiles = list(
-		BaseDirectory.load_data_paths("applications", "%s.desktop" %application)
-	)
-	if desktopfiles:
-		# What do we do in cases where multible .desktop files are found for one application?
-		# take the one in the users $HOME? or raise an error?
-		filename = desktopfiles.pop(0)
-		return filename, DesktopEntry.DesktopEntry(filename)
-	else:
-		# What to do when there is no .desktop file for an application?
-		# raise an error? or try to get an alternative file?
-		# Example gimp-s.6 has no .desktop file
-		return get_desktopentry_for_application("firefox") # TODO: just for now, for testing
-														   # this might cause an endless loop
-														   # if firefox.desktop is not found
-
 
 class MimeTypeSet(set):
 	""" Set which allows to match against a string or an object with a
@@ -220,7 +194,7 @@ class InverseMimeTypeSet(MimeTypeSet):
 class RecentlyUsedManagerGtk(DataProvider):
 	
 	FILTERS = {
-		# dict of name as key and  the matching mimetypes as value
+		# dict of name as key and the matching mimetypes as value
 		# if the value is None this filter matches all mimetypes
 		u"Documents": MimeTypeSet(*DOCUMENT_MIMETYPES),
 		u"Other": InverseMimeTypeSet(*ALL_MIMETYPES),
@@ -237,7 +211,24 @@ class RecentlyUsedManagerGtk(DataProvider):
 		self.recent_manager.connect("changed", lambda m: self.emit("reload"))
 		self.config.connect("configured", lambda m: self.emit("reload"))
 		self._timestamp_last_run = 0
-		
+	
+	def _find_desktop_file_for_application(application):
+		""" Searches for a .desktop file for the given application in
+		$XDG_DATADIRS and returns the path to the found file.
+		"""
+		desktopfiles = list(
+			BaseDirectory.load_data_paths("applications", "%s.desktop" %application)
+		)
+		if desktopfiles:
+			# What do we do in cases where multible .desktop files are found for one application?
+			# take the one in the users $HOME? or raise an error?
+			return unicode(desktopfiles.pop(0))
+		else:
+			# What to do when there is no .desktop file for an application?
+			return get_desktopentry_for_application("firefox") # TODO: just for now, for testing
+															   # this might cause an endless loop
+															   # if firefox.desktop is not found
+	
 	def get_items_uncached(self):
 		timestamp_last_run = time.time()
 		for info in self.recent_manager.get_items():
@@ -262,7 +253,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 				last_application = info.last_application().strip()
 				application_info = info.get_application_info(last_application)
 				application = application_info[0].split()[0]
-				desktopfile, desktopentry = get_desktopentry_for_application(application)
+				desktopfile = self._find_desktop_file_for_application(application)
 				times = (
 					(info.get_added(), u"CreateEvent"),
 					(info.get_visited(), u"VisitEvent"),
@@ -284,7 +275,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 								"mimetype": mimetype,
 								"tags": tags,
 								"icon": u"",
-								"app": unicode(desktopfile),
+								"app": desktopfile,
 								"origin": u"", 	# we are not sure about the origin of this item,
 												# let's make it NULL; it has to be a string
 							}
