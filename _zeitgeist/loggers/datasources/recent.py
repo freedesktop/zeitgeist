@@ -37,6 +37,11 @@ log = logging.getLogger("zeitgeist.logger.datasources.recent")
 
 try:
 	import gtk
+	if gtk.pygtk_version >= (2, 16, 0):
+		recent_manager = gtk.recent_manager_get_default
+	else:
+		from _recentmanager import RecentManager
+		recent_manager = RecentManager
 except ImportError:
 	log.exception(_("Could not import GTK; data source disabled."))
 	enabled = False
@@ -227,7 +232,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 	
 	def __init__(self):
 		DataProvider.__init__(self, name="Recently Used Documents")
-		self.recent_manager = gtk.recent_manager_get_default()
+		self.recent_manager = recent_manager()
 		self.recent_manager.set_limit(-1)
 		self.recent_manager.connect("changed", lambda m: self.emit("reload"))
 		self.config.connect("configured", lambda m: self.emit("reload"))
