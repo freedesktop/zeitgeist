@@ -228,7 +228,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 				for filename in (name for name in os.listdir(path) if name.endswith(".desktop")):
 					fullname = os.path.join(path, filename)
 					for line in open(fullname):
-						if line.startswith("Exec=" + application):
+						if line.startswith("Exec") and \
+						line.split("=", 1)[-1].strip().split()[0] == application:
 							return unicode(fullname)
 		return None
 	
