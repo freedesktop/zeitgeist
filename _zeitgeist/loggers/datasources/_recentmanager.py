@@ -27,7 +27,6 @@ from xml.dom.minidom import parse as minidom_parse
 from _zeitgeist.loggers.iso_strptime import iso_strptime
 
 DST = bool(time.mktime(time.gmtime(0)))
-
 log = logging.getLogger("zeitgeist.logger._recentmanager")
 
 class FileInfo(object):
@@ -106,7 +105,6 @@ class FileInfo(object):
 		
 	def get_application_info(self, app):
 		return (self.__application, None, None)
-	
 
 class RecentManager(gobject.GObject):
 	
@@ -129,7 +127,7 @@ class RecentManager(gobject.GObject):
 		self.file_monitor.set_rate_limit(1600) # for to high rates RecentManager
 											   # gets hickup, not sure what's optimal here
 		self.file_monitor.connect("changed", self._content_changed)
-		
+	
 	def _content_changed(self, monitor, fileobj, _, event):
 		# maybe we should handle events differently
 		if self.__recent is None:
@@ -148,7 +146,8 @@ class RecentManager(gobject.GObject):
 	def set_limit(self, limit):
 		pass
 
-# ideally we should have a 'changed' event here
+gobject.type_register(RecentManager)
+
 gobject.signal_new("changed", RecentManager,
 				   gobject.SIGNAL_RUN_LAST,
 				   gobject.TYPE_NONE,
