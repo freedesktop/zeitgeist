@@ -256,7 +256,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 				last_application = info.last_application().strip()
 				application = info.get_application_info(last_application)[0].split()[0]
 				desktopfile = self._find_desktop_file_for_application(application)
-				print "---->",desktopfile
 				times = (
 					(info.get_added(), u"CreateEvent"),
 					(info.get_visited(), u"VisitEvent"),
