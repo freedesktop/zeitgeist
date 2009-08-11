@@ -118,7 +118,8 @@ class String(ColumnType):
 	@classmethod
 	def format(klass, value):
 		# Escape quotes to avoid SQL injection
-		if value : return "'%s'" % value.replace("'", "\\'")
+		if value:
+			return "'%s'" % value.replace("'", "''")
 		return "''"
 	
 class EchoCursor:
@@ -256,7 +257,7 @@ class Table:
 		Execute an INSERT statement on the table and return the row id of the
 		inserted row
 		
-		To insert a new custormer with a zero debt:
+		To insert a new customer with a zero debt:
 		
 		    customers.add(name="John Doe", debt=0)
 		
