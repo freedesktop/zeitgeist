@@ -212,22 +212,25 @@ class RecentlyUsedManagerGtk(DataProvider):
 		self.config.connect("configured", lambda m: self.emit("reload"))
 		self._timestamp_last_run = 0
 	
+	@staticmethod
 	def _find_desktop_file_for_application(application):
 		""" Searches for a .desktop file for the given application in
-		$XDG_DATADIRS and returns the path to the found file.
+		$XDG_DATADIRS and returns the path to the found file. If no file
+		is found, returns None.
 		"""
-		desktopfiles = list(
-			BaseDirectory.load_data_paths("applications", "%s.desktop" %application)
-		)
+		
+		desktopfiles = \
+			list(BaseDirectory.load_data_paths("applications", "%s.desktop" % application))
 		if desktopfiles:
-			# What do we do in cases where multible .desktop files are found for one application?
-			# take the one in the users $HOME? or raise an error?
-			return unicode(desktopfiles.pop(0))
+			return unicode(desktopfiles[0])
 		else:
-			# What to do when there is no .desktop file for an application?
-			return get_desktopentry_for_application("firefox") # TODO: just for now, for testing
-															   # this might cause an endless loop
-															   # if firefox.desktop is not found
+			for path in BaseDirectory.load_data_paths("applications"):
+				for filename in (name for name in os.listdir(path) if name.endswith(".desktop")):
+					fullname = os.path.join(path, filename)
+					for line in open(fullname):
+						if line.startswith("Exec=" + application):
+							return unicode(fullname)
+		return None
 	
 	def get_items_uncached(self):
 		timestamp_last_run = time.time()
@@ -251,9 +254,9 @@ class RecentlyUsedManagerGtk(DataProvider):
 				text = info.get_display_name()
 				mimetype = unicode(info.get_mime_type())
 				last_application = info.last_application().strip()
-				application_info = info.get_application_info(last_application)
-				application = application_info[0].split()[0]
+				application = info.get_application_info(last_application)[0].split()[0]
 				desktopfile = self._find_desktop_file_for_application(application)
+				print "---->",desktopfile
 				times = (
 					(info.get_added(), u"CreateEvent"),
 					(info.get_visited(), u"VisitEvent"),
@@ -275,7 +278,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 								"mimetype": mimetype,
 								"tags": tags,
 								"icon": u"",
-								"app": desktopfile,
+								"app": desktopfile or u"",
 								"origin": u"", 	# we are not sure about the origin of this item,
 												# let's make it NULL; it has to be a string
 							}
