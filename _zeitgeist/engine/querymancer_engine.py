@@ -353,8 +353,9 @@ class ZeitgeistEngine(BaseEngine):
 			except sqlite3.IntegrityError:
 				pass
 			if not app_uri_id:
-				row = _apps.find_one(_app.id, _app.info == ritem["app"])
-				if row : app_uri_id = row["item_id"]
+				row = _app.find_one(_app.item_id, _app.info == ritem["app"])
+				if row:
+					app_uri_id = row["item_id"]
 	
 			if app_uri_id :
 				self._applications[ritem["app"]] = app_uri_id
