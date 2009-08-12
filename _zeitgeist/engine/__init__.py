@@ -5,7 +5,7 @@ from xdg import BaseDirectory
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
-ENGINE_FALLBACK = "storm"
+ENGINE_FALLBACK = "querymancer"
 DB_PATH = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
                        "database.sqlite")
 
