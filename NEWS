@@ -12,6 +12,8 @@ version 0.2, and it focuses on compatibility and performance enhancements.
  - Improved performance of DeleteItems and UpdateItems.
  - Fixed a problem with the contents of the EventsChanged signal.
  - Fixed InsertEvents to enforce "mimetype" as a required value.
+ - Fixed a bug where the sorting_asc=True in FindEvents would be ignored if used
+   together with mode="mostused" (LP: #404947).
  - Highly improved caching.
  - Added a "--quit" option to zeitgeist-daemon to stop any running daemon.
  - General code improvements, new test cases and other minor fixes.

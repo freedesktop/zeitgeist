@@ -471,6 +471,7 @@ class ZeitgeistEngine(BaseEngine):
 		#   bookmarked: <bool> (True means bookmarked items, and vice versa
 		expressions = []
 		additional_args = []
+		sorting = "ASC" if sorting_asc else "DESC"
 		for filter in filters:
 			invalid_filter_keys = set(filter.keys()) - self.ALLOWED_FILTER_KEYS
 			if invalid_filter_keys:
@@ -533,11 +534,11 @@ class ZeitgeistEngine(BaseEngine):
 			preexpressions += ", MAX(event.start)"
 			expressions += " GROUP BY event.subject_id"
 			if mode == "mostused":
-				additional_orderby += " COUNT(event.rowid) DESC,"
+				additional_orderby += " COUNT(event.start) %s," % sorting
 		elif return_mode == 2:
 			preexpressions += " , COUNT(event.app_id) AS app_count"
 			expressions += " GROUP BY event.app_id"
-			additional_orderby += " app_count DESC,"
+			additional_orderby += " app_count %s," % sorting
 		
 		args = [ Content.BOOKMARK.id, Content.TAG.id, min, max ]
 		args += additional_args
@@ -570,8 +571,8 @@ class ZeitgeistEngine(BaseEngine):
 			INNER JOIN source ON (source.id == main_item.source_id)
 			WHERE event.start >= ? AND event.start <= ? %s
 			ORDER BY %s event.start %s LIMIT ?
-			""" % (preexpressions, expressions, additional_orderby,
-				"ASC" if sorting_asc else "DESC"), args).fetchall()
+			""" % (preexpressions, expressions, additional_orderby, sorting),
+			    args).fetchall()
 		
 		if return_mode == 0:
 			# We need convert_result_to_dict to set the defaults for empty rows
