@@ -32,14 +32,14 @@ class SymbolTest(unittest.TestCase):
 	
 	def testSingleSymbol(self):
 		self.assertEquals(1, Source.WEB_HISTORY.id)
-		self.assertEquals("WebHistory", Source.WEB_HISTORY.name)
+		self.assertEquals("Website", Source.WEB_HISTORY.name)
 	
 	def testContentSourceSymbols(self):
 		s = Source.WEB_HISTORY
 		c = Content.TAG
 		
 		self.assertEquals(1, s.id) # First element in the source table
-		self.assertEquals("WebHistory", s.name)
+		self.assertEquals("Website", s.name)
 		
 		self.assertEquals(1, c.id) # First element in the content table
 		self.assertEquals("Tag", c.name)
@@ -48,7 +48,7 @@ class SymbolTest(unittest.TestCase):
 		web = Source.WEB_HISTORY
 		act = Source.USER_ACTIVITY
 		
-		self.assertEquals("WebHistory", web.name)
+		self.assertEquals("Website", web.name)
 		self.assertEquals(1, web.id) # First element in the source table
 		
 		self.assertEquals("UserActivity", act.name)

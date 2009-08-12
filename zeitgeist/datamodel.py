@@ -237,7 +237,7 @@ Content.register(
 	doc="Any form of digital video, streaming and non-streaming alike"
 )
 Content.register(
-	"Audio",
+	"MUSIC",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Audio",
 	display_name=_("Music"),
 	doc="Digital music or other creative audio work"
