@@ -306,7 +306,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testFindEventsMostUsed(self):
 		self._init_with_various_events()
-		result = self.engine.find_events(0, 0, 0, True, "mostused", [])
+		result = self.engine.find_events(0, 0, 0, False, "mostused", [])
 		self.assertEquals(result[0]["text"], u"Cool Picture 1")
 	
 	def testFindEventsMimetype(self):
@@ -406,7 +406,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testFindApplications(self):
 		self._init_with_various_events()
-		result = self.engine.find_events(0, 0, 0, True, u"event",
+		result = self.engine.find_events(0, 0, 0, False, u"event",
 			[], return_mode=2)
 		self.assertEquals(result, [(u"/usr/share/applications/eog.desktop", 3),
 			(u"/usr/share/applications/firefox.desktop", 2)])

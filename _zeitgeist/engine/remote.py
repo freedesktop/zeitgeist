@@ -106,7 +106,7 @@ class RemoteInterface(SingletonApplication):
 		:returns: list of tuples containing the path to a .desktop file and the amount of matches for it
 		:rtype: list of tuples containing a string and an integer
 		"""
-		return _engine.find_events(min_timestamp, max_timestamp, 0, True,
+		return _engine.find_events(min_timestamp, max_timestamp, 0, False,
 			u"event", filters, return_mode=2)
 	
 	@dbus.service.method(DBUS_INTERFACE,
