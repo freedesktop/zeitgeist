@@ -3,16 +3,17 @@
 # Update python path to use local zeitgeist module
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-from _zeitgeist.engine.storm_base import create_store, set_store
-from _zeitgeist.engine import storm_base as base, get_default_engine
-from zeitgeist.datamodel import *
-from _zeitgeist.engine.storm_engine import ZeitgeistEngine
-
 from time import time
 import unittest
 import logging
+import tempfile
+import shutil
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from _zeitgeist.engine import get_default_engine
+from zeitgeist.datamodel import *
+import _zeitgeist.engine
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("test.benchmarks")
@@ -22,22 +23,13 @@ class EngineInsertTest (unittest.TestCase):
 	This class tests the performance of clean inserts in the engine
 	"""
 	def setUp (self):
-		storm_url = "sqlite:/tmp/benchmark.sqlite"
-		db_file = storm_url.split(":")[1]
-		if os.path.exists(db_file):
-			os.remove(db_file)
-		self.store = create_store(storm_url)
-		set_store(self.store)
+		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
+		_zeitgeist.engine.DB_PATH = "%s/unittest.sqlite" % self.tmp_dir
 		self.engine = get_default_engine()
 		
-		# Assert before each test that the db is indeed empty
-		self.assertEquals(0, self.store.find(base.URI).count())
-		self.assertEquals(0, self.store.find(base.Item).count())
-		self.assertEquals(0, self.store.find(base.Annotation).count())
-		self.assertEquals(0, self.store.find(base.Event).count())
-		
-	def tearDown (self):
-		self.store.close()
+	def tearDown (self):		
+		self.engine.close()
+		shutil.rmtree(self.tmp_dir)
 	
 	def newDummyItem(self, uri):
 		return {
@@ -68,19 +60,6 @@ class EngineInsertTest (unittest.TestCase):
 				batch = []
 		log.info("Total insertion time for 1000 items: %ss" % (time()-full_start))
 	
-	def testURICreation(self):
-		start = time()	
-		for i in range(1,1001):
-			base.URI("test://item%s" % i)
-		self.store.commit()
-		print "Inserted 1000 URIs with Storm in: %ss" % (time()-start)
-		self.tearDown()
-		self.setUp()
-		start = time()
-		for i in range(1,1001):
-			self.store.execute("INSERT INTO uri(value) VALUES ('test://item%s')" % i)
-		self.store.commit()
-		print "Inserted 1000 URIs with raw Sql in: %ss" % (time()-start)
 
 if __name__ == '__main__':
 	unittest.main()
