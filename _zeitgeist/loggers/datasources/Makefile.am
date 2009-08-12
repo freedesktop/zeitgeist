@@ -4,5 +4,6 @@ app_PYTHON = \
 	__init__.py \
 	evolution.py \
 	firefox.py \
+	_recentmanager.py \
 	recent.py \
 	tomboy.py
