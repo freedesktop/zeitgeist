@@ -49,9 +49,26 @@ MIMES = ["application/pdf", "application/xml", "text/plain",
 
 TAGS = ["puppies", "", "kittens", "", "ponies", "", "", ""]
 
-class EngineInsertTest (unittest.TestCase):
+def new_dummy_item(uri, randomness=0, timestamp=0):		
+	return {
+		"uri" : uri,
+		"content" : CONTENTS[randint(0, randomness) % len(CONTENTS)],
+		"source" : SOURCES[randint(0, randomness) % len(SOURCES)],
+		"app" : APPS[randint(0, randomness) % len(APPS)],
+		"timestamp" : timestamp,
+		"text" : "Text",
+		"mimetype" : MIMES[randint(0, randomness) % len(MIMES)],
+		"icon" : ICONS[randint(0, randomness) % len(ICONS)],
+		"use" : USES[randint(0, randomness) % len(USES)],
+		"origin" : ORIGINS[randint(0, randomness) % len(ORIGINS)],
+		"bookmark" : 0 if randomness == 0 else randint(0,1),
+		"comment" : "This is a sample comment",
+		"tags" : TAGS[randint(0, randomness) % len(TAGS)]
+	}
+
+class EngineBenchmark (unittest.TestCase):
 	"""
-	This class tests the performance of clean inserts in the engine
+	Base class for benchmarks
 	"""
 	
 	def setUp (self):
@@ -62,29 +79,17 @@ class EngineInsertTest (unittest.TestCase):
 	def tearDown (self):		
 		self.engine.close()
 		shutil.rmtree(self.tmp_dir)
-	
-	def newDummyItem(self, uri, randomness=0, timestamp=0):		
-		return {
-			"uri" : uri,
-			"content" : CONTENTS[randint(0, randomness) % len(CONTENTS)],
-			"source" : SOURCES[randint(0, randomness) % len(SOURCES)],
-			"app" : APPS[randint(0, randomness) % len(APPS)],
-			"timestamp" : timestamp,
-			"text" : "Text",
-			"mimetype" : MIMES[randint(0, randomness) % len(MIMES)],
-			"icon" : ICONS[randint(0, randomness) % len(ICONS)],
-			"use" : USES[randint(0, randomness) % len(USES)],
-			"origin" : ORIGINS[randint(0, randomness) % len(ORIGINS)],
-			"bookmark" : 0 if randomness == 0 else randint(0,1),
-			"comment" : "This is a sample comment",
-			"tags" : TAGS[randint(0, randomness) % len(TAGS)]
-		}
+
+class Insert (EngineBenchmark):
+	"""
+	This class tests the performance of clean inserts in the engine
+	"""			
 	
 	def do5ChunksOf200(self, randomness):
 		batch = []
 		full_start = time()
 		for i in range(1,1001):
-			batch.append(self.newDummyItem("test://item%s" % i, randomness=randomness, timestamp=i))
+			batch.append(new_dummy_item("test://item%s" % i, randomness=randomness, timestamp=i))
 			if len(batch) % 200 == 0:
 				start = time()
 				self.engine.insert_events(batch)
@@ -103,6 +108,13 @@ class EngineInsertTest (unittest.TestCase):
 	def test5ChunksOf200Random5(self):
 		log.info("RANDOMNESS = 5")
 		self.do5ChunksOf200(5)
+
+class FindEvents (EngineBenchmark):
+	"""
+	This class tests the performance of the find_events method
+	"""	
+	pass
+
 	
 
 if __name__ == '__main__':
