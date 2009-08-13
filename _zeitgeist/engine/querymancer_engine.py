@@ -259,14 +259,19 @@ class ZeitgeistEngine(BaseEngine):
 	
 	def _store_item(self, id, content_id, source_id,
 					text, origin=None, mimetype=None, icon=None):
+		# We use hardcoded SQL here because Querymancer SQL building is too slow
 		try:
-			_item.add(id=id, content_id=content_id, source_id=source_id,
-						text=text, origin=origin, mimetype=mimetype, icon=icon)
+			self.cursor.execute("""
+				INSERT INTO item
+				(id, content_id, source_id, text, origin, mimetype, icon)
+				VALUES (?,?,?,?,?,?,?)""",
+				(id, content_id, source_id, text, origin, mimetype, icon))
 		except sqlite3.IntegrityError:
-			_item.update(_item.id == id,
-							content_id=content_id, source_id=source_id, text=text,
-							origin=origin, mimetype=mimetype, icon=icon)
-		return _item.find_one("*", _item.id == id)
+			self.cursor.execute("""
+				UPDATE Item SET
+				content_id=?, source_id=?, text=?, origin=?,
+				mimetype=?, icon=? WHERE id=?""",
+				(content_id, source_id, text, origin, mimetype, icon, id))		
 			
 	def insert_event(self, ritem, commit=True, force=False):
 		"""
@@ -313,15 +318,15 @@ class ZeitgeistEngine(BaseEngine):
 			return 0
 		
 		# Insert or update the item
-		item = self._store_item(uri_id, content_id, source_id, ritem["text"],
+		self._store_item(uri_id, content_id, source_id, ritem["text"],
 			ritem["origin"], ritem["mimetype"], ritem["icon"])
 		
 		# Insert or update the tags
 		for tag in (tag.strip() for tag in ritem["tags"].split(",") if tag):
 			anno_uri = "zeitgeist://tag/%s" % tag
 			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
-			anno_item = self._store_item(anno_id, Content.TAG.id,
-                                       Source.USER_ACTIVITY.id, tag)
+			self._store_item(anno_id, Content.TAG.id,
+                             Source.USER_ACTIVITY.id, tag)
 			try:
 				_annotation.add(item_id=anno_id, subject_id=uri_id)
 			except sqlite3.IntegrityError:
@@ -331,8 +336,8 @@ class ZeitgeistEngine(BaseEngine):
 		if ritem["bookmark"]:
 			anno_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
 			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
-			anno_item = self._store_item(anno_id, Content.BOOKMARK.id,
-				Source.USER_ACTIVITY.id, u"Bookmark")
+			self._store_item(anno_id, Content.BOOKMARK.id,
+							Source.USER_ACTIVITY.id, u"Bookmark")
 			try:
 				_annotation.add(item_id=anno_id, subject_id=uri_id)
 			except sqlite3.IntegrityError:
@@ -367,7 +372,7 @@ class ZeitgeistEngine(BaseEngine):
 		
 		# Insert the event
 		e_id, e_content_id, e_subject_id = self._get_ids(event_uri, ritem["use"], None)
-		e_item = self._store_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
+		self._store_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
 		try:
 			_event.add(item_id=e_id, subject_id=uri_id,
 						start=ritem["timestamp"], app_id=app_uri_id)				
