@@ -49,9 +49,25 @@ MIMES = ["application/pdf", "application/xml", "text/plain",
 
 TAGS = ["puppies", "", "kittens", "", "ponies", "", "", ""]
 
-class EngineInsertTest (unittest.TestCase):
+def new_dummy_item(uri, randomness=0, timestamp=0):		
+	return {
+		"uri" : uri,
+		"content" : CONTENTS[randint(0, randomness) % len(CONTENTS)],
+		"source" : SOURCES[randint(0, randomness) % len(SOURCES)],
+		"app" : APPS[randint(0, randomness) % len(APPS)],
+		"timestamp" : timestamp,
+		"text" : "Text",
+		"mimetype" : MIMES[randint(0, randomness) % len(MIMES)],
+		"icon" : ICONS[randint(0, randomness) % len(ICONS)],
+		"use" : USES[randint(0, randomness) % len(USES)],
+		"origin" : ORIGINS[randint(0, randomness) % len(ORIGINS)],
+		"bookmark" : 0 if randomness == 0 else randint(0,1),
+		"tags" : TAGS[randint(0, randomness) % len(TAGS)]
+	}
+
+class EngineBenchmark (unittest.TestCase):
 	"""
-	This class tests the performance of clean inserts in the engine
+	Base class for benchmarks
 	"""
 	
 	def setUp (self):
@@ -62,29 +78,17 @@ class EngineInsertTest (unittest.TestCase):
 	def tearDown (self):		
 		self.engine.close()
 		shutil.rmtree(self.tmp_dir)
-	
-	def newDummyItem(self, uri, randomness=0, timestamp=0):		
-		return {
-			"uri" : uri,
-			"content" : CONTENTS[randint(0, randomness) % len(CONTENTS)],
-			"source" : SOURCES[randint(0, randomness) % len(SOURCES)],
-			"app" : APPS[randint(0, randomness) % len(APPS)],
-			"timestamp" : timestamp,
-			"text" : "Text",
-			"mimetype" : MIMES[randint(0, randomness) % len(MIMES)],
-			"icon" : ICONS[randint(0, randomness) % len(ICONS)],
-			"use" : USES[randint(0, randomness) % len(USES)],
-			"origin" : ORIGINS[randint(0, randomness) % len(ORIGINS)],
-			"bookmark" : 0 if randomness == 0 else randint(0,1),
-			"comment" : "This is a sample comment",
-			"tags" : TAGS[randint(0, randomness) % len(TAGS)]
-		}
+
+class Insert (EngineBenchmark):
+	"""
+	This class tests the performance of clean inserts in the engine
+	"""			
 	
 	def do5ChunksOf200(self, randomness):
 		batch = []
 		full_start = time()
 		for i in range(1,1001):
-			batch.append(self.newDummyItem("test://item%s" % i, randomness=randomness, timestamp=i))
+			batch.append(new_dummy_item("test://item%s" % i, randomness=randomness, timestamp=i))
 			if len(batch) % 200 == 0:
 				start = time()
 				self.engine.insert_events(batch)
@@ -93,17 +97,94 @@ class EngineInsertTest (unittest.TestCase):
 		log.info("Total insertion time for 1000 items: %ss" % (time()-full_start))
 	
 	def test5ChunksOf200Random0(self):
-		log.info("RANDOMNESS = 0")
+		log.info("*** TEST: Insert with Randomness = 0")
 		self.do5ChunksOf200(0)
 		
 	def test5ChunksOf200Random1(self):
-		log.info("RANDOMNESS = 1")
+		log.info("*** TEST: Insert with Randomness = 1")
 		self.do5ChunksOf200(1)
 	
 	def test5ChunksOf200Random5(self):
-		log.info("RANDOMNESS = 5")
+		log.info("*** TEST: Insert with Randomness = 5")
 		self.do5ChunksOf200(5)
+
+class FindEvents (EngineBenchmark):
+	"""
+	This class tests the performance of the find_events method
+	"""	
+	def prepare_items(self, num, randomness):
+		"""
+		Helper method to insert 'num' items with a given randomness
+		"""
+		inserted_items = []
+		batch = []
+		full_start = time()
+		for i in range(1,num+1):
+			batch.append(new_dummy_item("test://item%s" % i, randomness=randomness, timestamp=i))
+			if len(batch) % 400 == 0:
+				self.engine.insert_events(batch)
+				inserted_items.extend(batch)
+				batch = []
+		if batch :
+			# Clear any pending batches that didn't fit in the buffer
+			self.engine.insert_events(batch)
+			inserted_items.extend(batch)
+		log.info("Total insertion time for %s items: %ss" % (num, time()-full_start))
+		return inserted_items		
 	
+	def do_find(self, expected_items, page_size, **kwargs):
+		"""
+		Helper method to find a set of items with page size of 'page_size'
+		passin 'kwargs' directly to the engine.find_events() method.
+		"""
+		total = len(expected_items)
+		results = []
+		next_timestamp = 0
+		page_time = time()
+		full_time = page_time	
+		page = self.engine.find_events(min=next_timestamp,
+										limit=page_size,
+										**kwargs)
+		log.info("Found %s items in %ss" % (page_size, time()- page_time))
+		while page:
+			dummy = page[len(page) - 1]["timestamp"]
+			if dummy == next_timestamp:
+				self.fail("Too many items found")
+			if len(results) > total:
+				self.fail("More results retrieved than was inserted in " +
+							"the first place. Expected %s, found %s" %
+							(total, len(results)))
+			next_timestamp = dummy + 1
+			results += page
+			page_time = time()
+			page = self.engine.find_events(min=next_timestamp,
+											limit=page_size,
+											**kwargs)
+			log.info("Found %s items in %ss" % (len(page), time()- page_time))
+		
+		log.info("Full retrieval of %s items in %ss" % (total, time()- full_time))
+		
+		for i in range(total):
+			self.assertEquals(expected_items[i]["uri"],
+								results[i]["uri"],
+								"Mismatch at position %s:\n%s\n != \n%s" % 
+								(i, expected_items[i]["uri"], results[i]["uri"]))
+		
+		self.assertEquals(len(expected_items), len(results),
+				"All inserted items should be found again, %s != %s" %
+				(len(expected_items), len(results)))
+	
+	def testFindAny(self):
+		log.info("*** TEST: Find Any In Chunks Of 200")
+		items = self.prepare_items(1000, 5)
+		self.do_find(items, 200)
+
+	def testFindDocuments(self):
+		log.info("*** TEST: Find Documents In Chunks Of 20")
+		items = self.prepare_items(1000, 5)
+		doc_items = filter(lambda i : i["content"] == Content.DOCUMENT.uri, items)
+		self.do_find(doc_items, 20,
+					filters=[{"content" : [Content.DOCUMENT.uri]}])
 
 if __name__ == '__main__':
 	unittest.main()
