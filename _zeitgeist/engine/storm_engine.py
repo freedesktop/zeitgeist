@@ -284,11 +284,19 @@ class ZeitgeistEngine(BaseEngine):
 					", ".join(invalid_filter_keys)
 			filterset = []
 			if "name" in filter:
-				filterset += [ "main_item.text LIKE ? ESCAPE \"\\\"" ]
-				additional_args += [ filter["name"] ]
+				if not hasattr(filter["name"], "__iter__"):
+					filter["name"] = [ filter["name"] ]
+				filterset += [ "(" + " OR ".join(
+					[ "main_item.text LIKE ? ESCAPE \"\\\"" ] *
+					len(filter["name"])) + ")" ]
+				additional_args += filter["name"]
 			if "uri" in filter:
-				filterset += [ "uri.value LIKE ? ESCAPE \"\\\"" ]
-				additional_args += [ filter["uri"] ]
+				if not hasattr(filter["uri"], "__iter__"):
+					filter["uri"] = [ filter["uri"] ]
+				filterset += [ "(" + " OR ".join(
+					[ "uri.value LIKE ? ESCAPE \"\\\"" ] * len(filter["uri"]))
+					+ ")" ]
+				additional_args += filter["uri"]
 			if "tags" in filter:
 				if not hasattr(filter["tags"], "__iter__"):
 					raise TypeError, "Expected a container type, found %s" % \

@@ -287,7 +287,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self._init_with_various_events()
 		result = self.engine.get_last_insertion_date(self.last_insertion_app)
 		self.assertEquals(result, self.last_insertion_date)
-		
+	
 	def testFindEventsBookmarks(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event",
@@ -308,6 +308,30 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, False, "mostused", [])
 		self.assertEquals(result[0]["text"], u"Cool Picture 1")
+	
+	def testFindEventsUriAsString(self): # Deprecated (to be removed in 0.3)
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, False, "item",
+			[{"uri": u"file:///tmp/test/%"}])
+		self.assertEquals(len(result), 1)
+	
+	def testFindEventsUri(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, False, "item",
+			[{"uri": [u"file:///tmp/test/%", u"%/example.png"]}])
+		self.assertEquals(len(result), 2)
+	
+	def testFindEventsNameAsString(self): # Deprecated (to be removed in 0.3)
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, False, "item",
+			[{"name": u"%.png"}])
+		self.assertEquals(len(result), 2)
+	
+	def testFindEventsName(self):
+		self._init_with_various_events()
+		result = self.engine.find_events(0, 0, 0, False, "item",
+			[{"name": [u"e%.png", u"cool picture 1"]}])
+		self.assertEquals(len(result), 2)
 	
 	def testFindEventsMimetype(self):
 		self._init_with_various_events()
