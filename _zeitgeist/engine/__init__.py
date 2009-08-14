@@ -34,12 +34,12 @@ ENGINE_FALLBACK = AVAILABLE_ENGINES[0]
 def get_engine_type():
 	""" Returns the value of the $ZEITGEIST_ENGINE environment variable or,
 	if it isn't defined, the default engine."""
-	value = os.environ.get("ZEITGEIST_ENGINE").lower()
+	value = os.environ.get("ZEITGEIST_ENGINE")
 	if value == "default":
 		value = None
-	if value and value not in AVAILABLE_ENGINES:
+	if value and value.lower() not in AVAILABLE_ENGINES:
 		raise RuntimeError("Unknown engine type requested: \"%s\"." % value)
-	return value if value else ENGINE_FALLBACK
+	return value.lower() if value else ENGINE_FALLBACK
 
 _engine = None
 def create_engine(engine_type=None):
