@@ -5,7 +5,7 @@ This version's D-Bus API and database is completely backwards-compatible with
 version 0.2, and it focuses on compatibility and performance enhancements.
 
  - Added compatibility with Python version 2.5.
- - Removed the Storm dependency, obtaining memory usage improvements.
+ - Removed the Storm dependency, obtaining general performance improvements.
  - Removed the need for a patched PyGTK.
  - Made the GtkRecentlyUser logger more robust (fixes an infinit loop on some
    systems).
