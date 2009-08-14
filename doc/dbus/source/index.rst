@@ -45,11 +45,11 @@ Filter
 
 A dict which can have the following items:
 
- * **name** (string) - 
- * **uri** (string) - 
+ * **name** (list of strings) - filter by name (``OR`` Condition)
+ * **uri** (list of strings) - filter by uris (``OR`` Condition)
  * **tags** (list of strings) - filter by tags (``AND`` Condition)
- * **mimetypes** (list of strings) - filter by mimetypes (``AND`` Condition)
- * **source** (list of strings) - filter by source (``AND`` Condition)
- * **content** (list of strings) - filter by source (``AND`` Condition)
- * **application** (list of strings) - filter by application (ie., path to its .desktop file) (``AND`` Condition)
+ * **mimetypes** (list of strings) - filter by mimetypes (``OR`` Condition)
+ * **source** (list of strings) - filter by source (``OR`` Condition)
+ * **content** (list of strings) - filter by content (``OR`` Condition)
+ * **application** (list of strings) - filter by application (ie., path to its .desktop file) (``OR`` Condition)
  * **bookmarked** (boolean) -
