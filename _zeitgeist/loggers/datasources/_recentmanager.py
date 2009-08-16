@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import urllib
 import gobject
 import gio
 import os.path
@@ -96,7 +95,7 @@ class FileInfo(object):
 	def exists(self):
 		if not self._uri.startswith("file:///"):
 			return True # Don't check online resources
-		return os.path.exists(urllib.unquote(self._path))
+		return gio.File(self._path).get_path() is not None
 	
 	def get_private_hint(self):
 		return False # FIXME: How to get this?
