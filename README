@@ -23,4 +23,3 @@ Dependencies:
  - python-gobject (2.16.0 or higher)
  - python-dbus
  - python-xdg
- - python-storm
