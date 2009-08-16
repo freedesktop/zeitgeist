@@ -65,37 +65,37 @@ class FileInfo(object):
 		return result
 	
 	def __init__(self, href, added, modified, visited, mimetype, application):
-		self.__uri = href
-		self.__path = "/%s" %href.split("///", 1).pop()
-		self.__added = self.convert_timestring(added)
-		self.__modified = self.convert_timestring(modified)
-		self.__visited = self.convert_timestring(visited)
-		self.__mimetype = mimetype
-		self.__application = application
+		self._uri = href
+		self._path = "/%s" %href.split("///", 1).pop()
+		self._added = self.convert_timestring(added)
+		self._modified = self.convert_timestring(modified)
+		self._visited = self.convert_timestring(visited)
+		self._mimetype = mimetype
+		self._application = application
 		
 	def get_mime_type(self):
-		return self.__mimetype
+		return self._mimetype
 		
 	def get_visited(self):
-		return self.__visited
+		return self._visited
 		
 	def get_added(self):
-		return self.__added
+		return self._added
 		
 	def get_modified(self):
-		return self.__modified
+		return self._modified
 		
 	def get_uri_display(self):
-		return self.__path
+		return self._path
 		
 	def get_uri(self):
-		return self.__uri
+		return self._uri
 		
 	def get_display_name(self):
-		return os.path.basename(self.__path)
+		return os.path.basename(self._path)
 				
 	def exists(self):
-		return os.path.exists(self.__path)
+		return os.path.exists(self._path)
 		
 	def get_private_hint(self):
 		return False #how to get this??
@@ -104,7 +104,7 @@ class FileInfo(object):
 		return ""
 		
 	def get_application_info(self, app):
-		return (self.__application, None, None)
+		return (self._application, None, None)
 
 class RecentManager(gobject.GObject):
 	
@@ -121,7 +121,7 @@ class RecentManager(gobject.GObject):
 		super(RecentManager, self).__init__()
 		if not os.path.exists(self.RECENTFILE):
 			raise OSError("Can't use alternative RecentManager, '%s' not found" % self.RECENTFILE)
-		self.__recent = None
+		self._recent = None
 		file_object = gio.File(self.RECENTFILE)
 		self.file_monitor = file_object.monitor_file()
 		self.file_monitor.set_rate_limit(1600) # for to high rates RecentManager
@@ -130,18 +130,18 @@ class RecentManager(gobject.GObject):
 	
 	def _content_changed(self, monitor, fileobj, _, event):
 		# maybe we should handle events differently
-		if self.__recent is None:
+		if self._recent is None:
 			# only emit signal if we aren't currently parsing RECENTFILE
 			self.emit("changed")
 	
 	def get_items(self):
-		if self.__recent is not None:
-			self.__recent.close()
-		self.__recent = self._parse_recentfile(self.RECENTFILE)
-		for n, info in enumerate(self.__recent):
+		if self._recent is not None:
+			self._recent.close()
+		self._recent = self._parse_recentfile(self.RECENTFILE)
+		for n, info in enumerate(self._recent):
 			yield info
-		self.__recent.close()
-		self.__recent = None
+		self._recent.close()
+		self._recent = None
 		
 	def set_limit(self, limit):
 		pass

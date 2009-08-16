@@ -274,7 +274,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 								"text": text,
 								"source": filter_name,
 								"content": u"File",
-								"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
+								"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" % use,
 								"mimetype": mimetype,
 								"tags": tags,
 								"icon": u"",
