@@ -37,7 +37,7 @@ log = logging.getLogger("zeitgeist.logger.datasources.recent")
 
 try:
 	import gtk
-	if gtk.pygtk_version >= (2, 16, 0):
+	if gtk.pygtk_version >= (2, 15, 2):
 		recent_manager = gtk.recent_manager_get_default
 	else:
 		from _recentmanager import RecentManager
@@ -274,7 +274,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 								"text": text,
 								"source": filter_name,
 								"content": u"File",
-								"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
+								"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" % use,
 								"mimetype": mimetype,
 								"tags": tags,
 								"icon": u"",

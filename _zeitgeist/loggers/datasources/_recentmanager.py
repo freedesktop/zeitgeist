@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
+# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import urllib
 import gobject
 import gio
 import os.path
@@ -31,30 +33,11 @@ log = logging.getLogger("zeitgeist.logger._recentmanager")
 
 class FileInfo(object):
 	
-	@classmethod
-	def create(cls, node):
-		args = dict()
-		for prop in ("href", "added", "modified", "visited"):
-			args[prop] = node.getAttribute(prop)
-		mimetype = node.getElementsByTagNameNS("http://www.freedesktop.org/standards/shared-mime-info", "mime-type")
-		if mimetype:
-			args["mimetype"] = mimetype.pop().getAttribute("type")
-		else:
-			raise ValueError
-		applications = node.getElementsByTagNameNS("http://www.freedesktop.org/standards/desktop-bookmarks", "applications")
-		assert applications
-		application = applications[0].getElementsByTagNameNS("http://www.freedesktop.org/standards/desktop-bookmarks", "application")
-		if application:
-			args["application"] = application.pop().getAttribute("exec").strip("'")
-		else:
-			raise ValueError
-		return cls(**args)
-	
 	@staticmethod
 	def convert_timestring(time_str):
 		# My observation is that all times in self.RECENTFILE are in UTC (I might be wrong here)
 		# so we need to parse the time string into a timestamp
-		# and correct the result by the timezone differenz
+		# and correct the result by the timezone difference
 		try:
 			timetuple = time.strptime(time_str, "%Y-%m-%dT%H:%M:%SZ")
 		except ValueError:
@@ -64,64 +47,78 @@ class FileInfo(object):
 			result -= time.altzone
 		return result
 	
-	def __init__(self, href, added, modified, visited, mimetype, application):
-		self.__uri = href
-		self.__path = "/%s" %href.split("///", 1).pop()
-		self.__added = self.convert_timestring(added)
-		self.__modified = self.convert_timestring(modified)
-		self.__visited = self.convert_timestring(visited)
-		self.__mimetype = mimetype
-		self.__application = application
+	def __init__(self, node):
+		self._uri = node.getAttribute("href")
+		self._path = "/%s" % self._uri.split("///", 1)[-1]
+		self._added = self.convert_timestring(node.getAttribute("added"))
+		self._modified = self.convert_timestring(node.getAttribute("modified"))
+		self._visited = self.convert_timestring(node.getAttribute("visited"))
+		
+		mimetype = node.getElementsByTagNameNS(
+			"http://www.freedesktop.org/standards/shared-mime-info",
+			"mime-type")
+		if not mimetype:
+			raise ValueError, "Could not find mimetype for item: %s" % self._uri
+		self._mimetype = mimetype[-1].getAttribute("type")
+		
+		applications = node.getElementsByTagNameNS(
+			"http://www.freedesktop.org/standards/desktop-bookmarks",
+			"applications")
+		assert applications
+		application = applications[0].getElementsByTagNameNS(
+			"http://www.freedesktop.org/standards/desktop-bookmarks",
+			"application")
+		if not application:
+			raise ValueError, "Could not find application for item: %s" % self._uri
+		self._application = application[-1].getAttribute("exec").strip("'")
 		
 	def get_mime_type(self):
-		return self.__mimetype
-		
+		return self._mimetype
+	
 	def get_visited(self):
-		return self.__visited
-		
+		return self._visited
+	
 	def get_added(self):
-		return self.__added
-		
+		return self._added
+	
 	def get_modified(self):
-		return self.__modified
-		
+		return self._modified
+	
 	def get_uri_display(self):
-		return self.__path
-		
+		return self._path
+	
 	def get_uri(self):
-		return self.__uri
-		
+		return self._uri
+	
 	def get_display_name(self):
-		return os.path.basename(self.__path)
-				
+		return os.path.basename(self._uri)
+	
 	def exists(self):
-		return os.path.exists(self.__path)
-		
+		if not self._uri.startswith("file:///"):
+			return True # Don't check online resources
+		return os.path.exists(urllib.unquote(self._path))
+	
 	def get_private_hint(self):
-		return False #how to get this??
-		
+		return False # FIXME: How to get this?
+	
 	def last_application(self):
+		# Not necessary, our get_application_info always returns the info of
+		# the last application
 		return ""
-		
+	
 	def get_application_info(self, app):
-		return (self.__application, None, None)
+		return (self._application, None, None)
 
 class RecentManager(gobject.GObject):
 	
 	RECENTFILE = os.path.expanduser("~/.recently-used.xbel")
 	
-	@staticmethod
-	def _parse_recentfile(filename):
-		doc = minidom_parse(filename)
-		bookmarks = doc.getElementsByTagName("bookmark")
-		for bookmark in bookmarks:
-			yield FileInfo.create(bookmark)
-	
 	def __init__(self):
 		super(RecentManager, self).__init__()
 		if not os.path.exists(self.RECENTFILE):
 			raise OSError("Can't use alternative RecentManager, '%s' not found" % self.RECENTFILE)
-		self.__recent = None
+		
+		self._fetching_items = None
 		file_object = gio.File(self.RECENTFILE)
 		self.file_monitor = file_object.monitor_file()
 		self.file_monitor.set_rate_limit(1600) # for to high rates RecentManager
@@ -129,26 +126,21 @@ class RecentManager(gobject.GObject):
 		self.file_monitor.connect("changed", self._content_changed)
 	
 	def _content_changed(self, monitor, fileobj, _, event):
-		# maybe we should handle events differently
-		if self.__recent is None:
-			# only emit signal if we aren't currently parsing RECENTFILE
+		# Only emit the signal if we aren't already parsing RECENTFILE
+		if not self._fetching_items:
 			self.emit("changed")
 	
 	def get_items(self):
-		if self.__recent is not None:
-			self.__recent.close()
-		self.__recent = self._parse_recentfile(self.RECENTFILE)
-		for n, info in enumerate(self.__recent):
-			yield info
-		self.__recent.close()
-		self.__recent = None
-		
+		self._fetching_items = True
+		xml = minidom_parse(self.RECENTFILE)
+		for bookmark in xml.getElementsByTagName("bookmark"):
+			yield FileInfo(bookmark)
+		self._fetching_items = False
+	
 	def set_limit(self, limit):
 		pass
 
 gobject.type_register(RecentManager)
 
 gobject.signal_new("changed", RecentManager,
-				   gobject.SIGNAL_RUN_LAST,
-				   gobject.TYPE_NONE,
-				   tuple())
+	gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
