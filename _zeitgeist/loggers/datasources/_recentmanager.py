@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import urllib
 import gobject
 import gio
 import os.path
@@ -90,7 +91,7 @@ class FileInfo(object):
 		return self._uri
 	
 	def get_display_name(self):
-		return os.path.basename(self._uri)
+		return unicode(os.path.basename(urllib.unquote(str(self._path))))
 	
 	def exists(self):
 		if not self._uri.startswith("file:///"):
