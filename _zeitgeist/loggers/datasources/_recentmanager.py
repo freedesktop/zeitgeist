@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
+# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import urllib
 import gobject
 import gio
 import os.path
@@ -35,7 +37,7 @@ class FileInfo(object):
 	def convert_timestring(time_str):
 		# My observation is that all times in self.RECENTFILE are in UTC (I might be wrong here)
 		# so we need to parse the time string into a timestamp
-		# and correct the result by the timezone differenz
+		# and correct the result by the timezone difference
 		try:
 			timetuple = time.strptime(time_str, "%Y-%m-%dT%H:%M:%SZ")
 		except ValueError:
@@ -92,7 +94,9 @@ class FileInfo(object):
 		return os.path.basename(self._uri)
 	
 	def exists(self):
-		return os.path.exists(self._path)
+		if not self._uri.startswith("file:///"):
+			return True # Don't check online resources
+		return os.path.exists(urllib.unquote(self._path))
 	
 	def get_private_hint(self):
 		return False # FIXME: How to get this?
