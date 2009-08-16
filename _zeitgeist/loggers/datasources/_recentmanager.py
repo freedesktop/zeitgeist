@@ -91,12 +91,12 @@ class FileInfo(object):
 		return self._uri
 	
 	def get_display_name(self):
-		return os.path.basename(self._uri)
+		return unicode(os.path.basename(urllib.unquote(str(self._path))))
 	
 	def exists(self):
 		if not self._uri.startswith("file:///"):
 			return True # Don't check online resources
-		return os.path.exists(urllib.unquote(self._path))
+		return gio.File(self._path).get_path() is not None
 	
 	def get_private_hint(self):
 		return False # FIXME: How to get this?
