@@ -177,7 +177,7 @@ class TomboySource(DataProvider):
 					"source": "Tomboy Notes",
 					"content": u"Note",
 					"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
-					"mimetype": u"text/plain",
+					"mimetype": u"x-tomboy/note",
 					"tags": u"",
 					"icon": u"",
 					"app": u"/usr/share/applications/tomboy.desktop",
