@@ -68,24 +68,18 @@ class LRUCache:
 			item.id = self._current_id
 			item.value = value
 			self._move_item_to_end(item)
-						
-		elif self._current_id > self._max_size - 1:
-			new = LRUCache._Item(self._current_id, key, value)
-			
-			# Remove eldest entry from list and append the new
-			old = self._remove_eldest_item()
-			self._append_to_list(new)
-			
-			del self._map[old.key]
-			self._map[key] = new
-			
 		else:
 			new = LRUCache._Item(self._current_id, key, value)
 			self._map[key] = new
 			self._append_to_list(new)
-		
+
+			if len(self._map) > self._max_size - 1:
+				# Remove eldest entry from list
+				old = self._remove_eldest_item()
+				del self._map[old.key]
+
 		self._current_id += 1
-	
+
 	def __getitem__(self, key):
 		item = self._map[key]
 		item.id = self._current_id
