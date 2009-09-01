@@ -101,6 +101,8 @@ class LRUCache:
 	def _move_item_to_end(self, item):
 		if item.prev:
 			item.prev.next = item.next
+		if item.next:
+			item.next.prev = item.prev
 		if self._list_end != item:
 			self._append_to_list(item)
 	
