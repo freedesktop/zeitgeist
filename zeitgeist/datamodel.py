@@ -139,11 +139,11 @@ class Symbol(DictCache):
 		cls.__database_cls = database_cls
 		if cls.__base is not None:
 			cls.__base.bind_database(database_cls)
-			
+
 
 class Category(object):
 	__metaclass__ = Symbol
-		
+	
 	def __init__(self, uri, display_name=None, name=None, doc=None):
 		if self.__class__ is Category:
 			raise ValueError("Category is an abstract class")
@@ -152,35 +152,35 @@ class Category(object):
 		self.__doc__ = doc
 		self.__name = name
 		self.__database_obj = None
-		
+	
 	def __repr__(self):
 		return "<%s %r>" %(self.__class__.__name__, self.uri)
-		
+	
 	def __str__(self):
 		return self.uri
-		
+	
 	def __unicode__(self):
 		return unicode(self.uri)
-		
+	
 	@property
 	def uri(self):
 		return self.__uri
-		
+	
 	@property
 	def display_name(self):
 		return self.__display_name or ""
-		
+	
 	@property
 	def name(self):
 		if self.__name is not None:
 			return self.__name
 		else:
 			return self.uri.split("#", 1).pop()
-			
+	
 	@property
 	def doc(self):
 		return self.__doc__
-			
+	
 	def __getattr__(self, name):
 		if self.__database_obj is not None and not self.__class__.needs_lookup(self.uri):
 			return getattr(self.__database_obj, name)
@@ -188,7 +188,7 @@ class Category(object):
 			raise RuntimeError("Cannot get %r, object is not bound to a database" %name)
 		self.__database_obj = self.__class__._DATABASE_CLS.lookup_or_create(self.uri)
 		return getattr(self.__database_obj, name)
-		
+
 
 class Content(Category):
 	pass
