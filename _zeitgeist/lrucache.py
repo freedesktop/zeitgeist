@@ -94,14 +94,17 @@ class LRUCache:
 		return item.value
 	
 	def __iter__(self):
-		"""Iteration is in order from eldest to newest"""
+		"""
+		Iteration is in order from eldest to newest,
+		and returns (key,value) tuples
+		"""
 		iter = self._list_start
 		if iter is None:
 			raise StopIteration
-		yield iter
+		yield (iter.key, iter.value)
 		while iter.next:
 			iter = iter.next
-			yield iter			
+			yield (iter.key, iter.value)			
 			
 	
 	def _move_item_to_end(self, item):

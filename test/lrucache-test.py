@@ -51,6 +51,22 @@ class LRUCacheTest (unittest.TestCase):
 		cache["foo1"] = "bar1"
 		self.assertFalse("bork" in cache)
 		self.assertTrue("foo1" in cache)
+	
+	def testIteration(self):
+		"""Make sure that iteration is in the correct order; oldest to newest"""
+		cache = LRUCache(4)
+		cache["foo1"] = "bar1"
+		cache["foo2"] = "bar2"
+		cache["foo3"] = "bar3"
+		cache["foo4"] = "bar4"
+		cache["foo1"] = "bar1" # "foo1" should now be newest
+		
+		l = []
+		for key_val in cache : l.append(key_val)
+		self.assertEquals([("foo2", "bar2"),
+		                   ("foo3", "bar3"),
+		                   ("foo4", "bar4"),
+		                   ("foo1", "bar1")], l)
 
 if __name__ == '__main__':
 	unittest.main()
