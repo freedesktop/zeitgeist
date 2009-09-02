@@ -141,34 +141,18 @@ class DBusInterface(dbus.Interface):
 				self.BUS_NAME
 		)
 
-class EventDict(dict):
-	""" A dict representing an event """
+class _BaseObjectDict(dict):
 	
-	# a dict of all possible keys of an event dict and the type of its
-	# values and whether this item is required or not
-	_ITEM_TYPE_MAP = {
-		"timestamp": (int, True),
-		"uri": (unicode, True),
-		"text": (unicode, False),
-		"source": (unicode, True),
-		"content": (unicode, True),
-		"mimetype": (unicode, True),
-		"tags": (unicode, False),
-		"comment": (unicode, False),
-		"bookmark": (bool, False),
-		"use": (unicode, False),
-		"icon": (unicode, False),
-		"app": (unicode, False),
-		"origin": (unicode, False),
-	}
+	_required_items = None
+	@classmethod
+	def get_required_items(cls):
+		if not cls._required_items:
+			cls._required_items = set(key for key, (type, required)
+				in cls._ITEM_TYPE_MAP.iteritems() if required)
+		return cls._required_items
 	
-	# set containing the keys of all required items
-	_REQUIRED_ITEMS = set(
-		key for key, (type, required) in _ITEM_TYPE_MAP.iteritems() if required
-	)
-	
-	@staticmethod
-	def check_missing_items(event_dict, inplace=False):
+	@classmethod
+	def check_missing_items(cls, event_dict, inplace=False):
 		""" Method to check for required items.
 		
 		In case one or more required items are missing a KeyError is raised.
@@ -176,14 +160,15 @@ class EventDict(dict):
 		the given dict will be filled with missing optional items inplace.
 		"""
 		keys = set(event_dict.keys())
-		missing = EventDict._REQUIRED_ITEMS - keys
+		missing = cls.get_required_items() - keys
 		if missing:
-			raise KeyError(("Some keys are missing in order to add "
-				"this item properly: %s" % ", ".join(missing)))
-		unknown = keys - set(EventDict._ITEM_TYPE_MAP.keys())
+			raise KeyError, "Some keys are missing in order to add this item " \
+				"properly: %s" % ", ".join(missing)
+		unknown = keys - set(cls._ITEM_TYPE_MAP.keys())
 		if unknown:
-			raise KeyError("There are some invalid values in the item: %s" %", ".join(unknown))
-		result = EventDict.check_dict(event_dict, inplace)
+			raise KeyError, "There are some invalid values in the item: %s" % \
+				", ".join(unknown)
+		result = cls.check_dict(event_dict, inplace)
 		if not inplace:
 			return result
 	
@@ -193,30 +178,36 @@ class EventDict(dict):
 		
 		It automatically changes the type of all values to the expected on.
 		If a value is not given an item with a default value is added.
-		If 'inplace' is False (default) a new EventDict instance is returned,
+		If 'inplace' is False (default) a new instance is returned,
 		otherwise the dict given as argument will be ckecked (and changed)
 		in place.
 		"""
-		for key, (type, required) in EventDict._ITEM_TYPE_MAP.iteritems():
+		for key, (type, required) in cls._ITEM_TYPE_MAP.iteritems():
+			# TODO: type() raises an exception, is that what we want? 
 			event_dict[key] = type(event_dict.get(key, type()))
 		if not inplace:
 			return cls(event_dict)
-		
-	@classmethod
-	def convert_result_to_dict(cls, result_tuple):
-		""" Method to convert a sql result tuple into an EventDict """
-		return cls(
-			timestamp = result_tuple[1],
-			uri = result_tuple[0],
-			text = result_tuple[7] or os.path.basename(result_tuple[0]), # FIXME: why not u"" as alternative value?
-			source = result_tuple[5], 
-			content = result_tuple[3],
-			mimetype = result_tuple[8],
-			tags = result_tuple[12] or u"",
-			comment = u"",
-			bookmark = bool(result_tuple[11]),
-			use = result_tuple[4], # usage is determined by the event Content type # event.item.content.value
-			icon = result_tuple[9],
-			app = result_tuple[10],
-			origin = result_tuple[6],
-		)
+
+class Event(_BaseObjectDict):
+	_ITEM_TYPE_MAP = {
+		"subject": (unicode, True), # item URI
+		"timestamp": (int, True),
+		"uri": (unicode, True),
+		"source": (unicode, True),
+		"content": (unicode, True), # previously "use"
+		"app": (unicode, False),
+		"tags": (dict, False),
+		"bookmark": (bool, False),
+	}
+
+class Item(_BaseObjectDict):
+	_ITEM_TYPE_MAP = {
+		"content": (unicode, True),
+		"source": (unicode, True),
+		"origin": (unicode, False),
+		"text": (unicode, False),
+		"mimetype": (unicode, True),
+		"icon": (unicode, False),
+		"tags": (dict, False),
+		"bookmark": (bool, False),
+	}

@@ -4,6 +4,8 @@ Version 0.3
  - Removed the EngineStart and EngineExit signals.
  - Changed URIs from XESAM to Nepomuk.
  - Removed the Storm backend (obsoleted in 0.2.1).
+ - The "text" property of an item can now be empty, and isn't automatically
+   set to the filename in its URI.
 
 
 Version 0.2.1

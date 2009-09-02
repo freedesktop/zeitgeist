@@ -35,7 +35,7 @@ import _zeitgeist.engine
 from _zeitgeist.engine.engine_base import BaseEngine
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
-from zeitgeist.dbusutils import EventDict
+from zeitgeist.dbusutils import Event, Item
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -240,6 +240,44 @@ def reset():
 	_app = None
 	_event = None
 
+def create_request_result(result_list):
+	
+	events = []
+	items = {}
+	
+	for result_tuple in result_list:
+		item_uri = result_tuple[0]
+		events.append(Event(
+			subject = item_uri,
+			timestamp = result_tuple[1],
+			uri = result_tuple[0], #!!
+			source = result_tuple[5],
+			content = result_tuple[4],
+			app = result_tuple[10],
+			tags = {
+					"UserTags": [],
+					"AutoTags": [],
+					"ExpirintTags": []},
+			bookmark = False, #!!
+		))
+		
+		if item_uri not in items:
+			items[item_uri] = Item(
+				content = result_tuple[3],
+				source = result_tuple[5],
+				origin = result_tuple[6],
+				text = result_tuple[7] or u"",
+				mimetype = result_tuple[8],
+				icon = result_tuple[9],
+				tags = {
+					"UserTags": [x.strip() for x in result_tuple[12].split(',')],
+					"AutoTags": [],
+					"ExpirintTags": []},
+				bookmark = bool(result_tuple[11]),
+			)
+	
+	return (events, items)
+
 class ZeitgeistEngine(BaseEngine):
 	
 	def __init__(self, cursor=None):
@@ -422,8 +460,7 @@ class ZeitgeistEngine(BaseEngine):
 			WHERE uri.value = ? LIMIT 1
 			""", (Content.BOOKMARK.id, Content.TAG.id, unicode(uri))).fetchone()
 		
-		# We need convert_result_to_dict to set the defaults for empty rows
-		return EventDict.convert_result_to_dict(item)
+		return create_request_result([item])
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
 			sorting_asc=True, mode="event", filters=(), return_mode=0):
@@ -588,8 +625,7 @@ class ZeitgeistEngine(BaseEngine):
 			    args).fetchall()
 		
 		if return_mode == 0:
-			# We need convert_result_to_dict to set the defaults for empty rows
-			result = map(EventDict.convert_result_to_dict, events)
+			result = create_request_result(events)
 			time2 = time.time()
 			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
 		elif return_mode == 1:
