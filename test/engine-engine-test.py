@@ -13,10 +13,6 @@ import unittest
 import tempfile
 import shutil
 
-# Use this to print sql statements used by Storm to stdout
-#from storm.tracer import debug
-#debug(True, stream=sys.stdout)
-
 def assert_cmp_dict(a, b, cross_check=True):	
 	for k,v in a.items():
 		if not b.has_key(k) : raise AssertionError("Dict b does not contain '%s'" % k)
