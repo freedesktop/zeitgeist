@@ -43,7 +43,7 @@ class DataProvider(gobject.GObject, Thread):
 		self._ctx = gobject.main_context_default()
 		
 		if not config:
-			self.config = DefaultConfiguration(self.name)
+			self.config = DefaultConfiguration(self._name)
 		else:
 			if not isinstance(config, _Configuration):
 				raise TypeError
@@ -57,14 +57,14 @@ class DataProvider(gobject.GObject, Thread):
 			logging.warning("'%s' isn't enabled or configured." % \
 				self.config.get_internal_name())
 			return []
-		return self._get_items()):
+		return self._get_items()
 	
 	def _get_items(self):
 		""" Subclasses should override this to return data. """
 		raise NotImplementedError
 	
-	def _process_gobject_events():
+	def _process_gobject_events(self):
 		""" Check for pending gobject events. This should be called in some
 		meaningful place in _get_items on long running updates. """
-		while self.__ctx.pending():
-			self.__ctx.iteration()
+		while self._ctx.pending():
+			self._ctx.iteration()
