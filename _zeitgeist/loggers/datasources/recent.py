@@ -185,13 +185,7 @@ class MimeTypeSet(set):
 	def __repr__(self):
 		items = ", ".join(sorted(map(repr, self | self.__pattern)))
 		return "%s(%s)" %(self.__class__.__name__, items)
-		
-		
-class InverseMimeTypeSet(MimeTypeSet):
-	
-	def __contains__(self, mimetype):
-		return not super(InverseMimeTypeSet, self).__contains__(mimetype)
-		
+
 
 class RecentlyUsedManagerGtk(DataProvider):
 	
@@ -199,7 +193,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 		# dict of name as key and the matching mimetypes as value
 		# if the value is None this filter matches all mimetypes
 		u"Document": MimeTypeSet(*DOCUMENT_MIMETYPES),
-		u"Other": InverseMimeTypeSet(*ALL_MIMETYPES),
 		u"Image": MimeTypeSet(*IMAGE_MIMETYPES),
 		u"Music": MimeTypeSet(*AUDIO_MIMETYPES),
 		u"Video": MimeTypeSet(*VIDEO_MIMETYPES),
@@ -243,7 +236,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 		a file named "/home/user/foo/bar/example.py" would be tagged with
 		"foo" and "bar". """
 		
-		filename = os.path.dirname(tmp)
+		filename = os.path.dirname(filename)
 		tags = []
 		
 		# Remove the user's home directory, if present
@@ -253,7 +246,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 		if filename:
 			filename = unicode(urllib.unquote(filename))
-			tags = tmp.replace(",", " ").split("/")
+			tags = filename.replace(",", " ").split("/")
 		
 		return { "AutoTags": tags }
 	
@@ -266,6 +259,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 		for info in self.recent_manager.get_items():
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
 				item_uri = unicode(info.get_uri())
+				item_mimetype = unicode(info.get_mime_type())
 				
 				last_application = info.last_application().strip()
 				application = info.get_application_info(last_application)[0].split()[0]
@@ -291,22 +285,23 @@ class RecentlyUsedManagerGtk(DataProvider):
 				
 				if is_new and item_uri not in items:
 					# Get the Content for the item
+					matching_filter = None
 					for filter_name, mimetypes in self.FILTERS.iteritems():
-						if mimetype and mimetype in mimetypes:
-							break
-					item_content = getattr(Content, filter_name.upper(), u'')
-					if item_content:
-						item_content = item_content.uri
+						if item_mimetype and item_mimetype in mimetypes:
+							matching_filter = filter_name
+					if matching_filter:
+						item_content = getattr(Content, matching_filter.upper()).uri
+					else:
+						item_content = u''
 					
 					# Insert the item
 					item_text = info.get_display_name()
 					item_tags = self._get_tags_for_file(info.get_uri_display())
-					item_mimetype = unicode(info.get_mime_type())
 					items[item_uri] = Item(
 						content = item_content,
 						source = Source.FILE.uri,
-						text = text,
-						mimetype = unicode(info.get_mime_type()),
+						text = info.get_display_name(),
+						mimetype = item_mimetype,
 						tags = info.get_display_name(),
 					)
 		self._timestamp_last_run = timestamp_last_run
