@@ -60,7 +60,7 @@ class DataHub(gobject.GObject):
 		self._sources_queue = list(self._sources)
 		if not self._sources_queue:
 			logging.warning(_("No passive loggers found, bye."))
-			sys.exit(1) # Mainloop doesn't exit yet, exit directly
+			sys.exit(1) # Mainloop doesn't exist yet, exit directly
 		self._db_update_in_progress = True
 		gobject.idle_add(self._update_db_async)
 		
@@ -107,15 +107,10 @@ class DataHub(gobject.GObject):
 		logging.debug(_("Updating database with new %s items") % \
 			self._sources_queue[0].get_name())
 		
-		items = list()
-		for num, item in enumerate(self._sources_queue[0].get_items()):
-			items.append(item)
-			if num % 200 == 0:
-				self._insert_events(self._sources_queue[0].get_name(), items)
-				items = list()
+		items = self._sources_queue[0].get_items()
 		if items:
 			self._insert_events(self._sources_queue[0].get_name(), items)
- 		
+		
  		del self._sources_queue[0]
 		
 		if len(self._sources_queue) == 0:

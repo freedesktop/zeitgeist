@@ -255,9 +255,9 @@ def create_request_result(result_list):
 			content = result_tuple[4],
 			app = result_tuple[10],
 			tags = {
-					"UserTags": [],
-					"AutoTags": [],
-					"ExpirintTags": []},
+				"UserTags": [],
+				"AutoTags": [],
+				"ExpiringTags": []},
 			bookmark = False, #!!
 		))
 		
@@ -272,7 +272,7 @@ def create_request_result(result_list):
 				tags = {
 					"UserTags": [x.strip() for x in result_tuple[12].split(',')],
 					"AutoTags": [],
-					"ExpirintTags": []},
+					"ExpiringTags": []},
 				bookmark = bool(result_tuple[11]),
 			)
 	

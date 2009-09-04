@@ -41,7 +41,7 @@ class SingletonApplication (dbus.service.Object):
 			# already running daemon instance
 			if "--replace" in sys.argv or "--quit" in sys.argv:
 				if "--quit" in sys.argv:
-					logging.info("Stopping the currenty running instance.")
+					logging.info("Stopping the currently running instance.")
 				else:
 					logging.debug("Replacing currently running process.")
 				# TODO: This only works for the engine and wont work for the DataHub

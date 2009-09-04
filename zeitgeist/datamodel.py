@@ -225,6 +225,12 @@ Content.register(
 	doc="A document, presentation, spreadsheet, or other content centric item"
 )
 Content.register(
+	"SOURCECODE",
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#SourceCode",
+	display_name=_("Source Code"),
+	doc="Code in a compilable or interpreted programming language."
+)
+Content.register(
 	"IMAGE",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Image",
 	display_name=_("Images"),

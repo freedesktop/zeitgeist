@@ -31,6 +31,8 @@ import logging
 from xdg import BaseDirectory
 
 from zeitgeist import _config
+from zeitgeist.dbusutils import Event, Item
+from zeitgeist.datamodel import Content, Source
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 log = logging.getLogger("zeitgeist.logger.datasources.recent")
@@ -196,12 +198,12 @@ class RecentlyUsedManagerGtk(DataProvider):
 	FILTERS = {
 		# dict of name as key and the matching mimetypes as value
 		# if the value is None this filter matches all mimetypes
-		u"Documents": MimeTypeSet(*DOCUMENT_MIMETYPES),
+		u"Document": MimeTypeSet(*DOCUMENT_MIMETYPES),
 		u"Other": InverseMimeTypeSet(*ALL_MIMETYPES),
-		u"Images": MimeTypeSet(*IMAGE_MIMETYPES),
+		u"Image": MimeTypeSet(*IMAGE_MIMETYPES),
 		u"Music": MimeTypeSet(*AUDIO_MIMETYPES),
-		u"Videos": MimeTypeSet(*VIDEO_MIMETYPES),
-		u"Development": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
+		u"Video": MimeTypeSet(*VIDEO_MIMETYPES),
+		u"SourceCode": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
 	}
 	
 	def __init__(self):
@@ -233,57 +235,84 @@ class RecentlyUsedManagerGtk(DataProvider):
 							return unicode(fullname)
 		return None
 	
+	@staticmethod
+	def _get_tags_for_file(filename):
+		""" Returns the tags for a file.
+		
+		This is currently done based on the file's path. For example,
+		a file named "/home/user/foo/bar/example.py" would be tagged with
+		"foo" and "bar". """
+		
+		filename = os.path.dirname(tmp)
+		tags = []
+		
+		# Remove the user's home directory, if present
+		home = os.path.expanduser("~")
+		if filename.startswith(home):
+			filename = filename[len(home)+1:]
+		
+		if filename:
+			filename = unicode(urllib.unquote(filename))
+			tags = tmp.replace(",", " ").split("/")
+		
+		return { "AutoTags": tags }
+	
 	def get_items_uncached(self):
 		timestamp_last_run = time.time()
+		
+		events = []
+		items = {}
+		
 		for info in self.recent_manager.get_items():
-			if info.exists() and not info.get_private_hint() and "/tmp" not in info.get_uri_display():
-				# Create a string of tags based on the file's path
-				# e.g. the file /home/natan/foo/bar/example.py would be tagged with "foo" and "bar"
-				# Note: we only create tags for files under the users home folder
-				tags = ""
-				tmp = info.get_uri_display()
-				tmp = os.path.dirname(tmp)		# remove the filename from the string
-				home = os.path.expanduser("~")	# get the users home folder
+			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
+				item_uri = unicode(info.get_uri())
 				
-				if tmp.startswith(home):
-					tmp = tmp[len(home)+1:]
-				if tmp:
-					tmp = unicode(urllib.unquote(tmp))
-					tags = tmp.replace(",", " ").replace("/", ",")
-				
-				uri = unicode(info.get_uri())
-				text = info.get_display_name()
-				mimetype = unicode(info.get_mime_type())
 				last_application = info.last_application().strip()
 				application = info.get_application_info(last_application)[0].split()[0]
 				desktopfile = self._find_desktop_file_for_application(application)
 				times = (
-					(info.get_added(), u"CreateEvent"),
-					(info.get_visited(), u"VisitEvent"),
-					(info.get_modified(), u"ModifyEvent")
+					(info.get_added(), Content.CREATE_EVENT.uri),
+					(info.get_visited(), Content.VISIT_EVENT.uri),
+					(info.get_modified(), Content.MODIFY_EVENT.uri)
 				)
 				
+				is_new = False
 				for timestamp, use in times:
-					if timestamp < self._timestamp_last_run:
+					if timestamp <= self._timestamp_last_run:
 						continue
+					is_new = True
+					events.append(Event(
+						subject = item_uri,
+						timestamp = timestamp,
+						source = Source.USER_ACTIVITY.uri,
+						content = use,
+						app = desktopfile or u""
+						))
+				
+				if is_new and item_uri not in items:
+					# Get the Content for the item
 					for filter_name, mimetypes in self.FILTERS.iteritems():
 						if mimetype and mimetype in mimetypes:
-							item = {
-								"timestamp": timestamp,
-								"uri": uri,
-								"text": text,
-								"source": filter_name,
-								"content": u"File",
-								"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" % use,
-								"mimetype": mimetype,
-								"tags": tags,
-								"icon": u"",
-								"app": desktopfile or u"",
-								"origin": u"", 	# we are not sure about the origin of this item,
-												# let's make it NULL; it has to be a string
-							}
-							yield item
+							break
+					item_content = getattr(Content, filter_name.upper(), u'')
+					if item_content:
+						item_content = item_content.uri
+					
+					# Insert the item
+					item_text = info.get_display_name()
+					item_tags = self._get_tags_for_file(info.get_uri_display())
+					item_mimetype = unicode(info.get_mime_type())
+					items[item_uri] = Item(
+						content = item_content,
+						source = Source.FILE.uri,
+						text = text,
+						mimetype = unicode(info.get_mime_type()),
+						tags = info.get_display_name(),
+					)
 		self._timestamp_last_run = timestamp_last_run
+		
+		if items:
+			return (events, items)
 
 if enabled:
 	__datasource__ = RecentlyUsedManagerGtk()
