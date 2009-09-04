@@ -100,7 +100,7 @@ class Symbol(DictCache):
 		if uri and uri in cls._CACHE:
 			return cls._CACHE[uri]
 		return cls._CACHE.setdefault(uri, super(Symbol, cls).__call__(*args, **kwargs))
-			
+	
 	def get(cls, uri):
 		return cls._CACHE.setdefault(uri, cls(uri))
 	
@@ -113,13 +113,9 @@ class Symbol(DictCache):
 				 "has already an attribute called %(attribute)r")
 				%({"name": cls.__name__, "uri": uri, "attribute": name})
 			)
-		obj = cls(
-			uri=uri,
-			display_name=display_name,
-			doc=doc
-		)
+		obj = cls(uri=uri, display_name=display_name, doc=doc)
 		cls._CACHE[uri] = cls._ATTRIBUTES[str(name)] = obj
-			
+	
 	def needs_lookup(cls, uri):
 		try:
 			return not (uri in cls._DATABASE_CLS._CACHE)
@@ -223,6 +219,12 @@ Content.register(
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Document",
 	display_name=_("Documents"),
 	doc="A document, presentation, spreadsheet, or other content centric item"
+)
+Content.register(
+	"SOURCECODE",
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#SourceCode",
+	display_name=_("Source Code"),
+	doc="Code in a compilable or interpreted programming language."
 )
 Content.register(
 	"IMAGE",
