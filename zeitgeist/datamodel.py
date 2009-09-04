@@ -22,19 +22,19 @@
 This module provides the abstract datamodel used by the Zeitgeist framework.
 In addition to providing useful constructs for dealing with the Zeitgeist data
 it also defines symbolic values for the common item types. Using symbolic values
-instead of Uri string will help detect programmer typos.
+instead of URI strings will help detect programmer typos.
 """
 
 import gettext
 gettext.install("zeitgeist")
 
 class DictCache(type):
-	""" Metaclass which has a _CACHE attribute, each subclass has its own, fresh cache """
+	""" Metaclass which has a _CACHE attribute. Each subclass has its own, fresh cache """
 	
 	def __init__(cls, name, bases, d):
 		super(DictCache, cls).__init__(name, bases, d)
 		cls.__CACHE = {}
-		
+	
 	def _new_cache(cls, cache=None):
 		if cache is None:
 			cls.__CACHE.clear()
@@ -47,8 +47,8 @@ class DictCache(type):
 	@property
 	def _CACHE(cls):
 		return cls.__CACHE
-		
-		
+
+
 class Symbol(DictCache):
 	
 	def __init__(cls, name, bases, d):
@@ -56,13 +56,13 @@ class Symbol(DictCache):
 		if not cls._CACHE and issubclass(cls, Symbol):
 			assert len(bases) == 1, "Multi-inheritance is not supported yet"
 			cls._new_cache(bases[0]._CACHE)
-			cls.__attributes = bases[0]._ATTRIBUTES
-			cls.__database_cls = bases[0]._DATABASE_CLS
-			cls.__base = bases[0]
+			cls._attributes = bases[0]._ATTRIBUTES
+			cls._database_cls = bases[0]._DATABASE_CLS
+			cls._base = bases[0]
 		else:
-			cls.__attributes = {}
-			cls.__database_cls = None
-			cls.__base = None
+			cls._attributes = {}
+			cls._database_cls = None
+			cls._base = None
 			
 	def _clear_cache(cls):
 		""" resets the cache of this Symbol. If the Symbol is bound to a
@@ -74,11 +74,11 @@ class Symbol(DictCache):
 			
 	@property
 	def _ATTRIBUTES(cls):
-		return cls.__attributes
+		return cls._attributes
 		
 	@property
 	def _DATABASE_CLS(cls):
-		return cls.__database_cls
+		return cls._database_cls
 		
 	def __repr__(cls):
 		return "<%s %r>" %(cls.__class__.__name__, cls.__name__)
@@ -100,7 +100,7 @@ class Symbol(DictCache):
 		if uri and uri in cls._CACHE:
 			return cls._CACHE[uri]
 		return cls._CACHE.setdefault(uri, super(Symbol, cls).__call__(*args, **kwargs))
-			
+	
 	def get(cls, uri):
 		return cls._CACHE.setdefault(uri, cls(uri))
 	
@@ -113,13 +113,9 @@ class Symbol(DictCache):
 				 "has already an attribute called %(attribute)r")
 				%({"name": cls.__name__, "uri": uri, "attribute": name})
 			)
-		obj = cls(
-			uri=uri,
-			display_name=display_name,
-			doc=doc
-		)
+		obj = cls(uri=uri, display_name=display_name, doc=doc)
 		cls._CACHE[uri] = cls._ATTRIBUTES[str(name)] = obj
-			
+	
 	def needs_lookup(cls, uri):
 		try:
 			return not (uri in cls._DATABASE_CLS._CACHE)
@@ -136,9 +132,9 @@ class Symbol(DictCache):
 		"""
 		if not hasattr(database_cls, "lookup_or_create"):
 			raise TypeError
-		cls.__database_cls = database_cls
-		if cls.__base is not None:
-			cls.__base.bind_database(database_cls)
+		cls._database_cls = database_cls
+		if cls._base is not None:
+			cls._base.bind_database(database_cls)
 
 
 class Category(object):
@@ -147,11 +143,11 @@ class Category(object):
 	def __init__(self, uri, display_name=None, name=None, doc=None):
 		if self.__class__ is Category:
 			raise ValueError("Category is an abstract class")
-		self.__uri = uri
-		self.__display_name = display_name
+		self._uri = uri
+		self._display_name = display_name
 		self.__doc__ = doc
-		self.__name = name
-		self.__database_obj = None
+		self._name = name
+		self._database_obj = None
 	
 	def __repr__(self):
 		return "<%s %r>" %(self.__class__.__name__, self.uri)
@@ -164,16 +160,16 @@ class Category(object):
 	
 	@property
 	def uri(self):
-		return self.__uri
+		return self._uri
 	
 	@property
 	def display_name(self):
-		return self.__display_name or ""
+		return self._display_name or u""
 	
 	@property
 	def name(self):
-		if self.__name is not None:
-			return self.__name
+		if self._name is not None:
+			return self._name
 		else:
 			return self.uri.split("#", 1).pop()
 	
@@ -182,12 +178,12 @@ class Category(object):
 		return self.__doc__
 	
 	def __getattr__(self, name):
-		if self.__database_obj is not None and not self.__class__.needs_lookup(self.uri):
-			return getattr(self.__database_obj, name)
+		if self._database_obj is not None and not self.__class__.needs_lookup(self.uri):
+			return getattr(self._database_obj, name)
 		if self.__class__._DATABASE_CLS is None:
-			raise RuntimeError("Cannot get %r, object is not bound to a database" %name)
-		self.__database_obj = self.__class__._DATABASE_CLS.lookup_or_create(self.uri)
-		return getattr(self.__database_obj, name)
+			raise RuntimeError("Cannot get %r, object is not bound to a database" % name)
+		self._database_obj = self.__class__._DATABASE_CLS.lookup_or_create(self.uri)
+		return getattr(self._database_obj, name)
 
 
 class Content(Category):
