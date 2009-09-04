@@ -276,7 +276,7 @@ def create_request_result(result_list):
 				bookmark = bool(result_tuple[11]),
 			)
 	
-	return (events, items)
+	return [events, items] if items else []
 
 class ZeitgeistEngine(BaseEngine):
 	
@@ -321,7 +321,7 @@ class ZeitgeistEngine(BaseEngine):
 		"""
 		
 		# check for required items and make sure all items have the correct type
-		EventDict.check_missing_items(ritem, True)
+		Event.check_missing_items(ritem, True)
 		
 		# FIXME: uri, content, source are now required items, the statement above
 		# will raise a KeyError if they are not there. What about mimetype?
