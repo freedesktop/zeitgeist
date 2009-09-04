@@ -132,7 +132,7 @@ class _Configuration(gobject.GObject):
 		if not self.isConfigured():
 			raise RuntimeError
 		return self.__items[name][0]
-		
+	
 	def get_as_string(self, name):
 		if not self.isConfigured():
 			raise RuntimeError
@@ -212,7 +212,7 @@ class DefaultConfiguration(_Configuration):
 			self.add_option(*default)
 		if self.CONFIGFILE:
 			self.read_config(self.CONFIGFILE, self.get_internal_name())
-				
+	
 	def save_config(self):
 		if self.CONFIGFILE:
 			config = SafeConfigParser()
@@ -227,6 +227,8 @@ class DefaultConfiguration(_Configuration):
 				configfile.close()
 
 if __name__ == "__main__":
+	
+	# TODO: Move this to test/.
 	
 	def test(config):
 		for option, required in config.get_options():

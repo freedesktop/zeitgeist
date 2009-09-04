@@ -45,7 +45,7 @@ class EvolutionSource(DataProvider):
 		iface = dbusutils.DBusInterface()
 		return iface.GetLastInsertionDate(u"/usr/share/applications/evolution.desktop")
 	
-	def __init__(self, name="Mail", icon="stock_mail", uri="gzg/evolution"):
+	def __init__(self):
 		DataProvider.__init__(self, name=u"Evolution")
 		self.cursor = None
 		try:

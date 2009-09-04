@@ -250,13 +250,13 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 		return { "AutoTags": tags }
 	
-	def get_items_uncached(self):
+	def _get_items(self):
 		timestamp_last_run = time.time()
 		
 		events = []
 		items = {}
 		
-		for info in self.recent_manager.get_items():
+		for (num, info) in enumerate(self.recent_manager.get_items()):
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
 				item_uri = unicode(info.get_uri())
 				item_mimetype = unicode(info.get_mime_type())
@@ -304,6 +304,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 						mimetype = item_mimetype,
 						tags = info.get_display_name(),
 					)
+			if num % 50 == 0:
+				self._process_gobject_events()
 		self._timestamp_last_run = timestamp_last_run
 		
 		if items:
