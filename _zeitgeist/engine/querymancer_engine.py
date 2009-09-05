@@ -295,7 +295,7 @@ class ZeitgeistEngine(BaseEngine):
 	
 	@staticmethod
 	def _get_content_id(content):
-		return Content.get(content).id
+		return Content.get(content).id if content else None
 	
 	@staticmethod
 	def _get_source_id(source):
