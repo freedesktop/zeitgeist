@@ -194,7 +194,7 @@ class Event(_BaseObjectDict):
 		"uri": (unicode, False),
 		"source": (unicode, True),
 		"content": (unicode, True), # previously "use"
-		"app": (unicode, False),
+		"application": (unicode, False),
 		"tags": (dict, False),
 		"bookmark": (bool, False),
 	}

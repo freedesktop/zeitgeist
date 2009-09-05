@@ -289,14 +289,37 @@ class ZeitgeistEngine(BaseEngine):
 			self.cursor = get_default_cursor()
 		assert self.cursor is not None
 	
-	def _get_ids(self, uri, content, source):	
-		uri_id = _uri.lookup_or_create(uri).id if uri else None
-		content_id = Content.get(content).id if content else None
-		source_id = Source.get(source).id if source else None
-		return uri_id, content_id, source_id
+	@staticmethod
+	def _get_uri_id(uri):
+		return _uri.lookup_or_create(uri).id if uri
+	
+	@staticmethod
+	def _get_content_id(content):
+		return Content.get(content).id
+	
+	@staticmethod
+	def _get_source_id(source):
+		return Source.get(source).id
+	
+	def _get_application_id(self, application):
+		id = None
+		if application in self._applications:
+			id = self._applications[application]
+		else if application:
+			try:
+				id = _app.add(info=application)
+			except sqlite3.IntegrityError:
+				row = _app.find_one(_app.item_id, _app.info == application)
+				id = row["item_id"] if row else None
+			
+			if id:
+				self._applications[application] = id
+			else:
+				log.warn("Unable to create or lookup app: %s" % application)
+		return id
 	
 	def _store_item(self, id, content_id, source_id,
-					text, origin=None, mimetype=None, icon=None):
+					text=None, origin=None, mimetype=None, icon=None):
 		# We use hardcoded SQL here because Querymancer SQL building is too slow
 		try:
 			self.cursor.execute("""
@@ -320,16 +343,17 @@ class ZeitgeistEngine(BaseEngine):
 		happens when `force' is True).
 		"""
 		
-		# check for required items and make sure all items have the correct type
+		# Check for required items and make sure all items have the correct type
 		Event.check_missing_items(event, True)
 		Item.check_missing_items(item, True)
 		
 		# Get the IDs for the URI, the content and the source
-		uri_id, content_id, source_id = self._get_ids(ritem["uri"],
-			ritem["content"], ritem["source"])
+		uri_id = self._get_uri_id(item["uri"])
+		content_id = self._get_content_id(item["content"])
+		source_id = self._get_source_id(item["source"])
 		
 		# Generate the URI for the event
-		event_uri = "zeitgeist://event/%s/%%s/%s#%d" % (ritem["use"],
+		event_uri = "zeitgeist://event/%s/%%s/%s#%d" % (event["content"],
 			ritem["timestamp"], uri_id)
 		
 		# Check whether the events is already in the database. If so,
@@ -346,7 +370,7 @@ class ZeitgeistEngine(BaseEngine):
 		# Insert or update the tags
 		for tag in (tag.strip() for tag in ritem["tags"].split(",") if tag):
 			anno_uri = "zeitgeist://tag/%s" % tag
-			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
+			anno_id = self._get_uri_id(anno_uri)
 			self._store_item(anno_id, Content.TAG.id,
                              Source.USER_ACTIVITY.id, tag)
 			try:
@@ -357,7 +381,7 @@ class ZeitgeistEngine(BaseEngine):
 		# Set the item as bookmarked, if it should be
 		if ritem["bookmark"]:
 			anno_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
-			anno_id, discard, discard = self._get_ids(anno_uri, None, None)
+			anno_id = self._get_uri_id(anno_uri)
 			self._store_item(anno_id, Content.BOOKMARK.id,
 							Source.USER_ACTIVITY.id, u"Bookmark")
 			try:
@@ -370,34 +394,17 @@ class ZeitgeistEngine(BaseEngine):
 		if force:
 			return 2 if event_exists else 1
 		
-		# Insert the application
-		if ritem["app"] in self._applications:
-			app_uri_id = self._applications[ritem["app"]]
-		elif ritem["app"]:
-			app_uri_id = None
-			try:
-				app_uri_id = _app.add(info=ritem["app"])				
-			except sqlite3.IntegrityError:
-				pass
-			if not app_uri_id:
-				row = _app.find_one(_app.item_id, _app.info == ritem["app"])
-				if row:
-					app_uri_id = row["item_id"]
-	
-			if app_uri_id :
-				self._applications[ritem["app"]] = app_uri_id
-			else:
-				log.warn("Unable to create or lookup app: %s" % ritem["app"])
-		else:
-			# No application specified:
-			app_uri_id = 0
-		
 		# Insert the event
-		e_id, e_content_id, e_subject_id = self._get_ids(event_uri, ritem["use"], None)
-		self._store_item(e_id, e_content_id, Source.USER_ACTIVITY.id, u"Activity")
+		event_id = self._get_uri_id(event_uri)
+		event_content_id = self._get_content_id(event["content"])
+		event_source_id = self._get_source_id(event["source"])
+		self._store_item(event_id, event_content_id, event_source_id)
 		try:
-			_event.add(item_id=e_id, subject_id=uri_id,
-						start=ritem["timestamp"], app_id=app_uri_id)				
+			_event.add(
+				item_id=event_id,
+				subject_id=uri_id,
+				start=event["timestamp"],
+				app_id=_get_application_id(event["application"]))
 		except sqlite3.IntegrityError:
 			# This shouldn't happen.
 			log.exception("Couldn't insert event into DB.")

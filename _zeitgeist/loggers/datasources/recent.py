@@ -280,7 +280,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 						timestamp = timestamp,
 						source = Source.USER_ACTIVITY.uri,
 						content = use,
-						app = desktopfile or u""
+						application = desktopfile or u""
 						))
 				
 				if is_new and item_uri not in items:
