@@ -354,7 +354,7 @@ class ZeitgeistEngine(BaseEngine):
 		
 		# Generate the URI for the event
 		event_uri = "zeitgeist://event/%s/%%s/%s#%d" % (event["content"],
-			ritem["timestamp"], uri_id)
+			event["timestamp"], uri_id)
 		
 		# Check whether the events is already in the database. If so,
 		# don't do anything. If it isn't there yet, we proceed with the

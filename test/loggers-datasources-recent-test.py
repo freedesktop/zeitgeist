@@ -3,14 +3,11 @@
 # Update python path to use local zeitgeist module
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import re
-from _zeitgeist.loggers.datasources.recent import (SimpleMatch,
-	MimeTypeSet, InverseMimeTypeSet)
-
 import unittest
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from _zeitgeist.loggers.datasources.recent import SimpleMatch, MimeTypeSet
 
 class SimpleMatchTest(unittest.TestCase):
 	
@@ -35,24 +32,6 @@ class MimeTypeSetTest(unittest.TestCase):
 		self.assertTrue("testboo" in m)
 		self.assertFalse("boobar" in m)
 		self.assertFalse("bar" in m)
-		
-class InverseMimeTypeSetTest(unittest.TestCase):
-	
-	def testinit(self):
-		self.assertEquals(repr(InverseMimeTypeSet("boo", "bar", "foo")), "InverseMimeTypeSet('bar', 'boo', 'foo')")
-		self.assertEquals(repr(InverseMimeTypeSet("boo", "foo", "foo")), "InverseMimeTypeSet('boo', 'foo')")
-		m = InverseMimeTypeSet("boo", SimpleMatch("bar/*"), re.compile("test.*"))
-		self.assertEquals(len(m), 3)
-		self.assertRaises(ValueError, InverseMimeTypeSet, 1)
-		
-	def testcontains(self):
-		m = InverseMimeTypeSet("boo", SimpleMatch("bar/*"), re.compile("test.*"))
-		self.assertFalse("boo" in m)
-		self.assertFalse("bar/boo" in m)
-		self.assertFalse("testboo" in m)
-		self.assertTrue("boobar" in m)
-		self.assertTrue("bar" in m)
-
 
 if __name__ == '__main__':
 	unittest.main()
