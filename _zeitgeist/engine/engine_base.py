@@ -85,13 +85,7 @@ class BaseEngine(gobject.GObject):
 		already was in the database.
 		"""
 		
-		inserted_items = []
-		for item in items:
-			# This is always 0 or 1, no need to consider 2 as we don't
-			# use the `force' option.
-			if self.insert_event(item, commit=False):
-				inserted_items.append(item)		
-		return inserted_items
+		raise NotImplementedError
 	
 	def get_item(self, uri):
 		""" Returns basic information about the indicated URI. As we are

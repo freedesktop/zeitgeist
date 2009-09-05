@@ -306,6 +306,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					)
 			if num % 50 == 0:
 				self._process_gobject_events()
+			break
 		self._timestamp_last_run = timestamp_last_run
 		
 		if items:

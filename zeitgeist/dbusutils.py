@@ -182,9 +182,8 @@ class _BaseObjectDict(dict):
 		otherwise the dict given as argument will be ckecked (and changed)
 		in place.
 		"""
-		for key, (type, required) in cls._ITEM_TYPE_MAP.iteritems():
-			# TODO: type() raises an exception, is that what we want? 
-			event_dict[key] = type(event_dict.get(key, type()))
+		for key, (value_type, required) in cls._ITEM_TYPE_MAP.iteritems():
+			event_dict[key] = type(event_dict.get(key, value_type()))
 		if not inplace:
 			return cls(event_dict)
 
@@ -192,7 +191,7 @@ class Event(_BaseObjectDict):
 	_ITEM_TYPE_MAP = {
 		"subject": (unicode, True), # item URI
 		"timestamp": (int, True),
-		"uri": (unicode, True),
+		"uri": (unicode, False),
 		"source": (unicode, True),
 		"content": (unicode, True), # previously "use"
 		"app": (unicode, False),

@@ -310,8 +310,8 @@ class ZeitgeistEngine(BaseEngine):
 				content_id=?, source_id=?, text=?, origin=?,
 				mimetype=?, icon=? WHERE id=?""",
 				(content_id, source_id, text, origin, mimetype, icon, id))		
-			
-	def insert_event(self, ritem, commit=True, force=False):
+	
+	def insert_event(self, event, item, commit=True, force=False):
 		"""
 		Inserts an item into the database. Returns a positive number on success,
 		zero otherwise (for example, if the item already is in the
@@ -321,24 +321,8 @@ class ZeitgeistEngine(BaseEngine):
 		"""
 		
 		# check for required items and make sure all items have the correct type
-		Event.check_missing_items(ritem, True)
-		
-		# FIXME: uri, content, source are now required items, the statement above
-		# will raise a KeyError if they are not there. What about mimetype?
-		# and why are we printing a warning and returning False here instead of raising
-		# an error at all? - Markus Korn
-		if not ritem["uri"].strip():
-			log.warning("Discarding item without a URI: %s" % ritem)
-			return False
-		if not ritem["content"].strip():
-			log.warning("Discarding item without a Content type: %s" % ritem)
-			return False
-		if not ritem["source"].strip():
-			log.warning("Discarding item without a Source type: %s" % ritem)
-			return False
-		if not ritem["mimetype"].strip():
-			log.warning("Discarding item without a mimetype: %s" % ritem)
-			return False
+		Event.check_missing_items(event, True)
+		Item.check_missing_items(item, True)
 		
 		# Get the IDs for the URI, the content and the source
 		uri_id, content_id, source_id = self._get_ids(ritem["uri"],
@@ -422,16 +406,25 @@ class ZeitgeistEngine(BaseEngine):
 			self.cursor.connection.commit()
 		
 		return 1
-		
-	def insert_events(self, items):
+	
+	def insert_events(self, events, items):
 		"""
 		Inserts items into the database and returns those items which were
 		successfully inserted. If an item fails, that's usually because it
 		already was in the database.
 		"""
-		result = super(ZeitgeistEngine, self).insert_events(items)
+		
+		inserted_events = []
+		inserted_items = {}
+		for event in events:
+			# This is always 0 or 1, no need to consider 2 as we don't
+			# use the `force' option.
+			if self.insert_event(event, items[event["subject"]], commit=False):
+				inserted_events.append(event)
+				inserted_items[event["subject"]] = items[event["subject"]]
 		self.cursor.connection.commit()
-		return result
+		
+		return inserted_items
 	
 	def get_item(self, uri):
 		""" Returns basic information about the indicated URI. As we are
