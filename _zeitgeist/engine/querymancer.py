@@ -423,4 +423,3 @@ class Table:
 									 for sub in resultspec))
 		else:
 			raise ValueError("Malformed result spec: %s" % resultspec)
-		

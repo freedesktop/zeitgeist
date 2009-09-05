@@ -295,14 +295,12 @@ class RecentlyUsedManagerGtk(DataProvider):
 						item_content = u''
 					
 					# Insert the item
-					item_text = info.get_display_name()
-					item_tags = self._get_tags_for_file(info.get_uri_display())
 					items[item_uri] = Item(
 						content = item_content,
 						source = Source.FILE.uri,
 						text = info.get_display_name(),
 						mimetype = item_mimetype,
-						tags = info.get_display_name(),
+						tags = self._get_tags_for_file(info.get_uri_display()),
 					)
 			if num % 50 == 0:
 				self._process_gobject_events()

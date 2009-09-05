@@ -183,7 +183,7 @@ class _BaseObjectDict(dict):
 		in place.
 		"""
 		for key, (value_type, required) in cls._ITEM_TYPE_MAP.iteritems():
-			event_dict[key] = type(event_dict.get(key, value_type()))
+			event_dict[key] = value_type(event_dict.get(key, value_type()))
 		if not inplace:
 			return cls(event_dict)
 

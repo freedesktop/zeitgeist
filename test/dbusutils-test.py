@@ -13,8 +13,8 @@ class EventTest(unittest.TestCase):
 	
 	incomplete_valid_dict = {"timestamp": 1, "source": "bar",
 		"subject": "file:///foo", "content": "boo", "uri": "foo"}
-	complete_valid_dict = {"tags": {}, "bookmark": False, "app": u"",
-		"uri": u"foo", "subject": "file:///foo", "content": u"boo",
+	complete_valid_dict = {"tags": {}, "bookmark": False, "application": u"",
+		"uri": u"foo", "subject": u"file:///foo", "content": u"boo",
 		"source": u"bar", "timestamp": 1}
 	
 	def test_missing_items(self):
