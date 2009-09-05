@@ -291,7 +291,7 @@ class ZeitgeistEngine(BaseEngine):
 	
 	@staticmethod
 	def _get_uri_id(uri):
-		return _uri.lookup_or_create(uri).id if uri
+		return _uri.lookup_or_create(uri).id
 	
 	@staticmethod
 	def _get_content_id(content):
@@ -305,7 +305,7 @@ class ZeitgeistEngine(BaseEngine):
 		id = None
 		if application in self._applications:
 			id = self._applications[application]
-		else if application:
+		elif application:
 			try:
 				id = _app.add(info=application)
 			except sqlite3.IntegrityError:
@@ -348,7 +348,7 @@ class ZeitgeistEngine(BaseEngine):
 		Item.check_missing_items(item, True)
 		
 		# Get the IDs for the URI, the content and the source
-		uri_id = self._get_uri_id(item["uri"])
+		uri_id = self._get_uri_id(event["subject"])
 		content_id = self._get_content_id(item["content"])
 		source_id = self._get_source_id(item["source"])
 		
@@ -364,26 +364,22 @@ class ZeitgeistEngine(BaseEngine):
 			return 0
 		
 		# Insert or update the item
-		self._store_item(uri_id, content_id, source_id, ritem["text"],
-			ritem["origin"], ritem["mimetype"], ritem["icon"])
+		self._store_item(uri_id, content_id, source_id, item["text"],
+			item["origin"], item["mimetype"], item["icon"])
 		
 		# Insert or update the tags
-		for tag in (tag.strip() for tag in ritem["tags"].split(",") if tag):
-			anno_uri = "zeitgeist://tag/%s" % tag
-			anno_id = self._get_uri_id(anno_uri)
-			self._store_item(anno_id, Content.TAG.id,
-                             Source.USER_ACTIVITY.id, tag)
+		for tag in item["tags"]:
+			anno_id = self._get_uri_id(u"zeitgeist://tag/%s" % tag)
+			self._store_item(anno_id, Content.TAG.id, Source.HEURISTIC_ACTIVITY.id, tag)
 			try:
 				_annotation.add(item_id=anno_id, subject_id=uri_id)
 			except sqlite3.IntegrityError:
 				pass # Tag already registered
 		
 		# Set the item as bookmarked, if it should be
-		if ritem["bookmark"]:
-			anno_uri = "zeitgeist://bookmark/%s" % ritem["uri"]
-			anno_id = self._get_uri_id(anno_uri)
-			self._store_item(anno_id, Content.BOOKMARK.id,
-							Source.USER_ACTIVITY.id, u"Bookmark")
+		if item["bookmark"]:
+			anno_id = self._get_uri_id(u"zeitgeist://bookmark/%s" % event["subject"])
+			self._store_item(anno_id, Content.BOOKMARK.id, Source.USER_ACTIVITY.id)
 			try:
 				_annotation.add(item_id=anno_id, subject_id=uri_id)
 			except sqlite3.IntegrityError:

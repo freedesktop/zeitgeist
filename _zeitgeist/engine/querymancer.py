@@ -119,7 +119,7 @@ class String(ColumnType):
 	def format(klass, value):
 		# Escape quotes to avoid SQL injection
 		if value:
-			return "'%s'" % value.replace("'", "''")
+			return "'%s'" % unicode(value).replace("'", "''")
 		return "''"
 	
 class EchoCursor:

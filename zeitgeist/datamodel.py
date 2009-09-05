@@ -333,6 +333,12 @@ Source.register(
 	doc="An item that has been created solely on the basis of user actions and is not otherwise stored in some physical location"
 )
 Source.register(
+	"HEURISTIC_ACTIVITY",
+	u"http://gnome.org/zeitgeist/schema/1.0/core#HeuristicActivity",
+	display_name=_("Activities"),
+	doc="An application has calculated via heuristics that some relationship is very probable."
+)
+Source.register(
 	"USER_NOTIFICATION",
 	u"http://gnome.org/zeitgeist/schema/1.0/core#UserNotification",
 	display_name=_("Notifications"),
