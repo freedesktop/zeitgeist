@@ -107,9 +107,9 @@ class DataHub(gobject.GObject):
 		logging.debug(_("Updating database with new %s items") % \
 			self._sources_queue[0].get_name())
 		
-		items = self._sources_queue[0].get_items()
+		events, items = self._sources_queue[0].get_items()
 		if items:
-			self._insert_events(self._sources_queue[0].get_name(), items)
+			self._insert_events(self._sources_queue[0].get_name(), events, items)
 		
  		del self._sources_queue[0]
 		
@@ -121,10 +121,10 @@ class DataHub(gobject.GObject):
 		# that GTK+ will continue to call this function in idle CPU time
 		return True
 	
-	def _insert_events(self, source_name, events):
-		if events:
+	def _insert_events(self, source_name, events, items):
+		if items:
 			try:
-				self._client.InsertEvents(events)
+				self._client.InsertEvents(events, items)
 			except dbus.exceptions.DBusException, error:
 				error = error.get_dbus_name()
 				if error == "org.freedesktop.DBus.Error.ServiceUnknown":

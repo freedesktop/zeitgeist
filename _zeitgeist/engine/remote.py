@@ -28,7 +28,7 @@ from _zeitgeist.singleton import SingletonApplication
 _engine = get_default_engine()
 
 DBUS_INTERFACE = DBusInterface.INTERFACE_NAME
-SIG_EVENTS = "(aa{sv}a{sa{sv}})"
+SIG_EVENTS = "aa{sv}a{sa{sv}}"
 
 class RemoteInterface(SingletonApplication):
 	
@@ -41,7 +41,7 @@ class RemoteInterface(SingletonApplication):
 	# Reading stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="as", out_signature=SIG_EVENTS)
+						in_signature="as", out_signature="("+SIG_EVENTS+")")
 	def GetItems(self, uris):
 		"""Get items by URI
 		
@@ -53,7 +53,7 @@ class RemoteInterface(SingletonApplication):
 		return map(_engine.get_item, uris)
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="iiibsaa{sv}", out_signature=SIG_EVENTS)
+						in_signature="iiibsaa{sv}", out_signature="("+SIG_EVENTS+")")
 	def FindEvents(self, min_timestamp, max_timestamp, limit,
 			sorting_asc, mode, filters):
 		"""Search for items which match different criterias
@@ -186,21 +186,38 @@ class RemoteInterface(SingletonApplication):
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature=SIG_EVENTS, out_signature="i")
-	def InsertEvents(self, events_and_items):
+	def InsertEvents(self, events, items):
 		"""Inserts events into the database. Returns the amount of sucessfully
 		inserted events
 		
-		:param event_list: list of events to be inserted in the database
-		:type item_list: list of tuples presenting an :ref:`event-label`
+		:param events: list of events to be inserted in the database
+		:type events: list of dicts presenting an :ref:`event-label`
+		:param items: list of corresponding items
+		:type items: dict of dicts presenting an :ref:`item-label`
 		:returns: a positive value on success, ``0`` otherwise
 		:rtype: Integer
 		"""
-		result = _engine.insert_events(events_and_items[0], events_and_items[1])
+		result = _engine.insert_events(events, items)
 		if result:
 			self.EventsChanged(("added", result))
 			return len(result)
 		else:
 			return 0
+	
+	@dbus.service.method(DBUS_INTERFACE,
+						in_signature="aa{ss}", out_signature="i")
+	def SetAnnotations(self, annotations_list):
+		"""Inserts annotations into the database.
+		
+		:param event_list: list of annotations to be inserted into the database
+		:type item_list: list of tuples presenting an :ref:`event-label`
+		:returns: URIs of the successfully inserted annotations
+		:rtype: list of strings
+		"""
+		result = _engine.insert_events(events_and_items[0], events_and_items[1])
+		#if result:
+			#self.AnnotationsChanged(("created", result))
+		return result
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature=SIG_EVENTS, out_signature="")

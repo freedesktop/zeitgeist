@@ -80,7 +80,6 @@ class EntityTable(Table):
 			#log.debug("Found %s: %s" % (self, ent))
 			return ent
 		return None
-			
 	
 	def lookup_or_create(self, value):
 		"""Find the entity matching the uri 'value' or create it if necessary"""
@@ -253,7 +252,7 @@ def create_request_result(result_list):
 			uri = result_tuple[0], #!!
 			source = result_tuple[5],
 			content = result_tuple[4],
-			app = result_tuple[10],
+			application = result_tuple[10],
 			tags = {
 				"UserTags": [],
 				"AutoTags": [],
