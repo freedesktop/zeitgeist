@@ -209,12 +209,12 @@ class RemoteInterface(SingletonApplication):
 	def SetAnnotations(self, annotations_list):
 		"""Inserts annotations into the database.
 		
-		:param event_list: list of annotations to be inserted into the database
-		:type item_list: list of tuples presenting an :ref:`event-label`
+		:param annotations_list: list of annotations to be inserted into the database
+		:type annotations_list: list of dicts presenting an :ref:`annotation-label`
 		:returns: URIs of the successfully inserted annotations
 		:rtype: list of strings
 		"""
-		result = _engine.insert_events(events_and_items[0], events_and_items[1])
+		result = _engine.set_annotations(annotations_list)
 		#if result:
 			#self.AnnotationsChanged(("created", result))
 		return result

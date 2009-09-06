@@ -333,6 +333,39 @@ class ZeitgeistEngine(BaseEngine):
 				mimetype=?, icon=? WHERE id=?""",
 				(content_id, source_id, text, origin, mimetype, icon, id))		
 	
+	def set_annotations(self, annotations_list, commit=True):
+		"""
+		Inserts the given annotations into the database. Returns the amount
+		of successfully inserted annotations (failure often indicates that
+		the annotations already existed).
+		"""
+		
+		correct_insertions = 0
+		for annotation in annotations_list:
+			Annotation.check_missing_items(annotation, True)
+			uri = annotation["uri"]
+			if not uri:
+				if annotation["content"] == Content.TAG.id and annotation["text"]:
+					uri = u"zeitgeist://tag/%s" % annotation["text"]
+				else:
+					raise ValueError, "No URI but content not tag."
+			
+			anno_id = self._get_uri_id(uri)
+			self._store_item(anno_id, annotation["content"],
+				annotation["source"], annotation["text"])
+			try:
+				_annotation.add(item_id=anno_id,
+					subject_id=self._get_uri_id(annotation["subject"]))
+			except sqlite3.IntegrityError:
+				pass # Tag already registered
+			else:
+				correct_insertions += 1
+		
+		if commit:
+			self.cursor.connection.commit()
+		
+		return correct_insertions
+	
 	def insert_event(self, event, item, commit=True, force=False):
 		"""
 		Inserts an item into the database. Returns a positive number on success,

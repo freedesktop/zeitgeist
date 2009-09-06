@@ -21,9 +21,9 @@ Data Types
 
 A dict representing an event, with the following elements:
 
- #. **timestamp** (integer) - the timestamp of the event
- #. **uri** (string) - an unique URI representing the event
- #. **subject** - the URI of the affected item
+ #. **timestamp** (integer) - timestamp of the event
+ #. **uri** (string) - unique URI identifying the event
+ #. **subject** - URI of the affected item
  #. **source** (string) - URI representing the cause of the event
  #. **content** (string) - URI representing the event type
  #. **application** (string) - .desktop file of the application related to the event
@@ -45,6 +45,19 @@ A dict representing an item, with the following elements:
  #. **icon** (string) - icon override hint
  #. **tags** (string) - dict containing lists with different tag strings
  #. **bookmark** (boolean) - whether the user marked the item as important
+
+.. _annotation-label:
+
+Annotation
+++++++++++
+
+A dict which can have the following items:
+
+ #. **uri** (string) - URI identifying the annotation item
+ #. **subject** (string) - URI of the relevant item or event
+ #. **source** (string) - URI representing the origin of the annotation's creation
+ #. **content** (string) - URI representing the annotation type
+ #. **text** (string) - text value of the annotation (optional)
 
 .. _filter-label:
 

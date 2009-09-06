@@ -212,3 +212,12 @@ class Item(_BaseObjectDict):
 		"tags": (dict, False),
 		"bookmark": (bool, False),
 	}
+
+class Annotation(_BaseObjectDict):
+	_ITEM_TYPE_MAP = {
+		"uri": (unicode, False),
+		"subject": (unicode, True),
+		"source": (unicode, True),
+		"content": (unicode, True),
+		"text": (unicode, False),
+	}
