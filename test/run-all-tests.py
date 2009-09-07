@@ -6,12 +6,12 @@ import unittest
 import doctest
 import logging
 
+# hide logging output
+logging.basicConfig(filename="/dev/null")
+
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from _zeitgeist.engine import get_engine_type, AVAILABLE_ENGINES
-
-# hide logging output
-logging.basicConfig(filename="/dev/null")
 
 # Find the test/ directory
 testdir = os.path.dirname(os.path.abspath(__file__))
