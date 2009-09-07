@@ -219,16 +219,16 @@ class RemoteInterface(SingletonApplication):
 			#self.AnnotationsChanged(("created", result))
 		return result
 	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature=SIG_EVENTS, out_signature="")
-	def UpdateItems(self, item_list):
-		"""Update items in the database
-		
-		:param item_list: list of items to be inserted in the database
-		:type item_list: list of tuples presenting an :ref:`item-label`
-		"""
-		result = _engine.update_items(item_list)
-		self.EventsChanged(("modified", result))
+	#@dbus.service.method(DBUS_INTERFACE,
+	#					in_signature=SIG_EVENTS, out_signature="")
+	#def UpdateItems(self, item_list):
+	#	"""Update items in the database
+	#	
+	#	:param item_list: list of items to be inserted in the database
+	#	:type item_list: list of tuples presenting an :ref:`item-label`
+	#	"""
+	#	result = _engine.update_items(item_list)
+	#	self.EventsChanged(("modified", result))
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="as", out_signature="")

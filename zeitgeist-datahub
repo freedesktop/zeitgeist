@@ -107,7 +107,7 @@ class DataHub(gobject.GObject):
 		logging.debug(_("Updating database with new %s items") % \
 			self._sources_queue[0].get_name())
 		
-		events, items = self._sources_queue[0].get_items()
+		events, items = self._sources_queue[0].get_items() or ((), ())
 		if items:
 			self._insert_events(self._sources_queue[0].get_name(), events, items)
 		
