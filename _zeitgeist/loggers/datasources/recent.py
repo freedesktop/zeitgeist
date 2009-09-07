@@ -31,7 +31,7 @@ import logging
 from xdg import BaseDirectory
 
 from zeitgeist import _config
-from zeitgeist.dbusutils import Event, Item
+from zeitgeist.dbusutils import Event, Item, Annotation
 from zeitgeist.datamodel import Content, Source
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
@@ -255,6 +255,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 		events = []
 		items = {}
+		annotations = []
 		
 		for (num, info) in enumerate(self.recent_manager.get_items()):
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
@@ -300,15 +301,23 @@ class RecentlyUsedManagerGtk(DataProvider):
 						source = Source.FILE.uri,
 						text = info.get_display_name(),
 						mimetype = item_mimetype,
-						tags = self._get_tags_for_file(info.get_uri_display()),
 					)
+					
+					# Insert the tags
+					tags = self._get_tags_for_file(info.get_uri_display())
+					for tag in tags:
+						annotations.append(Annotation(
+							subject = item_uri,
+							content = Content.TAG.uri,
+							source = Source.HEURISTIC_ACTIVITY.uri,
+							text = tag))
 			if num % 50 == 0:
 				self._process_gobject_events()
 			break
 		self._timestamp_last_run = timestamp_last_run
 		
 		if items:
-			return (events, items)
+			return (events, items, annotations)
 
 if enabled:
 	__datasource__ = RecentlyUsedManagerGtk()

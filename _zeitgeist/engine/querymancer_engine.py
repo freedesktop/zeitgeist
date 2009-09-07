@@ -35,7 +35,7 @@ import _zeitgeist.engine
 from _zeitgeist.engine.engine_base import BaseEngine
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
-from zeitgeist.dbusutils import Event, Item
+from zeitgeist.dbusutils import Event, Item, Annotation
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -253,10 +253,10 @@ def create_request_result(result_list):
 			source = result_tuple[5],
 			content = result_tuple[4],
 			application = result_tuple[10],
-			tags = {
-				"UserTags": [],
-				"AutoTags": [],
-				"ExpiringTags": []},
+			#tags = {
+			#	"UserTags": [],
+			#	"AutoTags": [],
+			#	"ExpiringTags": []},
 			bookmark = False, #!!
 		))
 		
@@ -270,8 +270,9 @@ def create_request_result(result_list):
 				icon = result_tuple[9],
 				tags = {
 					"UserTags": [x.strip() for x in result_tuple[12].split(',')],
-					"AutoTags": [],
-					"ExpiringTags": []},
+				#	"AutoTags": [],
+				#	"ExpiringTags": []
+					},
 				bookmark = bool(result_tuple[11]),
 			)
 	
@@ -291,14 +292,6 @@ class ZeitgeistEngine(BaseEngine):
 	@staticmethod
 	def _get_uri_id(uri):
 		return _uri.lookup_or_create(uri).id
-	
-	@staticmethod
-	def _get_content_id(content):
-		return Content.get(content).id if content else None
-	
-	@staticmethod
-	def _get_source_id(source):
-		return Source.get(source).id
 	
 	def _get_application_id(self, application):
 		id = None
@@ -345,14 +338,14 @@ class ZeitgeistEngine(BaseEngine):
 			Annotation.check_missing_items(annotation, True)
 			uri = annotation["uri"]
 			if not uri:
-				if annotation["content"] == Content.TAG.id and annotation["text"]:
+				if annotation["content"] == Content.TAG.uri and annotation["text"]:
 					uri = u"zeitgeist://tag/%s" % annotation["text"]
 				else:
 					raise ValueError, "No URI but content not tag."
 			
 			anno_id = self._get_uri_id(uri)
-			self._store_item(anno_id, annotation["content"],
-				annotation["source"], annotation["text"])
+			self._store_item(anno_id, Content.get(annotation["content"]).id,
+				Source.get(annotation["source"]).id, annotation["text"])
 			try:
 				_annotation.add(item_id=anno_id,
 					subject_id=self._get_uri_id(annotation["subject"]))
@@ -381,8 +374,8 @@ class ZeitgeistEngine(BaseEngine):
 		
 		# Get the IDs for the URI, the content and the source
 		uri_id = self._get_uri_id(event["subject"])
-		content_id = self._get_content_id(item["content"])
-		source_id = self._get_source_id(item["source"])
+		content_id = Content.get(item["content"]).id if item["content"] else None
+		source_id = Source.get(item["source"]).id
 		
 		# Generate the URI for the event
 		event_uri = "zeitgeist://event/%s/%%s/%s#%d" % (event["content"],
@@ -399,23 +392,13 @@ class ZeitgeistEngine(BaseEngine):
 		self._store_item(uri_id, content_id, source_id, item["text"],
 			item["origin"], item["mimetype"], item["icon"])
 		
-		# Insert or update the tags
-		for tag in item["tags"]:
-			anno_id = self._get_uri_id(u"zeitgeist://tag/%s" % tag)
-			self._store_item(anno_id, Content.TAG.id, Source.HEURISTIC_ACTIVITY.id, tag)
-			try:
-				_annotation.add(item_id=anno_id, subject_id=uri_id)
-			except sqlite3.IntegrityError:
-				pass # Tag already registered
-		
 		# Set the item as bookmarked, if it should be
 		if item["bookmark"]:
-			anno_id = self._get_uri_id(u"zeitgeist://bookmark/%s" % event["subject"])
-			self._store_item(anno_id, Content.BOOKMARK.id, Source.USER_ACTIVITY.id)
-			try:
-				_annotation.add(item_id=anno_id, subject_id=uri_id)
-			except sqlite3.IntegrityError:
-				pass # Item already bookmarked
+			self.set_annotations([Annotation(
+				uri = u"zeitgeist://bookmark/%s" % event["subject"],
+				subject = event["subject"],
+				content = Content.BOOKMARK.id,
+				source = Source.USER_ACTIVITY.id)])
 		
 		# Do not update the application nor insert the event if `force' is
 		# True, ie., if we are updating an existing item.
@@ -424,8 +407,8 @@ class ZeitgeistEngine(BaseEngine):
 		
 		# Insert the event
 		event_id = self._get_uri_id(event_uri)
-		event_content_id = self._get_content_id(event["content"])
-		event_source_id = self._get_source_id(event["source"])
+		event_content_id = Content.get(event["content"]).id
+		event_source_id = Source.get(event["source"]).id
 		self._store_item(event_id, event_content_id, event_source_id)
 		try:
 			_event.add(
@@ -655,7 +638,8 @@ class ZeitgeistEngine(BaseEngine):
 		if return_mode == 0:
 			result = create_request_result(events)
 			time2 = time.time()
-			log.debug("Fetched %s items in %.5f s." % (len(result), time2 - time1))
+			log.debug("Fetched %s items in %.5f s." % \
+				(len(result[0]) if result else 0, time2 - time1))
 		elif return_mode == 1:
 			# We could change the query above to "SELECT COUNT(*) FROM (...)",
 			# where "..." is the complete query converted into a temporary
