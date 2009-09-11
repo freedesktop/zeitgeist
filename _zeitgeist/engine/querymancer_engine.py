@@ -245,11 +245,11 @@ def create_request_result(result_list):
 	items = {}
 	
 	for result_tuple in result_list:
-		item_uri = result_tuple[0]
+		item_uri = result_tuple["item_uri"]
 		events.append(Event(
 			subject = item_uri,
-			timestamp = result_tuple[1],
-			uri = result_tuple[0], #!!
+			timestamp = result_tuple["event_timestamp"],
+			uri = result_tuple["event_uri"],
 			source = result_tuple[5],
 			content = result_tuple[4],
 			application = result_tuple[10],
@@ -262,18 +262,18 @@ def create_request_result(result_list):
 		
 		if item_uri not in items:
 			items[item_uri] = Item(
-				content = result_tuple[3],
-				source = result_tuple[5],
-				origin = result_tuple[6],
-				text = result_tuple[7] or u"",
-				mimetype = result_tuple[8],
-				icon = result_tuple[9],
+				content = result_tuple["item_content"],
+				source = result_tuple["item_source"],
+				origin = result_tuple["item_origin"],
+				text = result_tuple["item_text"] or u"",
+				mimetype = result_tuple["item_mimetype"],
+				icon = result_tuple["item_icon"],
 				tags = {
-					"UserTags": [x.strip() for x in result_tuple[12].split(',')],
+					"UserTags": [x.strip() for x in result_tuple[12].split(',')] if result_tuple[12] else '',
 				#	"AutoTags": [],
 				#	"ExpiringTags": []
 					},
-				bookmark = bool(result_tuple[11]),
+				bookmark = bool(result_tuple["item_bookmarked"]),
 			)
 	
 	return [events, items] if items else []
@@ -542,14 +542,14 @@ class ZeitgeistEngine(BaseEngine):
 				if not hasattr(filter["name"], "__iter__"):
 					filter["name"] = [ filter["name"] ]
 				filterset += [ "(" + " OR ".join(
-					[ "main_item.text LIKE ? ESCAPE \"\\\"" ] *
+					[ "_main_item.text LIKE ? ESCAPE \"\\\"" ] *
 					len(filter["name"])) + ")" ]
 				additional_args += filter["name"]
 			if "uri" in filter:
 				if not hasattr(filter["uri"], "__iter__"):
 					filter["uri"] = [ filter["uri"] ]
 				filterset += [ "(" + " OR ".join(
-					[ "uri.value LIKE ? ESCAPE \"\\\"" ] * len(filter["uri"]))
+					[ "_item_uri.value LIKE ? ESCAPE \"\\\"" ] * len(filter["uri"]))
 					+ ")" ]
 				additional_args += filter["uri"]
 			if "tags" in filter:
@@ -562,31 +562,31 @@ class ZeitgeistEngine(BaseEngine):
 						% (tag, tag, tag, tag) ]
 			if "mimetypes" in filter and len(filter["mimetypes"]):
 				filterset += [ "(" + " OR ".join(
-					["main_item.mimetype LIKE ? ESCAPE \"\\\""] * \
+					["_main_item.mimetype LIKE ? ESCAPE \"\\\""] * \
 					len(filter["mimetypes"])) + ")" ]
 				additional_args += filter["mimetypes"]
 			if "source" in filter:
-				filterset += [ "main_item.source_id IN (SELECT id "
+				filterset += [ "_main_item.source_id IN (SELECT id "
 					" FROM source WHERE value IN (%s))" % \
 					",".join("?" * len(filter["source"])) ]
 				additional_args += filter["source"]
 			if "content" in filter:
-				filterset += [ "main_item.content_id IN (SELECT id "
+				filterset += [ "_main_item.content_id IN (SELECT id "
 					" FROM content WHERE value IN (%s))" % \
 					",".join("?" * len(filter["content"])) ]
 				additional_args += filter["content"]
 			if "application" in filter:
-				filterset += [ "event.app_id IN (SELECT item_id "
+				filterset += [ "_event.app_id IN (SELECT item_id "
 					" FROM app WHERE info IN (%s))" % \
 					",".join("?" * len(filter["application"])) ]
 				additional_args += filter["application"]
 			if "bookmarked" in filter:
 				if filter["bookmarked"]:
 					# Only get bookmarked items
-					filterset += [ "bookmark == 1" ]
+					filterset += [ "item_bookmarked == 1" ]
 				else:
 					# Only get items that aren't bookmarked
-					filterset += [ "bookmark == 0" ]
+					filterset += [ "item_bookmarked == 0" ]
 			if filterset:
 				expressions += [ "(" + " AND ".join(filterset) + ")" ]
 		
@@ -599,13 +599,13 @@ class ZeitgeistEngine(BaseEngine):
 		additional_orderby = ""
 		
 		if mode in ("item", "mostused"):
-			preexpressions += ", MAX(event.start)"
-			expressions += " GROUP BY event.subject_id"
+			preexpressions += ", MAX(_event.start)"
+			expressions += " GROUP BY _event.subject_id"
 			if mode == "mostused":
-				additional_orderby += " COUNT(event.start) %s," % sorting
+				additional_orderby += " COUNT(_event.start) %s," % sorting
 		elif return_mode == 2:
-			preexpressions += " , COUNT(event.app_id) AS app_count"
-			expressions += " GROUP BY event.app_id"
+			preexpressions += " , COUNT(_event.app_id) AS app_count"
+			expressions += " GROUP BY _event.app_id"
 			additional_orderby += " app_count %s," % sorting
 		
 		args = [ Content.BOOKMARK.id, Content.TAG.id, min, max ]
@@ -613,32 +613,44 @@ class ZeitgeistEngine(BaseEngine):
 		args += [ limit or sys.maxint ]
 		
 		events = self.cursor.execute("""
-			SELECT uri.value, event.start, main_item.id, content.value,
-				"" AS use, source.value, main_item.origin, main_item.text,
-				main_item.mimetype, main_item.icon,
+			SELECT _item_uri.value AS item_uri,
+				_event_uri.value AS event_uri,
+				_event.start AS event_timestamp,
+				_item_content.value AS item_content,
+				_item_source.value AS item_source,
+				_event_content.value AS event_content,
+				_event_source.value AS event_source,
+				_main_item.origin AS item_origin,
+				_main_item.text AS item_text,
+				_main_item.mimetype AS item_mimetype,
+				_main_item.icon AS item_icon,
 				(SELECT info
 					FROM app
-					WHERE app.item_id = event.app_id
-					) AS app,
+					WHERE app.item_id = _event.app_id
+					) AS event_application,
 				(SELECT COUNT(id)
 					FROM item
 					INNER JOIN annotation ON annotation.item_id = item.id
-					WHERE annotation.subject_id = main_item.id AND
-						item.content_id = ?) AS bookmark,
-				(SELECT group_concat(item.text, ", ")
+					WHERE annotation.subject_id = _main_item.id AND
+						item.content_id = ?) AS item_bookmarked,
+				(SELECT group_concat(item.text, ",")
 					FROM item
 					INNER JOIN annotation ON annotation.item_id = item.id
-					WHERE annotation.subject_id = main_item.id AND
+					WHERE annotation.subject_id = _main_item.id AND
 						item.content_id = ?
 					) AS tags
 				%s
-			FROM item main_item
-			INNER JOIN event ON (main_item.id = event.subject_id)
-			INNER JOIN uri ON (uri.id = main_item.id)
-			INNER JOIN content ON (content.id == main_item.content_id)
-			INNER JOIN source ON (source.id == main_item.source_id)
-			WHERE event.start >= ? AND event.start <= ? %s
-			ORDER BY %s event.start %s LIMIT ?
+			FROM item _main_item
+			INNER JOIN event _event ON (_main_item.id = _event.subject_id)
+			INNER JOIN uri _item_uri ON (_item_uri.id = _main_item.id)
+			INNER JOIN content _item_content ON (_item_content.id == _main_item.content_id)
+			INNER JOIN source _item_source ON (_item_source.id == _main_item.source_id)
+			INNER JOIN item _event_item ON (_event_item.id = _event.item_id)
+			INNER JOIN uri _event_uri ON (_event_uri.id == _event_item.id)
+			INNER JOIN content _event_content ON (_event_content.id == _event_item.content_id)
+			INNER JOIN source _event_source ON (_event_source.id == _event_item.source_id)
+			WHERE _event.start >= ? AND _event.start <= ? %s
+			ORDER BY %s _event.start %s LIMIT ?
 			""" % (preexpressions, expressions, additional_orderby, sorting),
 			    args).fetchall()
 		
