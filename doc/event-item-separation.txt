@@ -1,0 +1,54 @@
+======================
+Event-Item-Separartion
+======================
+
+This document discribes how events and items are represented in zeitgeist
+
+
+What's an event
+===============
+
+In short, everything which has an `timestamp` attribute in zeitgeist is
+an event.
+
+Datastructure
+*************
+
+Internally an event is represented as a dict as defined in zeitgeist/dbusutils.py
+It must have the following keys:
+
+	"subject": string, pointing to the URI of the related item
+	"timestamp": integer, time at which this event happend
+	"source": string,  #TODO: description
+	"content": string, #TODO: description, # previously "use"
+	
+An event can also have this optional attributes:
+
+	"uri": string, #TODO: why is it there at all? the reference implementation of the engine creates an uri on runtime and does not use any uri given here
+	"application": string, which application is triggering this event
+	"tags": list of strings, tags which have been associated with this event
+	"bookmark": boolean, is this a bookmarked event?
+	
+	
+What's an item
+==============
+
+All events in zeitgeist are poiting to items.
+
+Datastructure
+*************
+
+Internally an item is represented as a dict as defined in zeitgeist/dbusutils.py
+It must have the following keys:
+
+	"content": string, describing the content of this item (see content spec)
+	"source": string, describing the source of an item (see source spec)
+	"mimetype": string, mimetype of this item
+	
+An item can also have this optional attributes:
+	
+	"origin": string
+	"text": string, displaced text of this item
+	"icon": string, pointing to an icon which should be show in an UI for this item
+	"tags": list of strings, tags which have been associated with this item
+	"bookmark": boolean, is this a bookmarked item?
