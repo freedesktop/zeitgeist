@@ -107,9 +107,12 @@ class TomboyNotes(gobject.GObject):
 		for filename in os.listdir(self.PATH):
 			filename = os.path.join(self.PATH, filename)
 			if os.path.splitext(filename)[-1] == ".note":
-				with open(filename) as fileobj:
+				fileobj = open(filename)
+				try:
 					note = TomboyNote.parse_content(fileobj.read(),
-							u"file://%s" %filename)
+						u"file://%s" % filename)
+				finally:
+					fileobj.close()
 				if note is not None:
 					yield note
 		
