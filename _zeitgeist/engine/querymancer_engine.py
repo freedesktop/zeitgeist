@@ -378,7 +378,14 @@ class ZeitgeistEngine(BaseEngine):
 		source_id = Source.get(item["source"]).id
 		
 		# Generate the URI for the event
-		event_uri = "zeitgeist://event/%s/%%s/%s#%d" % (event["content"],
+		#TODO: thekorn 2009-09-11
+		# what's the reason for this '%%s'? nothing in the current code
+		# is using it. And if it is used somewhere, this can be a reason
+		# for the next 'event_exists' beeing always False
+		# example of how event_uri looks right now:
+		#   zeitgeist://event/http://freedesktop.org/standards/xesam/1.0/core#Tag/%s/1234567#1
+		# I would be suprised if this is a valid URI, but this is a differnet topic
+		event_uri = "zeitgeist://event/%s/%%s/%d#%d" % (event["content"],
 			event["timestamp"], uri_id)
 		
 		# Check whether the events is already in the database. If so,
