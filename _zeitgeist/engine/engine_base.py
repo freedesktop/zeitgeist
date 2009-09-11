@@ -51,7 +51,7 @@ class BaseEngine(gobject.GObject):
 		self._last_time_from_app = {}
 		self._applications = LRUCache(100)
 		
-	def insert_event(self, ritem, commit=True, force=False):
+	def insert_event(self, event, item, commit=True, force=False):
 		"""
 		Inserts an item into the database. Returns a positive number on success,
 		zero otherwise (for example, if the item already is in the
@@ -60,25 +60,10 @@ class BaseEngine(gobject.GObject):
 		happens when `force' is True).
 		"""
 		
-		# check for required items and make sure all items have the correct type
-		EventDict.check_missing_items(ritem, True)
-		
-		# FIXME: uri, content, source are now required items, the statement above
-		# will raise a KeyError if they are not there. What about mimetype?
-		# and why are we printing a warning and returning False here instead of raising
-		# an error at all? - Markus Korn
-		if not ritem["uri"].strip():
-			raise ValueError("Discarding item without a URI: %s" % ritem)
-		if not ritem["content"].strip():
-			raise ValueError("Discarding item without a Content type: %s" % ritem)
-		if not ritem["source"].strip():
-			raise ValueError("Discarding item without a Source type: %s" % ritem)
-		if not ritem["mimetype"].strip():
-			raise ValueError("Discarding item without a mimetype: %s" % ritem)
-		return 0
+		raise NotImplementedError
 	
 	@time_insert
-	def insert_events(self, items):
+	def insert_events(self, events, items):
 		"""
 		Inserts items into the database and returns those items which were
 		successfully inserted. If an item fails, that's usually because it
