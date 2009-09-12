@@ -640,8 +640,8 @@ class ZeitgeistEngine(BaseEngine):
 						item.content_id = ?
 					) AS tags
 				%s
-			FROM item _main_item
-			INNER JOIN event _event ON (_main_item.id = _event.subject_id)
+			FROM event _event
+			INNER JOIN item _main_item ON (_main_item.id = _event.subject_id)
 			INNER JOIN uri _item_uri ON (_item_uri.id = _main_item.id)
 			INNER JOIN content _item_content ON (_item_content.id == _main_item.content_id)
 			INNER JOIN source _item_source ON (_item_source.id == _main_item.source_id)
