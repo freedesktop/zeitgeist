@@ -102,7 +102,7 @@ Use default Content and Source symbols
 	
 	>>> from zeitgeist.datamodel import Content, Source
 	>>> print sorted(Source._ATTRIBUTES.keys())
-	['FILE', 'SYSTEM_RESOURCE', 'USER_ACTIVITY', 'USER_NOTIFICATION', 'WEB_HISTORY']
+	['FILE', 'HEURISTIC_ACTIVITY', 'SYSTEM_RESOURCE', 'USER_ACTIVITY', 'USER_NOTIFICATION', 'WEB_HISTORY']
 	>>> print sorted(Content._ATTRIBUTES.keys()) #doctest: +NORMALIZE_WHITESPACE
 	['APPLICATION', 'BOOKMARK', 'BROADCAST_MESSAGE', 'COMMENT', 'CREATE_EVENT',
 	 'DOCUMENT', 'EMAIL', 'ERROR_EVENT', 'IMAGE', 'IM_MESSAGE', 'MODIFY_EVENT',
