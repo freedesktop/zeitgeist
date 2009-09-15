@@ -406,6 +406,14 @@ class ZeitgeistEngine(BaseEngine):
 				subject = event["subject"],
 				content = Content.BOOKMARK.id,
 				source = Source.USER_ACTIVITY.id)])
+				
+		# Set the event as bookmarked, if it should be
+		if event["bookmark"]:
+			self.set_annotations([Annotation(
+				uri = u"zeitgeist://bookmark/%s" %event_uri,
+				subject = event_uri,
+				content = Content.BOOKMARK.id,
+				source = Source.USER_ACTIVITY.id)])
 		
 		# Do not update the application nor insert the event if `force' is
 		# True, ie., if we are updating an existing item.
