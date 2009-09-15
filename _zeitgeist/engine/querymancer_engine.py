@@ -425,12 +425,16 @@ class ZeitgeistEngine(BaseEngine):
 		event_content_id = Content.get(event["content"]).id
 		event_source_id = Source.get(event["source"]).id
 		self._store_item(event_id, event_content_id, event_source_id)
+		args = dict(
+			item_id=event_id,
+			subject_id=uri_id,
+			start=event["timestamp"]
+		)
+		app_id=self._get_application_id(event["application"])
+		if app_id is not None:
+			args["app_id"] = app_id
 		try:
-			_event.add(
-				item_id=event_id,
-				subject_id=uri_id,
-				start=event["timestamp"],
-				app_id=self._get_application_id(event["application"]))
+			_event.add(**args)
 		except sqlite3.IntegrityError:
 			# This shouldn't happen.
 			log.exception("Couldn't insert event into DB.")
