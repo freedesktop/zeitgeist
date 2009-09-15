@@ -197,7 +197,7 @@ class Event(_BaseObjectDict):
 		"source": (unicode, True),
 		"content": (unicode, True), # previously "use"
 		"application": (unicode, False),
-		"tags": (dict, False),
+		"tags": (dict, False), #TBD: why are tags a dict (shouldn't it be list, set or unicode)?
 		"bookmark": (bool, False),
 	}
 
@@ -209,7 +209,7 @@ class Item(_BaseObjectDict):
 		"text": (unicode, False),
 		"mimetype": (unicode, True),
 		"icon": (unicode, False),
-		"tags": (dict, False),
+		"tags": (dict, False), #TBD: why are tags a dict (shouldn't it be list, set or unicode)?
 		"bookmark": (bool, False),
 	}
 
