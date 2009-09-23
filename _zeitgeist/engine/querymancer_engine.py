@@ -272,7 +272,7 @@ def create_request_result(result_list):
 					"UserTags": [x.strip() for x in result_tuple['tags'].split(',')] if result_tuple['tags'] else '',
 				#	"AutoTags": [],
 				#	"ExpiringTags": []
-					},
+				},
 				bookmark = bool(result_tuple["item_bookmarked"]),
 			)
 	
@@ -414,6 +414,26 @@ class ZeitgeistEngine(BaseEngine):
 				subject = event_uri,
 				content = Content.BOOKMARK,
 				source = Source.USER_ACTIVITY)])
+				
+		# add tags to item
+		for tag_type, tags in item["tags"].iteritems():
+			source = Source.get(str(tag_type))
+			self.set_annotations([Annotation(
+				uri = u"zeitgeist://tag/%s/%s" %(source, tag),
+				subject = event["subject"],
+				content = Content.TAG,
+				source = source,
+				text = tag) for tag in tags])
+				
+		# add tags to event
+		for tag_type, tags in event["tags"].iteritems():
+			source = Source.get(str(tag_type))
+			self.set_annotations([Annotation(
+				uri = u"zeitgeist://tag/%s/%s" %(source, tag),
+				subject = event_uri,
+				content = Content.TAG,
+				source = source,
+				text = tag) for tag in tags])
 		
 		# Do not update the application nor insert the event if `force' is
 		# True, ie., if we are updating an existing item.
