@@ -269,7 +269,7 @@ def create_request_result(result_list):
 				mimetype = result_tuple["item_mimetype"],
 				icon = result_tuple["item_icon"],
 				tags = {
-					"UserTags": [x.strip() for x in result_tuple[12].split(',')] if result_tuple[12] else '',
+					"UserTags": [x.strip() for x in result_tuple['tags'].split(',')] if result_tuple['tags'] else '',
 				#	"AutoTags": [],
 				#	"ExpiringTags": []
 					},
@@ -404,16 +404,16 @@ class ZeitgeistEngine(BaseEngine):
 			self.set_annotations([Annotation(
 				uri = u"zeitgeist://bookmark/%s" % event["subject"],
 				subject = event["subject"],
-				content = Content.BOOKMARK.id,
-				source = Source.USER_ACTIVITY.id)])
+				content = Content.BOOKMARK,
+				source = Source.USER_ACTIVITY)])
 				
 		# Set the event as bookmarked, if it should be
 		if event["bookmark"]:
 			self.set_annotations([Annotation(
 				uri = u"zeitgeist://bookmark/%s" %event_uri,
 				subject = event_uri,
-				content = Content.BOOKMARK.id,
-				source = Source.USER_ACTIVITY.id)])
+				content = Content.BOOKMARK,
+				source = Source.USER_ACTIVITY)])
 		
 		# Do not update the application nor insert the event if `force' is
 		# True, ie., if we are updating an existing item.
@@ -665,7 +665,7 @@ class ZeitgeistEngine(BaseEngine):
 			ORDER BY %s _event.start %s LIMIT ?
 			""" % (preexpressions, expressions, additional_orderby, sorting),
 			    args).fetchall()
-		
+				
 		if return_mode == 0:
 			result = create_request_result(events)
 			time2 = time.time()
