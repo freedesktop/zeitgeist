@@ -624,10 +624,7 @@ class ZeitgeistEngine(BaseEngine):
 				_main_item.text AS item_text,
 				_main_item.mimetype AS item_mimetype,
 				_main_item.icon AS item_icon,
-				(SELECT info
-					FROM app
-					WHERE app.item_id = _event.app_id
-					) AS event_application,
+				_app.info AS event_application,
 				(SELECT COUNT(id)
 					FROM item
 					INNER JOIN annotation ON annotation.item_id = item.id
@@ -649,6 +646,7 @@ class ZeitgeistEngine(BaseEngine):
 			INNER JOIN uri _event_uri ON (_event_uri.id == _event_item.id)
 			INNER JOIN content _event_content ON (_event_content.id == _event_item.content_id)
 			INNER JOIN source _event_source ON (_event_source.id == _event_item.source_id)
+			INNER JOIN app _app ON (_app.item_id = _event.app_id)
 			WHERE _event.start >= ? AND _event.start <= ? %s
 			ORDER BY %s _event.start %s LIMIT ?
 			""" % (preexpressions, expressions, additional_orderby, sorting),
