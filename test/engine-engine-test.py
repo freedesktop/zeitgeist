@@ -478,8 +478,14 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testGetTagsTimestamp(self):
 		self._init_with_various_events()
 		result = self.engine.get_tags(1219330, 4000000, 0, u"")
-		self.assertEquals([x[0] for x in result], [u"examples",
-			u"cool_pictures", u"files", u"images", u"holidays"])
+		expected = [("examples", 3),
+					("cool_pictures", 1),
+					("files", 1),
+					("images", 1),
+					("holidays", 1)]
+		result.sort()
+		expected.sort()		
+		self.assertEquals(result, expected)
 	
 	def testDeleteItem(self):
 		self._init_with_various_events()
