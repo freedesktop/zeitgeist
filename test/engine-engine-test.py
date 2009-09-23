@@ -75,25 +75,33 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEmptyDB()
 		self.assertEquals(0, len(list(self.engine.find_events(0, 0, 0, True,
 			"event", [{"bookmarked": True}]))))
-		orig = {	"uri" : "test://mytest",
-					"content" : Content.IMAGE.uri,
-					"source" : Source.USER_ACTIVITY.uri,
-					"app" : "/usr/share/applications/gnome-about.desktop",
-					"timestamp" : 0,
-					"text" : "Text",
-					"mimetype" : "mime/type",
-					"icon" : "stock_left",
-					"use" : Content.CREATE_EVENT.uri,
-					"origin" : "http://example.org",
-					"bookmark" : True,
-					"comment": "",
-					"tags": ""
+		orig_event = {
+			"subject": "test://mytest",
+			"timestamp": 0,
+			#~ "uri": (unicode, False),
+			"source": Source.USER_ACTIVITY,
+			"content": Content.CREATE_EVENT,
+			"application": "/usr/share/applications/gnome-about.desktop",
+			"tags": [],
+			"bookmark": False,
 		}
-		self.engine.insert_event(orig)
+		orig_item = {
+			"content": Content.IMAGE,
+			"source": Source.FILE,
+			"mimetype": "mime/type",
+			#~ "origin": "",
+			#~ "text": "",
+			#~ "icon": "",
+			#~ "tags": {}, #TBD: why are tags a dict (shouldn't it be list, set or unicode)?
+			"bookmark": True,
+		}
+		self.engine.insert_event(orig_event, orig_item)
 		bookmarks = self.engine.find_events(0, 0, 0, True,
 						"event", [{"bookmarked": True}])
-		self.assertEquals(1, len(bookmarks))
-		self.assertEquals("test://mytest", bookmarks[0]["uri"])
+		self.assertTrue(bookmarks)
+		events, items = bookmarks
+		self.assertEquals(1, len(items))
+		self.assertEquals("test://mytest", items.keys().pop())
 		self.assertEquals([], list(self.engine.get_tags()))
 	
 	def testSameTagOnTwoItems(self):
