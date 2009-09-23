@@ -701,17 +701,18 @@ class ZeitgeistEngine(BaseEngine):
 		
 		return result
 	
-	def update_items(self, items):
-		""" Updates the given items, and their annotations, in the database. """
-		# FIXME: This will remove *all* annotations, but only put back
-        # the bookmarked status and the tags.
-		self.delete_items([item["uri"] for item in items])
-		
-		for item in items:
-			self.insert_event(item, force=True, commit=False)
-		self.cursor.connection.commit()
-		
-		return items
+	# FIXME: update_items() appear unused so I commented it out // kamstrup
+	#def update_items(self, items):
+	#	""" Updates the given items, and their annotations, in the database. """
+	#	# FIXME: This will remove *all* annotations, but only put back
+    #   # the bookmarked status and the tags.
+	#	self.delete_items([item["uri"] for item in items])
+	#	
+	#	for item in items:
+	#		self.insert_event(item, force=True, commit=False)
+	#	self.cursor.connection.commit()
+	#	
+	#	return items
 	
 	def delete_items(self, uris):
 		uri_placeholder = ",".join("?" * len(uris))

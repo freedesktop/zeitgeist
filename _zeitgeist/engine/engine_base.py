@@ -109,8 +109,9 @@ class BaseEngine(gobject.GObject):
 		"""
 		raise NotImplementedError
 	
-	def update_items(self, items):
-		raise NotImplementedError
+	# FIXME: update_items() appear unused so I commented it out // kamstrup
+	#def update_items(self, items):
+	#	raise NotImplementedError
 	
 	def delete_items(self, items):
 		raise NotImplementedError
