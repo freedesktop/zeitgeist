@@ -524,10 +524,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		events, items = self.engine.find_events(0, 0, 0, True, "event", [], 0)
 		self.assertEquals(len(items), 1)
 		self.assertEquals(len(events), 1)
-		self.assertFalse([x for x in result if x["text"] in uris])
+		self.assertTrue(items.has_key("file:///tmp/files/example.png"))
 		result = self.engine.get_tags()
-		self.assertEquals(set([x[0] for x in result]).intersection(
-			set(["holidays", "cool_pictures", "examples"])), set(["examples"]))
+		expected = [("examples", 1), ("files",1)]
+		result.sort()
+		self.assertEquals(expected, result)
 	
 	def testModifyItem(self):
 		self._init_with_various_events()
