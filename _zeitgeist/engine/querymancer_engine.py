@@ -269,10 +269,10 @@ def create_request_result(result_list):
 				mimetype = result_tuple["item_mimetype"],
 				icon = result_tuple["item_icon"],
 				tags = {
-					"UserTags": [x.strip() for x in result_tuple[12].split(',')] if result_tuple[12] else '',
+					"UserTags": [x.strip() for x in result_tuple['tags'].split(',')] if result_tuple['tags'] else '',
 				#	"AutoTags": [],
 				#	"ExpiringTags": []
-					},
+				},
 				bookmark = bool(result_tuple["item_bookmarked"]),
 			)
 	
@@ -404,8 +404,36 @@ class ZeitgeistEngine(BaseEngine):
 			self.set_annotations([Annotation(
 				uri = u"zeitgeist://bookmark/%s" % event["subject"],
 				subject = event["subject"],
-				content = Content.BOOKMARK.id,
-				source = Source.USER_ACTIVITY.id)])
+				content = Content.BOOKMARK,
+				source = Source.USER_ACTIVITY)])
+				
+		# Set the event as bookmarked, if it should be
+		if event["bookmark"]:
+			self.set_annotations([Annotation(
+				uri = u"zeitgeist://bookmark/%s" %event_uri,
+				subject = event_uri,
+				content = Content.BOOKMARK,
+				source = Source.USER_ACTIVITY)])
+				
+		# add tags to item
+		for tag_type, tags in item["tags"].iteritems():
+			source = Source.get(str(tag_type))
+			self.set_annotations([Annotation(
+				uri = u"zeitgeist://tag/%s/%s" %(source, tag),
+				subject = event["subject"],
+				content = Content.TAG,
+				source = source,
+				text = tag) for tag in tags])
+				
+		# add tags to event
+		for tag_type, tags in event["tags"].iteritems():
+			source = Source.get(str(tag_type))
+			self.set_annotations([Annotation(
+				uri = u"zeitgeist://tag/%s/%s" %(source, tag),
+				subject = event_uri,
+				content = Content.TAG,
+				source = source,
+				text = tag) for tag in tags])
 		
 		# Do not update the application nor insert the event if `force' is
 		# True, ie., if we are updating an existing item.
@@ -417,12 +445,16 @@ class ZeitgeistEngine(BaseEngine):
 		event_content_id = Content.get(event["content"]).id
 		event_source_id = Source.get(event["source"]).id
 		self._store_item(event_id, event_content_id, event_source_id)
+		args = dict(
+			item_id=event_id,
+			subject_id=uri_id,
+			start=event["timestamp"]
+		)
+		app_id=self._get_application_id(event["application"])
+		if app_id is not None:
+			args["app_id"] = app_id
 		try:
-			_event.add(
-				item_id=event_id,
-				subject_id=uri_id,
-				start=event["timestamp"],
-				app_id=self._get_application_id(event["application"]))
+			_event.add(**args)
 		except sqlite3.IntegrityError:
 			# This shouldn't happen.
 			log.exception("Couldn't insert event into DB.")
@@ -651,7 +683,7 @@ class ZeitgeistEngine(BaseEngine):
 			ORDER BY %s _event.start %s LIMIT ?
 			""" % (preexpressions, expressions, additional_orderby, sorting),
 			    args).fetchall()
-		
+				
 		if return_mode == 0:
 			result = create_request_result(events)
 			time2 = time.time()

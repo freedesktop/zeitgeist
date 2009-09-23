@@ -193,9 +193,9 @@ class Event(_BaseObjectDict):
 	_ITEM_TYPE_MAP = {
 		"subject": (unicode, True), # item URI
 		"timestamp": (int, True),
-		"uri": (unicode, False),
 		"source": (unicode, True),
 		"content": (unicode, True), # previously "use"
+		"uri": (unicode, False),
 		"application": (unicode, False),
 		"tags": (dict, False),
 		"bookmark": (bool, False),
@@ -205,9 +205,9 @@ class Item(_BaseObjectDict):
 	_ITEM_TYPE_MAP = {
 		"content": (unicode, True),
 		"source": (unicode, True),
+		"mimetype": (unicode, True),
 		"origin": (unicode, False),
 		"text": (unicode, False),
-		"mimetype": (unicode, True),
 		"icon": (unicode, False),
 		"tags": (dict, False),
 		"bookmark": (bool, False),
@@ -215,9 +215,9 @@ class Item(_BaseObjectDict):
 
 class Annotation(_BaseObjectDict):
 	_ITEM_TYPE_MAP = {
-		"uri": (unicode, False),
 		"subject": (unicode, True),
 		"source": (unicode, True),
 		"content": (unicode, True),
+		"uri": (unicode, False),
 		"text": (unicode, False),
 	}
