@@ -34,7 +34,8 @@ def time_insert(function):
 	def wrapper(*args, **kwargs):
 		t1 = time.time()
 		result = function(*args, **kwargs)
-		log.debug("Inserted %s items in %.5f s." % (len(result), time.time() - t1))
+		log.debug("Inserted %s events in %.5f s." % \
+			(len(result[0]), time.time() - t1))
 		return result
 	return wrapper
 
@@ -63,19 +64,21 @@ class BaseEngine(gobject.GObject):
 		raise NotImplementedError
 	
 	@time_insert
-	def insert_events(self, events, items):
+	def insert_events(self, events, items, annotations):
 		"""
-		Inserts items into the database and returns those items which were
-		successfully inserted. If an item fails, that's usually because it
-		already was in the database.
+		Inserts events and their related items into the database and returns
+		those items which were successfully inserted. If an item fails, that's
+		usually because it already was in the database.
+		
+		The third argument (annotations) is passed to set_annotations, and is
+		only available as a shorthand.
 		"""
 		
 		raise NotImplementedError
 	
-	def get_item(self, uri):
-		""" Returns basic information about the indicated URI. As we are
-			fetching an item, and not an event, `timestamp' is 0 and `use'
-			and `app' are empty strings."""
+	def get_items(self, uris):
+		""" Returns Item objects containing basic information about the
+		indicated URIs."""
 		
 		raise NotImplementedError
 	

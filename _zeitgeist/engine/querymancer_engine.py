@@ -239,26 +239,28 @@ def reset():
 	_app = None
 	_event = None
 
-def create_request_result(result_list):
+def create_request_result(result_list, item_only=False):
 	
 	events = []
 	items = {}
 	
 	for result_tuple in result_list:
 		item_uri = result_tuple["item_uri"]
-		events.append(Event(
-			subject = item_uri,
-			timestamp = result_tuple["event_timestamp"],
-			uri = result_tuple["event_uri"],
-			source = result_tuple[5],
-			content = result_tuple[4],
-			application = result_tuple[10],
-			#tags = {
-			#	"UserTags": [],
-			#	"AutoTags": [],
-			#	"ExpiringTags": []},
-			bookmark = False, #!!
-		))
+		
+		if not item_only:
+			events.append(Event(
+				subject = item_uri,
+				timestamp = result_tuple["event_timestamp"],
+				uri = result_tuple["event_uri"],
+				source = result_tuple[5],
+				content = result_tuple[4],
+				application = result_tuple[10],
+				#tags = {
+				#	"UserTags": [],
+				#	"AutoTags": [],
+				#	"ExpiringTags": []},
+				bookmark = False, #!!!!
+			))
 		
 		if item_uri not in items:
 			items[item_uri] = Item(
@@ -269,14 +271,16 @@ def create_request_result(result_list):
 				mimetype = result_tuple["item_mimetype"],
 				icon = result_tuple["item_icon"],
 				tags = {
-					"UserTags": [x.strip() for x in result_tuple['tags'].split(',')] if result_tuple['tags'] else '',
+					"UserTags": [x.strip() for x in
+						result_tuple['tags'].split(',')]
+						if result_tuple['tags'] else '',
 				#	"AutoTags": [],
 				#	"ExpiringTags": []
 				},
 				bookmark = bool(result_tuple["item_bookmarked"]),
 			)
 	
-	return [events, items] if items else []
+	return ((events, items) if items else ()) if not item_only else items
 
 class ZeitgeistEngine(BaseEngine):
 	
@@ -464,7 +468,7 @@ class ZeitgeistEngine(BaseEngine):
 		
 		return 1
 	
-	def insert_events(self, events, items):
+	def insert_events(self, events, items, annotations):
 		"""
 		Inserts items into the database and returns those items which were
 		successfully inserted. If an item fails, that's usually because it
@@ -481,22 +485,30 @@ class ZeitgeistEngine(BaseEngine):
 				inserted_items[event["subject"]] = items[event["subject"]]
 		self.cursor.connection.commit()
 		
-		return inserted_items
+		return (inserted_events, inserted_items, self.set_annotations(annotations))
 	
-	def get_item(self, uri):
-		""" Returns basic information about the indicated URI. As we are
-			fetching an item, and not an event, `timestamp' is 0 and `use'
-			and `app' are empty strings."""
+	def get_items(self, uris):
+		""" Returns Item objects containing basic information about the
+		indicated URIs."""
+		
+		condition = ",".join("?" * len(uris))
+		arguments = [Content.BOOKMARK.id, Content.TAG.id]
+		arguments += (unicode(uri) for uri in uris)
 		
 		item = self.cursor.execute("""
-			SELECT uri.value, 0 AS timestamp, main_item.id, content.value,
-				"" AS use, source.value, main_item.origin, main_item.text,
-				main_item.mimetype, main_item.icon, "" AS app,
+			SELECT uri.value AS item_uri,
+				main_item.id,
+				content.value AS item_content,
+				source.value AS item_source,
+				main_item.origin AS item_origin,
+				main_item.text AS item_text,
+				main_item.mimetype AS item_mimetype,
+				main_item.icon AS item_icon,
 				(SELECT id
 					FROM item
 					INNER JOIN annotation ON annotation.item_id = item.id
 					WHERE annotation.subject_id = main_item.id AND
-						item.content_id = ?) AS bookmark,
+						item.content_id = ?) AS item_bookmarked,
 				(SELECT group_concat(item.text, ", ")
 					FROM item
 					INNER JOIN annotation ON annotation.item_id = item.id
@@ -507,10 +519,10 @@ class ZeitgeistEngine(BaseEngine):
 			INNER JOIN uri ON (uri.id = main_item.id)
 			INNER JOIN content ON (content.id == main_item.content_id)
 			INNER JOIN source ON (source.id == main_item.source_id)
-			WHERE uri.value = ? LIMIT 1
-			""", (Content.BOOKMARK.id, Content.TAG.id, unicode(uri))).fetchone()
+			WHERE uri.value IN (%s) LIMIT 1
+			""" % condition, arguments).fetchone()
 		
-		return create_request_result([item])
+		return create_request_result([item], item_only=True)
 	
 	def find_events(self, min=0, max=sys.maxint, limit=0,
 			sorting_asc=True, mode="event", filters=(), return_mode=0):

@@ -126,9 +126,7 @@ class DataHub(gobject.GObject):
 	def _insert_events(self, source_name, events, items, annotations):
 		if items:
 			try:
-				self._client.InsertEvents(events, items)
-				if annotations:
-					self._client.SetAnnotations(annotations)
+				self._client.InsertEvents(events, items, annotations)
 			except dbus.exceptions.DBusException, error:
 				error = error.get_dbus_name()
 				if error == "org.freedesktop.DBus.Error.ServiceUnknown":

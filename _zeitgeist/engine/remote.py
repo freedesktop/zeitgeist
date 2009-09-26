@@ -50,7 +50,7 @@ class RemoteInterface(SingletonApplication):
 		:returns: list of items
 		:rtype: list of tuples presenting an :ref:`item-label`
 		"""
-		return map(_engine.get_item, uris)
+		return _engine.get_items(uris)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="iiibsaa{sv}", out_signature="("+SIG_EVENTS+")")
@@ -185,8 +185,8 @@ class RemoteInterface(SingletonApplication):
 	# Writing stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature=SIG_EVENTS, out_signature="i")
-	def InsertEvents(self, events, items):
+						in_signature=SIG_EVENTS+"aa{ss}", out_signature="i")
+	def InsertEvents(self, events, items, annotations):
 		"""Inserts events into the database. Returns the amount of sucessfully
 		inserted events
 		
@@ -194,15 +194,15 @@ class RemoteInterface(SingletonApplication):
 		:type events: list of dicts presenting an :ref:`event-label`
 		:param items: list of corresponding items
 		:type items: dict of dicts presenting an :ref:`item-label`
+		:param annotations: list of annotations to be passed to SetAnnotations
+		:type annotation: list of dicts presenting an :ref:`annotation-label`
 		:returns: a positive value on success, ``0`` otherwise
 		:rtype: Integer
 		"""
-		result = _engine.insert_events(events, items)
-		if result:
-			self.EventsChanged(("added", result))
-			return len(result)
-		else:
-			return 0
+		result = _engine.insert_events(events, items, annotations)
+		if result[0]:
+			self.EventsChanged(("added", result[0], result[1]))
+		return len(result[0])
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="aa{ss}", out_signature="i")
@@ -250,10 +250,10 @@ class RemoteInterface(SingletonApplication):
 		
 		It contains a tuple, where the first item is one of `added`,
 		`modified` and `deleted`. If the first item is `added` or `modified`
-		the second item is a list of :ref:`item-label`, otherwise it is
-		a list of uris.
+		the second item is a list of :ref:`event-label` and a dict of
+		:ref:`item-label`, otherwise it is a list of uris.
 		
-		:returns: added and modified items and URIs of deleted items
+		:returns: added and modified events/items and URIs of deleted items
 		:rtype: list of dictionaries
 		"""
 		return value

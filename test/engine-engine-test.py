@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import get_default_engine
 from zeitgeist.datamodel import *
+from zeitgeist.dbusutils import Event, Item, Annotation
 
 import unittest
 import tempfile
@@ -35,7 +36,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def assertEmptyDB (self):
 		# Assert before each test that the db is indeed empty
-		self.assertEquals([], self.engine.find_events(0, limit=1))		
+		self.assertEquals((), self.engine.find_events(0, limit=1))		
 		
 	def testSingleInsertGet(self):
 		self.assertEmptyDB()
@@ -78,7 +79,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		orig_event = {
 			"subject": "test://mytest",
 			"timestamp": 0,
-			#~ "uri": (unicode, False),
 			"source": Source.USER_ACTIVITY,
 			"content": Content.CREATE_EVENT,
 			"application": "/usr/share/applications/gnome-about.desktop",
@@ -89,10 +89,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"content": Content.IMAGE,
 			"source": Source.FILE,
 			"mimetype": "mime/type",
-			#~ "origin": "",
-			#~ "text": "",
-			#~ "icon": "",
-			#~ "tags": {}, #TBD: why are tags a dict (shouldn't it be list, set or unicode)?
 			"bookmark": True,
 		}
 		self.engine.insert_event(orig_event, orig_item)
@@ -102,7 +98,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		events, items = bookmarks
 		self.assertEquals(1, len(items))
 		self.assertEquals("test://mytest", items.keys().pop())
-		self.assertEquals([], list(self.engine.get_tags()))
+		self.assertEquals((), list(self.engine.get_tags()))
 	
 	def testSameTagOnTwoItems(self):
 		self.assertEmptyDB()
@@ -159,33 +155,40 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testThreeTagsOnSameItem(self):		
 		self.assertEmptyDB()
-		item = {
-				"uri" : "test://mytest1",
-				"content" : Content.IMAGE.uri,
-				"source" : Source.USER_ACTIVITY.uri,
-				"app" : "/usr/share/applications/gnome-about.desktop",
-				"timestamp" : 0,
-				"text" : "Text",
-				"mimetype" : "mime/type",
-				"icon" : "stock_left",
-				"use" : Content.CREATE_EVENT.uri,
-				"origin" : "http://example.org",
-				"tags" : u"eins,zwei,drei",
-				"comment": "",
-				"bookmark": False,
-		}
-		self.assertTrue(self.engine.insert_event(item))
+		events = [Event(
+			subject = "test://mytest1",
+			timestamp = 0,
+			source = Source.USER_ACTIVITY.uri,
+			content = Content.CREATE_EVENT.uri,
+			application = "/usr/share/applications/gnome-about.desktop"
+			)]
+		items = {"test://mytest1": Item(
+			content = Content.IMAGE.uri,
+			source = Source.USER_ACTIVITY.uri,
+			text = "Text",
+			mimetype = "mime/type",
+			icon = "stock_left",
+			origin = "http://example.org",
+			bookmark = False
+			)}
+		annotations = [
+			Annotation(subject = "test://mytest1", content = Content.TAG.uri,
+				source = Source.HEURISTIC_ACTIVITY.uri, text = "eins"),
+			Annotation(subject = "test://mytest1", content = Content.TAG.uri,
+				source = Source.HEURISTIC_ACTIVITY.uri, text = "zwei"),
+			Annotation(subject = "test://mytest1", content = Content.TAG.uri,
+				source = Source.HEURISTIC_ACTIVITY.uri, text = "drei"),
+			]
+		self.assertTrue(self.engine.insert_events(events, items, annotations))
 		tags = self.engine.get_tags()
 		self.assertEquals([(u"eins", 1), (u"zwei", 1), (u"drei", 1)], tags)
 		
-		i = self.engine.get_item("test://mytest1")
+		i = self.engine.get_items(["test://mytest1"])
 		self.assertTrue(i is not None)
-		self.assertEquals("eins, zwei, drei",
-						  i["tags"])		
-		
+		self.assertEquals([u"eins", u"zwei", u"drei"],
+			i["test://mytest1"]["tags"]["UserTags"])
 		self.assertEquals([("eins", 1), ("zwei", 1), ("drei", 1)],
-						  self.engine.get_tags())				
-				
+			self.engine.get_tags())
 	
 	def testTagAndBookmark(self):
 		self.assertEmptyDB()
@@ -219,89 +222,87 @@ class ZeitgeistEngineTest (unittest.TestCase):
 
 	def _init_with_various_events(self):
 		self.assertEmptyDB()
+		
+		def _utag(self, tag, subject): # Create UserTag
+			return Annotation(subject = subject, content = Content.TAG.uri,
+				source = Source.HEURISTIC_ACTIVITY.uri, text = tag)
+		
+		events = []
 		items = {}
-		items["file:///tmp/test/example.jpg"] = {
-			"content": Content.IMAGE.uri,		
-			"source": Source.FILE.uri,
-			"text": u"example.jpg",
-			"mimetype": u"image/jpg",
-			"icon": u"",
-			"origin": u"",
-			"tags": {
-				"UserTags" : ["test", "examples", "filtertest"] 
-				},
-			"bookmark": False,
-			}
-		event1 = {
-			"subject" : u"file:///tmp/test/example.jpg",
-			"timestamp": 1219324, # keep it lower than in item4!
-			"content": Content.VISIT_EVENT.uri,
-			"source": Source.USER_ACTIVITY.uri,
-			"application": u"/usr/share/applications/eog.desktop",
-			}
-		items["http://image.host/cool_pictures/01.png"] = {
-			"content": Content.IMAGE.uri,
-			"source": Source.WEB_HISTORY.uri,
-			"text": u"Cool Picture 1",
-			"mimetype": u"image/png",
-			"icon": u"",
-			"origin": u"http://google.com",
-			"tags": {
-				"UserTags" : ["cool_pictures", "examples"],
-				},
-			"bookmark": True,
-			}
-		event2 = {
-			"subject" : u"http://image.host/cool_pictures/01.png",
-			"timestamp": 3563534,
-			"content": Content.CREATE_EVENT.uri,
-			"source": Source.USER_ACTIVITY.uri,
-			"application": u"/usr/share/applications/firefox.desktop",
-			}
+		annotations = {}
+		
+		items["file:///tmp/test/example.jpg"] = Item(
+			content = Content.IMAGE.uri,
+			source = Source.FILE.uri,
+			text = u"example.jpg",
+			mimetype = u"image/jpg",
+			bookmark = False
+			)
+		annotations.append(_utag("test", "file:///tmp/test/example.jpg"))
+		annotations.append(_utag("examples", "file:///tmp/test/example.jpg"))
+		annotations.append(_utag("filterset", "file:///tmp/test/example.jpg"))
+		events.append(Event(
+			subject = u"file:///tmp/test/example.jpg",
+			timestamp = 1219324, # keep it lower than in item4!
+			content = Content.VISIT_EVENT.uri,
+			source = Source.USER_ACTIVITY.uri,
+			application = u"/usr/share/applications/eog.desktop"
+			))
+		items["http://image.host/cool_pictures/01.png"] = Item(
+			content = Content.IMAGE.uri,
+			source = Source.WEB_HISTORY.uri,
+			text = u"Cool Picture 1",
+			mimetype = u"image/png",
+			origin = u"http://google.com",
+			bookmark = True
+			)
+		annotations.append(_utag("cool_pictures", "http://image.host/cool_pictures/01.png"))
+		annotations.append(_utag("examples", "http://image.host/cool_pictures/01.png"))
+		events.append(Event(
+			subject = u"http://image.host/cool_pictures/01.png",
+			timestamp = 3563534,
+			content = Content.CREATE_EVENT.uri,
+			source = Source.USER_ACTIVITY.uri,
+			application = u"/usr/share/applications/firefox.desktop"
+		))
 		# event3 is another event on http://image.host/cool_pictures/01.png
 		event3 = dict(event2) # Create a copy (without dict() we get a reference)
 		event3["timestamp"] = 4563534
+		events.append(event3)
 		self.last_insertion_app = u"/usr/share/applications/eog.desktop"
 		self.last_insertion_date = 1248324
-		items["file:///tmp/files/example.png"] = {
-			"content": Content.IMAGE.uri,
-			"source": Source.FILE.uri,
-			"text": u"example.png",
-			"mimetype": u"image/png",
-			"icon": u"",
-			"origin": u"",
-			"tags": {
-				"UserTags" : ["files", "examples"],
-				},
-			"bookmark": False,
-			}
-		event4 = {
-			"subject" : u"file:///tmp/files/example.png",
-			"timestamp": self.last_insertion_date,
-			"content": Content.CREATE_EVENT.uri,
-			"source": Source.USER_ACTIVITY.uri,
-			"application": self.last_insertion_app,
-			}
-		items["file:///home/foo/images/holidays/picture.png"] = {
-			"content": Content.VIDEO.uri,
-			"source": Source.FILE.uri,
-			"text": u"picture.png",
-			"mimetype": u"image/png",
-			"icon": u"",
-			"origin": u"",
-			"tags": {
-				"UserTags" : ["images", "holidays"],
-				},
-			"bookmark": True,
-			}
-		event5 = {
-			"subject" : u"file:///home/foo/images/holidays/picture.png",
-			"timestamp": 1219335,
-			"content": Content.CREATE_EVENT.uri,
-			"source": Source.USER_ACTIVITY.uri,
-			"application": u"/usr/share/applications/eog.desktop",
-			}
-		events = (event1, event2, event3, event4, event5)
+		items["file:///tmp/files/example.png"] = Item(
+			content = Content.IMAGE.uri,
+			source = Source.FILE.uri,
+			text = u"example.png",
+			mimetype = u"image/png",
+			bookmark = False
+			)
+		annotations.append(_utag("examples", "file:///tmp/files/example.png"))
+		annotations.append(_utag("files", "file:///tmp/files/example.png"))
+		events.append(Event(
+			subject = u"file:///tmp/files/example.png",
+			timestamp = self.last_insertion_date,
+			content = Content.CREATE_EVENT.uri,
+			source = Source.USER_ACTIVITY.uri,
+			application = self.last_insertion_app
+			))
+		items["file:///home/foo/images/holidays/picture.png"] = Item(
+			content = Content.VIDEO.uri,
+			source = Source.FILE.uri,
+			text = u"picture.png",
+			mimetype = u"image/png",
+			bookmark = True
+			)
+		annotations.append(_utag("images", "file:///home/foo/images/holidays/picture.png"))
+		annotations.append(_utag("holidays", "file:///home/foo/images/holidays/picture.png"))
+		events.append(Event(
+			subject = u"file:///home/foo/images/holidays/picture.png",
+			timestamp = 1219335,
+			content = Content.CREATE_EVENT.uri,
+			source = Source.USER_ACTIVITY.uri,
+			application = u"/usr/share/applications/eog.desktop",
+			))
 		self.engine.insert_events(events, items)
 	
 	def testGetLastInsertionDate(self):
@@ -317,17 +318,17 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testFindEventsTimestamp(self):
 		self._init_with_various_events()
-		result = self.engine.find_events(1000000, 1250000, 0, True, "event", [])
+		result = self.engine.find_events(1000000, 1250000, 0, True, "event", ())
 		self.assertEquals(len([x for x in result]), 3)
 	
 	def testFindEventsUnique(self):
 		self._init_with_various_events()
-		result = self.engine.find_events(0, 0, 0, True, "item", [])
+		result = self.engine.find_events(0, 0, 0, True, "item", ())
 		self.assertEquals(len([x for x in result]), 4)
 	
 	def testFindEventsMostUsed(self):
 		self._init_with_various_events()
-		result = self.engine.find_events(0, 0, 0, False, "mostused", [])
+		result = self.engine.find_events(0, 0, 0, False, "mostused", ())
 		self.assertEquals(result[0]["text"], u"Cool Picture 1")
 	
 	def testFindEventsUriAsString(self): # Deprecated (to be removed in 0.3)
@@ -381,10 +382,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testFindEventsWithTags(self):
 		self._init_with_various_events()
-		result1 = [x["uri"] for x in self.engine.find_events(0, 0, 0, True, "event",
-			[{"tags": [u"files"]}])]
-		result2 = [x["uri"] for x in self.engine.find_events(0, 0, 0, True, "event",
-			[{"tags": [u"files", u"examples"]}])]
+		result1 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"tags": [u"files"]}])
+		result2 = self.engine.find_events(0, 0, 0, True, "event",
+			[{"tags": [u"files", u"examples"]}])
 		self.assertEquals(result1, result2)
 		self.assertEquals(result1, [u"file:///tmp/files/example.png"])
 	
@@ -412,8 +413,9 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			[{"source": [Source.WEB_HISTORY.uri]}])
 		result3 = self.engine.find_events(0, 0, 0, True, "event",
 			[{"source": [Source.USER_NOTIFICATION.uri]}])
-		self.assertEquals(len(result1), 3)
-		self.assertEquals(set(x["source"] for x in result2),
+		self.assertEquals(len(result1[0]), 3)
+		self.assertEquals(len(result1[1]), 3)
+		self.assertEquals(set(result2[1][x]["source"] for x in result2[1]),
 			set([Source.WEB_HISTORY.uri]))
 		self.assertEquals(len(result2), 2)
 		self.assertEquals(len(result3), 0)

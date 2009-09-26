@@ -20,7 +20,7 @@ class CategoryTest (unittest.TestCase):
 		pass
 	
 	def testAbstractClass(self):
-		"""Make sure that we can not instantiate a Cateory directly"""
+		"""Make sure that we can not instantiate a Category directly"""
 		self.failUnlessRaises(ValueError, Category, "http://example.com/schema#Foo")
 		self.failUnlessRaises(ValueError, Category.get, "http://example.com/schema#Foo")
 
