@@ -64,7 +64,7 @@ class BaseEngine(gobject.GObject):
 		raise NotImplementedError
 	
 	@time_insert
-	def insert_events(self, events, items, annotations):
+	def insert_events(self, events, items, annotations = []):
 		"""
 		Inserts events and their related items into the database and returns
 		those items which were successfully inserted. If an item fails, that's

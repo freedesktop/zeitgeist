@@ -40,23 +40,24 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 	def testSingleInsertGet(self):
 		self.assertEmptyDB()
-		orig = {	"uri" : "test://mytest",
-					"content" : Content.IMAGE.uri,
-					"source" : Source.USER_ACTIVITY.uri,
-					"app" : "/usr/share/applications/gnome-about.desktop",
-					"timestamp" : 0,
-					"text" : "Text",
-					"mimetype" : "mime/type",
-					"icon" : "stock_left",
-					"use" : Content.CREATE_EVENT.uri,
-					"origin" : "http://example.org",
-					"comment": "",
-					"tags": u"example, test, tagtest",
-					"bookmark": False, 
-					}
-		num_inserts = self.engine.insert_event(orig)
+		orig_event = {
+			"subject": "test://mytest",
+			"timestamp": 0,
+			"source": Source.USER_ACTIVITY,
+			"content": Content.CREATE_EVENT,
+			"application": "/usr/share/applications/gnome-about.desktop",
+			"tags": [],
+			"bookmark": False,
+		}
+		orig_item = {
+			"content": Content.IMAGE,
+			"source": Source.FILE,
+			"mimetype": "mime/type",
+			"bookmark": True,
+		}
+		num_inserts = self.engine.insert_event(orig_event, orig_item, [])
 		self.assertEquals(1, num_inserts)
-		result = self.engine.get_item("test://mytest")
+		result = self.engine.get_items(["test://mytest"])
 		self.assertTrue(result is not None)
 		
 		# Clean result, from extra data, and add missing data,
@@ -323,12 +324,12 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsTimestamp(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(1000000, 1250000, 0, True, "event", ())
-		self.assertEquals(len([x for x in result]), 3)
+		self.assertEquals(len([x for x in result[0]]), 3)
 	
 	def testFindEventsUnique(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "item", ())
-		self.assertEquals(len([x for x in result]), 4)
+		self.assertEquals(len([x for x in result[0]]), 4)
 	
 	def testFindEventsMostUsed(self):
 		self._init_with_various_events()
@@ -365,7 +366,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event",
 			[{"mimetypes": [u"image/png"]}])
-		self.assertEquals(len([x for x in result]), 4)
+		self.assertEquals(len([x for x in result][0]), 4)
 	
 	def testFindEventsMimetypeWithWildcard(self):
 		self._init_with_various_events()
@@ -378,13 +379,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event",
 			[{"mimetypes": [u"image/jpg"], "bookmarked": True}])
-		self.assertEquals(len([x for x in result]), 0)
+		self.assertEquals(len([x for x in result[0]]), 0)
 	
 	def testFindEventsUniqueAndNotBookmarked(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "item",
 			[{"bookmarked": False}])
-		self.assertEquals(len([x for x in result]), 2)
+		self.assertEquals(len([x for x in result[0]]), 2)
 	
 	def testFindEventsWithTags(self):
 		self._init_with_various_events()
@@ -436,13 +437,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			[{"application": [u"/usr/share/applications/gedit.desktop"]}])
 		self.assertEquals(len(result1[0]), 3)
 		self.assertEquals(len(result2[0]), 2)
-		self.assertEquals(len(result3[0]), 0)
+		self.assertEquals(len(result3), 0)
 	
 	def testCountEventsMimetype(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event",
 			[{"mimetypes": [u"image/png"]}], True)
-		self.assertEquals(len(result[0]), 4)
+		self.assertEquals(result, 4)
 	
 	def testCountEventsItemsContent(self):
 		self._init_with_various_events()
@@ -468,7 +469,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testGetTagsNameFilter(self):
 		self._init_with_various_events()
 		result = self.engine.get_tags(0, 0, 0, u"f%")
-		self.assertEquals(result, [(u"filtertest", 1),
+		self.assertEquals(result, [(u"filterset", 1),
 			(u"files", 1)])
 	
 	def testGetTagsLimit(self):
@@ -496,7 +497,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.get_tags()
 		expected = [("test", 1),
 					("examples", 3),
-					("filtertest", 1),
+					("filterset", 1),
 					("files", 1),
 					("images", 1),
 					("holidays", 1),
@@ -545,7 +546,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(len(events), 1, "%s" % events)
 		self.assertEquals(len(items), 1, "%s" % items)
 		item = items["file:///tmp/test/example.jpg"]
-		self.assertEquals(item["tags"]["UserTags"], ["test", "examples", "filtertest"])
+		self.assertEquals(item["tags"]["UserTags"], [u'test', u'examples', u'filterset'])
 		# FIXME: Is this tes obsolete? The engine doesn't expose any way
 		#        to update item metadata directly // kamstrup
 		#taglist = [x for x in item["tags"].split(", ") if x != "examples"]
