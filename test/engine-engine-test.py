@@ -223,13 +223,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def _init_with_various_events(self):
 		self.assertEmptyDB()
 		
-		def _utag(self, tag, subject): # Create UserTag
+		def _utag(tag, subject): # Create UserTag
 			return Annotation(subject = subject, content = Content.TAG.uri,
 				source = Source.HEURISTIC_ACTIVITY.uri, text = tag)
 		
 		events = []
 		items = {}
-		annotations = {}
+		annotations = []
 		
 		items["file:///tmp/test/example.jpg"] = Item(
 			content = Content.IMAGE.uri,
@@ -238,6 +238,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			mimetype = u"image/jpg",
 			bookmark = False
 			)
+		
 		annotations.append(_utag("test", "file:///tmp/test/example.jpg"))
 		annotations.append(_utag("examples", "file:///tmp/test/example.jpg"))
 		annotations.append(_utag("filterset", "file:///tmp/test/example.jpg"))
@@ -258,13 +259,16 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			)
 		annotations.append(_utag("cool_pictures", "http://image.host/cool_pictures/01.png"))
 		annotations.append(_utag("examples", "http://image.host/cool_pictures/01.png"))
-		events.append(Event(
+		
+		event2 = Event(
 			subject = u"http://image.host/cool_pictures/01.png",
 			timestamp = 3563534,
 			content = Content.CREATE_EVENT.uri,
 			source = Source.USER_ACTIVITY.uri,
 			application = u"/usr/share/applications/firefox.desktop"
-		))
+		)
+		
+		events.append(event2)
 		# event3 is another event on http://image.host/cool_pictures/01.png
 		event3 = dict(event2) # Create a copy (without dict() we get a reference)
 		event3["timestamp"] = 4563534
@@ -303,7 +307,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			source = Source.USER_ACTIVITY.uri,
 			application = u"/usr/share/applications/eog.desktop",
 			))
-		self.engine.insert_events(events, items)
+		self.engine.insert_events(events, items, annotations)
 	
 	def testGetLastInsertionDate(self):
 		self._init_with_various_events()
