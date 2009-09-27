@@ -17,9 +17,10 @@ For more information, see:
 
 Dependencies:
 
- - python 2.5 or higher
- - python-gtk2 (2.14.1 or higher)
- - python-gconf
- - python-gobject (2.16.0 or higher)
- - python-dbus
- - python-xdg
+ - Python [python] (2.5 or higher)
+ - PyGTK2 [python-gtk2] (2.14.1 or higher)
+ - python-gconf / gnome-python2-gconf
+ - PyGobject [python-gobject] (2.16.0 or higher)
+ - dbus-python [python-dbus]
+ - PyXDG [python-xdg]
+ - SQLite3 [sqlite3]
