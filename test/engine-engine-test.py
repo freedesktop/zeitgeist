@@ -333,13 +333,15 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsMostUsed(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, False, "mostused", ())
-		self.assertEquals(result[0]["text"], u"Cool Picture 1")
+		uri = result[0][0]["subject"]
+		
+		self.assertEquals(result[1][uri]["text"], u"Cool Picture 1")
 	
 	def testFindEventsUriAsString(self): # Deprecated (to be removed in 0.3)
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, False, "item",
 			[{"uri": u"file:///tmp/test/%"}])
-		self.assertEquals(len(result), 1)
+		self.assertEquals(len(result[0]), 1)
 	
 	def testFindEventsUri(self):
 		self._init_with_various_events()
@@ -369,7 +371,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event",
 			[{"mimetypes": [u"image/j%", u"image/_n_"]}])
-		self.assertEquals(set([x["mimetype"] for x in result]),
+		self.assertEquals(set([x["mimetype"] for x in result[0]]),
 			set([u"image/jpg", u"image/png"]))
 	
 	def testFindEventsMimetypeAndBookmarks(self):
@@ -432,15 +434,15 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			[{"application": [u"/usr/share/applications/firefox.desktop"]}])
 		result3 = self.engine.find_events(0, 0, 0, True, "event",
 			[{"application": [u"/usr/share/applications/gedit.desktop"]}])
-		self.assertEquals(len(result1), 3)
-		self.assertEquals(len(result2), 2)
-		self.assertEquals(len(result3), 0)
+		self.assertEquals(len(result1[0]), 3)
+		self.assertEquals(len(result2[0]), 2)
+		self.assertEquals(len(result3[0]), 0)
 	
 	def testCountEventsMimetype(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "event",
 			[{"mimetypes": [u"image/png"]}], True)
-		self.assertEquals(result, 4)
+		self.assertEquals(len(result[0]), 4)
 	
 	def testCountEventsItemsContent(self):
 		self._init_with_various_events()
@@ -452,13 +454,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, u"event", [],
 			return_mode=2)
-		self.assertEquals(result, [(u"/usr/share/applications/eog.desktop", 3),
-			(u"/usr/share/applications/firefox.desktop", 2)])
-	
-	def testFindApplications(self):
-		self._init_with_various_events()
-		result = self.engine.find_events(0, 0, 0, False, u"event",
-			[], return_mode=2)
 		self.assertEquals(result, [(u"/usr/share/applications/eog.desktop", 3),
 			(u"/usr/share/applications/firefox.desktop", 2)])
 	
