@@ -603,9 +603,10 @@ class ZeitgeistEngine(BaseEngine):
 					raise TypeError, "Expected a container type, found %s" % \
 						type(filter["tags"])
 				for tag in filter["tags"]:
-					filterset += [ "(tags == \"%s\" OR tags LIKE \"%s, %%\" OR "
-						"tags LIKE \"%%, %s, %%\" OR tags LIKE \"%%, %s\")" \
-						% (tag, tag, tag, tag) ]
+					filterset += [ "(tags == ? OR tags LIKE ? OR tags LIKE ? "
+						"OR tags LIKE ?)" ]
+					additional_args += (tag, "%s,%%" % tag, "%%,%s,%%" % tag,
+						"%%,%s" % tag)
 			if "mimetypes" in filter and len(filter["mimetypes"]):
 				filterset += [ "(" + " OR ".join(
 					["_main_item.mimetype LIKE ? ESCAPE \"\\\""] * \

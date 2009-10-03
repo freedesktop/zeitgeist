@@ -408,7 +408,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result2 = self.engine.find_events(0, 0, 0, True, "event",
 			[{"tags": [u"files", u"examples"]}])
 		self.assertEquals(result1, result2)
-		self.assertEquals(result1, [u"file:///tmp/files/example.png"])
+		self.assertEquals(result1[0]["subject"],
+			[u"file:///tmp/files/example.png"])
 	
 	def testFindEventsWithContent(self):
 		self._init_with_various_events()
