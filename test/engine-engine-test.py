@@ -133,7 +133,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			u"test://mytest1": Item(
 				content = Content.IMAGE,
 				source = Source.FILE,
-				test = u"Text",
+				text = u"Text",
 				mimetype = u"mime/type",
 				bookmark = False),
 			u"test://mytest2": Item(
@@ -146,26 +146,27 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				bookmark = False),
 			}
 		annotations = [
+			Annotation(subject = "test://mytest1", content = Content.TAG,
+				source = Source.HEURISTIC_ACTIVITY, text = "eins"),
 			Annotation(subject = "test://mytest2", content = Content.TAG,
 				source = Source.HEURISTIC_ACTIVITY, text = "eins"),
 			]
-		self.assertTrue(self.engine.insert_events(items, events, annotations))
+		self.assertTrue(self.engine.insert_events(events, items, annotations))
 		
 		tags = list(self.engine.get_tags())
 		self.assertEquals([("eins", 2)], tags)
 		
-		i = self.engine.get_item("test://mytest1")
+		i = self.engine.get_items(["test://mytest1"])
 		self.assertTrue(i is not None)
-		self.assertEquals("eins", i["tags"])
+		self.assertEquals({'UserTags': [u'eins']}, i["test://mytest1"]["tags"])
 		
-		i = self.engine.get_item("test://mytest2")
+		i = self.engine.get_items(["test://mytest2"])
 		self.assertTrue(i is not None)
-		self.assertEquals("eins", i["tags"])
+		self.assertEquals({'UserTags': [u'eins']}, i["test://mytest2"]["tags"])
 				
 		eins = self.engine.find_events(filters=[{"tags" : ["eins"]}])
-		self.assertEquals(2, len(eins))
-		self.assertEquals("test://mytest1", eins[0]["uri"])
-		self.assertEquals("test://mytest2", eins[1]["uri"])
+		self.assertEquals(2, len(eins[0]))
+		self.assertEquals(["test://mytest1", "test://mytest2"], eins[1].keys())
 	
 	def testThreeTagsOnSameItem(self):		
 		self.assertEmptyDB()
@@ -408,8 +409,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result2 = self.engine.find_events(0, 0, 0, True, "event",
 			[{"tags": [u"files", u"examples"]}])
 		self.assertEquals(result1, result2)
-		self.assertEquals(result1[0]["subject"],
-			[u"file:///tmp/files/example.png"])
+		self.assertEquals(result1[0][0]["subject"],
+			u"file:///tmp/files/example.png")
 	
 	def testFindEventsWithContent(self):
 		self._init_with_various_events()
