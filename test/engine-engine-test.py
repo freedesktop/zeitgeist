@@ -82,8 +82,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		content_types = [str(ctype) for ctype in self.engine.get_types()]
 		self.assertTrue(str(Content.IMAGE) in content_types)
-		self.assertEquals([(u"example", 1), (u"test", 1), (u"tagtest", 1)],
-			list(self.engine.get_tags()))
 	
 	def testBookmark (self):
 		self.assertEmptyDB()
@@ -415,13 +413,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsWithContent(self):
 		self._init_with_various_events()
 		result1 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"content": [Content.IMAGE]}])
+			[{"content": [Content.IMAGE.uri]}])
 		result2 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"content": [Content.IMAGE, Content.MUSIC]}])
+			[{"content": [Content.IMAGE.uri, Content.MUSIC.uri]}])
 		result3 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"content": [Content.VIDEO]}])
+			[{"content": [Content.VIDEO.uri]}])
 		result4 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"content": [Content.MUSIC]}])
+			[{"content": [Content.MUSIC.uri]}])
 		self.assertEquals(result1, result2)
 		self.assertEquals([x["content"] for x in result1[1].values()], [Content.IMAGE] * 3)
 		self.assertEquals(result3[1][result3[0][0]["subject"]]["text"],  u"picture.png")
@@ -431,11 +429,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsWithSource(self):
 		self._init_with_various_events()
 		result1 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"source": [Source.USER_ACTIVITY, Source.FILE]}])
+			[{"source": [Source.USER_ACTIVITY.uri, Source.FILE.uri]}])
 		result2 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"source": [Source.WEB_HISTORY]}])
+			[{"source": [Source.WEB_HISTORY.uri]}])
 		result3 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"source": [Source.USER_NOTIFICATION]}])
+			[{"source": [Source.USER_NOTIFICATION.uri]}])
 		self.assertEquals(len(result1[0]), 3)
 		self.assertEquals(len(result1[1]), 3)
 		self.assertEquals(set(result2[1][x]["source"] for x in result2[1]),
@@ -464,7 +462,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testCountEventsItemsContent(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "item",
-			[{"content": [Content.IMAGE]}], True)
+			[{"content": [Content.IMAGE.uri]}], True)
 		self.assertEquals(result, 3)
 	
 	def testFindApplications(self):

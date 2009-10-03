@@ -759,8 +759,6 @@ class ZeitgeistEngine(BaseEngine):
 		Use `min_timestamp' and `max_timestamp' to limit the time frames you
 		want to consider.
 		"""
-		# FIXME: Here we return a list of dicts (really sqlite.Rows), but
-		#        should we reallu use Items - but they are only defined for Storm...
 		result = self.cursor.execute("""
 			SELECT item.text, (SELECT COUNT(rowid) FROM annotation
 				WHERE annotation.item_id = item.id) AS amount
@@ -772,7 +770,7 @@ class ZeitgeistEngine(BaseEngine):
 			ORDER BY amount DESC LIMIT ?
 			""", (min_timestamp, max_timestamp or sys.maxint, Content.TAG.id,
 			name_filter or "%", limit or sys.maxint)).fetchall()
-		return map(lambda x : (x[0], x[1]), result)
+		return [(x["text"], x["amount"]) for x in result]
 	
 	def get_last_insertion_date(self, application):
 		"""
