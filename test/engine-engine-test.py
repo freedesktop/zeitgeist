@@ -207,34 +207,30 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testTagAndBookmark(self):
 		self.assertEmptyDB()
-		item = {
-				"uri" : "test://mytest1",
-				"content" : Content.IMAGE,
-				"source" : Source.USER_ACTIVITY,
-				"app" : "/usr/share/applications/gnome-about.desktop",
-				"timestamp" : 0,
-				"text" : "Text",
-				"mimetype" : "mime/type",
-				"icon" : "stock_left",
-				"use" : Content.CREATE_EVENT,
-				"origin" : "http://example.org",
-				"tags" : u"boo",
-				"bookmark" : True,
-				"comment": "",
-			}
-		self.assertTrue(self.engine.insert_event(item))
+		event = Event(
+			subject = u"test://mytest1",
+			timestamp = 0,
+			content = Content.CREATE_EVENT,
+			source = Source.USER_ACTIVITY,
+			application = u"/usr/share/applications/gnome-about.desktop")
+		item = Item(
+			source = Source.FILE,
+			content = Content.IMAGE,
+			text = u"Text",
+			mimetype = "mime/type",
+			tags = {"UserTags": [u"boo"]},
+			bookmark = True)
+		self.assertTrue(self.engine.insert_event(event, item))
 		
-		item = self.engine.get_item("test://mytest1")
+		item = self.engine.get_items(["test://mytest1"])
 		self.assertTrue(item is not None)
-		self.assertEquals("boo", item["tags"])
-		self.assertTrue(item["bookmark"])
+		self.assertEquals({"UserTags": [u"boo"]}, item["test://mytest1"]["tags"])
+		self.assertTrue(item["test://mytest1"]["bookmark"])
 		
-		
-		boo = self.engine.find_events(filters=[{"tags" : ["boo"]}])
-		self.assertEquals(1, len(boo))
-		self.assertEquals("test://mytest1",
-						  boo[0]["uri"])
-
+		boo = self.engine.find_events(filters=[{"tags": ["boo"]}])
+		self.assertEquals(1, len(boo[0]))
+		self.assertEquals("test://mytest1", boo[0][0]["subject"])
+	
 	def _init_with_various_events(self):
 		self.assertEmptyDB()
 		
