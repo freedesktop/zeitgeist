@@ -21,6 +21,12 @@ def assert_cmp_dict(a, b, cross_check=True):
 	if cross_check:
 		assert_cmp_dict(b,a, cross_check=False)
 
+def assert_cmp_list(a, b):
+	a.sort()
+	b.sort()
+	if not a == b:
+		raise AssertionError("%s != %s" % (a, b))
+
 class ZeitgeistEngineTest (unittest.TestCase):
 	"""
 	This class tests that the zeitgeist.engine.engine.ZeitgeistEngine class
@@ -468,7 +474,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, u"event", [],
 			return_mode=2)
-		self.assertEquals(result, [(u"/usr/share/applications/eog.desktop", 3),
+		assert_cmp_list(result, [(u"/usr/share/applications/eog.desktop", 3),
 			(u"/usr/share/applications/firefox.desktop", 2)])
 	
 	def testFindApplicationsTimestampMimetypeTags(self):
