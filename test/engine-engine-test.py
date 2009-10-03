@@ -75,10 +75,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertTrue(result is not None)
 		self.assertEquals(len(result[0]), 1)
 		self.assertEquals(len(result[1]), 1)
+		result_event = dict(result[0][0])
+		result_event["uri"] = "" # we don't know what it'll be
+		del orig_event["tags"]
 		assert_cmp_dict(orig_event, result_event)
 		
 		content_types = [str(ctype) for ctype in self.engine.get_types()]
-		self.assertTrue(Content.IMAGE in content_types)
+		self.assertTrue(str(Content.IMAGE) in content_types)
 		self.assertEquals([(u"example", 1), (u"test", 1), (u"tagtest", 1)],
 			list(self.engine.get_tags()))
 	

@@ -252,9 +252,9 @@ def create_request_result(result_list, item_only=False):
 				subject = item_uri,
 				timestamp = result_tuple["event_timestamp"],
 				uri = result_tuple["event_uri"],
-				source = result_tuple[5],
-				content = result_tuple[4],
-				application = result_tuple[10],
+				source = result_tuple["event_source"],
+				content = result_tuple["event_content"],
+				application = result_tuple["event_application"],
 				#tags = {
 				#	"UserTags": [],
 				#	"AutoTags": [],
@@ -723,7 +723,7 @@ class ZeitgeistEngine(BaseEngine):
 	#	self.delete_items([item["uri"] for item in items])
 	#	
 	#	for item in items:
-	#		self.insert_event(item, force=True, commit=False)
+	#		self.insert_event(event, item, force=True, commit=False)
 	#	self.cursor.connection.commit()
 	#	
 	#	return items
