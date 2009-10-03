@@ -421,7 +421,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result4 = self.engine.find_events(0, 0, 0, True, "event",
 			[{"content": [Content.MUSIC.uri]}])
 		self.assertEquals(result1, result2)
-		self.assertEquals([x["content"] for x in result1[1].values()], [Content.IMAGE] * 3)
+		self.assertEquals([x["content"] for x in result1[1].values()],
+			[Content.IMAGE.uri] * 3)
 		self.assertEquals(result3[1][result3[0][0]["subject"]]["text"],  u"picture.png")
 		self.assertEquals(len(result3[1]), 1)
 		self.assertEquals(len(result4), 0)
@@ -437,7 +438,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(len(result1[0]), 3)
 		self.assertEquals(len(result1[1]), 3)
 		self.assertEquals(set(result2[1][x]["source"] for x in result2[1]),
-			set([Source.WEB_HISTORY]))
+			set([Source.WEB_HISTORY.uri]))
 		self.assertEquals(len(result2), 2)
 		self.assertEquals(len(result3), 0)
 	
