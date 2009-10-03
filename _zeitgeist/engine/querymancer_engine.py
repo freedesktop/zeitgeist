@@ -418,8 +418,9 @@ class ZeitgeistEngine(BaseEngine):
 				subject = event_uri,
 				content = Content.BOOKMARK,
 				source = Source.USER_ACTIVITY)])
-				
+		
 		# add tags to item
+		#FIXME: tags -> annotations
 		for tag_type, tags in item["tags"].iteritems():
 			source = Source.get(str(tag_type))
 			self.set_annotations([Annotation(
@@ -430,6 +431,7 @@ class ZeitgeistEngine(BaseEngine):
 				text = tag) for tag in tags])
 				
 		# add tags to event
+		#FIXME: tags -> annotations
 		for tag_type, tags in event["tags"].iteritems():
 			source = Source.get(str(tag_type))
 			self.set_annotations([Annotation(
@@ -709,7 +711,7 @@ class ZeitgeistEngine(BaseEngine):
 			result = len(events)
 		elif return_mode == 2:
 			# Return the applications and the amount of matches for each
-			return [(event[10], event[13]) for event in events]
+			return [(event["event_application"], event["app_count"]) for event in events]
 		
 		return result
 	
@@ -792,5 +794,3 @@ class ZeitgeistEngine(BaseEngine):
 	
 	def is_closed(self):
 		return self.cursor is None
-		
-
