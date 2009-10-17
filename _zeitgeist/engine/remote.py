@@ -79,12 +79,13 @@ class RemoteInterface(SingletonApplication):
 		:rtype: list of tuples presenting an :ref:`item-label`
 		"""
 		# filters is a list of dicts, where each dict can have the following items:
-		#   name: <str>
-		#   uri: <str>
+		#   name: <list> of <str>
+		#   uri: <list> of <str>
 		#   tags: <list> of <str>
-		#   mimetypes: <list> or <str>
-		#   source: <str>
-		#   content: <str>
+		#   mimetypes: <list> of <str>
+		#   source: <list> of <str>
+		#   content: <list> of <str>
+		#	application <list> of <str>
 		#   bookmarked: <bool> (True means bookmarked items, and vice versa
 		return _engine.find_events(min_timestamp, max_timestamp, limit,
 			sorting_asc, mode, filters, False)
