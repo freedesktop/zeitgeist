@@ -273,7 +273,7 @@ def get_default_cursor():
 	return _cursor
 
 def set_cursor(cursor):
-	global _cursor, _content, _source, _uri, _item, _event, _annotation, _app
+	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _app, _text, _payload, _storage, _event
 	
 	if _cursor :		
 		_cursor.close()
@@ -289,7 +289,7 @@ def set_cursor(cursor):
 	_event.set_cursor(_cursor)
 
 def reset():
-	global _cursor, _content, _source, _uri, _item, _event, _annotation, _app
+	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _app, _text, _payload, _storage, _event
 	
 	if _cursor :		
 		_cursor.connection.close()
@@ -305,4 +305,66 @@ def reset():
 	_storage = None
 	_event = None
 
+# Thin wrapper for event data, with fast symbolic lookups
+# like ev.origin (speed of tuple lookups rather than dict lookups)
+class Event :
+	(uri,
+	 timestamp,
+	 interpretation,
+	 manifestation,
+	 app,
+	 origin,
+	 annotations,
+	 subjects,
+	 subj_interpretation,
+	 subj_manifestation,
+	 subj_mimetype,
+	 subj_origin,
+	 subj_text) = range (13)
+	 
+	 def __init__ (self, data_tuple):
+	 	self._data = data_tuple
+	 
+	 def __getattr__ (self, key):
+	 	return self._data[key]
+	 
+	 
+
+# This class is not compatible with the normal Zeitgeist BaseEngine class
+class Engine :
+	def __init__ (self):
+		self._cursor = get_default_cursor()
+	
+	def get_events (self, uris):
+		if not uris : return []
+		# FIXME escape quotes in 'uris' to avoid SQL injection
+		sql = "SELECT * FROM event WHERE value IN ('" + "', '".join(uris) + "')"
+		return self._cursor.execute(sql)
+	
+	def insert_events (self, events):
+		map (self.insert_event, events)
+	
+	def insert_event (self, event):
+		global _cursor, _uri, _interpretation, _manifestation, _mimetype, _app, _text, _payload, _storage, _event
+		# TODO insert event
+	
+	def delete_events (self, uris):
+		pass
+	
+	def find_events (self,
+			 time_ranges,
+			 interpretations,
+			 manifestations,
+			 apps,
+			 origins,
+			 annotations,
+			 subjects,
+			 subj_interpretations,
+			 subj_manifestations,
+			 subj_mimetypes,
+			 subj_origins,
+			 subj_texts,
+			 count,
+			 order):
+		pass
 
