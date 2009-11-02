@@ -110,7 +110,7 @@ _uri = None             # id, string
 _interpretation = None  # id, string
 _manifestation = None   # id, string
 _mimetype = None        # id, string
-_app = None             # id, string
+_actor = None             # id, string
 _text = None            # id, string
 _payload = None         # id, blob
 _storage = None         # id, value, available
@@ -163,12 +163,12 @@ def create_db(file_path):
 	
 	# app
 	cursor.execute("""
-		CREATE TABLE IF NOT EXISTS app
+		CREATE TABLE IF NOT EXISTS actor
 			(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)
 		""")
 	cursor.execute("""
-		CREATE UNIQUE INDEX IF NOT EXISTS app_value
-			ON app(value)""")
+		CREATE UNIQUE INDEX IF NOT EXISTS actor_value
+			ON actor(value)""")
 	
 	# text
 	cursor.execute("""
@@ -198,13 +198,14 @@ def create_db(file_path):
 			ON storage(value)""")
 	
 	# event - the primary table for log statements
+	# note that event.id is NOT unique, we can have multiple subjects per id
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS event
-			(id INTEGER PRIMARY KEY,
+			(id INTEGER,
 			 timestamp INTEGER,
 			 interpretation INTEGER,
 			 manifestation INTEGER,			 
-			 app INTEGER,
+			 actor INTEGER,
 			 origin INTEGER,
 			 payload INTEGER,
 			 subj_id INTEGER,
@@ -213,18 +214,58 @@ def create_db(file_path):
 			 subj_mimetype INTEGER,
 			 subj_origin INTEGER,
 			 subj_text INTEGER,
-			 subj_storage INTEGER,
+			 subj_storage INTEGER
 			 )
-		""")	
+		""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_id
+			ON event(id)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_timestamp
+			ON event(timestamp)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_interpretation
+			ON event(interpretation)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_manifestation
+			ON event(manifestation)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_actor
+			ON event(actor)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_origin
+			ON event(origin)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_subj_id
+			ON event(subj_id)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_subj_interpretation
+			ON event(subj_interpretation)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_subj_manifestation
+			ON event(subj_manifestation)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_subj_mimetype
+			ON event(mimetyype)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_subj_origin
+			ON event(subj_origin)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_subj_text
+			ON event(subj_text)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_subj_storage
+			ON event(subj_storage)""")
+	# FIXME: Indexes on the event table
 		
 	# Table defs
-	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _app, _text, _payload, _storage, _event
+	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
 	_cursor = cursor
 	_uri = EntityTable("uri")
 	_manifestation = EntityTable("manifestation")
 	_interpretation = EntityTable("interpretation")
 	_mimetype = EntityTable("mimetype")
-	_app = EntityTable("app")
+	_actor = EntityTable("actor")
 	_text = EntityTable("text")
 	_payload = EntityTable("payload") # FIXME: Should have a Blob type value
 	_storage = Table("storage", id=Integer(), value=String(), available=Integer())
@@ -250,7 +291,7 @@ def create_db(file_path):
 	_interpretation.set_cursor(_cursor)
 	_manifestation.set_cursor(_cursor)
 	_mimetype.set_cursor(_cursor)
-	_app.set_cursor(_cursor)
+	_actor.set_cursor(_cursor)
 	_text.set_cursor(_cursor)
 	_payload.set_cursor(_cursor)
 	_storage.set_cursor(_cursor)
@@ -273,7 +314,7 @@ def get_default_cursor():
 	return _cursor
 
 def set_cursor(cursor):
-	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _app, _text, _payload, _storage, _event
+	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
 	
 	if _cursor :		
 		_cursor.close()
@@ -282,14 +323,14 @@ def set_cursor(cursor):
 	_interpretation.set_cursor(_cursor)
 	_manifestation.set_cursor(_cursor)
 	_mimetype.set_cursor(_cursor)
-	_app.set_cursor(_cursor)
+	_actor.set_cursor(_cursor)
 	_text.set_cursor(_cursor)
 	_payload.set_cursor(_cursor)
 	_storage.set_cursor(_cursor)
 	_event.set_cursor(_cursor)
 
 def reset():
-	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _app, _text, _payload, _storage, _event
+	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
 	
 	if _cursor :		
 		_cursor.connection.close()
@@ -299,7 +340,7 @@ def reset():
 	_interpretation = None
 	_manifestation = None	
 	_mimetype = None	
-	_app = None
+	_actor = None
 	_text = None
 	_payload = None
 	_storage = None
@@ -312,15 +353,14 @@ class Event :
 	 timestamp,
 	 interpretation,
 	 manifestation,
-	 app,
+	 actor,
 	 origin,
-	 annotations,
 	 subjects,
 	 subj_interpretation,
 	 subj_manifestation,
 	 subj_mimetype,
 	 subj_origin,
-	 subj_text) = range (13)
+	 subj_text) = range (12)
 	 
 	 def __init__ (self, data_tuple):
 	 	self._data = data_tuple
@@ -345,7 +385,7 @@ class Engine :
 		map (self.insert_event, events)
 	
 	def insert_event (self, event):
-		global _cursor, _uri, _interpretation, _manifestation, _mimetype, _app, _text, _payload, _storage, _event
+		global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
 		# TODO insert event
 	
 	def delete_events (self, uris):
@@ -353,18 +393,11 @@ class Engine :
 	
 	def find_events (self,
 			 time_ranges,
-			 interpretations,
-			 manifestations,
-			 apps,
-			 origins,
-			 annotations,
-			 subjects,
-			 subj_interpretations,
-			 subj_manifestations,
-			 subj_mimetypes,
-			 subj_origins,
-			 subj_texts,
-			 count,
+			 event_templates,
+			 filter_available,
+			 with_result_set,
+			 result_set_to_close,			 
+			 num_events,
 			 order):
 		pass
 
