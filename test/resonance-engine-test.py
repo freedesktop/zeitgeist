@@ -61,6 +61,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		subject = Subject()
 		subject[Subject.Uri] = uri
+		subject[Subject.Manifestation] = "lala"
+		subject[Subject.Interpretation] = "tinky winky"
+		subject[Subject.Mimetype] = "YOMAMA"
+		subject[Subject.Text] = "SUCKS"
 		
 		event.append_subject(subject)
 		
