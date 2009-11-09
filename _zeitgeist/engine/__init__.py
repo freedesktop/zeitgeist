@@ -28,7 +28,7 @@ log = logging.getLogger("zeitgeist.engine")
 DB_PATH = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
 	"database.sqlite")
 
-AVAILABLE_ENGINES = ["querymancer", "storm"]
+AVAILABLE_ENGINES = ["resonance","querymancer"]
 ENGINE_FALLBACK = AVAILABLE_ENGINES[0]
 
 def get_engine_type():

@@ -330,7 +330,7 @@ def create_db(file_path):
 			ON event(subj_manifestation)""")
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_mimetype
-			ON event(mimetyype)""")
+			ON event(subj_mimetype)""")
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_origin
 			ON event(subj_origin)""")
@@ -461,14 +461,14 @@ class Event :
 		self._data[offset] = value
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
-class Engine :
+class ZeitgeistEngine :
 	def __init__ (self):
 		global _event
 		self._cursor = get_default_cursor()
 		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
-		row = _event.find("max(id)")
+		row = _event.find("max(id)").fetchone()
 		if row:
 			self.last_event_id = row[0]
 		else:
@@ -512,7 +512,7 @@ class Engine :
 				ev[Event.Interpretation] = _interpretation.lookup_by_id(row[Event.Interpretation])
 				ev[Event.Manifestation] = _manifestation.lookup_by_id(row[Event.Manifestation])
 				ev[Event.Origin] = _uri.lookup_by_id(row[Event.Origin])
-				ev[Event.Actor] = _actor.lookup_by_id(row[Event.Actor]
+				ev[Event.Actor] = _actor.lookup_by_id(row[Event.Actor])
 				if row[Event.Payload]:
 					ev[Event.Payload] = _payload.find_one(_payload.value, _payload.id == row[Event.Payload])[0]
 				ev[Event.Subjects] = subjects
@@ -562,7 +562,7 @@ class Engine :
 			
 			# We store the event here because we need one row per subject
 			_event.add(
-				id=id
+				id=id,
 				timestamp=timestamp,
 				interpretation=inter_id,
 				manifestation=manif_id,
