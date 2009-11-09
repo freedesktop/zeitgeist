@@ -554,7 +554,7 @@ class ZeitgeistEngine :
 			return collector
 	
 	def insert_events (self, events):
-		map (self.insert_event, events)
+		return map (self.insert_event, events)
 	
 	def insert_event (self, event):
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
@@ -598,6 +598,7 @@ class ZeitgeistEngine :
 				subj_storage=sstorage_id)
 		
 		_cursor.connection.commit()
+		return id
 	
 	def delete_events (self, uris):
 		# FIXME
@@ -626,4 +627,6 @@ class QueryCompiler :
 		"""
 	
 	def compile_single_template (self, event_template):
-		pass # FIXME
+		clauses = []
+		if event_template[Event.Id] :
+			clause.append("event.id = " + event_template[Event.Id])
