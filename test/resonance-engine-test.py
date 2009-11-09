@@ -52,10 +52,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		}
 		'''
 		event = Event()
-		event[Event.Timestamp] = 0,
-		event[Event.Interpretation] = Source.USER_ACTIVITY,
-		event[Event.Manifestation] = Content.CREATE_EVENT,
-		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop",
+		event[Event.Timestamp] = 0
+		event[Event.Interpretation] = Source.USER_ACTIVITY
+		event[Event.Manifestation] = Content.CREATE_EVENT
+		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop"
 		
 		subject = Subject()
 		subject[Subject.Uri] = uri

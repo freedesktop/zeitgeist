@@ -603,7 +603,7 @@ class ZeitgeistEngine :
 			sstorage_id = _storage.lookup_or_create(subj[Subject.Storage]).id # FIXME: Storage is not an EntityTable
 			
 			# We store the event here because we need one row per subject
-			_event.set_cursor(EchoCursor())
+			#_event.set_cursor(EchoCursor())
 			_event.add(
 				id=id,
 				timestamp=timestamp,
