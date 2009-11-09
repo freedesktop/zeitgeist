@@ -502,10 +502,8 @@ class Engine :
 					
 		ev = None
 		subjects = []
-		# FIXME: JOIN or lookup the values. Current code just returns
-		#        integer ids for all fields.
-		#        Using our caches instead of SQLite JOINs might in fact
-		#        be fastest as it avoids a lot of strdup()s
+		# FIXME: Determine if using our caches instead of SQLite JOINs
+		#        is in fact faster
 		for row in rows:
 			if ev is None:
 				ev = Event()
@@ -595,18 +593,17 @@ class Engine :
 			 order):
 		# FIXME
 		pass
-	
-	def get_timestamp (self, datetime):
-		"""
-		Input may be either None, and int, or a ISO-8601 formatted
-		string with the millisecond extension, eg. 2009-11-08T9:55:15.456.
-		
-		Returns the number of milliseconds since the Unix Epoch.
-		
-		If input is None then a new timestamp will be generated for the
-		moment of invocation. If input is an integer type it will returned
-		as is. If it is an iso-8601 string it will be converted to a
-		millisecond timestamp
-		"""
-		# FIXME: Write me
+
+class QueryCompiler :
+	def __init__ (self):
 		pass
+	
+	def compile (self, event_templates):
+		"""
+		Return and SQL query representation (as a string) of
+		event_templates. The returned string will be suitable for
+		embedding in an SQL WHERE-clause
+		"""
+	
+	def compile_single_template (self, event_template):
+		
