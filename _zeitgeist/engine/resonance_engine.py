@@ -433,6 +433,7 @@ def reset():
 # Thin wrapper for event data, with fast symbolic lookups
 # like ev[Event.Origin] (speed of array lookups rather than dict lookups)
 class Event :
+	Fields = \
 	(Id,
 	 Timestamp,
 	 Interpretation,
@@ -442,6 +443,7 @@ class Event :
 	 Payload,
 	 Subjects) = range(8)
 	 
+	SubjectFields = \
 	(SubjectUri,
 	 SubjectInterpretation,
 	 SubjectManifestation,
@@ -451,14 +453,32 @@ class Event :
 	 SubjectStorage,
 	 SubjectAvailable) = range(8)
 	 
-	def __init__ (self, data):
-		self._data = data
+	def __init__ (self, data=None):
+		if data:
+			self._data = data
+		else:
+			self._data = []
+			for i in Event.Fields:
+				self._data.append(None) 
 	 
 	def __getitem__ (self, offset):
 		return self._data[offset]
 	
 	def __setitem__ (self, offset, value):
 		self._data[offset] = value
+		
+	def append_subject(self):
+		"""
+		Append a new empty subject array and return a reference to
+		the array.
+		"""
+		if self._data[Event.Subjects] is None:
+			self._data[Event.Subjects] = []
+		subj = []
+		for i in Event.SubjectFields:
+			subj.append(None)
+		self._data[Event.Subjects].append(subj)
+		return subj
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
 class ZeitgeistEngine :
@@ -606,4 +626,4 @@ class QueryCompiler :
 		"""
 	
 	def compile_single_template (self, event_template):
-		
+		pass # FIXME
