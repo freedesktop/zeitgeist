@@ -46,7 +46,7 @@ class RemoteInterface(SingletonApplication):
 		return _engine.get_events(event_seqnums)
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="(ii)a{asaas}uuu", out_signature="("+SIG_EVENTS+")")
+						in_signature="(ii)a(asaas)uuu", out_signature="("+SIG_EVENTS+")")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			num_events, order):
 		"""Search for items which match different criterias
@@ -129,7 +129,7 @@ class RemoteInterface(SingletonApplication):
 	# Writing stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="a{"+SIG_EVENTS+"}", out_signature="as")
+						in_signature="a("+SIG_EVENTS+")", out_signature="as")
 	def InsertEvents(self, events):
 		"""Inserts events into the database. Returns the amount of sucessfully
 		inserted events
@@ -157,7 +157,7 @@ class RemoteInterface(SingletonApplication):
 	#	self.EventsChanged(("modified", result))
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="a{asaas}", out_signature="")
+						in_signature="a(asaas)", out_signature="")
 	def DeleteEvents(self, event_templates):
 		"""Delete items from the database
 		
