@@ -75,8 +75,7 @@ class LRUCache:
 
 			if len(self._map) > self._max_size :
 				# Remove eldest entry from list
-				old = self._remove_eldest_item()
-				del self._map[old.key]
+				old = self.remove_eldest_item()				
 
 		self._current_id += 1
 
@@ -123,14 +122,36 @@ class LRUCache:
 		if not self._list_start:
 			self._list_start = item
 	
-	def _remove_eldest_item(self):
+	def remove_eldest_item(self):
 		if self._list_start:
 			old = self._list_start
+			del self._map[old.key]
 			self._list_start = self._list_start.next
 			if self._list_start:
 				self._list_start.prev = None
 			return old
-			
+
+class LRUBiCache(LRUCache):
+	"""
+	A bi-directional LRU Cache, allowing lookups of the cache keys
+	given a value
+	"""
+	def __init__ (self, max_size):
+		LRUCache.__init__ (self, max_size)
+		self._inv_map = {}
+	
+	def __setitem__ (self, key, value):
+		LURCache.__setitem__(self, key)
+		self._inv_map[value] = key
+	
+	def lookup_by_value(self, value):
+		# FIXME: Doesn't reshuffle LRU list
+		return self._inv_map[value]
+	
+	def remove_eldest_item(self):
+		old = LURCache.remove_eldest_item(self, key)
+		del self._inv_map[old.key]
+		return old
 			
 class LRUCacheMetaclass(type):
 	""" Metaclass which has a _CACHE attribute, each subclass has its own,

@@ -2,11 +2,7 @@
 
 # Zeitgeist
 #
-# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
-# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
-# Copyright © 2009 Natan Yellin <aantny@gmail.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
-# Copyright © 2009 Markus Korn <thekorn@gmx.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -51,19 +47,39 @@ class Entity:
 class EntityTable(Table):
 	"""
 	Generic base class for Tables that has an 'id' and a 'value' column.
-	This means Content, Source, and URI
+	This means URI, Interpretation, Manifestation, Text, Actor, and Mimetype
 	"""
 	
 	def __init__ (self, table_name):
-		"""Create a new Entity with uri=value and insert it into the table"""		
+		"""Create a new EntityTable with table name 'table_name'"""		
 		if table_name is None :
 			raise ValueError("Can not create EntityTable with name None")
 		
 		Table.__init__(self, table_name, id=Integer(), value=String())
-		self._CACHE = LRUCache(1000)
+		self._CACHE = LRUBiCache(1000)
+	
+	def lookup_by_id (self, id):
+		"""
+		Look up an entity given its id
+		"""
+		if not value:
+			raise ValueError("Looking up %s without a id" % self)
+		
+		try:
+			return self._CACHE.lookup_by_value[id]
+		except KeyError:
+			pass # We didn't have it cached; fall through and handle it below
+		
+		row = self.find_one(self.value, self.id == id)
+		if row :			
+			ent = Entity(id, row[0])
+			self._CACHE[value] = ent
+			#log.debug("Found %s: %s" % (self, ent))
+			return ent
+		return None
 	
 	def lookup(self, value):
-		"""Look up an entity by value or id, return None if the
+		"""Look up an entity by value, return None if the
 		   entity is not known"""
 		if not value:
 			raise ValueError("Looking up %s without a value" % self)
@@ -103,6 +119,74 @@ class EntityTable(Table):
 	def _clear_cache(self):
 		self._CACHE.clear()
 
+class StatefulEntity (Entity) :
+	"""
+	A variant of an Entity that also has a 'state' member.
+	Used by StatefulEntityTable
+	"""
+	def __init__(self, id, value, state):
+		Entity.__init__ (self, id, value)
+		self.state = state
+	
+	def __repr___ (self):
+		return "%s (id: %s, state: %s)" % (self.value, self.id, self.state)
+
+class StatefulEntityTable(Table):
+	"""
+	Generic base class for Tables that has an 'id', a 'value', and a 'state'
+	column. This is primarily for the 'storage' table
+	"""
+	
+	def __init__ (self, table_name):
+		"""Create a new StatefulEntityTable with table name 'table_name'"""		
+		if table_name is None :
+			raise ValueError("Can not create EntityTable with name None")
+		
+		Table.__init__(self, table_name, id=Integer(), value=String(), state=Integer())
+		self._CACHE = LRUCache(1000)
+	
+	def lookup(self, value):
+		"""Look up an entity by value or id, return None if the
+		   entity is not known"""
+		if not value:
+			raise ValueError("Looking up %s without a value" % self)
+		
+		try:
+			return self._CACHE[value]
+		except KeyError:
+			pass # We didn't have it cached; fall through and handle it below
+		
+		row = self.find_one(self.id, self.value == value)
+		if row :			
+			ent = StatefulEntity(row[0], value, row[2])
+			self._CACHE[value] = ent
+			#log.debug("Found %s" % self)
+			return ent
+		return None
+	
+	def lookup_or_create(self, value, state):
+		"""Find the entity matching the uri 'value' or create it if necessary"""
+		ent = self.lookup(value)
+		if ent : return ent
+		
+		try:
+			row_id = self.add(value=value, state=state)
+		except sqlite3.IntegrityError, e:
+			log.warn("Unexpected integrity error when inserting %s %s: %s" % (self, value, e))
+			return None
+		
+		# We can peek the last insert row id from SQLite,
+		# this saves us a whole SELECT
+		ent = StatefulEntity(row_id, value, state)
+		self._CACHE[value] = ent
+		#log.debug("Created %s" % self)
+				
+		return ent
+	
+	def _clear_cache(self):
+		self._CACHE.clear()
+
+
 #		
 # Table defs are assigned in create_db()
 #
@@ -110,7 +194,7 @@ _uri = None             # id, string
 _interpretation = None  # id, string
 _manifestation = None   # id, string
 _mimetype = None        # id, string
-_actor = None             # id, string
+_actor = None           # id, string
 _text = None            # id, string
 _payload = None         # id, blob
 _storage = None         # id, value, available
@@ -186,12 +270,12 @@ def create_db(file_path):
 			(id INTEGER PRIMARY KEY, value BLOB)
 		""")	
 	
-	# storage
+	# storage, represented by a StatefulEntityTable
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS storage
 			(id INTEGER PRIMARY KEY,
 			 value VARCHAR UNIQUE,
-			 available INTEGER)
+			 state INTEGER)
 		""")
 	cursor.execute("""
 		CREATE UNIQUE INDEX IF NOT EXISTS storage_value
@@ -268,7 +352,7 @@ def create_db(file_path):
 	_actor = EntityTable("actor")
 	_text = EntityTable("text")
 	_payload = EntityTable("payload") # FIXME: Should have a Blob type value
-	_storage = Table("storage", id=Integer(), value=String(), available=Integer())
+	_storage = StatefulEntityTable("storage")
 	
 	# FIXME: _item.payload should be a BLOB type	
 	_event = Table("event",
@@ -276,7 +360,7 @@ def create_db(file_path):
 	               timestamp=Integer(),
 	               interpretation=Integer(),
 	               manifestation=Integer(),
-	               app=Integer(),
+	               actor=Integer(),
 	               origin=Integer(),
 	               payload=Integer(),
 	               subj_id=Integer(),
@@ -298,10 +382,10 @@ def create_db(file_path):
 	_event.set_cursor(_cursor)
 
 	# Bind the db into the datamodel module
-	Content._clear_cache()
-	Source._clear_cache()
-	Content.bind_database(_interpretation)
-	Source.bind_database(_manifestation)
+	Content._clear_cache() # FIXME: Renamings in datamodel module
+	Source._clear_cache()  # FIXME: Renamings in datamodel module
+	Content.bind_database(_interpretation) # FIXME: Renamings in datamodel module
+	Source.bind_database(_manifestation) # FIXME: Renamings in datamodel module
 	
 	return cursor
 
@@ -347,48 +431,158 @@ def reset():
 	_event = None
 
 # Thin wrapper for event data, with fast symbolic lookups
-# like ev.origin (speed of tuple lookups rather than dict lookups)
+# like ev[Event.Origin] (speed of array lookups rather than dict lookups)
 class Event :
-	(uri,
-	 timestamp,
-	 interpretation,
-	 manifestation,
-	 actor,
-	 origin,
-	 subjects,
-	 subj_interpretation,
-	 subj_manifestation,
-	 subj_mimetype,
-	 subj_origin,
-	 subj_text) = range (12)
+	(Id,
+	 Timestamp,
+	 Interpretation,
+	 Manifetation,
+	 Actor,
+	 Origin,
+	 Payload,
+	 Subjects) = range(8)
 	 
-	 def __init__ (self, data_tuple):
-	 	self._data = data_tuple
+	(SubjectUri,
+	 SubjectInterpretation,
+	 SubjectManifestation,
+	 SubjectMimetype,
+	 SubjectOrigin,
+	 SubjectText,
+	 SubjectStorage,
+	 SubjectAvailable) = range(8)
 	 
-	 def __getattr__ (self, key):
-	 	return self._data[key]
+	def __init__ (self, data):
+		self._data = data
 	 
-	 
+	def __getitem__ (self, offset):
+		return self._data[offset]
+	
+	def __setitem__ (self, offset, value):
+		self._data[offset] = value
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
 class Engine :
 	def __init__ (self):
+		global _event
 		self._cursor = get_default_cursor()
+		
+		# Find the last event id we used, and start generating
+		# new ids from that offset
+		row = _event.find("max(id)")
+		if row:
+			self.last_event_id = row[0]
+		else:
+			self.last_event_id = 0
 	
-	def get_events (self, uris):
-		if not uris : return []
-		# FIXME escape quotes in 'uris' to avoid SQL injection
-		sql = "SELECT * FROM event WHERE value IN ('" + "', '".join(uris) + "')"
-		return self._cursor.execute(sql)
+	def next_event_id (self):
+		self._last_event_id += 1
+		return self._last_event_id
+	
+	def get_events (self, ids):
+		return reduce(get_event, ids, [])
+	
+	def get_event (self, collector=None, id=None):
+		"""
+		Look up an event by id.
+		
+		This method can be used in two ways. By calling it by only
+		supplying an event id the event (or None) will simply be
+		returned.
+		
+		If called with a list as the 'collector' argument the event
+		will be appended to the list and the list returned. This is
+		useful in combination with Python's reduce() method.
+		"""
+		global _event
+		rows = _event.find(id=id)
+		
+		# Exit on no hits
+		if not rows:
+			return collector
+					
+		ev = None
+		subjects = []
+		# FIXME: JOIN or lookup the values. Current code just returns
+		#        integer ids for all fields.
+		#        Using our caches instead of SQLite JOINs might in fact
+		#        be fastest as it avoids a lot of strdup()s
+		for row in rows:
+			if ev is None:
+				ev = Event()
+				ev[Event.Id] = id
+				ev[Event.Timestamp] = row[Event.Timestamp]
+				ev[Event.Interpretation] = _interpretation.lookup_by_id(row[Event.Interpretation])
+				ev[Event.Manifestation] = _manifestation.lookup_by_id(row[Event.Manifestation])
+				ev[Event.Origin] = _uri.lookup_by_id(row[Event.Origin])
+				ev[Event.Actor] = _actor.lookup_by_id(row[Event.Actor]
+				if row[Event.Payload]:
+					ev[Event.Payload] = _payload.find_one(_payload.value, _payload.id == row[Event.Payload])[0]
+				ev[Event.Subjects] = subjects
+			storage = _storage.find_one("*", _storage.id == row[Event.Subjects + Event.SubjectStorage])
+			subj = (_uri.lookup_by_id(row[Event.Subjects + Event.SubjectUri]),
+				_interpretation.lookup_by_id(row[Event.Subjects + Event.SubjectInterpretation]),
+				_manifestation.lookup_by_id(row[Event.Subjects + Event.SubjectManifestation]),
+				_mimetype.lookup_by_id(row[Event.Subjects + Event.SubjectMimetype]),
+				_uri.lookup_by_id(row[Event.Subjects + Event.SubjectOrigin]),
+				_text.lookup_by_id(row[Event.Subjects + Event.SubjectText]),
+				storage[1],
+				storage[2])
+			subjects.append(subj)
+		
+		if collector is None:
+			return ev
+		else:
+			collector.append(ev)
+			return collector
 	
 	def insert_events (self, events):
 		map (self.insert_event, events)
 	
 	def insert_event (self, event):
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
-		# TODO insert event
+		
+		id = self.next_event_id()
+		timestamp = self.get_timestamp (event[Event.Timestamp])				
+		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation])
+		manif_id = _manifestation.lookup_or_create(event[Event.Manifestation])
+		actor_id = _actor.lookup_or_create(event[Event.Actor])
+		origin_id = _uri.lookup_or_create(event[Event.Origin])
+		
+		if event[Event.Payload]:
+			payload_id = _payload.add(event[Event.Payload])
+		else:
+			payload_id = None		
+		
+		for subj in self[Event.Subjects] :
+			suri_id = _uri.lookup_or_create(event[Event.SubjectUri])
+			sinter_id = _interpretation.lookup_or_create(event[Event.SubjectInterpretation])
+			smanif_id = _manifestation.lookup_or_create(event[Event.SubjectManifestation])
+			smime_id = _mimetype.lookup_or_create(event[Event.SubjectMimetype])
+			sorigin_id = _mimetype.lookup_or_create(event[Event.SubjectOrigin])
+			stext_id = _text.lookup_or_create(event[Event.SubjectText])
+			sstorage_id = _storage.lookup_or_create(event[Event.SubjectStorage]) # FIXME: Storage is not an EntityTable
+			
+			# We store the event here because we need one row per subject
+			_event.add(
+				id=id
+				timestamp=timestamp,
+				interpretation=inter_id,
+				manifestation=manif_id,
+				actor=actor_id,
+				origin=origin_id,
+				payload=payload_id,
+				subj_id=suri_id,
+				subj_interpretation=sinter_id,
+				subj_manifestation=smani_id,
+				subj_mimetype=smime_id,
+				subj_origin=sorigin_id,
+				subj_text=stext_id,
+				subj_storage=sstorage_id)
+		
+		_cursor.connection.commit()
 	
 	def delete_events (self, uris):
+		# FIXME
 		pass
 	
 	def find_events (self,
@@ -399,5 +593,20 @@ class Engine :
 			 result_set_to_close,			 
 			 num_events,
 			 order):
+		# FIXME
 		pass
-
+	
+	def get_timestamp (self, datetime):
+		"""
+		Input may be either None, and int, or a ISO-8601 formatted
+		string with the millisecond extension, eg. 2009-11-08T9:55:15.456.
+		
+		Returns the number of milliseconds since the Unix Epoch.
+		
+		If input is None then a new timestamp will be generated for the
+		moment of invocation. If input is an integer type it will returned
+		as is. If it is an iso-8601 string it will be converted to a
+		millisecond timestamp
+		"""
+		# FIXME: Write me
+		pass
