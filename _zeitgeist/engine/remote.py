@@ -28,7 +28,7 @@ from _zeitgeist.singleton import SingletonApplication
 _engine = get_default_engine()
 
 DBUS_INTERFACE = DBusInterface.INTERFACE_NAME
-SIG_EVENTS = "aa{sv}a{sa{sv}}"
+SIG_EVENTS = "asaasay"
 
 class RemoteInterface(SingletonApplication):
 	
@@ -39,18 +39,6 @@ class RemoteInterface(SingletonApplication):
 		self._mainloop = mainloop
 	
 	# Reading stuff
-	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="as", out_signature="("+SIG_EVENTS+")")
-	def GetItems(self, uris):
-		"""Get items by URI
-		
-		:param uris: list of uris
-		:type uris: list of strings
-		:returns: list of items
-		:rtype: list of tuples presenting an :ref:`item-label`
-		"""
-		return _engine.get_items(uris)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="iiibsaa{sv}", out_signature="("+SIG_EVENTS+")")
@@ -135,31 +123,6 @@ class RemoteInterface(SingletonApplication):
 			mode, filters, return_mode=1)
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="iiis", out_signature="a(si)")
-	def GetTags(self, min_timestamp, max_timestamp, limit, name_filter):
-		"""Returns a list containing tuples with the name and the number of
-		occurencies of the tags matching ``name_filter``, or all existing
-		tags in case it's empty, sorted from most used to least used. ``amount``
-		can base used to limit the amount of results.
-		
-		Use ``min_timestamp`` and ``max_timestamp`` to limit the time frames you
-		want to consider.
-		
-		:param min_timestamp:
-		:type min_timestamp: Integer
-		:param max_timestamp:
-		:type max_timestamp: Integer
-		:param name_filter: 
-		:type name_filter: string
-		:param limit: max amount of returned elements, ``limit`` equals ``0``
-			means the result not beeing limited
-		:type amount: integer
-		:returns: list of tuple containing the name and number of occurencies
-		:rtype: list of tuples
-		"""
-		return _engine.get_tags(min_timestamp, max_timestamp, limit, name_filter)
-	
-	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="s", out_signature="i")
 	def GetLastInsertionDate(self, application):
 		"""Returns the timestamp of the last item which was inserted
@@ -172,16 +135,6 @@ class RemoteInterface(SingletonApplication):
 		:rtype: integer
 		"""
 		return _engine.get_last_insertion_date(application)
-	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="", out_signature="as")
-	def GetTypes(self):
-		"""Returns a list of all different types in the database.
-		
-		:returns: list of types
-		:rtype: list of strings
-	   	"""
-		return _engine.get_types()
 	
 	# Writing stuff
 	
@@ -204,36 +157,10 @@ class RemoteInterface(SingletonApplication):
 		if result[0]:
 			self.EventsChanged(("added", result[0], result[1]))
 		return len(result[0])
-	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="aa{ss}", out_signature="i")
-	def SetAnnotations(self, annotations_list):
-		"""Inserts annotations into the database.
-		
-		:param annotations_list: list of annotations to be inserted into the database
-		:type annotations_list: list of dicts presenting an :ref:`annotation-label`
-		:returns: URIs of the successfully inserted annotations
-		:rtype: list of strings
-		"""
-		result = _engine.set_annotations(annotations_list)
-		#if result:
-			#self.AnnotationsChanged(("created", result))
-		return result
-	
-	#@dbus.service.method(DBUS_INTERFACE,
-	#					in_signature=SIG_EVENTS, out_signature="")
-	#def UpdateItems(self, item_list):
-	#	"""Update items in the database
-	#	
-	#	:param item_list: list of items to be inserted in the database
-	#	:type item_list: list of tuples presenting an :ref:`item-label`
-	#	"""
-	#	result = _engine.update_items(item_list)
-	#	self.EventsChanged(("modified", result))
-	
+
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="as", out_signature="")
-	def DeleteItems(self, uris):
+	def DeleteEvents(self, uris):
 		"""Delete items from the database
 		
 		:param uris: list of URIs representing an item
@@ -258,17 +185,6 @@ class RemoteInterface(SingletonApplication):
 		:rtype: list of dictionaries
 		"""
 		return value
-	
-	@dbus.service.signal(DBUS_INTERFACE)
-	def EngineStart(self):
-		"""This signal is emmitted once the engine successfully started and
-		is ready to process requests
-		"""
-		return True
-	
-	@dbus.service.signal(DBUS_INTERFACE)
-	def EngineExit(self):
-		return True
 	
 	# Commands
 	

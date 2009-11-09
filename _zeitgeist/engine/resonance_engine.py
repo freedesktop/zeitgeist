@@ -296,7 +296,6 @@ def create_db(file_path):
 			 subj_interpretation INTEGER,
 			 subj_manifestation INTEGER,
 			 subj_mimetype INTEGER,
-			 subj_origin INTEGER,
 			 subj_text INTEGER,
 			 subj_storage INTEGER
 			 )
@@ -332,18 +331,48 @@ def create_db(file_path):
 		CREATE INDEX IF NOT EXISTS event_subj_mimetype
 			ON event(subj_mimetype)""")
 	cursor.execute("""
-		CREATE INDEX IF NOT EXISTS event_subj_origin
-			ON event(subj_origin)""")
-	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_text
 			ON event(subj_text)""")
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_storage
 			ON event(subj_storage)""")
-	# FIXME: Indexes on the event table
+	
+	# event view (interpretation, manifestation and mimetype are cached in ZG)
+	#cursor.execute("DROP VIEW event_view")
+	cursor.execute("""
+		CREATE VIEW IF NOT EXISTS event_view AS
+			SELECT event.id,
+				event.timestamp,
+				event.interpretation,
+				event.manifestation,
+				(SELECT value FROM actor WHERE actor.id = event.actor) AS actor,
+				event.origin,
+				event.payload,
+				event.subject_id AS subject_id,
+				event.subj_id,
+				event.subj_interpretation,
+				event.subj_manifestation,
+				event.subj_mimetype,
+				(SELECT value FROM text WHERE text.id = event.subj_text)
+					AS subj_text,
+				(SELECT state FROM event.subj_storage
+					WHERE storage.id=event.subj_storage) AS subj_storage
+		""")
 		
+		# subject view (interpreation, manifestation and mimetype are cached)
+		#cursor.execute("DROP VIEW event_view")
+		cursor.execute("""
+			
+				(SELECT value FROM uri WHERE uri.id = event.item_id) AS uri,
+				(SELECT value FROM content WHERE content.id = item.content_id) AS content,
+				(SELECT value FROM source WHERE source.id = item.source_id) AS source,
+				(SELECT info FROM app WHERE app.item_id = event.app_id) AS application
+			FROM event INNER JOIN item ON (item.id = event.item_id)
+		""")
+
 	# Table defs
-	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
+	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor,
+		_text, _payload, _storage, _event
 	_cursor = cursor
 	_uri = EntityTable("uri")
 	_manifestation = EntityTable("manifestation")
@@ -490,9 +519,9 @@ class ZeitgeistEngine :
 		# new ids from that offset
 		row = _event.find("max(id)").fetchone()
 		if row:
-			self.last_event_id = row[0]
+			self._last_event_id = row[0]
 		else:
-			self.last_event_id = 0
+			self._last_event_id = 0
 	
 	def next_event_id (self):
 		self._last_event_id += 1
