@@ -62,11 +62,11 @@ class EntityTable(Table):
 		"""
 		Look up an entity given its id
 		"""
-		if not value:
+		if id is None:
 			raise ValueError("Looking up %s without a id" % self)
 		
 		try:
-			return self._CACHE.lookup_by_value[id]
+			return self._CACHE.lookup_by_value(id)
 		except KeyError:
 			pass # We didn't have it cached; fall through and handle it below
 		
@@ -565,10 +565,10 @@ class ZeitgeistEngine :
 		for row in rows:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
-			event = Event.get_by_row(row)
+			event = Event.get_from_row(row)
 			if event[Event.Id] not in events:
 				events[event[Event.Id]] = event
-			events[event[Event.Id]].append_subject(Subject.get_by_row(row))
+			events[event[Event.Id]].append_subject(Subject.get_from_row(row))
 		
 		# Sort events into the requested order
 		sorted_events = []

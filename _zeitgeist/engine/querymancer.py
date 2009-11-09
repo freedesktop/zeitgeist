@@ -104,7 +104,8 @@ class ColumnType:
 		this means adding quotes around it, integers needs conversion to strings
 		etc.
 		"""
-		return str(value)
+		if value is None : return 'NULL'
+		else : return str(value)
 	
 class Integer(ColumnType):
 	"""
@@ -264,6 +265,7 @@ class Table:
 		@param rowspec: A list of keyword arguments C{column=value}
 		@return: The row id of the inserted row
 		"""
+		print "DEBUG:", rowspec
 		self._cursor.execute(self.INSERT(**rowspec))
 		return self._cursor.lastrowid
 	
