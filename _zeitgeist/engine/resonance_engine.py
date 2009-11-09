@@ -348,14 +348,14 @@ def create_db(file_path):
 				(SELECT value FROM actor WHERE actor.id = event.actor) AS actor,
 				event.origin,
 				event.payload,
-				event.subject_id,
+				event.subj_id,
 				event.subj_id,
 				event.subj_interpretation,
 				event.subj_manifestation,
 				event.subj_mimetype,
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
-				(SELECT state FROM event.subj_storage
+				(SELECT state FROM storage
 					WHERE storage.id=event.subj_storage) AS subj_available
 			FROM event
 		""")
