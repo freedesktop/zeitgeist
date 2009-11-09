@@ -26,7 +26,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.engine = get_default_engine()
 		
 	def tearDown (self):		
-		self.engine.close()
 		shutil.rmtree(self.tmp_dir)
 	
 	def assertEmptyDB (self):
