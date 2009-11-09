@@ -348,7 +348,7 @@ def create_db(file_path):
 				(SELECT value FROM actor WHERE actor.id = event.actor) AS actor,
 				event.origin,
 				event.payload,
-				event.subject_id AS subject_id,
+				event.subject_id,
 				event.subj_id,
 				event.subj_interpretation,
 				event.subj_manifestation,
@@ -357,6 +357,7 @@ def create_db(file_path):
 					AS subj_text,
 				(SELECT state FROM event.subj_storage
 					WHERE storage.id=event.subj_storage) AS subj_available
+			FROM event
 		""")
 
 	# Table defs
