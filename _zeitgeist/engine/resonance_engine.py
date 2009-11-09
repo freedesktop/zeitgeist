@@ -432,7 +432,9 @@ def reset():
 
 # Thin wrapper for event data, with fast symbolic lookups
 # like ev[Event.Origin] (speed of array lookups rather than dict lookups)
+
 class Event :
+	Fields = \
 	(Id,
 	 Timestamp,
 	 Interpretation,
@@ -442,6 +444,7 @@ class Event :
 	 Payload,
 	 Subjects) = range(8)
 	 
+	SubjectFields = \
 	(SubjectUri,
 	 SubjectInterpretation,
 	 SubjectManifestation,
@@ -451,14 +454,32 @@ class Event :
 	 SubjectStorage,
 	 SubjectAvailable) = range(8)
 	 
-	def __init__ (self, data):
-		self._data = data
+	def __init__ (self, data=None):
+		if data:
+			self._data = data
+		else:
+			self._data = []
+			for i in Event.Fields:
+				self._data.append(None) 
 	 
 	def __getitem__ (self, offset):
 		return self._data[offset]
 	
 	def __setitem__ (self, offset, value):
 		self._data[offset] = value
+		
+	def append_subject(self):
+		"""
+		Append a new empty subject array and return a reference to
+		the array.
+		"""
+		if self._data[Event.Subjects] is None:
+			self._data[Event.Subjects] = []
+		subj = []
+		for i in Event.SubjectFields:
+			subj.append(None)
+		self._data[Event.Subjects].append(subj)
+		return subj
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
 class ZeitgeistEngine :
@@ -469,10 +490,10 @@ class ZeitgeistEngine :
 		# Find the last event id we used, and start generating
 		# new ids from that offset
 		row = _event.find("max(id)").fetchone()
-		if row:
-			self.last_event_id = row[0]
+		if row[0]:
+			self._last_event_id = row[0]
 		else:
-			self.last_event_id = 0
+			self._last_event_id = 0
 	
 	def next_event_id (self):
 		self._last_event_id += 1
@@ -502,10 +523,8 @@ class ZeitgeistEngine :
 					
 		ev = None
 		subjects = []
-		# FIXME: JOIN or lookup the values. Current code just returns
-		#        integer ids for all fields.
-		#        Using our caches instead of SQLite JOINs might in fact
-		#        be fastest as it avoids a lot of strdup()s
+		# FIXME: Determine if using our caches instead of SQLite JOINs
+		#        is in fact faster
 		for row in rows:
 			if ev is None:
 				ev = Event()
@@ -542,7 +561,7 @@ class ZeitgeistEngine :
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
 		
 		id = self.next_event_id()
-		timestamp = self.get_timestamp (event[Event.Timestamp])				
+		timestamp = event[Event.Timestamp]
 		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation])
 		manif_id = _manifestation.lookup_or_create(event[Event.Manifestation])
 		actor_id = _actor.lookup_or_create(event[Event.Actor])
@@ -595,18 +614,17 @@ class ZeitgeistEngine :
 			 order):
 		# FIXME
 		pass
-	
-	def get_timestamp (self, datetime):
-		"""
-		Input may be either None, and int, or a ISO-8601 formatted
-		string with the millisecond extension, eg. 2009-11-08T9:55:15.456.
-		
-		Returns the number of milliseconds since the Unix Epoch.
-		
-		If input is None then a new timestamp will be generated for the
-		moment of invocation. If input is an integer type it will returned
-		as is. If it is an iso-8601 string it will be converted to a
-		millisecond timestamp
-		"""
-		# FIXME: Write me
+
+class QueryCompiler :
+	def __init__ (self):
 		pass
+	
+	def compile (self, event_templates):
+		"""
+		Return and SQL query representation (as a string) of
+		event_templates. The returned string will be suitable for
+		embedding in an SQL WHERE-clause
+		"""
+	
+	def compile_single_template (self, event_template):
+		pass # FIXME
