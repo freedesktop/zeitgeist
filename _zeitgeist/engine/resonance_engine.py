@@ -330,7 +330,7 @@ def create_db(file_path):
 			ON event(subj_manifestation)""")
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_mimetype
-			ON event(mimetyype)""")
+			ON event(subj_mimetype)""")
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_origin
 			ON event(subj_origin)""")
@@ -468,7 +468,7 @@ class ZeitgeistEngine :
 		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
-		row = _event.find("max(id)")
+		row = _event.find("max(id)").fetchone()
 		if row:
 			self.last_event_id = row[0]
 		else:
