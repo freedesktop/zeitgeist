@@ -584,9 +584,9 @@ class ZeitgeistEngine :
 		
 		id = self.next_event_id()
 		timestamp = event[Event.Timestamp]
-		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation])
-		manif_id = _manifestation.lookup_or_create(event[Event.Manifestation])
-		actor_id = _actor.lookup_or_create(event[Event.Actor])		
+		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation]).id
+		manif_id = _manifestation.lookup_or_create(event[Event.Manifestation]).id
+		actor_id = _actor.lookup_or_create(event[Event.Actor]).id
 		
 		if event[Event.Payload]:
 			payload_id = _payload.add(event[Event.Payload])
@@ -597,12 +597,13 @@ class ZeitgeistEngine :
 			suri_id = _uri.lookup_or_create(subj[Subject.Uri]).id
 			sinter_id = _interpretation.lookup_or_create(subj[Subject.Interpretation]).id
 			smanif_id = _manifestation.lookup_or_create(subj[Subject.Manifestation]).id
-			sorigin_id = _uri.lookup_or_create(subj[Subject.Origin])
+			sorigin_id = _uri.lookup_or_create(subj[Subject.Origin]).id
 			smime_id = _mimetype.lookup_or_create(subj[Subject.Mimetype]).id
 			stext_id = _text.lookup_or_create(subj[Subject.Text]).id
 			sstorage_id = _storage.lookup_or_create(subj[Subject.Storage]).id # FIXME: Storage is not an EntityTable
 			
 			# We store the event here because we need one row per subject
+			_event.set_cursor(EchoCursor())
 			_event.add(
 				id=id,
 				timestamp=timestamp,
