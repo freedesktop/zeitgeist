@@ -356,18 +356,7 @@ def create_db(file_path):
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
 				(SELECT state FROM event.subj_storage
-					WHERE storage.id=event.subj_storage) AS subj_storage
-		""")
-		
-		# subject view (interpreation, manifestation and mimetype are cached)
-		#cursor.execute("DROP VIEW event_view")
-		cursor.execute("""
-			
-				(SELECT value FROM uri WHERE uri.id = event.item_id) AS uri,
-				(SELECT value FROM content WHERE content.id = item.content_id) AS content,
-				(SELECT value FROM source WHERE source.id = item.source_id) AS source,
-				(SELECT info FROM app WHERE app.item_id = event.app_id) AS application
-			FROM event INNER JOIN item ON (item.id = event.item_id)
+					WHERE storage.id=event.subj_storage) AS subj_available
 		""")
 
 	# Table defs
@@ -459,27 +448,9 @@ def reset():
 	_storage = None
 	_event = None
 
-# Thin wrapper for event data, with fast symbolic lookups
-# like ev[Event.Origin] (speed of array lookups rather than dict lookups)
-class Event :
-	(Id,
-	 Timestamp,
-	 Interpretation,
-	 Manifetation,
-	 Actor,
-	 Origin,
-	 Payload,
-	 Subjects) = range(8)
-	 
-	(SubjectUri,
-	 SubjectInterpretation,
-	 SubjectManifestation,
-	 SubjectMimetype,
-	 SubjectOrigin,
-	 SubjectText,
-	 SubjectStorage,
-	 SubjectAvailable) = range(8)
-	 
+# Thin wrapper for dict-like access, with fast symbolic lookups
+# eg: ev[Name] (speed of array lookups rather than dict lookups)
+class _FastDict:
 	def __init__ (self, data):
 		self._data = data
 	 
@@ -488,6 +459,44 @@ class Event :
 	
 	def __setitem__ (self, offset, value):
 		self._data[offset] = value
+
+class Event(_FastDict):
+	(Id,
+	 Timestamp,
+	 Interpretation,
+	 Manifetation,
+	 Actor,
+	 Origin,
+	 Payload,
+	 Subjects) = range(8)
+	
+	def get(row):
+		self[self.Id] = row["id"]
+		self[self.Timestamp] = row["timestamp"]
+		self[self.Interpretations] = _interpretation.lookup_by_id(row["interpretation"])
+		self[self.Manifestation] = _manifestation.lookup_by_id(row["manifestation"])
+		self[self.Actor] = row["actor"]
+		self[self.Origin] = row["origin"]
+		self[self.Payload] = row["payload"]
+		self[self.Subjects] = []
+
+class Subject(_FastDict):
+	(Uri,
+	 Interpretation,
+	 Manifestation,
+	 Mimetype,
+	 Text,
+	 Storage,
+	 Available) = range(7)
+	 
+	 def get(row):
+		self[self.Uri] = row["subj_uri"]
+		self[self.Interpretation] = _interpretation.lookup_by_id(row["subj_interpretation"])
+		self[self.Manifestation] = _manifestation.lookup_by_id(row["subj_manifestation"])
+		self[self.Mimetype] = _mimetype.lookup_by_id(row["subj_mimetype"])
+		self[self.Text] = row["subj_text"]
+		self[self.Available] = row["subj_available"]
+		return self
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
 class ZeitgeistEngine :
