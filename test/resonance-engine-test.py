@@ -8,7 +8,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import get_default_engine
 from zeitgeist.datamodel import *
-from zeitgeist.dbusutils import Event, Item, Annotation
+from _zeitgeist.engine.resonance_engine import Event
+
 
 import unittest
 import tempfile
@@ -30,11 +31,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def assertEmptyDB (self):
 		# Assert before each test that the db is indeed empty
-		self.assertEquals((), self.engine.find_events(0, limit=1))		
+		self.assertEquals((), self.engine.find_events(0))		
 		
 	def testSingleInsertGet(self):
-		self.assertEmptyDB()
 		uri = u"test://mytest"
+		'''
 		orig_event = {
 			"subject": uri,
 			"timestamp": 0,
@@ -50,34 +51,23 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			"mimetype": "mime/type",
 			"bookmark": True,
 		}
+		'''
+		event = Event()
+		event[Event.Timestamp] = 0,
+		event[Event.Interpretation] = Source.USER_ACTIVITY,
+		event[Event.Manifetation] = Content.CREATE_EVENT,
+		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop",
+		event[Event.Origin]  = "zg:lala"
+		
+		subject = event.append_subject()
+		subject[Event.SubjectUri] = uri
+		
 		
 		# Insert item and event
-		num_inserts = self.engine.insert_event(orig_event, orig_item, [])
-		self.assertEquals(1, num_inserts)
+		ids = self.engine.insert_events([event])
+		result = self.engine.get_events(ids)
 		
-		# Check the item (get_items)
-		result = self.engine.get_items([uri])
-		self.assertTrue(result is not None)
-		self.assertTrue(uri in result)
-		result_item = dict(result[uri])
-		result_item["tags"] = {}
-		assert_cmp_dict(orig_item, result_item)
-		
-		# Check the event (find_events)
-		result = self.engine.find_events(0, 0, 0, True, "event",
-			[{"uri": uri}])
-		self.assertTrue(result is not None)
-		self.assertEquals(len(result[0]), 1)
-		self.assertEquals(len(result[1]), 1)
-		result_event = dict(result[0][0])
-		result_event["uri"] = "" # we don't know what it'll be
-		del orig_event["tags"]
-		assert_cmp_dict(orig_event, result_event)
-		
-		content_types = [str(ctype) for ctype in self.engine.get_types()]
-		self.assertTrue(str(Content.IMAGE) in content_types)
-	
-	
+		#self.assertEquals(1, num_inserts)
 
 if __name__ == "__main__":
 	unittest.main()

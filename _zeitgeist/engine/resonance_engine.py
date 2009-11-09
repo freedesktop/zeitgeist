@@ -461,6 +461,7 @@ def reset():
 
 # Thin wrapper for event data, with fast symbolic lookups
 # like ev[Event.Origin] (speed of array lookups rather than dict lookups)
+
 class Event :
 	Fields = \
 	(Id,
@@ -518,7 +519,7 @@ class ZeitgeistEngine :
 		# Find the last event id we used, and start generating
 		# new ids from that offset
 		row = _event.find("max(id)").fetchone()
-		if row:
+		if row[0]:
 			self._last_event_id = row[0]
 		else:
 			self._last_event_id = 0
@@ -589,7 +590,7 @@ class ZeitgeistEngine :
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
 		
 		id = self.next_event_id()
-		timestamp = self.get_timestamp (event[Event.Timestamp])				
+		timestamp = event[Event.Timestamp]
 		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation])
 		manif_id = _manifestation.lookup_or_create(event[Event.Manifestation])
 		actor_id = _actor.lookup_or_create(event[Event.Actor])
