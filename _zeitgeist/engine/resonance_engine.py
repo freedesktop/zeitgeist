@@ -508,16 +508,24 @@ class Subject(_FastDict):
 		Manifestation,
 		Mimetype,
 		Text,
+<<<<<<< TREE
 		Storage,
 		Origin) = range(7)
 	
+=======
+		Storage) = range(6)
+	 
+>>>>>>> MERGE-SOURCE
 	def get(self, row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = _interpretation.lookup_by_id(row["subj_interpretation"])
 		self[self.Manifestation] = _manifestation.lookup_by_id(row["subj_manifestation"])
 		self[self.Mimetype] = _mimetype.lookup_by_id(row["subj_mimetype"])
 		self[self.Text] = row["subj_text"]
+<<<<<<< TREE
 		self[self.Origin] = row["subj_origin"]
+=======
+>>>>>>> MERGE-SOURCE
 		return self
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
@@ -576,13 +584,13 @@ class ZeitgeistEngine :
 				if row[Event.Payload]:
 					ev[Event.Payload] = _payload.find_one(_payload.value, _payload.id == row[Event.Payload])[0]
 				ev[Event.Subjects] = subjects
-			storage = _storage.find_one("*", _storage.id == row[Event.Subjects + Event.SubjectStorage])
-			subj = (_uri.lookup_by_id(row[Event.Subjects + Event.SubjectUri]),
-				_interpretation.lookup_by_id(row[Event.Subjects + Event.SubjectInterpretation]),
-				_manifestation.lookup_by_id(row[Event.Subjects + Event.SubjectManifestation]),
-				_mimetype.lookup_by_id(row[Event.Subjects + Event.SubjectMimetype]),
-				_uri.lookup_by_id(row[Event.Subjects + Event.SubjectOrigin]),
-				_text.lookup_by_id(row[Event.Subjects + Event.SubjectText]),
+			storage = _storage.find_one("*", _storage.id == row[Event.Subjects + Subject.Storage])
+			subj = (_uri.lookup_by_id(row[Event.Subjects + Subject.Uri]),
+				_interpretation.lookup_by_id(row[Event.Subjects + Subject.Interpretation]),
+				_manifestation.lookup_by_id(row[Event.Subjects + Subject.Manifestation]),
+				_mimetype.lookup_by_id(row[Event.Subjects + Subject.Mimetype]),
+				_uri.lookup_by_id(row[Event.Subjects + Subject.Origin]),
+				_text.lookup_by_id(row[Event.Subjects + Subject.Text]),
 				storage[1],
 				storage[2])
 			subjects.append(subj)
