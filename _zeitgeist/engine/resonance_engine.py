@@ -495,7 +495,8 @@ class Event(_FastDict):
 		if self._data[self.Subjects] is None:
 			self._data[self.Subjects] = []
 		if row :
-			subj = Subject().get(row)			
+			if isinstance(row, Subject) : subj = row
+			else : subj = Subject().get(row)			
 		else:
 			subj = Subject()
 		self._data[Event.Subjects].append(subj)
