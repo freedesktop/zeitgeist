@@ -164,8 +164,11 @@ class StatefulEntityTable(Table):
 			return ent
 		return None
 	
-	def lookup_or_create(self, value, state):
-		"""Find the entity matching the uri 'value' or create it if necessary"""
+	def lookup_or_create(self, value, state=1):
+		"""
+		Find the entity matching the uri 'value' or create it if necessary.
+		The default state is "available", ie. 1.
+		"""
 		ent = self.lookup(value)
 		if ent : return ent
 		
@@ -289,12 +292,12 @@ def create_db(file_path):
 			 timestamp INTEGER,
 			 interpretation INTEGER,
 			 manifestation INTEGER,			 
-			 actor INTEGER,
-			 origin INTEGER,
+			 actor INTEGER,			 
 			 payload INTEGER,
 			 subj_id INTEGER,
 			 subj_interpretation INTEGER,
 			 subj_manifestation INTEGER,
+ 			 subj_origin INTEGER,
 			 subj_mimetype INTEGER,
 			 subj_text INTEGER,
 			 subj_storage INTEGER
@@ -316,9 +319,6 @@ def create_db(file_path):
 		CREATE INDEX IF NOT EXISTS event_actor
 			ON event(actor)""")
 	cursor.execute("""
-		CREATE INDEX IF NOT EXISTS event_origin
-			ON event(origin)""")
-	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_id
 			ON event(subj_id)""")
 	cursor.execute("""
@@ -327,6 +327,9 @@ def create_db(file_path):
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_manifestation
 			ON event(subj_manifestation)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_subj_origin
+			ON event(subj_origin)""")
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_mimetype
 			ON event(subj_mimetype)""")
@@ -346,17 +349,17 @@ def create_db(file_path):
 				event.interpretation,
 				event.manifestation,
 				(SELECT value FROM actor WHERE actor.id = event.actor) AS actor,
-				event.origin,
 				event.payload,
 				event.subj_id,
 				event.subj_id,
 				event.subj_interpretation,
 				event.subj_manifestation,
+				event.subj_origin,
 				event.subj_mimetype,
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
 				(SELECT state FROM storage
-					WHERE storage.id=event.subj_storage) AS subj_available
+					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
 		""")
 
@@ -379,14 +382,13 @@ def create_db(file_path):
 	               timestamp=Integer(),
 	               interpretation=Integer(),
 	               manifestation=Integer(),
-	               actor=Integer(),
-	               origin=Integer(),
+	               actor=Integer(),	               
 	               payload=Integer(),
 	               subj_id=Integer(),
 	               subj_interpretation=Integer(),
 	               subj_manifestation=Integer(),
-	               subj_mimetype=Integer(),
 	               subj_origin=Integer(),
+	               subj_mimetype=Integer(),
 	               subj_text=Integer(),
 	               subj_storage=Integer())
 	
@@ -482,10 +484,9 @@ class Event(_FastDict):
 		Interpretation,
 		Manifestation,
 		Actor,
-		Origin,
 		Payload,
-		Subjects) = range(8)
-
+		Subjects) = range(7)
+	
 	def _get(self, row):
 		self[self.Id] = row["id"]
 		self[self.Timestamp] = row["timestamp"]
@@ -515,19 +516,20 @@ class Subject(_FastDict):
 	Fields = (Uri,
 		Interpretation,
 		Manifestation,
+		Origin,
 		Mimetype,
 		Text,
-		Storage,
-		Origin) = range(7)
+		Storage) = range(7)
 	
 	def _get(self, row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = _interpretation.lookup_by_id(row["subj_interpretation"])
 		self[self.Manifestation] = _manifestation.lookup_by_id(row["subj_manifestation"])
+		self[self.Origin] = row["subj_origin"]
 		self[self.Mimetype] = _mimetype.lookup_by_id(row["subj_mimetype"])
 		self[self.Text] = row["subj_text"]
-		self[self.Available] = row["subj_available"]
-		self[self.Origin] = row["subj_origin"]
+		self[self.Storage] = row["subj_storage_state"]
+		return self
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
 class ZeitgeistEngine :
@@ -582,10 +584,9 @@ class ZeitgeistEngine :
 		
 		id = self.next_event_id()
 		timestamp = event[Event.Timestamp]
-		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation])
-		manif_id = _manifestation.lookup_or_create(event[Event.Manifestation])
-		actor_id = _actor.lookup_or_create(event[Event.Actor])
-		origin_id = _uri.lookup_or_create(event[Event.Origin])
+		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation]).id
+		manif_id = _manifestation.lookup_or_create(event[Event.Manifestation]).id
+		actor_id = _actor.lookup_or_create(event[Event.Actor]).id
 		
 		if event[Event.Payload]:
 			payload_id = _payload.add(event[Event.Payload])
@@ -596,25 +597,25 @@ class ZeitgeistEngine :
 			suri_id = _uri.lookup_or_create(subj[Subject.Uri]).id
 			sinter_id = _interpretation.lookup_or_create(subj[Subject.Interpretation]).id
 			smanif_id = _manifestation.lookup_or_create(subj[Subject.Manifestation]).id
+			sorigin_id = _uri.lookup_or_create(subj[Subject.Origin]).id
 			smime_id = _mimetype.lookup_or_create(subj[Subject.Mimetype]).id
-			sorigin_id = _mimetype.lookup_or_create(subj[Subject.Origin]).id
 			stext_id = _text.lookup_or_create(subj[Subject.Text]).id
 			sstorage_id = _storage.lookup_or_create(subj[Subject.Storage]).id # FIXME: Storage is not an EntityTable
 			
 			# We store the event here because we need one row per subject
+			#_event.set_cursor(EchoCursor())
 			_event.add(
 				id=id,
 				timestamp=timestamp,
 				interpretation=inter_id,
 				manifestation=manif_id,
 				actor=actor_id,
-				origin=origin_id,
 				payload=payload_id,
 				subj_id=suri_id,
 				subj_interpretation=sinter_id,
-				subj_manifestation=smani_id,
-				subj_mimetype=smime_id,
+				subj_manifestation=smanif_id,
 				subj_origin=sorigin_id,
+				subj_mimetype=smime_id,				
 				subj_text=stext_id,
 				subj_storage=sstorage_id)
 		
