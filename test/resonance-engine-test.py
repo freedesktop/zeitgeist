@@ -56,14 +56,15 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event[Event.Interpretation] = Source.USER_ACTIVITY,
 		event[Event.Manifestation] = Content.CREATE_EVENT,
 		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop",
-		event[Event.Origin]  = "zg:lala"
 		
 		subject = Subject()
 		subject[Subject.Uri] = uri
 		subject[Subject.Manifestation] = "lala"
 		subject[Subject.Interpretation] = "tinky winky"
+		subject[Subject.Origin]  = "test://"
 		subject[Subject.Mimetype] = "YOMAMA"
 		subject[Subject.Text] = "SUCKS"
+		subject[Subject.Storage] = "MyStorage"
 		
 		event.append_subject(subject)
 		
