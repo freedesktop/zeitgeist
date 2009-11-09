@@ -26,7 +26,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.engine = get_default_engine()
 		
 	def tearDown (self):		
-		self.engine.close()
 		shutil.rmtree(self.tmp_dir)
 	
 	def assertEmptyDB (self):
@@ -61,6 +60,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		subject = Subject()
 		subject[Subject.Uri] = uri
+		subject[Subject.Manifestation] = "lala"
+		subject[Subject.Interpretation] = "tinky winky"
+		subject[Subject.Mimetype] = "YOMAMA"
+		subject[Subject.Text] = "SUCKS"
 		
 		event.append_subject(subject)
 		

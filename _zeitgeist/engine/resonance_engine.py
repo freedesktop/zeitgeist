@@ -518,8 +518,8 @@ class Subject(_FastDict):
 		Mimetype,
 		Text,
 		Storage,
-		Available) = range(7)
-	 
+		Origin) = range(7)
+	
 	def _get(self, row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = _interpretation.lookup_by_id(row["subj_interpretation"])
@@ -527,6 +527,7 @@ class Subject(_FastDict):
 		self[self.Mimetype] = _mimetype.lookup_by_id(row["subj_mimetype"])
 		self[self.Text] = row["subj_text"]
 		self[self.Available] = row["subj_available"]
+		self[self.Origin] = row["subj_origin"]
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
 class ZeitgeistEngine :
