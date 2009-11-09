@@ -55,7 +55,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event = Event()
 		event[Event.Timestamp] = 0,
 		event[Event.Interpretation] = Source.USER_ACTIVITY,
-		event[Event.Manifetation] = Content.CREATE_EVENT,
+		event[Event.Manifestation] = Content.CREATE_EVENT,
 		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop",
 		event[Event.Origin]  = "zg:lala"
 		
