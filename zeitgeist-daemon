@@ -40,7 +40,7 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = gobject.MainLoop()
 
 try:
-	obj = RemoteInterface(mainloop = mainloop)
+	RemoteInterface(mainloop = mainloop)
 except RuntimeError, e:
 	logging.error(str(e))
 	sys.exit(1)
@@ -51,9 +51,6 @@ if not "--no-passive-loggers" in sys.argv:
 		subprocess.Popen(passive_loggers)
 	else:
 		logging.warning("%s not found, not starting datahub" % passive_loggers)
-
-obj.EngineStart()
-atexit.register(lambda: obj.EngineExit())
 
 logging.info(_(u"Starting Zeitgeist service..."))
 mainloop.run()
