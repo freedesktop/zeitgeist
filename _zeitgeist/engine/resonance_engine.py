@@ -452,6 +452,13 @@ def reset():
 # Thin wrapper for dict-like access, with fast symbolic lookups
 # eg: ev[Name] (speed of array lookups rather than dict lookups)
 class _FastDict:
+	
+	@classmethod
+	def get_from_row(cls, row):
+		obj = cls()
+		obj._get(row)
+		return obj
+	
 	def __init__ (self, data=None):
 		if data:
 			self._data = data
@@ -465,6 +472,9 @@ class _FastDict:
 	
 	def __setitem__ (self, offset, value):
 		self._data[offset] = value
+		
+	def _get(self, row):
+		raise NotImplementedError
 
 class Event(_FastDict):
 	Fields = (Id,
@@ -475,8 +485,8 @@ class Event(_FastDict):
 		Origin,
 		Payload,
 		Subjects) = range(8)
-	
-	def get(self, row):
+
+	def _get(self, row):
 		self[self.Id] = row["id"]
 		self[self.Timestamp] = row["timestamp"]
 		self[self.Interpretations] = _interpretation.lookup_by_id(row["interpretation"])
@@ -485,7 +495,6 @@ class Event(_FastDict):
 		self[self.Origin] = row["origin"]
 		self[self.Payload] = row["payload"]
 		self[self.Subjects] = []
-		return self
 	
 	def append_subject(self, row=None):
 		"""
@@ -511,14 +520,13 @@ class Subject(_FastDict):
 		Storage,
 		Available) = range(7)
 	 
-	def get(self, row):
+	def _get(self, row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = _interpretation.lookup_by_id(row["subj_interpretation"])
 		self[self.Manifestation] = _manifestation.lookup_by_id(row["subj_manifestation"])
 		self[self.Mimetype] = _mimetype.lookup_by_id(row["subj_mimetype"])
 		self[self.Text] = row["subj_text"]
 		self[self.Available] = row["subj_available"]
-		return self
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
 class ZeitgeistEngine :
@@ -538,60 +546,32 @@ class ZeitgeistEngine :
 		self._last_event_id += 1
 		return self._last_event_id
 	
-	def get_events (self, ids):
-		return reduce(get_event, ids, [])
-	
-	def get_event (self, collector=None, id=None):
+	def get_events(self, ids):
 		"""
-		Look up an event by id.
-		
-		This method can be used in two ways. By calling it by only
-		supplying an event id the event (or None) will simply be
-		returned.
-		
-		If called with a list as the 'collector' argument the event
-		will be appended to the list and the list returned. This is
-		useful in combination with Python's reduce() method.
+		Look up a list of events.
 		"""
-		global _event
-		rows = _event.find(id=id)
-		
-		# Exit on no hits
-		if not rows:
-			return collector
-					
-		ev = None
-		subjects = []
+		global _cursor
 		# FIXME: Determine if using our caches instead of SQLite JOINs
 		#        is in fact faster
-		for row in rows:
-			if ev is None:
-				ev = Event()
-				ev[Event.Id] = id
-				ev[Event.Timestamp] = row[Event.Timestamp]
-				ev[Event.Interpretation] = _interpretation.lookup_by_id(row[Event.Interpretation])
-				ev[Event.Manifestation] = _manifestation.lookup_by_id(row[Event.Manifestation])
-				ev[Event.Origin] = _uri.lookup_by_id(row[Event.Origin])
-				ev[Event.Actor] = _actor.lookup_by_id(row[Event.Actor])
-				if row[Event.Payload]:
-					ev[Event.Payload] = _payload.find_one(_payload.value, _payload.id == row[Event.Payload])[0]
-				ev[Event.Subjects] = subjects
-			storage = _storage.find_one("*", _storage.id == row[Event.Subjects + Event.SubjectStorage])
-			subj = (_uri.lookup_by_id(row[Event.Subjects + Event.SubjectUri]),
-				_interpretation.lookup_by_id(row[Event.Subjects + Event.SubjectInterpretation]),
-				_manifestation.lookup_by_id(row[Event.Subjects + Event.SubjectManifestation]),
-				_mimetype.lookup_by_id(row[Event.Subjects + Event.SubjectMimetype]),
-				_uri.lookup_by_id(row[Event.Subjects + Event.SubjectOrigin]),
-				_text.lookup_by_id(row[Event.Subjects + Event.SubjectText]),
-				storage[1],
-				storage[2])
-			subjects.append(subj)
 		
-		if collector is None:
-			return ev
-		else:
-			collector.append(ev)
-			return collector
+		rows = _cursor.execute("""
+			SELECT * FROM event_view
+			WHERE id IN (%s)
+			""" % ",".join(["?" for id in ids]), ids).fetchall()
+		events = {}
+		for row in rows:
+			# Assumption: all rows of a same event for its different
+			# subjects are in consecutive order.
+			event = Event.get_by_row(row)
+			if event[Event.Id] not in events:
+				events[event[Event.Id]] = event
+			events[event[Event.Id]].append_subject(Subject.get_by_row(row)
+		
+		# Sort events into the requested order
+		sorted_events = []
+		for id in ids:
+			sorted_events.append(events[id])
+		return sorted_events
 	
 	def insert_events (self, events):
 		return map (self.insert_event, events)
