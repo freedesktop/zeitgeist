@@ -452,7 +452,7 @@ def reset():
 # Thin wrapper for dict-like access, with fast symbolic lookups
 # eg: ev[Name] (speed of array lookups rather than dict lookups)
 class _FastDict:
-	def __init__ (self, data):
+	def __init__ (self, data=None):
 		if data:
 			self._data = data
 		else:
