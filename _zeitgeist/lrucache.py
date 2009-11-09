@@ -141,7 +141,7 @@ class LRUBiCache(LRUCache):
 		self._inv_map = {}
 	
 	def __setitem__ (self, key, value):
-		LURCache.__setitem__(self, key)
+		LRUCache.__setitem__(self, key)
 		self._inv_map[value] = key
 	
 	def lookup_by_value(self, value):
