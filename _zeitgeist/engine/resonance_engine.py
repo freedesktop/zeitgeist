@@ -632,13 +632,11 @@ class ZeitgeistEngine :
 	def delete_events (self, uris):
 		# FIXME
 		pass
-	
-	def find_events (self,
-			 time_ranges,
+
+	def find_eventids (self,
+			 time_range,
 			 event_templates,
-			 filter_available,
-			 with_result_set,
-			 result_set_to_close,			 
+			 storage_state,
 			 num_events,
 			 order):
 		# FIXME

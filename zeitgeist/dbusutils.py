@@ -38,8 +38,8 @@ class DBusInterface(dbus.Interface):
 	"""
 	__shared_state = {}
 	
-	INTERFACE_NAME = BUS_NAME = "org.gnome.zeitgeist"
-	OBJECT_PATH = "/org/gnome/zeitgeist"
+	INTERFACE_NAME = BUS_NAME = "org.gnome.zeitgeist.LogManager"
+	OBJECT_PATH = "/org/gnome/zeitgeist/log"
 	
 	@staticmethod
 	def get_members(introspection_xml):

@@ -41,42 +41,31 @@ class RemoteInterface(SingletonApplication):
 	# Reading stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="iiibsaa{sv}", out_signature="("+SIG_EVENTS+")")
-	def FindEvents(self, min_timestamp, max_timestamp, limit,
-			sorting_asc, mode, filters):
+						in_signature="au", out_signature="a{"+SIG_EVENTS+"}")
+	def GetEvents(self, event_seqnums):
+		return _engine.get_events(event_seqnums)
+	
+	@dbus.service.method(DBUS_INTERFACE,
+						in_signature="(ii)a{asaas}uuu", out_signature="("+SIG_EVENTS+")")
+	def FindEventIds(self, time_range, event_templates, storage_state,
+			num_events, order):
 		"""Search for items which match different criterias
 		
-		:param min_timestamp: search for events beginning after this timestamp
-		:type min_timestamp: integer
-		:param max_timestamp: search for events beginning before this timestamp;
-			``max_timestamp`` equals ``0`` means indefinite time
-		:type max_timestamp: integer
-		:param limit: limit the number of returned items;
-			``limit`` equals ``0`` returns all matching items
-		:type limit: integer
-		:param sorting_asc: sort result in ascending order of timestamp, otherwise descending
-		:type sorting_asc: boolean
-		:param mode: The first mode returns all events, the second one only returns
-			the last event when items are repeated and the ``mostused`` mode
-			is like ``item`` but returns the results sorted by the number of
-			events.
-		:type mode: string, either ``event``, ``item`` or ``mostused``
-		:param filters: list of filter, multiple filters are connected by an ``OR`` condition
-		:type filters: list of tuples presenting a :ref:`filter-label`
+		:param time_range: 
+		:type time_range: tuple of integers
+		:param event_templates: 
+		:type event_templates: array of templates
+		:param storage_state: 
+		:type storage_state: unsigned integer
+		:param num_events: 
+		:type num_events: unsigned integer
+		:param order: 
+		:type order: unsigned integer
 		:returns: list of items
 		:rtype: list of tuples presenting an :ref:`item-label`
 		"""
-		# filters is a list of dicts, where each dict can have the following items:
-		#   name: <list> of <str>
-		#   uri: <list> of <str>
-		#   tags: <list> of <str>
-		#   mimetypes: <list> of <str>
-		#   source: <list> of <str>
-		#   content: <list> of <str>
-		#	application <list> of <str>
-		#   bookmarked: <bool> (True means bookmarked items, and vice versa
-		return _engine.find_events(min_timestamp, max_timestamp, limit,
-			sorting_asc, mode, filters, False)
+		return _engine.find_eventids(time_range, event_templates, storage_state,
+			num_events, order)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="iiaa{sv}", out_signature="a(si)")
@@ -136,11 +125,12 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return _engine.get_last_insertion_date(application)
 	
+
 	# Writing stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature=SIG_EVENTS+"aa{ss}", out_signature="i")
-	def InsertEvents(self, events, items, annotations):
+						in_signature="a{"+SIG_EVENTS+"}", out_signature="as")
+	def InsertEvents(self, events):
 		"""Inserts events into the database. Returns the amount of sucessfully
 		inserted events
 		
@@ -153,21 +143,33 @@ class RemoteInterface(SingletonApplication):
 		:returns: a positive value on success, ``0`` otherwise
 		:rtype: Integer
 		"""
-		result = _engine.insert_events(events, items, annotations)
-		if result[0]:
-			self.EventsChanged(("added", result[0], result[1]))
-		return len(result[0])
-
+		return _engine.insert_events(events)
+	
+	#@dbus.service.method(DBUS_INTERFACE,
+	#					in_signature=SIG_EVENTS, out_signature="")
+	#def UpdateItems(self, item_list):
+	#	"""Update items in the database
+	#	
+	#	:param item_list: list of items to be inserted in the database
+	#	:type item_list: list of tuples presenting an :ref:`item-label`
+	#	"""
+	#	result = _engine.update_items(item_list)
+	#	self.EventsChanged(("modified", result))
+	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="as", out_signature="")
-	def DeleteEvents(self, uris):
+						in_signature="a{asaas}", out_signature="")
+	def DeleteEvents(self, event_templates):
 		"""Delete items from the database
 		
 		:param uris: list of URIs representing an item
 		:type uris: list of strings
 		"""
-		result = _engine.delete_items(uris)
-		self.EventsChanged(("deleted", result))
+		_engine.delete_items(event_templates)
+
+	@dbus.service.method(DBUS_INTERFACE,
+						in_signature="", out_signature="")
+	def DeleteLog(self):
+		_engine.delete_log()
 	
 	# Signals and signal emitters
 	
