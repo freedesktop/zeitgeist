@@ -487,14 +487,18 @@ class Event(_FastDict):
 		self[self.Subjects] = []
 		return self
 	
-	def append_subject(self, row):
+	def append_subject(self, row=None):
 		"""
 		Append a new empty subject array and return a reference to
 		the array.
 		"""
 		if self._data[self.Subjects] is None:
 			self._data[self.Subjects] = []
-		self._data[Event.Subjects].append(Subject().get(row))
+		if row :
+			subj = Subject().get(row)			
+		else:
+			subj = Subject()
+		self._data[Event.Subjects].append(subj)
 		return subj
 
 class Subject(_FastDict):
@@ -506,7 +510,7 @@ class Subject(_FastDict):
 		Storage,
 		Available) = range(7)
 	 
-	def get(row):
+	def get(self, row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = _interpretation.lookup_by_id(row["subj_interpretation"])
 		self[self.Manifestation] = _manifestation.lookup_by_id(row["subj_manifestation"])
