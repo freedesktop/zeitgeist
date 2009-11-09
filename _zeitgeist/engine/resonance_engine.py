@@ -509,14 +509,16 @@ class Subject(_FastDict):
 		Mimetype,
 		Text,
 		Storage,
-		Available) = range(7)
-	 
+		Origin,
+		Available) = range(8)
+	
 	def get(self, row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = _interpretation.lookup_by_id(row["subj_interpretation"])
 		self[self.Manifestation] = _manifestation.lookup_by_id(row["subj_manifestation"])
 		self[self.Mimetype] = _mimetype.lookup_by_id(row["subj_mimetype"])
 		self[self.Text] = row["subj_text"]
+		self[self.Origin] = row["subj_origin"]
 		self[self.Available] = row["subj_available"]
 		return self
 
