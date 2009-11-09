@@ -611,14 +611,14 @@ class ZeitgeistEngine :
 		else:
 			payload_id = None		
 		
-		for subj in self[Event.Subjects] :
-			suri_id = _uri.lookup_or_create(event[Event.SubjectUri])
-			sinter_id = _interpretation.lookup_or_create(event[Event.SubjectInterpretation])
-			smanif_id = _manifestation.lookup_or_create(event[Event.SubjectManifestation])
-			smime_id = _mimetype.lookup_or_create(event[Event.SubjectMimetype])
-			sorigin_id = _mimetype.lookup_or_create(event[Event.SubjectOrigin])
-			stext_id = _text.lookup_or_create(event[Event.SubjectText])
-			sstorage_id = _storage.lookup_or_create(event[Event.SubjectStorage]) # FIXME: Storage is not an EntityTable
+		for subj in (event[Event.Subjects] or []) :
+			suri_id = _uri.lookup_or_create(subj[Subject.Uri]).id
+			sinter_id = _interpretation.lookup_or_create(subj[Subject.Interpretation]).id
+			smanif_id = _manifestation.lookup_or_create(subj[Subject.Manifestation]).id
+			smime_id = _mimetype.lookup_or_create(subj[Subject.Mimetype]).id
+			sorigin_id = _mimetype.lookup_or_create(subj[Subject.Origin]).id
+			stext_id = _text.lookup_or_create(subj[Subject.Text]).id
+			sstorage_id = _storage.lookup_or_create(subj[Subject.Storage]).id # FIXME: Storage is not an EntityTable
 			
 			# We store the event here because we need one row per subject
 			_event.add(
