@@ -565,7 +565,7 @@ class ZeitgeistEngine :
 			event = Event.get_by_row(row)
 			if event[Event.Id] not in events:
 				events[event[Event.Id]] = event
-			events[event[Event.Id]].append_subject(Subject.get_by_row(row)
+			events[event[Event.Id]].append_subject(Subject.get_by_row(row))
 		
 		# Sort events into the requested order
 		sorted_events = []
