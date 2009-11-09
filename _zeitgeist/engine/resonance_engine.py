@@ -492,10 +492,12 @@ class Event(_FastDict):
 		Append a new empty subject array and return a reference to
 		the array.
 		"""
+		
 		if self._data[self.Subjects] is None:
 			self._data[self.Subjects] = []
 		if row :
-			subj = Subject().get(row)			
+			if isinstance(row, Subject) : subj = row
+			else : subj = Subject().get(row)			
 		else:
 			subj = Subject()
 		self._data[Event.Subjects].append(subj)
