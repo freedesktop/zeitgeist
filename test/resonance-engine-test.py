@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import get_default_engine
 from zeitgeist.datamodel import *
-from _zeitgeist.engine.resonance_engine import Event
+from _zeitgeist.engine.resonance_engine import Event, Subject
 
 
 import unittest
@@ -59,9 +59,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop",
 		event[Event.Origin]  = "zg:lala"
 		
-		subject = event.append_subject()
-		subject[Event.SubjectUri] = uri
+		subject = Subject()
+		subject[Subject.Uri] = uri
 		
+		event.append_subject(subject)
 		
 		# Insert item and event
 		ids = self.engine.insert_events([event])
