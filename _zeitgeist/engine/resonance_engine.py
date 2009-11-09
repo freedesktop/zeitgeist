@@ -360,7 +360,7 @@ def create_db(file_path):
 		""")
 
 	# Table defs
-	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor,
+	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, \
 		_text, _payload, _storage, _event
 	_cursor = cursor
 	_uri = EntityTable("uri")
@@ -452,8 +452,13 @@ def reset():
 # eg: ev[Name] (speed of array lookups rather than dict lookups)
 class _FastDict:
 	def __init__ (self, data):
-		self._data = data
-	 
+		if data:
+			self._data = data
+		else:
+			self._data = []
+			for i in self.Fields:
+				self._data.append(None)
+	
 	def __getitem__ (self, offset):
 		return self._data[offset]
 	
@@ -461,16 +466,16 @@ class _FastDict:
 		self._data[offset] = value
 
 class Event(_FastDict):
-	(Id,
-	 Timestamp,
-	 Interpretation,
-	 Manifetation,
-	 Actor,
-	 Origin,
-	 Payload,
-	 Subjects) = range(8)
+	Fields = (Id,
+		Timestamp,
+		Interpretation,
+		Manifetation,
+		Actor,
+		Origin,
+		Payload,
+		Subjects) = range(8)
 	
-	def get(row):
+	def get(self, row):
 		self[self.Id] = row["id"]
 		self[self.Timestamp] = row["timestamp"]
 		self[self.Interpretations] = _interpretation.lookup_by_id(row["interpretation"])
@@ -479,17 +484,28 @@ class Event(_FastDict):
 		self[self.Origin] = row["origin"]
 		self[self.Payload] = row["payload"]
 		self[self.Subjects] = []
+		return self
+	
+	def append_subject(self, row):
+		"""
+		Append a new empty subject array and return a reference to
+		the array.
+		"""
+		if self._data[self.Subjects] is None:
+			self._data[self.Subjects] = []
+		self._data[Event.Subjects].append(Subject().get(row))
+		return subj
 
 class Subject(_FastDict):
-	(Uri,
-	 Interpretation,
-	 Manifestation,
-	 Mimetype,
-	 Text,
-	 Storage,
-	 Available) = range(7)
+	Fields = (Uri,
+		Interpretation,
+		Manifestation,
+		Mimetype,
+		Text,
+		Storage,
+		Available) = range(7)
 	 
-	 def get(row):
+	def get(row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = _interpretation.lookup_by_id(row["subj_interpretation"])
 		self[self.Manifestation] = _manifestation.lookup_by_id(row["subj_manifestation"])
@@ -507,10 +523,10 @@ class ZeitgeistEngine :
 		# Find the last event id we used, and start generating
 		# new ids from that offset
 		row = _event.find("max(id)").fetchone()
-		if row:
-			self.last_event_id = row[0]
+		if row[0]:
+			self._last_event_id = row[0]
 		else:
-			self.last_event_id = 0
+			self._last_event_id = 0
 	
 	def next_event_id (self):
 		self._last_event_id += 1
@@ -540,10 +556,8 @@ class ZeitgeistEngine :
 					
 		ev = None
 		subjects = []
-		# FIXME: JOIN or lookup the values. Current code just returns
-		#        integer ids for all fields.
-		#        Using our caches instead of SQLite JOINs might in fact
-		#        be fastest as it avoids a lot of strdup()s
+		# FIXME: Determine if using our caches instead of SQLite JOINs
+		#        is in fact faster
 		for row in rows:
 			if ev is None:
 				ev = Event()
@@ -574,13 +588,13 @@ class ZeitgeistEngine :
 			return collector
 	
 	def insert_events (self, events):
-		map (self.insert_event, events)
+		return map (self.insert_event, events)
 	
 	def insert_event (self, event):
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
 		
 		id = self.next_event_id()
-		timestamp = self.get_timestamp (event[Event.Timestamp])				
+		timestamp = event[Event.Timestamp]
 		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation])
 		manif_id = _manifestation.lookup_or_create(event[Event.Manifestation])
 		actor_id = _actor.lookup_or_create(event[Event.Actor])
@@ -618,6 +632,7 @@ class ZeitgeistEngine :
 				subj_storage=sstorage_id)
 		
 		_cursor.connection.commit()
+		return id
 	
 	def delete_events (self, uris):
 		# FIXME
@@ -633,18 +648,19 @@ class ZeitgeistEngine :
 			 order):
 		# FIXME
 		pass
-	
-	def get_timestamp (self, datetime):
-		"""
-		Input may be either None, and int, or a ISO-8601 formatted
-		string with the millisecond extension, eg. 2009-11-08T9:55:15.456.
-		
-		Returns the number of milliseconds since the Unix Epoch.
-		
-		If input is None then a new timestamp will be generated for the
-		moment of invocation. If input is an integer type it will returned
-		as is. If it is an iso-8601 string it will be converted to a
-		millisecond timestamp
-		"""
-		# FIXME: Write me
+
+class QueryCompiler :
+	def __init__ (self):
 		pass
+	
+	def compile (self, event_templates):
+		"""
+		Return and SQL query representation (as a string) of
+		event_templates. The returned string will be suitable for
+		embedding in an SQL WHERE-clause
+		"""
+	
+	def compile_single_template (self, event_template):
+		clauses = []
+		if event_template[Event.Id] :
+			clause.append("event.id = " + event_template[Event.Id])
