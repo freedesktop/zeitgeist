@@ -679,9 +679,9 @@ class ZeitgeistEngine:
 		
 		where = WhereClause("AND")
 		if time_range[0] > 0:
-			where.add("timestamp > ?", time_range[0])
+			where.add("timestamp >= ?", time_range[0])
 		if time_range[1] > 0:
-			where.add("timestamp < ?", time_range[1])
+			where.add("timestamp <= ?", time_range[1])
 		where_or = WhereClause("OR")
 		for (event_template, subject_template) in event_templates:
 			subwhere = WhereClause("AND")
