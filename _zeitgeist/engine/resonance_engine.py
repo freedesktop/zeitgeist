@@ -619,6 +619,9 @@ class ZeitgeistEngine:
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
 		
+		if event[Event.Id] is not None:
+			raise ValueError("Illegal event: Predefined event id")
+		
 		id = self.next_event_id()
 		timestamp = event[Event.Timestamp]
 		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation]).id

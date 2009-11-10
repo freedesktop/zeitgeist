@@ -100,7 +100,28 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.engine.delete_events([1])
 		result = self.engine.get_events([1])
 		self.assertEquals(0, len(result))
+	
+	def testIllegalPredefinedEventId(self):
+		event = Event()
+		event[Event.Id] = 23 # This is illegal, we assert the erro later
+		event[Event.Timestamp] = 0
+		event[Event.Interpretation] = Source.USER_ACTIVITY
+		event[Event.Manifestation] = Content.CREATE_EVENT
+		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop"
 		
+		subject = Subject()
+		subject[Subject.Uri] = "file:///tmp/file.txt"
+		subject[Subject.Manifestation] = Source.FILE
+		subject[Subject.Interpretation] = Content.DOCUMENT
+		subject[Subject.Origin]  = "test://"
+		subject[Subject.Mimetype] = "text/plain"
+		subject[Subject.Text] = "This subject has no text"
+		subject[Subject.Storage] = "368c991f-8b59-4018-8130-3ce0ec944157" # UUID of home partition
+		
+		event.append_subject(subject)
+		
+		# Insert item and event
+		self.assertRaises(ValueError, self.engine.insert_events, [event])
 		
 	
 
