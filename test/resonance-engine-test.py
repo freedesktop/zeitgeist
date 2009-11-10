@@ -128,7 +128,15 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(3, len(events))
 		for ev in events : self.assertEquals(None, ev)
 		
-	
+	def testFindEventsId(self):
+		self.testSingleInsertGet()
+		result = self.engine.find_eventids(
+			(0, 100),
+			[],
+			0,
+			5,
+			0,)
+		print result
 
 if __name__ == "__main__":
 	unittest.main()
