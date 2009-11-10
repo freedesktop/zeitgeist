@@ -697,13 +697,13 @@ class ZeitgeistEngine:
 			if subject_template[Subject.Interpretation]:
 				subwhere.add("subj_interpretation = ?",
 					_interpretation.lookup(subject_template[Subject.Interpretation]).id)
-			if suject_template[Subject.Manifestation]:
+			if subject_template[Subject.Manifestation]:
 				subwhere.add("subj_manifestation = ?",
 					_manifestation.lookup(subject_template[Subject.Manifestation]).id)
 			if subject_template[Subject.Origin]:
 				subwhere.add("subj_origin = (SELECT id FROM actor WHERE value=?)",
 					int(event_template[Subject.Origin]))
-			if suject_template[Subject.Mimetype]:
+			if subject_template[Subject.Mimetype]:
 				subwhere.add("subj_mimetype = ?",
 					_mimetype.lookup(subject_template[Subject.Mimetype]).id)
 			if subject_template[Subject.Text]:
