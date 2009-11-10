@@ -657,27 +657,62 @@ class ZeitgeistEngine:
 		# FIXME
 		pass
 
-	def find_eventids (self,
-			 time_range,
-			 event_templates,
-			 storage_state,
-			 num_events,
-			 order):
-		# FIXME
-		pass
+	def find_eventids (self, time_range, event_templates, storage_state,
+		max_events, order):
+		global _cursor, _interpretation, _manifestation, _mimetype
+		
+		where = WhereClause("AND")
+		if time_range[0] > 0:
+			where.add("timestamp < ?", time_range[0])
+		if time_range[1] > 0:
+			where.add("timestamp > ?", time_range[1])
+		where_or = WhereClause("OR")
+		for (event_template, subject_template) in event_templates:
+			subwhere = WhereClause("AND")
+			if event_template[Event.Interpretation]:
+				subwhere.add("interpretation = ?",
+					_interpretation.lookup(event_template[Event.Interpretation]).id)
+			if event_template[Event.Manifestation]:
+				subwhere.add("manifestation = ?",
+					_manifestation.lookup(event_template[Event.Manifestation]).id)
+			if event_template[Event.Actor]:
+				subwhere.add("actor = (SELECT id FROM actor WHERE value=?)",
+					int(event_template[Event.Actor]))
+			if subject_template[Subject.Interpretation]:
+				subwhere.add("subj_interpretation = ?",
+					_interpretation.lookup(subject_template[Subject.Interpretation]).id)
+			if suject_template[Subject.Manifestation]:
+				subwhere.add("subj_manifestation = ?",
+					_manifestation.lookup(subject_template[Subject.Manifestation]).id)
+			if subject_template[Subject.Origin]:
+				subwhere.add("subj_origin = (SELECT id FROM actor WHERE value=?)",
+					int(event_template[Subject.Origin]))
+			if suject_template[Subject.Mimetype]:
+				subwhere.add("subj_mimetype = ?",
+					_mimetype.lookup(subject_template[Subject.Mimetype]).id)
+			if subject_template[Subject.Text]:
+				subwhere.add("subj_text = (SELECT id FROM text WHERE value=?)",
+					int(event_template[Subject.Text]))
+			where_or.add(subwhere.generate_condition(), subwhere.arguments)
+		where.add(where_or.generate_condition(), subwhere.arguments)
+		
+		events = []
+		return _cursor.execute("SELECT id FROM event_view WHERE " + \
+			where.generate_condition(), where.arguments)
 
-class QueryCompiler:
-	def __init__ (self):
-		pass
+class WhereClause:
 	
-	def compile (self, event_templates):
-		"""
-		Return an SQL query representation (as a string) of
-		event_templates. The returned string will be suitable for
-		embedding in an SQL WHERE-clause.
-		"""
+	def __init__(self, relation):
+		self._conditions = []
+		self.arguments = []
+		self._relation = " " + relation + " "
 	
-	def compile_single_template (self, event_template):
-		clauses = []
-		if event_template[Event.Id]:
-			clause.append("event.id = " + event_template[Event.Id])
+	def add(self, condition, arguments):
+		self._conditions.append(condition)
+		if not hasattr(arguments, "__iter__"):
+			self.arguments.append(arguments)
+		else:
+			self.arguments.extend(arguments)
+	
+	def generate_condition(self):
+		return self._relation.join(self._conditions)
