@@ -159,6 +159,12 @@ class Category(object):
 	
 	def __unicode__(self):
 		return unicode(self.uri)
+		
+	def __eq__(self, other):
+		# Fixme
+		# but in first approximation
+		# two symbols with the same uri are the same
+		return self.uri == getattr(other, "uri", object())
 	
 	@property
 	def uri(self):

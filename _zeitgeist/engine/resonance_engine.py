@@ -505,8 +505,12 @@ class Event(_FastDict):
 	def _get(self, row):
 		self[self.Id] = row["id"]
 		self[self.Timestamp] = row["timestamp"]
-		self[self.Interpretation] = _interpretation.lookup_by_id(row["interpretation"])
-		self[self.Manifestation] = _manifestation.lookup_by_id(row["manifestation"])
+		self[self.Interpretation] = Source.get(
+			_interpretation.lookup_by_id(row["interpretation"]).value
+		)
+		self[self.Manifestation] = Content.get(
+			_manifestation.lookup_by_id(row["manifestation"]).value
+		)
 		self[self.Actor] = row["actor"]
 		self[self.Payload] = row["payload"]
 		self[self.Subjects] = []

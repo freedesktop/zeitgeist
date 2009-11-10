@@ -32,6 +32,16 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		# Assert before each test that the db is indeed empty
 		self.assertEquals((), self.engine.find_events(0))		
 		
+	def assertEventsEqual(self, event1, event2, msg=None):
+		for attribute in Event.Fields[:-1]:
+			self.assertEquals(
+				event1[attribute],
+				event2[attribute],
+				"failed at offset %i, is: %r / expected %r" %(
+					attribute, event1[attribute], event2[attribute]
+				)
+			)
+		
 	def testSingleInsertGet(self):
 		uri = u"test://mytest"
 		
@@ -61,12 +71,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(1, len(result))
 		resulting_event = result.pop()
 		self.assertEquals(len(resulting_event), len(event))
-		for attribute in Event.Fields:
-			self.assertEquals(
-				resulting_event[attribute],
-				event[attribute],
-				"failed at offset %i" %attribute
-			)
+		
+		# fixing id, the initial event does not have any id set
+		event[Event.Id] = 1
+		
+		self.assertEventsEqual(resulting_event, event)
 		
 	
 
