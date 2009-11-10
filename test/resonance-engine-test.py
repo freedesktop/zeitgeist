@@ -41,6 +41,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					attribute, event1[attribute], event2[attribute]
 				)
 			)
+			if isinstance(event2[attribute], Category):
+				self.assertTrue(isinstance(event1[attribute], Category))
 		# now to the subjects
 		subjects1 = event1[Event.Fields[-1]]
 		subjects2 = event2[Event.Fields[-1]]
@@ -54,7 +56,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 						subject1_attr, subject2_attr,subject1, subject2
 					)
 				)
-		
+				if isinstance(subject2_attr, Category):
+					self.assertTrue(subject1_attr, Category)		
 		
 	def testSingleInsertGet(self):
 		uri = u"test://mytest"
