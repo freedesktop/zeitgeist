@@ -55,9 +55,9 @@ class RemoteInterface(SingletonApplication):
 			return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="(ii)a(asas)uuu", out_signature="("+SIG_EVENTS+")")
+						in_signature="(ii)a(asas)uuu", out_signature="a("+SIG_EVENTS+")")
 	def FindEventIds(self, time_range, event_templates, storage_state,
-			num_events, order):
+			max_events, order):
 		"""Search for items which match different criterias
 		
 		:param time_range: two timestamps defining the timerange for the query
