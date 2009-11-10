@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import _zeitgeist.engine
-from _zeitgeist.engine import get_default_engine
+from _zeitgeist.engine import create_engine
 from zeitgeist.datamodel import *
 from _zeitgeist.engine.resonance_engine import Event, Subject
 
@@ -23,9 +23,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def setUp (self):
 		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
 		_zeitgeist.engine.DB_PATH = "%s/unittest.sqlite" % self.tmp_dir
-		self.engine = get_default_engine()
+		self.engine = create_engine()
 		
-	def tearDown (self):		
+	def tearDown (self):
+		self.engine.close()
 		shutil.rmtree(self.tmp_dir)
 		_zeitgeist.engine._engine = None
 	

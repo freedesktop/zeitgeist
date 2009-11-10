@@ -578,6 +578,12 @@ class ZeitgeistEngine:
 		else:
 			self._last_event_id = 0
 	
+	def close(self):
+		global _cursor
+		self._cursor.connection.close()
+		_cursor = None
+		
+	
 	def is_closed(self):
 		return self._cursor is None
 	
