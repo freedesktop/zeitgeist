@@ -139,7 +139,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			5,
 			0,)
 		self.assertEquals(1, len(result))
-		self.assertEventsEqual(result[0], test_event_1)
+		self.assertEqual(result[0]["id"], test_event_1[Event.Id])
 
 if __name__ == "__main__":
 	unittest.main()
