@@ -97,6 +97,9 @@ class ColumnType:
 		return self.__class__.__like_template__ % (self,
 												   self.__class__.format(other))
 	
+	def in_collection(self, collection):
+		return "%s IN (%s)" % (self, ", ".join(collection))		
+	
 	@classmethod
 	def format (klass, value):
 		"""

@@ -653,9 +653,8 @@ class ZeitgeistEngine:
 		_cursor.connection.commit()
 		return id
 	
-	def delete_events (self, uris):
-		# FIXME
-		pass
+	def delete_events (self, ids):
+		_event.delete(_event.id.in_collection(ids))
 
 	def find_eventids (self,
 			 time_range,

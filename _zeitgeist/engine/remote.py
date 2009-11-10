@@ -156,18 +156,17 @@ class RemoteInterface(SingletonApplication):
 	#	result = _engine.update_items(item_list)
 	#	self.EventsChanged(("modified", result))
 	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="a(asaas)", out_signature="")
-	def DeleteEvents(self, event_templates):
+	@dbus.service.method(DBUS_INTERFACE, in_signature="au", out_signature="")
+	def DeleteEvents(self, ids):
 		"""Delete items from the database
 		
-		:param uris: list of URIs representing an item
-		:type uris: list of strings
+		:param ids: list of event ids obtained, for example, by calling
+		    FindEventIds()
+		:type ids: list of integers
 		"""
-		_engine.delete_items(event_templates)
+		_engine.delete_events(event_templates)
 
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="", out_signature="")
+	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
 		_engine.delete_log()
 	
