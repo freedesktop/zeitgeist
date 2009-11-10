@@ -362,11 +362,12 @@ def create_db(file_path):
 					AS subj_uri,
 				event.subj_interpretation,
 				event.subj_manifestation,
-				event.subj_origin,
+				(SELECT value FROM uri WHERE uri.id=event.subj_origin)
+					AS subj_origin,
 				event.subj_mimetype,
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
-				(SELECT state FROM storage
+				(SELECT value FROM storage
 					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
 		""")
@@ -413,6 +414,7 @@ def create_db(file_path):
 	# Bind the db into the datamodel module
 	Content._clear_cache() # FIXME: Renamings in datamodel module
 	Source._clear_cache()  # FIXME: Renamings in datamodel module
+	Mimetype._clear_cache()  # FIXME: Renamings in datamodel module
 	Content.bind_database(_interpretation) # FIXME: Renamings in datamodel module
 	Source.bind_database(_manifestation) # FIXME: Renamings in datamodel module
 	Mimetype.bind_database(_mimetype)
@@ -552,6 +554,7 @@ class Subject(_FastDict):
 		self[self.Manifestation] = Source.get(
 			_manifestation.lookup_by_id(row["subj_manifestation"]).value
 		)
+		
 		self[self.Origin] = row["subj_origin"]
 		self[self.Mimetype] = Mimetype.get(
 			_mimetype.lookup_by_id(row["subj_mimetype"]).value
@@ -574,6 +577,9 @@ class ZeitgeistEngine:
 			self._last_event_id = row[0]
 		else:
 			self._last_event_id = 0
+	
+	def is_closed(self):
+		return self._cursor is None
 	
 	def next_event_id (self):
 		self._last_event_id += 1
@@ -603,7 +609,9 @@ class ZeitgeistEngine:
 		# Sort events into the requested order
 		sorted_events = []
 		for id in ids:
-			sorted_events.append(events[id])
+			# if we are not able to get an event by the given id
+			# append None instead of raising an Error
+			sorted_events.append(events.get(id, None))
 		return sorted_events
 	
 	def insert_events (self, events):
@@ -612,6 +620,9 @@ class ZeitgeistEngine:
 	def insert_event (self, event):
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
+		
+		if event[Event.Id] is not None:
+			raise ValueError("Illegal event: Predefined event id")
 		
 		id = self.next_event_id()
 		timestamp = event[Event.Timestamp]
@@ -653,9 +664,8 @@ class ZeitgeistEngine:
 		_cursor.connection.commit()
 		return id
 	
-	def delete_events (self, uris):
-		# FIXME
-		pass
+	def delete_events (self, ids):
+		_event.delete(_event.id.in_collection(ids))
 
 	def find_eventids (self, time_range, event_templates, storage_state,
 		max_events, order):

@@ -43,7 +43,16 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="au", out_signature="a{"+SIG_EVENTS+"}")
 	def GetEvents(self, event_seqnums):
-		return _engine.get_events(event_seqnums)
+		events = _engine.get_events(event_seqnums)
+		try:
+			# If the list contains a None we have a missing event,
+			# meaning that the client requested a non-existing event
+			offset = events.index(None)
+			raise KeyError("No event with id %s" % event_seqnums[offset])
+		except ValueError:
+			# This is what we want, it means that there are no
+			# holes in the list
+			return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(ii)a(asas)uuu", out_signature="("+SIG_EVENTS+")")
@@ -156,18 +165,17 @@ class RemoteInterface(SingletonApplication):
 	#	result = _engine.update_items(item_list)
 	#	self.EventsChanged(("modified", result))
 	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="a(asaas)", out_signature="")
-	def DeleteEvents(self, event_templates):
+	@dbus.service.method(DBUS_INTERFACE, in_signature="au", out_signature="")
+	def DeleteEvents(self, ids):
 		"""Delete items from the database
 		
-		:param uris: list of URIs representing an item
-		:type uris: list of strings
+		:param ids: list of event ids obtained, for example, by calling
+		    FindEventIds()
+		:type ids: list of integers
 		"""
-		_engine.delete_items(event_templates)
+		_engine.delete_events(event_templates)
 
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="", out_signature="")
+	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
 		_engine.delete_log()
 	

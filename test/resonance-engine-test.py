@@ -27,6 +27,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 	def tearDown (self):		
 		shutil.rmtree(self.tmp_dir)
+		_zeitgeist.engine._engine = None
 	
 	def assertEmptyDB (self):
 		# Assert before each test that the db is indeed empty
@@ -41,6 +42,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					attribute, event1[attribute], event2[attribute]
 				)
 			)
+			if isinstance(event2[attribute], Category):
+				self.assertTrue(isinstance(event1[attribute], Category))
 		# now to the subjects
 		subjects1 = event1[Event.Fields[-1]]
 		subjects2 = event2[Event.Fields[-1]]
@@ -54,7 +57,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 						subject1_attr, subject2_attr,subject1, subject2
 					)
 				)
-		
+				if isinstance(subject2_attr, Category):
+					self.assertTrue(subject1_attr, Category)		
 		
 	def testSingleInsertGet(self):
 		uri = u"test://mytest"
@@ -90,6 +94,39 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event[Event.Id] = 1
 		
 		self.assertEventsEqual(resulting_event, event)
+	
+	def testDeleteSingle(self):
+		self.testSingleInsertGet()
+		self.engine.delete_events([1])
+		result = self.engine.get_events([1])
+		self.assertEquals(0, len(filter(None, result)))
+	
+	def testIllegalPredefinedEventId(self):
+		event = Event()
+		event[Event.Id] = 23 # This is illegal, we assert the erro later
+		event[Event.Timestamp] = 0
+		event[Event.Interpretation] = Source.USER_ACTIVITY
+		event[Event.Manifestation] = Content.CREATE_EVENT
+		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop"
+		
+		subject = Subject()
+		subject[Subject.Uri] = "file:///tmp/file.txt"
+		subject[Subject.Manifestation] = Source.FILE
+		subject[Subject.Interpretation] = Content.DOCUMENT
+		subject[Subject.Origin]  = "test://"
+		subject[Subject.Mimetype] = "text/plain"
+		subject[Subject.Text] = "This subject has no text"
+		subject[Subject.Storage] = "368c991f-8b59-4018-8130-3ce0ec944157" # UUID of home partition
+		
+		event.append_subject(subject)
+		
+		# Insert item and event
+		self.assertRaises(ValueError, self.engine.insert_events, [event])
+		
+	def testGetNonExisting(self):
+		events = self.engine.get_events([23,45,65])
+		self.assertEquals(3, len(events))
+		for ev in events : self.assertEquals(None, ev)
 		
 	
 
