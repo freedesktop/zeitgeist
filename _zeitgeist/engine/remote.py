@@ -28,7 +28,7 @@ from _zeitgeist.singleton import SingletonApplication
 _engine = get_default_engine()
 
 DBUS_INTERFACE = DBusInterface.INTERFACE_NAME
-SIG_EVENTS = "asaasay"
+SIG_EVENT = "asaasay"
 
 class RemoteInterface(SingletonApplication):
 	
@@ -41,7 +41,7 @@ class RemoteInterface(SingletonApplication):
 	# Reading stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="au", out_signature="a("+SIG_EVENTS+")")
+						in_signature="au", out_signature="a("+SIG_EVENT+")")
 	def GetEvents(self, event_seqnums):
 		events = _engine.get_events(event_seqnums)
 		try:
@@ -55,7 +55,7 @@ class RemoteInterface(SingletonApplication):
 			return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="(ii)a(asas)uuu", out_signature="a("+SIG_EVENTS+")")
+						in_signature="(ii)a(asas)uuu", out_signature="a("+SIG_EVENT+")")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			max_events, order):
 		"""Search for items which match different criterias
@@ -133,12 +133,11 @@ class RemoteInterface(SingletonApplication):
 		:rtype: integer
 		"""
 		return _engine.get_last_insertion_date(application)
-	
 
 	# Writing stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="a("+SIG_EVENTS+")", out_signature="as")
+						in_signature="a("+SIG_EVENT+")", out_signature="au")
 	def InsertEvents(self, events):
 		"""Inserts events into the database. Returns the amount of sucessfully
 		inserted events
@@ -155,7 +154,7 @@ class RemoteInterface(SingletonApplication):
 		return _engine.insert_events(events)
 	
 	#@dbus.service.method(DBUS_INTERFACE,
-	#					in_signature=SIG_EVENTS, out_signature="")
+	#					in_signature=SIG_EVENT, out_signature="")
 	#def UpdateItems(self, item_list):
 	#	"""Update items in the database
 	#	
