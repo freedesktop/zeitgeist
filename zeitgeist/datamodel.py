@@ -4,6 +4,8 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
+# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -198,7 +200,7 @@ class Source(Category):
 #
 Content.register(
 	"TAG",
-	u"http://freedesktop.org/standards/xesam/1.0/core#Tag",
+        u"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag",
 	display_name=_("Tags"),
 	doc="User provided tags. The same tag may refer multiple items"
 )
@@ -258,7 +260,7 @@ Content.register(
 )
 Content.register(
 	"RSS_MESSAGE",
-	u"http://freedesktop.org/standards/xesam/1.0/core#RSSMessage",
+        u"http://www.tracker-project.org/temp/mfo#FeedMessage",
 	display_name=_("Feeds"),
 	doc="Any syndicated item, RSS, Atom, or other"
 )
@@ -266,7 +268,7 @@ Content.register(
 	"BROADCAST_MESSAGE",
 	u"http://gnome.org/zeitgeist/schema/1.0/core#BroadcastMessage",
 	display_name=_("Broadcasts"), # FIXME: better display name
-	doc="Small broadcasted message, like Twitter/Identica micro blogging"
+	doc="Small broadcasted message, like Twitter/Identica micro blogging (TBD in tracker)"
 )
 Content.register(
 	"CREATE_EVENT",
@@ -312,7 +314,7 @@ Content.register(
 )
 Content.register(
 	"APPLICATION",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#Application",
+        u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SoftwareApplication",
 	display_name=_("Applications"),
 	doc="An item that is a launchable application. The item's URI must point to the relevant .desktop file"
 )
@@ -322,7 +324,7 @@ Content.register(
 #
 Source.register(
 	"WEB_HISTORY",
-	u"http://www.semanticdesktop.org/ontologies/nfo/#Website",
+        u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebHistory",
 	display_name=_("Web History"),
 	doc="An item that has been extracted from the user's browsing history"
 )
@@ -354,5 +356,5 @@ Source.register(
 	"SYSTEM_RESOURCE",
 	u"http://freedesktop.org/standards/xesam/1.0/core#SystemRessource",
 	display_name=_("System Resources"),
-	doc="An item available through the host operating system, such as an installed application or manual page"
+	doc="An item available through the host operating system, such as an installed application or manual page (TBD in tracker)"
 )
