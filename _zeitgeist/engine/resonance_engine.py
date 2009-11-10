@@ -456,6 +456,8 @@ def reset():
 # eg: ev[Name] (speed of array lookups rather than dict lookups)
 class _FastDict:
 	
+	Fields = list()
+	
 	@classmethod
 	def get_from_row(cls, row):
 		obj = cls()
@@ -469,6 +471,16 @@ class _FastDict:
 			self._data = []
 			for i in self.Fields:
 				self._data.append(None)
+				
+	def __len__(self):
+		return len(self.Fields)
+		
+	def __iter__(self):
+		for attribute in self.Fields:
+			yield self._data[attribute]
+			
+	def __repr__(self):
+		return "(%s)" %", ".join(map(str, self))
 	
 	def __getitem__ (self, offset):
 		return self._data[offset]

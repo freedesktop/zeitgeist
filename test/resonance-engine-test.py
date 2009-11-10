@@ -41,6 +41,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event[Event.Manifestation] = Content.CREATE_EVENT
 		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop"
 		
+		self.assertEquals(len(event), len(Event.Fields))
+		
 		subject = Subject()
 		subject[Subject.Uri] = uri
 		subject[Subject.Manifestation] = "lala"
@@ -58,10 +60,14 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		self.assertEquals(1, len(result))
 		resulting_event = result.pop()
+		self.assertEquals(len(resulting_event), len(event))
 		for attribute in Event.Fields:
 			self.assertEquals(
-				resulting_event[attribute], event[attribute]
+				resulting_event[attribute],
+				event[attribute],
+				"failed at offset %i" %attribute
 			)
+		
 	
 
 if __name__ == "__main__":
