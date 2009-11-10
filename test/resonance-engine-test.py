@@ -58,10 +58,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		self.assertEquals(1, len(result))
 		resulting_event = result.pop()
-		resulting_event[Event.Timestamp] = event[Event.Timestamp]
-		resulting_event[Event.Interpretation] = event[Event.Interpretation]
-		resulting_event[Event.Manifestation] = event[Event.Manifestation]
-		resulting_event[Event.Actor] = event[Event.Actor]
+		for attribute in Event.Fields:
+			self.assertEquals(
+				resulting_event[attribute], event[attribute]
+			)
 	
 
 if __name__ == "__main__":
