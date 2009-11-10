@@ -707,8 +707,12 @@ class ZeitgeistEngine:
 		where.add(where_or.generate_condition(), where_or.arguments)
 		
 		events = []
-		return _cursor.execute("SELECT id FROM event_view WHERE " + \
-			where.generate_condition(), where.arguments)
+		sql = "SELECT id FROM event_view"
+		if where:
+			sql += " WHERE " + where.generate_condition()
+		if max_events > 0:
+			sql += " LIMIT %d" % max_events
+		return _cursor.execute(sql, where.arguments)
 
 class WhereClause:
 	
@@ -716,6 +720,9 @@ class WhereClause:
 		self._conditions = []
 		self.arguments = []
 		self._relation = " " + relation + " "
+	
+	def __len__(self):
+		return len(self._conditions)
 	
 	def add(self, condition, arguments):
 		self._conditions.append(condition)
