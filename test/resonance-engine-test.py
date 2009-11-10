@@ -15,12 +15,32 @@ import unittest
 import tempfile
 import shutil
 
+test_event_1 = None
+def create_test_event_1():
+	ev = Event()
+	ev[Event.Timestamp] = 0
+	ev[Event.Interpretation] = Source.USER_ACTIVITY
+	ev[Event.Manifestation] = Content.CREATE_EVENT
+	ev[Event.Actor] = "/usr/share/applications/gnome-about.desktop"
+	subj = Subject()
+	subj[Subject.Uri] = u"test://mytest"
+	subj[Subject.Manifestation] = "lala"
+	subj[Subject.Interpretation] = "tinky winky"
+	subj[Subject.Origin]  = "test://"
+	subj[Subject.Mimetype] = "YOMAMA"
+	subj[Subject.Text] = "SUCKS"
+	subj[Subject.Storage] = "MyStorage"
+
+	ev.append_subject(subj)
+	return ev
 
 class ZeitgeistEngineTest (unittest.TestCase):
 	"""
 	This class tests that the zeitgeist.engine.engine.ZeitgeistEngine class
 	"""
 	def setUp (self):
+		global test_event_1
+		test_event_1 = create_test_event_1()
 		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
 		_zeitgeist.engine.DB_PATH = "%s/unittest.sqlite" % self.tmp_dir
 		self.engine = create_engine()
@@ -62,39 +82,19 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					self.assertTrue(subject1_attr, Category)		
 		
 	def testSingleInsertGet(self):
-		uri = u"test://mytest"
-		
-		event = Event()
-		event[Event.Timestamp] = 0
-		event[Event.Interpretation] = Source.USER_ACTIVITY
-		event[Event.Manifestation] = Content.CREATE_EVENT
-		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop"
-		
-		self.assertEquals(len(event), len(Event.Fields))
-		
-		subject = Subject()
-		subject[Subject.Uri] = uri
-		subject[Subject.Manifestation] = "lala"
-		subject[Subject.Interpretation] = "tinky winky"
-		subject[Subject.Origin]  = "test://"
-		subject[Subject.Mimetype] = "YOMAMA"
-		subject[Subject.Text] = "SUCKS"
-		subject[Subject.Storage] = "MyStorage"
-		
-		event.append_subject(subject)
-		
+		global test_event_1			
 		# Insert item and event
-		ids = self.engine.insert_events([event])
+		ids = self.engine.insert_events([test_event_1])
 		result = self.engine.get_events(ids)
 		
 		self.assertEquals(1, len(result))
 		resulting_event = result.pop()
-		self.assertEquals(len(resulting_event), len(event))
+		self.assertEquals(len(resulting_event), len(test_event_1))
 		
 		# fixing id, the initial event does not have any id set
-		event[Event.Id] = 1
+		test_event_1[Event.Id] = 1
 		
-		self.assertEventsEqual(resulting_event, event)
+		self.assertEventsEqual(resulting_event, test_event_1)		
 	
 	def testDeleteSingle(self):
 		self.testSingleInsertGet()
@@ -130,6 +130,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		for ev in events : self.assertEquals(None, ev)
 		
 	def testFindEventsId(self):
+		global test_event_1
 		self.testSingleInsertGet()
 		result = self.engine.find_eventids(
 			(0, 100),
@@ -137,7 +138,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			0,
 			5,
 			0,)
-		print result
+		self.assertEquals(1, len(result))
+		self.assertEventsEqual(result[0], test_event_1)
 
 if __name__ == "__main__":
 	unittest.main()

@@ -718,7 +718,7 @@ class ZeitgeistEngine:
 			sql += " WHERE " + where.generate_condition()
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
-		return _cursor.execute(sql, where.arguments)
+		return _cursor.execute(sql, where.arguments).fetchall()
 
 class WhereClause:
 	
