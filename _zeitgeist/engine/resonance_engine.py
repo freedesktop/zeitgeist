@@ -722,8 +722,6 @@ class ZeitgeistEngine:
 		sql = "SELECT id FROM event_view"
 		if where:
 			sql += " WHERE " + where.generate_condition()
-		if max_events > 0:
-			sql += " LIMIT %d" % max_events
 		
 		sql += (" ORDER BY timestamp ASC",
 			" ORDER BY timestamp DESC",
@@ -731,6 +729,9 @@ class ZeitgeistEngine:
 			" GROUP BY subj_id ORDER BY timestamp DESC",
 			" GROUP BY subj_id ORDER BY COUNT(id), timestamp ASC",
 			" GROUP BY subj_id ORDER BY COUNT(id), timestamp DESC")[order]			
+		
+		if max_events > 0:
+			sql += " LIMIT %d" % max_events
 		
 		return _cursor.execute(sql, where.arguments).fetchall()
 
