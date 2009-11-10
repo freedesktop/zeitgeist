@@ -95,6 +95,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		test_event_1[Event.Id] = 1
 		
 		self.assertEventsEqual(resulting_event, test_event_1)		
+		
+		# Reset the id because other test cases rely on this one
+		test_event_1[Event.Id] = None
+	
+	def testDuplicateEventInsertion(self):
+		self.testSingleInsertGet()
+		self.assertRaises(KeyError, self.testSingleInsertGet)
 	
 	def testDeleteSingle(self):
 		self.testSingleInsertGet()

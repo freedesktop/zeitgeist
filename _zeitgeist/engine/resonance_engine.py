@@ -653,22 +653,27 @@ class ZeitgeistEngine:
 			
 			# We store the event here because we need one row per subject
 			#_event.set_cursor(EchoCursor())
-			_event.add(
-				id=id,
-				timestamp=timestamp,
-				interpretation=inter_id,
-				manifestation=manif_id,
-				actor=actor_id,
-				payload=payload_id,
-				subj_id=suri_id,
-				subj_interpretation=sinter_id,
-				subj_manifestation=smanif_id,
-				subj_origin=sorigin_id,
-				subj_mimetype=smime_id,				
-				subj_text=stext_id,
-				subj_storage=sstorage_id)
+			try:
+				_event.add(
+					id=id,
+					timestamp=timestamp,
+					interpretation=inter_id,
+					manifestation=manif_id,
+					actor=actor_id,
+					payload=payload_id,
+					subj_id=suri_id,
+					subj_interpretation=sinter_id,
+					subj_manifestation=smanif_id,
+					subj_origin=sorigin_id,
+					subj_mimetype=smime_id,				
+					subj_text=stext_id,
+					subj_storage=sstorage_id)
+			except sqlite3.IntegrityError:
+				raise KeyError("Duplicate event detected")
+		
 		
 		_cursor.connection.commit()
+		
 		return id
 	
 	def delete_events (self, ids):
