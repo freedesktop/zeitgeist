@@ -43,7 +43,16 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="au", out_signature="a{"+SIG_EVENTS+"}")
 	def GetEvents(self, event_seqnums):
-		return _engine.get_events(event_seqnums)
+		events = _engine.get_events(event_seqnums)
+		try:
+			# If the list contains a None we have a missing event,
+			# meaning that the client requested a non-existing event
+			offset = events.index(None)
+			raise KeyError("No event with id %s" % event_seqnums[offset])
+		except ValueError:
+			# This is what we want, it means that there are no
+			# holes in the list
+			return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(ii)a(asaas)uuu", out_signature="("+SIG_EVENTS+")")

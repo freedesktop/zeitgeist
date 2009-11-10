@@ -123,6 +123,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		# Insert item and event
 		self.assertRaises(ValueError, self.engine.insert_events, [event])
 		
+	def testGetNonExisting(self):
+		events = self.engine.get_events([23,45,65])
+		self.assertEquals(3, len(events))
+		for ev in events : self.assertEquals(None, ev)
+		
 	
 
 if __name__ == "__main__":
