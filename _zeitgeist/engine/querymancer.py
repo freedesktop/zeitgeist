@@ -268,7 +268,6 @@ class Table:
 		@param rowspec: A list of keyword arguments C{column=value}
 		@return: The row id of the inserted row
 		"""
-		print "DEBUG:", rowspec
 		self._cursor.execute(self.INSERT(**rowspec))
 		return self._cursor.lastrowid
 	
