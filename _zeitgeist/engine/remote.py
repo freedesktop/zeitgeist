@@ -41,7 +41,7 @@ class RemoteInterface(SingletonApplication):
 	# Reading stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="au", out_signature="a{"+SIG_EVENTS+"}")
+						in_signature="au", out_signature="a("+SIG_EVENTS+")")
 	def GetEvents(self, event_seqnums):
 		events = _engine.get_events(event_seqnums)
 		try:
