@@ -704,7 +704,7 @@ class ZeitgeistEngine:
 				subwhere.add("subj_text = (SELECT id FROM text WHERE value=?)",
 					int(event_template[Subject.Text]))
 			where_or.add(subwhere.generate_condition(), subwhere.arguments)
-		where.add(where_or.generate_condition(), subwhere.arguments)
+		where.add(where_or.generate_condition(), where_or.arguments)
 		
 		events = []
 		return _cursor.execute("SELECT id FROM event_view WHERE " + \
