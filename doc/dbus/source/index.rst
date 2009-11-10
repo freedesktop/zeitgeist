@@ -74,3 +74,18 @@ A dict which can have the following items:
  * **content** (list of strings) - filter by content (``OR`` Condition)
  * **application** (list of strings) - filter by application (ie., path to its .desktop file) (``OR`` Condition)
  * **bookmarked** (boolean) -
+
+.. _sorting-label:
+
+Sorting
++++++++
+
+An unsigned integer with one of the following values, to determine the
+type of sorting:
+
+ * **0** - by timestamp (ascending order)
+ * **1** - by timestamp (descending order)
+ * **2** - by timestamp, no repeated items (ascending order)
+ * **3** - by timestamp, no repeated items (descending order)
+ * **4** - by usage, no repeated items (ascending order)
+ * **5** - by usage, no repeated items (descending order)

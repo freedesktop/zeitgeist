@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -532,7 +533,8 @@ class Subject(_FastDict):
 		return self
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
-class ZeitgeistEngine :
+class ZeitgeistEngine:
+	
 	def __init__ (self):
 		global _event
 		self._cursor = get_default_cursor()
@@ -554,7 +556,7 @@ class ZeitgeistEngine :
 		Look up a list of events.
 		"""
 		global _cursor
-		# FIXME: Determine if using our caches instead of SQLite JOINs
+		# FIXME: Determine if using our caches instead of SQLite subselects
 		#        is in fact faster
 		
 		rows = _cursor.execute("""
@@ -580,7 +582,8 @@ class ZeitgeistEngine :
 		return map (self.insert_event, events)
 	
 	def insert_event (self, event):
-		global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
+		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
+			_actor, _text, _payload, _storage, _event
 		
 		id = self.next_event_id()
 		timestamp = event[Event.Timestamp]
@@ -593,7 +596,7 @@ class ZeitgeistEngine :
 		else:
 			payload_id = None		
 		
-		for subj in (event[Event.Subjects] or []) :
+		for subj in (event[Event.Subjects] or []):
 			suri_id = _uri.lookup_or_create(subj[Subject.Uri]).id
 			sinter_id = _interpretation.lookup_or_create(subj[Subject.Interpretation]).id
 			smanif_id = _manifestation.lookup_or_create(subj[Subject.Manifestation]).id
@@ -635,18 +638,18 @@ class ZeitgeistEngine :
 		# FIXME
 		pass
 
-class QueryCompiler :
+class QueryCompiler:
 	def __init__ (self):
 		pass
 	
 	def compile (self, event_templates):
 		"""
-		Return and SQL query representation (as a string) of
+		Return an SQL query representation (as a string) of
 		event_templates. The returned string will be suitable for
-		embedding in an SQL WHERE-clause
+		embedding in an SQL WHERE-clause.
 		"""
 	
 	def compile_single_template (self, event_template):
 		clauses = []
-		if event_template[Event.Id] :
+		if event_template[Event.Id]:
 			clause.append("event.id = " + event_template[Event.Id])

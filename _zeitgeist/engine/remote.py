@@ -51,21 +51,21 @@ class RemoteInterface(SingletonApplication):
 			num_events, order):
 		"""Search for items which match different criterias
 		
-		:param time_range: 
+		:param time_range: two timestamps defining the timerange for the query
 		:type time_range: tuple of integers
-		:param event_templates: 
+		:param event_templates: template with which the returned events should match
 		:type event_templates: array of templates
-		:param storage_state: 
+		:param storage_state: whether the item is currently known to be available
 		:type storage_state: unsigned integer
-		:param num_events: 
-		:type num_events: unsigned integer
-		:param order: 
+		:param max_events: maximal amount of returned events
+		:type max_events: unsigned integer
+		:param order: unsigned integer representing a :ref:`sorting-label`
 		:type order: unsigned integer
 		:returns: list of items
 		:rtype: list of tuples presenting an :ref:`item-label`
 		"""
 		return _engine.find_eventids(time_range, event_templates, storage_state,
-			num_events, order)
+			max_events, order)
 	
 	@dbus.service.method("org.gnome.zeitgeist",
 						in_signature="iiaa{sv}", out_signature="a(si)")
