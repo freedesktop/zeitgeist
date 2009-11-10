@@ -34,23 +34,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 	def testSingleInsertGet(self):
 		uri = u"test://mytest"
-		'''
-		orig_event = {
-			"subject": uri,
-			"timestamp": 0,
-			"source": Source.USER_ACTIVITY,
-			"content": Content.CREATE_EVENT,
-			"application": "/usr/share/applications/gnome-about.desktop",
-			"tags": {},
-			"bookmark": False,
-		}
-		orig_item = {
-			"content": Content.IMAGE,
-			"source": Source.FILE,
-			"mimetype": "mime/type",
-			"bookmark": True,
-		}
-		'''
+		
 		event = Event()
 		event[Event.Timestamp] = 0
 		event[Event.Interpretation] = Source.USER_ACTIVITY
@@ -72,7 +56,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		ids = self.engine.insert_events([event])
 		result = self.engine.get_events(ids)
 		
-		#self.assertEquals(1, num_inserts)
+		self.assertEquals(1, len(result))
+		resulting_event = result.pop()
+		resulting_event[Event.Timestamp] = event[Event.Timestamp]
+		resulting_event[Event.Interpretation] = event[Event.Interpretation]
+		resulting_event[Event.Manifestation] = event[Event.Manifestation]
+		resulting_event[Event.Actor] = event[Event.Actor]
+	
 
 if __name__ == "__main__":
 	unittest.main()
