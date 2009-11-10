@@ -163,8 +163,8 @@ class Category(object):
 	def __eq__(self, other):
 		# Fixme
 		# but in first approximation
-		# two symbols with the same uri are the same
-		return self.uri == getattr(other, "uri", object())
+		# two symbols with the same string presentation are the same
+		return str(self) == str(other)
 	
 	@property
 	def uri(self):

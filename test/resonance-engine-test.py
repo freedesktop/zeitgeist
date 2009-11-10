@@ -41,6 +41,20 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					attribute, event1[attribute], event2[attribute]
 				)
 			)
+		# now to the subjects
+		subjects1 = event1[Event.Fields[-1]]
+		subjects2 = event2[Event.Fields[-1]]
+		self.assertEquals(len(subjects1), len(subjects2))
+		
+		for subject1, subject2 in zip(subjects1, subjects2):
+			for subject1_attr, subject2_attr in zip(subject1, subject2):
+				self.assertEquals(
+					subject1_attr, subject2_attr,
+					"%r != %r, %s || %s" %(
+						subject1_attr, subject2_attr,subject1, subject2
+					)
+				)
+		
 		
 	def testSingleInsertGet(self):
 		uri = u"test://mytest"

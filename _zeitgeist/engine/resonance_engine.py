@@ -39,6 +39,11 @@ from zeitgeist.dbusutils import Event, Item, Annotation
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
+
+class Mimetype(Category):
+	pass
+
+
 class Entity:
 	def __init__(self, id, value):
 		self.id = id
@@ -410,7 +415,7 @@ def create_db(file_path):
 	Source._clear_cache()  # FIXME: Renamings in datamodel module
 	Content.bind_database(_interpretation) # FIXME: Renamings in datamodel module
 	Source.bind_database(_manifestation) # FIXME: Renamings in datamodel module
-	
+	Mimetype.bind_database(_mimetype)
 	return cursor
 
 _cursor = None
@@ -541,10 +546,16 @@ class Subject(_FastDict):
 	
 	def _get(self, row):
 		self[self.Uri] = row["subj_uri"]
-		self[self.Interpretation] = _interpretation.lookup_by_id(row["subj_interpretation"])
-		self[self.Manifestation] = _manifestation.lookup_by_id(row["subj_manifestation"])
+		self[self.Interpretation] = Content.get(
+			_interpretation.lookup_by_id(row["subj_interpretation"]).value
+		)
+		self[self.Manifestation] = Source.get(
+			_manifestation.lookup_by_id(row["subj_manifestation"]).value
+		)
 		self[self.Origin] = row["subj_origin"]
-		self[self.Mimetype] = _mimetype.lookup_by_id(row["subj_mimetype"])
+		self[self.Mimetype] = Mimetype.get(
+			_mimetype.lookup_by_id(row["subj_mimetype"]).value
+		)
 		self[self.Text] = row["subj_text"]
 		self[self.Storage] = row["subj_storage_state"]
 		return self
