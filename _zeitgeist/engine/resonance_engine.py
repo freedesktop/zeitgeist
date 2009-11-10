@@ -578,6 +578,9 @@ class ZeitgeistEngine:
 		else:
 			self._last_event_id = 0
 	
+	def is_closed(self):
+		return self._cursor is None
+	
 	def next_event_id (self):
 		self._last_event_id += 1
 		return self._last_event_id

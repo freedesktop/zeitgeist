@@ -27,6 +27,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 	def tearDown (self):		
 		shutil.rmtree(self.tmp_dir)
+		_zeitgeist.engine._engine = None
 	
 	def assertEmptyDB (self):
 		# Assert before each test that the db is indeed empty
