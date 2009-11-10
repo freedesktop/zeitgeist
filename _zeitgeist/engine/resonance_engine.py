@@ -308,7 +308,8 @@ def create_db(file_path):
  			 subj_origin INTEGER,
 			 subj_mimetype INTEGER,
 			 subj_text INTEGER,
-			 subj_storage INTEGER
+			 subj_storage INTEGER,
+			 CONSTRAINT unique_event UNIQUE (timestamp, interpretation, manifestation, actor, subj_id)
 			 )
 		""")
 	cursor.execute("""
