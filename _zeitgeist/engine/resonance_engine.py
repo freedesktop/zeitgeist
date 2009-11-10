@@ -362,11 +362,12 @@ def create_db(file_path):
 					AS subj_uri,
 				event.subj_interpretation,
 				event.subj_manifestation,
-				event.subj_origin,
+				(SELECT value FROM uri WHERE uri.id=event.subj_origin)
+					AS subj_origin,
 				event.subj_mimetype,
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
-				(SELECT state FROM storage
+				(SELECT value FROM storage
 					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
 		""")
@@ -413,6 +414,7 @@ def create_db(file_path):
 	# Bind the db into the datamodel module
 	Content._clear_cache() # FIXME: Renamings in datamodel module
 	Source._clear_cache()  # FIXME: Renamings in datamodel module
+	Mimetype._clear_cache()  # FIXME: Renamings in datamodel module
 	Content.bind_database(_interpretation) # FIXME: Renamings in datamodel module
 	Source.bind_database(_manifestation) # FIXME: Renamings in datamodel module
 	Mimetype.bind_database(_mimetype)
@@ -552,6 +554,7 @@ class Subject(_FastDict):
 		self[self.Manifestation] = Source.get(
 			_manifestation.lookup_by_id(row["subj_manifestation"]).value
 		)
+		
 		self[self.Origin] = row["subj_origin"]
 		self[self.Mimetype] = Mimetype.get(
 			_mimetype.lookup_by_id(row["subj_mimetype"]).value
