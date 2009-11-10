@@ -725,6 +725,8 @@ class WhereClause:
 		return len(self._conditions)
 	
 	def add(self, condition, arguments):
+		if not condition:
+			return
 		self._conditions.append(condition)
 		if not hasattr(arguments, "__iter__"):
 			self.arguments.append(arguments)
