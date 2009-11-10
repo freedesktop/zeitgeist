@@ -56,7 +56,8 @@ class EntityTable(Table):
 			raise ValueError("Can not create EntityTable with name None")
 		
 		Table.__init__(self, table_name, id=Integer(), value=String())
-		self._CACHE = LRUBiCache(1000)
+		self._CACHE = LRUCache(600)
+		self._INV_CACHE = LRUCache(600)
 	
 	def lookup_by_id (self, id):
 		"""
@@ -66,15 +67,14 @@ class EntityTable(Table):
 			raise ValueError("Looking up %s without a id" % self)
 		
 		try:
-			return self._CACHE.lookup_by_value(id)
+			return self._INV_CACHE[id]
 		except KeyError:
 			pass # We didn't have it cached; fall through and handle it below
 		
 		row = self.find_one(self.value, self.id == id)
 		if row :			
 			ent = Entity(id, row[0])
-			self._CACHE[value] = ent
-			#log.debug("Found %s: %s" % (self, ent))
+			self._INV_CACHE[id] = ent
 			return ent
 		return None
 	
@@ -350,8 +350,8 @@ def create_db(file_path):
 				event.manifestation,
 				(SELECT value FROM actor WHERE actor.id = event.actor) AS actor,
 				event.payload,
-				event.subj_id,
-				event.subj_id,
+				(SELECT value FROM uri WHERE uri.id=event.subj_id)
+					AS subj_uri,
 				event.subj_interpretation,
 				event.subj_manifestation,
 				event.subj_origin,
@@ -490,10 +490,9 @@ class Event(_FastDict):
 	def _get(self, row):
 		self[self.Id] = row["id"]
 		self[self.Timestamp] = row["timestamp"]
-		self[self.Interpretations] = _interpretation.lookup_by_id(row["interpretation"])
+		self[self.Interpretation] = _interpretation.lookup_by_id(row["interpretation"])
 		self[self.Manifestation] = _manifestation.lookup_by_id(row["manifestation"])
 		self[self.Actor] = row["actor"]
-		self[self.Origin] = row["origin"]
 		self[self.Payload] = row["payload"]
 		self[self.Subjects] = []
 	

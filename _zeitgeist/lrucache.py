@@ -130,28 +130,6 @@ class LRUCache:
 			if self._list_start:
 				self._list_start.prev = None
 			return old
-
-class LRUBiCache(LRUCache):
-	"""
-	A bi-directional LRU Cache, allowing lookups of the cache keys
-	given a value
-	"""
-	def __init__ (self, max_size):
-		LRUCache.__init__ (self, max_size)
-		self._inv_map = {}
-	
-	def __setitem__ (self, key, value):
-		LRUCache.__setitem__(self, key, value)
-		self._inv_map[value] = key
-	
-	def lookup_by_value(self, value):
-		# FIXME: Doesn't reshuffle LRU list
-		return self._inv_map[value]
-	
-	def remove_eldest_item(self):
-		old = LURCache.remove_eldest_item(self, key)
-		del self._inv_map[old.key]
-		return old
 			
 class LRUCacheMetaclass(type):
 	""" Metaclass which has a _CACHE attribute, each subclass has its own,
