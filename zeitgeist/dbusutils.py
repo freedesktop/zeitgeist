@@ -141,83 +141,68 @@ class DBusInterface(dbus.Interface):
 				self.BUS_NAME
 		)
 
-class _BaseObjectDict(dict):
+# Thin wrapper for dict-like access, with fast symbolic lookups
+# eg: ev[Name] (speed of array lookups rather than dict lookups)
+class _FastDict:
 	
-	_required_items = None
-	@classmethod
-	def get_required_items(cls):
-		if not cls._required_items:
-			cls._required_items = set(key for key, (type, required)
-				in cls._ITEM_TYPE_MAP.iteritems() if required)
-		return cls._required_items
-	
-	@classmethod
-	def check_missing_items(cls, event_dict, inplace=False):
-		""" Method to check for required items.
+	Fields = list()
+
+	def __init__ (self, data=None):
+		if data:
+			self._data = data
+		else:
+			self._data = []
+			for i in self.Fields:
+				self._data.append(None)
+				
+	def __len__(self):
+		return len(self.Fields)
 		
-		In case one or more required items are missing a KeyError is raised.
-		If 'inplace' is False (default) an Event dict is returned, otherwise
-		the given dict will be filled with missing optional items inplace.
-		"""
-		keys = set(event_dict.keys())
-		missing = cls.get_required_items() - keys
-		if missing:
-			raise KeyError, "Some keys are missing in order to add this item " \
-				"properly: %s" % ", ".join(missing)
-		unknown = keys - set(cls._ITEM_TYPE_MAP.keys())
-		if unknown:
-			raise KeyError, "There are some invalid values in the item: %s" % \
-				", ".join(unknown)
-		result = cls.check_dict(event_dict, inplace)
-		if not inplace:
-			return result
+	def __iter__(self):
+		for attribute in self.Fields:
+			yield self._data[attribute]
+			
+	def __repr__(self):
+		return "(%s)" %", ".join(map(str, self))
 	
-	@classmethod
-	def check_dict(cls, event_dict, inplace=False):
-		""" Method to check the type of the items in an event dict.
+	def __getitem__ (self, offset):
+		return self._data[offset]
+	
+	def __setitem__ (self, offset, value):
+		self._data[offset] = value
 		
-		It automatically changes the type of all values to the expected on.
-		If a value is not given an item with a default value is added.
-		If 'inplace' is False (default) a new instance is returned,
-		otherwise the dict given as argument will be ckecked (and changed)
-		in place.
+	def _get(self, row):
+		raise NotImplementedError
+
+class Event(_FastDict):
+	Fields = (Id,
+		Timestamp,
+		Interpretation,
+		Manifestation,
+		Actor,
+		Payload,
+		Subjects) = range(7)
+	
+	def append_subject(self, row=None):
 		"""
-		for key, (value_type, required) in cls._ITEM_TYPE_MAP.iteritems():
-			# Get the value and ensure it is of the correct type. If the
-			# key isn't in the dict, add it.
-			event_dict[key] = value_type(event_dict.get(key, value_type()))
-		if not inplace:
-			return cls(event_dict)
+		Append a new empty subject array and return a reference to
+		the array.
+		"""
+		if self._data[self.Subjects] is None:
+			self._data[self.Subjects] = []
+		if row:
+			if isinstance(row, Subject): subj = row
+			else: subj = Subject().get(row)			
+		else:
+			subj = Subject()
+		self._data[Event.Subjects].append(subj)
+		return subj
 
-class Event(_BaseObjectDict):
-	_ITEM_TYPE_MAP = {
-		"subject": (unicode, True), # item URI
-		"timestamp": (int, True),
-		"source": (unicode, True),
-		"content": (unicode, True), # previously "use"
-		"uri": (unicode, False),
-		"application": (unicode, False),
-		"tags": (dict, False),
-		"bookmark": (bool, False),
-	}
-
-class Item(_BaseObjectDict):
-	_ITEM_TYPE_MAP = {
-		"content": (unicode, True),
-		"source": (unicode, True),
-		"mimetype": (unicode, True),
-		"origin": (unicode, False),
-		"text": (unicode, False),
-		"icon": (unicode, False),
-		"tags": (dict, False),
-		"bookmark": (bool, False),
-	}
-
-class Annotation(_BaseObjectDict):
-	_ITEM_TYPE_MAP = {
-		"subject": (unicode, True),
-		"source": (unicode, True),
-		"content": (unicode, True),
-		"uri": (unicode, False),
-		"text": (unicode, False),
-	}
+class Subject(_FastDict):
+	Fields = (Uri,
+		Interpretation,
+		Manifestation,
+		Origin,
+		Mimetype,
+		Text,
+		Storage) = range(7)

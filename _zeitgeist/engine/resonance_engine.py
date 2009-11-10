@@ -34,7 +34,7 @@ import _zeitgeist.engine
 from _zeitgeist.engine.engine_base import BaseEngine
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
-from zeitgeist.dbusutils import Event, Item, Annotation
+from zeitgeist import dbusutils
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -462,54 +462,14 @@ def reset():
 	_storage = None
 	_event = None
 
-# Thin wrapper for dict-like access, with fast symbolic lookups
-# eg: ev[Name] (speed of array lookups rather than dict lookups)
-class _FastDict:
-	
-	Fields = list()
-	
+class _FastDict(dbusutils._FastDict):
 	@classmethod
 	def get_from_row(cls, row):
 		obj = cls()
 		obj._get(row)
 		return obj
-	
-	def __init__ (self, data=None):
-		if data:
-			self._data = data
-		else:
-			self._data = []
-			for i in self.Fields:
-				self._data.append(None)
-				
-	def __len__(self):
-		return len(self.Fields)
-		
-	def __iter__(self):
-		for attribute in self.Fields:
-			yield self._data[attribute]
-			
-	def __repr__(self):
-		return "(%s)" %", ".join(map(str, self))
-	
-	def __getitem__ (self, offset):
-		return self._data[offset]
-	
-	def __setitem__ (self, offset, value):
-		self._data[offset] = value
-		
-	def _get(self, row):
-		raise NotImplementedError
 
-class Event(_FastDict):
-	Fields = (Id,
-		Timestamp,
-		Interpretation,
-		Manifestation,
-		Actor,
-		Payload,
-		Subjects) = range(7)
-	
+class Event(dbusutils.Event):
 	def _get(self, row):
 		self[self.Id] = row["id"]
 		self[self.Timestamp] = row["timestamp"]
@@ -522,31 +482,8 @@ class Event(_FastDict):
 		self[self.Actor] = row["actor"]
 		self[self.Payload] = row["payload"]
 		self[self.Subjects] = []
-	
-	def append_subject(self, row=None):
-		"""
-		Append a new empty subject array and return a reference to
-		the array.
-		"""
-		if self._data[self.Subjects] is None:
-			self._data[self.Subjects] = []
-		if row :
-			if isinstance(row, Subject) : subj = row
-			else : subj = Subject().get(row)			
-		else:
-			subj = Subject()
-		self._data[Event.Subjects].append(subj)
-		return subj
 
-class Subject(_FastDict):
-	Fields = (Uri,
-		Interpretation,
-		Manifestation,
-		Origin,
-		Mimetype,
-		Text,
-		Storage) = range(7)
-	
+class Subject(dbusutils.Subject):
 	def _get(self, row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = Content.get(
