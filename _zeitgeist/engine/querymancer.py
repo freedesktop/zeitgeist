@@ -98,7 +98,7 @@ class ColumnType:
 												   self.__class__.format(other))
 	
 	def in_collection(self, collection):
-		return "%s IN (%s)" % (self, ", ".join(collection))		
+		return "%s IN (%s)" % (self, ", ".join(map(str, collection)))		
 	
 	@classmethod
 	def format (klass, value):

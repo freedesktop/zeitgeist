@@ -93,6 +93,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event[Event.Id] = 1
 		
 		self.assertEventsEqual(resulting_event, event)
+	
+	def testDeleteSingle(self):
+		self.testSingleInsertGet()
+		self.engine.delete_events([1])
+		result = self.engine.get_events([1])
+		self.assertEquals(0, len(result))
+		
 		
 	
 
