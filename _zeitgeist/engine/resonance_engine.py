@@ -462,14 +462,14 @@ def reset():
 	_storage = None
 	_event = None
 
-class _FastDict(dbusutils._FastDict):
+class _FastDictExt:
 	@classmethod
 	def get_from_row(cls, row):
 		obj = cls()
 		obj._get(row)
 		return obj
 
-class Event(dbusutils.Event):
+class Event(_FastDictExt, dbusutils.Event):
 	def _get(self, row):
 		self[self.Id] = row["id"]
 		self[self.Timestamp] = row["timestamp"]
@@ -483,7 +483,7 @@ class Event(dbusutils.Event):
 		self[self.Payload] = row["payload"]
 		self[self.Subjects] = []
 
-class Subject(dbusutils.Subject):
+class Subject(_FastDictExt, dbusutils.Subject):
 	def _get(self, row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = Content.get(
