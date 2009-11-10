@@ -99,7 +99,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.testSingleInsertGet()
 		self.engine.delete_events([1])
 		result = self.engine.get_events([1])
-		self.assertEquals(0, len(result))
+		self.assertEquals(0, len(filter(None, result)))
 		
 		
 	

@@ -609,7 +609,9 @@ class ZeitgeistEngine:
 		# Sort events into the requested order
 		sorted_events = []
 		for id in ids:
-			sorted_events.append(events[id])
+			# if we are not able to get an event by the given id
+			# append None instead of raising an Error
+			sorted_events.append(events.get(id, None))
 		return sorted_events
 	
 	def insert_events (self, events):
