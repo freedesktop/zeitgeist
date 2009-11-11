@@ -142,7 +142,7 @@ class StatefulEntityTable(Table):
 		except KeyError:
 			pass # We didn't have it cached; fall through and handle it below
 		
-		row = self.find_one(self.id, self.value == value)
+		row = self.find_one("*", self.value == value)
 		if row :			
 			ent = StatefulEntity(row[0], value, row[2])
 			self._CACHE[value] = ent
