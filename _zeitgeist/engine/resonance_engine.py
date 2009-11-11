@@ -408,6 +408,9 @@ class ZeitgeistEngine:
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
 		
+		if not isinstance(event, Event):
+			event = Event(event)
+		
 		if event.id:
 			raise ValueError("Illegal event: Predefined event id")
 		
