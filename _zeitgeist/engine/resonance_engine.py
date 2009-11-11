@@ -409,8 +409,7 @@ class ZeitgeistEngine:
 			_actor, _text, _payload, _storage, _event
 		
 		# Transparently wrap DBus event structs as Event objects
-		if not isinstance(event, Event):
-			event = Event(event)
+		event = self._ensure_event_wrapping(event)
 		
 		if event.id:
 			raise ValueError("Illegal event: Predefined event id")
@@ -462,10 +461,33 @@ class ZeitgeistEngine:
 	
 	def delete_events (self, ids):
 		_event.delete(_event.id.in_collection(ids))
-
+	
+	def _ensure_event_wrapping(self, event):
+		"""
+		Ensure that 'event' and its subjects are properly
+		wrapped in Event and Subject classes.
+		
+		This is useful for converting DBus inout to our Event and
+		Subject representations without an actual data marshalling step
+		"""
+		if not isinstance(event, Event):
+			event = Event(event)
+		for i in range(len(event.subjects)):
+			subj = event.subjects[i]
+			if not isinstance(subj, Subject):
+				event.subjects[i] = Subject(subj)
+		return event
+	
 	def find_eventids (self, time_range, event_templates, storage_state,
 		max_events, order):
 		global _cursor, _interpretation, _manifestation, _mimetype
+		
+		if storage_state:
+			# we don't have any methods to find out about the storage state
+			# so it is not implemented yet
+			raise NotImplementedError
+
+		event_templates = map(self._ensure_event_wrapping, event_templates)
 		
 		where = WhereClause("AND")
 		if time_range[0] > 0:
@@ -520,9 +542,9 @@ class ZeitgeistEngine:
 		return [row[0] for row in _cursor.execute(sql, where.arguments).fetchall()]
 	
 	def get_highest_timestamp_for_actor(self, actor):
-		query = self.cursor.execute("""
+		query = self._cursor.execute("""
 			SELECT timestamp FROM event
-			WHERE subj_actor = (SELECT id FROM actor WHERE value = ?)
+			WHERE actor = (SELECT id FROM actor WHERE value = ?)
 			ORDER BY timestamp DESC LIMIT 1
 			""", (actor,)).fetchone()
 		return query["timestamp"] if query else 0

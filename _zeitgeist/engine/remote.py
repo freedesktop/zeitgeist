@@ -73,9 +73,14 @@ class RemoteInterface(SingletonApplication):
 		:returns: list of items
 		:rtype: list of tuples presenting an :ref:`item-label`
 		"""
+		if storage_state:
+			raise NotImplementedError
 		return _engine.find_eventids(time_range, event_templates, storage_state,
 			max_events, order)
 	
+	# FIXME: Do we want this or let people use
+	# GetEvents(FindEventIds(limit=1,sorting=desc)).timestamp
+	#   -- RainCT
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="s", out_signature="u")
 	def GetHighestTimestampForActor(self, actor):
