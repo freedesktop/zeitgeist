@@ -452,12 +452,22 @@ class Event(list):
 		Manifestation,
 		Actor) = range(5)
 	
-	def __init__(self, **values):
+	def __init__(self, struct = None):
 		super(Event, self).__init__()
-		self.extend(([None]* len(Event.Fields), [], None))
+		if struct:
+			self.append(struct[0])
+			self.append(struct[1])
+			self.append(struct[2])
+		else:
+			self.extend(([None]* len(Event.Fields), [], None))
+		
+	
+	@classmethod
+	def new_for_values (cls, **values):
+		ev = Event()
 		for key, value in values.iteritems():
 			setattr(self, key, value)
-		
+	
 	def __repr__(self):
 		return "%s(%s)" %(
 			self.__class__.__name__, super(Event, self).__repr__()

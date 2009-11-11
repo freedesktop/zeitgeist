@@ -90,5 +90,17 @@ class SourceTest (unittest.TestCase):
 		self.assertTrue(f.display_name != None)
 		self.assertTrue(f.doc != None)
 
+class EventTest (unittest.TestCase):
+	def setUp(self):
+		pass
+	
+	def tearDown(self):
+		pass
+	
+	def testSimple(self):
+		ev = Event()
+		ev.timestamp = 10
+		self.assertEquals(10, ev.timestamp)
+
 if __name__ == '__main__':
 	unittest.main()

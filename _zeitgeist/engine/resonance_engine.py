@@ -236,7 +236,7 @@ def create_db(file_path):
 	               manifestation=Integer(),
 	               actor=Integer(),	               
 	               payload=Integer(),
-	               subj_uri=Integer(),
+	               subj_id=Integer(),
 	               subj_interpretation=Integer(),
 	               subj_manifestation=Integer(),
 	               subj_origin=Integer(),
@@ -407,6 +407,10 @@ class ZeitgeistEngine:
 	def insert_event (self, event):
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
+		
+		# Transparently wrap DBus event structs as Event objects
+		if not isinstance(event, Event):
+			event = Event(event)
 		
 		if event.id:
 			raise ValueError("Illegal event: Predefined event id")
