@@ -374,3 +374,143 @@ Source.register(
 	display_name=_("System Resources"),
 	doc="An item available through the host operating system, such as an installed application or manual page (TBD in tracker)"
 )
+
+
+class Subject(list):
+	Fields = (Uri,
+		Interpretation,
+		Manifestation,
+		Origin,
+		Mimetype,
+		Text,
+		Storage) = range(7)
+	
+	def __init__(self, **values):
+		super(Subject, self).__init__()
+		self.extend(([None]* len(Subject.Fields), [], None))
+		for key, value in values.iteritems():
+			print key
+			setattr(self, key, value)
+		
+	def __repr__(self):
+		return "%s(%s)" %(
+			self.__class__.__name__, super(Subject, self).__repr__()
+		)
+		
+	def get_uri(self):
+		return self[Subject.Uri]
+		
+	def set_uri(self, value):
+		self[Subject.Uri] = value
+	uri = property(get_uri, set_uri)
+		
+	def get_interpretation(self):
+		return self[Subject.Interpretation]
+		
+	def set_interpretation(self, value):
+		self[Subject.Interpretation] = value
+	interpretation = property(get_interpretation, set_interpretation) 
+		
+	def get_manifestation(self):
+		return self[Subject.Manifestation]
+		
+	def set_manifestation(self, value):
+		self[Subject.Manifestation] = value
+	manifestation = property(get_manifestation, set_manifestation)
+		
+	def get_origin(self):
+		return self[Subject.Origin]
+		
+	def set_origin(self, value):
+		self[Subject.Origin] = value
+	origin = property(get_origin, set_origin) 
+		
+	def get_mimetype(self):
+		return self[Subject.Mimetype]
+		
+	def set_mimetype(self, value):
+		self[Subject.Mimetype] = value
+	mimetype = property(get_mimetype, set_mimetype) 
+		
+	def get_text(self):
+		return self[Subject.Text]
+		
+	def set_text(self, value):
+		self[Subject.Text] = value
+	text = property(get_text, set_text) 
+		
+	def get_storage(self):
+		return self[Subject.Storage]
+		
+	def set_storage(self, value):
+		self[Subject.storage] = value
+	storage = property(get_storage, set_storage)
+	
+	
+class Event(list):
+	Fields = (Id,
+		Timestamp,
+		Interpretation,
+		Manifestation,
+		Actor) = range(5)
+	
+	def __init__(self, **values):
+		super(Event, self).__init__()
+		self.extend(([None]* len(Event.Fields), [], None))
+		for key, value in values.iteritems():
+			print key
+			setattr(self, key, value)
+		
+	def __repr__(self):
+		return "%s(%s)" %(
+			self.__class__.__name__, super(Event, self).__repr__()
+		)
+	
+	def append_subject(self, subject=None):
+		"""
+		Append a new empty subject array and return a reference to
+		the array.
+		"""
+		if not subject:
+			subject = Subject()
+		self.subject.append(subject)
+		return subject
+		
+	@property
+	def id(self):
+		return self[0][Event.Id]
+		
+	def get_timestamp(self):
+		return self[0][Event.Timestamp]
+		
+	def set_timestamp(self, value):
+		self[0][Event.Timestamp] = value
+	timestamp = property(get_timestamp, set_timestamp)
+		
+	def get_interpretation(self):
+		return self[0][Event.Interpretation]
+		
+	def set_interpretation(self, value):
+		self[0][Event.Interpretation] = value
+	interpretation = property(get_interpretation, set_interpretation) 
+		
+	def get_manifestation(self):
+		return self[0][Event.Manifestation]
+		
+	def set_manifestation(self, value):
+		self[0][Event.Manifestation] = value
+	manifestation = property(get_manifestation, set_manifestation)
+		
+	def get_actor(self):
+		return self[0][Event.Actor]
+		
+	def set_actor(self, value):
+		self[0][Event.Actor] = value
+	actor = property(get_actor, set_actor) 
+		
+	def get_payload(self):
+		return self[2]
+		
+	def set_payload(self, value):
+		self[2] = value
+	payload = property(get_payload, set_payload)
