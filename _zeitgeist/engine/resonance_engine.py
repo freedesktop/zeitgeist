@@ -470,7 +470,7 @@ class ZeitgeistEngine:
 		Ensure that 'event' and its subjects are properly
 		wrapped in Event and Subject classes.
 		
-		This is useful for converting DBus inout to our Event and
+		This is useful for converting DBus input to our Event and
 		Subject representations without an actual data marshalling step
 		"""
 		if not isinstance(event, Event):
@@ -481,16 +481,41 @@ class ZeitgeistEngine:
 				event.subjects[i] = Subject(subj)
 		return event
 	
+	def _build_event_from_template(self, event_template):
+		"""
+		Convert a tuple with an (event,subject) pair into a real Event.
+		The resulting Event is guaranteed to have exactly one Subject.
+		If event_template is already an Event instance this method
+		does nothing
+		
+		This is useful for converting DBus input to our Event and
+		Subject representations without an actual data marshalling step
+		"""
+		if isinstance(event_template, Event) : return event_template
+		
+		ev = Event.new_for_data(event_template[0])
+		subj = Subject(event_template[1])
+		ev.append_subject(subj)
+		
+		return ev
+	
 	def find_eventids (self, time_range, event_templates, storage_state,
 		max_events, order):
+		"""
+		Accepts 'event_templates' as either a real list of Events or as
+		a list of tuples (event_data,subject_data) as we do in the
+		DBus API
+		"""
+		
 		global _cursor, _interpretation, _manifestation, _mimetype
 		
 		if storage_state:
 			# we don't have any methods to find out about the storage state
 			# so it is not implemented yet
 			raise NotImplementedError
-
-		event_templates = map(self._ensure_event_wrapping, event_templates)
+		
+		# Convert the event_templates into proper Events if necessary
+		event_templates = map(self._build_event_from_template, event_templates)
 		
 		where = WhereClause("AND")
 		if time_range[0] > 0:
@@ -498,7 +523,11 @@ class ZeitgeistEngine:
 		if time_range[1] > 0:
 			where.add("timestamp <= ?", time_range[1])
 		where_or = WhereClause("OR")
-		for (event_template, subject_template) in event_templates:
+		for event_template in event_templates:
+			# Make sure we have a subject, we might not have that
+			# if we received a raw Event in the parameters
+			subject_template = event_template.subjects[0] if event_template.subjects else Subject()
+			
 			subwhere = WhereClause("AND")
 			if event_template.interpretation:
 				subwhere.add("interpretation = ?",

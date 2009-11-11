@@ -385,14 +385,14 @@ class Subject(list):
 		Text,
 		Storage) = range(7)
 	
-	def __init__(self, struct=None):
+	def __init__(self, data=None):
 		super(Subject, self).__init__([None]*len(Subject.Fields))
-		if struct:
-			if len(struct) != len(Subject.Fields):
+		if data:
+			if len(data) != len(Subject.Fields):
 				raise ValueError(
 					"Invalid subject data length %s, "
-					"expected %s" % (len(struct), len(Subject.Fields)))
-			super(Subject, self).__init__(struct)
+					"expected %s" % (len(data), len(Subject.Fields)))
+			super(Subject, self).__init__(data)
 		else:
 			super(Subject, self).__init__([None]*len(Subject.Fields))
 		
@@ -466,25 +466,45 @@ class Event(list):
 		Actor) = range(5)
 	
 	def __init__(self, struct = None):
+		"""
+		If 'struct' is set it must be a list containing the event
+		metadata in the first position, and optionally the list of
+		subjects in the second position, and again optionally the event
+		payload in the third position.
+		
+		If 'event_data' is set
+		"""
 		super(Event, self).__init__()
 		if struct:
-			if len(struct) <= 1:
-				raise ValueError("Minimum struct length is 2, got %s" % len(struct))
-			
-			self.append(struct[0])
-			self.append(struct[1])
-			
-			# Event templates do not have a payload so make that optional
-			if len(struct) >= 3:
+			if len(struct) == 1:
+				self.append(struct[0])
+				self.append([])
+				self.append(None)
+			elif len(struct) == 2:
+				self.append(struct[0])
+				self.append(struct[1])
+				self.append(None)
+			elif len(struct) == 3:
+				self.append(struct[0])
+				self.append(struct[1])
 				self.append(struct[2])
 			else:
-				self.append(None)
+				raise ValueError("Invalid struct length %s" % len(struct))
 		else:
 			self.extend(([None]* len(Event.Fields), [], None))
 		
+	@staticmethod
+	def new_for_data(event_data):
+		"""
+		Create a new Event setting event_data as the Event properties
+		"""
+		self = Event()
+		if len(event_data) != len(Event.Fields) :
+			raise ValueError("event_data must have %s members, found %s" % (len(Event.Fields, len(event_Data))))
+		self[0] = event_data
 	
-	@classmethod
-	def new_for_values (cls, **values):
+	@staticmethod
+	def new_for_values (**values):
 		self = Event()
 		for key, value in values.iteritems():
 			setattr(self, key, value)
