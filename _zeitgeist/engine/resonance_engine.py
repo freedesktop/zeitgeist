@@ -533,8 +533,9 @@ class ZeitgeistEngine:
 				subwhere.add("manifestation = ?",
 					_manifestation.lookup(event_template.manifestation).id)
 			if event_template.actor:
-				subwhere.add("actor = (SELECT id FROM actor WHERE value=?)",
-					int(event_template.actor))
+				subwhere.add("actor = ?", event_template.actor)
+			if subject_template.uri:
+				subwhere.add("subj_uri = ?", subject_template.uri)
 			if subject_template.interpretation:
 				subwhere.add("subj_interpretation = ?",
 					_interpretation.lookup(subject_template.interpretation).id)
@@ -542,13 +543,12 @@ class ZeitgeistEngine:
 				subwhere.add("subj_manifestation = ?",
 					_manifestation.lookup(subject_template.manifestation).id)
 			if subject_template.origin:
-				subwhere.add("subj_origin = (SELECT id FROM actor WHERE value=?)",
-					int(event_template.origin))
+				subwhere.add("subj_origin = ?", int(event_template.origin))
 			if subject_template.mimetype:
 				subwhere.add("subj_mimetype = ?",
 					_mimetype.lookup(subject_template.mimetype).id)
 			if subject_template.text:
-				subwhere.add("subj_text = (SELECT id FROM text WHERE value=?)",
+				subwhere.add("subj_text = ?",
 					int(event_template.text))
 			where_or.add(subwhere.generate_condition(), subwhere.arguments)
 		where.add(where_or.generate_condition(), where_or.arguments)
