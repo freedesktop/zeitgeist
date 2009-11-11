@@ -211,7 +211,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		result = self.engine.find_eventids(
 			(1, 10000000),
 			[],
-			45,
+			0,
 			1,
 			0,)
 		self.assertEquals(0, len(result))
