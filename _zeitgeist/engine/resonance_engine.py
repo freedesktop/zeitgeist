@@ -408,7 +408,7 @@ class ZeitgeistEngine:
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
 		
-		if event[0][EventList.Id] is not None:
+		if event[0][EventList.Id]:
 			raise ValueError("Illegal event: Predefined event id")
 		
 		id = self.next_event_id()

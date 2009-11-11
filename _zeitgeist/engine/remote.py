@@ -76,7 +76,7 @@ class RemoteInterface(SingletonApplication):
 		return _engine.find_eventids(time_range, event_templates, storage_state,
 			max_events, order)
 	
-	@dbus.service.method("org.gnome.zeitgeist",
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="iiaa{sv}", out_signature="a(si)")
 	def FindApplications(self, min_timestamp, max_timestamp, filters):
 		"""This method takes a subset of the parameters from ``FindEvents()``
