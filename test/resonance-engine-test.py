@@ -179,6 +179,21 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		import_events("test/data/single_event.js", self.engine)
 		results = self.engine.get_events([1])
 		self.assertEquals(1, len(results))
+		ev = results[0]
+		self.assertEquals(1, ev.id)
+		self.assertEquals("123", ev.timestamp)
+		self.assertEquals("stfu:OpenEvent", ev.interpretation)
+		self.assertEquals("stfu:UserActivity", ev.manifestation)
+		self.assertEquals("firefox", ev.actor)
+		self.assertEquals(1, len(ev.subjects))
+		
+		subj = ev.subjects[0]
+		self.assertEquals("file:///tmp/foo.txt", subj.uri)
+		self.assertEquals("stfu:Document", subj.interpretation)
+		self.assertEquals("stfu:File", subj.manifestation)
+		self.assertEquals("text/plain", subj.mimetype)
+		self.assertEquals("this item has not text... rly!", subj.text)
+		self.assertEquals("368c991f-8b59-4018-8130-3ce0ec944157", subj.storage)
 
 if __name__ == "__main__":
 	unittest.main()
