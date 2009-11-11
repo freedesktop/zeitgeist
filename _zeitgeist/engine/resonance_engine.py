@@ -424,7 +424,7 @@ class ZeitgeistEngine:
 		if event.payload:
 			payload_id = _payload.add(value=event.payload)
 		else:
-			payload_id = None		
+			payload_id = None	
 		
 		for subj in event.subjects:
 			suri_id = _uri.lookup_or_create(subj.uri).id
@@ -432,7 +432,7 @@ class ZeitgeistEngine:
 			smanif_id = _manifestation.lookup_or_create(subj.manifestation).id
 			sorigin_id = _uri.lookup_or_create(subj.origin).id
 			smime_id = _mimetype.lookup_or_create(subj.mimetype).id
-			stext_id = _text.lookup_or_create(subj.text).id
+			stext_id = _text.lookup_or_create(subj.text).id if subj.text else None
 			sstorage_id = _storage.lookup_or_create(subj.storage).id # FIXME: Storage is not an EntityTable
 			
 			# We store the event here because we need one row per subject
