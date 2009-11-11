@@ -12,13 +12,15 @@ from _zeitgeist.json_importer import *
 
 import unittest
 
+TEST_ACTOR = "/usr/share/applications/gnome-about.desktop"
+
 test_event_1 = None
 def create_test_event_1():
 	ev = Event()
 	ev.timestamp = 0
 	ev.interpretation = Source.USER_ACTIVITY
 	ev.manifestation = Content.CREATE_EVENT
-	ev.actor = "/usr/share/applications/gnome-about.desktop"
+	ev.actor = TEST_ACTOR
 	subj = Subject()
 	subj.uri = u"test://mytest"
 	subj.manifestation = "lala"
@@ -196,6 +198,20 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event2 = self.engine.get_events([result[1]])[0]
 		self.assertEquals(True, event1.timestamp > event2.timestamp)
 		
+	def testFindEventsIdActorRestriction(self):
+		global test_event_1
+		self.testSingleInsertGet()
+		result = self.engine.find_eventids(
+			(0, 100),
+                        [(['','','','', TEST_ACTOR], #event
+                          ['','','','','','',''])], #subject
+			0,
+			0,
+			0,)
+		self.assertEquals(1, len(result))
+		test_event_1[0][0] = 1
+		self.assertEqual(result[0], test_event_1.id)
+
 	def testFindState(self):
 		# TODO: use templates to make this test useful!
 		import_events("test/data/twenty_events.js", self.engine)
