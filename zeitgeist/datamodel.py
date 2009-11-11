@@ -480,38 +480,38 @@ class Event(list):
 	@property
 	def id(self):
 		return self[0][Event.Id]
-		
+	
 	def get_timestamp(self):
 		return self[0][Event.Timestamp]
-		
+	
 	def set_timestamp(self, value):
-		self[0][Event.Timestamp] = value
+		self[0][Event.Timestamp] = str(value)
 	timestamp = property(get_timestamp, set_timestamp)
-		
+	
 	def get_interpretation(self):
 		return self[0][Event.Interpretation]
-		
+	
 	def set_interpretation(self, value):
 		self[0][Event.Interpretation] = value
 	interpretation = property(get_interpretation, set_interpretation) 
-		
+	
 	def get_manifestation(self):
 		return self[0][Event.Manifestation]
-		
+	
 	def set_manifestation(self, value):
 		self[0][Event.Manifestation] = value
 	manifestation = property(get_manifestation, set_manifestation)
-		
+	
 	def get_actor(self):
 		return self[0][Event.Actor]
-		
+	
 	def set_actor(self, value):
 		self[0][Event.Actor] = value
 	actor = property(get_actor, set_actor) 
-		
+	
 	def get_payload(self):
 		return self[2]
-		
+	
 	def set_payload(self, value):
 		self[2] = value
 	payload = property(get_payload, set_payload)
