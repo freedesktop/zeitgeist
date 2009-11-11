@@ -167,6 +167,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(0, len(result))
 
 	def testFindFive(self):
+		import_events("test/data/five_events.js", self.engine)
 		result = self.engine.find_eventids(
 			(1, 10000000),
 			[],
