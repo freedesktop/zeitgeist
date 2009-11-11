@@ -408,6 +408,7 @@ class ZeitgeistEngine:
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
 		
+		# Transparently wrap DBus event structs as Event objects
 		if not isinstance(event, Event):
 			event = Event(event)
 		
