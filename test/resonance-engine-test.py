@@ -212,17 +212,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		test_event_1[0][0] = 1
 		self.assertEqual(result[0], test_event_1.id)
 
-	def testFindState(self):
-		# TODO: use templates to make this test useful!
-		import_events("test/data/twenty_events.js", self.engine)
-		result = self.engine.find_eventids(
-			(1, 10000000),
-			[],
-			1,
-			1,
-			0,)
-		self.assertEquals(1, len(result))
-
 	def testDontFindState(self):
 		# searchin by storage state is currently not implemented
 		# checking for the error
