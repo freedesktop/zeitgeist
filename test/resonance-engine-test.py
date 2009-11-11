@@ -191,6 +191,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals("text/plain", subj.mimetype)
 		self.assertEquals("this item has not text... rly!", subj.text)
 		self.assertEquals("368c991f-8b59-4018-8130-3ce0ec944157", subj.storage)
+	
+	def testGetHighestTimestampForActor(self):
+		import_events("test/data/five_events.js", self.engine)
+		result = self.engine.get_highest_timestamp_for_actor("firefox")
+		self.assertEquals(163, result)
 
 if __name__ == "__main__":
 	unittest.main()

@@ -520,9 +520,9 @@ class ZeitgeistEngine:
 		return [row[0] for row in _cursor.execute(sql, where.arguments).fetchall()]
 	
 	def get_highest_timestamp_for_actor(self, actor):
-		query = self.cursor.execute("""
+		query = self._cursor.execute("""
 			SELECT timestamp FROM event
-			WHERE subj_actor = (SELECT id FROM actor WHERE value = ?)
+			WHERE actor = (SELECT id FROM actor WHERE value = ?)
 			ORDER BY timestamp DESC LIMIT 1
 			""", (actor,)).fetchone()
 		return query["timestamp"] if query else 0
