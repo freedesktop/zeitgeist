@@ -158,5 +158,23 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			0,)
 		self.assertEquals(0, len(result))
 
+	def testFindNothingBackwards(self):
+		result = self.engine.find_eventids(
+			(1000000, 1),
+			[],
+			0,
+			5,
+			0,)
+		self.assertEquals(0, len(result))
+
+	def testFindFive(self):
+		result = self.engine.find_eventids(
+			(1, 10000000),
+			[],
+			0,
+			5,
+			0,)
+		self.assertEquals(5, len(result))
+
 if __name__ == "__main__":
 	unittest.main()
