@@ -41,10 +41,6 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
 
-class Mimetype(Category):
-	pass
-
-
 #		
 # Table defs are assigned in create_db()
 #

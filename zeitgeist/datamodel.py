@@ -197,6 +197,10 @@ class Category(object):
 class Content(Category):
 	pass
 	
+
+class Mimetype(Category):
+	pass
+
 	
 class Source(Category):
 	pass
