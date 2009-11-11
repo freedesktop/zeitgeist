@@ -477,6 +477,12 @@ class ZeitgeistEngine:
 			if not isinstance(subj, Subject):
 				event.subjects[i] = Subject(subj)
 		return event
+		
+	def _build_templates(self, templates):
+		for event_template in templates:
+			event_data = event_template[0]
+			for subject in event_template.subjects:
+				yield Event((event_data, [], None)), Subject(subject)
 	
 	def _build_event_from_template(self, event_template):
 		"""
@@ -510,9 +516,7 @@ class ZeitgeistEngine:
 			# we don't have any methods to find out about the storage state
 			# so it is not implemented yet
 			raise NotImplementedError
-		
-		# Convert the event_templates into proper Events if necessary
-		event_templates = map(self._build_event_from_template, event_templates)
+		event_templates = list(self._build_templates(event_templates))
 		
 		where = WhereClause("AND")
 		if time_range[0] > 0:
@@ -520,10 +524,7 @@ class ZeitgeistEngine:
 		if time_range[1] > 0:
 			where.add("timestamp <= ?", time_range[1])
 		where_or = WhereClause("OR")
-		for event_template in event_templates:
-			# Make sure we have a subject, we might not have that
-			# if we received a raw Event in the parameters
-			subject_template = event_template.subjects[0] if event_template.subjects else Subject()
+		for (event_template, subject_template) in event_templates:
 			
 			subwhere = WhereClause("AND")
 			if event_template.interpretation:
@@ -567,7 +568,7 @@ class ZeitgeistEngine:
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
-		
+		log.debug(sql)
 		return [row[0] for row in _cursor.execute(sql, where.arguments).fetchall()]
 	
 	def get_highest_timestamp_for_actor(self, actor):

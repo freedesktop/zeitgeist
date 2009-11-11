@@ -6,7 +6,7 @@
 		"actor" : "firefox",
 		"subjects" : [
 			{
-				"uri" : "file:///tmp/foo.txt",
+				"uri" : "http://www.google.de",
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
@@ -19,11 +19,11 @@
 		"timestamp" : 133,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
-		"actor" : "firefox",
+		"actor" : "gedit",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Test",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
@@ -35,11 +35,11 @@
 		"timestamp" : 143,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
-		"actor" : "firefox",
+		"actor" : "geany",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Image",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
@@ -54,8 +54,8 @@
 		"actor" : "firefox",
 		"subjects" : [
 			{
-				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"uri" : "file:///tmp/bar.txt",
+				"interpretation" : "stfu:Bee",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
@@ -70,8 +70,8 @@
 		"actor" : "firefox",
 		"subjects" : [
 			{
-				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"uri" : "file:///home/foo.txt",
+				"interpretation" : "stfu:Bar",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",

@@ -201,13 +201,14 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindEventsIdActorRestriction(self):
 		global test_event_1
 		self.testSingleInsertGet()
+		subj = SubjectTemplate()
+		event_template = EventTemplate(actor=TEST_ACTOR, subjects=[subj,])
 		result = self.engine.find_eventids(
 			(0, 100),
-			[(['','','','', TEST_ACTOR], #event
-			['','','','','','',''])], #subject
+			[event_template, ],
 			0,
 			0,
-			0,)
+			1,)
 		self.assertEquals(1, len(result))
 		test_event_1[0][0] = 1
 		self.assertEqual(result[0], test_event_1.id)
@@ -222,6 +223,19 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			45,
 			1,
 			0,)
+			
+	def testFindEventsEventTemplate(self):
+		import_events("test/data/five_events.js", self.engine)
+		subj = SubjectTemplate(interpretation="stfu:Bee")
+		subj1 = SubjectTemplate(interpretation="stfu:Bar")
+		event_template = EventTemplate(subjects=[subj, subj1])
+		result = self.engine.find_eventids(
+			(0, 200),
+			[event_template, ],
+			0,
+			100,
+			0,)
+		self.assertEquals(2, len(result))
 	
 	def testJsonImport(self):
 		import_events("test/data/single_event.js", self.engine)
