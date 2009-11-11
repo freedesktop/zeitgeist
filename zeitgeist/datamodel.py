@@ -307,6 +307,12 @@ Content.register(
 	doc="Event type triggered when the user has received an item from a remote host"
 )
 Content.register(
+	"FOCUS_EVENT",
+	u"http://gnome.org/zeitgeist/schema/1.0/core#FocusEvent",
+	display_name=_("Focused"),
+	doc="Event type triggered when the user has switched focus to a new item"
+)
+Content.register(
 	"WARN_EVENT",
 	u"http://gnome.org/zeitgeist/schema/1.0/core#WarnEvent",
 	display_name=_("Warnings"),
