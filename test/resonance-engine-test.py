@@ -203,8 +203,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.testSingleInsertGet()
 		result = self.engine.find_eventids(
 			(0, 100),
-                        [(['','','','', TEST_ACTOR], #event
-                          ['','','','','','',''])], #subject
+			[(['','','','', TEST_ACTOR], #event
+			['','','','','','',''])], #subject
 			0,
 			0,
 			0,)
