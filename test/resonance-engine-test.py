@@ -91,12 +91,12 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(len(resulting_event), len(test_event_1))
 		
 		# fixing id, the initial event does not have any id set
-		test_event_1.id = 1
+		test_event_1[0][0] = 1
 		
 		self.assertEventsEqual(resulting_event, test_event_1)		
 		
 		# Reset the id because other test cases rely on this one
-		test_event_1.id = None
+		test_event_1[0][0] = None
 	
 	def testDuplicateEventInsertion(self):
 		self.testSingleInsertGet()
