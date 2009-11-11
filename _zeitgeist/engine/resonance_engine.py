@@ -37,6 +37,9 @@ from _zeitgeist.engine.engine_base import BaseEngine
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
 
+import commands
+commands.getoutput("espeak EAT THIS")
+
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
