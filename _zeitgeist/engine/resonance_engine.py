@@ -427,6 +427,8 @@ class ZeitgeistEngine:
 			payload_id = None	
 		
 		for subj in event.subjects:
+			if not isinstance(subj,Subject):
+				subj = Subject(subj)
 			suri_id = _uri.lookup_or_create(subj.uri).id
 			sinter_id = _interpretation.lookup_or_create(subj.interpretation).id
 			smanif_id = _manifestation.lookup_or_create(subj.manifestation).id

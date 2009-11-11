@@ -385,15 +385,28 @@ class Subject(list):
 		Text,
 		Storage) = range(7)
 	
-	def __init__(self, **values):
+	def __init__(self, struct=None):
 		super(Subject, self).__init__([None]*len(Subject.Fields))
-		for key, value in values.iteritems():
-			setattr(self, key, value)
+		if struct:
+			if len(struct) != len(Subject.Fields):
+				raise ValueError(
+					"Invalid subject data length %s, "
+					"expected %s" % (len(struct), len(Subject.Fields)))
+			super(Subject, self).__init__(struct)
+		else:
+			super(Subject, self).__init__([None]*len(Subject.Fields))
 		
 	def __repr__(self):
 		return "%s(%s)" %(
 			self.__class__.__name__, super(Subject, self).__repr__()
 		)
+	
+	@classmethod
+	def new_for_values (cls, **values):
+		self = Subject()
+		for key, value in values.iteritems():
+			setattr(self, key, value)
+		return self
 		
 	def get_uri(self):
 		return self[Subject.Uri]
@@ -464,9 +477,10 @@ class Event(list):
 	
 	@classmethod
 	def new_for_values (cls, **values):
-		ev = Event()
+		self = Event()
 		for key, value in values.iteritems():
 			setattr(self, key, value)
+		return self
 	
 	def __repr__(self):
 		return "%s(%s)" %(
