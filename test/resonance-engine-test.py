@@ -11,8 +11,6 @@ from zeitgeist.datamodel import *
 from _zeitgeist.json_importer import *
 
 import unittest
-import tempfile
-import shutil
 
 test_event_1 = None
 def create_test_event_1():
@@ -40,13 +38,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def setUp (self):
 		global test_event_1
 		test_event_1 = create_test_event_1()
-		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
-		_zeitgeist.engine.DB_PATH = "%s/unittest.sqlite" % self.tmp_dir
+		_zeitgeist.engine.DB_PATH = ":memory:"
 		self.engine = create_engine()
 		
 	def tearDown (self):
 		self.engine.close()
-		shutil.rmtree(self.tmp_dir)
 		_zeitgeist.engine._engine = None
 	
 	def assertEmptyDB (self):
