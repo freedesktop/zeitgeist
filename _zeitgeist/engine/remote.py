@@ -77,62 +77,18 @@ class RemoteInterface(SingletonApplication):
 			max_events, order)
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="iiaa{sv}", out_signature="a(si)")
-	def FindApplications(self, min_timestamp, max_timestamp, filters):
-		"""This method takes a subset of the parameters from ``FindEvents()``
-		and returns the path to the .desktop file of the applications which
-		were used for the matching events.
-		
-		:param min_timestamp: search for application beginning after this timestamp
-		:type min_timestamp: integer
-		:param max_timestamp: search for applications beginning before this timestamp;
-			``max_timestamp`` equals ``0`` means indefinite time
-		:type max_timestamp: integer
-		:param filters: list of filter, multiple filters are connected by an ``OR`` condition
-		:type filters: list of tuples presenting a :ref:`filter-label`
-		:returns: list of tuples containing the path to a .desktop file and the amount of matches for it
-		:rtype: list of tuples containing a string and an integer
-		"""
-		return _engine.find_events(min_timestamp, max_timestamp, 0, False,
-			u"event", filters, return_mode=2)
-	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="iisaa{sv}", out_signature="i")
-	def CountEvents(self, min_timestamp, max_timestamp, mode, filters):
-		"""This method takes a subset of the parameters from ``FindEvents()``
-		and returns the amount of results a ``FindEvents()`` call with the
-		same parameter would yield if the maximal amount of items to return
-		isn't limited.
-		
-		:param min_timestamp: search for events beginning after this timestamp
-		:type min_timestamp: integer
-		:param max_timestamp: search for events beginning before this timestamp;
-			``max_timestamp`` equals ``0`` means indefinite time
-		:type max_timestamp: integer
-		:param mode: The first mode returns all events, the second and third
-			ones only return repeated items once.
-		:type mode: string, either ``event``, ``item`` or ``mostused``
-		:param filters: list of filter, multiple filters are connected by an ``OR`` condition
-		:type filters: list of tuples presenting a :ref:`filter-label`
-		:returns: list of items
-		:rtype: list of tuples presenting an :ref:`item-label`
-		"""
-		return _engine.find_events(min_timestamp, max_timestamp, 0, True,
-			mode, filters, return_mode=1)
-	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="s", out_signature="i")
-	def GetLastInsertionDate(self, application):
+						in_signature="s", out_signature="u")
+	def GetHighestTimestampForActor(self, actor):
 		"""Returns the timestamp of the last item which was inserted
-		related to the given ``application``. If there is no such record,
+		related to the given ``actor``. If there is no such record,
 		0 is returned.
 		
-		:param application: application to query for
-		:type application: string
-		:returns: timestamp of last insertion date
+		:param actor: actor to query for
+		:type actor: string
+		:returns: timestamp of the last event with that actor
 		:rtype: integer
 		"""
-		return _engine.get_last_insertion_date(application)
+		return _engine.get_highest_timestamp_for_actor(actor)
 
 	# Writing stuff
 	
