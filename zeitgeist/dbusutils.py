@@ -179,8 +179,7 @@ class EventList(_FastDict):
 		Timestamp,
 		Interpretation,
 		Manifestation,
-		Actor,
-		Payload) = range(6)
+		Actor) = range(5)
 
 class SubjectList(_FastDict):
 	Fields = (Uri,
