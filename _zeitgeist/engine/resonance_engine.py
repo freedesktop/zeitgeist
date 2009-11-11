@@ -29,13 +29,13 @@ import logging
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
-from zeitgeist.datamodel import *
+from zeitgeist.datamodel import Subject as _Subject, Event as _Event
+from zeitgeist.datamodel import Content, Source, Mimetype
 import _zeitgeist.engine
 from _zeitgeist.engine.dbutils import *
 from _zeitgeist.engine.engine_base import BaseEngine
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
-from zeitgeist import dbusutils
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -304,44 +304,45 @@ def reset():
 	_storage = None
 	_event = None
 
-class _FastDictExt:
-	@classmethod
-	def get_from_row(cls, row):
-		obj = cls()
-		obj._get(row)
-		return obj
 
-class EventList(_FastDictExt, dbusutils.EventList):
-	def _get(self, row):
-		self[self.Id] = row["id"]
-		self[self.Timestamp] = row["timestamp"]
-		self[self.Interpretation] = Source.get(
+class Event(_Event):
+	
+	@classmethod
+	def from_dbrow(cls, row):
+		obj = cls()
+		# id property is read-only in the public API
+		obj[cls.Id] = row["id"]
+		obj.timestamp = row["timestamp"]
+		obj.interpretation = Source.get(
 			_interpretation.lookup_by_id(row["interpretation"]).value
 		)
-		self[self.Manifestation] = Content.get(
+		obj.manifestation = Content.get(
 			_manifestation.lookup_by_id(row["manifestation"]).value
 		)
-		self[self.Actor] = row["actor"]
-		self[self.Payload] = row["payload"]
-		self[self.Subjects] = []
+		obj.actor = row["actor"]
+		obj.payload = row["payload"]
+		return obj
 
-class SubjectList(_FastDictExt, dbusutils.SubjectList):
-	def _get(self, row):
-		self[self.Uri] = row["subj_uri"]
-		self[self.Interpretation] = Content.get(
+class Subject(_Subject):
+	
+	@classmethod
+	def from_dbrow(cls, row):
+		obj = cls()
+		obj.uri = row["subj_uri"]
+		obj.interpretation = Content.get(
 			_interpretation.lookup_by_id(row["subj_interpretation"]).value
 		)
-		self[self.Manifestation] = Source.get(
+		obj.manifestation = Source.get(
 			_manifestation.lookup_by_id(row["subj_manifestation"]).value
 		)
 		
-		self[self.Origin] = row["subj_origin"]
-		self[self.Mimetype] = Mimetype.get(
+		obj.origin = row["subj_origin"]
+		obj.mimetype = Mimetype.get(
 			_mimetype.lookup_by_id(row["subj_mimetype"]).value
 		)
-		self[self.Text] = row["subj_text"]
-		self[self.Storage] = row["subj_storage_state"]
-		return self
+		obj.text = row["subj_text"]
+		obj.storage = row["subj_storage_state"]
+		return obj
 
 # This class is not compatible with the normal Zeitgeist BaseEngine class
 class ZeitgeistEngine:
