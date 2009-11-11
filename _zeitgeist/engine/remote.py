@@ -133,7 +133,7 @@ class RemoteInterface(SingletonApplication):
 		    FindEventIds()
 		:type ids: list of integers
 		"""
-		_engine.delete_events(event_templates)
+		_engine.delete_events(ids)
 
 	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
