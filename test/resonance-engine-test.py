@@ -146,7 +146,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			5,
 			0,)
 		self.assertEquals(1, len(result))
-		self.assertEqual(result[0]["id"], test_event_1[Event.Id])
+		test_event_1[Event.Id] = 1
+		self.assertEqual(result[0][Event.Id], test_event_1[Event.Id])
 	
 	def testFindNothing(self):
 		result = self.engine.find_eventids(
