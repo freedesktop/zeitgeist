@@ -311,7 +311,7 @@ class Event(_Event):
 	def from_dbrow(cls, row):
 		obj = cls()
 		# id property is read-only in the public API
-		obj[cls.Id] = row["id"]
+		obj[0][cls.Id] = row["id"]
 		obj.timestamp = row["timestamp"]
 		obj.interpretation = Source.get(
 			_interpretation.lookup_by_id(row["interpretation"]).value
