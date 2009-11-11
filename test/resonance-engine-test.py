@@ -207,14 +207,15 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(1, len(result))
 
 	def testDontFindState(self):
+		# searchin by storage state is currently not implemented
+		# checking for the error
 		import_events("test/data/twenty_events.js", self.engine)
-		result = self.engine.find_eventids(
+		self.assertRaises(NotImplementedError, self.engine.find_eventids,
 			(1, 10000000),
 			[],
-			0,
+			45,
 			1,
 			0,)
-		self.assertEquals(0, len(result))
 
 	
 	def testJsonImport(self):

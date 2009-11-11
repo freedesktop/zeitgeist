@@ -482,6 +482,11 @@ class ZeitgeistEngine:
 		max_events, order):
 		global _cursor, _interpretation, _manifestation, _mimetype
 		
+		if storage_state:
+			# we don't have any methods to find out about the storage state
+			# so it is not implemented yet
+			raise NotImplementedError
+
 		event_templates = map(self._ensure_event_wrapping, event_templates)
 		
 		where = WhereClause("AND")
