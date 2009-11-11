@@ -468,9 +468,17 @@ class Event(list):
 	def __init__(self, struct = None):
 		super(Event, self).__init__()
 		if struct:
+			if len(struct) <= 1:
+				raise ValueError("Minimum struct length is 2, got %s" % len(struct))
+			
 			self.append(struct[0])
 			self.append(struct[1])
-			self.append(struct[2])
+			
+			# Event templates do not have a payload so make that optional
+			if len(struct) >= 3:
+				self.append(struct[2])
+			else:
+				self.append(None)
 		else:
 			self.extend(([None]* len(Event.Fields), [], None))
 		
