@@ -197,24 +197,15 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(True, event1.timestamp > event2.timestamp)
 		
 	def testFindState(self):
+		# TODO: use templates to make this test useful!
 		import_events("test/data/twenty_events.js", self.engine)
 		result = self.engine.find_eventids(
 			(1, 10000000),
 			[],
-			0,
+			1,
 			1,
 			0,)
 		self.assertEquals(1, len(result))
-
-	def testDontFindState(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		result = self.engine.find_eventids(
-			(1, 10000000),
-			[],
-			45,
-			1,
-			0,)
-		self.assertEquals(0, len(result))
 
 	
 	def testJsonImport(self):
