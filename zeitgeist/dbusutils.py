@@ -174,31 +174,15 @@ class _FastDict:
 	def _get(self, row):
 		raise NotImplementedError
 
-class Event(_FastDict):
+class EventList(_FastDict):
 	Fields = (Id,
 		Timestamp,
 		Interpretation,
 		Manifestation,
 		Actor,
-		Payload,
-		Subjects) = range(7)
-	
-	def append_subject(self, row=None):
-		"""
-		Append a new empty subject array and return a reference to
-		the array.
-		"""
-		if self._data[self.Subjects] is None:
-			self._data[self.Subjects] = []
-		if row:
-			if isinstance(row, Subject): subj = row
-			else: subj = Subject().get(row)			
-		else:
-			subj = Subject()
-		self._data[Event.Subjects].append(subj)
-		return subj
+		Payload) = range(6)
 
-class Subject(_FastDict):
+class SubjectList(_FastDict):
 	Fields = (Uri,
 		Interpretation,
 		Manifestation,
@@ -206,3 +190,25 @@ class Subject(_FastDict):
 		Mimetype,
 		Text,
 		Storage) = range(7)
+
+class Event(list):
+	
+	def __init__(self):
+		super(Event, self).__init__()
+		self.extend((None, [], None))
+	
+	def set_event_list(self, evlist):
+		self[0] = evlist
+	
+	def append_subject(self, subject=None):
+		"""
+		Append a new empty subject array and return a reference to
+		the array.
+		"""
+		if not subject:
+			subject = SubjectList()
+		self[1].append(subject)
+		return subject
+	
+	def set_payload(self, payload):
+		self[2] = payload
