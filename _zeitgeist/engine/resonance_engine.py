@@ -236,7 +236,7 @@ def create_db(file_path):
 	               manifestation=Integer(),
 	               actor=Integer(),	               
 	               payload=Integer(),
-	               subj_uri=Integer(),
+	               subj_id=Integer(),
 	               subj_interpretation=Integer(),
 	               subj_manifestation=Integer(),
 	               subj_origin=Integer(),
