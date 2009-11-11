@@ -272,55 +272,55 @@ Content.register(
 )
 Content.register(
 	"BROADCAST_MESSAGE",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#BroadcastMessage",
+	u"http://zeitgeist-project.com/schema/1.0/core#BroadcastMessage",
 	display_name=_("Broadcasts"), # FIXME: better display name
 	doc="Small broadcasted message, like Twitter/Identica micro blogging (TBD in tracker)"
 )
 Content.register(
 	"CREATE_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#CreateEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#CreateEvent",
 	display_name=_("Created"),
 	doc="Event type triggered when an item is created"
 )
 Content.register(
 	"MODIFY_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#ModifyEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#ModifyEvent",
 	display_name=_("Modified"),
 	doc="Event type triggered when an item is modified"
 )
 Content.register(
 	"VISIT_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#VisitEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#VisitEvent",
 	display_name=_("Visited"),
 	doc="Event type triggered when an item is visited or opened"
 )
 Content.register(
 	"SEND_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#SendEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#SendEvent",
 	display_name=_("Send"),
 	doc="Event type triggered when the user sends/emails an item or message to a remote host"
 )
 Content.register(
 	"RECEIVE_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#ReceiveEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#ReceiveEvent",
 	display_name=_("Received"),
 	doc="Event type triggered when the user has received an item from a remote host"
 )
 Content.register(
 	"FOCUS_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#FocusEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#FocusEvent",
 	display_name=_("Focused"),
 	doc="Event type triggered when the user has switched focus to a new item"
 )
 Content.register(
 	"WARN_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#WarnEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#WarnEvent",
 	display_name=_("Warnings"),
 	doc="Event type triggered when the user is warned about something"
 )
 Content.register(
 	"ERROR_EVENT",
-	"http://gnome.org/zeitgeist/schema/1.0/core#ErrorEvent",
+	"http://zeitgeist-project.com/schema/1.0/core#ErrorEvent",
 	display_name=_("Errors"),
 	doc="Event type triggered when the user has encountered an error"
 )
@@ -342,19 +342,19 @@ Source.register(
 )
 Source.register(
 	"USER_ACTIVITY",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#UserActivity",
+	u"http://zeitgeist-project.com/schema/1.0/core#UserActivity",
 	display_name=_("Activities"),
 	doc="An item that has been created solely on the basis of user actions and is not otherwise stored in some physical location"
 )
 Source.register(
 	"HEURISTIC_ACTIVITY",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#HeuristicActivity",
+	u"http://zeitgeist-project.com/schema/1.0/core#HeuristicActivity",
 	display_name=_("Activities"),
 	doc="An application has calculated via heuristics that some relationship is very probable."
 )
 Source.register(
 	"USER_NOTIFICATION",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#UserNotification",
+	u"http://zeitgeist-project.com/schema/1.0/core#UserNotification",
 	display_name=_("Notifications"),
 	doc="An item that has been send as a notification to the user"
 )
