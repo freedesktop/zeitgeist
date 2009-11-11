@@ -93,7 +93,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		# fixing id, the initial event does not have any id set
 		test_event_1[0][0] = 1
 		
-		self.assertEventsEqual(resulting_event, test_event_1)		
+		self.assertEqual(resulting_event, test_event_1)		
 		
 		# Reset the id because other test cases rely on this one
 		test_event_1[0][0] = None
@@ -110,7 +110,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testIllegalPredefinedEventId(self):
 		event = Event()
-		event.id = 23 # This is illegal, we assert the erro later
+		event[0][0] = 23 # This is illegal, we assert the erro later
 		event.timestamp = 0
 		event.interpretation = Source.USER_ACTIVITY
 		event.manifestation = Content.CREATE_EVENT
@@ -145,8 +145,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			5,
 			0,)
 		self.assertEquals(1, len(result))
-		test_event_1.id = 1
-		self.assertEqual(result[0].id, test_event_1.id)
+		test_event_1[0][0] = 1
+		self.assertEqual(result[0], test_event_1.id)
 	
 	def testFindNothing(self):
 		result = self.engine.find_eventids(
