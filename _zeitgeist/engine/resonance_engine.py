@@ -40,11 +40,6 @@ from zeitgeist import dbusutils
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
-
-class Mimetype(Category):
-	pass
-
-
 #		
 # Table defs are assigned in create_db()
 #
@@ -316,7 +311,7 @@ class _FastDictExt:
 		obj._get(row)
 		return obj
 
-class Event(_FastDictExt, dbusutils.Event):
+class EventList(_FastDictExt, dbusutils.EventList):
 	def _get(self, row):
 		self[self.Id] = row["id"]
 		self[self.Timestamp] = row["timestamp"]
@@ -330,7 +325,7 @@ class Event(_FastDictExt, dbusutils.Event):
 		self[self.Payload] = row["payload"]
 		self[self.Subjects] = []
 
-class Subject(_FastDictExt, dbusutils.Subject):
+class SubjectList(_FastDictExt, dbusutils.SubjectList):
 	def _get(self, row):
 		self[self.Uri] = row["subj_uri"]
 		self[self.Interpretation] = Content.get(
@@ -392,10 +387,11 @@ class ZeitgeistEngine:
 		for row in rows:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
-			event = Event.get_from_row(row)
-			if event[Event.Id] not in events:
-				events[event[Event.Id]] = event
-			events[event[Event.Id]].append_subject(Subject.get_from_row(row))
+			event = Event()
+			event.set_event_list(EventList.get_from_row(row))
+			if event[0][EventList.Id] not in events:
+				events[event[0][EventList.Id]] = event
+			events[event[0][EventList.Id]].append_subject(SubjectList.get_from_row(row))
 		
 		# Sort events into the requested order
 		sorted_events = []
@@ -412,28 +408,28 @@ class ZeitgeistEngine:
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
 		
-		if event[Event.Id] is not None:
+		if event[0][EventList.Id] is not None:
 			raise ValueError("Illegal event: Predefined event id")
 		
 		id = self.next_event_id()
-		timestamp = event[Event.Timestamp]
-		inter_id = _interpretation.lookup_or_create(event[Event.Interpretation]).id
-		manif_id = _manifestation.lookup_or_create(event[Event.Manifestation]).id
-		actor_id = _actor.lookup_or_create(event[Event.Actor]).id
+		timestamp = event[0][EventList.Timestamp]
+		inter_id = _interpretation.lookup_or_create(event[0][EventList.Interpretation]).id
+		manif_id = _manifestation.lookup_or_create(event[0][EventList.Manifestation]).id
+		actor_id = _actor.lookup_or_create(event[0][EventList.Actor]).id
 		
-		if event[Event.Payload]:
-			payload_id = _payload.add(event[Event.Payload])
+		if event[2]:
+			payload_id = _payload.add(event[2])
 		else:
 			payload_id = None		
 		
-		for subj in (event[Event.Subjects] or []):
-			suri_id = _uri.lookup_or_create(subj[Subject.Uri]).id
-			sinter_id = _interpretation.lookup_or_create(subj[Subject.Interpretation]).id
-			smanif_id = _manifestation.lookup_or_create(subj[Subject.Manifestation]).id
-			sorigin_id = _uri.lookup_or_create(subj[Subject.Origin]).id
-			smime_id = _mimetype.lookup_or_create(subj[Subject.Mimetype]).id
-			stext_id = _text.lookup_or_create(subj[Subject.Text]).id
-			sstorage_id = _storage.lookup_or_create(subj[Subject.Storage]).id # FIXME: Storage is not an EntityTable
+		for subj in event[1]:
+			suri_id = _uri.lookup_or_create(subj[SubjectList.Uri]).id
+			sinter_id = _interpretation.lookup_or_create(subj[SubjectList.Interpretation]).id
+			smanif_id = _manifestation.lookup_or_create(subj[SubjectList.Manifestation]).id
+			sorigin_id = _uri.lookup_or_create(subj[SubjectList.Origin]).id
+			smime_id = _mimetype.lookup_or_create(subj[SubjectList.Mimetype]).id
+			stext_id = _text.lookup_or_create(subj[SubjectList.Text]).id
+			sstorage_id = _storage.lookup_or_create(subj[SubjectList.Storage]).id # FIXME: Storage is not an EntityTable
 			
 			# We store the event here because we need one row per subject
 			#_event.set_cursor(EchoCursor())
@@ -475,30 +471,30 @@ class ZeitgeistEngine:
 		where_or = WhereClause("OR")
 		for (event_template, subject_template) in event_templates:
 			subwhere = WhereClause("AND")
-			if event_template[Event.Interpretation]:
+			if event_template[EventList.Interpretation]:
 				subwhere.add("interpretation = ?",
-					_interpretation.lookup(event_template[Event.Interpretation]).id)
-			if event_template[Event.Manifestation]:
+					_interpretation.lookup(event_template[EventList.Interpretation]).id)
+			if event_template[EventList.Manifestation]:
 				subwhere.add("manifestation = ?",
-					_manifestation.lookup(event_template[Event.Manifestation]).id)
-			if event_template[Event.Actor]:
+					_manifestation.lookup(event_template[EventList.Manifestation]).id)
+			if event_template[EventList.Actor]:
 				subwhere.add("actor = (SELECT id FROM actor WHERE value=?)",
-					int(event_template[Event.Actor]))
-			if subject_template[Subject.Interpretation]:
+					int(event_template[EventList.Actor]))
+			if subject_template[SubjectList.Interpretation]:
 				subwhere.add("subj_interpretation = ?",
-					_interpretation.lookup(subject_template[Subject.Interpretation]).id)
-			if subject_template[Subject.Manifestation]:
+					_interpretation.lookup(subject_template[SubjectList.Interpretation]).id)
+			if subject_template[SubjectList.Manifestation]:
 				subwhere.add("subj_manifestation = ?",
-					_manifestation.lookup(subject_template[Subject.Manifestation]).id)
-			if subject_template[Subject.Origin]:
+					_manifestation.lookup(subject_template[SubjectList.Manifestation]).id)
+			if subject_template[SubjectList.Origin]:
 				subwhere.add("subj_origin = (SELECT id FROM actor WHERE value=?)",
-					int(event_template[Subject.Origin]))
-			if subject_template[Subject.Mimetype]:
+					int(event_template[SubjectList.Origin]))
+			if subject_template[SubjectList.Mimetype]:
 				subwhere.add("subj_mimetype = ?",
-					_mimetype.lookup(subject_template[Subject.Mimetype]).id)
-			if subject_template[Subject.Text]:
+					_mimetype.lookup(subject_template[SubjectList.Mimetype]).id)
+			if subject_template[SubjectList.Text]:
 				subwhere.add("subj_text = (SELECT id FROM text WHERE value=?)",
-					int(event_template[Subject.Text]))
+					int(event_template[SubjectList.Text]))
 			where_or.add(subwhere.generate_condition(), subwhere.arguments)
 		where.add(where_or.generate_condition(), where_or.arguments)
 		
