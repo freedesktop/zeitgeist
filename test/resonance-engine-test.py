@@ -217,6 +217,19 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			45,
 			1,
 			0,)
+			
+	def testFindEventsEventTemplate(self):
+		import_events("test/data/five_events.js", self.engine)
+		subj = SubjectTemplate(interpretation="stfu:Bee")
+		subj1 = SubjectTemplate(interpretation="stfu:Bar")
+		event_template = EventTemplate(subjects=[subj, subj1])
+		result = self.engine.find_eventids(
+			(0, 200),
+			[event_template, ],
+			0,
+			100,
+			0,)
+		self.assertEquals(2, len(result))
 	
 	def testJsonImport(self):
 		import_events("test/data/single_event.js", self.engine)
