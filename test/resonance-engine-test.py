@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
 from zeitgeist.datamodel import *
-
+from _zeitgeist.json_importer import *
 
 import unittest
 import tempfile
@@ -174,6 +174,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			5,
 			0,)
 		self.assertEquals(5, len(result))
+	
+	def testJsonImport(self):
+		import_events("test/data/single_event.js", self.engine)
+		results = self.engine.get_events([1])
+		self.assertEquals(1, len(results))
 
 if __name__ == "__main__":
 	unittest.main()

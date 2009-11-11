@@ -99,6 +99,10 @@ class EventTest (unittest.TestCase):
 	
 	def testSimple(self):
 		ev = Event()
+		
+		ev.id = 1
+		self.assertEquals(1, ev.id)
+		
 		ev.timestamp = 10
 		self.assertEquals(10, ev.timestamp)
 

@@ -422,7 +422,7 @@ class ZeitgeistEngine:
 		actor_id = _actor.lookup_or_create(event.actor).id
 		
 		if event.payload:
-			payload_id = _payload.add(event.payload)
+			payload_id = _payload.add(value=event.payload)
 		else:
 			payload_id = None		
 		
