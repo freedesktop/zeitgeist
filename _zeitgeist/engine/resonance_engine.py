@@ -236,7 +236,7 @@ def create_db(file_path):
 	               manifestation=Integer(),
 	               actor=Integer(),	               
 	               payload=Integer(),
-	               subj_id=Integer(),
+	               subj_uri=Integer(),
 	               subj_interpretation=Integer(),
 	               subj_manifestation=Integer(),
 	               subj_origin=Integer(),
@@ -505,10 +505,10 @@ class ZeitgeistEngine:
 		
 		sql += (" ORDER BY timestamp ASC",
 			" ORDER BY timestamp DESC",
-			" GROUP BY subj_id ORDER BY timestamp ASC",
-			" GROUP BY subj_id ORDER BY timestamp DESC",
-			" GROUP BY subj_id ORDER BY COUNT(id), timestamp ASC",
-			" GROUP BY subj_id ORDER BY COUNT(id), timestamp DESC")[order]			
+			" GROUP BY subj_uri ORDER BY timestamp ASC",
+			" GROUP BY subj_uri ORDER BY timestamp DESC",
+			" GROUP BY subj_uri ORDER BY COUNT(id), timestamp ASC",
+			" GROUP BY subj_uri ORDER BY COUNT(id), timestamp DESC")[order]			
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
