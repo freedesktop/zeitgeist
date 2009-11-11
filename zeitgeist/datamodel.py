@@ -502,6 +502,7 @@ class Event(list):
 		if len(event_data) != len(Event.Fields) :
 			raise ValueError("event_data must have %s members, found %s" % (len(Event.Fields, len(event_Data))))
 		self[0] = event_data
+		return self
 	
 	@staticmethod
 	def new_for_values (**values):
