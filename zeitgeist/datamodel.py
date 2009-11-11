@@ -386,10 +386,8 @@ class Subject(list):
 		Storage) = range(7)
 	
 	def __init__(self, **values):
-		super(Subject, self).__init__()
-		self.extend(([None]* len(Subject.Fields), [], None))
+		super(Subject, self).__init__([None]*len(Subject.Fields))
 		for key, value in values.iteritems():
-			print key
 			setattr(self, key, value)
 		
 	def __repr__(self):
@@ -443,7 +441,7 @@ class Subject(list):
 		return self[Subject.Storage]
 		
 	def set_storage(self, value):
-		self[Subject.storage] = value
+		self[Subject.Storage] = value
 	storage = property(get_storage, set_storage)
 	
 	
@@ -458,7 +456,6 @@ class Event(list):
 		super(Event, self).__init__()
 		self.extend(([None]* len(Event.Fields), [], None))
 		for key, value in values.iteritems():
-			print key
 			setattr(self, key, value)
 		
 	def __repr__(self):
@@ -473,9 +470,13 @@ class Event(list):
 		"""
 		if not subject:
 			subject = Subject()
-		self.subject.append(subject)
+		self.subjects.append(subject)
 		return subject
-		
+	
+	@property
+	def subjects(self):
+		return self[1]	
+	
 	@property
 	def id(self):
 		return self[0][Event.Id]

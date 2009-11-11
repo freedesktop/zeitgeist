@@ -388,11 +388,10 @@ class ZeitgeistEngine:
 		for row in rows:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
-			event = Event()
-			event.set_event_list(EventList.get_from_row(row))
-			if event[0][EventList.Id] not in events:
-				events[event[0][EventList.Id]] = event
-			events[event[0][EventList.Id]].append_subject(SubjectList.get_from_row(row))
+			event = Event.from_dbrow(row)
+			if event.id not in events:
+				events[event.id] = event
+			events[event.id].append_subject(Subject.from_dbrow(row))
 		
 		# Sort events into the requested order
 		sorted_events = []
@@ -409,28 +408,28 @@ class ZeitgeistEngine:
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
 		
-		if event[0][EventList.Id]:
+		if event.id:
 			raise ValueError("Illegal event: Predefined event id")
 		
 		id = self.next_event_id()
-		timestamp = event[0][EventList.Timestamp]
-		inter_id = _interpretation.lookup_or_create(event[0][EventList.Interpretation]).id
-		manif_id = _manifestation.lookup_or_create(event[0][EventList.Manifestation]).id
-		actor_id = _actor.lookup_or_create(event[0][EventList.Actor]).id
+		timestamp = event.timestamp
+		inter_id = _interpretation.lookup_or_create(event.interpretation).id
+		manif_id = _manifestation.lookup_or_create(event.manifestation).id
+		actor_id = _actor.lookup_or_create(event.actor).id
 		
-		if event[2]:
-			payload_id = _payload.add(event[2])
+		if event.payload:
+			payload_id = _payload.add(event.payload)
 		else:
 			payload_id = None		
 		
-		for subj in event[1]:
-			suri_id = _uri.lookup_or_create(subj[SubjectList.Uri]).id
-			sinter_id = _interpretation.lookup_or_create(subj[SubjectList.Interpretation]).id
-			smanif_id = _manifestation.lookup_or_create(subj[SubjectList.Manifestation]).id
-			sorigin_id = _uri.lookup_or_create(subj[SubjectList.Origin]).id
-			smime_id = _mimetype.lookup_or_create(subj[SubjectList.Mimetype]).id
-			stext_id = _text.lookup_or_create(subj[SubjectList.Text]).id
-			sstorage_id = _storage.lookup_or_create(subj[SubjectList.Storage]).id # FIXME: Storage is not an EntityTable
+		for subj in event.subjects:
+			suri_id = _uri.lookup_or_create(subj.uri).id
+			sinter_id = _interpretation.lookup_or_create(subj.interpretation).id
+			smanif_id = _manifestation.lookup_or_create(subj.manifestation).id
+			sorigin_id = _uri.lookup_or_create(subj.origin).id
+			smime_id = _mimetype.lookup_or_create(subj.mimetype).id
+			stext_id = _text.lookup_or_create(subj.text).id
+			sstorage_id = _storage.lookup_or_create(subj.storage).id # FIXME: Storage is not an EntityTable
 			
 			# We store the event here because we need one row per subject
 			#_event.set_cursor(EchoCursor())
@@ -472,30 +471,30 @@ class ZeitgeistEngine:
 		where_or = WhereClause("OR")
 		for (event_template, subject_template) in event_templates:
 			subwhere = WhereClause("AND")
-			if event_template[EventList.Interpretation]:
+			if event_template.interpretation:
 				subwhere.add("interpretation = ?",
-					_interpretation.lookup(event_template[EventList.Interpretation]).id)
-			if event_template[EventList.Manifestation]:
+					_interpretation.lookup(event_template.interpretation).id)
+			if event_template.manifestation:
 				subwhere.add("manifestation = ?",
-					_manifestation.lookup(event_template[EventList.Manifestation]).id)
-			if event_template[EventList.Actor]:
+					_manifestation.lookup(event_template.manifestation).id)
+			if event_template.actor:
 				subwhere.add("actor = (SELECT id FROM actor WHERE value=?)",
-					int(event_template[EventList.Actor]))
-			if subject_template[SubjectList.Interpretation]:
+					int(event_template.actor))
+			if subject_template.interpretation:
 				subwhere.add("subj_interpretation = ?",
-					_interpretation.lookup(subject_template[SubjectList.Interpretation]).id)
-			if subject_template[SubjectList.Manifestation]:
+					_interpretation.lookup(subject_template.interpretation).id)
+			if subject_template.manifestation:
 				subwhere.add("subj_manifestation = ?",
-					_manifestation.lookup(subject_template[SubjectList.Manifestation]).id)
-			if subject_template[SubjectList.Origin]:
+					_manifestation.lookup(subject_template.manifestation).id)
+			if subject_template.origin:
 				subwhere.add("subj_origin = (SELECT id FROM actor WHERE value=?)",
-					int(event_template[SubjectList.Origin]))
-			if subject_template[SubjectList.Mimetype]:
+					int(event_template.origin))
+			if subject_template.mimetype:
 				subwhere.add("subj_mimetype = ?",
-					_mimetype.lookup(subject_template[SubjectList.Mimetype]).id)
-			if subject_template[SubjectList.Text]:
+					_mimetype.lookup(subject_template.mimetype).id)
+			if subject_template.text:
 				subwhere.add("subj_text = (SELECT id FROM text WHERE value=?)",
-					int(event_template[SubjectList.Text]))
+					int(event_template.text))
 			where_or.add(subwhere.generate_condition(), subwhere.arguments)
 		where.add(where_or.generate_condition(), where_or.arguments)
 		

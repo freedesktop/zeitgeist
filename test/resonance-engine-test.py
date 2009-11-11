@@ -8,7 +8,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
 from zeitgeist.datamodel import *
-from _zeitgeist.engine.resonance_engine import Event, Subject
 
 
 import unittest
@@ -18,18 +17,18 @@ import shutil
 test_event_1 = None
 def create_test_event_1():
 	ev = Event()
-	ev[Event.Timestamp] = 0
-	ev[Event.Interpretation] = Source.USER_ACTIVITY
-	ev[Event.Manifestation] = Content.CREATE_EVENT
-	ev[Event.Actor] = "/usr/share/applications/gnome-about.desktop"
+	ev.timestamp = 0
+	ev.interpretation = Source.USER_ACTIVITY
+	ev.manifestation = Content.CREATE_EVENT
+	ev.actor = "/usr/share/applications/gnome-about.desktop"
 	subj = Subject()
-	subj[Subject.Uri] = u"test://mytest"
-	subj[Subject.Manifestation] = "lala"
-	subj[Subject.Interpretation] = "tinky winky"
-	subj[Subject.Origin]  = "test://"
-	subj[Subject.Mimetype] = "YOMAMA"
-	subj[Subject.Text] = "SUCKS"
-	subj[Subject.Storage] = "MyStorage"
+	subj.uri = u"test://mytest"
+	subj.manifestation = "lala"
+	subj.interpretation = "tinky winky"
+	subj.origin = "test://"
+	subj.mimetype = "YOMAMA"
+	subj.text = "SUCKS"
+	subj.storage = "MyStorage"
 
 	ev.append_subject(subj)
 	return ev
@@ -92,12 +91,12 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(len(resulting_event), len(test_event_1))
 		
 		# fixing id, the initial event does not have any id set
-		test_event_1[Event.Id] = 1
+		test_event_1.id = 1
 		
 		self.assertEventsEqual(resulting_event, test_event_1)		
 		
 		# Reset the id because other test cases rely on this one
-		test_event_1[Event.Id] = None
+		test_event_1.id = None
 	
 	def testDuplicateEventInsertion(self):
 		self.testSingleInsertGet()
@@ -111,20 +110,20 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testIllegalPredefinedEventId(self):
 		event = Event()
-		event[Event.Id] = 23 # This is illegal, we assert the erro later
-		event[Event.Timestamp] = 0
-		event[Event.Interpretation] = Source.USER_ACTIVITY
-		event[Event.Manifestation] = Content.CREATE_EVENT
-		event[Event.Actor] = "/usr/share/applications/gnome-about.desktop"
+		event.id = 23 # This is illegal, we assert the erro later
+		event.timestamp = 0
+		event.interpretation = Source.USER_ACTIVITY
+		event.manifestation = Content.CREATE_EVENT
+		event.actor = "/usr/share/applications/gnome-about.desktop"
 		
 		subject = Subject()
-		subject[Subject.Uri] = "file:///tmp/file.txt"
-		subject[Subject.Manifestation] = Source.FILE
-		subject[Subject.Interpretation] = Content.DOCUMENT
-		subject[Subject.Origin]  = "test://"
-		subject[Subject.Mimetype] = "text/plain"
-		subject[Subject.Text] = "This subject has no text"
-		subject[Subject.Storage] = "368c991f-8b59-4018-8130-3ce0ec944157" # UUID of home partition
+		subject.uri = "file:///tmp/file.txt"
+		subject.manifestation = Source.FILE
+		subject.interpretation = Content.DOCUMENT
+		subject.origin = "test://"
+		subject.mimetype = "text/plain"
+		subject.text = "This subject has no text"
+		subject.storage = "368c991f-8b59-4018-8130-3ce0ec944157" # UUID of home partition
 		
 		event.append_subject(subject)
 		
@@ -146,8 +145,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			5,
 			0,)
 		self.assertEquals(1, len(result))
-		test_event_1[Event.Id] = 1
-		self.assertEqual(result[0][Event.Id], test_event_1[Event.Id])
+		test_event_1.id = 1
+		self.assertEqual(result[0].id, test_event_1.id)
 	
 	def testFindNothing(self):
 		result = self.engine.find_eventids(
