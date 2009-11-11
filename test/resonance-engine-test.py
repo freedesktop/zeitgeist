@@ -172,6 +172,51 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			0,)
 		self.assertEquals(5, len(result))
 	
+	def testSortFindByTimeAsc(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		result = self.engine.find_eventids(
+			(1, 10000000),
+			[],
+			0,
+			2,
+			0,)
+		event1 = self.engine.get_events([result[0]])[0]
+		event2 = self.engine.get_events([result[1]])[0]
+		self.assertEquals(True, event1.timestamp < event2.timestamp)
+		
+	def testSortFindByTimeDesc(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		result = self.engine.find_eventids(
+			(1, 10000000),
+			[],
+			0,
+			2,
+			1,)
+		event1 = self.engine.get_events([result[0]])[0]
+		event2 = self.engine.get_events([result[1]])[0]
+		self.assertEquals(True, event1.timestamp > event2.timestamp)
+		
+	def testFindState(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		result = self.engine.find_eventids(
+			(1, 10000000),
+			[],
+			0,
+			1,
+			0,)
+		self.assertEquals(1, len(result))
+
+	def testDontFindState(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		result = self.engine.find_eventids(
+			(1, 10000000),
+			[],
+			45,
+			1,
+			0,)
+		self.assertEquals(0, len(result))
+
+	
 	def testJsonImport(self):
 		import_events("test/data/single_event.js", self.engine)
 		results = self.engine.get_events([1])
