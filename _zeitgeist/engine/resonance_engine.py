@@ -320,7 +320,7 @@ class Event(_Event):
 			_manifestation.lookup_by_id(row["manifestation"]).value
 		)
 		obj.actor = row["actor"]
-		obj.payload = row["payload"]
+		obj.payload = row["payload"] or ""
 		return obj
 
 class Subject(_Subject):

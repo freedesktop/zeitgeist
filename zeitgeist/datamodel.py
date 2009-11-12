@@ -479,11 +479,11 @@ class Event(list):
 			if len(struct) == 1:
 				self.append(struct[0])
 				self.append([])
-				self.append(None)
+				self.append("")
 			elif len(struct) == 2:
 				self.append(struct[0])
 				self.append(struct[1])
-				self.append(None)
+				self.append("")
 			elif len(struct) == 3:
 				self.append(struct[0])
 				self.append(struct[1])
