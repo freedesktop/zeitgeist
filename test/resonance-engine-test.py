@@ -96,6 +96,31 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		# Reset the id because other test cases rely on this one
 		test_event_1[0][0] = None
 	
+	def testInsertGetWithoutTimestamp(self):
+		# We test two things, that Event creates a default timestamp
+		# and that the engine provides one for us if don't do our selves
+		
+		subj = Subject.new_for_values(interpretation="foo://interp",
+					manifestation="foo://manif",
+					uri="nowhere")
+		ev = Event.new_for_values(interpretation="foo://bar",
+					manifestation="foo://quiz",
+					actor="actor://myself",
+					subjects=[subj])
+		
+		# Assert that timestamp is set
+		self.assertTrue(ev.timestamp)
+		
+		# Clear the timestamp and insert event
+		ev.timestamp = ""
+		ids = self.engine.insert_events([ev])
+		result = self.engine.get_events(ids)
+		
+		self.assertEquals(1, len(result))
+		resulting_event = Event(result.pop())
+		self.assertEquals("foo://bar", resulting_event.interpretation)
+		self.assertTrue(ev.timestamp) # We should have a timestamp again
+	
 	def testDuplicateEventInsertion(self):
 		self.testSingleInsertGet()
 		self.assertRaises(KeyError, self.testSingleInsertGet)
