@@ -235,7 +235,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 				break
 		if matching_filter:
 			return getattr(Interpretation, matching_filter.upper()).uri
-		return u""
+		return Interpretation.UNKNOWN.uri
 	
 	def _get_items(self):
 		timestamp_last_run = time.time()
@@ -264,16 +264,18 @@ class RecentlyUsedManagerGtk(DataProvider):
 				
 				is_new = False
 				for timestamp, use in times:
+					print use
 					if timestamp <= self._timestamp_last_run:
 						continue
 					is_new = True
 					events.append(Event.new_for_values(
 						timestamp = timestamp,
-						interpretation = use,
+						interpretation = "Foobar",#·use,
 						manifestation = Manifestation.USER_ACTIVITY.uri,
 						actor = desktopfile or u"",
 						subjects = [subject]
 						))
+					print "FFFFFFFFFF\n".join(map(str,events))
 			if num % 50 == 0:
 				self._process_gobject_events()
 			break
