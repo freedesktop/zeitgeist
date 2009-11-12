@@ -197,8 +197,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event1 = self.engine.get_events([result[0]])[0]
 		event2 = self.engine.get_events([result[1]])[0]
 		self.assertEquals(True, event1.timestamp > event2.timestamp)
-		
-	def testFindEventsIdActorRestriction(self):
+	
+	def testFindWithActor(self):
 		global test_event_1
 		self.testSingleInsertGet()
 		subj = SubjectTemplate()
@@ -212,6 +212,16 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(1, len(result))
 		test_event_1[0][0] = 1
 		self.assertEqual(result[0], test_event_1.id)
+
+	def testFindWithInterpretation(self):
+		import_events("test/data/five_events.js", self.engine)
+		subj = SubjectTemplate()
+		event_template = EventTemplate(interpretation="stfu:OpenEvent", subjects=[subj])
+		result = self.engine.find_eventids((0, 0), [event_template, ], 0, 0, 1)
+		self.assertEquals(2, len(result))
+		events = self.engine.get_events(result)
+		for event in events:
+			self.assertEqual(event.interpretation, "stfu:OpenEvent")
 
 	def testDontFindState(self):
 		# searchin by storage state is currently not implemented

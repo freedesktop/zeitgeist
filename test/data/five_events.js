@@ -17,7 +17,7 @@
 		]
 	},{
 		"timestamp" : 133,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "stfu:FoobarEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "gedit",
 		"subjects" : [
@@ -33,7 +33,7 @@
 		]
 	},{
 		"timestamp" : 143,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "stfu:ShalalalalaEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "geany",
 		"subjects" : [
@@ -49,7 +49,7 @@
 		]
 	},{
 		"timestamp" : 153,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "stfu:FailEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "firefox",
 		"subjects" : [
