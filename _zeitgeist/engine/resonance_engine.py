@@ -650,11 +650,11 @@ class FocusDurationRegister():
 			_cursor.execute("""
 						UPDATE focus_duration 
 						SET focus_out = ?
-						WHERE ROWID = ?""", (now, self.lastrowid))
+						WHERE ROWID = ?""", (str(now), str(self.lastrowid)))
 		if not document == "":
 			_cursor.execute("""
 						INSERT INTO focus_duration 
-						VALUES (?,?,?,?) """, (app_id, doc_id, now, now))
+						VALUES (?,?,?,?) """, (str(app_id), str(doc_id), str(now), str(now)))
 			self.lastrowid = _cursor.lastrowid
 		_cursor.connection.commit()
 	

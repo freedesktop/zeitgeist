@@ -306,7 +306,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					manifestation=Source.USER_ACTIVITY.uri,
 					actor="Freak Mamma")
 		self.assertRaises(ValueError, self.engine.insert_events, [ev])
-		
+
+	def testInsertFocusEvent(self):
+		self.engine.insert_focus("boo","boo")
+		#self.assertRaises(ValueError, self.engine.insert_events, [ev])
 
 if __name__ == "__main__":
 	unittest.main()
