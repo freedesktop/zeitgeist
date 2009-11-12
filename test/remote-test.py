@@ -53,7 +53,17 @@ class RemoteTest:
 		events = iface.GetEvents(ids)
 		self.assertEquals(1, len(ids))
 		self.assertEquals(1, len(events))
-	
+		
+		ev = Event(events[0])
+		self.assertEquals("123", ev.timestamp)
+		self.assertEquals(Interpretation.VISIT_EVENT.uri, ev.interpretation)
+		self.assertEquals(Manifestation.USER_ACTIVITY.uri, ev.manifestation)
+		self.assertEquals("Freak Mamma", ev.actor)
+		self.assertEquals(1, len(ev.subjects))
+		self.assertEquals("void://foobar", ev.subjects[0].uri)
+		self.assertEquals(Interpretation.DOCUMENT.uri, ev.subjects[0].interpretation)
+		self.assertEquals(Manifestation.FILE.uri, ev.subjects[0].manifestation)
+		
 	def testFindTwoOfThreeEvents(self):
 		ev1 = Event.new_for_values(timestamp=400,
 					interpretation=Interpretation.VISIT_EVENT.uri,

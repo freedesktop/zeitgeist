@@ -481,11 +481,11 @@ class Event(list):
 				self.append("")
 			elif len(struct) == 2:
 				self.append(struct[0])
-				self.append(struct[1])
+				self.append(map(Subject, struct[1]))
 				self.append("")
 			elif len(struct) == 3:
 				self.append(struct[0])
-				self.append(struct[1])
+				self.append(map(Subject, struct[1]))
 				self.append(struct[2])
 			else:
 				raise ValueError("Invalid struct length %s" % len(struct))
