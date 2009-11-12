@@ -603,6 +603,9 @@ class ZeitgeistEngine:
 	def get_longest_used_documents(self, number, start, end):
 		return self.focus_duration.get_longest_used_documents(number, start, end)
 
+	def insert_focus(self, application_uri, document_uri):
+		self.focus_duration.focus_change(application_uri, document_uri)
+
 class WhereClause:
 	
 	def __init__(self, relation):

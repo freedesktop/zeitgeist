@@ -190,6 +190,11 @@ class RemoteInterface(SingletonApplication):
 		return _zeitgeist.engine.get_longest_used_applications(number, start_date, end_date)
 	# Commands
 	
+	@dbus.service.method(DBUS_INTERFACE, in_signature="ss", out_signature="")
+	def NotifyFocusEvent(self, application_uri, document_uri):
+		return _zeitgeist.engine.insert_focus(application_uri, document_uri)
+	
+	
 	@dbus.service.method(DBUS_INTERFACE)
 	def Quit(self):
 		"""Terminate the running RemoteInterface process; use with caution,
