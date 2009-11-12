@@ -586,8 +586,17 @@ class ZeitgeistEngine:
 			""", (actor,)).fetchone()
 		return query["timestamp"] if query else 0
 
-	def get_focus_duration(self, document_id, start, end):
-		return self.focus_duration.get_focus_duration(document_id, start, end)
+	def get_document_focus_duration(self, document_uri, start, end):
+		return self.focus_duration.get_document_focus_duration(document_uri, start, end)
+
+	def get_application_focus_duration(self, application_uri, start, end):
+		return self.focus_duration.get_application_focus_duration(application_uri, start, end)
+
+	def get_longest_used_applications(self, number, start, end):
+		return self.focus_duration.get_longest_used_documents(number, start, end)
+
+	def get_longest_used_documents(self, number, start, end):
+		return self.focus_duration.get_longest_used_documents(number, start, end)
 
 class WhereClause:
 	
