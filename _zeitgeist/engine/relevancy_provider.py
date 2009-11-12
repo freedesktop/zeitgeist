@@ -88,42 +88,64 @@ class FocusVertexRegister(object):
                 result[x] = 0
             result[x] +=1
         
-        return result
+        results = [(v, k) for (k, v) in result.iteritems()]
+        results.sort()
+        results.reverse()
+        results = [k[1] for k in results]
+            
+        return results[:limit]
+    
     
     def get_focused_to_items(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
-        rel = self.cursor.execute("""
-                SELECT value, COUNT(value) AS focusto FROM uri WHERE id IN (
-                    SELECT to_doc_id FROM focus_switch
-                        WHERE from_doc_id = (SELECT id FROM uri WHERE value=?) 
-                        AND timestamp >= ? 
-                        AND timestamp <=? 
-                        AND from_doc_id != -1)
-                    GROUP BY value
-                    ORDER BY focusto DESC LIMIT ?
-                """, (uri, min_timestamp, max_timestamp, limit)).fetchall()
-                
-        result = {}
-        for x in rel:
-            result[x[0]] = x[1]
-        return result
+       rel = self.cursor.execute("""
+            SELECT (SELECT value FROM uri WHERE id=from_doc_id) FROM focus_switch
+                WHERE to_doc_id = (SELECT id FROM uri WHERE value=?) 
+                AND timestamp >= ? 
+                AND timestamp <=? 
+                AND from_doc_id != -1
+            """, (uri, min_timestamp, max_timestamp)
+            ).fetchall()
+        
+       result = {}
+       for (x,) in rel:
+            #print x
+            if not result.has_key(x):
+                result[x] = 0
+            result[x] +=1
+        
+       results = [(v, k) for (k, v) in result.iteritems()]
+       results.sort()
+       results.reverse()
+       results = [k[1] for k in results]
+           
+       return results[:limit]
+    
     
     def get_focused_from_items(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
         rel = self.cursor.execute("""
-                SELECT value, COUNT(value) AS focusfrom FROM uri WHERE id IN (
-                    SELECT from_doc_id FROM focus_switch
-                        WHERE to_doc_id = (SELECT id FROM uri WHERE value=?) 
-                        AND timestamp >= ? 
-                        AND timestamp <=? 
-                        AND to_doc_id != -1)
-                    GROUP BY value
-                    ORDER BY focusfrom DESC LIMIT ?
-                """, (uri, min_timestamp, max_timestamp, limit)).fetchall()
-                
-        result = {}
-        for x in rel:
-            result[x[0]] = x[1]
-        return result
+            SELECT (SELECT value FROM uri WHERE id=to_doc_id) FROM focus_switch
+                WHERE from_doc_id = (SELECT id FROM uri WHERE value=?) 
+                AND timestamp >= ? 
+                AND timestamp <=? 
+                AND to_doc_id != -1
+            """, (uri, min_timestamp, max_timestamp)
+            ).fetchall()
+            
         
+        result = {}
+        for (x,) in rel:
+            #print x
+            if not result.has_key(x):
+                result[x] = 0
+            result[x] +=1
+        
+        results = [(v, k) for (k, v) in result.iteritems()]
+        results.sort()
+        results.reverse()
+        results = [k[1] for k in results]
+           
+        return results[:limit]
+    
     
     def clear_table(self): 
         self.cursor.execute("""
@@ -154,11 +176,8 @@ if __name__=="__main__":
     fvr.insert_focus(time.time(), app, doc1)
     fvr.insert_focus(time.time(), app, doc2)
     
-    result = fvr.get_relevant_items_to_item(doc2)
-    print result
+   # result = fvr.get_relevant_items_to_item(doc2)
     result = fvr.get_focused_to_items(doc2)
-    print ""
-    print result
     result = fvr.get_focused_from_items(doc2)
     print result
     

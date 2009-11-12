@@ -10,7 +10,7 @@ import dbus
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from zeitgeist.dbusutils import DBusInterface
-from zeitgeist.datamodel import Event, Subject, Content, Source, EventTemplate, SubjectTemplate
+from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation
 
 import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
@@ -42,12 +42,12 @@ class RemoteTest:
 	
 	def testInsertAndGetEvent(self):
 		ev = Event.new_for_values(timestamp=123,
-					interpretation=Content.VISIT_EVENT.uri,
-					manifestation=Source.USER_ACTIVITY.uri,
+					interpretation=Interpretation.VISIT_EVENT.uri,
+					manifestation=Manifestation.USER_ACTIVITY.uri,
 					actor="Freak Mamma")
 		subj = Subject.new_for_values(uri="void://foobar",
-					interpretation=Content.DOCUMENT.uri,
-					manifestation=Source.FILE.uri)
+					interpretation=Interpretation.DOCUMENT.uri,
+					manifestation=Manifestation.FILE.uri)
 		ev.append_subject(subj)
 		ids = iface.InsertEvents([ev])
 		events = iface.GetEvents(ids)
@@ -56,26 +56,26 @@ class RemoteTest:
 	
 	def testFindTwoOfThreeEvents(self):
 		ev1 = Event.new_for_values(timestamp=400,
-					interpretation=Content.VISIT_EVENT.uri,
-					manifestation=Source.USER_ACTIVITY.uri,
+					interpretation=Interpretation.VISIT_EVENT.uri,
+					manifestation=Manifestation.USER_ACTIVITY.uri,
 					actor="Boogaloo")	
 		ev2 = Event.new_for_values(timestamp=500,
-					interpretation=Content.VISIT_EVENT.uri,
-					manifestation=Source.USER_ACTIVITY.uri,
+					interpretation=Interpretation.VISIT_EVENT.uri,
+					manifestation=Manifestation.USER_ACTIVITY.uri,
 					actor="Boogaloo")
 		ev3 = Event.new_for_values(timestamp=600,
-					interpretation=Content.SEND_EVENT.uri,
-					manifestation=Source.USER_ACTIVITY.uri,
+					interpretation=Interpretation.SEND_EVENT.uri,
+					manifestation=Manifestation.USER_ACTIVITY.uri,
 					actor="Boogaloo")
 		subj1 = Subject.new_for_values(uri="foo://bar",
-					interpretation=Content.DOCUMENT.uri,
-					manifestation=Source.FILE.uri)
+					interpretation=Interpretation.DOCUMENT.uri,
+					manifestation=Manifestation.FILE.uri)
 		subj2 = Subject.new_for_values(uri="foo://baz",
-					interpretation=Content.IMAGE.uri,
-					manifestation=Source.FILE.uri)
+					interpretation=Interpretation.IMAGE.uri,
+					manifestation=Manifestation.FILE.uri)
 		subj3 = Subject.new_for_values(uri="foo://quiz",
-					interpretation=Content.MUSIC.uri,
-					manifestation=Source.FILE.uri)
+					interpretation=Interpretation.MUSIC.uri,
+					manifestation=Manifestation.FILE.uri)
 		ev1.append_subject(subj1)
 		ev2.append_subject(subj1)
 		ev2.append_subject(subj2)
@@ -88,7 +88,7 @@ class RemoteTest:
 		self.assertEquals(3, len(events))
 		events = map(Event, events)
 		for event in events:
-			self.assertEquals(Source.USER_ACTIVITY.uri, event.manifestation)
+			self.assertEquals(Manifestation.USER_ACTIVITY.uri, event.manifestation)
 			self.assertEquals("Boogaloo", event.actor)
 		
 		# Search for everything
@@ -101,7 +101,7 @@ class RemoteTest:
 		subj_templ2 = Subject.new_for_values(uri="foo://baz")
 		event_template = Event.new_for_values(
 					actor="Boogaloo",
-					interpretation=Content.VISIT_EVENT.uri,
+					interpretation=Interpretation.VISIT_EVENT.uri,
 					subjects=[subj_templ1,subj_templ2])
 		ids = iface.FindEventIds((0,10000),
 					[event_template],

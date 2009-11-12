@@ -14,12 +14,12 @@ iface = DBusInterface()
 # Create an event
 #
 ev = Event.new_for_values(timestamp=123,
-			interpretation=Content.VISIT_EVENT.uri,
-			manifestation=Source.USER_ACTIVITY.uri,
+			interpretation=Interpretation.VISIT_EVENT.uri,
+			manifestation=Manifestation.USER_ACTIVITY.uri,
 			actor="Freak Mamma")
 subj = Subject.new_for_values(uri="void://foobar",
-			interpretation=Content.DOCUMENT.uri,
-			manifestation=Source.FILE.uri)#,
+			interpretation=Interpretation.DOCUMENT.uri,
+			manifestation=Manifestation.FILE.uri)#,
 			#origin="adsf",
 			#mimetype="text/plain",
 			#storage="bleh")

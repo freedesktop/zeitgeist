@@ -30,12 +30,12 @@ log = logging.getLogger("test.benchmarks")
 # range (0, randonmess)!
 #
 
-CONTENTS = [Content.DOCUMENT, Content.TAG, Content.BOOKMARK, Content.MUSIC,
-			Content.EMAIL, Content.IMAGE]
-SOURCES = [Source.FILE, Source.WEB_HISTORY, Source.SYSTEM_RESOURCE,
-			Source.USER_ACTIVITY]
+CONTENTS = [Interpretation.DOCUMENT, Interpretation.TAG, Interpretation.BOOKMARK, Interpretation.MUSIC,
+			Interpretation.EMAIL, Interpretation.IMAGE]
+SOURCES = [Manifestation.FILE, Manifestation.WEB_HISTORY, Manifestation.SYSTEM_RESOURCE,
+			Manifestation.USER_ACTIVITY]
 
-USES = [Source.USER_ACTIVITY, Source.USER_NOTIFICATION]
+USES = [Manifestation.USER_ACTIVITY, Manifestation.USER_NOTIFICATION]
 
 APPS = ["foo.desktop", "bar.desktop", "bleh.desktop"]
 
@@ -182,9 +182,9 @@ class FindEvents (EngineBenchmark):
 	def testFindDocuments(self):
 		log.info("*** TEST: Find Documents In Chunks Of 20")
 		items = self.prepare_items(1000, 5)
-		doc_items = filter(lambda i : i["content"] == Content.DOCUMENT.uri, items)
+		doc_items = filter(lambda i : i["content"] == Interpretation.DOCUMENT.uri, items)
 		self.do_find(doc_items, 20,
-					filters=[{"content" : [Content.DOCUMENT.uri]}])
+					filters=[{"content" : [Interpretation.DOCUMENT.uri]}])
 
 if __name__ == '__main__':
 	unittest.main()

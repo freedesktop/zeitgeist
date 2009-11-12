@@ -50,7 +50,6 @@ class DictCache(type):
 	def _CACHE(cls):
 		return cls.__CACHE
 
-
 class Symbol(DictCache):
 	
 	def __init__(cls, name, bases, d):
@@ -194,7 +193,7 @@ class Category(object):
 		return getattr(self._database_obj, name)
 
 
-class Content(Category):
+class Interpretation(Category):
 	pass
 	
 
@@ -202,133 +201,133 @@ class Mimetype(Category):
 	pass
 
 	
-class Source(Category):
+class Manifestation(Category):
 	pass
 
 #
-# Content categories
+# Interpretation categories
 #
-Content.register(
+Interpretation.register(
 	"TAG",
         u"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag",
 	display_name=_("Tags"),
 	doc="User provided tags. The same tag may refer multiple items"
 )
-Content.register(
+Interpretation.register(
 	"BOOKMARK",
 	u"http://www.semanticdesktop.org/ontologies/nfo/#Bookmark",
 	display_name=_("Bookmarks"),
 	doc="A user defined bookmark. The same bookmark may only refer exectly one item"
 )
-Content.register(
+Interpretation.register(
 	"COMMENT",
 	u"http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#comment",
 	display_name=_("Comments"),
 	doc="User provided comment"
 )
-Content.register(
+Interpretation.register(
 	"DOCUMENT",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Document",
 	display_name=_("Documents"),
 	doc="A document, presentation, spreadsheet, or other content centric item"
 )
-Content.register(
+Interpretation.register(
 	"SOURCECODE",
-	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#SourceCode",
-	display_name=_("Source Code"),
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#ManifestationCode",
+	display_name=_("Manifestation Code"),
 	doc="Code in a compilable or interpreted programming language."
 )
-Content.register(
+Interpretation.register(
 	"IMAGE",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Image",
 	display_name=_("Images"),
 	doc="A photography, painting, or other digital image"
 )
-Content.register(
+Interpretation.register(
 	"VIDEO",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Video",
 	display_name=_("Videos"),
 	doc="Any form of digital video, streaming and non-streaming alike"
 )
-Content.register(
+Interpretation.register(
 	"MUSIC",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Audio",
 	display_name=_("Music"),
 	doc="Digital music or other creative audio work"
 )
-Content.register(
+Interpretation.register(
 	"EMAIL",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#Email",
 	display_name=_("Email"),
 	doc="An email is an email is an email"
 )
-Content.register(
+Interpretation.register(
 	"IM_MESSAGE",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#IMMessage",
 	display_name=_("Messages"),
 	doc="A message received from an instant messaging service"
 )
-Content.register(
+Interpretation.register(
 	"RSS_MESSAGE",
         u"http://www.tracker-project.org/temp/mfo#FeedMessage",
 	display_name=_("Feeds"),
 	doc="Any syndicated item, RSS, Atom, or other"
 )
-Content.register(
+Interpretation.register(
 	"BROADCAST_MESSAGE",
 	u"http://zeitgeist-project.com/schema/1.0/core#BroadcastMessage",
 	display_name=_("Broadcasts"), # FIXME: better display name
 	doc="Small broadcasted message, like Twitter/Identica micro blogging (TBD in tracker)"
 )
-Content.register(
+Interpretation.register(
 	"CREATE_EVENT",
 	u"http://zeitgeist-project.com/schema/1.0/core#CreateEvent",
 	display_name=_("Created"),
 	doc="Event type triggered when an item is created"
 )
-Content.register(
+Interpretation.register(
 	"MODIFY_EVENT",
 	u"http://zeitgeist-project.com/schema/1.0/core#ModifyEvent",
 	display_name=_("Modified"),
 	doc="Event type triggered when an item is modified"
 )
-Content.register(
+Interpretation.register(
 	"VISIT_EVENT",
 	u"http://zeitgeist-project.com/schema/1.0/core#VisitEvent",
 	display_name=_("Visited"),
 	doc="Event type triggered when an item is visited or opened"
 )
-Content.register(
+Interpretation.register(
 	"SEND_EVENT",
 	u"http://zeitgeist-project.com/schema/1.0/core#SendEvent",
 	display_name=_("Send"),
 	doc="Event type triggered when the user sends/emails an item or message to a remote host"
 )
-Content.register(
+Interpretation.register(
 	"RECEIVE_EVENT",
 	u"http://zeitgeist-project.com/schema/1.0/core#ReceiveEvent",
 	display_name=_("Received"),
 	doc="Event type triggered when the user has received an item from a remote host"
 )
-Content.register(
+Interpretation.register(
 	"FOCUS_EVENT",
 	u"http://zeitgeist-project.com/schema/1.0/core#FocusEvent",
 	display_name=_("Focused"),
 	doc="Event type triggered when the user has switched focus to a new item"
 )
-Content.register(
+Interpretation.register(
 	"WARN_EVENT",
 	u"http://zeitgeist-project.com/schema/1.0/core#WarnEvent",
 	display_name=_("Warnings"),
 	doc="Event type triggered when the user is warned about something"
 )
-Content.register(
+Interpretation.register(
 	"ERROR_EVENT",
 	"http://zeitgeist-project.com/schema/1.0/core#ErrorEvent",
 	display_name=_("Errors"),
 	doc="Event type triggered when the user has encountered an error"
 )
-Content.register(
+Interpretation.register(
 	"APPLICATION",
         u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SoftwareApplication",
 	display_name=_("Applications"),
@@ -336,39 +335,39 @@ Content.register(
 )
 
 #
-# Source categories
+# Manifestation categories
 #
-Source.register(
+Manifestation.register(
 	"WEB_HISTORY",
         u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebHistory",
 	display_name=_("Web History"),
 	doc="An item that has been extracted from the user's browsing history"
 )
-Source.register(
+Manifestation.register(
 	"USER_ACTIVITY",
 	u"http://zeitgeist-project.com/schema/1.0/core#UserActivity",
 	display_name=_("Activities"),
 	doc="An item that has been created solely on the basis of user actions and is not otherwise stored in some physical location"
 )
-Source.register(
+Manifestation.register(
 	"HEURISTIC_ACTIVITY",
 	u"http://zeitgeist-project.com/schema/1.0/core#HeuristicActivity",
 	display_name=_("Activities"),
 	doc="An application has calculated via heuristics that some relationship is very probable."
 )
-Source.register(
+Manifestation.register(
 	"USER_NOTIFICATION",
 	u"http://zeitgeist-project.com/schema/1.0/core#UserNotification",
 	display_name=_("Notifications"),
 	doc="An item that has been send as a notification to the user"
 )
-Source.register(
+Manifestation.register(
 	"FILE",
 	u"http://www.semanticdesktop.org/ontologies/nfo/#FileDataObject",
 	display_name=_("Files"),
 	doc="An item stored on the local filesystem"
 )
-Source.register(
+Manifestation.register(
 	"SYSTEM_RESOURCE",
 	u"http://freedesktop.org/standards/xesam/1.0/core#SystemRessource",
 	display_name=_("System Resources"),
@@ -572,25 +571,3 @@ class Event(list):
 		self[2] = value
 	payload = property(get_payload, set_payload)
 
-class EventTemplate(Event):
-	
-	def __init__(self, **args):
-		super(EventTemplate, self).__init__()
-		self[0] = [""]* len(Event.Fields)
-		self[1] = list()
-		self[2] = ""
-		if "subjects" in args:
-			for subject in args["subjects"]:
-				self.append_subject(subject)
-			del args["subjects"]
-		for key, value in args.iteritems():
-			setattr(self, key, value)
-			
-class SubjectTemplate(Subject):
-	
-	def __init__(self, **args):
-		super(SubjectTemplate, self).__init__()
-		for n,_ in enumerate(self):
-			self[n] = ""
-		for key, value in args.iteritems():
-			setattr(self, key, value)
