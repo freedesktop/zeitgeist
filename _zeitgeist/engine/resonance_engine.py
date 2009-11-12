@@ -36,6 +36,7 @@ import _zeitgeist.engine
 from _zeitgeist.engine.dbutils import *
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
+from _zeitgeist.engine.relevancy_provider import FocusSwitchRegister
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -376,7 +377,7 @@ class ZeitgeistEngine:
 		
 		#Load extensions
 		self.focus_duration = FocusDurationRegister()
-		self.focus_vertices = FocusVertexRegister()
+		self.focus_switch = FocusSwitchRegister()
 		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
@@ -619,7 +620,7 @@ class ZeitgeistEngine:
 	def insert_focus(self, application_uri, document_uri):
 		now = time.time()
 		self.focus_duration.focus_change(now, application_uri, document_uri)
-		self.focus_vertices.insert_focus(now, application_uri, document_uri)
+		self.focus_switch.focus_change(now, application_uri, document_uri)
 
 
 class FocusDurationRegister():
@@ -692,43 +693,6 @@ class FocusDurationRegister():
 		for row in _cursor:
 			apps.append(self.app_table.lookup_by_id(row[0]))
 		return apps
-
-
-class FocusVertexRegister(object):
-    def __init__(self):
-        self.last_app = -1
-        self.last_doc = -1
-        self.last_timestamp = -1
-    
-    def insert_focus(self, timestamp, app, doc):
-        _cursor.execute("""
-            INSERT INTO focus_switch VALUES (?,?,?,?,?)
-            """,(timestamp, self.last_app, self.last_doc, app, doc)
-            )
-        self.last_app = app
-        self.last_doc = doc
-        _cursor.connection.commit()
-        
-    def get_relevant_items_to_item(self, uri_id, min_timestamp=0, max_timestamp=sys.maxint, limit=10):
-        uris = _cursor.execute("""
-            SELECT from_doc_id FROM focus_switch
-                WHERE to_doc_id = ? AND timestamp >= ? AND timestamp <=? AND from_doc_id != -1
-            UNION ALL SELECT to_doc_id FROM focus_switch 
-                WHERE from_doc_id = ? AND timestamp >= ? AND timestamp <=? AND to_doc_id != -1
-            """, (uri_id, min_timestamp, max_timestamp, uri_id, min_timestamp, max_timestamp)
-            ).fetchall()
-        result = {}
-        for (uri,) in uris:
-            if not result.has_key(str(uri)):
-                result[str(uri)] = 0
-            result[str(uri)] +=1
-        return result
-        
-    def clear_table(self): 
-        _cursor.execute("""
-            DELETE FROM focus_switch
-            """)
-        self.cursor.connection.commit()
 
 
 class WhereClause:
