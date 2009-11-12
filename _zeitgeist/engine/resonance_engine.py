@@ -586,6 +586,7 @@ class ZeitgeistEngine:
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
 		log.debug(sql)
+		log.debug("SQL args: %s" % where.arguments)
 		return [row[0] for row in _cursor.execute(sql, where.arguments).fetchall()]
 	
 	def get_highest_timestamp_for_actor(self, actor):

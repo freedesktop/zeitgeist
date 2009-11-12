@@ -57,7 +57,8 @@ class EntityTable(Table):
 		except KeyError:
 			pass # We didn't have it cached; fall through and handle it below
 		
-		row = self.find_one(self.value, self.id == id)
+		#row = self.find_one(self.value, self.id == id)
+		row = self._cursor.execute("""SELECT value FROM %s WHERE id=?""" % self.get_name(), (str(id),)).fetchone()
 		if row :			
 			ent = Entity(id, row[0])
 			self._INV_CACHE[id] = ent
@@ -75,8 +76,8 @@ class EntityTable(Table):
 		except KeyError:
 			pass # We didn't have it cached; fall through and handle it below
 		
-		row = self.find_one(self.id, self.value == value)
-		if row :			
+		row = self._cursor.execute("""SELECT id FROM %s WHERE value=?""" % self.get_name(), (str(value),)).fetchone()
+		if row :	
 			ent = Entity(row[0], value)
 			self._CACHE[value] = ent
 			#log.debug("Found %s: %s" % (self, ent))
@@ -182,61 +183,4 @@ class StatefulEntityTable(Table):
 	def _clear_cache(self):
 		self._CACHE.clear()
 
-class StatefulEntityTable(Table):
-	"""
-	Generic base class for Tables that has an 'id', a 'value', and a 'state'
-	column. This is primarily for the 'storage' table
-	"""
-	
-	def __init__ (self, table_name):
-		"""Create a new StatefulEntityTable with table name 'table_name'"""		
-		if table_name is None :
-			raise ValueError("Can not create EntityTable with name None")
-		
-		Table.__init__(self, table_name, id=Integer(), value=String(), state=Integer())
-		self._CACHE = LRUCache(1000)
-	
-	def lookup(self, value):
-		"""Look up an entity by value or id, return None if the
-		   entity is not known"""
-		if not value:
-			raise ValueError("Looking up %s without a value" % self)
-		
-		try:
-			return self._CACHE[value]
-		except KeyError:
-			pass # We didn't have it cached; fall through and handle it below
-		
-		row = self.find_one(self.id, self.value == value)
-		if row :			
-			ent = StatefulEntity(row[0], value, row[2])
-			self._CACHE[value] = ent
-			#log.debug("Found %s" % self)
-			return ent
-		return None
-	
-	def lookup_or_create(self, value, state=1):
-		"""
-		Find the entity matching the uri 'value' or create it if necessary.
-		The default state is "available", ie. 1.
-		"""
-		ent = self.lookup(value)
-		if ent : return ent
-		
-		try:
-			row_id = self.add(value=value, state=state)
-		except sqlite3.IntegrityError, e:
-			log.warn("Unexpected integrity error when inserting %s %s: %s" % (self, value, e))
-			return None
-		
-		# We can peek the last insert row id from SQLite,
-		# this saves us a whole SELECT
-		ent = StatefulEntity(row_id, value, state)
-		self._CACHE[value] = ent
-		#log.debug("Created %s" % self)
-				
-		return ent
-	
-	def _clear_cache(self):
-		self._CACHE.clear()
 
