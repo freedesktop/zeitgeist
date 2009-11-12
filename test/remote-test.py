@@ -10,7 +10,7 @@ import dbus
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from zeitgeist.dbusutils import DBusInterface
-from zeitgeist.datamodel import Event, Subject
+from zeitgeist.datamodel import Event, Subject, Content, Source
 
 import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
@@ -40,8 +40,20 @@ class RemoteTest:
 		# Simply assert that we start and stop correctly
 		pass
 	
-	def testInsertEvent(self):
-		print 11111111111111
+	def testInsertAndGetEvent(self):
+		ev = Event.new_for_values(timestamp=123,
+					interpretation=Content.VISIT_EVENT.uri,
+					manifestation=Source.USER_ACTIVITY.uri,
+					actor="Freak Mamma")
+		subj = Subject.new_for_values(uri="void://foobar",
+					interpretation=Content.DOCUMENT.uri,
+					manifestation=Source.FILE.uri)
+		ids = iface.InsertEvents([ev])
+		events = iface.GetEvents(ids)
+		self.assertEquals(1, len(ids))
+		self.assertEquals(1, len(events))
+		
+		
 	
 if __name__ == "__main__":
 	child_pid = os.fork()
@@ -78,16 +90,16 @@ if __name__ == "__main__":
 	
 	suite = RemoteTest(iface)
 	
-	for test in dir(suite):
-		method = getattr(suite, test)
-		if callable(method):
-			test_name = method.im_func.func_name
-			if test_name.startswith("test"):
-				print "******", test_name
-				method()
-		
-	
-	print "All tests done, waiting for server to stop"
-	iface.Quit()
-	os.waitpid(child_pid, 0)
+	try:
+		for test in dir(suite):
+			method = getattr(suite, test)
+			if callable(method):
+				test_name = method.im_func.func_name
+				if test_name.startswith("test"):
+					print "******", test_name
+					method()
+	finally:
+		print "All tests done, waiting for server to stop"
+		iface.Quit()
+		os.waitpid(child_pid, 0)
 	
