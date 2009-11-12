@@ -25,8 +25,9 @@ from xdg import BaseDirectory
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
-DB_PATH = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
+DB_PATH_DEFAULT = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
 	"database.sqlite")
+DB_PATH = os.environ.get("ZEITGEIST_DATABASE_PATH", DB_PATH_DEFAULT)
 
 AVAILABLE_ENGINES = ["resonance", "querymancer"]
 ENGINE_FALLBACK = AVAILABLE_ENGINES[0]
