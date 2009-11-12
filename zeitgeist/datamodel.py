@@ -334,6 +334,12 @@ Interpretation.register(
 	display_name=_("Applications"),
 	doc="An item that is a launchable application. The item's URI must point to the relevant .desktop file"
 )
+Interpretation.register(
+	"UNKNOWN",
+	u"http://zeitgeist-project.com/schema/1.0/core#UnknownInterpretation",
+	display_name=_("Unknown"),
+	doc="An entity with an unknown interpretation"
+)
 
 #
 # Manifestation categories
@@ -380,7 +386,12 @@ Manifestation.register(
 	display_name=_("System Resources"),
 	doc="An item available through the host operating system, such as an installed application or manual page (TBD in tracker)"
 )
-
+Manifestation.register(
+	"UNKNOWN",
+	u"http://zeitgeist-project.com/schema/1.0/core#UnknownManifestation",
+	display_name=_("Unknown"),
+	doc="An entity with an unknown manifestation"
+)
 
 class Subject(list):
 	Fields = (Uri,
