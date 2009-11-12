@@ -30,6 +30,23 @@ _engine = get_default_engine()
 DBUS_INTERFACE = DBusInterface.INTERFACE_NAME
 SIG_EVENT = "asaasay"
 
+def special_str(obj):
+	""" returns a string representation of an object
+	if obj is None returns an empty string.
+	"""
+	if obj is None:
+		return ""
+	return str(obj)
+	
+def make_dbus_sendable(event):
+	for n, value in enumerate(event[0]):
+		event[0][n] = special_str(value)
+	for subject in event[1]:
+		for n, value in enumerate(subject):
+			subject[n] = special_str(value)
+	event[2] = special_str(event[2])
+	return event
+
 class RemoteInterface(SingletonApplication):
 	
 	# Initialization
@@ -52,7 +69,7 @@ class RemoteInterface(SingletonApplication):
 		except ValueError:
 			# This is what we want, it means that there are no
 			# holes in the list
-			return events
+			return [make_dbus_sendable(event) for event in events]
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(ii)a(asas)uuu", out_signature="au")
