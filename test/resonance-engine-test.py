@@ -335,6 +335,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testInsertFocusEvent(self):
 		self.engine.insert_focus("boo","boo")
 		#self.assertRaises(ValueError, self.engine.insert_events, [ev])
+		
+	def testUnicodeEventInsert(self):
+		import_events("test/data/unicode_event.js", self.engine)
+		
 
 if __name__ == "__main__":
 	unittest.main()
