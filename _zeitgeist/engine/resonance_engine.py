@@ -63,7 +63,6 @@ def create_db(file_path):
 	cursor = conn.cursor()
 	
 	# focus duration
-	
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS focus_duration
 		(document_id INTEGER,
@@ -77,7 +76,12 @@ def create_db(file_path):
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS focus_duration_application_id
 		ON focus_duration(application_id)""")
-	
+
+	#focus relevancy
+	cursor.execute("""
+		CREATE TABLE IF NOT EXISTS focus_switch
+		(timestamp INTEGER, from_app_id INTEGER, from_doc_id INTEGER, to_app_id, to_doc_id)
+		""")
 	
 	# uri
 	cursor.execute("""
@@ -373,6 +377,7 @@ class ZeitgeistEngine:
 		
 		#Load extensions
 		self.focus_duration = FocusDurationRegister()
+		self.focus_vertices = FocusVertexRegister()
 		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
@@ -622,7 +627,9 @@ class ZeitgeistEngine:
 		return self.focus_duration.get_longest_used_documents(number, start, end)
 
 	def insert_focus(self, application_uri, document_uri):
-		self.focus_duration.focus_change(application_uri, document_uri)
+		now = time.time()
+		self.focus_duration.focus_change(now, application_uri, document_uri)
+		self.focus_vertices.insert_focus(now, application_uri, document_uri)
 
 
 class FocusDurationRegister():
@@ -636,10 +643,9 @@ class FocusDurationRegister():
 		self.doc_table.set_cursor(_cursor)
 		self.app_table.set_cursor(_cursor)
 
-	def focus_change(self, document, application):
+	def focus_change(self, now, document, application):
 		doc_id = self.app_table.lookup_or_create(document)
 		app_id = self.doc_table.lookup_or_create(application)
-		now = time()
 		if not _cursor.lastrowid is None:
 			_cursor.execute("""
 						UPDATE focus_duration 
@@ -650,6 +656,7 @@ class FocusDurationRegister():
 						INSERT INTO focus_duration 
 						VALUES (?,?,?,?) """, (app_id, doc_id, now, now))
 			self.lastrowid = _cursor.lastrowid
+		_cursor.connection.commit()
 	
 	def get_document_focus_duration(self, document, start, end):
 		doc_id = self.doc_table.lookup_or_create(document)
@@ -695,6 +702,43 @@ class FocusDurationRegister():
 		for row in _cursor:
 			apps.append(self.app_table.lookup_by_id(row[0]))
 		return apps
+
+
+class FocusVertexRegister(object):
+    def __init__(self):
+        self.last_app = -1
+        self.last_doc = -1
+        self.last_timestamp = -1
+    
+    def insert_focus(self, timestamp, app, doc):
+        _cursor.execute("""
+            INSERT INTO focus_switch VALUES (?,?,?,?,?)
+            """,(timestamp, self.last_app, self.last_doc, app, doc)
+            )
+        self.last_app = app
+        self.last_doc = doc
+        _cursor.connection.commit()
+        
+    def get_relevant_items_to_item(self, uri_id, min_timestamp=0, max_timestamp=sys.maxint, limit=10):
+        uris = _cursor.execute("""
+            SELECT from_doc_id FROM focus_switch
+                WHERE to_doc_id = ? AND timestamp >= ? AND timestamp <=? AND from_doc_id != -1
+            UNION ALL SELECT to_doc_id FROM focus_switch 
+                WHERE from_doc_id = ? AND timestamp >= ? AND timestamp <=? AND to_doc_id != -1
+            """, (uri_id, min_timestamp, max_timestamp, uri_id, min_timestamp, max_timestamp)
+            ).fetchall()
+        result = {}
+        for (uri,) in uris:
+            if not result.has_key(str(uri)):
+                result[str(uri)] = 0
+            result[str(uri)] +=1
+        return result
+        
+    def clear_table(self): 
+        _cursor.execute("""
+            DELETE FROM focus_switch
+            """)
+        self.cursor.connection.commit()
 
 
 class WhereClause:
