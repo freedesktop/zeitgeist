@@ -357,6 +357,12 @@ Manifestation.register(
 	doc="An application has calculated via heuristics that some relationship is very probable."
 )
 Manifestation.register(
+	"SCHEDULED_ACTIVITY",
+	u"http://zeitgeist-project.com/schema/1.0/core#ScheduledActivity",
+	display_name=_("Activities"), # FIXME: Is this a bad name?
+	doc="An event that has been triggered by some long running task activated by the user. Fx. playing a song from a playlist"
+)
+Manifestation.register(
 	"USER_NOTIFICATION",
 	u"http://zeitgeist-project.com/schema/1.0/core#UserNotification",
 	display_name=_("Notifications"),
