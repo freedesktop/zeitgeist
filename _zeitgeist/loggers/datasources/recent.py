@@ -241,8 +241,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 		timestamp_last_run = time.time()
 		
 		events = []
-		items = {}
-		annotations = []
 		
 		for (num, info) in enumerate(self.recent_manager.get_items()):
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
@@ -274,15 +272,14 @@ class RecentlyUsedManagerGtk(DataProvider):
 						interpretation = use,
 						manifestation = Manifestation.USER_ACTIVITY.uri,
 						actor = desktopfile or u"",
-						subject = subject
+						subjects = [subject]
 						))
 			if num % 50 == 0:
 				self._process_gobject_events()
 			break
 		self._timestamp_last_run = timestamp_last_run
 		
-		if items:
-			return (events, items, annotations)
+		return events
 
 if enabled:
 	__datasource__ = RecentlyUsedManagerGtk()

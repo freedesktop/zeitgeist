@@ -458,7 +458,7 @@ class ZeitgeistEngine:
 		if event.payload:
 			payload_id = _payload.add(value=event.payload)
 		else:
-			payload_id = None	
+			payload_id = None
 		
 		if not event.subjects:
 			raise ValueError("Illegal event format: No subject")
