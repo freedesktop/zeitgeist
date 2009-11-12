@@ -29,6 +29,7 @@ class FocusDurationRegister():
 	
 	def __init__(self):
 		self.lastrowid = 0
+		self._uri = EntityTable("uri")
 	
 	def create_db(self):
 		conn = sqlite3.connect(DB_PATH)
@@ -43,8 +44,13 @@ class FocusDurationRegister():
 		cursor.execute("""
 			CREATE INDEX IF NOT EXISTS focus_duration_document_id
 			ON focus_duration(document_id)""")
+		
+		self._uri.set_cursor(cursor)
 
 	def focus_change(self, document):
+		# Resolve the id of the document
+		doc_id = self._uri.lookup_or_create(document)
+		
 		now = time()
 		if not cursor.lastrowid is None:
 			cursor.execute("""
@@ -54,14 +60,17 @@ class FocusDurationRegister():
 		if not document == "":
 			cursor.execute("""
 						INSERT INTO focus_duration 
-						VALUES (?,?,?) """, (document, now, now))
+						VALUES (?,?,?) """, (doc_id, now, now))
 			self.lastrowid = cursor.lastrowid
 	
 	def get_focus_duration(self, document, start, end):
+		# Resolve the id of the document
+		doc_id = self._uri.lookup_or_create(document)
+		
 		cursor.execute("""
 						SELECT SUM(focus_in), SUM(focus_out) FROM focus_duration
 						WHERE document_id = ? AND focus_in > start AND focus_out < end
-						""", (str(document)))
+						""", (str(doc_id)))
 		for row in cursor:
 			return row[1] - row[0]
 	
