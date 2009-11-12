@@ -23,23 +23,23 @@ from zeitgeist.datamodel import Event, Subject
 
 def dict2event(d):
 	ev = Event()
-	ev[0][Event.Id] = d.get("id", None)
-	ev.timestamp = str(d.get("timestamp", None))
-	ev.interpretation = str(d.get("interpretation", None))
-	ev.manifestation = str(d.get("manifestation", None))
-	ev.actor = str(d.get("actor", None))
-	ev.payload = str(d.get("payload", None))
+	ev[0][Event.Id] = d.get("id", "").encode("UTF-8")
+	ev.timestamp = str(d.get("timestamp", ""))
+	ev.interpretation = str(d.get("interpretation", "").encode("UTF-8"))
+	ev.manifestation = str(d.get("manifestation", "").encode("UTF-8"))
+	ev.actor = str(d.get("actor", "").encode("UTF-8"))
+	ev.payload = str(d.get("payload", "").encode("UTF-8"))
 	
 	subjects = d.get("subjects", [])
 	for sd in subjects:
 		subj = Subject()
-		subj.uri = str(sd.get("uri", None))
-		subj.interpretation = str(sd.get("interpretation", None))
-		subj.manifestation = str(sd.get("manifestation", None))
-		subj.origin = str(sd.get("origin", None))
-		subj.mimetype = str(sd.get("mimetype", None))
-		subj.text = str(sd.get("text", None))
-		subj.storage = str(sd.get("storage", None))
+		subj.uri = str(sd.get("uri", "").encode("UTF-8"))
+		subj.interpretation = str(sd.get("interpretation", "").encode("UTF-8"))
+		subj.manifestation = str(sd.get("manifestation", "").encode("UTF-8"))
+		subj.origin = str(sd.get("origin", "").encode("UTF-8"))
+		subj.mimetype = str(sd.get("mimetype", "").encode("UTF-8"))
+		subj.text = str(sd.get("text", "").encode("UTF-8"))
+		subj.storage = str(sd.get("storage", "").encode("UTF-8"))
 		ev.append_subject(subj)
 	return ev
 	
