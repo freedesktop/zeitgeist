@@ -83,6 +83,13 @@ class EntityTable(Table):
 			return ent
 		return None
 	
+	def lookup_id(self, value):
+		"""
+		Look up the id of a value. Returns -1 if the value doesn't exist
+		"""
+		ent = self.lookup(value)
+		return ent.id if ent else -1
+	
 	def lookup_or_create(self, value):
 		"""Find the entity matching the uri 'value' or create it if necessary"""
 		ent = self.lookup(value)

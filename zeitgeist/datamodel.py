@@ -526,9 +526,12 @@ class Event(list):
 		self.subjects.append(subject)
 		return subject
 	
-	@property
-	def subjects(self):
+	def get_subjects(self):
 		return self[1]	
+	
+	def set_subjects(self, subjects):
+		self[1] = subjects
+	subjects = property(get_subjects, set_subjects)
 	
 	@property
 	def id(self):

@@ -516,26 +516,8 @@ class ZeitgeistEngine:
 	def _build_templates(self, templates):
 		for event_template in templates:
 			event_data = event_template[0]
-			for subject in event_template.subjects:
+			for subject in event_template[1]:
 				yield Event((event_data, [], None)), Subject(subject)
-	
-	def _build_event_from_template(self, event_template):
-		"""
-		Convert a tuple with an (event,subject) pair into a real Event.
-		The resulting Event is guaranteed to have exactly one Subject.
-		If event_template is already an Event instance this method
-		does nothing
-		
-		This is useful for converting DBus input to our Event and
-		Subject representations without an actual data marshalling step
-		"""
-		if isinstance(event_template, Event) : return event_template
-		
-		ev = Event.new_for_data(event_template[0])
-		subj = Subject(event_template[1])
-		ev.append_subject(subj)
-		
-		return ev
 	
 	def find_eventids (self, time_range, event_templates, storage_state,
 		max_events, order):
@@ -564,25 +546,25 @@ class ZeitgeistEngine:
 			subwhere = WhereClause("AND")
 			if event_template.interpretation:
 				subwhere.add("interpretation = ?",
-					_interpretation.lookup(event_template.interpretation).id)
+					_interpretation.lookup_id(event_template.interpretation))
 			if event_template.manifestation:
 				subwhere.add("manifestation = ?",
-					_manifestation.lookup(event_template.manifestation).id)
+					_manifestation.lookup_id(event_template.manifestation))
 			if event_template.actor:
 				subwhere.add("actor = ?", event_template.actor)
 			if subject_template.uri:
 				subwhere.add("subj_uri = ?", subject_template.uri)
 			if subject_template.interpretation:
 				subwhere.add("subj_interpretation = ?",
-					_interpretation.lookup(subject_template.interpretation).id)
+					_interpretation.lookup_id(subject_template.interpretation))
 			if subject_template.manifestation:
 				subwhere.add("subj_manifestation = ?",
-					_manifestation.lookup(subject_template.manifestation).id)
+					_manifestation.lookup_id(subject_template.manifestation))
 			if subject_template.origin:
 				subwhere.add("subj_origin = ?", int(event_template.origin))
 			if subject_template.mimetype:
 				subwhere.add("subj_mimetype = ?",
-					_mimetype.lookup(subject_template.mimetype).id)
+					_mimetype.lookup_id(subject_template.mimetype))
 			if subject_template.text:
 				subwhere.add("subj_text = ?",
 					int(event_template.text))
