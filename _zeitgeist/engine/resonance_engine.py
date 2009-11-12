@@ -571,7 +571,7 @@ class ZeitgeistEngine:
 		where.add(where_or.generate_condition(), where_or.arguments)
 		
 		events = []
-		sql = "SELECT id FROM event_view"
+		sql = "SELECT DISTINCT id FROM event_view"
 		if where:
 			sql += " WHERE " + where.generate_condition()
 		

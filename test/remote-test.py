@@ -58,15 +58,15 @@ class RemoteTest:
 		ev1 = Event.new_for_values(timestamp=400,
 					interpretation=Content.VISIT_EVENT.uri,
 					manifestation=Source.USER_ACTIVITY.uri,
-					actor="Freak Mamma")		
+					actor="Boogaloo")	
 		ev2 = Event.new_for_values(timestamp=500,
 					interpretation=Content.VISIT_EVENT.uri,
 					manifestation=Source.USER_ACTIVITY.uri,
-					actor="Freak Mamma")
+					actor="Boogaloo")
 		ev3 = Event.new_for_values(timestamp=600,
 					interpretation=Content.SEND_EVENT.uri,
 					manifestation=Source.USER_ACTIVITY.uri,
-					actor="Freak Mamma")
+					actor="Boogaloo")
 		subj1 = Subject.new_for_values(uri="foo://bar",
 					interpretation=Content.DOCUMENT.uri,
 					manifestation=Source.FILE.uri)
@@ -89,7 +89,7 @@ class RemoteTest:
 		events = map(Event, events)
 		for event in events:
 			self.assertEquals(Source.USER_ACTIVITY.uri, event.manifestation)
-			self.assertEquals("Freak Mamma", event.actor)
+			self.assertEquals("Boogaloo", event.actor)
 		
 		# Search for everything
 		ids = iface.FindEventIds((1,1000),
@@ -100,12 +100,13 @@ class RemoteTest:
 		subj_templ1 = Subject.new_for_values(uri="foo://bar")
 		subj_templ2 = Subject.new_for_values(uri="foo://baz")
 		event_template = Event.new_for_values(
+					actor="Boogaloo",
 					interpretation=Content.VISIT_EVENT.uri,
 					subjects=[subj_templ1,subj_templ2])
 		ids = iface.FindEventIds((0,10000),
 					[event_template],
 					0, 10, 1)
-		print "RESULTS", ids
+		print "RESULTS", map(int, ids)
 		self.assertEquals(2, len(ids))
 		
 	
