@@ -340,9 +340,10 @@ class Subject(_Subject):
 		)
 		
 		obj.origin = row["subj_origin"]
-		obj.mimetype = Mimetype.get(
-			_mimetype.lookup_by_id(row["subj_mimetype"]).value
-		)
+		if row["subj_mimetype"]:
+			obj.mimetype = Mimetype.get(
+				_mimetype.lookup_by_id(row["subj_mimetype"]).value
+			)
 		obj.text = row["subj_text"]
 		obj.storage = row["subj_storage_state"]
 		return obj
@@ -436,11 +437,17 @@ class ZeitgeistEngine:
 			suri_id = _uri.lookup_or_create(subj.uri).id
 			sinter_id = _interpretation.lookup_or_create(subj.interpretation).id
 			smanif_id = _manifestation.lookup_or_create(subj.manifestation).id
-			sorigin_id = _uri.lookup_or_create(subj.origin).id
-			smime_id = _mimetype.lookup_or_create(subj.mimetype).id
 			stext_id = _text.lookup_or_create(subj.text).id if subj.text else None
-			sstorage_id = _storage.lookup_or_create(subj.storage).id # FIXME: Storage is not an EntityTable
-			
+			# origin, mimetype and storage are kind of optional attributes
+			# sometimes they are just unknown (undefined)
+			# and sometimes it makes no sense to set them at all
+			opt_attr = {}
+			if subj.origin:
+				opt_attr["subj_origin"] = _uri.lookup_or_create(subj.origin).id
+			if subj.mimetype:
+				opt_attr["subj_mimetype"] = _mimetype.lookup_or_create(subj.mimetype).id
+			if subj.storage:
+				opt_attr["subj_storage"] = _storage.lookup_or_create(subj.storage).id # FIXME: Storage is not an EntityTable
 			# We store the event here because we need one row per subject
 			#_event.set_cursor(EchoCursor())
 			try:
@@ -454,10 +461,8 @@ class ZeitgeistEngine:
 					subj_id=suri_id,
 					subj_interpretation=sinter_id,
 					subj_manifestation=smanif_id,
-					subj_origin=sorigin_id,
-					subj_mimetype=smime_id,				
 					subj_text=stext_id,
-					subj_storage=sstorage_id)
+					**opt_attr)
 			except sqlite3.IntegrityError:
 				raise KeyError("Duplicate event detected")
 		

@@ -271,6 +271,25 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		import_events("test/data/five_events.js", self.engine)
 		result = self.engine.get_highest_timestamp_for_actor("firefox")
 		self.assertEquals(163, result)
+		
+	def testInsertSubjectOptionalAttributes(self):
+		ev = Event.new_for_values(
+			timestamp=123,
+			interpretation=Content.VISIT_EVENT.uri,
+			manifestation=Source.USER_ACTIVITY.uri,
+			actor="Freak Mamma"
+		)
+		subj = Subject.new_for_values(
+			uri="void://foobar",
+			interpretation=Content.DOCUMENT.uri,
+			manifestation=Source.FILE.uri,
+			)
+		ev.append_subject(subj)
+		
+		ids = self.engine.insert_events([ev,])
+		result = self.engine.get_events(ids)
+		self.assertEquals(len(ids), len(result))
+		
 
 if __name__ == "__main__":
 	unittest.main()
