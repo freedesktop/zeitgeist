@@ -2,7 +2,7 @@
 	{
 		"timestamp" : 123,
 		"interpretation" : "stfu:OpenEvent",
-		"manifestation" : "stfu:UserActivity",
+		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
 			{
@@ -18,7 +18,7 @@
 	},{
 		"timestamp" : 133,
 		"interpretation" : "stfu:FoobarEvent",
-		"manifestation" : "stfu:UserActivity",
+		"manifestation" : "stfu:PornActivity",
 		"actor" : "gedit",
 		"subjects" : [
 			{
@@ -34,7 +34,7 @@
 	},{
 		"timestamp" : 143,
 		"interpretation" : "stfu:ShalalalalaEvent",
-		"manifestation" : "stfu:UserActivity",
+		"manifestation" : "stfu:BooActivity",
 		"actor" : "geany",
 		"subjects" : [
 			{
@@ -50,7 +50,7 @@
 	},{
 		"timestamp" : 153,
 		"interpretation" : "stfu:FailEvent",
-		"manifestation" : "stfu:UserActivity",
+		"manifestation" : "stfu:SuccessActivity",
 		"actor" : "firefox",
 		"subjects" : [
 			{
@@ -66,7 +66,7 @@
 	},{
 		"timestamp" : 163,
 		"interpretation" : "stfu:OpenEvent",
-		"manifestation" : "stfu:UserActivity",
+		"manifestation" : "stfu:EpicFailActivity",
 		"actor" : "firefox",
 		"subjects" : [
 			{
@@ -79,7 +79,5 @@
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
 		]
-	}
-	
-	
+	}	
 ]

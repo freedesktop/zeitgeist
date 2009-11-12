@@ -222,7 +222,17 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		events = self.engine.get_events(result)
 		for event in events:
 			self.assertEqual(event.interpretation, "stfu:OpenEvent")
-
+	
+	def testFindWithManifestation(self):
+		import_events("test/data/five_events.js", self.engine)
+		subj = SubjectTemplate()
+		event_template = EventTemplate(manifestation="stfu:EpicFailActivity", subjects=[subj])
+		result = self.engine.find_eventids((0, 0), [event_template, ], 0, 0, 1)
+		self.assertEquals(1, len(result))
+		events = self.engine.get_events(result)
+		for event in events:
+			self.assertEqual(event.manifestation, "stfu:EpicFailActivity")
+	
 	def testDontFindState(self):
 		# searchin by storage state is currently not implemented
 		# checking for the error
