@@ -33,7 +33,7 @@ SIG_EVENTS = "aa{sv}a{sa{sv}}"
 class RemoteInterface(SingletonApplication):
 		
 	_dbus_properties = {
-		"version": property(lambda self: (0, 3, 0)),
+		"version": property(lambda self: (0, 2, 99)),
 	}
 	
 	# Initialization
