@@ -227,27 +227,15 @@ class RecentlyUsedManagerGtk(DataProvider):
 							return unicode(fullname)
 		return None
 	
-	@staticmethod
-	def _get_tags_for_file(filename):
-		""" Returns the tags for a file.
-		
-		This is currently done based on the file's path. For example,
-		a file named "/home/user/foo/bar/example.py" would be tagged with
-		"foo" and "bar". """
-		
-		filename = os.path.dirname(filename)
-		tags = []
-		
-		# Remove the user's home directory, if present
-		home = os.path.expanduser("~")
-		if filename.startswith(home):
-			filename = filename[len(home)+1:]
-		
-		if filename:
-			filename = unicode(urllib.unquote(filename))
-			tags = filename.replace(",", " ").split("/")
-		
-		return { "AutoTags": tags }
+	def _get_interpretation_for_mimetype(mimetype):
+		matching_filter = None
+		for filter_name, mimetypes in self.FILTERS.iteritems():
+			if mimetype and mimetype in mimetypes:
+				matching_filter = filter_name
+				break
+		if matching_filter:
+			return getattr(Interpretation, matching_filter.upper()).uri
+		return u""
 	
 	def _get_items(self):
 		timestamp_last_run = time.time()
@@ -258,8 +246,14 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 		for (num, info) in enumerate(self.recent_manager.get_items()):
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
-				item_uri = unicode(info.get_uri())
-				item_mimetype = unicode(info.get_mime_type())
+				subject = Subject(
+					uri = unicode(info.get_uri()),
+					interpretation = _get_interpretation_for_mimetype(
+						unicode(info.get_mime_type())),
+					manifestation = Manifestation.FILE.uri,
+					text = info.get_display_name(),
+					mimetype = item_mimetype,
+				)
 				
 				last_application = info.last_application().strip()
 				application = info.get_application_info(last_application)[0].split()[0]
@@ -282,34 +276,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 						content = use,
 						application = desktopfile or u""
 						))
-				
-				if is_new and item_uri not in items:
-					# Get the Interpretation for the item
-					matching_filter = None
-					for filter_name, mimetypes in self.FILTERS.iteritems():
-						if item_mimetype and item_mimetype in mimetypes:
-							matching_filter = filter_name
-					if matching_filter:
-						item_content = getattr(Interpretation, matching_filter.upper()).uri
-					else:
-						item_content = u''
-					
-					# Insert the item
-					items[item_uri] = Item(
-						content = item_content,
-						source = Manifestation.FILE.uri,
-						text = info.get_display_name(),
-						mimetype = item_mimetype,
-					)
-					
-					# Insert the tags
-					tags = self._get_tags_for_file(info.get_uri_display())
-					for tag in tags:
-						annotations.append(Annotation(
-							subject = item_uri,
-							content = Interpretation.TAG.uri,
-							source = Manifestation.HEURISTIC_ACTIVITY.uri,
-							text = tag))
 			if num % 50 == 0:
 				self._process_gobject_events()
 			break

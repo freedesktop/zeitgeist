@@ -579,8 +579,8 @@ class ZeitgeistEngine:
 			" ORDER BY timestamp DESC",
 			" GROUP BY subj_uri ORDER BY timestamp ASC",
 			" GROUP BY subj_uri ORDER BY timestamp DESC",
-			" GROUP BY subj_uri ORDER BY COUNT(id), timestamp ASC",
-			" GROUP BY subj_uri ORDER BY COUNT(id), timestamp DESC")[order]			
+			" GROUP BY subj_uri ORDER BY COUNT(id) ASC, timestamp ASC",
+			" GROUP BY subj_uri ORDER BY COUNT(id) DESC, timestamp DESC")[order]			
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
