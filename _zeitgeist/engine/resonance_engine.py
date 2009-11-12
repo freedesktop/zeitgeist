@@ -320,6 +320,7 @@ class Event(_Event):
 			_manifestation.lookup_by_id(row["manifestation"]).value
 		)
 		obj.actor = row["actor"]
+		# default payload means empty string, not None
 		obj.payload = row["payload"] or ""
 		return obj
 
