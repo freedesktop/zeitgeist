@@ -27,6 +27,7 @@ it also defines symbolic values for the common item types. Using symbolic values
 instead of URI strings will help detect programmer typos.
 """
 
+import time
 import gettext
 gettext.install("zeitgeist")
 
@@ -356,6 +357,12 @@ Manifestation.register(
 	doc="An application has calculated via heuristics that some relationship is very probable."
 )
 Manifestation.register(
+	"SCHEDULED_ACTIVITY",
+	u"http://zeitgeist-project.com/schema/1.0/core#ScheduledActivity",
+	display_name=_("Activities"), # FIXME: Is this a bad name?
+	doc="An event that has been triggered by some long running task activated by the user. Fx. playing a song from a playlist"
+)
+Manifestation.register(
 	"USER_NOTIFICATION",
 	u"http://zeitgeist-project.com/schema/1.0/core#UserNotification",
 	display_name=_("Notifications"),
@@ -471,7 +478,8 @@ class Event(list):
 		subjects in the second position, and again optionally the event
 		payload in the third position.
 		
-		If 'event_data' is set
+		Unless the event metadata contains a timestamp the event will
+		have its timestamp set to "now".
 		"""
 		super(Event, self).__init__()
 		if struct:
@@ -481,16 +489,20 @@ class Event(list):
 				self.append("")
 			elif len(struct) == 2:
 				self.append(struct[0])
-				self.append(struct[1])
+				self.append(map(Subject, struct[1]))
 				self.append("")
 			elif len(struct) == 3:
 				self.append(struct[0])
-				self.append(struct[1])
+				self.append(map(Subject, struct[1]))
 				self.append(struct[2])
 			else:
 				raise ValueError("Invalid struct length %s" % len(struct))
 		else:
 			self.extend(([""]* len(Event.Fields), [], ""))
+		
+		# If we have no timestamp just set it to now
+		if not self[0][Event.Timestamp] :
+			self[0][Event.Timestamp] = str(int(time.time() * 1000))
 		
 	@staticmethod
 	def new_for_data(event_data):

@@ -107,11 +107,9 @@ class DataHub(gobject.GObject):
 		logging.debug(_("Updating database with new %s items") % \
 			self._sources_queue[0].get_name())
 		
-		events, items, annotations = self._sources_queue[0].get_items() \
-			or ((), (), ())
-		if items:
-			self._insert_events(self._sources_queue[0].get_name(), events,
-				items, annotations)
+		events = self._sources_queue[0].get_items()
+		if events:
+			self._insert_events(self._sources_queue[0].get_name(), events)
 		
  		del self._sources_queue[0]
 		
@@ -123,18 +121,17 @@ class DataHub(gobject.GObject):
 		# that GTK+ will continue to call this function in idle CPU time
 		return True
 	
-	def _insert_events(self, source_name, events, items, annotations):
-		if items:
-			try:
-				self._client.InsertEvents(events, items, annotations)
-			except dbus.exceptions.DBusException, error:
-				error = error.get_dbus_name()
-				if error == "org.freedesktop.DBus.Error.ServiceUnknown":
-					logging.warning(
-						_("Lost connection to zeitgeist-daemon, terminating."))
-					self._daemon_exit()
-				else:
-					logging.exception(_("Error logging item from \"%s\": %s" % \
-						(source_name, error)))
+	def _insert_events(self, source_name, events):
+		try:
+			self._client.InsertEvents(events)
+		except dbus.exceptions.DBusException, error:
+			error = error.get_dbus_name()
+			if error == "org.freedesktop.DBus.Error.ServiceUnknown":
+				logging.warning(
+					_("Lost connection to zeitgeist-daemon, terminating."))
+				self._daemon_exit()
+			else:
+				logging.exception(_("Error logging item from \"%s\": %s" % \
+					(source_name, error)))
 
 datahub = DataHub()
