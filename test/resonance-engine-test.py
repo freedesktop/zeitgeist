@@ -201,8 +201,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testFindWithActor(self):
 		global test_event_1
 		self.testSingleInsertGet()
-		subj = SubjectTemplate()
-		event_template = EventTemplate(actor=TEST_ACTOR, subjects=[subj,])
+		subj = Subject()
+		event_template = Event.new_for_values(actor=TEST_ACTOR, subjects=[subj,])
 		result = self.engine.find_eventids(
 			(0, 100),
 			[event_template, ],
@@ -215,8 +215,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 
 	def testFindWithInterpretation(self):
 		import_events("test/data/five_events.js", self.engine)
-		subj = SubjectTemplate()
-		event_template = EventTemplate(interpretation="stfu:OpenEvent", subjects=[subj])
+		subj = Subject()
+		event_template = Event.new_for_values(interpretation="stfu:OpenEvent", subjects=[subj])
 		result = self.engine.find_eventids((0, 0), [event_template, ], 0, 0, 1)
 		self.assertEquals(2, len(result))
 		events = self.engine.get_events(result)
@@ -225,8 +225,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testFindWithManifestation(self):
 		import_events("test/data/five_events.js", self.engine)
-		subj = SubjectTemplate()
-		event_template = EventTemplate(manifestation="stfu:EpicFailActivity", subjects=[subj])
+		subj = Subject()
+		event_template = Event.new_for_values(manifestation="stfu:EpicFailActivity", subjects=[subj])
 		result = self.engine.find_eventids((0, 0), [event_template, ], 0, 0, 1)
 		self.assertEquals(1, len(result))
 		events = self.engine.get_events(result)
@@ -246,9 +246,9 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			
 	def testFindEventsEventTemplate(self):
 		import_events("test/data/five_events.js", self.engine)
-		subj = SubjectTemplate(interpretation="stfu:Bee")
-		subj1 = SubjectTemplate(interpretation="stfu:Bar")
-		event_template = EventTemplate(subjects=[subj, subj1])
+		subj = Subject.new_for_values(interpretation="stfu:Bee")
+		subj1 = Subject.new_for_values(interpretation="stfu:Bar")
+		event_template = Event.new_for_values(subjects=[subj, subj1])
 		result = self.engine.find_eventids(
 			(0, 200),
 			[event_template, ],

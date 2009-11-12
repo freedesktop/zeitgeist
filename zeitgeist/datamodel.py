@@ -571,25 +571,3 @@ class Event(list):
 		self[2] = value
 	payload = property(get_payload, set_payload)
 
-class EventTemplate(Event):
-	
-	def __init__(self, **args):
-		super(EventTemplate, self).__init__()
-		self[0] = [""]* len(Event.Fields)
-		self[1] = list()
-		self[2] = ""
-		if "subjects" in args:
-			for subject in args["subjects"]:
-				self.append_subject(subject)
-			del args["subjects"]
-		for key, value in args.iteritems():
-			setattr(self, key, value)
-			
-class SubjectTemplate(Subject):
-	
-	def __init__(self, **args):
-		super(SubjectTemplate, self).__init__()
-		for n,_ in enumerate(self):
-			self[n] = ""
-		for key, value in args.iteritems():
-			setattr(self, key, value)
