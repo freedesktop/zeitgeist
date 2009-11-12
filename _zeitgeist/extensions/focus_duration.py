@@ -21,7 +21,7 @@ import sqlite3
 from time import time
 
 from _zeitgeist.engine import DB_PATH
-
+from _zeitgeist.engine.dbutils import EntityTable
 
 class FocusDurationRegister():
 	"""
@@ -73,4 +73,3 @@ class FocusDurationRegister():
 						""", (str(doc_id)))
 		for row in cursor:
 			return row[1] - row[0]
-	
