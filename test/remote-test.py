@@ -17,7 +17,10 @@ from _zeitgeist.engine import create_engine
 
 #
 # IMPORTANT: We don't use the unittest module here because it is too hard
-#            to control the processes spawned
+#            to control the processes spawned.
+#            
+#            Because of the simplified test environment changes are persistet
+#            on the engine in between tests
 #
 
 class TestFailed (RuntimeError):
@@ -74,11 +77,15 @@ if __name__ == "__main__":
 		raise SystemExit(0)
 	
 	suite = RemoteTest(iface)
-	tests = (suite.testNothing, suite.testInsertEvent)
 	
-	for test in tests:
-		print "*** Running test: %s" % test.func_name
-		test()		
+	for test in dir(suite):
+		method = getattr(suite, test)
+		if callable(method):
+			test_name = method.im_func.func_name
+			if test_name.startswith("test"):
+				print "******", test_name
+				method()
+		
 	
 	print "All tests done, waiting for server to stop"
 	iface.Quit()
