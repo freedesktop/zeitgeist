@@ -278,6 +278,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		
 		ids = self.engine.insert_events([ev,])
 		result = self.engine.get_events(ids)
+		self.assertEquals(len(ids), len(result))
 		
 
 if __name__ == "__main__":
