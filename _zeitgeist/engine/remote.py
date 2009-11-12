@@ -156,6 +156,9 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return value
 	
+	@dbus.service.method(DBUS_INTERFACE, in_signature="iff", out_signature="f")
+	def GetFocusDuration(self, document_id, start_date, end_date):
+		return _zeitgeist.engine.get_focus_duration(document_id, start_date, end_date)
 	# Commands
 	
 	@dbus.service.method(DBUS_INTERFACE)

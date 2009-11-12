@@ -57,7 +57,7 @@ class FocusDurationRegister():
 						VALUES (?,?,?) """, (document, now, now))
 			self.lastrowid = cursor.lastrowid
 	
-	def get_focus_time(self, document, start, end):
+	def get_focus_duration(self, document, start, end):
 		cursor.execute("""
 						SELECT SUM(focus_in), SUM(focus_out) FROM focus_duration
 						WHERE document_id = ? AND focus_in > start AND focus_out < end

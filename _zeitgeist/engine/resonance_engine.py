@@ -37,6 +37,8 @@ from _zeitgeist.engine.engine_base import BaseEngine
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
 
+from _zeitgeist.extensions.focus_duration import FocusDurationRegister
+
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
@@ -147,7 +149,7 @@ def create_db(file_path):
 			 subj_id INTEGER,
 			 subj_interpretation INTEGER,
 			 subj_manifestation INTEGER,
- 			 subj_origin INTEGER,
+			 subj_origin INTEGER,
 			 subj_mimetype INTEGER,
 			 subj_text INTEGER,
 			 subj_storage INTEGER,
@@ -351,6 +353,10 @@ class ZeitgeistEngine:
 	def __init__ (self):
 		global _event
 		self._cursor = get_default_cursor()
+		
+		#Load extensions
+		self.focus_duration = FocusDurationRegister()
+		self.focus_duration.create_db()
 		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
@@ -579,6 +585,9 @@ class ZeitgeistEngine:
 			ORDER BY timestamp DESC LIMIT 1
 			""", (actor,)).fetchone()
 		return query["timestamp"] if query else 0
+
+	def get_focus_duration(self, document_id, start, end):
+		return self.focus_duration.get_focus_duration(document_id, start, end)
 
 class WhereClause:
 	
