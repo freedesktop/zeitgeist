@@ -23,7 +23,6 @@ from time import time
 from _zeitgeist.engine import DB_PATH
 from _zeitgeist.engine.dbutils import EntityTable
 
-
 class FocusDurationRegister():
 	"""
 	"""
