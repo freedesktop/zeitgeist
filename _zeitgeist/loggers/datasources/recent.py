@@ -31,8 +31,7 @@ import logging
 from xdg import BaseDirectory
 
 from zeitgeist import _config
-from zeitgeist.dbusutils import Event, Item, Annotation
-from zeitgeist.datamodel import Content, Source
+from zeitgeist.datamodel import Event, Subject, Content, Source
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 log = logging.getLogger("zeitgeist.logger.datasources.recent")
