@@ -428,6 +428,12 @@ class ZeitgeistEngine:
 			sorted_events.append(events.get(id, None))
 		return sorted_events
 	
+	def get_timestamp_for_now(self):
+		"""
+		Return the current time in milliseconds since the Unix Epoch
+		"""
+		return int(time.time() * 1000)
+	
 	def insert_events (self, events):
 		return map (self.insert_event, events)
 	
@@ -442,7 +448,9 @@ class ZeitgeistEngine:
 			raise ValueError("Illegal event: Predefined event id")
 		
 		id = self.next_event_id()
-		timestamp = event.timestamp
+		
+		# Create the timestamp if none is provided
+		timestamp = event.timestamp if event.timestamp else self.get_timestamp_for_now()
 		inter_id = _interpretation.lookup_or_create(event.interpretation).id
 		manif_id = _manifestation.lookup_or_create(event.manifestation).id
 		actor_id = _actor.lookup_or_create(event.actor).id

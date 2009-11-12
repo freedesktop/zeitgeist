@@ -27,6 +27,7 @@ it also defines symbolic values for the common item types. Using symbolic values
 instead of URI strings will help detect programmer typos.
 """
 
+import time
 import gettext
 gettext.install("zeitgeist")
 
@@ -471,7 +472,8 @@ class Event(list):
 		subjects in the second position, and again optionally the event
 		payload in the third position.
 		
-		If 'event_data' is set
+		Unless the event metadata contains a timestamp the event will
+		have its timestamp set to "now".
 		"""
 		super(Event, self).__init__()
 		if struct:
@@ -491,6 +493,10 @@ class Event(list):
 				raise ValueError("Invalid struct length %s" % len(struct))
 		else:
 			self.extend(([""]* len(Event.Fields), [], ""))
+		
+		# If we have no timestamp just set it to now
+		if not self[0][Event.Timestamp] :
+			self[0][Event.Timestamp] = str(int(time.time() * 1000))
 		
 	@staticmethod
 	def new_for_data(event_data):
