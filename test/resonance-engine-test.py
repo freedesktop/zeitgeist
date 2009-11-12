@@ -18,8 +18,8 @@ test_event_1 = None
 def create_test_event_1():
 	ev = Event()
 	ev.timestamp = 0
-	ev.interpretation = Source.USER_ACTIVITY
-	ev.manifestation = Content.CREATE_EVENT
+	ev.interpretation = Manifestation.USER_ACTIVITY
+	ev.manifestation = Interpretation.CREATE_EVENT
 	ev.actor = TEST_ACTOR
 	subj = Subject()
 	subj.uri = u"test://mytest"
@@ -110,14 +110,14 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event = Event()
 		event[0][0] = 23 # This is illegal, we assert the erro later
 		event.timestamp = 0
-		event.interpretation = Source.USER_ACTIVITY
-		event.manifestation = Content.CREATE_EVENT
+		event.interpretation = Manifestation.USER_ACTIVITY
+		event.manifestation = Interpretation.CREATE_EVENT
 		event.actor = "/usr/share/applications/gnome-about.desktop"
 		
 		subject = Subject()
 		subject.uri = "file:///tmp/file.txt"
-		subject.manifestation = Source.FILE
-		subject.interpretation = Content.DOCUMENT
+		subject.manifestation = Manifestation.FILE
+		subject.interpretation = Interpretation.DOCUMENT
 		subject.origin = "test://"
 		subject.mimetype = "text/plain"
 		subject.text = "This subject has no text"
@@ -285,14 +285,14 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	def testInsertSubjectOptionalAttributes(self):
 		ev = Event.new_for_values(
 			timestamp=123,
-			interpretation=Content.VISIT_EVENT.uri,
-			manifestation=Source.USER_ACTIVITY.uri,
+			interpretation=Interpretation.VISIT_EVENT.uri,
+			manifestation=Manifestation.USER_ACTIVITY.uri,
 			actor="Freak Mamma"
 		)
 		subj = Subject.new_for_values(
 			uri="void://foobar",
-			interpretation=Content.DOCUMENT.uri,
-			manifestation=Source.FILE.uri,
+			interpretation=Interpretation.DOCUMENT.uri,
+			manifestation=Manifestation.FILE.uri,
 			)
 		ev.append_subject(subj)
 		
@@ -302,8 +302,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 	
 	def testEventWithoutSubject(self):
 		ev = Event.new_for_values(timestamp=123,
-					interpretation=Content.VISIT_EVENT.uri,
-					manifestation=Source.USER_ACTIVITY.uri,
+					interpretation=Interpretation.VISIT_EVENT.uri,
+					manifestation=Manifestation.USER_ACTIVITY.uri,
 					actor="Freak Mamma")
 		self.assertRaises(ValueError, self.engine.insert_events, [ev])
 

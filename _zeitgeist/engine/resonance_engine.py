@@ -31,7 +31,7 @@ from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
 from zeitgeist.datamodel import Subject as _Subject, Event as _Event
-from zeitgeist.datamodel import Content, Source, Mimetype
+from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype
 import _zeitgeist.engine
 from _zeitgeist.engine.dbutils import *
 from _zeitgeist.engine.querymancer import *
@@ -276,11 +276,11 @@ def create_db(file_path):
 	_event.set_cursor(_cursor)
 
 	# Bind the db into the datamodel module
-	Content._clear_cache() # FIXME: Renamings in datamodel module
-	Source._clear_cache()  # FIXME: Renamings in datamodel module
-	Mimetype._clear_cache()  # FIXME: Renamings in datamodel module
-	Content.bind_database(_interpretation) # FIXME: Renamings in datamodel module
-	Source.bind_database(_manifestation) # FIXME: Renamings in datamodel module
+	Interpretation._clear_cache()
+	Manifestation._clear_cache()
+	Mimetype._clear_cache()
+	Interpretation.bind_database(_interpretation)
+	Manifestation.bind_database(_manifestation)
 	Mimetype.bind_database(_mimetype)
 	return cursor
 
@@ -334,10 +334,10 @@ class Event(_Event):
 		# id property is read-only in the public API
 		obj[0][cls.Id] = row["id"]
 		obj.timestamp = row["timestamp"]
-		obj.interpretation = Source.get(
+		obj.interpretation = Manifestation.get(
 			_interpretation.lookup_by_id(row["interpretation"]).value
 		)
-		obj.manifestation = Content.get(
+		obj.manifestation = Interpretation.get(
 			_manifestation.lookup_by_id(row["manifestation"]).value
 		)
 		obj.actor = row["actor"]
@@ -351,10 +351,10 @@ class Subject(_Subject):
 	def from_dbrow(cls, row):
 		obj = cls()
 		obj.uri = row["subj_uri"]
-		obj.interpretation = Content.get(
+		obj.interpretation = Interpretation.get(
 			_interpretation.lookup_by_id(row["subj_interpretation"]).value
 		)
-		obj.manifestation = Source.get(
+		obj.manifestation = Manifestation.get(
 			_manifestation.lookup_by_id(row["subj_manifestation"]).value
 		)
 		
