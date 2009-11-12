@@ -10,7 +10,7 @@ import dbus
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from zeitgeist.dbusutils import DBusInterface
-from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, EventTemplate, SubjectTemplate
+from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation
 
 import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
