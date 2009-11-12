@@ -195,7 +195,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 		u"Image": MimeTypeSet(*IMAGE_MIMETYPES),
 		u"Music": MimeTypeSet(*AUDIO_MIMETYPES),
 		u"Video": MimeTypeSet(*VIDEO_MIMETYPES),
-		u"ManifestationCode": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
+		u"SourceCode": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
 	}
 	
 	def __init__(self):
@@ -227,7 +227,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 							return unicode(fullname)
 		return None
 	
-	def _get_interpretation_for_mimetype(mimetype):
+	def _get_interpretation_for_mimetype(self, mimetype):
 		matching_filter = None
 		for filter_name, mimetypes in self.FILTERS.iteritems():
 			if mimetype and mimetype in mimetypes:
@@ -246,13 +246,13 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 		for (num, info) in enumerate(self.recent_manager.get_items()):
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
-				subject = Subject(
+				subject = Subject.new_for_values(
 					uri = unicode(info.get_uri()),
-					interpretation = _get_interpretation_for_mimetype(
+					interpretation = self._get_interpretation_for_mimetype(
 						unicode(info.get_mime_type())),
 					manifestation = Manifestation.FILE.uri,
 					text = info.get_display_name(),
-					mimetype = item_mimetype,
+					mimetype = unicode(info.get_mime_type()),
 				)
 				
 				last_application = info.last_application().strip()
@@ -269,12 +269,12 @@ class RecentlyUsedManagerGtk(DataProvider):
 					if timestamp <= self._timestamp_last_run:
 						continue
 					is_new = True
-					events.append(Event(
-						subject = item_uri,
+					events.append(Event.new_for_values(
 						timestamp = timestamp,
-						source = Manifestation.USER_ACTIVITY.uri,
-						content = use,
-						application = desktopfile or u""
+						interpretation = use,
+						manifestation = Manifestation.USER_ACTIVITY.uri,
+						actor = desktopfile or u"",
+						subject = subject
 						))
 			if num % 50 == 0:
 				self._process_gobject_events()
