@@ -3,58 +3,84 @@
 # Update python path to use local zeitgeist module
 import sys
 import os
+import time
+import gobject
+import dbus
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from zeitgeist.dbusutils import DBusInterface
+from zeitgeist.datamodel import Event, Subject
 
 import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
-from zeitgeist.datamodel import *
-from _zeitgeist.json_importer import *
 
-import gobject, gtk
-import unittest
-from threading import Thread
+#
+# IMPORTANT: We don't use the unittest module here because it is too hard
+#            to control the processes spawned
+#
 
-class RemoteTest(unittest.TestCase):
+class TestFailed (RuntimeError):
+	def __init__(self, msg=None):
+		if msg : RuntimeError.__init__(self, msg)
+		else : RuntimeError.__init__(self)
 
-	def setUp(self):
-		_zeitgeist.engine.DB_PATH = ":memory:"
-		self.engine = create_engine()
+class RemoteTest:
+	
+	def __init__ (self, iface):
+		self.iface = iface
 		
-		# The remote.py module is hacky so we must import this a bit late
-		from _zeitgeist.engine.remote import RemoteInterface
-		
-		# We run the DBus server in a separate thread
-		self.mainloop = gobject.MainLoop()
-		self.remote = RemoteInterface()				
-		
-		def dispatch_mainloop():
-			print "hhhhhhhhhhhhh"
-			gtk.gdk.threads_enter()
-			self.mainloop.run()
-			gtk.gdk.threads_leave()
-			print "ddddddddd"
-		
-		print 111111111
-		self.engine_thread = Thread(target=dispatch_mainloop)
-		self.engine_thread.start()
-		print 12121212
-		
-	def tearDown (self):
-		self.engine.close()
-		_zeitgeist.engine._engine = None
-		print 222222222222
-		self.remote.Quit()
-		
-		# Wait at max 2s and assert that the engine is dead
-		print 33333333333333
-		self.engine_thread.join(2)
-		print 444444444444444
-		self.assertFalse(self.engine_thread.isAlive())
+	def assertEquals(self, expected, actual):
+		if expected != actual : raise TestFailed("Expected %s found %s" % (expected, actual))
 	
 	def testNothing(self):
 		# Simply assert that we start and stop correctly
 		pass
 	
+	def testInsertEvent(self):
+		print 11111111111111
+	
 if __name__ == "__main__":
-	unittest.main()
+	child_pid = os.fork()
+	if child_pid > 0:
+		# parent process, this is the client
+		# connect to server, but give it a 1s gracetime to come up
+		time.sleep(1)
+		retries = 0
+		while retries <= 10:
+			retries += 1
+			try:					
+				iface = DBusInterface()
+				break
+			except:
+				# retry
+				time.sleep(0.5)
+		if retries >= 10 : raise TestFailed("Failed to start server")
+	else:
+		# child process, this is the server
+		_zeitgeist.engine.DB_PATH = ":memory:"
+		engine = create_engine()
+	
+		# The remote.py module is hacky so we must import this a bit late
+		from _zeitgeist.engine.remote import RemoteInterface
+	
+		# We run the DBus server in a separate thread
+		mainloop = gobject.MainLoop()
+		
+		remote = RemoteInterface(mainloop=mainloop)
+		
+		mainloop.run()
+		print "Server stopped"
+		raise SystemExit(0)
+	
+	suite = RemoteTest(iface)
+	tests = (suite.testNothing, suite.testInsertEvent)
+	
+	for test in tests:
+		print "*** Running test: %s" % test.func_name
+		test()		
+	
+	print "All tests done, waiting for server to stop"
+	iface.Quit()
+	os.waitpid(child_pid, 0)
 	
