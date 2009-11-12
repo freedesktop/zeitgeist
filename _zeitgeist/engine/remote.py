@@ -48,6 +48,10 @@ def make_dbus_sendable(event):
 	return event
 
 class RemoteInterface(SingletonApplication):
+		
+	_dbus_properties = {
+		"version": property(lambda self: (0, 3, 0)),
+	}
 	
 	# Initialization
 	
@@ -155,6 +159,29 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
 		_engine.delete_log()
+        
+    # Properties interface
+
+	@dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
+						 in_signature="ss", out_signature="v")
+	def Get(self, interface_name, property_name):
+		try:
+			return self._dbus_properties[property_name].fget(self)
+		except KeyError, e:
+			raise AttributeError(property_name)
+
+	@dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
+						 in_signature="ssv", out_signature="")
+	def Set(self, interface_name, property_name, value):
+		try:
+			prop = self._dbus_properties[property_name].fset(self, value)
+		except (KeyError, TypeError), e:
+			raise AttributeError(property_name)
+
+	@dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
+						 in_signature="s", out_signature="a{sv}")
+	def GetAll(self, interface_name):
+		return dict((k, v.fget(self)) for (k,v) in self._dbus_properties.items())
 	
 	# Signals and signal emitters
 	
