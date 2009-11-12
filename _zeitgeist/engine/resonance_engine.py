@@ -34,7 +34,6 @@ from zeitgeist.datamodel import Subject as _Subject, Event as _Event
 from zeitgeist.datamodel import Content, Source, Mimetype
 import _zeitgeist.engine
 from _zeitgeist.engine.dbutils import *
-from _zeitgeist.engine.engine_base import BaseEngine
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
 
