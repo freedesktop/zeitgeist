@@ -430,7 +430,7 @@ class ZeitgeistEngine:
 	def insert_event (self, event):
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
-		
+				
 		# Transparently wrap DBus event structs as Event objects
 		event = self._ensure_event_wrapping(event)
 		
@@ -447,6 +447,9 @@ class ZeitgeistEngine:
 			payload_id = _payload.add(value=event.payload)
 		else:
 			payload_id = None	
+		
+		if not event.subjects:
+			raise ValueError("Illegal event format: No subject")
 		
 		for subj in event.subjects:
 			suri_id = _uri.lookup_or_create(subj.uri).id
@@ -465,7 +468,7 @@ class ZeitgeistEngine:
 				opt_attr["subj_storage"] = _storage.lookup_or_create(subj.storage).id # FIXME: Storage is not an EntityTable
 			# We store the event here because we need one row per subject
 			#_event.set_cursor(EchoCursor())
-			try:
+			try:				
 				_event.add(
 					id=id,
 					timestamp=timestamp,

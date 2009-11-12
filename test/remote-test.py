@@ -48,6 +48,7 @@ class RemoteTest:
 		subj = Subject.new_for_values(uri="void://foobar",
 					interpretation=Content.DOCUMENT.uri,
 					manifestation=Source.FILE.uri)
+		ev.append_subject(subj)
 		ids = iface.InsertEvents([ev])
 		events = iface.GetEvents(ids)
 		self.assertEquals(1, len(ids))
