@@ -386,7 +386,7 @@ class Subject(list):
 		Storage) = range(7)
 	
 	def __init__(self, data=None):
-		super(Subject, self).__init__([None]*len(Subject.Fields))
+		super(Subject, self).__init__([""]*len(Subject.Fields))
 		if data:
 			if len(data) != len(Subject.Fields):
 				raise ValueError(
@@ -394,15 +394,15 @@ class Subject(list):
 					"expected %s" % (len(data), len(Subject.Fields)))
 			super(Subject, self).__init__(data)
 		else:
-			super(Subject, self).__init__([None]*len(Subject.Fields))
+			super(Subject, self).__init__([""]*len(Subject.Fields))
 		
 	def __repr__(self):
 		return "%s(%s)" %(
 			self.__class__.__name__, super(Subject, self).__repr__()
 		)
 	
-	@classmethod
-	def new_for_values (cls, **values):
+	@staticmethod
+	def new_for_values (**values):
 		self = Subject()
 		for key, value in values.iteritems():
 			setattr(self, key, value)
@@ -491,7 +491,7 @@ class Event(list):
 			else:
 				raise ValueError("Invalid struct length %s" % len(struct))
 		else:
-			self.extend(([None]* len(Event.Fields), [], None))
+			self.extend(([""]* len(Event.Fields), [], ""))
 		
 	@staticmethod
 	def new_for_data(event_data):
