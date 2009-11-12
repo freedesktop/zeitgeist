@@ -299,6 +299,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		ids = self.engine.insert_events([ev,])
 		result = self.engine.get_events(ids)
 		self.assertEquals(len(ids), len(result))
+	
+	def testEventWithoutSubject(self):
+		ev = Event.new_for_values(timestamp=123,
+					interpretation=Content.VISIT_EVENT.uri,
+					manifestation=Source.USER_ACTIVITY.uri,
+					actor="Freak Mamma")
+		self.assertRaises(ValueError, self.engine.insert_events, [ev])
 		
 
 if __name__ == "__main__":
