@@ -1,11 +1,14 @@
-Version 0.3
+Version 0.3.0
 ------------------------------
 
+ - Complete rework of engine and DBus API
+ - Public Python client API defined in zeitgeist.datamodel and zeitgeist.dbusutils modules
  - Removed the EngineStart and EngineExit signals.
  - Changed URIs from XESAM to Nepomuk.
  - Removed the Storm backend (obsoleted in 0.2.1).
- - The "text" property of an item can now be empty, and isn't automatically
-   set to the filename in its URI.
+ - Removed the Querymancer backend (obsoleted in 0.3.0).
+ - The "text" property of an item can now be empty, and isn't automatically set to the filename in its URI.
+ - Application and document focus detection. There's a partial API public now, but the full API for contextual relevancy will follow in later releases
 
 
 Version 0.2.1

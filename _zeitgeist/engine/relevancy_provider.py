@@ -28,7 +28,7 @@ from xdg import BaseDirectory
 DB_PATH = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
     "database.sqlite")
  
-class FocusVertexRegister(object):
+class FocusSwitchRegister(object):
     def __init__(self):
         self.last_app = -1
         self.last_doc = -1
@@ -49,13 +49,13 @@ class FocusVertexRegister(object):
             (timestamp INTEGER, from_app_id INTEGER, from_doc_id INTEGER, to_app_id, to_doc_id)
             """)
     
-    def insert_focus(self, timestamp, app, doc):
+    def focus_change(self, timestamp, app, doc):
         
         self.cursor.execute("""
             INSERT INTO focus_switch VALUES (?,
-                (SELECT item_id FROM app WHERE info=?),
+                (SELECT id FROM app WHERE value=?),
                 (SELECT id FROM uri WHERE value=?),
-                (SELECT item_id FROM app WHERE info=?),
+                (SELECT id FROM app WHERE value=?),
                 (SELECT id FROM uri WHERE value=?))
             """, (timestamp, self.last_app, self.last_doc, app, doc)
             )
@@ -96,7 +96,7 @@ class FocusVertexRegister(object):
         return results[:limit]
     
     
-    def get_focused_to_items(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
+    def get_most_focused_to_items(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
        rel = self.cursor.execute("""
             SELECT (SELECT value FROM uri WHERE id=from_doc_id) FROM focus_switch
                 WHERE to_doc_id = (SELECT id FROM uri WHERE value=?) 
@@ -121,7 +121,7 @@ class FocusVertexRegister(object):
        return results[:limit]
     
     
-    def get_focused_from_items(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
+    def get_most_focused_from_items(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
         rel = self.cursor.execute("""
             SELECT (SELECT value FROM uri WHERE id=to_doc_id) FROM focus_switch
                 WHERE from_doc_id = (SELECT id FROM uri WHERE value=?) 
@@ -158,7 +158,7 @@ class FocusVertexRegister(object):
      
 if __name__=="__main__":
     ################
-    fvr = FocusVertexRegister()
+    fvr = FocusSwitchRegister()
     fvr.clear_table()
     
     app = "/usr/share/applications/firefox.desktop"
@@ -168,17 +168,18 @@ if __name__=="__main__":
     doc4 = "http://www.grillbar.org.com/"
     doc8 = "http://www.sqlite.org/lang.html"
     
-    fvr.insert_focus(time.time(), app, doc1)
-    fvr.insert_focus(time.time(), app, doc2)
-    fvr.insert_focus(time.time(), app, doc4)
-    fvr.insert_focus(time.time(), app, doc8)
-    fvr.insert_focus(time.time(), app, doc2)
-    fvr.insert_focus(time.time(), app, doc1)
-    fvr.insert_focus(time.time(), app, doc2)
+    fvr.focus_change(time.time(), app, doc1)
+    fvr.focus_change(time.time(), app, doc2)
+    fvr.focus_change(time.time(), app, doc4)
+    fvr.focus_change(time.time(), app, doc8)
+    fvr.focus_change(time.time(), app, doc2)
+    fvr.focus_change(time.time(), app, doc1)
+    fvr.focus_change(time.time(), app, doc2)
     
    # result = fvr.get_relevant_items_to_item(doc2)
-    result = fvr.get_focused_to_items(doc2)
-    result = fvr.get_focused_from_items(doc2)
+    result = fvr.get_most_focused_to_items(doc8)
+    print result
+    result = fvr.get_most_focused_from_items(doc8)
     print result
     
     
