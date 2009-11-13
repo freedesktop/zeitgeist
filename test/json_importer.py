@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from simplejson import *
+import json
 
 from zeitgeist.datamodel import Event, Subject
 
@@ -49,13 +49,8 @@ def import_events(path, engine):
 	Load a collection of JSON event definitions into 'engine'. Fx:
 	
 	    import_events("test/data/single_event.js", self.engine)
-	"""	
-	json_string = "".join(file(path).readlines())
-	decoder = JSONDecoder()
-	json = decoder.decode(json_string)
-	
-	events = []
-	for event_node in json:
-		events.append(dict2event(event_node))
+	"""
+	data = json.load(file(path))
+	events = map(dict2event, data)
 	
 	return engine.insert_events(events)
