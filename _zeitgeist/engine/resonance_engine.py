@@ -53,13 +53,27 @@ _payload = None         # id, blob
 _storage = None         # id, value, available
 _event = None           # ...
 
+class UnicodeCursor(sqlite3.Cursor):
+	
+	@staticmethod
+	def fix_unicode(obj):
+		if isinstance(obj, (str, unicode)):
+			obj = obj.decode("UTF-8")
+		return obj
+	
+	def execute(self, statement, parameters=None):
+		if parameters is not None:
+			parameters = [self.fix_unicode(p) for p in parameters]
+			return super(UnicodeCursor, self).execute(statement, parameters)
+		else:
+			return super(UnicodeCursor, self).execute(statement)
 
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
 	log.info("Creating database: %s" % file_path)
 	conn = sqlite3.connect(file_path)
 	conn.row_factory = sqlite3.Row
-	cursor = conn.cursor()
+	cursor = conn.cursor(UnicodeCursor)
 	
 	# focus duration
 	cursor.execute("""
