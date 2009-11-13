@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -.- coding: utf-8 -.-
 
 # Update python path to use local zeitgeist module
 import sys
@@ -337,7 +338,19 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		#self.assertRaises(ValueError, self.engine.insert_events, [ev])
 		
 	def testUnicodeEventInsert(self):
-		import_events("test/data/unicode_event.js", self.engine)
+		ids = import_events("test/data/unicode_event.js", self.engine)
+		self.assertEquals(len(ids), 1)
+		result = self.engine.get_events(ids)
+		self.assertEquals(len(ids), len(result))
+		subj = Subject.new_for_values(text="hällö, I'm gürmen")
+		event_template = Event.new_for_values(subjects=[subj,])
+		result = self.engine.find_eventids(
+			(0, 200),
+			[event_template, ],
+			0,
+			100,
+			0,)
+		self.assertEquals(len(result), 1)
 		
 
 if __name__ == "__main__":

@@ -589,7 +589,7 @@ class ZeitgeistEngine:
 					_mimetype.lookup_id(subject_template.mimetype))
 			if subject_template.text:
 				subwhere.add("subj_text = ?",
-					int(event_template.text))
+					subject_template.text)
 			where_or.add(subwhere.generate_condition(), subwhere.arguments)
 		where.add(where_or.generate_condition(), where_or.arguments)
 		

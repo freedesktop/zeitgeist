@@ -58,4 +58,4 @@ def import_events(path, engine):
 	for event_node in json:
 		events.append(dict2event(event_node))
 	
-	engine.insert_events(events)
+	return engine.insert_events(events)
