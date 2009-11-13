@@ -583,7 +583,7 @@ class ZeitgeistEngine:
 				subwhere.add("subj_manifestation = ?",
 					_manifestation.lookup_id(subject_template.manifestation))
 			if subject_template.origin:
-				subwhere.add("subj_origin = ?", int(event_template.origin))
+				subwhere.add("subj_origin = ?", subject_template.origin)
 			if subject_template.mimetype:
 				subwhere.add("subj_mimetype = ?",
 					_mimetype.lookup_id(subject_template.mimetype))
