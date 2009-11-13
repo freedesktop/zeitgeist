@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
 from zeitgeist.datamodel import *
-from _zeitgeist.json_importer import *
+from json_importer import import_events
 
 import unittest
 
