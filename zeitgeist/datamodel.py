@@ -521,8 +521,9 @@ class Event(list):
 		Create a new Event setting event_data as the Event properties
 		"""
 		self = Event()
-		if len(event_data) != len(Event.Fields) :
-			raise ValueError("event_data must have %s members, found %s" % (len(Event.Fields, len(event_Data))))
+		if len(event_data) != len(Event.Fields):
+			raise ValueError("event_data must have %s members, found %s" % \
+				(len(Event.Fields), len(event_data)))
 		self[0] = event_data
 		return self
 	
