@@ -58,8 +58,7 @@ class EntityTable(Table):
 		except KeyError:
 			pass # We didn't have it cached; fall through and handle it below
 		
-		#row = self.find_one(self.value, self.id == id)
-		row = self._cursor.execute("""SELECT value FROM %s WHERE id=?""" % self.get_name(), (str(id),)).fetchone()
+		row = self._cursor.execute("""SELECT value FROM %s WHERE id=?""" % self.get_name(), (id,)).fetchone()
 		if row :			
 			ent = Entity(id, row[0])
 			self._INV_CACHE[id] = ent
@@ -77,11 +76,10 @@ class EntityTable(Table):
 		except KeyError:
 			pass # We didn't have it cached; fall through and handle it below
 		
-		row = self._cursor.execute("""SELECT id FROM %s WHERE value=?""" % self.get_name(), (str(value),)).fetchone()
-		if row :	
+		row = self._cursor.execute("""SELECT id FROM %s WHERE value=?""" % self.get_name(), (value,)).fetchone()
+		if row:
 			ent = Entity(row[0], value)
 			self._CACHE[value] = ent
-			#log.debug("Found %s: %s" % (self, ent))
 			return ent
 		return None
 	

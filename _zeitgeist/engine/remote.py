@@ -36,7 +36,7 @@ def special_str(obj):
 	"""
 	if obj is None:
 		return ""
-	return str(obj)
+	return unicode(obj)
 	
 def make_dbus_sendable(event):
 	for n, value in enumerate(event[0]):
