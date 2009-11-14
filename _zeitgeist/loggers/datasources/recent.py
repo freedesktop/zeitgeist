@@ -242,8 +242,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 		events = []
 		
-		print "-------------", len(self.recent_manager.get_items()), "---------------"
-		
 		for (num, info) in enumerate(self.recent_manager.get_items()):
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
 				subject = Subject.new_for_values(
@@ -277,14 +275,9 @@ class RecentlyUsedManagerGtk(DataProvider):
 						actor = desktopfile or u"",
 						subjects = [subject]
 						))
-					print "FFFFFFFFFF\n".join(map(str,events))
 			if num % 50 == 0:
 				self._process_gobject_events()
-			# WHAT the hell is this break for
-			# break
 		self._timestamp_last_run = timestamp_last_run
-		
-		print "------", len(events), "------"
 		return events
 
 if enabled:
