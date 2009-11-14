@@ -117,11 +117,14 @@ class EventGenerator:
 
 if __name__ == "__main__":
 	import sys, time
-	events = EventGenerator(5000)
-	print events.report()
+	events = EventGenerator(10000)
+	print events.report() + "\n"
 	log = DBusInterface()
 	start = time.time()
+	
+	# Insert events in batches of 10
 	for i in range(len(events) / 10):
 		batch = [events[i*10 + j] for j in range(10)]
 		log.InsertEvents(batch)
+		
 	print "Insertion time: %ss" % (time.time() - start)
