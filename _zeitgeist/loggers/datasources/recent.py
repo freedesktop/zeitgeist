@@ -264,7 +264,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 				
 				is_new = False
 				for timestamp, use in times:
-					print use
 					if timestamp <= self._timestamp_last_run:
 						continue
 					is_new = True

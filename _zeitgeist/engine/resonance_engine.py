@@ -418,7 +418,6 @@ class ZeitgeistEngine:
 		return map (self.insert_event, events)
 	
 	def insert_event (self, event):
-		print event
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
 				

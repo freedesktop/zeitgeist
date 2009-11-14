@@ -85,7 +85,6 @@ class FocusSwitchRegister(object):
         
         result = {}
         for (x,) in rel:
-            #print x
             if not result.has_key(x):
                 result[x] = 0
             result[x] +=1
@@ -110,7 +109,6 @@ class FocusSwitchRegister(object):
         
        result = {}
        for (x,) in rel:
-            #print x
             if not result.has_key(x):
                 result[x] = 0
             result[x] +=1
@@ -136,7 +134,6 @@ class FocusSwitchRegister(object):
         
         result = {}
         for (x,) in rel:
-            #print x
             if not result.has_key(x):
                 result[x] = 0
             result[x] +=1
