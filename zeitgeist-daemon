@@ -26,13 +26,16 @@ import subprocess
 import dbus.mainloop.glib
 import gettext
 import logging
-import atexit
 
 from zeitgeist import _config
 _config.setup_path()
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 logging.basicConfig(level=logging.DEBUG)
+
+if sys.argv[1] == "rocks":
+	print "Deine Mudda rocks!"
+	sys.exit(0)
 
 from _zeitgeist.engine.remote import RemoteInterface
 
