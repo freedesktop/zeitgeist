@@ -209,17 +209,17 @@ class RemoteInterface(SingletonApplication):
 		return _zeitgeist.engine.get_actor_focus_duration(application_uri, start_date, end_date)
 
 	@dbus.service.method(DBUS_INTERFACE, in_signature="iii", out_signature="as")
-	def GetLongestUsedSubject(self, number, start_date, end_date):
+	def GetLongestUsedSubjects(self, number, start_date, end_date):
 		return _zeitgeist.engine.get_longest_used_subjects(number, start_date, end_date)
 
 	@dbus.service.method(DBUS_INTERFACE, in_signature="iii", out_signature="as")
-	def GetLongestUsedActor(self, number, start_date, end_date):
+	def GetLongestUsedActors(self, number, start_date, end_date):
 		return _zeitgeist.engine.get_longest_used_actors(number, start_date, end_date)
 	# Commands
 	
 	@dbus.service.method(DBUS_INTERFACE, in_signature="ss", out_signature="")
-	def NotifyFocusEvent(self, application_uri, document_uri):
-		return _zeitgeist.engine.insert_focus(application_uri, document_uri)
+	def RegisterFocusEvent(self, application_uri, document_uri):
+		return _zeitgeist.engine.register_focus(application_uri, document_uri)
 	
 	
 	@dbus.service.method(DBUS_INTERFACE)
