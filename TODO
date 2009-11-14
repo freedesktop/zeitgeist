@@ -1,0 +1,5 @@
+- Finish EventsChanged in remoty.py
+- Review FocusDurationRegister code,found a lot of naming conventions errors and some minor bugs.
+- Fix the tables to use FLOATS for timestamps instead of INTERGERs (this will affect the code in the engine)
+- Fix the Recentlyused Provider
+- Test all relevancy stuff
