@@ -24,10 +24,12 @@ import time
 import os
 import logging
 from xdg import BaseDirectory
+#from dbutils import deine mudda
+from dbutils import *
 
 DB_PATH = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
     "database.sqlite")
- 
+     
 class FocusSwitchRegister(object):
     def __init__(self):
         self.last_app = -1
@@ -46,16 +48,16 @@ class FocusSwitchRegister(object):
         self.cursor = conn.cursor()
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS focus_switch
-            (timestamp INTEGER, from_app_id INTEGER, from_doc_id INTEGER, to_app_id, to_doc_id)
+            (timestamp REAL, from_actor_id INTEGER, from_subj_id INTEGER, to_actor_id, to_subj_id)
             """)
     
     def focus_change(self, timestamp, app, doc):
         
         self.cursor.execute("""
             INSERT INTO focus_switch VALUES (?,
-                (SELECT id FROM app WHERE value=?),
+                (SELECT id FROM actor WHERE value=?),
                 (SELECT id FROM uri WHERE value=?),
-                (SELECT id FROM app WHERE value=?),
+                (SELECT id FROM actor WHERE value=?),
                 (SELECT id FROM uri WHERE value=?))
             """, (timestamp, self.last_app, self.last_doc, app, doc)
             )
@@ -65,19 +67,19 @@ class FocusSwitchRegister(object):
         self.last_timestamp = timestamp
         self.cursor.connection.commit()
         
-    def get_relevant_items_to_item(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=10):
+    def get_relevant_subjects(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=10):
         rel = self.cursor.execute("""
-            SELECT (SELECT value FROM uri WHERE id=from_doc_id) FROM focus_switch
-                WHERE to_doc_id = (SELECT id FROM uri WHERE value=?) 
+            SELECT (SELECT value FROM uri WHERE id=from_subj_id) FROM focus_switch
+                WHERE to_subj_id = (SELECT id FROM uri WHERE value=?) 
                 AND timestamp >= ? 
                 AND timestamp <=? 
-                AND from_doc_id != -1
+                AND from_subj_id != -1
             UNION ALL 
-            SELECT (SELECT value FROM uri WHERE id=to_doc_id) FROM focus_switch 
-                WHERE from_doc_id = (SELECT id FROM uri WHERE value=?) 
+            SELECT (SELECT value FROM uri WHERE id=to_subj_id) FROM focus_switch 
+                WHERE from_subj_id = (SELECT id FROM uri WHERE value=?) 
                 AND timestamp >= ? 
                 AND timestamp <=? 
-                AND to_doc_id != -1
+                AND to_subj_id != -1
             """, (uri, min_timestamp, max_timestamp, uri, min_timestamp, max_timestamp)
             ).fetchall()
         
@@ -96,13 +98,13 @@ class FocusSwitchRegister(object):
         return results[:limit]
     
     
-    def get_most_focused_to_items(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
+    def get_most_focused_to_subject(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
        rel = self.cursor.execute("""
-            SELECT (SELECT value FROM uri WHERE id=from_doc_id) FROM focus_switch
-                WHERE to_doc_id = (SELECT id FROM uri WHERE value=?) 
+            SELECT (SELECT value FROM uri WHERE id=from_subj_id) FROM focus_switch
+                WHERE to_subj_id = (SELECT id FROM uri WHERE value=?) 
                 AND timestamp >= ? 
                 AND timestamp <=? 
-                AND from_doc_id != -1
+                AND from_subj_id != -1
             """, (uri, min_timestamp, max_timestamp)
             ).fetchall()
         
@@ -121,13 +123,13 @@ class FocusSwitchRegister(object):
        return results[:limit]
     
     
-    def get_most_focused_from_items(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
+    def get_most_focused_from_subject(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
         rel = self.cursor.execute("""
-            SELECT (SELECT value FROM uri WHERE id=to_doc_id) FROM focus_switch
-                WHERE from_doc_id = (SELECT id FROM uri WHERE value=?) 
+            SELECT (SELECT value FROM uri WHERE id=to_subj_id) FROM focus_switch
+                WHERE from_subj_id = (SELECT id FROM uri WHERE value=?) 
                 AND timestamp >= ? 
                 AND timestamp <=? 
-                AND to_doc_id != -1
+                AND to_subj_id != -1
             """, (uri, min_timestamp, max_timestamp)
             ).fetchall()
             
@@ -153,33 +155,100 @@ class FocusSwitchRegister(object):
             """)
         self.cursor.connection.commit()
     
-             
-         
-     
-if __name__=="__main__":
-    ################
-    fvr = FocusSwitchRegister()
-    fvr.clear_table()
+class FocusDurationRegister():
+    """
+    """
     
-    app = "/usr/share/applications/firefox.desktop"
+    def __init__(self):
+        self.lastrowid = 0
+        self.doc_table = EntityTable("uri")
+        self.app_table = EntityTable("actor")
+
+        self._create_db()  
+        
+        self.doc_table.set_cursor(self.cursor)
+        self.app_table.set_cursor(self.cursor)
+        
+    def _create_db(self):
+        """Create the database and return a default cursor for it"""
+        dbfile = DB_PATH
+        #log.info("Creating database: %s" % file_path)
+        conn = sqlite3.connect(dbfile)
+        conn.row_factory = sqlite3.Row
+        self.cursor = conn.cursor()
+        # focus duration
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS focus_duration
+            (subject INTEGER,
+            actor INTEGER,
+            focus_in REAL, 
+            focus_out REAL,
+            CONSTRAINT unique_event UNIQUE (subject, actor, focus_in, focus_out))""")
+        
+        self.cursor.execute("""
+            CREATE INDEX IF NOT EXISTS focus_duration_subject
+            ON focus_duration(subject)""")
     
-    doc1 = "file:///home/seif/Downloads/eise_aufgabenblatt_01.pdf"
-    doc2 = "http://www.facebook.com/home.php?"
-    doc4 = "http://www.grillbar.org.com/"
-    doc8 = "http://www.sqlite.org/lang.html"
+    def focus_change(self, now, document, application):
+        doc_id = self.doc_table.lookup_or_create(document)
+        app_id = self.app_table.lookup_or_create(application)
+        if self.cursor.lastrowid:
+            self.cursor.execute("""
+                        UPDATE focus_duration 
+                        SET focus_out = ?
+                        WHERE ROWID = ?""", (str(now), str(self.lastrowid)))
+        if not document:
+            self.cursor.execute("""
+                        INSERT INTO focus_duration 
+                        VALUES (?,?,?,?) """, (str(app_id), str(doc_id), str(now), str(now)))
+            self.lastrowid = self.cursor.lastrowid
+        self.cursor.connection.commit()
     
-    fvr.focus_change(time.time(), app, doc1)
-    fvr.focus_change(time.time(), app, doc2)
-    fvr.focus_change(time.time(), app, doc4)
-    fvr.focus_change(time.time(), app, doc8)
-    fvr.focus_change(time.time(), app, doc2)
-    fvr.focus_change(time.time(), app, doc1)
-    fvr.focus_change(time.time(), app, doc2)
+    def get_subject_focus_duration(self, document, start, end):
+        doc_id = self.doc_table.lookup_or_create(document)
+        self.cursor.execute("""
+                        SELECT SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
+                        WHERE subject_id = ? AND focus_in > start AND focus_out < end
+                        """, (str(doc_id)))
+        for row in self.cursor:
+            return row[0]
+
+    def get_actor_focus_duration(self, application, start, end):
+        app_id = self.app_table.lookup_or_create(application)
+        self.cursor.execute("""
+                        SELECT SUM(focus_out) - SUM(focus_in) AS diff
+                        FROM focus_duration
+                        WHERE actor = ? AND focus_in > start
+                            AND focus_out < end
+                        """, (str(app_id)))
+        for row in self.cursor:
+            return row[0]
+
+    def get_longest_used_subjects(self, num, start, end):
+        doc_id = self.doc_table.lookup_or_create(document)
+        self.cursor.execute("""
+                        SELECT subject,
+                            SUM(focus_out) - SUM(focus_in) AS diff
+                        FROM focus_duration
+                        WHERE focus_in > start AND focus_out < end
+                        GROUP BY subject
+                        ORDER BY diff DESC
+                        """)
+        docs = []
+        for row in self.cursor:
+            docs.append(self.doc_table.lookup_by_id(row[0]))
+        return docs
     
-   # result = fvr.get_relevant_items_to_item(doc2)
-    result = fvr.get_most_focused_to_items(doc8)
-    print result
-    result = fvr.get_most_focused_from_items(doc8)
-    print result
-    
-    
+    def get_longest_used_actors(self, num, start, end):
+        app_id = self.app_table.lookup_or_create(application)
+        self.cursor.execute("""
+                        SELECT actor, SUM(focus_out) - SUM(focus_in) AS diff
+                        FROM focus_duration
+                        WHERE focus_in > start AND focus_out < end
+                        GROUP BY actor
+                        ORDER BY diff
+                        """)
+        apps = []
+        for row in self.cursor:
+            apps.append(self.app_table.lookup_by_id(row[0]))
+        return apps

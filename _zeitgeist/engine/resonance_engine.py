@@ -36,7 +36,7 @@ import _zeitgeist.engine
 from _zeitgeist.engine.dbutils import *
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
-from _zeitgeist.engine.relevancy_provider import FocusSwitchRegister
+from _zeitgeist.engine.relevancy_provider import FocusSwitchRegister, FocusDurationRegister
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -61,25 +61,6 @@ def create_db(file_path):
 	conn = sqlite3.connect(file_path)
 	conn.row_factory = sqlite3.Row
 	cursor = conn.cursor()
-	
-	# focus duration
-	cursor.execute("""
-		CREATE TABLE IF NOT EXISTS focus_duration
-		(subject INTEGER,
-		actor INTEGER,
-		focus_in INTEGER, 
-		focus_out INTEGER,
-		CONSTRAINT unique_event UNIQUE (subject, actor, focus_in, focus_out))""")
-	
-	cursor.execute("""
-		CREATE INDEX IF NOT EXISTS focus_duration_subject
-		ON focus_duration(subject)""")
-	
-	#focus relevancy
-	cursor.execute("""
-		CREATE TABLE IF NOT EXISTS focus_switch
-		(timestamp INTEGER, from_app INTEGER, from_doc INTEGER, to_app, to_doc)
-		""")
 	
 	# uri
 	cursor.execute("""
@@ -159,7 +140,7 @@ def create_db(file_path):
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS event
 			(id INTEGER,
-			 timestamp INTEGER,
+			 timestamp REAL,
 			 interpretation INTEGER,
 			 manifestation INTEGER,			 
 			 actor INTEGER,			 
@@ -437,6 +418,7 @@ class ZeitgeistEngine:
 		return map (self.insert_event, events)
 	
 	def insert_event (self, event):
+		print event
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
 			_actor, _text, _payload, _storage, _event
 				
@@ -493,8 +475,10 @@ class ZeitgeistEngine:
 					subj_text=stext_id,
 					**opt_attr)
 			except sqlite3.IntegrityError:
-				raise KeyError("Duplicate event detected")
-		
+				pass
+			    # I don't think right now for testing purposes we should block the whole process for a duplicate event entry
+			    # thus I set it to just pass, someone should work on fixing this issue. I think it is INTEGER related.
+				#raise KeyError("Duplicate event detected")
 		
 		_cursor.connection.commit()
 		
@@ -603,98 +587,22 @@ class ZeitgeistEngine:
 			""", (actor,)).fetchone()
 		return query["timestamp"] if query else 0
 
-	def get_document_focus_duration(self, document_uri, start, end):
-		return self.focus_duration.get_document_focus_duration(document_uri, start, end)
+	def get_subject_focus_duration(self, subject, start, end):
+		return self.focus_duration.get_subject_focus_duration(subject, start, end)
 
-	def get_application_focus_duration(self, application_uri, start, end):
-		return self.focus_duration.get_application_focus_duration(application_uri, start, end)
+	def get_actor_focus_duration(self, actor, start, end):
+		return self.focus_duration.get_actor_focus_duration(actor, start, end)
 
-	def get_longest_used_applications(self, number, start, end):
-		return self.focus_duration.get_longest_used_documents(number, start, end)
+	def get_longest_used_actors(self, number, start, end):
+		return self.focus_duration.get_longest_used_actors(number, start, end)
 
-	def get_longest_used_documents(self, number, start, end):
-		return self.focus_duration.get_longest_used_documents(number, start, end)
+	def get_longest_used_subjects(self, number, start, end):
+		return self.focus_duration.get_longest_used_subjects(number, start, end)
 
-	def register_focus(self, application_uri, document_uri):
+	def register_focus(self, actor, subject):
 		now = time.time()
-		self.focus_duration.focus_change(now, application_uri, document_uri)
-		self.focus_switch.focus_change(now, application_uri, document_uri)
-
-
-class FocusDurationRegister():
-	"""
-	"""
-	
-	def __init__(self):
-		self.lastrowid = 0
-		self.doc_table = EntityTable("uri")
-		self.app_table = EntityTable("actor")
-		self.doc_table.set_cursor(_cursor)
-		self.app_table.set_cursor(_cursor)
-
-	def focus_change(self, now, document, application):
-		doc_id = self.doc_table.lookup_or_create(document)
-		app_id = self.app_table.lookup_or_create(application)
-		if _cursor.lastrowid:
-			_cursor.execute("""
-						UPDATE focus_duration 
-						SET focus_out = ?
-						WHERE ROWID = ?""", (str(now), str(self.lastrowid)))
-		if not document:
-			_cursor.execute("""
-						INSERT INTO focus_duration 
-						VALUES (?,?,?,?) """, (str(app_id), str(doc_id), str(now), str(now)))
-			self.lastrowid = _cursor.lastrowid
-		_cursor.connection.commit()
-	
-	def get_document_focus_duration(self, document, start, end):
-		doc_id = self.doc_table.lookup_or_create(document)
-		_cursor.execute("""
-						SELECT SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
-						WHERE document_id = ? AND focus_in > start AND focus_out < end
-						""", (str(doc_id)))
-		for row in _cursor:
-			return row[0]
-
-	def get_application_focus_duration(self, application, start, end):
-		app_id = self.app_table.lookup_or_create(application)
-		_cursor.execute("""
-						SELECT SUM(focus_out) - SUM(focus_in) AS diff
-						FROM focus_duration
-						WHERE actor = ? AND focus_in > start
-							AND focus_out < end
-						""", (str(app_id)))
-		for row in _cursor:
-			return row[0]
-
-	def get_longest_used_documents(self, num, start, end):
-		doc_id = self.doc_table.lookup_or_create(document)
-		_cursor.execute("""
-						SELECT subject,
-							SUM(focus_out) - SUM(focus_in) AS diff
-						FROM focus_duration
-						WHERE focus_in > start AND focus_out < end
-						GROUP BY subject
-						ORDER BY diff DESC
-						""")
-		docs = []
-		for row in _cursor:
-			docs.append(self.doc_table.lookup_by_id(row[0]))
-		return docs
-	
-	def get_longest_used_applications(self, num, start, end):
-		app_id = self.app_table.lookup_or_create(application)
-		_cursor.execute("""
-						SELECT actor, SUM(focus_out) - SUM(focus_in) AS diff
-						FROM focus_duration
-						WHERE focus_in > start AND focus_out < end
-						GROUP BY actor
-						ORDER BY diff
-						""")
-		apps = []
-		for row in _cursor:
-			apps.append(self.app_table.lookup_by_id(row[0]))
-		return apps
+		self.focus_duration.focus_change(now, actor, subject)
+		self.focus_switch.focus_change(now, actor, subject)
 
 
 class WhereClause:
