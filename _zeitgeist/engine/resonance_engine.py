@@ -65,22 +65,20 @@ def create_db(file_path):
 	# focus duration
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS focus_duration
-		(document_id INTEGER,
-		application_id INTEGER,
+		(subject INTEGER,
+		actor INTEGER,
 		focus_in INTEGER, 
 		focus_out INTEGER,
-		CONSTRAINT unique_event UNIQUE (document_id, application_id, focus_in, focus_out))""")
+		CONSTRAINT unique_event UNIQUE (subject, actor, focus_in, focus_out))""")
+	
 	cursor.execute("""
-		CREATE INDEX IF NOT EXISTS focus_duration_document_id
-		ON focus_duration(document_id)""")
-	cursor.execute("""
-		CREATE INDEX IF NOT EXISTS focus_duration_application_id
-		ON focus_duration(application_id)""")
-
+		CREATE INDEX IF NOT EXISTS focus_duration_subject
+		ON focus_duration(subject)""")
+	
 	#focus relevancy
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS focus_switch
-		(timestamp INTEGER, from_app_id INTEGER, from_doc_id INTEGER, to_app_id, to_doc_id)
+		(timestamp INTEGER, from_app INTEGER, from_doc INTEGER, to_app, to_doc)
 		""")
 	
 	# uri
@@ -617,7 +615,7 @@ class ZeitgeistEngine:
 	def get_longest_used_documents(self, number, start, end):
 		return self.focus_duration.get_longest_used_documents(number, start, end)
 
-	def insert_focus(self, application_uri, document_uri):
+	def register_focus(self, application_uri, document_uri):
 		now = time.time()
 		self.focus_duration.focus_change(now, application_uri, document_uri)
 		self.focus_switch.focus_change(now, application_uri, document_uri)
@@ -635,14 +633,14 @@ class FocusDurationRegister():
 		self.app_table.set_cursor(_cursor)
 
 	def focus_change(self, now, document, application):
-		doc_id = self.app_table.lookup_or_create(document)
-		app_id = self.doc_table.lookup_or_create(application)
-		if not _cursor.lastrowid is None:
+		doc_id = self.doc_table.lookup_or_create(document)
+		app_id = self.app_table.lookup_or_create(application)
+		if _cursor.lastrowid:
 			_cursor.execute("""
 						UPDATE focus_duration 
 						SET focus_out = ?
 						WHERE ROWID = ?""", (str(now), str(self.lastrowid)))
-		if not document == "":
+		if not document:
 			_cursor.execute("""
 						INSERT INTO focus_duration 
 						VALUES (?,?,?,?) """, (str(app_id), str(doc_id), str(now), str(now)))
@@ -661,8 +659,10 @@ class FocusDurationRegister():
 	def get_application_focus_duration(self, application, start, end):
 		app_id = self.app_table.lookup_or_create(application)
 		_cursor.execute("""
-						SELECT SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
-						WHERE application_id = ? AND focus_in > start AND focus_out < end
+						SELECT SUM(focus_out) - SUM(focus_in) AS diff
+						FROM focus_duration
+						WHERE actor = ? AND focus_in > start
+							AND focus_out < end
 						""", (str(app_id)))
 		for row in _cursor:
 			return row[0]
@@ -670,24 +670,26 @@ class FocusDurationRegister():
 	def get_longest_used_documents(self, num, start, end):
 		doc_id = self.doc_table.lookup_or_create(document)
 		_cursor.execute("""
-						SELECT document_id, SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
+						SELECT subject,
+							SUM(focus_out) - SUM(focus_in) AS diff
+						FROM focus_duration
 						WHERE focus_in > start AND focus_out < end
-						GROUP BY document_id
-						ORDER BY DIFF
+						GROUP BY subject
+						ORDER BY diff DESC
 						""")
 		docs = []
 		for row in _cursor:
 			docs.append(self.doc_table.lookup_by_id(row[0]))
 		return docs
-			
-
+	
 	def get_longest_used_applications(self, num, start, end):
 		app_id = self.app_table.lookup_or_create(application)
 		_cursor.execute("""
-						SELECT application_id, SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
+						SELECT actor, SUM(focus_out) - SUM(focus_in) AS diff
+						FROM focus_duration
 						WHERE focus_in > start AND focus_out < end
-						GROUP BY application_id
-						ORDER BY DIFF
+						GROUP BY actor
+						ORDER BY diff
 						""")
 		apps = []
 		for row in _cursor:
