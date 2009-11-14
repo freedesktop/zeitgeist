@@ -33,8 +33,15 @@ _config.setup_path()
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 logging.basicConfig(level=logging.DEBUG)
 
-if sys.argv[1] == "rocks":
+arg1 = sys.argv[1].strip("-") if len(sys.argv) == 2 else None
+if arg1 == "version":
+	print "Zeitgeist %s" % _config.VERSION
+	sys.exit(0)
+elif arg1 == "rocks":
 	print "Deine Mudda rocks!"
+	sys.exit(0)
+elif arg1 == "help":
+	print "Please see \"man zeitgeist-daemon\"."
 	sys.exit(0)
 
 from _zeitgeist.engine.remote import RemoteInterface
@@ -49,7 +56,7 @@ except RuntimeError, e:
 	sys.exit(1)
 
 passive_loggers = "%s/zeitgeist-datahub" % _config.bindir
-if not "--no-passive-loggers" in sys.argv:
+if arg1 != "no-passive-loggers":
 	if os.path.isfile(passive_loggers):
 		subprocess.Popen(passive_loggers)
 	else:
