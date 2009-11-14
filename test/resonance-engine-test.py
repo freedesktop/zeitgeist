@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -.- coding: utf-8 -.-
 
 # Update python path to use local zeitgeist module
 import sys
@@ -8,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
 from zeitgeist.datamodel import *
-from _zeitgeist.json_importer import *
+from json_importer import import_events
 
 import unittest
 
@@ -258,6 +259,16 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		for event in events:
 			self.assertEqual(event.manifestation, "stfu:EpicFailActivity")
 	
+	def testFindWithSubjectOrigin(self):
+		import_events("test/data/five_events.js", self.engine)
+		subj = Subject.new_for_values(origin="file:///tmp")
+		event_template = Event.new_for_values(subjects=[subj])
+		result = self.engine.find_eventids((0, 1000), [event_template, ], 0, 0, 1)
+		events = self.engine.get_events(result)
+		for event in events:
+			test = any(subj.origin == "file:///tmp" for subj in event.subjects)
+			self.assertTrue(test)
+	
 	def testDontFindState(self):
 		# searchin by storage state is currently not implemented
 		# checking for the error
@@ -337,7 +348,19 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		#self.assertRaises(ValueError, self.engine.insert_events, [ev])
 		
 	def testUnicodeEventInsert(self):
-		import_events("test/data/unicode_event.js", self.engine)
+		ids = import_events("test/data/unicode_event.js", self.engine)
+		self.assertEquals(len(ids), 1)
+		result = self.engine.get_events(ids)
+		self.assertEquals(len(ids), len(result))
+		subj = Subject.new_for_values(text="hällö, I'm gürmen")
+		event_template = Event.new_for_values(subjects=[subj,])
+		result = self.engine.find_eventids(
+			(0, 200),
+			[event_template, ],
+			0,
+			100,
+			0,)
+		self.assertEquals(len(result), 1)
 		
 
 if __name__ == "__main__":

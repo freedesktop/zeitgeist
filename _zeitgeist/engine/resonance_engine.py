@@ -54,13 +54,27 @@ _payload = None         # id, blob
 _storage = None         # id, value, available
 _event = None           # ...
 
+class UnicodeCursor(sqlite3.Cursor):
+	
+	@staticmethod
+	def fix_unicode(obj):
+		if isinstance(obj, (str, unicode)):
+			obj = obj.decode("UTF-8")
+		return obj
+	
+	def execute(self, statement, parameters=None):
+		if parameters is not None:
+			parameters = [self.fix_unicode(p) for p in parameters]
+			return super(UnicodeCursor, self).execute(statement, parameters)
+		else:
+			return super(UnicodeCursor, self).execute(statement)
 
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
 	log.info("Creating database: %s" % file_path)
 	conn = sqlite3.connect(file_path)
 	conn.row_factory = sqlite3.Row
-	cursor = conn.cursor()
+	cursor = conn.cursor(UnicodeCursor)
 	
 	# uri
 	cursor.execute("""
@@ -550,13 +564,13 @@ class ZeitgeistEngine:
 				subwhere.add("subj_manifestation = ?",
 					_manifestation.lookup_id(subject_template.manifestation))
 			if subject_template.origin:
-				subwhere.add("subj_origin = ?", int(event_template.origin))
+				subwhere.add("subj_origin = ?", subject_template.origin)
 			if subject_template.mimetype:
 				subwhere.add("subj_mimetype = ?",
 					_mimetype.lookup_id(subject_template.mimetype))
 			if subject_template.text:
 				subwhere.add("subj_text = ?",
-					int(event_template.text))
+					subject_template.text)
 			where_or.add(subwhere.generate_condition(), subwhere.arguments)
 		where.add(where_or.generate_condition(), where_or.arguments)
 		

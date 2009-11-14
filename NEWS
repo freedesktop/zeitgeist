@@ -1,11 +1,18 @@
-Version 0.3
+Version 0.3.0
 ------------------------------
 
+ - Complete rework of engine and DBus API
+ - Public Python client API defined in zeitgeist.datamodel and
+   zeitgeist.dbusutils modules
  - Removed the EngineStart and EngineExit signals.
  - Changed URIs from XESAM to Nepomuk.
  - Removed the Storm backend (obsoleted in 0.2.1).
+ - Removed the Querymancer backend (obsoleted in 0.3.0).
  - The "text" property of an item can now be empty, and isn't automatically
    set to the filename in its URI.
+ - Application and document focus detection. There's a partial API public
+   now, but the full API for contextual relevancy will follow in later
+   releases.
 
 
 Version 0.2.1
@@ -22,8 +29,8 @@ version 0.2, and it focuses on compatibility and performance enhancements.
  - Improved performance of DeleteItems and UpdateItems.
  - Fixed a problem with the contents of the EventsChanged signal.
  - Fixed InsertEvents to enforce "mimetype" as a required value.
- - Fixed a bug where the sorting_asc=True in FindEvents would be ignored if used
-   together with mode="mostused" (LP: #404947).
+ - Fixed a bug where the sorting_asc=True in FindEvents would be ignored if
+   used together with mode="mostused" (LP: #404947).
  - Highly improved caching.
  - Added a "--quit" option to zeitgeist-daemon to stop any running daemon.
  - General code improvements, new test cases and other minor fixes.
