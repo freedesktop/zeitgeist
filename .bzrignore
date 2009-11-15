@@ -1,8 +1,4 @@
-firefox-history.sqlite
 setup.py
-command
-gzg-userdocs.html
-doc/images/22
 *Makefile
 *Makefile.in*
 *intltool-*
@@ -19,10 +15,9 @@ po/POTFILES
 stamp-it
 *.desktop.in
 extra/*.desktop
-gnome-zeitgeist-*.tar.gz
+zeitgeist-*.tar.gz
 .pydevproject
 .project
-stormtest.sqlite*
 doc/dbus/build
 extra/org.gnome.zeitgeist.service
 doc/dbus/source/.static
