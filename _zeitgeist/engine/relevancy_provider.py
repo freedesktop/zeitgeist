@@ -24,26 +24,22 @@ import time
 import os
 import logging
 from xdg import BaseDirectory
+from dbutils import *
 
 DB_PATH = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
     "database.sqlite")
  
-class FocusVertexRegister(object):
-    def __init__(self):
+class FocusSwitchRegister(object):
+    def __init__(self, cursor):
         self.last_app = -1
         self.last_doc = -1
         self.last_timestamp = -1
-        self.cursor = None
+        self.cursor = cursor
         
         self._create_db()
         
     def _create_db(self):
         """Create the database and return a default cursor for it"""
-        dbfile = DB_PATH
-        #log.info("Creating database: %s" % file_path)
-        conn = sqlite3.connect(dbfile)
-        conn.row_factory = sqlite3.Row
-        self.cursor = conn.cursor()
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS focus_switch
             (timestamp INTEGER, from_app_id INTEGER, from_doc_id INTEGER, to_app_id, to_doc_id)
@@ -154,6 +150,101 @@ class FocusVertexRegister(object):
         self.cursor.connection.commit()
     
              
+
+class FocusDurationRegister():
+    """
+    """
+    
+    def __init__(self, cursor):
+        self.lastrowid = 0
+        self.doc_table = EntityTable("uri")
+        self.app_table = EntityTable("actor")
+        self.cursor = cursor
+        self._create_db()
+        self.doc_table.set_cursor(self.cursor)
+        self.app_table.set_cursor(self.cursor)
+
+    def _create_db(self):
+        """Create the database and return a default cursor for it"""
+        # focus duration
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS focus_duration
+            (document_id INTEGER,
+            application_id INTEGER,
+            focus_in INTEGER, 
+            focus_out INTEGER,
+            CONSTRAINT unique_event UNIQUE (document_id, application_id, focus_in, focus_out))""")
+        self.cursor.execute("""
+            CREATE INDEX IF NOT EXISTS focus_duration_document_id
+            ON focus_duration(document_id)""")
+        self.cursor.execute("""
+            CREATE INDEX IF NOT EXISTS focus_duration_application_id
+            ON focus_duration(application_id)""")
+
+
+    def focus_change(self, now, document, application):
+        doc_id = self.doc_table.lookup_or_create(document)
+        app_id = self.app_table.lookup_or_create(application)
+        
+        if not self.cursor.lastrowid is None:
+            self.cursor.execute("""
+                        UPDATE focus_duration 
+                        SET focus_out = ?
+                        WHERE ROWID = ?""", (str(now), str(self.lastrowid)))
+        if not document == "":
+            self.cursor.execute("""
+                        INSERT INTO focus_duration 
+                        VALUES (?,?,?,?) """, (str(app_id), str(doc_id), str(now), str(now)))
+            self.lastrowid = self.cursor.lastrowid
+        self.cursor.connection.commit()
+    
+    def get_document_focus_duration(self, document, start, end):
+        doc_id = self.doc_table.lookup_or_create(document)
+        self.cursor.execute("""
+                        SELECT SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
+                        WHERE document_id = ? AND focus_in > start AND focus_out < end
+                        """, (str(doc_id)))
+        for row in self.cursor:
+            return row[0]
+
+    def get_application_focus_duration(self, application, start, end):
+        app_id = self.app_table.lookup_or_create(application)
+        self.cursor.execute("""
+                        SELECT SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
+                        WHERE application_id = ? AND focus_in > start AND focus_out < end
+                        """, (str(app_id)))
+        for row in self.cursor:
+            return row[0]
+
+    def get_longest_used_documents(self, num, start, end):
+        doc_id = self.doc_table.lookup_or_create(document)
+        self.cursor.execute("""
+                        SELECT document_id, SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
+                        WHERE focus_in > start AND focus_out < end
+                        GROUP BY document_id
+                        ORDER BY DIFF
+                        """)
+        docs = []
+        for row in self.cursor:
+            docs.append(self.doc_table.lookup_by_id(row[0]))
+        return docs
+            
+
+    def get_longest_used_applications(self, num, start, end):
+        app_id = self.app_table.lookup_or_create(application)
+        self.cursor.execute("""
+                        SELECT application_id, SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
+                        WHERE focus_in > start AND focus_out < end
+                        GROUP BY application_id
+                        ORDER BY DIFF
+                        """)
+        apps = []
+        for row in self.cursor:
+            apps.append(self.app_table.lookup_by_id(row[0]))
+        return apps
+
+
+
          
      
 if __name__=="__main__":
