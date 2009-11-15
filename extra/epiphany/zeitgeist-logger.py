@@ -45,7 +45,6 @@ else:
 				"comment": u"",
 				"bookmark": False,
 				"use": u"visited",
-				"icon": u"",
 				"app": u"/usr/share/applications/epiphany.desktop",
 				"origin": u"", # FIXME: In case the user reaches this page by
 					# by clicking on a link, put there the page with the link.
