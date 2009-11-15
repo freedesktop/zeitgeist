@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
 DB_PATH_DEFAULT = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
-	"database.sqlite")
+	"activity.sqlite")
 DB_PATH = os.environ.get("ZEITGEIST_DATABASE_PATH", DB_PATH_DEFAULT)
 
 AVAILABLE_ENGINES = ["resonance", "querymancer"]
