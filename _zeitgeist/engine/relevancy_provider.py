@@ -25,9 +25,7 @@ import os
 import logging
 from xdg import BaseDirectory
 from dbutils import *
-
-DB_PATH = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
-    "database.sqlite")
+from __init__ import DB_PATH
  
 class FocusSwitchRegister(object):
     def __init__(self, cursor):
@@ -90,7 +88,6 @@ class FocusSwitchRegister(object):
         results = [k[1] for k in results]
             
         return results[:limit]
-    
     
     def get_focused_to_items(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
        rel = self.cursor.execute("""
@@ -244,9 +241,6 @@ class FocusDurationRegister():
         return apps
 
 
-
-         
-     
 if __name__=="__main__":
     ################
     fvr = FocusVertexRegister()
@@ -271,5 +265,3 @@ if __name__=="__main__":
     result = fvr.get_focused_to_items(doc2)
     result = fvr.get_focused_from_items(doc2)
     print result
-    
-    
