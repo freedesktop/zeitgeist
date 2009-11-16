@@ -31,7 +31,7 @@ from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
 from zeitgeist.datamodel import Subject as _Subject, Event as _Event
-from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype
+from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype, Category
 import _zeitgeist.engine
 from _zeitgeist.engine.dbutils import *
 from _zeitgeist.engine.querymancer import *
@@ -58,6 +58,8 @@ class UnicodeCursor(sqlite3.Cursor):
 	
 	@staticmethod
 	def fix_unicode(obj):
+		if isinstance(obj, Category):
+			obj = str(obj)
 		if isinstance(obj, (str, unicode)):
 			obj = obj.decode("UTF-8")
 		return obj
@@ -151,10 +153,13 @@ def create_db(file_path):
 	
 	# event - the primary table for log statements
 	# note that event.id is NOT unique, we can have multiple subjects per id
+	# timestamps are integers (for now), if you would like to change it
+	# please start a bugreport for it. In case we agree on this change
+	# remember to also fix our unittests to reflect this change
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS event
 			(id INTEGER,
-			 timestamp REAL,
+			 timestamp INTEGER,
 			 interpretation INTEGER,
 			 manifestation INTEGER,			 
 			 actor INTEGER,			 
@@ -377,8 +382,8 @@ class ZeitgeistEngine:
 		else:
 			self._last_event_id = 0
 	
-		self.focus_vertices = FocusSwitchRegister(_cursor)
-		self.focus_duration = FocusDurationRegister(_cursor)
+		#~ self.focus_vertices = FocusSwitchRegister(_cursor)
+		#~ self.focus_duration = FocusDurationRegister(_cursor)
 		
 	def close(self):
 		global _cursor
@@ -488,10 +493,9 @@ class ZeitgeistEngine:
 					subj_text=stext_id,
 					**opt_attr)
 			except sqlite3.IntegrityError:
-				pass
-			    # I don't think right now for testing purposes we should block the whole process for a duplicate event entry
-			    # thus I set it to just pass, someone should work on fixing this issue. I think it is INTEGER related.
-				#raise KeyError("Duplicate event detected")
+				# During the hackfest we agreed on raising a Keyerror
+				# if a client wnats to add a duplicate event -- thekorn
+				raise KeyError("Duplicate event detected")
 		
 		_cursor.connection.commit()
 		
