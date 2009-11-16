@@ -179,7 +179,6 @@ class TomboySource(DataProvider):
 					"use": u"http://gnome.org/zeitgeist/schema/1.0/core#%s" %use,
 					"mimetype": u"x-tomboy/note",
 					"tags": u"",
-					"icon": u"",
 					"app": u"/usr/share/applications/tomboy.desktop",
 					"origin": u"", 	# we are not sure about the origin of this item,
 									# let's make it NULL, it has to be a string
