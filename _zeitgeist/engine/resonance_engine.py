@@ -382,8 +382,8 @@ class ZeitgeistEngine:
 		else:
 			self._last_event_id = 0
 	
-		#~ self.focus_vertices = FocusSwitchRegister(_cursor)
-		#~ self.focus_duration = FocusDurationRegister(_cursor)
+		self.focus_switch = FocusSwitchRegister(_cursor)
+		self.focus_duration = FocusDurationRegister(_cursor)
 		
 	def close(self):
 		global _cursor
