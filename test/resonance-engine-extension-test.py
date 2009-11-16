@@ -12,7 +12,7 @@ from _zeitgeist.engine.extension import Extension
 import unittest
 
 class _Extension1(Extension):
-	__public_methods__ = ["return_hallo", "return_engine"]
+	PUBLIC_METHODS = ["return_hallo", "return_engine"]
 		
 	def return_hallo(self):
 		return "Hallo"

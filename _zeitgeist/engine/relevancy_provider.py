@@ -240,7 +240,7 @@ class FocusDurationRegister():
         return apps
 
 class RelevancyProvider(Extension):
-    __public_methods__ = [
+    PUBLIC_METHODS = [
         "get_subject_focus_duration",
         "get_actor_focus_duration",
         "get_longest_used_actors",

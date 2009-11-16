@@ -1,6 +1,6 @@
 
 class Extension(object):
-	__public_methods__ = None
+	PUBLIC_METHODS = None
 	
 	def __init__(self, engine):
 		self.engine = engine
@@ -22,10 +22,10 @@ class ExtensionsCollection(object):
 	def load(self, extension):
 		if not issubclass(extension, Extension):
 			raise TypeError
-		if getattr(extension, "__public_methods__", None) is None:
+		if getattr(extension, "PUBLIC_METHODS", None) is None:
 			raise ValueError
 		obj = extension(self.__engine)
-		for method in obj.__public_methods__:
+		for method in obj.PUBLIC_METHODS:
 			self.__engine._register_method(method, getattr(obj, method))
 		self.__extensions[obj.__class__.__name__] = obj
 		
