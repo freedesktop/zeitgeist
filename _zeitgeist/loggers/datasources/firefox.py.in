@@ -51,7 +51,6 @@ class FirefoxSource(DataProvider):
 	def __init__(self):
 		DataProvider.__init__(self,
 			name=_(u"Firefox History"),
-			icon="gnome-globe",
 			uri="gzg/firefox",
 			comment=_(u"Websites visited with Firefox"))
 		
@@ -165,15 +164,9 @@ class FirefoxSource(DataProvider):
 		else:
 			for j, i in enumerate(history):
 				# TODO: Fetch full rows above so that we don't need to do another query here
-				contents = "id, url, title, visit_count, rev_host, favicon_id"
+				contents = "id, url, title, visit_count, rev_host"
 				item = self.cursor.execute("SELECT " + contents + " FROM moz_places WHERE title!='' and id=" + str(i[1])).fetchone()
 				if item:
-					if item[5]:
-						icon = self.cursor.execute("SELECT url FROM moz_favicons WHERE id=" + str(item[5])).fetchone()
-						icon = unicode(icon[0])
-					else:
-						icon = u""
-					
 					self.last_timestamp = history[j][2]
 					use = "http://gnome.org/zeitgeist/schema/Event#link"
 					if history[j][3] in (2, 3, 5):
@@ -193,7 +186,6 @@ class FirefoxSource(DataProvider):
 						"use": unicode(use),
 						"mimetype": u"text/html", # TODO: Can we get a mime-type here?
 						"tags": u"",
-						"icon": icon,
 						"bookmark": bookmark,
 						"app": u"/usr/share/applications/firefox.desktop",
 						"origin":  unicode(item[4][::-1][1:] if item[4] else u"")

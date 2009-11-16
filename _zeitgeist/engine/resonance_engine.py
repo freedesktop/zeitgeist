@@ -369,9 +369,6 @@ class ZeitgeistEngine:
 		self._cursor = get_default_cursor()
 		
 		#Load extensions
-		self.focus_duration = FocusDurationRegister()
-		self.focus_switch = FocusSwitchRegister()
-		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
 		row = _event.find("max(id)").fetchone()
@@ -380,6 +377,9 @@ class ZeitgeistEngine:
 		else:
 			self._last_event_id = 0
 	
+		self.focus_vertices = FocusSwitchRegister(_cursor)
+		self.focus_duration = FocusDurationRegister(_cursor)
+		
 	def close(self):
 		global _cursor
 		self._cursor.connection.close()
@@ -616,7 +616,6 @@ class ZeitgeistEngine:
 		now = time.time()
 		self.focus_duration.focus_change(now, actor, subject)
 		self.focus_switch.focus_change(now, actor, subject)
-
 
 class WhereClause:
 	

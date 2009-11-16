@@ -147,7 +147,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 				source = Manifestation.FILE,
 				text = "Text",
 				mimetype = "mime/type",
-				icon = "stock_left",
 				origin = "http://example.org",
 				bookmark = False),
 			}
@@ -188,7 +187,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			source = Manifestation.USER_ACTIVITY,
 			text = "Text",
 			mimetype = "mime/type",
-			icon = "stock_left",
 			origin = "http://example.org",
 			bookmark = False
 			)}

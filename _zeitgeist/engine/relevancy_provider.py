@@ -20,32 +20,25 @@
 import sys
 import sqlite3
 import time
-
 import os
 import logging
 from xdg import BaseDirectory
-#from dbutils import deine mudda
-from dbutils import *
 
-DB_PATH = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
-    "database.sqlite")
-     
+from dbutils import *
+from __init__ import DB_PATH
+
 class FocusSwitchRegister(object):
-    def __init__(self):
+    
+    def __init__(self, cursor):
         self.last_app = -1
         self.last_doc = -1
         self.last_timestamp = -1
-        self.cursor = None
+        self.cursor = cursor
         
         self._create_db()
         
     def _create_db(self):
         """Create the database and return a default cursor for it"""
-        dbfile = DB_PATH
-        #log.info("Creating database: %s" % file_path)
-        conn = sqlite3.connect(dbfile)
-        conn.row_factory = sqlite3.Row
-        self.cursor = conn.cursor()
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS focus_switch
             (timestamp REAL, from_actor_id INTEGER, from_subj_id INTEGER, to_actor_id, to_subj_id)
@@ -96,8 +89,7 @@ class FocusSwitchRegister(object):
             
         return results[:limit]
     
-    
-    def get_most_focused_to_subject(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
+    def get_most_focused_to_subjects(self, uri, min_timestamp=0, max_timestamp=sys.maxint, limit=100):
        rel = self.cursor.execute("""
             SELECT (SELECT value FROM uri WHERE id=from_subj_id) FROM focus_switch
                 WHERE to_subj_id = (SELECT id FROM uri WHERE value=?) 
@@ -151,21 +143,18 @@ class FocusSwitchRegister(object):
             DELETE FROM focus_switch
             """)
         self.cursor.connection.commit()
-    
+
 class FocusDurationRegister():
     """
     """
     
-    def __init__(self):
+    def __init__(self, cursor):
         self.lastrowid = 0
-        self.doc_table = EntityTable("uri")
-        self.app_table = EntityTable("actor")
-
-        self._create_db()  
-        
+        self.cursor = cursor
+        self._create_db()
         self.doc_table.set_cursor(self.cursor)
         self.app_table.set_cursor(self.cursor)
-        
+    
     def _create_db(self):
         """Create the database and return a default cursor for it"""
         dbfile = DB_PATH
@@ -213,10 +202,8 @@ class FocusDurationRegister():
     def get_actor_focus_duration(self, application, start, end):
         app_id = self.app_table.lookup_or_create(application)
         self.cursor.execute("""
-                        SELECT SUM(focus_out) - SUM(focus_in) AS diff
-                        FROM focus_duration
-                        WHERE actor = ? AND focus_in > start
-                            AND focus_out < end
+                        SELECT SUM(focus_out) - SUM(focus_in) AS DIFF FROM focus_duration
+                        WHERE application_id = ? AND focus_in > start AND focus_out < end
                         """, (str(app_id)))
         for row in self.cursor:
             return row[0]
@@ -224,13 +211,13 @@ class FocusDurationRegister():
     def get_longest_used_subjects(self, num, start, end):
         doc_id = self.doc_table.lookup_or_create(document)
         self.cursor.execute("""
-                        SELECT subject,
-                            SUM(focus_out) - SUM(focus_in) AS diff
-                        FROM focus_duration
-                        WHERE focus_in > start AND focus_out < end
-                        GROUP BY subject
-                        ORDER BY diff DESC
-                        """)
+            SELECT subject,
+                SUM(focus_out) - SUM(focus_in) AS diff
+            FROM focus_duration
+            WHERE focus_in > start AND focus_out < end
+            GROUP BY subject
+            ORDER BY diff DESC
+            """)
         docs = []
         for row in self.cursor:
             docs.append(self.doc_table.lookup_by_id(row[0]))
@@ -239,12 +226,12 @@ class FocusDurationRegister():
     def get_longest_used_actors(self, num, start, end):
         app_id = self.app_table.lookup_or_create(application)
         self.cursor.execute("""
-                        SELECT actor, SUM(focus_out) - SUM(focus_in) AS diff
-                        FROM focus_duration
-                        WHERE focus_in > start AND focus_out < end
-                        GROUP BY actor
-                        ORDER BY diff
-                        """)
+            SELECT actor, SUM(focus_out) - SUM(focus_in) AS diff
+            FROM focus_duration
+            WHERE focus_in > start AND focus_out < end
+            GROUP BY actor
+            ORDER BY diff
+            """)
         apps = []
         for row in self.cursor:
             apps.append(self.app_table.lookup_by_id(row[0]))

@@ -39,9 +39,6 @@ USES = [Manifestation.USER_ACTIVITY, Manifestation.USER_NOTIFICATION]
 
 APPS = ["foo.desktop", "bar.desktop", "bleh.desktop"]
 
-ICONS = ["stock_sword", "", "stock_dragon", "", "stock_beholder",
-			"stock_princess", "", ""]
-
 ORIGINS = ["~/", "http://example.org", "sftp://127.0.0.1/data", "~/Pictures", ""]
 
 MIMES = ["application/pdf", "application/xml", "text/plain",
@@ -58,7 +55,6 @@ def new_dummy_item(uri, randomness=0, timestamp=0):
 		"timestamp" : timestamp,
 		"text" : "Text",
 		"mimetype" : MIMES[randint(0, randomness) % len(MIMES)],
-		"icon" : ICONS[randint(0, randomness) % len(ICONS)],
 		"use" : USES[randint(0, randomness) % len(USES)],
 		"origin" : ORIGINS[randint(0, randomness) % len(ORIGINS)],
 		"bookmark" : 0 if randomness == 0 else randint(0,1),
