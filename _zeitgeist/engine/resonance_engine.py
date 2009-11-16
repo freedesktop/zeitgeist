@@ -30,13 +30,14 @@ import logging
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
+from extension import ExtensionsCollection
+
 from zeitgeist.datamodel import Subject as _Subject, Event as _Event
 from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype, Category
 import _zeitgeist.engine
 from _zeitgeist.engine.dbutils import *
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
-from _zeitgeist.engine.relevancy_provider import FocusSwitchRegister, FocusDurationRegister
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -44,15 +45,15 @@ log = logging.getLogger("zeitgeist.engine")
 #		
 # Table defs are assigned in create_db()
 #
-_uri = None             # id, string
-_interpretation = None  # id, string
-_manifestation = None   # id, string
-_mimetype = None        # id, string
-_actor = None           # id, string
-_text = None            # id, string
-_payload = None         # id, blob
-_storage = None         # id, value, available
-_event = None           # ...
+_uri = None				# id, string
+_interpretation = None	# id, string
+_manifestation = None	# id, string
+_mimetype = None		# id, string
+_actor = None			# id, string
+_text = None			# id, string
+_payload = None			# id, blob
+_storage = None			# id, value, available
+_event = None			# ...
 
 class UnicodeCursor(sqlite3.Cursor):
 	
@@ -249,20 +250,20 @@ def create_db(file_path):
 	_storage = StatefulEntityTable("storage")
 	
 	# FIXME: _item.payload should be a BLOB type	
-	_event = Table("event",
-	               id=Integer(),
-	               timestamp=Integer(),
-	               interpretation=Integer(),
-	               manifestation=Integer(),
-	               actor=Integer(),	               
-	               payload=Integer(),
-	               subj_id=Integer(),
-	               subj_interpretation=Integer(),
-	               subj_manifestation=Integer(),
-	               subj_origin=Integer(),
-	               subj_mimetype=Integer(),
-	               subj_text=Integer(),
-	               subj_storage=Integer())
+	_event = Table(	"event",
+					id=Integer(),
+					timestamp=Integer(),
+					interpretation=Integer(),
+					manifestation=Integer(),
+					actor=Integer(),
+					payload=Integer(),
+					subj_id=Integer(),
+					subj_interpretation=Integer(),
+					subj_manifestation=Integer(),
+					subj_origin=Integer(),
+					subj_mimetype=Integer(),
+					subj_text=Integer(),
+					subj_storage=Integer())
 	
 	_uri.set_cursor(_cursor)
 	_interpretation.set_cursor(_cursor)
@@ -373,7 +374,6 @@ class ZeitgeistEngine:
 		global _event
 		self._cursor = get_default_cursor()
 		
-		#Load extensions
 		# Find the last event id we used, and start generating
 		# new ids from that offset
 		row = _event.find("max(id)").fetchone()
@@ -381,9 +381,27 @@ class ZeitgeistEngine:
 			self._last_event_id = row[0]
 		else:
 			self._last_event_id = 0
-	
-		#~ self.focus_vertices = FocusSwitchRegister(_cursor)
-		#~ self.focus_duration = FocusDurationRegister(_cursor)
+			
+		#Load extensions
+		# right now we don't load any default extension
+		self.__extensions = ExtensionsCollection(self)
+		
+	def _register_method(self, name, method):
+		if hasattr(self, name):
+			raise ValueError("cannot register method %r, this is already an engine method" %name)
+		if name in self.__extensions.methods:
+			raise ValueError("There is already an extension which provides a method called %r" %name)
+		self.__extensions.methods[name] = method
+		
+	def __getattr__(self, name):
+		try:
+			return self.__extensions.methods[name]
+		except KeyError:
+			raise AttributeError
+			
+	@property
+	def extensions(self):
+		return self.__extensions
 		
 	def close(self):
 		global _cursor
@@ -404,7 +422,7 @@ class ZeitgeistEngine:
 		"""
 		global _cursor
 		# FIXME: Determine if using our caches instead of SQLite subselects
-		#        is in fact faster
+		#		is in fact faster
 		
 		rows = _cursor.execute("""
 			SELECT * FROM event_view
@@ -603,23 +621,7 @@ class ZeitgeistEngine:
 			ORDER BY timestamp DESC LIMIT 1
 			""", (actor,)).fetchone()
 		return query["timestamp"] if query else 0
-
-	def get_subject_focus_duration(self, subject, start, end):
-		return self.focus_duration.get_subject_focus_duration(subject, start, end)
-
-	def get_actor_focus_duration(self, actor, start, end):
-		return self.focus_duration.get_actor_focus_duration(actor, start, end)
-
-	def get_longest_used_actors(self, number, start, end):
-		return self.focus_duration.get_longest_used_actors(number, start, end)
-
-	def get_longest_used_subjects(self, number, start, end):
-		return self.focus_duration.get_longest_used_subjects(number, start, end)
-
-	def register_focus(self, actor, subject):
-		now = time.time()
-		self.focus_duration.focus_change(now, actor, subject)
-		self.focus_switch.focus_change(now, actor, subject)
+		
 
 class WhereClause:
 	
