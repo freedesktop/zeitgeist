@@ -33,11 +33,10 @@ def create_test_event_1():
 
 	ev.append_subject(subj)
 	return ev
-
-class ZeitgeistEngineTest (unittest.TestCase):
-	"""
-	This class tests that the zeitgeist.engine.engine.ZeitgeistEngine class
-	"""
+	
+	
+class _engineTestClass(unittest.TestCase):
+	
 	def setUp (self):
 		global test_event_1
 		test_event_1 = create_test_event_1()
@@ -48,36 +47,11 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.engine.close()
 		_zeitgeist.engine._engine = None
 	
-	def assertEmptyDB (self):
-		# Assert before each test that the db is indeed empty
-		self.assertEquals((), self.engine.find_events(0))		
-		
-	def assertEventsEqual(self, event1, event2, msg=None):
-		for attribute in Event.Fields[:-1]:
-			self.assertEquals(
-				event1[attribute],
-				event2[attribute],
-				"failed at offset %i, is: %r / expected %r" %(
-					attribute, event1[attribute], event2[attribute]
-				)
-			)
-			if isinstance(event2[attribute], Category):
-				self.assertTrue(isinstance(event1[attribute], Category))
-		# now to the subjects
-		subjects1 = event1[Event.Fields[-1]]
-		subjects2 = event2[Event.Fields[-1]]
-		self.assertEquals(len(subjects1), len(subjects2))
-		
-		for subject1, subject2 in zip(subjects1, subjects2):
-			for subject1_attr, subject2_attr in zip(subject1, subject2):
-				self.assertEquals(
-					subject1_attr, subject2_attr,
-					"%r != %r, %s || %s" %(
-						subject1_attr, subject2_attr,subject1, subject2
-					)
-				)
-				if isinstance(subject2_attr, Category):
-					self.assertTrue(subject1_attr, Category)		
+	
+class ZeitgeistEngineTest (_engineTestClass):
+	"""
+	This class tests that the zeitgeist.engine.engine.ZeitgeistEngine class
+	"""
 		
 	def testSingleInsertGet(self):
 		global test_event_1			
@@ -342,10 +316,6 @@ class ZeitgeistEngineTest (unittest.TestCase):
 					manifestation=Manifestation.USER_ACTIVITY.uri,
 					actor="Freak Mamma")
 		self.assertRaises(ValueError, self.engine.insert_events, [ev])
-
-	def testInsertFocusEvent(self):
-		self.engine.insert_focus("boo","boo")
-		#self.assertRaises(ValueError, self.engine.insert_events, [ev])
 		
 	def testUnicodeEventInsert(self):
 		ids = import_events("test/data/unicode_event.js", self.engine)
@@ -362,6 +332,12 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			0,)
 		self.assertEquals(len(result), 1)
 		
+		
+class ZeitgeistRelevancyProviderTest(_engineTestClass):
+	
+	def testInsertFocusEvent(self):
+		self.engine.insert_focus("boo","boo")
+		#self.assertRaises(ValueError, self.engine.insert_events, [ev])
 
 if __name__ == "__main__":
 	unittest.main()
