@@ -45,15 +45,15 @@ log = logging.getLogger("zeitgeist.engine")
 #		
 # Table defs are assigned in create_db()
 #
-_uri = None				# id, string
-_interpretation = None	# id, string
-_manifestation = None	# id, string
-_mimetype = None		# id, string
-_actor = None			# id, string
-_text = None			# id, string
-_payload = None			# id, blob
-_storage = None			# id, value, available
-_event = None			# ...
+_uri = None             # id, string
+_interpretation = None  # id, string
+_manifestation = None   # id, string
+_mimetype = None        # id, string
+_actor = None           # id, string
+_text = None            # id, string
+_payload = None         # id, blob
+_storage = None         # id, value, available
+_event = None           # ...
 
 class UnicodeCursor(sqlite3.Cursor):
 	
@@ -250,20 +250,20 @@ def create_db(file_path):
 	_storage = StatefulEntityTable("storage")
 	
 	# FIXME: _item.payload should be a BLOB type	
-	_event = Table(	"event",
-					id=Integer(),
-					timestamp=Integer(),
-					interpretation=Integer(),
-					manifestation=Integer(),
-					actor=Integer(),
-					payload=Integer(),
-					subj_id=Integer(),
-					subj_interpretation=Integer(),
-					subj_manifestation=Integer(),
-					subj_origin=Integer(),
-					subj_mimetype=Integer(),
-					subj_text=Integer(),
-					subj_storage=Integer())
+	_event = Table("event",
+	               id=Integer(),
+	               timestamp=Integer(),
+	               interpretation=Integer(),
+	               manifestation=Integer(),
+	               actor=Integer(),	               
+	               payload=Integer(),
+	               subj_id=Integer(),
+	               subj_interpretation=Integer(),
+	               subj_manifestation=Integer(),
+	               subj_origin=Integer(),
+	               subj_mimetype=Integer(),
+	               subj_text=Integer(),
+	               subj_storage=Integer())
 	
 	_uri.set_cursor(_cursor)
 	_interpretation.set_cursor(_cursor)
@@ -422,7 +422,7 @@ class ZeitgeistEngine:
 		"""
 		global _cursor
 		# FIXME: Determine if using our caches instead of SQLite subselects
-		#		is in fact faster
+		#        is in fact faster
 		
 		rows = _cursor.execute("""
 			SELECT * FROM event_view
