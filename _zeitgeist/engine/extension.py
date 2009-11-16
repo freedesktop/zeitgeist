@@ -17,7 +17,7 @@ class ExtensionsCollection(object):
 				self.load(extension)
 				
 	def __repr__(self):
-		return "%s(%r)" %(self.__class__.__name__, self.__methods.keys())
+		return "%s(%r)" %(self.__class__.__name__, sorted(self.__methods.keys()))
 			
 	def load(self, extension):
 		if not issubclass(extension, Extension):
@@ -30,6 +30,9 @@ class ExtensionsCollection(object):
 		self.__extensions[obj.__class__.__name__] = obj
 		
 	def unload(self, extension):
+		obj = self.__extensions[extension.__name__]
+		for method in obj.PUBLIC_METHODS:
+			del self.methods[method]
 		del self.__extensions[extension.__name__]
 		
 	def __len__(self):
