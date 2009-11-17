@@ -45,10 +45,6 @@ class ZeitgeistRemoteAPITest(unittest.TestCase):
 		assert self.daemon is not None
 		assert self.iface is not None
 		self.kill_daemon()
-		
-	def testNothing(self):
-		# Simply assert that we start and stop correctly
-		pass
 	
 	def testInsertAndGetEvent(self):
 		ev = Event.new_for_values(timestamp=123,
