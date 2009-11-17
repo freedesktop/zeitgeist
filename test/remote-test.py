@@ -1,44 +1,50 @@
-#!/usr/bin/python
-
-# Update python path to use local zeitgeist module
-import sys
+import unittest
 import os
 import time
-import gobject
-import dbus
+import sys
+import signal
+
+from subprocess import Popen, PIPE
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from zeitgeist.dbusutils import DBusInterface
 from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation
 
-import _zeitgeist.engine
-from _zeitgeist.engine import create_engine
-
-#
-# IMPORTANT: We don't use the unittest module here because it is too hard
-#            to control the processes spawned.
-#            
-#            Because of the simplified test environment changes are persistet
-#            on the engine in between tests
-#
-
-class TestFailed (RuntimeError):
-	def __init__(self, msg=None):
-		if msg : RuntimeError.__init__(self, msg)
-		else : RuntimeError.__init__(self)
-
-class RemoteTest:
+class ZeitgeistRemoteAPITest(unittest.TestCase):
 	
-	def __init__ (self, iface):
-		self.iface = iface
+	def __init__(self, methodName):
+		super(ZeitgeistRemoteAPITest, self).__init__(methodName)
+		self.daemon = None
+		self.iface = None
+	
+	def spawn_daemon(self):
+		os.environ.update({"ZEITGEIST_DATABASE_PATH": ":memory:"})
+		self.daemon = Popen(["./zeitgeist-daemon", "--no-passive-loggers"])
+		# give the daemon some time to wake up
+		time.sleep(3)
+		err = self.daemon.poll()
+		if err:
+			raise RuntimeError("Could not start daemon,  got err=%i" %err)
 		
-	def assertEquals(self, expected, actual):
-		if expected != actual : raise TestFailed("Expected %s found %s" % (expected, actual))
-	
-	def testNothing(self):
-		# Simply assert that we start and stop correctly
-		pass
+		
+	def kill_daemon(self):
+		os.kill(self.daemon.pid, signal.SIGKILL)
+		self.daemon.wait()
+		
+	def setUp(self):
+		assert self.daemon is None
+		assert self.iface is None
+		self.spawn_daemon()
+		
+		# hack to clear the state of the interface
+		DBusInterface._DBusInterface__shared_state = {}
+		self.iface = DBusInterface()
+		
+	def tearDown(self):
+		assert self.daemon is not None
+		assert self.iface is not None
+		self.kill_daemon()
 	
 	def testInsertAndGetEvent(self):
 		ev = Event.new_for_values(timestamp=123,
@@ -49,8 +55,8 @@ class RemoteTest:
 					interpretation=Interpretation.DOCUMENT.uri,
 					manifestation=Manifestation.FILE.uri)
 		ev.append_subject(subj)
-		ids = iface.InsertEvents([ev])
-		events = iface.GetEvents(ids)
+		ids = self.iface.InsertEvents([ev])
+		events = self.iface.GetEvents(ids)
 		self.assertEquals(1, len(ids))
 		self.assertEquals(1, len(events))
 		
@@ -91,10 +97,10 @@ class RemoteTest:
 		ev2.append_subject(subj2)
 		ev3.append_subject(subj2)
 		ev3.append_subject(subj3)
-		ids = iface.InsertEvents([ev1, ev2, ev3])
+		ids = self.iface.InsertEvents([ev1, ev2, ev3])
 		self.assertEquals(3, len(ids))
 		
-		events = iface.GetEvents(ids)
+		events = self.iface.GetEvents(ids)
 		self.assertEquals(3, len(events))
 		events = map(Event, events)
 		for event in events:
@@ -102,7 +108,8 @@ class RemoteTest:
 			self.assertEquals("Boogaloo", event.actor)
 		
 		# Search for everything
-		ids = iface.FindEventIds((1,1000),
+		import dbus
+		ids = self.iface.FindEventIds((1,1000),
 					dbus.Array(signature="(asaasay)"), 0, 3, 1)
 		self.assertEquals(3, len(ids)) # (we can not trust the ids because we don't have a clean test environment)
 		
@@ -113,58 +120,12 @@ class RemoteTest:
 					actor="Boogaloo",
 					interpretation=Interpretation.VISIT_EVENT.uri,
 					subjects=[subj_templ1,subj_templ2])
-		ids = iface.FindEventIds((0,10000),
+		ids = self.iface.FindEventIds((0,10000),
 					[event_template],
 					0, 10, 1)
 		print "RESULTS", map(int, ids)
 		self.assertEquals(2, len(ids))
-		
+
 	
 if __name__ == "__main__":
-	child_pid = os.fork()
-	if child_pid > 0:
-		# parent process, this is the client
-		# connect to server, but give it a 1s gracetime to come up
-		time.sleep(1)
-		retries = 0
-		while retries <= 10:
-			retries += 1
-			try:					
-				iface = DBusInterface()
-				break
-			except:
-				# retry
-				time.sleep(0.5)
-		if retries >= 10 : raise TestFailed("Failed to start server")
-	else:
-		# child process, this is the server
-		_zeitgeist.engine.DB_PATH = ":memory:"
-		engine = create_engine()
-	
-		# The remote.py module is hacky so we must import this a bit late
-		from _zeitgeist.engine.remote import RemoteInterface
-	
-		# We run the DBus server in a separate thread
-		mainloop = gobject.MainLoop()
-		
-		remote = RemoteInterface(mainloop=mainloop)
-		
-		mainloop.run()
-		print "Server stopped"
-		raise SystemExit(0)
-	
-	suite = RemoteTest(iface)
-	
-	try:
-		for test in dir(suite):
-			method = getattr(suite, test)
-			if callable(method):
-				test_name = method.im_func.func_name
-				if test_name.startswith("test"):
-					print "******", test_name
-					method()
-	finally:
-		print "All tests done, waiting for server to stop"
-		iface.Quit()
-		os.waitpid(child_pid, 0)
-	
+	unittest.main()
