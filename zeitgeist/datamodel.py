@@ -4,6 +4,8 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
+# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +27,7 @@ it also defines symbolic values for the common item types. Using symbolic values
 instead of URI strings will help detect programmer typos.
 """
 
+import time
 import gettext
 gettext.install("zeitgeist")
 
@@ -47,7 +50,6 @@ class DictCache(type):
 	@property
 	def _CACHE(cls):
 		return cls.__CACHE
-
 
 class Symbol(DictCache):
 	
@@ -157,6 +159,12 @@ class Category(object):
 	
 	def __unicode__(self):
 		return unicode(self.uri)
+		
+	def __eq__(self, other):
+		# Fixme
+		# but in first approximation
+		# two symbols with the same string presentation are the same
+		return str(self) == str(other)
 	
 	@property
 	def uri(self):
@@ -186,173 +194,404 @@ class Category(object):
 		return getattr(self._database_obj, name)
 
 
-class Content(Category):
+class Interpretation(Category):
 	pass
 	
+
+class Mimetype(Category):
+	pass
+
 	
-class Source(Category):
+class Manifestation(Category):
 	pass
 
 #
-# Content categories
+# Interpretation categories
 #
-Content.register(
+Interpretation.register(
 	"TAG",
-	u"http://freedesktop.org/standards/xesam/1.0/core#Tag",
+        u"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag",
 	display_name=_("Tags"),
 	doc="User provided tags. The same tag may refer multiple items"
 )
-Content.register(
+Interpretation.register(
 	"BOOKMARK",
 	u"http://www.semanticdesktop.org/ontologies/nfo/#Bookmark",
 	display_name=_("Bookmarks"),
 	doc="A user defined bookmark. The same bookmark may only refer exectly one item"
 )
-Content.register(
+Interpretation.register(
 	"COMMENT",
 	u"http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#comment",
 	display_name=_("Comments"),
 	doc="User provided comment"
 )
-Content.register(
+Interpretation.register(
 	"DOCUMENT",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Document",
 	display_name=_("Documents"),
 	doc="A document, presentation, spreadsheet, or other content centric item"
 )
-Content.register(
+Interpretation.register(
 	"SOURCECODE",
-	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#SourceCode",
-	display_name=_("Source Code"),
+	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#ManifestationCode",
+	display_name=_("Manifestation Code"),
 	doc="Code in a compilable or interpreted programming language."
 )
-Content.register(
+Interpretation.register(
 	"IMAGE",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Image",
 	display_name=_("Images"),
 	doc="A photography, painting, or other digital image"
 )
-Content.register(
+Interpretation.register(
 	"VIDEO",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Video",
 	display_name=_("Videos"),
 	doc="Any form of digital video, streaming and non-streaming alike"
 )
-Content.register(
+Interpretation.register(
 	"MUSIC",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Audio",
 	display_name=_("Music"),
 	doc="Digital music or other creative audio work"
 )
-Content.register(
+Interpretation.register(
 	"EMAIL",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#Email",
 	display_name=_("Email"),
 	doc="An email is an email is an email"
 )
-Content.register(
+Interpretation.register(
 	"IM_MESSAGE",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#IMMessage",
 	display_name=_("Messages"),
 	doc="A message received from an instant messaging service"
 )
-Content.register(
+Interpretation.register(
 	"RSS_MESSAGE",
-	u"http://freedesktop.org/standards/xesam/1.0/core#RSSMessage",
+        u"http://www.tracker-project.org/temp/mfo#FeedMessage",
 	display_name=_("Feeds"),
 	doc="Any syndicated item, RSS, Atom, or other"
 )
-Content.register(
+Interpretation.register(
 	"BROADCAST_MESSAGE",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#BroadcastMessage",
+	u"http://zeitgeist-project.com/schema/1.0/core#BroadcastMessage",
 	display_name=_("Broadcasts"), # FIXME: better display name
-	doc="Small broadcasted message, like Twitter/Identica micro blogging"
+	doc="Small broadcasted message, like Twitter/Identica micro blogging (TBD in tracker)"
 )
-Content.register(
+Interpretation.register(
 	"CREATE_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#CreateEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#CreateEvent",
 	display_name=_("Created"),
 	doc="Event type triggered when an item is created"
 )
-Content.register(
+Interpretation.register(
 	"MODIFY_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#ModifyEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#ModifyEvent",
 	display_name=_("Modified"),
 	doc="Event type triggered when an item is modified"
 )
-Content.register(
+Interpretation.register(
 	"VISIT_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#VisitEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#VisitEvent",
 	display_name=_("Visited"),
 	doc="Event type triggered when an item is visited or opened"
 )
-Content.register(
+Interpretation.register(
 	"SEND_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#SendEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#SendEvent",
 	display_name=_("Send"),
 	doc="Event type triggered when the user sends/emails an item or message to a remote host"
 )
-Content.register(
+Interpretation.register(
 	"RECEIVE_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#ReceiveEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#ReceiveEvent",
 	display_name=_("Received"),
 	doc="Event type triggered when the user has received an item from a remote host"
 )
-Content.register(
+Interpretation.register(
+	"FOCUS_EVENT",
+	u"http://zeitgeist-project.com/schema/1.0/core#FocusEvent",
+	display_name=_("Focused"),
+	doc="Event type triggered when the user has switched focus to a new item"
+)
+Interpretation.register(
 	"WARN_EVENT",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#WarnEvent",
+	u"http://zeitgeist-project.com/schema/1.0/core#WarnEvent",
 	display_name=_("Warnings"),
 	doc="Event type triggered when the user is warned about something"
 )
-Content.register(
+Interpretation.register(
 	"ERROR_EVENT",
-	"http://gnome.org/zeitgeist/schema/1.0/core#ErrorEvent",
+	"http://zeitgeist-project.com/schema/1.0/core#ErrorEvent",
 	display_name=_("Errors"),
 	doc="Event type triggered when the user has encountered an error"
 )
-Content.register(
+Interpretation.register(
 	"APPLICATION",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#Application",
+        u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SoftwareApplication",
 	display_name=_("Applications"),
 	doc="An item that is a launchable application. The item's URI must point to the relevant .desktop file"
 )
+Interpretation.register(
+	"UNKNOWN",
+	u"http://zeitgeist-project.com/schema/1.0/core#UnknownInterpretation",
+	display_name=_("Unknown"),
+	doc="An entity with an unknown interpretation"
+)
 
 #
-# Source categories
+# Manifestation categories
 #
-Source.register(
+Manifestation.register(
 	"WEB_HISTORY",
-	u"http://www.semanticdesktop.org/ontologies/nfo/#Website",
+        u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebHistory",
 	display_name=_("Web History"),
 	doc="An item that has been extracted from the user's browsing history"
 )
-Source.register(
+Manifestation.register(
 	"USER_ACTIVITY",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#UserActivity",
+	u"http://zeitgeist-project.com/schema/1.0/core#UserActivity",
 	display_name=_("Activities"),
 	doc="An item that has been created solely on the basis of user actions and is not otherwise stored in some physical location"
 )
-Source.register(
+Manifestation.register(
 	"HEURISTIC_ACTIVITY",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#HeuristicActivity",
+	u"http://zeitgeist-project.com/schema/1.0/core#HeuristicActivity",
 	display_name=_("Activities"),
 	doc="An application has calculated via heuristics that some relationship is very probable."
 )
-Source.register(
+Manifestation.register(
+	"SCHEDULED_ACTIVITY",
+	u"http://zeitgeist-project.com/schema/1.0/core#ScheduledActivity",
+	display_name=_("Activities"), # FIXME: Is this a bad name?
+	doc="An event that has been triggered by some long running task activated by the user. Fx. playing a song from a playlist"
+)
+Manifestation.register(
 	"USER_NOTIFICATION",
-	u"http://gnome.org/zeitgeist/schema/1.0/core#UserNotification",
+	u"http://zeitgeist-project.com/schema/1.0/core#UserNotification",
 	display_name=_("Notifications"),
 	doc="An item that has been send as a notification to the user"
 )
-Source.register(
+Manifestation.register(
 	"FILE",
 	u"http://www.semanticdesktop.org/ontologies/nfo/#FileDataObject",
 	display_name=_("Files"),
 	doc="An item stored on the local filesystem"
 )
-Source.register(
+Manifestation.register(
 	"SYSTEM_RESOURCE",
 	u"http://freedesktop.org/standards/xesam/1.0/core#SystemRessource",
 	display_name=_("System Resources"),
-	doc="An item available through the host operating system, such as an installed application or manual page"
+	doc="An item available through the host operating system, such as an installed application or manual page (TBD in tracker)"
 )
+Manifestation.register(
+	"UNKNOWN",
+	u"http://zeitgeist-project.com/schema/1.0/core#UnknownManifestation",
+	display_name=_("Unknown"),
+	doc="An entity with an unknown manifestation"
+)
+
+class Subject(list):
+	Fields = (Uri,
+		Interpretation,
+		Manifestation,
+		Origin,
+		Mimetype,
+		Text,
+		Storage) = range(7)
+	
+	def __init__(self, data=None):
+		super(Subject, self).__init__([""]*len(Subject.Fields))
+		if data:
+			if len(data) != len(Subject.Fields):
+				raise ValueError(
+					"Invalid subject data length %s, "
+					"expected %s" % (len(data), len(Subject.Fields)))
+			super(Subject, self).__init__(data)
+		else:
+			super(Subject, self).__init__([""]*len(Subject.Fields))
+		
+	def __repr__(self):
+		return "%s(%s)" %(
+			self.__class__.__name__, super(Subject, self).__repr__()
+		)
+	
+	@staticmethod
+	def new_for_values (**values):
+		self = Subject()
+		for key, value in values.iteritems():
+			setattr(self, key, value)
+		return self
+		
+	def get_uri(self):
+		return self[Subject.Uri]
+		
+	def set_uri(self, value):
+		self[Subject.Uri] = value
+	uri = property(get_uri, set_uri)
+		
+	def get_interpretation(self):
+		return self[Subject.Interpretation]
+		
+	def set_interpretation(self, value):
+		self[Subject.Interpretation] = value
+	interpretation = property(get_interpretation, set_interpretation) 
+		
+	def get_manifestation(self):
+		return self[Subject.Manifestation]
+		
+	def set_manifestation(self, value):
+		self[Subject.Manifestation] = value
+	manifestation = property(get_manifestation, set_manifestation)
+		
+	def get_origin(self):
+		return self[Subject.Origin]
+		
+	def set_origin(self, value):
+		self[Subject.Origin] = value
+	origin = property(get_origin, set_origin) 
+		
+	def get_mimetype(self):
+		return self[Subject.Mimetype]
+		
+	def set_mimetype(self, value):
+		self[Subject.Mimetype] = value
+	mimetype = property(get_mimetype, set_mimetype) 
+		
+	def get_text(self):
+		return self[Subject.Text]
+		
+	def set_text(self, value):
+		self[Subject.Text] = value
+	text = property(get_text, set_text) 
+		
+	def get_storage(self):
+		return self[Subject.Storage]
+		
+	def set_storage(self, value):
+		self[Subject.Storage] = value
+	storage = property(get_storage, set_storage)
+	
+	
+class Event(list):
+	Fields = (Id,
+		Timestamp,
+		Interpretation,
+		Manifestation,
+		Actor) = range(5)
+	
+	def __init__(self, struct = None):
+		"""
+		If 'struct' is set it must be a list containing the event
+		metadata in the first position, and optionally the list of
+		subjects in the second position, and again optionally the event
+		payload in the third position.
+		
+		Unless the event metadata contains a timestamp the event will
+		have its timestamp set to "now".
+		"""
+		super(Event, self).__init__()
+		if struct:
+			if len(struct) == 1:
+				self.append(struct[0])
+				self.append([])
+				self.append("")
+			elif len(struct) == 2:
+				self.append(struct[0])
+				self.append(map(Subject, struct[1]))
+				self.append("")
+			elif len(struct) == 3:
+				self.append(struct[0])
+				self.append(map(Subject, struct[1]))
+				self.append(struct[2])
+			else:
+				raise ValueError("Invalid struct length %s" % len(struct))
+		else:
+			self.extend(([""]* len(Event.Fields), [], ""))
+		
+		# If we have no timestamp just set it to now
+		if not self[0][Event.Timestamp] :
+			self[0][Event.Timestamp] = str(int(time.time() * 1000))
+		
+	@staticmethod
+	def new_for_data(event_data):
+		"""
+		Create a new Event setting event_data as the Event properties
+		"""
+		self = Event()
+		if len(event_data) != len(Event.Fields):
+			raise ValueError("event_data must have %s members, found %s" % \
+				(len(Event.Fields), len(event_data)))
+		self[0] = event_data
+		return self
+	
+	@staticmethod
+	def new_for_values (**values):
+		self = Event()
+		for key, value in values.iteritems():
+			setattr(self, key, value)
+		return self
+	
+	def __repr__(self):
+		return "%s(%s)" %(
+			self.__class__.__name__, super(Event, self).__repr__()
+		)
+	
+	def append_subject(self, subject=None):
+		"""
+		Append a new empty subject array and return a reference to
+		the array.
+		"""
+		if not subject:
+			subject = Subject()
+		self.subjects.append(subject)
+		return subject
+	
+	def get_subjects(self):
+		return self[1]	
+	
+	def set_subjects(self, subjects):
+		self[1] = subjects
+	subjects = property(get_subjects, set_subjects)
+	
+	@property
+	def id(self):
+		return self[0][Event.Id]
+	
+	def get_timestamp(self):
+		return self[0][Event.Timestamp]
+	
+	def set_timestamp(self, value):
+		self[0][Event.Timestamp] = str(value)
+	timestamp = property(get_timestamp, set_timestamp)
+	
+	def get_interpretation(self):
+		return self[0][Event.Interpretation]
+	
+	def set_interpretation(self, value):
+		self[0][Event.Interpretation] = value
+	interpretation = property(get_interpretation, set_interpretation) 
+	
+	def get_manifestation(self):
+		return self[0][Event.Manifestation]
+	
+	def set_manifestation(self, value):
+		self[0][Event.Manifestation] = value
+	manifestation = property(get_manifestation, set_manifestation)
+	
+	def get_actor(self):
+		return self[0][Event.Actor]
+	
+	def set_actor(self, value):
+		self[0][Event.Actor] = value
+	actor = property(get_actor, set_actor) 
+	
+	def get_payload(self):
+		return self[2]
+	
+	def set_payload(self, value):
+		self[2] = value
+	payload = property(get_payload, set_payload)
+

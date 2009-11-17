@@ -102,7 +102,6 @@ class EvolutionSource(DataProvider):
 					"mimetype": u"mail", # TODO: what's the correct mime type for mails?
 										 # do we know if it is text or html mail?
 					"tags": u"",
-					"icon": u"",
 					"bookmark": False,
 					"app": u"/usr/share/applications/evolution.desktop",
 					"origin": u"",

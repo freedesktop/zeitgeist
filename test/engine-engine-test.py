@@ -50,15 +50,15 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		orig_event = {
 			"subject": uri,
 			"timestamp": 0,
-			"source": Source.USER_ACTIVITY,
-			"content": Content.CREATE_EVENT,
+			"source": Manifestation.USER_ACTIVITY,
+			"content": Interpretation.CREATE_EVENT,
 			"application": "/usr/share/applications/gnome-about.desktop",
 			"tags": {},
 			"bookmark": False,
 		}
 		orig_item = {
-			"content": Content.IMAGE,
-			"source": Source.FILE,
+			"content": Interpretation.IMAGE,
+			"source": Manifestation.FILE,
 			"mimetype": "mime/type",
 			"bookmark": True,
 		}
@@ -87,7 +87,7 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		assert_cmp_dict(orig_event, result_event)
 		
 		content_types = [str(ctype) for ctype in self.engine.get_types()]
-		self.assertTrue(str(Content.IMAGE) in content_types)
+		self.assertTrue(str(Interpretation.IMAGE) in content_types)
 	
 	def testBookmark (self):
 		self.assertEmptyDB()
@@ -96,14 +96,14 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		orig_event = Event(
 			subject = "test://mytest",
 			timestamp = 0,
-			source = Source.USER_ACTIVITY,
-			content = Content.CREATE_EVENT,
+			source = Manifestation.USER_ACTIVITY,
+			content = Interpretation.CREATE_EVENT,
 			application = "/usr/share/applications/gnome-about.desktop",
 			bookmark = False,
 		)
 		orig_item = Item(
-			content = Content.IMAGE,
-			source = Source.FILE,
+			content = Interpretation.IMAGE,
+			source = Manifestation.FILE,
 			mimetype = u"mime/type",
 			bookmark = True,
 		)
@@ -123,39 +123,38 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			Event(
 				subject = u"test://mytest1",
 				timestamp = 100,
-				source = Source.USER_ACTIVITY,
-				content = Content.CREATE_EVENT,
+				source = Manifestation.USER_ACTIVITY,
+				content = Interpretation.CREATE_EVENT,
 				application = u"/usr/share/applications/gnome-about.desktop",
 				bookmark = False),
 			Event(
 				subject = u"test://mytest2",
 				timestamp = 1000,
-				source = Source.USER_ACTIVITY,
-				content = Content.CREATE_EVENT,
+				source = Manifestation.USER_ACTIVITY,
+				content = Interpretation.CREATE_EVENT,
 				application = u"/usr/share/applications/gnome-about.desktop",
 				bookmark = False),
 			]
 		items = {
 			u"test://mytest1": Item(
-				content = Content.IMAGE,
-				source = Source.FILE,
+				content = Interpretation.IMAGE,
+				source = Manifestation.FILE,
 				text = u"Text",
 				mimetype = u"mime/type",
 				bookmark = False),
 			u"test://mytest2": Item(
-				content = Content.IMAGE,
-				source = Source.FILE,
+				content = Interpretation.IMAGE,
+				source = Manifestation.FILE,
 				text = "Text",
 				mimetype = "mime/type",
-				icon = "stock_left",
 				origin = "http://example.org",
 				bookmark = False),
 			}
 		annotations = [
-			Annotation(subject = "test://mytest1", content = Content.TAG,
-				source = Source.HEURISTIC_ACTIVITY, text = "eins"),
-			Annotation(subject = "test://mytest2", content = Content.TAG,
-				source = Source.HEURISTIC_ACTIVITY, text = "eins"),
+			Annotation(subject = "test://mytest1", content = Interpretation.TAG,
+				source = Manifestation.HEURISTIC_ACTIVITY, text = "eins"),
+			Annotation(subject = "test://mytest2", content = Interpretation.TAG,
+				source = Manifestation.HEURISTIC_ACTIVITY, text = "eins"),
 			]
 		self.assertTrue(self.engine.insert_events(events, items, annotations))
 		
@@ -179,26 +178,25 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		events = [Event(
 			subject = "test://mytest1",
 			timestamp = 0,
-			source = Source.USER_ACTIVITY,
-			content = Content.CREATE_EVENT,
+			source = Manifestation.USER_ACTIVITY,
+			content = Interpretation.CREATE_EVENT,
 			application = "/usr/share/applications/gnome-about.desktop"
 			)]
 		items = {"test://mytest1": Item(
-			content = Content.IMAGE,
-			source = Source.USER_ACTIVITY,
+			content = Interpretation.IMAGE,
+			source = Manifestation.USER_ACTIVITY,
 			text = "Text",
 			mimetype = "mime/type",
-			icon = "stock_left",
 			origin = "http://example.org",
 			bookmark = False
 			)}
 		annotations = [
-			Annotation(subject = "test://mytest1", content = Content.TAG,
-				source = Source.HEURISTIC_ACTIVITY, text = "eins"),
-			Annotation(subject = "test://mytest1", content = Content.TAG,
-				source = Source.HEURISTIC_ACTIVITY, text = "zwei"),
-			Annotation(subject = "test://mytest1", content = Content.TAG,
-				source = Source.HEURISTIC_ACTIVITY, text = "drei"),
+			Annotation(subject = "test://mytest1", content = Interpretation.TAG,
+				source = Manifestation.HEURISTIC_ACTIVITY, text = "eins"),
+			Annotation(subject = "test://mytest1", content = Interpretation.TAG,
+				source = Manifestation.HEURISTIC_ACTIVITY, text = "zwei"),
+			Annotation(subject = "test://mytest1", content = Interpretation.TAG,
+				source = Manifestation.HEURISTIC_ACTIVITY, text = "drei"),
 			]
 		self.assertTrue(self.engine.insert_events(events, items, annotations))
 		tags = self.engine.get_tags()
@@ -216,12 +214,12 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event = Event(
 			subject = u"test://mytest1",
 			timestamp = 0,
-			content = Content.CREATE_EVENT,
-			source = Source.USER_ACTIVITY,
+			content = Interpretation.CREATE_EVENT,
+			source = Manifestation.USER_ACTIVITY,
 			application = u"/usr/share/applications/gnome-about.desktop")
 		item = Item(
-			source = Source.FILE,
-			content = Content.IMAGE,
+			source = Manifestation.FILE,
+			content = Interpretation.IMAGE,
 			text = u"Text",
 			mimetype = "mime/type",
 			tags = {"UserTags": [u"boo"]},
@@ -241,16 +239,16 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEmptyDB()
 		
 		def _utag(tag, subject): # Create UserTag
-			return Annotation(subject = subject, content = Content.TAG,
-				source = Source.HEURISTIC_ACTIVITY, text = tag)
+			return Annotation(subject = subject, content = Interpretation.TAG,
+				source = Manifestation.HEURISTIC_ACTIVITY, text = tag)
 		
 		events = []
 		items = {}
 		annotations = []
 		
 		items["file:///tmp/test/example.jpg"] = Item(
-			content = Content.IMAGE,
-			source = Source.FILE,
+			content = Interpretation.IMAGE,
+			source = Manifestation.FILE,
 			text = u"example.jpg",
 			mimetype = u"image/jpg",
 			bookmark = False
@@ -262,13 +260,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		events.append(Event(
 			subject = u"file:///tmp/test/example.jpg",
 			timestamp = 1219324, # keep it lower than in item4!
-			content = Content.VISIT_EVENT,
-			source = Source.USER_ACTIVITY,
+			content = Interpretation.VISIT_EVENT,
+			source = Manifestation.USER_ACTIVITY,
 			application = u"/usr/share/applications/eog.desktop"
 			))
 		items["http://image.host/cool_pictures/01.png"] = Item(
-			content = Content.IMAGE,
-			source = Source.WEB_HISTORY,
+			content = Interpretation.IMAGE,
+			source = Manifestation.WEB_HISTORY,
 			text = u"Cool Picture 1",
 			mimetype = u"image/png",
 			origin = u"http://google.com",
@@ -280,8 +278,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		event2 = Event(
 			subject = u"http://image.host/cool_pictures/01.png",
 			timestamp = 3563534,
-			content = Content.CREATE_EVENT,
-			source = Source.USER_ACTIVITY,
+			content = Interpretation.CREATE_EVENT,
+			source = Manifestation.USER_ACTIVITY,
 			application = u"/usr/share/applications/firefox.desktop"
 		)
 		
@@ -293,8 +291,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.last_insertion_app = u"/usr/share/applications/eog.desktop"
 		self.last_insertion_date = 1248324
 		items["file:///tmp/files/example.png"] = Item(
-			content = Content.IMAGE,
-			source = Source.FILE,
+			content = Interpretation.IMAGE,
+			source = Manifestation.FILE,
 			text = u"example.png",
 			mimetype = u"image/png",
 			bookmark = False
@@ -304,13 +302,13 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		events.append(Event(
 			subject = u"file:///tmp/files/example.png",
 			timestamp = self.last_insertion_date,
-			content = Content.CREATE_EVENT,
-			source = Source.USER_ACTIVITY,
+			content = Interpretation.CREATE_EVENT,
+			source = Manifestation.USER_ACTIVITY,
 			application = self.last_insertion_app
 			))
 		items["file:///home/foo/images/holidays/picture.png"] = Item(
-			content = Content.VIDEO,
-			source = Source.FILE,
+			content = Interpretation.VIDEO,
+			source = Manifestation.FILE,
 			text = u"picture.png",
 			mimetype = u"image/png",
 			bookmark = True
@@ -320,8 +318,8 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		events.append(Event(
 			subject = u"file:///home/foo/images/holidays/picture.png",
 			timestamp = 1219335,
-			content = Content.CREATE_EVENT,
-			source = Source.USER_ACTIVITY,
+			content = Interpretation.CREATE_EVENT,
+			source = Manifestation.USER_ACTIVITY,
 			application = u"/usr/share/applications/eog.desktop",
 			))
 		self.engine.insert_events(events, items, annotations)
@@ -414,35 +412,35 @@ class ZeitgeistEngineTest (unittest.TestCase):
 		self.assertEquals(result1[0][0]["subject"],
 			u"file:///tmp/files/example.png")
 	
-	def testFindEventsWithContent(self):
+	def testFindEventsWithInterpretation(self):
 		self._init_with_various_events()
 		result1 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"content": [Content.IMAGE.uri]}])
+			[{"content": [Interpretation.IMAGE.uri]}])
 		result2 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"content": [Content.IMAGE.uri, Content.MUSIC.uri]}])
+			[{"content": [Interpretation.IMAGE.uri, Interpretation.MUSIC.uri]}])
 		result3 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"content": [Content.VIDEO.uri]}])
+			[{"content": [Interpretation.VIDEO.uri]}])
 		result4 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"content": [Content.MUSIC.uri]}])
+			[{"content": [Interpretation.MUSIC.uri]}])
 		self.assertEquals(result1, result2)
 		self.assertEquals([x["content"] for x in result1[1].values()],
-			[Content.IMAGE.uri] * 3)
+			[Interpretation.IMAGE.uri] * 3)
 		self.assertEquals(result3[1][result3[0][0]["subject"]]["text"],  u"picture.png")
 		self.assertEquals(len(result3[1]), 1)
 		self.assertEquals(len(result4), 0)
 	
-	def testFindEventsWithSource(self):
+	def testFindEventsWithManifestation(self):
 		self._init_with_various_events()
 		result1 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"source": [Source.USER_ACTIVITY.uri, Source.FILE.uri]}])
+			[{"source": [Manifestation.USER_ACTIVITY.uri, Manifestation.FILE.uri]}])
 		result2 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"source": [Source.WEB_HISTORY.uri]}])
+			[{"source": [Manifestation.WEB_HISTORY.uri]}])
 		result3 = self.engine.find_events(0, 0, 0, True, "event",
-			[{"source": [Source.USER_NOTIFICATION.uri]}])
+			[{"source": [Manifestation.USER_NOTIFICATION.uri]}])
 		self.assertEquals(len(result1[0]), 3)
 		self.assertEquals(len(result1[1]), 3)
 		self.assertEquals(set(result2[1][x]["source"] for x in result2[1]),
-			set([Source.WEB_HISTORY.uri]))
+			set([Manifestation.WEB_HISTORY.uri]))
 		self.assertEquals(len(result2), 2)
 		self.assertEquals(len(result3), 0)
 	
@@ -464,10 +462,10 @@ class ZeitgeistEngineTest (unittest.TestCase):
 			[{"mimetypes": [u"image/png"]}], True)
 		self.assertEquals(result, 4)
 	
-	def testCountEventsItemsContent(self):
+	def testCountEventsItemsInterpretation(self):
 		self._init_with_various_events()
 		result = self.engine.find_events(0, 0, 0, True, "item",
-			[{"content": [Content.IMAGE.uri]}], True)
+			[{"content": [Interpretation.IMAGE.uri]}], True)
 		self.assertEquals(result, 3)
 	
 	def testFindApplications(self):

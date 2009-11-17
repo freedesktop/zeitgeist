@@ -31,8 +31,7 @@ import logging
 from xdg import BaseDirectory
 
 from zeitgeist import _config
-from zeitgeist.dbusutils import Event, Item, Annotation
-from zeitgeist.datamodel import Content, Source
+from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 log = logging.getLogger("zeitgeist.logger.datasources.recent")
@@ -228,47 +227,39 @@ class RecentlyUsedManagerGtk(DataProvider):
 							return unicode(fullname)
 		return None
 	
-	@staticmethod
-	def _get_tags_for_file(filename):
-		""" Returns the tags for a file.
-		
-		This is currently done based on the file's path. For example,
-		a file named "/home/user/foo/bar/example.py" would be tagged with
-		"foo" and "bar". """
-		
-		filename = os.path.dirname(filename)
-		tags = []
-		
-		# Remove the user's home directory, if present
-		home = os.path.expanduser("~")
-		if filename.startswith(home):
-			filename = filename[len(home)+1:]
-		
-		if filename:
-			filename = unicode(urllib.unquote(filename))
-			tags = filename.replace(",", " ").split("/")
-		
-		return { "AutoTags": tags }
+	def _get_interpretation_for_mimetype(self, mimetype):
+		matching_filter = None
+		for filter_name, mimetypes in self.FILTERS.iteritems():
+			if mimetype and mimetype in mimetypes:
+				matching_filter = filter_name
+				break
+		if matching_filter:
+			return getattr(Interpretation, matching_filter.upper()).uri
+		return Interpretation.UNKNOWN.uri
 	
 	def _get_items(self):
 		timestamp_last_run = time.time()
 		
 		events = []
-		items = {}
-		annotations = []
 		
 		for (num, info) in enumerate(self.recent_manager.get_items()):
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
-				item_uri = unicode(info.get_uri())
-				item_mimetype = unicode(info.get_mime_type())
+				subject = Subject.new_for_values(
+					uri = unicode(info.get_uri()),
+					interpretation = self._get_interpretation_for_mimetype(
+						unicode(info.get_mime_type())),
+					manifestation = Manifestation.FILE.uri,
+					text = info.get_display_name(),
+					mimetype = unicode(info.get_mime_type()),
+				)
 				
 				last_application = info.last_application().strip()
 				application = info.get_application_info(last_application)[0].split()[0]
 				desktopfile = self._find_desktop_file_for_application(application)
 				times = (
-					(info.get_added(), Content.CREATE_EVENT.uri),
-					(info.get_visited(), Content.VISIT_EVENT.uri),
-					(info.get_modified(), Content.MODIFY_EVENT.uri)
+					(info.get_added(), Interpretation.CREATE_EVENT.uri),
+					(info.get_visited(), Interpretation.VISIT_EVENT.uri),
+					(info.get_modified(), Interpretation.MODIFY_EVENT.uri)
 				)
 				
 				is_new = False
@@ -276,48 +267,17 @@ class RecentlyUsedManagerGtk(DataProvider):
 					if timestamp <= self._timestamp_last_run:
 						continue
 					is_new = True
-					events.append(Event(
-						subject = item_uri,
+					events.append(Event.new_for_values(
 						timestamp = timestamp,
-						source = Source.USER_ACTIVITY.uri,
-						content = use,
-						application = desktopfile or u""
+						interpretation = use,
+						manifestation = Manifestation.USER_ACTIVITY.uri,
+						actor = desktopfile or u"",
+						subjects = [subject]
 						))
-				
-				if is_new and item_uri not in items:
-					# Get the Content for the item
-					matching_filter = None
-					for filter_name, mimetypes in self.FILTERS.iteritems():
-						if item_mimetype and item_mimetype in mimetypes:
-							matching_filter = filter_name
-					if matching_filter:
-						item_content = getattr(Content, matching_filter.upper()).uri
-					else:
-						item_content = u''
-					
-					# Insert the item
-					items[item_uri] = Item(
-						content = item_content,
-						source = Source.FILE.uri,
-						text = info.get_display_name(),
-						mimetype = item_mimetype,
-					)
-					
-					# Insert the tags
-					tags = self._get_tags_for_file(info.get_uri_display())
-					for tag in tags:
-						annotations.append(Annotation(
-							subject = item_uri,
-							content = Content.TAG.uri,
-							source = Source.HEURISTIC_ACTIVITY.uri,
-							text = tag))
 			if num % 50 == 0:
 				self._process_gobject_events()
-			break
 		self._timestamp_last_run = timestamp_last_run
-		
-		if items:
-			return (events, items, annotations)
+		return events
 
 if enabled:
 	__datasource__ = RecentlyUsedManagerGtk()

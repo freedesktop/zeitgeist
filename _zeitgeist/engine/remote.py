@@ -28,7 +28,24 @@ from _zeitgeist.singleton import SingletonApplication
 _engine = get_default_engine()
 
 DBUS_INTERFACE = DBusInterface.INTERFACE_NAME
-SIG_EVENTS = "aa{sv}a{sa{sv}}"
+SIG_EVENT = "asaasay"
+
+def special_str(obj):
+	""" returns a string representation of an object
+	if obj is None returns an empty string.
+	"""
+	if obj is None:
+		return ""
+	return unicode(obj)
+	
+def make_dbus_sendable(event):
+	for n, value in enumerate(event[0]):
+		event[0][n] = special_str(value)
+	for subject in event[1]:
+		for n, value in enumerate(subject):
+			subject[n] = special_str(value)
+	event[2] = special_str(event[2])
+	return event
 
 class RemoteInterface(SingletonApplication):
 		
@@ -45,153 +62,65 @@ class RemoteInterface(SingletonApplication):
 	# Reading stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="as", out_signature="("+SIG_EVENTS+")")
-	def GetItems(self, uris):
-		"""Get items by URI
-		
-		:param uris: list of uris
-		:type uris: list of strings
-		:returns: list of items
-		:rtype: list of tuples presenting an :ref:`item-label`
-		"""
-		return _engine.get_items(uris)
+						in_signature="au", out_signature="a("+SIG_EVENT+")")
+	def GetEvents(self, event_seqnums):
+		events = _engine.get_events(event_seqnums)
+		try:
+			# If the list contains a None we have a missing event,
+			# meaning that the client requested a non-existing event
+			offset = events.index(None)
+			raise KeyError("No event with id %s" % event_seqnums[offset])
+		except ValueError:
+			# This is what we want, it means that there are no
+			# holes in the list
+			return [make_dbus_sendable(event) for event in events]
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="iiibsaa{sv}", out_signature="("+SIG_EVENTS+")")
-	def FindEvents(self, min_timestamp, max_timestamp, limit,
-			sorting_asc, mode, filters):
+						in_signature="(ii)a("+SIG_EVENT+")uuu", out_signature="au")
+	def FindEventIds(self, time_range, event_templates, storage_state,
+			max_events, order):
 		"""Search for items which match different criterias
 		
-		:param min_timestamp: search for events beginning after this timestamp
-		:type min_timestamp: integer
-		:param max_timestamp: search for events beginning before this timestamp;
-			``max_timestamp`` equals ``0`` means indefinite time
-		:type max_timestamp: integer
-		:param limit: limit the number of returned items;
-			``limit`` equals ``0`` returns all matching items
-		:type limit: integer
-		:param sorting_asc: sort result in ascending order of timestamp, otherwise descending
-		:type sorting_asc: boolean
-		:param mode: The first mode returns all events, the second one only returns
-			the last event when items are repeated and the ``mostused`` mode
-			is like ``item`` but returns the results sorted by the number of
-			events.
-		:type mode: string, either ``event``, ``item`` or ``mostused``
-		:param filters: list of filter, multiple filters are connected by an ``OR`` condition
-		:type filters: list of tuples presenting a :ref:`filter-label`
+		:param time_range: two timestamps defining the timerange for the query
+		:type time_range: tuple of integers
+		:param event_templates: template with which the returned events should match
+		:type event_templates: array of templates
+		:param storage_state: whether the item is currently known to be available
+		:type storage_state: unsigned integer
+		:param max_events: maximal amount of returned events
+		:type max_events: unsigned integer
+		:param order: unsigned integer representing a :ref:`sorting-label`
+		:type order: unsigned integer
 		:returns: list of items
 		:rtype: list of tuples presenting an :ref:`item-label`
-		"""
-		# filters is a list of dicts, where each dict can have the following items:
-		#   name: <list> of <str>
-		#   uri: <list> of <str>
-		#   tags: <list> of <str>
-		#   mimetypes: <list> of <str>
-		#   source: <list> of <str>
-		#   content: <list> of <str>
-		#	application <list> of <str>
-		#   bookmarked: <bool> (True means bookmarked items, and vice versa
-		return _engine.find_events(min_timestamp, max_timestamp, limit,
-			sorting_asc, mode, filters, False)
+		"""		
+		if storage_state:
+			raise NotImplementedError
+		return _engine.find_eventids(time_range, event_templates, storage_state,
+			max_events, order)
 	
-	@dbus.service.method("org.gnome.zeitgeist",
-						in_signature="iiaa{sv}", out_signature="a(si)")
-	def FindApplications(self, min_timestamp, max_timestamp, filters):
-		"""This method takes a subset of the parameters from ``FindEvents()``
-		and returns the path to the .desktop file of the applications which
-		were used for the matching events.
-		
-		:param min_timestamp: search for application beginning after this timestamp
-		:type min_timestamp: integer
-		:param max_timestamp: search for applications beginning before this timestamp;
-			``max_timestamp`` equals ``0`` means indefinite time
-		:type max_timestamp: integer
-		:param filters: list of filter, multiple filters are connected by an ``OR`` condition
-		:type filters: list of tuples presenting a :ref:`filter-label`
-		:returns: list of tuples containing the path to a .desktop file and the amount of matches for it
-		:rtype: list of tuples containing a string and an integer
-		"""
-		return _engine.find_events(min_timestamp, max_timestamp, 0, False,
-			u"event", filters, return_mode=2)
-	
+	# FIXME: Do we want this or let people use
+	# GetEvents(FindEventIds(limit=1,sorting=desc)).timestamp
+	#   -- RainCT
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="iisaa{sv}", out_signature="i")
-	def CountEvents(self, min_timestamp, max_timestamp, mode, filters):
-		"""This method takes a subset of the parameters from ``FindEvents()``
-		and returns the amount of results a ``FindEvents()`` call with the
-		same parameter would yield if the maximal amount of items to return
-		isn't limited.
-		
-		:param min_timestamp: search for events beginning after this timestamp
-		:type min_timestamp: integer
-		:param max_timestamp: search for events beginning before this timestamp;
-			``max_timestamp`` equals ``0`` means indefinite time
-		:type max_timestamp: integer
-		:param mode: The first mode returns all events, the second and third
-			ones only return repeated items once.
-		:type mode: string, either ``event``, ``item`` or ``mostused``
-		:param filters: list of filter, multiple filters are connected by an ``OR`` condition
-		:type filters: list of tuples presenting a :ref:`filter-label`
-		:returns: list of items
-		:rtype: list of tuples presenting an :ref:`item-label`
-		"""
-		return _engine.find_events(min_timestamp, max_timestamp, 0, True,
-			mode, filters, return_mode=1)
-	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="iiis", out_signature="a(si)")
-	def GetTags(self, min_timestamp, max_timestamp, limit, name_filter):
-		"""Returns a list containing tuples with the name and the number of
-		occurencies of the tags matching ``name_filter``, or all existing
-		tags in case it's empty, sorted from most used to least used. ``amount``
-		can base used to limit the amount of results.
-		
-		Use ``min_timestamp`` and ``max_timestamp`` to limit the time frames you
-		want to consider.
-		
-		:param min_timestamp:
-		:type min_timestamp: Integer
-		:param max_timestamp:
-		:type max_timestamp: Integer
-		:param name_filter: 
-		:type name_filter: string
-		:param limit: max amount of returned elements, ``limit`` equals ``0``
-			means the result not beeing limited
-		:type amount: integer
-		:returns: list of tuple containing the name and number of occurencies
-		:rtype: list of tuples
-		"""
-		return _engine.get_tags(min_timestamp, max_timestamp, limit, name_filter)
-	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="s", out_signature="i")
-	def GetLastInsertionDate(self, application):
+						in_signature="s", out_signature="u")
+	def GetHighestTimestampForActor(self, actor):
 		"""Returns the timestamp of the last item which was inserted
-		related to the given ``application``. If there is no such record,
+		related to the given ``actor``. If there is no such record,
 		0 is returned.
 		
-		:param application: application to query for
-		:type application: string
-		:returns: timestamp of last insertion date
+		:param actor: actor to query for
+		:type actor: string
+		:returns: timestamp of the last event with that actor
 		:rtype: integer
 		"""
-		return _engine.get_last_insertion_date(application)
-	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="", out_signature="as")
-	def GetTypes(self):
-		"""Returns a list of all different types in the database.
-		
-		:returns: list of types
-		:rtype: list of strings
-	   	"""
-		return _engine.get_types()
-	
+		return _engine.get_highest_timestamp_for_actor(actor)
+
 	# Writing stuff
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature=SIG_EVENTS+"aa{ss}", out_signature="i")
-	def InsertEvents(self, events, items, annotations):
+						in_signature="a("+SIG_EVENT+")", out_signature="au")
+	def InsertEvents(self, events):
 		"""Inserts events into the database. Returns the amount of sucessfully
 		inserted events
 		
@@ -204,28 +133,10 @@ class RemoteInterface(SingletonApplication):
 		:returns: a positive value on success, ``0`` otherwise
 		:rtype: Integer
 		"""
-		result = _engine.insert_events(events, items, annotations)
-		if result[0]:
-			self.EventsChanged(("added", result[0], result[1]))
-		return len(result[0])
-	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="aa{ss}", out_signature="i")
-	def SetAnnotations(self, annotations_list):
-		"""Inserts annotations into the database.
-		
-		:param annotations_list: list of annotations to be inserted into the database
-		:type annotations_list: list of dicts presenting an :ref:`annotation-label`
-		:returns: URIs of the successfully inserted annotations
-		:rtype: list of strings
-		"""
-		result = _engine.set_annotations(annotations_list)
-		#if result:
-			#self.AnnotationsChanged(("created", result))
-		return result
+		return _engine.insert_events(events)
 	
 	#@dbus.service.method(DBUS_INTERFACE,
-	#					in_signature=SIG_EVENTS, out_signature="")
+	#					in_signature=SIG_EVENT, out_signature="")
 	#def UpdateItems(self, item_list):
 	#	"""Update items in the database
 	#	
@@ -235,16 +146,19 @@ class RemoteInterface(SingletonApplication):
 	#	result = _engine.update_items(item_list)
 	#	self.EventsChanged(("modified", result))
 	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="as", out_signature="")
-	def DeleteItems(self, uris):
+	@dbus.service.method(DBUS_INTERFACE, in_signature="au", out_signature="")
+	def DeleteEvents(self, ids):
 		"""Delete items from the database
 		
-		:param uris: list of URIs representing an item
-		:type uris: list of strings
+		:param ids: list of event ids obtained, for example, by calling
+		    FindEventIds()
+		:type ids: list of integers
 		"""
-		result = _engine.delete_items(uris)
-		self.EventsChanged(("deleted", result))
+		_engine.delete_events(ids)
+
+	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
+	def DeleteLog(self):
+		_engine.delete_log()
         
     # Properties interface
 
@@ -286,18 +200,27 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return value
 	
-	@dbus.service.signal(DBUS_INTERFACE)
-	def EngineStart(self):
-		"""This signal is emmitted once the engine successfully started and
-		is ready to process requests
-		"""
-		return True
-	
-	@dbus.service.signal(DBUS_INTERFACE)
-	def EngineExit(self):
-		return True
-	
+	@dbus.service.method(DBUS_INTERFACE, in_signature="sii", out_signature="i")
+	def GetSubjectFocusDuration(self, document_uri, start_date, end_date):
+		return _zeitgeist.engine.get_subject_focus_duration(document_uri, start_date, end_date)
+
+	@dbus.service.method(DBUS_INTERFACE, in_signature="sii", out_signature="i")
+	def GetActorFocusDuration(self, application_uri, start_date, end_date):
+		return _zeitgeist.engine.get_actor_focus_duration(application_uri, start_date, end_date)
+
+	@dbus.service.method(DBUS_INTERFACE, in_signature="iii", out_signature="as")
+	def GetLongestUsedSubjects(self, number, start_date, end_date):
+		return _zeitgeist.engine.get_longest_used_subjects(number, start_date, end_date)
+
+	@dbus.service.method(DBUS_INTERFACE, in_signature="iii", out_signature="as")
+	def GetLongestUsedActors(self, number, start_date, end_date):
+		return _zeitgeist.engine.get_longest_used_actors(number, start_date, end_date)
 	# Commands
+	
+	@dbus.service.method(DBUS_INTERFACE, in_signature="ss", out_signature="")
+	def RegisterFocusEvent(self, application_uri, document_uri):
+		return _zeitgeist.engine.register_focus(application_uri, document_uri)
+	
 	
 	@dbus.service.method(DBUS_INTERFACE)
 	def Quit(self):

@@ -97,6 +97,9 @@ class ColumnType:
 		return self.__class__.__like_template__ % (self,
 												   self.__class__.format(other))
 	
+	def in_collection(self, collection):
+		return "%s IN (%s)" % (self, ", ".join(map(str, collection)))		
+	
 	@classmethod
 	def format (klass, value):
 		"""
@@ -104,7 +107,8 @@ class ColumnType:
 		this means adding quotes around it, integers needs conversion to strings
 		etc.
 		"""
-		return str(value)
+		if value is None : return 'NULL'
+		else : return str(value)
 	
 class Integer(ColumnType):
 	"""
@@ -117,6 +121,8 @@ class String(ColumnType):
 	"""
 	@classmethod
 	def format(klass, value):
+		if isinstance(value, (str, unicode)):
+			value = value.decode("UTF-8")
 		# Escape quotes to avoid SQL injection
 		if value:
 			return "'%s'" % unicode(value).replace("'", "''")

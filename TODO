@@ -1,21 +1,10 @@
-TODO
-================================
+- Finish EventsChanged in remote.py
+- Review FocusDurationRegister code,found a lot of naming conventions errors and some minor bugs.
+- Fix the tables to use FLOATS for timestamps instead of INTERGERs (this will affect the code in the engine)
+- Fix the RecentlyUsed provider
+- Test all Relevancy stuff
+- Add a WNCK monitor to inform us with window focus changes. This module should land into the loggers.
 
-SOON:
--------------------
-
- - Do not start a new zeitgeist-datahub instance if one is already running.
- - Fix all milestoned Launchpad bugs.
- - The tray icon should start the daemon, instead of the other way
-   around.
- - Take tags from Firefox's bookmarks.
+Stuff worth considering:
  - Log package installations/removals/updates.
- - Use Pylint / pyflakes
-
-FUTURE:
-------------
-
- - Add on Tracker support.
- - Add time-machine with bzr.
- - Extend DB to support location of usage
- - Better Auto-Tagging; e.g: tasks, locations, and relations.
+ - Use Pylint / pyflakes to keep the code clean.
