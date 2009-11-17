@@ -152,8 +152,6 @@ class FocusDurationRegister():
         self.lastrowid = 0
         self.cursor = cursor
         self._create_db()
-        self.doc_table.set_cursor(self.cursor)
-        self.app_table.set_cursor(self.cursor)
     
     def _create_db(self):
         """Create the database and return a default cursor for it"""
@@ -176,8 +174,6 @@ class FocusDurationRegister():
             ON focus_duration(subject)""")
     
     def focus_change(self, now, document, application):
-        doc_id = self.doc_table.lookup_or_create(document)
-        app_id = self.app_table.lookup_or_create(application)
         if self.cursor.lastrowid:
             self.cursor.execute("""
                         UPDATE focus_duration 
@@ -186,7 +182,10 @@ class FocusDurationRegister():
         if not document:
             self.cursor.execute("""
                         INSERT INTO focus_duration 
-                        VALUES (?,?,?,?) """, (str(app_id), str(doc_id), str(now), str(now)))
+                        VALUES (
+                          (SELECT id FROM actor WHERE value=?),
+                          (SELECT id FROM uri WHERE value=?),
+                          ?,?) """, (application, document, str(now), str(now)))
             self.lastrowid = self.cursor.lastrowid
         self.cursor.connection.commit()
     
