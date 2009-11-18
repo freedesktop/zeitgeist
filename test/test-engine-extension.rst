@@ -95,3 +95,24 @@ Now its methods are not accessible anymore
     Traceback (most recent call last):
       ...
     AttributeError
+
+If you try to load an extension which is not a subclass if `Extension` a
+TypeError is raised
+
+    >>> engine.extensions.load(set) # doctest:+ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TypeError: Unable to load <type 'set'>, all extensions have to be subclasses of <...Extension'>
+
+Also, if an extension does not define any public method a ValueErro is raised
+
+    >>> class FailExtension(Extension):
+    ...
+    ...     def get_boo(self):
+    ...         return "boo"
+    ...
+    >>> engine.extensions.load(FailExtension) # doctest:+ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    ValueError: Unable to load <...FailExtension'>, this extension has not defined any methods
+

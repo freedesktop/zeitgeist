@@ -1,5 +1,29 @@
+# -.- coding: utf-8 -.-
+
+# Zeitgeist
+#
+# Copyright © 2009 Markus Korn <thekorn@gmx.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Extension(object):
+	""" Base class for all extensions
+	
+	Every extension has to define a list of accessible methods as
+	'PUBLIC_METHODS'. The constructor of an Extension object takes the
+	engine object it extends as the only argument
+	"""
 	PUBLIC_METHODS = None
 	
 	def __init__(self, engine):
@@ -7,6 +31,7 @@ class Extension(object):
 	
 	
 class ExtensionsCollection(object):
+	""" Collection to manage all extensions """
 	
 	def __init__(self, engine, defaults=None):
 		self.__extensions = dict()
@@ -21,9 +46,11 @@ class ExtensionsCollection(object):
 			
 	def load(self, extension):
 		if not issubclass(extension, Extension):
-			raise TypeError
+			raise TypeError(
+				"Unable to load %r, all extensions have to be subclasses of %r" %(extension, Extension)
+			)
 		if getattr(extension, "PUBLIC_METHODS", None) is None:
-			raise ValueError
+			raise ValueError("Unable to load %r, this extension has not defined any methods" %extension)
 		obj = extension(self.__engine)
 		for method in obj.PUBLIC_METHODS:
 			self.__engine._register_method(method, getattr(obj, method))
