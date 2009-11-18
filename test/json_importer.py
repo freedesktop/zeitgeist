@@ -17,7 +17,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
+try:
+	import json
+except ImportError:
+	# maybe the user is using python < 2.6
+	import simplejson as json
 
 from zeitgeist.datamodel import Event, Subject
 
