@@ -393,6 +393,30 @@ Manifestation.register(
 	doc="An entity with an unknown manifestation"
 )
 
+class TimeRange(list):
+	"""
+	A class that represents a time range with a beginning and an end.
+	
+	By design this class will be automatically transformed to the DBus
+	type (ii).
+	"""
+	def __init__ (self, begin, end):
+		super(TimeRange, self).__init__((begin, end))
+	
+	def get_begin(self):
+		return self[0]
+	
+	def set_begin(self, begin):
+		self[0] = begin
+	begin = property(get_begin, set_begin)
+	
+	def get_end(self):
+		return self[1]
+	
+	def set_end(self, end):
+		self[1] = end
+	end = property(get_end, set_end)
+
 class Subject(list):
 	Fields = (Uri,
 		Interpretation,
