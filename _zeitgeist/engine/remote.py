@@ -76,7 +76,7 @@ class RemoteInterface(SingletonApplication):
 			return [make_dbus_sendable(event) for event in events]
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="(ii)a("+SIG_EVENT+")uuu", out_signature="au")
+						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			max_events, order):
 		"""Search for items which match different criterias
