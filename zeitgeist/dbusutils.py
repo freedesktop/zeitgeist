@@ -31,7 +31,7 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState
 
-class DBusInterface(dbus.Interface):
+class ZeitgeistDBusInterface(dbus.Interface):
 	""" Central DBus interface to the zeitgeist engine
 	
 	There doe not necessarily have to be one single instance of this
@@ -166,14 +166,14 @@ class ResultType:
 class ZeitgeistClient:
 	"""
 	Convenience APIs to have a Pythonic way to call the running Zeitgeist
-	engine. For raw DBus access use the ZeitgeistDBusInterface class.
+	engine. For raw DBus access use the ZeitgeistZeitgeistDBusInterface class.
 	
 	Note that this class only does asynchnous DBus calls. This is almost
 	always the right thing to do. If you really want to do synchronous
-	DBus calls use the raw DBus API found in the DBusInterface class.
+	DBus calls use the raw DBus API found in the ZeitgeistDBusInterface class.
 	"""
 	def __init__ (self):
-		self._iface = DBusInterface()
+		self._iface = ZeitgeistDBusInterface()
 	
 	def insert_event (self, event, ids_reply_handler=None, error_handler=None):
 		"""

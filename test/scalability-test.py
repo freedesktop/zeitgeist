@@ -119,7 +119,7 @@ if __name__ == "__main__":
 	import sys, time
 	events = EventGenerator(10000)
 	print events.report() + "\n"
-	log = DBusInterface()
+	log = ZeitgeistDBusInterface()
 	start = time.time()
 	
 	# Insert events in batches of 10

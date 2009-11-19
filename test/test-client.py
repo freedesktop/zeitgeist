@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.datamodel import *
 from zeitgeist.dbusutils import *
 
-iface = DBusInterface()
+iface = ZeitgeistDBusInterface()
 
 #
 # Create an event

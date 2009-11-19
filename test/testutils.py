@@ -31,7 +31,7 @@ DBusGMainLoop(set_as_default=True)
 
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from zeitgeist.dbusutils import DBusInterface, ZeitgeistClient
+from zeitgeist.dbusutils import ZeitgeistDBusInterface, ZeitgeistClient
 from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, TimeRange
 
 # Json handling is special in Python 2.5...
@@ -108,7 +108,7 @@ class RemoteTestCase (unittest.TestCase):
 		self.spawn_daemon()
 		
 		# hack to clear the state of the interface
-		DBusInterface._DBusInterface__shared_state = {}
+		ZeitgeistDBusInterface._ZeitgeistDBusInterface__shared_state = {}
 		self.client = ZeitgeistClient()
 		
 	def tearDown(self):
