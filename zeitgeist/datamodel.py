@@ -633,7 +633,7 @@ class Event(list):
 		
 		Instead of setting the 'subjects' argument one may use a more
 		convenient approach for events that have exactly one Subject.
-		Namely by using the subj_* keys:
+		Namely by using the subject_* keys:
 		
 		 * subject_uri
 		 * subject_interpretation
@@ -652,7 +652,7 @@ class Event(list):
 		
 		if self._dict_contains_subject_keys(values):
 			if "subjects" in values:
-				raise ValueError("Subject keys, subj_*, specified together with full subject list")
+				raise ValueError("Subject keys, subject_*, specified together with full subject list")
 			subj = Subject()
 			subj.uri = values.get("subject_uri", "")
 			subj.interpretation = values.get("subject_interpretation", "")

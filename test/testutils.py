@@ -121,7 +121,7 @@ class RemoteTestCase (unittest.TestCase):
 		Insert a set of events and spin a mainloop until the async reply
 		is back and return the result - which should be a list of ids.
 		
-		This method is bassically just a hack to invoke an async method
+		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
 		mainloop = gobject.MainLoop()
@@ -142,7 +142,7 @@ class RemoteTestCase (unittest.TestCase):
 		the async reply is back and return the result - which should be
 		a list of ids.
 		
-		This method is bassically just a hack to invoke an async method
+		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
 		mainloop = gobject.MainLoop()
@@ -164,7 +164,7 @@ class RemoteTestCase (unittest.TestCase):
 		async reply is back and return the result - which should be a
 		list of Events.
 		
-		This method is bassically just a hack to invoke an async method
+		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
 		mainloop = gobject.MainLoop()
