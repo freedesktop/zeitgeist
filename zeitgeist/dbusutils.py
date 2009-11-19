@@ -29,7 +29,7 @@ from xml.dom.minidom import parseString as minidom_parse
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState
+from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType
 
 class ZeitgeistDBusInterface(dbus.Interface):
 	""" Central DBus interface to the zeitgeist engine
@@ -150,18 +150,6 @@ class ZeitgeistDBusInterface(dbus.Interface):
 				proxy,
 				self.BUS_NAME
 		)
-	
-class ResultType:
-	"""
-	An enumeration class used to define the results should be returned
-	from the ZeitgeistClient.find_event_* family of methods.
-	"""
-	(MostRecentEvent,
-	LeastRecentEvent,
-	MostRecentSubject,
-	LeastRecentSubject,
-	MostPopularSubject,
-	LeastPopularSubject) = range(6)
 
 class ZeitgeistClient:
 	"""
@@ -269,7 +257,7 @@ class ZeitgeistClient:
 					timerange = None,
 					storage_state = StorageState.Any,
 					num_events = 20,
-					result_type = ResultType.MostRecentEvent,
+					result_type = ResultType.MostRecentEvents,
 					error_handler=None):
 		"""
 		Send a query matching a collection of Event-templates to the

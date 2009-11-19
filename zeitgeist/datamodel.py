@@ -436,6 +436,26 @@ class StorageState:
 	"""
 	(NotAvailable, Available, Any) = range(3)
 
+class ResultType:
+	"""
+	An enumeration class used to define how query results should be returned
+	from the Zeitgeist engine.
+	
+	Values:
+	    * MostRecentEvents (0) - 
+	    * LeastRecentEvents (1) - 
+	    * MostRecentSubjects (2) - 
+	    * MostRecentSubjects (3) - 
+	    * MostPopularSubjects (4) - 
+	    * LeastPopularSubjects (5) - 
+	"""
+	(MostRecentEvents,
+	LeastRecentEvents,
+	MostRecentSubjects,
+	LeastRecentSubjects,
+	MostPopularSubjects,
+	LeastPopularSubjects) = range(6)
+
 class Subject(list):
 	Fields = (Uri,
 		Interpretation,
