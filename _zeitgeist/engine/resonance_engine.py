@@ -31,7 +31,7 @@ from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
 from zeitgeist.datamodel import Subject as _Subject, Event as _Event
-from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype, Category
+from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype, Category, StorageState, TimeRange
 import _zeitgeist.engine
 from _zeitgeist.engine.dbutils import *
 from _zeitgeist.engine.querymancer import *
@@ -536,10 +536,10 @@ class ZeitgeistEngine:
 		
 		global _cursor, _interpretation, _manifestation, _mimetype
 		
-		if storage_state:
-			# we don't have any methods to find out about the storage state
-			# so it is not implemented yet
+		# FIXME: We need to take storage_state into account
+		if storage_state != StorageState.Any:
 			raise NotImplementedError
+		
 		event_templates = list(self._build_templates(event_templates))
 		
 		where = WhereClause("AND")

@@ -5,48 +5,23 @@ import os
 import time
 import sys
 import signal
-
 from subprocess import Popen, PIPE
 
+# DBus setup
+import gobject
+from dbus.mainloop.glib import DBusGMainLoop
+DBusGMainLoop(set_as_default=True)
+
+# Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from zeitgeist.dbusutils import DBusInterface, ZeitgeistClient
+from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, TimeRange
+import testutils
 
-from zeitgeist.dbusutils import DBusInterface
-from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation
-
-class ZeitgeistRemoteAPITest(unittest.TestCase):
+class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	
 	def __init__(self, methodName):
 		super(ZeitgeistRemoteAPITest, self).__init__(methodName)
-		self.daemon = None
-		self.iface = None
-	
-	def spawn_daemon(self):
-		os.environ.update({"ZEITGEIST_DATABASE_PATH": ":memory:"})
-		self.daemon = Popen(["./zeitgeist-daemon", "--no-passive-loggers"])
-		# give the daemon some time to wake up
-		time.sleep(3)
-		err = self.daemon.poll()
-		if err:
-			raise RuntimeError("Could not start daemon,  got err=%i" %err)
-		
-		
-	def kill_daemon(self):
-		os.kill(self.daemon.pid, signal.SIGKILL)
-		self.daemon.wait()
-		
-	def setUp(self):
-		assert self.daemon is None
-		assert self.iface is None
-		self.spawn_daemon()
-		
-		# hack to clear the state of the interface
-		DBusInterface._DBusInterface__shared_state = {}
-		self.iface = DBusInterface()
-		
-	def tearDown(self):
-		assert self.daemon is not None
-		assert self.iface is not None
-		self.kill_daemon()
 	
 	def testInsertAndGetEvent(self):
 		ev = Event.new_for_values(timestamp=123,
@@ -57,12 +32,13 @@ class ZeitgeistRemoteAPITest(unittest.TestCase):
 					interpretation=Interpretation.DOCUMENT.uri,
 					manifestation=Manifestation.FILE.uri)
 		ev.append_subject(subj)
-		ids = self.iface.InsertEvents([ev])
-		events = self.iface.GetEvents(ids)
+		ids = self.insertEventsAndWait([ev])
+		events = self.getEventsAndWait(ids)
 		self.assertEquals(1, len(ids))
 		self.assertEquals(1, len(events))
 		
-		ev = Event(events[0])
+		ev = events[0]
+		self.assertTrue(isinstance(ev, Event))
 		self.assertEquals("123", ev.timestamp)
 		self.assertEquals(Interpretation.VISIT_EVENT.uri, ev.interpretation)
 		self.assertEquals(Manifestation.USER_ACTIVITY.uri, ev.manifestation)
@@ -99,20 +75,19 @@ class ZeitgeistRemoteAPITest(unittest.TestCase):
 		ev2.append_subject(subj2)
 		ev3.append_subject(subj2)
 		ev3.append_subject(subj3)
-		ids = self.iface.InsertEvents([ev1, ev2, ev3])
+		ids = self.insertEventsAndWait([ev1, ev2, ev3])
 		self.assertEquals(3, len(ids))
 		
-		events = self.iface.GetEvents(ids)
-		self.assertEquals(3, len(events))
-		events = map(Event, events)
+		events = self.getEventsAndWait(ids)
+		self.assertEquals(3, len(events))		
 		for event in events:
+			self.assertTrue(isinstance(event, Event))
 			self.assertEquals(Manifestation.USER_ACTIVITY.uri, event.manifestation)
 			self.assertEquals("Boogaloo", event.actor)
 		
 		# Search for everything
 		import dbus
-		ids = self.iface.FindEventIds((1,1000),
-					dbus.Array(signature="(asaasay)"), 0, 3, 1)
+		ids = self.findEventIdsAndWait([], num_events=3) # dbus.Array(signature="(asaasay)")
 		self.assertEquals(3, len(ids)) # (we can not trust the ids because we don't have a clean test environment)
 		
 		# Search for some specific templates
@@ -122,9 +97,8 @@ class ZeitgeistRemoteAPITest(unittest.TestCase):
 					actor="Boogaloo",
 					interpretation=Interpretation.VISIT_EVENT.uri,
 					subjects=[subj_templ1,subj_templ2])
-		ids = self.iface.FindEventIds((0,10000),
-					[event_template],
-					0, 10, 1)
+		ids = self.findEventIdsAndWait([event_template],
+						num_events=10)
 		print "RESULTS", map(int, ids)
 		self.assertEquals(2, len(ids))
 
