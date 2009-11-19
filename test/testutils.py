@@ -136,7 +136,7 @@ class RemoteTestCase (unittest.TestCase):
 		mainloop.run()
 		return result
 	
-	def findEventIdsAndWait(self, timerange, event_templates, **kwargs):
+	def findEventIdsAndWait(self, event_templates, **kwargs):
 		"""
 		Do search based on event_templates and spin a mainloop until
 		the async reply is back and return the result - which should be
@@ -152,9 +152,8 @@ class RemoteTestCase (unittest.TestCase):
 			result.extend(ids)
 			mainloop.quit()
 			
-		self.client.find_event_ids_for_templates(collect_ids_and_quit,
-							timerange,
-							event_templates,
+		self.client.find_event_ids_for_templates(event_templates,
+							collect_ids_and_quit,
 							**kwargs)
 		mainloop.run()
 		return result
@@ -175,6 +174,6 @@ class RemoteTestCase (unittest.TestCase):
 			result.extend(events)
 			mainloop.quit()
 			
-		self.client.get_events(collect_events_and_quit, event_ids)
+		self.client.get_events(event_ids, collect_events_and_quit)
 		mainloop.run()
 		return result

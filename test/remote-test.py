@@ -87,8 +87,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 		# Search for everything
 		import dbus
-		ids = self.findEventIdsAndWait(TimeRange(0,10000),
-						[], num_events=3) # dbus.Array(signature="(asaasay)")
+		ids = self.findEventIdsAndWait([], num_events=3) # dbus.Array(signature="(asaasay)")
 		self.assertEquals(3, len(ids)) # (we can not trust the ids because we don't have a clean test environment)
 		
 		# Search for some specific templates
@@ -98,8 +97,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 					actor="Boogaloo",
 					interpretation=Interpretation.VISIT_EVENT.uri,
 					subjects=[subj_templ1,subj_templ2])
-		ids = self.findEventIdsAndWait(TimeRange(0,10000),
-						[event_template],
+		ids = self.findEventIdsAndWait([event_template],
 						num_events=10)
 		print "RESULTS", map(int, ids)
 		self.assertEquals(2, len(ids))

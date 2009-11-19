@@ -29,7 +29,7 @@ from xml.dom.minidom import parseString as minidom_parse
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-from zeitgeist.datamodel import Event, Subject
+from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState
 
 class DBusInterface(dbus.Interface):
 	""" Central DBus interface to the zeitgeist engine
@@ -264,10 +264,10 @@ class ZeitgeistClient:
 					error_handler=error_handler)
 	
 	def find_event_ids_for_templates (self,
-					ids_reply_handler,
-					timerange,
 					event_templates,
-					storage_state = 0,
+					ids_reply_handler,
+					timerange = None,
+					storage_state = StorageState.Any,
 					num_events = 20,
 					result_type = ResultType.MostRecentEvent,
 					error_handler=None):
@@ -294,6 +294,19 @@ class ZeitgeistClient:
 		
 		In order to use this method there needs to be a mainloop
 		runnning. Both Qt and GLib mainloops are supported.
+		
+		Arguments:
+		    * event_templates - List or tuple of Event instances
+		    * ids_reply_handler - Callable taking a list of integers
+		    * timerange - A TimeRange instance that the events must
+		        have occured within. Defaults to TimeRange.until_now().
+		    * storage_state - A value from the StorageState enumeration.
+		        Defaults to StorageState.Available
+		    * num_events - The number of events to return; default is 20
+		    * result_type - A value from the ResultType enumeration.
+		        Defaults to ResultType.MostRecentEvent
+		    * error_handler - Callback to catch error messages.
+		        Read about the default behaviour above
 		"""
 		self._check_list_or_tuple(event_templates)
 		self._check_members(event_templates, Event)
@@ -302,7 +315,10 @@ class ZeitgeistClient:
 			error_handler = lambda raw : self._stderr_error_handler(raw, ids_reply_handler, [])
 		
 		if not callable(ids_reply_handler):
-			raise ValueError("Events reply handler not callable")
+			raise ValueError("Reply handler not callable, found %s" % ids_reply_handler)
+		
+		if timerange is None:
+			timerange = TimeRange.until_now()
 		
 		self._iface.FindEventIds(timerange,
 					event_templates,
@@ -312,7 +328,7 @@ class ZeitgeistClient:
 					reply_handler=ids_reply_handler,
 					error_handler=error_handler)
 	
-	def find_event_ids_for_template (self, ids_reply_handler, event_template, error_handler=None):
+	def find_event_ids_for_template (self, event_template, ids_reply_handler, **kwargs):
 		"""
 		Send a query matching a single Event-template to the
 		Zeitgeist event log. If the event template has more
@@ -338,7 +354,7 @@ class ZeitgeistClient:
 		"""
 		self.find_event_ids_for_templates([event_template],
 						ids_reply_handler,
-						error_handler=error_handler)
+						**kwargs)
 	
 	def find_event_ids_for_values(self, ids_reply_handler, **kwargs):
 		"""
@@ -369,7 +385,7 @@ class ZeitgeistClient:
 						ids_reply_handler,
 						**kwargs)
 	
-	def get_events (self, events_reply_handler, event_ids, error_handler=None):
+	def get_events (self, event_ids, events_reply_handler, error_handler=None):
 		"""
 		Look up a collection of Events in the Zeitgeist event log
 		given a collection of event ids. This is useful for looking
@@ -395,7 +411,7 @@ class ZeitgeistClient:
 			error_handler = lambda raw : self._stderr_error_handler(raw, events_reply_handler, [])
 		
 		if not callable(events_reply_handler):
-			raise ValueError("Events reply handler not callable")
+			raise ValueError("Reply handler not callable, found %s" % events_reply_handler)
 		
 		# Generate a wrapper callback that does automagic conversion of
 		# the raw DBus reply into a list of Event instances
