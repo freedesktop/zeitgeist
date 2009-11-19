@@ -537,9 +537,10 @@ class Event(list):
 		array with subject metadata defined in the positions as laid
 		out by the Subject.Fields enumeration.
 		
-		On the thrid position (struct[2]) the struct may contain the
+		On the third position (struct[2]) the struct may contain the
 		event payload, which can be an arbitrary binary blob. The payload
-		will be transfered over DBus with the 'ay' signature.		
+		will be transfered over DBus with the 'ay' signature (as an
+		array of bytes).
 		"""
 		super(Event, self).__init__()
 		if struct:
