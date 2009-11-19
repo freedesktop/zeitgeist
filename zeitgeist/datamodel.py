@@ -416,6 +416,25 @@ class TimeRange(list):
 	def set_end(self, end):
 		self[1] = end
 	end = property(get_end, set_end)
+	
+	@staticmethod
+	def until_now():
+		"""
+		Return a TimeRange from 0 to the instant of invocation
+		"""
+		return TimeRange(0, int(time.time()*1000))
+
+class StorageState:
+	"""
+	Enumeration class defining the possible values for the storage state
+	of an event subject.
+	
+	Values:
+	    * NotAvailable (0) - The storage medium is currently not available
+	    * Available (1) - The storage medium, hence the subject, is available
+	    * Any (2) - Disregard the storage state
+	"""
+	(NotAvailable, Available, Any) = range(3)
 
 class Subject(list):
 	Fields = (Uri,
