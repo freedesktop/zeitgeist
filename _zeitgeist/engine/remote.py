@@ -22,12 +22,12 @@ import dbus.service
 import logging
 
 from _zeitgeist.engine import get_default_engine
-from zeitgeist.dbusutils import DBusInterface
+from zeitgeist.dbusutils import ZeitgeistDBusInterface
 from _zeitgeist.singleton import SingletonApplication
 
 _engine = get_default_engine()
 
-DBUS_INTERFACE = DBusInterface.INTERFACE_NAME
+DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
 SIG_EVENT = "asaasay"
 
 def special_str(obj):

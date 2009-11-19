@@ -31,7 +31,7 @@ DBusGMainLoop(set_as_default=True)
 
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from zeitgeist.dbusutils import DBusInterface, ZeitgeistClient
+from zeitgeist.dbusutils import ZeitgeistDBusInterface, ZeitgeistClient
 from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, TimeRange
 
 # Json handling is special in Python 2.5...
@@ -108,7 +108,7 @@ class RemoteTestCase (unittest.TestCase):
 		self.spawn_daemon()
 		
 		# hack to clear the state of the interface
-		DBusInterface._DBusInterface__shared_state = {}
+		ZeitgeistDBusInterface._ZeitgeistDBusInterface__shared_state = {}
 		self.client = ZeitgeistClient()
 		
 	def tearDown(self):
@@ -121,7 +121,7 @@ class RemoteTestCase (unittest.TestCase):
 		Insert a set of events and spin a mainloop until the async reply
 		is back and return the result - which should be a list of ids.
 		
-		This method is bassically just a hack to invoke an async method
+		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
 		mainloop = gobject.MainLoop()
@@ -142,7 +142,7 @@ class RemoteTestCase (unittest.TestCase):
 		the async reply is back and return the result - which should be
 		a list of ids.
 		
-		This method is bassically just a hack to invoke an async method
+		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
 		mainloop = gobject.MainLoop()
@@ -164,7 +164,7 @@ class RemoteTestCase (unittest.TestCase):
 		async reply is back and return the result - which should be a
 		list of Events.
 		
-		This method is bassically just a hack to invoke an async method
+		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
 		mainloop = gobject.MainLoop()

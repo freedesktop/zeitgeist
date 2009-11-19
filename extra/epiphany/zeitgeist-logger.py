@@ -27,7 +27,7 @@ import urllib
 from zeitgeist import dbusutils
 
 try:
-	iface = dbusutils.DBusInterface()
+	iface = dbusutils.ZeitgeistDBusInterface()
 except RuntimeError:
 	print >>sys.stderr, "GNOME Zeitgeist Logger: " \
 		"The Zeitgeist service isn't running."

@@ -29,9 +29,9 @@ from xml.dom.minidom import parseString as minidom_parse
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState
+from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType
 
-class DBusInterface(dbus.Interface):
+class ZeitgeistDBusInterface(dbus.Interface):
 	""" Central DBus interface to the zeitgeist engine
 	
 	There doe not necessarily have to be one single instance of this
@@ -150,30 +150,18 @@ class DBusInterface(dbus.Interface):
 				proxy,
 				self.BUS_NAME
 		)
-	
-class ResultType:
-	"""
-	An enumeration class used to define the results should be returned
-	from the ZeitgeistClient.find_event_* family of methods.
-	"""
-	(MostRecentEvent,
-	LeastRecentEvent,
-	MostRecentSubject,
-	LeastRecentSubject,
-	MostPopularSubject,
-	LeastPopularSubject) = range(6)
 
 class ZeitgeistClient:
 	"""
 	Convenience APIs to have a Pythonic way to call the running Zeitgeist
-	engine. For raw DBus access use the ZeitgeistDBusInterface class.
+	engine. For raw DBus access use the ZeitgeistZeitgeistDBusInterface class.
 	
 	Note that this class only does asynchnous DBus calls. This is almost
 	always the right thing to do. If you really want to do synchronous
-	DBus calls use the raw DBus API found in the DBusInterface class.
+	DBus calls use the raw DBus API found in the ZeitgeistDBusInterface class.
 	"""
 	def __init__ (self):
-		self._iface = DBusInterface()
+		self._iface = ZeitgeistDBusInterface()
 	
 	def insert_event (self, event, ids_reply_handler=None, error_handler=None):
 		"""
@@ -253,6 +241,8 @@ class ZeitgeistClient:
 		
 		if ids_reply_handler is None:
 			ids_reply_handler = self._void_reply_handler
+		elif not callable(ids_reply_handler):
+			raise TypeError("Reply handler not callable, found %s" % ids_reply_handler)
 		
 		if error_handler is None:
 			error_handler = lambda raw : self._stderr_error_handler(raw, ids_reply_handler, [])
@@ -269,7 +259,7 @@ class ZeitgeistClient:
 					timerange = None,
 					storage_state = StorageState.Any,
 					num_events = 20,
-					result_type = ResultType.MostRecentEvent,
+					result_type = ResultType.MostRecentEvents,
 					error_handler=None):
 		"""
 		Send a query matching a collection of Event-templates to the
@@ -315,7 +305,7 @@ class ZeitgeistClient:
 			error_handler = lambda raw : self._stderr_error_handler(raw, ids_reply_handler, [])
 		
 		if not callable(ids_reply_handler):
-			raise ValueError("Reply handler not callable, found %s" % ids_reply_handler)
+			raise TypeError("Reply handler not callable, found %s" % ids_reply_handler)
 		
 		if timerange is None:
 			timerange = TimeRange.until_now()
@@ -411,7 +401,7 @@ class ZeitgeistClient:
 			error_handler = lambda raw : self._stderr_error_handler(raw, events_reply_handler, [])
 		
 		if not callable(events_reply_handler):
-			raise ValueError("Reply handler not callable, found %s" % events_reply_handler)
+			raise TypeError("Reply handler not callable, found %s" % events_reply_handler)
 		
 		# Generate a wrapper callback that does automagic conversion of
 		# the raw DBus reply into a list of Event instances
@@ -424,7 +414,7 @@ class ZeitgeistClient:
 		Raise a ValueError unless 'collection' is a list or tuple
 		"""
 		if not (isinstance(collection, list) or isinstance(collection, tuple)):
-			raise ValueError("Expected list or tuple, found %s" % type(collection))
+			raise TypeError("Expected list or tuple, found %s" % type(collection))
 	
 	def _check_members (self, collection, member_class):
 		"""
@@ -433,7 +423,7 @@ class ZeitgeistClient:
 		"""
 		for m in collection:
 			if not isinstance(m, member_class):
-				raise ValueError("Collection contains member of invalid type %s. Expected %s" % (ev.__class__, member_class) )
+				raise TypeError("Collection contains member of invalid type %s. Expected %s" % (ev.__class__, member_class) )
 	
 	def _void_reply_handler(self, *args, **kwargs):
 		"""

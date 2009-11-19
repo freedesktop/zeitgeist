@@ -436,6 +436,26 @@ class StorageState:
 	"""
 	(NotAvailable, Available, Any) = range(3)
 
+class ResultType:
+	"""
+	An enumeration class used to define how query results should be returned
+	from the Zeitgeist engine.
+	
+	Values:
+	    * MostRecentEvents (0) - 
+	    * LeastRecentEvents (1) - 
+	    * MostRecentSubjects (2) - 
+	    * MostRecentSubjects (3) - 
+	    * MostPopularSubjects (4) - 
+	    * LeastPopularSubjects (5) - 
+	"""
+	(MostRecentEvents,
+	LeastRecentEvents,
+	MostRecentSubjects,
+	LeastRecentSubjects,
+	MostPopularSubjects,
+	LeastPopularSubjects) = range(6)
+
 class Subject(list):
 	Fields = (Uri,
 		Interpretation,
@@ -613,7 +633,7 @@ class Event(list):
 		
 		Instead of setting the 'subjects' argument one may use a more
 		convenient approach for events that have exactly one Subject.
-		Namely by using the subj_* keys:
+		Namely by using the subject_* keys:
 		
 		 * subject_uri
 		 * subject_interpretation
@@ -632,7 +652,7 @@ class Event(list):
 		
 		if self._dict_contains_subject_keys(values):
 			if "subjects" in values:
-				raise ValueError("Subject keys, subj_*, specified together with full subject list")
+				raise ValueError("Subject keys, subject_*, specified together with full subject list")
 			subj = Subject()
 			subj.uri = values.get("subject_uri", "")
 			subj.interpretation = values.get("subject_interpretation", "")
