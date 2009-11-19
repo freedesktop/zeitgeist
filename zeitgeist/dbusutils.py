@@ -407,7 +407,7 @@ class ZeitgeistClient:
 		"""
 		Raise a ValueError unless 'collection' is a list or tuple
 		"""
-		if not (type(collection) is list or type(collection) is tuple):
+		if not (isinstance(collection, list) or isinstance(collection, tuple)):
 			raise ValueError("Expected list or tuple, found %s" % type(collection))
 	
 	def _check_members (self, collection, member_class):
@@ -416,7 +416,7 @@ class ZeitgeistClient:
 		are of class 'member_class'
 		"""
 		for m in collection:
-			if m.__class__ != member_class:
+			if not isinstance(m, member_class):
 				raise ValueError("Collection contains member of invalid type %s. Expected %s" % (ev.__class__, member_class) )
 	
 	def _void_reply_handler(self, *args, **kwargs):
