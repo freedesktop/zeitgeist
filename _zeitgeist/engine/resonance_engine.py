@@ -385,19 +385,6 @@ class ZeitgeistEngine:
 		#Load extensions
 		# right now we don't load any default extension
 		self.__extensions = ExtensionsCollection(self)
-		
-	def _register_method(self, name, method):
-		if hasattr(self, name):
-			raise ValueError("cannot register method %r, this is already an engine method" %name)
-		if name in self.__extensions.methods:
-			raise ValueError("There is already an extension which provides a method called %r" %name)
-		self.__extensions.methods[name] = method
-		
-	def __getattr__(self, name):
-		try:
-			return self.__extensions.methods[name]
-		except KeyError:
-			raise AttributeError
 			
 	@property
 	def extensions(self):

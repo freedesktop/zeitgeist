@@ -341,7 +341,7 @@ class ZeitgeistRelevancyProviderTest(_engineTestClass):
 		self.engine.extensions.load(RelevancyProvider)
 	
 	def testInsertFocusEvent(self):
-		self.engine.register_focus("boo","boo")
+		self.engine.extensions.register_focus("boo","boo")
 		#self.assertRaises(ValueError, self.engine.insert_events, [ev])
 
 if __name__ == "__main__":

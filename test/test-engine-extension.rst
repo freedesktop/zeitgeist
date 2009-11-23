@@ -2,8 +2,8 @@ How do extensions to the engine work?
 =====================================
 
 Extensions are objects which are maintained in external python modules
-which can have methods which a directly accessible as engine methods.
-There is only one extension right nowcalled RelevancyProvider, which
+with optional methods which are accessible from a ZeitgeistEngine object.
+There is only one extension right now called RelevancyProvider, which
 is not enable by default (for now).
 
 Per default there is no extension enabled
@@ -54,34 +54,20 @@ In the last line you can see all method which are added to the engine by
 an extension.
 This methods are now accessible like
 
-    >>> engine.add_value(5)
+    >>> engine.extensions.add_value(5)
     5
-    >>> engine.add_value(1)
+    >>> engine.extensions.add_value(1)
     6
-    >>> engine.get_engine() # doctest:+ELLIPSIS
+    >>> engine.extensions.get_engine() # doctest:+ELLIPSIS
     <_zeitgeist.engine.resonance_engine.ZeitgeistEngine instance at 0x...>
 
 However, there is also a private method which is not accessible as a member
 of the engine
 
-    >>> engine.internal_method()
+    >>> engine.extensions.internal_method()
     Traceback (most recent call last):
       ...
-    AttributeError
-
-It is not allowed to register an extension which provides a method which
-is already a member of the engine object
-
-    >>> class FailExtension(Extension):
-    ...     PUBLIC_METHODS = ["get_highest_timestamp_for_actor",]
-    ...
-    ...     def get_highest_timestamp_for_actor(self, actor):
-    ...         pass
-    ...
-    >>> engine.extensions.load(FailExtension)
-    Traceback (most recent call last):
-      ...
-    ValueError: cannot register method 'get_highest_timestamp_for_actor', this is already an engine method
+    AttributeError: ExtensionsCollection instance has no attribute 'internal_method'
 
 It is also possible to unload an extension
 
@@ -91,10 +77,10 @@ It is also possible to unload an extension
 
 Now its methods are not accessible anymore
 
-    >>> engine.add_value(5)
+    >>> engine.extensions.add_value(5)
     Traceback (most recent call last):
       ...
-    AttributeError
+    AttributeError: ExtensionsCollection instance has no attribute 'add_value'
 
 If you try to load an extension which is not a subclass if `Extension` a
 TypeError is raised

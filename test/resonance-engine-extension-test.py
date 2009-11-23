@@ -29,11 +29,11 @@ class TestExtensions(unittest.TestCase):
 	def testCreateEngine(self):
 		engine = ZeitgeistEngine()
 		self.assertEqual(len(engine.extensions), 0)
-		self.assertRaises(AttributeError, engine.__getattr__, "return_hallo")
+		self.assertRaises(AttributeError, engine.extensions.__getattr__, "return_hallo")
 		engine.extensions.load(_Extension1)
-		self.assertEqual(engine.return_hallo(), "Hallo")
-		self.assertRaises(AttributeError, engine.__getattr__, "return_boo")
-		self.assertEqual(engine.return_engine(), engine)
+		self.assertEqual(engine.extensions.return_hallo(), "Hallo")
+		self.assertRaises(AttributeError, engine.extensions.__getattr__, "return_boo")
+		self.assertEqual(engine.extensions.return_engine(), engine)
 
 if __name__ == "__main__":
 	unittest.main()

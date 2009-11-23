@@ -53,7 +53,7 @@ class ExtensionsCollection(object):
 			raise ValueError("Unable to load %r, this extension has not defined any methods" %extension)
 		obj = extension(self.__engine)
 		for method in obj.PUBLIC_METHODS:
-			self.__engine._register_method(method, getattr(obj, method))
+			self._register_method(method, getattr(obj, method))
 		self.__extensions[obj.__class__.__name__] = obj
 		
 	def unload(self, extension):
@@ -68,4 +68,15 @@ class ExtensionsCollection(object):
 	@property
 	def methods(self):
 		return self.__methods
+		
+	def _register_method(self, name, method):
+		if name in self.methods:
+			raise ValueError("There is already an extension which provides a method called %r" %name)
+		self.methods[name] = method
+		
+	def __getattr__(self, name):
+		try:
+			return self.methods[name]
+		except KeyError:
+			raise AttributeError("%s instance has no attribute %r" %(self.__class__.__name__, name))
 	
