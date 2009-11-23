@@ -198,28 +198,6 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return value
 	
-	@dbus.service.method(DBUS_INTERFACE, in_signature="sii", out_signature="i")
-	def GetSubjectFocusDuration(self, document_uri, start_date, end_date):
-		return _zeitgeist.engine.get_subject_focus_duration(document_uri, start_date, end_date)
-
-	@dbus.service.method(DBUS_INTERFACE, in_signature="sii", out_signature="i")
-	def GetActorFocusDuration(self, application_uri, start_date, end_date):
-		return _zeitgeist.engine.get_actor_focus_duration(application_uri, start_date, end_date)
-
-	@dbus.service.method(DBUS_INTERFACE, in_signature="iii", out_signature="as")
-	def GetLongestUsedSubjects(self, number, start_date, end_date):
-		return _zeitgeist.engine.get_longest_used_subjects(number, start_date, end_date)
-
-	@dbus.service.method(DBUS_INTERFACE, in_signature="iii", out_signature="as")
-	def GetLongestUsedActors(self, number, start_date, end_date):
-		return _zeitgeist.engine.get_longest_used_actors(number, start_date, end_date)
-	# Commands
-	
-	@dbus.service.method(DBUS_INTERFACE, in_signature="ss", out_signature="")
-	def RegisterFocusEvent(self, application_uri, document_uri):
-		return _zeitgeist.engine.register_focus(application_uri, document_uri)
-	
-	
 	@dbus.service.method(DBUS_INTERFACE)
 	def Quit(self):
 		"""Terminate the running RemoteInterface process; use with caution,
