@@ -27,6 +27,8 @@ from xdg import BaseDirectory
 from dbutils import *
 from __init__ import DB_PATH
 
+from extension import Extension
+
 class FocusSwitchRegister(object):
     
     def __init__(self, cursor):
@@ -235,3 +237,35 @@ class FocusDurationRegister():
         for row in self.cursor:
             apps.append(self.app_table.lookup_by_id(row[0]))
         return apps
+
+class RelevancyProvider(Extension):
+    PUBLIC_METHODS = [
+        "get_subject_focus_duration",
+        "get_actor_focus_duration",
+        "get_longest_used_actors",
+        "get_longest_used_subjects",
+        "register_focus"
+    ]
+    
+    def __init__(self, engine):
+        super(RelevancyProvider, self).__init__(engine)
+        self.focus_vertices = FocusSwitchRegister(self.engine._cursor)
+        self.focus_duration = FocusDurationRegister(self.engine._cursor)
+
+    def get_subject_focus_duration(self, subject, start, end):
+        return self.focus_duration.get_subject_focus_duration(subject, start, end)
+
+    def get_actor_focus_duration(self, actor, start, end):
+        return self.focus_duration.get_actor_focus_duration(actor, start, end)
+
+    def get_longest_used_actors(self, number, start, end):
+        return self.focus_duration.get_longest_used_actors(number, start, end)
+
+    def get_longest_used_subjects(self, number, start, end):
+        return self.focus_duration.get_longest_used_subjects(number, start, end)
+
+    def register_focus(self, actor, subject):
+        now = time.time()
+        self.focus_duration.focus_change(now, actor, subject)
+        self.focus_vertices.focus_change(now, actor, subject)
+    

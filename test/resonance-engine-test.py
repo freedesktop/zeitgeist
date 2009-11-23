@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
 from zeitgeist.datamodel import *
+from _zeitgeist.engine.relevancy_provider import RelevancyProvider
 from testutils import import_events
 
 import unittest
@@ -335,8 +336,12 @@ class ZeitgeistEngineTest (_engineTestClass):
 		
 class ZeitgeistRelevancyProviderTest(_engineTestClass):
 	
+	def setUp(self):
+		super(ZeitgeistRelevancyProviderTest, self).setUp()
+		self.engine.extensions.load(RelevancyProvider)
+	
 	def testInsertFocusEvent(self):
-		self.engine.register_focus("boo","boo")
+		self.engine.extensions.register_focus("boo","boo")
 		#self.assertRaises(ValueError, self.engine.insert_events, [ev])
 
 if __name__ == "__main__":

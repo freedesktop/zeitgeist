@@ -30,13 +30,14 @@ import logging
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
+from extension import ExtensionsCollection
+
 from zeitgeist.datamodel import Subject as _Subject, Event as _Event
 from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype, Category, StorageState, TimeRange
 import _zeitgeist.engine
 from _zeitgeist.engine.dbutils import *
 from _zeitgeist.engine.querymancer import *
 from _zeitgeist.lrucache import *
-from _zeitgeist.engine.relevancy_provider import FocusSwitchRegister, FocusDurationRegister
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -373,7 +374,6 @@ class ZeitgeistEngine:
 		global _event
 		self._cursor = get_default_cursor()
 		
-		#Load extensions
 		# Find the last event id we used, and start generating
 		# new ids from that offset
 		row = _event.find("max(id)").fetchone()
@@ -381,9 +381,14 @@ class ZeitgeistEngine:
 			self._last_event_id = row[0]
 		else:
 			self._last_event_id = 0
-	
-		self.focus_switch = FocusSwitchRegister(_cursor)
-		self.focus_duration = FocusDurationRegister(_cursor)
+			
+		#Load extensions
+		# right now we don't load any default extension
+		self.__extensions = ExtensionsCollection(self)
+			
+	@property
+	def extensions(self):
+		return self.__extensions
 		
 	def close(self):
 		global _cursor
@@ -603,23 +608,7 @@ class ZeitgeistEngine:
 			ORDER BY timestamp DESC LIMIT 1
 			""", (actor,)).fetchone()
 		return query["timestamp"] if query else 0
-
-	def get_subject_focus_duration(self, subject, start, end):
-		return self.focus_duration.get_subject_focus_duration(subject, start, end)
-
-	def get_actor_focus_duration(self, actor, start, end):
-		return self.focus_duration.get_actor_focus_duration(actor, start, end)
-
-	def get_longest_used_actors(self, number, start, end):
-		return self.focus_duration.get_longest_used_actors(number, start, end)
-
-	def get_longest_used_subjects(self, number, start, end):
-		return self.focus_duration.get_longest_used_subjects(number, start, end)
-
-	def register_focus(self, actor, subject):
-		now = time.time()
-		self.focus_duration.focus_change(now, actor, subject)
-		self.focus_switch.focus_change(now, actor, subject)
+		
 
 class WhereClause:
 	
