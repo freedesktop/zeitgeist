@@ -251,6 +251,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					manifestation = Manifestation.FILE.uri,
 					text = info.get_display_name(),
 					mimetype = unicode(info.get_mime_type()),
+					origin = info.get_uri().rpartition("/")[0]
 				)
 				
 				last_application = info.last_application().strip()
