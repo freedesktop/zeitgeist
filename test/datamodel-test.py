@@ -99,12 +99,27 @@ class EventTest (unittest.TestCase):
 	
 	def testSimple(self):
 		ev = Event()
-		
-		ev.id = 1
-		self.assertEquals(1, ev.id)
-		
 		ev.timestamp = 10
-		self.assertEquals(10, ev.timestamp)
+		ev.interpretation = "Bluff"
+		self.assertEquals("10", ev.timestamp)
+		self.assertEquals("Bluff", ev.interpretation)
+	
+	def testNewForValues1(self):
+		ev = Event.new_for_values(timestamp=1,
+					subjects=[Subject.new_for_values(uri="foo://bar")])
+		self.assertEquals("1", ev.timestamp)
+		self.assertEquals(1, len(ev.subjects))
+		self.assertEquals("foo://bar", ev.subjects[0].uri)
+	
+	def testNewForValues2(self):
+		ev = Event.new_for_values(timestamp=27,
+					subject_uri="foo://baz",
+					subject_mimetype="text/plain")
+		self.assertEquals("27", ev.timestamp)
+		self.assertEquals(1, len(ev.subjects))
+		self.assertEquals("foo://baz", ev.subjects[0].uri)
+		self.assertEquals("text/plain", ev.subjects[0].mimetype)
+
 
 if __name__ == '__main__':
 	unittest.main()

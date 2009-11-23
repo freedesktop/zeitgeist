@@ -8,7 +8,7 @@ import time
 from subprocess import Popen, PIPE
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from zeitgeist.dbusutils import DBusInterface
+from zeitgeist.dbusutils import ZeitgeistDBusInterface
 
 def service_isRunning(bus_name, bus=dbus.SessionBus()):
 	return bool(bus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus").NameHasOwner(bus_name))
@@ -29,10 +29,10 @@ def wait_until(times, timeout, condition, *args):
 class TestDaemon(unittest.TestCase):
 	
 	def setUp(self):
-		if service_isActivable(DBusInterface.BUS_NAME):
+		if service_isActivable(ZeitgeistDBusInterface.BUS_NAME):
 			# skip test, unfortunatly there is not SKIP method in stdlib's unittest module
 			raise RuntimeError("the dbus system will always try to start the service from the .service file, skip test")
-		if service_isRunning(DBusInterface.BUS_NAME):
+		if service_isRunning(ZeitgeistDBusInterface.BUS_NAME):
 			# skip test, unfortunatly there is not SKIP method in stdlib's unittest module
 			raise RuntimeError("service is already running, skip test")
 		self.__processes = list()
@@ -47,15 +47,15 @@ class TestDaemon(unittest.TestCase):
 				pass
 	
 	def test_not_running(self):
-		self.assertRaises(RuntimeError, DBusInterface)
+		self.assertRaises(RuntimeError, ZeitgeistDBusInterface)
 	
 	def test_run(self):
 		# start the first daemon instance
 		p1 = Popen([DAEMON,], stderr=PIPE, stdout=PIPE)
 		self.__processes.append(p1)
-		wait_until(10, 0.2, service_isRunning, DBusInterface.BUS_NAME)
+		wait_until(10, 0.2, service_isRunning, ZeitgeistDBusInterface.BUS_NAME)
 		# dbus interface should work now
-		#~ iface = DBusInterface()
+		#~ iface = ZeitgeistDBusInterface()
 		#start second instance, this should fail
 		p2 = Popen([DAEMON,], stderr=PIPE, stdout=PIPE)
 		self.__processes.append(p2)

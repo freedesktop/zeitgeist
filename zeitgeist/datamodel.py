@@ -393,6 +393,69 @@ Manifestation.register(
 	doc="An entity with an unknown manifestation"
 )
 
+class TimeRange(list):
+	"""
+	A class that represents a time range with a beginning and an end.
+	
+	By design this class will be automatically transformed to the DBus
+	type (ii).
+	"""
+	def __init__ (self, begin, end):
+		super(TimeRange, self).__init__((begin, end))
+	
+	def get_begin(self):
+		return self[0]
+	
+	def set_begin(self, begin):
+		self[0] = begin
+	begin = property(get_begin, set_begin)
+	
+	def get_end(self):
+		return self[1]
+	
+	def set_end(self, end):
+		self[1] = end
+	end = property(get_end, set_end)
+	
+	@staticmethod
+	def until_now():
+		"""
+		Return a TimeRange from 0 to the instant of invocation
+		"""
+		return TimeRange(0, int(time.time()*1000))
+
+class StorageState:
+	"""
+	Enumeration class defining the possible values for the storage state
+	of an event subject.
+	
+	Values:
+	    * NotAvailable (0) - The storage medium is currently not available
+	    * Available (1) - The storage medium, hence the subject, is available
+	    * Any (2) - Disregard the storage state
+	"""
+	(NotAvailable, Available, Any) = range(3)
+
+class ResultType:
+	"""
+	An enumeration class used to define how query results should be returned
+	from the Zeitgeist engine.
+	
+	Values:
+	    * MostRecentEvents (0) - 
+	    * LeastRecentEvents (1) - 
+	    * MostRecentSubjects (2) - 
+	    * MostRecentSubjects (3) - 
+	    * MostPopularSubjects (4) - 
+	    * LeastPopularSubjects (5) - 
+	"""
+	(MostRecentEvents,
+	LeastRecentEvents,
+	MostRecentSubjects,
+	LeastRecentSubjects,
+	MostPopularSubjects,
+	LeastPopularSubjects) = range(6)
+
 class Subject(list):
 	Fields = (Uri,
 		Interpretation,
@@ -476,6 +539,19 @@ class Subject(list):
 	
 	
 class Event(list):
+	"""
+	Optimized and convenient representation of an event. Used both in the
+	Zeitgeist clients and server.
+	
+	Note that this class is designed so that you can pass it directly over
+	DBus using the Python DBus bindings. It will automagically be
+	marshalled with the signature a(asaasay).
+	
+	This class does integer based lookups everywhere and can wrap any
+	conformant data structure without the need for marshalling back and
+	forth between DBus wire format. These two properties makes it highly
+	efficient and is recommended for use everywhere.
+	"""
 	Fields = (Id,
 		Timestamp,
 		Interpretation,
@@ -490,7 +566,20 @@ class Event(list):
 		payload in the third position.
 		
 		Unless the event metadata contains a timestamp the event will
-		have its timestamp set to "now".
+		have its timestamp set to "now". Ie. the instant of invocation.
+		
+		The event metadata (struct[0]) will be used as is, and must
+		contain the event data on the positions defined by the
+		Event.Fields enumeration.
+		
+		Likewise each member of the subjects (struct[1]) must be an
+		array with subject metadata defined in the positions as laid
+		out by the Subject.Fields enumeration.
+		
+		On the third position (struct[2]) the struct may contain the
+		event payload, which can be an arbitrary binary blob. The payload
+		will be transfered over DBus with the 'ay' signature (as an
+		array of bytes).
 		"""
 		super(Event, self).__init__()
 		if struct:
@@ -518,7 +607,10 @@ class Event(list):
 	@staticmethod
 	def new_for_data(event_data):
 		"""
-		Create a new Event setting event_data as the Event properties
+		Create a new Event setting event_data as the backing array
+		behind the event metadata. The contents of the array must
+		contain the event metadata at the positions defined by the
+		Event.Fields enumeration.
 		"""
 		self = Event()
 		if len(event_data) != len(Event.Fields):
@@ -529,10 +621,59 @@ class Event(list):
 	
 	@staticmethod
 	def new_for_values (**values):
+		"""
+		Create a new Event instance from a collection of keyword
+		arguments. The allowed keywords are:
+		
+		 * timestamp - Event timestamp in milliseconds since the Unix Epoch
+		 * interpretaion - The Interpretation type of the event
+		 * manifestation - Manifestation type of the event
+		 * actor - The actor (application) that triggered the event
+		 * subjects - A list of Subject instances
+		
+		Instead of setting the 'subjects' argument one may use a more
+		convenient approach for events that have exactly one Subject.
+		Namely by using the subject_* keys:
+		
+		 * subject_uri
+		 * subject_interpretation
+		 * subject_manifestation
+		 * subject_origin
+		 * subject_mimetype
+		 * subject_text
+		 * subject_storage
+		"""
 		self = Event()
-		for key, value in values.iteritems():
-			setattr(self, key, value)
+		self.timestamp = values.get("timestamp", "")
+		self.interpretation = values.get("interpretation", "")
+		self.manifestation = values.get("manifestation", "")
+		self.actor = values.get("actor", "")
+		self.subjects = values.get("subjects", self.subjects)
+		
+		if self._dict_contains_subject_keys(values):
+			if "subjects" in values:
+				raise ValueError("Subject keys, subject_*, specified together with full subject list")
+			subj = Subject()
+			subj.uri = values.get("subject_uri", "")
+			subj.interpretation = values.get("subject_interpretation", "")
+			subj.manifestation = values.get("subject_manifestation", "")
+			subj.origin = values.get("subject_origin", "")
+			subj.mimetype = values.get("subject_mimetype", "")
+			subj.text = values.get("subject_text", "")
+			subj.storage = values.get("subject_storage", "")
+			self.subjects = [subj]
+		
 		return self
+	
+	def _dict_contains_subject_keys (self, dikt):
+		if "subject_uri" in dikt : return True
+		elif "subject_interpretation" in dikt : return True
+		elif "subject_manifestation" in dikt : return True
+		elif "subject_origin" in dikt : return True
+		elif "subject_mimetype" in dikt : return True
+		elif "subject_text" in dikt : return True
+		elif "subject_storage" in dikt : return True
+		return False
 	
 	def __repr__(self):
 		return "%s(%s)" %(
@@ -541,8 +682,7 @@ class Event(list):
 	
 	def append_subject(self, subject=None):
 		"""
-		Append a new empty subject array and return a reference to
-		the array.
+		Append a new empty Subject and return a reference to it
 		"""
 		if not subject:
 			subject = Subject()

@@ -22,12 +22,12 @@ import dbus.service
 import logging
 
 from _zeitgeist.engine import get_default_engine
-from zeitgeist.dbusutils import DBusInterface
+from zeitgeist.dbusutils import ZeitgeistDBusInterface
 from _zeitgeist.singleton import SingletonApplication
 
 _engine = get_default_engine()
 
-DBUS_INTERFACE = DBusInterface.INTERFACE_NAME
+DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
 SIG_EVENT = "asaasay"
 
 def special_str(obj):
@@ -76,7 +76,7 @@ class RemoteInterface(SingletonApplication):
 			return [make_dbus_sendable(event) for event in events]
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="(ii)a("+SIG_EVENT+")uuu", out_signature="au")
+						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			max_events, order):
 		"""Search for items which match different criterias
@@ -94,8 +94,6 @@ class RemoteInterface(SingletonApplication):
 		:returns: list of items
 		:rtype: list of tuples presenting an :ref:`item-label`
 		"""		
-		if storage_state:
-			raise NotImplementedError
 		return _engine.find_eventids(time_range, event_templates, storage_state,
 			max_events, order)
 	

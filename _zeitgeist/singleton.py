@@ -22,7 +22,7 @@ import logging
 import sys
 import dbus
 
-from zeitgeist.dbusutils import DBusInterface
+from zeitgeist.dbusutils import ZeitgeistDBusInterface
 
 class SingletonApplication (dbus.service.Object):
 	"""
@@ -34,10 +34,10 @@ class SingletonApplication (dbus.service.Object):
 	
 	def __init__ (self):
 		logging.debug("Checking for another running instance...")
-		sbus = DBusInterface.get_session_bus()
+		sbus = ZeitgeistDBusInterface.get_session_bus()
 		dbus_service = sbus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus")
 		
-		if dbus_service.NameHasOwner(DBusInterface.BUS_NAME):
+		if dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
 			# already running daemon instance
 			if "--replace" in sys.argv or "--quit" in sys.argv:
 				if "--quit" in sys.argv:
@@ -45,9 +45,9 @@ class SingletonApplication (dbus.service.Object):
 				else:
 					logging.debug("Replacing currently running process.")
 				# TODO: This only works for the engine and wont work for the DataHub
-				interface = DBusInterface()
+				interface = ZeitgeistDBusInterface()
 				interface.Quit()
-				while dbus_service.NameHasOwner(DBusInterface.BUS_NAME):
+				while dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
 					pass
 				# TODO: We should somehow set a timeout and kill the old process
 				# if it doesn't quit when we ask it to. (Perhaps we should at least
@@ -66,5 +66,5 @@ class SingletonApplication (dbus.service.Object):
 		if "--quit" in sys.argv:
 			sys.exit(0)
 		
-		bus = dbus.service.BusName(DBusInterface.BUS_NAME, sbus, do_not_queue=True)
-		dbus.service.Object.__init__(self, bus, DBusInterface.OBJECT_PATH)
+		bus = dbus.service.BusName(ZeitgeistDBusInterface.BUS_NAME, sbus, do_not_queue=True)
+		dbus.service.Object.__init__(self, bus, ZeitgeistDBusInterface.OBJECT_PATH)

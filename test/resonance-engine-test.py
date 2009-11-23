@@ -10,8 +10,7 @@ import _zeitgeist.engine
 from _zeitgeist.engine import create_engine
 from zeitgeist.datamodel import *
 from _zeitgeist.engine.relevancy_provider import RelevancyProvider
-
-from json_importer import import_events
+from testutils import import_events
 
 import unittest
 
@@ -141,7 +140,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.find_eventids(
 			(0, 100),
 			[],
-			0,
+			StorageState.Any,
 			5,
 			0,)
 		self.assertEquals(1, len(result))
@@ -152,7 +151,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.find_eventids(
 			(10000, 1000000),
 			[],
-			0,
+			StorageState.Any,
 			5,
 			0,)
 		self.assertEquals(0, len(result))
@@ -161,7 +160,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.find_eventids(
 			(1000000, 1),
 			[],
-			0,
+			StorageState.Any,
 			5,
 			0,)
 		self.assertEquals(0, len(result))
@@ -171,7 +170,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.find_eventids(
 			(1, 10000000),
 			[],
-			0,
+			StorageState.Any,
 			5,
 			0,)
 		self.assertEquals(5, len(result))
@@ -181,7 +180,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.find_eventids(
 			(1, 10000000),
 			[],
-			0,
+			StorageState.Any,
 			2,
 			0,)
 		event1 = self.engine.get_events([result[0]])[0]
@@ -193,7 +192,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.find_eventids(
 			(1, 10000000),
 			[],
-			0,
+			StorageState.Any,
 			2,
 			1,)
 		event1 = self.engine.get_events([result[0]])[0]
@@ -208,7 +207,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.find_eventids(
 			(0, 100),
 			[event_template, ],
-			0,
+			StorageState.Any,
 			0,
 			1,)
 		self.assertEquals(1, len(result))
@@ -219,7 +218,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject()
 		event_template = Event.new_for_values(interpretation="stfu:OpenEvent", subjects=[subj])
-		result = self.engine.find_eventids((0, 0), [event_template, ], 0, 0, 1)
+		result = self.engine.find_eventids((0, 0), [event_template, ], StorageState.Any, 0, 1)
 		self.assertEquals(2, len(result))
 		events = self.engine.get_events(result)
 		for event in events:
@@ -229,7 +228,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject()
 		event_template = Event.new_for_values(manifestation="stfu:EpicFailActivity", subjects=[subj])
-		result = self.engine.find_eventids((0, 0), [event_template, ], 0, 0, 1)
+		result = self.engine.find_eventids((0, 0), [event_template, ], StorageState.Any, 0, 1)
 		self.assertEquals(1, len(result))
 		events = self.engine.get_events(result)
 		for event in events:
@@ -239,7 +238,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject.new_for_values(origin="file:///tmp")
 		event_template = Event.new_for_values(subjects=[subj])
-		result = self.engine.find_eventids((0, 1000), [event_template, ], 0, 0, 1)
+		result = self.engine.find_eventids((0, 1000), [event_template, ], StorageState.Any, 0, 1)
 		events = self.engine.get_events(result)
 		for event in events:
 			test = any(subj.origin == "file:///tmp" for subj in event.subjects)
@@ -252,7 +251,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		self.assertRaises(NotImplementedError, self.engine.find_eventids,
 			(1, 10000000),
 			[],
-			45,
+			StorageState.Available,
 			1,
 			0,)
 			
@@ -264,7 +263,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.find_eventids(
 			(0, 200),
 			[event_template, ],
-			0,
+			StorageState.Any,
 			100,
 			0,)
 		self.assertEquals(2, len(result))
@@ -329,7 +328,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.find_eventids(
 			(0, 200),
 			[event_template, ],
-			0,
+			StorageState.Any,
 			100,
 			0,)
 		self.assertEquals(len(result), 1)
