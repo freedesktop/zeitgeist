@@ -47,7 +47,7 @@ class DataHub(gobject.GObject):
 		
 		gobject.GObject.__init__(self)
 		
-		self._client = DBusInterface()
+		self._client = ZeitgeistDBusInterface()
 		self._client.connect_exit(self._daemon_exit)
 				
 		# Load the data sources
