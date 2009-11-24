@@ -644,7 +644,7 @@ class Event(list):
 		 * subject_storage
 		"""
 		self = Event()
-		self.timestamp = values.get("timestamp", "")
+		self.timestamp = values.get("timestamp", self.timestamp)
 		self.interpretation = values.get("interpretation", "")
 		self.manifestation = values.get("manifestation", "")
 		self.actor = values.get("actor", "")
