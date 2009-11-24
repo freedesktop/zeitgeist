@@ -98,7 +98,21 @@ class ZeitgeistEngineTest (_engineTestClass):
 	
 	def testDuplicateEventInsertion(self):
 		self.testSingleInsertGet()
-		self.assertRaises(KeyError, self.testSingleInsertGet)
+		
+		# Inserting the same event again should be ok, but not
+		# cause duplicates
+		self.testSingleInsertGet()
+		
+		# Find all events, and make sure that this is exactly one event
+		result = self.engine.find_eventids(
+			(0, 10000000),
+			[],
+			StorageState.Any,
+			10,
+			0)
+		self.assertEquals(1, len(result))
+		self.assertEquals(1, result[0]) # The single event must have id 1
+		
 	
 	def testDeleteSingle(self):
 		self.testSingleInsertGet()

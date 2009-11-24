@@ -498,9 +498,16 @@ class ZeitgeistEngine:
 					subj_text=stext_id,
 					**opt_attr)
 			except sqlite3.IntegrityError:
-				# During the hackfest we agreed on raising a Keyerror
-				# if a client wnats to add a duplicate event -- thekorn
-				raise KeyError("Duplicate event detected")
+				# The event was already registered.
+				# Roll back _last_event_id and return the
+				# id of the original event
+				self._last_event_id -= 1
+				_cursor.execute(
+				"""SELECT id
+				   FROM event
+				   WHERE timestamp=? AND interpretation=? AND manifestation=? AND actor=? AND subj_id=?""",
+				(timestamp, inter_id, manif_id, actor_id, suri_id))
+				return _cursor.fetchone()[0]
 		
 		_cursor.connection.commit()
 		
