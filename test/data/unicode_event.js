@@ -6,10 +6,10 @@
 		"actor" : "firefox",
 		"subjects" : [
 			{
-				"uri" : "file:///tmp/foo.txt",
+				"uri" : "http://live.gnome.org/☠",
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
-				"origin" : "file:///tmp",
+				"origin" : "file:///åges_øl",
 				"mimetype" : "text/plain",
 				"text" : "hällö, I'm gürmen - åge drikker øl - ☠",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"

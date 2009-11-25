@@ -338,10 +338,13 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.get_events(ids)
 		self.assertEquals(len(ids), len(result))
 		self.assertEquals(1, len(result[0].subjects))
-		self.assertEquals("hällö, I'm gürmen - åge drikker øl - ☠", result[0].subjects[0].text)
+		self.assertEquals(u"hällö, I'm gürmen - åge drikker øl - ☠", result[0].subjects[0].text)
 		
-		# try and find a unicode event
-		subj = Subject.new_for_values(text="hällö, I'm gürmen - åge drikker øl - ☠")
+		# try and find a unicode event, we use unicode and not
+		# inconsequently on deliberation
+		subj = Subject.new_for_values(text="hällö, I'm gürmen - åge drikker øl - ☠",
+					origin="file:///åges_øl",
+					uri=u"http://live.gnome.org/☠")
 		event_template = Event.new_for_values(subjects=[subj,])
 		result = self.engine.find_eventids(
 			(0, 200),
