@@ -10,7 +10,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from zeitgeist.datamodel import *
-from zeitgeist.dbusutils import *
+from zeitgeist.client import *
 
 REPORT = \
 """EVENT METADATA:

@@ -22,7 +22,7 @@ import dbus.service
 import logging
 
 from _zeitgeist.engine import get_default_engine
-from zeitgeist.dbusutils import ZeitgeistDBusInterface
+from zeitgeist.client import ZeitgeistDBusInterface
 from _zeitgeist.singleton import SingletonApplication
 
 _engine = get_default_engine()

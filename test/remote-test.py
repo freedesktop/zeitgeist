@@ -14,7 +14,7 @@ DBusGMainLoop(set_as_default=True)
 
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from zeitgeist.dbusutils import ZeitgeistDBusInterface, ZeitgeistClient
+from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
 from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, TimeRange
 import testutils
 

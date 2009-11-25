@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import get_default_engine
 from zeitgeist.datamodel import *
-from zeitgeist.dbusutils import Event, Item, Annotation
+from zeitgeist.client import Event, Item, Annotation
 
 import unittest
 import tempfile

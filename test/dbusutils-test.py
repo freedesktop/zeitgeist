@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import unittest
 
-from zeitgeist.dbusutils import Event
+from zeitgeist.client import Event
 
 class EventTest(unittest.TestCase):
 	

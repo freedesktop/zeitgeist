@@ -8,7 +8,7 @@ import time
 from subprocess import Popen, PIPE
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from zeitgeist.dbusutils import ZeitgeistDBusInterface
+from zeitgeist.client import ZeitgeistDBusInterface
 
 def service_isRunning(bus_name, bus=dbus.SessionBus()):
 	return bool(bus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus").NameHasOwner(bus_name))

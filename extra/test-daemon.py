@@ -24,9 +24,9 @@ import gobject
 import urllib
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from zeitgeist import dbusutils
+from zeitgeist import client
 
-iface = dbusutils.ZeitgeistDBusInterface()
+iface = client.ZeitgeistDBusInterface()
 
 def updated_signal_handler(value):
 	print "Received signal: ", value

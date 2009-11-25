@@ -22,7 +22,7 @@ import logging
 import sys
 import dbus
 
-from zeitgeist.dbusutils import ZeitgeistDBusInterface
+from zeitgeist.client import ZeitgeistDBusInterface
 
 class SingletonApplication (dbus.service.Object):
 	"""
