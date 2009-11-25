@@ -29,7 +29,7 @@ import dbus.exceptions
 from zeitgeist import _config
 _config.setup_path()
 
-from zeitgeist.dbusutils import *
+from zeitgeist.client import ZeitgeistDBusInterface
 from _zeitgeist.loggers.zeitgeist_setup_service import DataProviderService
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
