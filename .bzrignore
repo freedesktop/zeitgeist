@@ -22,3 +22,4 @@ doc/dbus/build
 extra/org.gnome.zeitgeist.service
 doc/dbus/source/.static
 _zeitgeist/engine/zeitgeist
+po/*.gmo
