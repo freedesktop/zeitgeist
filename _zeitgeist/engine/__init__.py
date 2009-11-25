@@ -29,7 +29,7 @@ DB_PATH_DEFAULT = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
 	"activity.sqlite")
 DB_PATH = os.environ.get("ZEITGEIST_DATABASE_PATH", DB_PATH_DEFAULT)
 
-AVAILABLE_ENGINES = ["resonance", "querymancer"]
+AVAILABLE_ENGINES = ["resonance"]
 ENGINE_FALLBACK = AVAILABLE_ENGINES[0]
 
 def get_engine_type():
