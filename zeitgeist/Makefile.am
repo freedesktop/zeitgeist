@@ -3,7 +3,7 @@ appdir = $(pythondir)/zeitgeist/
 app_PYTHON = \
 	__init__.py \
 	datamodel.py \
-	dbusutils.py
+	client.py
 
 nodist_app_PYTHON = _config.py
 
