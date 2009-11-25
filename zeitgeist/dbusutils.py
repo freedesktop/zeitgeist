@@ -423,7 +423,7 @@ class ZeitgeistClient:
 		"""
 		for m in collection:
 			if not isinstance(m, member_class):
-				raise TypeError("Collection contains member of invalid type %s. Expected %s" % (ev.__class__, member_class) )
+				raise TypeError("Collection contains member of invalid type %s. Expected %s" % (m.__class__, member_class) )
 	
 	def _void_reply_handler(self, *args, **kwargs):
 		"""
