@@ -332,11 +332,16 @@ class ZeitgeistEngineTest (_engineTestClass):
 		self.assertRaises(ValueError, self.engine.insert_events, [ev])
 		
 	def testUnicodeEventInsert(self):
+		# Insert and get a unicode event
 		ids = import_events("test/data/unicode_event.js", self.engine)
 		self.assertEquals(len(ids), 1)
 		result = self.engine.get_events(ids)
 		self.assertEquals(len(ids), len(result))
-		subj = Subject.new_for_values(text="hällö, I'm gürmen")
+		self.assertEquals(1, len(result[0].subjects))
+		self.assertEquals("hällö, I'm gürmen - åge drikker øl - ☠", result[0].subjects[0].text)
+		
+		# try and find a unicode event
+		subj = Subject.new_for_values(text="hällö, I'm gürmen - åge drikker øl - ☠")
 		event_template = Event.new_for_values(subjects=[subj,])
 		result = self.engine.find_eventids(
 			(0, 200),

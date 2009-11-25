@@ -11,7 +11,7 @@
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
-				"text" : "hällö, I'm gürmen",
+				"text" : "hällö, I'm gürmen - åge drikker øl - ☠",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
 		]
