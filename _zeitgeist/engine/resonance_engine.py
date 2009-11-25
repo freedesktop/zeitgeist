@@ -61,9 +61,9 @@ class UnicodeCursor(sqlite3.Cursor):
 	def fix_unicode(obj):
 		if isinstance(obj, Category):
 			obj = str(obj)
-		if isinstance(obj, (str, unicode)):
+		if isinstance(obj, str):
 			obj = obj.decode("UTF-8")
-		return obj
+		return unicode(obj)		
 	
 	def execute(self, statement, parameters=None):
 		if parameters is not None:
