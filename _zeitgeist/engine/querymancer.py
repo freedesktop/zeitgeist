@@ -121,7 +121,7 @@ class String(ColumnType):
 	"""
 	@classmethod
 	def format(klass, value):
-		if isinstance(value, (str, unicode)):
+		if isinstance(value, str):
 			value = value.decode("UTF-8")
 		# Escape quotes to avoid SQL injection
 		if value:

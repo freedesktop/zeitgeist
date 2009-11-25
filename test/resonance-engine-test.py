@@ -336,14 +336,28 @@ class ZeitgeistEngineTest (_engineTestClass):
 		ids = import_events("test/data/unicode_event.js", self.engine)
 		self.assertEquals(len(ids), 1)
 		result = self.engine.get_events(ids)
-		self.assertEquals(len(ids), len(result))
-		self.assertEquals(1, len(result[0].subjects))
-		self.assertEquals(u"hällö, I'm gürmen - åge drikker øl - ☠", result[0].subjects[0].text)
+		self.assertEquals(1, len(result))
+		event = result[0]
+		self.assertEquals(1, len(event.subjects))
+		self.assertEquals(u"hällö, I'm gürmen - åge drikker øl - ☠", event.subjects[0].text)
+		self.assertEquals(u"http://live.gnome.org/☠", event.subjects[0].uri)
+		
+		# update the event we got from the DB's timestamp and insert
+		# it again, we want to to test some ping-pong back and forth
+		event[0][Event.Id] = None
+		event.timestamp = 243
+		ids = [self.engine.insert_event(event),]
+		result = self.engine.get_events(ids)
+		self.assertEquals(1, len(result))
+		event = result[0]
+		self.assertEquals(1, len(event.subjects))
+		self.assertEquals(u"hällö, I'm gürmen - åge drikker øl - ☠", event.subjects[0].text)
+		self.assertEquals(u"http://live.gnome.org/☠", event.subjects[0].uri)		
 		
 		# try and find a unicode event, we use unicode and not
 		# inconsequently on deliberation
 		subj = Subject.new_for_values(text="hällö, I'm gürmen - åge drikker øl - ☠",
-					origin="file:///åges_øl",
+					origin="file:///åges_øl í",
 					uri=u"http://live.gnome.org/☠")
 		event_template = Event.new_for_values(subjects=[subj,])
 		result = self.engine.find_eventids(
@@ -352,7 +366,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 			StorageState.Any,
 			100,
 			0,)
-		self.assertEquals(len(result), 1)
+		self.assertEquals(len(result), 1)	
 		
 
 if __name__ == "__main__":
