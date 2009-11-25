@@ -65,6 +65,10 @@ def dict2event(d):
 		ev.append_subject(subj)
 	return ev
 	
+def parse_events(path):
+	data = json.load(file(path))
+	events = map(dict2event, data)
+	return events
 
 def import_events(path, engine):
 	"""
@@ -72,8 +76,7 @@ def import_events(path, engine):
 	
 	    import_events("test/data/single_event.js", self.engine)
 	"""
-	data = json.load(file(path))
-	events = map(dict2event, data)
+	events = parse_events(path)
 	
 	return engine.insert_events(events)
 

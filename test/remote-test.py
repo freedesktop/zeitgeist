@@ -18,6 +18,8 @@ from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
 from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, TimeRange
 import testutils
 
+from testutils import parse_events
+
 class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	
 	def __init__(self, methodName):
@@ -101,6 +103,14 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 						num_events=10)
 		print "RESULTS", map(int, ids)
 		self.assertEquals(2, len(ids))
+		
+	def testUnicodeInsert(self):
+		events = parse_events("test/data/unicode_event.js")
+		ids = self.insertEventsAndWait(events)
+		self.assertEquals(len(ids), len(events))
+		result_events = self.getEventsAndWait(ids)
+		self.assertEquals(len(ids), len(result_events))
+		
 
 	
 if __name__ == "__main__":
