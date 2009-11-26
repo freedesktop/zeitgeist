@@ -59,20 +59,14 @@ class Symbol(_DictCache):
 			assert len(bases) == 1, "Multi-inheritance is not supported yet"
 			cls._new_cache(bases[0]._CACHE)
 			cls._attributes = bases[0]._ATTRIBUTES
-			cls._database_cls = bases[0]._DATABASE_CLS
 			cls._base = bases[0]
 		else:
 			cls._attributes = {}
-			cls._database_cls = None
 			cls._base = None	
 	
 	@property
 	def _ATTRIBUTES(cls):
 		return cls._attributes
-	
-	@property
-	def _DATABASE_CLS(cls):
-		return cls._database_cls
 	
 	def __repr__(cls):
 		return "<%s %r>" %(cls.__class__.__name__, cls.__name__)
@@ -81,13 +75,8 @@ class Symbol(_DictCache):
 		try:
 			return cls._ATTRIBUTES[name]
 		except KeyError:
-			if cls._DATABASE_CLS is not None:
-				try:
-					return getattr(cls._DATABASE_CLS, name)
-				except AttributeError:
-					# ignore this error, raise the following AttributeError instead
-					pass
-		raise AttributeError("Object %r has no attribute %r" %(cls.__name__, name))
+			raise AttributeError(
+				"Object %r has no attribute %r" % (cls.__name__, name))
 	
 	def __call__(cls, *args, **kwargs):
 		uri = kwargs.get("uri", args[0] if args else None)
@@ -100,36 +89,17 @@ class Symbol(_DictCache):
 	
 	def register(cls, name, uri, display_name=None, doc=None):
 		if uri in cls._CACHE:
-			raise ValueError("There has already been an %s object registered for %r" %(cls.__name__, uri))
+			raise ValueError(
+				"There has already been an %s object registered for %r"
+				% (cls.__name__, uri))
 		if name in cls._ATTRIBUTES:
 			raise ValueError(
 				("Can't register %(name)s object for %(uri)r, %(name)s "
 				 "has already an attribute called %(attribute)r")
-				%({"name": cls.__name__, "uri": uri, "attribute": name})
+				% ({"name": cls.__name__, "uri": uri, "attribute": name})
 			)
 		obj = cls(uri=uri, display_name=display_name, doc=doc)
 		cls._CACHE[uri] = cls._ATTRIBUTES[str(name)] = obj
-	
-	def needs_lookup(cls, uri):
-		try:
-			return not (uri in cls._DATABASE_CLS._CACHE)
-		except AttributeError:
-			# the database class does not have a _CACHE
-			# to stay safe, return True
-			return True
-		
-	def bind_database(cls, database_cls):
-		""" Binds the symbol to a database class object. This class must
-		have a lookup_or_create() classmethod. This classmethod takes
-		an uri as argument and returns the database object for this uri.
-		The resulting object should be cached in an attribute called _CACHE
-		"""
-		if not hasattr(database_cls, "lookup_or_create"):
-			raise TypeError
-		cls._database_cls = database_cls
-		if cls._base is not None:
-			cls._base.bind_database(database_cls)
-
 
 class Category(object):
 	__metaclass__ = Symbol
@@ -141,7 +111,6 @@ class Category(object):
 		self._display_name = display_name
 		self.__doc__ = doc
 		self._name = name
-		self._database_obj = None
 	
 	def __repr__(self):
 		return "<%s %r>" %(self.__class__.__name__, self.uri)
@@ -164,36 +133,22 @@ class Category(object):
 	
 	@property
 	def display_name(self):
-		return self._display_name or u""
+		return self._display_name
 	
 	@property
 	def name(self):
 		if self._name is not None:
 			return self._name
 		else:
-			return self.uri.split("#", 1).pop()
+			return self.uri.split("#", 1)[-1]
 	
 	@property
 	def doc(self):
 		return self.__doc__
-	
-	def __getattr__(self, name):
-		if self._database_obj is not None and not self.__class__.needs_lookup(self.uri):
-			return getattr(self._database_obj, name)
-		if self.__class__._DATABASE_CLS is None:
-			raise RuntimeError("Cannot get %r, object is not bound to a database" % name)
-		self._database_obj = self.__class__._DATABASE_CLS.lookup_or_create(self.uri)
-		return getattr(self._database_obj, name)
-
 
 class Interpretation(Category):
 	pass
-	
 
-class Mimetype(Category):
-	pass
-
-	
 class Manifestation(Category):
 	pass
 
@@ -480,8 +435,8 @@ class Subject(list):
 		if data:
 			if len(data) != len(Subject.Fields):
 				raise ValueError(
-					"Invalid subject data length %s, "
-					"expected %s" % (len(data), len(Subject.Fields)))
+					"Invalid subject data length %s, expected %s"
+					% (len(data), len(Subject.Fields)))
 			super(Subject, self).__init__(data)
 		else:
 			super(Subject, self).__init__([""]*len(Subject.Fields))
@@ -744,4 +699,3 @@ class Event(list):
 	def set_payload(self, value):
 		self[2] = value
 	payload = property(get_payload, set_payload)
-

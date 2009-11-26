@@ -27,14 +27,11 @@ import sys
 import os
 import gettext
 import logging
-from xdg import BaseDirectory
-from xdg.DesktopEntry import DesktopEntry
 
 from extension import ExtensionsCollection
 
-from zeitgeist.datamodel import Subject as _Subject, Event as _Event
-from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype, \
-	Category, StorageState, TimeRange
+from zeitgeist.datamodel import Subject as _Subject, Event as _Event, \
+	StorageState, TimeRange
 import _zeitgeist.engine
 
 logging.basicConfig(level=logging.DEBUG)
@@ -44,8 +41,6 @@ class UnicodeCursor(sqlite3.Cursor):
 	
 	@staticmethod
 	def fix_unicode(obj):
-		if isinstance(obj, Category):
-			obj = str(obj)
 		if isinstance(obj, str):
 			obj = obj.decode("UTF-8")
 		return unicode(obj)		
@@ -59,7 +54,7 @@ class UnicodeCursor(sqlite3.Cursor):
 
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
-	log.info("Creating database: %s" % file_path)
+	log.info("Using database: %s" % file_path)
 	conn = sqlite3.connect(file_path)
 	conn.row_factory = sqlite3.Row
 	cursor = conn.cursor(UnicodeCursor)
@@ -222,17 +217,7 @@ def create_db(file_path):
 					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
 		""")
-
-	global _cursor
-	_cursor = cursor
-
-	# Bind the db into the datamodel module
-	Interpretation._clear_cache()
-	Manifestation._clear_cache()
-	Mimetype._clear_cache()
-	#Interpretation.bind_database(_interpretation)
-	#Manifestation.bind_database(_manifestation)
-	#Mimetype.bind_database(_mimetype)
+	
 	return cursor
 
 _cursor = None
@@ -264,19 +249,42 @@ class Subject(_Subject):
 			setattr(obj, field, row["subj_" + field])
 		return obj
 
+class TableLookup:
+	
+	def __init__(self, cursor, table):
+		
+		self._cursor = cursor
+		self._table = table
+		self._dict = {}
+		
+		for row in cursor.execute("SELECT id, value FROM %s" % table):
+			self._dict[row["value"]] = row["id"]
+	
+	def __getitem__(self, name):
+		if name in self._dict:
+			return self._dict[name]
+		self._cursor.execute(
+			"INSERT INTO %s (value) VALUES (?)" % self._table, (name,))
+		self._dict[name] = id = self._cursor.lastrowid
+		return id
+
 class ZeitgeistEngine:
 	
 	def __init__ (self):
-		self._cursor = get_default_cursor()
+		self._cursor = cursor = get_default_cursor()
 		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
-		row = self._cursor.execute("SELECT MAX(id) FROM event").fetchone()
-		self._last_event_id = row[0] if row else 0
+		row = cursor.execute("SELECT MAX(id) FROM event").fetchone()
+		self._last_event_id = row[0] if row[0] else 0
 		
 		# Load extensions
 		# Right now we don't load any default extension
 		self.__extensions = ExtensionsCollection(self)
+		
+		self._interpretation = TableLookup(cursor, "interpretation")
+		self._manifestation = TableLookup(cursor, "manifestation")
+		self._mimetype = TableLookup(cursor, "mimetype")
 	
 	@property
 	def extensions(self):
@@ -331,13 +339,14 @@ class ZeitgeistEngine:
 		"""
 		return int(time.time() * 1000)
 	
-	def insert_events (self, events):
+	def insert_events(self, events):
 		t = time.time()
-		m = map(self.insert_event, events)
+		m = map(self._insert_event, events)
+		_cursor.connection.commit()
 		log.debug("Inserted %d events in %ds" % (len(m), time.time()-t))
 		return m
 	
-	def insert_event (self, event):
+	def _insert_event(self, event):
 		# Transparently wrap DBus event structs as Event objects
 		event = self._ensure_event_wrapping(event)
 		
@@ -351,55 +360,82 @@ class ZeitgeistEngine:
 		id = self.next_event_id()
 		
 		if event.payload:
+			# TODO: Rigth now payloads are not unique and every event has its
+			# own one. We could optimize this to store those which are repeated
+			# for different events only once, especially considering that
+			# events cannot be modified once they've been inserted.
 			payload_id = self._cursor.execute("INSERT INTO payload VALUES (?)",
 				event.payload)
 			payload_id = self._cursor.lastrowid
 		else:
 			payload_id = None
 		
-		for subj in event.subjects:
-			suri_id = _uri.lookup_or_create(subj.uri).id
-			sinter_id = _interpretation.lookup_or_create(subj.interpretation).id
-			smanif_id = _manifestation.lookup_or_create(subj.manifestation).id
-			stext_id = _text.lookup_or_create(subj.text).id if subj.text else None
-			# origin, mimetype and storage are kind of optional attributes
-			# sometimes they are just unknown (undefined)
-			# and sometimes it makes no sense to set them at all
-			opt_attr = {}
-			if subj.origin:
-				opt_attr["subj_origin"] = _uri.lookup_or_create(subj.origin).id
-			if subj.mimetype:
-				opt_attr["subj_mimetype"] = _mimetype.lookup_or_create(subj.mimetype).id
-			if subj.storage:
-				opt_attr["subj_storage"] = _storage.lookup_or_create(subj.storage).id # FIXME: Storage is not an EntityTable
-			# We store the event here because we need one row per subject
-			#self._cursor.set_cursor(EchoCursor())
-			try:				
-				#self._cursor.execute("""
-				#	INSERT INTO event VALUES (...)
-				_event.add(
-					id=id,
-					timestamp=timestamp,
-					interpretation=inter_id,
-					manifestation=manif_id,
-					actor=actor_id,
-					payload=payload_id,
-					subj_id=suri_id,
-					subj_interpretation=sinter_id,
-					subj_manifestation=smanif_id,
-					subj_text=stext_id,
-					**opt_attr)
-			except sqlite3.IntegrityError:
-				# The event was already registered.
-				# Roll back _last_event_id and return the
-				# id of the original event
-				self._last_event_id -= 1
-				_cursor.execute(
-				"""SELECT id
-				   FROM event
-				   WHERE timestamp=? AND interpretation=? AND manifestation=? AND actor=? AND subj_id=?""",
-				(timestamp, inter_id, manif_id, actor_id, suri_id))
-				return _cursor.fetchone()[0]
+		# Make sure all URIs are inserted
+		_origin = [subject.origin for subject in event.subjects if subject.origin]
+		self._cursor.execute("INSERT OR IGNORE INTO uri (value) %s"
+			% " UNION ".join(["SELECT ?"] * (len(event.subjects) + len(_origin))),
+			[subject.uri for subject in event.subjects] + _origin)
+		
+		# Make sure the actor is inserted
+		self._cursor.execute("INSERT OR IGNORE INTO actor (value) VALUES (?)",
+			(event.actor,))
+		
+		# Make sure all mimetypes are inserted
+		_mimetype = [subject.mimetype for subject in event.subjects if subject.mimetype]
+		if _mimetype:
+			self._cursor.execute("INSERT OR IGNORE INTO mimetype (value) %s"
+				% " UNION ".join(["SELECT ?"] * len(_mimetype)), _mimetype)
+		
+		# Make sure all texts are inserted
+		_text = [subject.text for subject in event.subjects if subject.text]
+		if _text:
+			self._cursor.execute("INSERT OR IGNORE INTO text (value) %s"
+				% " UNION ".join(["SELECT ?"] * len(_text)), _text)
+		
+		# Make sure all storages are inserted
+		_storage = [subject.storage for subject in event.subjects if subject.storage]
+		if _storage:
+			self._cursor.execute("INSERT OR IGNORE INTO storage (value) %s"
+				% " UNION ".join(["SELECT ?"] * len(_storage)), _storage)
+		
+		try:
+			for subject in event.subjects:	
+				self._cursor.execute("""
+					INSERT INTO event VALUES (
+						?, ?, ?, ?,
+						(SELECT id FROM actor WHERE value=?),
+						?,
+						(SELECT id FROM uri WHERE value=?),
+						?, ?,
+						(SELECT id FROM uri WHERE value=?),
+						(SELECT id FROM mimetype WHERE value=?),
+						(SELECT id FROM text WHERE value=?),
+						(SELECT id from storage WHERE value=?)
+					)""", (id,
+						event.timestamp,
+						self._interpretation[event.interpretation],
+						self._manifestation[event.manifestation],
+						event.actor,
+						payload_id,
+						subject.uri,
+						self._interpretation[subject.interpretation],
+						self._manifestation[subject.manifestation],
+						subject.origin,
+						subject.mimetype,
+						subject.text,
+						subject.storage))
+		except sqlite3.IntegrityError:
+			# The event was already registered.
+			# Rollback _last_event_id and return the ID of the original event
+			self._last_event_id -= 1
+			self._cursor.execute("""
+				SELECT id FROM event
+				WHERE timestamp=? AND interpretation=? AND manifestation=?
+					AND actor=(SELECT id FROM actor WHERE value=?)
+				""", (event.timestamp,
+					self._interpretation[event.interpretation],
+					self._manifestation[event.manifestation], event.actor))
+			return self._cursor.fetchone()[0]
 		
 		_cursor.connection.commit()
 		
@@ -510,6 +546,7 @@ class ZeitgeistEngine:
 			WHERE actor = (SELECT id FROM actor WHERE value = ?)
 			ORDER BY timestamp DESC LIMIT 1
 			""", (actor,)).fetchone()
+		
 		return query["timestamp"] if query else 0
 
 class WhereClause:

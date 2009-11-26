@@ -214,7 +214,7 @@ class ZeitgeistClient:
 		runnning. Both Qt and GLib mainloops are supported.
 		"""
 		ev = Event.new_for_values(**values)
-		self.insert_event(ev,
+		self.insert_events([ev],
 				values.get("ids_reply_handler", None),
 				values.get("error_handler", None))
 	
