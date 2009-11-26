@@ -433,7 +433,7 @@ class ZeitgeistEngine:
 			# append None instead of raising an Error
 			sorted_events.append(events.get(id, None))
 		
-		log.debug("Got events: %s in %s events" % (str(len(sorted_events)), str(time.time()-t)))
+		log.debug("Got %s events in %ss" % (str(len(sorted_events)), str(time.time()-t)))
 
 		return sorted_events
 	
@@ -446,7 +446,7 @@ class ZeitgeistEngine:
 	def insert_events (self, events):
 		t = time.time()
 		m = map (self.insert_event, events)
-		log.debug("Inserted events: %s in %s events" % (str(len(m)), str(time.time()-t)))
+		log.debug("Inserted %s events in %ss" % (str(len(m)), str(time.time()-t)))
 		return m
 	
 	def insert_event (self, event):
@@ -619,7 +619,7 @@ class ZeitgeistEngine:
 		
 		result = [row[0] for row in _cursor.execute(sql, where.arguments).fetchall()]
 		
-		log.debug("Fetched event ids: %s in %s events" % (str(len(result)), str(time.time()- t)))
+		log.debug("Found %s event ids in %ss" % (str(len(result)), str(time.time()- t)))
 		return result
 	
 	def get_highest_timestamp_for_actor(self, actor):
