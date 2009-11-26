@@ -407,6 +407,8 @@ class ZeitgeistEngine:
 		"""
 		Look up a list of events.
 		"""
+		t = time.time()
+		
 		global _cursor
 		# FIXME: Determine if using our caches instead of SQLite subselects
 		#        is in fact faster
@@ -430,6 +432,9 @@ class ZeitgeistEngine:
 			# if we are not able to get an event by the given id
 			# append None instead of raising an Error
 			sorted_events.append(events.get(id, None))
+		
+		log.debug("Got events: %s in %s events" % (str(len(sorted_events)), str(time.time()-t)))
+
 		return sorted_events
 	
 	def get_timestamp_for_now(self):
@@ -439,7 +444,10 @@ class ZeitgeistEngine:
 		return int(time.time() * 1000)
 	
 	def insert_events (self, events):
-		return map (self.insert_event, events)
+		t = time.time()
+		m = map (self.insert_event, events)
+		log.debug("Inserted events: %s in %s events" % (str(len(m)), str(time.time()-t)))
+		return m
 	
 	def insert_event (self, event):
 		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
@@ -546,6 +554,8 @@ class ZeitgeistEngine:
 		DBus API
 		"""
 		
+		t = time.time()
+		
 		global _cursor, _interpretation, _manifestation, _mimetype
 		
 		# FIXME: We need to take storage_state into account
@@ -606,7 +616,11 @@ class ZeitgeistEngine:
 			sql += " LIMIT %d" % max_events
 		log.debug(sql)
 		log.debug("SQL args: %s" % where.arguments)
-		return [row[0] for row in _cursor.execute(sql, where.arguments).fetchall()]
+		
+		result = [row[0] for row in _cursor.execute(sql, where.arguments).fetchall()]
+		
+		log.debug("Fetched event ids: %s in %s events" % (str(len(result)), str(time.time()- t)))
+		return result
 	
 	def get_highest_timestamp_for_actor(self, actor):
 		query = self._cursor.execute("""

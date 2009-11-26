@@ -305,7 +305,7 @@ Interpretation.register(
 	doc="Event type triggered when an item is visited or opened"
 )
 Interpretation.register(
-	"SAVED_EVENT",
+	"SAVE_EVENT",
 	u"http://zeitgeist-project.com/schema/1.0/core#SaveEvent",
 	display_name=_("Saved"),
 	doc="Event type triggered when an item is saved"
