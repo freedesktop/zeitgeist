@@ -33,27 +33,12 @@ from xdg.DesktopEntry import DesktopEntry
 from extension import ExtensionsCollection
 
 from zeitgeist.datamodel import Subject as _Subject, Event as _Event
-from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype, Category, StorageState, TimeRange
+from zeitgeist.datamodel import Interpretation, Manifestation, Mimetype, \
+	Category, StorageState, TimeRange
 import _zeitgeist.engine
-from _zeitgeist.engine.dbutils import *
-from _zeitgeist.engine.querymancer import *
-from _zeitgeist.lrucache import *
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
-
-#		
-# Table defs are assigned in create_db()
-#
-_uri = None             # id, string
-_interpretation = None  # id, string
-_manifestation = None   # id, string
-_mimetype = None        # id, string
-_actor = None           # id, string
-_text = None            # id, string
-_payload = None         # id, blob
-_storage = None         # id, value, available
-_event = None           # ...
 
 class UnicodeCursor(sqlite3.Cursor):
 	
@@ -212,14 +197,15 @@ def create_db(file_path):
 		CREATE INDEX IF NOT EXISTS event_subj_storage
 			ON event(subj_storage)""")
 	
-	# event view (interpretation, manifestation and mimetype are cached in ZG)
 	#cursor.execute("DROP VIEW event_view")
 	cursor.execute("""
 		CREATE VIEW IF NOT EXISTS event_view AS
 			SELECT event.id,
 				event.timestamp,
-				event.interpretation,
-				event.manifestation,
+				(SELECT value FROM interpretation WHERE
+					interpretation.id=event.interpretation) AS interpretation,
+				(SELECT value FROM manifestation WHERE
+					manifestation.id=event.manifestation) AS interpretation,
 				(SELECT value FROM actor WHERE actor.id = event.actor) AS actor,
 				event.payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
@@ -228,7 +214,8 @@ def create_db(file_path):
 				event.subj_manifestation,
 				(SELECT value FROM uri WHERE uri.id=event.subj_origin)
 					AS subj_origin,
-				event.subj_mimetype,
+				(SELECT value FROM mimetype WHERE id=event.subj_mimetype)
+					AS subj_mimetype,
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
 				(SELECT value FROM storage
@@ -236,52 +223,16 @@ def create_db(file_path):
 			FROM event
 		""")
 
-	# Table defs
-	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, \
-		_text, _payload, _storage, _event
+	global _cursor
 	_cursor = cursor
-	_uri = EntityTable("uri")
-	_manifestation = EntityTable("manifestation")
-	_interpretation = EntityTable("interpretation")
-	_mimetype = EntityTable("mimetype")
-	_actor = EntityTable("actor")
-	_text = EntityTable("text")
-	_payload = EntityTable("payload") # FIXME: Should have a Blob type value
-	_storage = StatefulEntityTable("storage")
-	
-	# FIXME: _item.payload should be a BLOB type	
-	_event = Table("event",
-	               id=Integer(),
-	               timestamp=Integer(),
-	               interpretation=Integer(),
-	               manifestation=Integer(),
-	               actor=Integer(),	               
-	               payload=Integer(),
-	               subj_id=Integer(),
-	               subj_interpretation=Integer(),
-	               subj_manifestation=Integer(),
-	               subj_origin=Integer(),
-	               subj_mimetype=Integer(),
-	               subj_text=Integer(),
-	               subj_storage=Integer())
-	
-	_uri.set_cursor(_cursor)
-	_interpretation.set_cursor(_cursor)
-	_manifestation.set_cursor(_cursor)
-	_mimetype.set_cursor(_cursor)
-	_actor.set_cursor(_cursor)
-	_text.set_cursor(_cursor)
-	_payload.set_cursor(_cursor)
-	_storage.set_cursor(_cursor)
-	_event.set_cursor(_cursor)
 
 	# Bind the db into the datamodel module
 	Interpretation._clear_cache()
 	Manifestation._clear_cache()
 	Mimetype._clear_cache()
-	Interpretation.bind_database(_interpretation)
-	Manifestation.bind_database(_manifestation)
-	Mimetype.bind_database(_mimetype)
+	#Interpretation.bind_database(_interpretation)
+	#Manifestation.bind_database(_manifestation)
+	#Mimetype.bind_database(_mimetype)
 	return cursor
 
 _cursor = None
@@ -292,57 +243,15 @@ def get_default_cursor():
 		_cursor = create_db(dbfile)
 	return _cursor
 
-def set_cursor(cursor):
-	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
-	
-	if _cursor :		
-		_cursor.close()
-	
-	_uri.set_cursor(_cursor)
-	_interpretation.set_cursor(_cursor)
-	_manifestation.set_cursor(_cursor)
-	_mimetype.set_cursor(_cursor)
-	_actor.set_cursor(_cursor)
-	_text.set_cursor(_cursor)
-	_payload.set_cursor(_cursor)
-	_storage.set_cursor(_cursor)
-	_event.set_cursor(_cursor)
-
-def reset():
-	global _cursor, _uri, _interpretation, _manifestation, _mimetype, _actor, _text, _payload, _storage, _event
-	
-	if _cursor :		
-		_cursor.connection.close()
-	
-	_cursor = None
-	_uri = None
-	_interpretation = None
-	_manifestation = None	
-	_mimetype = None	
-	_actor = None
-	_text = None
-	_payload = None
-	_storage = None
-	_event = None
-
-
 class Event(_Event):
 	
 	@classmethod
 	def from_dbrow(cls, row):
 		obj = cls()
-		# id property is read-only in the public API
-		obj[0][cls.Id] = row["id"]
-		obj.timestamp = row["timestamp"]
-		obj.interpretation = Manifestation.get(
-			_interpretation.lookup_by_id(row["interpretation"]).value
-		)
-		obj.manifestation = Interpretation.get(
-			_manifestation.lookup_by_id(row["manifestation"]).value
-		)
-		obj.actor = row["actor"]
-		# default payload means empty string, not None
-		obj.payload = row["payload"] or ""
+		obj[0][cls.Id] = row["id"] # id property is read-only in the public API
+		for field in ("timestamp", "interpretation", "manifestation", "actor"):
+			setattr(obj, field, row[field])
+		obj.payload = row["payload"] or "" # default payload: empty string
 		return obj
 
 class Subject(_Subject):
@@ -350,51 +259,32 @@ class Subject(_Subject):
 	@classmethod
 	def from_dbrow(cls, row):
 		obj = cls()
-		obj.uri = row["subj_uri"]
-		obj.interpretation = Interpretation.get(
-			_interpretation.lookup_by_id(row["subj_interpretation"]).value
-		)
-		obj.manifestation = Manifestation.get(
-			_manifestation.lookup_by_id(row["subj_manifestation"]).value
-		)
-		
-		obj.origin = row["subj_origin"]
-		if row["subj_mimetype"]:
-			obj.mimetype = Mimetype.get(
-				_mimetype.lookup_by_id(row["subj_mimetype"]).value
-			)
-		obj.text = row["subj_text"]
-		obj.storage = row["subj_storage_state"]
+		for field in ("uri", "interpretation", "manifestation", "origin",
+			"mimetype", "text", "storage_state"):
+			setattr(obj, field, row["subj_" + field])
 		return obj
 
-# This class is not compatible with the normal Zeitgeist BaseEngine class
 class ZeitgeistEngine:
 	
 	def __init__ (self):
-		global _event
 		self._cursor = get_default_cursor()
 		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
-		row = _event.find("max(id)").fetchone()
-		if row[0]:
-			self._last_event_id = row[0]
-		else:
-			self._last_event_id = 0
-			
-		#Load extensions
-		# right now we don't load any default extension
+		row = self._cursor.execute("SELECT MAX(id) FROM event").fetchone()
+		self._last_event_id = row[0] if row else 0
+		
+		# Load extensions
+		# Right now we don't load any default extension
 		self.__extensions = ExtensionsCollection(self)
-			
+	
 	@property
 	def extensions(self):
 		return self.__extensions
-		
+	
 	def close(self):
-		global _cursor
 		self._cursor.connection.close()
-		_cursor = None
-		
+		self._cursor = None
 	
 	def is_closed(self):
 		return self._cursor is None
@@ -407,13 +297,10 @@ class ZeitgeistEngine:
 		"""
 		Look up a list of events.
 		"""
+		
 		t = time.time()
 		
-		global _cursor
-		# FIXME: Determine if using our caches instead of SQLite subselects
-		#        is in fact faster
-		
-		rows = _cursor.execute("""
+		rows = self._cursor.execute("""
 			SELECT * FROM event_view
 			WHERE id IN (%s)
 			""" % ",".join(["?" for id in ids]), ids).fetchall()
@@ -433,10 +320,11 @@ class ZeitgeistEngine:
 			# append None instead of raising an Error
 			sorted_events.append(events.get(id, None))
 		
-		log.debug("Got events: %s in %s events" % (str(len(sorted_events)), str(time.time()-t)))
+		log.debug("Got %d events %ds" % (len(sorted_events), time.time()-t))
 
 		return sorted_events
 	
+	@staticmethod
 	def get_timestamp_for_now(self):
 		"""
 		Return the current time in milliseconds since the Unix Epoch
@@ -445,35 +333,29 @@ class ZeitgeistEngine:
 	
 	def insert_events (self, events):
 		t = time.time()
-		m = map (self.insert_event, events)
-		log.debug("Inserted events: %s in %s events" % (str(len(m)), str(time.time()-t)))
+		m = map(self.insert_event, events)
+		log.debug("Inserted %d events in %ds" % (len(m), time.time()-t))
 		return m
 	
 	def insert_event (self, event):
-		global _cursor, _uri, _interpretation, _manifestation, _mimetype, \
-			_actor, _text, _payload, _storage, _event
-				
 		# Transparently wrap DBus event structs as Event objects
 		event = self._ensure_event_wrapping(event)
 		
 		if event.id:
 			raise ValueError("Illegal event: Predefined event id")
+		if not event.subjects:
+			raise ValueError("Illegal event format: No subject")
+		if not event.timestamp:
+			event.timestamp = self.get_timestamp_for_now()
 		
 		id = self.next_event_id()
 		
-		# Create the timestamp if none is provided
-		timestamp = event.timestamp if event.timestamp else self.get_timestamp_for_now()
-		inter_id = _interpretation.lookup_or_create(event.interpretation).id
-		manif_id = _manifestation.lookup_or_create(event.manifestation).id
-		actor_id = _actor.lookup_or_create(event.actor).id
-		
 		if event.payload:
-			payload_id = _payload.add(value=event.payload)
+			payload_id = self._cursor.execute("INSERT INTO payload VALUES (?)",
+				event.payload)
+			payload_id = self._cursor.lastrowid
 		else:
 			payload_id = None
-		
-		if not event.subjects:
-			raise ValueError("Illegal event format: No subject")
 		
 		for subj in event.subjects:
 			suri_id = _uri.lookup_or_create(subj.uri).id
@@ -491,8 +373,10 @@ class ZeitgeistEngine:
 			if subj.storage:
 				opt_attr["subj_storage"] = _storage.lookup_or_create(subj.storage).id # FIXME: Storage is not an EntityTable
 			# We store the event here because we need one row per subject
-			#_event.set_cursor(EchoCursor())
+			#self._cursor.set_cursor(EchoCursor())
 			try:				
+				#self._cursor.execute("""
+				#	INSERT INTO event VALUES (...)
 				_event.add(
 					id=id,
 					timestamp=timestamp,
@@ -534,12 +418,12 @@ class ZeitgeistEngine:
 		"""
 		if not isinstance(event, Event):
 			event = Event(event)
-		for i in range(len(event.subjects)):
+		for i in xrange(len(event.subjects)):
 			subj = event.subjects[i]
 			if not isinstance(subj, Subject):
 				event.subjects[i] = Subject(subj)
 		return event
-		
+	
 	def _build_templates(self, templates):
 		for event_template in templates:
 			event_data = event_template[0]
@@ -555,8 +439,6 @@ class ZeitgeistEngine:
 		"""
 		
 		t = time.time()
-		
-		global _cursor, _interpretation, _manifestation, _mimetype
 		
 		# FIXME: We need to take storage_state into account
 		if storage_state != StorageState.Any:
@@ -617,9 +499,9 @@ class ZeitgeistEngine:
 		log.debug(sql)
 		log.debug("SQL args: %s" % where.arguments)
 		
-		result = [row[0] for row in _cursor.execute(sql, where.arguments).fetchall()]
+		result = [row[0] for row in self._cursor.execute(sql, where.arguments).fetchall()]
 		
-		log.debug("Fetched event ids: %s in %s events" % (str(len(result)), str(time.time()- t)))
+		log.debug("Fetched %d event IDs in %ds" % (len(result), time.time()- t))
 		return result
 	
 	def get_highest_timestamp_for_actor(self, actor):
@@ -629,7 +511,6 @@ class ZeitgeistEngine:
 			ORDER BY timestamp DESC LIMIT 1
 			""", (actor,)).fetchone()
 		return query["timestamp"] if query else 0
-		
 
 class WhereClause:
 	

@@ -31,11 +31,11 @@ import time
 import gettext
 gettext.install("zeitgeist")
 
-class DictCache(type):
+class _DictCache(type):
 	""" Metaclass which has a _CACHE attribute. Each subclass has its own, fresh cache """
 	
 	def __init__(cls, name, bases, d):
-		super(DictCache, cls).__init__(name, bases, d)
+		super(_DictCache, cls).__init__(name, bases, d)
 		cls.__CACHE = {}
 	
 	def _new_cache(cls, cache=None):
@@ -51,7 +51,7 @@ class DictCache(type):
 	def _CACHE(cls):
 		return cls.__CACHE
 
-class Symbol(DictCache):
+class Symbol(_DictCache):
 	
 	def __init__(cls, name, bases, d):
 		super(Symbol, cls).__init__(name, bases, d)
@@ -64,27 +64,19 @@ class Symbol(DictCache):
 		else:
 			cls._attributes = {}
 			cls._database_cls = None
-			cls._base = None
-			
-	def _clear_cache(cls):
-		""" resets the cache of this Symbol. If the Symbol is bound to a
-		database also reset the cache of this database object.
-		"""
-		super(Symbol, cls)._clear_cache()
-		if cls._DATABASE_CLS is not None:
-			cls._DATABASE_CLS._clear_cache()		
-			
+			cls._base = None	
+	
 	@property
 	def _ATTRIBUTES(cls):
 		return cls._attributes
-		
+	
 	@property
 	def _DATABASE_CLS(cls):
 		return cls._database_cls
-		
+	
 	def __repr__(cls):
 		return "<%s %r>" %(cls.__class__.__name__, cls.__name__)
-		
+	
 	def __getattr__(cls, name):
 		try:
 			return cls._ATTRIBUTES[name]
@@ -96,7 +88,7 @@ class Symbol(DictCache):
 					# ignore this error, raise the following AttributeError instead
 					pass
 		raise AttributeError("Object %r has no attribute %r" %(cls.__name__, name))
-		
+	
 	def __call__(cls, *args, **kwargs):
 		uri = kwargs.get("uri", args[0] if args else None)
 		if uri and uri in cls._CACHE:
