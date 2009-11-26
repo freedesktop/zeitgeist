@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -.- coding: utf-8 -.-
 
 # Update python path to use local zeitgeist module
 import sys
@@ -119,7 +120,40 @@ class EventTest (unittest.TestCase):
 		self.assertEquals(1, len(ev.subjects))
 		self.assertEquals("foo://baz", ev.subjects[0].uri)
 		self.assertEquals("text/plain", ev.subjects[0].mimetype)
+	
+	def testTemplateMatching(self):
+		template = Event.new_for_values(
+					manifestation="klaf:CarvedRunes",
+					subject_uri="runes:///jellinge_stone.stn",
+					subject_mimetype="text/runes")
 
-
+		e = Event.new_for_values(
+					interpretation="klaf:Document",
+					manifestation="klaf:CarvedRunes",
+					subject_uri="runes:///jellinge_stone.stn",
+					subject_text="Harald Blåtand",
+					subject_mimetype="text/runes")
+		self.assertTrue(e.matches_template(template))
+		
+		# Add a non-matching subject to the event.
+		# We should still be good
+		s = Subject.new_for_values(
+					uri="file:///tmp/foo.txt",
+					mimetype="text/plain")
+		e.subjects.append(s)
+		self.assertTrue(e.matches_template(template))
+		
+		# Remove all subjects from e and we should no longer match
+		subjects = e.subjects
+		e.subjects = []
+		self.assertFalse(e.matches_template(template))
+		
+		# Re-instate the subjects we removed just before
+		e.subjects = subjects
+		self.assertTrue(e.matches_template(template))
+		
+		e.manifestation="ILLEGAL SNAFU"
+		self.assertFalse(e.matches_template(template))
+		
 if __name__ == '__main__':
 	unittest.main()

@@ -555,6 +555,16 @@ class Subject(list):
 		self[Subject.Storage] = value
 	storage = property(get_storage, set_storage)
 	
+	def matches_template (self, subject_template):
+		"""
+		Return True if this Subject matches subject_template. Empty
+		fields in the template are treated as wildcards.
+		"""
+		for m in Subject.Fields:
+			if subject_template[m] and subject_template[m] != self[m] :
+				return False
+		return True
+	
 	
 class Event(list):
 	"""
@@ -752,4 +762,35 @@ class Event(list):
 	def set_payload(self, value):
 		self[2] = value
 	payload = property(get_payload, set_payload)
-
+	
+	def matches_template(self, event_template):
+		"""
+		Return True if this event matches 'event_template'. The
+		matching is done where unset fields in the template is
+		interpreted as wild cards. If the template has more than one
+		subject, this event matches if at least one of the subjects
+		on this event matches any single one of the subjects on the
+		template.
+		
+		Basically this method mimics the matching behaviour
+		found in the FindEventIds() method on the Zeitgeist engine.
+		"""
+		# We use direct member access to speed things up a bit
+		# First match the raw event data
+		data = self[0]
+		tdata = event_template[0]
+		for m in Event.Fields:
+			if tdata[m] and tdata[m] != data[m] : return False
+		
+		# If template has no subjects we have a match
+		if len(event_template[1]) == 0 : return True
+		
+		# Now we check the subjects
+		for tsubj in event_template[1]:
+			for subj in self[1]:		
+				if not subj.matches_template(tsubj) : continue				
+				# We have a matching subject, all good!
+				return True
+		
+		# Template has subjects, but we never found a match
+		return False
