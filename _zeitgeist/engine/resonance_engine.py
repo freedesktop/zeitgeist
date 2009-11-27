@@ -209,6 +209,8 @@ def create_db(file_path):
 				event.subj_mimetype,
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
+				(SELECT value FROM storage
+					WHERE storage.id=event.subj_storage) AS subj_storage,
 				(SELECT state FROM storage
 					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
@@ -312,7 +314,7 @@ class ZeitgeistEngine:
 	
 	def _get_subject_from_row(self, row):
 		subject = Subject()
-		for field in ("uri", "origin", "text", "storage_state"):
+		for field in ("uri", "origin", "text", "storage"):
 			setattr(subject, field, row["subj_" + field])
 		for field in ("interpretation", "manifestation", "mimetype"):
 			setattr(subject, field,
