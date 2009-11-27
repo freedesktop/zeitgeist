@@ -241,7 +241,7 @@ class TableLookup:
 		for row in cursor.execute("SELECT id, value FROM %s" % table):
 			_dict[row["value"]] = row["id"]
 		
-		self._inv_dict = dict(zip(_dict.values(), _dict.keys()))
+		self._inv_dict = dict((value, key) for key, value in _dict.iteritems())
 	
 	def __getitem__(self, name):
 		if name in self._dict:
