@@ -250,10 +250,10 @@ class TableLookup:
 			self._cursor.execute(
 			"INSERT INTO %s (value) VALUES (?)" % self._table, (name,))
 			id = self._cursor.lastrowid
-		except IntegrityError:
+		except sqlite3.IntegrityError:
 			# This shouldn't happen, but just in case
 			id = self._cursor.execute("SELECT id FROM %s WHERE value=?"
-				% self._table, (name),).fetchone()[0]
+				% self._table, (name,)).fetchone()[0]
 		# If we are here it's a newly inserted value, insert it into cache
 		self._dict[name] = id
 		self._inv_dict[id] = name
@@ -460,7 +460,9 @@ class ZeitgeistEngine:
 		return id
 	
 	def delete_events (self, ids):
-		_event.delete(_event.id.in_collection(ids))
+		# FIXME: Delete unused interpretation/manifestation/text/etc.
+		self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
+			% ",".join(["?"] * len(ids)), ids)
 	
 	def _ensure_event_wrapping(self, event):
 		"""
