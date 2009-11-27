@@ -1,9 +1,10 @@
-- Finish EventsChanged in remote.py
-- Review FocusDurationRegister code,found a lot of naming conventions errors and some minor bugs.
-- Fix the tables to use FLOATS for timestamps instead of INTERGERs (this will affect the code in the engine)
+- Finish event subscription
+- Review FocusDurationRegister code, found a lot of naming
+  conventions errors and some minor bugs.
 - Fix the RecentlyUsed provider
 - Test all Relevancy stuff
-- Add a WNCK monitor to inform us with window focus changes. This module should land into the loggers.
+- Add a WNCK monitor to inform us with window focus
+  changes. This module should land into the loggers.
 
 Stuff worth considering:
  - Log package installations/removals/updates.
