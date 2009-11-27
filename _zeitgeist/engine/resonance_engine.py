@@ -197,27 +197,20 @@ def create_db(file_path):
 		CREATE VIEW IF NOT EXISTS event_view AS
 			SELECT event.id,
 				event.timestamp,
-				(SELECT value FROM interpretation WHERE
-					interpretation.id=event.interpretation) AS interpretation,
-				(SELECT value FROM manifestation WHERE
-					manifestation.id=event.manifestation) AS manifestation,
-				(SELECT value FROM actor WHERE actor.id = event.actor) AS actor,
+				event.interpretation,
+				event.manifestation,
+				event.actor,
 				event.payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
 					AS subj_uri,
-				(SELECT value FROM interpretation WHERE
-					interpretation.id=event.subj_interpretation)
-					AS subj_interpretation,
-				(SELECT value FROM manifestation WHERE
-					manifestation.id=event.subj_manifestation)
-					AS subj_manifestation,
+				event.subj_interpretation,
+				event.subj_manifestation,
 				(SELECT value FROM uri WHERE uri.id=event.subj_origin)
 					AS subj_origin,
-				(SELECT value FROM mimetype WHERE id=event.subj_mimetype)
-					AS subj_mimetype,
+				event.subj_mimetype,
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
-				(SELECT value FROM storage
+				(SELECT state FROM storage
 					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
 		""")
@@ -259,6 +252,10 @@ class TableLookup:
 		
 		self._cursor = cursor
 		self._table = table
+		
+		# We are not using an LRUCache as pressumably there won't be thousands
+		# of manifestations/interpretations/mimetypes/actors on most
+		# installations, so we can save us the overhead of tracking their usage.
 		self._dict = {}
 		
 		for row in cursor.execute("SELECT id, value FROM %s" % table):
@@ -267,10 +264,17 @@ class TableLookup:
 	def __getitem__(self, name):
 		if name in self._dict:
 			return self._dict[name]
-		self._cursor.execute(
+		try:
+			self._cursor.execute(
 			"INSERT INTO %s (value) VALUES (?)" % self._table, (name,))
-		self._dict[name] = id = self._cursor.lastrowid
+			self._dict[name] = id = self._cursor.lastrowid
+		except IntegrityError:
+			id = self._cursor.execute("SELECT id FROM %s WHERE value=?"
+				% self._table, (name),).fetchone()[0]
 		return id
+	
+	def __contains__(self, name):
+		return name in self._dict
 
 class ZeitgeistEngine:
 	
@@ -289,6 +293,7 @@ class ZeitgeistEngine:
 		self._interpretation = TableLookup(cursor, "interpretation")
 		self._manifestation = TableLookup(cursor, "manifestation")
 		self._mimetype = TableLookup(cursor, "mimetype")
+		self._actor = TableLookup(cursor, "actor")
 	
 	@property
 	def extensions(self):
@@ -382,13 +387,10 @@ class ZeitgeistEngine:
 			% " UNION ".join(["SELECT ?"] * (len(event.subjects) + len(_origin))),
 			[subject.uri for subject in event.subjects] + _origin)
 		
-		# Make sure the actor is inserted
-		self._cursor.execute("INSERT OR IGNORE INTO actor (value) VALUES (?)",
-			(event.actor,))
-		
 		# Make sure all mimetypes are inserted
-		_mimetype = [subject.mimetype for subject in event.subjects if subject.mimetype]
-		if _mimetype:
+		_mimetype = [subject.mimetype for subject in event.subjects \
+			if subject.mimetype and not subject.mimetype in self._mimetype]
+		if len(_mimetype) > 1:
 			self._cursor.execute("INSERT OR IGNORE INTO mimetype (value) %s"
 				% " UNION ".join(["SELECT ?"] * len(_mimetype)), _mimetype)
 		
@@ -408,13 +410,11 @@ class ZeitgeistEngine:
 			for subject in event.subjects:	
 				self._cursor.execute("""
 					INSERT INTO event VALUES (
-						?, ?, ?, ?,
-						(SELECT id FROM actor WHERE value=?),
-						?,
+						?, ?, ?, ?, ?, ?,
 						(SELECT id FROM uri WHERE value=?),
 						?, ?,
 						(SELECT id FROM uri WHERE value=?),
-						(SELECT id FROM mimetype WHERE value=?),
+						?,
 						(SELECT id FROM text WHERE value=?),
 						(SELECT id from storage WHERE value=?)
 					)""", (
@@ -422,13 +422,13 @@ class ZeitgeistEngine:
 						event.timestamp,
 						self._interpretation[event.interpretation],
 						self._manifestation[event.manifestation],
-						event.actor,
+						self._actor[event.actor],
 						payload_id,
 						subject.uri,
 						self._interpretation[subject.interpretation],
 						self._manifestation[subject.manifestation],
 						subject.origin,
-						subject.mimetype,
+						self._mimetype[subject.mimetype],
 						subject.text,
 						subject.storage))
 		except sqlite3.IntegrityError:
@@ -438,10 +438,11 @@ class ZeitgeistEngine:
 			self._cursor.execute("""
 				SELECT id FROM event
 				WHERE timestamp=? AND interpretation=? AND manifestation=?
-					AND actor=(SELECT id FROM actor WHERE value=?)
+					AND actor=?
 				""", (event.timestamp,
 					self._interpretation[event.interpretation],
-					self._manifestation[event.manifestation], event.actor))
+					self._manifestation[event.manifestation],
+					self._actor[event.actor]))
 			return self._cursor.fetchone()[0]
 		
 		_cursor.connection.commit()
@@ -505,7 +506,7 @@ class ZeitgeistEngine:
 				subwhere.add("manifestation = ?",
 					self._manifestation[event_template.manifestation])
 			if event_template.actor:
-				subwhere.add("actor = ?", event_template.actor)
+				subwhere.add("actor = ?", self._actor[event_template.actor])
 			if subject_template.uri:
 				subwhere.add("subj_uri = ?", subject_template.uri)
 			if subject_template.interpretation:
@@ -518,7 +519,7 @@ class ZeitgeistEngine:
 				subwhere.add("subj_origin = ?", subject_template.origin)
 			if subject_template.mimetype:
 				subwhere.add("subj_mimetype = ?",
-					_mimetype.lookup_id(subject_template.mimetype))
+					self._mimetype[subject_template.mimetype])
 			if subject_template.text:
 				subwhere.add("subj_text = ?",
 					subject_template.text)
