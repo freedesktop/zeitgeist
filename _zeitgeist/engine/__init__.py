@@ -65,13 +65,13 @@ def create_engine(engine_type=None):
 			raise RuntimeError(
 				("There is already a zeitgeist engine running. But this "
 				 "engine has another than the requested type "
-				 "(requested='%s', running='%s')" %(engine_type, running_type))
+				 "(requested='%s', running='%s')" % (engine_type, running_type))
 			)
 		return _engine
 	try:
 		log.debug("Creating engine '%s'" % engine_type)
 		engine_cls = __import__(
-			"_zeitgeist.engine.%s_engine" %engine_type,
+			"_zeitgeist.engine.%s_engine" % engine_type,
 			globals(), locals(), ["ZeitgeistEngine",], -1
 		)
 	except ImportError, err:

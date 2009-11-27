@@ -295,8 +295,9 @@ class ZeitgeistEngine:
 		return self.__extensions
 	
 	def close(self):
+		global _cursor
 		self._cursor.connection.close()
-		self._cursor = None
+		self._cursor = _cursor = None
 	
 	def is_closed(self):
 		return self._cursor is None
