@@ -16,7 +16,7 @@ def service_isRunning(bus_name, bus=dbus.SessionBus()):
 def service_isActivable(bus_name, bus=dbus.SessionBus()):
 	return bus_name in bus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus").ListActivatableNames()
 
-DAEMON = os.path.join(os.path.dirname(__file__), "../zeitgeist-daemon")
+DAEMON = os.path.join(os.path.dirname(__file__), "../zeitgeist-daemon.py")
 
 def wait_until(times, timeout, condition, *args):
 	counter = 0

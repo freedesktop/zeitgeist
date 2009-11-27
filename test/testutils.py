@@ -93,14 +93,13 @@ class RemoteTestCase (unittest.TestCase):
 	
 	def spawn_daemon(self):
 		os.environ.update({"ZEITGEIST_DATABASE_PATH": ":memory:"})
-		self.daemon = Popen(["./zeitgeist-daemon", "--no-passive-loggers"])
+		self.daemon = Popen(["./zeitgeist-daemon.py", "--no-passive-loggers"])
 		# give the daemon some time to wake up
 		time.sleep(3)
 		err = self.daemon.poll()
 		if err:
-			raise RuntimeError("Could not start daemon,  got err=%i" %err)
-		
-		
+			raise RuntimeError("Could not start daemon,  got err=%i" % err)
+	
 	def kill_daemon(self):
 		os.kill(self.daemon.pid, signal.SIGKILL)
 		self.daemon.wait()
@@ -113,7 +112,7 @@ class RemoteTestCase (unittest.TestCase):
 		# hack to clear the state of the interface
 		ZeitgeistDBusInterface._ZeitgeistDBusInterface__shared_state = {}
 		self.client = ZeitgeistClient()
-		
+	
 	def tearDown(self):
 		assert self.daemon is not None
 		assert self.client is not None

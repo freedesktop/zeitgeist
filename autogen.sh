@@ -6,7 +6,7 @@ test -z "$srcdir" && srcdir=.
 
 PKG_NAME=zeitgeist
 
-(test -f $srcdir/zeitgeist-daemon) || {
+(test -f $srcdir/zeitgeist-daemon.py) || {
 	echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
 	echo " top-level $PKG_NAME directory"
 	exit 1

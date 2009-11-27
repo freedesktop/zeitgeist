@@ -55,7 +55,7 @@ except RuntimeError, e:
 	logging.error(str(e))
 	sys.exit(1)
 
-passive_loggers = "%s/zeitgeist-datahub" % _config.bindir
+passive_loggers = "%s/zeitgeist-datahub.py" % _config.bindir
 if arg1 != "no-passive-loggers":
 	if os.path.isfile(passive_loggers):
 		subprocess.Popen(passive_loggers)
