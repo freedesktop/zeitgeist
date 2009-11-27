@@ -346,7 +346,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		# it again, we want to to test some ping-pong back and forth
 		event[0][Event.Id] = None
 		event.timestamp = 243
-		ids = [self.engine.insert_event(event),]
+		ids = self.engine.insert_events([event])
 		result = self.engine.get_events(ids)
 		self.assertEquals(1, len(result))
 		event = result[0]
