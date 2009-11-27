@@ -238,7 +238,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 		return Interpretation.UNKNOWN.uri
 	
 	def _get_items(self):
-		timestamp_last_run = time.time()
+		timestamp_last_run = time.time() * 1000
 		
 		events = []
 		
@@ -258,9 +258,9 @@ class RecentlyUsedManagerGtk(DataProvider):
 				application = info.get_application_info(last_application)[0].split()[0]
 				desktopfile = self._find_desktop_file_for_application(application)
 				times = (
-					(info.get_added(), Interpretation.CREATE_EVENT.uri),
-					(info.get_visited(), Interpretation.VISIT_EVENT.uri),
-					(info.get_modified(), Interpretation.MODIFY_EVENT.uri)
+					(info.get_added() * 1000, Interpretation.CREATE_EVENT.uri),
+					(info.get_visited() * 1000, Interpretation.VISIT_EVENT.uri),
+					(info.get_modified() * 1000, Interpretation.MODIFY_EVENT.uri)
 				)
 				
 				is_new = False
