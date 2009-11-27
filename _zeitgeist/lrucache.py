@@ -98,16 +98,15 @@ class LRUCache:
 		while iter.next:
 			iter = iter.next
 			yield (iter.key, iter.value)			
-			
 	
 	def _move_item_to_end(self, item):
 		if item.prev:
 			item.prev.next = item.next
 		if item.next:
 			item.next.prev = item.prev
-		if item == self._list_start :
+		if item == self._list_start:
 			self._list_start = item.next
-		self._append_to_list(item)		
+		self._append_to_list(item)
 	
 	def _append_to_list(self, item):
 		if self._list_end:
@@ -131,28 +130,6 @@ class LRUCache:
 				self._list_start.prev = None
 			return old
 
-class LRUBiCache(LRUCache):
-	"""
-	A bi-directional LRU Cache, allowing lookups of the cache keys
-	given a value
-	"""
-	def __init__ (self, max_size):
-		LRUCache.__init__ (self, max_size)
-		self._inv_map = {}
-	
-	def __setitem__ (self, key, value):
-		LRUCache.__setitem__(self, key)
-		self._inv_map[value] = key
-	
-	def lookup_by_value(self, value):
-		# FIXME: Doesn't reshuffle LRU list
-		return self._inv_map[value]
-	
-	def remove_eldest_item(self):
-		old = LURCache.remove_eldest_item(self, key)
-		del self._inv_map[old.key]
-		return old
-			
 class LRUCacheMetaclass(type):
 	""" Metaclass which has a _CACHE attribute, each subclass has its own,
 	fresh cache. As a cache we are using a LRUCache.
@@ -160,17 +137,4 @@ class LRUCacheMetaclass(type):
 	
 	def __init__(cls, name, bases, d):
 		super(LRUCacheMetaclass, cls).__init__(name, bases, d)
-		cls.__CACHE = LRUCache(1000)
-		
-	def _new_cache(cls, cache=None):
-		if cache is None:
-			cls.__CACHE.clear()
-		else:
-			cls.__CACHE = cache
-		
-	def _clear_cache(self):
-		return self._new_cache()
-		
-	@property
-	def _CACHE(cls):
-		return cls.__CACHE
+		cls._CACHE = LRUCache(500)
