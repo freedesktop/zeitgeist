@@ -181,23 +181,6 @@ class RemoteInterface(SingletonApplication):
 	def GetAll(self, interface_name):
 		return dict((k, v.fget(self)) for (k,v) in self._dbus_properties.items())
 	
-	# Signals and signal emitters
-	
-	@dbus.service.signal(DBUS_INTERFACE,
-						signature="(sav)")
-	def EventsChanged(self, value):
-		"""This Signal is emitted whenever one or more items have been changed
-		
-		It contains a tuple, where the first item is one of `added`,
-		`modified` and `deleted`. If the first item is `added` or `modified`
-		the second item is a list of :ref:`event-label` and a dict of
-		:ref:`item-label`, otherwise it is a list of uris.
-		
-		:returns: added and modified events/items and URIs of deleted items
-		:rtype: list of dictionaries
-		"""
-		return value
-	
 	@dbus.service.method(DBUS_INTERFACE)
 	def Quit(self):
 		"""Terminate the running RemoteInterface process; use with caution,
