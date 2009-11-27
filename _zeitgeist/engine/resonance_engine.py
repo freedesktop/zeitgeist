@@ -30,8 +30,7 @@ import logging
 
 from extension import ExtensionsCollection
 
-from zeitgeist.datamodel import Subject as _Subject, Event as _Event, \
-	StorageState, TimeRange
+from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange
 import _zeitgeist.engine
 
 logging.basicConfig(level=logging.DEBUG)
@@ -225,27 +224,6 @@ def get_default_cursor():
 		_cursor = create_db(dbfile)
 	return _cursor
 
-class Event(_Event):
-	
-	@classmethod
-	def from_dbrow(cls, row):
-		obj = cls()
-		obj[0][cls.Id] = row["id"] # id property is read-only in the public API
-		for field in ("timestamp", "interpretation", "manifestation", "actor"):
-			setattr(obj, field, row[field])
-		obj.payload = row["payload"] or "" # default payload: empty string
-		return obj
-
-class Subject(_Subject):
-	
-	@classmethod
-	def from_dbrow(cls, row):
-		obj = cls()
-		for field in ("uri", "interpretation", "manifestation", "origin",
-			"mimetype", "text", "storage_state"):
-			setattr(obj, field, row["subj_" + field])
-		return obj
-
 class TableLookup:
 	
 	def __init__(self, cursor, table):
@@ -256,10 +234,12 @@ class TableLookup:
 		# We are not using an LRUCache as pressumably there won't be thousands
 		# of manifestations/interpretations/mimetypes/actors on most
 		# installations, so we can save us the overhead of tracking their usage.
-		self._dict = {}
+		self._dict = _dict = {}
 		
 		for row in cursor.execute("SELECT id, value FROM %s" % table):
-			self._dict[row["value"]] = row["id"]
+			_dict[row["value"]] = row["id"]
+		
+		self._inv_dict = dict(zip(_dict.values(), _dict.keys()))
 	
 	def __getitem__(self, name):
 		if name in self._dict:
@@ -267,14 +247,24 @@ class TableLookup:
 		try:
 			self._cursor.execute(
 			"INSERT INTO %s (value) VALUES (?)" % self._table, (name,))
-			self._dict[name] = id = self._cursor.lastrowid
+			id = self._cursor.lastrowid
 		except IntegrityError:
+			# This shouldn't happen, but just in case
 			id = self._cursor.execute("SELECT id FROM %s WHERE value=?"
 				% self._table, (name),).fetchone()[0]
+		# If we are here it's a newly inserted value, insert it into cache
+		self._dict[name] = id
+		self._inv_dict[id] = name
 		return id
 	
 	def __contains__(self, name):
 		return name in self._dict
+	
+	def value(self, id):
+		# When we fetch an event, it either was already in the database
+		# at the time Zeitgeist started or it was inserted later -using
+		# Zeitgeist-, so here we always have the data in memory already.
+		return self._inv_dict[id]
 
 class ZeitgeistEngine:
 	
@@ -311,6 +301,24 @@ class ZeitgeistEngine:
 		self._last_event_id += 1
 		return self._last_event_id
 	
+	def _get_event_from_row(self, row):
+		event = Event()
+		event[0][Event.Id] = row["id"] # Id property is read-only in the public API
+		event.timestamp = row["timestamp"]
+		for field in ("interpretation", "manifestation", "actor"):
+			setattr(event, field, getattr(self, "_" + field).value(row[field]))
+		event.payload = row["payload"] or "" # default payload: empty string
+		return event
+	
+	def _get_subject_from_row(self, row):
+		subject = Subject()
+		for field in ("uri", "origin", "text", "storage_state"):
+			setattr(subject, field, row["subj_" + field])
+		for field in ("interpretation", "manifestation", "mimetype"):
+			setattr(subject, field,
+				getattr(self, "_" + field).value(row["subj_" + field]))
+		return subject
+	
 	def get_events(self, ids):
 		"""
 		Look up a list of events.
@@ -326,10 +334,10 @@ class ZeitgeistEngine:
 		for row in rows:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
-			event = Event.from_dbrow(row)
+			event = self._get_event_from_row(row)
 			if event.id not in events:
 				events[event.id] = event
-			events[event.id].append_subject(Subject.from_dbrow(row))
+			events[event.id].append_subject(self._get_subject_from_row(row))
 		
 		# Sort events into the requested order
 		sorted_events = []
@@ -343,7 +351,7 @@ class ZeitgeistEngine:
 		return sorted_events
 	
 	@staticmethod
-	def get_timestamp_for_now(self):
+	def get_timestamp_for_now():
 		"""
 		Return the current time in milliseconds since the Unix Epoch
 		"""
