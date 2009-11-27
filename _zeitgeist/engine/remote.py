@@ -101,7 +101,7 @@ class RemoteInterface(SingletonApplication):
 	# GetEvents(FindEventIds(limit=1,sorting=desc)).timestamp
 	#   -- RainCT
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="s", out_signature="u")
+						in_signature="s", out_signature="x")
 	def GetHighestTimestampForActor(self, actor):
 		"""Returns the timestamp of the last item which was inserted
 		related to the given ``actor``. If there is no such record,
