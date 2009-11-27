@@ -31,13 +31,11 @@ DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
 SIG_EVENT = "asaasay"
 
 def special_str(obj):
-	""" returns a string representation of an object
-	if obj is None returns an empty string.
+	""" Return a string representation of obj
+	If obj is None, return an empty string.
 	"""
-	if obj is None:
-		return ""
-	return unicode(obj)
-	
+	return unicode(obj) if obj is not None else ""
+
 def make_dbus_sendable(event):
 	for n, value in enumerate(event[0]):
 		event[0][n] = special_str(value)
