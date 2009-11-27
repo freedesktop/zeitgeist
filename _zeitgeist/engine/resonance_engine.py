@@ -200,13 +200,17 @@ def create_db(file_path):
 				(SELECT value FROM interpretation WHERE
 					interpretation.id=event.interpretation) AS interpretation,
 				(SELECT value FROM manifestation WHERE
-					manifestation.id=event.manifestation) AS interpretation,
+					manifestation.id=event.manifestation) AS manifestation,
 				(SELECT value FROM actor WHERE actor.id = event.actor) AS actor,
 				event.payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
 					AS subj_uri,
-				event.subj_interpretation,
-				event.subj_manifestation,
+				(SELECT value FROM interpretation WHERE
+					interpretation.id=event.subj_interpretation)
+					AS subj_interpretation,
+				(SELECT value FROM manifestation WHERE
+					manifestation.id=event.subj_manifestation)
+					AS subj_manifestation,
 				(SELECT value FROM uri WHERE uri.id=event.subj_origin)
 					AS subj_origin,
 				(SELECT value FROM mimetype WHERE id=event.subj_mimetype)
@@ -328,7 +332,7 @@ class ZeitgeistEngine:
 			# append None instead of raising an Error
 			sorted_events.append(events.get(id, None))
 		
-		log.debug("Got %d events %ds" % (len(sorted_events), time.time()-t))
+		log.debug("Got %d events in %ds" % (len(sorted_events), time.time()-t))
 
 		return sorted_events
 	
@@ -364,11 +368,12 @@ class ZeitgeistEngine:
 			# own one. We could optimize this to store those which are repeated
 			# for different events only once, especially considering that
 			# events cannot be modified once they've been inserted.
-			payload_id = self._cursor.execute("INSERT INTO payload VALUES (?)",
-				event.payload)
+			payload_id = self._cursor.execute(
+				"INSERT INTO payload (value) VALUES (?)", event.payload)
 			payload_id = self._cursor.lastrowid
 		else:
-			payload_id = None
+			# Don't use None here, as that'd be inserted literally into the DB
+			payload_id = ""
 		
 		# Make sure all URIs are inserted
 		_origin = [subject.origin for subject in event.subjects if subject.origin]
@@ -411,7 +416,8 @@ class ZeitgeistEngine:
 						(SELECT id FROM mimetype WHERE value=?),
 						(SELECT id FROM text WHERE value=?),
 						(SELECT id from storage WHERE value=?)
-					)""", (id,
+					)""", (
+						id,
 						event.timestamp,
 						self._interpretation[event.interpretation],
 						self._manifestation[event.manifestation],
