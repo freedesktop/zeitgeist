@@ -226,26 +226,25 @@ def get_default_cursor():
 		_cursor = create_db(dbfile)
 	return _cursor
 
-class TableLookup:
+class TableLookup(dict):
+	
+	# We are not using an LRUCache as pressumably there won't be thousands
+	# of manifestations/interpretations/mimetypes/actors on most
+	# installations, so we can save us the overhead of tracking their usage.
 	
 	def __init__(self, cursor, table):
 		
 		self._cursor = cursor
 		self._table = table
 		
-		# We are not using an LRUCache as pressumably there won't be thousands
-		# of manifestations/interpretations/mimetypes/actors on most
-		# installations, so we can save us the overhead of tracking their usage.
-		self._dict = _dict = {}
-		
 		for row in cursor.execute("SELECT id, value FROM %s" % table):
-			_dict[row["value"]] = row["id"]
+			self[row["value"]] = row["id"]
 		
-		self._inv_dict = dict((value, key) for key, value in _dict.iteritems())
+		self._inv_dict = dict((value, key) for key, value in self.iteritems())
 	
 	def __getitem__(self, name):
-		if name in self._dict:
-			return self._dict[name]
+		if name in self:
+			super(TableLookup, self).__getitem__(name)
 		try:
 			self._cursor.execute(
 			"INSERT INTO %s (value) VALUES (?)" % self._table, (name,))
@@ -255,12 +254,9 @@ class TableLookup:
 			id = self._cursor.execute("SELECT id FROM %s WHERE value=?"
 				% self._table, (name,)).fetchone()[0]
 		# If we are here it's a newly inserted value, insert it into cache
-		self._dict[name] = id
+		self[name] = id
 		self._inv_dict[id] = name
 		return id
-	
-	def __contains__(self, name):
-		return name in self._dict
 	
 	def value(self, id):
 		# When we fetch an event, it either was already in the database
