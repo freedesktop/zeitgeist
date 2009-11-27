@@ -500,20 +500,20 @@ class ZeitgeistEngine:
 			subwhere = WhereClause("AND")
 			if event_template.interpretation:
 				subwhere.add("interpretation = ?",
-					_interpretation.lookup_id(event_template.interpretation))
+					self._interpretation[event_template.interpretation])
 			if event_template.manifestation:
 				subwhere.add("manifestation = ?",
-					_manifestation.lookup_id(event_template.manifestation))
+					self._manifestation[event_template.manifestation])
 			if event_template.actor:
 				subwhere.add("actor = ?", event_template.actor)
 			if subject_template.uri:
 				subwhere.add("subj_uri = ?", subject_template.uri)
 			if subject_template.interpretation:
 				subwhere.add("subj_interpretation = ?",
-					_interpretation.lookup_id(subject_template.interpretation))
+					self._interpretation[subject_template.interpretation])
 			if subject_template.manifestation:
 				subwhere.add("subj_manifestation = ?",
-					_manifestation.lookup_id(subject_template.manifestation))
+					self._manifestation.lookup_id[subject_template.manifestation])
 			if subject_template.origin:
 				subwhere.add("subj_origin = ?", subject_template.origin)
 			if subject_template.mimetype:
