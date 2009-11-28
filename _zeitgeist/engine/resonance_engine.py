@@ -243,6 +243,7 @@ class TableLookup(dict):
 		self._inv_dict = dict((value, key) for key, value in self.iteritems())
 	
 	def __getitem__(self, name):
+		# Use this for inserting new properties into the database
 		if name in self:
 			super(TableLookup, self).__getitem__(name)
 		try:
@@ -251,6 +252,7 @@ class TableLookup(dict):
 			id = self._cursor.lastrowid
 		except sqlite3.IntegrityError:
 			# This shouldn't happen, but just in case
+			# FIXME: Maybe we should remove it?
 			id = self._cursor.execute("SELECT id FROM %s WHERE value=?"
 				% self._table, (name,)).fetchone()[0]
 		# If we are here it's a newly inserted value, insert it into cache
@@ -263,6 +265,11 @@ class TableLookup(dict):
 		# at the time Zeitgeist started or it was inserted later -using
 		# Zeitgeist-, so here we always have the data in memory already.
 		return self._inv_dict[id]
+	
+	def id(self, name):
+		# Use this when fetching values which are supposed to be in the
+		# database already. Eg., in find_eventids.
+		return super(TableLookup, self).__getitem__(name)
 
 class ZeitgeistEngine:
 	
@@ -507,34 +514,32 @@ class ZeitgeistEngine:
 
 		for (event_template, subject_template) in event_templates:
 			subwhere = WhereClause("AND")
-			if event_template.interpretation:
-				subwhere.add("interpretation = ?",
-					self._interpretation[event_template.interpretation])
-			if event_template.manifestation:
-				subwhere.add("manifestation = ?",
-					self._manifestation[event_template.manifestation])
-			if event_template.actor:
-				subwhere.add("actor = ?", self._actor[event_template.actor])
-			if subject_template.uri:
-				subwhere.add("subj_uri = ?", subject_template.uri)
-			if subject_template.interpretation:
-				subwhere.add("subj_interpretation = ?",
-					self._interpretation[subject_template.interpretation])
-			if subject_template.manifestation:
-				subwhere.add("subj_manifestation = ?",
-					self._manifestation.lookup_id[subject_template.manifestation])
-			if subject_template.origin:
-				subwhere.add("subj_origin = ?", subject_template.origin)
-			if subject_template.mimetype:
-				subwhere.add("subj_mimetype = ?",
-					self._mimetype[subject_template.mimetype])
-			if subject_template.text:
-				subwhere.add("subj_text = ?",
-					subject_template.text)
+			try:
+				for key in ("interpretation", "manifestation", "actor"):
+					value = getattr(event_template, key)
+					if value:
+						subwhere.add("%s = ?" % key,
+							getattr(self, "_" + key).id(value))
+				for key in ("interpretation", "manifestation", "mimetype"):
+					value = getattr(subject_template, key)
+					if value:
+						subwhere.add("subj_%s = ?" % key,
+							getattr(self, "_" + key).id(value))
+			except KeyError:
+				# Value not in DB
+				where.register_no_result()
+				continue
+			for key in ("uri", "origin", "text"):
+				value = getattr(subject_template, key)
+				if value:
+					subwhere.add("subj_%s = ?" % key, value)
 			where_or.add(subwhere.generate_condition(), subwhere.arguments)
 		where.add(where_or.generate_condition(), where_or.arguments)
 		
-		events = []
+		if not where.may_have_results():
+			# We know from our cached data that the query will give no results
+			return []
+		
 		sql = "SELECT DISTINCT id FROM event_view"
 		if where:
 			sql += " WHERE " + where.generate_condition()
@@ -544,7 +549,7 @@ class ZeitgeistEngine:
 			" GROUP BY subj_uri ORDER BY timestamp ASC",
 			" GROUP BY subj_uri ORDER BY timestamp DESC",
 			" GROUP BY subj_uri ORDER BY COUNT(id) ASC, timestamp ASC",
-			" GROUP BY subj_uri ORDER BY COUNT(id) DESC, timestamp DESC")[order]			
+			" GROUP BY subj_uri ORDER BY COUNT(id) DESC, timestamp DESC")[order]
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
@@ -571,6 +576,7 @@ class WhereClause:
 		self._conditions = []
 		self.arguments = []
 		self._relation = " " + relation + " "
+		self._no_result_member = False
 	
 	def __len__(self):
 		return len(self._conditions)
@@ -586,3 +592,9 @@ class WhereClause:
 	
 	def generate_condition(self):
 		return self._relation.join(self._conditions)
+	
+	def register_no_result(self):
+		self._no_result_member = True
+	
+	def may_have_results(self):
+		return len(self._conditions) > 0 or not self._no_result_member

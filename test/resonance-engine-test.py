@@ -33,8 +33,7 @@ def create_test_event_1():
 
 	ev.append_subject(subj)
 	return ev
-	
-	
+
 class _engineTestClass(unittest.TestCase):
 	
 	def setUp (self):
@@ -179,9 +178,8 @@ class ZeitgeistEngineTest (_engineTestClass):
 		self.assertEquals(0, len(result))
 
 	def testFindFilteredByEventButNotSubject(self):
-		""" revision rainct@ubuntu.com-20091128164327-j8ez3fsifd1gygkr (1185)
-		    Fix _build_templates so that it works when the Subject is empty.
-		"""
+		# revision rainct@ubuntu.com-20091128164327-j8ez3fsifd1gygkr (1185)
+		# Fix _build_templates so that it works when the Subject is empty.
 		self.testSingleInsertGet()
 		result = self.engine.find_eventids(
 			(0, 0),
@@ -198,6 +196,14 @@ class ZeitgeistEngineTest (_engineTestClass):
 			5,
 			0,)
 		self.assertEquals(5, len(result))
+	
+	def testFindWithNonExistantActor(self):
+		import_events("test/data/five_events.js", self.engine)
+		result = self.engine.find_eventids(
+			(0, 0),
+			[Event.new_for_values(actor="fake://foobar")],
+			StorageState.Any, 0, 0)
+		self.assertEquals(0, len(result))
 	
 	def testSortFindByTimeAsc(self):
 		import_events("test/data/twenty_events.js", self.engine)
