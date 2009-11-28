@@ -479,7 +479,7 @@ class ZeitgeistEngine:
 	def _build_templates(self, templates):
 		for event_template in templates:
 			event_data = event_template[0]
-			for subject in event_template[1]:
+			for subject in (event_template[1] or (Subject(),)):
 				yield Event((event_data, [], None)), Subject(subject)
 	
 	def find_eventids (self, time_range, event_templates, storage_state,
@@ -504,8 +504,8 @@ class ZeitgeistEngine:
 		if time_range[1] > 0:
 			where.add("timestamp <= ?", time_range[1])
 		where_or = WhereClause("OR")
+
 		for (event_template, subject_template) in event_templates:
-			
 			subwhere = WhereClause("AND")
 			if event_template.interpretation:
 				subwhere.add("interpretation = ?",
