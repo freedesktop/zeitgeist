@@ -1,33 +1,38 @@
-========
-DBus API
-========
+==================
+Zeitgeist DBus API
+==================
 
 .. module:: _zeitgeist.engine.remote
 
 Engine
 ======
 
-org.gnome.zeitgeist Interface
+org.gnome.zeitgeist.Log Interface
 +++++++++++++++++++++++++++++
 
 .. autoclass:: RemoteInterface
-    :members:
-    :undoc-members:
+    :members: InsertEvents, GetEvents, FindEventIds, DeleteLog, Quit
 
 Data Types
 ==========
 
 .. _sorting-label:
 
-Sorting
-+++++++
+Result Types
+++++++++++++
 
-An unsigned integer with one of the following values, to determine the
-type of sorting:
+The *result_type* parameter to FindEventIds() is an unsigned integer with
+one of the following values, to determine the type of sorting and grouping:
 
- * **0** - by timestamp (ascending order)
- * **1** - by timestamp (descending order)
- * **2** - by timestamp, no repeated items (ascending order)
- * **3** - by timestamp, no repeated items (descending order)
- * **4** - by usage, no repeated items (ascending order)
- * **5** - by usage, no repeated items (descending order)
+ * **0** - Most recent events.
+     All events with the most recent events first
+ * **1** - Least recent events.
+     All events with the oldest ones first
+ * **2** - Most recent subjects.
+     One event for each subject only, ordered with the most recent event first
+ * **3** - Most recent subjects.
+     One event for each subject only, ordered with oldest event first
+ * **4** - Most popular subjects.
+     One event for each subject only, ordered by the popularity of the subject
+ * **5** - Least popular subjects.
+     One event for each subject only, ordered with the least popular subject first

@@ -560,15 +560,6 @@ class ZeitgeistEngine:
 		
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result
-	
-	def get_highest_timestamp_for_actor(self, actor):
-		query = self._cursor.execute("""
-			SELECT timestamp FROM event
-			WHERE actor = (SELECT id FROM actor WHERE value = ?)
-			ORDER BY timestamp DESC LIMIT 1
-			""", (actor,)).fetchone()
-		
-		return query["timestamp"] if query else 0
 
 class WhereClause:
 	

@@ -61,13 +61,22 @@ class RemoteInterface(SingletonApplication):
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="au", out_signature="a("+SIG_EVENT+")")
-	def GetEvents(self, event_seqnums):
-		events = _engine.get_events(event_seqnums)
+	def GetEvents(self, event_ids):
+		"""Get full event data for a set of event ids
+		
+		:param event_ids: An array of event ids. Fx. obtained by calling
+		    FindEventIds()
+		:type event_ids: Array of unsigned 32 bit integers.
+		    DBus signature au
+		:returns: Full event data for all the requested ids
+		:rtype: A list of Event objects. DBus signature a(asaasay).
+		"""
+		events = _engine.get_events(event_ids)
 		try:
 			# If the list contains a None we have a missing event,
 			# meaning that the client requested a non-existing event
 			offset = events.index(None)
-			raise KeyError("No event with id %s" % event_seqnums[offset])
+			raise KeyError("No event with id %s" % event_ids[offset])
 		except ValueError:
 			# This is what we want, it means that there are no
 			# holes in the list
@@ -76,41 +85,30 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
 	def FindEventIds(self, time_range, event_templates, storage_state,
-			max_events, order):
-		"""Search for items which match different criterias
+			num_events, result_type):
+		"""Search for events which match different criterias and return the ids of matching events
 		
 		:param time_range: two timestamps defining the timerange for the query
-		:type time_range: tuple of integers
-		:param event_templates: template with which the returned events should match
-		:type event_templates: array of templates
+		:type time_range: tuple of 64 bit integers. DBus signature (xx)
+		:param event_templates: An array of event templates which the
+		    returned events should match at least one of. Unset fields
+		    in the templates (empty strings) are matched as wildcards.
+		    If a template has more than one subject then events will
+		    match the template if any one of their subjects match any
+		    one of the subject templates.
+		:type event_templates: array of events. DBus signature a(asaasay).
+		   When using the Python bindings you pass Event objects directly
+		   to this method 
 		:param storage_state: whether the item is currently known to be available
 		:type storage_state: unsigned integer
-		:param max_events: maximal amount of returned events
-		:type max_events: unsigned integer
+		:param num_events: maximal amount of returned events
+		:type num_events: unsigned integer
 		:param order: unsigned integer representing a :ref:`sorting-label`
 		:type order: unsigned integer
 		:returns: list of items
 		:rtype: list of tuples presenting an :ref:`item-label`
 		"""		
-		return _engine.find_eventids(time_range, event_templates, storage_state,
-			max_events, order)
-	
-	# FIXME: Do we want this or let people use
-	# GetEvents(FindEventIds(limit=1,sorting=desc)).timestamp
-	#   -- RainCT
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="s", out_signature="x")
-	def GetHighestTimestampForActor(self, actor):
-		"""Returns the timestamp of the last item which was inserted
-		related to the given ``actor``. If there is no such record,
-		0 is returned.
-		
-		:param actor: actor to query for
-		:type actor: string
-		:returns: timestamp of the last event with that actor
-		:rtype: integer
-		"""
-		return _engine.get_highest_timestamp_for_actor(actor)
+		return _engine.find_eventids(time_range, event_templates, storage_state, num_events, result_type)
 
 	# Writing stuff
 	
@@ -131,20 +129,9 @@ class RemoteInterface(SingletonApplication):
 		"""
 		return _engine.insert_events(events)
 	
-	#@dbus.service.method(DBUS_INTERFACE,
-	#					in_signature=SIG_EVENT, out_signature="")
-	#def UpdateItems(self, item_list):
-	#	"""Update items in the database
-	#	
-	#	:param item_list: list of items to be inserted in the database
-	#	:type item_list: list of tuples presenting an :ref:`item-label`
-	#	"""
-	#	result = _engine.update_items(item_list)
-	#	self.EventsChanged(("modified", result))
-	
 	@dbus.service.method(DBUS_INTERFACE, in_signature="au", out_signature="")
 	def DeleteEvents(self, ids):
-		"""Delete items from the database
+		"""Delete a set of events from the log given their ids
 		
 		:param ids: list of event ids obtained, for example, by calling
 		    FindEventIds()
@@ -154,7 +141,21 @@ class RemoteInterface(SingletonApplication):
 
 	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
+		"""Delete the log file and all its content
+		
+		This method is used to delete the entire log file and all its
+		content in one go. To delete specific subsets use FIndEventIds()
+		and DeleteEvents().
+		"""
 		_engine.delete_log()
+        
+        @dbus.service.method(DBUS_INTERFACE)
+	def Quit(self):
+		"""Terminate the running Zeitgeist engine process; use with caution,
+		this action must only be triggered with the user's explicit consent,
+		as it will affect all applications using Zeitgeist"""
+		if self._mainloop:
+			self._mainloop.quit()
         
     # Properties interface
 
@@ -179,10 +180,3 @@ class RemoteInterface(SingletonApplication):
 	def GetAll(self, interface_name):
 		return dict((k, v.fget(self)) for (k,v) in self._dbus_properties.items())
 	
-	@dbus.service.method(DBUS_INTERFACE)
-	def Quit(self):
-		"""Terminate the running RemoteInterface process; use with caution,
-		this action must only be triggered with the user's explicit consent,
-		as it will affect all application using Zeitgeist"""
-		if self._mainloop:
-			self._mainloop.quit()
