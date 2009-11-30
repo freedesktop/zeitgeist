@@ -8,7 +8,7 @@ Engine
 ======
 
 org.gnome.zeitgeist.Log Interface
-+++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++
 
 .. autoclass:: RemoteInterface
     :members: InsertEvents, GetEvents, FindEventIds, DeleteEvents, DeleteLog, Quit
