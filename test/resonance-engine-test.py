@@ -111,7 +111,6 @@ class ZeitgeistEngineTest (_engineTestClass):
 			0)
 		self.assertEquals(1, len(result))
 		self.assertEquals(1, result[0]) # The single event must have id 1
-		
 	
 	def testDeleteSingle(self):
 		self.testSingleInsertGet()
@@ -253,7 +252,15 @@ class ZeitgeistEngineTest (_engineTestClass):
 		events = self.engine.get_events(result)
 		for event in events:
 			self.assertEqual(event.interpretation, "stfu:OpenEvent")
-	
+
+	def testFindEventTwoInterpretations(self):
+		import_events("test/data/five_events.js", self.engine)
+		result = self.engine.find_eventids((0, 0), [
+			Event.new_for_values(interpretation="stfu:OpenEvent"),
+			Event.new_for_values(interpretation="stfu:FoobarEvent")
+			], StorageState.Any, 0, 0)
+		self.assertEquals(3, len(result))
+
 	def testFindWithManifestation(self):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject()
