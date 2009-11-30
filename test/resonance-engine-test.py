@@ -247,11 +247,23 @@ class ZeitgeistEngineTest (_engineTestClass):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject()
 		event_template = Event.new_for_values(interpretation="stfu:OpenEvent", subjects=[subj])
+		event_template2 = Event.new_for_values(interpretation="stfu:FoobarEvent", subjects=[subj])
+		
 		result = self.engine.find_eventids((0, 0), [event_template, ], StorageState.Any, 0, 1)
 		self.assertEquals(2, len(result))
 		events = self.engine.get_events(result)
 		for event in events:
 			self.assertEqual(event.interpretation, "stfu:OpenEvent")
+			
+		result = self.engine.find_eventids((0, 0), [event_template2, ], StorageState.Any, 0, 1)
+		self.assertEquals(1, len(result))
+		events = self.engine.get_events(result)
+		for event in events:
+			self.assertEqual(event.interpretation, "stfu:FoobarEvent")
+	
+		result = self.engine.find_eventids((0, 0), [event_template,event_template2 ], StorageState.Any, 0, 1)
+		self.assertEquals(3, len(result))
+		events = self.engine.get_events(result)
 
 	def testFindEventTwoInterpretations(self):
 		import_events("test/data/five_events.js", self.engine)
