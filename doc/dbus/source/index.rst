@@ -29,10 +29,10 @@ one of the following values, to determine the type of sorting and grouping:
  * **1** - Least recent events.
      All events with the oldest ones first
  * **2** - Most recent subjects.
-     One event for each subject only, ordered with the most recent event first
- * **3** - Most recent subjects.
-     One event for each subject only, ordered with oldest event first
+     One event for each subject only, ordered with the most recent events first
+ * **3** - Least recent subjects.
+     One event for each subject only, ordered with oldest events first
  * **4** - Most popular subjects.
      One event for each subject only, ordered by the popularity of the subject
  * **5** - Least popular subjects.
-     One event for each subject only, ordered with the least popular subject first
+     One event for each subject only, ordered ascendently by popularity
