@@ -34,7 +34,7 @@ from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultT
 class ZeitgeistDBusInterface(dbus.Interface):
 	""" Central DBus interface to the zeitgeist engine
 	
-	There doe not necessarily have to be one single instance of this
+	There does not necessarily have to be one single instance of this
 	interface class, but all instances should share the same state
 	(like use the same bus and be connected to the same proxy). This is
 	achieved by extending the `Borg Pattern` as described by Alex Martelli	
@@ -154,9 +154,9 @@ class ZeitgeistDBusInterface(dbus.Interface):
 class ZeitgeistClient:
 	"""
 	Convenience APIs to have a Pythonic way to call the running Zeitgeist
-	engine. For raw DBus access use the ZeitgeistZeitgeistDBusInterface class.
+	engine. For raw DBus access use the ZeitgeistDBusInterface class.
 	
-	Note that this class only does asynchnous DBus calls. This is almost
+	Note that this class only does asynchronous DBus calls. This is almost
 	always the right thing to do. If you really want to do synchronous
 	DBus calls use the raw DBus API found in the ZeitgeistDBusInterface class.
 	"""
@@ -221,8 +221,8 @@ class ZeitgeistClient:
 	def insert_events (self, events, ids_reply_handler=None, error_handler=None):
 		"""
 		Send a collection of events to the Zeitgeist event log. The
-		'events' parameter must be a list or tuple containing only
-		members of of type Event.
+		*events* parameter must be a list or tuple containing only
+		members of of type :class:`Event <zeitgeist.datamodel.Event>`.
 		
 		The insertion will be done via an asynchronous DBus call and
 		this method will return immediately. This means that the
@@ -230,8 +230,8 @@ class ZeitgeistClient:
 		when this method returns. There will be a short delay.
 		
 		In case of errors a message will be printed on stderr, and
-		an empty result passed to ids_reply_handler (if set).
-		To override this default set the error_handler named argument
+		an empty result passed to *ids_reply_handler* (if set).
+		To override this default set the *error_handler* named argument
 		to a callable that takes a single exception as its sole
 		argument.
 		
@@ -262,9 +262,10 @@ class ZeitgeistClient:
 					result_type = ResultType.MostRecentEvents,
 					error_handler=None):
 		"""
-		Send a query matching a collection of Event-templates to the
-		Zeitgeist event log. The query will be joined as a big
-		OR-query between the templates. If an event template has more
+		Send a query matching a collection of
+		:class:`Event <zeitgeist.datamodel.Event>` templates to the
+		Zeitgeist event log. The query will match if an event matches
+		any of the templates. If an event template has more
 		than one subject the query will match if any one of the subject
 		templates match.
 		
@@ -274,7 +275,8 @@ class ZeitgeistClient:
 		of integer event ids. This list must be the sole argument for
 		the callback.
 		
-		The actual Events can be looked up via the get_events() method.
+		The actual :class:`Events` can be looked up via the
+		:meth:`get_events()` method.
 		 
 		In case of errors a message will be printed on stderr, and
 		an empty result passed to ids_reply_handler.
@@ -285,17 +287,21 @@ class ZeitgeistClient:
 		In order to use this method there needs to be a mainloop
 		runnning. Both Qt and GLib mainloops are supported.
 		
-		Arguments:
-		    * event_templates - List or tuple of Event instances
-		    * ids_reply_handler - Callable taking a list of integers
-		    * timerange - A TimeRange instance that the events must
-		        have occured within. Defaults to TimeRange.until_now().
-		    * storage_state - A value from the StorageState enumeration.
-		        Defaults to StorageState.Available
-		    * num_events - The number of events to return; default is 20
-		    * result_type - A value from the ResultType enumeration.
-		        Defaults to ResultType.MostRecentEvent
-		    * error_handler - Callback to catch error messages.
+		:param event_templates: List or tuple of
+		    :class:`Event <zeitgeist.datamodel.Event>` instances
+		:param ids_reply_handler: Callable taking a list of integers
+		:param timerange: A
+		    :class:`TimeRange <zeitgeist.datamodel.TimeRange>` instance
+		    that the events must have occured within. Defaults to
+		    :meth:`TimeRange.until_now()`.
+		:param storage_state: A value from the
+		    :class:`StorageState <zeitgeist.datamodel.StorageState>`
+		    enumeration. Defaults to :const:`StorageState.Any`
+		:param num_events: The number of events to return; default is 20
+		:param result_type: A value from the
+		    :class:`ResultType <zeitgeist.datamodel.ResultType>`
+		    enumeration. Defaults to ResultType.MostRecentEvent
+		:param error_handler: Callback to catch error messages.
 		        Read about the default behaviour above
 		"""
 		self._check_list_or_tuple(event_templates)
@@ -331,11 +337,12 @@ class ZeitgeistClient:
 		of integer event ids. This list must be the sole argument for
 		the callback.
 		
-		The actual Events can be looked up via the get_events() method.
+		The actual :class:`Events` can be looked up via the
+		:meth:`get_events` method.
 		 
 		In case of errors a message will be printed on stderr, and
-		an empty result passed to ids_reply_handler.
-		To override this default set the error_handler named argument
+		an empty result passed to *ids_reply_handler*.
+		To override this default set the *error_handler* named argument
 		to a callable that takes a single exception as its sole
 		argument.
 		
@@ -350,19 +357,21 @@ class ZeitgeistClient:
 		"""
 		Send a query for events matching the keyword arguments passed
 		to this function. The allowed keywords are the same as the ones
-		allowed by Event.new_for_values().
+		allowed by
+		:meth:`Event.new_for_values() <zeitgeist.datamodel.Event.new_for_values>`.
 		
 		The query will be done via an asynchronous DBus call and
 		this method will return immediately. The return value
-		will be passed to 'ids_reply_handler' as a list
+		will be passed to *ids_reply_handler* as a list
 		of integer event ids. This list must be the sole argument for
 		the callback.
 		
-		The actual Events can be looked up via the get_events() method.
+		The actual :class:`Events` can be looked up via the
+		:meth:`get_events` method.
 		
 		In case of errors a message will be printed on stderr, and
-		an empty result passed to ids_reply_handler.
-		To override this default set the error_handler named argument
+		an empty result passed to *ids_reply_handler*.
+		To override this default set the *error_handler* named argument
 		to a callable that takes a single exception as its sole
 		argument.
 		
@@ -377,19 +386,19 @@ class ZeitgeistClient:
 	
 	def get_events (self, event_ids, events_reply_handler, error_handler=None):
 		"""
-		Look up a collection of Events in the Zeitgeist event log
-		given a collection of event ids. This is useful for looking
-		up the event data for events found with the find_event_ids_*
-		family of functions.
+		Look up a collection of :class:`Events <zeitgeist.datamodel.Event>`
+		in the Zeitgeist event log given a collection of event ids.
+		This is useful for looking up the event data for events found
+		with the *find_event_ids_** family of functions.
 		
 		The query will be done via an asynchronous DBus call and
 		this method will return immediately. The returned events
-		will be passed to 'events_reply_handler' as a list
+		will be passed to *events_reply_handler* as a list
 		of Events, which must be the only argument of the function.
 		 
 		In case of errors a message will be printed on stderr, and
-		an empty result passed to events_reply_handler.
-		To override this default set the error_handler named argument
+		an empty result passed to *events_reply_handler*.
+		To override this default set the *error_handler* named argument
 		to a callable that takes a single exception as its sole
 		argument.
 		

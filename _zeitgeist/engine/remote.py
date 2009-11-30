@@ -65,11 +65,13 @@ class RemoteInterface(SingletonApplication):
 		"""Get full event data for a set of event ids
 		
 		:param event_ids: An array of event ids. Fx. obtained by calling
-		    FindEventIds()
+		    :meth:`FindEventIds`
 		:type event_ids: Array of unsigned 32 bit integers.
 		    DBus signature au
-		:returns: Full event data for all the requested ids
-		:rtype: A list of Event objects. DBus signature a(asaasay).
+		:returns: Full event data for all the requested ids. The
+		   event data can be conveniently converted into a list of
+		   :class:`Event` instances by calling *events = map(Event, result)*
+		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
 		events = _engine.get_events(event_ids)
 		try:
@@ -86,27 +88,36 @@ class RemoteInterface(SingletonApplication):
 						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			num_events, result_type):
-		"""Search for events which match different criterias and return the ids of matching events
+		"""Search for events matching a given set of templates and return the ids of matching events.
+		Use :meth:`GetEvents` passing in the returned ids to look up
+		the full event data.
 		
-		:param time_range: two timestamps defining the timerange for the query
+		The matching is done where unset fields in the templates
+		are treated as wildcards. If a template has more than one
+		subject then events will match the template if any one of their
+		subjects match any one of the subject templates.
+		
+		:param time_range: two timestamps defining the timerange for
+		    the query. When using the Python bindings for Zeitgeist you
+		    may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
+		    instance directly to this method
 		:type time_range: tuple of 64 bit integers. DBus signature (xx)
 		:param event_templates: An array of event templates which the
-		    returned events should match at least one of. Unset fields
-		    in the templates (empty strings) are matched as wildcards.
-		    If a template has more than one subject then events will
-		    match the template if any one of their subjects match any
-		    one of the subject templates.
-		:type event_templates: array of events. DBus signature a(asaasay).
-		   When using the Python bindings you pass Event objects directly
-		   to this method 
-		:param storage_state: whether the item is currently known to be available
+		    returned events should match at least one of.
+		    When using the Python bindings for Zeitgeist you may pass
+		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
+		    instances directly to this method.
+		:type event_templates: array of events. DBus signature a(asaasay)
+		:param storage_state: whether the item is currently known to be available. The list of possible values is enumerated in :class:`StorageState <zeitgeist.datamodel.StorageState>` class
 		:type storage_state: unsigned integer
 		:param num_events: maximal amount of returned events
 		:type num_events: unsigned integer
-		:param order: unsigned integer representing a :ref:`sorting-label`
+		:param order: unsigned integer representing a :class:`result type <zeitgeist.datamodel.ResultType>`
 		:type order: unsigned integer
-		:returns: list of items
-		:rtype: list of tuples presenting an :ref:`item-label`
+		:returns: An array containing the ids of all matching events,
+		    up to a maximum of *num_events* events. Sorted and grouped
+		    as defined by the *result_type* parameter.
+		:rtype: Array of unsigned 32 bit integers
 		"""		
 		return _engine.find_eventids(time_range, event_templates, storage_state, num_events, result_type)
 
@@ -115,17 +126,16 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="a("+SIG_EVENT+")", out_signature="au")
 	def InsertEvents(self, events):
-		"""Inserts events into the database. Returns the amount of sucessfully
-		inserted events
+		"""Inserts events into the log. Returns an array containing the ids of the inserted events
 		
-		:param events: list of events to be inserted in the database
-		:type events: list of dicts presenting an :ref:`event-label`
-		:param items: list of corresponding items
-		:type items: dict of dicts presenting an :ref:`item-label`
-		:param annotations: list of annotations to be passed to SetAnnotations
-		:type annotation: list of dicts presenting an :ref:`annotation-label`
-		:returns: a positive value on success, ``0`` otherwise
-		:rtype: Integer
+		:param events: List of events to be inserted in the log.
+		    If you are using the Python bindings you may pass
+		    :class:`Event <zeitgeist.datamodel.Event>` instances
+		    directly to this method
+		:returns: An array containing the event ids of the inserted
+		    events. In case the any of the events where already logged
+		    the id of the existing event will be returned
+		:rtype: Array of unsigned 32 bits integers. DBus signature au.
 		"""
 		return _engine.insert_events(events)
 	
@@ -134,7 +144,7 @@ class RemoteInterface(SingletonApplication):
 		"""Delete a set of events from the log given their ids
 		
 		:param ids: list of event ids obtained, for example, by calling
-		    FindEventIds()
+		    :meth:`FindEventIds`
 		:type ids: list of integers
 		"""
 		_engine.delete_events(ids)
@@ -144,8 +154,8 @@ class RemoteInterface(SingletonApplication):
 		"""Delete the log file and all its content
 		
 		This method is used to delete the entire log file and all its
-		content in one go. To delete specific subsets use FIndEventIds()
-		and DeleteEvents().
+		content in one go. To delete specific subsets use
+		:meth:`FindEventIds` combined with :meth:`DeleteEvents`.
 		"""
 		_engine.delete_log()
         

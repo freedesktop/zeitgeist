@@ -1,38 +1,87 @@
-==================
-Zeitgeist DBus API
-==================
+=======================
+Zeitgeist Documentation
+=======================
+
+.. module:: zeitgeist.datamodel
+
+Data Model
+==========
+
+Event
++++++
+
+.. autoclass:: Event
+    :members: 
+
+Subject
++++++++
+
+.. autoclass:: Subject
+    :members: 
+
+Interpretation
+++++++++++++++
+
+In general terms the *interpretation* of an event or subject is an abstract
+description of *"what happened"* or *"what is this"*.
+
+Each interpretation type is uniquely identified by a URI.
+
+.. autoclass:: Interpretation
+
+Manifestation
++++++++++++++
+
+The manifestation type of an event or subject is an abstract classification
+of *"how did this happen"* or *"how does this item exist"*.
+
+Each manifestation type s uniquely identified by a URI.
+
+.. autoclass:: Manifestation
+
+TimeRange
++++++++++
+
+.. autoclass:: TimeRange
+    :members: 
+
+ResultType
++++++++++++
+
+.. autoclass:: ResultType
+
+StorageState
++++++++++++++
+
+.. autoclass:: StorageState
+
+
+
+.. module:: zeitgeist.client
+
+Zeitgeist Client API
+====================
+
+ZeitgeistClient
++++++++++++++++
+
+.. autoclass:: ZeitgeistClient
+    :members: 
+
 
 .. module:: _zeitgeist.engine.remote
 
-Engine
-======
+DBus API
+========
 
-org.gnome.zeitgeist.Log Interface
-+++++++++++++++++++++++++++++++++
+This is the raw DBus API for the Zeitgeist engine. Applications written in
+Python are encouraged to use the
+:class:`ZeitgeistClient <zeitgeist.client.ZeitgeistClient>` API instead.
+
+org.gnome.zeitgeist.Log
++++++++++++++++++++++++
 
 .. autoclass:: RemoteInterface
     :members: InsertEvents, GetEvents, FindEventIds, DeleteEvents, DeleteLog, Quit
 
-Data Types
-==========
 
-.. _sorting-label:
-
-Result Types
-++++++++++++
-
-The *result_type* parameter to FindEventIds() is an unsigned integer with
-one of the following values, to determine the type of sorting and grouping:
-
- * **0** - Most recent events.
-     All events with the most recent events first
- * **1** - Least recent events.
-     All events with the oldest ones first
- * **2** - Most recent subjects.
-     One event for each subject only, ordered with the most recent events first
- * **3** - Least recent subjects.
-     One event for each subject only, ordered with oldest events first
- * **4** - Most popular subjects.
-     One event for each subject only, ordered by the popularity of the subject
- * **5** - Least popular subjects.
-     One event for each subject only, ordered ascendently by popularity
