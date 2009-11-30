@@ -151,6 +151,36 @@ class ZeitgeistDBusInterface(dbus.Interface):
 				self.BUS_NAME
 		)
 
+class Monitor (dbus.service.Object):
+	"""
+	DBus object for monitoring the Zeitgeist log for certain types
+	of events.
+	"""
+	
+	def __init__ (self, monitor_path, callback):
+		if not isinstance(monitor_path, dbus.ObjectPath):
+			monitor_path = dbus.ObjectPath(monitor_path)
+		self._path = monitor_path
+		self,_callback = callback
+		dbus.service.Object.__init__(self, dbus.SessionBus(), monitor_path)
+
+	
+	def get_path (self): return self._path
+	path = property(get_path)
+	
+	@dbus.service.method("org.gnome.zeitgeist.Monitor",
+						in_signature="a("+SIG_EVENT+")")
+	def Notify(self, events):
+		"""
+		Receive notification that a set of events matching the monitor's
+		templates has been recorded in the log.
+		
+		This method is the raw DBus callback and should normally not be
+		overridden. Events are received via the *callback* argument given
+		in the constructor to this class.
+		"""
+		self._callback(map(Event, events))
+
 class ZeitgeistClient:
 	"""
 	Convenience APIs to have a Pythonic way to call the running Zeitgeist

@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -167,7 +168,7 @@ class RemoteInterface(SingletonApplication):
 		if self._mainloop:
 			self._mainloop.quit()
         
-    # Properties interface
+	# Properties interface
 
 	@dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
 						 in_signature="ss", out_signature="v")
@@ -190,3 +191,17 @@ class RemoteInterface(SingletonApplication):
 	def GetAll(self, interface_name):
 		return dict((k, v.fget(self)) for (k,v) in self._dbus_properties.items())
 	
+	# Notifications interface
+	
+	@dbus.service.method(DBUS_INTERFACE,
+			in_signature="oa("+SIG_EVENT+")", sender_keyword="sender")
+	def InstallMonitor(self, monitor_path, event_templates, **kwargs):
+		owner = kwargs["sender"]
+		event_templates = map(Event, event_templates)
+		self._notifications.install(Monitor(owner, monitor_path, event_templates))
+	
+	@dbus.service.method(DBUS_INTERFACE,
+			in_signature="o", sender_keyword="sender")
+	def RemoveMonitor(self, monitor_path, **kwargs):
+		owner = kwargs["sender"]
+		self._notifications.remove(owner, monitor_path)
