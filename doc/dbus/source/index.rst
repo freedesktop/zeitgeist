@@ -11,7 +11,7 @@ org.gnome.zeitgeist.Log Interface
 +++++++++++++++++++++++++++++
 
 .. autoclass:: RemoteInterface
-    :members: InsertEvents, GetEvents, FindEventIds, DeleteLog, Quit
+    :members: InsertEvents, GetEvents, FindEventIds, DeleteEvents, DeleteLog, Quit
 
 Data Types
 ==========
