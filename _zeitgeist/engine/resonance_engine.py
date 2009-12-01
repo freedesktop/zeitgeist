@@ -544,8 +544,8 @@ class ZeitgeistEngine:
 		if where:
 			sql += " WHERE " + where.generate_condition()
 		
-		sql += (" ORDER BY timestamp ASC",
-			" ORDER BY timestamp DESC",
+		sql += (" ORDER BY timestamp DESC",
+			" ORDER BY timestamp ASC",
 			" GROUP BY subj_uri ORDER BY timestamp DESC",
 			" GROUP BY subj_uri ORDER BY timestamp ASC",
 			" GROUP BY subj_uri ORDER BY COUNT(id) DESC, timestamp DESC",

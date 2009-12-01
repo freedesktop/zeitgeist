@@ -211,7 +211,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 			[],
 			StorageState.Any,
 			2,
-			0,)
+			ResultType.LeastRecentEvents,)
 		event1 = self.engine.get_events([result[0]])[0]
 		event2 = self.engine.get_events([result[1]])[0]
 		self.assertEquals(True, event1.timestamp < event2.timestamp)
@@ -223,7 +223,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 			[],
 			StorageState.Any,
 			2,
-			1,)
+			ResultType.MostRecentEvents,)
 		event1 = self.engine.get_events([result[0]])[0]
 		event2 = self.engine.get_events([result[1]])[0]
 		self.assertEquals(True, event1.timestamp > event2.timestamp)
@@ -386,6 +386,35 @@ class ZeitgeistEngineTest (_engineTestClass):
 			100,
 			0,)
 		self.assertEquals(len(result), 1)	
+		
+	def testResultTypesMostRecentEvents(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		# MostRecentEvents - new -> old
+		ids = self.engine.find_eventids(
+			(0, 0), [], StorageState.Any, 0, ResultType.MostRecentEvents
+		)
+		events = self.engine.get_events(ids)
+		sorted_event_ids = [
+			event.id for event in sorted(
+				events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)), reverse=True
+			)
+		]
+		self.assertEquals(ids, sorted_event_ids)
+		
+	def testResultTypesLeastRecentEvents(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		# LeastRecentEvents - old -> new
+		ids = self.engine.find_eventids(
+			(0, 0), [], StorageState.Any, 0, ResultType.LeastRecentEvents
+		)
+		events = self.engine.get_events(ids)
+		sorted_event_ids = [
+			event.id for event in sorted(events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
+		]
+		self.assertEquals(ids, sorted_event_ids)
+		
 
 
 if __name__ == "__main__":
