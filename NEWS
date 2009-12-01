@@ -1,20 +1,39 @@
-Version 0.3.0
+2009-12-01: Zeitgeist 0.3.0
 ------------------------------
 
- - Complete rework of engine and DBus API
+First development release leading up to the stable 0.4 series. This release
+features:
+
+ - Complete rework of engine and DBus API. Read: apps written against 0.2.*
+   will most certainly need an update
  - Public Python client API defined in zeitgeist.datamodel and
-   zeitgeist.dbusutils modules
+   zeitgeist.client modules
  - Removed the EngineStart and EngineExit signals.
  - Changed URIs from XESAM to Nepomuk.
  - Removed the Storm backend (obsoleted in 0.2.1).
  - Removed the Querymancer backend (obsoleted in 0.3.0).
  - The "text" property of an item can now be empty, and isn't automatically
    set to the filename in its URI.
- - Application and document focus detection. There's a partial API public
-   now, but the full API for contextual relevancy will follow in later
-   releases.
 
+There are a few DISCLAIMERS that needs to be attached to this:
 
+ - The event notification/signals are not yet ready in the new DBus API.
+   We expect to have that ready for 0.3.1.
+ - We plan to support querying only for available items (eg. filtering out
+   deleted files, not listing files on detached USB storage, etc.). However this
+   feature is not fully supported yet, even though it is exposed in the API.
+ - While we are pretty satisfied with the database layout, there may still be
+   changes in the ontologies or concrete data extraction methods. This might
+   require that users delete their log databases in order to rebuild them
+   with the new definitions. Of course this will no longer happen when we
+   go stable
+ - We have only one logger enabled for now. Namely the one monitoring your
+   recent files. In coming releases this logger may well be deprecated in favour
+   of application specific plugins.
+ - And finally. Please note that this is a *development release*. We can not
+   guarantee stability of services nor APIs, although we strive hard to keep
+   things stable.
+ 
 Version 0.2.1
 ------------------------------
 

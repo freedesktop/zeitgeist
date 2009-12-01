@@ -1,9 +1,8 @@
 The Zeitgeist Engine
 --------------------
 
-Zeitgeist is a service that logs the users activities and determines
-which files are relevant to one another. It supports simple searching,
-filtering by type and mimetype, tagging, etc.
+Zeitgeist is a service that logs the users activity. The log can be queried
+and managed in various ways over a DBus API.
 
 Note that this package only contains the daemon, which you can use
 together with several different user interfaces. If you don't know
@@ -18,8 +17,6 @@ For more information, see:
 Dependencies:
 
  - python 2.5 or higher
- - python-gtk2 (2.14.1 or higher)
- - python-gconf
  - python-gobject (2.16.0 or higher)
  - python-dbus
  - python-xdg
