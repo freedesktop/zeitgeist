@@ -5,15 +5,18 @@ First development release leading up to the stable 0.4 series. This release
 features:
 
  - Complete rework of engine and DBus API. Read: apps written against 0.2.*
-   will most certainly need an update
+   will most certainly need an update (see fx.
+   http://mail.gnome.org/archives/desktop-devel-list/2009-November/msg00019.html)
  - Public Python client API defined in zeitgeist.datamodel and
    zeitgeist.client modules
- - Removed the EngineStart and EngineExit signals.
- - Changed URIs from XESAM to Nepomuk.
+ - Documented public API with Sphinx (we'll have an URL for you shortly)
+ - Changed Ontology from XESAM to Nepomuk.
  - Removed the Storm backend (obsoleted in 0.2.1).
- - Removed the Querymancer backend (obsoleted in 0.3.0).
- - The "text" property of an item can now be empty, and isn't automatically
-   set to the filename in its URI.
+ - Removed the Querymancer backend.
+ - Support for event payloads (binary attachments to events)
+ - An extension API for the core engine, allowing extensions direct access to the DB
+   There are already a handful extensions things in the works here, you will hear
+   more about this later
 
 There are a few DISCLAIMERS that needs to be attached to this:
 
@@ -27,13 +30,15 @@ There are a few DISCLAIMERS that needs to be attached to this:
    require that users delete their log databases in order to rebuild them
    with the new definitions. Of course this will no longer happen when we
    go stable
+ - Much related to the point above our event ontologies are not yet set in stone,
+   and minor changes are expected
  - We have only one logger enabled for now. Namely the one monitoring your
    recent files. In coming releases this logger may well be deprecated in favour
    of application specific plugins.
  - And finally. Please note that this is a *development release*. We can not
    guarantee stability of services nor APIs, although we strive hard to keep
    things stable.
- 
+
 Version 0.2.1
 ------------------------------
 
