@@ -41,8 +41,9 @@ class ZeitgeistDBusInterface(dbus.Interface):
 	"""
 	__shared_state = {}
 	
-	INTERFACE_NAME = BUS_NAME = "org.gnome.zeitgeist.LogManager"
-	OBJECT_PATH = "/org/gnome/zeitgeist/log"
+	BUS_NAME = "org.gnome.zeitgeist.Engine"
+	INTERFACE_NAME = "org.gnome.zeitgeist.Log"
+	OBJECT_PATH = "/org/gnome/zeitgeist/log/activity"
 	
 	@staticmethod
 	def get_members(introspection_xml):
@@ -131,7 +132,7 @@ class ZeitgeistDBusInterface(dbus.Interface):
 			"NameOwnerChanged",
 			lambda *args: callback(),
 			dbus_interface=dbus.BUS_DAEMON_IFACE,
-			arg0=cls.INTERFACE_NAME, #only match dying zeitgeist remote interfaces
+			arg0=cls.BUS_NAME, #only match dying zeitgeist engines
 			arg2="", #only match services with no new owner
 		)
 		
@@ -148,7 +149,7 @@ class ZeitgeistDBusInterface(dbus.Interface):
 		dbus.Interface.__init__(
 				self,
 				proxy,
-				self.BUS_NAME
+				self.INTERFACE_NAME
 		)
 
 class ZeitgeistClient:
