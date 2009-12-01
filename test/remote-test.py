@@ -51,7 +51,6 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(Manifestation.FILE.uri, ev.subjects[0].manifestation)
 	
 	def testFindTwoOfThreeEvents(self):
-		return
 		ev1 = Event.new_for_values(timestamp=400,
 					interpretation=Interpretation.VISIT_EVENT.uri,
 					manifestation=Manifestation.USER_ACTIVITY.uri,

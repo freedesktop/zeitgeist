@@ -166,8 +166,8 @@ class RemoteInterface(SingletonApplication):
 		as it will affect all applications using Zeitgeist"""
 		if self._mainloop:
 			self._mainloop.quit()
-        
-    # Properties interface
+
+	# Properties interface
 
 	@dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
 						 in_signature="ss", out_signature="v")
