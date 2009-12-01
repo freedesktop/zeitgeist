@@ -216,7 +216,7 @@ Interpretation.register(
 	doc="A message received from an instant messaging service"
 )
 Interpretation.register(
-	"RSS_MESSAGE",
+	"FEED_MESSAGE",
         u"http://www.tracker-project.org/temp/mfo#FeedMessage",
 	display_name=_("Feeds"),
 	doc="Any syndicated item, RSS, Atom, or other"
