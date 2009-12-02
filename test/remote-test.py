@@ -112,5 +112,21 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		result_events = self.getEventsAndWait(ids)
 		self.assertEquals(len(ids), len(result_events))
 	
+	def testMonitorEvents(self):
+		result = []
+		mainloop = gobject.MainLoop()
+		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
+		events = parse_events("test/data/five_events.js")
+		
+		def events_reply_handler(events):
+			result.extend(events)
+			mainloop.quit()
+			
+		self.client.install_monitor([tmpl], events_reply_handler)
+		self.client.insert_events(events)
+		mainloop.run()
+		
+		self.assertEquals(2, len(result))
+	
 if __name__ == "__main__":
 	unittest.main()

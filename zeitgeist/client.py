@@ -20,16 +20,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import dbus
+import dbus.service
 import dbus.mainloop.glib
 import logging
 import os.path
 import sys
+import logging
 
 from xml.dom.minidom import parseString as minidom_parse
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType
+
+SIG_EVENT = "asaasay"
+
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("zeitgeist.client")
 
 class ZeitgeistDBusInterface(dbus.Interface):
 	""" Central DBus interface to the zeitgeist engine
@@ -155,21 +162,41 @@ class Monitor (dbus.service.Object):
 	"""
 	DBus object for monitoring the Zeitgeist log for certain types
 	of events.
+	
+	Monitors are normally instantiated indirectly by calling
+	:meth:`ZeitgeistClient.install_monitor`.
+	
+	It is important to understand that the Monitor instance lives on the
+	client side, and expose a DBus service there, and the Zeitgeist engine
+	calls back to the monitor when matching events are registered.
+	
+	If you use Monitor objects as key in a :const:`dict` or :const:`set`
+	their hash value is computed purely on their DBus path name.
 	"""
 	
-	def __init__ (self, monitor_path, callback):
-		if not isinstance(monitor_path, dbus.ObjectPath):
+	# Used in Monitor._next_path() to generate unique path names
+	_last_path_id = 0
+	
+	def __init__ (self, event_templates, callback, monitor_path=None):
+		if not monitor_path:
+			monitor_path = Monitor._next_path()
+		elif isinstance(monitor_path, (str, unicode)):
 			monitor_path = dbus.ObjectPath(monitor_path)
+		
+		self._templates = event_templates
 		self._path = monitor_path
-		self,_callback = callback
+		self._callback = callback
 		dbus.service.Object.__init__(self, dbus.SessionBus(), monitor_path)
 
 	
 	def get_path (self): return self._path
-	path = property(get_path)
+	path = property(get_path, doc="Read only property with the DBus path of the monitor object")
+	
+	def get_templates (self): return self._templates
+	templates = property(get_templates, doc="Read only property with installed templates")
 	
 	@dbus.service.method("org.gnome.zeitgeist.Monitor",
-						in_signature="a("+SIG_EVENT+")")
+	                     in_signature="a("+SIG_EVENT+")")
 	def Notify(self, events):
 		"""
 		Receive notification that a set of events matching the monitor's
@@ -180,6 +207,17 @@ class Monitor (dbus.service.Object):
 		in the constructor to this class.
 		"""
 		self._callback(map(Event, events))
+	
+	def __hash__ (self):
+		return hash(self._path)
+	
+	@classmethod
+	def _next_path(cls):
+		"""
+		Generate a new unique DBus object path for a monitor
+		"""
+		cls._last_path_id += 1
+		return dbus.ObjectPath("/org/gnome/zeitgeist/monitor/%s" % cls._last_path_id)
 
 class ZeitgeistClient:
 	"""
@@ -447,6 +485,50 @@ class ZeitgeistClient:
 		self._iface.GetEvents(event_ids,
 				reply_handler=lambda raw : events_reply_handler(map(Event, raw)),
 				error_handler=error_handler)
+	
+	def install_monitor (self, event_templates, events_reply_handler, monitor_path=None):
+		"""
+		Install a monitor in the Zeitgeist engine that calls back
+		when events matching *event_templates* are logged.
+		
+		To remove a monitor call :meth:`remove_monitor` on the returned
+		:class:`Monitor` instance.
+		
+		:param event_templates:
+		:param events_reply_handler:
+		:param monitor_path:
+		:returns: a :class:`Monitor`
+		"""
+		self._check_list_or_tuple(event_templates)
+		self._check_members(event_templates, Event)
+		if not callable(events_reply_handler):
+			raise TypeError("Reply handler not callable, found %s" % events_reply_handler)
+		
+		mon = Monitor(event_templates, events_reply_handler, monitor_path=monitor_path)
+		self._iface.InstallMonitor(mon.path,
+		                           mon.templates,
+		                           reply_handler=self._void_reply_handler,
+		                           error_handler=lambda err : log.warn("Error installing monitor: %s" % err))
+		return mon
+	
+	def remove_monitor (self, monitor):
+		"""
+		Remove a :class:`Monitor` installed with :meth:`install_monitor`
+		
+		:param monitor: monitor to remove
+		:type monitor: :class:`Monitor` or a DBus object path to the
+		    monitor either as a string or :class:`dbus.ObjectPath`
+		"""
+		if isinstance(monitor, (str,unicode)):
+			path = dbus.ObjectPath(monitor)
+		elif isinstance(monitor, Monitor):
+			path = monitor.path
+		else:
+			raise TypeError("Monitor, str, or unicode expected. Found %s" % type(monitor))
+		
+		self._iface.RemoveMonitor(path,
+		                          reply_handler=self._void_reply_handler,
+		                          error_handler=lambda err : log.warn("Error installing monitor: %s" % err))
 		
 	def _check_list_or_tuple(self, collection):
 		"""
