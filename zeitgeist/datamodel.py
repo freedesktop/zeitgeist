@@ -789,6 +789,7 @@ class Event(list):
 		data = self[0]
 		tdata = event_template[0]
 		for m in Event.Fields:
+			if m == Event.Timestamp : continue
 			if tdata[m] and tdata[m] != data[m] : return False
 		
 		# If template has no subjects we have a match
@@ -803,3 +804,34 @@ class Event(list):
 		
 		# Template has subjects, but we never found a match
 		return False
+	
+	def matches_event (self, event):
+		"""
+		Interpret *self* as the template an match *event* against it.
+		This method is the dual method of :meth:`matches_template`.
+		"""
+		#print "T: %s" % self
+		#print "E: %s" % event
+		#print "------------"
+		return event.matches_template(self)
+	
+	def _special_str(self, obj):
+		""" Return a string representation of obj
+		If obj is None, return an empty string.
+		"""
+		return unicode(obj) if obj is not None else ""
+
+	def _make_dbus_sendable(self):
+		"""
+		Ensure that all fields in the event struct are non-None
+		"""
+		for n, value in enumerate(self[0]):
+			self[0][n] = self._special_str(value)
+		for subject in self[1]:
+			for n, value in enumerate(subject):
+				subject[n] = self._special_str(value)
+		# The payload require special handling, since it is binary data
+		# If there is indeed data here, we must not unicode encode it!
+		if self[2] is None: self[2] = u""
+		
+		
