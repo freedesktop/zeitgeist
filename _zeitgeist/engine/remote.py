@@ -22,7 +22,9 @@ import dbus
 import dbus.service
 import logging
 
+from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType
 from _zeitgeist.engine import get_default_engine
+from _zeitgeist.engine.notify import MonitorManager
 from zeitgeist.client import ZeitgeistDBusInterface
 from _zeitgeist.singleton import SingletonApplication
 
@@ -30,21 +32,6 @@ _engine = get_default_engine()
 
 DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
 SIG_EVENT = "asaasay"
-
-def special_str(obj):
-	""" Return a string representation of obj
-	If obj is None, return an empty string.
-	"""
-	return unicode(obj) if obj is not None else ""
-
-def make_dbus_sendable(event):
-	for n, value in enumerate(event[0]):
-		event[0][n] = special_str(value)
-	for subject in event[1]:
-		for n, value in enumerate(subject):
-			subject[n] = special_str(value)
-	event[2] = special_str(event[2])
-	return event
 
 class RemoteInterface(SingletonApplication):
 		
@@ -57,6 +44,7 @@ class RemoteInterface(SingletonApplication):
 	def __init__(self, start_dbus=True, mainloop=None):
 		SingletonApplication.__init__(self)
 		self._mainloop = mainloop
+		self._notifications = MonitorManager()
 	
 	# Reading stuff
 	
@@ -83,7 +71,8 @@ class RemoteInterface(SingletonApplication):
 		except ValueError:
 			# This is what we want, it means that there are no
 			# holes in the list
-			return [make_dbus_sendable(event) for event in events]
+			for ev in events : ev._make_dbus_sendable()
+			return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
@@ -141,6 +130,7 @@ class RemoteInterface(SingletonApplication):
 		event_ids = _engine.insert_events(events)
 		
 		# FIXME: Filter out duplicate- or failed event insertions
+		events = map(Event, events)
 		self._notifications.notify_monitors(events)
 		
 		return event_ids
@@ -199,14 +189,12 @@ class RemoteInterface(SingletonApplication):
 	# Notifications interface
 	
 	@dbus.service.method(DBUS_INTERFACE,
-			in_signature="oa("+SIG_EVENT+")", sender_keyword="sender")
-	def InstallMonitor(self, monitor_path, event_templates, **kwargs):
-		owner = kwargs["sender"]
+			in_signature="oa("+SIG_EVENT+")", sender_keyword="owner")
+	def InstallMonitor(self, monitor_path, event_templates, owner=None):
 		event_templates = map(Event, event_templates)
-		self._notifications.install(Monitor(owner, monitor_path, event_templates))
+		self._notifications.install_monitor(owner, monitor_path, event_templates)
 	
 	@dbus.service.method(DBUS_INTERFACE,
-			in_signature="o", sender_keyword="sender")
-	def RemoveMonitor(self, monitor_path, **kwargs):
-		owner = kwargs["sender"]
-		self._notifications.remove(owner, monitor_path)
+			in_signature="o", sender_keyword="owner")
+	def RemoveMonitor(self, monitor_path, owner=None):
+		self._notifications.remove_monitor(owner, monitor_path)
