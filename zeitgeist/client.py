@@ -221,8 +221,9 @@ class Monitor (dbus.service.Object):
 
 class ZeitgeistClient:
 	"""
-	Convenience APIs to have a Pythonic way to call the running Zeitgeist
-	engine. For raw DBus access use the ZeitgeistDBusInterface class.
+	Convenience APIs to have a Pythonic way to call and monitor the running
+	Zeitgeist engine. For raw DBus access use the
+	:class:`ZeitgeistDBusInterface` class.
 	
 	Note that this class only does asynchronous DBus calls. This is almost
 	always the right thing to do. If you really want to do synchronous
@@ -489,14 +490,21 @@ class ZeitgeistClient:
 	def install_monitor (self, event_templates, events_reply_handler, monitor_path=None):
 		"""
 		Install a monitor in the Zeitgeist engine that calls back
-		when events matching *event_templates* are logged.
+		when events matching *event_templates* are logged. The matching
+		is done exactly as in the *find_** family of methods and in
+		:meth:`Event.matches_template <zeitgeist.datamodel.Event.matches_template>`
 		
 		To remove a monitor call :meth:`remove_monitor` on the returned
 		:class:`Monitor` instance.
 		
-		:param event_templates:
-		:param events_reply_handler:
-		:param monitor_path:
+		:param event_templates: The event templates to look for
+		:param events_reply_handler: Callback for receiving notifications
+		    about matching events. The callback should take a list of Events
+		    as its sole argument
+		:param monitor_path: Optional argument specifying the DBus path
+		    to install the client side monitor object on. If none is provided
+		    the client will provide one for you namespaced under
+		    /org/gnome/zeitgeist/monitor/*
 		:returns: a :class:`Monitor`
 		"""
 		self._check_list_or_tuple(event_templates)
@@ -515,9 +523,9 @@ class ZeitgeistClient:
 		"""
 		Remove a :class:`Monitor` installed with :meth:`install_monitor`
 		
-		:param monitor: monitor to remove
-		:type monitor: :class:`Monitor` or a DBus object path to the
-		    monitor either as a string or :class:`dbus.ObjectPath`
+		:param monitor: Monitor to remove. Either as a :class:`Monitor`
+		    instance or a DBus object path to the monitor either as a
+		    string or :class:`dbus.ObjectPath`
 		"""
 		if isinstance(monitor, (str,unicode)):
 			path = dbus.ObjectPath(monitor)

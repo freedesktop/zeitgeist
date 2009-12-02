@@ -68,6 +68,12 @@ ZeitgeistClient
 .. autoclass:: ZeitgeistClient
     :members: 
 
+Monitor
++++++++
+
+.. autoclass:: Monitor
+    :members: 
+
 
 .. module:: _zeitgeist.engine.remote
 
