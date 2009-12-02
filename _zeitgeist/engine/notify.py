@@ -18,13 +18,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import dbus
-
-from _zeitgeist.engine.remote import make_dbus_sendable
+import logging
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.notify")
 
-class MonitorProxy (dbus.Interface):
+class _MonitorProxy (dbus.Interface):
 	"""
 	Connection to a org.gnome.zeitgeist.Monitor interface running on some
 	client to the Zeitgeist engine.
@@ -57,6 +56,9 @@ class MonitorProxy (dbus.Interface):
 		self._path = monitor_path
 		self._templates = event_templates
 	
+	def __str__ (self):
+		return "%s%s" % (self.owner, self.path)
+	
 	def get_owner (self) : return self._owner
 	owner = property(get_owner, doc="Read only property with the unique DBus name of the process owning the monitor")
 	
@@ -64,7 +66,7 @@ class MonitorProxy (dbus.Interface):
 	path = property(get_path, doc="Read only property with the object path of the monitor in the process owning the monitor")
 	
 	def __hash__ (self):
-		return hash(Monitor.hash(self._owner, self._path))
+		return hash(_MonitorProxy.hash(self._owner, self._path))
 	
 	def matches (self, event):
 		"""
@@ -84,7 +86,8 @@ class MonitorProxy (dbus.Interface):
 		The events will not be filtered through the :meth:`matches`
 		method. It is the responsability of the caller to do that.
 		"""
-		self.Notify([make_dbus_sendable(ev) for ev in events],
+		for ev in events : ev._make_dbus_sendable()
+		self.Notify(events,
 		            reply_handler=self._notify_reply_handler,
 		            error_handler=self._notify_error_handler)
 	
@@ -106,7 +109,7 @@ class MonitorProxy (dbus.Interface):
 		"""
 		Async error handler for invoking Notify() over DBus
 		"""
-		log.warn("Failed to deliver notification")
+		log.warn("Failed to deliver notification: %s" % error)
 		
 class MonitorManager:
 	
@@ -115,12 +118,12 @@ class MonitorManager:
 		self._connections = {} # owner -> list of paths
 		
 		# Listen for disconnecting clients to clean up potential dangling monitors
-		bus.SessionBus().add_signal_receiver (self._name_owner_changed,
-		                                      signal_name="NameOwnerChanged",
-		                                      dbus_interface=dbus.BUS_DAEMON_IFACE,
-		                                      arg2="")
+		dbus.SessionBus().add_signal_receiver (self._name_owner_changed,
+		                                       signal_name="NameOwnerChanged",
+		                                       dbus_interface=dbus.BUS_DAEMON_IFACE,
+		                                       arg2="")
 	
-	def install_monitor (self, monitor):
+	def install_monitor (self, owner, monitor_path, event_templates):
 		"""
 		Install a :class:`MonitorProxy` and set it up to receive
 		notifications when events are pushed into the :meth;`dispatch`
@@ -131,12 +134,20 @@ class MonitorManager:
 		:meth:`remove_monitor` on this object passing in
 		:const:`monitor.owner` and :const:`monitor.path`.
 		
-		:param monitor: The monitor proxy instance to install
-		:type monitor: :class:`MonitorProxy`
+		:param owner: Unique DBus name of the process owning the monitor
+		:type owner: string
+		:param monitor_path: The DBus object path for the monitor object
+		    in the client process
+		:type monitor_path: String or :class:`dbus.ObjectPath`
+		:param event_templates: A list of
+		    :class:`Event <zeitgeist.datamodel.Event>` templates to match
 		:returns: This method has no return value
 		"""
-		if monitor in self._monitors[monitor]:
-			raise KeyError("Monitor for %s already installed at path %s" % (monitor.owner, monitor.path))
+		monitor_key = _MonitorProxy.hash(owner, monitor_path)
+		if monitor_key in self._monitors:
+			raise KeyError("Monitor for %s already installed at path %s" % (owner, monitor_path))
+		
+		monitor = _MonitorProxy(owner, monitor_path, event_templates)
 		self._monitors[monitor] = monitor
 		
 		if not monitor.owner in self._connections:
@@ -154,7 +165,8 @@ class MonitorManager:
 		    in the client process
 		:type monitor_path: String or :class:`dbus.ObjectPath`
 		"""
-		mon = self._monitors.pop(Monitor.hash(owner, monitor_path))
+		log.debug("Removing monitor ", owner, path)
+		mon = self._monitors.pop(_MonitorProxy.hash(owner, monitor_path))
 		
 		if not mon:
 			raise KeyError("Unknown monitor %s for owner %s" % (monitor_path, owner))
@@ -173,22 +185,24 @@ class MonitorManager:
 		:type events: list of :class:`Events <zeitgeist.datamodel.Event>`
 		"""
 		for mon in self._monitors.itervalues():
+			log.debug("Checking monitor %s" % mon)
 			matching_events = filter(mon.matches, events)
-			if matching_events : mon.notify(matching_events)
+			if matching_events :
+				log.debug("Notifying %s about %s events" % (mon, len(matching_events)))
+				mon.notify(matching_events)
 	
 	def _name_owner_changed (self, owner, old, new):
 		"""
 		Clean up monitors for processes disconnecting from the bus
 		"""
-		conn = self._connections[owner]
-		
 		# Don't proceed if this is a disconnect of an unknown connection
-		if not conn:
+		if not owner in self._connections :
 			return
 		
-		log.debug("Client disconnected %s" % old)
-		for path in conn:
-			log.debug("Removing monitor ", owner, path)
+		conn = self._connections[owner]
+		
+		log.debug("Client disconnected %s" % owner)
+		for path in conn:			
 			self.remove_monitor(Monitor.hash(owner, path))
 		
 		self._connections.pop(owner)
