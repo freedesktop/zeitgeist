@@ -138,7 +138,12 @@ class RemoteInterface(SingletonApplication):
 		    the id of the existing event will be returned
 		:rtype: Array of unsigned 32 bits integers. DBus signature au.
 		"""
-		return _engine.insert_events(events)
+		event_ids = _engine.insert_events(events)
+		
+		# FIXME: Filter out duplicate- or failed event insertions
+		self._notifications.notify_monitors(events)
+		
+		return event_ids
 	
 	@dbus.service.method(DBUS_INTERFACE, in_signature="au", out_signature="")
 	def DeleteEvents(self, ids):
