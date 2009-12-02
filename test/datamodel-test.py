@@ -7,7 +7,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from zeitgeist.datamodel import *
-
+from testutils import parse_events
 import unittest
 
 class CategoryTest (unittest.TestCase):
@@ -154,6 +154,12 @@ class EventTest (unittest.TestCase):
 		
 		e.manifestation="ILLEGAL SNAFU"
 		self.assertFalse(e.matches_template(template))
+	
+	def testTemplateFiltering(self):
+		template = Event.new_for_values(interpretation="stfu:OpenEvent")
+		events = parse_events("test/data/five_events.js")
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(2, len(filtered_events))
 		
 if __name__ == '__main__':
 	unittest.main()
