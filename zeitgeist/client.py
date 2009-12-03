@@ -538,9 +538,9 @@ class ZeitgeistClient:
 		
 		if callable(monitor_removed_handler):
 			
-			def dispatch_handler (self, error=None):
+			def dispatch_handler (error=None):
 				if error :
-					log.warn("Error removing monitor %s: %s" % (monitor, err))
+					log.warn("Error removing monitor %s: %s" % (monitor, error))
 					monitor_removed_handler(0)
 				else: monitor_removed_handler(1)
 				
