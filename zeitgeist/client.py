@@ -519,13 +519,15 @@ class ZeitgeistClient:
 		                           error_handler=lambda err : log.warn("Error installing monitor: %s" % err))
 		return mon
 	
-	def remove_monitor (self, monitor):
+	def remove_monitor (self, monitor, monitor_removed_handler=None):
 		"""
 		Remove a :class:`Monitor` installed with :meth:`install_monitor`
 		
 		:param monitor: Monitor to remove. Either as a :class:`Monitor`
 		    instance or a DBus object path to the monitor either as a
 		    string or :class:`dbus.ObjectPath`
+		:param monitor_removed_handler: A callback function taking
+		    one integer argument. 1 on success, 0 on failure.
 		"""
 		if isinstance(monitor, (str,unicode)):
 			path = dbus.ObjectPath(monitor)
@@ -534,9 +536,23 @@ class ZeitgeistClient:
 		else:
 			raise TypeError("Monitor, str, or unicode expected. Found %s" % type(monitor))
 		
+		if callable(monitor_removed_handler):
+			
+			def dispatch_handler (self, error=None):
+				if error :
+					log.warn("Error removing monitor %s: %s" % (monitor, err))
+					monitor_removed_handler(0)
+				else: monitor_removed_handler(1)
+				
+			reply_handler = dispatch_handler
+			error_handler = dispatch_handler
+		else:
+			reply_handler = self._void_reply_handler
+			error_handler = lambda err : log.warn("Error removing monitor %s: %s" % (monitor, err))
+		
 		self._iface.RemoveMonitor(path,
-		                          reply_handler=self._void_reply_handler,
-		                          error_handler=lambda err : log.warn("Error installing monitor: %s" % err))
+		                          reply_handler=reply_handler,
+		                          error_handler=error_handler)
 		
 	def _check_list_or_tuple(self, collection):
 		"""
