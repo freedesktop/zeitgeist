@@ -149,10 +149,8 @@ class MonitorManager:
 		if monitor_key in self._monitors:
 			raise KeyError("Monitor for %s already installed at path %s" % (owner, monitor_path))
 		
-		# Note that monitor.__hash__() == monitor_key, so we can use
-		# monitor as key in the self._monitors dict
 		monitor = _MonitorProxy(owner, monitor_path, event_templates)
-		self._monitors[monitor] = monitor
+		self._monitors[monitor_key] = monitor
 		
 		if not monitor.owner in self._connections:
 			self._connections[owner] = set()

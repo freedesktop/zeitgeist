@@ -128,5 +128,24 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 		self.assertEquals(2, len(result))
 	
+	def testMonitorInstallRemoval(self):
+		result = []
+		mainloop = gobject.MainLoop()
+		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
+		
+		def events_reply_handler(events):
+		        pass
+		
+		mon = self.client.install_monitor([tmpl], events_reply_handler)
+		
+		def removed_handler(result_state):
+		        result.append(result_state)
+		        mainloop.quit()
+		
+		self.client.remove_monitor(mon, removed_handler)
+		mainloop.run()
+		self.assertEquals(1, len(result))
+		self.assertEquals(1, result.pop())
+	
 if __name__ == "__main__":
 	unittest.main()
