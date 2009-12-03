@@ -169,7 +169,7 @@ class MonitorManager:
 		    in the client process
 		:type monitor_path: String or :class:`dbus.ObjectPath`
 		"""
-		log.debug("Removing monitor %s%s", owner, path)
+		log.debug("Removing monitor %s%s", owner, monitor_path)
 		mon = self._monitors.pop(_MonitorProxy.hash(owner, monitor_path))
 		
 		if not mon:
