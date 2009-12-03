@@ -170,9 +170,11 @@ class Monitor (dbus.service.Object):
 	client side, and expose a DBus service there, and the Zeitgeist engine
 	calls back to the monitor when matching events are registered.
 	
-	If you use Monitor objects as key in a :const:`dict` or :const:`set`
-	their hash value is computed purely on their DBus path name.
+	For the callback signature refer to :meth:`ZeitgeistClient.install_monitor`
 	"""
+	
+	NotifyInsert = 0
+	NotifyDelete = 1
 	
 	# Used in Monitor._next_path() to generate unique path names
 	_last_path_id = 0
@@ -196,8 +198,8 @@ class Monitor (dbus.service.Object):
 	templates = property(get_templates, doc="Read only property with installed templates")
 	
 	@dbus.service.method("org.gnome.zeitgeist.Monitor",
-	                     in_signature="a("+SIG_EVENT+")")
-	def Notify(self, events):
+	                     in_signature="ua("+SIG_EVENT+")")
+	def Notify(self, notification_type, events):
 		"""
 		Receive notification that a set of events matching the monitor's
 		templates has been recorded in the log.
@@ -205,8 +207,14 @@ class Monitor (dbus.service.Object):
 		This method is the raw DBus callback and should normally not be
 		overridden. Events are received via the *callback* argument given
 		in the constructor to this class.
+		
+		:param notification_type: An unsigned integer, either
+		    :const:`NotifyInsert` (0) or :const:`NotifyDelete` (1)
+		:param events: A list of DBus event structs, signature a(asaasay)
+		    with the events matching the monitor.
+		    See :meth:`ZeitgeistClient.install_monitor`
 		"""
-		self._callback(map(Event, events))
+		self._callback(notification_type, map(Event, events))
 	
 	def __hash__ (self):
 		return hash(self._path)
@@ -487,7 +495,7 @@ class ZeitgeistClient:
 				reply_handler=lambda raw : events_reply_handler(map(Event, raw)),
 				error_handler=error_handler)
 	
-	def install_monitor (self, event_templates, events_reply_handler, monitor_path=None):
+	def install_monitor (self, event_templates, notify_reply_handler, monitor_path=None):
 		"""
 		Install a monitor in the Zeitgeist engine that calls back
 		when events matching *event_templates* are logged. The matching
@@ -497,10 +505,21 @@ class ZeitgeistClient:
 		To remove a monitor call :meth:`remove_monitor` on the returned
 		:class:`Monitor` instance.
 		
+		The *notify_reply_handler* will be called both for insertions
+		and deletions from the log. For deletions the event structures
+		will be empty except for the
+		:attr:`Event.id <zeitgeist.datamodel.Event.id>` property.
+		
 		:param event_templates: The event templates to look for
-		:param events_reply_handler: Callback for receiving notifications
-		    about matching events. The callback should take a list of Events
-		    as its sole argument
+		:param notify_reply_handler: Callback for receiving notifications
+		    about matching events. The callback should take an unsigned
+		    integer as its first argument defining the notification type.
+		    The notification types can be :const:`Monitor.NotifyInsert` (0)
+		    or :const:`Monitor.NotifyDelete` (1). The second argument is
+		    a list of :class:`Events`.
+		    In case of a delete notification, the event structures will
+		    be empty except for the
+		    :attr:`Event.id <zeitgeist.datamodel.Event.id>` property.
 		:param monitor_path: Optional argument specifying the DBus path
 		    to install the client side monitor object on. If none is provided
 		    the client will provide one for you namespaced under
@@ -509,10 +528,10 @@ class ZeitgeistClient:
 		"""
 		self._check_list_or_tuple(event_templates)
 		self._check_members(event_templates, Event)
-		if not callable(events_reply_handler):
-			raise TypeError("Reply handler not callable, found %s" % events_reply_handler)
+		if not callable(notify_reply_handler):
+			raise TypeError("Reply handler not callable, found %s" % notify_reply_handler)
 		
-		mon = Monitor(event_templates, events_reply_handler, monitor_path=monitor_path)
+		mon = Monitor(event_templates, notify_reply_handler, monitor_path=monitor_path)
 		self._iface.InstallMonitor(mon.path,
 		                           mon.templates,
 		                           reply_handler=self._void_reply_handler,

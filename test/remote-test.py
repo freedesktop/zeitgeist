@@ -118,7 +118,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		events = parse_events("test/data/five_events.js")
 		
-		def events_reply_handler(events):
+		def events_reply_handler(notification_type, events):
 			result.extend(events)
 			mainloop.quit()
 			
@@ -133,7 +133,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		mainloop = gobject.MainLoop()
 		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		
-		def events_reply_handler(events):
+		def events_reply_handler(notification_type, events):
 		        pass
 		
 		mon = self.client.install_monitor([tmpl], events_reply_handler)

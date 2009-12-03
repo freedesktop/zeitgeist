@@ -79,15 +79,15 @@ class _MonitorProxy (dbus.Interface):
 			if event.matches_template(tmpl) : return True
 		return False
 	
-	def notify (self, events):
+	def notify (self, notification_type, events):
 		"""
 		Asynchronously deliver a collection of events to the monitor
 		
-		The events will not be filtered through the :meth:`matches`
+		The events will *not* be filtered through the :meth:`matches`
 		method. It is the responsability of the caller to do that.
 		"""
 		for ev in events : ev._make_dbus_sendable()
-		self.Notify(events,
+		self.Notify(notification_type, events,
 		            reply_handler=self._notify_reply_handler,
 		            error_handler=self._notify_error_handler)
 	
@@ -176,13 +176,16 @@ class MonitorManager:
 		conn = self._connections[owner]
 		if conn : conn.remove(monitor_path)
 	
-	def notify_monitors (self, events):
+	def notify_monitors (self, notification_type, events):
 		"""
 		Send events to matching monitors.
 		The monitors will only be notified about the events for which
 		they have a matching template, ie. :meth:`MonitorProxy.matches`
 		returns True.
 		
+		:param notification_type: An unsigned integer designating the
+		    notification type. Either :const:`Monitor.NotifyInsert` (0)
+		    or :const:`Monitor.NotifyDelete` (1).
 		:param events: The events to check against the monitor templates
 		:type events: list of :class:`Events <zeitgeist.datamodel.Event>`
 		"""
@@ -191,7 +194,7 @@ class MonitorManager:
 			matching_events = filter(mon.matches, events)
 			if matching_events :
 				log.debug("Notifying %s about %s events" % (mon, len(matching_events)))
-				mon.notify(matching_events)
+				mon.notify(notification_type, matching_events)
 	
 	def _name_owner_changed (self, owner, old, new):
 		"""

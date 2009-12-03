@@ -34,7 +34,10 @@ DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
 SIG_EVENT = "asaasay"
 
 class RemoteInterface(SingletonApplication):
-		
+	
+	NotifyInsert = 0
+	NotifyDelete = 1
+	
 	_dbus_properties = {
 		"version": property(lambda self: (0, 2, 99)),
 	}
@@ -131,7 +134,8 @@ class RemoteInterface(SingletonApplication):
 		
 		# FIXME: Filter out duplicate- or failed event insertions
 		events = map(Event, events)
-		self._notifications.notify_monitors(events)
+		self._notifications.notify_monitors(RemoteInterface.NotifyInsert,
+		                                    events)
 		
 		return event_ids
 	
