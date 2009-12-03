@@ -121,6 +121,10 @@ class RemoteInterface(SingletonApplication):
 	def InsertEvents(self, events):
 		"""Inserts events into the log. Returns an array containing the ids of the inserted events
 		
+		Any monitors with matching templates will get notified about
+		the insertion. Note that the monitors are notified *after* the
+		events have been inserted.
+		
 		:param events: List of events to be inserted in the log.
 		    If you are using the Python bindings you may pass
 		    :class:`Event <zeitgeist.datamodel.Event>` instances
@@ -132,7 +136,7 @@ class RemoteInterface(SingletonApplication):
 		"""
 		event_ids = _engine.insert_events(events)
 		
-		# FIXME: Filter out duplicate- or failed event insertions
+		# FIXME: Filter out duplicate- or failed event insertions //kamstrup
 		events = map(Event, events)
 		self._notifications.notify_monitors(RemoteInterface.NotifyInsert,
 		                                    events)
@@ -147,6 +151,7 @@ class RemoteInterface(SingletonApplication):
 		    :meth:`FindEventIds`
 		:type ids: list of integers
 		"""
+		# FIXME: Notify monitors - how do we do this? //kamstrup
 		_engine.delete_events(ids)
 
 	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
