@@ -143,10 +143,14 @@ class MonitorManager:
 		    :class:`Event <zeitgeist.datamodel.Event>` templates to match
 		:returns: This method has no return value
 		"""
+		# Check that we don't already have the monitor, so we don't
+		# needlesly set up a full dbus Proxy
 		monitor_key = _MonitorProxy.hash(owner, monitor_path)
 		if monitor_key in self._monitors:
 			raise KeyError("Monitor for %s already installed at path %s" % (owner, monitor_path))
 		
+		# Note that monitor.__hash__() == monitor_key, so we can use
+		# monitor as key in the self._monitors dict
 		monitor = _MonitorProxy(owner, monitor_path, event_templates)
 		self._monitors[monitor] = monitor
 		
@@ -165,7 +169,7 @@ class MonitorManager:
 		    in the client process
 		:type monitor_path: String or :class:`dbus.ObjectPath`
 		"""
-		log.debug("Removing monitor ", owner, path)
+		log.debug("Removing monitor %s%s", owner, path)
 		mon = self._monitors.pop(_MonitorProxy.hash(owner, monitor_path))
 		
 		if not mon:
