@@ -31,14 +31,16 @@ import time
 import gettext
 gettext.install("zeitgeist")
 
-class Category(object):
+class Category(str):
 	
-	def __init__(self, category_type, name, uri=None, display_name=None, doc=None):
-		self.__category_type = category_type
-		self.__name = name
-		self.__uri = uri
-		self.__display_name = display_name
-		self.__doc = doc
+	def __new__(cls, category_type, name, uri=None, display_name=None, doc=None):
+		obj = super(Category, cls).__new__(Category, uri or name)
+		obj.__category_type = category_type
+		obj.__name = name
+		obj.__uri = uri
+		obj.__display_name = display_name
+		obj.__doc = doc
+		return obj
 	
 	def __repr__(self):
 		return "<%s %r>" %(self.__category_type, self.uri)
