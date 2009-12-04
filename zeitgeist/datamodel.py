@@ -101,7 +101,7 @@ class SymbolCollection(dict):
 	def __doc__(self):
 		doc = ""
 		for name in sorted(self.iterkeys()):
-			doc += " * *%s*: %s\n" %(name, self[name].doc)
+			doc += " * *%s*\n    %s\n" %(name, self[name].doc)
 		return doc
 		
 
