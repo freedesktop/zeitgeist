@@ -31,133 +31,61 @@ import time
 import gettext
 gettext.install("zeitgeist")
 
-class _DictCache(type):
-	""" Metaclass which has a _CACHE attribute. Each subclass has its own, fresh cache """
-	
-	def __init__(cls, name, bases, d):
-		super(_DictCache, cls).__init__(name, bases, d)
-		cls.__CACHE = {}
-	
-	def _new_cache(cls, cache=None):
-		if cache is None:
-			cls.__CACHE.clear()
-		else:
-			cls.__CACHE = cache
-		
-	def _clear_cache(self):
-		return self._new_cache()
-		
-	@property
-	def _CACHE(cls):
-		return cls.__CACHE
-
-class Symbol(_DictCache):
-	
-	def __init__(cls, name, bases, d):
-		super(Symbol, cls).__init__(name, bases, d)
-		if not cls._CACHE and issubclass(cls, Symbol):
-			assert len(bases) == 1, "Multi-inheritance is not supported yet"
-			cls._new_cache(bases[0]._CACHE)
-			cls._attributes = bases[0]._ATTRIBUTES
-			cls._base = bases[0]
-		else:
-			cls._attributes = {}
-			cls._base = None	
-	
-	@property
-	def _ATTRIBUTES(cls):
-		return cls._attributes
-	
-	def __repr__(cls):
-		return "<%s %r>" %(cls.__class__.__name__, cls.__name__)
-	
-	def __getattr__(cls, name):
-		try:
-			return cls._ATTRIBUTES[name]
-		except KeyError:
-			raise AttributeError(
-				"Object %r has no attribute %r" % (cls.__name__, name))
-	
-	def __call__(cls, *args, **kwargs):
-		uri = kwargs.get("uri", args[0] if args else None)
-		if uri and uri in cls._CACHE:
-			return cls._CACHE[uri]
-		return cls._CACHE.setdefault(uri, super(Symbol, cls).__call__(*args, **kwargs))
-	
-	def get(cls, uri):
-		return cls._CACHE.setdefault(uri, cls(uri))
-	
-	def register(cls, name, uri, display_name=None, doc=None):
-		if uri in cls._CACHE:
-			raise ValueError(
-				"There has already been an %s object registered for %r"
-				% (cls.__name__, uri))
-		if name in cls._ATTRIBUTES:
-			raise ValueError(
-				("Can't register %(name)s object for %(uri)r, %(name)s "
-				 "has already an attribute called %(attribute)r")
-				% ({"name": cls.__name__, "uri": uri, "attribute": name})
-			)
-		obj = cls(uri=uri, display_name=display_name, doc=doc)
-		cls._CACHE[uri] = cls._ATTRIBUTES[str(name)] = obj
-
 class Category(object):
-	__metaclass__ = Symbol
 	
-	def __init__(self, uri, display_name=None, name=None, doc=None):
-		if self.__class__ is Category:
-			raise ValueError("Category is an abstract class")
-		self._uri = uri
-		self._display_name = display_name
-		self.__doc__ = doc
-		self._name = name
+	def __init__(self, category_type, name, uri=None, display_name=None, doc=None):
+		self.__category_type = category_type
+		self.__name = name
+		self.__uri = uri
+		self.__display_name = display_name
+		self.__doc = doc
 	
 	def __repr__(self):
-		return "<%s %r>" %(self.__class__.__name__, self.uri)
-	
-	def __str__(self):
-		return self.uri
-	
-	def __unicode__(self):
-		return unicode(self.uri)
-		
-	def __eq__(self, other):
-		# Fixme
-		# but in first approximation
-		# two symbols with the same string presentation are the same
-		return str(self) == str(other)
+		return "<%s %r>" %(self.__category_type, self.uri)
 	
 	@property
 	def uri(self):
-		return self._uri
+		return self.__uri or self.name
 	
 	@property
 	def display_name(self):
-		return self._display_name
+		return self.__display_name or ""
 	
 	@property
 	def name(self):
-		if self._name is not None:
-			return self._name
-		else:
-			return self.uri.split("#", 1)[-1]
+		return self.__name
 	
 	@property
 	def doc(self):
-		return self.__doc__
+		return self.__doc
+		
+	__doc__ = doc
 
-class Interpretation(Category):
-	pass
 
-class Manifestation(Category):
-	pass
+class CategoryCollection(dict):
+	
+	def register(self, name, uri, display_name, doc):
+		assert name not in self
+		self[name] = Category(self.__class__.__name__, name, uri, display_name, doc)
+		
+	def __getattr__(self, name):
+		assert name.isupper(), name
+		try:
+			return self[name]
+		except KeyError:
+			self[name] = Category(self.__class__.__name__, name)
+			return self[name]
+
+
+Interpretation = CategoryCollection()
+Manifestation = CategoryCollection()
 
 #
 # Interpretation categories
 #
 Interpretation.register(
 	"TAG",
-        u"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag",
+	u"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag",
 	display_name=_("Tags"),
 	doc="User provided tags. The same tag may refer multiple items"
 )
