@@ -93,6 +93,9 @@ class SymbolCollection(dict):
 			# it on the fly
 			self[name] = Symbol(self.__name, name)
 			return self[name]
+			
+	def __dir__(self):
+		return self.keys()
 
 
 Interpretation = SymbolCollection("Interpretation")
