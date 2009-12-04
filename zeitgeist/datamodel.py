@@ -31,16 +31,16 @@ import time
 import gettext
 gettext.install("zeitgeist")
 
-class Category(str):
+class Symbol(str):
 	
-	"""Immutable string-like object representing a Category
+	"""Immutable string-like object representing a Symbol
 	Zeitgeist uses Categories when defining Manifestations and 
 	Interpretations.
 	"""
 	
-	def __new__(cls, category_type, name, uri=None, display_name=None, doc=None):
-		obj = super(Category, cls).__new__(Category, uri or name)
-		obj.__category_type = category_type
+	def __new__(cls, symbol_type, name, uri=None, display_name=None, doc=None):
+		obj = super(Symbol, cls).__new__(Symbol, uri or name)
+		obj.__type = symbol_type
 		obj.__name = name
 		obj.__uri = uri
 		obj.__display_name = display_name
@@ -48,7 +48,7 @@ class Category(str):
 		return obj
 	
 	def __repr__(self):
-		return "<%s %r>" %(self.__category_type, self.uri)
+		return "<%s %r>" %(self.__type, self.uri)
 	
 	@property
 	def uri(self):
@@ -69,10 +69,10 @@ class Category(str):
 	__doc__ = doc
 
 
-class CategoryCollection(dict):
+class SymbolCollection(dict):
 	
 	def __init__(self, name):
-		super(CategoryCollection, self).__init__()
+		super(SymbolCollection, self).__init__()
 		self.__name = name
 	
 	def register(self, name, uri, display_name, doc):
@@ -80,7 +80,7 @@ class CategoryCollection(dict):
 			raise ValueError("cannot register symbol %r, a definition for this symbol already exists" %name)
 		if not name.isupper():
 			raise ValueError("cannot register %r, name must be uppercase" %name)
-		self[name] = Category(self.__name, name, uri, display_name, doc)
+		self[name] = Symbol(self.__name, name, uri, display_name, doc)
 		
 	def __getattr__(self, name):
 		if not name.isupper():
@@ -91,12 +91,12 @@ class CategoryCollection(dict):
 		except KeyError:
 			# this symbol is not registered yet, create
 			# it on the fly
-			self[name] = Category(self.__name, name)
+			self[name] = Symbol(self.__name, name)
 			return self[name]
 
 
-Interpretation = CategoryCollection("Interpretation")
-Manifestation = CategoryCollection("Manifestation")
+Interpretation = SymbolCollection("Interpretation")
+Manifestation = SymbolCollection("Manifestation")
 
 #
 # Interpretation categories
