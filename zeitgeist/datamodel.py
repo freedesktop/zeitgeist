@@ -64,21 +64,25 @@ class Category(object):
 
 class CategoryCollection(dict):
 	
+	def __init__(self, name):
+		super(CategoryCollection, self).__init__()
+		self.__name = name
+	
 	def register(self, name, uri, display_name, doc):
 		assert name not in self
-		self[name] = Category(self.__class__.__name__, name, uri, display_name, doc)
+		self[name] = Category(self.__name, name, uri, display_name, doc)
 		
 	def __getattr__(self, name):
 		assert name.isupper(), name
 		try:
 			return self[name]
 		except KeyError:
-			self[name] = Category(self.__class__.__name__, name)
+			self[name] = Category(self.__name__, name)
 			return self[name]
 
 
-Interpretation = CategoryCollection()
-Manifestation = CategoryCollection()
+Interpretation = CategoryCollection("Interpretation")
+Manifestation = CategoryCollection("Manifestation")
 
 #
 # Interpretation categories
