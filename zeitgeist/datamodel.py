@@ -370,6 +370,9 @@ class TimeRange(list):
 	def __init__ (self, begin, end):
 		super(TimeRange, self).__init__((begin, end))
 	
+	def __eq__ (self, other):
+		return self.begin == other.begin and self.end == other.end
+	
 	def get_begin(self):
 		return self[0]
 	
@@ -392,7 +395,38 @@ class TimeRange(list):
 		Return a TimeRange from 0 to the instant of invocation
 		"""
 		return TimeRange(0, int(time.time()*1000))
-
+	
+	def intersect(self, time_range):
+		"""
+		Return a new :class:`TimeRange` that is the intersection of the
+		two time range intervals. If the intersection is empty this
+		method returns :const:`None`.
+		"""
+		# Behold the boolean madness!
+		result = TimeRange(0,0)
+		if self.begin < time_range.begin:
+			if self.end < time_range.begin:
+				return None
+			else:
+				result.begin = time_range.begin
+		else:
+			if self.begin > time_range.end:
+				return None
+			else:
+				result.begin = self.begin
+		
+		if self.end < time_range.end:
+			if self.end < time_range.begin:
+				return None
+			else:
+				 result.end = self.end
+		else:
+			if self.begin > time_range.end:
+				return None
+			else:
+				result.end = time_range.end
+		
+		return result
 class StorageState:
 	"""
 	Enumeration class defining the possible values for the storage state
@@ -814,6 +848,13 @@ class Event(list):
 		#print "E: %s" % event
 		#print "------------"
 		return event.matches_template(self)
+	
+	def in_time_range (self, time_range):
+		"""
+		Check if the event timestamp lies within a :class:`TimeRange`
+		"""
+		t = int(self.timestamp) # The timestamp may be stored as a string
+		return (t > time_range.begin) and (t < time_range.end)
 	
 	def _special_str(self, obj):
 		""" Return a string representation of obj

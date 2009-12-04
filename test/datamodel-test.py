@@ -160,6 +160,38 @@ class EventTest (unittest.TestCase):
 		events = parse_events("test/data/five_events.js")
 		filtered_events = filter(template.matches_event, events)
 		self.assertEquals(2, len(filtered_events))
+	
+	def testInTimeRange(self):
+		ev = Event.new_for_values(timestamp=10)
+		self.assertTrue(ev.in_time_range(TimeRange(0, 20)))
+		self.assertFalse(ev.in_time_range(TimeRange(0, 5)))
+		self.assertFalse(ev.in_time_range(TimeRange(15, 20)))
+
+class TimeRangeTest (unittest.TestCase):
+
+	def testEquality(self):
+		self.assertFalse(TimeRange(0,1) == TimeRange(0,2))
+		self.assertTrue(TimeRange(0,1) == TimeRange(0,1))
+	
+	def testIntersectWithEnclosing(self):
+		outer = TimeRange(0, 10)
+		inner = TimeRange(3,6)
 		
+		self.assertTrue(inner.intersect(outer) == inner)
+		self.assertTrue(outer.intersect(inner) == inner)
+	
+	def testIntersectDisjoint(self):
+		t1 = TimeRange(0, 10)
+		t2 = TimeRange(20, 30)
+		self.assertTrue(t1.intersect(t2) is None)
+		self.assertTrue(t2.intersect(t1) is None)
+	
+	def testIntersectOverlap(self):
+		first = TimeRange(0, 10)
+		last = TimeRange(5, 15)
+		
+		self.assertTrue(first.intersect(last) == TimeRange(5, 10))
+		self.assertTrue(last.intersect(first) == TimeRange(5, 10))
+	
 if __name__ == '__main__':
 	unittest.main()
