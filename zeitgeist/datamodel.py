@@ -99,7 +99,7 @@ class SymbolCollection(dict):
 		
 	@property
 	def __doc__(self):
-		doc = ""
+		doc = "The %s object has the following members:\n\n" %self.__name__
 		for name in sorted(self.iterkeys()):
 			doc += " * *%s*\n    %s\n" %(name, self[name].doc)
 		return doc
