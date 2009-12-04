@@ -73,29 +73,37 @@ class SymbolCollection(dict):
 	
 	def __init__(self, name):
 		super(SymbolCollection, self).__init__()
-		self.__name = name
+		self.__name__ = name
 	
 	def register(self, name, uri, display_name, doc):
 		if name in self:
 			raise ValueError("cannot register symbol %r, a definition for this symbol already exists" %name)
 		if not name.isupper():
 			raise ValueError("cannot register %r, name must be uppercase" %name)
-		self[name] = Symbol(self.__name, name, uri, display_name, doc)
+		self[name] = Symbol(self.__name__, name, uri, display_name, doc)
 		
 	def __getattr__(self, name):
 		if not name.isupper():
 			# symbols must be uppercase
-			raise AttributeError("'%s' has no attribute '%s'" %(self.__name, name))
+			raise AttributeError("'%s' has no attribute '%s'" %(self.__name__, name))
 		try:
 			return self[name]
 		except KeyError:
 			# this symbol is not registered yet, create
 			# it on the fly
-			self[name] = Symbol(self.__name, name)
+			self[name] = Symbol(self.__name__, name)
 			return self[name]
 			
 	def __dir__(self):
 		return self.keys()
+		
+	@property
+	def __doc__(self):
+		doc = ""
+		for name in sorted(self.iterkeys()):
+			doc += " * *%s*: %s\n" %(name, self[name].doc)
+		return doc
+		
 
 
 Interpretation = SymbolCollection("Interpretation")
