@@ -33,6 +33,11 @@ gettext.install("zeitgeist")
 
 class Category(str):
 	
+	"""Immutable string-like object representing a Category
+	Zeitgeist uses Categories when defining Manifestations and 
+	Interpretations.
+	"""
+	
 	def __new__(cls, category_type, name, uri=None, display_name=None, doc=None):
 		obj = super(Category, cls).__new__(Category, uri or name)
 		obj.__category_type = category_type
