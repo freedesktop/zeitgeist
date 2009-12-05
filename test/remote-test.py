@@ -135,7 +135,6 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	def testMonitorDeleteEvents(self):
 		result = []
 		mainloop = gobject.MainLoop()
-		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		events = parse_events("test/data/five_events.js")
 		
 		def notify_insert_handler(time_range, events):
@@ -147,7 +146,8 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			result.extend(event_ids)
 			
 			
-		self.client.install_monitor(TimeRange.always(), [tmpl], notify_insert_handler, notify_delete_handler)
+		self.client.install_monitor(TimeRange(125, 145), [], notify_insert_handler, notify_delete_handler)
+		
 		self.client.insert_events(events)
 		mainloop.run()
 		

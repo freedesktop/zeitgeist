@@ -87,6 +87,9 @@ class _MonitorProxy (dbus.Interface):
 		if not event.in_time_range(self._time_range):
 			return False
 		
+		if len(self._templates) == 0:
+			return True
+		
 		for tmpl in self._templates:
 			if event.matches_template(tmpl) : return True
 		return False
