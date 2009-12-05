@@ -31,6 +31,9 @@ import time
 import gettext
 gettext.install("zeitgeist")
 
+INTERPREATION_ID = "interpretation"
+MANIFESTATION_ID = "manifestation"
+
 class Symbol(str):
 	
 	"""Immutable string-like object representing a Symbol
@@ -64,7 +67,7 @@ class Symbol(str):
 	
 	@property
 	def doc(self):
-		return self.__doc
+		return self.__doc or ""
 		
 	__doc__ = doc
 
@@ -106,8 +109,8 @@ class SymbolCollection(dict):
 		
 
 
-Interpretation = SymbolCollection("Interpretation")
-Manifestation = SymbolCollection("Manifestation")
+Interpretation = SymbolCollection(INTERPREATION_ID)
+Manifestation = SymbolCollection(MANIFESTATION_ID)
 
 #
 # Interpretation categories
