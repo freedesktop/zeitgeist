@@ -112,17 +112,42 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		result_events = self.getEventsAndWait(ids)
 		self.assertEquals(len(ids), len(result_events))
 	
-	def testMonitorEvents(self):
+	def testMonitorInsertEvents(self):
 		result = []
 		mainloop = gobject.MainLoop()
 		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		events = parse_events("test/data/five_events.js")
 		
-		def events_reply_handler(notification_type, events):
+		def notify_insert_handler(time_range, events):
 			result.extend(events)
 			mainloop.quit()
+		
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			self.fail("Unexpected delete notification")
 			
-		self.client.install_monitor([tmpl], events_reply_handler)
+		self.client.install_monitor(TimeRange.always(), [tmpl], notify_insert_handler, notify_delete_handler)
+		self.client.insert_events(events)
+		mainloop.run()
+		
+		self.assertEquals(2, len(result))
+		
+	def testMonitorDeleteEvents(self):
+		result = []
+		mainloop = gobject.MainLoop()
+		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
+		events = parse_events("test/data/five_events.js")
+		
+		def notify_insert_handler(time_range, events):
+			event_ids = map(lambda ev : ev.id, events)
+			self.client.delete_events(event_ids)
+		
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			result.extend(event_ids)
+			
+			
+		self.client.install_monitor(TimeRange.always(), [tmpl], notify_insert_handler, notify_delete_handler)
 		self.client.insert_events(events)
 		mainloop.run()
 		
@@ -133,10 +158,14 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		mainloop = gobject.MainLoop()
 		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		
-		def events_reply_handler(notification_type, events):
+		def notify_insert_handler(notification_type, events):
 		        pass
 		
-		mon = self.client.install_monitor([tmpl], events_reply_handler)
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			self.fail("Unexpected delete notification")
+		
+		mon = self.client.install_monitor(TimeRange.always(), [tmpl], notify_insert_handler, notify_delete_handler)
 		
 		def removed_handler(result_state):
 		        result.append(result_state)

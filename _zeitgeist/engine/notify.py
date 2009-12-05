@@ -20,6 +20,8 @@
 import dbus
 import logging
 
+from zeitgeist.datamodel import TimeRange
+
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.notify")
 
@@ -29,7 +31,7 @@ class _MonitorProxy (dbus.Interface):
 	client to the Zeitgeist engine.
 	"""
 	
-	def __init__ (self, owner, monitor_path, event_templates):
+	def __init__ (self, owner, monitor_path, time_range, event_templates):
 		"""
 		Create a new MonitorProxy for the unique DBus name *owner* on the
 		path *monitor_path*. Note that the path points to an object
@@ -39,6 +41,9 @@ class _MonitorProxy (dbus.Interface):
 		:param owner: Unique DBus name of the process owning the monitor
 		:param monitor_path: The DBus object path to the monitor object
 		    in the client process
+		:param time_range: a 
+		    :class:`TimeRange <zeitgeist.datamodel.TimeRange` instance
+		    the monitored events must lie within
 		:param event_templates: List of event templates that any events
 		    must match in order to notify this monitor
 		:type event_templates: list of
@@ -54,6 +59,7 @@ class _MonitorProxy (dbus.Interface):
 		
 		self._owner = owner
 		self._path = monitor_path
+		self._time_range = time_range
 		self._templates = event_templates
 	
 	def __str__ (self):
@@ -65,6 +71,9 @@ class _MonitorProxy (dbus.Interface):
 	def get_path (self) : return self._path
 	path = property(get_path, doc="Read only property with the object path of the monitor in the process owning the monitor")
 	
+	def get_time_range (self) : return self._time_range
+	time_range = property(get_time_range, doc="Read only property with matched :class:`TimeRange` of the monitor")
+	
 	def __hash__ (self):
 		return hash(_MonitorProxy.hash(self._owner, self._path))
 	
@@ -75,19 +84,34 @@ class _MonitorProxy (dbus.Interface):
 		:param event: The event to check against the monitor's templates
 		:type event: :class:`Event <zeitgeist.datamodel.Event>`
 		"""
+		if not event.in_time_range(self._time_range):
+			return False
+		
 		for tmpl in self._templates:
 			if event.matches_template(tmpl) : return True
 		return False
 	
-	def notify (self, notification_type, events):
+	def notify_insert (self, time_range, events):
 		"""
-		Asynchronously deliver a collection of events to the monitor
+		Asynchronously notify the monitor that a collection of matching events has been inserted
 		
 		The events will *not* be filtered through the :meth:`matches`
 		method. It is the responsability of the caller to do that.
 		"""
 		for ev in events : ev._make_dbus_sendable()
-		self.Notify(notification_type, events,
+		self.NotifyInsert(time_range, events,
+		            reply_handler=self._notify_reply_handler,
+		            error_handler=self._notify_error_handler)
+	
+	def notify_delete (self, time_range, event_ids):
+		"""
+		Asynchronously notify the monitor that a collection of events has been deleted
+		
+		Only the event ids are passed back to the monitor. Note this
+		method does not check that *time_range* is within the monitor's
+		time range. That is the responsibility of the caller
+		"""
+		self.NotifyDelete(time_range, event_ids,
 		            reply_handler=self._notify_reply_handler,
 		            error_handler=self._notify_error_handler)
 	
@@ -123,7 +147,7 @@ class MonitorManager:
 		                                       dbus_interface=dbus.BUS_DAEMON_IFACE,
 		                                       arg2="")
 	
-	def install_monitor (self, owner, monitor_path, event_templates):
+	def install_monitor (self, owner, monitor_path, time_range, event_templates):
 		"""
 		Install a :class:`MonitorProxy` and set it up to receive
 		notifications when events are pushed into the :meth;`dispatch`
@@ -139,6 +163,9 @@ class MonitorManager:
 		:param monitor_path: The DBus object path for the monitor object
 		    in the client process
 		:type monitor_path: String or :class:`dbus.ObjectPath`
+		:param time_range: a 
+		    :class:`TimeRange <zeitgeist.datamodel.TimeRange` instance
+		    the monitored events must lie within
 		:param event_templates: A list of
 		    :class:`Event <zeitgeist.datamodel.Event>` templates to match
 		:returns: This method has no return value
@@ -149,7 +176,7 @@ class MonitorManager:
 		if monitor_key in self._monitors:
 			raise KeyError("Monitor for %s already installed at path %s" % (owner, monitor_path))
 		
-		monitor = _MonitorProxy(owner, monitor_path, event_templates)
+		monitor = _MonitorProxy(owner, monitor_path, time_range, event_templates)
 		self._monitors[monitor_key] = monitor
 		
 		if not monitor.owner in self._connections:
@@ -176,26 +203,43 @@ class MonitorManager:
 		conn = self._connections[owner]
 		if conn : conn.remove(monitor_path)
 	
-	def notify_monitors (self, notification_type, events):
+	def notify_insert (self, time_range, events):
 		"""
 		Send events to matching monitors.
 		The monitors will only be notified about the events for which
 		they have a matching template, ie. :meth:`MonitorProxy.matches`
 		returns True.
 		
-		:param notification_type: An unsigned integer designating the
-		    notification type. Either :const:`Monitor.NotifyInsert` (0)
-		    or :const:`Monitor.NotifyDelete` (1).
 		:param events: The events to check against the monitor templates
 		:type events: list of :class:`Events <zeitgeist.datamodel.Event>`
 		"""
 		for mon in self._monitors.itervalues():
 			log.debug("Checking monitor %s" % mon)
-			matching_events = filter(mon.matches, events)
+			matching_events = []
+			
+			for ev in events:
+				if mon.matches(ev):
+					matching_events.append(ev)
+			
 			if matching_events :
-				log.debug("Notifying %s about %s events" % (mon, len(matching_events)))
-				mon.notify(notification_type, matching_events)
+				log.debug("Notifying %s about %s insertions" % (mon, len(matching_events)))
+				mon.notify_insert(time_range.intersect(mon.time_range), matching_events)
 	
+	def notify_delete (self, time_range, event_ids):
+		"""
+		Notify monitors with matching time ranges that the events with the given ids have been deleted from the log
+		
+		:param time_range: A TimeRange instance that spans the deleted events
+		:param event_ids: A list of event ids
+		"""
+		for mon in self._monitors.itervalues():
+			log.debug("Checking monitor %s" % mon)
+			time_range = mon.time_range.intersect(time_range)
+			
+			if time_range:
+				log.debug("Notifying %s about %s deletions" % (mon, len(event_ids)))
+				mon.notify_delete(time_range, event_ids)
+		
 	def _name_owner_changed (self, owner, old, new):
 		"""
 		Clean up monitors for processes disconnecting from the bus

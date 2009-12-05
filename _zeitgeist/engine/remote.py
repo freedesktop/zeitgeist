@@ -35,9 +35,6 @@ SIG_EVENT = "asaasay"
 
 class RemoteInterface(SingletonApplication):
 	
-	NotifyInsert = 0
-	NotifyDelete = 1
-	
 	_dbus_properties = {
 		"version": property(lambda self: (0, 2, 99)),
 	}
@@ -134,12 +131,21 @@ class RemoteInterface(SingletonApplication):
 		    the id of the existing event will be returned
 		:rtype: Array of unsigned 32 bits integers. DBus signature au.
 		"""
+		if not events : return []
+		
 		event_ids = _engine.insert_events(events)
 		
 		# FIXME: Filter out duplicate- or failed event insertions //kamstrup
-		events = map(Event, events)
-		self._notifications.notify_monitors(RemoteInterface.NotifyInsert,
-		                                    events)
+		_events = []
+		min_stamp = events[0][0][Event.Timestamp]
+		max_stamp = min_stamp
+		for ev, ev_id in zip(events, event_ids):
+			_ev = Event(ev)
+			_ev[0][Event.Id] = ev_id
+			_events.append(_ev)
+			min_stamp = min(min_stamp, _ev.timestamp)
+			max_stamp = max(max_stamp, _ev.timestamp)
+		self._notifications.notify_insert(TimeRange(min_stamp, max_stamp), _events)
 		
 		return event_ids
 	
@@ -152,7 +158,8 @@ class RemoteInterface(SingletonApplication):
 		:type ids: list of integers
 		"""
 		# FIXME: Notify monitors - how do we do this? //kamstrup
-		_engine.delete_events(ids)
+		min_stamp, max_stamp = _engine.delete_events(ids)
+		self._notifications.notify_delete(TimeRange(min_stamp, max_stamp), ids)
 
 	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
@@ -198,10 +205,11 @@ class RemoteInterface(SingletonApplication):
 	# Notifications interface
 	
 	@dbus.service.method(DBUS_INTERFACE,
-			in_signature="oa("+SIG_EVENT+")", sender_keyword="owner")
-	def InstallMonitor(self, monitor_path, event_templates, owner=None):
+			in_signature="o(xx)a("+SIG_EVENT+")", sender_keyword="owner")
+	def InstallMonitor(self, monitor_path, time_range, event_templates, owner=None):
 		event_templates = map(Event, event_templates)
-		self._notifications.install_monitor(owner, monitor_path, event_templates)
+		time_range = TimeRange(time_range[0], time_range[1])
+		self._notifications.install_monitor(owner, monitor_path, time_range, event_templates)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 			in_signature="o", sender_keyword="owner")

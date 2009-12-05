@@ -367,11 +367,17 @@ class TimeRange(list):
 	By design this class will be automatically transformed to the DBus
 	type (xx).
 	"""
+	# Maximal value of our timestamps
+	_max_stamp = 2**63 - 1
+	
 	def __init__ (self, begin, end):
-		super(TimeRange, self).__init__((begin, end))
+		super(TimeRange, self).__init__((int(begin), int(end)))
 	
 	def __eq__ (self, other):
 		return self.begin == other.begin and self.end == other.end
+	
+	def __str__ (self):
+		return "(%s, %s)" % (self.begin, self.end)
 	
 	def get_begin(self):
 		return self[0]
@@ -392,10 +398,26 @@ class TimeRange(list):
 	@staticmethod
 	def until_now():
 		"""
-		Return a TimeRange from 0 to the instant of invocation
+		Return a :class:`TimeRange` from 0 to the instant of invocation
 		"""
 		return TimeRange(0, int(time.time()*1000))
 	
+	@staticmethod
+	def from_now():
+		"""
+		Return a :class:`TimeRange` from the instant of invocation to
+		the end of time
+		"""
+		return TimeRange(int(time.time()*1000), TimeRange._max_stamp)
+	
+	@staticmethod
+	def always():
+		"""
+		Return a :class:`TimeRange` from the furtest past to the most
+		distant future
+		"""
+		return TimeRange(-TimeRange._max_stamp, TimeRange._max_stamp)
+		
 	def intersect(self, time_range):
 		"""
 		Return a new :class:`TimeRange` that is the intersection of the
@@ -762,7 +784,8 @@ class Event(list):
 	doc="Read/write property with a list of :class:`Subjects <Subject>`")
 		
 	def get_id(self):
-		return self[0][Event.Id]
+		val = self[0][Event.Id]
+		return int(val) if val else 0
 	id = property(get_id,
 	doc="Read only property containing the the event id if the event has one")
 	
@@ -854,7 +877,7 @@ class Event(list):
 		Check if the event timestamp lies within a :class:`TimeRange`
 		"""
 		t = int(self.timestamp) # The timestamp may be stored as a string
-		return (t > time_range.begin) and (t < time_range.end)
+		return (t >= time_range.begin) and (t <= time_range.end)
 	
 	def _special_str(self, obj):
 		""" Return a string representation of obj

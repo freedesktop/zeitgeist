@@ -176,9 +176,13 @@ class TimeRangeTest (unittest.TestCase):
 	def testIntersectWithEnclosing(self):
 		outer = TimeRange(0, 10)
 		inner = TimeRange(3,6)
+		always = TimeRange.always()
 		
 		self.assertTrue(inner.intersect(outer) == inner)
 		self.assertTrue(outer.intersect(inner) == inner)
+		
+		self.assertTrue(always.intersect(inner) == inner)
+		self.assertTrue(inner.intersect(always) == inner)
 	
 	def testIntersectDisjoint(self):
 		t1 = TimeRange(0, 10)

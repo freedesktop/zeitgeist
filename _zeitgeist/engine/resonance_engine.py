@@ -463,9 +463,19 @@ class ZeitgeistEngine:
 		return id
 	
 	def delete_events (self, ids):
+		# Extract min and max timestamps for deleted events
+		self._cursor.execute("""
+			SELECT MIN(timestamp), MAX(timestamp)
+			FROM event
+			WHERE id IN (%s)
+		""" % ",".join(["?"] * len(ids)), ids)
+		min_stamp, max_stamp = self._cursor.fetchone()
+	
 		# FIXME: Delete unused interpretation/manifestation/text/etc.
 		self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
 			% ",".join(["?"] * len(ids)), ids)
+		
+		return min_stamp, max_stamp
 	
 	def _ensure_event_wrapping(self, event):
 		"""
