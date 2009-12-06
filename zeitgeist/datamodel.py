@@ -31,13 +31,10 @@ import time
 import gettext
 gettext.install("zeitgeist")
 
-INTERPREATION_ID = "interpretation"
-MANIFESTATION_ID = "manifestation"
-
 class Symbol(str):
 	
 	"""Immutable string-like object representing a Symbol
-	Zeitgeist uses Categories when defining Manifestations and 
+	Zeitgeist uses Symbols when defining Manifestations and 
 	Interpretations.
 	"""
 	
@@ -74,9 +71,10 @@ class Symbol(str):
 
 class SymbolCollection(dict):
 	
-	def __init__(self, name):
+	def __init__(self, name, doc=""):
 		super(SymbolCollection, self).__init__()
 		self.__name__ = name
+		self._doc = doc
 	
 	def register(self, name, uri, display_name, doc):
 		if name in self:
@@ -102,15 +100,42 @@ class SymbolCollection(dict):
 		
 	@property
 	def __doc__(self):
-		doc = "The %s object has the following members:\n\n" %self.__name__
+		if self._doc:
+			doc = self._doc + "\n\n"
+		else:
+			doc = ""
+		doc += "The %s object has the following members:\n\n" %self.__name__
 		for name in sorted(self.iterkeys()):
-			doc += " * *%s*\n    %s\n" %(name, self[name].doc)
+			sym = self[name]
+			doc += " * *{0}* ({1})\n    {2}\n\n    Display name: *\"{3}\"*\n".format(name, sym.uri, sym.doc, sym.display_name)
+			doc += "\n"
 		return doc
-		
+
+INTERPREATION_ID = "interpretation"
+MANIFESTATION_ID = "manifestation"
+
+INTERPRETATION_DOC = \
+"""In general terms the *interpretation* of an event or subject is an abstract
+description of *"what happened"* or *"what is this"*.
+
+Each interpretation type is uniquely identified by a URI. This class provides
+a list of hard coded URI constants for programming convenience. In addition;
+each interpretation instance in this class has a *display_name* property, which
+is an internationalized string meant for end user display."""
+
+MANIFESTATION_DOC = \
+"""The manifestation type of an event or subject is an abstract classification
+of *"how did this happen"* or *"how does this item exist"*.
+
+Each manifestation type s uniquely identified by a URI.This class provides
+a list of hard coded URI constant for programming convenience.
+
+Each interpretation listed in this class has a *display_name* property, which
+is an internationalized string meant for end user display."""
 
 
-Interpretation = SymbolCollection(INTERPREATION_ID)
-Manifestation = SymbolCollection(MANIFESTATION_ID)
+Interpretation = SymbolCollection(INTERPREATION_ID, doc=INTERPRETATION_DOC)
+Manifestation = SymbolCollection(MANIFESTATION_ID, doc=MANIFESTATION_DOC)
 
 #
 # Interpretation categories

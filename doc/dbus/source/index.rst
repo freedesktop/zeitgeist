@@ -22,20 +22,10 @@ Subject
 Interpretation
 ++++++++++++++
 
-In general terms the *interpretation* of an event or subject is an abstract
-description of *"what happened"* or *"what is this"*.
-
-Each interpretation type is uniquely identified by a URI.
-
 .. autodata:: Interpretation
 
 Manifestation
 +++++++++++++
-
-The manifestation type of an event or subject is an abstract classification
-of *"how did this happen"* or *"how does this item exist"*.
-
-Each manifestation type s uniquely identified by a URI.
 
 .. autodata:: Manifestation
 
