@@ -327,8 +327,17 @@ class TimeRange(list):
 	By design this class will be automatically transformed to the DBus
 	type (xx).
 	"""
+	# Maximal value of our timestamps
+	_max_stamp = 2**63 - 1
+	
 	def __init__ (self, begin, end):
-		super(TimeRange, self).__init__((begin, end))
+		super(TimeRange, self).__init__((int(begin), int(end)))
+	
+	def __eq__ (self, other):
+		return self.begin == other.begin and self.end == other.end
+	
+	def __str__ (self):
+		return "(%s, %s)" % (self.begin, self.end)
 	
 	def get_begin(self):
 		return self[0]
@@ -349,10 +358,57 @@ class TimeRange(list):
 	@staticmethod
 	def until_now():
 		"""
-		Return a TimeRange from 0 to the instant of invocation
+		Return a :class:`TimeRange` from 0 to the instant of invocation
 		"""
 		return TimeRange(0, int(time.time()*1000))
-
+	
+	@staticmethod
+	def from_now():
+		"""
+		Return a :class:`TimeRange` from the instant of invocation to
+		the end of time
+		"""
+		return TimeRange(int(time.time()*1000), TimeRange._max_stamp)
+	
+	@staticmethod
+	def always():
+		"""
+		Return a :class:`TimeRange` from the furtest past to the most
+		distant future
+		"""
+		return TimeRange(-TimeRange._max_stamp, TimeRange._max_stamp)
+		
+	def intersect(self, time_range):
+		"""
+		Return a new :class:`TimeRange` that is the intersection of the
+		two time range intervals. If the intersection is empty this
+		method returns :const:`None`.
+		"""
+		# Behold the boolean madness!
+		result = TimeRange(0,0)
+		if self.begin < time_range.begin:
+			if self.end < time_range.begin:
+				return None
+			else:
+				result.begin = time_range.begin
+		else:
+			if self.begin > time_range.end:
+				return None
+			else:
+				result.begin = self.begin
+		
+		if self.end < time_range.end:
+			if self.end < time_range.begin:
+				return None
+			else:
+				 result.end = self.end
+		else:
+			if self.begin > time_range.end:
+				return None
+			else:
+				result.end = time_range.end
+		
+		return result
 class StorageState:
 	"""
 	Enumeration class defining the possible values for the storage state
@@ -688,7 +744,8 @@ class Event(list):
 	doc="Read/write property with a list of :class:`Subjects <Subject>`")
 		
 	def get_id(self):
-		return self[0][Event.Id]
+		val = self[0][Event.Id]
+		return int(val) if val else 0
 	id = property(get_id,
 	doc="Read only property containing the the event id if the event has one")
 	
@@ -749,6 +806,7 @@ class Event(list):
 		data = self[0]
 		tdata = event_template[0]
 		for m in Event.Fields:
+			if m == Event.Timestamp : continue
 			if tdata[m] and tdata[m] != data[m] : return False
 		
 		# If template has no subjects we have a match
@@ -763,3 +821,41 @@ class Event(list):
 		
 		# Template has subjects, but we never found a match
 		return False
+	
+	def matches_event (self, event):
+		"""
+		Interpret *self* as the template an match *event* against it.
+		This method is the dual method of :meth:`matches_template`.
+		"""
+		#print "T: %s" % self
+		#print "E: %s" % event
+		#print "------------"
+		return event.matches_template(self)
+	
+	def in_time_range (self, time_range):
+		"""
+		Check if the event timestamp lies within a :class:`TimeRange`
+		"""
+		t = int(self.timestamp) # The timestamp may be stored as a string
+		return (t >= time_range.begin) and (t <= time_range.end)
+	
+	def _special_str(self, obj):
+		""" Return a string representation of obj
+		If obj is None, return an empty string.
+		"""
+		return unicode(obj) if obj is not None else ""
+
+	def _make_dbus_sendable(self):
+		"""
+		Ensure that all fields in the event struct are non-None
+		"""
+		for n, value in enumerate(self[0]):
+			self[0][n] = self._special_str(value)
+		for subject in self[1]:
+			for n, value in enumerate(subject):
+				subject[n] = self._special_str(value)
+		# The payload require special handling, since it is binary data
+		# If there is indeed data here, we must not unicode encode it!
+		if self[2] is None: self[2] = u""
+		
+		

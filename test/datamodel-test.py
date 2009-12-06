@@ -4,12 +4,11 @@
 # Update python path to use local zeitgeist module
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-from zeitgeist.datamodel import SymbolCollection, Symbol, Manifestation, Interpretation, Event, Subject
-from zeitgeist.datamodel import MANIFESTATION_ID, INTERPREATION_ID
-
 import unittest
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from zeitgeist.datamodel import *
+from testutils import parse_events
 
 
 class SymbolTest(unittest.TestCase):
@@ -142,7 +141,48 @@ class EventTest (unittest.TestCase):
 		
 		e.manifestation="ILLEGAL SNAFU"
 		self.assertFalse(e.matches_template(template))
+	
+	def testTemplateFiltering(self):
+		template = Event.new_for_values(interpretation="stfu:OpenEvent")
+		events = parse_events("test/data/five_events.js")
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(2, len(filtered_events))
+	
+	def testInTimeRange(self):
+		ev = Event.new_for_values(timestamp=10)
+		self.assertTrue(ev.in_time_range(TimeRange(0, 20)))
+		self.assertFalse(ev.in_time_range(TimeRange(0, 5)))
+		self.assertFalse(ev.in_time_range(TimeRange(15, 20)))
+
+class TimeRangeTest (unittest.TestCase):
+
+	def testEquality(self):
+		self.assertFalse(TimeRange(0,1) == TimeRange(0,2))
+		self.assertTrue(TimeRange(0,1) == TimeRange(0,1))
+	
+	def testIntersectWithEnclosing(self):
+		outer = TimeRange(0, 10)
+		inner = TimeRange(3,6)
+		always = TimeRange.always()
 		
+		self.assertTrue(inner.intersect(outer) == inner)
+		self.assertTrue(outer.intersect(inner) == inner)
 		
+		self.assertTrue(always.intersect(inner) == inner)
+		self.assertTrue(inner.intersect(always) == inner)
+	
+	def testIntersectDisjoint(self):
+		t1 = TimeRange(0, 10)
+		t2 = TimeRange(20, 30)
+		self.assertTrue(t1.intersect(t2) is None)
+		self.assertTrue(t2.intersect(t1) is None)
+	
+	def testIntersectOverlap(self):
+		first = TimeRange(0, 10)
+		last = TimeRange(5, 15)
+		
+		self.assertTrue(first.intersect(last) == TimeRange(5, 10))
+		self.assertTrue(last.intersect(first) == TimeRange(5, 10))
+	
 if __name__ == '__main__':
 	unittest.main()

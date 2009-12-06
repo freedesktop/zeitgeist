@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +22,9 @@ import dbus
 import dbus.service
 import logging
 
+from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType
 from _zeitgeist.engine import get_default_engine
+from _zeitgeist.engine.notify import MonitorManager
 from zeitgeist.client import ZeitgeistDBusInterface
 from _zeitgeist.singleton import SingletonApplication
 
@@ -30,23 +33,8 @@ _engine = get_default_engine()
 DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
 SIG_EVENT = "asaasay"
 
-def special_str(obj):
-	""" Return a string representation of obj
-	If obj is None, return an empty string.
-	"""
-	return unicode(obj) if obj is not None else ""
-
-def make_dbus_sendable(event):
-	for n, value in enumerate(event[0]):
-		event[0][n] = special_str(value)
-	for subject in event[1]:
-		for n, value in enumerate(subject):
-			subject[n] = special_str(value)
-	event[2] = special_str(event[2])
-	return event
-
 class RemoteInterface(SingletonApplication):
-		
+	
 	_dbus_properties = {
 		"version": property(lambda self: (0, 2, 99)),
 	}
@@ -56,6 +44,7 @@ class RemoteInterface(SingletonApplication):
 	def __init__(self, start_dbus=True, mainloop=None):
 		SingletonApplication.__init__(self)
 		self._mainloop = mainloop
+		self._notifications = MonitorManager()
 	
 	# Reading stuff
 	
@@ -82,7 +71,8 @@ class RemoteInterface(SingletonApplication):
 		except ValueError:
 			# This is what we want, it means that there are no
 			# holes in the list
-			return [make_dbus_sendable(event) for event in events]
+			for ev in events : ev._make_dbus_sendable()
+			return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
@@ -128,6 +118,10 @@ class RemoteInterface(SingletonApplication):
 	def InsertEvents(self, events):
 		"""Inserts events into the log. Returns an array containing the ids of the inserted events
 		
+		Any monitors with matching templates will get notified about
+		the insertion. Note that the monitors are notified *after* the
+		events have been inserted.
+		
 		:param events: List of events to be inserted in the log.
 		    If you are using the Python bindings you may pass
 		    :class:`Event <zeitgeist.datamodel.Event>` instances
@@ -137,7 +131,23 @@ class RemoteInterface(SingletonApplication):
 		    the id of the existing event will be returned
 		:rtype: Array of unsigned 32 bits integers. DBus signature au.
 		"""
-		return _engine.insert_events(events)
+		if not events : return []
+		
+		event_ids = _engine.insert_events(events)
+		
+		# FIXME: Filter out duplicate- or failed event insertions //kamstrup
+		_events = []
+		min_stamp = events[0][0][Event.Timestamp]
+		max_stamp = min_stamp
+		for ev, ev_id in zip(events, event_ids):
+			_ev = Event(ev)
+			_ev[0][Event.Id] = ev_id
+			_events.append(_ev)
+			min_stamp = min(min_stamp, _ev.timestamp)
+			max_stamp = max(max_stamp, _ev.timestamp)
+		self._notifications.notify_insert(TimeRange(min_stamp, max_stamp), _events)
+		
+		return event_ids
 	
 	@dbus.service.method(DBUS_INTERFACE, in_signature="au", out_signature="")
 	def DeleteEvents(self, ids):
@@ -147,7 +157,9 @@ class RemoteInterface(SingletonApplication):
 		    :meth:`FindEventIds`
 		:type ids: list of integers
 		"""
-		_engine.delete_events(ids)
+		# FIXME: Notify monitors - how do we do this? //kamstrup
+		min_stamp, max_stamp = _engine.delete_events(ids)
+		self._notifications.notify_delete(TimeRange(min_stamp, max_stamp), ids)
 
 	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
@@ -166,7 +178,7 @@ class RemoteInterface(SingletonApplication):
 		as it will affect all applications using Zeitgeist"""
 		if self._mainloop:
 			self._mainloop.quit()
-
+	
 	# Properties interface
 
 	@dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
@@ -190,3 +202,16 @@ class RemoteInterface(SingletonApplication):
 	def GetAll(self, interface_name):
 		return dict((k, v.fget(self)) for (k,v) in self._dbus_properties.items())
 	
+	# Notifications interface
+	
+	@dbus.service.method(DBUS_INTERFACE,
+			in_signature="o(xx)a("+SIG_EVENT+")", sender_keyword="owner")
+	def InstallMonitor(self, monitor_path, time_range, event_templates, owner=None):
+		event_templates = map(Event, event_templates)
+		time_range = TimeRange(time_range[0], time_range[1])
+		self._notifications.install_monitor(owner, monitor_path, time_range, event_templates)
+	
+	@dbus.service.method(DBUS_INTERFACE,
+			in_signature="o", sender_keyword="owner")
+	def RemoveMonitor(self, monitor_path, owner=None):
+		self._notifications.remove_monitor(owner, monitor_path)

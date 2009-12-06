@@ -111,5 +111,69 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		result_events = self.getEventsAndWait(ids)
 		self.assertEquals(len(ids), len(result_events))
 	
+	def testMonitorInsertEvents(self):
+		result = []
+		mainloop = gobject.MainLoop()
+		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
+		events = parse_events("test/data/five_events.js")
+		
+		def notify_insert_handler(time_range, events):
+			result.extend(events)
+			mainloop.quit()
+		
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			self.fail("Unexpected delete notification")
+			
+		self.client.install_monitor(TimeRange.always(), [tmpl], notify_insert_handler, notify_delete_handler)
+		self.client.insert_events(events)
+		mainloop.run()
+		
+		self.assertEquals(2, len(result))
+		
+	def testMonitorDeleteEvents(self):
+		result = []
+		mainloop = gobject.MainLoop()
+		events = parse_events("test/data/five_events.js")
+		
+		def notify_insert_handler(time_range, events):
+			event_ids = map(lambda ev : ev.id, events)
+			self.client.delete_events(event_ids)
+		
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			result.extend(event_ids)
+			
+			
+		self.client.install_monitor(TimeRange(125, 145), [], notify_insert_handler, notify_delete_handler)
+		
+		self.client.insert_events(events)
+		mainloop.run()
+		
+		self.assertEquals(2, len(result))
+	
+	def testMonitorInstallRemoval(self):
+		result = []
+		mainloop = gobject.MainLoop()
+		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
+		
+		def notify_insert_handler(notification_type, events):
+		        pass
+		
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			self.fail("Unexpected delete notification")
+		
+		mon = self.client.install_monitor(TimeRange.always(), [tmpl], notify_insert_handler, notify_delete_handler)
+		
+		def removed_handler(result_state):
+		        result.append(result_state)
+		        mainloop.quit()
+		
+		self.client.remove_monitor(mon, removed_handler)
+		mainloop.run()
+		self.assertEquals(1, len(result))
+		self.assertEquals(1, result.pop())
+	
 if __name__ == "__main__":
 	unittest.main()

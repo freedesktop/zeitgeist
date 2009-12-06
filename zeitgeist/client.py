@@ -20,16 +20,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import dbus
+import dbus.service
 import dbus.mainloop.glib
 import logging
 import os.path
 import sys
+import logging
 
 from xml.dom.minidom import parseString as minidom_parse
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType
+
+SIG_EVENT = "asaasay"
+
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("zeitgeist.client")
 
 class ZeitgeistDBusInterface(dbus.Interface):
 	""" Central DBus interface to the zeitgeist engine
@@ -152,10 +159,103 @@ class ZeitgeistDBusInterface(dbus.Interface):
 				self.INTERFACE_NAME
 		)
 
+class Monitor (dbus.service.Object):
+	"""
+	DBus object for monitoring the Zeitgeist log for certain types
+	of events.
+	
+	Monitors are normally instantiated indirectly by calling
+	:meth:`ZeitgeistClient.install_monitor`.
+	
+	It is important to understand that the Monitor instance lives on the
+	client side, and expose a DBus service there, and the Zeitgeist engine
+	calls back to the monitor when matching events are registered.
+	
+	For the callback signature refer to :meth:`ZeitgeistClient.install_monitor`
+	"""
+	
+	# Used in Monitor._next_path() to generate unique path names
+	_last_path_id = 0
+	
+	def __init__ (self, time_range, event_templates, insert_callback, delete_callback, monitor_path=None):
+		if not monitor_path:
+			monitor_path = Monitor._next_path()
+		elif isinstance(monitor_path, (str, unicode)):
+			monitor_path = dbus.ObjectPath(monitor_path)
+		
+		self._time_range = time_range
+		self._templates = event_templates
+		self._path = monitor_path
+		self._insert_callback = insert_callback
+		self._delete_callback = delete_callback
+		dbus.service.Object.__init__(self, dbus.SessionBus(), monitor_path)
+
+	
+	def get_path (self): return self._path
+	path = property(get_path, doc="Read only property with the DBus path of the monitor object")
+	
+	def get_time_range(self): return self._time_range
+	time_range = property(get_time_range, doc="Read only property with the :class:`TimeRange` matched by this monitor")
+	
+	def get_templates (self): return self._templates
+	templates = property(get_templates, doc="Read only property with installed templates")
+	
+	@dbus.service.method("org.gnome.zeitgeist.Monitor",
+	                     in_signature="(xx)a("+SIG_EVENT+")")
+	def NotifyInsert(self, time_range, events):
+		"""
+		Receive notification that a set of events matching the monitor's
+		templates has been recorded in the log.
+		
+		This method is the raw DBus callback and should normally not be
+		overridden. Events are received via the *insert_callback*
+		argument given in the constructor to this class.
+		
+		:param time_range: A two-tuple of 64 bit integers with the minimum
+		    and maximum timestamps found in *events*. DBus signature (xx)
+		:param events: A list of DBus event structs, signature a(asaasay)
+		    with the events matching the monitor.
+		    See :meth:`ZeitgeistClient.install_monitor`
+		"""
+		self._insert_callback(TimeRange(time_range[0], time_range[1]), map(Event, events))
+	
+	@dbus.service.method("org.gnome.zeitgeist.Monitor",
+	                     in_signature="(xx)au")
+	def NotifyDelete(self, time_range, event_ids):
+		"""
+		Receive notification that a set of events within the monitor's
+		matched time range has been deleted. Note that this notification
+		will also be emitted for deleted events that doesn't match the
+		event templates of the monitor. It's just the time range which
+		is considered here.
+		
+		This method is the raw DBus callback and should normally not be
+		overridden. Events are received via the *delete_callback*
+		argument given in the constructor to this class.
+		
+		:param time_range: A two-tuple of 64 bit integers with the minimum
+		    and maximum timestamps found in *events*. DBus signature (xx)
+		:param event_ids: A list of event ids. An event id is simply
+		    and unsigned 32 bit integer. DBus signature au.
+		"""
+		self._delete_callback(TimeRange(time_range[0], time_range[1]), event_ids)
+	
+	def __hash__ (self):
+		return hash(self._path)
+	
+	@classmethod
+	def _next_path(cls):
+		"""
+		Generate a new unique DBus object path for a monitor
+		"""
+		cls._last_path_id += 1
+		return dbus.ObjectPath("/org/gnome/zeitgeist/monitor/%s" % cls._last_path_id)
+
 class ZeitgeistClient:
 	"""
-	Convenience APIs to have a Pythonic way to call the running Zeitgeist
-	engine. For raw DBus access use the ZeitgeistDBusInterface class.
+	Convenience APIs to have a Pythonic way to call and monitor the running
+	Zeitgeist engine. For raw DBus access use the
+	:class:`ZeitgeistDBusInterface` class.
 	
 	Note that this class only does asynchronous DBus calls. This is almost
 	always the right thing to do. If you really want to do synchronous
@@ -418,6 +518,125 @@ class ZeitgeistClient:
 		self._iface.GetEvents(event_ids,
 				reply_handler=lambda raw : events_reply_handler(map(Event, raw)),
 				error_handler=error_handler)
+	
+	def delete_events(self, event_ids, reply_handler=None, error_handler=None):
+		"""
+		Delete a collection of events from the zeitgeist log given their
+		event ids.
+		
+		The deletion will be done asynchronously, and this method returns
+		immediately. To check whether the deletions went well supply
+		the *reply_handler* and/or *error_handler* funtions. The
+		reply handler should not take any argument. The error handler
+		must take a single argument - being the error.
+		
+		With custom handlers any errors will be printed to stderr.
+		
+		In order to use this method there needs to be a mainloop
+		runnning.
+		"""
+		self._check_list_or_tuple(event_ids)
+		self._check_members(event_ids, int)
+		
+		if not callable(reply_handler):
+			reply_handler = self._void_reply_handler
+		if not callable(error_handler):
+			error_handler = lambda err : self._stderr_error_handler(err)
+		
+		self._iface.DeleteEvents(event_ids,
+					reply_handler=reply_handler,
+					error_handler=error_handler)
+	
+	def install_monitor (self, time_range, event_templates, notify_insert_handler, notify_delete_handler, monitor_path=None):
+		"""
+		Install a monitor in the Zeitgeist engine that calls back
+		when events matching *event_templates* are logged. The matching
+		is done exactly as in the *find_** family of methods and in
+		:meth:`Event.matches_template <zeitgeist.datamodel.Event.matches_template>`.
+		Furthermore matched events must also have timestamps lying in
+		*time_range*.
+		
+		To remove a monitor call :meth:`remove_monitor` on the returned
+		:class:`Monitor` instance.
+		
+		The *notify_insert_handler* will be called when events matching
+		the monitor are inserted into the log. The *notify_delete_handler*
+		function will be called when events lying within the monitored
+		time range are deleted.
+		
+		:param time_range: A :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
+		    that matched events must lie within. To obtain a time range
+		    from now and indefinitely into the future use
+		    :meth:`TimeRange.from_now() <zeitgeist.datamodel.TimeRange.from_now>`
+		:param event_templates: The event templates to look for
+		:param notify_insert_handler: Callback for receiving notifications
+		    about insertions of matching events. The callback should take
+		    a :class:`TimeRange` as first parameter and a list of
+		    :class:`Events` as the second parameter.
+		    The time range will cover the minimum and maximum timestamps
+		    of the inserted events
+		:param notify_delete_handler: Callback for receiving notifications
+		    about deletions of events in the monitored time range.
+		    The callback should take a :class:`TimeRange` as first
+		    parameter and a list of event ids as the second parameter.
+		    Note that an event id is simply an unsigned integer.
+		:param monitor_path: Optional argument specifying the DBus path
+		    to install the client side monitor object on. If none is provided
+		    the client will provide one for you namespaced under
+		    /org/gnome/zeitgeist/monitor/*
+		:returns: a :class:`Monitor`
+		"""
+		self._check_list_or_tuple(event_templates)
+		self._check_members(event_templates, Event)
+		if not callable(notify_insert_handler):
+			raise TypeError("notify_insert_handler not callable, found %s" % notify_reply_handler)
+			
+		if not callable(notify_delete_handler):
+			raise TypeError("notify_delete_handler not callable, found %s" % notify_reply_handler)
+		
+		
+		mon = Monitor(time_range, event_templates, notify_insert_handler, notify_delete_handler, monitor_path=monitor_path)
+		self._iface.InstallMonitor(mon.path,
+		                           mon.time_range,
+		                           mon.templates,
+		                           reply_handler=self._void_reply_handler,
+		                           error_handler=lambda err : log.warn("Error installing monitor: %s" % err))
+		return mon
+	
+	def remove_monitor (self, monitor, monitor_removed_handler=None):
+		"""
+		Remove a :class:`Monitor` installed with :meth:`install_monitor`
+		
+		:param monitor: Monitor to remove. Either as a :class:`Monitor`
+		    instance or a DBus object path to the monitor either as a
+		    string or :class:`dbus.ObjectPath`
+		:param monitor_removed_handler: A callback function taking
+		    one integer argument. 1 on success, 0 on failure.
+		"""
+		if isinstance(monitor, (str,unicode)):
+			path = dbus.ObjectPath(monitor)
+		elif isinstance(monitor, Monitor):
+			path = monitor.path
+		else:
+			raise TypeError("Monitor, str, or unicode expected. Found %s" % type(monitor))
+		
+		if callable(monitor_removed_handler):
+			
+			def dispatch_handler (error=None):
+				if error :
+					log.warn("Error removing monitor %s: %s" % (monitor, error))
+					monitor_removed_handler(0)
+				else: monitor_removed_handler(1)
+				
+			reply_handler = dispatch_handler
+			error_handler = dispatch_handler
+		else:
+			reply_handler = self._void_reply_handler
+			error_handler = lambda err : log.warn("Error removing monitor %s: %s" % (monitor, err))
+		
+		self._iface.RemoveMonitor(path,
+		                          reply_handler=reply_handler,
+		                          error_handler=error_handler)
 		
 	def _check_list_or_tuple(self, collection):
 		"""
@@ -441,12 +660,14 @@ class ZeitgeistClient:
 		"""
 		pass
 		
-	def _stderr_error_handler(self, exception, normal_reply_handler, normal_reply_data):
+	def _stderr_error_handler(self, exception, normal_reply_handler=None, normal_reply_data=None):
 		"""
 		Error handler for async DBus calls that prints the error
 		to sys.stderr
 		"""
 		print >> sys.stderr, "Error from Zeitgeist engine:", exception
-		normal_reply_handler(normal_reply_data)
+		
+		if callable(normal_reply_handler):
+			normal_reply_handler(normal_reply_data)
 	
 	
