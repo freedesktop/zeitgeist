@@ -58,13 +58,6 @@ ZeitgeistClient
 .. autoclass:: ZeitgeistClient
     :members: 
 
-Monitor
-+++++++
-
-.. autoclass:: Monitor
-    :members: 
-
-
 .. module:: _zeitgeist.engine.remote
 
 DBus API
@@ -78,6 +71,12 @@ org.gnome.zeitgeist.Log
 +++++++++++++++++++++++
 
 .. autoclass:: RemoteInterface
-    :members: InsertEvents, GetEvents, FindEventIds, DeleteEvents, DeleteLog, Quit
+    :members: InsertEvents, GetEvents, FindEventIds, DeleteEvents, DeleteLog, Quit, InstallMonitor, RemoveMonitor
 
+.. _org_gnome_zeitgeist_Monitor:
 
+org.gnome.zeitgeist.Monitor
++++++++++++++++++++++++++++
+
+.. autoclass:: zeitgeist.client.Monitor
+    :members: NotifyInsert, NotifyDelete

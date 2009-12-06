@@ -207,6 +207,18 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(DBUS_INTERFACE,
 			in_signature="o(xx)a("+SIG_EVENT+")", sender_keyword="owner")
 	def InstallMonitor(self, monitor_path, time_range, event_templates, owner=None):
+		"""Register a client side monitor object to receive callbacks when events matching *time_range* and *event_templates* are inserted or deleted.
+		
+		The monitor object must implement the interface :ref:`org.gnome.zeitgeist.Monitor <org_gnome_zeitgeist_Monitor>`
+		
+		:param monitor_path: DBus object path to the client side monitor object. DBus signature o.
+		:param time_range: A two-tuple with the time range monitored
+		    events must fall within. Recall that time stamps are in
+		    milliseconds since the Epoch. DBus signature (xx)
+		:param event_templates: Event templates that events must match
+		    in order to trigger the monitor. Just like :meth:`FindEventIds`.
+		    DBus signature a(asaasay)
+		"""
 		event_templates = map(Event, event_templates)
 		time_range = TimeRange(time_range[0], time_range[1])
 		self._notifications.install_monitor(owner, monitor_path, time_range, event_templates)
@@ -214,4 +226,9 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(DBUS_INTERFACE,
 			in_signature="o", sender_keyword="owner")
 	def RemoveMonitor(self, monitor_path, owner=None):
+		"""Remove a monitor installed with :meth:`InstallMonitor`
+		
+		:param monitor_path: DBus object path of monitor to remove as
+		    supplied to :meth:`InstallMonitor`.
+		"""
 		self._notifications.remove_monitor(owner, monitor_path)

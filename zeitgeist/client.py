@@ -161,17 +161,15 @@ class ZeitgeistDBusInterface(dbus.Interface):
 
 class Monitor (dbus.service.Object):
 	"""
-	DBus object for monitoring the Zeitgeist log for certain types
+	DBus interface for monitoring the Zeitgeist log for certain types
 	of events.
 	
-	Monitors are normally instantiated indirectly by calling
-	:meth:`ZeitgeistClient.install_monitor`.
+	When using the Python bindings monitors are normally instantiated
+	indirectly by calling :meth:`ZeitgeistClient.install_monitor`.
 	
 	It is important to understand that the Monitor instance lives on the
 	client side, and expose a DBus service there, and the Zeitgeist engine
 	calls back to the monitor when matching events are registered.
-	
-	For the callback signature refer to :meth:`ZeitgeistClient.install_monitor`
 	"""
 	
 	# Used in Monitor._next_path() to generate unique path names
