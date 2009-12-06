@@ -121,17 +121,22 @@ description of *"what happened"* or *"what is this"*.
 Each interpretation type is uniquely identified by a URI. This class provides
 a list of hard coded URI constants for programming convenience. In addition;
 each interpretation instance in this class has a *display_name* property, which
-is an internationalized string meant for end user display."""
+is an internationalized string meant for end user display.
+
+The interpretation types listed here are all subclasses of *str* and may be
+used anywhere a string would be used."""
 
 MANIFESTATION_DOC = \
 """The manifestation type of an event or subject is an abstract classification
 of *"how did this happen"* or *"how does this item exist"*.
 
-Each manifestation type s uniquely identified by a URI.This class provides
-a list of hard coded URI constant for programming convenience.
+Each manifestation type s uniquely identified by a URI. This class provides
+a list of hard coded URI constants for programming convenience. In addition;
+each interpretation instance in this class has a *display_name* property, which
+is an internationalized string meant for end user display.
 
-Each interpretation listed in this class has a *display_name* property, which
-is an internationalized string meant for end user display."""
+The manifestation types listed here are all subclasses of *str* and may be
+used anywhere a string would be used."""
 
 
 Interpretation = SymbolCollection(INTERPREATION_ID, doc=INTERPRETATION_DOC)
