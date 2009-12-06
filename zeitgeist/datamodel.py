@@ -31,133 +31,93 @@ import time
 import gettext
 gettext.install("zeitgeist")
 
-class _DictCache(type):
-	""" Metaclass which has a _CACHE attribute. Each subclass has its own, fresh cache """
-	
-	def __init__(cls, name, bases, d):
-		super(_DictCache, cls).__init__(name, bases, d)
-		cls.__CACHE = {}
-	
-	def _new_cache(cls, cache=None):
-		if cache is None:
-			cls.__CACHE.clear()
-		else:
-			cls.__CACHE = cache
-		
-	def _clear_cache(self):
-		return self._new_cache()
-		
-	@property
-	def _CACHE(cls):
-		return cls.__CACHE
+INTERPREATION_ID = "interpretation"
+MANIFESTATION_ID = "manifestation"
 
-class Symbol(_DictCache):
+class Symbol(str):
 	
-	def __init__(cls, name, bases, d):
-		super(Symbol, cls).__init__(name, bases, d)
-		if not cls._CACHE and issubclass(cls, Symbol):
-			assert len(bases) == 1, "Multi-inheritance is not supported yet"
-			cls._new_cache(bases[0]._CACHE)
-			cls._attributes = bases[0]._ATTRIBUTES
-			cls._base = bases[0]
-		else:
-			cls._attributes = {}
-			cls._base = None	
+	"""Immutable string-like object representing a Symbol
+	Zeitgeist uses Categories when defining Manifestations and 
+	Interpretations.
+	"""
 	
-	@property
-	def _ATTRIBUTES(cls):
-		return cls._attributes
-	
-	def __repr__(cls):
-		return "<%s %r>" %(cls.__class__.__name__, cls.__name__)
-	
-	def __getattr__(cls, name):
-		try:
-			return cls._ATTRIBUTES[name]
-		except KeyError:
-			raise AttributeError(
-				"Object %r has no attribute %r" % (cls.__name__, name))
-	
-	def __call__(cls, *args, **kwargs):
-		uri = kwargs.get("uri", args[0] if args else None)
-		if uri and uri in cls._CACHE:
-			return cls._CACHE[uri]
-		return cls._CACHE.setdefault(uri, super(Symbol, cls).__call__(*args, **kwargs))
-	
-	def get(cls, uri):
-		return cls._CACHE.setdefault(uri, cls(uri))
-	
-	def register(cls, name, uri, display_name=None, doc=None):
-		if uri in cls._CACHE:
-			raise ValueError(
-				"There has already been an %s object registered for %r"
-				% (cls.__name__, uri))
-		if name in cls._ATTRIBUTES:
-			raise ValueError(
-				("Can't register %(name)s object for %(uri)r, %(name)s "
-				 "has already an attribute called %(attribute)r")
-				% ({"name": cls.__name__, "uri": uri, "attribute": name})
-			)
-		obj = cls(uri=uri, display_name=display_name, doc=doc)
-		cls._CACHE[uri] = cls._ATTRIBUTES[str(name)] = obj
-
-class Category(object):
-	__metaclass__ = Symbol
-	
-	def __init__(self, uri, display_name=None, name=None, doc=None):
-		if self.__class__ is Category:
-			raise ValueError("Category is an abstract class")
-		self._uri = uri
-		self._display_name = display_name
-		self.__doc__ = doc
-		self._name = name
+	def __new__(cls, symbol_type, name, uri=None, display_name=None, doc=None):
+		obj = super(Symbol, cls).__new__(Symbol, uri or name)
+		obj.__type = symbol_type
+		obj.__name = name
+		obj.__uri = uri
+		obj.__display_name = display_name
+		obj.__doc = doc
+		return obj
 	
 	def __repr__(self):
-		return "<%s %r>" %(self.__class__.__name__, self.uri)
-	
-	def __str__(self):
-		return self.uri
-	
-	def __unicode__(self):
-		return unicode(self.uri)
-		
-	def __eq__(self, other):
-		# Fixme
-		# but in first approximation
-		# two symbols with the same string presentation are the same
-		return str(self) == str(other)
+		return "<%s %r>" %(self.__type, self.uri)
 	
 	@property
 	def uri(self):
-		return self._uri
+		return self.__uri or self.name
 	
 	@property
 	def display_name(self):
-		return self._display_name
+		return self.__display_name or ""
 	
 	@property
 	def name(self):
-		if self._name is not None:
-			return self._name
-		else:
-			return self.uri.split("#", 1)[-1]
+		return self.__name
 	
 	@property
 	def doc(self):
-		return self.__doc__
+		return self.__doc or ""
+		
+	__doc__ = doc
 
-class Interpretation(Category):
-	pass
 
-class Manifestation(Category):
-	pass
+class SymbolCollection(dict):
+	
+	def __init__(self, name):
+		super(SymbolCollection, self).__init__()
+		self.__name__ = name
+	
+	def register(self, name, uri, display_name, doc):
+		if name in self:
+			raise ValueError("cannot register symbol %r, a definition for this symbol already exists" %name)
+		if not name.isupper():
+			raise ValueError("cannot register %r, name must be uppercase" %name)
+		self[name] = Symbol(self.__name__, name, uri, display_name, doc)
+		
+	def __getattr__(self, name):
+		if not name.isupper():
+			# symbols must be uppercase
+			raise AttributeError("'%s' has no attribute '%s'" %(self.__name__, name))
+		try:
+			return self[name]
+		except KeyError:
+			# this symbol is not registered yet, create
+			# it on the fly
+			self[name] = Symbol(self.__name__, name)
+			return self[name]
+			
+	def __dir__(self):
+		return self.keys()
+		
+	@property
+	def __doc__(self):
+		doc = "The %s object has the following members:\n\n" %self.__name__
+		for name in sorted(self.iterkeys()):
+			doc += " * *%s*\n    %s\n" %(name, self[name].doc)
+		return doc
+		
+
+
+Interpretation = SymbolCollection(INTERPREATION_ID)
+Manifestation = SymbolCollection(MANIFESTATION_ID)
 
 #
 # Interpretation categories
 #
 Interpretation.register(
 	"TAG",
-        u"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag",
+	u"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag",
 	display_name=_("Tags"),
 	doc="User provided tags. The same tag may refer multiple items"
 )

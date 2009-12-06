@@ -27,7 +27,7 @@ description of *"what happened"* or *"what is this"*.
 
 Each interpretation type is uniquely identified by a URI.
 
-.. autoclass:: Interpretation
+.. autodata:: Interpretation
 
 Manifestation
 +++++++++++++
@@ -37,7 +37,7 @@ of *"how did this happen"* or *"how does this item exist"*.
 
 Each manifestation type s uniquely identified by a URI.
 
-.. autoclass:: Manifestation
+.. autodata:: Manifestation
 
 TimeRange
 +++++++++

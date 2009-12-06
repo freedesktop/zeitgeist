@@ -27,12 +27,12 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	
 	def testInsertAndGetEvent(self):
 		ev = Event.new_for_values(timestamp=123,
-					interpretation=Interpretation.VISIT_EVENT.uri,
-					manifestation=Manifestation.USER_ACTIVITY.uri,
+					interpretation=Interpretation.VISIT_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Freak Mamma")
 		subj = Subject.new_for_values(uri="void://foobar",
-					interpretation=Interpretation.DOCUMENT.uri,
-					manifestation=Manifestation.FILE.uri)
+					interpretation=Interpretation.DOCUMENT,
+					manifestation=Manifestation.FILE)
 		ev.append_subject(subj)
 		ids = self.insertEventsAndWait([ev])
 		events = self.getEventsAndWait(ids)
@@ -42,36 +42,36 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		ev = events[0]
 		self.assertTrue(isinstance(ev, Event))
 		self.assertEquals("123", ev.timestamp)
-		self.assertEquals(Interpretation.VISIT_EVENT.uri, ev.interpretation)
-		self.assertEquals(Manifestation.USER_ACTIVITY.uri, ev.manifestation)
+		self.assertEquals(Interpretation.VISIT_EVENT, ev.interpretation)
+		self.assertEquals(Manifestation.USER_ACTIVITY, ev.manifestation)
 		self.assertEquals("Freak Mamma", ev.actor)
 		self.assertEquals(1, len(ev.subjects))
 		self.assertEquals("void://foobar", ev.subjects[0].uri)
-		self.assertEquals(Interpretation.DOCUMENT.uri, ev.subjects[0].interpretation)
-		self.assertEquals(Manifestation.FILE.uri, ev.subjects[0].manifestation)
+		self.assertEquals(Interpretation.DOCUMENT, ev.subjects[0].interpretation)
+		self.assertEquals(Manifestation.FILE, ev.subjects[0].manifestation)
 	
 	def testFindTwoOfThreeEvents(self):
 		ev1 = Event.new_for_values(timestamp=400,
-					interpretation=Interpretation.VISIT_EVENT.uri,
-					manifestation=Manifestation.USER_ACTIVITY.uri,
+					interpretation=Interpretation.VISIT_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Boogaloo")	
 		ev2 = Event.new_for_values(timestamp=500,
-					interpretation=Interpretation.VISIT_EVENT.uri,
-					manifestation=Manifestation.USER_ACTIVITY.uri,
+					interpretation=Interpretation.VISIT_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Boogaloo")
 		ev3 = Event.new_for_values(timestamp=600,
-					interpretation=Interpretation.SEND_EVENT.uri,
-					manifestation=Manifestation.USER_ACTIVITY.uri,
+					interpretation=Interpretation.SEND_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Boogaloo")
 		subj1 = Subject.new_for_values(uri="foo://bar",
-					interpretation=Interpretation.DOCUMENT.uri,
-					manifestation=Manifestation.FILE.uri)
+					interpretation=Interpretation.DOCUMENT,
+					manifestation=Manifestation.FILE)
 		subj2 = Subject.new_for_values(uri="foo://baz",
-					interpretation=Interpretation.IMAGE.uri,
-					manifestation=Manifestation.FILE.uri)
+					interpretation=Interpretation.IMAGE,
+					manifestation=Manifestation.FILE)
 		subj3 = Subject.new_for_values(uri="foo://quiz",
-					interpretation=Interpretation.MUSIC.uri,
-					manifestation=Manifestation.FILE.uri)
+					interpretation=Interpretation.MUSIC,
+					manifestation=Manifestation.FILE)
 		ev1.append_subject(subj1)
 		ev2.append_subject(subj1)
 		ev2.append_subject(subj2)
@@ -84,7 +84,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(3, len(events))		
 		for event in events:
 			self.assertTrue(isinstance(event, Event))
-			self.assertEquals(Manifestation.USER_ACTIVITY.uri, event.manifestation)
+			self.assertEquals(Manifestation.USER_ACTIVITY, event.manifestation)
 			self.assertEquals("Boogaloo", event.actor)
 		
 		# Search for everything
@@ -97,7 +97,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		subj_templ2 = Subject.new_for_values(uri="foo://baz")
 		event_template = Event.new_for_values(
 					actor="Boogaloo",
-					interpretation=Interpretation.VISIT_EVENT.uri,
+					interpretation=Interpretation.VISIT_EVENT,
 					subjects=[subj_templ1,subj_templ2])
 		ids = self.findEventIdsAndWait([event_template],
 						num_events=10)

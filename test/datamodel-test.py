@@ -6,50 +6,57 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from zeitgeist.datamodel import *
+from zeitgeist.datamodel import SymbolCollection, Symbol, Manifestation, Interpretation, Event, Subject
+from zeitgeist.datamodel import MANIFESTATION_ID, INTERPREATION_ID
 
 import unittest
 
-class CategoryTest (unittest.TestCase):
-	"""
-	This class tests that the zeitgeist.datamodel.Category class
-	"""
-	def setUp (self):
-		pass
-		
-	def tearDown (self):
-		pass
+
+class SymbolTest(unittest.TestCase):
 	
-	def testAbstractClass(self):
-		"""Make sure that we can not instantiate a Category directly"""
-		self.failUnlessRaises(ValueError, Category, "http://example.com/schema#Foo")
-		self.failUnlessRaises(ValueError, Category.get, "http://example.com/schema#Foo")
+	def testInterpretationConstructors(self):
+		foo_url = "http://example.com/schema#Foo"
+		foo = Symbol(INTERPREATION_ID, "FOO", uri=foo_url)
+		self.assertEquals("FOO", foo.name)
+		self.assertEquals(foo_url, foo.uri)
+
+	def testManifestationConstructors(self):
+		foo_url = "http://example.com/schema#Foo"
+		foo = Symbol(MANIFESTATION_ID, "FOO", uri=foo_url)
+		self.assertEquals("FOO", foo.name)
+		self.assertEquals(foo_url, foo.uri)
+		
+		
+class SymbolCollectionTest(unittest.TestCase):
+	
+	def testConstruct(self):
+		foo = SymbolCollection("test")
+		self.assertEquals(len(foo), 0)
+		self.assertRaises(ValueError, foo.register, "test", None, None, None)
+		foo.register("TEST", "http://test", "Small Test", "this is a testing Symbol")
+		self.assertEquals(foo.TEST, "http://test")
+		self.assertEquals(foo.TEST.uri, "http://test")
+		self.assertEquals(foo.TEST.display_name, "Small Test")
+		self.assertEquals(foo.TEST.__doc__, "this is a testing Symbol")
+		self.assertEquals(foo.TEST.doc, "this is a testing Symbol")
+		
+		self.assertEquals(len(foo), 1)
+		self.assertRaises(
+			ValueError, foo.register, "TEST", "http://test1", "Small Test", "this is a testing Symbol"
+		)
+		self.assertRaises(AttributeError, getattr, foo, "test2")
+		
+		self.assertEquals(foo.TEST2, "TEST2")
+		self.assertEquals(foo.TEST2.uri, "TEST2")
+		self.assertEquals(foo.TEST2.display_name, "")
+		self.assertEquals(foo.TEST2.__doc__, "")
+		self.assertEquals(foo.TEST2.doc, "")
+
 
 class InterpretationTest (unittest.TestCase):
 	"""
 	This class tests that the zeitgeist.datamodel.Interpretation class
 	"""
-	def setUp (self):
-		pass
-		
-	def tearDown (self):
-		Interpretation.CACHE = {}
-	
-	def testCleanCache(self):
-		"""Assert that the cache is clear - for the sake of a clean test env."""
-		self.assertEquals(0, len(Interpretation.CACHE))
-
-	def testConstructors(self):
-		foo_url = "http://example.com/schema#Foo"
-		foo = Interpretation(foo_url)
-		self.assertEquals("Foo", foo.name)
-		self.assertEquals(foo_url, foo.uri)
-	
-	def testCache(self):
-		foo_url = "http://example.com/schema#Foo"
-		foo1 = Interpretation(foo_url)
-		foo2 = Interpretation.get(foo_url)
-		self.assertEquals(id(foo1), id(foo2))
 
 	def testPredefined(self):
 		tag = Interpretation.TAG
@@ -58,31 +65,11 @@ class InterpretationTest (unittest.TestCase):
 		self.assertTrue(tag.display_name != None)
 		self.assertTrue(tag.doc != None)
 
+
 class ManifestationTest (unittest.TestCase):
 	"""
 	This class tests that the zeitgeist.datamodel.Manifestation class
 	"""
-	def setUp (self):
-		pass
-		
-	def tearDown (self):
-		Manifestation.CACHE = {}
-
-	def testCleanCache(self):
-		"""Assert that the cache is clear - for the sake of a clean test env."""
-		self.assertEquals(0, len(Manifestation.CACHE))
-
-	def testConstructors(self):
-		foo_url = "http://example.com/schema#Foo"
-		foo = Manifestation(foo_url)
-		self.assertEquals("Foo", foo.name)
-		self.assertEquals(foo_url, foo.uri)
-	
-	def testCache(self):
-		foo_url = "http://example.com/schema#Foo"
-		foo1 = Manifestation(foo_url)
-		foo2 = Manifestation.get(foo_url)
-		self.assertEquals(id(foo1), id(foo2))
 	
 	def testPredefined(self):
 		f = Manifestation.FILE
@@ -90,6 +77,7 @@ class ManifestationTest (unittest.TestCase):
 		self.assertTrue(f.uri != None)
 		self.assertTrue(f.display_name != None)
 		self.assertTrue(f.doc != None)
+
 
 class EventTest (unittest.TestCase):
 	def setUp(self):
@@ -154,6 +142,7 @@ class EventTest (unittest.TestCase):
 		
 		e.manifestation="ILLEGAL SNAFU"
 		self.assertFalse(e.matches_template(template))
+		
 		
 if __name__ == '__main__':
 	unittest.main()
