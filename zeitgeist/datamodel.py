@@ -280,7 +280,7 @@ Interpretation.register(
 )
 Interpretation.register(
 	"APPLICATION",
-        u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SoftwareApplication",
+        u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application",
 	display_name=_("Applications"),
 	doc="An item that is a launchable application. The item's URI must point to the relevant .desktop file"
 )
