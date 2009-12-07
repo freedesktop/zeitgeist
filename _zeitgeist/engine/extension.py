@@ -33,7 +33,7 @@ class Extension(object):
 	def __init__(self, engine):
 		self.engine = engine
 	
-	def filter_insert_event(self, event):
+	def insert_event_hook(self, event):
 		"""
 		Hook applied to all events before they are inserted into the
 		log. The returned event is progressively passed through all
@@ -52,7 +52,7 @@ class Extension(object):
 		"""
 		return event
 	
-	def filter_get_event(self, event):
+	def get_event_hook(self, event):
 		"""
 		Hook applied to all events before they are returned to a client.
 		The event returned from this method is progressively passed
@@ -104,12 +104,33 @@ class ExtensionsCollection(object):
 		for method in obj.PUBLIC_METHODS:
 			del self.methods[method]
 		del self.__extensions[extension.__name__]
+	
+	def apply_get_hooks(self, event):
+		# Apply extension filters if we have an event
+		if event is None:
+			return None
 		
+		# FIXME: We need a stable iteration order
+		for ext in self.__extensions.itervalues():
+			event = ext.get_event_hook(event)
+			if event is None:
+				# The event has been blocked by
+				# the extension pretend it's
+				# not there
+				continue
+		return event
+	
+	def apply_insert_hooks(self, event):
+		# FIXME: We need a stable iteration order
+		for ext in self.__extensions.itervalues():
+			event = ext.insert_event_hook(event)
+			if event is None:
+				# The event has been blocked by the extension
+				return None
+		return event
+	
 	def __len__(self):
 		return len(self.__extensions)
-	
-	def __iter__ (self):
-		return self.__extensions.itervalues()
 	
 	@property
 	def methods(self):

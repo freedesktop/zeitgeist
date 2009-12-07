@@ -352,16 +352,7 @@ class ZeitgeistEngine:
 			# might simply have requested an event that has been
 			# deleted
 			event = events.get(id, None)
-			
-			# Apply extension filters if we have an event
-			if event is not None:
-				for ext in self.extensions:
-					event = ext.filter_insert_event(event)
-					if event is None:
-						# The event has been blocked by
-						# the extension pretend it's
-						# not there
-						continue
+			event = self.extensions.apply_get_hooks(event)
 			
 			sorted_events.append(event)
 		
@@ -391,11 +382,7 @@ class ZeitgeistEngine:
 		if not event.timestamp:
 			event.timestamp = self.get_timestamp_for_now()
 		
-		for ext in self.extensions:
-			event = ext.filter_insert_event(event)
-			if event is None:
-				# The event has been blocked by the extension
-				return -1
+		event = self.extensions.apply_insert_hooks(event)
 		
 		id = self.next_event_id()
 		
