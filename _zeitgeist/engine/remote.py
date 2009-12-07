@@ -108,7 +108,9 @@ class RemoteInterface(SingletonApplication):
 		    up to a maximum of *num_events* events. Sorted and grouped
 		    as defined by the *result_type* parameter.
 		:rtype: Array of unsigned 32 bit integers
-		"""		
+		"""
+		time_range = TimeRange(time_range[0], time_range[1])
+		event_templates = map(Event, event_templates)
 		return _engine.find_eventids(time_range, event_templates, storage_state, num_events, result_type)
 
 	# Writing stuff
@@ -132,12 +134,12 @@ class RemoteInterface(SingletonApplication):
 		:rtype: Array of unsigned 32 bits integers. DBus signature au.
 		"""
 		if not events : return []
-		
+		events = map(Event, events)
 		event_ids = _engine.insert_events(events)
 		
 		# FIXME: Filter out duplicate- or failed event insertions //kamstrup
 		_events = []
-		min_stamp = events[0][0][Event.Timestamp]
+		min_stamp = events[0].timestamp
 		max_stamp = min_stamp
 		for ev, ev_id in zip(events, event_ids):
 			_ev = Event(ev)
@@ -150,16 +152,16 @@ class RemoteInterface(SingletonApplication):
 		return event_ids
 	
 	@dbus.service.method(DBUS_INTERFACE, in_signature="au", out_signature="")
-	def DeleteEvents(self, ids):
+	def DeleteEvents(self, event_ids):
 		"""Delete a set of events from the log given their ids
 		
-		:param ids: list of event ids obtained, for example, by calling
+		:param event_ids: list of event ids obtained, for example, by calling
 		    :meth:`FindEventIds`
 		:type ids: list of integers
 		"""
 		# FIXME: Notify monitors - how do we do this? //kamstrup
-		min_stamp, max_stamp = _engine.delete_events(ids)
-		self._notifications.notify_delete(TimeRange(min_stamp, max_stamp), ids)
+		min_stamp, max_stamp = _engine.delete_events(event_ids)
+		self._notifications.notify_delete(TimeRange(min_stamp, max_stamp), event_ids)
 
 	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):

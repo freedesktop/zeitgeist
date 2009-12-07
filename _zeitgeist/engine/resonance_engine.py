@@ -370,9 +370,6 @@ class ZeitgeistEngine:
 		return m
 	
 	def _insert_event(self, event):
-		# Transparently wrap DBus event structs as Event objects
-		event = self._ensure_event_wrapping(event)
-		
 		if event.id:
 			raise ValueError("Illegal event: Predefined event id")
 		if not event.subjects:
@@ -476,22 +473,6 @@ class ZeitgeistEngine:
 			% ",".join(["?"] * len(ids)), ids)
 		
 		return min_stamp, max_stamp
-	
-	def _ensure_event_wrapping(self, event):
-		"""
-		Ensure that 'event' and its subjects are properly
-		wrapped in Event and Subject classes.
-		
-		This is useful for converting DBus input to our Event and
-		Subject representations without an actual data marshalling step
-		"""
-		if not isinstance(event, Event):
-			event = Event(event)
-		for i in xrange(len(event.subjects)):
-			subj = event.subjects[i]
-			if not isinstance(subj, Subject):
-				event.subjects[i] = Subject(subj)
-		return event
 	
 	def _build_templates(self, templates):
 		for event_template in templates:
