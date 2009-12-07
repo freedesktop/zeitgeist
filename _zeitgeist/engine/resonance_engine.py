@@ -334,7 +334,7 @@ class ZeitgeistEngine:
 		rows = self._cursor.execute("""
 			SELECT * FROM event_view
 			WHERE id IN (%s)
-			""" % ",".join(("%d" % id for id in ids))).fetchall()
+			""" % ",".join("%d" % id for id in ids)).fetchall()
 		events = {}
 		for row in rows:
 			# Assumption: all rows of a same event for its different
