@@ -254,12 +254,12 @@ class ZeitgeistEngineTest (_engineTestClass):
 			self.assertEqual(event.interpretation, "stfu:OpenEvent")
 
 	def testFindEventTwoInterpretations(self):
-		import_events("test/data/five_events.js", self.engine)
-		result = self.engine.find_eventids((0, 0), [
+		import_events("test/data/twenty_events.js", self.engine)
+		result = self.engine.find_eventids((102, 117), [
 			Event.new_for_values(interpretation="stfu:OpenEvent"),
-			Event.new_for_values(interpretation="stfu:FoobarEvent")
+			Event.new_for_values(interpretation="stfu:EvilEvent")
 			], StorageState.Any, 0, 0)
-		self.assertEquals(3, len(result))
+		self.assertEquals(15, len(result))
 
 	def testFindWithManifestation(self):
 		import_events("test/data/five_events.js", self.engine)

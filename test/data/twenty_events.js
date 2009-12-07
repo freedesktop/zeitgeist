@@ -241,7 +241,7 @@
 		]
 	},{
 		"timestamp" : 115,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "stfu:EvilEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -257,7 +257,7 @@
 		]
 	},{
 		"timestamp" : 116,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "stfu:ShoesEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -305,7 +305,7 @@
 		]
 	},{
 		"timestamp" : 119,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "stfu:EvilEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "firefox",
 		"subjects" : [

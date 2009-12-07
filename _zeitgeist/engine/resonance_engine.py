@@ -592,7 +592,8 @@ class WhereClause:
 			self.arguments.extend(arguments)
 	
 	def generate_condition(self):
-		return self._relation.join(self._conditions)
+		if self: # Do not return "()" if there are no conditions
+			return "(" + self._relation.join(self._conditions) + ")"
 	
 	def register_no_result(self):
 		self._no_result_member = True
