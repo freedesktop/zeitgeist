@@ -348,8 +348,22 @@ class ZeitgeistEngine:
 		sorted_events = []
 		for id in ids:
 			# if we are not able to get an event by the given id
-			# append None instead of raising an Error
-			sorted_events.append(events.get(id, None))
+			# append None instead of raising an Error. The client
+			# might simply have requested an event that has been
+			# deleted
+			event = events.get(id, None)
+			
+			# Apply extension filters if we have an event
+			if event is not None:
+				for ext in self.extensions:
+					event = ext.filter_insert_event(event)
+					if event is None:
+						# The event has been blocked by
+						# the extension pretend it's
+						# not there
+						continue
+			
+			sorted_events.append(event)
 		
 		log.debug("Got %d events in %fs" % (len(sorted_events), time.time()-t))
 
@@ -376,6 +390,12 @@ class ZeitgeistEngine:
 			raise ValueError("Illegal event format: No subject")
 		if not event.timestamp:
 			event.timestamp = self.get_timestamp_for_now()
+		
+		for ext in self.extensions:
+			event = ext.filter_insert_event(event)
+			if event is None:
+				# The event has been blocked by the extension
+				return -1
 		
 		id = self.next_event_id()
 		

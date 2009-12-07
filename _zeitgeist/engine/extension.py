@@ -22,13 +22,56 @@ class Extension(object):
 	
 	Every extension has to define a list of accessible methods as
 	'PUBLIC_METHODS'. The constructor of an Extension object takes the
-	engine object it extends as the only argument
+	engine object it extends as the only argument.
+	
+	In addition each extension has a set of hooks to control how events are
+	inserted and retrieved from the log. These hooks can either block the
+	event completely, modify it, or add additional metadata to it.
 	"""
 	PUBLIC_METHODS = None
 	
 	def __init__(self, engine):
 		self.engine = engine
 	
+	def filter_insert_event(self, event):
+		"""
+		Hook applied to all events before they are inserted into the
+		log. The returned event is progressively passed through all
+		extensions before the final result is inserted.
+		
+		To block an event completely simply return :const:`None`.
+		The event may also be modified or completely substituted for
+		another event.
+		
+		The default implementation of this method simply returns the
+		event as is.
+		
+		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
+		    instance
+		:returns: The filtered event instance to insert into the log
+		"""
+		return event
+	
+	def filter_get_event(self, event):
+		"""
+		Hook applied to all events before they are returned to a client.
+		The event returned from this method is progressively passed
+		through all extensions before they final result is returned to
+		the client.
+		
+		To prevent an event from ever leaving the server process simply
+		return :const:`None`. The event may also be changed in place
+		or fully substituted for another event.
+		
+		The default implementation of this method simply returns the
+		event as is.
+		
+		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
+		    instance
+		:returns: The filtered event instance as the client
+		    should see it
+		"""
+		return event
 	
 class ExtensionsCollection(object):
 	""" Collection to manage all extensions """
@@ -64,7 +107,10 @@ class ExtensionsCollection(object):
 		
 	def __len__(self):
 		return len(self.__extensions)
-		
+	
+	def __iter__ (self):
+		return self.__extensions.itervalues()
+	
 	@property
 	def methods(self):
 		return self.__methods
