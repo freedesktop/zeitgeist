@@ -554,10 +554,56 @@ class ZeitgeistEngine:
 		log.debug(sql)
 		log.debug("SQL args: %s" % where.arguments)
 		
-		result = [row[0] for row in self._cursor.execute(sql, where.arguments).fetchall()]
+		result = [row[0] 
+				for row in self._cursor.execute(sql, where.arguments).fetchall()]
 		
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result
+	
+	def get_most_used_with(self, subject_uri):
+		t = time.time()
+		event = Event()
+		subject = Subject()
+		subject.set_uri(subject_uri)
+		event.set_subjects([subject])
+		events_ids = self.find_eventids([0,0], [event], StorageState.Any, 7, 1)
+		key_events = self.get_events(events_ids)
+		timestamps = [event.timestamp for event in key_events]
+		t_tuples = []
+		
+		for timestamp in timestamps:
+			print timestamp
+			if timestamps.index(timestamp) == len(timestamps)-1:
+				timestamp2=time.time()
+			else:
+ 				timestamp2 = timestamps[timestamps.index(timestamp)+1]
+			row = self._cursor.execute("""SELECT * FROM event_view 
+			WHERE timestamp >= ? AND timestamp< ? AND subj_uri != ?
+			GROUP BY subj_uri ORDER BY timestamp
+			ASC LIMIT 5""",(timestamp, timestamp2, subject_uri)).fetchall()
+			t_tuples.append(row)
+		
+		min_support = 0
+		
+		k_tuples = []
+		for i in t_tuples: 
+			k_tuples.append([j[6] for j in i])
+			
+		item_dict = {}
+		for set in k_tuples:
+			for item in set:
+				if not item_dict.has_key(item):
+					item_dict[item] = 0
+				item_dict[item] +=1
+				min_support+=1
+		min_support = min_support / len(item_dict.keys())
+		
+		for key in item_dict.keys():
+			if item_dict[key] < min_support:
+				del item_dict[key]
+			
+		return item_dict.keys()
+	
 
 class WhereClause:
 	
