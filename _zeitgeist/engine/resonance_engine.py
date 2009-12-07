@@ -572,7 +572,6 @@ class ZeitgeistEngine:
 		t_tuples = []
 		
 		for timestamp in timestamps:
-			print timestamp
 			if timestamps.index(timestamp) == len(timestamps)-1:
 				timestamp2=time.time()
 			else:
