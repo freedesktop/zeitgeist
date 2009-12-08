@@ -561,25 +561,22 @@ class ZeitgeistEngine:
 		return result
 	
 	def get_most_used_with(self, subject_uri):
-		t = time.time()
-		event = Event()
-		subject = Subject()
-		subject.set_uri(subject_uri)
-		event.set_subjects([subject])
-		events_ids = self.find_eventids([0,0], [event], StorageState.Any, 7, 1)
-		key_events = self.get_events(events_ids)
+		event = Event.new_for_values(subject_uri = subject_uri)
+		event_ids = self.find_eventids([0, 0], [event], StorageState.Any, 7, 1)
+		key_events = self.get_events(event_ids)
 		timestamps = [event.timestamp for event in key_events]
 		t_tuples = []
 		
 		for timestamp in timestamps:
-			if timestamps.index(timestamp) == len(timestamps)-1:
-				timestamp2=time.time()
+			if timestamps.index(timestamp) == len(timestamps) - 1:
+				timestamp2 = time.time()
 			else:
- 				timestamp2 = timestamps[timestamps.index(timestamp)+1]
-			row = self._cursor.execute("""SELECT * FROM event_view 
-			WHERE timestamp >= ? AND timestamp< ? AND subj_uri != ?
-			GROUP BY subj_uri ORDER BY timestamp
-			ASC LIMIT 5""",(timestamp, timestamp2, subject_uri)).fetchall()
+ 				timestamp2 = timestamps[timestamps.index(timestamp) + 1]
+			row = self._cursor.execute("""
+				SELECT * FROM event_view
+				WHERE timestamp >= ? AND timestamp< ? AND subj_uri != ?
+				GROUP BY subj_uri ORDER BY timestamp ASC LIMIT 5
+				""", (timestamp, timestamp2, subject_uri)).fetchall()
 			t_tuples.append(row)
 		
 		min_support = 0
@@ -587,7 +584,7 @@ class ZeitgeistEngine:
 		k_tuples = []
 		for i in t_tuples: 
 			k_tuples.append([j[6] for j in i])
-			
+		
 		item_dict = {}
 		for set in k_tuples:
 			for item in set:
@@ -600,9 +597,8 @@ class ZeitgeistEngine:
 		for key in item_dict.keys():
 			if item_dict[key] < min_support:
 				del item_dict[key]
-			
+		
 		return item_dict.keys()
-	
 
 class WhereClause:
 	
