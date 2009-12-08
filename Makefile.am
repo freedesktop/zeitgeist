@@ -33,16 +33,16 @@ zeitgeist-daemon: zeitgeist-daemon.py
 		-e "s!zeitgeist-datahub\.py!zeitgeist-datahub!" \
 		< $< > $@
 	chmod +x zeitgeist-daemon
-zeitgeist-daemon.py: Makefile
+zeitgeist-daemon: Makefile
 
 zeitgeist-datahub: zeitgeist-datahub.py
 	sed \
 		-e "s!\/usr\/bin\/env python!$(PYTHON)!" \
 		< $< > $@
 	chmod +x zeitgeist-datahub
-zeitgeist-datahub.py: Makefile
+zeitgeist-datahub: Makefile
 
-all-local: zeitgeist-daemon zeitgeist-datahub.py
+all-local: zeitgeist-daemon zeitgeist-datahub
 
 # Generate ChangeLog
 dist-hook:
@@ -58,4 +58,3 @@ dist-hook:
 	else \
 			echo A Bazaar branch is required to generate the ChangeLog >&2; \
 	fi
-
