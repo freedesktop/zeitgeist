@@ -564,7 +564,8 @@ class ZeitgeistEngine:
 	def get_most_used_with_subject(self, subject_uri):
 		event = Event.new_for_values(subject_uri = subject_uri)
 		key_events = self.get_events(self.find_eventids(
-			[0, 0], [event], StorageState.Any, 7, ResultType.LeastRecentEvents))
+			[0, 0], [event], StorageState.Any, 7, ResultType.MostRecentEvents))
+		key_events.reverse()
 		timestamps = [event.timestamp for event in key_events]
 		k_tuples = []
 		
@@ -573,9 +574,9 @@ class ZeitgeistEngine:
 				time.time()
 			results = self._cursor.execute("""
 				SELECT * FROM event_view
-				WHERE timestamp >= ? AND timestamp < ? AND subj_uri != ?
+				WHERE timestamp > ? AND timestamp < ?
 				GROUP BY subj_uri ORDER BY timestamp ASC LIMIT 5
-				""", (timestamp, timestamp2, subject_uri)).fetchall()
+				""", (timestamp, timestamp2)).fetchall()
 			if results:
 				k_tuples.append([row[6] for row in results]) # Append the URIs
 		
