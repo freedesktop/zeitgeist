@@ -417,7 +417,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		
 	def testMostUsedWithSubject(self):
 		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.get_most_used_with("i2")
+		result = self.engine.get_most_used_with_subject("i2")
 		self.assertEquals(result, ['i1', 'i3'])
 		
 

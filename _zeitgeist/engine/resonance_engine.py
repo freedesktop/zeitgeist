@@ -561,7 +561,7 @@ class ZeitgeistEngine:
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result
 	
-	def get_most_used_with(self, subject_uri):
+	def get_most_used_with_subject(self, subject_uri):
 		event = Event.new_for_values(subject_uri = subject_uri)
 		key_events = self.get_events(self.find_eventids(
 			[0, 0], [event], StorageState.Any, 7, ResultType.LeastRecentEvents))
@@ -576,7 +576,13 @@ class ZeitgeistEngine:
 				WHERE timestamp >= ? AND timestamp < ? AND subj_uri != ?
 				GROUP BY subj_uri ORDER BY timestamp ASC LIMIT 5
 				""", (timestamp, timestamp2, subject_uri)).fetchall()
-			k_tuples.append([row[6] for row in results]) # Append the URIs
+			if results:
+				k_tuples.append([row[6] for row in results]) # Append the URIs
+		
+		if not k_tuples:
+			# No results found. We abort here to avoid hitting a
+			# ZeroDivisionError later in the code.
+			return []
 		
 		min_support = 0
 		
@@ -588,6 +594,7 @@ class ZeitgeistEngine:
 				else:
 					item_dict[item] = 1
 				min_support += 1
+		print item_dict
 		min_support = min_support / len(item_dict)
 		
 		return [key for key, support in item_dict.iteritems() if \
