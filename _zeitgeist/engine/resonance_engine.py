@@ -30,7 +30,8 @@ import logging
 
 from extension import ExtensionsCollection
 
-from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange
+from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange, \
+	ResultType
 import _zeitgeist.engine
 
 logging.basicConfig(level=logging.DEBUG)
@@ -562,37 +563,32 @@ class ZeitgeistEngine:
 	
 	def get_most_used_with(self, subject_uri):
 		event = Event.new_for_values(subject_uri = subject_uri)
-		event_ids = self.find_eventids([0, 0], [event], StorageState.Any, 7, 1)
-		key_events = self.get_events(event_ids)
+		key_events = self.get_events(self.find_eventids(
+			[0, 0], [event], StorageState.Any, 7, ResultType.LeastRecentEvents))
 		timestamps = [event.timestamp for event in key_events]
-		t_tuples = []
+		k_tuples = []
 		
-		for timestamp in timestamps:
-			if timestamps.index(timestamp) == len(timestamps) - 1:
-				timestamp2 = time.time()
-			else:
- 				timestamp2 = timestamps[timestamps.index(timestamp) + 1]
-			row = self._cursor.execute("""
+		for i, timestamp in enumerate(timestamps):
+			timestamp2 = timestamps[i + 1] if (i + 1) < len(timestamps) else \
+				time.time()
+			results = self._cursor.execute("""
 				SELECT * FROM event_view
-				WHERE timestamp >= ? AND timestamp< ? AND subj_uri != ?
+				WHERE timestamp >= ? AND timestamp < ? AND subj_uri != ?
 				GROUP BY subj_uri ORDER BY timestamp ASC LIMIT 5
 				""", (timestamp, timestamp2, subject_uri)).fetchall()
-			t_tuples.append(row)
+			k_tuples.append([row[6] for row in results]) # Append the URIs
 		
 		min_support = 0
-		
-		k_tuples = []
-		for i in t_tuples: 
-			k_tuples.append([j[6] for j in i])
 		
 		item_dict = {}
 		for set in k_tuples:
 			for item in set:
-				if not item_dict.has_key(item):
-					item_dict[item] = 0
-				item_dict[item] +=1
-				min_support+=1
-		min_support = min_support / len(item_dict.keys())
+				if item in item_dict:
+					item_dict[item] += 1
+				else:
+					item_dict[item] = 1
+				min_support += 1
+		min_support = min_support / len(item_dict)
 		
 		for key in item_dict.keys():
 			if item_dict[key] < min_support:
