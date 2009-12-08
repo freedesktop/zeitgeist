@@ -590,11 +590,8 @@ class ZeitgeistEngine:
 				min_support += 1
 		min_support = min_support / len(item_dict)
 		
-		for key in item_dict.keys():
-			if item_dict[key] < min_support:
-				del item_dict[key]
-		
-		return item_dict.keys()
+		return [key for key, support in item_dict.iteritems() if \
+			support >= min_support]
 
 class WhereClause:
 	
