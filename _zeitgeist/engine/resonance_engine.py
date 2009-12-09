@@ -488,21 +488,11 @@ class ZeitgeistEngine:
 			for subject in (event_template[1] or (Subject(),)):
 				yield Event((event_data, [], None)), Subject(subject)
 	
-	def find_eventids (self, time_range, event_templates, storage_state,
-		max_events, order):
-		"""
-		Accepts 'event_templates' as either a real list of Events or as
-		a list of tuples (event_data,subject_data) as we do in the
-		DBus API
-		"""
-		
-		t = time.time()
+	def _build_sql_where_clause(self, time_range, templates, storage_state):
 		
 		# FIXME: We need to take storage_state into account
 		if storage_state != StorageState.Any:
 			raise NotImplementedError
-		
-		event_templates = list(self._build_templates(event_templates))
 		
 		where = WhereClause("AND")
 		if time_range[0] > 0:
@@ -511,7 +501,7 @@ class ZeitgeistEngine:
 			where.add("timestamp <= ?", time_range[1])
 		where_or = WhereClause("OR")
 
-		for (event_template, subject_template) in event_templates:
+		for (event_template, subject_template) in templates:
 			subwhere = WhereClause("AND")
 			try:
 				for key in ("interpretation", "manifestation", "actor"):
@@ -535,6 +525,21 @@ class ZeitgeistEngine:
 			where_or.add(subwhere.generate_condition(), subwhere.arguments)
 		where.add(where_or.generate_condition(), where_or.arguments)
 		
+		return where
+	
+	def find_eventids (self, time_range, event_templates, storage_state,
+		max_events, order):
+		"""
+		Accepts 'event_templates' as either a real list of Events or as
+		a list of tuples (event_data,subject_data) as we do in the
+		DBus API
+		"""
+		
+		t = time.time()
+		
+		event_templates = list(self._build_templates(event_templates))
+		where = self._build_sql_where_clause(time_range, event_templates,
+			storage_state)
 		if not where.may_have_results():
 			# We know from our cached data that the query will give no results
 			return []
