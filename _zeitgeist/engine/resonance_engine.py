@@ -578,12 +578,12 @@ class ZeitgeistEngine:
 			timestamp2 = timestamps[i + 1] if (i + 1) < len(timestamps) else \
 				time.time()
 			results = self._cursor.execute("""
-				SELECT * FROM event_view
+				SELECT subj_uri FROM event_view
 				WHERE timestamp > ? AND timestamp < ?
 				GROUP BY subj_uri ORDER BY timestamp ASC LIMIT 5
 				""", (timestamp, timestamp2)).fetchall()
 			if results:
-				k_tuples.append([row[6] for row in results]) # Append the URIs
+				k_tuples.append([row[0] for row in results]) # Append the URIs
 		
 		if not k_tuples:
 			# No results found. We abort here to avoid hitting a
