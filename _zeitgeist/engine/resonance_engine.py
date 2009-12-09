@@ -500,8 +500,8 @@ class ZeitgeistEngine:
 		if time_range[1] > 0:
 			where.add("timestamp <= ?", time_range[1])
 		where_or = WhereClause("OR")
-
-		for (event_template, subject_template) in templates:
+		
+		for (event_template, subject_template) in self._build_templates(templates):
 			subwhere = WhereClause("AND")
 			try:
 				for key in ("interpretation", "manifestation", "actor"):
@@ -537,11 +537,9 @@ class ZeitgeistEngine:
 		
 		t = time.time()
 		
-		event_templates = list(self._build_templates(event_templates))
 		where = self._build_sql_where_clause(time_range, event_templates,
 			storage_state)
 		if not where.may_have_results():
-			# We know from our cached data that the query will give no results
 			return []
 		
 		sql = "SELECT DISTINCT id FROM event_view"
@@ -557,8 +555,6 @@ class ZeitgeistEngine:
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
-		log.debug(sql)
-		log.debug("SQL args: %s" % where.arguments)
 		
 		result = [row[0] 
 				for row in self._cursor.execute(sql, where.arguments).fetchall()]
@@ -566,12 +562,33 @@ class ZeitgeistEngine:
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result
 	
-	def get_most_used_with_subject(self, subject_uri):
-		event = Event.new_for_values(subject_uri = subject_uri)
-		key_events = self.get_events(self.find_eventids(
-			[0, 0], [event], StorageState.Any, 7, ResultType.MostRecentEvents))
-		key_events.reverse()
-		timestamps = [event.timestamp for event in key_events]
+	def get_most_used_with_subject(self, subject_uri, timerange,
+		result_event_templates, result_storage_state):
+		"""
+		Return a list of subject URIs commonly used together with the indicated
+		subject, considering data from within the indicated timerange.
+		
+		Only URIs for subjects matching the indicated `result_event_templates`
+		and `result_storage_state` are returned.
+		
+		This currently uses a modified version of the Apriori algorithm, but
+		the implementation may vary.
+		"""
+		
+		where = self._build_sql_where_clause(timerange,
+			[Event.new_for_values(subject_uri = subject_uri)],
+			StorageState.Any)
+		if not where.may_have_results():
+			return []
+		
+		timestamps = [row[0] for row in self._cursor.execute("""
+			SELECT timestamp FROM event_view
+			WHERE %s
+			ORDER BY timestamp DESC
+			LIMIT 7
+			""" % where.generate_condition(), where.arguments)]
+		timestamps.reverse()
+		
 		k_tuples = []
 		
 		for i, timestamp in enumerate(timestamps):
@@ -634,4 +651,8 @@ class WhereClause:
 		self._no_result_member = True
 	
 	def may_have_results(self):
+		"""
+		Return False if we know from our cached data that the query
+		will give no results.
+		"""
 		return len(self._conditions) > 0 or not self._no_result_member
