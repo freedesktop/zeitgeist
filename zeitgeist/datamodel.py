@@ -673,7 +673,7 @@ class Event(list):
 			self.extend(([""]* len(Event.Fields), [], ""))
 		
 		# If we have no timestamp just set it to now
-		if not self[0][Event.Timestamp] :
+		if not self[0][Event.Timestamp]:
 			self[0][Event.Timestamp] = str(int(time.time() * 1000))
 		
 	@staticmethod

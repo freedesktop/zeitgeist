@@ -75,6 +75,20 @@ class RemoteInterface(SingletonApplication):
 			return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
+						in_signature="s", out_signature="as")
+	def GetMostUsedWithSubject(self, uri):
+		"""Get the URI of the :class:`Subject`s most frequently used together
+		with the indicated URI.
+		
+		:param uri: URI of the :class:`Subject` for which you want to find the
+		   related items.
+		:type uri: String.
+		:returns: A variable number of URIs.
+		:rtype: A list of strings.
+		"""
+		return _engine.get_most_used_with_subject(uri)
+	
+	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			num_events, result_type):
