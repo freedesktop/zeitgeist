@@ -137,11 +137,15 @@ class RemoteInterface(SingletonApplication):
 		events = map(Event, events)
 		event_ids = _engine.insert_events(events)
 		
-		# FIXME: Filter out duplicate- or failed event insertions //kamstrup
 		_events = []
 		min_stamp = events[0].timestamp
 		max_stamp = min_stamp
 		for ev, ev_id in zip(events, event_ids):
+			if not ev_id:
+				# event has not been inserted because of an error or 
+				# because of being blocked by an extension
+				# this is why we do not notify clients about this event
+				continue
 			_ev = Event(ev)
 			_ev[0][Event.Id] = ev_id
 			_events.append(_ev)

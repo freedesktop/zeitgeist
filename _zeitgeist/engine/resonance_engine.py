@@ -278,8 +278,15 @@ class ZeitgeistEngine:
 		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
-		row = cursor.execute("SELECT MAX(id) FROM event").fetchone()
-		self._last_event_id = row[0] if row[0] else 0
+		row = cursor.execute("SELECT MIN(id), MAX(id) FROM event").fetchone()
+		self._last_event_id = row[1] if row[1] else 0
+		if row[0] == 0:
+			# old database version raise an error for now,
+			# maybe just change the id to self._last_event_id + 1
+			# looking closer at the old code, it seems like
+			# no event ever got an id of 0, but we should leave this check
+			# to be 100% sure.
+			raise RuntimeError("old database version")
 		
 		# Load extensions
 		# Right now we don't load any default extension
@@ -369,12 +376,21 @@ class ZeitgeistEngine:
 	
 	def insert_events(self, events):
 		t = time.time()
-		m = map(self._insert_event, events)
+		m = map(self._insert_event_without_error, events)
 		_cursor.connection.commit()
 		log.debug("Inserted %d events in %fs" % (len(m), time.time()-t))
 		return m
+		
+	def _insert_event_without_error(self, event):
+		try:
+			return self._insert_event(event)
+		except Exception, e:
+			log.exception("error while inserting '%r'" %event)
+			return 0
 	
 	def _insert_event(self, event):
+		if not isinstance(event, Event):
+			raise ValueError("cannot insert object of type %r" %type(event))
 		if event.id:
 			raise ValueError("Illegal event: Predefined event id")
 		if not event.subjects:
@@ -383,6 +399,10 @@ class ZeitgeistEngine:
 			event.timestamp = self.get_timestamp_for_now()
 		
 		event = self.extensions.apply_insert_hooks(event)
+		if event is None:
+			raise AssertionError("Inserting of event was blocked by an extension")
+		elif not isinstance(event, Event):
+			raise ValueError("cannot insert object of type %r" %type(event))
 		
 		id = self.next_event_id()
 		
