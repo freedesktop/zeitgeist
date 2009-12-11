@@ -376,12 +376,12 @@ class ZeitgeistEngine:
 	
 	def insert_events(self, events):
 		t = time.time()
-		m = map(self._wrap_insert_event, events)
+		m = map(self._insert_event_without_error, events)
 		_cursor.connection.commit()
 		log.debug("Inserted %d events in %fs" % (len(m), time.time()-t))
 		return m
 		
-	def _wrap_insert_event(self, event):
+	def _insert_event_without_error(self, event):
 		try:
 			return self._insert_event(event)
 		except Exception, e:
