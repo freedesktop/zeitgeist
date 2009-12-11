@@ -491,10 +491,10 @@ class ZeitgeistEngine:
 	
 	def _build_sql_from_event_templates(self, templates):
 	
-		where_or = WhereClause("OR")
+		where_or = WhereClause(WhereClause.OR)
 		
 		for (event_template, subject_template) in self._build_templates(templates):
-			subwhere = WhereClause("AND")
+			subwhere = WhereClause(WhereClause.AND)
 			try:
 				for key in ("interpretation", "manifestation", "actor"):
 					value = getattr(event_template, key)
@@ -508,7 +508,7 @@ class ZeitgeistEngine:
 							getattr(self, "_" + key).id(value))
 			except KeyError:
 				# Value not in DB
-				where.register_no_result()
+				where_or.register_no_result()
 				continue
 			for key in ("uri", "origin", "text"):
 				value = getattr(subject_template, key)
@@ -524,7 +524,7 @@ class ZeitgeistEngine:
 		if storage_state != StorageState.Any:
 			raise NotImplementedError
 		
-		where = WhereClause("AND")
+		where = WhereClause(WhereClause.AND)
 		if time_range[0] > 0:
 			where.add("timestamp >= ?", time_range[0])
 		if time_range[1] > 0:
@@ -534,7 +534,7 @@ class ZeitgeistEngine:
 		
 		return where
 	
-	def find_eventids (self, time_range, event_templates, storage_state,
+	def find_eventids(self, time_range, event_templates, storage_state,
 		max_events, order):
 		"""
 		Accepts 'event_templates' as either a real list of Events or as
@@ -606,7 +606,7 @@ class ZeitgeistEngine:
 			end_timestamp = timestamps[i + 1] if (i + 1) < len(timestamps) \
 				else time.time()
 			
-			where = WhereClause("AND")
+			where = WhereClause(WhereClause.AND)
 			where.add("timestamp > ? AND timestamp < ?",
 				(start_timestamp, end_timestamp))
 			where.extend(self._build_sql_from_event_templates(
@@ -646,10 +646,13 @@ class ZeitgeistEngine:
 
 class WhereClause:
 	
+	AND = " AND "
+	OR = " OR "
+	
 	def __init__(self, relation):
 		self._conditions = []
 		self.arguments = []
-		self._relation = " " + relation + " "
+		self._relation = relation
 		self._no_result_member = False
 	
 	def __len__(self):
@@ -666,6 +669,8 @@ class WhereClause:
 	
 	def extend(self, where):
 		self.add(where.sql, where.arguments)
+		if self._relation == self.AND and not where.may_have_results():
+			self.register_no_result()
 	
 	@property
 	def sql(self):

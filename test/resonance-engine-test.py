@@ -419,7 +419,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.get_most_used_with_subject("i2", (0, 0), [],
 			StorageState.Any)
-		self.assertEquals(result, ["i1", "i3"])
+		self.assertEquals(result, ["i3", "i1"])
 
 	def testMostUsedWithSubjectWithManifestation(self):
 		import_events("test/data/apriori_events.js", self.engine)
