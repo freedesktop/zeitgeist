@@ -692,13 +692,13 @@ class Event(list):
 		return self
 		
 	@classmethod
-	def new_from_raw(cls, struct):
+	def new_for_struct(cls, struct):
 		if struct == NULL_EVENT:
 			return None
 		return cls(struct)
 	
-	@staticmethod
-	def new_for_values (**values):
+	@classmethod
+	def new_for_values(cls, **values):
 		"""
 		Create a new Event instance from a collection of keyword
 		arguments.
@@ -725,7 +725,7 @@ class Event(list):
 		 
 		
 		"""
-		self = Event()
+		self = cls()
 		self.timestamp = values.get("timestamp", self.timestamp)
 		self.interpretation = values.get("interpretation", "")
 		self.manifestation = values.get("manifestation", "")
@@ -747,7 +747,8 @@ class Event(list):
 		
 		return self
 	
-	def _dict_contains_subject_keys (self, dikt):
+	@staticmethod
+	def _dict_contains_subject_keys (dikt):
 		if "subject_uri" in dikt : return True
 		elif "subject_interpretation" in dikt : return True
 		elif "subject_manifestation" in dikt : return True
