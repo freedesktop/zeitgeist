@@ -64,9 +64,8 @@ class RemoteInterface(SingletonApplication):
 		"""
 		events = _engine.get_events(event_ids)
 		for event in events:
-			if event is None:
-				continue
-			event._make_dbus_sendable()
+			if event is not None:
+				event._make_dbus_sendable()
 		events = [NULL_EVENT if event is None else event for event in events]
 		return events
 	
