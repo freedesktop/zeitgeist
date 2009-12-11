@@ -482,23 +482,15 @@ class ZeitgeistEngine:
 		
 		return min_stamp, max_stamp
 	
-	def _build_templates(self, templates):
+	@staticmethod
+	def _build_templates(templates):
 		for event_template in templates:
 			event_data = event_template[0]
 			for subject in (event_template[1] or (Subject(),)):
 				yield Event((event_data, [], None)), Subject(subject)
 	
-	def _build_sql_where_clause(self, time_range, templates, storage_state):
-		
-		# FIXME: We need to take storage_state into account
-		if storage_state != StorageState.Any:
-			raise NotImplementedError
-		
-		where = WhereClause("AND")
-		if time_range[0] > 0:
-			where.add("timestamp >= ?", time_range[0])
-		if time_range[1] > 0:
-			where.add("timestamp <= ?", time_range[1])
+	def _build_sql_from_event_templates(self, templates):
+	
 		where_or = WhereClause("OR")
 		
 		for (event_template, subject_template) in self._build_templates(templates):
@@ -522,8 +514,23 @@ class ZeitgeistEngine:
 				value = getattr(subject_template, key)
 				if value:
 					subwhere.add("subj_%s = ?" % key, value)
-			where_or.add(subwhere.generate_condition(), subwhere.arguments)
-		where.add(where_or.generate_condition(), where_or.arguments)
+			where_or.extend(subwhere)
+		
+		return where_or
+	
+	def _build_sql_event_filter(self, time_range, templates, storage_state):
+		
+		# FIXME: We need to take storage_state into account
+		if storage_state != StorageState.Any:
+			raise NotImplementedError
+		
+		where = WhereClause("AND")
+		if time_range[0] > 0:
+			where.add("timestamp >= ?", time_range[0])
+		if time_range[1] > 0:
+			where.add("timestamp <= ?", time_range[1])
+		
+		where.extend(self._build_sql_from_event_templates(templates))
 		
 		return where
 	
@@ -537,14 +544,14 @@ class ZeitgeistEngine:
 		
 		t = time.time()
 		
-		where = self._build_sql_where_clause(time_range, event_templates,
+		where = self._build_sql_event_filter(time_range, event_templates,
 			storage_state)
 		if not where.may_have_results():
 			return []
 		
 		sql = "SELECT DISTINCT id FROM event_view"
 		if where:
-			sql += " WHERE " + where.generate_condition()
+			sql += " WHERE " + where.sql
 		
 		sql += (" ORDER BY timestamp DESC",
 			" ORDER BY timestamp ASC",
@@ -575,7 +582,7 @@ class ZeitgeistEngine:
 		the implementation may vary.
 		"""
 		
-		where = self._build_sql_where_clause(timerange,
+		where = self._build_sql_event_filter(timerange,
 			[Event.new_for_values(subject_uri = subject_uri)],
 			StorageState.Any)
 		if not where.may_have_results():
@@ -586,19 +593,32 @@ class ZeitgeistEngine:
 			WHERE %s
 			ORDER BY timestamp DESC
 			LIMIT 7
-			""" % where.generate_condition(), where.arguments)]
+			""" % where.sql, where.arguments)]
 		timestamps.reverse()
 		
 		k_tuples = []
 		
-		for i, timestamp in enumerate(timestamps):
-			timestamp2 = timestamps[i + 1] if (i + 1) < len(timestamps) else \
-				time.time()
+		# FIXME: We need to take result_storage_state into account
+		if result_storage_state != StorageState.Any:
+			raise NotImplementedError
+		
+		for i, start_timestamp in enumerate(timestamps):
+			end_timestamp = timestamps[i + 1] if (i + 1) < len(timestamps) \
+				else time.time()
+			
+			where = WhereClause("AND")
+			where.add("timestamp > ? AND timestamp < ?",
+				(start_timestamp, end_timestamp))
+			where.extend(self._build_sql_from_event_templates(
+				result_event_templates))
+			if not where.may_have_results():
+				continue
+			
 			results = self._cursor.execute("""
 				SELECT subj_uri FROM event_view
-				WHERE timestamp > ? AND timestamp < ?
+				WHERE %s
 				GROUP BY subj_uri ORDER BY timestamp ASC LIMIT 5
-				""", (timestamp, timestamp2)).fetchall()
+				""" % where.sql, where.arguments).fetchall()
 			if results:
 				k_tuples.append([row[0] for row in results]) # Append the URIs
 		
@@ -617,7 +637,6 @@ class ZeitgeistEngine:
 				else:
 					item_dict[item] = 1
 				min_support += 1
-		print item_dict
 		min_support = min_support / len(item_dict)
 		
 		return [key for key, support in item_dict.iteritems() if \
@@ -643,7 +662,11 @@ class WhereClause:
 		else:
 			self.arguments.extend(arguments)
 	
-	def generate_condition(self):
+	def extend(self, where):
+		self.add(where.sql, where.arguments)
+	
+	@property
+	def sql(self):
 		if self: # Do not return "()" if there are no conditions
 			return "(" + self._relation.join(self._conditions) + ")"
 	

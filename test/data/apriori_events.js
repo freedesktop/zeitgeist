@@ -25,7 +25,7 @@
 			{
 				"uri" : "i2",
 				"interpretation" : "stfu:Document",
-				"manifestation" : "stfu:File",
+				"manifestation" : "stfu:IgnoredFile",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
@@ -59,7 +59,7 @@
 			{
 				"uri" : "i2",
 				"interpretation" : "stfu:Document",
-				"manifestation" : "stfu:File",
+				"manifestation" : "stfu:IgnoredFile",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
@@ -93,7 +93,7 @@
 			{
 				"uri" : "i2",
 				"interpretation" : "stfu:Document",
-				"manifestation" : "stfu:File",
+				"manifestation" : "stfu:IgnoredFile",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
@@ -144,7 +144,7 @@
 			{
 				"uri" : "i2",
 				"interpretation" : "stfu:Document",
-				"manifestation" : "stfu:File",
+				"manifestation" : "stfu:IgnoredFile",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
@@ -212,7 +212,7 @@
 			{
 				"uri" : "i2",
 				"interpretation" : "stfu:Document",
-				"manifestation" : "stfu:File",
+				"manifestation" : "stfu:IgnoredFile",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
@@ -297,7 +297,7 @@
 			{
 				"uri" : "i2",
 				"interpretation" : "stfu:Document",
-				"manifestation" : "stfu:File",
+				"manifestation" : "stfu:IgnoredFile",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
@@ -365,7 +365,7 @@
 			{
 				"uri" : "i2",
 				"interpretation" : "stfu:Document",
-				"manifestation" : "stfu:File",
+				"manifestation" : "stfu:IgnoredFile",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
