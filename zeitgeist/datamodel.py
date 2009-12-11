@@ -895,13 +895,5 @@ class Event(list):
 		# If there is indeed data here, we must not unicode encode it!
 		if self[2] is None: self[2] = u""
 		
-
-import dbus
-NULL_EVENT = dbus.Struct(
-	(
-		dbus.Array([], signature=dbus.Signature('s')),
-		dbus.Array([], signature=dbus.Signature('as')),
-		dbus.Array([], signature=dbus.Signature('y'))
-	),
-	signature=None
-)
+		
+NULL_EVENT = ([], [], [])
