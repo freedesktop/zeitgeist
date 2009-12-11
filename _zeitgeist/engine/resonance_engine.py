@@ -639,8 +639,10 @@ class ZeitgeistEngine:
 				min_support += 1
 		min_support = min_support / len(item_dict)
 		
-		return [key for key, support in item_dict.iteritems() if \
-			support >= min_support]
+		# Return the values sorted from highest to lowest support
+		results = [(support, key) for key, support in item_dict.iteritems()
+			if support >= min_support]
+		return [key for support, key in sorted(results, reverse=True)]
 
 class WhereClause:
 	

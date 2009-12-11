@@ -427,7 +427,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 			[Event.new_for_values(
 				subjects=[Subject.new_for_values(manifestation="stfu:File")])],
 			StorageState.Any)
-		self.assertEquals(result, ["i1", "i3", "i5"])
+		self.assertEquals(result, ["i3", "i1", "i5"])
 		
 
 if __name__ == "__main__":
