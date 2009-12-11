@@ -138,7 +138,13 @@ class ZeitgeistEngineTest (_engineTestClass):
 		event.append_subject(subject)
 		
 		# Insert item and event
-		self.assertRaises(ValueError, self.engine.insert_events, [event])
+		ids = self.engine.insert_events([event,])
+		self.assertEquals(len(ids), 1)
+		# event is not inserted, id == 0 means error
+		self.assertEquals(ids[0], 0)
+		# check if really not events were inserted
+		ids = self.engine.find_eventids((0, 0), [], StorageState.Any, 0, ResultType.MostRecentEvents)
+		self.assertEquals(len(ids), 0)
 		
 	def testGetNonExisting(self):
 		events = self.engine.get_events([23,45,65])
@@ -348,7 +354,13 @@ class ZeitgeistEngineTest (_engineTestClass):
 					interpretation=Interpretation.VISIT_EVENT.uri,
 					manifestation=Manifestation.USER_ACTIVITY.uri,
 					actor="Freak Mamma")
-		self.assertRaises(ValueError, self.engine.insert_events, [ev])
+		ids = self.engine.insert_events([ev,])
+		self.assertEquals(len(ids), 1)
+		# event is not inserted, id == 0 means error
+		self.assertEquals(ids[0], 0)
+		# check if really not events were inserted
+		ids = self.engine.find_eventids((0, 0), [], StorageState.Any, 0, ResultType.MostRecentEvents)
+		self.assertEquals(len(ids), 0)
 		
 	def testUnicodeEventInsert(self):
 		# Insert and get a unicode event
