@@ -676,18 +676,18 @@ class Event(list):
 		if not self[0][Event.Timestamp] :
 			self[0][Event.Timestamp] = str(int(time.time() * 1000))
 		
-	@staticmethod
-	def new_for_data(event_data):
+	@classmethod
+	def new_for_data(cls, event_data):
 		"""
 		Create a new Event setting event_data as the backing array
 		behind the event metadata. The contents of the array must
 		contain the event metadata at the positions defined by the
 		Event.Fields enumeration.
 		"""
-		self = Event()
-		if len(event_data) != len(Event.Fields):
+		self = cls()
+		if len(event_data) != len(cls.Fields):
 			raise ValueError("event_data must have %s members, found %s" % \
-				(len(Event.Fields), len(event_data)))
+				(len(cls.Fields), len(event_data)))
 		self[0] = event_data
 		return self
 		
