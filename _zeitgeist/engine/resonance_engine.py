@@ -30,7 +30,8 @@ import logging
 
 from extension import ExtensionsCollection
 
-from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange
+from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange, \
+	ResultType
 import _zeitgeist.engine
 
 logging.basicConfig(level=logging.DEBUG)
@@ -501,37 +502,19 @@ class ZeitgeistEngine:
 		
 		return min_stamp, max_stamp
 	
-	def _build_templates(self, templates):
+	@staticmethod
+	def _build_templates(templates):
 		for event_template in templates:
 			event_data = event_template[0]
 			for subject in (event_template[1] or (Subject(),)):
 				yield Event((event_data, [], None)), Subject(subject)
 	
-	def find_eventids (self, time_range, event_templates, storage_state,
-		max_events, order):
-		"""
-		Accepts 'event_templates' as either a real list of Events or as
-		a list of tuples (event_data,subject_data) as we do in the
-		DBus API
-		"""
+	def _build_sql_from_event_templates(self, templates):
+	
+		where_or = WhereClause(WhereClause.OR)
 		
-		t = time.time()
-		
-		# FIXME: We need to take storage_state into account
-		if storage_state != StorageState.Any:
-			raise NotImplementedError
-		
-		event_templates = list(self._build_templates(event_templates))
-		
-		where = WhereClause("AND")
-		if time_range[0] > 0:
-			where.add("timestamp >= ?", time_range[0])
-		if time_range[1] > 0:
-			where.add("timestamp <= ?", time_range[1])
-		where_or = WhereClause("OR")
-
-		for (event_template, subject_template) in event_templates:
-			subwhere = WhereClause("AND")
+		for (event_template, subject_template) in self._build_templates(templates):
+			subwhere = WhereClause(WhereClause.AND)
 			try:
 				for key in ("interpretation", "manifestation", "actor"):
 					value = getattr(event_template, key)
@@ -545,22 +528,50 @@ class ZeitgeistEngine:
 							getattr(self, "_" + key).id(value))
 			except KeyError:
 				# Value not in DB
-				where.register_no_result()
+				where_or.register_no_result()
 				continue
 			for key in ("uri", "origin", "text"):
 				value = getattr(subject_template, key)
 				if value:
 					subwhere.add("subj_%s = ?" % key, value)
-			where_or.add(subwhere.generate_condition(), subwhere.arguments)
-		where.add(where_or.generate_condition(), where_or.arguments)
+			where_or.extend(subwhere)
 		
+		return where_or
+	
+	def _build_sql_event_filter(self, time_range, templates, storage_state):
+		
+		# FIXME: We need to take storage_state into account
+		if storage_state != StorageState.Any:
+			raise NotImplementedError
+		
+		where = WhereClause(WhereClause.AND)
+		if time_range[0] > 0:
+			where.add("timestamp >= ?", time_range[0])
+		if time_range[1] > 0:
+			where.add("timestamp <= ?", time_range[1])
+		
+		where.extend(self._build_sql_from_event_templates(templates))
+		
+		return where
+	
+	def find_eventids(self, time_range, event_templates, storage_state,
+		max_events, order):
+		"""
+		Accepts 'event_templates' as either a real list of Events or as
+		a list of tuples (event_data,subject_data) as we do in the
+		DBus API
+		"""
+		
+		t = time.time()
+		
+		where = self._build_sql_event_filter(time_range, event_templates,
+			storage_state)
 		if not where.may_have_results():
-			# We know from our cached data that the query will give no results
 			return []
 		
 		sql = "SELECT DISTINCT id FROM event_view"
 		if where:
-			sql += " WHERE " + where.generate_condition()
+			sql += " WHERE " + where.sql
 		
 		sql += (" ORDER BY timestamp DESC",
 			" ORDER BY timestamp ASC",
@@ -571,20 +582,97 @@ class ZeitgeistEngine:
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
-		log.debug(sql)
-		log.debug("SQL args: %s" % where.arguments)
 		
-		result = [row[0] for row in self._cursor.execute(sql, where.arguments).fetchall()]
+		result = [row[0] 
+				for row in self._cursor.execute(sql, where.arguments).fetchall()]
 		
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result
+	
+	def get_most_used_with_subject(self, subject_uri, timerange,
+		result_event_templates, result_storage_state):
+		"""
+		Return a list of subject URIs commonly used together with the indicated
+		subject, considering data from within the indicated timerange.
+		
+		Only URIs for subjects matching the indicated `result_event_templates`
+		and `result_storage_state` are returned.
+		
+		This currently uses a modified version of the Apriori algorithm, but
+		the implementation may vary.
+		"""
+		
+		where = self._build_sql_event_filter(timerange,
+			[Event.new_for_values(subject_uri = subject_uri)],
+			StorageState.Any)
+		if not where.may_have_results():
+			return []
+		
+		timestamps = [row[0] for row in self._cursor.execute("""
+			SELECT timestamp FROM event_view
+			WHERE %s
+			ORDER BY timestamp DESC
+			LIMIT 7
+			""" % where.sql, where.arguments)]
+		timestamps.reverse()
+		
+		k_tuples = []
+		
+		# FIXME: We need to take result_storage_state into account
+		if result_storage_state != StorageState.Any:
+			raise NotImplementedError
+		
+		for i, start_timestamp in enumerate(timestamps):
+			end_timestamp = timestamps[i + 1] if (i + 1) < len(timestamps) \
+				else time.time()
+			
+			where = WhereClause(WhereClause.AND)
+			where.add("timestamp > ? AND timestamp < ?",
+				(start_timestamp, end_timestamp))
+			where.extend(self._build_sql_from_event_templates(
+				result_event_templates))
+			if not where.may_have_results():
+				continue
+			
+			results = self._cursor.execute("""
+				SELECT subj_uri FROM event_view
+				WHERE %s
+				GROUP BY subj_uri ORDER BY timestamp ASC LIMIT 5
+				""" % where.sql, where.arguments).fetchall()
+			if results:
+				k_tuples.append([row[0] for row in results]) # Append the URIs
+		
+		if not k_tuples:
+			# No results found. We abort here to avoid hitting a
+			# ZeroDivisionError later in the code.
+			return []
+		
+		min_support = 0
+		
+		item_dict = {}
+		for set in k_tuples:
+			for item in set:
+				if item in item_dict:
+					item_dict[item] += 1
+				else:
+					item_dict[item] = 1
+				min_support += 1
+		min_support = min_support / len(item_dict)
+		
+		# Return the values sorted from highest to lowest support
+		results = [(support, key) for key, support in item_dict.iteritems()
+			if support >= min_support]
+		return [key for support, key in sorted(results, reverse=True)]
 
 class WhereClause:
+	
+	AND = " AND "
+	OR = " OR "
 	
 	def __init__(self, relation):
 		self._conditions = []
 		self.arguments = []
-		self._relation = " " + relation + " "
+		self._relation = relation
 		self._no_result_member = False
 	
 	def __len__(self):
@@ -599,7 +687,13 @@ class WhereClause:
 		else:
 			self.arguments.extend(arguments)
 	
-	def generate_condition(self):
+	def extend(self, where):
+		self.add(where.sql, where.arguments)
+		if self._relation == self.AND and not where.may_have_results():
+			self.register_no_result()
+	
+	@property
+	def sql(self):
 		if self: # Do not return "()" if there are no conditions
 			return "(" + self._relation.join(self._conditions) + ")"
 	
@@ -607,4 +701,8 @@ class WhereClause:
 		self._no_result_member = True
 	
 	def may_have_results(self):
+		"""
+		Return False if we know from our cached data that the query
+		will give no results.
+		"""
 		return len(self._conditions) > 0 or not self._no_result_member
