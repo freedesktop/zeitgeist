@@ -22,7 +22,7 @@ import dbus
 import dbus.service
 import logging
 
-from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType
+from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType, NULL_EVENT
 from _zeitgeist.engine import get_default_engine
 from _zeitgeist.engine.notify import MonitorManager
 from zeitgeist.client import ZeitgeistDBusInterface
@@ -63,16 +63,12 @@ class RemoteInterface(SingletonApplication):
 		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
 		events = _engine.get_events(event_ids)
-		try:
-			# If the list contains a None we have a missing event,
-			# meaning that the client requested a non-existing event
-			offset = events.index(None)
-			raise KeyError("No event with id %s" % event_ids[offset])
-		except ValueError:
-			# This is what we want, it means that there are no
-			# holes in the list
-			for ev in events : ev._make_dbus_sendable()
-			return events
+		for event in events:
+			if event is None:
+				continue
+			event._make_dbus_sendable()
+		events = [NULL_EVENT if event is None else event for event in events]
+		return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")

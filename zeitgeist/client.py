@@ -514,7 +514,7 @@ class ZeitgeistClient:
 		# Generate a wrapper callback that does automagic conversion of
 		# the raw DBus reply into a list of Event instances
 		self._iface.GetEvents(event_ids,
-				reply_handler=lambda raw : events_reply_handler(map(Event, raw)),
+				reply_handler=lambda raw : events_reply_handler(map(Event.new_from_raw, raw)),
 				error_handler=error_handler)
 	
 	def delete_events(self, event_ids, reply_handler=None, error_handler=None):

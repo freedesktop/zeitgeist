@@ -110,6 +110,13 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(len(ids), len(events))
 		result_events = self.getEventsAndWait(ids)
 		self.assertEquals(len(ids), len(result_events))
+		
+	def testGetEvents(self):
+		events = parse_events("test/data/five_events.js")
+		ids = self.insertEventsAndWait(events) + [1000, 2000]
+		result = self.getEventsAndWait(ids)
+		self.assertEquals(len(filter(None, result)), len(events))
+		self.assertEquals(len(filter(lambda event: event is None, result)), 2)
 	
 	def testMonitorInsertEvents(self):
 		result = []

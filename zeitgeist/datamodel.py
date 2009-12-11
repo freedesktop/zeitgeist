@@ -690,6 +690,12 @@ class Event(list):
 				(len(Event.Fields), len(event_data)))
 		self[0] = event_data
 		return self
+		
+	@classmethod
+	def new_from_raw(cls, struct):
+		if struct == NULL_EVENT:
+			return None
+		return cls(struct)
 	
 	@staticmethod
 	def new_for_values (**values):
@@ -888,4 +894,13 @@ class Event(list):
 		# If there is indeed data here, we must not unicode encode it!
 		if self[2] is None: self[2] = u""
 		
-		
+
+import dbus
+NULL_EVENT = dbus.Struct(
+	(
+		dbus.Array([], signature=dbus.Signature('s')),
+		dbus.Array([], signature=dbus.Signature('as')),
+		dbus.Array([], signature=dbus.Signature('y'))
+	),
+	signature=None
+)
