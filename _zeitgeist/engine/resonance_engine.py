@@ -282,7 +282,10 @@ class ZeitgeistEngine:
 		self._last_event_id = row[1] if row[1] else 0
 		if row[0] == 0:
 			# old database version raise an error for now,
-			# maybe just change the id to self._last_event_id +1
+			# maybe just change the id to self._last_event_id + 1
+			# looking closer at the old code, it seems like
+			# no event ever got an id of 0, but we should leave this check
+			# to be 100% sure.
 			raise RuntimeError("old database version")
 		
 		# Load extensions
