@@ -55,16 +55,15 @@ class TestExtensionHooks(_engineTestClass):
 	def testInsertHook(self):
 		
 		class BlockAllInsertExtension(Extension):
-			PUBLIC_METHODS = ["return_hallo",]
-			
-			def return_hallo(self):
-				return "HALLO"
+			PUBLIC_METHODS = []
 				
 			def insert_event_hook(self, event):
 				return None
 				
 		self.engine.extensions.load(BlockAllInsertExtension)
 		ids = import_events("test/data/five_events.js", self.engine)
+		# all inserts where blocked, so each id is 0 to indicate this
+		self.assertEquals(filter(None, ids), [])
 
 if __name__ == "__main__":
 	unittest.main()
