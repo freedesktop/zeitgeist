@@ -174,6 +174,17 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		mainloop.run()
 		self.assertEquals(1, len(result))
 		self.assertEquals(1, result.pop())
+		
+	def testFindByRandomActor(self):
+		result = []
+		mainloop = gobject.MainLoop()
+		events = parse_events("test/data/five_events.js")
+		self.client.insert_events(events)
+		
+		template = Event.new_for_values(actor="/usr/bliblablu")
+				
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(len(ids), 0)
 	
 if __name__ == "__main__":
 	unittest.main()

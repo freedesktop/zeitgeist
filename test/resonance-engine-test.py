@@ -432,7 +432,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		result = self.engine.get_most_used_with_subject("i2", (0, 0), [],
 			StorageState.Any)
 		self.assertEquals(result, ["i3", "i1"])
-
+		
 	def testMostUsedWithSubjectWithManifestation(self):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.get_most_used_with_subject("i4", (0, 0),
@@ -440,6 +440,14 @@ class ZeitgeistEngineTest (_engineTestClass):
 				subjects=[Subject.new_for_values(manifestation="stfu:File")])],
 			StorageState.Any)
 		self.assertEquals(result, ["i3", "i1", "i5"])
+		
+	def testFindByRandomActor(self):
+		import_events("test/data/five_events.js", self.engine)
+		template = Event.new_for_values(actor="/usr/bliblablu")
+		ids = self.engine.find_eventids(
+			(0, 0), [template,], StorageState.Any, 0, ResultType.LeastRecentEvents
+		)
+		self.assertEquals(len(ids), 0)
 		
 
 if __name__ == "__main__":
