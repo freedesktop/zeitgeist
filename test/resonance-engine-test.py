@@ -445,7 +445,7 @@ class ZeitgeistEngineTest (_engineTestClass):
 		import_events("test/data/five_events.js", self.engine)
 		template = Event.new_for_values(actor="/usr/bliblablu")
 		ids = self.engine.find_eventids(
-			(0, 0), [template,], StorageState.Any, 0, ResultType.LeastRecentEvents
+			TimeRange.until_now(), [template,], StorageState.Any, 0, ResultType.LeastRecentEvents
 		)
 		self.assertEquals(len(ids), 0)
 		
