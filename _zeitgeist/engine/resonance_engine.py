@@ -689,7 +689,9 @@ class WhereClause:
 	
 	def extend(self, where):
 		self.add(where.sql, where.arguments)
-		if self._relation == self.AND and not where.may_have_results():
+		if not where.may_have_results():
+			if self._relation == self.AND:
+				self.clear()
 			self.register_no_result()
 	
 	@property
@@ -706,3 +708,11 @@ class WhereClause:
 		will give no results.
 		"""
 		return len(self._conditions) > 0 or not self._no_result_member
+	
+	def clear(self):
+		"""
+		Reset this WhereClause to the state of a newly created one.
+		"""
+		self._conditions = []
+		self.arguments = []
+		self._no_result_member = False
