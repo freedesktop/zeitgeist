@@ -129,6 +129,10 @@ class RemoteInterface(SingletonApplication):
 	def InsertEvents(self, events):
 		"""Inserts events into the log. Returns an array containing the ids of the inserted events
 		
+		Each event which failed to be inserted into the log (either by
+		being blocked or because of an error) will be represented by `0`
+		in the resulting array.
+		
 		Any monitors with matching templates will get notified about
 		the insertion. Note that the monitors are notified *after* the
 		events have been inserted.
@@ -138,8 +142,9 @@ class RemoteInterface(SingletonApplication):
 		    :class:`Event <zeitgeist.datamodel.Event>` instances
 		    directly to this method
 		:returns: An array containing the event ids of the inserted
-		    events. In case the any of the events where already logged
-		    the id of the existing event will be returned
+		    events. In case any of the events where already logged,
+		    the id of the existing event will be returned. `0` as id
+		    indicates a failed insert into the log.
 		:rtype: Array of unsigned 32 bits integers. DBus signature au.
 		"""
 		if not events : return []
