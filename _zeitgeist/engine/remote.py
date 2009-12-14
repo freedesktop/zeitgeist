@@ -22,7 +22,7 @@ import dbus
 import dbus.service
 import logging
 
-from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType
+from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType, NULL_EVENT
 from _zeitgeist.engine import get_default_engine
 from _zeitgeist.engine.notify import MonitorManager
 from zeitgeist.client import ZeitgeistDBusInterface
@@ -53,26 +53,24 @@ class RemoteInterface(SingletonApplication):
 	def GetEvents(self, event_ids):
 		"""Get full event data for a set of event ids
 		
+		Each event which is not found in the event log is represented
+		by the `NULL_EVENT` struct in the resulting array.
+		
 		:param event_ids: An array of event ids. Fx. obtained by calling
 		    :meth:`FindEventIds`
 		:type event_ids: Array of unsigned 32 bit integers.
 		    DBus signature au
 		:returns: Full event data for all the requested ids. The
 		   event data can be conveniently converted into a list of
-		   :class:`Event` instances by calling *events = map(Event, result)*
+		   :class:`Event` instances by calling *events = map(Event.new_for_struct, result)*
 		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
 		events = _engine.get_events(event_ids)
-		try:
-			# If the list contains a None we have a missing event,
-			# meaning that the client requested a non-existing event
-			offset = events.index(None)
-			raise KeyError("No event with id %s" % event_ids[offset])
-		except ValueError:
-			# This is what we want, it means that there are no
-			# holes in the list
-			for ev in events : ev._make_dbus_sendable()
-			return events
+		for event in events:
+			if event is not None:
+				event._make_dbus_sendable()
+		events = [NULL_EVENT if event is None else event for event in events]
+		return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="s", out_signature="as")
@@ -134,6 +132,10 @@ class RemoteInterface(SingletonApplication):
 	def InsertEvents(self, events):
 		"""Inserts events into the log. Returns an array containing the ids of the inserted events
 		
+		Each event which failed to be inserted into the log (either by
+		being blocked or because of an error) will be represented by `0`
+		in the resulting array.
+		
 		Any monitors with matching templates will get notified about
 		the insertion. Note that the monitors are notified *after* the
 		events have been inserted.
@@ -143,8 +145,9 @@ class RemoteInterface(SingletonApplication):
 		    :class:`Event <zeitgeist.datamodel.Event>` instances
 		    directly to this method
 		:returns: An array containing the event ids of the inserted
-		    events. In case the any of the events where already logged
-		    the id of the existing event will be returned
+		    events. In case any of the events where already logged,
+		    the id of the existing event will be returned. `0` as id
+		    indicates a failed insert into the log.
 		:rtype: Array of unsigned 32 bits integers. DBus signature au.
 		"""
 		if not events : return []

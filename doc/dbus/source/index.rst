@@ -45,6 +45,10 @@ StorageState
 
 .. autoclass:: StorageState
 
+NULL_EVENT
+++++++++++
+
+.. autodata:: NULL_EVENT
 
 
 .. module:: zeitgeist.client
