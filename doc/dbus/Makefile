@@ -25,12 +25,9 @@ help:
 
 clean:
 	rm -rf build/* source/.static
-	[ ! -e $(CURDIR)/../../_zeitgeist/engine/zeitgeist ]  | \
-		unlink $(CURDIR)/../../_zeitgeist/engine/zeitgeist
 
 init:
 	mkdir -p build/changes build/doctrees source/.static
-	ln -sf $(CURDIR)/../../zeitgeist $(CURDIR)/../../_zeitgeist/engine/
 
 html: init
 	mkdir -p build/html build/doctrees source/.static
