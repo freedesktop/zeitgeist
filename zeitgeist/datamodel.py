@@ -693,6 +693,7 @@ class Event(list):
 		
 	@classmethod
 	def new_for_struct(cls, struct):
+		"""Returns a new Event instance or None if `struct` is a `NULL_EVENT`"""
 		if struct == NULL_EVENT:
 			return None
 		return cls(struct)
@@ -897,3 +898,7 @@ class Event(list):
 		
 		
 NULL_EVENT = ([], [], [])
+"""Minimal Event representation, a tuple containing three empty lists.
+This `NULL_EVENT` is used by the API to indicate a queried but not
+available (not found or blocked) Event.
+"""

@@ -490,6 +490,9 @@ class ZeitgeistClient:
 		This is useful for looking up the event data for events found
 		with the *find_event_ids_** family of functions.
 		
+		Each event which is not found in the event log is represented
+		by `None` in the resulting collection.
+		
 		The query will be done via an asynchronous DBus call and
 		this method will return immediately. The returned events
 		will be passed to *events_reply_handler* as a list

@@ -53,13 +53,16 @@ class RemoteInterface(SingletonApplication):
 	def GetEvents(self, event_ids):
 		"""Get full event data for a set of event ids
 		
+		Each event which is not found in the event log is represented
+		by the `NULL_EVENT` struct in the resulting array.
+		
 		:param event_ids: An array of event ids. Fx. obtained by calling
 		    :meth:`FindEventIds`
 		:type event_ids: Array of unsigned 32 bit integers.
 		    DBus signature au
 		:returns: Full event data for all the requested ids. The
 		   event data can be conveniently converted into a list of
-		   :class:`Event` instances by calling *events = map(Event, result)*
+		   :class:`Event` instances by calling *events = map(Event.new_for_struct, result)*
 		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
 		events = _engine.get_events(event_ids)
