@@ -22,8 +22,8 @@ import dbus
 import dbus.service
 import logging
 
-from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState,
-	ResultType, NULL_EVENT
+from zeitgeist.datamodel import (Event, Subject, TimeRange, StorageState,
+	ResultType, NULL_EVENT)
 from _zeitgeist.engine import get_default_engine
 from _zeitgeist.engine.notify import MonitorManager
 from zeitgeist.client import ZeitgeistDBusInterface
