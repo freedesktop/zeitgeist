@@ -74,7 +74,7 @@ class RemoteInterface(SingletonApplication):
 		return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="s", out_signature="as")
+						in_signature="as", out_signature="as")
 	def GetMostUsedWithSubjects(self, uris):
 		"""Get the URI of the :class:`Subject`s most frequently used together
 		with the indicated URI.
