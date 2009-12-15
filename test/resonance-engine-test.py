@@ -429,15 +429,21 @@ class ZeitgeistEngineTest (_engineTestClass):
 		]
 		self.assertEquals(ids, sorted_event_ids)
 		
-	def testMostUsedWithSubject(self):
+	def testMostUsedWithSubjects(self):
 		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.get_most_used_with_subject("i2", (0, 0), [],
+		result = self.engine.get_most_used_with_subjects(["i2"], (0, 0), [],
 			StorageState.Any)
 		self.assertEquals(result, ["i3", "i1"])
-		
-	def testMostUsedWithSubjectWithManifestation(self):
+	
+	def testMostUsedWithMultipleSubjects(self):
 		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.get_most_used_with_subject("i4", (0, 0),
+		result = self.engine.get_most_used_with_subjects(["i1", "i4"], (0, 0),
+			[], StorageState.Any)
+		self.assertEquals(result, ["i3", "i2"])
+	
+	def testMostUsedWithSubjectsWithManifestation(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.get_most_used_with_subjects(["i4"], (0, 0),
 			[Event.new_for_values(
 				subjects=[Subject.new_for_values(manifestation="stfu:File")])],
 			StorageState.Any)

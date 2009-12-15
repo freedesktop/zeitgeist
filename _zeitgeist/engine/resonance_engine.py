@@ -589,11 +589,11 @@ class ZeitgeistEngine:
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result
 	
-	def get_most_used_with_subject(self, subject_uri, timerange,
+	def get_most_used_with_subjects(self, subject_uris, timerange,
 		result_event_templates, result_storage_state):
 		"""
 		Return a list of subject URIs commonly used together with the indicated
-		subject, considering data from within the indicated timerange.
+		subjects, considering data from within the indicated timerange.
 		
 		Only URIs for subjects matching the indicated `result_event_templates`
 		and `result_storage_state` are returned.
@@ -603,7 +603,7 @@ class ZeitgeistEngine:
 		"""
 		
 		where = self._build_sql_event_filter(timerange,
-			[Event.new_for_values(subject_uri = subject_uri)],
+			[Event.new_for_values(subject_uri = uri) for uri in subject_uris],
 			StorageState.Any)
 		if not where.may_have_results():
 			return []

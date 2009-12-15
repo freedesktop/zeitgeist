@@ -22,7 +22,8 @@ import dbus
 import dbus.service
 import logging
 
-from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType, NULL_EVENT
+from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState,
+	ResultType, NULL_EVENT
 from _zeitgeist.engine import get_default_engine
 from _zeitgeist.engine.notify import MonitorManager
 from zeitgeist.client import ZeitgeistDBusInterface
@@ -74,17 +75,17 @@ class RemoteInterface(SingletonApplication):
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="s", out_signature="as")
-	def GetMostUsedWithSubject(self, uri):
+	def GetMostUsedWithSubjects(self, uris):
 		"""Get the URI of the :class:`Subject`s most frequently used together
 		with the indicated URI.
 		
-		:param uri: URI of the :class:`Subject` for which you want to find the
-		   related items.
-		:type uri: String.
+		:param uri: List of URI of the :class:`Subject`s for which you want
+		    to find the related items.
+		:type uris: A list of string.
 		:returns: A variable number of URIs.
 		:rtype: A list of strings.
 		"""
-		return _engine.get_most_used_with_subject(uri)
+		return _engine.get_most_used_with_subjects(uris)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
