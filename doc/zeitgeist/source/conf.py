@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Zeitgeist DBus API documentation build configuration file, created by
+# Zeitgeist documentation build configuration file, created by
 # sphinx-quickstart on Thu Jul  2 09:25:53 2009.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Zeitgeist DBus API'
+project = u'Zeitgeist'
 copyright = u'2009, The Zeitgeist Team'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -153,7 +153,7 @@ html_static_path = ['.static']
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'zeitgeistDBusAPIdoc'
+htmlhelp_basename = 'zeitgeistdoc'
 
 
 # Options for LaTeX output
@@ -168,7 +168,7 @@ htmlhelp_basename = 'zeitgeistDBusAPIdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'zeitgeistDBusAPI.tex', ur'Zeitgeist DBus API Documentation',
+  ('index', 'zeitgeist.tex', ur'Zeitgeist Documentation',
    ur'The Zeitgeist Team', 'manual'),
 ]
 
