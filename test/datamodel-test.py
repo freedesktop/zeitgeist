@@ -36,7 +36,6 @@ class SymbolCollectionTest(unittest.TestCase):
 		self.assertEquals(foo.TEST, "http://test")
 		self.assertEquals(foo.TEST.uri, "http://test")
 		self.assertEquals(foo.TEST.display_name, "Small Test")
-		self.assertEquals(foo.TEST.__doc__, "this is a testing Symbol")
 		self.assertEquals(foo.TEST.doc, "this is a testing Symbol")
 		
 		self.assertEquals(len(foo), 1)
@@ -48,7 +47,6 @@ class SymbolCollectionTest(unittest.TestCase):
 		self.assertEquals(foo.TEST2, "TEST2")
 		self.assertEquals(foo.TEST2.uri, "TEST2")
 		self.assertEquals(foo.TEST2.display_name, "")
-		self.assertEquals(foo.TEST2.__doc__, "")
 		self.assertEquals(foo.TEST2.doc, "")
 
 

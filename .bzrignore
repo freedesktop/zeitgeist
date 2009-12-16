@@ -25,3 +25,5 @@ _zeitgeist/engine/zeitgeist
 po/*.gmo
 zeitgeist-daemon
 zeitgeist-datahub
+doc/zeitgeist/build
+doc/zeitgeist/source/.static
