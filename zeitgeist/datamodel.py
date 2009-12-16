@@ -75,7 +75,7 @@ class SymbolCollection(object):
 	
 	def __init__(self, name, doc=""):
 		self.__name__ = name
-		self._doc = doc
+		self.__doc__ = str(doc)
 		self.__keys = set()
 	
 	def register(self, name, uri, display_name, doc):
@@ -119,7 +119,7 @@ MANIFESTATION_DOC = \
 """The manifestation type of an event or subject is an abstract classification
 of *"how did this happen"* or *"how does this item exist"*.
 
-Each manifestation type s uniquely identified by a URI. This class provides
+Each manifestation type is uniquely identified by a URI. This class provides
 a list of hard coded URI constants for programming convenience. In addition;
 each interpretation instance in this class has a *display_name* property, which
 is an internationalized string meant for end user display.
