@@ -32,6 +32,8 @@ DB_PATH = os.environ.get("ZEITGEIST_DATABASE_PATH", DB_PATH_DEFAULT)
 AVAILABLE_ENGINES = ["resonance"]
 ENGINE_FALLBACK = AVAILABLE_ENGINES[0]
 
+DEFAULT_EXTENSIONS = ["_zeitgeist.engine.extensions.blacklist.Blacklist"]
+
 def get_engine_type():
 	""" Returns the value of the $ZEITGEIST_ENGINE environment variable or,
 	if it isn't defined, the default engine."""

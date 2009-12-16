@@ -28,7 +28,7 @@ import os
 import gettext
 import logging
 
-from extension import ExtensionsCollection
+from extension import ExtensionsCollection, load_class
 
 from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange, \
 	ResultType
@@ -290,8 +290,10 @@ class ZeitgeistEngine:
 			raise RuntimeError("old database version")
 		
 		# Load extensions
-		# Right now we don't load any default extension
-		self.__extensions = ExtensionsCollection(self)
+		default_extensions = \
+		            map(load_class, zeitgeist.engine.DEFAULT_EXTENSIONS)
+		self.__extensions = ExtensionsCollection(
+		                              self, defaults=default_extensions)
 		
 		self._interpretation = TableLookup(cursor, "interpretation")
 		self._manifestation = TableLookup(cursor, "manifestation")

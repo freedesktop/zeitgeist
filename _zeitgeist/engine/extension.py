@@ -17,6 +17,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("zeitgeist.extension")
+
 class Extension(object):
 	""" Base class for all extensions
 	
@@ -72,7 +76,29 @@ class Extension(object):
 		    should see it
 		"""
 		return event
+
+def load_class(path):
+	"""
+	Load and return a class from a fully qualified string.
+	Fx. "_zeitgesit.engine.extensions.myext.MyClass"
+	"""
+	module, dot, cls_name = path.rpartition(".")
+	parts = module.split(".")
+	module = __import__(module)
+	for part in parts[1:]:
+		try:
+			module = getattr(module, part)
+		except AttributeError:
+			raise ImportError(
+			  "No such submodule '%s' when loading %s" % (part, path))
 	
+	try:
+		cls = getattr(module, cls_name)
+	except AttributeError:
+		raise ImportError("No such class '%s' in module %s" % (cls_name,path))
+	
+	return cls
+
 class ExtensionsCollection(object):
 	""" Collection to manage all extensions """
 	
@@ -88,7 +114,8 @@ class ExtensionsCollection(object):
 		return "%s(%r)" %(self.__class__.__name__, sorted(self.__methods.keys()))
 			
 	def load(self, extension):
-		if not issubclass(extension, Extension):
+		log.debug("Loading extensions '%s'" % extension)
+		if not issubclass(extension, (Extension):
 			raise TypeError(
 				"Unable to load %r, all extensions have to be subclasses of %r" %(extension, Extension)
 			)
@@ -100,6 +127,7 @@ class ExtensionsCollection(object):
 		self.__extensions[obj.__class__.__name__] = obj
 		
 	def unload(self, extension):
+		log.debug("Unloading extension '%s'" % extension)
 		obj = self.__extensions[extension.__name__]
 		for method in obj.PUBLIC_METHODS:
 			del self.methods[method]
