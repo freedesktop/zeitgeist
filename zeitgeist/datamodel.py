@@ -69,34 +69,33 @@ class Symbol(str):
 	__doc__ = doc
 
 
-class SymbolCollection(dict):
+class SymbolCollection(object):
 	
 	def __init__(self, name, doc=""):
-		super(SymbolCollection, self).__init__()
 		self.__name__ = name
 		self._doc = doc
+		self.__keys = set()
 	
 	def register(self, name, uri, display_name, doc):
-		if name in self:
+		if name in self.__keys:
 			raise ValueError("cannot register symbol %r, a definition for this symbol already exists" %name)
 		if not name.isupper():
 			raise ValueError("cannot register %r, name must be uppercase" %name)
-		self[name] = Symbol(self.__name__, name, uri, display_name, doc)
+		self.__dict__[name] = Symbol(self.__name__, name, uri, display_name, doc)
+		self.__keys.add(name)
+		
+	def __len__(self):
+		return len(self.__keys)
 		
 	def __getattr__(self, name):
 		if not name.isupper():
 			# symbols must be uppercase
 			raise AttributeError("'%s' has no attribute '%s'" %(self.__name__, name))
-		try:
-			return self[name]
-		except KeyError:
-			# this symbol is not registered yet, create
-			# it on the fly
-			self[name] = Symbol(self.__name__, name)
-			return self[name]
+		self.__dict__[name] = Symbol(self.__name__, name)
+		return getattr(self, name)
 			
 	def __dir__(self):
-		return self.keys()
+		return list(self.__keys)
 		
 	@property
 	def __doc__(self):
@@ -105,8 +104,8 @@ class SymbolCollection(dict):
 		else:
 			doc = ""
 		doc += "The %s object has the following members:\n\n" %self.__name__
-		for name in sorted(self.iterkeys()):
-			sym = self[name]
+		for name in sorted(self.__keys):
+			sym = getattr(self, name)
 			doc += " * *{0}* ({1})\n    {2}\n\n    Display name: *\"{3}\"*\n".format(name, sym.uri, sym.doc, sym.display_name)
 			doc += "\n"
 		return doc
