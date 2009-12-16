@@ -66,7 +66,9 @@ class Symbol(str):
 	def doc(self):
 		return self.__doc or ""
 		
-	__doc__ = doc
+	@property
+	def __doc__(self):
+		return "%s. ``(Display name: '%s')``" %(self.doc.rstrip("."), self.display_name)
 
 
 class SymbolCollection(object):
@@ -97,18 +99,6 @@ class SymbolCollection(object):
 	def __dir__(self):
 		return list(self.__keys)
 		
-	@property
-	def __doc__(self):
-		if self._doc:
-			doc = self._doc + "\n\n"
-		else:
-			doc = ""
-		doc += "The %s object has the following members:\n\n" %self.__name__
-		for name in sorted(self.__keys):
-			sym = getattr(self, name)
-			doc += " * *{0}* ({1})\n    {2}\n\n    Display name: *\"{3}\"*\n".format(name, sym.uri, sym.doc, sym.display_name)
-			doc += "\n"
-		return doc
 
 INTERPREATION_ID = "interpretation"
 MANIFESTATION_ID = "manifestation"

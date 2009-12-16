@@ -19,12 +19,12 @@ Subject
 Interpretation
 ++++++++++++++
 
-.. autodata:: Interpretation
+.. autosymbol:: Interpretation
 
 Manifestation
 +++++++++++++
 
-.. autodata:: Manifestation
+.. autosymbol:: Manifestation
 
 TimeRange
 +++++++++

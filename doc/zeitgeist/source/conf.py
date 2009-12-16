@@ -191,3 +191,27 @@ latex_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/dev': None}
+
+from sphinx.ext.autodoc import ClassDocumenter, ModuleDocumenter, Documenter, AutoDirective
+from zeitgeist.datamodel import Symbol
+
+class SymbolDocumenter(Documenter):
+    
+    objtype = 'symbol'
+    member_order = 160
+    directivetype = "attribute"
+    
+    @classmethod
+    def can_document_member(cls, member, membername, isattr, parent):
+        return isinstance(parent, Documenter) and isinstance(member, Symbol)
+        
+    def generate(self, more_content=None, real_modname=None,
+             check_module=False, all_members=False):
+        Documenter.generate(self, more_content, real_modname, True, True)
+        
+    def resolve_name(self, modname, parents, path, base):
+        return "zeitgeist.datamodel", parents + [base,]    
+
+def setup(app):
+    app.add_autodocumenter(SymbolDocumenter)
+    
