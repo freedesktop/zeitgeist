@@ -74,24 +74,44 @@ class RemoteInterface(SingletonApplication):
 		return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="as", out_signature="as")
-	def GetMostUsedWithSubjects(self, uris):
+						in_signature="as(xx)a("+SIG_EVENT+")u", out_signature="as")
+	def GetMostUsedWithSubjects(self, uris, time_range, event_templates,
+		storage_state):
 		"""Get the URI of the :class:`Subject`s most frequently used together
-		with the indicated URI.
+		with the indicated URI during the indicated time_range. Additionally
+		you can give a set of templates (like in :meth:`FindEventIds`) and
+		a storage_state and all non-matching events will be excluded from the
+		analysis.
 		
-		:param uri: List of URI of the :class:`Subject`s for which you want
+		:param uris: List of URI of the :class:`Subject`s for which you want
 		    to find the related items.
 		:type uris: A list of string.
+		:param time_range: two timestamps defining the timerange for
+		    the query. When using the Python bindings for Zeitgeist you
+		    may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
+		    instance directly to this method
+		:type time_range: tuple of 64 bit integers. DBus signature (xx)
+		:param event_templates: An array of event templates which the
+		    returned events should match at least one of.
+		    When using the Python bindings for Zeitgeist you may pass
+		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
+		    instances directly to this method.
+		:type event_templates: array of events. DBus signature a(asaasay)
+		:param storage_state: whether the item is currently known to be
+		   available. The list of possible values is enumerated in the
+		   :class:`StorageState <zeitgeist.datamodel.StorageState>` class
+		:type storage_state: unsigned integer
 		:returns: A variable number of URIs.
 		:rtype: A list of strings.
 		"""
-		return _engine.get_most_used_with_subjects(uris)
+		return _engine.get_most_used_with_subjects(uris, time_range,
+			event_templates, storage_state)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			num_events, result_type):
-		"""Search for events matching a given set of templates and return the ids of matching events.
+		"""Search for events matching a given set of templates and return theids of matching events.
 		Use :meth:`GetEvents` passing in the returned ids to look up
 		the full event data.
 		

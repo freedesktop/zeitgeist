@@ -15,7 +15,8 @@ DBusGMainLoop(set_as_default=True)
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
-from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, TimeRange
+from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
+	TimeRange, StorageState)
 import testutils
 
 from testutils import parse_events
@@ -132,7 +133,8 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			mainloop.quit()
 			self.fail("Unexpected delete notification")
 			
-		self.client.install_monitor(TimeRange.always(), [tmpl], notify_insert_handler, notify_delete_handler)
+		self.client.install_monitor(TimeRange.always(), [tmpl],
+			notify_insert_handler, notify_delete_handler)
 		self.client.insert_events(events)
 		mainloop.run()
 		
@@ -152,7 +154,8 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			result.extend(event_ids)
 			
 			
-		self.client.install_monitor(TimeRange(125, 145), [], notify_insert_handler, notify_delete_handler)
+		self.client.install_monitor(TimeRange(125, 145), [],
+			notify_insert_handler, notify_delete_handler)
 		
 		self.client.insert_events(events)
 		mainloop.run()
@@ -171,7 +174,8 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			mainloop.quit()
 			self.fail("Unexpected delete notification")
 		
-		mon = self.client.install_monitor(TimeRange.always(), [tmpl], notify_insert_handler, notify_delete_handler)
+		mon = self.client.install_monitor(TimeRange.always(), [tmpl],
+			notify_insert_handler, notify_delete_handler)
 		
 		def removed_handler(result_state):
 		        result.append(result_state)
@@ -197,8 +201,9 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		events = parse_events("test/data/apriori_events.js")
 		self.client.insert_events(events)
 		# this will fail
-		result = self.client._iface.GetMostUsedWithSubjects(["i4"])
-		self.assertEquals(result, ["i3", "i1", "i5"])
+		result = self.client._iface.GetMostUsedWithSubjects(["i4"],
+			TimeRange.always(), [], StorageState.Any)
+		self.assertEquals([unicode(x) for x in result], ["i3", "i2", "i1", "i5"])
 		
 	
 if __name__ == "__main__":
