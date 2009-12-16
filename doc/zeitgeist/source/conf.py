@@ -192,7 +192,7 @@ latex_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/dev': None}
 
-from sphinx.ext.autodoc import ClassDocumenter, ModuleDocumenter, Documenter, AutoDirective
+from sphinx.ext.autodoc import Documenter
 from zeitgeist.datamodel import Symbol
 
 class SymbolDocumenter(Documenter):
