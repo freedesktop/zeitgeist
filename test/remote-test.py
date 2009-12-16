@@ -192,6 +192,14 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 				
 		ids = self.findEventIdsAndWait([template])
 		self.assertEquals(len(ids), 0)
+		
+	def testGetMostUsedWithSubjects(self):
+		events = parse_events("test/data/apriori_events.js")
+		self.client.insert_events(events)
+		# this will fail
+		result = self.client._iface.GetMostUsedWithSubjects(["i4"])
+		self.assertEquals(result, ["i3", "i1", "i5"])
+		
 	
 if __name__ == "__main__":
 	unittest.main()
