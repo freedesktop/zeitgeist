@@ -68,7 +68,7 @@ class Symbol(str):
 		
 	@property
 	def __doc__(self):
-		return "%s. ``(Display name: '%s')``" %(self.doc.rstrip("."), self.display_name)
+		return "%s\n\n    %s. ``(Display name: '%s')``" %(self.uri, self.doc.rstrip("."), self.display_name)
 
 
 class SymbolCollection(object):
