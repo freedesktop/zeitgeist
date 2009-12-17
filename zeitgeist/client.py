@@ -174,7 +174,7 @@ class Monitor (dbus.service.Object):
 	
 	# Used in Monitor._next_path() to generate unique path names
 	_last_path_id = 0
-	
+
 	def __init__ (self, time_range, event_templates, insert_callback, delete_callback, monitor_path=None):
 		if not monitor_path:
 			monitor_path = Monitor._next_path()
@@ -261,6 +261,9 @@ class ZeitgeistClient:
 	"""
 	def __init__ (self):
 		self._iface = ZeitgeistDBusInterface()
+
+	def get_version(self):
+		return self._iface.version()
 	
 	def insert_event (self, event, ids_reply_handler=None, error_handler=None):
 		"""
