@@ -291,7 +291,7 @@ class ZeitgeistEngine:
 		
 		# Load extensions
 		default_extensions = \
-		            map(load_class, zeitgeist.engine.DEFAULT_EXTENSIONS)
+		           map(load_class, _zeitgeist.engine.DEFAULT_EXTENSIONS)
 		self.__extensions = ExtensionsCollection(
 		                              self, defaults=default_extensions)
 		

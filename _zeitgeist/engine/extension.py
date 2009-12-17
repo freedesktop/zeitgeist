@@ -115,7 +115,7 @@ class ExtensionsCollection(object):
 			
 	def load(self, extension):
 		log.debug("Loading extensions '%s'" % extension)
-		if not issubclass(extension, (Extension):
+		if not issubclass(extension, Extension):
 			raise TypeError(
 				"Unable to load %r, all extensions have to be subclasses of %r" %(extension, Extension)
 			)
