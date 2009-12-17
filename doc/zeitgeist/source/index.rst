@@ -24,3 +24,4 @@ Engine documentation
    :maxdepth: 2
 
    engine
+   Tutorial - How do extensions to the engine work? <tutorial_engine_extension>
