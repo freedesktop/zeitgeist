@@ -193,7 +193,7 @@ latex_documents = [
 intersphinx_mapping = {'http://docs.python.org/dev': None}
 
 from sphinx.ext.autodoc import Documenter
-from zeitgeist.datamodel import Symbol
+from zeitgeist.datamodel import Symbol, StorageState, ResultType, EnumValue
 
 class SymbolDocumenter(Documenter):
     
@@ -203,15 +203,28 @@ class SymbolDocumenter(Documenter):
     
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(parent, Documenter) and isinstance(member, Symbol)
+        # Symboldocumenter knows how to handle symbols and enums
+        return isinstance(parent, Documenter) and \
+            isinstance(member, (Symbol, EnumValue))
         
     def generate(self, more_content=None, real_modname=None,
              check_module=False, all_members=False):
-        Documenter.generate(self, more_content, real_modname, True, True)
+        # for symbols we document per default all members
+        return Documenter.generate(self, more_content, real_modname, True, True)
         
     def resolve_name(self, modname, parents, path, base):
-        return "zeitgeist.datamodel", parents + [base,]    
-
+        # we know where they are, so hardcode the import path
+        return "zeitgeist.datamodel", parents + [base,]
+        
+    def get_object_members(self, want_all):
+        # we want a special order for enums
+        r = Documenter.get_object_members(self, want_all)
+        if self.object in (ResultType, StorageState):
+            # we sort our enums by integer values
+            r = (r[0], sorted(r[1],  key=lambda x: x[1]))
+        return r
+        
+        
 def setup(app):
     app.add_autodocumenter(SymbolDocumenter)
     

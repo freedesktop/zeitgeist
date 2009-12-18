@@ -35,12 +35,12 @@ TimeRange
 ResultType
 +++++++++++
 
-.. autodata:: ResultType
+.. autosymbol:: ResultType
 
 StorageState
 +++++++++++++
 
-.. autodata:: StorageState
+.. autosymbol:: StorageState
 
 NULL_EVENT
 ++++++++++
