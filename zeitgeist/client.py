@@ -367,7 +367,7 @@ class ZeitgeistClient:
 		self._check_list_or_tuple(events)
 		self._check_members(events, Event)
 		self._iface.InsertEvents(events,
-					reply_handler=ids_reply_handler,
+					reply_handler=self._safe_reply_handler(ids_reply_handler),
 					error_handler=self._safe_error_handler(error_handler,
 						self._safe_reply_handler(ids_reply_handler), []))
 	
@@ -437,7 +437,7 @@ class ZeitgeistClient:
 					storage_state,
 					num_events,
 					result_type,
-					reply_handler=ids_reply_handler,
+					reply_handler=self._safe_reply_handler(ids_reply_handler),
 					error_handler=self._safe_error_handler(error_handler,
 						ids_reply_handler, []))
 	
@@ -561,6 +561,31 @@ class ZeitgeistClient:
 		self._iface.DeleteEvents(event_ids,
 					reply_handler=self._safe_reply_handler(reply_handler),
 					error_handler=self._safe_error_handler(error_handler))
+	
+	def get_uris_most_used_with_events(self, event_templates, time_range,
+		reply_handler, result_event_templates=[],
+		result_storage_state=StorageState.Any, error_handler=None):
+		"""
+		Get a list of URIs of subjects of events matching result_event_templates
+		which frequently happen together with events matching event_templates,
+		during the indicated time_range.
+		"""
+		
+		self._iface.GetMostUsedWithSubjects(event_templates, time_range,
+			result_event_templates, result_storage_state,
+			reply_handler=self._safe_reply_handler(reply_handler),
+			error_handler=self._safe_error_handler(error_handler))
+	
+	def get_uris_most_used_with_uris(self, event_uris, *args, **kwargs):
+		"""
+		Same as get_uris_most_used_with_events, but taking a list of subject
+		URIs instead of event templates.
+		"""
+		
+		event_template = Event.new_for_values(subjects=
+			[Subject.new_for_values(uri=uri) for uri in event_uris])
+		
+		self.get_uris_most_used_with_events([event_template], *args, **kwargs)
 	
 	def install_monitor (self, time_range, event_templates,
 		notify_insert_handler, notify_delete_handler, monitor_path=None):
