@@ -18,9 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import pickle
 import dbus
 import dbus.service
 from xdg import BaseDirectory
+from zeitgeist.datamodel import Event
 from _zeitgeist.engine.extension import Extension
 
 import logging
@@ -32,10 +34,21 @@ CONFIG_FILE = os.path.join(BaseDirectory.save_config_path("zeitgeist"),
 
 DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/blacklist"
 DBUS_INTERFACE = "org.gnome.zeitgeist.Blacklist"
-SIG_EVENT="(asaasay)"
+SIG_EVENT="asaasay"
+
+def _event2popo(ev):
+	"""
+	Ensure that an Event instance is a Plain Old Python Object
+	without DBus wrappings etc.
+	"""
+	popo = [None, None, None]
+	popo[0] = map(str, ev[0])
+	popo[1] = map(list, map(str, ev[1]))
+	popo[2] = str(ev[2])
+	return popo
 
 class Blacklist(Extension, dbus.service.Object):
-	PUBLIC_METHODS = []
+	PUBLIC_METHODS = ["set_blacklist", "get_blacklist"]
 	
 	def __init__ (self, engine):
 		Extension.__init__(self, engine)
@@ -43,21 +56,45 @@ class Blacklist(Extension, dbus.service.Object):
 		                             DBUS_OBJECT_PATH)
 		if os.path.exists(CONFIG_FILE):
 			try:
-				self._blacklist = pickle.load(file(CONFIG_FILE))
-				log.debug("Loaded blacklist config from %s" % CONFIG_FILE)
-			except IOError, e:
-				log.warn("Failed to load blacklist config file %s: %s" % (CONFIG_FILE, e))
+				raw_blacklist = pickle.load(file(CONFIG_FILE))
+				self._blacklist = map(Event, raw_blacklist)
+				log.debug("Loaded blacklist config from %s"
+				          % CONFIG_FILE)
+			except Exception, e:
+				log.warn("Failed to load blacklist config file %s: %s"\
+				         % (CONFIG_FILE, e))
 				self._blacklist = []
 		else:
 			log.debug("No existing blacklist config found")
 			self._blacklist = []
 	
 	def insert_event_hook(self, event):
-		print "EVENT", event
+		for tmpl in self._blacklist:
+			if event.matches_template(tmpl) : return None
 		return event
 	
+	# PUBLIC
+	def set_blacklist(self, event_templates):
+		self._blacklist = event_templates
+		map(Event._make_dbus_sendable, self._blacklist)
+		
+		out = file(CONFIG_FILE, "w")
+		pickle.dump(map(_event2popo, self._blacklist), out)		
+		out.close()
+		log.debug("Blacklist updated: %s" % self._blacklist)
+	
+	# PUBLIC
+	def get_blacklist(self):
+		return self._blacklist
+	
 	@dbus.service.method(DBUS_INTERFACE,
-	                     in_signature=SIG_EVENT)
-	def AddBlacklist(self, event_templates):
-		pass
+	                     in_signature="a("+SIG_EVENT+")")
+	def SetBlacklist(self, event_templates):
+		tmp = map(Event, event_templates)
+		self.set_blacklist(tmp)
+		
+	@dbus.service.method(DBUS_INTERFACE,
+	                     in_signature="", out_signature="a("+SIG_EVENT+")")
+	def GetBlacklist(self):
+		return self.get_blacklist()
 	
