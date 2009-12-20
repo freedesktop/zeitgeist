@@ -268,7 +268,23 @@ class ZeitgeistClient:
 	"""
 	def __init__ (self):
 		self._iface = ZeitgeistDBusInterface()
-
+	
+	def _safe_error_handler(self, error_handler, *args):
+		if error_handler is not None:
+			if callable(error_handler):
+				return error_handler
+			raise TypeError(
+				"Error handler not callable, found %s" % error_handler)
+		return lambda raw: self._stderr_error_handler(raw, *args)
+	
+	def _safe_reply_handler(self, reply_handler):
+		if reply_handler is not None:
+			if callable(reply_handler):
+				return reply_handler
+			raise TypeError(
+				"Reply handler not callable, found %s" % reply_handler)
+		return self._void_reply_handler
+	
 	def get_version(self):
 		return self._iface.version()
 	
@@ -348,21 +364,12 @@ class ZeitgeistClient:
 		runnning. Both Qt and GLib mainloops are supported.
 		"""
 		
-		if ids_reply_handler is None:
-			ids_reply_handler = self._void_reply_handler
-		elif not callable(ids_reply_handler):
-			raise TypeError(
-				"Reply handler not callable, found %s" % ids_reply_handler)
-		
-		if error_handler is None:
-			error_handler = lambda raw : self._stderr_error_handler(raw,
-				ids_reply_handler, [])
-		
 		self._check_list_or_tuple(events)
 		self._check_members(events, Event)
 		self._iface.InsertEvents(events,
 					reply_handler=ids_reply_handler,
-					error_handler=error_handler)
+					error_handler=self._safe_error_handler(error_handler,
+						self._safe_reply_handler(ids_reply_handler), []))
 	
 	def find_event_ids_for_templates (self,
 					event_templates,
@@ -418,10 +425,6 @@ class ZeitgeistClient:
 		self._check_list_or_tuple(event_templates)
 		self._check_members(event_templates, Event)
 		
-		if error_handler is None:
-			error_handler = lambda raw: self._stderr_error_handler(raw,
-				ids_reply_handler, [])
-		
 		if not callable(ids_reply_handler):
 			raise TypeError(
 				"Reply handler not callable, found %s" % ids_reply_handler)
@@ -435,7 +438,8 @@ class ZeitgeistClient:
 					num_events,
 					result_type,
 					reply_handler=ids_reply_handler,
-					error_handler=error_handler)
+					error_handler=self._safe_error_handler(error_handler,
+						ids_reply_handler, []))
 	
 	def find_event_ids_for_template (self, event_template, ids_reply_handler,
 		**kwargs):
@@ -523,10 +527,6 @@ class ZeitgeistClient:
 		runnning. Both Qt and GLib mainloops are supported.
 		"""
 		
-		if error_handler is None:
-			error_handler = lambda raw: self._stderr_error_handler(raw,
-				events_reply_handler, [])
-		
 		if not callable(events_reply_handler):
 			raise TypeError(
 				"Reply handler not callable, found %s" % events_reply_handler)
@@ -536,7 +536,8 @@ class ZeitgeistClient:
 		self._iface.GetEvents(event_ids,
 				reply_handler=lambda raw: events_reply_handler(
 					map(Event.new_for_struct, raw)),
-				error_handler=error_handler)
+				error_handler=self._safe_error_handler(error_handler,
+						events_reply_handler, []))
 	
 	def delete_events(self, event_ids, reply_handler=None, error_handler=None):
 		"""
@@ -557,14 +558,9 @@ class ZeitgeistClient:
 		self._check_list_or_tuple(event_ids)
 		self._check_members(event_ids, int)
 		
-		if not callable(reply_handler):
-			reply_handler = self._void_reply_handler
-		if not callable(error_handler):
-			error_handler = lambda err : self._stderr_error_handler(err)
-		
 		self._iface.DeleteEvents(event_ids,
-					reply_handler=reply_handler,
-					error_handler=error_handler)
+					reply_handler=self._safe_reply_handler(reply_handler),
+					error_handler=self._safe_error_handler(error_handler))
 	
 	def install_monitor (self, time_range, event_templates,
 		notify_insert_handler, notify_delete_handler, monitor_path=None):
