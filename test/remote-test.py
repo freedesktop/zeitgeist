@@ -201,10 +201,10 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		events = parse_events("test/data/apriori_events.js")
 		self.client.insert_events(events)
 		# this will fail
-		result = self.client._iface.GetMostUsedWithSubjects(["i4"],
-			TimeRange.always(), [], StorageState.Any)
+		result = self.client._iface.GetMostUsedWithSubjects(
+			[Event.new_for_values(subject_uri = "i4")], TimeRange.always(),
+			[], StorageState.Any)
 		self.assertEquals([unicode(x) for x in result], ["i3", "i2", "i1", "i5"])
-		
 	
 if __name__ == "__main__":
 	unittest.main()

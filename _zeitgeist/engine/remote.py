@@ -74,14 +74,17 @@ class RemoteInterface(SingletonApplication):
 		return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="as(xx)a("+SIG_EVENT+")u", out_signature="as")
-	def GetMostUsedWithSubjects(self, uris, time_range, event_templates,
-		storage_state):
-		"""Get the URI of the :class:`Subject`s most frequently used together
-		with the indicated URI during the indicated time_range. Additionally
-		you can give a set of templates (like in :meth:`FindEventIds`) and
-		a storage_state and all non-matching events will be excluded from the
-		analysis.
+						in_signature="a("+SIG_EVENT+")(xx)a("+SIG_EVENT+")u",
+						out_signature="as")
+	def GetMostUsedWithSubjects(self, event_templates, time_range,
+		result_event_templates, result_storage_state):
+		"""Get the URI of the :class:`Subject`s most frequently used together,
+		during the indicated :class:`TimeRange <zeitgeist.datamodel.TimeRange>`,
+		with events matching the given templates.
+		
+		Additionally, another set of templates and a
+		:class:`StorageState <zeitgeist.datamodel.StorageState>` and events
+		not matching them will be excluded from the analysis.
 		
 		:param uris: List of URI of the :class:`Subject`s for which you want
 		    to find the related items.
@@ -91,21 +94,21 @@ class RemoteInterface(SingletonApplication):
 		    may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
 		    instance directly to this method
 		:type time_range: tuple of 64 bit integers. DBus signature (xx)
-		:param event_templates: An array of event templates which the
+		:param result_event_templates: An array of event templates which the
 		    returned events should match at least one of.
 		    When using the Python bindings for Zeitgeist you may pass
 		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
 		    instances directly to this method.
-		:type event_templates: array of events. DBus signature a(asaasay)
-		:param storage_state: whether the item is currently known to be
+		:type result_event_templates: array of events. DBus signature a(asaasay)
+		:param result_storage_state: whether the item is currently known to be
 		   available. The list of possible values is enumerated in the
 		   :class:`StorageState <zeitgeist.datamodel.StorageState>` class
 		:type storage_state: unsigned integer
 		:returns: A variable number of URIs.
 		:rtype: A list of strings.
 		"""
-		return _engine.get_most_used_with_subjects(uris, time_range,
-			event_templates, storage_state)
+		return _engine.get_most_used_with_subjects(event_templates, time_range,
+			result_event_templates, result_storage_state)
 	
 	@dbus.service.method(DBUS_INTERFACE,
 						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
