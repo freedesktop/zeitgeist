@@ -31,7 +31,8 @@ from xml.dom.minidom import parseString as minidom_parse
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-from zeitgeist.datamodel import Event, Subject, TimeRange, StorageState, ResultType
+from zeitgeist.datamodel import (Event, Subject, TimeRange, StorageState,
+	ResultType)
 
 SIG_EVENT = "asaasay"
 
@@ -147,8 +148,8 @@ class ZeitgeistDBusInterface(dbus.Interface):
 	def version(cls):
 		""" get the API version """
 		proxy = cls._get_proxy()
-		return proxy.get_dbus_method("Get", dbus_interface=dbus.PROPERTIES_IFACE)(cls.INTERFACE_NAME, "version")
-
+		return proxy.get_dbus_method("Get",
+			dbus_interface=dbus.PROPERTIES_IFACE)(cls.INTERFACE_NAME, "version")
 	
 	def __init__(self):
 		self.__dict__ = self.__shared_state
@@ -159,7 +160,7 @@ class ZeitgeistDBusInterface(dbus.Interface):
 				self.INTERFACE_NAME
 		)
 
-class Monitor (dbus.service.Object):
+class Monitor(dbus.service.Object):
 	"""
 	DBus interface for monitoring the Zeitgeist log for certain types
 	of events.
@@ -175,7 +176,8 @@ class Monitor (dbus.service.Object):
 	# Used in Monitor._next_path() to generate unique path names
 	_last_path_id = 0
 
-	def __init__ (self, time_range, event_templates, insert_callback, delete_callback, monitor_path=None):
+	def __init__ (self, time_range, event_templates, insert_callback,
+		delete_callback, monitor_path=None):
 		if not monitor_path:
 			monitor_path = Monitor._next_path()
 		elif isinstance(monitor_path, (str, unicode)):
@@ -190,13 +192,16 @@ class Monitor (dbus.service.Object):
 
 	
 	def get_path (self): return self._path
-	path = property(get_path, doc="Read only property with the DBus path of the monitor object")
+	path = property(get_path,
+		doc="Read only property with the DBus path of the monitor object")
 	
 	def get_time_range(self): return self._time_range
-	time_range = property(get_time_range, doc="Read only property with the :class:`TimeRange` matched by this monitor")
+	time_range = property(get_time_range,
+		doc="Read only property with the :class:`TimeRange` matched by this monitor")
 	
 	def get_templates (self): return self._templates
-	templates = property(get_templates, doc="Read only property with installed templates")
+	templates = property(get_templates,
+		doc="Read only property with installed templates")
 	
 	@dbus.service.method("org.gnome.zeitgeist.Monitor",
 	                     in_signature="(xx)a("+SIG_EVENT+")")
@@ -215,7 +220,8 @@ class Monitor (dbus.service.Object):
 		    with the events matching the monitor.
 		    See :meth:`ZeitgeistClient.install_monitor`
 		"""
-		self._insert_callback(TimeRange(time_range[0], time_range[1]), map(Event, events))
+		self._insert_callback(TimeRange(time_range[0], time_range[1]),
+			map(Event, events))
 	
 	@dbus.service.method("org.gnome.zeitgeist.Monitor",
 	                     in_signature="(xx)au")
@@ -247,7 +253,8 @@ class Monitor (dbus.service.Object):
 		Generate a new unique DBus object path for a monitor
 		"""
 		cls._last_path_id += 1
-		return dbus.ObjectPath("/org/gnome/zeitgeist/monitor/%s" % cls._last_path_id)
+		return dbus.ObjectPath("/org/gnome/zeitgeist/monitor/%s" % \
+			cls._last_path_id)
 
 class ZeitgeistClient:
 	"""
@@ -344,10 +351,12 @@ class ZeitgeistClient:
 		if ids_reply_handler is None:
 			ids_reply_handler = self._void_reply_handler
 		elif not callable(ids_reply_handler):
-			raise TypeError("Reply handler not callable, found %s" % ids_reply_handler)
+			raise TypeError(
+				"Reply handler not callable, found %s" % ids_reply_handler)
 		
 		if error_handler is None:
-			error_handler = lambda raw : self._stderr_error_handler(raw, ids_reply_handler, [])
+			error_handler = lambda raw : self._stderr_error_handler(raw,
+				ids_reply_handler, [])
 		
 		self._check_list_or_tuple(events)
 		self._check_members(events, Event)
@@ -409,11 +418,13 @@ class ZeitgeistClient:
 		self._check_list_or_tuple(event_templates)
 		self._check_members(event_templates, Event)
 		
-		if error_handler is None :
-			error_handler = lambda raw : self._stderr_error_handler(raw, ids_reply_handler, [])
+		if error_handler is None:
+			error_handler = lambda raw: self._stderr_error_handler(raw,
+				ids_reply_handler, [])
 		
 		if not callable(ids_reply_handler):
-			raise TypeError("Reply handler not callable, found %s" % ids_reply_handler)
+			raise TypeError(
+				"Reply handler not callable, found %s" % ids_reply_handler)
 		
 		if timerange is None:
 			timerange = TimeRange.until_now()
@@ -426,7 +437,8 @@ class ZeitgeistClient:
 					reply_handler=ids_reply_handler,
 					error_handler=error_handler)
 	
-	def find_event_ids_for_template (self, event_template, ids_reply_handler, **kwargs):
+	def find_event_ids_for_template (self, event_template, ids_reply_handler,
+		**kwargs):
 		"""
 		Send a query matching a single Event-template to the
 		Zeitgeist event log. If the event template has more
@@ -511,16 +523,19 @@ class ZeitgeistClient:
 		runnning. Both Qt and GLib mainloops are supported.
 		"""
 		
-		if error_handler is None :
-			error_handler = lambda raw : self._stderr_error_handler(raw, events_reply_handler, [])
+		if error_handler is None:
+			error_handler = lambda raw: self._stderr_error_handler(raw,
+				events_reply_handler, [])
 		
 		if not callable(events_reply_handler):
-			raise TypeError("Reply handler not callable, found %s" % events_reply_handler)
+			raise TypeError(
+				"Reply handler not callable, found %s" % events_reply_handler)
 		
 		# Generate a wrapper callback that does automagic conversion of
 		# the raw DBus reply into a list of Event instances
 		self._iface.GetEvents(event_ids,
-				reply_handler=lambda raw : events_reply_handler(map(Event.new_for_struct, raw)),
+				reply_handler=lambda raw: events_reply_handler(
+					map(Event.new_for_struct, raw)),
 				error_handler=error_handler)
 	
 	def delete_events(self, event_ids, reply_handler=None, error_handler=None):
@@ -551,7 +566,8 @@ class ZeitgeistClient:
 					reply_handler=reply_handler,
 					error_handler=error_handler)
 	
-	def install_monitor (self, time_range, event_templates, notify_insert_handler, notify_delete_handler, monitor_path=None):
+	def install_monitor (self, time_range, event_templates,
+		notify_insert_handler, notify_delete_handler, monitor_path=None):
 		"""
 		Install a monitor in the Zeitgeist engine that calls back
 		when events matching *event_templates* are logged. The matching
@@ -593,18 +609,22 @@ class ZeitgeistClient:
 		self._check_list_or_tuple(event_templates)
 		self._check_members(event_templates, Event)
 		if not callable(notify_insert_handler):
-			raise TypeError("notify_insert_handler not callable, found %s" % notify_reply_handler)
+			raise TypeError("notify_insert_handler not callable, found %s" % \
+				notify_reply_handler)
 			
 		if not callable(notify_delete_handler):
-			raise TypeError("notify_delete_handler not callable, found %s" % notify_reply_handler)
+			raise TypeError("notify_delete_handler not callable, found %s" % \
+				notify_reply_handler)
 		
 		
-		mon = Monitor(time_range, event_templates, notify_insert_handler, notify_delete_handler, monitor_path=monitor_path)
+		mon = Monitor(time_range, event_templates, notify_insert_handler,
+			notify_delete_handler, monitor_path=monitor_path)
 		self._iface.InstallMonitor(mon.path,
 		                           mon.time_range,
 		                           mon.templates,
 		                           reply_handler=self._void_reply_handler,
-		                           error_handler=lambda err : log.warn("Error installing monitor: %s" % err))
+		                           error_handler=lambda err: log.warn(
+									"Error installing monitor: %s" % err))
 		return mon
 	
 	def remove_monitor (self, monitor, monitor_removed_handler=None):
@@ -622,7 +642,8 @@ class ZeitgeistClient:
 		elif isinstance(monitor, Monitor):
 			path = monitor.path
 		else:
-			raise TypeError("Monitor, str, or unicode expected. Found %s" % type(monitor))
+			raise TypeError(
+				"Monitor, str, or unicode expected. Found %s" % type(monitor))
 		
 		if callable(monitor_removed_handler):
 			
@@ -636,7 +657,8 @@ class ZeitgeistClient:
 			error_handler = dispatch_handler
 		else:
 			reply_handler = self._void_reply_handler
-			error_handler = lambda err : log.warn("Error removing monitor %s: %s" % (monitor, err))
+			error_handler = lambda err: log.warn(
+				"Error removing monitor %s: %s" % (monitor, err))
 		
 		self._iface.RemoveMonitor(path,
 		                          reply_handler=reply_handler,
@@ -656,7 +678,9 @@ class ZeitgeistClient:
 		"""
 		for m in collection:
 			if not isinstance(m, member_class):
-				raise TypeError("Collection contains member of invalid type %s. Expected %s" % (m.__class__, member_class) )
+				raise TypeError(
+					"Collection contains member of invalid type %s. Expected %s" % \
+					(m.__class__, member_class))
 	
 	def _void_reply_handler(self, *args, **kwargs):
 		"""
@@ -664,7 +688,8 @@ class ZeitgeistClient:
 		"""
 		pass
 		
-	def _stderr_error_handler(self, exception, normal_reply_handler=None, normal_reply_data=None):
+	def _stderr_error_handler(self, exception, normal_reply_handler=None,
+		normal_reply_data=None):
 		"""
 		Error handler for async DBus calls that prints the error
 		to sys.stderr
@@ -673,5 +698,3 @@ class ZeitgeistClient:
 		
 		if callable(normal_reply_handler):
 			normal_reply_handler(normal_reply_data)
-	
-	
