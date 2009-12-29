@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Zeitgeist DBus API documentation build configuration file, created by
+# Zeitgeist documentation build configuration file, created by
 # sphinx-quickstart on Thu Jul  2 09:25:53 2009.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Zeitgeist DBus API'
+project = u'Zeitgeist'
 copyright = u'2009, The Zeitgeist Team'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -153,7 +153,7 @@ html_static_path = ['.static']
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'zeitgeistDBusAPIdoc'
+htmlhelp_basename = 'zeitgeistdoc'
 
 
 # Options for LaTeX output
@@ -168,7 +168,7 @@ htmlhelp_basename = 'zeitgeistDBusAPIdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'zeitgeistDBusAPI.tex', ur'Zeitgeist DBus API Documentation',
+  ('index', 'zeitgeist.tex', ur'Zeitgeist Documentation',
    ur'The Zeitgeist Team', 'manual'),
 ]
 
@@ -191,3 +191,40 @@ latex_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/dev': None}
+
+from sphinx.ext.autodoc import Documenter
+from zeitgeist.datamodel import Symbol, StorageState, ResultType, EnumValue
+
+class SymbolDocumenter(Documenter):
+    
+    objtype = 'symbol'
+    member_order = 160
+    directivetype = "attribute"
+    
+    @classmethod
+    def can_document_member(cls, member, membername, isattr, parent):
+        # Symboldocumenter knows how to handle symbols and enums
+        return isinstance(parent, Documenter) and \
+            isinstance(member, (Symbol, EnumValue))
+        
+    def generate(self, more_content=None, real_modname=None,
+             check_module=False, all_members=False):
+        # for symbols we document per default all members
+        return Documenter.generate(self, more_content, real_modname, True, True)
+        
+    def resolve_name(self, modname, parents, path, base):
+        # we know where they are, so hardcode the import path
+        return "zeitgeist.datamodel", parents + [base,]
+        
+    def get_object_members(self, want_all):
+        # we want a special order for enums
+        r = Documenter.get_object_members(self, want_all)
+        if self.object in (ResultType, StorageState):
+            # we sort our enums by integer values
+            r = (r[0], sorted(r[1],  key=lambda x: x[1]))
+        return r
+        
+        
+def setup(app):
+    app.add_autodocumenter(SymbolDocumenter)
+    

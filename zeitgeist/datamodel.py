@@ -66,14 +66,16 @@ class Symbol(str):
 	def doc(self):
 		return self.__doc or ""
 		
-	__doc__ = doc
+	@property
+	def __doc__(self):
+		return "%s\n\n    %s. ``(Display name: '%s')``" %(self.uri, self.doc.rstrip("."), self.display_name)
 
 
 class SymbolCollection(object):
 	
 	def __init__(self, name, doc=""):
 		self.__name__ = name
-		self._doc = doc
+		self.__doc__ = str(doc)
 		self.__keys = set()
 	
 	def register(self, name, uri, display_name, doc):
@@ -97,18 +99,6 @@ class SymbolCollection(object):
 	def __dir__(self):
 		return list(self.__keys)
 		
-	@property
-	def __doc__(self):
-		if self._doc:
-			doc = self._doc + "\n\n"
-		else:
-			doc = ""
-		doc += "The %s object has the following members:\n\n" %self.__name__
-		for name in sorted(self.__keys):
-			sym = getattr(self, name)
-			doc += " * *{0}* ({1})\n    {2}\n\n    Display name: *\"{3}\"*\n".format(name, sym.uri, sym.doc, sym.display_name)
-			doc += "\n"
-		return doc
 
 INTERPREATION_ID = "interpretation"
 MANIFESTATION_ID = "manifestation"
@@ -129,7 +119,7 @@ MANIFESTATION_DOC = \
 """The manifestation type of an event or subject is an abstract classification
 of *"how did this happen"* or *"how does this item exist"*.
 
-Each manifestation type s uniquely identified by a URI. This class provides
+Each manifestation type is uniquely identified by a URI. This class provides
 a list of hard coded URI constants for programming convenience. In addition;
 each interpretation instance in this class has a *display_name* property, which
 is an internationalized string meant for end user display.
@@ -438,7 +428,41 @@ class TimeRange(list):
 				result.end = time_range.end
 		
 		return result
-class StorageState:
+		
+		
+class enum_factory(object):
+	"""factory for enums"""
+	counter = 0
+	
+	def __init__(self, doc):
+		self.__doc__ = doc
+		self._id = enum_factory.counter
+		enum_factory.counter += 1
+		
+
+class EnumValue(int):
+	"""class which behaves like an int, but has an additional docstring"""
+	def __new__(cls, value, doc=""):
+		obj = super(EnumValue, cls).__new__(EnumValue, value)
+		obj.__doc__ = "%s. ``(Integer value: %i)``" %(doc, obj)
+		return obj
+		
+		
+class EnumMeta(type):
+	"""Metaclass to register enums in correct order and assign interger
+	values to them
+	"""
+	def __new__(cls, name, bases, attributes):
+		enums = filter(
+			lambda x: isinstance(x[1], enum_factory), attributes.iteritems()
+		)
+		enums = sorted(enums, key=lambda x: x[1]._id)
+		for n, (key, value) in enumerate(enums):
+			attributes[key] = EnumValue(n, value.__doc__)
+		return super(EnumMeta, cls).__new__(cls, name, bases, attributes)
+		
+		
+class StorageState(object):
 	"""
 	Enumeration class defining the possible values for the storage state
 	of an event subject.
@@ -447,46 +471,33 @@ class StorageState:
 	events must have their subjects available to the user. Fx. not including
 	deleted files, files on unplugged USB drives, files available only when
 	a network is available etc.
-	
-	This class has the following members:
-	
-	 * **0** - *NotAvailable*
-	     The storage medium of the events subjects must not be available to the user
- 	
-	 * **1** - *Available*
-	     The storage medium of all event subjects must be immediately available to the user
- 
-	 * **2** - *Any*
-	     The event subjects may or may not be available
 	"""
-	(NotAvailable, Available, Any) = range(3)
+	__metaclass__ = EnumMeta
+	
+	NotAvailable = enum_factory(("The storage medium of the events "
+		"subjects must not be available to the user"))
+	Available = enum_factory(("The storage medium of all event subjects "
+		"must be immediately available to the user"))
+	Any = enum_factory("The event subjects may or may not be available")
 
-class ResultType:
+
+class ResultType(object):
 	"""
 	An enumeration class used to define how query results should be returned
 	from the Zeitgeist engine.
-	
-	This class has the following members:
-	
-	 * **0** - *MostRecentEvents*
-	     All events with the most recent events first
-	 * **1** - *LeastRecentEvents*
-	     All events with the oldest ones first
-	 * **2** - *MostRecentSubjects*
-	     One event for each subject only, ordered with the most recent events first
-	 * **3** - *LeastRecentSubjects*
-	     One event for each subject only, ordered with oldest events first
-	 * **4** - *MostPopularSubjects*
-	     One event for each subject only, ordered by the popularity of the subject
-	 * **5** - *LeastPopularSubjects*
-	     One event for each subject only, ordered ascendently by popularity
 	"""
-	(MostRecentEvents,
-	LeastRecentEvents,
-	MostRecentSubjects,
-	LeastRecentSubjects,
-	MostPopularSubjects,
-	LeastPopularSubjects) = range(6)
+	__metaclass__ = EnumMeta
+	
+	MostRecentEvents = enum_factory("All events with the most recent events first")
+	LeastRecentEvents = enum_factory("All events with the oldest ones first")
+	MostRecentSubjects = enum_factory(("One event for each subject only, "
+		"ordered with the most recent events first"))
+	LeastRecentSubjects = enum_factory(("One event for each subject only, "
+		"ordered with oldest events first"))
+	MostPopularSubjects = enum_factory(("One event for each subject only, "
+		"ordered by the popularity of the subject"))
+	LeastPopularSubjects = enum_factory(("One event for each subject only, "
+		"ordered ascendently by popularity"))
 
 class Subject(list):
 	"""

@@ -168,7 +168,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		
 		def notify_insert_handler(notification_type, events):
-		        pass
+		     pass
 		
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
@@ -198,13 +198,17 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(len(ids), 0)
 		
 	def testGetMostUsedWithSubjects(self):
+		mainloop = gobject.MainLoop()
 		events = parse_events("test/data/apriori_events.js")
 		self.client.insert_events(events)
-		# this will fail
-		result = self.client._iface.GetMostUsedWithSubjects(["i4"],
-			TimeRange.always(), [], StorageState.Any)
-		self.assertEquals([unicode(x) for x in result], ["i3", "i2", "i1", "i5"])
 		
+		def callback(uris):
+			mainloop.quit()
+			self.assertEquals(uris, ["i3", "i2", "i1", "i5"])
+		
+		result = self.client.get_uris_most_used_with_uris(["i4"],
+			TimeRange.always(), callback)
+		mainloop.run()
 	
 if __name__ == "__main__":
 	unittest.main()
