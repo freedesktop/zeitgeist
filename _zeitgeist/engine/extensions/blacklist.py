@@ -43,7 +43,8 @@ def _event2popo(ev):
 	"""
 	popo = [None, None, None]
 	popo[0] = map(unicode, ev[0])
-	popo[1] = map(list, map(unicode, ev[1]))
+	popo[1] = map(list, ev[1])
+	for i, subj in enumerate(popo[1]) : popo[i] = map(unicode, subj)
 	popo[2] = str(ev[2])
 	return popo
 
