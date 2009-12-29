@@ -38,12 +38,12 @@ SIG_EVENT="asaasay"
 
 def _event2popo(ev):
 	"""
-	Ensure that an Event instance is a Plain Old Python Object
+	Ensure that an Event instance is a Plain Old Python Object (popo)
 	without DBus wrappings etc.
 	"""
 	popo = [None, None, None]
-	popo[0] = map(str, ev[0])
-	popo[1] = map(list, map(str, ev[1]))
+	popo[0] = map(unicode, ev[0])
+	popo[1] = map(list, map(unicode, ev[1]))
 	popo[2] = str(ev[2])
 	return popo
 
