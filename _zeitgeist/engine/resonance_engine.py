@@ -306,6 +306,7 @@ class ZeitgeistEngine:
 	
 	def close(self):
 		global _cursor
+		self.extensions.unload()
 		self._cursor.connection.close()
 		self._cursor = _cursor = None
 	

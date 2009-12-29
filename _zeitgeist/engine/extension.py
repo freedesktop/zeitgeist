@@ -114,7 +114,7 @@ class ExtensionsCollection(object):
 		return "%s(%r)" %(self.__class__.__name__, sorted(self.__methods.keys()))
 			
 	def load(self, extension):
-		log.debug("Loading extensions '%s'" % extension)
+		log.debug("Loading extensions '%s'" % extension.__name__)
 		if not issubclass(extension, Extension):
 			raise TypeError(
 				"Unable to load %r, all extensions have to be subclasses of %r" %(extension, Extension)
@@ -126,12 +126,25 @@ class ExtensionsCollection(object):
 			self._register_method(method, getattr(obj, method))
 		self.__extensions[obj.__class__.__name__] = obj
 		
-	def unload(self, extension):
-		log.debug("Unloading extension '%s'" % extension)
-		obj = self.__extensions[extension.__name__]
-		for method in obj.PUBLIC_METHODS:
-			del self.methods[method]
-		del self.__extensions[extension.__name__]
+	def unload(self, extension=None):
+		"""
+		Unload a specified extension or unload all extensions if
+		no extension is given
+		"""
+		if extension is None:
+			log.debug("Unloading all extensions")
+			
+			# We need to clone the key list to avoid concurrent
+			# modification of the extension dict
+			for ext_name in list(self.__extensions.iterkeys()):
+				self.unload(self.__extensions[ext_name])
+		else:
+			log.debug("Unloading extension '%s'" \
+			          % extension.__class__.__name__)
+			obj = self.__extensions[extension.__class__.__name__]
+			for method in obj.PUBLIC_METHODS:
+				del self.methods[method]
+			del self.__extensions[extension.__class__.__name__]
 	
 	def apply_get_hooks(self, event):
 		# Apply extension filters if we have an event
