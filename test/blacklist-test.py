@@ -43,6 +43,23 @@ class BlacklistTest(RemoteTestCase):
 		self.assertEquals(len(result.subjects), 1)
 		self.assertEquals(result.subjects[0].uri, "http://nothingtoseehere.gov")
 		self.assertEquals(result.subjects[0].interpretation, "")
+	
+	def testApplyBlacklist(self):
+		self.testSetOne()
+		ev = Event()
+		ev.interpretation = Interpretation.OPEN_EVENT
+		ev.manifestation = Manifestation.USER_ACTIVITY
+		ev.actor = "app.//foo.desktop"
+		subj = ev.append_subject()
+		subj.uri = "http://nothingtoseehere.gov"
+		inserted_ids = self.insertEventsAndWait([ev])
+		self.assertEquals(1, len(inserted_ids))
+		self.assertEquals(0, inserted_ids[0])
 		
+		# Now change the event to pass the blacklist
+		subj.uri = "htpp://totallyvaliduri.com"
+		inserted_ids = self.insertEventsAndWait([ev])
+		self.assertEquals(1, len(inserted_ids))
+		self.assertTrue(0 != inserted_ids[0])
 if __name__ == "__main__":
 	unittest.main()
