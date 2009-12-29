@@ -41,11 +41,10 @@ def _event2popo(ev):
 	Ensure that an Event instance is a Plain Old Python Object (popo)
 	without DBus wrappings etc.
 	"""
-	popo = [None, None, None]
-	popo[0] = map(unicode, ev[0])
-	popo[1] = map(list, ev[1])
-	for i, subj in enumerate(popo[1]) : popo[i] = map(unicode, subj)
-	popo[2] = str(ev[2])
+	popo = list()
+	popo.append(map(unicode, ev[0]))
+	popo.append([map(unicode, subj) for subj in ev[1]])
+	popo.append(str(ev[2]))
 	return popo
 
 class Blacklist(Extension, dbus.service.Object):

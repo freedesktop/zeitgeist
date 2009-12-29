@@ -80,7 +80,7 @@ class Extension(object):
 def load_class(path):
 	"""
 	Load and return a class from a fully qualified string.
-	Fx. "_zeitgesit.engine.extensions.myext.MyClass"
+	Fx. "_zeitgeist.engine.extensions.myext.MyClass"
 	"""
 	module, dot, cls_name = path.rpartition(".")
 	parts = module.split(".")
