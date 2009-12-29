@@ -39,7 +39,14 @@ class _engineTestClass(unittest.TestCase):
 	def setUp (self):
 		global test_event_1
 		test_event_1 = create_test_event_1()
+		
+		# Some extensions keep state around that interferes
+		# with the tests, so we disable all extensions
+		_zeitgeist.engine.DEFAULT_EXTENSIONS = []
+		
+		# Memory backed tmp DB
 		_zeitgeist.engine.DB_PATH = ":memory:"
+		
 		self.engine = create_engine()
 		
 	def tearDown (self):
