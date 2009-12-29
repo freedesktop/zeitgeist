@@ -62,7 +62,7 @@ def create_engine(engine_type=None):
 	
 	# See if we can reuse _engine
 	if _engine and not _engine.is_closed():
-		running_type = _engine.__module__.split(".").pop().lower()
+		running_type = _engine.__module__.split(".").pop().lower().rpartition("_")[0]
 		if not running_type == engine_type:
 			raise RuntimeError(
 				("There is already a zeitgeist engine running. But this "
