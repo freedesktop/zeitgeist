@@ -589,8 +589,8 @@ class ZeitgeistEngine:
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result
 	
-	def get_most_used_with_subjects(self, event_templates, timerange,
-		result_event_templates, result_storage_state):
+	def find_related(self, timerange, event_templates, result_event_templates,
+		result_storage_state):
 		"""
 		Return a list of subject URIs commonly used together with events
 		matching the given template, considering data from within the indicated
@@ -624,7 +624,7 @@ class ZeitgeistEngine:
 		
 		for i, start_timestamp in enumerate(timestamps):
 			end_timestamp = timestamps[i + 1] if (i + 1) < len(timestamps) \
-				else time.time()
+				else (time.time() * 1000)
 			
 			where = WhereClause(WhereClause.AND)
 			where.add("timestamp > ? AND timestamp < ?",

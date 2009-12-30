@@ -197,7 +197,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		ids = self.findEventIdsAndWait([template])
 		self.assertEquals(len(ids), 0)
 		
-	def testGetMostUsedWithSubjects(self):
+	def testFindRelated(self):
 		mainloop = gobject.MainLoop()
 		events = parse_events("test/data/apriori_events.js")
 		self.client.insert_events(events)
@@ -206,7 +206,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			mainloop.quit()
 			self.assertEquals(uris, ["i3", "i2", "i1", "i5"])
 		
-		result = self.client.get_uris_most_used_with_uris(["i4"],
+		result = self.client.find_related_uris_for_uris(["i4"],
 			TimeRange.always(), callback)
 		mainloop.run()
 	

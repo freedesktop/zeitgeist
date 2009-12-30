@@ -74,10 +74,10 @@ class RemoteInterface(SingletonApplication):
 		return events
 	
 	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="a("+SIG_EVENT+")(xx)a("+SIG_EVENT+")u",
+						in_signature="(xx)a("+SIG_EVENT+")a("+SIG_EVENT+")u",
 						out_signature="as")
-	def GetMostUsedWithSubjects(self, event_templates, time_range,
-		result_event_templates, result_storage_state):
+	def FindRelated(self, time_range, event_templates, result_event_templates,
+		result_storage_state):
 		"""Get the URI of the :class:`Subject`s most frequently used together,
 		during the indicated :class:`TimeRange <zeitgeist.datamodel.TimeRange>`,
 		with events matching the given templates.
@@ -107,7 +107,7 @@ class RemoteInterface(SingletonApplication):
 		:returns: A variable number of URIs.
 		:rtype: A list of strings.
 		"""
-		return _engine.get_most_used_with_subjects(event_templates, time_range,
+		return _engine.find_most_used_with_subjects(event_templates, time_range,
 			result_event_templates, result_storage_state)
 	
 	@dbus.service.method(DBUS_INTERFACE,
