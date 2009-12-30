@@ -31,7 +31,7 @@ import logging
 from extension import ExtensionsCollection
 
 from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange, \
-	ResultType
+	ResultType, get_timestamp_for_now
 import _zeitgeist.engine
 
 logging.basicConfig(level=logging.DEBUG)
@@ -368,13 +368,6 @@ class ZeitgeistEngine:
 
 		return sorted_events
 	
-	@staticmethod
-	def get_timestamp_for_now():
-		"""
-		Return the current time in milliseconds since the Unix Epoch
-		"""
-		return int(time.time() * 1000)
-	
 	def insert_events(self, events):
 		t = time.time()
 		m = map(self._insert_event_without_error, events)
@@ -397,7 +390,7 @@ class ZeitgeistEngine:
 		if not event.subjects:
 			raise ValueError("Illegal event format: No subject")
 		if not event.timestamp:
-			event.timestamp = self.get_timestamp_for_now()
+			event.timestamp = get_timestamp_for_now()
 		
 		event = self.extensions.apply_insert_hooks(event)
 		if event is None:
@@ -624,7 +617,7 @@ class ZeitgeistEngine:
 		
 		for i, start_timestamp in enumerate(timestamps):
 			end_timestamp = timestamps[i + 1] if (i + 1) < len(timestamps) \
-				else (time.time() * 1000)
+				else get_timestamp_for_now()
 			
 			where = WhereClause(WhereClause.AND)
 			where.add("timestamp > ? AND timestamp < ?",

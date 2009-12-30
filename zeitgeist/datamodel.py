@@ -31,6 +31,12 @@ import time
 import gettext
 gettext.install("zeitgeist")
 
+def get_timestamp_for_now():
+	"""
+	Return the current time in milliseconds since the Unix Epoch.
+	"""
+	return int(time.time() * 1000)
+
 class Symbol(str):
 	
 	"""Immutable string-like object representing a Symbol
@@ -618,8 +624,7 @@ class Subject(list):
 			if subject_template[m] and subject_template[m] != self[m] :
 				return False
 		return True
-	
-	
+
 class Event(list):
 	"""
 	Core data structure in the Zeitgeist framework. It is an optimized and
@@ -684,7 +689,7 @@ class Event(list):
 		
 		# If we have no timestamp just set it to now
 		if not self[0][Event.Timestamp]:
-			self[0][Event.Timestamp] = str(int(time.time() * 1000))
+			self[0][Event.Timestamp] = str(get_timestamp_for_now())
 		
 	@classmethod
 	def new_for_data(cls, event_data):

@@ -31,7 +31,8 @@ import logging
 from xdg import BaseDirectory
 
 from zeitgeist import _config
-from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation
+from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, \
+	get_timestamp_for_now
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 log = logging.getLogger("zeitgeist.logger.datasources.recent")
@@ -238,7 +239,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 		return Interpretation.UNKNOWN.uri
 	
 	def _get_items(self):
-		timestamp_last_run = time.time() * 1000
+		timestamp_last_run = get_timestamp_for_now()
 		
 		events = []
 		
