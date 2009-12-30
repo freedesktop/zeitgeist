@@ -1,9 +1,12 @@
-try:
+import os.path
+
+if not os.path.isfile(os.path.join(os.path.dirname(__file__), '_config.py.in')):
     import _config
 
-except ImportError:
-    # No config module, this is straight from the repository
-    
+else:
+    # This is straight from the repository.
+    # We check for the presence of the .in file instead of trying to import
+    # and catching the error so that this still works after running "make".
     import os
     import sys
     
