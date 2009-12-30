@@ -146,4 +146,3 @@ class ExtensionsCollection(object):
 			return self.methods[name]
 		except KeyError:
 			raise AttributeError("%s instance has no attribute %r" %(self.__class__.__name__, name))
-	

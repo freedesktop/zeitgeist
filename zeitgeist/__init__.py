@@ -1,7 +1,10 @@
-import os.path
+import os
 
-if not os.path.isfile(os.path.join(os.path.dirname(__file__), '_config.py.in')):
-    import _config
+runpath = os.path.dirname(__file__)
+
+if not os.path.isfile(os.path.join(runpath, '_config.py.in')):
+    import _config as _install_config
+    del runpath
 
 else:
     # This is straight from the repository.
@@ -10,20 +13,35 @@ else:
     import os
     import sys
     
-    class MockConfig:
+    class RepositoryConfig:
         __file__ = __file__
         prefix = ""
         datadir = ""
         bindir = os.path.join(os.path.dirname(__file__), "..")
         localedir = "/usr/share/locale"
         pkgdatadir = os.path.join(bindir, "data")
+        privatepythondir = bindir
         datasourcedir = os.path.join(bindir, "_zeitgeist/loggers/datasources")
         libdir = ""
         libexecdir = ""
         PACKAGE = "zeitgeist"
-        VERSION = "bzr"
         
-        def setup_path(self):
-            sys.path.insert(0, self.bindir)
+        @property
+        def VERSION(self):
+            try:
+                return 'bzr (rev %s)' % open(os.path.join(runpath,
+                    '../.bzr/branch/last-revision')).read().split()[0]
+            except (IOError, IndexError):
+                return "bzr"
     
-    _config = MockConfig()
+    _install_config = RepositoryConfig()
+
+class Config:
+    
+    def __getattr__(self, name):
+        return getattr(_install_config, name)
+    
+    def setup_path(self):
+        sys.path.insert(0, self.privatepythondir)
+
+_config = Config()
