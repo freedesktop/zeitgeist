@@ -37,9 +37,6 @@ arg1 = sys.argv[1].strip("-") if len(sys.argv) == 2 else None
 if arg1 == "version":
 	print "Zeitgeist %s" % _config.VERSION
 	sys.exit(0)
-elif arg1 == "rocks":
-	print "Deine Mudda rocks!"
-	sys.exit(0)
 elif arg1 == "help":
 	print "Please see \"man zeitgeist-daemon\"."
 	sys.exit(0)
