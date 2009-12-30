@@ -23,6 +23,7 @@ import sys
 import dbus
 
 from zeitgeist.client import ZeitgeistDBusInterface
+from zeitgeist import _config
 
 class SingletonApplication (dbus.service.Object):
 	"""
@@ -39,8 +40,8 @@ class SingletonApplication (dbus.service.Object):
 		
 		if dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
 			# already running daemon instance
-			if "--replace" in sys.argv or "--quit" in sys.argv:
-				if "--quit" in sys.argv:
+			if _config.options.replace or _config.options.quit:
+				if _config.options.quit:
 					logging.info("Stopping the currently running instance.")
 				else:
 					logging.debug("Replacing currently running process.")
@@ -57,13 +58,13 @@ class SingletonApplication (dbus.service.Object):
 					("An existing instance was found. Please use "
 					 "--replace to quit it and start a new instance.")
 				)
-		elif "--quit" in sys.argv:
+		elif _config.options.quit:
 			logging.info("There is no running instance; doing nothing.")
 		else:
 			# service is not running, save to start
 			logging.debug("No running instances found.")
 		
-		if "--quit" in sys.argv:
+		if _config.options.quit:
 			sys.exit(0)
 		
 		bus = dbus.service.BusName(ZeitgeistDBusInterface.BUS_NAME, sbus, do_not_queue=True)

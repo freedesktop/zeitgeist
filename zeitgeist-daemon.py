@@ -21,11 +21,11 @@
 import sys
 import os
 import gobject
-import signal
 import subprocess
 import dbus.mainloop.glib
 import gettext
 import logging
+from optparse import OptionParser
 
 from zeitgeist import _config
 _config.setup_path()
@@ -33,13 +33,21 @@ _config.setup_path()
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 logging.basicConfig(level=logging.DEBUG)
 
-arg1 = sys.argv[1].strip("-") if len(sys.argv) == 2 else None
-if arg1 == "version":
-	print "Zeitgeist %s" % _config.VERSION
-	sys.exit(0)
-elif arg1 == "help":
-	print "Please see \"man zeitgeist-daemon\"."
-	sys.exit(0)
+parser = OptionParser(version = _config.VERSION)
+parser.add_option(
+	'-r', '--replace',
+	action = 'store_true', default=False, dest = 'replace',
+	help = _('if another Zeitgeist instance is already running, replace it'))
+parser.add_option(
+	'--no-passive-loggers',
+	action = 'store_false', default=True, dest = 'start_datahub',
+	help = _('do not start zeitgeist-datahub automatically'))
+parser.add_option(
+	'--quit',
+	action = 'store_true', default=False, dest = 'quit',
+	help = _('if another Zeitgeist instance is already running, replace it'))
+
+(_config.options, _config.arguments) = parser.parse_args()
 
 from _zeitgeist.engine.remote import RemoteInterface
 
@@ -49,15 +57,16 @@ mainloop = gobject.MainLoop()
 try:
 	RemoteInterface(mainloop = mainloop)
 except RuntimeError, e:
-	logging.error(str(e))
+	logging.error(unicode(e))
 	sys.exit(1)
 
-passive_loggers = "%s/zeitgeist-datahub.py" % _config.bindir
-if arg1 != "no-passive-loggers":
+passive_loggers = os.path.join(_config.bindir, "zeitgeist-datahub.py")
+if _config.options.start_datahub:
 	if os.path.isfile(passive_loggers):
 		subprocess.Popen(passive_loggers)
 	else:
-		logging.warning("%s not found, not starting datahub" % passive_loggers)
+		logging.warning(
+			_("File \"%s\" not found, not starting datahub") % passive_loggers)
 
 logging.info(_(u"Starting Zeitgeist service..."))
 mainloop.run()

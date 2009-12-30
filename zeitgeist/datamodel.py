@@ -29,7 +29,7 @@ instead of URI strings will help detect programmer typos.
 
 import time
 import gettext
-gettext.install("zeitgeist")
+gettext.install("zeitgeist", unicode=1)
 
 def get_timestamp_for_now():
 	"""

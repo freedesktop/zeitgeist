@@ -38,6 +38,12 @@ else:
 
 class Config:
     
+    # This class can be (ab)used to store additional data which needs to be
+    # globally available to all files of a Zeitgeist process.
+    #
+    # For example, the arguments with which zeitgeist-daemon is called, as
+    # they affect many separate parts of the code.
+    
     def __getattr__(self, name):
         return getattr(_install_config, name)
     
