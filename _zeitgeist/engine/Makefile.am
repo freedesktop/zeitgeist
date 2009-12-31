@@ -1,3 +1,5 @@
+SUBDIRS = extensions
+
 appdir = $(prefix)/share/zeitgeist/_zeitgeist/engine/
 
 app_PYTHON = \
