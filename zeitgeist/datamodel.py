@@ -380,28 +380,37 @@ class TimeRange(list):
 	end = property(get_end, set_end,
 	doc="The end timestamp of this time range")
 	
-	@staticmethod
-	def until_now():
+	@classmethod
+	def until_now(cls):
 		"""
 		Return a :class:`TimeRange` from 0 to the instant of invocation
 		"""
-		return TimeRange(0, int(time.time()*1000))
+		return cls(0, int(time.time() * 1000))
 	
-	@staticmethod
-	def from_now():
+	@classmethod
+	def from_now(cls):
 		"""
 		Return a :class:`TimeRange` from the instant of invocation to
 		the end of time
 		"""
-		return TimeRange(int(time.time()*1000), TimeRange._max_stamp)
+		return cls(int(time.time() * 1000), cls._max_stamp)
 	
-	@staticmethod
+	@classmethod
+	def from_seconds_ago(cls, sec):
+		"""
+		Return a :class:`TimeRange` ranging from "sec" seconds before
+		the instant of invocation to the same.
+		"""
+		now = int(time.time() * 1000)
+		return cls(now - (sec * 1000), now)
+	
+	@classmethod
 	def always():
 		"""
 		Return a :class:`TimeRange` from the furtest past to the most
 		distant future
 		"""
-		return TimeRange(-TimeRange._max_stamp, TimeRange._max_stamp)
+		return cls(-cls._max_stamp, cls._max_stamp)
 		
 	def intersect(self, time_range):
 		"""
