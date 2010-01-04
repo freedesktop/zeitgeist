@@ -4,5 +4,5 @@ app_PYTHON = \
 	__init__.py \
 	extension.py \
 	notify.py \
-	resonance_engine.py \
+	main.py \
 	remote.py

@@ -7,9 +7,9 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import _zeitgeist
-from _zeitgeist.engine.resonance_engine import ZeitgeistEngine
+from _zeitgeist.engine.main import ZeitgeistEngine
 from _zeitgeist.engine.extension import Extension
-from _zeitgeist.engine import create_engine
+from _zeitgeist.engine import get_engine
 
 import unittest
 from testutils import import_events
@@ -31,7 +31,7 @@ class _engineTestClass(unittest.TestCase):
 	
 	def setUp (self):
 		_zeitgeist.engine.DB_PATH = ":memory:"
-		self.engine = create_engine()
+		self.engine = get_engine()
 		
 	def tearDown (self):
 		self.engine.close()

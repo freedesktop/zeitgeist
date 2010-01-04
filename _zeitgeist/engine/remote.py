@@ -24,12 +24,12 @@ import logging
 
 from zeitgeist.datamodel import (Event, Subject, TimeRange, StorageState,
 	ResultType, NULL_EVENT)
-from _zeitgeist.engine import get_default_engine
+from _zeitgeist.engine import get_engine
 from _zeitgeist.engine.notify import MonitorManager
 from zeitgeist.client import ZeitgeistDBusInterface
 from _zeitgeist.singleton import SingletonApplication
 
-_engine = get_default_engine()
+_engine = get_engine()
 
 DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
 SIG_EVENT = "asaasay"

@@ -8,7 +8,7 @@ is not enable by default (for now).
 
 Per default there is no extension enabled
 
-    >>> from _zeitgeist.engine.resonance_engine import ZeitgeistEngine
+    >>> from _zeitgeist.engine.main import ZeitgeistEngine
     >>> engine = ZeitgeistEngine()
     >>> len(engine.extensions)
     0
@@ -59,7 +59,7 @@ This methods are now accessible like
     >>> engine.extensions.add_value(1)
     6
     >>> engine.extensions.get_engine() # doctest:+ELLIPSIS
-    <_zeitgeist.engine.resonance_engine.ZeitgeistEngine instance at 0x...>
+    <_zeitgeist.engine.main.ZeitgeistEngine instance at 0x...>
 
 However, there is also a private method which is not accessible as a member
 of the engine

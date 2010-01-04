@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 # Hardcode random seed to make reproducible tests
 random.seed(0)
 
-from _zeitgeist.engine import get_default_engine
+from _zeitgeist.engine import get_engine
 from zeitgeist.datamodel import *
 import _zeitgeist.engine
 
@@ -69,7 +69,7 @@ class EngineBenchmark (unittest.TestCase):
 	def setUp (self):
 		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
 		_zeitgeist.engine.DB_PATH = "%s/unittest.sqlite" % self.tmp_dir
-		self.engine = get_default_engine()
+		self.engine = get_engine()
 		
 	def tearDown (self):		
 		self.engine.close()
