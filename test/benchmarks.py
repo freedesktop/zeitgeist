@@ -18,7 +18,7 @@ random.seed(0)
 
 from _zeitgeist.engine import get_engine
 from zeitgeist.datamodel import *
-import _zeitgeist.engine.constants
+from _zeitgeist.engine import constants
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("test.benchmarks")
@@ -67,8 +67,8 @@ class EngineBenchmark (unittest.TestCase):
 	
 	def setUp (self):
 		self.tmp_dir = tempfile.mkdtemp() # Create a directory in /tmp/ with a random name
-		_zeitgeist.engine.constants.DATABASE_FILE = "%s/unittest.sqlite" % self.tmp_dir
-		_zeitgeist.engine.constants.DEFAULT_EXTENSIONS = []
+		constants.DATABASE_FILE = "%s/unittest.sqlite" % self.tmp_dir
+		constants.DEFAULT_EXTENSIONS = []
 		self.engine = get_engine()
 	
 	def tearDown (self):		

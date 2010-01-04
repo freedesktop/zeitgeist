@@ -26,7 +26,7 @@ from zeitgeist.datamodel import (Event, Subject, TimeRange, StorageState,
 	ResultType, NULL_EVENT)
 from _zeitgeist.engine import get_engine
 from _zeitgeist.engine.notify import MonitorManager
-from _zeitgeist.engine.constants import DBUS_INTERFACE, SIG_EVENT
+from _zeitgeist.engine import constants
 from _zeitgeist.singleton import SingletonApplication
 
 _engine = get_engine()
@@ -46,8 +46,8 @@ class RemoteInterface(SingletonApplication):
 	
 	# Reading stuff
 	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="au", out_signature="a("+SIG_EVENT+")")
+	@dbus.service.method(constants.DBUS_INTERFACE,
+						in_signature="au", out_signature="a("+constants.SIG_EVENT+")")
 	def GetEvents(self, event_ids):
 		"""Get full event data for a set of event ids
 		
@@ -70,8 +70,8 @@ class RemoteInterface(SingletonApplication):
 		events = [NULL_EVENT if event is None else event for event in events]
 		return events
 	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="(xx)a("+SIG_EVENT+")a("+SIG_EVENT+")u",
+	@dbus.service.method(constants.DBUS_INTERFACE,
+						in_signature="(xx)a("+constants.SIG_EVENT+")a("+constants.SIG_EVENT+")u",
 						out_signature="as")
 	def FindRelated(self, time_range, event_templates, result_event_templates,
 		result_storage_state):
@@ -107,8 +107,8 @@ class RemoteInterface(SingletonApplication):
 		return _engine.find_most_used_with_subjects(event_templates, time_range,
 			result_event_templates, result_storage_state)
 	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="(xx)a("+SIG_EVENT+")uuu", out_signature="au")
+	@dbus.service.method(constants.DBUS_INTERFACE,
+						in_signature="(xx)a("+constants.SIG_EVENT+")uuu", out_signature="au")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			num_events, result_type):
 		"""Search for events matching a given set of templates and return theids of matching events.
@@ -148,8 +148,8 @@ class RemoteInterface(SingletonApplication):
 
 	# Writing stuff
 	
-	@dbus.service.method(DBUS_INTERFACE,
-						in_signature="a("+SIG_EVENT+")", out_signature="au")
+	@dbus.service.method(constants.DBUS_INTERFACE,
+						in_signature="a("+constants.SIG_EVENT+")", out_signature="au")
 	def InsertEvents(self, events):
 		"""Inserts events into the log. Returns an array containing the ids of the inserted events
 		
@@ -193,7 +193,7 @@ class RemoteInterface(SingletonApplication):
 		
 		return event_ids
 	
-	@dbus.service.method(DBUS_INTERFACE, in_signature="au", out_signature="")
+	@dbus.service.method(constants.DBUS_INTERFACE, in_signature="au", out_signature="")
 	def DeleteEvents(self, event_ids):
 		"""Delete a set of events from the log given their ids
 		
@@ -205,7 +205,7 @@ class RemoteInterface(SingletonApplication):
 		min_stamp, max_stamp = _engine.delete_events(event_ids)
 		self._notifications.notify_delete(TimeRange(min_stamp, max_stamp), event_ids)
 
-	@dbus.service.method(DBUS_INTERFACE, in_signature="", out_signature="")
+	@dbus.service.method(constants.DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
 		"""Delete the log file and all its content
 		
@@ -215,7 +215,7 @@ class RemoteInterface(SingletonApplication):
 		"""
 		_engine.delete_log()
         
-        @dbus.service.method(DBUS_INTERFACE)
+        @dbus.service.method(constants.DBUS_INTERFACE)
 	def Quit(self):
 		"""Terminate the running Zeitgeist engine process; use with caution,
 		this action must only be triggered with the user's explicit consent,
@@ -248,8 +248,8 @@ class RemoteInterface(SingletonApplication):
 	
 	# Notifications interface
 	
-	@dbus.service.method(DBUS_INTERFACE,
-			in_signature="o(xx)a("+SIG_EVENT+")", sender_keyword="owner")
+	@dbus.service.method(constants.DBUS_INTERFACE,
+			in_signature="o(xx)a("+constants.SIG_EVENT+")", sender_keyword="owner")
 	def InstallMonitor(self, monitor_path, time_range, event_templates, owner=None):
 		"""Register a client side monitor object to receive callbacks when events matching *time_range* and *event_templates* are inserted or deleted.
 		
@@ -267,7 +267,7 @@ class RemoteInterface(SingletonApplication):
 		time_range = TimeRange(time_range[0], time_range[1])
 		self._notifications.install_monitor(owner, monitor_path, time_range, event_templates)
 	
-	@dbus.service.method(DBUS_INTERFACE,
+	@dbus.service.method(constants.DBUS_INTERFACE,
 			in_signature="o", sender_keyword="owner")
 	def RemoveMonitor(self, monitor_path, owner=None):
 		"""Remove a monitor installed with :meth:`InstallMonitor`

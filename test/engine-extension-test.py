@@ -6,7 +6,8 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import _zeitgeist.engine.constants
+import _zeitgeist.engine
+from _zeitgeist.engine import constants
 from _zeitgeist.engine import get_engine
 from _zeitgeist.engine.extension import Extension
 
@@ -29,8 +30,8 @@ class _Extension1(Extension):
 class _engineTestClass(unittest.TestCase):
 	
 	def setUp (self):
-		_zeitgeist.engine.constants.DATABASE_FILE = ":memory:"
-		_zeitgeist.engine.constants.DEFAULT_EXTENSIONS = []
+		constants.DATABASE_FILE = ":memory:"
+		constants.DEFAULT_EXTENSIONS = []
 		self.engine = get_engine()
 		
 	def tearDown (self):

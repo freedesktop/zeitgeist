@@ -26,12 +26,12 @@ import logging
 
 from zeitgeist.datamodel import Event
 from _zeitgeist.engine.extension import Extension
-from _zeitgeist.engine.constants import DATA_PATH, DBUS_INTERFACE, SIG_EVENT
+from _zeitgeist.engine import constants
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.blacklist")
 
-CONFIG_FILE = os.path.join(DATA_PATH, "blacklist.pickle")
+CONFIG_FILE = os.path.join(constants.DATA_PATH, "blacklist.pickle")
 DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/blacklist"
 
 def _event2popo(ev):
@@ -85,13 +85,14 @@ class Blacklist(Extension, dbus.service.Object):
 	def get_blacklist(self):
 		return self._blacklist
 	
-	@dbus.service.method(DBUS_INTERFACE,
-	                     in_signature="a("+SIG_EVENT+")")
+	@dbus.service.method(constants.DBUS_INTERFACE,
+	                     in_signature="a("+constants.SIG_EVENT+")")
 	def SetBlacklist(self, event_templates):
 		tmp = map(Event, event_templates)
 		self.set_blacklist(tmp)
 		
-	@dbus.service.method(DBUS_INTERFACE,
-	                     in_signature="", out_signature="a("+SIG_EVENT+")")
+	@dbus.service.method(constants.DBUS_INTERFACE,
+	                     in_signature="",
+	                     out_signature="a("+constants.SIG_EVENT+")")
 	def GetBlacklist(self):
 		return self.get_blacklist()

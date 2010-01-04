@@ -6,7 +6,8 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import _zeitgeist.engine.constants
+import _zeitgeist.engine
+from _zeitgeist.engine import constants
 from _zeitgeist.engine import get_engine
 from zeitgeist.datamodel import *
 from testutils import import_events
@@ -43,10 +44,10 @@ class _engineTestClass(unittest.TestCase):
 		
 		# Some extensions keep state around that interferes
 		# with the tests, so we disable all extensions
-		_zeitgeist.engine.constants.DEFAULT_EXTENSIONS = []
+		constants.DEFAULT_EXTENSIONS = []
 		
 		# Memory backed tmp DB
-		_zeitgeist.engine.constants.DATABASE_FILE = ":memory:"
+		constants.DATABASE_FILE = ":memory:"
 		
 		self.engine = get_engine()
 	

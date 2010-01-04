@@ -31,7 +31,7 @@ import logging
 from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange, \
 	ResultType, get_timestamp_for_now
 from _zeitgeist.engine.extension import ExtensionsCollection, load_class
-from _zeitgeist.engine.constants import DATABASE_FILE, DEFAULT_EXTENSIONS
+from _zeitgeist.engine import constants
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -222,7 +222,7 @@ _cursor = None
 def get_default_cursor():
 	global _cursor
 	if not _cursor:
-		dbfile = DATABASE_FILE
+		dbfile = constants.DATABASE_FILE
 		_cursor = create_db(dbfile)
 	return _cursor
 
@@ -289,7 +289,7 @@ class ZeitgeistEngine:
 			raise RuntimeError("old database version")
 		
 		# Load extensions
-		default_extensions = map(load_class, DEFAULT_EXTENSIONS)
+		default_extensions = map(load_class, constants.DEFAULT_EXTENSIONS)
 		self.__extensions = ExtensionsCollection(self,
 			defaults=default_extensions)
 		
