@@ -6,10 +6,9 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import _zeitgeist
-from _zeitgeist.engine.main import ZeitgeistEngine
-from _zeitgeist.engine.extension import Extension
+import _zeitgeist.engine.constants
 from _zeitgeist.engine import get_engine
+from _zeitgeist.engine.extension import Extension
 
 import unittest
 from testutils import import_events
@@ -30,26 +29,26 @@ class _Extension1(Extension):
 class _engineTestClass(unittest.TestCase):
 	
 	def setUp (self):
-		_zeitgeist.engine.DB_PATH = ":memory:"
+		_zeitgeist.engine.constants.DATABASE_FILE = ":memory:"
+		_zeitgeist.engine.constants.DEFAULT_EXTENSIONS = []
 		self.engine = get_engine()
 		
 	def tearDown (self):
 		self.engine.close()
 		_zeitgeist.engine._engine = None
-	
 
-class TestExtensions(unittest.TestCase):
+
+class TestExtensions(_engineTestClass):
 	
 	def testCreateEngine(self):
-		engine = ZeitgeistEngine()
+		engine = get_engine()
 		self.assertEqual(len(engine.extensions), 0)
 		self.assertRaises(AttributeError, engine.extensions.__getattr__, "return_hallo")
 		engine.extensions.load(_Extension1)
 		self.assertEqual(engine.extensions.return_hallo(), "Hallo")
 		self.assertRaises(AttributeError, engine.extensions.__getattr__, "return_boo")
 		self.assertEqual(engine.extensions.return_engine(), engine)
-		
-		
+
 class TestExtensionHooks(_engineTestClass):
 	
 	def testInsertHook(self):

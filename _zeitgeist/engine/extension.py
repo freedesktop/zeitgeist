@@ -17,6 +17,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("zeitgeist.extension")
+
 class Extension(object):
 	""" Base class for all extensions
 	
@@ -72,7 +76,29 @@ class Extension(object):
 		    should see it
 		"""
 		return event
+
+def load_class(path):
+	"""
+	Load and return a class from a fully qualified string.
+	Fx. "_zeitgeist.engine.extensions.myext.MyClass"
+	"""
+	module, dot, cls_name = path.rpartition(".")
+	parts = module.split(".")
+	module = __import__(module)
+	for part in parts[1:]:
+		try:
+			module = getattr(module, part)
+		except AttributeError:
+			raise ImportError(
+			  "No such submodule '%s' when loading %s" % (part, path))
 	
+	try:
+		cls = getattr(module, cls_name)
+	except AttributeError:
+		raise ImportError("No such class '%s' in module %s" % (cls_name, path))
+	
+	return cls
+
 class ExtensionsCollection(object):
 	""" Collection to manage all extensions """
 	
@@ -88,22 +114,39 @@ class ExtensionsCollection(object):
 		return "%s(%r)" %(self.__class__.__name__, sorted(self.__methods.keys()))
 			
 	def load(self, extension):
+		log.debug("Loading extension '%s'" % extension.__name__)
 		if not issubclass(extension, Extension):
-			raise TypeError(
-				"Unable to load %r, all extensions have to be subclasses of %r" %(extension, Extension)
-			)
+			raise TypeError("Unable to load %r, all extensions must be "
+				"subclasses of %r" % (extension, Extension))
 		if getattr(extension, "PUBLIC_METHODS", None) is None:
-			raise ValueError("Unable to load %r, this extension has not defined any methods" %extension)
+			raise ValueError("Unable to load %r, this extension has not "
+				"defined any methods" % extension)
 		obj = extension(self.__engine)
 		for method in obj.PUBLIC_METHODS:
 			self._register_method(method, getattr(obj, method))
 		self.__extensions[obj.__class__.__name__] = obj
 		
-	def unload(self, extension):
-		obj = self.__extensions[extension.__name__]
-		for method in obj.PUBLIC_METHODS:
-			del self.methods[method]
-		del self.__extensions[extension.__name__]
+	def unload(self, extension=None):
+		"""
+		Unload a specified extension or unload all extensions if
+		no extension is given
+		"""
+		if not self.__extensions:
+			return
+		if extension is None:
+			log.debug("Unloading all extensions")
+			
+			# We need to clone the key list to avoid concurrent
+			# modification of the extension dict
+			for ext_name in list(self.__extensions.iterkeys()):
+				self.unload(self.__extensions[ext_name])
+		else:
+			log.debug("Unloading extension '%s'" \
+			          % extension.__class__.__name__)
+			obj = self.__extensions[extension.__class__.__name__]
+			for method in obj.PUBLIC_METHODS:
+				del self.methods[method]
+			del self.__extensions[extension.__class__.__name__]
 	
 	def apply_get_hooks(self, event):
 		# Apply extension filters if we have an event
@@ -138,11 +181,13 @@ class ExtensionsCollection(object):
 		
 	def _register_method(self, name, method):
 		if name in self.methods:
-			raise ValueError("There is already an extension which provides a method called %r" %name)
+			raise ValueError("There is already an extension which provides "
+				"a method called %r" % name)
 		self.methods[name] = method
 		
 	def __getattr__(self, name):
 		try:
 			return self.methods[name]
 		except KeyError:
-			raise AttributeError("%s instance has no attribute %r" %(self.__class__.__name__, name))
+			raise AttributeError("%s instance has no attribute %r" % (
+				self.__class__.__name__, name))

@@ -6,7 +6,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import _zeitgeist.engine
+import _zeitgeist.engine.constants
 from _zeitgeist.engine import get_engine
 from zeitgeist.datamodel import *
 from testutils import import_events
@@ -34,20 +34,27 @@ def create_test_event_1():
 	ev.append_subject(subj)
 	return ev
 
+
 class _engineTestClass(unittest.TestCase):
 	
 	def setUp (self):
 		global test_event_1
 		test_event_1 = create_test_event_1()
-		_zeitgeist.engine.DB_PATH = ":memory:"
-		self.engine = get_engine()
 		
+		# Some extensions keep state around that interferes
+		# with the tests, so we disable all extensions
+		_zeitgeist.engine.constants.DEFAULT_EXTENSIONS = []
+		
+		# Memory backed tmp DB
+		_zeitgeist.engine.constants.DATABASE_FILE = ":memory:"
+		
+		self.engine = get_engine()
+	
 	def tearDown (self):
 		self.engine.close()
 		_zeitgeist.engine._engine = None
-	
-	
-class ZeitgeistEngineTest (_engineTestClass):
+
+class ZeitgeistEngineTest(_engineTestClass):
 	"""
 	This class tests that the zeitgeist.engine.engine.ZeitgeistEngine class
 	"""

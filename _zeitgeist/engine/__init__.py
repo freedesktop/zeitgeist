@@ -3,7 +3,8 @@
 # Zeitgeist
 #
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
-# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -22,19 +23,33 @@ import os
 import logging
 from xdg import BaseDirectory
 
-import main
+from zeitgeist.client import ZeitgeistDBusInterface
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
-
-DB_PATH_DEFAULT = os.path.join(BaseDirectory.save_data_path("zeitgeist"),
-	"activity.sqlite")
-DB_PATH = os.environ.get("ZEITGEIST_DATABASE_PATH", DB_PATH_DEFAULT)
 
 _engine = None
 def get_engine():
 	""" Get the running engine instance or create a new one. """
 	global _engine
 	if _engine is None or _engine.is_closed():
+		import main # _zeitgeist.engine.main
 		_engine = main.ZeitgeistEngine()
 	return _engine
+
+class _Constants:
+	# Directories
+	DATA_PATH = os.environ.get("ZEITGEIST_DATA_PATH",
+		BaseDirectory.save_data_path("zeitgeist"))
+	DATABASE_FILE = os.path.join(DATA_PATH, "activity.sqlite")
+	
+	# D-Bus
+	DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
+	SIG_EVENT = "asaasay"
+	
+	# Extensions
+	DEFAULT_EXTENSIONS = [
+		"_zeitgeist.engine.extensions.blacklist.Blacklist"
+		]
+
+constants = _Constants()

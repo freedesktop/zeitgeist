@@ -11,7 +11,6 @@ import shutil
 import random
 from random import randint
 
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Hardcode random seed to make reproducible tests
@@ -19,7 +18,7 @@ random.seed(0)
 
 from _zeitgeist.engine import get_engine
 from zeitgeist.datamodel import *
-import _zeitgeist.engine
+import _zeitgeist.engine.constants
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("test.benchmarks")
@@ -67,10 +66,11 @@ class EngineBenchmark (unittest.TestCase):
 	"""
 	
 	def setUp (self):
-		self.tmp_dir = tempfile.mkdtemp()	# Create a directory in /tmp/ with a random name
-		_zeitgeist.engine.DB_PATH = "%s/unittest.sqlite" % self.tmp_dir
+		self.tmp_dir = tempfile.mkdtemp() # Create a directory in /tmp/ with a random name
+		_zeitgeist.engine.constants.DATABASE_FILE = "%s/unittest.sqlite" % self.tmp_dir
+		_zeitgeist.engine.constants.DEFAULT_EXTENSIONS = []
 		self.engine = get_engine()
-		
+	
 	def tearDown (self):		
 		self.engine.close()
 		shutil.rmtree(self.tmp_dir)
@@ -184,4 +184,3 @@ class FindEvents (EngineBenchmark):
 
 if __name__ == '__main__':
 	unittest.main()
-
