@@ -405,7 +405,7 @@ class TimeRange(list):
 		return cls(now - (sec * 1000), now)
 	
 	@classmethod
-	def always():
+	def always(cls):
 		"""
 		Return a :class:`TimeRange` from the furtest past to the most
 		distant future
