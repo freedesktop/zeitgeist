@@ -41,7 +41,8 @@ class _Constants:
 	# Directories
 	DATA_PATH = os.environ.get("ZEITGEIST_DATA_PATH",
 		BaseDirectory.save_data_path("zeitgeist"))
-	DATABASE_FILE = os.path.join(DATA_PATH, "activity.sqlite")
+	DATABASE_FILE = os.environ.get("ZEITGEIST_DATABASE_PATH",
+		os.path.join(DATA_PATH, "activity.sqlite"))
 	
 	# D-Bus
 	DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
