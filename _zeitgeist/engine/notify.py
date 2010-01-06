@@ -254,8 +254,11 @@ class MonitorManager:
 		conn = self._connections[owner]
 		
 		log.debug("Client disconnected %s" % owner)
-		for path in conn:			
-			self.remove_monitor(_MonitorProxy.hash(owner, path))
+		# we need to copy the conn set here, otherwise self.remove()
+		# will possibly change size of self._connection during iteration
+		# which results in a RuntimeError (thekorn)
+		for path in conn.copy():
+			self.remove_monitor(owner, path)
 		
 		self._connections.pop(owner)
 	
