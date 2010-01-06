@@ -104,7 +104,7 @@ class RemoteInterface(SingletonApplication):
 		:returns: A variable number of URIs.
 		:rtype: A list of strings.
 		"""
-		return _engine.find_most_used_with_subjects(event_templates, time_range,
+		return _engine.find_related(time_range, event_templates,
 			result_event_templates, result_storage_state)
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,

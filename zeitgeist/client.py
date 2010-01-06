@@ -571,7 +571,7 @@ class ZeitgeistClient:
 		during the indicated time_range.
 		"""
 		
-		self._iface.FindMostUsedWithSubjects(time_range, event_templates,
+		self._iface.FindRelated(time_range, event_templates,
 			result_event_templates, result_storage_state,
 			reply_handler=self._safe_reply_handler(reply_handler),
 			error_handler=self._safe_error_handler(error_handler))
