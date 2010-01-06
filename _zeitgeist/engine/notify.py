@@ -255,7 +255,7 @@ class MonitorManager:
 		
 		log.debug("Client disconnected %s" % owner)
 		for path in conn:			
-			self.remove_monitor(Monitor.hash(owner, path))
+			self.remove_monitor(_MonitorProxy.hash(owner, path))
 		
 		self._connections.pop(owner)
 	
