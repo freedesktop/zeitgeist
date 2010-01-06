@@ -32,7 +32,8 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.blacklist")
 
 CONFIG_FILE = os.path.join(constants.DATA_PATH, "blacklist.pickle")
-DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/blacklist"
+BLACKLIST_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/blacklist"
+BLACKLIST_DBUS_INTERFACE = "org.gnome.zeitgeist.Blacklist"
 
 def _event2popo(ev):
 	"""
@@ -51,7 +52,7 @@ class Blacklist(Extension, dbus.service.Object):
 	def __init__ (self, engine):
 		Extension.__init__(self, engine)
 		dbus.service.Object.__init__(self, dbus.SessionBus(),
-		                             DBUS_OBJECT_PATH)
+		                             BLACKLIST_DBUS_OBJECT_PATH)
 		if os.path.exists(CONFIG_FILE):
 			try:
 				raw_blacklist = pickle.load(file(CONFIG_FILE))
@@ -85,13 +86,13 @@ class Blacklist(Extension, dbus.service.Object):
 	def get_blacklist(self):
 		return self._blacklist
 	
-	@dbus.service.method(constants.DBUS_INTERFACE,
+	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
 	                     in_signature="a("+constants.SIG_EVENT+")")
 	def SetBlacklist(self, event_templates):
 		tmp = map(Event, event_templates)
 		self.set_blacklist(tmp)
 		
-	@dbus.service.method(constants.DBUS_INTERFACE,
+	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
 	                     in_signature="",
 	                     out_signature="a("+constants.SIG_EVENT+")")
 	def GetBlacklist(self):
