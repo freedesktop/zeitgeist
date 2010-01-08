@@ -25,3 +25,11 @@ Engine documentation
 
    engine
    Tutorial - How do extensions to the engine work? <tutorial_engine_extension>
+   
+Informations for developers
+===========================
+
+.. toctree::
+   :maxdepth: 2
+   
+   HACKING
