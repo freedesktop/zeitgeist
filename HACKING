@@ -1,0 +1,50 @@
+==============================================
+Notes for contributing to the Zeitgeist engine
+==============================================
+
+Coding style
+************
+
+In general, follow PEP 8 <http://www.python.org/dev/peps/pep-0008/>.
+Especially try to keep the lines shorter than 80 characters. We are also
+using TAB for indention.
+
+Zeitgeist supports Python 2.5 and later.
+
+
+Testing
+*******
+
+Before each commit to lp:zeitgeist the commiter must make sure that our
+testsuite in test/ is running successfully.
+We aim to get as much code tested as possible. New features and bug fixes
+should get doc or unittests.
+
+
+Documentation
+*************
+
+Our public API (code in zeitgeist/) must be fully documented. Code in
+_zeitgeist/ is private code and should be documented and written in a
+way so that others can understand it.
+
+
+Changes to the public (DBus) API
+********************************
+
+changes to the public API are only possible in a major release series.
+
+
+Code Review
+***********
+
+We are using launchpad's 'merge proposal' feature for our code review
+process. Significant changes must have at least on positive vote from
+one of the core developers (members of <http://launchpad.net/~zeitgeist>)
+
+
+Release Tasks
+*************
+[...] TBD - FIXME [...]
+
+
