@@ -1,17 +1,18 @@
 How do extensions to the engine work?
 =====================================
 
-Extensions are objects which are maintained in external python modules
-with optional methods which are accessible from a ZeitgeistEngine object.
-There is only one extension right now called RelevancyProvider, which
-is not enable by default (for now).
+Extensions are Python modules that run inside the Zeitgeist process. They
+have full access to the database and any other internals of the daemon.
+There is only one extension right now called Blacklist, which
+is in fact a part of the core Zeitgeist API, but is implemented as an extension
+anyway.
 
-Per default there is no extension enabled
+Per default you will see only the Blacklist extension
 
     >>> from _zeitgeist.engine.main import ZeitgeistEngine
     >>> engine = ZeitgeistEngine()
     >>> len(engine.extensions)
-    0
+    1
     
 To create a new extension you have to subclass the Extension class and
 provide a list of accessible methods in PUBLIC_METHODS
@@ -35,7 +36,7 @@ provide a list of accessible methods in PUBLIC_METHODS
     ...         return 0
     ...
     
-This example adds to new methods to the engine 'add_value' and 'get_engine'.
+This example adds two new methods to the engine 'add_value' and 'get_engine'.
 On the other hand the method called 'internal_method' is not available as
 a method of the engine object. The constructor of an Extension object takes
 one parameter, the engine object. Per default this engine object is accessible
@@ -44,15 +45,15 @@ Now we have to load this extension to the engine
 
     >>> engine.extensions.load(SampleExtension)
     >>> len(engine.extensions)
-    1
+    2
     >>> print engine.extensions
-    ExtensionsCollection(['add_value', 'get_engine'])
+    ExtensionsCollection(['set_blacklist', 'get_blacklist', 'add_value', 'get_engine'])
     >>> sorted(engine.extensions.methods)
-    ['add_value', 'get_engine']
+    ['add_value', 'get_blacklist', 'get_engine', 'set_blacklist']
     
-In the last line you can see all method which are added to the engine by
+In the last line you can see all methods which are added to the engine by
 an extension.
-This methods are now accessible like
+These methods are now accessible like
 
     >>> engine.extensions.add_value(5)
     5
