@@ -24,3 +24,12 @@ org.gnome.zeitgeist.Monitor
 
 .. autoclass:: zeitgeist.client.Monitor
     :members: NotifyInsert, NotifyDelete
+    
+.. _org_gnome_zeitgeist_Blacklist:
+.. index:: org.gnome.zeitgeist.Blacklist
+
+org.gnome.zeitgeist.Blacklist
++++++++++++++++++++++++++++++
+
+.. autoclass:: _zeitgeist.engine.extensions.blacklist.Blacklist
+    :members: SetBlacklist, GetBlacklist

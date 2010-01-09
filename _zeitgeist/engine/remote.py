@@ -32,7 +32,16 @@ from _zeitgeist.singleton import SingletonApplication
 _engine = get_engine()
 
 class RemoteInterface(SingletonApplication):
+	"""
+	Primary interface to the Zeitgeist engine. Used to update and query
+	the log. It also provides means to listen for events matching certain
+	criteria. All querying is heavily based around an
+	"event template"-concept.
 	
+	The main log of the Zeitgeist engine has DBus object path
+	:const:`/org/gnome/zeitgeist/log/activity` under the bus name
+	:const:`org.gnome.zeitgeist.Engine`.
+	"""
 	_dbus_properties = {
 		"version": property(lambda self: (0, 2, 99)),
 	}
@@ -156,6 +165,9 @@ class RemoteInterface(SingletonApplication):
 		Each event which failed to be inserted into the log (either by
 		being blocked or because of an error) will be represented by `0`
 		in the resulting array.
+		
+		One way events may end up being blocked is if they match any
+		of the :ref:`blacklist templates <org_gnome_zeitgeist_Blacklist>`.
 		
 		Any monitors with matching templates will get notified about
 		the insertion. Note that the monitors are notified *after* the

@@ -47,9 +47,21 @@ def _event2popo(ev):
 	return popo
 
 class Blacklist(Extension, dbus.service.Object):
+	"""
+	The Zeitgeist engine maintains a list of event templates that is known
+	as the blacklist. When inserting events via
+	:meth:`org.gnome.zeitgeist.Log.InsertEvents <_zeitgeist.engine.remote.RemoteInterface.InsertEvents>`
+	they will be checked against the blacklist templates and if they match
+	they will not be inserted in the log, and any matching monitors will not
+	be signalled.
+	
+	The blacklist of the Zeitgeist engine has DBus object path
+	:const:`/org/gnome/zeitgeist/blacklist` under the bus name
+	:const:`org.gnome.zeitgeist.Engine`.
+	"""
 	PUBLIC_METHODS = ["set_blacklist", "get_blacklist"]
 	
-	def __init__ (self, engine):
+	def __init__ (self, engine):		
 		Extension.__init__(self, engine)
 		dbus.service.Object.__init__(self, dbus.SessionBus(),
 		                             BLACKLIST_DBUS_OBJECT_PATH)
@@ -89,6 +101,16 @@ class Blacklist(Extension, dbus.service.Object):
 	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
 	                     in_signature="a("+constants.SIG_EVENT+")")
 	def SetBlacklist(self, event_templates):
+		"""
+		Set the blacklist to :const:`event_templates`. Events
+		matching any these templates will be blocked from insertion
+		into the log. It is still possible to find and look up events
+		matching the blacklist which was inserted before the blacklist
+		banned them.
+		
+		:param event_templates: A list of
+		    :class:`Events <zeitgeist.datamodel.Event>`
+		"""
 		tmp = map(Event, event_templates)
 		self.set_blacklist(tmp)
 		
@@ -96,4 +118,10 @@ class Blacklist(Extension, dbus.service.Object):
 	                     in_signature="",
 	                     out_signature="a("+constants.SIG_EVENT+")")
 	def GetBlacklist(self):
+		"""
+		Get the current blacklist templates.
+		
+		:returns: A list of
+		    :class:`Events <zeitgeist.datamodel.Event>`
+		"""
 		return self.get_blacklist()
