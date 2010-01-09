@@ -559,7 +559,7 @@ class Subject(list):
 		:param origin: The URI of the location where subject resides or can be said to originate from
 		:param mimetype: The mimetype of the subject encoded as a string, if applicable. Eg. *text/plain*.
 		:param text: Free form textual annotation of the subject.
-		:param storage: String identifier for the storage medium of the subject. This should be the UUID of the disk partition or the string *inet* for general resources on the internet or other items requiring connectivity.
+		:param storage: String identifier for the storage medium of the subject. This should be the UUID of the volume or the string "net" for resources requiring a network interface, and the string "deleted" for subjects that are deleted.
 		"""
 		self = Subject()
 		for key, value in values.iteritems():
