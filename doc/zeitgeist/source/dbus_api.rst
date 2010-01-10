@@ -15,7 +15,10 @@ Event Serialization Format
 ++++++++++++++++++++++++++
 
 The wire representation of events is central to the DBus API of the
-Zeitgeist engine. An event has DBus signature :const:`asaasay`.
+Zeitgeist engine. An event has DBus signature :const:`asaasay`. The
+Python client library includes an :class:`Event <zeitgeist.datamodel.Event>`
+class that conforms, without manual mashalling, to the DBus wire format
+described here.
 
 The first array of strings, :const:`as`, contains the `event metadata` at the
 following offsets:
@@ -38,8 +41,8 @@ following offsets:
     will have an actor URI of :const:`app://firefox.desktop`.
      
 The second component in the event datastructure is the `list of subjects`,
-:const:`aas`, each subject being a :const:`as`. Note that an event can have
-more than one subject - fx. when deleting a collecting of files with one
+:const:`aas`, each subject being an :const:`as`. Note that an event can have
+more than one subject - fx. when deleting a collection of files with one
 click in the file manager. The subject metadata is defined
 with the following offsets:
 

@@ -641,7 +641,8 @@ class Event(list):
 	
 	This class is designed so that you can pass it directly over
 	DBus using the Python DBus bindings. It will automagically be
-	marshalled with the signature a(asaasay).
+	marshalled with the signature a(asaasay). See also the section
+	on the :ref:`event serialization format <event_serialization_format>`.
 	
 	This class does integer based lookups everywhere and can wrap any
 	conformant data structure without the need for marshalling back and
