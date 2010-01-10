@@ -45,6 +45,40 @@ one of the core developers (members of <http://launchpad.net/~zeitgeist>)
 
 Release Tasks
 *************
-[...] TBD - FIXME [...]
+1. Bump version number to $VERSION in configure.ac and VERSION files
 
+2. Update NEWS file by hand
+  (hint: you can see the full change log with 'bzr log -n0 -v | less')
+  
+3. Commit your changes (with only these changes!) and push you current branch
+   to lp:zeitgeist and lp:~zeitgeist/zeitgeist/zeitgeist-$VERSION
+   
+4. To make sure you have a pristine source tree do a clean checkout of the
+   newly created branch:
+   
+     bzr branch lp:~zeitgeist/zeitgeist/zeitgeist-$VERSION
+     
+5. Change working dir to your new branch
+
+6. Run './autogen.sh && make && make distcheck'
+
+7. GPG sign the generated tarball with the command:
+
+     gpg --armor --sign --detach-sig zeitgeist-$VERSION.tar.gz
+
+8. Upload the tarball and the generated *.asc GPG signature to the right
+   milestone on Launchpad
+   
+9. Send announcement email to the mailing lists:
+
+    + zeitgeist@lists.launchpad.net
+    + gnome-zeitgeist-users@lists.launchpad.net
+    + gnome-announce-list@gnome.org
+    
+10. Post a news update on the Launchpad project page based on your
+   announcement email
+
+11. Make sure that the API documentation on zeitgeist-project.com is updated
+
+12. Now you deserve a treat!
 
