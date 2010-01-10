@@ -541,6 +541,8 @@ class ZeitgeistClient:
 	
 	def delete_events(self, event_ids, reply_handler=None, error_handler=None):
 		"""
+		Warning: This API is EXPERIMENTAL and is not fully supported yet.
+		
 		Delete a collection of events from the zeitgeist log given their
 		event ids.
 		
@@ -562,30 +564,66 @@ class ZeitgeistClient:
 					reply_handler=self._safe_reply_handler(reply_handler),
 					error_handler=self._safe_error_handler(error_handler))
 	
-	def find_related_uris_for_events(self, event_templates, time_range,
-		reply_handler, result_event_templates=[],
-		result_storage_state=StorageState.Any, error_handler=None):
+	def find_related_uris_for_events(self, event_templates, uris_reply_handler,
+		time_range = None, result_event_templates=[],
+		storage_state=StorageState.Any, error_handler=None):
 		"""
-		Get a list of URIs of subjects of events matching result_event_templates
-		which frequently happen together with events matching event_templates,
-		during the indicated time_range.
+		Warning: This API is EXPERIMENTAL and is not fully supported yet.
+		
+		Get a list of URIs of subjects which frequently occur together
+		with events matching `event_templates`. Possibly restricting to
+		`time_range` or to URIs that occur as subject of events matching
+		`result_event_templates`.
+		
+		:param event_templates: Templates for events that you want to
+		    find URIs that relate to
+		:param uris_reply_handler: A callback that takes a list of strings
+		    with the URIs of the subjects related to the requested events
+		:param time_range: A :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
+		    to restrict to
+		:param result_event_templates: The related URIs must occur
+		    as subjects of events matching these templates
+		:param storage_state: The returned URIs must have this
+		    :class:`storage state <zeitgeist.datamodel.StorageState>`
+		:param error_handler: An optional callback in case of errors.
+		    Must take a single argument being the error raised by the
+		    server. The default behaviour in case of errors is to call
+		    `uris_reply_handler` with an empty list and print an error
+		    message on standard error.
 		"""
+		if not callable(uris_reply_handler):
+			raise TypeError(
+				"Reply handler not callable, found %s" % uris_reply_handler)
+		
+		if time_range is None:
+			time_range = TimeRange.always()
 		
 		self._iface.FindRelated(time_range, event_templates,
-			result_event_templates, result_storage_state,
-			reply_handler=self._safe_reply_handler(reply_handler),
-			error_handler=self._safe_error_handler(error_handler))
+			result_event_templates, storage_state,
+			reply_handler=self._safe_reply_handler(uris_reply_handler),
+			error_handler=self._safe_error_handler(error_handler,
+			                                       uris_reply_handler,
+			                                       []))
 	
-	def find_related_uris_for_uris(self, event_uris, *args, **kwargs):
+	def find_related_uris_for_uris(self, subject_uris, uris_reply_handler,
+		time_range=None, result_event_templates=[],
+		storage_state=StorageState.Any, error_handler=None):
 		"""
-		Same as get_uris_most_used_with_events, but taking a list of subject
-		URIs instead of event templates.
+		Warning: This API is EXPERIMENTAL and is not fully supported yet.
+		
+		Same as :meth:`find_related_uris_for_events`, but taking a list
+		of subject URIs instead of event templates.
 		"""
 		
 		event_template = Event.new_for_values(subjects=
-			[Subject.new_for_values(uri=uri) for uri in event_uris])
+			[Subject.new_for_values(uri=uri) for uri in subject_uris])
 		
-		self.find_related_uris_for_events([event_template], *args, **kwargs)
+		self.find_related_uris_for_events([event_template],
+		                                  uris_reply_handler,
+		                                  time_range=time_range,
+		                                  result_event_templates=result_event_templates,
+		                                  storage_state=storage_state,
+		                                  error_handler=error_handler)
 	
 	def install_monitor (self, time_range, event_templates,
 		notify_insert_handler, notify_delete_handler, monitor_path=None):

@@ -82,39 +82,45 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="(xx)a("+constants.SIG_EVENT+")a("+constants.SIG_EVENT+")u",
 						out_signature="as")
-	def FindRelated(self, time_range, event_templates, result_event_templates,
-		result_storage_state):
-		"""Get the URI of the :class:`Subject`s most frequently used together,
-		during the indicated :class:`TimeRange <zeitgeist.datamodel.TimeRange>`,
-		with events matching the given templates.
+	def FindRelated(self, time_range, event_templates,
+		result_event_templates, storage_state):
+		"""Warning: This API is EXPERIMENTAL and is not fully supported yet.
 		
-		Additionally, another set of templates and a
-		:class:`StorageState <zeitgeist.datamodel.StorageState>` and events
-		not matching them will be excluded from the analysis.
+		Get a list of URIs of subjects which frequently occur together
+		with events matching `event_templates` within `time_range`.
+		The resulting URIs must occur as subjects of events matching
+		`result_event_templates` and have storage state
+		`storage_state`.
 		
-		:param uris: List of URI of the :class:`Subject`s for which you want
-		    to find the related items.
-		:type uris: A list of string.
 		:param time_range: two timestamps defining the timerange for
 		    the query. When using the Python bindings for Zeitgeist you
 		    may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
-		    instance directly to this method
-		:type time_range: tuple of 64 bit integers. DBus signature (xx)
-		:param result_event_templates: An array of event templates which the
-		    returned events should match at least one of.
+		    instance directly to this method.
+		:type time_range: tuple of 64 bit integers,
+		    DBus signature :const:`(xx)`
+		:param event_templates: An array of event templates
+		    which you want URIs that relate to.
 		    When using the Python bindings for Zeitgeist you may pass
 		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
 		    instances directly to this method.
-		:type result_event_templates: array of events. DBus signature a(asaasay)
-		:param result_storage_state: whether the item is currently known to be
+		:type event_templates: array of events,
+		    DBus signature :const:`a(asaasay)`
+		:param result_event_templates: An array of event templates which
+		    the returned URIs must occur as subjects of.
+		    When using the Python bindings for Zeitgeist you may pass
+		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
+		    instances directly to this method.
+		:type result_event_templates: array of events,
+		    DBus signature :const:`a(asaasay)`
+		:param storage_state: whether the item is currently known to be
 		   available. The list of possible values is enumerated in the
 		   :class:`StorageState <zeitgeist.datamodel.StorageState>` class
-		:type storage_state: unsigned integer
-		:returns: A variable number of URIs.
-		:rtype: A list of strings.
+		:type storage_state: unsigned 32 bit integer, DBus signature :const:`u`
+		:returns: A list of URIs matching the described criteria
+		:rtype: An array of strings, DBus signature :const:`as`.
 		"""
 		return _engine.find_related(time_range, event_templates,
-			result_event_templates, result_storage_state)
+			result_event_templates, storage_state)
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="(xx)a("+constants.SIG_EVENT+")uuu", out_signature="au")
