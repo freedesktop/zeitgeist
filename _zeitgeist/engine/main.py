@@ -606,7 +606,7 @@ class ZeitgeistEngine:
 			SELECT timestamp FROM event_view
 			WHERE %s
 			ORDER BY timestamp DESC
-			LIMIT 7
+			LIMIT 100
 			""" % where.sql, where.arguments)]
 		timestamps.reverse()
 		
