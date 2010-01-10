@@ -583,7 +583,7 @@ class ZeitgeistEngine:
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result
 	
-	def find_related(self, timerange, event_templates, result_event_templates,
+	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state):
 		"""
 		Return a list of subject URIs commonly used together with events

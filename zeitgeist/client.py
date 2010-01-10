@@ -598,7 +598,7 @@ class ZeitgeistClient:
 		if time_range is None:
 			time_range = TimeRange.always()
 		
-		self._iface.FindRelated(time_range, event_templates,
+		self._iface.FindRelatedUris(time_range, event_templates,
 			result_event_templates, storage_state,
 			reply_handler=self._safe_reply_handler(uris_reply_handler),
 			error_handler=self._safe_error_handler(error_handler,

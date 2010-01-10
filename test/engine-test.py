@@ -439,14 +439,14 @@ class ZeitgeistEngineTest(_engineTestClass):
 		
 	def testRelatedForEvents(self):
 		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related(
+		result = self.engine.find_related_uris(
 			(0, 0), [Event.new_for_values(subject_uri = "i2")], [],
 			StorageState.Any)
 		self.assertEquals(result, ["i3", "i1"])
 	
 	def testRelatedForMultipleEvents(self):
 		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related(
+		result = self.engine.find_related_uris(
 			(0, 0), [Event.new_for_values(subject_uri = "i1"),
 				Event.new_for_values(subject_uri = "i4")],
 			[], StorageState.Any)
@@ -454,7 +454,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 	
 	def testRelatedForEventsWithManifestation(self):
 		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related((0, 0),
+		result = self.engine.find_related_uris((0, 0),
 			[Event.new_for_values(subject_uri = "i4")],
 			[Event.new_for_values(subject_manifestation="stfu:File")],
 			StorageState.Any)

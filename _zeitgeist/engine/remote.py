@@ -82,7 +82,7 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="(xx)a("+constants.SIG_EVENT+")a("+constants.SIG_EVENT+")u",
 						out_signature="as")
-	def FindRelated(self, time_range, event_templates,
+	def FindRelatedUris(self, time_range, event_templates,
 		result_event_templates, storage_state):
 		"""Warning: This API is EXPERIMENTAL and is not fully supported yet.
 		
@@ -119,7 +119,7 @@ class RemoteInterface(SingletonApplication):
 		:returns: A list of URIs matching the described criteria
 		:rtype: An array of strings, DBus signature :const:`as`.
 		"""
-		return _engine.find_related(time_range, event_templates,
+		return _engine.find_related_uris(time_range, event_templates,
 			result_event_templates, storage_state)
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
