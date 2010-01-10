@@ -1,0 +1,84 @@
+==============================================
+Notes for contributing to the Zeitgeist engine
+==============================================
+
+Coding style
+************
+
+In general, follow PEP 8 <http://www.python.org/dev/peps/pep-0008/>.
+Especially try to keep the lines shorter than 80 characters. We are also
+using TAB for indention.
+
+Zeitgeist supports Python 2.5 and later.
+
+
+Testing
+*******
+
+Before each commit to lp:zeitgeist the commiter must make sure that our
+testsuite in test/ is running successfully.
+We aim to get as much code tested as possible. New features and bug fixes
+should get doc or unittests.
+
+
+Documentation
+*************
+
+Our public API (code in zeitgeist/) must be fully documented. Code in
+_zeitgeist/ is private code and should be documented and written in a
+way so that others can understand it.
+
+
+Changes to the public (DBus) API
+********************************
+
+changes to the public API are only possible in a major release series.
+
+
+Code Review
+***********
+
+We are using launchpad's 'merge proposal' feature for our code review
+process. Significant changes must have at least one positive vote from
+one of the core developers (members of <http://launchpad.net/~zeitgeist>)
+
+
+Release Tasks
+*************
+1. Bump version number to $VERSION in configure.ac and VERSION files
+
+2. Update NEWS file by hand
+  (hint: you can see the full change log with 'bzr log -n0 -v | less')
+  
+3. Commit your changes (with only these changes!) and push you current branch
+   to lp:zeitgeist and lp:~zeitgeist/zeitgeist/zeitgeist-$VERSION
+   
+4. To make sure you have a pristine source tree do a clean checkout of the
+   newly created branch:
+   
+     bzr branch lp:~zeitgeist/zeitgeist/zeitgeist-$VERSION
+     
+5. Change working dir to your new branch
+
+6. Run './autogen.sh && make && make distcheck'
+
+7. GPG sign the generated tarball with the command:
+
+     gpg --armor --sign --detach-sig zeitgeist-$VERSION.tar.gz
+
+8. Upload the tarball and the generated *.asc GPG signature to the right
+   milestone on Launchpad
+   
+9. Send announcement email to the mailing lists:
+
+    + zeitgeist@lists.launchpad.net
+    + gnome-zeitgeist-users@lists.launchpad.net
+    + gnome-announce-list@gnome.org
+    
+10. Post a news update on the Launchpad project page based on your
+   announcement email
+
+11. Make sure that the API documentation on zeitgeist-project.com is updated
+
+12. Now you deserve a treat!
+
