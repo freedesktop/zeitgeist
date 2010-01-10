@@ -450,7 +450,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 			(0, 0), [Event.new_for_values(subject_uri = "i1"),
 				Event.new_for_values(subject_uri = "i4")],
 			[], StorageState.Any)
-		self.assertEquals(result, ["i3", "i2"])
+		self.assertEquals(result, ["i2", "i3"])
 	
 	def testRelatedForEventsWithManifestation(self):
 		import_events("test/data/apriori_events.js", self.engine)
