@@ -395,6 +395,16 @@ class ZeitgeistClient:
 		
 		The actual :class:`Events` can be looked up via the
 		:meth:`get_events()` method.
+		
+		This method is intended for queries potentially returning a
+		large result set. It is especially useful in cases where only
+		a portion of the results are to be displayed at the same time
+		(eg., by using paging or dynamic scrollbars), as by holding a
+		list of IDs you keep a stable ordering, and you can ask for
+		the details associated to them in hunks, when you need them. For
+		queries with a small amount of results, or where you need the
+		information about all results at once no matter how many of them
+		there are, see :meth:`find_events_for_templates`.
 		 
 		In case of errors a message will be printed on stderr, and
 		an empty result passed to ids_reply_handler.
@@ -444,28 +454,8 @@ class ZeitgeistClient:
 	def find_event_ids_for_template (self, event_template, ids_reply_handler,
 		**kwargs):
 		"""
-		Send a query matching a single Event-template to the
-		Zeitgeist event log. If the event template has more
-		than one subject the query will match if any one of the subject
-		templates match.
-		
-		The query will be done via an asynchronous DBus call and
-		this method will return immediately. The return value
-		will be passed to 'ids_reply_handler' as a list
-		of integer event ids. This list must be the sole argument for
-		the callback.
-		
-		The actual :class:`Events` can be looked up via the
-		:meth:`get_events` method.
-		 
-		In case of errors a message will be printed on stderr, and
-		an empty result passed to *ids_reply_handler*.
-		To override this default set the *error_handler* named argument
-		to a callable that takes a single exception as its sole
-		argument.
-		
-		In order to use this method there needs to be a mainloop
-		runnning. Both Qt and GLib mainloops are supported.
+		Alias for :meth:`find_event_ids_for_templates`, for use when only
+		one template is needed.
 		"""
 		self.find_event_ids_for_templates([event_template],
 						ids_reply_handler,
@@ -473,32 +463,113 @@ class ZeitgeistClient:
 	
 	def find_event_ids_for_values(self, ids_reply_handler, **kwargs):
 		"""
-		Send a query for events matching the keyword arguments passed
-		to this function. The allowed keywords are the same as the ones
-		allowed by
+		Alias for :meth:`find_event_ids_for_templates`, for when only
+		one template is needed. Instead of taking an already created
+		template, like :meth:`find_event_ids_for_template`, this method
+		will construct the template from the parameters it gets. The
+		allowed keywords are the same as the ones allowed by
 		:meth:`Event.new_for_values() <zeitgeist.datamodel.Event.new_for_values>`.
+		"""
+		ev = Event.new_for_values(**kwargs)
+		
+		self.find_event_ids_for_templates([ev],
+						ids_reply_handler,
+						**kwargs)
+	
+	def find_events_for_templates (self,
+					event_templates,
+					ids_reply_handler,
+					timerange = None,
+					storage_state = StorageState.Any,
+					num_events = 20,
+					result_type = ResultType.MostRecentEvents,
+					error_handler=None):
+		"""
+		Send a query matching a collection of
+		:class:`Event <zeitgeist.datamodel.Event>` templates to the
+		Zeitgeist event log. The query will match if an event matches
+		any of the templates. If an event template has more
+		than one subject the query will match if any one of the subject
+		templates match.
 		
 		The query will be done via an asynchronous DBus call and
 		this method will return immediately. The return value
-		will be passed to *ids_reply_handler* as a list
-		of integer event ids. This list must be the sole argument for
+		will be passed to 'ids_reply_handler' as a list
+		of :class:`Event`s. This list must be the sole argument for
 		the callback.
 		
-		The actual :class:`Events` can be looked up via the
-		:meth:`get_events` method.
-		
+		If you need to do a query yielding a large (or unpredictable)
+		result set and you only want to show some of the results at the
+		same time (eg., by paging them), consider using
+		:meth:`find_event_ids_for_templates`.
+		 
 		In case of errors a message will be printed on stderr, and
-		an empty result passed to *ids_reply_handler*.
-		To override this default set the *error_handler* named argument
+		an empty result passed to ids_reply_handler.
+		To override this default set the error_handler named argument
 		to a callable that takes a single exception as its sole
 		argument.
 		
 		In order to use this method there needs to be a mainloop
 		runnning. Both Qt and GLib mainloops are supported.
+		
+		:param event_templates: List or tuple of
+		    :class:`Event <zeitgeist.datamodel.Event>` instances
+		:param ids_reply_handler: Callable taking a list of integers
+		:param timerange: A
+		    :class:`TimeRange <zeitgeist.datamodel.TimeRange>` instance
+		    that the events must have occured within. Defaults to
+		    :meth:`TimeRange.until_now()`.
+		:param storage_state: A value from the
+		    :class:`StorageState <zeitgeist.datamodel.StorageState>`
+		    enumeration. Defaults to :const:`StorageState.Any`
+		:param num_events: The number of events to return; default is 20
+		:param result_type: A value from the
+		    :class:`ResultType <zeitgeist.datamodel.ResultType>`
+		    enumeration. Defaults to ResultType.MostRecentEvent
+		:param error_handler: Callback to catch error messages.
+		        Read about the default behaviour above
+		"""
+		self._check_list_or_tuple(event_templates)
+		self._check_members(event_templates, Event)
+		
+		if not callable(ids_reply_handler):
+			raise TypeError(
+				"Reply handler not callable, found %s" % ids_reply_handler)
+		
+		if timerange is None:
+			timerange = TimeRange.until_now()
+		
+		self._iface.FindEvents(timerange,
+					event_templates,
+					storage_state,
+					num_events,
+					result_type,
+					reply_handler=self._safe_reply_handler(ids_reply_handler),
+					error_handler=self._safe_error_handler(error_handler,
+						ids_reply_handler, []))
+	
+	def find_events_for_template (self, event_template, ids_reply_handler,
+		**kwargs):
+		"""
+		Alias for :meth:`find_events_for_templates`, for use when only
+		one template is needed.
+		"""
+		self.find_event_ids_for_templates([event_template],
+						ids_reply_handler,
+						**kwargs)
+	
+	def find_events_for_values(self, ids_reply_handler, **kwargs):
+		"""
+		Alias for :meth:`find_events_for_templates`, for when only
+		one template is needed. Instead of taking an already created
+		template, like :meth:`find_event_ids_for_template`, this method
+		will construct the template from the parameters it gets. The
+		allowed keywords are the same as the ones allowed by
+		:meth:`Event.new_for_values() <zeitgeist.datamodel.Event.new_for_values>`.
 		"""
 		ev = Event.new_for_values(**kwargs)
 		
-		self.find_event_ids_for_templates([ev],
+		self.find_events_for_templates([ev],
 						ids_reply_handler,
 						**kwargs)
 	

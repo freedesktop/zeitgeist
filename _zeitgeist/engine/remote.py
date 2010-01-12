@@ -141,9 +141,11 @@ class RemoteInterface(SingletonApplication):
 		large result set. It is especially useful in cases where only
 		a portion of the results are to be displayed at the same time
 		(eg., by using paging or dynamic scrollbars), as by holding a
-		list of IDs you keep a stable ordering. For queries with a small
-		amount of results, or where you need information about all results
-		at once no matter how many of them there are, see :meth:`FindEvents`.
+		list of IDs you keep a stable ordering and you can ask for the
+		details associated to them in hunks, when you need them. For queries
+		yielding a small amount of results, or where you need the information
+		about all results at once no matter how many of them there are,
+		see :meth:`FindEvents`.
 		
 		:param time_range: two timestamps defining the timerange for
 		    the query. When using the Python bindings for Zeitgeist you
