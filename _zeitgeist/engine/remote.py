@@ -165,7 +165,7 @@ class RemoteInterface(SingletonApplication):
 						in_signature="(xx)a("+constants.SIG_EVENT+")uuu", out_signature="au")
 	def FindEvents(self, time_range, event_templates, storage_state,
 			num_events, result_type):
-		"""Shorthand of GetEvents(FindEventIds()).
+		"""Shorthand for GetEvents(FindEventIds()).
 		
 		Using this function is more efficient, if you don't need to deal with
 		large amounts of data in a paginated UI.
