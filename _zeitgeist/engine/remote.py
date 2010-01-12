@@ -2,7 +2,7 @@
 
 # Zeitgeist
 #
-# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -58,16 +58,16 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="au", out_signature="a("+constants.SIG_EVENT+")")
 	def GetEvents(self, event_ids):
-		"""Get full event data for a set of event ids
+		"""Get full event data for a set of event IDs
 		
 		Each event which is not found in the event log is represented
 		by the `NULL_EVENT` struct in the resulting array.
 		
-		:param event_ids: An array of event ids. Fx. obtained by calling
+		:param event_ids: An array of event IDs. Fx. obtained by calling
 		    :meth:`FindEventIds`
 		:type event_ids: Array of unsigned 32 bit integers.
 		    DBus signature au
-		:returns: Full event data for all the requested ids. The
+		:returns: Full event data for all the requested IDs. The
 		   event data can be conveniently converted into a list of
 		   :class:`Event` instances by calling *events = map(Event.new_for_struct, result)*
 		:rtype: A list of serialized events. DBus signature a(asaasay).
@@ -126,14 +126,24 @@ class RemoteInterface(SingletonApplication):
 						in_signature="(xx)a("+constants.SIG_EVENT+")uuu", out_signature="au")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			num_events, result_type):
-		"""Search for events matching a given set of templates and return theids of matching events.
-		Use :meth:`GetEvents` passing in the returned ids to look up
+		"""Search for events matching a given set of templates and return
+		the IDs of matching events.
+		
+		Use :meth:`GetEvents` passing in the returned IDs to look up
 		the full event data.
 		
 		The matching is done where unset fields in the templates
 		are treated as wildcards. If a template has more than one
 		subject then events will match the template if any one of their
 		subjects match any one of the subject templates.
+		
+		This method is intended for queries potentially returning a
+		large result set. It is especially useful in cases where only
+		a portion of the results are to be displayed at the same time
+		(eg., by using paging or dynamic scrollbars), as by holding a
+		list of IDs you keep a stable ordering. For queries with a small
+		amount of results, or where you need information about all results
+		at once no matter how many of them there are, see :meth:`FindEvents`.
 		
 		:param time_range: two timestamps defining the timerange for
 		    the query. When using the Python bindings for Zeitgeist you
@@ -146,16 +156,21 @@ class RemoteInterface(SingletonApplication):
 		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
 		    instances directly to this method.
 		:type event_templates: array of events. DBus signature a(asaasay)
-		:param storage_state: whether the item is currently known to be available. The list of possible values is enumerated in :class:`StorageState <zeitgeist.datamodel.StorageState>` class
+		:param storage_state: whether the item is currently known to be
+		    available. The list of possible values is enumerated in
+		    :class:`StorageState <zeitgeist.datamodel.StorageState>` class
 		:type storage_state: unsigned integer
 		:param num_events: maximal amount of returned events
 		:type num_events: unsigned integer
-		:param order: unsigned integer representing a :class:`result type <zeitgeist.datamodel.ResultType>`
+		:param order: unsigned integer representing
+		    a :class:`result type <zeitgeist.datamodel.ResultType>`
 		:type order: unsigned integer
-		:returns: An array containing the ids of all matching events,
-		    up to a maximum of *num_events* events. Sorted and grouped
-		    as defined by the *result_type* parameter.
-		:rtype: Array of unsigned 32 bit integers
+		:returns: Full event data for all the requested IDs, up to a maximum
+		    of *num_events* events, sorted and grouped as defined by the
+		    *result_type* parameter. The event data can be conveniently
+		    converted into a list of :class:`Event` instances by calling
+		    *events = map(Event.new_for_struct, result)*
+		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)
@@ -165,10 +180,41 @@ class RemoteInterface(SingletonApplication):
 						in_signature="(xx)a("+constants.SIG_EVENT+")uuu", out_signature="au")
 	def FindEvents(self, time_range, event_templates, storage_state,
 			num_events, result_type):
-		"""Shorthand for GetEvents(FindEventIds()).
+		"""Get events matching a given set of templates.
 		
-		Using this function is more efficient, if you don't need to deal with
-		large amounts of data in a paginated UI.
+		The matching is done where unset fields in the templates
+		are treated as wildcards. If a template has more than one
+		subject then events will match the template if any one of their
+		subjects match any one of the subject templates.
+		
+		In case you need to do a query yielding a large (or unpredictable)
+		result set and you only want to show some of the results at the
+		same time (eg., by paging them), use :meth:`FindEventIds`.
+		
+		:param time_range: two timestamps defining the timerange for
+		    the query. When using the Python bindings for Zeitgeist you
+		    may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
+		    instance directly to this method
+		:type time_range: tuple of 64 bit integers. DBus signature (xx)
+		:param event_templates: An array of event templates which the
+		    returned events should match at least one of.
+		    When using the Python bindings for Zeitgeist you may pass
+		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
+		    instances directly to this method.
+		:type event_templates: array of events. DBus signature a(asaasay)
+		:param storage_state: whether the item is currently known to be
+		    available. The list of possible values is enumerated in
+		    :class:`StorageState <zeitgeist.datamodel.StorageState>` class
+		:type storage_state: unsigned integer
+		:param num_events: maximal amount of returned events
+		:type num_events: unsigned integer
+		:param order: unsigned integer representing
+		    a :class:`result type <zeitgeist.datamodel.ResultType>`
+		:type order: unsigned integer
+		:returns: An array containing the IDs of all matching events,
+		    up to a maximum of *num_events* events. Sorted and grouped
+		    as defined by the *result_type* parameter.
+		:rtype: Array of unsigned 32 bit integers
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)
@@ -180,7 +226,8 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="a("+constants.SIG_EVENT+")", out_signature="au")
 	def InsertEvents(self, events):
-		"""Inserts events into the log. Returns an array containing the ids of the inserted events
+		"""Inserts events into the log. Returns an array containing the IDs
+		of the inserted events
 		
 		Each event which failed to be inserted into the log (either by
 		being blocked or because of an error) will be represented by `0`
@@ -197,9 +244,9 @@ class RemoteInterface(SingletonApplication):
 		    If you are using the Python bindings you may pass
 		    :class:`Event <zeitgeist.datamodel.Event>` instances
 		    directly to this method
-		:returns: An array containing the event ids of the inserted
+		:returns: An array containing the event IDs of the inserted
 		    events. In case any of the events where already logged,
-		    the id of the existing event will be returned. `0` as id
+		    the ID of the existing event will be returned. `0` as ID
 		    indicates a failed insert into the log.
 		:rtype: Array of unsigned 32 bits integers. DBus signature au.
 		"""
@@ -283,7 +330,9 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(constants.DBUS_INTERFACE,
 			in_signature="o(xx)a("+constants.SIG_EVENT+")", sender_keyword="owner")
 	def InstallMonitor(self, monitor_path, time_range, event_templates, owner=None):
-		"""Register a client side monitor object to receive callbacks when events matching *time_range* and *event_templates* are inserted or deleted.
+		"""Register a client side monitor object to receive callbacks when
+		events matching *time_range* and *event_templates* are inserted or
+		deleted.
 		
 		The monitor object must implement the interface :ref:`org.gnome.zeitgeist.Monitor <org_gnome_zeitgeist_Monitor>`
 		

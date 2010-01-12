@@ -3,7 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
-# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.net>
 # Copyright © 2009 Alexander Gabriel <einalex@mayanna.org>
