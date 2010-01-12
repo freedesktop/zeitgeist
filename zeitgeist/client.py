@@ -478,7 +478,7 @@ class ZeitgeistClient:
 	
 	def find_events_for_templates (self,
 					event_templates,
-					ids_reply_handler,
+					events_reply_handler,
 					timerange = None,
 					storage_state = StorageState.Any,
 					num_events = 20,
@@ -494,7 +494,7 @@ class ZeitgeistClient:
 		
 		The query will be done via an asynchronous DBus call and
 		this method will return immediately. The return value
-		will be passed to 'ids_reply_handler' as a list
+		will be passed to 'events_reply_handler' as a list
 		of :class:`Event`s. This list must be the sole argument for
 		the callback.
 		
@@ -504,7 +504,7 @@ class ZeitgeistClient:
 		:meth:`find_event_ids_for_templates`.
 		 
 		In case of errors a message will be printed on stderr, and
-		an empty result passed to ids_reply_handler.
+		an empty result passed to events_reply_handler.
 		To override this default set the error_handler named argument
 		to a callable that takes a single exception as its sole
 		argument.
@@ -514,7 +514,7 @@ class ZeitgeistClient:
 		
 		:param event_templates: List or tuple of
 		    :class:`Event <zeitgeist.datamodel.Event>` instances
-		:param ids_reply_handler: Callable taking a list of integers
+		:param events_reply_handler: Callable taking a list of integers
 		:param timerange: A
 		    :class:`TimeRange <zeitgeist.datamodel.TimeRange>` instance
 		    that the events must have occured within. Defaults to
@@ -532,9 +532,9 @@ class ZeitgeistClient:
 		self._check_list_or_tuple(event_templates)
 		self._check_members(event_templates, Event)
 		
-		if not callable(ids_reply_handler):
+		if not callable(events_reply_handler):
 			raise TypeError(
-				"Reply handler not callable, found %s" % ids_reply_handler)
+				"Reply handler not callable, found %s" % events_reply_handler)
 		
 		if timerange is None:
 			timerange = TimeRange.until_now()
@@ -544,21 +544,22 @@ class ZeitgeistClient:
 					storage_state,
 					num_events,
 					result_type,
-					reply_handler=self._safe_reply_handler(ids_reply_handler),
+					reply_handler=lambda raw: events_reply_handler(
+						map(Event.new_for_struct, raw)),
 					error_handler=self._safe_error_handler(error_handler,
-						ids_reply_handler, []))
+						events_reply_handler, []))
 	
-	def find_events_for_template (self, event_template, ids_reply_handler,
+	def find_events_for_template (self, event_template, events_reply_handler,
 		**kwargs):
 		"""
 		Alias for :meth:`find_events_for_templates`, for use when only
 		one template is needed.
 		"""
 		self.find_event_ids_for_templates([event_template],
-						ids_reply_handler,
+						events_reply_handler,
 						**kwargs)
 	
-	def find_events_for_values(self, ids_reply_handler, **kwargs):
+	def find_events_for_values(self, events_reply_handler, **kwargs):
 		"""
 		Alias for :meth:`find_events_for_templates`, for when only
 		one template is needed. Instead of taking an already created
@@ -570,7 +571,7 @@ class ZeitgeistClient:
 		ev = Event.new_for_values(**kwargs)
 		
 		self.find_events_for_templates([ev],
-						ids_reply_handler,
+						events_reply_handler,
 						**kwargs)
 	
 	def get_events (self, event_ids, events_reply_handler, error_handler=None):
