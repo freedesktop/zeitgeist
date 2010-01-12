@@ -552,12 +552,16 @@ class ZeitgeistEngine:
 		
 		return where
 	
-	def find_eventids(self, time_range, event_templates, storage_state,
-		max_events, order, return_events=False):
+	def _find_events(self, return_mode, time_range, event_templates,
+		storage_state, max_events, order):
 		"""
 		Accepts 'event_templates' as either a real list of Events or as
 		a list of tuples (event_data,subject_data) as we do in the
-		DBus API
+		DBus API.
+		
+		Return modes:
+		 - 0: IDs.
+		 - 1: Events.
 		"""
 		
 		t = time.time()
@@ -567,7 +571,7 @@ class ZeitgeistEngine:
 		if not where.may_have_results():
 			return []
 		
-		if not return_events:
+		if return_mode == 0:
 			sql = "SELECT DISTINCT id FROM event_view"
 		else:
 			sql = "SELECT * FROM event_view"
@@ -587,12 +591,18 @@ class ZeitgeistEngine:
 		
 		result = self._cursor.execute(sql, where.arguments).fetchall()
 		
-		if return_events:
+		if return_mode == 1:
 			return self.get_events(rows=result)
 		result = [row[0] for row in result]
 		
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result
+	
+	def find_eventids(self, *args):
+		return self._find_events(0, *args)
+	
+	def find_events(self, *args):
+		return self._find_events(1, *args)
 	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state):

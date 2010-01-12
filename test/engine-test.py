@@ -273,8 +273,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		import_events("test/data/five_events.js", self.engine)
 		event_template = Event.new_for_values(interpretation="stfu:OpenEvent",
 		    subjects=[Subject()])
-		events = self.engine.find_eventids((0, 0), [event_template],
-		    StorageState.Any, 0, 1, return_events=True)
+		events = self.engine.find_events((0, 0), [event_template],
+		    StorageState.Any, 0, 1)
 		self.assertEquals(2, len(events))
 		for event in events:
 			self.assertEqual(event.interpretation, "stfu:OpenEvent")
