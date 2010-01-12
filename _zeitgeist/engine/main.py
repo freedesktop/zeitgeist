@@ -333,17 +333,21 @@ class ZeitgeistEngine:
 				getattr(self, "_" + field).value(row["subj_" + field]))
 		return subject
 	
-	def get_events(self, ids):
+	def get_events(self, ids=None, rows=None):
 		"""
 		Look up a list of events.
 		"""
 		
 		t = time.time()
 		
-		rows = self._cursor.execute("""
-			SELECT * FROM event_view
-			WHERE id IN (%s)
-			""" % ",".join("%d" % id for id in ids)).fetchall()
+		if ids:
+			rows = self._cursor.execute("""
+				SELECT * FROM event_view
+				WHERE id IN (%s)
+				""" % ",".join("%d" % id for id in ids)).fetchall()
+		else:
+			ids = (row[0] for row in rows)
+		
 		events = {}
 		for row in rows:
 			# Assumption: all rows of a same event for its different
@@ -549,7 +553,7 @@ class ZeitgeistEngine:
 		return where
 	
 	def find_eventids(self, time_range, event_templates, storage_state,
-		max_events, order):
+		max_events, order, return_events=False):
 		"""
 		Accepts 'event_templates' as either a real list of Events or as
 		a list of tuples (event_data,subject_data) as we do in the
@@ -563,7 +567,11 @@ class ZeitgeistEngine:
 		if not where.may_have_results():
 			return []
 		
-		sql = "SELECT DISTINCT id FROM event_view"
+		if not return_events:
+			sql = "SELECT DISTINCT id FROM event_view"
+		else:
+			sql = "SELECT * FROM event_view"
+		
 		if where:
 			sql += " WHERE " + where.sql
 		
@@ -577,8 +585,11 @@ class ZeitgeistEngine:
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
 		
-		result = [row[0] 
-				for row in self._cursor.execute(sql, where.arguments).fetchall()]
+		result = self._cursor.execute(sql, where.arguments).fetchall()
+		
+		if return_events:
+			return self.get_events(rows=result)
+		result = [row[0] for row in result]
 		
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
 		return result

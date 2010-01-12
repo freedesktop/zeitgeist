@@ -161,6 +161,20 @@ class RemoteInterface(SingletonApplication):
 		event_templates = map(Event, event_templates)
 		return _engine.find_eventids(time_range, event_templates, storage_state, num_events, result_type)
 
+	@dbus.service.method(constants.DBUS_INTERFACE,
+						in_signature="(xx)a("+constants.SIG_EVENT+")uuu", out_signature="au")
+	def FindEvents(self, time_range, event_templates, storage_state,
+			num_events, result_type):
+		"""Shorthand of GetEvents(FindEventIds()).
+		
+		Using this function is more efficient, if you don't need to deal with
+		large amounts of data in a paginated UI.
+		"""
+		time_range = TimeRange(time_range[0], time_range[1])
+		event_templates = map(Event, event_templates)
+		return _engine.find_eventids(time_range, event_templates, storage_state,
+			num_events, result_type, return_events=True)
+
 	# Writing stuff
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
