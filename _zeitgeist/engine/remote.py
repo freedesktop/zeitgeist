@@ -53,6 +53,14 @@ class RemoteInterface(SingletonApplication):
 		self._mainloop = mainloop
 		self._notifications = MonitorManager()
 	
+	# Private methods
+	
+	def _make_events_sendable(self, events):
+		for event in events:
+			if event is not None:
+				event._make_dbus_sendable()
+		return [NULL_EVENT if event is None else event for event in events]
+	
 	# Reading stuff
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
@@ -72,12 +80,7 @@ class RemoteInterface(SingletonApplication):
 		   :class:`Event` instances by calling *events = map(Event.new_for_struct, result)*
 		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
-		events = _engine.get_events(event_ids)
-		for event in events:
-			if event is not None:
-				event._make_dbus_sendable()
-		events = [NULL_EVENT if event is None else event for event in events]
-		return events
+		return self._make_events_sendable(_engine.get_events(event_ids))
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="(xx)a("+constants.SIG_EVENT+")a("+constants.SIG_EVENT+")u",
@@ -177,7 +180,8 @@ class RemoteInterface(SingletonApplication):
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)
-		return _engine.find_eventids(time_range, event_templates, storage_state, num_events, result_type)
+		return _engine.find_eventids(time_range, event_templates, storage_state,
+			num_events, result_type)
 
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="(xx)a("+constants.SIG_EVENT+")uuu",
@@ -222,8 +226,8 @@ class RemoteInterface(SingletonApplication):
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)
-		return _engine.find_events(time_range, event_templates, storage_state,
-			num_events, result_type)
+		return self._make_events_sendable(_engine.find_events(time_range,
+			event_templates, storage_state, num_events, result_type))
 
 	# Writing stuff
 	
