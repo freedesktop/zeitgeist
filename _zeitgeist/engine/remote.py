@@ -123,7 +123,8 @@ class RemoteInterface(SingletonApplication):
 			result_event_templates, storage_state)
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
-						in_signature="(xx)a("+constants.SIG_EVENT+")uuu", out_signature="au")
+						in_signature="(xx)a("+constants.SIG_EVENT+")uuu",
+						out_signature="au")
 	def FindEventIds(self, time_range, event_templates, storage_state,
 			num_events, result_type):
 		"""Search for events matching a given set of templates and return
@@ -179,7 +180,8 @@ class RemoteInterface(SingletonApplication):
 		return _engine.find_eventids(time_range, event_templates, storage_state, num_events, result_type)
 
 	@dbus.service.method(constants.DBUS_INTERFACE,
-						in_signature="(xx)a("+constants.SIG_EVENT+")uuu", out_signature="au")
+						in_signature="(xx)a("+constants.SIG_EVENT+")uuu",
+						out_signature="a("+constants.SIG_EVENT+")")
 	def FindEvents(self, time_range, event_templates, storage_state,
 			num_events, result_type):
 		"""Get events matching a given set of templates.
