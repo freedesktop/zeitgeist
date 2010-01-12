@@ -220,8 +220,8 @@ class RemoteInterface(SingletonApplication):
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)
-		return _engine.find_eventids(time_range, event_templates, storage_state,
-			num_events, result_type, return_events=True)
+		return _engine.find_events(time_range, event_templates, storage_state,
+			num_events, result_type)
 
 	# Writing stuff
 	
