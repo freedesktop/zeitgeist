@@ -438,10 +438,11 @@ class ZeitgeistEngine:
 			FROM event
 			WHERE id IN (%s)
 		""" % ",".join(["?"] * len(ids)), ids)
-		min_stamp, max_stamp = self._cursor.fetchone()
-	
-		# FIXME: Delete unused interpretation/manifestation/text/etc.
-		self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
-			% ",".join(["?"] * len(ids)), ids)
+		timestamps = self._cursor.fetchone()
 		
-		return min_stamp, max_stamp
+		if timestamps:
+			# FIXME: Delete unused interpretation/manifestation/text/etc.
+			self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
+				% ",".join(["?"] * len(ids)), ids)
+		
+		return timestamps
