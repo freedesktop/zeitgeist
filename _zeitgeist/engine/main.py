@@ -33,7 +33,7 @@ from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange, \
 from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
-    TableLookup, WhereClause
+	TableLookup, WhereClause
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")

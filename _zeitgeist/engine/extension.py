@@ -51,7 +51,7 @@ class Extension(object):
 		event as is.
 		
 		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
-		    instance
+			instance
 		:returns: The filtered event instance to insert into the log
 		"""
 		return event
@@ -71,9 +71,9 @@ class Extension(object):
 		event as is.
 		
 		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
-		    instance
+			instance
 		:returns: The filtered event instance as the client
-		    should see it
+			should see it
 		"""
 		return event
 
@@ -142,7 +142,7 @@ class ExtensionsCollection(object):
 				self.unload(self.__extensions[ext_name])
 		else:
 			log.debug("Unloading extension '%s'" \
-			          % extension.__class__.__name__)
+					  % extension.__class__.__name__)
 			obj = self.__extensions[extension.__class__.__name__]
 			for method in obj.PUBLIC_METHODS:
 				del self.methods[method]

@@ -72,9 +72,9 @@ class RemoteInterface(SingletonApplication):
 		by the `NULL_EVENT` struct in the resulting array.
 		
 		:param event_ids: An array of event IDs. Fx. obtained by calling
-		    :meth:`FindEventIds`
+			:meth:`FindEventIds`
 		:type event_ids: Array of unsigned 32 bit integers.
-		    DBus signature au
+			DBus signature au
 		:returns: Full event data for all the requested IDs. The
 		   event data can be conveniently converted into a list of
 		   :class:`Event` instances by calling *events = map(Event.new_for_struct, result)*
@@ -96,25 +96,25 @@ class RemoteInterface(SingletonApplication):
 		`storage_state`.
 		
 		:param time_range: two timestamps defining the timerange for
-		    the query. When using the Python bindings for Zeitgeist you
-		    may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
-		    instance directly to this method.
+			the query. When using the Python bindings for Zeitgeist you
+			may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
+			instance directly to this method.
 		:type time_range: tuple of 64 bit integers,
-		    DBus signature :const:`(xx)`
+			DBus signature :const:`(xx)`
 		:param event_templates: An array of event templates
-		    which you want URIs that relate to.
-		    When using the Python bindings for Zeitgeist you may pass
-		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
-		    instances directly to this method.
+			which you want URIs that relate to.
+			When using the Python bindings for Zeitgeist you may pass
+			a list of  :class:`Event <zeitgeist.datamodel.Event>`
+			instances directly to this method.
 		:type event_templates: array of events,
-		    DBus signature :const:`a(asaasay)`
+			DBus signature :const:`a(asaasay)`
 		:param result_event_templates: An array of event templates which
-		    the returned URIs must occur as subjects of.
-		    When using the Python bindings for Zeitgeist you may pass
-		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
-		    instances directly to this method.
+			the returned URIs must occur as subjects of.
+			When using the Python bindings for Zeitgeist you may pass
+			a list of  :class:`Event <zeitgeist.datamodel.Event>`
+			instances directly to this method.
 		:type result_event_templates: array of events,
-		    DBus signature :const:`a(asaasay)`
+			DBus signature :const:`a(asaasay)`
 		:param storage_state: whether the item is currently known to be
 		   available. The list of possible values is enumerated in the
 		   :class:`StorageState <zeitgeist.datamodel.StorageState>` class
@@ -152,30 +152,30 @@ class RemoteInterface(SingletonApplication):
 		see :meth:`FindEvents`.
 		
 		:param time_range: two timestamps defining the timerange for
-		    the query. When using the Python bindings for Zeitgeist you
-		    may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
-		    instance directly to this method
+			the query. When using the Python bindings for Zeitgeist you
+			may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
+			instance directly to this method
 		:type time_range: tuple of 64 bit integers. DBus signature (xx)
 		:param event_templates: An array of event templates which the
-		    returned events should match at least one of.
-		    When using the Python bindings for Zeitgeist you may pass
-		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
-		    instances directly to this method.
+			returned events should match at least one of.
+			When using the Python bindings for Zeitgeist you may pass
+			a list of  :class:`Event <zeitgeist.datamodel.Event>`
+			instances directly to this method.
 		:type event_templates: array of events. DBus signature a(asaasay)
 		:param storage_state: whether the item is currently known to be
-		    available. The list of possible values is enumerated in
-		    :class:`StorageState <zeitgeist.datamodel.StorageState>` class
+			available. The list of possible values is enumerated in
+			:class:`StorageState <zeitgeist.datamodel.StorageState>` class
 		:type storage_state: unsigned integer
 		:param num_events: maximal amount of returned events
 		:type num_events: unsigned integer
 		:param order: unsigned integer representing
-		    a :class:`result type <zeitgeist.datamodel.ResultType>`
+			a :class:`result type <zeitgeist.datamodel.ResultType>`
 		:type order: unsigned integer
 		:returns: Full event data for all the requested IDs, up to a maximum
-		    of *num_events* events, sorted and grouped as defined by the
-		    *result_type* parameter. The event data can be conveniently
-		    converted into a list of :class:`Event` instances by calling
-		    *events = map(Event.new_for_struct, result)*
+			of *num_events* events, sorted and grouped as defined by the
+			*result_type* parameter. The event data can be conveniently
+			converted into a list of :class:`Event` instances by calling
+			*events = map(Event.new_for_struct, result)*
 		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
@@ -200,28 +200,28 @@ class RemoteInterface(SingletonApplication):
 		same time (eg., by paging them), use :meth:`FindEventIds`.
 		
 		:param time_range: two timestamps defining the timerange for
-		    the query. When using the Python bindings for Zeitgeist you
-		    may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
-		    instance directly to this method
+			the query. When using the Python bindings for Zeitgeist you
+			may pass a :class:`TimeRange <zeitgeist.datamodel.TimeRange>`
+			instance directly to this method
 		:type time_range: tuple of 64 bit integers. DBus signature (xx)
 		:param event_templates: An array of event templates which the
-		    returned events should match at least one of.
-		    When using the Python bindings for Zeitgeist you may pass
-		    a list of  :class:`Event <zeitgeist.datamodel.Event>`
-		    instances directly to this method.
+			returned events should match at least one of.
+			When using the Python bindings for Zeitgeist you may pass
+			a list of  :class:`Event <zeitgeist.datamodel.Event>`
+			instances directly to this method.
 		:type event_templates: array of events. DBus signature a(asaasay)
 		:param storage_state: whether the item is currently known to be
-		    available. The list of possible values is enumerated in
-		    :class:`StorageState <zeitgeist.datamodel.StorageState>` class
+			available. The list of possible values is enumerated in
+			:class:`StorageState <zeitgeist.datamodel.StorageState>` class
 		:type storage_state: unsigned integer
 		:param num_events: maximal amount of returned events
 		:type num_events: unsigned integer
 		:param order: unsigned integer representing
-		    a :class:`result type <zeitgeist.datamodel.ResultType>`
+			a :class:`result type <zeitgeist.datamodel.ResultType>`
 		:type order: unsigned integer
 		:returns: An array containing the IDs of all matching events,
-		    up to a maximum of *num_events* events. Sorted and grouped
-		    as defined by the *result_type* parameter.
+			up to a maximum of *num_events* events. Sorted and grouped
+			as defined by the *result_type* parameter.
 		:rtype: Array of unsigned 32 bit integers
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
@@ -249,13 +249,13 @@ class RemoteInterface(SingletonApplication):
 		events have been inserted.
 		
 		:param events: List of events to be inserted in the log.
-		    If you are using the Python bindings you may pass
-		    :class:`Event <zeitgeist.datamodel.Event>` instances
-		    directly to this method
+			If you are using the Python bindings you may pass
+			:class:`Event <zeitgeist.datamodel.Event>` instances
+			directly to this method
 		:returns: An array containing the event IDs of the inserted
-		    events. In case any of the events where already logged,
-		    the ID of the existing event will be returned. `0` as ID
-		    indicates a failed insert into the log.
+			events. In case any of the events where already logged,
+			the ID of the existing event will be returned. `0` as ID
+			indicates a failed insert into the log.
 		:rtype: Array of unsigned 32 bits integers. DBus signature au.
 		"""
 		if not events : return []
@@ -285,15 +285,15 @@ class RemoteInterface(SingletonApplication):
 		"""Delete a set of events from the log given their IDs
 		
 		:param event_ids: list of event IDs obtained, for example, by calling
-		    :meth:`FindEventIds`
+			:meth:`FindEventIds`
 		:type event_ids: list of integers
 		"""
 		# FIXME: Notify monitors - how do we do this? //kamstrup
 		timestamps = _engine.delete_events(event_ids)
 		if timestamps:
-		    # We need to check the return value, as the events could already
-		    # have been deleted before or the IDs might even have be invalid.
-    		self._notifications.notify_delete(TimeRange(*timestamps), event_ids)
+			# We need to check the return value, as the events could already
+			# have been deleted before or the IDs might even have be invalid.
+			self._notifications.notify_delete(TimeRange(*timestamps), event_ids)
 
 	@dbus.service.method(constants.DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
@@ -304,8 +304,8 @@ class RemoteInterface(SingletonApplication):
 		:meth:`FindEventIds` combined with :meth:`DeleteEvents`.
 		"""
 		_engine.delete_log()
-        
-        @dbus.service.method(constants.DBUS_INTERFACE)
+		
+		@dbus.service.method(constants.DBUS_INTERFACE)
 	def Quit(self):
 		"""Terminate the running Zeitgeist engine process; use with caution,
 		this action must only be triggered with the user's explicit consent,
@@ -349,11 +349,11 @@ class RemoteInterface(SingletonApplication):
 		
 		:param monitor_path: DBus object path to the client side monitor object. DBus signature o.
 		:param time_range: A two-tuple with the time range monitored
-		    events must fall within. Recall that time stamps are in
-		    milliseconds since the Epoch. DBus signature (xx)
+			events must fall within. Recall that time stamps are in
+			milliseconds since the Epoch. DBus signature (xx)
 		:param event_templates: Event templates that events must match
-		    in order to trigger the monitor. Just like :meth:`FindEventIds`.
-		    DBus signature a(asaasay)
+			in order to trigger the monitor. Just like :meth:`FindEventIds`.
+			DBus signature a(asaasay)
 		"""
 		event_templates = map(Event, event_templates)
 		time_range = TimeRange(time_range[0], time_range[1])
@@ -365,6 +365,6 @@ class RemoteInterface(SingletonApplication):
 		"""Remove a monitor installed with :meth:`InstallMonitor`
 		
 		:param monitor_path: DBus object path of monitor to remove as
-		    supplied to :meth:`InstallMonitor`.
+			supplied to :meth:`InstallMonitor`.
 		"""
 		self._notifications.remove_monitor(owner, monitor_path)

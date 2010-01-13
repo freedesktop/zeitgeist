@@ -40,14 +40,14 @@ class _MonitorProxy (dbus.Interface):
 		
 		:param owner: Unique DBus name of the process owning the monitor
 		:param monitor_path: The DBus object path to the monitor object
-		    in the client process
+			in the client process
 		:param time_range: a 
-		    :class:`TimeRange <zeitgeist.datamodel.TimeRange` instance
-		    the monitored events must lie within
+			:class:`TimeRange <zeitgeist.datamodel.TimeRange` instance
+			the monitored events must lie within
 		:param event_templates: List of event templates that any events
-		    must match in order to notify this monitor
+			must match in order to notify this monitor
 		:type event_templates: list of
-		    :class:`Events <zeitgeist.datamodel.Event>`
+			:class:`Events <zeitgeist.datamodel.Event>`
 		"""
 		bus = dbus.SessionBus()
 		proxy = bus.get_object(owner, monitor_path)
@@ -103,8 +103,8 @@ class _MonitorProxy (dbus.Interface):
 		"""
 		for ev in events : ev._make_dbus_sendable()
 		self.NotifyInsert(time_range, events,
-		            reply_handler=self._notify_reply_handler,
-		            error_handler=self._notify_error_handler)
+					reply_handler=self._notify_reply_handler,
+					error_handler=self._notify_error_handler)
 	
 	def notify_delete (self, time_range, event_ids):
 		"""
@@ -115,8 +115,8 @@ class _MonitorProxy (dbus.Interface):
 		time range. That is the responsibility of the caller
 		"""
 		self.NotifyDelete(time_range, event_ids,
-		            reply_handler=self._notify_reply_handler,
-		            error_handler=self._notify_error_handler)
+					reply_handler=self._notify_reply_handler,
+					error_handler=self._notify_error_handler)
 	
 	@staticmethod
 	def hash(owner, path):
@@ -146,9 +146,9 @@ class MonitorManager:
 		
 		# Listen for disconnecting clients to clean up potential dangling monitors
 		dbus.SessionBus().add_signal_receiver (self._name_owner_changed,
-		                                       signal_name="NameOwnerChanged",
-		                                       dbus_interface=dbus.BUS_DAEMON_IFACE,
-		                                       arg2="")
+											   signal_name="NameOwnerChanged",
+											   dbus_interface=dbus.BUS_DAEMON_IFACE,
+											   arg2="")
 	
 	def install_monitor (self, owner, monitor_path, time_range, event_templates):
 		"""
@@ -164,13 +164,13 @@ class MonitorManager:
 		:param owner: Unique DBus name of the process owning the monitor
 		:type owner: string
 		:param monitor_path: The DBus object path for the monitor object
-		    in the client process
+			in the client process
 		:type monitor_path: String or :class:`dbus.ObjectPath`
 		:param time_range: a 
-		    :class:`TimeRange <zeitgeist.datamodel.TimeRange` instance
-		    the monitored events must lie within
+			:class:`TimeRange <zeitgeist.datamodel.TimeRange` instance
+			the monitored events must lie within
 		:param event_templates: A list of
-		    :class:`Event <zeitgeist.datamodel.Event>` templates to match
+			:class:`Event <zeitgeist.datamodel.Event>` templates to match
 		:returns: This method has no return value
 		"""
 		# Check that we don't already have the monitor, so we don't
@@ -194,7 +194,7 @@ class MonitorManager:
 		:param owner: Unique DBus name of the process owning the monitor
 		:type owner: string
 		:param monitor_path: The DBus object path for the monitor object
-		    in the client process
+			in the client process
 		:type monitor_path: String or :class:`dbus.ObjectPath`
 		"""
 		log.debug("Removing monitor %s%s", owner, monitor_path)
