@@ -1,3 +1,6 @@
+ * Add FindEvents, optimized shorthand for GetEvents(FindEventIds(...)).
+ * Fix DeleteEvents and made it ignore bad requests.
+
 2010-01-10: Zeitgeist 0.3.1
 ---------------------------
 
