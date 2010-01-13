@@ -304,8 +304,8 @@ class RemoteInterface(SingletonApplication):
 		:meth:`FindEventIds` combined with :meth:`DeleteEvents`.
 		"""
 		_engine.delete_log()
-		
-		@dbus.service.method(constants.DBUS_INTERFACE)
+	
+	@dbus.service.method(constants.DBUS_INTERFACE)
 	def Quit(self):
 		"""Terminate the running Zeitgeist engine process; use with caution,
 		this action must only be triggered with the user's explicit consent,
