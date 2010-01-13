@@ -401,7 +401,7 @@ class ZeitgeistClient:
 		a portion of the results are to be displayed at the same time
 		(eg., by using paging or dynamic scrollbars), as by holding a
 		list of IDs you keep a stable ordering, and you can ask for
-		the details associated to them in hunks, when you need them. For
+		the details associated to them in batches, when you need them. For
 		queries with a small amount of results, or where you need the
 		information about all results at once no matter how many of them
 		there are, see :meth:`find_events_for_templates`.
