@@ -293,7 +293,8 @@ class RemoteInterface(SingletonApplication):
 		if timestamps:
 			# We need to check the return value, as the events could already
 			# have been deleted before or the IDs might even have be invalid.
-			self._notifications.notify_delete(TimeRange(*timestamps), event_ids)
+			self._notifications.notify_delete(
+			    TimeRange(timestamps[0], timestamps[1]), event_ids)
 
 	@dbus.service.method(constants.DBUS_INTERFACE, in_signature="", out_signature="")
 	def DeleteLog(self):
