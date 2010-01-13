@@ -373,133 +373,6 @@ class ZeitgeistEngine:
 
 		return sorted_events
 	
-	def insert_events(self, events):
-		t = time.time()
-		m = map(self._insert_event_without_error, events)
-		_cursor.connection.commit()
-		log.debug("Inserted %d events in %fs" % (len(m), time.time()-t))
-		return m
-		
-	def _insert_event_without_error(self, event):
-		try:
-			return self._insert_event(event)
-		except Exception, e:
-			log.exception("error while inserting '%r'" %event)
-			return 0
-	
-	def _insert_event(self, event):
-		if not isinstance(event, Event):
-			raise ValueError("cannot insert object of type %r" %type(event))
-		if event.id:
-			raise ValueError("Illegal event: Predefined event id")
-		if not event.subjects:
-			raise ValueError("Illegal event format: No subject")
-		if not event.timestamp:
-			event.timestamp = get_timestamp_for_now()
-		
-		event = self.extensions.apply_insert_hooks(event)
-		if event is None:
-			raise AssertionError("Inserting of event was blocked by an extension")
-		elif not isinstance(event, Event):
-			raise ValueError("cannot insert object of type %r" %type(event))
-		
-		id = self.next_event_id()
-		
-		if event.payload:
-			# TODO: Rigth now payloads are not unique and every event has its
-			# own one. We could optimize this to store those which are repeated
-			# for different events only once, especially considering that
-			# events cannot be modified once they've been inserted.
-			payload_id = self._cursor.execute(
-				"INSERT INTO payload (value) VALUES (?)", event.payload)
-			payload_id = self._cursor.lastrowid
-		else:
-			# Don't use None here, as that'd be inserted literally into the DB
-			payload_id = ""
-		
-		# Make sure all URIs are inserted
-		_origin = [subject.origin for subject in event.subjects if subject.origin]
-		self._cursor.execute("INSERT OR IGNORE INTO uri (value) %s"
-			% " UNION ".join(["SELECT ?"] * (len(event.subjects) + len(_origin))),
-			[subject.uri for subject in event.subjects] + _origin)
-		
-		# Make sure all mimetypes are inserted
-		_mimetype = [subject.mimetype for subject in event.subjects \
-			if subject.mimetype and not subject.mimetype in self._mimetype]
-		if len(_mimetype) > 1:
-			self._cursor.execute("INSERT OR IGNORE INTO mimetype (value) %s"
-				% " UNION ".join(["SELECT ?"] * len(_mimetype)), _mimetype)
-		
-		# Make sure all texts are inserted
-		_text = [subject.text for subject in event.subjects if subject.text]
-		if _text:
-			self._cursor.execute("INSERT OR IGNORE INTO text (value) %s"
-				% " UNION ".join(["SELECT ?"] * len(_text)), _text)
-		
-		# Make sure all storages are inserted
-		_storage = [subject.storage for subject in event.subjects if subject.storage]
-		if _storage:
-			self._cursor.execute("INSERT OR IGNORE INTO storage (value) %s"
-				% " UNION ".join(["SELECT ?"] * len(_storage)), _storage)
-		
-		try:
-			for subject in event.subjects:	
-				self._cursor.execute("""
-					INSERT INTO event VALUES (
-						?, ?, ?, ?, ?, ?,
-						(SELECT id FROM uri WHERE value=?),
-						?, ?,
-						(SELECT id FROM uri WHERE value=?),
-						?,
-						(SELECT id FROM text WHERE value=?),
-						(SELECT id from storage WHERE value=?)
-					)""", (
-						id,
-						event.timestamp,
-						self._interpretation[event.interpretation],
-						self._manifestation[event.manifestation],
-						self._actor[event.actor],
-						payload_id,
-						subject.uri,
-						self._interpretation[subject.interpretation],
-						self._manifestation[subject.manifestation],
-						subject.origin,
-						self._mimetype[subject.mimetype],
-						subject.text,
-						subject.storage))
-		except sqlite3.IntegrityError:
-			# The event was already registered.
-			# Rollback _last_event_id and return the ID of the original event
-			self._last_event_id -= 1
-			self._cursor.execute("""
-				SELECT id FROM event
-				WHERE timestamp=? AND interpretation=? AND manifestation=?
-					AND actor=?
-				""", (event.timestamp,
-					self._interpretation[event.interpretation],
-					self._manifestation[event.manifestation],
-					self._actor[event.actor]))
-			return self._cursor.fetchone()[0]
-		
-		_cursor.connection.commit()
-		
-		return id
-	
-	def delete_events (self, ids):
-		# Extract min and max timestamps for deleted events
-		self._cursor.execute("""
-			SELECT MIN(timestamp), MAX(timestamp)
-			FROM event
-			WHERE id IN (%s)
-		""" % ",".join(["?"] * len(ids)), ids)
-		min_stamp, max_stamp = self._cursor.fetchone()
-	
-		# FIXME: Delete unused interpretation/manifestation/text/etc.
-		self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
-			% ",".join(["?"] * len(ids)), ids)
-		
-		return min_stamp, max_stamp
-	
 	@staticmethod
 	def _build_templates(templates):
 		for event_template in templates:
@@ -678,6 +551,133 @@ class ZeitgeistEngine:
 		results = [(support, key) for key, support in item_dict.iteritems()
 			if support >= min_support]
 		return [key for support, key in sorted(results, reverse=True)]
+
+	def insert_events(self, events):
+		t = time.time()
+		m = map(self._insert_event_without_error, events)
+		_cursor.connection.commit()
+		log.debug("Inserted %d events in %fs" % (len(m), time.time()-t))
+		return m
+	
+	def _insert_event_without_error(self, event):
+		try:
+			return self._insert_event(event)
+		except Exception, e:
+			log.exception("error while inserting '%r'" %event)
+			return 0
+	
+	def _insert_event(self, event):
+		if not isinstance(event, Event):
+			raise ValueError("cannot insert object of type %r" %type(event))
+		if event.id:
+			raise ValueError("Illegal event: Predefined event id")
+		if not event.subjects:
+			raise ValueError("Illegal event format: No subject")
+		if not event.timestamp:
+			event.timestamp = get_timestamp_for_now()
+		
+		event = self.extensions.apply_insert_hooks(event)
+		if event is None:
+			raise AssertionError("Inserting of event was blocked by an extension")
+		elif not isinstance(event, Event):
+			raise ValueError("cannot insert object of type %r" %type(event))
+		
+		id = self.next_event_id()
+		
+		if event.payload:
+			# TODO: Rigth now payloads are not unique and every event has its
+			# own one. We could optimize this to store those which are repeated
+			# for different events only once, especially considering that
+			# events cannot be modified once they've been inserted.
+			payload_id = self._cursor.execute(
+				"INSERT INTO payload (value) VALUES (?)", event.payload)
+			payload_id = self._cursor.lastrowid
+		else:
+			# Don't use None here, as that'd be inserted literally into the DB
+			payload_id = ""
+		
+		# Make sure all URIs are inserted
+		_origin = [subject.origin for subject in event.subjects if subject.origin]
+		self._cursor.execute("INSERT OR IGNORE INTO uri (value) %s"
+			% " UNION ".join(["SELECT ?"] * (len(event.subjects) + len(_origin))),
+			[subject.uri for subject in event.subjects] + _origin)
+		
+		# Make sure all mimetypes are inserted
+		_mimetype = [subject.mimetype for subject in event.subjects \
+			if subject.mimetype and not subject.mimetype in self._mimetype]
+		if len(_mimetype) > 1:
+			self._cursor.execute("INSERT OR IGNORE INTO mimetype (value) %s"
+				% " UNION ".join(["SELECT ?"] * len(_mimetype)), _mimetype)
+		
+		# Make sure all texts are inserted
+		_text = [subject.text for subject in event.subjects if subject.text]
+		if _text:
+			self._cursor.execute("INSERT OR IGNORE INTO text (value) %s"
+				% " UNION ".join(["SELECT ?"] * len(_text)), _text)
+		
+		# Make sure all storages are inserted
+		_storage = [subject.storage for subject in event.subjects if subject.storage]
+		if _storage:
+			self._cursor.execute("INSERT OR IGNORE INTO storage (value) %s"
+				% " UNION ".join(["SELECT ?"] * len(_storage)), _storage)
+		
+		try:
+			for subject in event.subjects:	
+				self._cursor.execute("""
+					INSERT INTO event VALUES (
+						?, ?, ?, ?, ?, ?,
+						(SELECT id FROM uri WHERE value=?),
+						?, ?,
+						(SELECT id FROM uri WHERE value=?),
+						?,
+						(SELECT id FROM text WHERE value=?),
+						(SELECT id from storage WHERE value=?)
+					)""", (
+						id,
+						event.timestamp,
+						self._interpretation[event.interpretation],
+						self._manifestation[event.manifestation],
+						self._actor[event.actor],
+						payload_id,
+						subject.uri,
+						self._interpretation[subject.interpretation],
+						self._manifestation[subject.manifestation],
+						subject.origin,
+						self._mimetype[subject.mimetype],
+						subject.text,
+						subject.storage))
+		except sqlite3.IntegrityError:
+			# The event was already registered.
+			# Rollback _last_event_id and return the ID of the original event
+			self._last_event_id -= 1
+			self._cursor.execute("""
+				SELECT id FROM event
+				WHERE timestamp=? AND interpretation=? AND manifestation=?
+					AND actor=?
+				""", (event.timestamp,
+					self._interpretation[event.interpretation],
+					self._manifestation[event.manifestation],
+					self._actor[event.actor]))
+			return self._cursor.fetchone()[0]
+		
+		_cursor.connection.commit()
+		
+		return id
+	
+	def delete_events (self, ids):
+		# Extract min and max timestamps for deleted events
+		self._cursor.execute("""
+			SELECT MIN(timestamp), MAX(timestamp)
+			FROM event
+			WHERE id IN (%s)
+		""" % ",".join(["?"] * len(ids)), ids)
+		min_stamp, max_stamp = self._cursor.fetchone()
+	
+		# FIXME: Delete unused interpretation/manifestation/text/etc.
+		self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
+			% ",".join(["?"] * len(ids)), ids)
+		
+		return min_stamp, max_stamp
 
 class WhereClause:
 	
