@@ -7,4 +7,5 @@ app_PYTHON = \
 	extension.py \
 	notify.py \
 	main.py \
+	sql.py \
 	remote.py
