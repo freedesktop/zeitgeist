@@ -45,14 +45,16 @@ one of the core developers (members of <http://launchpad.net/~zeitgeist>)
 
 Release Tasks
 *************
-1. Bump version number to $VERSION in configure.ac and VERSION files
+1. Bump version number to $VERSION in configure.ac and VERSION files,
+   and the D-Bus API version in _zeitgeist/engine/remote.py, if there
+   have been changes to it.
 
 2. Update NEWS file by hand
   (hint: you can see the full change log with 'bzr log -n0 -v | less')
-  
+
 3. Commit your changes (with only these changes!) and push you current branch
    to lp:zeitgeist and lp:~zeitgeist/zeitgeist/zeitgeist-$VERSION
-   
+
 4. To make sure you have a pristine source tree do a clean checkout of the
    newly created branch:
    
@@ -68,15 +70,15 @@ Release Tasks
 
 8. Upload the tarball and the generated *.asc GPG signature to the right
    milestone on Launchpad
-   
+
 9. Send announcement email to the mailing lists:
 
     + zeitgeist@lists.launchpad.net
     + gnome-zeitgeist-users@lists.launchpad.net
     + gnome-announce-list@gnome.org
-    
+
 10. Post a news update on the Launchpad project page based on your
-   announcement email
+    announcement email
 
 11. Make sure that the API documentation on zeitgeist-project.com is updated
 
