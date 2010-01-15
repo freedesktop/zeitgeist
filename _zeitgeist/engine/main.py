@@ -107,6 +107,9 @@ class ZeitgeistEngine:
 		
 		t = time.time()
 		
+		if not ids and not rows:
+		    return []
+		
 		if ids:
 			rows = self._cursor.execute("""
 				SELECT * FROM event_view
