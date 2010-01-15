@@ -108,7 +108,7 @@ class ZeitgeistEngine:
 		t = time.time()
 		
 		if not ids and not rows:
-		    return []
+			return []
 		
 		if ids:
 			rows = self._cursor.execute("""
