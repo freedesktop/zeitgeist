@@ -286,7 +286,7 @@ class ZeitgeistClient:
 		return self._void_reply_handler
 	
 	def get_version(self):
-		return self._iface.version()
+		return [int(i) for i in self._iface.version()]
 	
 	def insert_event (self, event, ids_reply_handler=None, error_handler=None):
 		"""
