@@ -1,5 +1,7 @@
  * Add FindEvents, optimized shorthand for GetEvents(FindEventIds(...)).
- * Fix DeleteEvents and made it ignore bad requests.
+ * Fix DeleteEvents and make it ignore bad requests.
+ * Fix GetEvents not to raise an exception when called with an empty list.
+ * ZeitgeistClient.get_version() now returns a Python list.
 
 2010-01-10: Zeitgeist 0.3.1
 ---------------------------
