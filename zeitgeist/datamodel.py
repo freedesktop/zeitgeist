@@ -620,7 +620,7 @@ class Subject(list):
 	def set_storage(self, value):
 		self[Subject.Storage] = value
 	storage = property(get_storage, set_storage,
-	doc="Read/write property with a string id of the storage medium where the subject is stored. Fx. the UUID of the disk partition or just the string *inet* for items requiring general connectivity to be available")
+	doc="Read/write property with a string id of the storage medium where the subject is stored. Fx. the UUID of the disk partition or just the string 'net' for items requiring network interface to be available")
 	
 	def matches_template (self, subject_template):
 		"""
