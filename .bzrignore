@@ -16,6 +16,7 @@ stamp-it
 *.desktop.in
 extra/*.desktop
 zeitgeist-*.tar.gz
+zeitgeist-*.tar.gz.asc
 .pydevproject
 .project
 doc/dbus/build
