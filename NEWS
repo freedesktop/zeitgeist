@@ -1,7 +1,14 @@
+2010-01-19: Zeitgeist 0.3.2
+---------------------------
+
+This release brings some nice little stuff and is used to power the first
+release of the GNOME Activity Journal.
+
  * Add FindEvents, optimized shorthand for GetEvents(FindEventIds(...)).
  * Fix DeleteEvents and make it ignore bad requests.
  * Fix GetEvents not to raise an exception when called with an empty list.
  * ZeitgeistClient.get_version() now returns a Python list.
+ * Some code refactoring, documentation changes and other little fixes.
 
 2010-01-10: Zeitgeist 0.3.1
 ---------------------------
@@ -31,12 +38,11 @@ Second development release leading up to the stable 0.4 series.
  * API documentation is more or less at 100% both for the DBus API and
    the Python client library
  * Bash completion for zeitgeist-daemon
- * Code style cleanups
  * Bugfix: You may now request more than 999 events in one go from GetEvents()
  * Bugfix: In find_eventids where using more than one event template resulted
    in all but the first one ignoring the timestamp restriction
  * Bugfix: Fix URL of Interpretation.APPLICATION to correct Nepomuk URI
- * More bugfixes
+ * More bugfixes and code style cleanups
 
 2009-12-01: Zeitgeist 0.3.0
 ------------------------------
