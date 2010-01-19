@@ -7,6 +7,7 @@ org.gnome.zeitgeist.service: Makefile
 
 CLEANFILES = org.gnome.zeitgeist.service
 EXTRA_DIST = \
-	org.gnome.zeitgeist.service.in
+	org.gnome.zeitgeist.service.in \
+	zeitgeist-daemon.bash_completion
 
 all-local: org.gnome.zeitgeist.service
