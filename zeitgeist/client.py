@@ -133,7 +133,7 @@ class ZeitgeistDBusInterface(dbus.Interface):
 			
 	@classmethod
 	def connect_exit(cls, callback):
-		"""executes callback when the RemoteInterface exists"""
+		"""Executes callback when the RemoteInterface exists"""
 		bus = cls.get_session_bus()
 		bus_obj = bus.get_object(dbus.BUS_DAEMON_IFACE, dbus.BUS_DAEMON_PATH)
 		bus_obj.connect_to_signal(
@@ -146,10 +146,23 @@ class ZeitgeistDBusInterface(dbus.Interface):
 		
 	@classmethod
 	def version(cls):
-		""" get the API version """
+		"""Returns the API version"""
 		proxy = cls._get_proxy()
 		return proxy.get_dbus_method("Get",
 			dbus_interface=dbus.PROPERTIES_IFACE)(cls.INTERFACE_NAME, "version")
+	
+	@classmethod
+	def get_extension(cls, name, path):
+		""" Returns an interface to the given extension. """
+		l = "extension_interfaces"
+		if not l in cls.__shared_state:
+			cls.__shared_state[l] = {}
+		if not name in cls.__shared_state[l]:
+			proxy = cls.get_session_bus().get_object(
+				"org.gnome.zeitgeist.Engine", "/org/gnome/zeitgeist/%s" % path)
+			cls.__shared_state[name] = dbus.Interface(proxy,
+				"org.gnome.Zeitgeist.%s" % name)
+		return cls.__shared_state[name]
 	
 	def __init__(self):
 		self.__dict__ = self.__shared_state
