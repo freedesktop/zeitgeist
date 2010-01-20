@@ -47,7 +47,7 @@ class ZeitgeistDBusInterface(dbus.Interface):
 	(like use the same bus and be connected to the same proxy). This is
 	achieved by extending the `Borg Pattern` as described by Alex Martelli	
 	"""
-	__shared_state = {}
+	__shared_state = {"extension_interfaces": {}}
 	
 	BUS_NAME = "org.gnome.zeitgeist.Engine"
 	INTERFACE_NAME = "org.gnome.zeitgeist.Log"
@@ -160,15 +160,12 @@ class ZeitgeistDBusInterface(dbus.Interface):
 			>> reg.RegisterDatasource(...)
 		"""
 		
-		l = "extension_interfaces"
-		if not l in cls.__shared_state:
-			cls.__shared_state[l] = {}
-		if not name in cls.__shared_state[l]:
+		if not name in cls.__shared_state["extension_interfaces"]:
 			proxy = cls.get_session_bus().get_object(
 			"org.gnome.zeitgeist.Engine", "/org/gnome/zeitgeist/%s" % path)
-			cls.__shared_state[name] = dbus.Interface(proxy,
-				"org.gnome.zeitgeist.%s" % name)
-		return cls.__shared_state[name]
+			cls.__shared_state["extension_interfaces"][name] = dbus.Interface(
+			    proxy, "org.gnome.zeitgeist.%s" % name)
+		return cls.__shared_state["extension_interfaces"][name]
 	
 	def __init__(self):
 		self.__dict__ = self.__shared_state
