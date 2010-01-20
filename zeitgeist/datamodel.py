@@ -5,7 +5,7 @@
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
 # Copyright © 2009 Seif Lotfy <seif@lotfy.com>
-# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -926,6 +926,43 @@ class Event(list):
 		# The payload require special handling, since it is binary data
 		# If there is indeed data here, we must not unicode encode it!
 		if self[2] is None: self[2] = u""
+
+class Datasource(list):
+	""" Optimized and convenient data structure representing a datasource.
+	
+	This class is designed so that you can pass it directly over
+	DBus using the Python DBus bindings. It will automagically be
+	marshalled with the signature a(asaasay). See also the section
+	on the :ref:`event serialization format <event_serialization_format>`.
+	
+	This class does integer based lookups everywhere and can wrap any
+	conformant data structure without the need for marshalling back and
+	forth between DBus wire format. These two properties makes it highly
+	efficient and is recommended for use everywhere.
+	"""
+	Fields = (Name,
+		Description,
+		Actors,
+		Running,
+		LastSeen,
+		Enabled) = range(6)
+	
+	def __init__(self, name, description, actors, running=True, last_seen=None,
+		enabled=True):
+		super(Datasource, self).__init__()
+		self.append(unicode(name))
+		self.append(unicode(description))
+		self.append([unicode(actor) for actor in actors])
+		self.append(bool(running))
+		self.append(int(last_seen) if last_seen else time.time() * 1000)
+		self.append(bool(enabled))
+	
+	def __eq__(self, source):
+		return self[self.Name] == source[self.Name]
+	
+	def update_from_datasource(self, source):
+		for prop in (self.Description, self.Actors, self.Running, self.LastSeen):
+			self[prop] = source[prop]
 
 NULL_EVENT = ([], [], [])
 """Minimal Event representation, a tuple containing three empty lists.
