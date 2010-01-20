@@ -153,15 +153,21 @@ class ZeitgeistDBusInterface(dbus.Interface):
 	
 	@classmethod
 	def get_extension(cls, name, path):
-		""" Returns an interface to the given extension. """
+		""" Returns an interface to the given extension.
+		
+		Example usage:
+			>> reg = get_extension("DatasourceRegistry", "datasource_registry")
+			>> reg.RegisterDatasource(...)
+		"""
+		
 		l = "extension_interfaces"
 		if not l in cls.__shared_state:
 			cls.__shared_state[l] = {}
 		if not name in cls.__shared_state[l]:
 			proxy = cls.get_session_bus().get_object(
-				"org.gnome.zeitgeist.Engine", "/org/gnome/zeitgeist/%s" % path)
+			"org.gnome.zeitgeist.Engine", "/org/gnome/zeitgeist/%s" % path)
 			cls.__shared_state[name] = dbus.Interface(proxy,
-				"org.gnome.Zeitgeist.%s" % name)
+				"org.gnome.zeitgeist.%s" % name)
 		return cls.__shared_state[name]
 	
 	def __init__(self):
