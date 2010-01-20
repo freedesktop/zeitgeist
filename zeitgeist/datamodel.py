@@ -74,7 +74,7 @@ class Symbol(str):
 		
 	@property
 	def __doc__(self):
-		return "%s\n\n    %s. ``(Display name: '%s')``" %(self.uri, self.doc.rstrip("."), self.display_name)
+		return "%s\n\n	%s. ``(Display name: '%s')``" %(self.uri, self.doc.rstrip("."), self.display_name)
 
 
 class SymbolCollection(object):
@@ -202,7 +202,7 @@ Interpretation.register(
 )
 Interpretation.register(
 	"FEED_MESSAGE",
-        u"http://www.tracker-project.org/temp/mfo#FeedMessage",
+		u"http://www.tracker-project.org/temp/mfo#FeedMessage",
 	display_name=_("Feeds"),
 	doc="Any syndicated item, RSS, Atom, or other"
 )
@@ -280,7 +280,7 @@ Interpretation.register(
 )
 Interpretation.register(
 	"APPLICATION",
-        u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application",
+		u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application",
 	display_name=_("Applications"),
 	doc="An item that is a launchable application. The item's URI must point to the relevant .desktop file"
 )
@@ -296,7 +296,7 @@ Interpretation.register(
 #
 Manifestation.register(
 	"WEB_HISTORY",
-        u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebHistory",
+		u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebHistory",
 	display_name=_("Web History"),
 	doc="An item that has been extracted from the user's browsing history"
 )
@@ -920,8 +920,7 @@ class Event(list):
 		# The payload require special handling, since it is binary data
 		# If there is indeed data here, we must not unicode encode it!
 		if self[2] is None: self[2] = u""
-		
-		
+
 NULL_EVENT = ([], [], [])
 """Minimal Event representation, a tuple containing three empty lists.
 This `NULL_EVENT` is used by the API to indicate a queried but not
