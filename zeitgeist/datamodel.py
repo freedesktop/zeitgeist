@@ -513,6 +513,12 @@ class ResultType(object):
 		"ordered by the popularity of the subject"))
 	LeastPopularSubjects = enum_factory(("One event for each subject only, "
 		"ordered ascendently by popularity"))
+	MostPopularActor = enum_factory(("The last event of each different actor,"
+		"ordered by the popularity of the actor"))
+	LeastPopularActor = enum_factory(("The last event of each different actor,"
+		"ordered ascendently by the popularity of the actor"))
+	MostRecentActor = enum_factory(("The last event of each different actor"))
+	LeastRecentActor = enum_factory(("The first event of each different actor"))
 
 class Subject(list):
 	"""
