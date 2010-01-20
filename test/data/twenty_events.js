@@ -19,7 +19,7 @@
 		"timestamp" : 101,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
-		"actor" : "firefox",
+		"actor" : "icedove",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
@@ -51,7 +51,7 @@
 		"timestamp" : 103,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
-		"actor" : "firefox",
+		"actor" : "icedove",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
@@ -83,7 +83,7 @@
 		"timestamp" : 105,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
-		"actor" : "firefox",
+		"actor" : "frobnicator",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
@@ -179,7 +179,7 @@
 		"timestamp" : 111,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
-		"actor" : "firefox",
+		"actor" : "icedove",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
@@ -227,7 +227,7 @@
 		"timestamp" : 114,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
-		"actor" : "firefox",
+		"actor" : "icedove",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",

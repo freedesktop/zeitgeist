@@ -446,7 +446,39 @@ class ZeitgeistEngineTest(_engineTestClass):
 			event.id for event in sorted(events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
 		]
 		self.assertEquals(ids, sorted_event_ids)
+	
+	def testResultTypesMostPopularActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
 		
+		events = self.engine.find_events(
+			(0, 0), [], StorageState.Any, 0, ResultType.MostPopularActor)
+		self.assertEquals([e[0][4] for e in events], ["firefox", "icedove",
+			"frobnicator"])
+		self.assertEquals([e[0][1] for e in events], ["119", "114", "105"])
+
+	def testResultTypesLeastPopularActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			(0, 0), [], StorageState.Any, 0, ResultType.LeastPopularActor)
+		self.assertEquals([e[0][4] for e in events], ["frobnicator", "icedove",
+			"firefox"])
+		self.assertEquals([e[0][1] for e in events], ["105", "114", "119"])
+
+	def testResultTypesMostRecentActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			(0, 0), [], StorageState.Any, 0, ResultType.MostRecentActor)
+		self.assertEquals([e[0][1] for e in events], ["119", "114", "105"])
+
+	def testResultTypesLeastRecentActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			(0, 0), [], StorageState.Any, 0, ResultType.LeastRecentActor)
+		self.assertEquals([e[0][1] for e in events], ["100", "101", "105"])
+
 	def testRelatedForEvents(self):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.find_related_uris(
