@@ -100,7 +100,7 @@ class ZeitgeistEngine:
 				getattr(self, "_" + field).value(row["subj_" + field]))
 		return subject
 	
-	def get_events(self, ids=None, rows=None):
+	def get_events(self, ids=None, rows=None, sender=None):
 		"""
 		Look up a list of events.
 		"""
@@ -135,7 +135,7 @@ class ZeitgeistEngine:
 			# might simply have requested an event that has been
 			# deleted
 			event = events.get(id, None)
-			event = self.extensions.apply_get_hooks(event)
+			event = self.extensions.apply_get_hooks(event, sender)
 			
 			sorted_events.append(event)
 		
@@ -196,7 +196,7 @@ class ZeitgeistEngine:
 		return where
 	
 	def _find_events(self, return_mode, time_range, event_templates,
-		storage_state, max_events, order):
+		storage_state, max_events, order, sender=None):
 		"""
 		Accepts 'event_templates' as either a real list of Events or as
 		a list of tuples (event_data,subject_data) as we do in the
@@ -242,7 +242,7 @@ class ZeitgeistEngine:
 		result = self._cursor.execute(sql, where.arguments).fetchall()
 		
 		if return_mode == 1:
-			return self.get_events(rows=result)
+			return self.get_events(rows=result, sender=sender)
 		result = [row[0] for row in result]
 		
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
@@ -329,21 +329,21 @@ class ZeitgeistEngine:
 			if support >= min_support]
 		return [key for support, key in sorted(results, reverse=True)]
 
-	def insert_events(self, events):
+	def insert_events(self, events, sender=None):
 		t = time.time()
-		m = map(self._insert_event_without_error, events)
+		m = map(lambda e: self._insert_event_without_error(e, sender), events)
 		self._cursor.connection.commit()
 		log.debug("Inserted %d events in %fs" % (len(m), time.time()-t))
 		return m
 	
-	def _insert_event_without_error(self, event):
+	def _insert_event_without_error(self, event, sender=None):
 		try:
-			return self._insert_event(event)
+			return self._insert_event(event, sender)
 		except Exception, e:
 			log.exception("error while inserting '%r'" %event)
 			return 0
 	
-	def _insert_event(self, event):
+	def _insert_event(self, event, sender=None):
 		if not issubclass(type(event), OrigEvent):
 			raise ValueError("cannot insert object of type %r" %type(event))
 		if event.id:
@@ -353,7 +353,7 @@ class ZeitgeistEngine:
 		if not event.timestamp:
 			event.timestamp = get_timestamp_for_now()
 		
-		event = self.extensions.apply_insert_hooks(event)
+		event = self.extensions.apply_insert_hooks(event, sender)
 		if event is None:
 			raise AssertionError("Inserting of event was blocked by an extension")
 		elif not issubclass(type(event), OrigEvent):

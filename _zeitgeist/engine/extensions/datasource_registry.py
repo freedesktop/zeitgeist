@@ -91,13 +91,6 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		    dbus_interface=dbus.BUS_DAEMON_IFACE,
 		    arg2="", # only match services with no new owner
 	    )
-
-	# TODO: Block events from disabled data sources
-	def insert_event_hook(self, event):
-		for datasource in self._registry:
-			for tmpl in datasource[DataSource.EventTemplates]:
-				if event.matches_template(tmpl): return None
-		return event
 	
 	def _write_to_disk(self):
 		data = [DataSource.get_plain(datasource) for datasource in self._registry]
@@ -109,6 +102,13 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		for datasource in self._registry:
 			if datasource[DataSource.Name] == name:
 				return datasource
+	
+	def insert_event_hook(self, event, sender):
+		for (name, bus_names) in self._running.iteritems():
+			if sender in bus_names and not \
+				self._get_data_source(name)[DataSource.Enabled]:
+				return None
+		return event
 	
 	# PUBLIC
 	def register_data_source(self, name, description, templates):

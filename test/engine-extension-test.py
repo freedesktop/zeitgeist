@@ -57,7 +57,7 @@ class TestExtensionHooks(_engineTestClass):
 		class BlockAllInsertExtension(Extension):
 			PUBLIC_METHODS = []
 				
-			def insert_event_hook(self, event):
+			def insert_event_hook(self, event, sender):
 				return None
 				
 		self.engine.extensions.load(BlockAllInsertExtension)
