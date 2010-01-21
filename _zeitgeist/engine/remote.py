@@ -82,7 +82,8 @@ class RemoteInterface(SingletonApplication):
 		   :class:`Event` instances by calling *events = map(Event.new_for_struct, result)*
 		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
-		return self._make_events_sendable(_engine.get_events(event_ids, sender))
+		return self._make_events_sendable(_engine.get_events(ids=event_ids,
+		    sender=sender))
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="(xx)a("+constants.SIG_EVENT+")a("+constants.SIG_EVENT+")u",
