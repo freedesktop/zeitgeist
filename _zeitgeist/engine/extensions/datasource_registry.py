@@ -117,10 +117,11 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		for datasource in self._registry:
 			if datasource == source:
 				datasource.update_from_data_source(source)
+				self.DataSourceRegistered(datasource)
 				return datasource[DataSource.Enabled]
 		self._registry.append(source)
 		self._write_to_disk()
-		self.DataSourceRegistered(datasource)
+		self.DataSourceRegistered(source)
 		return True
 	
 	# PUBLIC
