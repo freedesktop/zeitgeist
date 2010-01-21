@@ -896,9 +896,6 @@ class Event(list):
 		Interpret *self* as the template an match *event* against it.
 		This method is the dual method of :meth:`matches_template`.
 		"""
-		#print "T: %s" % self
-		#print "E: %s" % event
-		#print "------------"
 		return event.matches_template(self)
 	
 	def in_time_range (self, time_range):
@@ -907,27 +904,8 @@ class Event(list):
 		"""
 		t = int(self.timestamp) # The timestamp may be stored as a string
 		return (t >= time_range.begin) and (t <= time_range.end)
-	
-	def _special_str(self, obj):
-		""" Return a string representation of obj
-		If obj is None, return an empty string.
-		"""
-		return unicode(obj) if obj is not None else ""
 
-	def _make_dbus_sendable(self):
-		"""
-		Ensure that all fields in the event struct are non-None
-		"""
-		for n, value in enumerate(self[0]):
-			self[0][n] = self._special_str(value)
-		for subject in self[1]:
-			for n, value in enumerate(subject):
-				subject[n] = self._special_str(value)
-		# The payload require special handling, since it is binary data
-		# If there is indeed data here, we must not unicode encode it!
-		if self[2] is None: self[2] = u""
-
-class Datasource(list):
+class DataSource(list):
 	""" Optimized and convenient data structure representing a datasource.
 	
 	This class is designed so that you can pass it directly over
@@ -942,20 +920,20 @@ class Datasource(list):
 	"""
 	Fields = (Name,
 		Description,
-		Actors,
+		EventTemplates,
 		Running,
 		LastSeen,
 		Enabled) = range(6)
 	
-	def __init__(self, name, description, actors, running=True, last_seen=None,
-		enabled=True):
-		super(Datasource, self).__init__()
-		self.append(unicode(name))
-		self.append(unicode(description))
-		self.append([unicode(actor) for actor in actors])
-		self.append(bool(running))
-		self.append(int(last_seen) if last_seen else time.time() * 1000)
-		self.append(bool(enabled))
+	def __init__(self, name, description, templates, running=True,
+		last_seen=None, enabled=True):
+		super(DataSource, self).__init__()
+		self.append(name)
+		self.append(description)
+		self.append(templates)
+		self.append(running)
+		self.append(last_seen if last_seen else get_timestamp_for_now())
+		self.append(enabled)
 	
 	def __eq__(self, source):
 		return self[self.Name] == source[self.Name]

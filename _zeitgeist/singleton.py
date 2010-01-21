@@ -35,7 +35,7 @@ class SingletonApplication (dbus.service.Object):
 	
 	def __init__ (self):
 		logging.debug("Checking for another running instance...")
-		sbus = ZeitgeistDBusInterface.get_session_bus()
+		sbus = dbus.SessionBus()
 		dbus_service = sbus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus")
 		
 		if dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):

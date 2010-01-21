@@ -27,8 +27,9 @@ import os
 import gettext
 import logging
 
-from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange, \
+from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
 	ResultType, get_timestamp_for_now
+from _zeitgeist.engine.datamodel import Event, Subject	
 from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
@@ -343,7 +344,7 @@ class ZeitgeistEngine:
 			return 0
 	
 	def _insert_event(self, event):
-		if not isinstance(event, Event):
+		if not issubclass(type(event), OrigEvent):
 			raise ValueError("cannot insert object of type %r" %type(event))
 		if event.id:
 			raise ValueError("Illegal event: Predefined event id")
@@ -355,7 +356,7 @@ class ZeitgeistEngine:
 		event = self.extensions.apply_insert_hooks(event)
 		if event is None:
 			raise AssertionError("Inserting of event was blocked by an extension")
-		elif not isinstance(event, Event):
+		elif not issubclass(type(event), OrigEvent):
 			raise ValueError("cannot insert object of type %r" %type(event))
 		
 		id = self.next_event_id()

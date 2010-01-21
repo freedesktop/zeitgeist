@@ -51,7 +51,7 @@ class _Constants:
 	# Extensions
 	DEFAULT_EXTENSIONS = [
 		"_zeitgeist.engine.extensions.blacklist.Blacklist",
-		"_zeitgeist.engine.extensions.datasource_registry.DatasourceRegistry",
+		"_zeitgeist.engine.extensions.datasource_registry.DataSourceRegistry",
 		]
 
 constants = _Constants()

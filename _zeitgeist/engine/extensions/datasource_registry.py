@@ -20,13 +20,12 @@
 
 from __future__ import with_statement
 import os
-import time
 import cPickle as pickle
 import dbus
 import dbus.service
 import logging
 
-from zeitgeist.datamodel import Datasource as OrigDatasource
+from _zeitgeist.engine.datamodel import Event, DataSource as OrigDataSource
 from _zeitgeist.engine.extension import Extension
 from _zeitgeist.engine import constants
 
@@ -34,33 +33,35 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.datasource_registry")
 
 DATA_FILE = os.path.join(constants.DATA_PATH, "datasources.pickle")
-REGISTRY_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/datasource_registry"
-REGISTRY_DBUS_INTERFACE = "org.gnome.zeitgeist.DatasourceRegistry"
+REGISTRY_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/data_source_registry"
+REGISTRY_DBUS_INTERFACE = "org.gnome.zeitgeist.DataSourceRegistry"
 
-class Datasource(OrigDatasource):
+class DataSource(OrigDataSource):
 	@classmethod
 	def from_list(cls, l):
 	    """
-	    Parse a list into a datasource, overriding the value of Running
+	    Parse a list into a DataSource, overriding the value of Running
 	    to always be False.
 	    """
-	    s = cls(l[cls.Name], l[cls.Description], l[cls.Actors], False,
+	    s = cls(l[cls.Name], l[cls.Description], l[cls.EventTemplates], False,
 	        l[cls.LastSeen], l[cls.Enabled])
 	    return s
 	
-	def update_from_datasource(self, source):
-		for prop in (self.Description, self.Actors, self.Running, self.LastSeen):
+	def update_from_data_source(self, source):
+		for prop in (self.Description, self.EventTemplates, self.Running,
+		    self.LastSeen):
 			self[prop] = source[prop]
 
-class DatasourceRegistry(Extension, dbus.service.Object):
+class DataSourceRegistry(Extension, dbus.service.Object):
 	"""
 	The Zeitgeist engine maintains a list of ......................
 	
-	The datasource registry of the Zeitgeist engine has DBus object path
-	:const:`/org/gnome/zeitgeist/datasource_registry` under the bus name
-	:const:`org.gnome.zeitgeist.DatasourceRegistry`.
+	The data-source registry of the Zeitgeist engine has DBus object path
+	:const:`/org/gnome/zeitgeist/data_source_registry` under the bus name
+	:const:`org.gnome.zeitgeist.DataSourceRegistry`.
 	"""
-	PUBLIC_METHODS = ["register_datasource", "get_datasources"]
+	PUBLIC_METHODS = ["register_data_source", "get_data_sources",
+		"set_data_source_enabled"]
 	
 	def __init__ (self, engine):
 	
@@ -70,14 +71,14 @@ class DatasourceRegistry(Extension, dbus.service.Object):
 		
 		if os.path.exists(DATA_FILE):
 			try:
-				self._registry = [Datasource.from_list(
+				self._registry = [DataSource.from_list(
 					datasource) for datasource in pickle.load(open(DATA_FILE))]
-				log.debug("Loaded datasource data from %s" % DATA_FILE)
+				log.debug("Loaded data-source data from %s" % DATA_FILE)
 			except Exception, e:
 				log.warn("Failed to load data file %s: %s" % (DATA_FILE, e))
 				self._registry = []
 		else:
-			log.debug("No existing datasource data found.")
+			log.debug("No existing data-source data found.")
 			self._registry = []
 		self._running = {}
 		
@@ -89,44 +90,57 @@ class DatasourceRegistry(Extension, dbus.service.Object):
 	    )
 
 	# TODO: Block events from disabled data sources
-	#def insert_event_hook(self, event):
-	#	for tmpl in self._blacklist:
-	#		if ........: return None
-	#	return event
+	def insert_event_hook(self, event):
+		for datasource in self._registry:
+			for tmpl in datasource[DataSource.EventTemplates]:
+				if event.matches_template(tmpl): return None
+		return event
 	
 	def _write_to_disk(self):
-		data = [list(datasource) for datasource in self._registry]
+		data = [DataSource.get_plain(datasource) for datasource in self._registry]
 		with open(DATA_FILE, "w") as data_file:
 			pickle.dump(data, data_file)
-		log.debug("Datasource registry updated.")
+		log.debug("Data-source registry updated.")
 	
-	def _get_datasource(self, name):
+	def _get_data_source(self, name):
 		for datasource in self._registry:
-			if datasource[Datasource.Name] == name:
+			if datasource[DataSource.Name] == name:
 				return datasource
 	
 	# PUBLIC
-	def register_datasource(self, name, description, actors):
-		source = Datasource(name, description, actors)
+	def register_data_source(self, name, description, templates):
+		source = DataSource(unicode(name), unicode(description),
+			map(Event.new_for_struct, templates))
 		for datasource in self._registry:
 			if datasource == source:
 				datasource.update_from_datasource(source)
-				return datasource[Datasource.Enabled]
+				return datasource[DataSource.Enabled]
 		self._registry.append(source)
 		self._write_to_disk()
+		self.DataSourceRegistered(datasource)
 		return True
 	
 	# PUBLIC
-	def get_datasources(self):
+	def get_data_sources(self):
 		return self._registry
+	
+	# PUBLIC
+	def set_data_source_enabled(self, name, enabled):
+		datasource = self._get_data_source(name)
+		if not datasource:
+			return False
+		if datasource[DataSource.Enabled] != enabled:
+			datasource[DataSource.Enabled] = enabled
+			self.DataSourceEnabled(datasource[DataSource.Name], enabled)
+		return True
 	
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
 						 in_signature="ssas",
 						 out_signature="b",
 						 sender_keyword="sender")
-	def RegisterDatasource(self, name, description, actors, sender):
+	def RegisterDataSource(self, name, description, actors, sender):
 		"""
-		Register a datasource as currently running. If the datasource was
+		Register a data-source as currently running. If the data-source was
 		already in the database, its metadata (description and actors) are
 		updated.
 		
@@ -138,23 +152,59 @@ class DatasourceRegistry(Extension, dbus.service.Object):
 		    self._running[name] = [sender]
 		elif sender not in self._running[name]:
 		    self._running[name].append(sender)
-		return self.register_datasource(name, description, actors)
+		return self.register_data_source(name, description, actors)
 	
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
 						 in_signature="",
 						 out_signature="a(ssasbxb)")
-	def GetDatasources(self):
+	def GetDataSources(self):
 		"""
-		Get a list of datasources.
+		Get a list of data-sources.
 		
 		:returns: A list of
-			:class:`Datasource <zeitgeist.datamodel.Datasource>`
+			:class:`DataSource <zeitgeist.datamodel.DataSource>`
 		"""
 		return self.get_datasources()
 
+	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
+						 in_signature="sb",)
+	def SetDataSourceEnabled(self, name, enabled):
+		"""
+		Get a list of data-sources.
+		
+		:param name: unique string identifying a data-source
+		
+		:returns: True on success, False if there is no known data-source
+			matching the given name.
+		:rtype: Bool
+		"""
+		return self.set_data_source_enabled(name, enabled)
+
+	@dbus.service.signal(REGISTRY_DBUS_INTERFACE,
+						signature="sb")
+	def DataSourceEnabled(self, value, enabled):
+		"""This signal is emitted whenever a data-source is enabled or
+		disabled.
+		
+		:returns: data-source name and bool which is True if it was enabled
+			False if it was disabled.
+		:rtype: struct containing a string and a bool
+		"""
+		return (value, enabled)
+
+	@dbus.service.signal(REGISTRY_DBUS_INTERFACE,
+						signature="")
+	def DataSourceRegistered(self, datasource):
+		"""This signal is emitted whenever a data-source registers itself.
+		
+		:returns: the registered data-source
+		:rtype: :class:`DataSource <zeitgeist.datamodel.DataSource>`
+		"""
+		return datasource
+
 	def _name_owner_changed(self, owner, old, new):
 		"""
-		Cleanup disconnected clients and mark datasources as not running
+		Cleanup disconnected clients and mark data-sources as not running
 		when no client remains.
 		"""
 		name = [name for name, ids in self._running.iteritems() if owner in ids]
@@ -166,6 +216,6 @@ class DatasourceRegistry(Extension, dbus.service.Object):
 		if len(self._running[name]) == 1:
 			log.debug("No remaining client running: %s" % name)
 			del self._running[name]
-			self._get_datasource(name)[Datasource.Running] = False
+			self._get_data_source(name)[DataSource.Running] = False
 		else:
 			del self._running[name][owner]
