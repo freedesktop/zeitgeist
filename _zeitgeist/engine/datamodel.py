@@ -65,7 +65,7 @@ class DataSource(OrigDataSource):
 	def get_plain(datasource):
 		for plaintype, props in {
 				unicode: (DataSource.Name, DataSource.Description),
-				Event.get_plain_objects: (DataSource.EventTemplates,),
+				lambda x: map(Event.get_plain, x): (DataSource.EventTemplates,),
 				bool: (DataSource.Running, DataSource.Enabled),
 				int: (DataSource.LastSeen,),
 			}.iteritems():

@@ -102,7 +102,7 @@ class ZeitgeistDBusInterface(_DBusInterface):
 	
 	def version(self):
 		"""Returns the API version"""
-		return self.__proxy.get_dbus_method("Get",
+		return self.__shared_state["__proxy"].get_dbus_method("Get",
 			dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
 			"version")
 	

@@ -35,6 +35,7 @@ log = logging.getLogger("zeitgeist.datasource_registry")
 DATA_FILE = os.path.join(constants.DATA_PATH, "datasources.pickle")
 REGISTRY_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/data_source_registry"
 REGISTRY_DBUS_INTERFACE = "org.gnome.zeitgeist.DataSourceRegistry"
+SIG_FULL_DATASOURCE = "(ssa("+constants.SIG_EVENT+")bxb)"
 
 class DataSource(OrigDataSource):
 	@classmethod
@@ -54,7 +55,9 @@ class DataSource(OrigDataSource):
 
 class DataSourceRegistry(Extension, dbus.service.Object):
 	"""
-	The Zeitgeist engine maintains a list of ......................
+	The Zeitgeist engine maintains a publicly available list of recognized
+	data-sources (components inserting information into Zeitgeist). An
+	option to disable such data-providers is also provided.
 	
 	The data-source registry of the Zeitgeist engine has DBus object path
 	:const:`/org/gnome/zeitgeist/data_source_registry` under the bus name
@@ -113,7 +116,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			map(Event.new_for_struct, templates))
 		for datasource in self._registry:
 			if datasource == source:
-				datasource.update_from_datasource(source)
+				datasource.update_from_data_source(source)
 				return datasource[DataSource.Enabled]
 		self._registry.append(source)
 		self._write_to_disk()
@@ -135,7 +138,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		return True
 	
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
-						 in_signature="ssas",
+						 in_signature="ssa("+constants.SIG_EVENT+")",
 						 out_signature="b",
 						 sender_keyword="sender")
 	def RegisterDataSource(self, name, description, actors, sender):
@@ -156,7 +159,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 	
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
 						 in_signature="",
-						 out_signature="a(ssasbxb)")
+						 out_signature="a"+SIG_FULL_DATASOURCE)
 	def GetDataSources(self):
 		"""
 		Get a list of data-sources.
@@ -164,7 +167,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		:returns: A list of
 			:class:`DataSource <zeitgeist.datamodel.DataSource>`
 		"""
-		return self.get_datasources()
+		return self.get_data_sources()
 
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
 						 in_signature="sb",)
@@ -193,7 +196,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		return (value, enabled)
 
 	@dbus.service.signal(REGISTRY_DBUS_INTERFACE,
-						signature="")
+						signature=SIG_FULL_DATASOURCE)
 	def DataSourceRegistered(self, datasource):
 		"""This signal is emitted whenever a data-source registers itself.
 		
