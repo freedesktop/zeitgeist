@@ -128,16 +128,19 @@ class ZeitgeistDBusInterface(_DBusInterface):
 	
 	def __init__(self):
 		self.__dict__ = self.__shared_state
-		try:
-			self.__proxy = dbus.SessionBus().get_object(self.BUS_NAME, self.OBJECT_PATH)
-		except dbus.exceptions.DBusException, e:
-			if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
-				raise RuntimeError(
-					"Found no running zeitgeist-daemon instance: %s" % \
-					e.get_dbus_message())
-			else:
-				raise
-		super(_DBusInterface, self).__init__(self.__proxy, self.INTERFACE_NAME)
+		if not "__proxy" in self.__shared_state:
+			try:
+				self.__shared_state["__proxy"] = dbus.SessionBus().get_object(
+					self.BUS_NAME, self.OBJECT_PATH)
+			except dbus.exceptions.DBusException, e:
+				if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
+					raise RuntimeError(
+						"Found no running zeitgeist-daemon instance: %s" % \
+						e.get_dbus_message())
+				else:
+					raise
+		super(_DBusInterface, self).__init__(self.__shared_state["__proxy"],
+		    self.INTERFACE_NAME)
 
 class Monitor(dbus.service.Object):
 	"""
