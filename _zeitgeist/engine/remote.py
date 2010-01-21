@@ -292,7 +292,7 @@ class RemoteInterface(SingletonApplication):
 		timestamps = _engine.delete_events(event_ids)
 		if timestamps:
 			# We need to check the return value, as the events could already
-			# have been deleted before or the IDs might even have be invalid.
+			# have been deleted before or the IDs might even have been invalid.
 			self._notifications.notify_delete(
 			    TimeRange(timestamps[0], timestamps[1]), event_ids)
 
