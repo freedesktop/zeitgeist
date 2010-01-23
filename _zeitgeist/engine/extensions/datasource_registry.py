@@ -142,21 +142,22 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 						 in_signature="ssa("+constants.SIG_EVENT+")",
 						 out_signature="b",
 						 sender_keyword="sender")
-	def RegisterDataSource(self, name, description, actors, sender):
+	def RegisterDataSource(self, name, description, event_templates, sender):
 		"""
 		Register a data-source as currently running. If the data-source was
-		already in the database, its metadata (description and actors) are
-		updated.
+		already in the database, its metadata (description and event_templates)
+		are updated.
 		
 		:param name: unique string
 		:param description: string
-		:param actors: list of strings representing event actors
+		:param event_templates: list of
+			:class:`Event <zeitgeist.datamodel.Event>` templates.
 		"""
 		if not name in self._running:
 		    self._running[name] = [sender]
 		elif sender not in self._running[name]:
 		    self._running[name].append(sender)
-		return self.register_data_source(name, description, actors)
+		return self.register_data_source(name, description, event_templates)
 	
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
 						 in_signature="",
