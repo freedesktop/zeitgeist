@@ -40,17 +40,17 @@ SIG_FULL_DATASOURCE = "(ssa("+constants.SIG_EVENT+")bxb)"
 class DataSource(OrigDataSource):
 	@classmethod
 	def from_list(cls, l):
-	    """
-	    Parse a list into a DataSource, overriding the value of Running
-	    to always be False.
-	    """
-	    s = cls(l[cls.Name], l[cls.Description], l[cls.EventTemplates], False,
-	        l[cls.LastSeen], l[cls.Enabled])
-	    return s
+		"""
+		Parse a list into a DataSource, overriding the value of Running
+		to always be False.
+		"""
+		s = cls(l[cls.Name], l[cls.Description], l[cls.EventTemplates], False,
+			l[cls.LastSeen], l[cls.Enabled])
+		return s
 	
 	def update_from_data_source(self, source):
 		for prop in (self.Description, self.EventTemplates, self.Running,
-		    self.LastSeen):
+			self.LastSeen):
 			self[prop] = source[prop]
 
 class DataSourceRegistry(Extension, dbus.service.Object):
