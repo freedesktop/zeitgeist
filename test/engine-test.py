@@ -287,6 +287,13 @@ class ZeitgeistEngineTest(_engineTestClass):
 			], StorageState.Any, 0, 0)
 		self.assertEquals(15, len(result))
 
+	def testFindWithFakeInterpretation(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		result = self.engine.find_events(TimeRange.until_now(),
+			[Event.new_for_values(interpretation="this-is-not-an-intrprettin")],
+			StorageState.Any, 0, 0)
+		self.assertEquals(0, len(result))
+
 	def testFindWithManifestation(self):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject()

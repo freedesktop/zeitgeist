@@ -2,7 +2,7 @@
 
 # Zeitgeist
 #
-# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
 #
@@ -94,18 +94,19 @@ class ZeitgeistDBusInterface(_DBusInterface):
 	(like use the same bus and be connected to the same proxy). This is
 	achieved by extending the `Borg Pattern` as described by Alex Martelli	
 	"""
-	__shared_state = {"extension_interfaces": {}}
+	__shared_state = {}
 	
 	BUS_NAME = "org.gnome.zeitgeist.Engine"
 	INTERFACE_NAME = "org.gnome.zeitgeist.Log"
 	OBJECT_PATH = "/org/gnome/zeitgeist/log/activity"
 	
-	def version(self):
+	@classmethod
+	def version(cls):
 		"""Returns the API version"""
-		return self.__shared_state["__proxy"].get_dbus_method("Get",
-			dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
-			"version")
+		return cls.__shared_state["__proxy"].get_dbus_method("Get",
+			dbus_interface=dbus.PROPERTIES_IFACE)(cls.INTERFACE_NAME, "version")
 	
+	@classmethod
 	def get_extension(cls, name, path):
 		""" Returns an interface to the given extension.
 		
@@ -113,7 +114,6 @@ class ZeitgeistDBusInterface(_DBusInterface):
 			>> reg = get_extension("DataSourceRegistry", "data_source_registry")
 			>> reg.RegisterDataSource(...)
 		"""
-		
 		if not name in cls.__shared_state["extension_interfaces"]:
 			interface_name = "org.gnome.zeitgeist.%s" % name
 			object_path = "/org/gnome/zeitgeist/%s" % path
@@ -139,6 +139,8 @@ class ZeitgeistDBusInterface(_DBusInterface):
 						e.get_dbus_message())
 				else:
 					raise
+		if not "extension_interfaces" in self.__shared_state:
+		    self.__shared_state["extension_interfaces"] = {}
 		super(_DBusInterface, self).__init__(self.__shared_state["__proxy"],
 		    self.INTERFACE_NAME)
 

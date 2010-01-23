@@ -8,6 +8,7 @@ import unittest
 import dbus
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from zeitgeist.client import ZeitgeistDBusInterface
 from zeitgeist.datamodel import *
 from testutils import RemoteTestCase
 
@@ -22,7 +23,7 @@ class BlacklistTest(RemoteTestCase):
 		# engine to come up
 		super(BlacklistTest, self).setUp()
 		obj = dbus.SessionBus().get_object("org.gnome.zeitgeist.Engine",
-		                                              "/org/gnome/zeitgeist/blacklist")
+			"/org/gnome/zeitgeist/blacklist")
 		self.blacklist = dbus.Interface(obj, "org.gnome.zeitgeist.Blacklist")
 	
 	def testClear(self):
@@ -61,6 +62,18 @@ class BlacklistTest(RemoteTestCase):
 		inserted_ids = self.insertEventsAndWait([ev])
 		self.assertEquals(1, len(inserted_ids))
 		self.assertTrue(0 != inserted_ids[0])
+
+	def testBlacklistUsingClientDBusInterface(self):
+		"""
+		Ensure that get_extension() from client.py method works correctly.
+		"""
+		
+		del self.blacklist
+		iface = ZeitgeistDBusInterface()
+		blacklist = iface.get_extension("Blacklist", "blacklist")
+		blacklist.SetBlacklist([])
+		empty = blacklist.GetBlacklist()
+		self.assertEquals(empty, [])
 
 if __name__ == "__main__":
 	unittest.main()

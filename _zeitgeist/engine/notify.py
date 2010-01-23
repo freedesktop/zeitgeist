@@ -237,11 +237,11 @@ class MonitorManager:
 		"""
 		for mon in self._monitors.itervalues():
 			log.debug("Checking monitor %s" % mon)
-			time_range = mon.time_range.intersect(time_range)
+			intersecting_range = mon.time_range.intersect(time_range)
 			
-			if time_range:
+			if intersecting_range:
 				log.debug("Notifying %s about %s deletions" % (mon, len(event_ids)))
-				mon.notify_delete(time_range, event_ids)
+				mon.notify_delete(intersecting_range, event_ids)
 		
 	def _name_owner_changed (self, owner, old, new):
 		"""

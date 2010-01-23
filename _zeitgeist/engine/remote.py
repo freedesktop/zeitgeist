@@ -43,7 +43,7 @@ class RemoteInterface(SingletonApplication):
 	:const:`org.gnome.zeitgeist.Engine`.
 	"""
 	_dbus_properties = {
-		"version": property(lambda self: (0, 3, 2, 0)),
+		"version": property(lambda self: (0, 3, 2, 99)),
 	}
 	
 	# Initialization
@@ -298,7 +298,7 @@ class RemoteInterface(SingletonApplication):
 		timestamps = _engine.delete_events(event_ids)
 		if timestamps:
 			# We need to check the return value, as the events could already
-			# have been deleted before or the IDs might even have be invalid.
+			# have been deleted before or the IDs might even have been invalid.
 			self._notifications.notify_delete(
 			    TimeRange(timestamps[0], timestamps[1]), event_ids)
 
