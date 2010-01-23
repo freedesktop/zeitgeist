@@ -25,21 +25,23 @@ from zeitgeist.datamodel import Event as OrigEvent, Subject as OrigSubject, \
 
 class Event(OrigEvent):
 	
-	def _special_str(self, obj):
-		""" Return a string representation of obj
+	@staticmethod
+	def _to_unicode(obj):
+		"""
+		Return an unicode representation of the given object.
 		If obj is None, return an empty string.
 		"""
-		return unicode(obj) if obj is not None else ""
+		return unicode(obj) if obj is not None else u""
 
 	def _make_dbus_sendable(self):
 		"""
 		Ensure that all fields in the event struct are non-None
 		"""
 		for n, value in enumerate(self[0]):
-			self[0][n] = self._special_str(value)
+			self[0][n] = self._to_unicode(value)
 		for subject in self[1]:
 			for n, value in enumerate(subject):
-				subject[n] = self._special_str(value)
+				subject[n] = self._to_unicode(value)
 		# The payload require special handling, since it is binary data
 		# If there is indeed data here, we must not unicode encode it!
 		if self[2] is None: self[2] = u""
