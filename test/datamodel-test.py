@@ -15,7 +15,7 @@ class SymbolTest(unittest.TestCase):
 	
 	def testInterpretationConstructors(self):
 		foo_url = "http://example.com/schema#Foo"
-		foo = Symbol(INTERPREATION_ID, "FOO", uri=foo_url)
+		foo = Symbol(INTERPRETATION_ID, "FOO", uri=foo_url)
 		self.assertEquals("FOO", foo.name)
 		self.assertEquals(foo_url, foo.uri)
 
