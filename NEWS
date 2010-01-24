@@ -1,3 +1,10 @@
+
+ * Fix exception in DeleteEvents.
+ * Add MostPopularActor, LeastPopularActor and MostRecentActor as possible
+   ReturnTypes for FindEvents/FindEventsId (LP: #493903).
+ * datamodel: Made the Interpretation and Manifestation classes iterable.
+ * More little fixes (LP: #510761), cleanup and manpage updates.
+
 2010-01-19: Zeitgeist 0.3.2
 ---------------------------
 
