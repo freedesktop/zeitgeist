@@ -167,7 +167,7 @@ Interpretation.register(
 Interpretation.register(
 	"SOURCECODE",
 	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#ManifestationCode",
-	display_name=_("Manifestation Code"),
+	display_name=_("Source Code"),
 	doc="Code in a compilable or interpreted programming language."
 )
 Interpretation.register(
