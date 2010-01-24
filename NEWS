@@ -3,6 +3,7 @@
  * Add MostPopularActor, LeastPopularActor and MostRecentActor as possible
    ReturnTypes for FindEvents/FindEventsId (LP: #493903).
  * datamodel: Made the Interpretation and Manifestation classes iterable.
+ * datamodel: Add symbol lookup by URI in the form of dictionary access.
  * More little fixes (LP: #510761), cleanup and manpage updates.
 
 2010-01-19: Zeitgeist 0.3.2

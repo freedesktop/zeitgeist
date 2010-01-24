@@ -82,32 +82,38 @@ class SymbolCollection(object):
 	def __init__(self, name, doc=""):
 		self.__name__ = name
 		self.__doc__ = str(doc)
-		self.__keys = set()
+		self.__symbols = {}
 	
 	def register(self, name, uri, display_name, doc):
-		if name in self.__keys:
+		if name in self.__symbols:
 			raise ValueError("cannot register symbol %r, a definition for this symbol already exists" %name)
 		if not name.isupper():
 			raise ValueError("cannot register %r, name must be uppercase" %name)
-		self.__dict__[name] = Symbol(self.__name__, name, uri, display_name, doc)
-		self.__keys.add(name)
-		
+		self.__symbols[name] = Symbol(self.__name__, name, uri, display_name, doc)
+	
 	def __len__(self):
-		return len(self.__keys)
-		
+		return len(self.__symbols)
+	
 	def __getattr__(self, name):
 		if not name.isupper():
 			# symbols must be uppercase
 			raise AttributeError("'%s' has no attribute '%s'" % \
 				(self.__name__, name))
-		self.__dict__[name] = Symbol(self.__name__, name)
+		self.__symbols[name] = Symbol(self.__name__, name)
 		return getattr(self, name)
 	
+	def __getitem__(self, uri):
+		""" Get a symbol by its URI. """
+		symbol = [s for s in self.__symbols.values() if s.uri == uri]
+		if symbol:
+			return symbol
+		raise KeyError("Could not find symbol for URI: %s" % uri)
+	
 	def __iter__(self):
-		return self.__keys.__iter__()
+		return self.__symbols.itervalues()
 	
 	def __dir__(self):
-		return list(self.__keys)
+		return self.__symbols.keys()
 
 
 INTERPRETATION_ID = "interpretation"
