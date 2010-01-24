@@ -39,6 +39,7 @@ class SymbolCollectionTest(unittest.TestCase):
 		self.assertEquals(foo.TEST.doc, "this is a testing Symbol")
 		
 		self.assertEquals(len(foo), 1)
+		self.assertEquals(foo["http://test"], foo.TEST)
 		self.assertRaises(
 			ValueError, foo.register, "TEST", "http://test1", "Small Test", "this is a testing Symbol"
 		)

@@ -104,7 +104,7 @@ class SymbolCollection(object):
 		""" Get a symbol by its URI. """
 		symbol = [s for s in self.__symbols.values() if s.uri == uri]
 		if symbol:
-			return symbol
+			return symbol[0]
 		raise KeyError("Could not find symbol for URI: %s" % uri)
 	
 	def __iter__(self):
