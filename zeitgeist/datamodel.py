@@ -104,9 +104,9 @@ class SymbolCollection(object):
 			
 	def __dir__(self):
 		return list(self.__keys)
-		
 
-INTERPREATION_ID = "interpretation"
+
+INTERPRETATION_ID = "interpretation"
 MANIFESTATION_ID = "manifestation"
 
 INTERPRETATION_DOC = \
@@ -134,7 +134,7 @@ The manifestation types listed here are all subclasses of *str* and may be
 used anywhere a string would be used."""
 
 
-Interpretation = SymbolCollection(INTERPREATION_ID, doc=INTERPRETATION_DOC)
+Interpretation = SymbolCollection(INTERPRETATION_ID, doc=INTERPRETATION_DOC)
 Manifestation = SymbolCollection(MANIFESTATION_ID, doc=MANIFESTATION_DOC)
 
 #
