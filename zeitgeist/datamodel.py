@@ -95,12 +95,10 @@ class SymbolCollection(object):
 		return len(self.__symbols)
 	
 	def __getattr__(self, name):
-		if not name.isupper():
-			# symbols must be uppercase
-			raise AttributeError("'%s' has no attribute '%s'" % \
-				(self.__name__, name))
-		self.__symbols[name] = Symbol(self.__name__, name)
-		return getattr(self, name)
+		if not name in self.__symbols:
+			print "Unrecognized %s: %s" % (self.__name__, name)
+			self.__symbols[name] = Symbol(self.__name__, name)
+		return self.__symbols[name]
 	
 	def __getitem__(self, uri):
 		""" Get a symbol by its URI. """
