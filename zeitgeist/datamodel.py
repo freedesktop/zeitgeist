@@ -98,10 +98,14 @@ class SymbolCollection(object):
 	def __getattr__(self, name):
 		if not name.isupper():
 			# symbols must be uppercase
-			raise AttributeError("'%s' has no attribute '%s'" %(self.__name__, name))
+			raise AttributeError("'%s' has no attribute '%s'" % \
+				(self.__name__, name))
 		self.__dict__[name] = Symbol(self.__name__, name)
 		return getattr(self, name)
-			
+	
+	def __iter__(self):
+		return self.__keys.__iter__()
+	
 	def __dir__(self):
 		return list(self.__keys)
 
