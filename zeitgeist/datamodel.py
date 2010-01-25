@@ -86,9 +86,10 @@ class SymbolCollection(object):
 	
 	def register(self, name, uri, display_name, doc):
 		if name in self.__symbols:
-			raise ValueError("cannot register symbol %r, a definition for this symbol already exists" %name)
+			raise ValueError("Cannot register symbol %r, a definition for "
+				"this symbol already exists" % name)
 		if not name.isupper():
-			raise ValueError("cannot register %r, name must be uppercase" %name)
+			raise ValueError("Cannot register %r, name must be uppercase" %name)
 		self.__symbols[name] = Symbol(self.__name__, name, uri, display_name, doc)
 	
 	def __len__(self):
@@ -96,6 +97,10 @@ class SymbolCollection(object):
 	
 	def __getattr__(self, name):
 		if not name in self.__symbols:
+			if not name.isupper():
+				# Symbols must be upper-case
+				raise AttributeError("%s has no attribute '%s'" % (
+					self.__name__, name))
 			print "Unrecognized %s: %s" % (self.__name__, name)
 			self.__symbols[name] = Symbol(self.__name__, name)
 		return self.__symbols[name]
