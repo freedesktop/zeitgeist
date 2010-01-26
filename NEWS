@@ -1,72 +1,93 @@
+
+Engine:
+
+ - Fixed exception in DeleteEvents.
+ - Added MostPopularActor, LeastPopularActor and MostRecentActor as possible
+   ReturnTypes for FindEvents/FindEventsId (LP: #493903).
+
+Python API:
+ - Made the Interpretation and Manifestation classes iterable.
+ - Added symbol lookup by URI, in the form of dictionary access.
+ - Fixed the display name for Interpretation.SOURCECODE.
+
+Overall:
+ - More little fixes (LP: #510761) and cleanup.
+ - Manpage updates.
+
 2010-01-19: Zeitgeist 0.3.2
 ---------------------------
 
 This release brings some nice little stuff and is used to power the first
 release of the GNOME Activity Journal.
 
- * Add FindEvents, optimized shorthand for GetEvents(FindEventIds(...)).
- * Fix DeleteEvents and make it ignore bad requests.
- * Fix GetEvents not to raise an exception when called with an empty list.
- * ZeitgeistClient.get_version() now returns a Python list.
- * Some code refactoring, documentation changes and other little fixes.
+Engine:
+
+ - Added FindEvents, optimized shorthand for GetEvents(FindEventIds(...)).
+ - Fixed DeleteEvents and make it ignore bad requests.
+ - Fixed GetEvents not to raise an exception when called with an empty list.
+
+Python API:
+ - ZeitgeistClient.get_version() now returns a Python list.
+
+Overall:
+ - Some code refactoring, documentation changes and other little fixes.
 
 2010-01-10: Zeitgeist 0.3.1
 ---------------------------
 
 Second development release leading up to the stable 0.4 series.
 
- * Add a FindRelatedUris() method to the core DBus API (also to the Python
-   client lib). This can be used to find URIs that occur in relation to
-   a set of events, sorted by relevancy. Please note that FindRelatedUris()
-   is still marked as experimental and we can not guarantee stability yet
- * The Zeitgeist engine now exposes a Blacklist API over DBus which can be
-   used to block events from entering the log
- * The engine now also exposes a fine grained monitoring system that can be
-   used to listen for updates to the log
- * InsertEvents() now return an event id of 0 for events that are blocked
-   or otherwise fail insertion
- * Extensions can now provide hooks to block or change events before they
-   are inserted into the log
- * Remove support for more than one backend. What was known as the
-   "Resonance backend" is now just "the engine"
- * Removed method from DBus API GetLastTimestampForActor
- * Lots more unit tests added
- * The engine will now load a default set of extensions on startup
- * Overhaul and restructure our Sphinx-based API-documentation system. This
-   has facilitated automagic documentation of our enumerations and Manifestation
-   and Interpretation classes
- * API documentation is more or less at 100% both for the DBus API and
-   the Python client library
- * Bash completion for zeitgeist-daemon
- * Bugfix: You may now request more than 999 events in one go from GetEvents()
- * Bugfix: In find_eventids where using more than one event template resulted
+Engine:
+
+ - Added a FindRelatedUris() method, to find URIs that often occur in relation
+   to a given set of events. [Experimental]
+ - Added a Blacklist API for block events from entering the log.
+ - Added a fine-grained monitoring system for listening for updates to the log.
+ - InsertEvents() now return an event id of 0 for events that are blocked
+   or otherwise fail insertion.
+ - Extensions can now provide hooks to block or change events before they
+   are inserted into the log.
+ - Removed support for more than one backend. What was known as the
+   "Resonance backend" is now just "the engine".
+ - Removed the GetLastTimestampForActor method.
+ - Bugfix: You may now request more than 999 events in one go from GetEvents()
+ - Bugfix: In find_eventids where using more than one event template resulted
    in all but the first one ignoring the timestamp restriction
- * Bugfix: Fix URL of Interpretation.APPLICATION to correct Nepomuk URI
- * More bugfixes and code style cleanups
+
+Python API:
+
+ - Bugfix: Fix URL of Interpretation.APPLICATION to correct Nepomuk URI.
+
+Overall:
+
+ - Added many new unit tests.
+ - Overhauled and restructured the Sphinx-based API-documentation system. Now
+   enumerations and the Manifestation and Interpreation classes are documented
+   automatically.
+ - Added bash-completion for zeitgeist-daemon.
+ - More bugfixes and code style cleanups.
 
 2009-12-01: Zeitgeist 0.3.0
 ------------------------------
 
 First development release leading up to the stable 0.4 series. This release
-features:
+is a complete rework of Zeitgeist and applications written for 0.2 won't work
+without changes.
 
- - Complete rework of engine and DBus API. Read: apps written against 0.2.*
-   will most certainly need an update (see fx.
-   http://mail.gnome.org/archives/desktop-devel-list/2009-November/msg00019.html)
- - Public Python client API defined in zeitgeist.datamodel and
-   zeitgeist.client modules
- - Documented public API with Sphinx (we'll have an URL for you shortly)
- - Changed Ontology from XESAM to Nepomuk.
- - Removed the Storm backend (obsoleted in 0.2.1).
- - Removed the Querymancer backend.
- - Support for event payloads (binary attachments to events)
- - An extension API for the core engine, allowing extensions direct access to the DB
-   There are already a handful extensions things in the works here, you will hear
-   more about this later
+Engine:
+ - Completely reworked the engine and DBus API.
+ - Removed the Storm backend (obsoleted in 0.2.1) and the Querymancer backend.
+ - Added support for extensions written in Python, with direct access to the
+   database.
+
+Python API:
+ - Added a public Python client API split into two modules, zeitgeist.datamodel
+   and zeitgeist.client.
+ - Changed ontologies from XESAM to Nepomuk.
 
 There are a few DISCLAIMERS that needs to be attached to this:
 
- - The event notification/signals are not yet ready in the new DBus API.
+ - The event notifications/signals are not yet ready in the new DBus API.
    We expect to have that ready for 0.3.1.
  - We plan to support querying only for available items (eg. filtering out
    deleted files, not listing files on detached USB storage, etc.). However this
@@ -75,13 +96,13 @@ There are a few DISCLAIMERS that needs to be attached to this:
    changes in the ontologies or concrete data extraction methods. This might
    require that users delete their log databases in order to rebuild them
    with the new definitions. Of course this will no longer happen when we
-   go stable
- - Much related to the point above our event ontologies are not yet set in stone,
-   and minor changes are expected
- - We have only one logger enabled for now. Namely the one monitoring your
-   recent files. In coming releases this logger may well be deprecated in favour
-   of application specific plugins.
- - And finally. Please note that this is a *development release*. We can not
+   go stable.
+ - Much related to the point above our event ontologies are not yet set in
+   stone, and minor changes are expected.
+ - We have only one data-source enabled for now. Namely the one monitoring your
+   recent files. In coming releases, application specific plugins will provide
+   enhaced logging.
+ - And finally, please note that this is a *development release*. We can not
    guarantee stability of services nor APIs, although we strive hard to keep
    things stable.
 
@@ -104,7 +125,6 @@ version 0.2, and it focuses on compatibility and performance enhancements.
  - Highly improved caching.
  - Added a "--quit" option to zeitgeist-daemon to stop any running daemon.
  - General code improvements, new test cases and other minor fixes.
-
 
 Version 0.2
 ------------------------------
