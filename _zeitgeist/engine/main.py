@@ -185,10 +185,8 @@ class ZeitgeistEngine:
 			raise NotImplementedError
 		
 		where = WhereClause(WhereClause.AND)
-		if time_range[0] > 0:
-			where.add("timestamp >= ?", time_range[0])
-		if time_range[1] > 0:
-			where.add("timestamp <= ?", time_range[1])
+		where.add("timestamp >= ?", time_range[0])
+		where.add("timestamp <= ?", time_range[1])
 		
 		where.extend(self._build_sql_from_event_templates(templates))
 		

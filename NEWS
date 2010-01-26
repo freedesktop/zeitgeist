@@ -4,11 +4,15 @@ Engine:
  - Fixed exception in DeleteEvents.
  - Added MostPopularActor, LeastPopularActor and MostRecentActor as possible
    ReturnTypes for FindEvents/FindEventsId (LP: #493903).
+ - API BREAK: Changed FindEvents, FindEventIds and FindRelatedUris to not
+   threat zeros in the given TimeRange specially.
 
 Python API:
  - Made the Interpretation and Manifestation classes iterable.
  - Added symbol lookup by URI, in the form of dictionary access.
  - Fixed the display name for Interpretation.SOURCECODE.
+ - Added a get_extension() method to ZeitgeistDBusInterface, to get convenient
+   access to D-Bus interfaces provided by engine extensions.
 
 Overall:
  - More little fixes (LP: #510761) and cleanup.

@@ -151,7 +151,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		# event is not inserted, id == 0 means error
 		self.assertEquals(ids[0], 0)
 		# check if really not events were inserted
-		ids = self.engine.find_eventids((0, 0), [], StorageState.Any, 0, ResultType.MostRecentEvents)
+		ids = self.engine.find_eventids(TimeRAnge.always(), [],
+			StorageState.Any, 0, ResultType.MostRecentEvents)
 		self.assertEquals(len(ids), 0)
 		
 	def testGetNonExisting(self):
@@ -195,7 +196,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		# Fix _build_templates so that it works when the Subject is empty.
 		self.testSingleInsertGet()
 		result = self.engine.find_eventids(
-			(0, 0),
+			TimeRange.always(),
 			[Event.new_for_values(interpretation=Interpretation.CLOSE_EVENT)],
 			StorageState.Any, 0, 0)
 		self.assertEquals(0, len(result))
@@ -263,7 +264,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject()
 		event_template = Event.new_for_values(interpretation="stfu:OpenEvent", subjects=[subj])
-		result = self.engine.find_eventids((0, 0), [event_template, ], StorageState.Any, 0, 1)
+		result = self.engine.find_eventids(TimeRange.always(),
+			[event_template,], StorageState.Any, 0, 1)
 		self.assertEquals(2, len(result))
 		events = self.engine.get_events(result)
 		for event in events:
@@ -273,7 +275,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		import_events("test/data/five_events.js", self.engine)
 		event_template = Event.new_for_values(interpretation="stfu:OpenEvent",
 		    subjects=[Subject()])
-		events = self.engine.find_events((0, 0), [event_template],
+		events = self.engine.find_events(TimeRange.always(), [event_template],
 		    StorageState.Any, 0, 1)
 		self.assertEquals(2, len(events))
 		for event in events:
@@ -298,7 +300,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject()
 		event_template = Event.new_for_values(manifestation="stfu:EpicFailActivity", subjects=[subj])
-		result = self.engine.find_eventids((0, 0), [event_template, ], StorageState.Any, 0, 1)
+		result = self.engine.find_eventids(TimeRange.always(),
+			[event_template,], StorageState.Any, 0, 1)
 		self.assertEquals(1, len(result))
 		events = self.engine.get_events(result)
 		for event in events:
@@ -386,7 +389,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		# event is not inserted, id == 0 means error
 		self.assertEquals(ids[0], 0)
 		# check if really not events were inserted
-		ids = self.engine.find_eventids((0, 0), [], StorageState.Any, 0, ResultType.MostRecentEvents)
+		ids = self.engine.find_eventids(TimeRange.always(), [],
+			StorageState.Any, 0, ResultType.MostRecentEvents)
 		self.assertEquals(len(ids), 0)
 		
 	def testUnicodeEventInsert(self):
@@ -431,8 +435,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		
 		# MostRecentEvents - new -> old
 		ids = self.engine.find_eventids(
-			(0, 0), [], StorageState.Any, 0, ResultType.MostRecentEvents
-		)
+			TimeRange.always(), [], StorageState.Any, 0,
+			ResultType.MostRecentEvents)
 		events = self.engine.get_events(ids)
 		sorted_event_ids = [
 			event.id for event in sorted(
@@ -446,8 +450,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		
 		# LeastRecentEvents - old -> new
 		ids = self.engine.find_eventids(
-			(0, 0), [], StorageState.Any, 0, ResultType.LeastRecentEvents
-		)
+			TimeRange.always(), [], StorageState.Any, 0,
+			ResultType.LeastRecentEvents)
 		events = self.engine.get_events(ids)
 		sorted_event_ids = [
 			event.id for event in sorted(events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
@@ -458,7 +462,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		import_events("test/data/twenty_events.js", self.engine)
 		
 		events = self.engine.find_events(
-			(0, 0), [], StorageState.Any, 0, ResultType.MostPopularActor)
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularActor)
 		self.assertEquals([e[0][4] for e in events], ["firefox", "icedove",
 			"frobnicator"])
 		self.assertEquals([e[0][1] for e in events], ["119", "114", "105"])
@@ -467,7 +471,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		import_events("test/data/twenty_events.js", self.engine)
 		
 		events = self.engine.find_events(
-			(0, 0), [], StorageState.Any, 0, ResultType.LeastPopularActor)
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularActor)
 		self.assertEquals([e[0][4] for e in events], ["frobnicator", "icedove",
 			"firefox"])
 		self.assertEquals([e[0][1] for e in events], ["105", "114", "119"])
@@ -476,34 +480,34 @@ class ZeitgeistEngineTest(_engineTestClass):
 		import_events("test/data/twenty_events.js", self.engine)
 		
 		events = self.engine.find_events(
-			(0, 0), [], StorageState.Any, 0, ResultType.MostRecentActor)
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentActor)
 		self.assertEquals([e[0][1] for e in events], ["119", "114", "105"])
 
 	def testResultTypesLeastRecentActor(self):
 		import_events("test/data/twenty_events.js", self.engine)
 		
 		events = self.engine.find_events(
-			(0, 0), [], StorageState.Any, 0, ResultType.LeastRecentActor)
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentActor)
 		self.assertEquals([e[0][1] for e in events], ["100", "101", "105"])
 
 	def testRelatedForEvents(self):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.find_related_uris(
-			(0, 0), [Event.new_for_values(subject_uri = "i2")], [],
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
 			StorageState.Any)
 		self.assertEquals(result, ["i3", "i1"])
 	
 	def testRelatedForMultipleEvents(self):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.find_related_uris(
-			(0, 0), [Event.new_for_values(subject_uri = "i1"),
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i1"),
 				Event.new_for_values(subject_uri = "i4")],
 			[], StorageState.Any)
 		self.assertEquals(result, ["i2", "i3"])
 	
 	def testRelatedForEventsWithManifestation(self):
 		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related_uris((0, 0),
+		result = self.engine.find_related_uris(TimeRange.always(),
 			[Event.new_for_values(subject_uri = "i4")],
 			[Event.new_for_values(subject_manifestation="stfu:File")],
 			StorageState.Any)
