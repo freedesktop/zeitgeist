@@ -5,7 +5,7 @@ Engine:
  - Added MostPopularActor, LeastPopularActor and MostRecentActor as possible
    ReturnTypes for FindEvents/FindEventsId (LP: #493903).
  - API BREAK: Changed FindEvents, FindEventIds and FindRelatedUris to not
-   threat zeros in the given TimeRange specially.
+   threat zeros in the given TimeRange specially (LP: #490242).
 
 Python API:
  - Made the Interpretation and Manifestation classes iterable.
