@@ -151,7 +151,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		# event is not inserted, id == 0 means error
 		self.assertEquals(ids[0], 0)
 		# check if really not events were inserted
-		ids = self.engine.find_eventids(TimeRAnge.always(), [],
+		ids = self.engine.find_eventids(TimeRange.always(), [],
 			StorageState.Any, 0, ResultType.MostRecentEvents)
 		self.assertEquals(len(ids), 0)
 		
