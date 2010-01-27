@@ -25,6 +25,7 @@ import dbus
 import dbus.service
 import logging
 
+from zeitgeist.datamodel import get_timestamp_for_now
 from _zeitgeist.engine.datamodel import Event, DataSource as OrigDataSource
 from _zeitgeist.engine.extension import Extension
 from _zeitgeist.engine import constants
@@ -104,6 +105,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 				return datasource
 	
 	def insert_event_hook(self, event, sender):
+		# TODO: Update LastSeen time when a data-source inserts something.
 		for (unique_id, bus_names) in self._running.iteritems():
 			if sender in bus_names and not \
 				self._get_data_source(unique_id)[DataSource.Enabled]:
@@ -224,7 +226,12 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			return
 		uid = uid[0]
 		
-		strid = "%s (%s)" % (uid, self._get_data_source(uid)[DataSource.Name])
+		# Update LastSeen time
+		datasource = self._get_data_source(uid)
+		datasource[DataSource.LastSeen] = get_timestamp_for_now()
+		self._write_to_disk()
+		
+		strid = "%s (%s)" % (uid, datasource[DataSource.Name])
 		log.debug("Client disconnected: %s" % strid)
 		if len(self._running[uid]) == 1:
 			log.debug("No remaining client running: %s" % strid)
