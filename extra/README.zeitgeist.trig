@@ -9,4 +9,5 @@ TODO/open questions:
   * how do we parse this?
     - python-librdf (pulls in alot of dependencies)
     - writing our own parser
-  * how can we add this to our sphinx docs    
+  * how can we add this to our sphinx docs
+  * how is this (esp. the displayname attribute) translatable
