@@ -1,0 +1,59 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#>.
+@prefix datamodel: <http://www.zeitgeist-project.com/ontologies/datamodel#>.
+@prefix zeitgeist: <http://www.zeitgeist-project.com/ontologies/zeitgeist#>.
+
+datamodel: {
+    datamodel:Symbol
+        a   rdfs:Class .
+        
+    datamodel:displayname
+        a   rdf:Property ;
+        rdfs:domain datamodel:Symbol ;
+        rdfs:comment "display name of symbol" ;
+        rdfs:label "displayname" ;
+        rdfs:range xsd:string .
+        
+    datamodel:doc
+        a   rdf:Property ;
+        rdfs:domain datamodel:Symbol ;
+        rdfs:comment "docstring of this symbol" ;
+        rdfs:subPropertyOf rdfs:comment .
+
+    datamodel:Interpretation
+        a   rdfs:Class ;
+        rdfs:subClassOf datamodel:Symbol .
+        
+    datamodel:Manifestation
+        a   rdfs:Class ;
+        rdfs:subClassOf datamodel:Symbol .
+        
+    datamodel:SubjectInterpretation
+        a   rdfs:Class ;
+        rdfs:subClassOf datamodel:Interpretation .
+        
+    datamodel:SubjectManifestation
+        a   rdfs:Class ;
+        rdfs:subClassOf datamodel:Manifestation .
+        
+    datamodel:EventInterpretation
+        a   rdfs:Class ;
+        rdfs:subClassOf datamodel:Interpretation .
+        
+    datamodel:EventManifestation
+        a   rdfs:Class ;
+        rdfs:subClassOf datamodel:Manifestation .
+}
+
+zeitgeist: {
+        
+    zeitgeist:Tag
+        a   datamodel:SubjectInterpretation ; # it's an interpretation for subjects
+        datamodel:displayname "Tags" ; # this is the display name
+        datamodel:comment "User provided tags. The same tag may refer multiple items" ; # and the comment
+        rdfs:subClassOf nao:Tag . # link/inherit all other attributes from nao:Tag
+    
+}
+
