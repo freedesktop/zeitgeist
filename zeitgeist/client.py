@@ -252,6 +252,8 @@ class ZeitgeistClient:
 	"""
 	def __init__ (self):
 		self._iface = ZeitgeistDBusInterface()
+		self._registry = self._iface.get_extension("DataSourceRegistry",
+			"data_source_registry")
 	
 	def _safe_error_handler(self, error_handler, *args):
 		if error_handler is not None:
@@ -780,7 +782,25 @@ class ZeitgeistClient:
 		self._iface.RemoveMonitor(path,
 		                          reply_handler=reply_handler,
 		                          error_handler=error_handler)
+	
+	def register_data_source(self, name, description, event_templates):
+		"""
+		Register a data-source as currently running. If the data-source was
+		already in the database, its metadata (description and event_templates)
+		will be updated.
 		
+		If the data-source registry isn't enabled, do nothing.
+		
+		:param name: unique string
+		:param description: string
+		:param event_templates: list of
+			:class:`Event <zeitgeist.datamodel.Event>` templates.
+		"""
+		# TODO: Make it possible to access the return value!
+		self._registry.RegisterDataSource(name, description, event_templates,
+			reply_handler=self._void_reply_handler,
+			error_handler=self._void_reply_handler) # Errors are ignored
+	
 	def _check_list_or_tuple(self, collection):
 		"""
 		Raise a ValueError unless 'collection' is a list or tuple
