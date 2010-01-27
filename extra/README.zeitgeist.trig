@@ -11,3 +11,7 @@ TODO/open questions:
     - writing our own parser
   * how can we add this to our sphinx docs
   * how is this (esp. the displayname attribute) translatable
+
+ressources:
+http://techbase.kde.org/index.php?title=Development/Tutorials/Metadata/Nepomuk/RDFIntroduction
+http://sourceforge.net/apps/trac/oscaf/browser/trunk/ontologies/nfo/nfo.trig
