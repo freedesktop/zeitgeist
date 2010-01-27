@@ -3,8 +3,8 @@ import sys
 
 RE_PREFIX = re.compile(r"^@prefix\s*(?P<name>\w+)\:\s*<(?P<url>[^>]+)>\s*\.\s*$")
 RE_START_ONTOLOGY = re.compile(r"^(?P<name>\w+)\:\s*\{\s*(?:\#.*)?$")
-RE_START_ELEMENT = re.compile(r"^(?:(?P<namespace>\w+)\:(?P<name>\w+))?(?:\s*a\s+(?P<base_namespace>\w+)\:(?P<base_name>\w+)\s+(?P<end>(\.|\;)))?$")
-RE_ELEMENT_ATTRIBUTE = re.compile(r"^(?P<namespace>\w+)\:(?P<name>\w+)\s+(?P<content>.+)\s+(?P<end>(\.|\;))$")
+RE_START_ELEMENT = re.compile(r"^(?:(?P<namespace>\w+)\:(?P<name>\w+))?(?:\s*a\s+(?P<base_namespace>\w+)\:(?P<base_name>\w+)\s*(?P<end>(\.|\;)))?$")
+RE_ELEMENT_ATTRIBUTE = re.compile(r"^(?P<namespace>\w+)\:(?P<name>\w+)\s+(?P<content>.+)\s*(?P<end>(\.|\;))$")
 
 class ParserError(RuntimeError):
     pass
@@ -106,6 +106,9 @@ class OntologyCollection(dict):
                 prefix_collection[prefix["name"]] = prefix["url"]
             else:
                 if current_ontology is None:
+                    if stripped_line.startswith("<") and "metadata" in line.lower():
+                        # metadata is not yet supported
+                        break
                     name = RE_START_ONTOLOGY.match(line)
                     if not name:
                         raise ParserError("cannot parse '%s', line %i" %(filename, n+1))
