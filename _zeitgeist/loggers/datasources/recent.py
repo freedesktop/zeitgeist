@@ -32,7 +32,7 @@ from xdg import BaseDirectory
 
 from zeitgeist import _config
 from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, \
-	get_timestamp_for_now
+	DataSource, get_timestamp_for_now
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 log = logging.getLogger("zeitgeist.logger.datasources.recent")
@@ -207,13 +207,29 @@ class RecentlyUsedManagerGtk(DataProvider):
 		u"SourceCode": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
 	}
 	
-	def __init__(self):
-		DataProvider.__init__(self, name="Recently Used Documents")
+	def __init__(self, client):
+		DataProvider.__init__(self,
+			name="Recently Used Documents",
+			description="Logs events from GtkRecentlyUsed",
+			event_templates=[],
+			client=client)
+		self._load_data_sources()
 		self.recent_manager = recent_manager()
 		self.recent_manager.set_limit(-1)
 		self.recent_manager.connect("changed", lambda m: self.emit("reload"))
 		self.config.connect("configured", lambda m: self.emit("reload"))
-		self._timestamp_last_run = 0
+		self._timestamp_last_run = 0 # FIXME: Get this from Zeitgeist's registry
+	
+	def _load_data_sources(self):
+		ignore_apps = set()
+		for source in self._registry.GetDataSources():
+			for tmpl in source[DataSource.EventTemplates]:
+				# TODO: Check whether the data-source is currently running
+				if tmpl[0][Event.Actor]:
+					# TODO: Check for event types and only exclude those
+					# types which are provided by the source, not all the actor
+					ignore_apps.add(tmpl[0][Event.Actor])
+		self._ignore_apps = ignore_apps
 	
 	@staticmethod
 	def _find_desktop_file_for_application(application):
@@ -253,6 +269,18 @@ class RecentlyUsedManagerGtk(DataProvider):
 		
 		for (num, info) in enumerate(self.recent_manager.get_items()):
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
+				last_application = info.last_application().strip()
+				application = info.get_application_info(last_application)[0].split()[0]
+				desktopfile = self._find_desktop_file_for_application(application)
+				if not desktopfile:
+					continue
+				actor = u"application://%s" % os.path.basename(desktopfile)
+				
+				if actor in self._ignore_apps:
+					# Do not insert duplicated events when the actor already
+					# has a responsible data-source
+					continue
+				
 				subject = Subject.new_for_values(
 					uri = unicode(info.get_uri()),
 					interpretation = self._get_interpretation_for_mimetype(
@@ -263,9 +291,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 					origin = info.get_uri().rpartition("/")[0]
 				)
 				
-				last_application = info.last_application().strip()
-				application = info.get_application_info(last_application)[0].split()[0]
-				desktopfile = self._find_desktop_file_for_application(application)
 				times = (
 					(info.get_added() * 1000, Interpretation.CREATE_EVENT.uri),
 					(info.get_visited() * 1000, Interpretation.VISIT_EVENT.uri),
@@ -281,7 +306,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 						timestamp = timestamp,
 						interpretation = use,
 						manifestation = Manifestation.USER_ACTIVITY.uri,
-						actor = desktopfile or u"",
+						actor = actor,
 						subjects = [subject]
 						))
 			if num % 50 == 0:
@@ -290,4 +315,4 @@ class RecentlyUsedManagerGtk(DataProvider):
 		return events
 
 if enabled:
-	__datasource__ = RecentlyUsedManagerGtk()
+	__datasource__ = RecentlyUsedManagerGtk

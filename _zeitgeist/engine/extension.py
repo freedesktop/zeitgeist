@@ -37,7 +37,7 @@ class Extension(object):
 	def __init__(self, engine):
 		self.engine = engine
 	
-	def insert_event_hook(self, event):
+	def insert_event_hook(self, event, sender):
 		"""
 		Hook applied to all events before they are inserted into the
 		log. The returned event is progressively passed through all
@@ -52,11 +52,12 @@ class Extension(object):
 		
 		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
 			instance
+		:param sender: The D-Bus bus name of the client
 		:returns: The filtered event instance to insert into the log
 		"""
 		return event
 	
-	def get_event_hook(self, event):
+	def get_event_hook(self, event, sender):
 		"""
 		Hook applied to all events before they are returned to a client.
 		The event returned from this method is progressively passed
@@ -72,6 +73,7 @@ class Extension(object):
 		
 		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
 			instance
+		:param sender: The D-Bus bus name of the client
 		:returns: The filtered event instance as the client
 			should see it
 		"""
@@ -148,14 +150,14 @@ class ExtensionsCollection(object):
 				del self.methods[method]
 			del self.__extensions[extension.__class__.__name__]
 	
-	def apply_get_hooks(self, event):
+	def apply_get_hooks(self, event, sender):
 		# Apply extension filters if we have an event
 		if event is None:
 			return None
 		
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.get_event_hook(event)
+			event = ext.get_event_hook(event, sender)
 			if event is None:
 				# The event has been blocked by
 				# the extension pretend it's
@@ -163,10 +165,10 @@ class ExtensionsCollection(object):
 				continue
 		return event
 	
-	def apply_insert_hooks(self, event):
+	def apply_insert_hooks(self, event, sender):
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.insert_event_hook(event)
+			event = ext.insert_event_hook(event, sender)
 			if event is None:
 				# The event has been blocked by the extension
 				return None
