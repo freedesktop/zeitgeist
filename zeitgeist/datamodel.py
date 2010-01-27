@@ -931,16 +931,18 @@ class DataSource(list):
 	forth between DBus wire format. These two properties makes it highly
 	efficient and is recommended for use everywhere.
 	"""
-	Fields = (Name,
+	Fields = (UniqueId,
+		Name,
 		Description,
 		EventTemplates,
 		Running,
 		LastSeen,
-		Enabled) = range(6)
+		Enabled) = range(7)
 	
-	def __init__(self, name, description, templates, running=True,
+	def __init__(self, unique_id, name, description, templates, running=True,
 		last_seen=None, enabled=True):
 		super(DataSource, self).__init__()
+		self.append(unique_id)
 		self.append(name)
 		self.append(description)
 		self.append(templates)
@@ -949,7 +951,7 @@ class DataSource(list):
 		self.append(enabled)
 	
 	def __eq__(self, source):
-		return self[self.Name] == source[self.Name]
+		return self[self.UniqueId] == source[self.UniqueId]
 
 NULL_EVENT = ([], [], [])
 """Minimal Event representation, a tuple containing three empty lists.

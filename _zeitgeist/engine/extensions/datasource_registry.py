@@ -35,7 +35,7 @@ log = logging.getLogger("zeitgeist.datasource_registry")
 DATA_FILE = os.path.join(constants.DATA_PATH, "datasources.pickle")
 REGISTRY_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/data_source_registry"
 REGISTRY_DBUS_INTERFACE = "org.gnome.zeitgeist.DataSourceRegistry"
-SIG_FULL_DATASOURCE = "(ssa("+constants.SIG_EVENT+")bxb)"
+SIG_FULL_DATASOURCE = "(sssa("+constants.SIG_EVENT+")bxb)"
 
 class DataSource(OrigDataSource):
 	@classmethod
@@ -44,13 +44,13 @@ class DataSource(OrigDataSource):
 		Parse a list into a DataSource, overriding the value of Running
 		to always be False.
 		"""
-		s = cls(l[cls.Name], l[cls.Description], l[cls.EventTemplates], False,
-			l[cls.LastSeen], l[cls.Enabled])
+		s = cls(l[cls.UniqueId], l[cls.Name], l[cls.Description],
+			l[cls.EventTemplates], False, l[cls.LastSeen], l[cls.Enabled])
 		return s
 	
 	def update_from_data_source(self, source):
-		for prop in (self.Description, self.EventTemplates, self.Running,
-			self.LastSeen):
+		for prop in (self.Name, self.Description, self.EventTemplates,
+			self.Running, self.LastSeen):
 			self[prop] = source[prop]
 
 class DataSourceRegistry(Extension, dbus.service.Object):
@@ -98,21 +98,21 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			pickle.dump(data, data_file)
 		log.debug("Data-source registry updated.")
 	
-	def _get_data_source(self, name):
+	def _get_data_source(self, unique_id):
 		for datasource in self._registry:
-			if datasource[DataSource.Name] == name:
+			if datasource[DataSource.UniqueId] == unique_id:
 				return datasource
 	
 	def insert_event_hook(self, event, sender):
-		for (name, bus_names) in self._running.iteritems():
+		for (unique_id, bus_names) in self._running.iteritems():
 			if sender in bus_names and not \
-				self._get_data_source(name)[DataSource.Enabled]:
+				self._get_data_source(unique_id)[DataSource.Enabled]:
 				return None
 		return event
 	
 	# PUBLIC
-	def register_data_source(self, name, description, templates):
-		source = DataSource(unicode(name), unicode(description),
+	def register_data_source(self, unique_id, name, description, templates):
+		source = DataSource(str(unique_id), unicode(name), unicode(description),
 			map(Event.new_for_struct, templates))
 		for datasource in self._registry:
 			if datasource == source:
@@ -129,35 +129,42 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		return self._registry
 	
 	# PUBLIC
-	def set_data_source_enabled(self, name, enabled):
-		datasource = self._get_data_source(name)
+	def set_data_source_enabled(self, unique_id, enabled):
+		datasource = self._get_data_source(unique_id)
 		if not datasource:
 			return False
 		if datasource[DataSource.Enabled] != enabled:
 			datasource[DataSource.Enabled] = enabled
-			self.DataSourceEnabled(datasource[DataSource.Name], enabled)
+			self.DataSourceEnabled(datasource[DataSource.UniqueId], enabled)
 		return True
 	
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
-						 in_signature="ssa("+constants.SIG_EVENT+")",
+						 in_signature="sssa("+constants.SIG_EVENT+")",
 						 out_signature="b",
 						 sender_keyword="sender")
-	def RegisterDataSource(self, name, description, event_templates, sender):
+	def RegisterDataSource(self, unique_id, name, description, event_templates,
+	    sender):
 		"""
 		Register a data-source as currently running. If the data-source was
-		already in the database, its metadata (description and event_templates)
-		are updated.
+		already in the database, its metadata (name, description and
+		event_templates) are updated.
 		
-		:param name: unique string
-		:param description: string
+		The optional event_templates is purely informational and serves to
+		let data-source management applications and other data-sources know
+		what sort of information you log.
+		
+		:param unique_id: unique ASCII string identifying the data-source
+		:param name: data-source name (may be translated)
+		:param description: data-source description (may be translated)
 		:param event_templates: list of
 			:class:`Event <zeitgeist.datamodel.Event>` templates.
 		"""
-		if not name in self._running:
-		    self._running[name] = [sender]
-		elif sender not in self._running[name]:
-		    self._running[name].append(sender)
-		return self.register_data_source(name, description, event_templates)
+		if not unique_id in self._running:
+		    self._running[unique_id] = [sender]
+		elif sender not in self._running[unique_id]:
+		    self._running[unique_id].append(sender)
+		return self.register_data_source(unique_id, name, description,
+		    event_templates)
 	
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
 						 in_signature="",
@@ -167,23 +174,23 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		Get a list of data-sources.
 		
 		:returns: A list of
-			:class:`DataSource <zeitgeist.datamodel.DataSource>`
+			:class:`DataSource <zeitgeist.datamodel.DataSource>`s
 		"""
 		return self.get_data_sources()
 
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
 						 in_signature="sb",)
-	def SetDataSourceEnabled(self, name, enabled):
+	def SetDataSourceEnabled(self, unique_id, enabled):
 		"""
 		Get a list of data-sources.
 		
-		:param name: unique string identifying a data-source
+		:param unique_id: unique string identifying a data-source
 		
 		:returns: True on success, False if there is no known data-source
-			matching the given name.
+			matching the given ID.
 		:rtype: Bool
 		"""
-		return self.set_data_source_enabled(name, enabled)
+		return self.set_data_source_enabled(unique_id, enabled)
 
 	@dbus.service.signal(REGISTRY_DBUS_INTERFACE,
 						signature="sb")
@@ -191,8 +198,8 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		"""This signal is emitted whenever a data-source is enabled or
 		disabled.
 		
-		:returns: data-source name and bool which is True if it was enabled
-			False if it was disabled.
+		:returns: unique string identifier of a data-source and a bool which
+			is True if it was enabled False if it was disabled.
 		:rtype: struct containing a string and a bool
 		"""
 		return (value, enabled)
@@ -212,15 +219,16 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		Cleanup disconnected clients and mark data-sources as not running
 		when no client remains.
 		"""
-		name = [name for name, ids in self._running.iteritems() if owner in ids]
-		if not name:
+		uid = [uid for uid, ids in self._running.iteritems() if owner in ids]
+		if not uid:
 			return
-		name = name[0]
+		uid = uid[0]
 		
-		log.debug("Client disconnected: %s" % name)
-		if len(self._running[name]) == 1:
-			log.debug("No remaining client running: %s" % name)
-			del self._running[name]
-			self._get_data_source(name)[DataSource.Running] = False
+		strid = "%s (%s)" % (uid, self._get_data_source(uid)[DataSource.Name])
+		log.debug("Client disconnected: %s" % strid)
+		if len(self._running[uid]) == 1:
+			log.debug("No remaining client running: %s" % strid)
+			del self._running[uid]
+			self._get_data_source(uid)[DataSource.Running] = False
 		else:
-			del self._running[name][owner]
+			del self._running[uid][owner]

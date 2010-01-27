@@ -783,21 +783,27 @@ class ZeitgeistClient:
 		                          reply_handler=reply_handler,
 		                          error_handler=error_handler)
 	
-	def register_data_source(self, name, description, event_templates):
+	def register_data_source(self, unique_id, name, description, event_templates):
 		"""
 		Register a data-source as currently running. If the data-source was
-		already in the database, its metadata (description and event_templates)
-		will be updated.
+		already in the database, its metadata (name, description and
+		event_templates) are updated.
 		
 		If the data-source registry isn't enabled, do nothing.
 		
-		:param name: unique string
-		:param description: string
+		The optional event_templates is purely informational and serves to
+		let data-source management applications and other data-sources know
+		what sort of information you log.
+		
+		:param unique_id: unique ASCII string identifying the data-source
+		:param name: data-source name (may be translated)
+		:param description: data-source description (may be translated)
 		:param event_templates: list of
 			:class:`Event <zeitgeist.datamodel.Event>` templates.
 		"""
 		# TODO: Make it possible to access the return value!
-		self._registry.RegisterDataSource(name, description, event_templates,
+		self._registry.RegisterDataSource(unique_id, name, description,
+			event_templates,
 			reply_handler=self._void_reply_handler,
 			error_handler=self._void_reply_handler) # Errors are ignored
 	

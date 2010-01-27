@@ -33,8 +33,8 @@ class DataProvider(gobject.GObject, Thread):
 		"reload" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
 	}
 	
-	def __init__(self, name, description="", event_templates=[], client=None,
-		config=None):
+	def __init__(self, unique_id, name, description="", event_templates=[],
+		client=None, config=None):
 		
 		# Initialize superclasses
 		Thread.__init__(self)
@@ -47,7 +47,7 @@ class DataProvider(gobject.GObject, Thread):
 		if client:
 			self._registry = self._client.get_extension("DataSourceRegistry",
 				"data_source_registry")
-			self._enabled = self._registry.RegisterDataSource(name,
+			self._enabled = self._registry.RegisterDataSource(unique_id, name,
 				description, event_templates)
 		
 		if not config:

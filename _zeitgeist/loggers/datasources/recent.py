@@ -209,6 +209,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 	
 	def __init__(self, client):
 		DataProvider.__init__(self,
+			unique_id="com.zeitgeist-project,datahub,recent",
 			name="Recently Used Documents",
 			description="Logs events from GtkRecentlyUsed",
 			event_templates=[],
