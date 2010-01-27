@@ -1,59 +1,125 @@
+README:
+ * The Zeitgeist ontology does not spec out what a "subject" is because we
+   use Nepomuk to describe subjects. With the convention that
+   interpretation=InformationElement and manifestation=DataObject
+   FIXME: NFO might not specify an origin for a rdfs:Resource ??
+
+
+
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#>.
 @prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#>.
-@prefix datamodel: <http://www.zeitgeist-project.com/ontologies/datamodel#>.
-@prefix zeitgeist: <http://www.zeitgeist-project.com/ontologies/zeitgeist#>.
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/08/15/nie#>.
+@prefix zg: <http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#>.
 
-datamodel: {
-    datamodel:Symbol
-        a   rdfs:Class .
-        
-    datamodel:displayname
-        a   rdf:Property ;
-        rdfs:domain datamodel:Symbol ;
-        rdfs:comment "display name of symbol" ;
-        rdfs:label "displayname" ;
-        rdfs:range xsd:string .
-        
-    datamodel:doc
-        a   rdf:Property ;
-        rdfs:domain datamodel:Symbol ;
-        rdfs:comment "docstring of this symbol" ;
-        rdfs:subPropertyOf rdfs:comment .
-
-    datamodel:Interpretation
-        a   rdfs:Class ;
-        rdfs:subClassOf datamodel:Symbol .
-        
-    datamodel:Manifestation
-        a   rdfs:Class ;
-        rdfs:subClassOf datamodel:Symbol .
-        
-    datamodel:SubjectInterpretation
-        a   rdfs:Class ;
-        rdfs:subClassOf datamodel:Interpretation .
-        
-    datamodel:SubjectManifestation
-        a   rdfs:Class ;
-        rdfs:subClassOf datamodel:Manifestation .
-        
-    datamodel:EventInterpretation
-        a   rdfs:Class ;
-        rdfs:subClassOf datamodel:Interpretation .
-        
-    datamodel:EventManifestation
-        a   rdfs:Class ;
-        rdfs:subClassOf datamodel:Manifestation .
-}
-
-zeitgeist: {
-        
-    zeitgeist:Tag
-        a   datamodel:SubjectInterpretation ; # it's an interpretation for subjects
-        datamodel:displayname "Tags" ; # this is the display name
-        datamodel:comment "User provided tags. The same tag may refer multiple items" ; # and the comment
-        rdfs:subClassOf nao:Tag . # link/inherit all other attributes from nao:Tag
+zg: {
     
+    zg:Event
+        a rdfs:Class ;
+        rdfs:subClassOf rdfs:Resource .
+    
+    zg:EventInterpretation
+        a   rdfs:Class ;
+        rdfs:comment "" ;
+        rdfs:subClassOf ie:InformationElement .
+    
+    zg:CreateEvent
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventInterpretation .
+    
+    zg:OpenEvent
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventInterpretation .
+    
+    zg:ModifyEvent
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventInterpretation .
+    
+    zg:DeleteEvent
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventInterpretation .
+    
+    zg:CloseEvent
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventInterpretation .
+        
+    zg:ReceiveEvent
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventInterpretation .
+    
+    zg:SendEvent
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventInterpretation .
+    
+    zg:EventManifestation
+        a   rdfs:Class ;
+        rdfs:subClassOf nie:DataObject .
+    
+    zg:UserActivity
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventManifestation .
+    
+    zg:HeuristicActivity
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventManifestation .
+    
+    zg:ScheduledActivity
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventManifestation .
+    
+    zg:WorldActivity
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventManifestation .
+    
+    zg:SystemNotification
+        a rdfs:Class ;
+        rdfs:subClassOf zg:EventManifestation .
+    
+    zg:eventId
+        a   rdfs:Property ;
+        rdfs:comment "A unique integer id assigned to an event by the logging framework when the event is first logged" ;
+        rdfs:domain zg:Event ;
+        rdfs:range xsd:nonNegativeInteger ;
+        rdfs:label "event id" ;        
+        nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
+    
+    zg:timestamp
+        a   rdfs:Property ;
+        rdfs:comment "Timestamp in milliseconds since the Unix Epoch" ;
+        rdfs:domain zg:Event ;
+        rdfs:range xsd:long ;
+        rdfs:label "timestamp" ;        
+        nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
+    
+    zg:hasActor
+        a   rdfs:Property ;
+        rdfs:comment "The entity responsible for generating the event"
+        rdfs:domain zg:Event ;
+        rdfs:range rdfs:Resource ;
+        rdfs:label "actor" ;        
+        nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
+    
+    zg:hasEventInterpretation
+        a rdfs:Property ;
+        rdfs:domain zg:Event ;
+        rdfs:range zg:EventInterpretation ;
+        nrl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:subPropertyOf nie:interpretedAs .
+        
+    zg:hasEventManifestation
+        a rdfs:Property ;
+        rdfs:domain zg:Event ;
+        rdfs:range zg:EventManifestation ;
+        nrl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:subPropertyOf rdfs:type .
+    
+    zg:hasSubject
+        a rdfs:Property ;
+        rdfs:domain zg:Event ;
+        rdfs:range rdfs:Resource ;
+        rdfs:label "has subject" .
 }
+
 
