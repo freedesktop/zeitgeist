@@ -614,7 +614,9 @@ class ZeitgeistClient:
 		runnning.
 		"""
 		self._check_list_or_tuple(event_ids)
-		self._check_members(event_ids, int)
+		# we need dbus.UInt32 here as long as dbus.UInt32 is not a subtype
+		# of int, this might change in the future, see docstring of dbus.UInt32
+		self._check_members(event_ids, (int, dbus.UInt32))
 		
 		self._iface.DeleteEvents(event_ids,
 					reply_handler=self._safe_reply_handler(reply_handler),

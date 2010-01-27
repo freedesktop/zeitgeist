@@ -200,15 +200,8 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		def callback():	
 			ids = self.findEventIdsAndWait([])
 			self.assertEquals(2, len(ids))
-		
-		'''
-		temp_ids = []
-		for id in ids:
-			temp_ids.append(int(id))
-		ids = temp_ids
-		'''
-		
-		self.client.delete_events(ids)
+			
+		self.client.delete_events(ids, callback)
 		
 	def testFindByRandomActorAndGet(self):
 		result = []
