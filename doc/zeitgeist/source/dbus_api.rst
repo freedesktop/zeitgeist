@@ -106,4 +106,4 @@ org.gnome.zeitgeist.DataSourceRegistry
 ++++++++++++++++++++++++++++++++++++++
 
 .. autoclass:: _zeitgeist.engine.extensions.datasource_registry.DataSourceRegistry
-    :members: RegisterDataSource, GetDataSources, SetDataSourceEnabled, DataSourceEnabled, DataSourceRegistered
+    :members: RegisterDataSource, GetDataSources, SetDataSourceEnabled, DataSourceEnabled, DataSourceRegistered, DataSourceDisconnected

@@ -216,6 +216,17 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		"""
 		return datasource
 
+	@dbus.service.signal(REGISTRY_DBUS_INTERFACE,
+						signature=SIG_FULL_DATASOURCE)
+	def DataSourceDisconnected(self, datasource):
+		"""This signal is emitted whenever the last running instance of a
+		data-source disconnects.
+		
+		:returns: the disconnected data-source
+		:rtype: :class:`DataSource <zeitgeist.datamodel.DataSource>`
+		"""
+		return datasource
+
 	def _name_owner_changed(self, owner, old, new):
 		"""
 		Cleanup disconnected clients and mark data-sources as not running
@@ -236,6 +247,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		if len(self._running[uid]) == 1:
 			log.debug("No remaining client running: %s" % strid)
 			del self._running[uid]
-			self._get_data_source(uid)[DataSource.Running] = False
+			datasource[DataSource.Running] = False
+			self.DataSourceDisconnected(datasource)
 		else:
 			del self._running[uid][owner]
