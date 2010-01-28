@@ -212,25 +212,30 @@ class RecentlyUsedManagerGtk(DataProvider):
 			unique_id="com.zeitgeist-project,datahub,recent",
 			name="Recently Used Documents",
 			description="Logs events from GtkRecentlyUsed",
-			event_templates=[],
+			event_templates=[Event.new_for_values(interpretation=i) for i in (
+				Interpretation.CREATE_EVENT,
+				Interpretation.VISIT_EVENT,
+				Interpretation.MODIFY_EVENT
+			)],
 			client=client)
-		self._load_data_sources()
+		self._load_data_sources_registry()
 		self.recent_manager = recent_manager()
 		self.recent_manager.set_limit(-1)
 		self.recent_manager.connect("changed", lambda m: self.emit("reload"))
 		self.config.connect("configured", lambda m: self.emit("reload"))
-		self._timestamp_last_run = 0 # FIXME: Get this from Zeitgeist's registry
 	
-	def _load_data_sources(self):
-		ignore_apps = set()
-		for source in self._registry.GetDataSources():
-			for tmpl in source[DataSource.EventTemplates]:
-				# TODO: Check whether the data-source is currently running
-				if tmpl[0][Event.Actor]:
-					# TODO: Check for event types and only exclude those
-					# types which are provided by the source, not all the actor
-					ignore_apps.add(tmpl[0][Event.Actor])
-		self._ignore_apps = ignore_apps
+	def _load_data_sources_registry(self):
+		self._ignore_apps = {}
+		def _data_source_registered(datasource):
+			for tmpl in datasource[DataSource.EventTemplates]:
+				actor = tmpl[0][Event.Actor]
+				if actor:
+					if not actor in self._ignore_apps:
+						self._ignore_apps[actor] = set()
+					self._ignore_apps[actor].add(tmpl[0][Event.Interpretation])
+		for datasource in self._registry.GetDataSources():
+			_data_source_registered(datasource)
+		self._registry.connect("DataSourceRegistered", _data_source_registered)
 	
 	@staticmethod
 	def _find_desktop_file_for_application(application):
@@ -264,7 +269,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 		return Interpretation.UNKNOWN.uri
 	
 	def _get_items(self):
-		timestamp_last_run = get_timestamp_for_now()
+		# We save the start timestamp to avoid race conditions
+		last_seen = get_timestamp_for_now()
 		
 		events = []
 		
@@ -277,11 +283,6 @@ class RecentlyUsedManagerGtk(DataProvider):
 					continue
 				actor = u"application://%s" % os.path.basename(desktopfile)
 				
-				if actor in self._ignore_apps:
-					# Do not insert duplicated events when the actor already
-					# has a responsible data-source
-					continue
-				
 				subject = Subject.new_for_values(
 					uri = unicode(info.get_uri()),
 					interpretation = self._get_interpretation_for_mimetype(
@@ -292,15 +293,19 @@ class RecentlyUsedManagerGtk(DataProvider):
 					origin = info.get_uri().rpartition("/")[0]
 				)
 				
-				times = (
-					(info.get_added() * 1000, Interpretation.CREATE_EVENT.uri),
-					(info.get_visited() * 1000, Interpretation.VISIT_EVENT.uri),
-					(info.get_modified() * 1000, Interpretation.MODIFY_EVENT.uri)
-				)
+				times = set()
+				for meth, interp in (
+					(info.get_added, Interpretation.CREATE_EVENT.uri),
+					(info.get_visited, Interpretation.VISIT_EVENT.uri),
+					(info.get_modified, Interpretation.MODIFY_EVENT.uri)
+					):
+					if actor not in self._ignore_apps or \
+						interp not in self._ignore_apps[actor]:
+						times.add((meth() * 1000, interp))
 				
 				is_new = False
 				for timestamp, use in times:
-					if timestamp <= self._timestamp_last_run:
+					if timestamp <= self._last_seen:
 						continue
 					is_new = True
 					events.append(Event.new_for_values(
@@ -312,7 +317,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 						))
 			if num % 50 == 0:
 				self._process_gobject_events()
-		self._timestamp_last_run = timestamp_last_run
+		self._last_seen = last_seen
 		return events
 
 if enabled:

@@ -25,6 +25,7 @@ from threading import Thread
 import gobject
 import logging
 
+from zeitgeist.datamodel import DataSource
 from _zeitgeist.loggers.zeitgeist_setup_service import _Configuration, DefaultConfiguration
 
 class DataProvider(gobject.GObject, Thread):
@@ -47,6 +48,16 @@ class DataProvider(gobject.GObject, Thread):
 		if client:
 			self._registry = self._client.get_extension("DataSourceRegistry",
 				"data_source_registry")
+			try:
+				self._last_seen = [ds[DataSource.LastSeen] for ds in \
+					self._registry.GetDataSources() if \
+					ds[DataSource.UniqueId] == unique_id][0] - 3600000
+				# We substract 1 hour to ensure no events got missed (because
+				# of LastSeen being updated on disconnect).
+				# TODO: Maybe it should be changed to (or we should add)
+				# LastInsertion, though?
+			except IndexError:
+				self._last_seen = 0
 			self._enabled = self._registry.RegisterDataSource(unique_id, name,
 				description, event_templates)
 		
