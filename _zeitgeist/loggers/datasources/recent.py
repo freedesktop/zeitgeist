@@ -232,7 +232,9 @@ class RecentlyUsedManagerGtk(DataProvider):
 				if actor:
 					if not actor in self._ignore_apps:
 						self._ignore_apps[actor] = set()
-					self._ignore_apps[actor].add(tmpl[0][Event.Interpretation])
+					interp = tmpl[0][Event.Interpretation]
+					if interp:
+						self._ignore_apps[actor].add(interp)
 		for datasource in self._registry.GetDataSources():
 			_data_source_registered(datasource)
 		self._registry.connect("DataSourceRegistered", _data_source_registered)
@@ -300,7 +302,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 					(info.get_modified, Interpretation.MODIFY_EVENT.uri)
 					):
 					if actor not in self._ignore_apps or \
-						interp not in self._ignore_apps[actor]:
+						(self._ignore_apps[actor] and
+						interp not in self._ignore_apps[actor]):
 						times.add((meth() * 1000, interp))
 				
 				is_new = False
