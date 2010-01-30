@@ -941,6 +941,12 @@ class DataSource(list):
 	
 	def __init__(self, unique_id, name, description, templates, running=True,
 		last_seen=None, enabled=True):
+		"""
+		Create a new DataSource object using the given parameters.
+		
+		If you want to instantiate this class from a dbus.Struct, you can
+		use: DataSource(*data_source), where data_source is the dbus.Struct.
+		"""
 		super(DataSource, self).__init__()
 		self.append(unique_id)
 		self.append(name)
@@ -952,6 +958,10 @@ class DataSource(list):
 	
 	def __eq__(self, source):
 		return self[self.UniqueId] == source[self.UniqueId]
+	
+	def __repr__(self):
+		return "%s: %s (%s)" % (self.__class__.__name__, self[self.UniqueId],
+			self[self.Name])
 
 NULL_EVENT = ([], [], [])
 """Minimal Event representation, a tuple containing three empty lists.
