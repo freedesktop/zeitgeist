@@ -7,7 +7,7 @@
 # Copyright © 2009 Natan Yellin <aantny@gmail.com>
 # Copyright © 2009 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009 Shane Fagan <shanepatrickfagan@yahoo.ie>
-# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -86,7 +86,10 @@ DOCUMENT_MIMETYPES = [
 		u"application/x-abiword",
 		u"application/x-gnucash",
 		u"application/x-gnumeric",
-		SimpleMatch("application/x-java*"),
+		SimpleMatch(u"application/x-java*"),
+		SimpleMatch(u"*/x-tex"),
+		SimpleMatch(u"*/x-latex"),
+		SimpleMatch(u"*/x-dvi"),
 		u"text/plain"
 ]
 
