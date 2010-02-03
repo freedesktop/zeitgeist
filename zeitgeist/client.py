@@ -59,6 +59,11 @@ class _DBusInterface(dbus.Interface):
 			pass
 		return methods, signals
 
+	def __getattr__(self, name):
+		if name not in self.__methods:
+			raise TypeError("Unknown method name: %s" % name)
+		return super(_DBusInterface, self).__getattr__(name)
+
 	def connect(self, signal, callback, **kwargs):
 		"""Connect a callback to a signal of the current proxy instance."""
 		if signal not in self.__signals:
@@ -83,6 +88,7 @@ class _DBusInterface(dbus.Interface):
 
 	def __init__(self, proxy, interface):
 		self.__proxy = proxy
+		self.__interface = interface
 		super(_DBusInterface, self).__init__(proxy, interface)
 		self.__methods, self.__signals = self.get_members(proxy.Introspect())
 
@@ -141,8 +147,8 @@ class ZeitgeistDBusInterface(_DBusInterface):
 					raise
 		if not "extension_interfaces" in self.__shared_state:
 		    self.__shared_state["extension_interfaces"] = {}
-		super(_DBusInterface, self).__init__(self.__shared_state["__proxy"],
-		    self.INTERFACE_NAME)
+		super(ZeitgeistDBusInterface, self).__init__(
+			self.__shared_state["__proxy"], self.INTERFACE_NAME)
 
 class Monitor(dbus.service.Object):
 	"""
