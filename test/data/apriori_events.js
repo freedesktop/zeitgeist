@@ -1,6 +1,6 @@
 [
 	{
-		"timestamp" : 1001,
+		"timestamp" : 1234561001000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -17,7 +17,7 @@
 		]
 	},
 	{
-		"timestamp" : 1002,
+		"timestamp" : 1234561002000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -34,7 +34,7 @@
 		]
 	},
 	{
-		"timestamp" : 1003,
+		"timestamp" : 1234561003000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -51,7 +51,7 @@
 		]
 	},
 	{
-		"timestamp" : 2001,
+		"timestamp" : 1234562001000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -68,7 +68,7 @@
 		]
 	},
 	{
-		"timestamp" : 2002,
+		"timestamp" : 1234562002000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -85,7 +85,7 @@
 		]
 	},
 	{
-		"timestamp" : 3001,
+		"timestamp" : 1234563001000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -102,7 +102,7 @@
 		]
 	},
 	{
-		"timestamp" : 3002,
+		"timestamp" : 1234563002000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -119,7 +119,7 @@
 		]
 	},
 	{
-		"timestamp" : 4001,
+		"timestamp" : 1234564001000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -136,7 +136,7 @@
 		]
 	},
 	{
-		"timestamp" : 4002,
+		"timestamp" : 1234564002000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -153,7 +153,7 @@
 		]
 	},
 	{
-		"timestamp" : 4003,
+		"timestamp" : 1234564003000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -170,7 +170,7 @@
 		]
 	},
 	{
-		"timestamp" : 5001,
+		"timestamp" : 1234565001000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -187,7 +187,7 @@
 		]
 	},
 	{
-		"timestamp" : 5002,
+		"timestamp" : 1234565002000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -204,7 +204,7 @@
 		]
 	},
 	{
-		"timestamp" : 6001,
+		"timestamp" : 1234566001000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -221,7 +221,7 @@
 		]
 	},
 	{
-		"timestamp" : 6002,
+		"timestamp" : 1234566002000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -238,7 +238,7 @@
 		]
 	},
 	{
-		"timestamp" : 7001,
+		"timestamp" : 1234567001000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -255,7 +255,7 @@
 		]
 	},
 	{
-		"timestamp" : 7002,
+		"timestamp" : 1234567002000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -272,7 +272,7 @@
 		]
 	},
 	{
-		"timestamp" : 8001,
+		"timestamp" : 1234568001000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -289,7 +289,7 @@
 		]
 	},
 	{
-		"timestamp" : 8002,
+		"timestamp" : 1234568002000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -306,7 +306,7 @@
 		]
 	},
 	{
-		"timestamp" : 8003,
+		"timestamp" : 1234568003000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -323,7 +323,7 @@
 		]
 	},
 	{
-		"timestamp" : 8004,
+		"timestamp" : 1234568004000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -340,7 +340,7 @@
 		]
 	},
 	{
-		"timestamp" : 9001,
+		"timestamp" : 1234569001000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -357,7 +357,7 @@
 		]
 	},
 	{
-		"timestamp" : 9002,
+		"timestamp" : 1234569002000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
@@ -374,7 +374,7 @@
 		]
 	},
 	{
-		"timestamp" : 9003,
+		"timestamp" : 1234569003000,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",

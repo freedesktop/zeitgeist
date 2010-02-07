@@ -4,7 +4,7 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
-# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009-2010 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.net>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -265,68 +265,62 @@ class ZeitgeistEngine:
 		This currently uses a modified version of the Apriori algorithm, but
 		the implementation may vary.
 		"""
+		event = Event()
+		events = self.find_events( timerange, [event], 
+											result_storage_state, 0, 1)
 		
-		where = self._build_sql_event_filter(timerange, event_templates,
-			StorageState.Any)
-		if not where.may_have_results():
-			return []
+		subject_uris = []
+		for event in event_templates:
+			if  not event.subjects[0].uri in subject_uris:
+				subject_uris.append(event.subjects[0].uri)
 		
-		timestamps = [row[0] for row in self._cursor.execute("""
-			SELECT timestamp FROM event_view
-			WHERE %s
-			ORDER BY timestamp DESC
-			LIMIT 100
-			""" % where.sql, where.arguments)]
-		timestamps.reverse()
+		def create_buckets(events):
+			"""
+			Create buckets where a size of a bucket is limited by 30 minutes
+			"""
+			t = 0
+			buckets = []
+			for event in events:
+				if int(event.timestamp) - 1800000 > t:
+					t = int(event.timestamp)
+					buckets.append({})
+				buckets[len(buckets)-1][event.subjects[0].uri] = event
+			return buckets
 		
-		k_tuples = []
+		buckets = create_buckets(events)
 		
-		# FIXME: We need to take result_storage_state into account
-		if result_storage_state != StorageState.Any:
-			raise NotImplementedError
-		
-		for i, start_timestamp in enumerate(timestamps):
-			end_timestamp = timestamps[i + 1] if (i + 1) < len(timestamps) \
-				else get_timestamp_for_now()
-			
-			where = WhereClause(WhereClause.AND)
-			where.add("timestamp > ? AND timestamp < ?",
-				(start_timestamp, end_timestamp))
-			where.extend(self._build_sql_from_event_templates(
-				result_event_templates))
-			if not where.may_have_results():
-				continue
-			
-			results = self._cursor.execute("""
-				SELECT subj_uri FROM event_view
-				WHERE %s
-				GROUP BY subj_uri ORDER BY timestamp ASC LIMIT 5
-				""" % where.sql, where.arguments).fetchall()
-			if results:
-				k_tuples.append([row[0] for row in results]) # Append the URIs
-		
-		if not k_tuples:
-			# No results found. We abort here to avoid hitting a
-			# ZeroDivisionError later in the code.
-			return []
-		
+		keys_counter  = {}
+		keys_subjects = {}
 		min_support = 0
 		
-		item_dict = {}
-		for set in k_tuples:
-			for item in set:
-				if item in item_dict:
-					item_dict[item] += 1
-				else:
-					item_dict[item] = 1
-				min_support += 1
-		min_support = min_support / len(item_dict)
+		for bucket in buckets:
+			counter = 0
+			for event in event_templates:
+				if bucket.has_key(event.subjects[0].uri):
+					counter += 1
+			if counter == len(event_templates):
+				for key in bucket.keys():
+					if not key in subject_uris:
+						if not keys_counter.has_key(key):
+							keys_counter[key] = 0
+						keys_counter[key] += 1
+						min_support += 1
+						keys_subjects[key] = bucket[key]
 		
-		# Return the values sorted from highest to lowest support
-		results = [(support, key) for key, support in item_dict.iteritems()
-			if support >= min_support]
-		return [key for support, key in sorted(results, reverse=True)]
-
+		
+		print min_support
+		min_support = min_support / len(keys_counter.keys())
+		
+		sets = [ [v, k] for k, v in keys_counter.iteritems()]
+		sets.sort()
+		print sets
+		
+		results = []
+		for r in sets:
+			if r[0] >= min_support:
+				results.append(r[1])
+		return results
+	
 	def insert_events(self, events, sender=None):
 		t = time.time()
 		m = map(lambda e: self._insert_event_without_error(e, sender), events)
