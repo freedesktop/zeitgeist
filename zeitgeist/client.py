@@ -39,8 +39,8 @@ SIG_EVENT = "asaasay"
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.client")
 
-class _DBusInterface(dbus.Interface):
-	"""Subclass of dbus.Interface adding convenience methods."""
+class _DBusInterface(object):
+	"""Wrapper around dbus.Interface adding convenience methods."""
 
 	@staticmethod
 	def get_members(introspection_xml):
@@ -59,6 +59,36 @@ class _DBusInterface(dbus.Interface):
 			pass
 		return methods, signals
 
+	def _disconnection_safe(self, meth):
+		"""
+		Executes the given method. If it fails because the D-Bus connection
+		was lost, attempts to recover it and executes the method again.
+		"""
+		try:
+			return meth()
+		except dbus.exceptions.DBusException, e:
+			error = e.get_dbus_name()
+			if error == "org.freedesktop.DBus.Error.ServiceUnknown":
+				self.__proxy = dbus.SessionBus().get_object(
+					self.__iface.requested_bus_name, self.__object_path)
+				self.__iface = dbus.Interface(self.__proxy,
+					self.__interface_name)
+				return meth()
+			else:
+				raise
+
+	def __getattr__(self, name):
+		if name not in self.__methods:
+			raise TypeError("Unknown method name: %s" % name)
+		def _ProxyMethod(*args, **kwargs):
+			"""
+			Method wrapping around a D-Bus call, which attempts to recover
+			the connection to Zeitgeist if it got lost.
+			"""
+			return self._disconnection_safe(lambda:
+				getattr(self.__iface, name)(*args, **kwargs))
+		return _ProxyMethod
+
 	def connect(self, signal, callback, **kwargs):
 		"""Connect a callback to a signal of the current proxy instance."""
 		if signal not in self.__signals:
@@ -66,7 +96,7 @@ class _DBusInterface(dbus.Interface):
 		self.__proxy.connect_to_signal(
 			signal,
 			callback,
-			dbus_interface=self.INTERFACE_NAME,
+			dbus_interface=self.__interface_name,
 			**kwargs)
 
 	def connect_exit(self, callback):
@@ -77,17 +107,23 @@ class _DBusInterface(dbus.Interface):
 			"NameOwnerChanged",
 			lambda *args: callback(),
 			dbus_interface=dbus.BUS_DAEMON_IFACE,
-			arg0=self.BUS_NAME, # only match dying zeitgeist engines
+			arg0=self.__iface.requested_bus_name, # only match what we want
 			arg2="", # only match services with no new owner
 		)
 
-	def __init__(self, proxy, interface):
+	@property
+	def proxy(self):
+		return self.__proxy
+
+	def __init__(self, proxy, interface_name, object_path):
 		self.__proxy = proxy
-		super(_DBusInterface, self).__init__(proxy, interface)
+		self.__interface_name = interface_name
+		self.__object_path = object_path
+		self.__iface = dbus.Interface(proxy, interface_name)
 		self.__methods, self.__signals = self.get_members(proxy.Introspect())
 
-class ZeitgeistDBusInterface(_DBusInterface):
-	""" Central DBus interface to the zeitgeist engine
+class ZeitgeistDBusInterface(object):
+	""" Central DBus interface to the Zeitgeist engine
 	
 	There does not necessarily have to be one single instance of this
 	interface class, but all instances should share the same state
@@ -100,11 +136,16 @@ class ZeitgeistDBusInterface(_DBusInterface):
 	INTERFACE_NAME = "org.gnome.zeitgeist.Log"
 	OBJECT_PATH = "/org/gnome/zeitgeist/log/activity"
 	
-	@classmethod
-	def version(cls):
+	def __getattr__(self, name):
+		return getattr(self.__shared_state["dbus_interface"], name)
+	
+	def version(self):
 		"""Returns the API version"""
-		return cls.__shared_state["__proxy"].get_dbus_method("Get",
-			dbus_interface=dbus.PROPERTIES_IFACE)(cls.INTERFACE_NAME, "version")
+		dbus_interface = self.__shared_state["dbus_interface"]
+		return dbus_interface._disconnection_safe(lambda:
+			dbus_interface.proxy.get_dbus_method("Get",
+				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
+					"version"))
 	
 	@classmethod
 	def get_extension(cls, name, path):
@@ -118,20 +159,18 @@ class ZeitgeistDBusInterface(_DBusInterface):
 			interface_name = "org.gnome.zeitgeist.%s" % name
 			object_path = "/org/gnome/zeitgeist/%s" % path
 			proxy = dbus.SessionBus().get_object(cls.BUS_NAME, object_path)
-			iface = _DBusInterface(proxy, interface_name)
+			iface = _DBusInterface(proxy, interface_name, object_path)
 			iface.BUS_NAME = cls.BUS_NAME
 			iface.INTERFACE_NAME = interface_name
 			iface.OBJECT_PATH = object_path
 			cls.__shared_state["extension_interfaces"][name] = iface
-		
 		return cls.__shared_state["extension_interfaces"][name]
 	
 	def __init__(self):
-		self.__dict__ = self.__shared_state
-		if not "__proxy" in self.__shared_state:
+		if not "dbus_interface" in self.__shared_state:
 			try:
-				self.__shared_state["__proxy"] = dbus.SessionBus().get_object(
-					self.BUS_NAME, self.OBJECT_PATH)
+				proxy = dbus.SessionBus().get_object(self.BUS_NAME,
+					self.OBJECT_PATH)
 			except dbus.exceptions.DBusException, e:
 				if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
 					raise RuntimeError(
@@ -139,10 +178,9 @@ class ZeitgeistDBusInterface(_DBusInterface):
 						e.get_dbus_message())
 				else:
 					raise
-		if not "extension_interfaces" in self.__shared_state:
-		    self.__shared_state["extension_interfaces"] = {}
-		super(_DBusInterface, self).__init__(self.__shared_state["__proxy"],
-		    self.INTERFACE_NAME)
+			self.__shared_state["extension_interfaces"] = {}
+			self.__shared_state["dbus_interface"] = _DBusInterface(proxy,
+				self.INTERFACE_NAME, self.OBJECT_PATH)
 
 class Monitor(dbus.service.Object):
 	"""
