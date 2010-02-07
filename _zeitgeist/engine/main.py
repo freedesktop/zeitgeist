@@ -286,7 +286,6 @@ class ZeitgeistEngine:
 					buckets.append({})
 				buckets[len(buckets)-1][event.subjects[0].uri] = event
 			return buckets
-		
 		buckets = create_buckets(events)
 		
 		keys_counter  = {}
