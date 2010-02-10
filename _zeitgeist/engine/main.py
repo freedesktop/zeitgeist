@@ -283,7 +283,7 @@ class ZeitgeistEngine:
 			t = 0
 			buckets = []
 			for event in events:
-				if int(event.timestamp) - 1800000 > t:
+				if int(event.timestamp) - 30*60000 > t:
 					t = int(event.timestamp)
 					buckets.append({})
 				buckets[len(buckets)-1][event.subjects[0].uri] = event
@@ -309,12 +309,10 @@ class ZeitgeistEngine:
 						keys_subjects[key] = bucket[key]
 		
 		
-		print min_support
 		min_support = min_support / len(keys_counter.keys())
 		
-		sets = [ [v, k] for k, v in keys_counter.iteritems()]
+		sets = [[v, k] for k, v in keys_counter.iteritems()]
 		sets.sort()
-		print sets
 		
 		results = []
 		for r in sets:
