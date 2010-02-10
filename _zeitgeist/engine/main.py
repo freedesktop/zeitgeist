@@ -265,8 +265,10 @@ class ZeitgeistEngine:
 		This currently uses a modified version of the Apriori algorithm, but
 		the implementation may vary.
 		"""
-		event = Event()
-		events = self.find_events( timerange, [event], 
+		
+		#templates = event_templates + result_event_templates
+		
+		events = self.find_events( timerange, result_event_templates, 
 											result_storage_state, 0, 1)
 		
 		subject_uris = []
@@ -297,7 +299,7 @@ class ZeitgeistEngine:
 			for event in event_templates:
 				if bucket.has_key(event.subjects[0].uri):
 					counter += 1
-			if counter == len(event_templates):
+			if counter > 0:
 				for key in bucket.keys():
 					if not key in subject_uris:
 						if not keys_counter.has_key(key):
