@@ -268,56 +268,104 @@ class ZeitgeistEngine:
 		
 		#templates = event_templates + result_event_templates
 		
-		events = self.find_events( timerange, result_event_templates, 
+		events = self.find_events(timerange, result_event_templates, 
 											result_storage_state, 0, 1)
 		
 		subject_uris = []
-		for event in event_templates:
-			if  not event.subjects[0].uri in subject_uris:
-				subject_uris.append(event.subjects[0].uri)
+		uri_counter = {}
+		min_support = 0.4
 		
 		def create_buckets(events):
 			"""
 			Create buckets where a size of a bucket is limited by 30 minutes
 			"""
+			
 			t = 0
 			buckets = []
 			for event in events:
-				if int(event.timestamp) - 30*60000 > t:
+				if int(event.timestamp) - 100000 > t:
 					t = int(event.timestamp)
 					buckets.append({})
 				buckets[len(buckets)-1][event.subjects[0].uri] = event
-			return buckets
-		buckets = create_buckets(events)
+
+			uri_buckets = []
+			
+			for bucket in buckets:
+				set = []
+				uri_buckets.append(bucket.keys())
+				for uri in bucket.keys():
+					set.append(uri)
+					if not uri_counter.has_key(uri):
+						uri_counter[uri] = {}
+						uri_counter[uri]["item"] = [uri]
+						uri_counter[uri]["count"] = 0.0
+					uri_counter[uri]["count"] += 1.0/len(buckets)
+
+			for set in uri_buckets:
+				set.sort()
+			return uri_buckets
 		
-		keys_counter  = {}
-		keys_subjects = {}
-		min_support = 0
+		T = create_buckets(events)		
+		epsilon = min_support
 		
-		for bucket in buckets:
-			counter = 0
-			for event in event_templates:
-				if bucket.has_key(event.subjects[0].uri):
-					counter += 1
-			if counter > 0:
-				for key in bucket.keys():
-					if not key in subject_uris:
-						if not keys_counter.has_key(key):
-							keys_counter[key] = 0
-						keys_counter[key] += 1
-						min_support += 1
-						keys_subjects[key] = bucket[key]
+		for key in uri_counter.keys():
+			if uri_counter[key]["count"] < epsilon:
+				del uri_counter[key]
 		
+		def apriori(T, epsilon):
+			temp_sets = {}
+			L = {}
+			C ={}
+			
+			temp_sets[1] = {}
+			for t in uri_counter.keys():
+				temp_sets[1][t] = uri_counter[t]
+			L[1] = temp_sets[1]
+			k = 2
+			
+			def get_item_set(k):
+				temp_sets[k] = {} 
+				for k_set in temp_sets[k-1].keys():
+					k_set = temp_sets[k-1][k_set]["item"]
+					for key in k_set:
+						for key2 in uri_counter.keys():
+							if not key2 in k_set:
+								set = k_set + [key2]
+								set.sort()
+								counter = 0.0
+								for t in T:
+									c = 0
+									for item in set:
+									 	if item in t:
+									 		c += 1
+									if c == len(set):
+										counter += 1.0
+								if not set in temp_sets[k].keys():
+									temp_sets[k][str(set)] = {}
+									temp_sets[k][str(set)]["item"] = set
+									temp_sets[k][str(set)]["count"] = counter
+				
+				for set in temp_sets[k].keys():
+					if temp_sets[k][set]["count"]/len(uri_counter.keys()) < epsilon:
+						del temp_sets[k][set]
+					else:
+						print temp_sets[k][set]["count"]/len(uri_counter.keys())
+						temp_sets[k][set]["count"] = temp_sets[k][set]["count"]/len(uri_counter.keys())
+				return temp_sets[k]
+										
+			while len(L[k-1]) > 0:
+				L[k] = get_item_set(k)
+				k += 1
+			
+			results = []
+			if k-2 > 1:
+				for set in L[k-2].values():
+					results.append(set["item"])
+			return results
+				
+		results = apriori(T, epsilon)
 		
-		min_support = min_support / len(keys_counter.keys())
-		
-		sets = [[v, k] for k, v in keys_counter.iteritems()]
-		sets.sort()
-		
-		results = []
-		for r in sets:
-			if r[0] >= min_support:
-				results.append(r[1])
+		print results
 		return results
 	
 	def insert_events(self, events, sender=None):
