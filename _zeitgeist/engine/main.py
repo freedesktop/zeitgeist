@@ -268,12 +268,85 @@ class ZeitgeistEngine:
 		
 		#templates = event_templates + result_event_templates
 		
+		events = self.find_events( timerange, result_event_templates, 
+											result_storage_state, 0, 1)
+		
+		subject_uris = []
+		for event in event_templates:
+			if  not event.subjects[0].uri in subject_uris:
+				subject_uris.append(event.subjects[0].uri)
+		
+		def create_buckets(events):
+			"""
+			Create buckets where a size of a bucket is limited by 30 minutes
+			"""
+			t = 0
+			buckets = []
+			for event in events:
+				if int(event.timestamp) - 30*60000 > t:
+					t = int(event.timestamp)
+					buckets.append({})
+				buckets[len(buckets)-1][event.subjects[0].uri] = event
+			return buckets
+		buckets = create_buckets(events)
+		
+		keys_counter  = {}
+		keys_subjects = {}
+		min_support = 0
+		
+		for bucket in buckets:
+			counter = 0
+			for event in event_templates:
+				if bucket.has_key(event.subjects[0].uri):
+					counter += 1
+			if counter > 0:
+				for key in bucket.keys():
+					if not key in subject_uris:
+						if not keys_counter.has_key(key):
+							keys_counter[key] = 0
+						keys_counter[key] += 1
+						min_support += 1
+						keys_subjects[key] = bucket[key]
+		
+		
+		min_support = min_support / len(keys_counter.keys())
+		
+		sets = [[v, k] for k, v in keys_counter.iteritems()]
+		sets.sort()
+		
+		results = []
+		for r in sets:
+			if r[0] >= min_support:
+				results.append(r[1])
+		return results
+	
+	def find_associated_work_sets(self, timerange, resolution, min_support, result_event_templates,
+		result_storage_state):
+		"""
+		Return a list of uri sets commonly used together considering data from
+		within the indicated timerange.
+		
+		Only URIs for subjects matching the indicated `result_event_templates`
+		and `result_storage_state` are returned.
+		
+		This currently uses a modified version of the Apriori algorithm, but
+		the implementation may vary.
+		
+		The 'resolution' sets the size of the transaction buckets in ms. 
+		 
+		The 'min_support' describes the tolerance of minimal appearances of the files 
+		in the sets
+		"""
+		
+		#templates = event_templates + result_event_templates
+		
 		events = self.find_events(timerange, result_event_templates, 
 											result_storage_state, 0, 1)
 		
 		subject_uris = []
 		uri_counter = {}
-		min_support = 0.4
+		min_support = min_support
+		latest_events = {}
 		
 		def create_buckets(events):
 			"""
@@ -283,10 +356,11 @@ class ZeitgeistEngine:
 			t = 0
 			buckets = []
 			for event in events:
-				if int(event.timestamp) - 100000 > t:
+				if int(event.timestamp) - resolution > t:
 					t = int(event.timestamp)
 					buckets.append({})
 				buckets[len(buckets)-1][event.subjects[0].uri] = event
+				latest_events[event.subjects[0].uri] = event
 
 			uri_buckets = []
 			
@@ -365,7 +439,6 @@ class ZeitgeistEngine:
 				
 		results = apriori(T, epsilon)
 		
-		print results
 		return results
 	
 	def insert_events(self, events, sender=None):
