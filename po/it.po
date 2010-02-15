@@ -1,16 +1,16 @@
-# German translation for zeitgeist
-# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# Italian translation for zeitgeist
+# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the zeitgeist package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: 2009-10-26 12:07+0000\n"
-"Last-Translator: oliverreiter <oliver_reiter@gmx.at>\n"
-"Language-Team: German <de@li.org>\n"
+"PO-Revision-Date: 2010-01-24 15:07+0000\n"
+"Last-Translator: Marco Donato Torsello <Unknown>\n"
+"Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,165 +19,164 @@ msgstr ""
 
 #: ../zeitgeist-daemon:56
 msgid "Starting Zeitgeist service..."
-msgstr "Zeitgeist-Service wird gestartet ..."
+msgstr "Avvio Zeitgeist in corso ..."
 
 #: ../zeitgeist-datahub:61
 msgid "No passive loggers found, bye."
-msgstr "Es wurden keine passiven Logger gefunden. Auf Wiedersehen."
+msgstr ""
 
 #: ../zeitgeist-datahub:81
 #, c-format
 msgid "Could not load file: %s"
-msgstr "Datei konnte nicht geladen werden: %s"
+msgstr ""
 
 #: ../zeitgeist-datahub:106
 #, c-format
 msgid "Updating database with new %s items"
-msgstr "Aktualisierung der Datenbank mit neuen %s Objekten"
+msgstr ""
 
 #: ../zeitgeist-datahub:136
 msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "Verbindung zum Zeitgeist-Daemon verloren, Anwendung wird beendet"
+msgstr "Persa la connessione con zeitgeist-deamon, chiusura in corso."
 
 #: ../zeitgeist-datahub:139
 #, c-format
 msgid "Error logging item from \"%s\": %s"
-msgstr "Fehler beim Protokollieren des Objektes von \"%s\": %s"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
-msgstr "Schlagwörter"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:212
 msgid "Bookmarks"
-msgstr "Lesezeichen"
+msgstr "Segnalibri"
 
 #: ../zeitgeist/datamodel.py:218
 msgid "Comments"
-msgstr "Kommentare"
+msgstr "Commenti"
 
 #: ../zeitgeist/datamodel.py:224
 msgid "Documents"
-msgstr "Dokumente"
+msgstr "Documenti"
 
 #: ../zeitgeist/datamodel.py:230
 msgid "Images"
-msgstr "Bilder"
+msgstr "Immagini"
 
 #: ../zeitgeist/datamodel.py:236
 msgid "Videos"
-msgstr "Videos"
+msgstr "Video"
 
 #: ../zeitgeist/datamodel.py:242
 msgid "Music"
-msgstr "Musik"
+msgstr "Musica"
 
 #: ../zeitgeist/datamodel.py:248
 msgid "Email"
-msgstr "E-Mail"
+msgstr "Email"
 
 #: ../zeitgeist/datamodel.py:254
 msgid "Messages"
-msgstr "Nachrichten"
+msgstr "Messaggi"
 
 #: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
-msgstr "Abonnements"
+msgstr "Feed"
 
 #: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
-msgstr "Alle Nachrichten"
+msgstr "Broadcast"
 
 #: ../zeitgeist/datamodel.py:272
 msgid "Created"
-msgstr "Erstellt"
+msgstr "Creato"
 
 #: ../zeitgeist/datamodel.py:278
 msgid "Modified"
-msgstr "Geändert"
+msgstr "Modificato"
 
 #: ../zeitgeist/datamodel.py:284
 msgid "Visited"
-msgstr "Besucht"
+msgstr "Visitato"
 
 #: ../zeitgeist/datamodel.py:290
 msgid "Send"
-msgstr "Senden"
+msgstr "Invia"
 
 #: ../zeitgeist/datamodel.py:296
 msgid "Received"
-msgstr "Empfangen"
+msgstr "Ricevuto"
 
 #: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
-msgstr "Warnungen"
+msgstr "Attenzione"
 
 #: ../zeitgeist/datamodel.py:308
 msgid "Errors"
-msgstr "Fehler"
+msgstr "Errori"
 
 #: ../zeitgeist/datamodel.py:314
 msgid "Applications"
-msgstr "Anwendungen"
+msgstr "Applicazioni"
 
 #: ../zeitgeist/datamodel.py:324
 msgid "Web History"
-msgstr "Aufgerufene Webseiten"
+msgstr "Cronologia Web"
 
 #: ../zeitgeist/datamodel.py:330
 msgid "Activities"
-msgstr "Aufgaben"
+msgstr "Attività"
 
 #: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
-msgstr "Benachrichtungen"
+msgstr "Notifiche"
 
 #: ../zeitgeist/datamodel.py:342
 msgid "Files"
-msgstr "Dateien"
+msgstr "File"
 
 #: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
-msgstr "System Ressourcen"
+msgstr "Risorse Di Sistema"
 
 #: ../_zeitgeist/loggers/datasources/recent.py:41
 msgid "Could not import GTK; data source disabled."
-msgstr ""
-"Konnte die GTK-Bibliothek nicht importieren; Die Datenquelle ist deaktiviert."
+msgstr "Impossibile importare GTK;origine dati disabilitata."
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:53
 msgid "Firefox History"
-msgstr "Firefox-Chronik"
+msgstr "Cronologia di Firefox"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:56
 msgid "Websites visited with Firefox"
-msgstr "Mit Firefox besuchte Webseiten"
+msgstr "Siti visitati con Firefox"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:84
 #, python-format
 msgid "Unable to monitor Firefox's history: %s: %s"
-msgstr "Es ist nicht möglich die Firefox-Chronik darzustellen: %s: %s"
+msgstr "Impossibile monitorare la cronologia di Firefox: %s: %s"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:87
 #, python-format
 msgid "Monitoring Firefox's history: %s"
-msgstr "Darstellen der Firefox Webseitenchronik: %s"
+msgstr "Monitoramento della cronologia di firefox: %s"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:92
 msgid "No Firefox profile found."
-msgstr "Es konnten keine Firefox-Profile gefunden werden."
+msgstr "Nessun profilo di firefox trovato."
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:56
 #, python-format
 msgid "Unable to monitor Evolution: %s: %s"
-msgstr "Evolution kann nicht überwacht werden: %s: %s"
+msgstr "Impossibile monitorare Evolution: %s: %s"
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:59
 #, python-format
 msgid "Monitoring Evolution: %s"
-msgstr "Überwache Evolution: %s"
+msgstr "Monitoramento di Evolotion: %s"
 
 #: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
 msgid "Watching for Tomboy notes in \"%s\"."
-msgstr "Warte auf Tomboy Notizen in \"%s\"."
+msgstr "Cerco note di Tomboy in \"%s\""
