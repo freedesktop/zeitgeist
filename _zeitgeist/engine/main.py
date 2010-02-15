@@ -373,10 +373,11 @@ class ZeitgeistEngine:
 						uri_counter[uri] = {}
 						uri_counter[uri]["item"] = [uri]
 						uri_counter[uri]["count"] = 0.0
-					uri_counter[uri]["count"] += 1.0/len(buckets)
+					uri_counter[uri]["count"] += 1.0
 
 			for set in uri_buckets:
 				set.sort()
+				print set
 			return uri_buckets
 		
 		T = create_buckets(events)		
@@ -420,11 +421,11 @@ class ZeitgeistEngine:
 									temp_sets[k][str(set)]["count"] = counter
 				
 				for set in temp_sets[k].keys():
-					if temp_sets[k][set]["count"]/len(uri_counter.keys()) < epsilon:
+					if temp_sets[k][set]["count"] < epsilon:
 						del temp_sets[k][set]
 					else:
-						print temp_sets[k][set]["count"]/len(uri_counter.keys())
-						temp_sets[k][set]["count"] = temp_sets[k][set]["count"]/len(uri_counter.keys())
+						print temp_sets[k][set]["count"]
+						temp_sets[k][set]["count"] = temp_sets[k][set]["count"]
 				return temp_sets[k]
 										
 			while len(L[k-1]) > 0:
