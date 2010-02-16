@@ -217,6 +217,14 @@ class ZeitgeistEngine:
 		else:
 			sql = "SELECT * FROM event_view"
 		
+		if order == ResultType.LeastRecentActor:
+			sql += """
+				NATURAL JOIN (
+					SELECT actor, min(timestamp) AS timestamp
+					FROM event_view
+					GROUP BY actor)
+				"""
+		
 		if where:
 			sql += " WHERE " + where.sql
 		
@@ -228,11 +236,8 @@ class ZeitgeistEngine:
 			" GROUP BY subj_uri ORDER BY COUNT(id) ASC, timestamp ASC",
 			" GROUP BY actor ORDER BY COUNT(id) DESC, timestamp DESC",
 			" GROUP BY actor ORDER BY COUNT(id) ASC, timestamp ASC",
-			" GROUP BY actor ORDER BY max(timestamp) DESC",
-			" GROUP BY actor ORDER BY min(timestamp) ASC")[order]
-		
-		if order == ResultType.LeastRecentActor:
-			raise NotImplementedError
+			" GROUP BY actor", # implicit: ORDER BY max(timestamp) DESC
+			" ORDER BY timestamp ASC")[order]
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
