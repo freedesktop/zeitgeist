@@ -593,10 +593,17 @@ class ZeitgeistClient:
 		:meth:`Event.new_for_values() <zeitgeist.datamodel.Event.new_for_values>`.
 		"""
 		ev = Event.new_for_values(**kwargs)
+		# we need a clean dict of arguments to find_event_for_templates
+		# (LP: #510804)
+		arguments = {}
+		for arg in ("timerange", "storage_state", "num_events",
+					"result_type", "error_handler"):
+			if arg in kwargs:
+				arguments[arg] = kwargs[arg]
 		
 		self.find_events_for_templates([ev],
 						events_reply_handler,
-						**kwargs)
+						**arguments)
 	
 	def get_events (self, event_ids, events_reply_handler, error_handler=None):
 		"""

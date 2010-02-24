@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -.- coding: utf-8 -.-
 #
-# GNOME Activity Journal
+# Zeitgeist
 #
 # Copyright © 2010 Siegfried Gevatter <siegfried@gevatter.com>
 #

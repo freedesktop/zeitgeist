@@ -1,16 +1,24 @@
 
 Engine:
 
- - Fixed exception in DeleteEvents.
- - Added MostPopularActor, LeastPopularActor and MostRecentActor as possible
-   ReturnTypes for FindEvents/FindEventsId (LP: #493903).
- - API BREAK: Changed FindEvents, FindEventIds and FindRelatedUris to not
-   threat zeros in the given TimeRange specially (LP: #490242).
+ - Fixed an exception in DeleteEvents.
+ - Added MostPopularActor, LeastPopularActor, MostRecentActor and
+   LeastRecentActor as possible ReturnTypes for FindEvents and
+   FindEventsId (LP: #493903).
+ - Let {Find,Get,Insert}* hooks know the bus name of the caller, when
+   executed over D-Bus.
+ - Add an extension implementing a data-source registry (allowing to disable
+   data-sources from a centralized place and see their description).
+ - Changed FindEvents, FindEventIds and FindRelatedUris to not threat zeros in
+   the given TimeRange specially; "(0, 0)" can no longer be used (LP: #490242).
+ - Fixed a crash in the GtkRecentlyUsed data-source parsing malfored .desktop
+   files, and added support for more file mimetypes.
 
 Python API:
  - Made the Interpretation and Manifestation classes iterable.
  - Added symbol lookup by URI, in the form of dictionary access.
  - Fixed the display name for Interpretation.SOURCECODE.
+ - Fixed find_events_for_values and find_event_ids_for_values (LP: #510804).
  - Added a get_extension() method to ZeitgeistDBusInterface, to get convenient
    access to D-Bus interfaces provided by engine extensions.
 
@@ -27,7 +35,7 @@ release of the GNOME Activity Journal.
 Engine:
 
  - Added FindEvents, optimized shorthand for GetEvents(FindEventIds(...)).
- - Fixed DeleteEvents and make it ignore bad requests.
+ - Fixed DeleteEvents and made it ignore bad requests.
  - Fixed GetEvents not to raise an exception when called with an empty list.
 
 Python API:
@@ -119,8 +127,8 @@ version 0.2, and it focuses on compatibility and performance enhancements.
  - Added compatibility with Python version 2.5.
  - Removed the Storm dependency, obtaining general performance improvements.
  - Removed the need for a patched PyGTK.
- - Made the GtkRecentlyUser logger more robust (fixes an infinit loop on some
-   systems).
+ - Made the GtkRecentlyUser data-source more robust (fixes an infinit loop
+   on some systems).
  - Improved performance of DeleteItems and UpdateItems.
  - Fixed a problem with the contents of the EventsChanged signal.
  - Fixed InsertEvents to enforce "mimetype" as a required value.

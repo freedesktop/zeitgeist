@@ -1,196 +1,182 @@
+# Japanese translation for zeitgeist
+# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
+# This file is distributed under the same license as the zeitgeist package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: GNOME Zeitgeist 0.0.6\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: zeitgeist\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: 2010-02-18 05:28+0000\n"
-"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
-"Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
+"PO-Revision-Date: 2010-02-15 05:52+0000\n"
+"Last-Translator: kawaji <jiro.kawada@gmail.com>\n"
+"Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-02-19 04:37+0000\n"
+"X-Launchpad-Export-Date: 2010-02-15 14:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-"X-Poedit-Language: Spanish\n"
 
 #: ../zeitgeist-daemon:56
 msgid "Starting Zeitgeist service..."
-msgstr "Iniciando el servicio de Zeitgeist..."
+msgstr "Zeitgeist サービスを起動しています..."
 
 #: ../zeitgeist-datahub:61
 msgid "No passive loggers found, bye."
-msgstr "No se encontraron registradores pasivos, adiós."
+msgstr "パッシブ・ロガーが見つかりませんでした。さようなら。"
 
 #: ../zeitgeist-datahub:81
 #, c-format
 msgid "Could not load file: %s"
-msgstr "No se pudo cargar el archivo: %s"
+msgstr "ファイルを読み込めませんでした: %s"
 
 #: ../zeitgeist-datahub:106
 #, c-format
 msgid "Updating database with new %s items"
-msgstr "Actualizando la base de datos con elementos nuevos: %s"
+msgstr "新しい %s アイテムにともない、データベースを更新しています"
 
 #: ../zeitgeist-datahub:136
 msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "Se ha perdido la conexión con el demonio Zeitgeist, terminando."
+msgstr "zeitgeist-daemon への接続が失われたため、終了処理しています。"
 
 #: ../zeitgeist-datahub:139
 #, c-format
 msgid "Error logging item from \"%s\": %s"
-msgstr "Error registrando elemento para \"%s\": %s"
+msgstr "\"%s\" のアイテムのログ記録でエラー: %s"
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
-msgstr "Etiquetas"
+msgstr "タグ"
 
 #: ../zeitgeist/datamodel.py:212
 msgid "Bookmarks"
-msgstr "Marcadores"
+msgstr "ブックマーク"
 
 #: ../zeitgeist/datamodel.py:218
 msgid "Comments"
-msgstr "Comentarios"
+msgstr "コメント"
 
 #: ../zeitgeist/datamodel.py:224
 msgid "Documents"
-msgstr "Documentos"
+msgstr "ドキュメント"
 
 #: ../zeitgeist/datamodel.py:230
 msgid "Images"
-msgstr "Imágenes"
+msgstr "画像"
 
 #: ../zeitgeist/datamodel.py:236
 msgid "Videos"
-msgstr "Vídeos"
+msgstr "動画"
 
 #: ../zeitgeist/datamodel.py:242
 msgid "Music"
-msgstr "Música"
+msgstr "音楽"
 
 #: ../zeitgeist/datamodel.py:248
 msgid "Email"
-msgstr "Email"
+msgstr "電子メール"
 
 #: ../zeitgeist/datamodel.py:254
 msgid "Messages"
-msgstr "Mensajes"
+msgstr "メッセージ"
 
 #: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
-msgstr "Canales"
+msgstr "フィード"
 
 #: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
-msgstr "Emisiones"
+msgstr "ブロードキャスト"
 
 #: ../zeitgeist/datamodel.py:272
 msgid "Created"
-msgstr "Creado"
+msgstr "作成"
 
 #: ../zeitgeist/datamodel.py:278
 msgid "Modified"
-msgstr "Modificado"
+msgstr "修正"
 
 #: ../zeitgeist/datamodel.py:284
 msgid "Visited"
-msgstr "Visitado"
+msgstr "訪問"
 
 #: ../zeitgeist/datamodel.py:290
 msgid "Send"
-msgstr "Enviar"
+msgstr "送信"
 
 #: ../zeitgeist/datamodel.py:296
 msgid "Received"
-msgstr "Recibido"
+msgstr "受信"
 
 #: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
-msgstr "Alertas"
+msgstr "警告"
 
 #: ../zeitgeist/datamodel.py:308
 msgid "Errors"
-msgstr "Errores"
+msgstr "エラー"
 
 #: ../zeitgeist/datamodel.py:314
 msgid "Applications"
-msgstr "Aplicaciones"
+msgstr "アプリケーション"
 
 #: ../zeitgeist/datamodel.py:324
 msgid "Web History"
-msgstr "Historial web"
+msgstr "ウェブ履歴"
 
 #: ../zeitgeist/datamodel.py:330
 msgid "Activities"
-msgstr "Actividades"
+msgstr "活動"
 
 #: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
-msgstr "Notificaciones"
+msgstr "通知"
 
 #: ../zeitgeist/datamodel.py:342
 msgid "Files"
-msgstr "Archivos"
+msgstr "ファイル"
 
 #: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
-msgstr "Recursos del Sistema"
+msgstr "システムリソース"
 
 #: ../_zeitgeist/loggers/datasources/recent.py:41
 msgid "Could not import GTK; data source disabled."
-msgstr "No se pudo importar GTK; origen de datos desactivado."
+msgstr "GTK をインポートできなかったため、データソースは無効化されました。"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:53
 msgid "Firefox History"
-msgstr "Historial de Firefox"
+msgstr "Firefox 履歴"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:56
 msgid "Websites visited with Firefox"
-msgstr "Páginas visitadas con Firefox"
+msgstr "Firefox で訪問したウェブサイト"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:84
 #, python-format
 msgid "Unable to monitor Firefox's history: %s: %s"
-msgstr "Imposible controlar el historial de Firefox: %s: %s"
+msgstr "Firefox の履歴を監視できません: %s: %s"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:87
 #, python-format
 msgid "Monitoring Firefox's history: %s"
-msgstr "Monitorizando historial de Firefox: %s"
+msgstr "Firefox の履歴を監視しています: %s"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:92
 msgid "No Firefox profile found."
-msgstr "Perfil de Firefox no encontrado."
+msgstr "Firefox のプロファイルが見つかりませんでした。"
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:56
 #, python-format
 msgid "Unable to monitor Evolution: %s: %s"
-msgstr "Imposible controlar Evolution: %s: %s"
+msgstr "Evolution を監視できません: %s: %s"
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:59
 #, python-format
 msgid "Monitoring Evolution: %s"
-msgstr "Monitorizando Evolution: %s"
+msgstr "Evolution を監視しています: %s"
 
 #: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
 msgid "Watching for Tomboy notes in \"%s\"."
-msgstr "Viendo las notas de Tomboy en: \"%s\"."
-
-#~ msgid "Error: Zeitgeist service not running."
-#~ msgstr "Error: El servicio de Zeitgeist no está activo."
-
-#~ msgid "Other"
-#~ msgstr "Otros"
-
-#~ msgid "Notes"
-#~ msgstr "Notas"
-
-#~ msgid "Create New Note"
-#~ msgstr "Crear una nota nueva"
-
-#~ msgid "Make a new Tomboy note"
-#~ msgstr "Crear una nueva nota de Tomboy"
-
-#~ msgid "Could not connect to D-Bus."
-#~ msgstr "No se pudo conectar con D-Bus."
+msgstr "\"%s\" にある Tomboy ノートを監視しています。"
