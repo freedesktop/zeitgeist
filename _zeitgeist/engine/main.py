@@ -307,15 +307,10 @@ class ZeitgeistEngine:
 							keys_counter[key] = 0
 						keys_counter[key] += 1
 		
-		print "--------------"
-		for k , v in keys_counter.iteritems():
-			print k, v
-		print "--------------"
-			
 		sets = [[v, k] for k, v in keys_counter.iteritems()]
 		sets.sort()
 		sets.reverse()
-		
+				
 		results = []
 		if result_type == 0:
 			i = 0
@@ -327,9 +322,12 @@ class ZeitgeistEngine:
 		else:
 			events = []
 			for r in sets:
-				event = Event(uri = r)
+				event = Event()
+				subject = Subject()
+				subject.uri = r[1]
+				event.set_subjects([subject])
 				events.append(event)
-			events = self.find_events(timerange, result_event_templates, result_storage_state, num_results, 3)
+			events = self.find_events(timerange, events, result_storage_state, num_results, 2)
 			for event in events:   
 				results.append(event.subjects[0].uri)
 		return results
@@ -438,7 +436,6 @@ class ZeitgeistEngine:
 					if temp_sets[k][set]["count"] < epsilon:
 						del temp_sets[k][set]
 					else:
-						print temp_sets[k][set]["count"]
 						temp_sets[k][set]["count"] = temp_sets[k][set]["count"]
 				return temp_sets[k]
 										

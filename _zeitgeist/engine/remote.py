@@ -4,6 +4,7 @@
 #
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2010 Seif Lotfy <seif@lotfy.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -122,9 +123,14 @@ class RemoteInterface(SingletonApplication):
 		   available. The list of possible values is enumerated in the
 		   :class:`StorageState <zeitgeist.datamodel.StorageState>` class
 		:type storage_state: unsigned 32 bit integer, DBus signature :const:`u`
+		:param num_events: maximal amount of returned events
+		:type num_events: unsigned integer
+		:param result_type: unsigned integer 0 for relevancy 1 for recency
+		:type order: unsigned integer
 		:returns: A list of URIs matching the described criteria
 		:rtype: An array of strings, DBus signature :const:`as`.
 		"""
+		event_templates = map(Event, event_templates)
 		return _engine.find_related_uris(time_range, event_templates,
 			result_event_templates, storage_state, num_events, result_type)
 	

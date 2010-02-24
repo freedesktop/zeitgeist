@@ -490,7 +490,14 @@ class ZeitgeistEngineTest(_engineTestClass):
 			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentActor)
 		self.assertEquals([e[0][1] for e in events], ["100", "101", "105"])
 
-	def testRelatedForEvents(self):
+	def testRelatedForEventsSortRelevancy(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
+			StorageState.Any, 2, 0)
+		self.assertEquals(result, ["i1", "i3"])
+	
+	def testRelatedForEventsSortRecency(self):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.find_related_uris(
 			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
