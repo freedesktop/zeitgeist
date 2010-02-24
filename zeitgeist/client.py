@@ -663,8 +663,8 @@ class ZeitgeistClient:
 					error_handler=self._safe_error_handler(error_handler))
 	
 	def find_related_uris_for_events(self, event_templates, uris_reply_handler,
-		time_range = None, result_event_templates=[],
-		storage_state=StorageState.Any, error_handler=None):
+		error_handler=None, time_range = None, result_event_templates=[],
+		storage_state=StorageState.Any, num_events=10, result_type=0):
 		"""
 		Warning: This API is EXPERIMENTAL and is not fully supported yet.
 		
@@ -683,6 +683,10 @@ class ZeitgeistClient:
 		    as subjects of events matching these templates
 		:param storage_state: The returned URIs must have this
 		    :class:`storage state <zeitgeist.datamodel.StorageState>`
+		:param num_events: number of related uris you want to have returned
+		:param result_type: sorting of the results by 
+			0 for relevancy
+			1 for recency
 		:param error_handler: An optional callback in case of errors.
 		    Must take a single argument being the error raised by the
 		    server. The default behaviour in case of errors is to call
@@ -697,15 +701,16 @@ class ZeitgeistClient:
 			time_range = TimeRange.always()
 		
 		self._iface.FindRelatedUris(time_range, event_templates,
-			result_event_templates, storage_state,
+			result_event_templates, storage_state, num_events, result_type,
 			reply_handler=self._safe_reply_handler(uris_reply_handler),
 			error_handler=self._safe_error_handler(error_handler,
 			                                       uris_reply_handler,
-			                                       []))
+			                                       [])
+			)
 	
 	def find_related_uris_for_uris(self, subject_uris, uris_reply_handler,
 		time_range=None, result_event_templates=[],
-		storage_state=StorageState.Any, error_handler=None):
+		storage_state=StorageState.Any,  num_events=10, result_type=0, error_handler=None):
 		"""
 		Warning: This API is EXPERIMENTAL and is not fully supported yet.
 		
@@ -721,6 +726,8 @@ class ZeitgeistClient:
 		                                  time_range=time_range,
 		                                  result_event_templates=result_event_templates,
 		                                  storage_state=storage_state,
+		                                  num_events = num_events,
+		                                  result_type = result_type,
 		                                  error_handler=error_handler)
 	
 	def install_monitor (self, time_range, event_templates,

@@ -86,10 +86,10 @@ class RemoteInterface(SingletonApplication):
 		    sender=sender))
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
-						in_signature="(xx)a("+constants.SIG_EVENT+")a("+constants.SIG_EVENT+")u",
+						in_signature="(xx)a("+constants.SIG_EVENT+")a("+constants.SIG_EVENT+")uuu",
 						out_signature="as")
 	def FindRelatedUris(self, time_range, event_templates,
-		result_event_templates, storage_state):
+		result_event_templates, storage_state, num_events, result_type):
 		"""Warning: This API is EXPERIMENTAL and is not fully supported yet.
 		
 		Get a list of URIs of subjects which frequently occur together
@@ -126,7 +126,7 @@ class RemoteInterface(SingletonApplication):
 		:rtype: An array of strings, DBus signature :const:`as`.
 		"""
 		return _engine.find_related_uris(time_range, event_templates,
-			result_event_templates, storage_state)
+			result_event_templates, storage_state, num_events, result_type)
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="(xx)a("+constants.SIG_EVENT+")uuu",

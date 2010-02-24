@@ -28,7 +28,7 @@ import gettext
 import logging
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
-	ResultType, get_timestamp_for_now
+	ResultType, get_timestamp_for_now, Interpretation
 from _zeitgeist.engine.datamodel import Event, Subject	
 from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
@@ -253,7 +253,7 @@ class ZeitgeistEngine:
 		return self._find_events(1, *args)
 	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
-		result_storage_state):
+		result_storage_state, num_results, result_type):
 		"""
 		Return a list of subject URIs commonly used together with events
 		matching the given template, considering data from within the indicated
@@ -268,13 +268,14 @@ class ZeitgeistEngine:
 		
 		#templates = event_templates + result_event_templates
 		
-		events = self.find_events( timerange, result_event_templates, 
+		events = self.find_events(timerange, result_event_templates, 
 											result_storage_state, 0, 1)
 		
 		subject_uris = []
 		for event in event_templates:
-			if  not event.subjects[0].uri in subject_uris:
-				subject_uris.append(event.subjects[0].uri)
+			if len(event.subjects) > 0:
+				if  not event.subjects[0].uri in subject_uris:
+					subject_uris.append(event.subjects[0].uri)
 		
 		def create_buckets(events):
 			"""
@@ -288,36 +289,49 @@ class ZeitgeistEngine:
 					buckets.append({})
 				buckets[len(buckets)-1][event.subjects[0].uri] = event
 			return buckets
+		
 		buckets = create_buckets(events)
 		
 		keys_counter  = {}
-		keys_subjects = {}
-		min_support = 0
 		
 		for bucket in buckets:
 			counter = 0
 			for event in event_templates:
 				if bucket.has_key(event.subjects[0].uri):
 					counter += 1
+					break
 			if counter > 0:
 				for key in bucket.keys():
 					if not key in subject_uris:
 						if not keys_counter.has_key(key):
 							keys_counter[key] = 0
 						keys_counter[key] += 1
-						min_support += 1
-						keys_subjects[key] = bucket[key]
 		
-		
-		min_support = min_support / len(keys_counter.keys())
-		
+		print "--------------"
+		for k , v in keys_counter.iteritems():
+			print k, v
+		print "--------------"
+			
 		sets = [[v, k] for k, v in keys_counter.iteritems()]
 		sets.sort()
+		sets.reverse()
 		
 		results = []
-		for r in sets:
-			if r[0] >= min_support:
+		if result_type == 0:
+			i = 0
+			for r in sets:
 				results.append(r[1])
+				i +=1 
+				if i >= num_results:
+					break
+		else:
+			events = []
+			for r in sets:
+				event = Event(uri = r)
+				events.append(event)
+			events = self.find_events(timerange, result_event_templates, result_storage_state, num_results, 3)
+			for event in events:   
+				results.append(event.subjects[0].uri)
 		return results
 	
 	def find_associated_work_sets(self, timerange, resolution, min_support, result_event_templates,

@@ -226,7 +226,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			mainloop.quit()
 			self.assertEquals(uris, ["i3", "i2", "i1", "i5"])
 		
-		result = self.client.find_related_uris_for_uris(["i4"], callback)
+		result = self.client.find_related_uris_for_uris(["i4"], callback, num_events=3, result_type=0)
 		mainloop.run()
 	
 if __name__ == "__main__":
