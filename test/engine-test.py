@@ -521,19 +521,5 @@ class ZeitgeistEngineTest(_engineTestClass):
 			10, 0)
 		self.assertEquals(result, ["i1", "i5", "i3"])
 
-	def testRelatedSets(self):
-		import_events("test/data/apriori_events_sets.js", self.engine)
-		result = self.engine.find_associated_work_sets(
-			TimeRange.always(), 100000, 2, [],
-			StorageState.Any)
-		self.assertEquals(result, [[u'i1', u'i2'], [u'i1', u'i6'], [u'i2', u'i3']])
-		
-	def testRelatedSets2(self):
-		import_events("test/data/apriori_events_sets-2.js", self.engine)
-		result = self.engine.find_associated_work_sets(
-			TimeRange.always(), 100000, 3, [],
-			StorageState.Any)
-		self.assertEquals(result, [[u'1', u'2', u'4'], [u'2', u'3', u'4']])
-
 if __name__ == "__main__":
 	unittest.main()
