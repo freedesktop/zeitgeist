@@ -276,7 +276,6 @@ class ZeitgeistEngine:
 		events = self.find_events(timerange, result_event_templates, 
 											result_storage_state, 0, 1)
 		
-		latest_uris = {}
 		subject_uris = []
 		for event in event_templates:
 			if len(event.subjects) > 0:
@@ -294,7 +293,6 @@ class ZeitgeistEngine:
 					t = int(event.timestamp)
 					buckets.append({})
 				buckets[len(buckets)-1][event.subjects[0].uri] = event
-				latest_uris[event.subjects[0].uri] = int(event.timestamp)
 			return buckets
 		
 		buckets = create_buckets(events)
@@ -314,24 +312,151 @@ class ZeitgeistEngine:
 							keys_counter[key] = 0
 						keys_counter[key] += 1
 		
-		
+		sets = [[v, k] for k, v in keys_counter.iteritems()]
+		sets.sort()
+		sets.reverse()
 				
 		results = []
-		if result_type == 0 or result_type == 1:
-			if result_type == 0:
-				sets = [[v, k] for k, v in keys_counter.iteritems()]
-			elif result_type == 1:
-				new_set = {}
-				for k in keys_counter.iterkeys():
-					new_set[k] = latest_uris[k]
-				sets = [[v, k] for k, v in new_set.iteritems()]
-	
-			sets.sort()
-			sets.reverse()
-			return map(lambda result: result[1], sets[:num_results])
+		if result_type == 0:
+			i = 0
+			for r in sets:
+				results.append(r[1])
+				i +=1 
+				if i >= num_results:
+					break
 		else:
-			raise NotImplementedError, "Unsupported ResultType."
+			events = []
+			for r in sets:
+				event = Event()
+				subject = Subject()
+				subject.uri = r[1]
+				event.set_subjects([subject])
+				events.append(event)
+			events = self.find_events(timerange, events, result_storage_state, num_results, 2)
+			for event in events:   
+				results.append(event.subjects[0].uri)
+		return results
+	
+	def find_associated_work_sets(self, timerange, resolution, min_support, result_event_templates,
+		result_storage_state):
+		"""
+		Return a list of uri sets commonly used together considering data from
+		within the indicated timerange.
+		
+		Only URIs for subjects matching the indicated `result_event_templates`
+		and `result_storage_state` are returned.
+		
+		This currently uses a modified version of the Apriori algorithm, but
+		the implementation may vary.
+		
+		The 'resolution' sets the size of the transaction buckets in ms. 
+		 
+		The 'min_support' describes the tolerance of minimal appearances of the files 
+		in the sets
+		"""
+		
+		#templates = event_templates + result_event_templates
+		
+		events = self.find_events(timerange, result_event_templates, 
+											result_storage_state, 0, 1)
+		
+		subject_uris = []
+		uri_counter = {}
+		min_support = min_support
+		latest_events = {}
+		
+		def create_buckets(events):
+			"""
+			Create buckets where a size of a bucket is limited by 30 minutes
+			"""
+			
+			t = 0
+			buckets = []
+			for event in events:
+				if int(event.timestamp) - resolution > t:
+					t = int(event.timestamp)
+					buckets.append({})
+				buckets[len(buckets)-1][event.subjects[0].uri] = event
+				latest_events[event.subjects[0].uri] = event
 
+			uri_buckets = []
+			
+			for bucket in buckets:
+				set = []
+				uri_buckets.append(bucket.keys())
+				for uri in bucket.keys():
+					set.append(uri)
+					if not uri_counter.has_key(uri):
+						uri_counter[uri] = {}
+						uri_counter[uri]["item"] = [uri]
+						uri_counter[uri]["count"] = 0.0
+					uri_counter[uri]["count"] += 1.0
+
+			for set in uri_buckets:
+				set.sort()
+				print set
+			return uri_buckets
+		
+		T = create_buckets(events)		
+		epsilon = min_support
+		
+		for key in uri_counter.keys():
+			if uri_counter[key]["count"] < epsilon:
+				del uri_counter[key]
+		
+		def apriori(T, epsilon):
+			temp_sets = {}
+			L = {}
+			C ={}
+			
+			temp_sets[1] = {}
+			for t in uri_counter.keys():
+				temp_sets[1][t] = uri_counter[t]
+			L[1] = temp_sets[1]
+			k = 2
+			
+			def get_item_set(k):
+				temp_sets[k] = {} 
+				for k_set in temp_sets[k-1].keys():
+					k_set = temp_sets[k-1][k_set]["item"]
+					for key in k_set:
+						for key2 in uri_counter.keys():
+							if not key2 in k_set:
+								set = k_set + [key2]
+								set.sort()
+								counter = 0.0
+								for t in T:
+									c = 0
+									for item in set:
+									 	if item in t:
+									 		c += 1
+									if c == len(set):
+										counter += 1.0
+								if not set in temp_sets[k].keys():
+									temp_sets[k][str(set)] = {}
+									temp_sets[k][str(set)]["item"] = set
+									temp_sets[k][str(set)]["count"] = counter
+				
+				for set in temp_sets[k].keys():
+					if temp_sets[k][set]["count"] < epsilon:
+						del temp_sets[k][set]
+					else:
+						temp_sets[k][set]["count"] = temp_sets[k][set]["count"]
+				return temp_sets[k]
+										
+			while len(L[k-1]) > 0:
+				L[k] = get_item_set(k)
+				k += 1
+			
+			results = []
+			if k-2 > 1:
+				for set in L[k-2].values():
+					results.append(set["item"])
+			return results
+				
+		results = apriori(T, epsilon)
+		
+		return results
 	
 	def insert_events(self, events, sender=None):
 		t = time.time()
