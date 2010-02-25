@@ -276,6 +276,7 @@ class ZeitgeistEngine:
 		events = self.find_events(timerange, result_event_templates, 
 											result_storage_state, 0, 1)
 		
+		latest_uris = {}
 		subject_uris = []
 		for event in event_templates:
 			if len(event.subjects) > 0:
@@ -293,6 +294,7 @@ class ZeitgeistEngine:
 					t = int(event.timestamp)
 					buckets.append({})
 				buckets[len(buckets)-1][event.subjects[0].uri] = event
+				latest_uris[event.subjects[0].uri] = int(event.timestamp)
 			return buckets
 		
 		buckets = create_buckets(events)
@@ -312,29 +314,26 @@ class ZeitgeistEngine:
 							keys_counter[key] = 0
 						keys_counter[key] += 1
 		
-		sets = [[v, k] for k, v in keys_counter.iteritems()]
-		sets.sort()
-		sets.reverse()
+		
 				
 		results = []
 		if result_type == 0:
-			i = 0
-			for r in sets:
-				results.append(r[1])
-				i +=1 
-				if i >= num_results:
-					break
+			sets = [[v, k] for k, v in keys_counter.iteritems()]
 		else:
-			events = []
-			for r in sets:
-				event = Event()
-				subject = Subject()
-				subject.uri = r[1]
-				event.set_subjects([subject])
-				events.append(event)
-			events = self.find_events(timerange, events, result_storage_state, num_results, 2)
-			for event in events:   
-				results.append(event.subjects[0].uri)
+			new_set = {}
+			for k in keys_counter.iterkeys():
+				new_set[k] = latest_uris[k]
+			sets = [[v, k] for k, v in new_set.iteritems()]
+
+		sets.sort()
+		sets.reverse()
+		i = 0
+		for r in sets:
+			results.append(r[1])
+			i +=1 
+			if i >= num_results:
+				break
+				
 		return results
 	
 	def insert_events(self, events, sender=None):
