@@ -317,24 +317,21 @@ class ZeitgeistEngine:
 		
 				
 		results = []
-		if result_type == 0:
-			sets = [[v, k] for k, v in keys_counter.iteritems()]
+		if result_type == 0 or result_type == 1:
+			if result_type == 0:
+				sets = [[v, k] for k, v in keys_counter.iteritems()]
+			elif result_type == 1:
+				new_set = {}
+				for k in keys_counter.iterkeys():
+					new_set[k] = latest_uris[k]
+				sets = [[v, k] for k, v in new_set.iteritems()]
+	
+			sets.sort()
+			sets.reverse()
+			return map(lambda result: result[1], sets[:num_results])
 		else:
-			new_set = {}
-			for k in keys_counter.iterkeys():
-				new_set[k] = latest_uris[k]
-			sets = [[v, k] for k, v in new_set.iteritems()]
+			raise NotImplementedError, "Unsupported ResultType."
 
-		sets.sort()
-		sets.reverse()
-		i = 0
-		for r in sets:
-			results.append(r[1])
-			i +=1 
-			if i >= num_results:
-				break
-				
-		return results
 	
 	def insert_events(self, events, sender=None):
 		t = time.time()
