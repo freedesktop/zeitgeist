@@ -532,7 +532,17 @@ class ResultType(object):
 		"ordered ascendently by the popularity of the actor"))
 	MostRecentActor = enum_factory(("The last event of each different actor"))
 	LeastRecentActor = enum_factory(("The first event of each different actor"))
-
+	
+class RelevantResultType(object):
+	"""
+	An enumeration class used to define how query results should be returned
+	from the Zeitgeist engine.
+	"""
+	__metaclass__ = EnumMeta
+	
+	Recent = enum_factory("All uris with the most recent uri first")
+	Related = enum_factory("All uris with the most related one first")
+	
 class Subject(list):
 	"""
 	Represents a subject of an :class:`Event`. This class is both used to
