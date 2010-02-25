@@ -316,15 +316,9 @@ class ZeitgeistEngine:
 		sets.sort()
 		sets.reverse()
 				
-		results = []
 		if result_type == 0:
-			i = 0
-			for r in sets:
-				results.append(r[1])
-				i +=1 
-				if i >= num_results:
-					break
-		else:
+			return map(lambda result: result[1], sets[:num_results])
+		elif result_type == 1:
 			events = []
 			for r in sets:
 				event = Event()
@@ -333,9 +327,8 @@ class ZeitgeistEngine:
 				event.set_subjects([subject])
 				events.append(event)
 			events = self.find_events(timerange, events, result_storage_state, num_results, 2)
-			for event in events:   
-				results.append(event.subjects[0].uri)
-		return results
+			return map(lambda event: event.subjects[0].uri, events)
+		raise NotImplementedError, "Unsupported ResultType."
 	
 	def insert_events(self, events, sender=None):
 		t = time.time()
