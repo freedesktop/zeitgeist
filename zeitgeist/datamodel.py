@@ -4,7 +4,7 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
-# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009-2010 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -532,7 +532,7 @@ class ResultType(object):
 		"ordered ascendently by the popularity of the actor"))
 	MostRecentActor = enum_factory(("The last event of each different actor"))
 	LeastRecentActor = enum_factory(("The first event of each different actor"))
-
+	
 class Subject(list):
 	"""
 	Represents a subject of an :class:`Event`. This class is both used to
