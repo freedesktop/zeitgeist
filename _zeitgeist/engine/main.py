@@ -257,6 +257,22 @@ class ZeitgeistEngine:
 	def find_events(self, *args):
 		return self._find_events(1, *args)
 	
+	def _generate_buckets(self, events):
+			"""
+			Create buckets where a size of a bucket is limited by 30 minutes
+			"""
+			t = 0
+			latest_uris = {}
+			buckets = []
+			for event in events:
+				if int(event.timestamp) - 30*60000 > t:
+					t = int(event.timestamp)
+					buckets.append({})
+				if len(buckets) > 0:
+					latest_uris[event.subjects[0].uri] = int(event.timestamp)
+					buckets[-1][event.subjects[0].uri] = event
+			return buckets, latest_uris
+	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state, num_results, result_type):
 		"""
@@ -276,28 +292,15 @@ class ZeitgeistEngine:
 		events = self.find_events(timerange, result_event_templates, 
 											result_storage_state, 0, 1)
 		
-		latest_uris = {}
 		subject_uris = []
 		for event in event_templates:
 			if len(event.subjects) > 0:
 				if  not event.subjects[0].uri in subject_uris:
 					subject_uris.append(event.subjects[0].uri)
 		
-		def create_buckets(events):
-			"""
-			Create buckets where a size of a bucket is limited by 30 minutes
-			"""
-			t = 0
-			buckets = []
-			for event in events:
-				if int(event.timestamp) - 30*60000 > t:
-					t = int(event.timestamp)
-					buckets.append({})
-				buckets[len(buckets)-1][event.subjects[0].uri] = event
-				latest_uris[event.subjects[0].uri] = int(event.timestamp)
-			return buckets
 		
-		buckets = create_buckets(events)
+		
+		buckets, latest_uris = self._generate_buckets(events)
 		
 		keys_counter  = {}
 		
@@ -313,8 +316,6 @@ class ZeitgeistEngine:
 						if not keys_counter.has_key(key):
 							keys_counter[key] = 0
 						keys_counter[key] += 1
-		
-		
 				
 		results = []
 		if result_type == 0 or result_type == 1:
