@@ -24,6 +24,7 @@ import sqlite3
 import time
 import sys
 import os
+import math
 import gettext
 import logging
 
@@ -264,8 +265,51 @@ class ZeitgeistEngine:
 			t = 0
 			latest_uris = {}
 			buckets = []
+			clusters = []
+			last_event = None
+			average_acc = 0
+			
 			for event in events:
-				if int(event.timestamp) - 30*60000 > t:
+				if int(event.timestamp) - 999999 > t:
+					t = int(event.timestamp)
+					if len(clusters) > 0:
+						if len(clusters) > 1:
+							clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
+						else:
+							clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)
+						average_acc += abs(clusters[-1][2])
+					clusters.append([])
+					
+				if len(clusters) > 0:
+					clusters[-1].append((event.timestamp))
+				last_event = event
+			
+			if len(clusters) > 0:
+				if len(clusters) > 1:
+					clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
+				else:
+					clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)				
+				average_acc += abs(clusters[-1][2])						
+			
+			average_acc = abs(average_acc) / len(clusters) + 1
+			
+			landmarks = []
+			i = 0
+			for cluster in clusters:
+				print cluster[0]
+				if i == 0:
+					landmarks.append(cluster[0])
+				else:
+					#print cluster[2], last_acc
+					if (abs(cluster[2] - last_acc) > average_acc ) or cluster[0] - landmarks[-1] > (999999+1)*100:
+						landmarks.append(cluster[0]) 
+				last_acc = cluster[2]
+				i += 1
+			#print landmarks
+				
+			t = 0	
+			for event in events:
+				if int(event.timestamp) in landmarks:
 					t = int(event.timestamp)
 					buckets.append({})
 				if len(buckets) > 0:
@@ -289,8 +333,12 @@ class ZeitgeistEngine:
 		
 		#templates = event_templates + result_event_templates
 		
+		
 		events = self.find_events(timerange, result_event_templates, 
 											result_storage_state, 0, 1)
+		
+		
+		print "-------------"
 		
 		subject_uris = []
 		for event in event_templates:
@@ -301,6 +349,8 @@ class ZeitgeistEngine:
 		
 		
 		buckets, latest_uris = self._generate_buckets(events)
+		for b in buckets:
+			print b.keys()
 		
 		keys_counter  = {}
 		
@@ -318,6 +368,8 @@ class ZeitgeistEngine:
 						keys_counter[key] += 1
 				
 		results = []
+		
+		print "-------------"
 		if result_type == 0 or result_type == 1:
 			if result_type == 0:
 				sets = [[v, k] for k, v in keys_counter.iteritems()]
