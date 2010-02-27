@@ -270,7 +270,7 @@ class ZeitgeistEngine:
 			average_acc = 0
 			
 			for event in events:
-				if int(event.timestamp) - 999999 > t:
+				if int(event.timestamp) - 5*60*1000 > t:
 					t = int(event.timestamp)
 					if len(clusters) > 0:
 						if len(clusters) > 1:
@@ -301,7 +301,7 @@ class ZeitgeistEngine:
 					landmarks.append(cluster[0])
 				else:
 					#print cluster[2], last_acc
-					if (abs(cluster[2] - last_acc) > average_acc ) or cluster[0] - landmarks[-1] > (999999+1)*100:
+					if (abs(cluster[2] - last_acc) > average_acc ):
 						landmarks.append(cluster[0]) 
 				last_acc = cluster[2]
 				i += 1

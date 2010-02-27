@@ -519,7 +519,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[Event.new_for_values(subject_manifestation="stfu:File")],
 			StorageState.Any,
 			10, 0)
-		self.assertEquals(result, ["i1", "i5", "i3"])
+		self.assertEquals(result, ["i5", "i3", "i1"])
 
 if __name__ == "__main__":
 	unittest.main()
