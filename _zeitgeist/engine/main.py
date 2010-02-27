@@ -308,10 +308,10 @@ class ZeitgeistEngine:
 			for event in events:
 				if int(event.timestamp) in landmarks:
 					t = int(event.timestamp)
-					buckets.append({})
+					buckets.append([])
 				if len(buckets) > 0:
 					latest_uris[event.subjects[0].uri] = int(event.timestamp)
-					buckets[-1][event.subjects[0].uri] = event
+					buckets[-1].append(event.subjects[0].uri)
 			return buckets, latest_uris
 	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
@@ -334,7 +334,6 @@ class ZeitgeistEngine:
 		events = self.find_events(timerange, result_event_templates, 
 											result_storage_state, 0, 1)
 		
-		
 		subject_uris = []
 		for event in event_templates:
 			if len(event.subjects) > 0:
@@ -348,11 +347,11 @@ class ZeitgeistEngine:
 		for bucket in buckets:
 			counter = 0
 			for event in event_templates:
-				if bucket.has_key(event.subjects[0].uri):
+				if event.subjects[0].uri in bucket:
 					counter += 1
 					break
 			if counter > 0:
-				for key in bucket.keys():
+				for key in bucket:
 					if not key in subject_uris:
 						if not keys_counter.has_key(key):
 							keys_counter[key] = 0

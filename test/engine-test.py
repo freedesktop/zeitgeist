@@ -510,7 +510,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 			TimeRange.always(), [Event.new_for_values(subject_uri = "i1"),
 				Event.new_for_values(subject_uri = "i4")], [],
 			StorageState.Any, 2, 0),
-		self.assertEquals(result, (["i3", "i2"],))
+		self.assertEquals(result, (["i2", "i3"],))
 	
 	def testRelatedForEventsWithManifestation(self):
 		import_events("test/data/apriori_events.js", self.engine)
@@ -519,7 +519,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[Event.new_for_values(subject_manifestation="stfu:File")],
 			StorageState.Any,
 			10, 0)
-		self.assertEquals(result, ["i5", "i3", "i1"])
+		self.assertEquals(result, ["i3", "i1", "i5"])
 
 if __name__ == "__main__":
 	unittest.main()
