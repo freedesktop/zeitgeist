@@ -258,7 +258,8 @@ class ZeitgeistEngine:
 	def find_events(self, *args):
 		return self._find_events(1, *args)
 	
-	def _generate_buckets(self, events):
+	@staticmethod
+	def _generate_buckets(events):
 			"""
 			Create buckets where a size of a bucket is limited by 30 minutes
 			"""
@@ -313,7 +314,7 @@ class ZeitgeistEngine:
 					latest_uris[event.subjects[0].uri] = int(event.timestamp)
 					buckets[-1].append(event.subjects[0].uri)
 			return buckets, latest_uris
-	
+		
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state, num_results, result_type):
 		"""
