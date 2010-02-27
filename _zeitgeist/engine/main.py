@@ -296,16 +296,13 @@ class ZeitgeistEngine:
 			landmarks = []
 			i = 0
 			for cluster in clusters:
-				print cluster[0]
 				if i == 0:
 					landmarks.append(cluster[0])
 				else:
-					#print cluster[2], last_acc
 					if (abs(cluster[2] - last_acc) > average_acc ):
 						landmarks.append(cluster[0]) 
 				last_acc = cluster[2]
 				i += 1
-			#print landmarks
 				
 			t = 0	
 			for event in events:
@@ -338,19 +335,13 @@ class ZeitgeistEngine:
 											result_storage_state, 0, 1)
 		
 		
-		print "-------------"
-		
 		subject_uris = []
 		for event in event_templates:
 			if len(event.subjects) > 0:
 				if  not event.subjects[0].uri in subject_uris:
 					subject_uris.append(event.subjects[0].uri)
-		
-		
-		
+					
 		buckets, latest_uris = self._generate_buckets(events)
-		for b in buckets:
-			print b.keys()
 		
 		keys_counter  = {}
 		
@@ -366,10 +357,9 @@ class ZeitgeistEngine:
 						if not keys_counter.has_key(key):
 							keys_counter[key] = 0
 						keys_counter[key] += 1
-				
+
 		results = []
 		
-		print "-------------"
 		if result_type == 0 or result_type == 1:
 			if result_type == 0:
 				sets = [[v, k] for k, v in keys_counter.iteritems()]
