@@ -22,6 +22,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import with_statement
 import os
 import re
 import fnmatch
@@ -257,10 +258,15 @@ class RecentlyUsedManagerGtk(DataProvider):
 			for path in BaseDirectory.load_data_paths("applications"):
 				for filename in (name for name in os.listdir(path) if name.endswith(".desktop")):
 					fullname = os.path.join(path, filename)
-					for line in open(fullname):
-						if line.startswith("Exec=") and \
-						line.split("=", 1)[-1].strip().split()[0] == application:
-							return unicode(fullname)
+					try:
+						with open(fullname) as desktopfile:
+							for line in desktopfile:
+								if line.startswith("Exec=") and \
+								line.split("=", 1)[-1].strip().split()[0] == \
+								application:
+									return unicode(fullname)
+					except IOError:
+						pass # file may be a broken symlink (LP: #523761)
 		return None
 	
 	def _get_interpretation_for_mimetype(self, mimetype):
