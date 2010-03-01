@@ -300,7 +300,7 @@ class ZeitgeistEngine:
 				if i == 0:
 					landmarks.append(cluster[0])
 				else:
-					if (abs(cluster[2] - last_acc) > average_acc ):
+					if (abs(cluster[2] - last_acc) != average_acc ):
 						landmarks.append(cluster[0]) 
 				last_acc = cluster[2]
 				i += 1
@@ -375,7 +375,6 @@ class ZeitgeistEngine:
 		else:
 			raise NotImplementedError, "Unsupported ResultType."
 
-	
 	def insert_events(self, events, sender=None):
 		t = time.time()
 		m = map(lambda e: self._insert_event_without_error(e, sender), events)
