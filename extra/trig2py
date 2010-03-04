@@ -1,0 +1,20 @@
+#! /bin/bash
+
+#
+# Convert a .trig formatted ontology to a loadable Python module.
+# The Python module code will be written to stdout
+#
+
+set -e # Bail out of the script on any error
+
+TMPXML=/tmp/trig2py.tmp.xml
+
+if [ -z "$1" ]; then
+	echo "You must specify exactly one file to convert" 1>&2
+	exit 1
+fi
+
+rapper -i trig -o rdfxml $1 > $TMPXML
+$(dirname $0)/rdfxml2py $TMPXML
+rm $TMPXML
+
