@@ -82,7 +82,7 @@ org.gnome.zeitgeist.Log
 +++++++++++++++++++++++
 
 .. autoclass:: RemoteInterface
-    :members: InsertEvents, GetEvents, FindEventIds, FindRelatedUris, DeleteEvents, DeleteLog, Quit, InstallMonitor, RemoveMonitor
+    :members: InsertEvents, GetEvents, FindEventIds, FindEvents, FindRelatedUris, DeleteEvents, DeleteLog, Quit, InstallMonitor, RemoveMonitor
 
 .. _org_gnome_zeitgeist_Monitor:
 .. index:: org.gnome.zeitgeist.Monitor
