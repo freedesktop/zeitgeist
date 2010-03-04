@@ -1,13 +1,25 @@
 #! /usr/bin/python
 
+#
+# Parses an ontology from a .xml file formatted in RDF/XML and outputs a
+# loadable Python module representing the ontology
+#
+
+# API docs for rdflib on http://www.rdflib.net/rdflib-2.4.0/html/index.html
 import rdflib
 
+def ontology2pycode(onto):
+	return "FIXME: %s nodes in ontology" % len(onto)
+
 def parse(trig_stream):
+	"""
+	Return a list of triples representing the ontology
+	"""
 	trig_in = rdflib.FileInputSource(trig_stream)
 	ontology = rdflib.ConjunctiveGraph()
 	ontology.parse(trig_in)
-	print (len(ontology))
-	
+	pycode = ontology2pycode(ontology)
+	print pycode	
 
 if __name__ == "__main__":
 	import sys, os
