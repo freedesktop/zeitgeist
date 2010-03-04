@@ -579,7 +579,7 @@ class ZeitgeistClient:
 		Alias for :meth:`find_events_for_templates`, for use when only
 		one template is needed.
 		"""
-		self.find_event_ids_for_templates([event_template],
+		self.find_events_for_templates([event_template],
 						events_reply_handler,
 						**kwargs)
 	
