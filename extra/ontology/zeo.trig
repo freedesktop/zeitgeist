@@ -1,8 +1,8 @@
-README:
- * The Zeitgeist ontology does not spec out what a "subject" is because we
-   use Nepomuk to describe subjects. With the convention that
-   interpretation=InformationElement and manifestation=DataObject
-   FIXME: NFO might not specify an origin for a rdfs:Resource ??
+# README:
+#  * The Zeitgeist ontology does not spec out what a "subject" is because we
+#    use Nepomuk to describe subjects. With the convention that
+#    interpretation=InformationElement and manifestation=DataObject
+#    FIXME: NFO might not specify an origin for a rdfs:Resource ??
 
 
 
@@ -23,7 +23,7 @@ zg: {
     zg:EventInterpretation
         a   rdfs:Class ;
         rdfs:comment "" ;
-        rdfs:subClassOf ie:InformationElement .
+        rdfs:subClassOf nie:InformationElement .
     
     zg:CreateEvent
         a rdfs:Class ;
@@ -95,7 +95,7 @@ zg: {
     
     zg:hasActor
         a   rdfs:Property ;
-        rdfs:comment "The entity responsible for generating the event"
+        rdfs:comment "The entity responsible for generating the event" ;
         rdfs:domain zg:Event ;
         rdfs:range rdfs:Resource ;
         rdfs:label "actor" ;        
