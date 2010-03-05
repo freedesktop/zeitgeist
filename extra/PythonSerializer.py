@@ -19,11 +19,13 @@ class PythonSerializer(RecursiveSerializer):
 		name = str(member).split("#")[-1]
 		comments = list(self.store.objects(member, RDFS.comment))
 		doc = comments[0] if comments else ""
+		labels = list(self.store.objects(member, RDFS.label))
+		display_name = labels[0] if labels else name
 		#TODO: displayname, how are translation handled? on trig level or on python level?
 		stream.write(("register_symbol(collection=%s, name='%s',\n"
 					  "\turi='%s',\n"
-					  "\tdisplayname='',\n"
-					  "\tdocstring='%s')\n") %(collection_name, name, member, doc))
+					  "\tdisplayname=_('%s'),\n"
+					  "\tdocstring='%s')\n") %(collection_name, name, member, display_name, doc))
 
 	def serialize(self, stream, base=None, encoding=None, **args):
 		for classURI in self.topClasses:
