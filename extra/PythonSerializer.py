@@ -37,26 +37,51 @@ class PythonSerializer(RecursiveSerializer):
 					  "\turi='%s',\n"
 					  "\tdisplayname=_('%s'),\n"
 					  "\tdocstring='%s')\n") %(collection_name, make_symbol_name(name), member, display_name, doc))
+					  
+	def _create_enum(self, stream, enum):
+		enum_name = str(enum).split("#")[-1]
+		comments = list(self.store.objects(enum, RDFS.comment))
+		doc = comments[0] if comments else ""
+		stream.write("%s = Enum('%s')\n" %(enum_name, doc))
+		return enum_name
+		
+	def _create_enum_value(self, stream, enum_name, value, label, docstring):
+		stream.write("register_enum(%s, %d, '%s', '%s')\n" %(enum_name, int(value.split("_")[-1]), label, docstring))
 
 	def serialize(self, stream, base=None, encoding=None, **args):
-		for classURI in self.topClasses:
-			for resource in self.store.subjects(RDFS.subClassOf, RDFS.Resource):
-				#~ stream.write("""class %s(RDFSResource):\n\tpass\n\n""" %str(resource).split("#")[-1])
+		for resource in self.store.subjects(RDFS.subClassOf, RDFS.Resource):
+			#~ stream.write("""class %s(RDFSResource):\n\tpass\n\n""" %str(resource).split("#")[-1])
+			
+			for member in self.store.subjects(RDFS.domain, resource):
+				attributes = dict(self.store.predicate_objects(member))
+				if attributes.pop(RDF.type) == RDFS.RDFSNS["Property"]:
+					# ok, it is a property
+					name = attributes.pop(RDFS.label)
+					#~ print name
+					#~ print attributes
+				else:
+					raise ValueError
+				break
 				
-				for member in self.store.subjects(RDFS.domain, resource):
-					attributes = dict(self.store.predicate_objects(member))
-					if attributes.pop(RDF.type) == RDFS.RDFSNS["Property"]:
-						# ok, it is a property
-						name = attributes.pop(RDFS.label)
-						#~ print name
-						#~ print attributes
-					else:
-						raise ValueError
-					break
+		for collection_types in (NIENS["InformationElement"], NIENS["DataObject"]):
+			for collection_type in self.store.subjects(RDFS.subClassOf, collection_types):
+				stream.write("\n#%s\n\n" %str(collection_type).split("#")[-1])
+				collection_name = self._create_symbol_collection(stream, collection_type)
+				for member in sorted(self.store.subjects(RDFS.subClassOf, collection_type)):
+					self._create_symbol(stream, collection_name, member)
 					
-			for collection_types in (NIENS["InformationElement"], NIENS["DataObject"]):
-				for collection_type in self.store.subjects(RDFS.subClassOf, collection_types):
-					stream.write("\n#%s\n\n" %str(collection_type).split("#")[-1])
-					collection_name = self._create_symbol_collection(stream, collection_type)
-					for member in sorted(self.store.subjects(RDFS.subClassOf, collection_type)):
-						self._create_symbol(stream, collection_name, member)
+		stream.write("\n# Enums")
+					
+		#we use collections for enums
+		for enum in self.store.subjects(RDF.type, RDF.Seq):
+			stream.write("\n#%s\n\n" %str(enum).split("#")[-1])
+			enum_name = self._create_enum(stream, enum)
+			for enum_value, enum_obj in sorted(self.store.predicate_objects(enum)):
+				attributes = dict(self.store.predicate_objects(enum_obj))
+				if not attributes:
+					continue
+				if attributes.pop(RDF.type) == RDFS.member:
+					self._create_enum_value(stream, enum_name, enum_value,
+						attributes[RDFS.label], attributes.get(RDFS.comment, ""))
+				else:
+					raise ValueError
