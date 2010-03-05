@@ -15,6 +15,12 @@ def make_symbol_name(name):
 	name = "".join(new_name)
 	return name.upper()
 	
+def sort_enum(value):
+	try:
+		return int(value[0].split("_")[-1])
+	except ValueError:
+		return 0
+	
 class PythonSerializer(RecursiveSerializer):
 	
 	def _create_symbol_collection(self, stream, collection_type):
@@ -76,7 +82,7 @@ class PythonSerializer(RecursiveSerializer):
 		for enum in self.store.subjects(RDF.type, RDF.Seq):
 			stream.write("\n#%s\n\n" %str(enum).split("#")[-1])
 			enum_name = self._create_enum(stream, enum)
-			for enum_value, enum_obj in sorted(self.store.predicate_objects(enum)):
+			for enum_value, enum_obj in sorted(self.store.predicate_objects(enum), key=sort_enum):
 				attributes = dict(self.store.predicate_objects(enum_obj))
 				if not attributes:
 					continue
