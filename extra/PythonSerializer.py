@@ -12,7 +12,9 @@ class PythonSerializer(RecursiveSerializer):
 		collection_name = str(collection_type).split("#")[-1]
 		comments = list(self.store.objects(collection_type, RDFS.comment))
 		doc = comments[0] if comments else ""
-		stream.write("%s = SymbolCollection('%s', '%s')\n" %(collection_name, collection_name, doc))
+		labels = list(self.store.objects(collection_type, RDFS.label))
+		display_name = labels[0] if labels else collection_name
+		stream.write("%s = SymbolCollection('%s', '%s')\n" %(collection_name, display_name, doc))
 		return collection_name
 		
 	def _create_symbol(self, stream, collection_name, member):
