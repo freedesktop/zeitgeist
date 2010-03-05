@@ -125,6 +125,28 @@ zg: {
         rdfs:domain zg:Event ;
         rdfs:range rdfs:Resource ;
         rdfs:label "subject" .
+        
+    zg:StorageState
+        a rdf:Seq ;
+        rdfs:comment "Enumeration class defining the possible values for the storage state\n\tof an event subject.\n\n\tThe StorageState enumeration can be used to control whether or not matched\n\tevents must have their subjects available to the user. Fx. not including\n\tdeleted files, files on unplugged USB drives, files available only when\n\ta network is available etc." ;
+        rdf:_1 zg:StorageStateNotAvailable ;
+        rdf:_2 zg:StorageStateAvailable ;
+        rdf:_3 zg:StorageStateAny .
+        
+    zg:StorageStateNotAvailable
+        a rdfs:member ;
+        rdfs:label "NotAvailable" ;
+        rdfs:comment "The storage medium of the events subjects must not be available to the user" .
+        
+    zg:StorageStateAvailable
+        a rdfs:member ;
+        rdfs:label "Available" ;
+        rdfs:comment "The storage medium of all event subjects must be immediately available to the user" .
+        
+    zg:StorageStateAny
+        a rdfs:member ;
+        rdfs:label "Any" ;
+        rdfs:comment "The event subjects may or may not be available" .
 }
 
 
