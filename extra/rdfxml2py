@@ -8,7 +8,14 @@
 # API docs for rdflib on http://www.rdflib.net/rdflib-2.4.0/html/index.html
 import rdflib
 
+from rdflib.plugin import register
+from rdflib.syntax import serializer, serializers
+
+register('python', serializers.Serializer,
+         'PythonSerializer', 'PythonSerializer')
+
 def ontology2pycode(onto):
+	print onto.serialize(format="python")
 	return "FIXME: %s nodes in ontology" % len(onto)
 
 def parse(trig_stream):

@@ -82,7 +82,7 @@ zg: {
         rdfs:comment "A unique integer id assigned to an event by the logging framework when the event is first logged" ;
         rdfs:domain zg:Event ;
         rdfs:range xsd:nonNegativeInteger ;
-        rdfs:label "event id" ;        
+        rdfs:label "id" ;        
         nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
     
     zg:timestamp
@@ -106,6 +106,7 @@ zg: {
         rdfs:domain zg:Event ;
         rdfs:range zg:EventInterpretation ;
         nrl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:label "interpretation" ;
         rdfs:subPropertyOf nie:interpretedAs .
         
     zg:hasEventManifestation
@@ -113,13 +114,14 @@ zg: {
         rdfs:domain zg:Event ;
         rdfs:range zg:EventManifestation ;
         nrl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:label "manifestation" ;
         rdfs:subPropertyOf rdfs:type .
     
     zg:hasSubject
         a rdfs:Property ;
         rdfs:domain zg:Event ;
         rdfs:range rdfs:Resource ;
-        rdfs:label "has subject" .
+        rdfs:label "subject" .
 }
 
 
