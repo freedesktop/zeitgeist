@@ -7,6 +7,23 @@ NIENS = Namespace("http://www.semanticdesktop.org/ontologies/2007/08/15/nie#")
 import pprint
 
 class PythonSerializer(RecursiveSerializer):
+	
+	def _create_symbol_collection(self, stream, collection_type):
+		collection_name = str(collection_type).split("#")[-1]
+		comments = list(self.store.objects(collection_type, RDFS.comment))
+		doc = comments[0] if comments else ""
+		stream.write("%s = SymbolCollection('%s', '%s')\n" %(collection_name, collection_name, doc))
+		return collection_name
+		
+	def _create_symbol(self, stream, collection_name, member):
+		name = str(member).split("#")[-1]
+		comments = list(self.store.objects(member, RDFS.comment))
+		doc = comments[0] if comments else ""
+		#TODO: displayname, how are translation handled? on trig level or on python level?
+		stream.write(("register_symbol(collection=%s, name='%s',\n"
+					  "\turi='%s',\n"
+					  "\tdisplayname='',\n"
+					  "\tdocstring='%s')\n") %(collection_name, name, member, doc))
 
 	def serialize(self, stream, base=None, encoding=None, **args):
 		for classURI in self.topClasses:
@@ -23,31 +40,10 @@ class PythonSerializer(RecursiveSerializer):
 					else:
 						raise ValueError
 					break
-				
-			stream.write("\n#Event interpretations\n\n")
-				
-			for interpretation in self.store.subjects(RDFS.subClassOf, NIENS["InformationElement"]):
-				# interpretations
-				collection_name = str(interpretation).split("#")[-1]
-				comments = list(self.store.objects(interpretation, RDFS.comment))
-				doc = comments[0] if comments else ""
-				stream.write("%s = SymbolCollection('%s', '%s')\n" %(collection_name, collection_name, doc))
-				#~ pprint.pprint(list(self.store.subjects(RDFS.subClassOf, interpretation)))
-				for member in self.store.subjects(RDFS.subClassOf, interpretation):
-					name = str(member).split("#")[-1]
-					#TODO: displayname, doc
-					stream.write("register_symbol(%s, '%s', '%s', '', '')\n" %(collection_name, name, member))
 					
-			stream.write("\n#Event manifestations\n\n")
-					
-			for manifestation in self.store.subjects(RDFS.subClassOf, NIENS["DataObject"]):
-				# manifestation
-				collection_name = str(manifestation).split("#")[-1]
-				comments = list(self.store.objects(manifestation, RDFS.comment))
-				doc = comments[0] if comments else ""
-				stream.write("%s = SymbolCollection('%s', '%s')\n" %(collection_name, collection_name, doc))
-				#~ pprint.pprint(list(self.store.subjects(RDFS.subClassOf, interpretation)))
-				for member in self.store.subjects(RDFS.subClassOf, manifestation):
-					name = str(member).split("#")[-1]
-					#TODO: displayname, doc
-					stream.write("register_symbol(%s, '%s', '%s', '', '')\n" %(collection_name, name, member))
+			for collection_types in (NIENS["InformationElement"], NIENS["DataObject"]):
+				for collection_type in self.store.subjects(RDFS.subClassOf, collection_types):
+					stream.write("\n#%s\n\n" %str(collection_type).split("#")[-1])
+					collection_name = self._create_symbol_collection(stream, collection_type)
+					for member in sorted(self.store.subjects(RDFS.subClassOf, collection_type)):
+						self._create_symbol(stream, collection_name, member)

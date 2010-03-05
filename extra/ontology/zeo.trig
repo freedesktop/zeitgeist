@@ -27,6 +27,7 @@ zg: {
     
     zg:CreateEvent
         a rdfs:Class ;
+        rdfs:comment "Event type triggered when an item is created" ;
         rdfs:subClassOf zg:EventInterpretation .
     
     zg:OpenEvent
