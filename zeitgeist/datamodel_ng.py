@@ -15,6 +15,33 @@ else:
 	# ontology. This is why we parse the ontology to a temporary file
 	# and load it from there
 	IS_LOCAL = True
+	
+	
+class EnumValue(int):
+	"""class which behaves like an int, but has an additional docstring"""
+	def __new__(cls, value, doc=""):
+		obj = super(EnumValue, cls).__new__(EnumValue, value)
+		obj.__doc__ = "%s. ``(Integer value: %i)``" %(doc, obj)
+		return obj
+
+
+class Enum(object):
+	
+	def __init__(self, docstring):
+		self.__doc__ = str(docstring)
+		self.__enums = {}
+		
+	def __getattr__(self, name):
+		try:
+			return self.__enums[name]
+		except KeyError:
+			raise AttributeError
+			
+	def register(self, value, name, docstring):
+		ids = map(int, self.__enums.values())
+		if value in ids or name in self.__enums:
+			raise ValueError
+		self.__enums[name] = EnumValue(value, docstring)
 
 	
 class Symbol(str):
@@ -98,8 +125,12 @@ class SymbolCollection(object):
 	def __dir__(self):
 		return self.__symbols.keys()
 
+
 def register_symbol(collection, name, uri, displayname, docstring):
 	collection.register(name, uri, displayname, docstring)
+	
+def register_enum(enum, value, name, docstring):
+	enum.register(value, name, docstring)
 	
 if IS_LOCAL:
 	from tempfile import NamedTemporaryFile
@@ -109,7 +140,8 @@ if IS_LOCAL:
 	converter_script = os.path.join(extraddir, "trig2py")
 	ontology_trig = os.path.join(extraddir, "ontology/zeo.trig")
 	p = Popen([converter_script, ontology_trig], stderr=PIPE, stdout=PIPE)
-	p.wait()
+	if p.wait():
+		raise RuntimeError("broken ontology at '%s'" %ontology_trig)
 	fd.write(p.stdout.read())
 	fd.flush()
 	fd.seek(0)
@@ -124,3 +156,7 @@ if __name__ == "__main__":
 	# testing
 	print dir(EventManifestation)
 	print EventManifestation.USER_ACTIVITY
+	
+	print StorageState
+	print StorageState.Any
+	print StorageState.Any.__doc__
