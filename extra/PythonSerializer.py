@@ -6,6 +6,15 @@ NIENS = Namespace("http://www.semanticdesktop.org/ontologies/2007/08/15/nie#")
 
 import pprint
 
+def make_symbol_name(name):
+	new_name = [name[0]]
+	for s in name[1:]:
+		if s.isupper():
+			new_name.append("_")
+		new_name.append(s)
+	name = "".join(new_name)
+	return name.upper()
+	
 class PythonSerializer(RecursiveSerializer):
 	
 	def _create_symbol_collection(self, stream, collection_type):
@@ -27,12 +36,12 @@ class PythonSerializer(RecursiveSerializer):
 		stream.write(("register_symbol(collection=%s, name='%s',\n"
 					  "\turi='%s',\n"
 					  "\tdisplayname=_('%s'),\n"
-					  "\tdocstring='%s')\n") %(collection_name, name, member, display_name, doc))
+					  "\tdocstring='%s')\n") %(collection_name, make_symbol_name(name), member, display_name, doc))
 
 	def serialize(self, stream, base=None, encoding=None, **args):
 		for classURI in self.topClasses:
 			for resource in self.store.subjects(RDFS.subClassOf, RDFS.Resource):
-				stream.write("""Class %s(RDFSResource)\n\tpass\n\n""" %str(resource).split("#")[-1])
+				#~ stream.write("""class %s(RDFSResource):\n\tpass\n\n""" %str(resource).split("#")[-1])
 				
 				for member in self.store.subjects(RDFS.domain, resource):
 					attributes = dict(self.store.predicate_objects(member))

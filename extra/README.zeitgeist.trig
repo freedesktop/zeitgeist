@@ -11,6 +11,7 @@ TODO/open questions:
     - writing our own parser
   * how can we add this to our sphinx docs
   * how is this (esp. the displayname attribute) translatable
+  * CreateEvent vs. the old CREATE_EVENT
 
 ressources:
 http://techbase.kde.org/index.php?title=Development/Tutorials/Metadata/Nepomuk/RDFIntroduction
