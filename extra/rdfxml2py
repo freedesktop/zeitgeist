@@ -14,10 +14,6 @@ from rdflib.syntax import serializer, serializers
 register('python', serializers.Serializer,
          'PythonSerializer', 'PythonSerializer')
 
-def ontology2pycode(onto):
-	print onto.serialize(format="python")
-	return "FIXME: %s nodes in ontology" % len(onto)
-
 def parse(trig_stream):
 	"""
 	Return a list of triples representing the ontology
@@ -25,7 +21,7 @@ def parse(trig_stream):
 	trig_in = rdflib.FileInputSource(trig_stream)
 	ontology = rdflib.ConjunctiveGraph()
 	ontology.parse(trig_in)
-	pycode = ontology2pycode(ontology)
+	pycode = ontology.serialize(format="python")
 	print pycode	
 
 if __name__ == "__main__":
