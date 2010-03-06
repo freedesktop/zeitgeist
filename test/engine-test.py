@@ -316,6 +316,18 @@ class ZeitgeistEngineTest(_engineTestClass):
 		for event in events:
 			test = any(subj.origin == "file:///tmp" for subj in event.subjects)
 			self.assertTrue(test)
+
+	def testFindMultipleEvents(self):
+		import_events("test/data/five_events.js", self.engine)
+		subj1 = Subject.new_for_values(uri="file:///home/foo.txt")
+		event_template1 = Event.new_for_values(subjects=[subj1])
+		subj2 = Subject.new_for_values(uri="file:///tmp/foo.txt")
+		event_template2 = Event.new_for_values(subjects=[subj2])
+		result = self.engine.find_eventids((0, 1000), [event_template1, event_template2], StorageState.Any, 0, 4)
+		self.assertEquals(2, len(result))
+		events = self.engine.get_events(result)
+		
+	
 	
 	def testDontFindState(self):
 		# searchin by storage state is currently not implemented
