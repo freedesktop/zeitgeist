@@ -1,3 +1,5 @@
+SUBDIRS = ontology
+
 servicedir = $(datadir)/dbus-1/services
 nodist_service_DATA = org.gnome.zeitgeist.service
 
