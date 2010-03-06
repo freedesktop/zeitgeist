@@ -26,12 +26,13 @@ NIENS = Namespace("http://www.semanticdesktop.org/ontologies/2007/08/15/nie#")
 import pprint
 
 def make_symbol_name(name):
-	new_name = [name[0]]
-	for s in name[1:]:
-		if s.isupper():
-			new_name.append("_")
-		new_name.append(s)
-	name = "".join(new_name)
+	def _iter_chars(text):
+		yield text[0]
+		for s in text[1:]:
+			if s.isupper():
+				yield "_"
+			yield s
+	name = "".join(_iter_chars(name))
 	return name.upper()
 
 def sort_enum(value):
