@@ -148,8 +148,81 @@ class SymbolCollection(object):
 def register_symbol(collection, name, uri, displayname, docstring):
 	collection.register(name, uri, displayname, docstring)
 
-def register_enum(enum, value, name, docstring):
-	enum.register(value, name, docstring)
+class enum_factory(object):
+	"""factory for enums"""
+	counter = 0
+	
+	def __init__(self, doc):
+		self.__doc__ = doc
+		self._id = enum_factory.counter
+		enum_factory.counter += 1
+		
+
+class EnumValue(int):
+	"""class which behaves like an int, but has an additional docstring"""
+	def __new__(cls, value, doc=""):
+		obj = super(EnumValue, cls).__new__(EnumValue, value)
+		obj.__doc__ = "%s. ``(Integer value: %i)``" %(doc, obj)
+		return obj
+		
+		
+class EnumMeta(type):
+	"""Metaclass to register enums in correct order and assign interger
+	values to them
+	"""
+	def __new__(cls, name, bases, attributes):
+		enums = filter(
+			lambda x: isinstance(x[1], enum_factory), attributes.iteritems()
+		)
+		enums = sorted(enums, key=lambda x: x[1]._id)
+		for n, (key, value) in enumerate(enums):
+			attributes[key] = EnumValue(n, value.__doc__)
+		return super(EnumMeta, cls).__new__(cls, name, bases, attributes)
+		
+		
+class StorageState(object):
+	"""
+	Enumeration class defining the possible values for the storage state
+	of an event subject.
+	
+	The StorageState enumeration can be used to control whether or not matched
+	events must have their subjects available to the user. Fx. not including
+	deleted files, files on unplugged USB drives, files available only when
+	a network is available etc.
+	"""
+	__metaclass__ = EnumMeta
+	
+	NotAvailable = enum_factory(("The storage medium of the events "
+		"subjects must not be available to the user"))
+	Available = enum_factory(("The storage medium of all event subjects "
+		"must be immediately available to the user"))
+	Any = enum_factory("The event subjects may or may not be available")
+
+
+class ResultType(object):
+	"""
+	An enumeration class used to define how query results should be returned
+	from the Zeitgeist engine.
+	"""
+	__metaclass__ = EnumMeta
+	
+	MostRecentEvents = enum_factory("All events with the most recent events first")
+	LeastRecentEvents = enum_factory("All events with the oldest ones first")
+	MostRecentSubjects = enum_factory(("One event for each subject only, "
+		"ordered with the most recent events first"))
+	LeastRecentSubjects = enum_factory(("One event for each subject only, "
+		"ordered with oldest events first"))
+	MostPopularSubjects = enum_factory(("One event for each subject only, "
+		"ordered by the popularity of the subject"))
+	LeastPopularSubjects = enum_factory(("One event for each subject only, "
+		"ordered ascendently by popularity"))
+	MostPopularActor = enum_factory(("The last event of each different actor,"
+		"ordered by the popularity of the actor"))
+	LeastPopularActor = enum_factory(("The last event of each different actor,"
+		"ordered ascendently by the popularity of the actor"))
+	MostRecentActor = enum_factory(("The last event of each different actor"))
+	LeastRecentActor = enum_factory(("The first event of each different actor"))
+
 
 if IS_LOCAL:
 	from tempfile import NamedTemporaryFile
