@@ -225,20 +225,7 @@ class ResultType(object):
 
 
 if IS_LOCAL:
-	from tempfile import NamedTemporaryFile
-	from subprocess import Popen, PIPE
-	fd = NamedTemporaryFile()
-	extraddir = os.path.join(runpath, "../extra")
-	converter_script = os.path.join(extraddir, "trig2py")
-	ontology_trig = os.path.join(extraddir, "ontology/zeo.trig")
-	p = Popen([converter_script, ontology_trig], stderr=PIPE, stdout=PIPE)
-	if p.wait():
-		raise RuntimeError("broken ontology at '%s'" %ontology_trig)
-	fd.write(p.stdout.read())
-	fd.flush()
-	fd.seek(0)
-	execfile(fd.name)
-	fd.close()
+	execfile("extra/ontology/zeo.py")
 else:
 	raise NotImplementedError
 	# it should be similar to
