@@ -242,8 +242,8 @@ class ResultType(object):
 
 
 if IS_LOCAL:
-	execfile("extra/ontology/zeo.py")
-	execfile("extra/ontology/nfo.py")
+	execfile(os.path.join(runpath, "../extra/ontology/zeo.py"))
+	execfile(os.path.join(runpath, "../extra/ontology/nfo.py"))
 else:
 	raise NotImplementedError
 	# it should be similar to
