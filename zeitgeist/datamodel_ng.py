@@ -67,7 +67,8 @@ class Symbol(str):
 	
 	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None):
 		if not name.isupper() and parent is not None:
-			raise ValueError("Naming convention requires symbol name to be all uppercase, got '%s'" %name)
+			if parent not in (Interpretation, Manifestation):
+				raise ValueError("Naming convention requires symbol name to be all uppercase, got '%s'" %name)
 		return super(Symbol, cls).__new__(Symbol, uri or name)
 		
 	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
@@ -240,6 +241,8 @@ class ResultType(object):
 	MostRecentActor = enum_factory(("The last event of each different actor"))
 	LeastRecentActor = enum_factory(("The first event of each different actor"))
 
+Interpretation = SubjectInterpretation = Symbol("Interpretation", doc="TBD")
+Manifestation = SubjectManifestation = Symbol("Manifestation", doc="TBD")
 
 if IS_LOCAL:
 	execfile(os.path.join(runpath, "../extra/ontology/zeo.py"))
@@ -269,4 +272,9 @@ if __name__ == "__main__":
 	print DataContainer.FOO
 	
 	#~ DataContainer._add_child("booo") #must fail with TypeError
+	
+	print Interpretation
+	#~ print Interpretation.get_all_children()
+	import pprint
+	pprint.pprint(Interpretation.Software.get_all_children())
 	
