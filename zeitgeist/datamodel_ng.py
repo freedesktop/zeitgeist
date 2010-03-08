@@ -61,26 +61,49 @@ class Enum(object):
 		if value in ids or name in self.__enums:
 			raise ValueError
 		self.__enums[name] = EnumValue(value, docstring)
-
-
+		
+	
 class Symbol(str):
-
-	"""Immutable string-like object representing a Symbol
-	Zeitgeist uses Symbols when defining Manifestations and
-	Interpretations.
-	"""
-
-	def __new__(cls, symbol_type, name, uri=None, display_name=None, doc=None):
-		obj = super(Symbol, cls).__new__(Symbol, uri or name)
-		obj.__type = symbol_type
-		obj.__name = name
-		obj.__uri = uri
-		obj.__display_name = display_name
-		obj.__doc = doc
-		return obj
+	
+	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None):
+		return super(Symbol, cls).__new__(Symbol, uri or name)
+		
+	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
+		self.__children = dict()
+		self.__parent = parent
+		self.__name = name
+		self.__uri = uri
+		self.__display_name = display_name
+		self.__doc = doc
+		if self.__parent is not None:
+			self.__parent._add_child(self)
 
 	def __repr__(self):
-		return "<%s %r>" %(self.__type, self.uri)
+		return "<%s %r>" %(self.__parent, self.uri)
+		
+	def __getitem__(self, name):
+		""" Get a symbol by its URI. """
+		if isinstance(name, int):
+			# lookup by index
+			return super(Symbol, self).__getitem__(name)
+		symbol = [s for s in self.__children.values() if s.uri == uri]
+		if symbol:
+			return symbol[0]
+		raise KeyError("Could not find symbol for URI: %s" % uri)
+		
+	def __getattr__(self, name):
+		children = dict((s.name, s) for s in self.get_all_children())
+		try:
+			return children[name]
+		except KeyError:
+			if not name.isupper():
+				# Symbols must be upper-case
+				raise AttributeError("%s has no attribute '%s'" % (
+					self.__name__, name))
+			print "Unrecognized %s: %s" % (self.__name__, name)
+			s = Symbol(name, self)
+			self._add_child(s)
+			return s
 
 	@property
 	def uri(self):
@@ -93,6 +116,10 @@ class Symbol(str):
 	@property
 	def name(self):
 		return self.__name
+	__name__ = name
+	
+	def __dir__(self):
+		return self.__children.keys()
 
 	@property
 	def doc(self):
@@ -101,52 +128,38 @@ class Symbol(str):
 	@property
 	def __doc__(self):
 		return "%s\n\n	%s. ``(Display name: '%s')``" %(self.uri, self.doc.rstrip("."), self.display_name)
-
-
-class SymbolCollection(object):
-
-	def __init__(self, name, doc=""):
-		self.__name__ = name
-		self.__doc__ = str(doc)
-		self.__symbols = {}
-
-	def register(self, name, uri, display_name, doc):
-		if name in self.__symbols:
-			raise ValueError("Cannot register symbol %r, a definition for "
-				"this symbol already exists" % name)
-		if not name.isupper():
-			raise ValueError("Cannot register %r, name must be uppercase" %name)
-		self.__symbols[name] = Symbol(self.__name__, name, uri, display_name, doc)
-
-	def __len__(self):
-		return len(self.__symbols)
-
-	def __getattr__(self, name):
-		if not name in self.__symbols:
-			if not name.isupper():
-				# Symbols must be upper-case
-				raise AttributeError("%s has no attribute '%s'" % (
-					self.__name__, name))
-			print "Unrecognized %s: %s" % (self.__name__, name)
-			self.__symbols[name] = Symbol(self.__name__, name)
-		return self.__symbols[name]
-
-	def __getitem__(self, uri):
-		""" Get a symbol by its URI. """
-		symbol = [s for s in self.__symbols.values() if s.uri == uri]
-		if symbol:
-			return symbol[0]
-		raise KeyError("Could not find symbol for URI: %s" % uri)
-
-	def __iter__(self):
-		return self.__symbols.itervalues()
-
-	def __dir__(self):
-		return self.__symbols.keys()
-
-
-def register_symbol(collection, name, uri, displayname, docstring):
-	collection.register(name, uri, displayname, docstring)
+		
+	def _add_child(self, symbol):
+		if symbol.name in self.__children:
+			raise ValueError
+		if not isinstance(symbol, Symbol):
+			raise TypeError
+		self.__children[symbol.name] = symbol		
+		
+	def get_children(self):
+		return self.__children.values()
+		
+	def iter_all_children(self):
+		yield self
+		for child in self.__children.itervalues():
+			for sub_child in child.iter_all_children():
+				yield sub_child
+		
+	def get_all_children(self):
+		return set(self.iter_all_children())
+		
+	def get_parent(self):
+		return self.__parent
+		
+	def iter_all_parent(self):
+		yield self
+		if self.__parent is not None:
+			for parent in self.__parent.iter_all_parent():
+				yield parent
+		
+	def get_all_parent(self):
+		return set(self.iter_all_parent())
+		
 
 class enum_factory(object):
 	"""factory for enums"""
@@ -226,6 +239,7 @@ class ResultType(object):
 
 if IS_LOCAL:
 	execfile("extra/ontology/zeo.py")
+	execfile("extra/ontology/nfo.py")
 else:
 	raise NotImplementedError
 	# it should be similar to
@@ -235,7 +249,11 @@ if __name__ == "__main__":
 	# testing
 	print dir(EventManifestation)
 	print EventManifestation.USER_ACTIVITY
-
-	print StorageState
-	print StorageState.Any
-	print StorageState.Any.__doc__
+	
+	print DataContainer
+	print DataContainer.FILESYSTEM
+	print DataContainer.FILESYSTEM.__doc__
+	
+	print " OR ".join(DataContainer.get_all_children())
+	print " OR ".join(DataContainer.FILESYSTEM.get_all_children())
+	
