@@ -66,6 +66,8 @@ class Enum(object):
 class Symbol(str):
 	
 	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None):
+		if not name.isupper() and parent is not None:
+			raise ValueError("Naming convention requires symbol name to be all uppercase, got '%s'" %name)
 		return super(Symbol, cls).__new__(Symbol, uri or name)
 		
 	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
@@ -101,8 +103,8 @@ class Symbol(str):
 				raise AttributeError("%s has no attribute '%s'" % (
 					self.__name__, name))
 			print "Unrecognized %s: %s" % (self.__name__, name)
-			s = Symbol(name, self)
-			self._add_child(s)
+			# symbol is auto-added as child of this symbol
+			s = Symbol(name, parent=self)
 			return s
 
 	@property
@@ -130,11 +132,13 @@ class Symbol(str):
 		return "%s\n\n	%s. ``(Display name: '%s')``" %(self.uri, self.doc.rstrip("."), self.display_name)
 		
 	def _add_child(self, symbol):
+		if not isinstance(symbol, self.__class__):
+			raise TypeError("Child-Symbols must be of type '%s', got '%s'" %(self.__class__.__name__, type(symbol)))
 		if symbol.name in self.__children:
-			raise ValueError
-		if not isinstance(symbol, Symbol):
-			raise TypeError
-		self.__children[symbol.name] = symbol		
+			raise ValueError(
+				("There is already a Symbol called '%s', "
+				 "cannot register a symbol with the same name") %symbol.name)
+		self.__children[symbol.name] = symbol
 		
 	def get_children(self):
 		return self.__children.values()
@@ -256,4 +260,13 @@ if __name__ == "__main__":
 	
 	print " OR ".join(DataContainer.get_all_children())
 	print " OR ".join(DataContainer.FILESYSTEM.get_all_children())
+	
+	print DataContainer.BOO
+	
+	#~ Symbol("BOO", DataContainer) #must fail with ValueError
+	#~ Symbol("Boo", DataContainer) #must fail with ValueError
+	Symbol("FOO", DataContainer)
+	print DataContainer.FOO
+	
+	#~ DataContainer._add_child("booo") #must fail with TypeError
 	
