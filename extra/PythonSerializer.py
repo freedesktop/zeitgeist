@@ -23,7 +23,7 @@ from rdflib.Namespace import Namespace
 
 NIENS = Namespace("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#")
 
-import pprint
+import sys, pprint
 
 def make_symbol_name(name):
 	def _iter_chars(text):
@@ -50,10 +50,25 @@ class PythonSerializer(RecursiveSerializer):
 		doc = escape_chars(comments[0] if comments else "")
 		labels = list(self.store.objects(collection_type, RDFS.label))
 		display_name = escape_chars(labels[0] if labels else collection_name)
-		stream.write(
-			#TBD: not sure ?!
-			"%s = Symbol('%s', uri='%s', doc='%s')\n" %(collection_name, display_name, collection_type, doc)
-		)
+		root_type = list(self.store.objects(collection_type, RDFS.subClassOf))
+		root_type = root_type[0] if root_type else None
+		if root_type == NIENS["InformationElement"]:
+			stream.write(
+				#TBD: not sure ?!
+				"%s = Symbol('%s', parent=Interpretation, uri='%s', doc='%s')\n" %(collection_name,
+					display_name, collection_type, doc)
+			)
+		elif root_type == NIENS["DataObject"]:
+			stream.write(
+				#TBD: not sure ?!
+				"%s = Symbol('%s', parent=Manifestation, uri='%s', doc='%s')\n" %(collection_name,
+					display_name, collection_type, doc)
+			)
+		else:
+			stream.write(
+				#TBD: not sure ?!
+				"%s = Symbol('%s', uri='%s', doc='%s')\n" %(collection_name, display_name, collection_type, doc)
+			)
 		return collection_name
 
 	def _create_symbol(self, stream, collection_name, member):
@@ -62,6 +77,13 @@ class PythonSerializer(RecursiveSerializer):
 		doc = escape_chars(comments[0] if comments else "")
 		labels = list(self.store.objects(member, RDFS.label))
 		display_name = escape_chars(labels[0] if labels else name)
+		if collection_name is None:
+			root_type = list(self.store.objects(member, RDFS.subClassOf))
+			root_type = root_type[0] if root_type else None
+			if root_type == NIENS["InformationElement"]:
+				collection_name = "Interpretation"
+			elif root_type == NIENS["DataObject"]:
+				collection_name = "Manifestation"
 		#TODO: displayname, how are translation handled? on trig level or on python level?
 		stream.write(
 			"Symbol('%s', parent=%s, uri='%s', display_name='%s', doc='%s')\n" %(make_symbol_name(name), 
@@ -87,6 +109,10 @@ class PythonSerializer(RecursiveSerializer):
 		for collection_types in (NIENS["InformationElement"], NIENS["DataObject"]):
 			for collection_type in self.store.subjects(RDFS.subClassOf, collection_types):
 				stream.write("\n#%s\n\n" %str(collection_type).split("#")[-1])
-				collection_name = self._create_symbol_collection(stream, collection_type)
-				for member in sorted(self.store.subjects(RDFS.subClassOf, collection_type)):
-					self._create_symbol(stream, collection_name, member)
+				members = sorted(self.store.subjects(RDFS.subClassOf, collection_type))
+				if members:
+					collection_name = self._create_symbol_collection(stream, collection_type)
+					for member in members:
+						self._create_symbol(stream, collection_name, member)
+				else:
+					self._create_symbol(stream, None, collection_type)
