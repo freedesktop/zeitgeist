@@ -11,7 +11,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#>.
 @prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#>.
-@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/08/15/nie#>.
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#>.
 @prefix zg: <http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#>.
 
 zg: {
