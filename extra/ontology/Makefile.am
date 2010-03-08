@@ -1,6 +1,7 @@
 ontology_trig_DATA = \
 	zeo.trig \
-	nie.trig
+	nie.trig \
+	nfo.trig
 
 ontology_py_DATA = \
 	$(ontology_trig_DATA:.trig=.py)
