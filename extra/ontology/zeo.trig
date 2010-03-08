@@ -23,7 +23,6 @@ zg: {
     zg:EventInterpretation
         a   rdfs:Class ;
         rdfs:comment "" ;
-        rdfs:label "interpretation" ;
         rdfs:subClassOf nie:InformationElement .
     
     zg:CreateEvent
