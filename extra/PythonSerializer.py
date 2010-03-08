@@ -34,45 +34,39 @@ def make_symbol_name(name):
 			yield s
 	name = "".join(_iter_chars(name))
 	return name.upper()
-
-def sort_enum(value):
-	try:
-		return int(value[0].split("_")[-1])
-	except ValueError:
-		return 0
+	
+def escape_chars(text, strip=True):
+	text = text.replace("'", "\\'")
+	text = text.replace('"', '\\"')
+	if strip:
+		text = text.strip()
+	return text
 
 class PythonSerializer(RecursiveSerializer):
 
 	def _create_symbol_collection(self, stream, collection_type):
-		collection_name = str(collection_type).split("#")[-1]
+		collection_name = escape_chars(str(collection_type).split("#")[-1])
 		comments = list(self.store.objects(collection_type, RDFS.comment))
-		doc = comments[0] if comments else ""
+		doc = escape_chars(comments[0] if comments else "")
 		labels = list(self.store.objects(collection_type, RDFS.label))
-		display_name = labels[0] if labels else collection_name
-		stream.write("%s = SymbolCollection('%s', '%s')\n" %(collection_name, display_name, doc))
+		display_name = escape_chars(labels[0] if labels else collection_name)
+		stream.write(
+			#TBD: not sure ?!
+			"%s = Symbol('%s', uri='%s', doc='%s')\n" %(collection_name, display_name, collection_type, doc)
+		)
 		return collection_name
 
 	def _create_symbol(self, stream, collection_name, member):
 		name = str(member).split("#")[-1]
 		comments = list(self.store.objects(member, RDFS.comment))
-		doc = comments[0] if comments else ""
+		doc = escape_chars(comments[0] if comments else "")
 		labels = list(self.store.objects(member, RDFS.label))
-		display_name = labels[0] if labels else name
+		display_name = escape_chars(labels[0] if labels else name)
 		#TODO: displayname, how are translation handled? on trig level or on python level?
-		stream.write(("register_symbol(collection=%s, name='%s',\n"
-					  "\turi='%s',\n"
-					  "\tdisplayname=_('%s'),\n"
-					  "\tdocstring='%s')\n") %(collection_name, make_symbol_name(name), member, display_name, doc))
-
-	def _create_enum(self, stream, enum):
-		enum_name = str(enum).split("#")[-1]
-		comments = list(self.store.objects(enum, RDFS.comment))
-		doc = comments[0] if comments else ""
-		stream.write("%s = Enum('%s')\n" %(enum_name, doc))
-		return enum_name
-
-	def _create_enum_value(self, stream, enum_name, value, label, docstring):
-		stream.write("register_enum(%s, %d, '%s', '%s')\n" %(enum_name, int(value.split("_")[-1]), label, docstring))
+		stream.write(
+			"Symbol('%s', parent=%s, uri='%s', display_name='%s', doc='%s')\n" %(make_symbol_name(name), 
+				collection_name, member, display_name, doc)
+		)
 
 	def serialize(self, stream, base=None, encoding=None, **args):
 		#~ # this is not working yet, and does not do anything
