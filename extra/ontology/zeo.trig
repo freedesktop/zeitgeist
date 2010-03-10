@@ -16,10 +16,7 @@
 
 zg: {
     
-    zg:Event
-        a rdfs:Class ;
-        rdfs:comment "Something that happened at a point in time. Events are categorized by two primary factors 'what happened' - called the interpretation and 'how did it happen' - called the manifestation. Aside from a timestamp, events can also carry a reference to the entity responsible for instantiating it - called the actor. Normally the event actor is an application, but it need not be. Events happen to zero or more subjects. The subjects are described using the Nepomuk ontologies." ;
-        rdfs:subClassOf rdfs:Resource .
+# interpretations
     
     zg:EventInterpretation
         a   rdfs:Class ;
@@ -63,6 +60,8 @@ zg: {
         rdfs:comment "Event triggered by" ;
         rdfs:subClassOf zg:EventInterpretation .
     
+# manifestations
+    
     zg:EventManifestation
         a   rdfs:Class ;
         rdfs:comment "Base class for event manifestation types. Please do no instamtiate directly, but use one of the sub classes" ;
@@ -92,6 +91,13 @@ zg: {
         a rdfs:Class ;
         rdfs:comment "An event send to the user by the operating system. Examples could include when the user inserts a USB stick or when the system warns that the hard disk is full" ;
         rdfs:subClassOf zg:EventManifestation .
+    
+# event datastructure
+    
+    zg:Event
+        a rdfs:Class ;
+        rdfs:comment "Something that happened at a point in time. Events are categorized by two primary factors 'what happened' - called the interpretation and 'how did it happen' - called the manifestation. Aside from a timestamp, events can also carry a reference to the entity responsible for instantiating it - called the actor. Normally the event actor is an application, but it need not be. Events happen to zero or more subjects. The subjects are described using the Nepomuk ontologies." ;
+        rdfs:subClassOf rdfs:Resource .
     
     zg:eventId
         a   rdfs:Property ;
