@@ -25,16 +25,6 @@ NIENS = Namespace("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#")
 
 import sys, pprint
 
-def make_symbol_name(name):
-	def _iter_chars(text):
-		yield text[0]
-		for s in text[1:]:
-			if s.isupper():
-				yield "_"
-			yield s
-	name = "".join(_iter_chars(name))
-	return name.upper()
-	
 def escape_chars(text, strip=True):
 	text = text.replace("'", "\\'")
 	text = text.replace('"', '\\"')
@@ -86,7 +76,7 @@ class PythonSerializer(RecursiveSerializer):
 				collection_name = "Manifestation"
 		#TODO: displayname, how are translation handled? on trig level or on python level?
 		stream.write(
-			"Symbol('%s', parent=%s, uri='%s', display_name='%s', doc='%s')\n" %(make_symbol_name(name), 
+			"Symbol('%s', parent=%s, uri='%s', display_name='%s', doc='%s')\n" %(name, 
 				collection_name, member, display_name, doc)
 		)
 

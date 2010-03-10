@@ -62,16 +62,22 @@ class Enum(object):
 			raise ValueError
 		self.__enums[name] = EnumValue(value, docstring)
 		
+		
+def is_CamelCase(text):
+	return text and text[0].isupper() and " " not in text
 	
 class Symbol(str):
 	
 	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None):
-		if not name.isupper() and parent is not None:
-			if parent not in (Interpretation, Manifestation):
-				raise ValueError("Naming convention requires symbol name to be all uppercase, got '%s'" %name)
+		if not is_CamelCase(name):
+			raise ValueError("Naming convention requires symbol name to be all uppercase, got '%s'" %name)
 		return super(Symbol, cls).__new__(Symbol, uri or name)
 		
 	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
+		"""
+		
+		parent is a set of strings containing any number of ''
+		"""
 		self.__children = dict()
 		self.__parent = parent
 		self.__name = name
@@ -99,7 +105,7 @@ class Symbol(str):
 		try:
 			return children[name]
 		except KeyError:
-			if not name.isupper():
+			if not is_CamelCase(name):
 				# Symbols must be upper-case
 				raise AttributeError("%s has no attribute '%s'" % (
 					self.__name__, name))
@@ -255,21 +261,21 @@ else:
 if __name__ == "__main__":
 	# testing
 	print dir(EventManifestation)
-	print EventManifestation.USER_ACTIVITY
+	print EventManifestation.UserActivity
 	
 	print DataContainer
-	print DataContainer.FILESYSTEM
-	print DataContainer.FILESYSTEM.__doc__
+	print DataContainer.Filesystem
+	print DataContainer.Filesystem.__doc__
 	
 	print " OR ".join(DataContainer.get_all_children())
-	print " OR ".join(DataContainer.FILESYSTEM.get_all_children())
+	print " OR ".join(DataContainer.Filesystem.get_all_children())
 	
-	print DataContainer.BOO
+	print DataContainer.Boo
 	
 	#~ Symbol("BOO", DataContainer) #must fail with ValueError
 	#~ Symbol("Boo", DataContainer) #must fail with ValueError
-	Symbol("FOO", DataContainer)
-	print DataContainer.FOO
+	Symbol("Foo", DataContainer)
+	print DataContainer.Foo
 	
 	#~ DataContainer._add_child("booo") #must fail with TypeError
 	
