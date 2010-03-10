@@ -63,14 +63,14 @@ class Enum(object):
 		self.__enums[name] = EnumValue(value, docstring)
 		
 		
-def is_CamelCase(text):
+def isCamelCase(text):
 	return text and text[0].isupper() and " " not in text
 	
 class Symbol(str):
 	
 	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None):
-		if not is_CamelCase(name):
-			raise ValueError("Naming convention requires symbol name to be all uppercase, got '%s'" %name)
+		if not isCamelCase(name):
+			raise ValueError("Naming convention requires symbol name to be CamelCase, got '%s'" %name)
 		return super(Symbol, cls).__new__(Symbol, uri or name)
 		
 	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
@@ -105,8 +105,8 @@ class Symbol(str):
 		try:
 			return children[name]
 		except KeyError:
-			if not is_CamelCase(name):
-				# Symbols must be upper-case
+			if not isCamelCase(name):
+				# Symbols must be CamelCase
 				raise AttributeError("%s has no attribute '%s'" % (
 					self.__name__, name))
 			print "Unrecognized %s: %s" % (self.__name__, name)
