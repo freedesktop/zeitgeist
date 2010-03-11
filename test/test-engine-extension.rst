@@ -7,12 +7,13 @@ There is only one extension right now called Blacklist, which
 is in fact a part of the core Zeitgeist API, but is implemented as an extension
 anyway.
 
-Per default you will see only the Blacklist extension
+Per default two extensions are loaded, the Blacklist and the DataSourceRegistry
+extension
 
     >>> from _zeitgeist.engine.main import ZeitgeistEngine
     >>> engine = ZeitgeistEngine()
     >>> len(engine.extensions)
-    1
+    2
     
 To create a new extension you have to subclass the Extension class and
 provide a list of accessible methods in PUBLIC_METHODS
@@ -45,11 +46,12 @@ Now we have to load this extension to the engine
 
     >>> engine.extensions.load(SampleExtension)
     >>> len(engine.extensions)
-    2
+    3
     >>> print engine.extensions
-    ExtensionsCollection(['set_blacklist', 'get_blacklist', 'add_value', 'get_engine'])
+    ExtensionsCollection(['add_value', 'get_blacklist', 'get_data_sources', 'get_engine', 'register_data_source', 'set_blacklist', 'set_data_source_enabled'])
     >>> sorted(engine.extensions.methods)
-    ['add_value', 'get_blacklist', 'get_engine', 'set_blacklist']
+    ['add_value', 'get_blacklist', 'get_data_sources', 'get_engine', 'register_data_source', 'set_blacklist', 'set_data_source_enabled']
+
     
 In the last line you can see all methods which are added to the engine by
 an extension.
@@ -74,7 +76,7 @@ It is also possible to unload an extension
 
     >>> engine.extensions.unload(SampleExtension)
     >>> sorted(engine.extensions.methods)
-    []
+    ['get_blacklist', 'get_data_sources', 'register_data_source', 'set_blacklist', 'set_data_source_enabled']
 
 Now its methods are not accessible anymore
 
@@ -89,7 +91,7 @@ TypeError is raised
     >>> engine.extensions.load(set) # doctest:+ELLIPSIS
     Traceback (most recent call last):
       ...
-    TypeError: Unable to load <type 'set'>, all extensions have to be subclasses of <...Extension'>
+    TypeError: Unable to load <type 'set'>, all extensions must be subclasses of <class '...Extension'>
 
 Also, if an extension does not define any public method a ValueErro is raised
 
@@ -103,3 +105,12 @@ Also, if an extension does not define any public method a ValueErro is raised
       ...
     ValueError: Unable to load <...FailExtension'>, this extension has not defined any methods
 
+At a last step, let's unload all extensions
+
+    >>> engine.extensions.unload()
+    >>> len(engine.extensions)
+    0
+
+Clean-up and close the engine object
+
+    >>> engine.close()
