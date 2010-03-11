@@ -250,7 +250,7 @@ class Symbol(str):
 		self.__children[symbol.name] = symbol
 		
 	def get_children(self):
-		return self.__children.values()
+		return frozenset(self.__children.values())
 		
 	def iter_all_children(self):
 		yield self
@@ -259,10 +259,10 @@ class Symbol(str):
 				yield sub_child
 		
 	def get_all_children(self):
-		return set(self.iter_all_children())
+		return frozenset(self.iter_all_children())
 		
 	def get_parent(self):
-		return self.__parent
+		return frozenset(self.__parent)
 		
 	def iter_all_parent(self):
 		yield self
@@ -271,7 +271,7 @@ class Symbol(str):
 				yield parent
 		
 	def get_all_parent(self):
-		return set(self.iter_all_parent())
+		return frozenset(self.iter_all_parent())
 		
 		
 class TimeRange(list):
