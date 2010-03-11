@@ -132,8 +132,8 @@ class Symbol(str):
 		
 	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
 		self.__children = dict()
-		self.__parent = parent or set()
-		assert isinstance(self.__parent, set), name
+		self.__parents = parent or set()
+		assert isinstance(self.__parents, set), name
 		self.__name = name
 		self.__uri = uri
 		self.__display_name = display_name
@@ -141,9 +141,9 @@ class Symbol(str):
 		self._resolve_children(False)
 		
 	def _resolve_children(self, must_finish=True):
-		if not self.__parent:
+		if not self.__parents:
 			return
-		for parent in self.__parent.copy():
+		for parent in self.__parents.copy():
 			parent_obj = None
 			if isinstance(parent, self.__class__):
 				if self in parent.get_children():
@@ -174,17 +174,19 @@ class Symbol(str):
 						parent_obj = None
 			if isinstance(parent_obj, self.__class__):
 				parent_obj._add_child(self)
-				self.__parent.remove(parent)
-				self.__parent.add(parent_obj)
-		finished = all(map(lambda x: isinstance(x, self.__class__), self.__parent))
-		if not finished:
+				self.__parents.remove(parent)
+				self.__parents.add(parent_obj)
+		
+		missing_symbols = filter(lambda x: isinstance(x, self.__class__), self.__parents)
+		if missing_symbols:
 			if must_finish:
-				raise RuntimeError("Cannot resolve all parent symbols")
+				raise RuntimeError("Unable to resolve symbols: %s"
+				                   % ", ".join(missing_symbols))
 			else:
 				NEEDS_CHILD_RESOLUTION.add(self)
 
 	def __repr__(self):
-		return "<%s '%s'>" %(", ".join(get_name_or_str(i) for i in self.get_all_parent()), self.uri)
+		return "<%s '%s'>" %(", ".join(get_name_or_str(i) for i in self.get_all_parents()), self.uri)
 		
 	def __getitem__(self, name):
 		""" Get a symbol by its URI. """
@@ -251,28 +253,48 @@ class Symbol(str):
 		self.__children[symbol.name] = symbol
 		
 	def get_children(self):
+		"""
+		Returns a list of immediate child symbols
+		"""
 		return frozenset(self.__children.values())
 		
 	def iter_all_children(self):
+		"""
+		Returns a generator that recursively iterates over all children
+		of this symbol
+		"""
 		yield self
 		for child in self.__children.itervalues():
 			for sub_child in child.iter_all_children():
 				yield sub_child
 		
 	def get_all_children(self):
+		"""
+		Return a read-only set containing all children of this symbol
+		"""
 		return frozenset(self.iter_all_children())
 		
-	def get_parent(self):
-		return frozenset(self.__parent)
+	def get_parents(self):
+		"""
+		Returns a list of immediate parent symbols
+		"""
+		return frozenset(self.__parents)
 		
-	def iter_all_parent(self):
+	def iter_all_parents(self):
+		"""
+		Returns a generator that recursively iterates over all parents
+		of this symbol
+		"""
 		yield self
-		for parent_symbol in self.__parent:
-			for parent in parent_symbol.iter_all_parent():
+		for parent_symbol in self.__parents:
+			for parent in parent_symbol.iter_all_parents():
 				yield parent
 		
-	def get_all_parent(self):
-		return frozenset(self.iter_all_parent())
+	def get_all_parents(self):
+		"""
+		Return a read-only set containing all parents of this symbol
+		"""
+		return frozenset(self.iter_all_parents())
 		
 		
 class TimeRange(list):
@@ -900,14 +922,20 @@ if IS_LOCAL:
 	try:
 		execfile(os.path.join(runpath, "../extra/ontology/zeitgeist.py"))
 	except IOError:
-		raise ImportError("Unable to load zeitgeist ontology, please run `make` and try again.")
+		raise ImportError("Unable to load zeitgeist ontology, "
+		                  "please run `make` and try again.")
 else:
 	raise NotImplementedError
 	# it should be similar to
 	execfile("/path/of/zeo.trig.py")
 	
 for symbol in NEEDS_CHILD_RESOLUTION:
-	symbol._resolve_children()
+	try:
+		symbol._resolve_children()
+	except Exception, e:
+		print >> sys.stderr, ("Error resolving children of %s: %s"
+		                      % (symbol, e))
+		raise SystemExit(1)
 
 if __name__ == "__main__":
 	# testing
