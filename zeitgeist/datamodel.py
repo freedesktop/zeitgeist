@@ -858,8 +858,8 @@ Interpretation = SubjectInterpretation = Symbol("Interpretation", doc=INTERPRETA
 Manifestation = SubjectManifestation = Symbol("Manifestation", doc=MANIFESTATION_DOC)
 
 if IS_LOCAL:
-	pass
-	#~ execfile(os.path.join(runpath, "../extra/ontology/zeitgeist.py"))
+	#~ pass
+	execfile(os.path.join(runpath, "../extra/ontology/zeitgeist.py"))
 else:
 	raise NotImplementedError
 	# it should be similar to
