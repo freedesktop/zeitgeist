@@ -1,0 +1,19 @@
+===============
+Ontology Branch
+===============
+
+What needs to be done to
+
+ * get this branch ready to land
+    * add more tests
+    * add more documentation
+    * document API changes
+    * document DB changes
+    * write converter script for the DB
+    * check known clients and convert Symbol names from UPPERCASE to CamelCase
+      (dataprovider/tests/GAJ)
+ 
+ * consider the related blueprint as implemented
+    * add more ontologies
+    * build-time/packaging magic to use ontologies shipped in a distribution
+      package instead of our copies (*not sure about this*)
