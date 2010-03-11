@@ -222,6 +222,10 @@ class SymbolDocumenter(Documenter):
         if self.object in (ResultType, StorageState):
             # we sort our enums by integer values
             r = (r[0], sorted(r[1],  key=lambda x: x[1]))
+        elif isinstance(self.object, Symbol):
+            # we treat symbol objects special and only document their child
+            # symbols
+            return False, [(i.name, i) for i in self.object.get_children()]
         return r
         
         
