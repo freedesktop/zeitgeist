@@ -98,7 +98,6 @@ class Symbol(str):
 	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None):
 		if not isCamelCase(name):
 			raise ValueError("Naming convention requires symbol name to be CamelCase, got '%s'" %name)
-		print uri, name, uri or name
 		return super(Symbol, cls).__new__(Symbol, uri or name)
 		
 	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
