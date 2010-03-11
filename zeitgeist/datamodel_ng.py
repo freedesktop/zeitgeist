@@ -87,6 +87,12 @@ class Enum(object):
 def isCamelCase(text):
 	return text and text[0].isupper() and " " not in text
 	
+def get_name_or_str(obj):
+	try:
+		return str(obj.name)
+	except AttributeError:
+		return str(obj)
+	
 class Symbol(str):
 	
 	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None):
@@ -141,10 +147,7 @@ class Symbol(str):
 				NEEDS_CHILD_RESOLUTION.add(self)
 
 	def __repr__(self):
-		return "<%s '%s'>" %(", ".join(str(i) for i in self.get_all_parent()), self.uri)
-		
-	def __str__(self):
-		return self.name
+		return "<%s '%s'>" %(", ".join(get_name_or_str(i) for i in self.get_all_parent()), self.uri)
 		
 	def __getitem__(self, name):
 		""" Get a symbol by its URI. """
