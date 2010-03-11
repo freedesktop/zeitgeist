@@ -114,11 +114,18 @@ class Symbol(str):
 		if not self.__parent:
 			return
 		for parent in self.__parent.copy():
-			if not isinstance(parent, (str, unicode)):
+			parent_obj = None
+			if isinstance(parent, self.__class__):
+				if self in parent.get_children():
+					# symbol is already as child of parent symbol
+					continue
+				parent_obj = parent
+			elif not isinstance(parent, (str, unicode)):
 				continue
-			# parent can be the name of a symbol, let's look it up in 
-			# the global namespace
-			parent_obj = globals().get(parent)
+			if parent_obj is None:
+				# parent can be the name of a symbol, let's look it up in 
+				# the global namespace
+				parent_obj = globals().get(parent)
 			if parent_obj is None:
 				# parent can be an uri, where the last part is the name
 				# of the symbol, let's try to look it up
