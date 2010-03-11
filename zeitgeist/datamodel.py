@@ -23,6 +23,7 @@
 import os.path
 import gettext
 import time
+import sys
 gettext.install("zeitgeist", unicode=1)
 
 __all__ = [
@@ -211,7 +212,7 @@ class Symbol(str):
 				# Symbols must be CamelCase
 				raise AttributeError("%s has no attribute '%s'" % (
 					self.__name__, name))
-			print "Unrecognized %s: %s" % (self.__name__, name)
+			print >> sys.stderr, "Unrecognized %s: %s" % (self.__name__, name)
 			# symbol is auto-added as child of this symbol
 			s = Symbol(name, parent=set([self,]))
 			return s
