@@ -2,7 +2,10 @@
 
 # Zeitgeist
 #
+# Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
+# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
