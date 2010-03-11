@@ -375,21 +375,20 @@ nie: {nie:characterSet
           rdfs:range rdfs:Resource .
 }
 
-## rdflib doesn't like the following section
-#<http://www.semanticdesktop.org/ontologies/2007/01/19/nie_metadata#> {nie:  a       nrl:Ontology ;
-#          nao:creator <http://www.dfki.uni-kl.de/~mylka> ;
-#          nao:hasDefaultNamespace
-#                  "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#" ;
-#          nao:hasDefaultNamespaceAbbreviation
-#                  "nie" ;
-#          nao:lastModified "2009-11-12T07:45:58Z" ;
-#          nao:status "Unstable" ;
-#          nao:updatable "0 " ;
-#          nao:version "Revision-9" .
-#
-#    <http://www.semanticdesktop.org/ontologies/2007/01/19/nie_metadata#>
-#          a       nrl:GraphMetadata ;
-#          nrl:coreGraphMetadataFor
-#                  nie: .
-#}
+<http://www.semanticdesktop.org/ontologies/2007/01/19/nie_metadata#> {nie:  a       nrl:Ontology ;
+          nao:creator <http://www.dfki.uni-kl.de/~mylka> ;
+          nao:hasDefaultNamespace
+                  "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#" ;
+          nao:hasDefaultNamespaceAbbreviation
+                  "nie" ;
+          nao:lastModified "2009-11-12T07:45:58Z" ;
+          nao:status "Unstable" ;
+          nao:updatable "0 " ;
+          nao:version "Revision-9" .
+
+    <http://www.semanticdesktop.org/ontologies/2007/01/19/nie_metadata#>
+          a       nrl:GraphMetadata ;
+          nrl:coreGraphMetadataFor
+                  nie: .
+}
 

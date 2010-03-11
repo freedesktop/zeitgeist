@@ -20,7 +20,7 @@ zg: {
     
     zg:EventInterpretation
         a   rdfs:Class ;
-        rdfs:comment "Base class for event interpretations. Please do no instantiate directly, but use one of the sub classes" ;
+        rdfs:comment "Base class for event interpretations. Please do no instantiate directly, but use one of the sub classes. The interpretation of an event describes 'what happened' - fx. 'something was created' or 'something was accessed'" ;
         rdfs:subClassOf nie:InformationElement .
     
     zg:CreateEvent
@@ -64,7 +64,7 @@ zg: {
     
     zg:EventManifestation
         a   rdfs:Class ;
-        rdfs:comment "Base class for event manifestation types. Please do no instamtiate directly, but use one of the sub classes" ;
+        rdfs:comment "Base class for event manifestation types. Please do no instantiate directly, but use one of the sub classes. The manifestation of an event describes 'how it happened'. Fx. 'the user did this' or 'the system notified the user'" ;
         rdfs:subClassOf nie:DataObject .
     
     zg:UserActivity
