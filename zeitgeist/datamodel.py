@@ -33,6 +33,7 @@ __all__ = [
 	'ResultType',
 	'StorageState',
 	'TimeRange',
+	'DataSource',
 	'Event',
 	'Subject',
 	'NULL_EVENT',
@@ -895,8 +896,10 @@ Interpretation = SubjectInterpretation = Symbol("Interpretation", doc=INTERPRETA
 Manifestation = SubjectManifestation = Symbol("Manifestation", doc=MANIFESTATION_DOC)
 
 if IS_LOCAL:
-	#~ pass
-	execfile(os.path.join(runpath, "../extra/ontology/zeitgeist.py"))
+	try:
+		execfile(os.path.join(runpath, "../extra/ontology/zeitgeist.py"))
+	except IOError:
+		raise ImportError("Unable to load zeitgeist ontology, please run `make` and try again.")
 else:
 	raise NotImplementedError
 	# it should be similar to
