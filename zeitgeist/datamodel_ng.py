@@ -21,6 +21,15 @@ import os.path
 import gettext
 gettext.install("zeitgeist", unicode=1)
 
+__all__ = [
+	'Interpretation',
+	'SubjectInterpretation',
+	'Manifestation',
+	'SubjectManifestation',
+	'ResultType',
+	'StorageState',
+]
+
 runpath = os.path.dirname(__file__)
 
 NEEDS_CHILD_RESOLUTION = set()
@@ -86,7 +95,7 @@ class Symbol(str):
 		self._resolve_children(False)
 		
 	def _resolve_children(self, must_finish=True):
-		if self.__parent is None:
+		if not self.__parent:
 			return
 		for parent in self.__parent.copy():
 			if not isinstance(parent, (str, unicode)):
@@ -122,7 +131,10 @@ class Symbol(str):
 				NEEDS_CHILD_RESOLUTION.add(self)
 
 	def __repr__(self):
-		return "<%s %r>" %(self.__parent, self.uri)
+		return "<%s '%s'>" %(", ".join(str(i) for i in self.get_all_parent()), self.uri)
+		
+	def __str__(self):
+		return self.name
 		
 	def __getitem__(self, name):
 		""" Get a symbol by its URI. """
@@ -205,8 +217,8 @@ class Symbol(str):
 		
 	def iter_all_parent(self):
 		yield self
-		if self.__parent is not None:
-			for parent in self.__parent.iter_all_parent():
+		for parent_symbol in self.__parent:
+			for parent in parent_symbol.iter_all_parent():
 				yield parent
 		
 	def get_all_parent(self):
@@ -304,6 +316,7 @@ for symbol in NEEDS_CHILD_RESOLUTION:
 if __name__ == "__main__":
 	# testing
 	print dir(EventManifestation)
+	print dir(Manifestation)
 	print EventManifestation.UserActivity
 	
 	print DataContainer
