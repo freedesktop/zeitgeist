@@ -17,9 +17,9 @@ testdir = os.path.dirname(os.path.abspath(__file__))
 doctests = glob.glob(os.path.join(testdir, "*.rst"))
 
 # Create a test suite to run all tests
-# FIXME: This doesn't work with Python 2.5
-#suite = doctest.DocFileSuite(*doctests, module_relative=False, globs={"sys": sys})
-suite = unittest.TestSuite()
+# first, add all doctests
+arguments = {"module_relative": False, "globs": {"sys": sys}}
+suite = doctest.DocFileSuite(*doctests, **arguments)
 
 # Add all of the tests from each file that ends with "-test.py"
 for fname in os.listdir(testdir):
