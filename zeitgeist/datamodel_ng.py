@@ -19,6 +19,7 @@
 
 import os.path
 import gettext
+import time
 gettext.install("zeitgeist", unicode=1)
 
 __all__ = [
@@ -28,6 +29,10 @@ __all__ = [
 	'SubjectManifestation',
 	'ResultType',
 	'StorageState',
+	'TimeRange',
+	'Event',
+	'Subject',
+	'NULL_EVENT',
 ]
 
 runpath = os.path.dirname(__file__)
@@ -45,7 +50,12 @@ else:
 	# ontology. This is why we parse the ontology to a temporary file
 	# and load it from there
 	IS_LOCAL = True
-
+	
+def get_timestamp_for_now():
+	"""
+	Return the current time in milliseconds since the Unix Epoch.
+	"""
+	return int(time.time() * 1000)
 
 class EnumValue(int):
 	"""class which behaves like an int, but has an additional docstring"""
@@ -257,6 +267,522 @@ class EnumMeta(type):
 		return super(EnumMeta, cls).__new__(cls, name, bases, attributes)
 		
 		
+class TimeRange(list):
+	"""
+	A class that represents a time range with a beginning and an end.
+	The timestamps used are integers representing milliseconds since the
+	Epoch.
+	
+	By design this class will be automatically transformed to the DBus
+	type (xx).
+	"""
+	# Maximal value of our timestamps
+	_max_stamp = 2**63 - 1
+	
+	def __init__ (self, begin, end):
+		super(TimeRange, self).__init__((int(begin), int(end)))
+	
+	def __eq__ (self, other):
+		return self.begin == other.begin and self.end == other.end
+	
+	def __str__ (self):
+		return "(%s, %s)" % (self.begin, self.end)
+	
+	def get_begin(self):
+		return self[0]
+	
+	def set_begin(self, begin):
+		self[0] = begin
+	begin = property(get_begin, set_begin,
+	doc="The begining timestamp of this time range")
+	
+	def get_end(self):
+		return self[1]
+	
+	def set_end(self, end):
+		self[1] = end
+	end = property(get_end, set_end,
+	doc="The end timestamp of this time range")
+	
+	@classmethod
+	def until_now(cls):
+		"""
+		Return a :class:`TimeRange` from 0 to the instant of invocation
+		"""
+		return cls(0, int(time.time() * 1000))
+	
+	@classmethod
+	def from_now(cls):
+		"""
+		Return a :class:`TimeRange` from the instant of invocation to
+		the end of time
+		"""
+		return cls(int(time.time() * 1000), cls._max_stamp)
+	
+	@classmethod
+	def from_seconds_ago(cls, sec):
+		"""
+		Return a :class:`TimeRange` ranging from "sec" seconds before
+		the instant of invocation to the same.
+		"""
+		now = int(time.time() * 1000)
+		return cls(now - (sec * 1000), now)
+	
+	@classmethod
+	def always(cls):
+		"""
+		Return a :class:`TimeRange` from the furtest past to the most
+		distant future
+		"""
+		return cls(-cls._max_stamp, cls._max_stamp)
+		
+	def intersect(self, time_range):
+		"""
+		Return a new :class:`TimeRange` that is the intersection of the
+		two time range intervals. If the intersection is empty this
+		method returns :const:`None`.
+		"""
+		# Behold the boolean madness!
+		result = TimeRange(0,0)
+		if self.begin < time_range.begin:
+			if self.end < time_range.begin:
+				return None
+			else:
+				result.begin = time_range.begin
+		else:
+			if self.begin > time_range.end:
+				return None
+			else:
+				result.begin = self.begin
+		
+		if self.end < time_range.end:
+			if self.end < time_range.begin:
+				return None
+			else:
+				 result.end = self.end
+		else:
+			if self.begin > time_range.end:
+				return None
+			else:
+				result.end = time_range.end
+		
+		return result
+		
+		
+class Subject(list):
+	"""
+	Represents a subject of an :class:`Event`. This class is both used to
+	represent actual subjects, but also create subject templates to match
+	other subjects against.
+	
+	Applications should normally use the method :meth:`new_for_values` to
+	create new subjects.
+	"""
+	Fields = (Uri,
+		Interpretation,
+		Manifestation,
+		Origin,
+		Mimetype,
+		Text,
+		Storage) = range(7)
+	
+	def __init__(self, data=None):
+		super(Subject, self).__init__([""]*len(Subject.Fields))
+		if data:
+			if len(data) != len(Subject.Fields):
+				raise ValueError(
+					"Invalid subject data length %s, expected %s"
+					% (len(data), len(Subject.Fields)))
+			super(Subject, self).__init__(data)
+		else:
+			super(Subject, self).__init__([""]*len(Subject.Fields))
+		
+	def __repr__(self):
+		return "%s(%s)" %(
+			self.__class__.__name__, super(Subject, self).__repr__()
+		)
+	
+	@staticmethod
+	def new_for_values (**values):
+		"""
+		Create a new Subject instance and set its properties according
+		to the keyword arguments passed to this method.
+		
+		:param uri: The URI of the subject. Eg. *file:///tmp/ratpie.txt*
+		:param interpretation: The interpretation type of the subject, given either as a string URI or as a :class:`Interpretation` instance
+		:param manifestation: The manifestation type of the subject, given either as a string URI or as a :class:`Manifestation` instance
+		:param origin: The URI of the location where subject resides or can be said to originate from
+		:param mimetype: The mimetype of the subject encoded as a string, if applicable. Eg. *text/plain*.
+		:param text: Free form textual annotation of the subject.
+		:param storage: String identifier for the storage medium of the subject. This should be the UUID of the volume or the string "net" for resources requiring a network interface, and the string "deleted" for subjects that are deleted.
+		"""
+		self = Subject()
+		for key, value in values.iteritems():
+			setattr(self, key, value)
+		return self
+		
+	def get_uri(self):
+		return self[Subject.Uri]
+		
+	def set_uri(self, value):
+		self[Subject.Uri] = value
+	uri = property(get_uri, set_uri,
+	doc="Read/write property with the URI of the subject encoded as a string")
+		
+	def get_interpretation(self):
+		return self[Subject.Interpretation]
+		
+	def set_interpretation(self, value):
+		self[Subject.Interpretation] = value
+	interpretation = property(get_interpretation, set_interpretation,
+	doc="Read/write property defining the :class:`interpretation type <Interpretation>` of the subject") 
+		
+	def get_manifestation(self):
+		return self[Subject.Manifestation]
+		
+	def set_manifestation(self, value):
+		self[Subject.Manifestation] = value
+	manifestation = property(get_manifestation, set_manifestation,
+	doc="Read/write property defining the :class:`manifestation type <Manifestation>` of the subject")
+		
+	def get_origin(self):
+		return self[Subject.Origin]
+		
+	def set_origin(self, value):
+		self[Subject.Origin] = value
+	origin = property(get_origin, set_origin,
+	doc="Read/write property with the URI of the location where the subject resides or where it can be said to originate from")
+		
+	def get_mimetype(self):
+		return self[Subject.Mimetype]
+		
+	def set_mimetype(self, value):
+		self[Subject.Mimetype] = value
+	mimetype = property(get_mimetype, set_mimetype,
+	doc="Read/write property containing the mimetype of the subject (encoded as a string) if applicable")
+	
+	def get_text(self):
+		return self[Subject.Text]
+		
+	def set_text(self, value):
+		self[Subject.Text] = value
+	text = property(get_text, set_text,
+	doc="Read/write property with a free form textual annotation of the subject")
+		
+	def get_storage(self):
+		return self[Subject.Storage]
+		
+	def set_storage(self, value):
+		self[Subject.Storage] = value
+	storage = property(get_storage, set_storage,
+	doc="Read/write property with a string id of the storage medium where the subject is stored. Fx. the UUID of the disk partition or just the string 'net' for items requiring network interface to be available")
+	
+	def matches_template (self, subject_template):
+		"""
+		Return True if this Subject matches *subject_template*. Empty
+		fields in the template are treated as wildcards.
+		
+		See also :meth:`Event.matches_template`
+		"""
+		for m in Subject.Fields:
+			if subject_template[m] and subject_template[m] != self[m] :
+				return False
+		return True
+
+class Event(list):
+	"""
+	Core data structure in the Zeitgeist framework. It is an optimized and
+	convenient representation of an event.
+	
+	This class is designed so that you can pass it directly over
+	DBus using the Python DBus bindings. It will automagically be
+	marshalled with the signature a(asaasay). See also the section
+	on the :ref:`event serialization format <event_serialization_format>`.
+	
+	This class does integer based lookups everywhere and can wrap any
+	conformant data structure without the need for marshalling back and
+	forth between DBus wire format. These two properties makes it highly
+	efficient and is recommended for use everywhere.
+	"""
+	Fields = (Id,
+		Timestamp,
+		Interpretation,
+		Manifestation,
+		Actor) = range(5)
+	
+	def __init__(self, struct = None):
+		"""
+		If 'struct' is set it must be a list containing the event
+		metadata in the first position, and optionally the list of
+		subjects in the second position, and again optionally the event
+		payload in the third position.
+		
+		Unless the event metadata contains a timestamp the event will
+		have its timestamp set to "now". Ie. the instant of invocation.
+		
+		The event metadata (struct[0]) will be used as is, and must
+		contain the event data on the positions defined by the
+		Event.Fields enumeration.
+		
+		Likewise each member of the subjects (struct[1]) must be an
+		array with subject metadata defined in the positions as laid
+		out by the Subject.Fields enumeration.
+		
+		On the third position (struct[2]) the struct may contain the
+		event payload, which can be an arbitrary binary blob. The payload
+		will be transfered over DBus with the 'ay' signature (as an
+		array of bytes).
+		"""
+		super(Event, self).__init__()
+		if struct:
+			if len(struct) == 1:
+				self.append(struct[0])
+				self.append([])
+				self.append("")
+			elif len(struct) == 2:
+				self.append(struct[0])
+				self.append(map(Subject, struct[1]))
+				self.append("")
+			elif len(struct) == 3:
+				self.append(struct[0])
+				self.append(map(Subject, struct[1]))
+				self.append(struct[2])
+			else:
+				raise ValueError("Invalid struct length %s" % len(struct))
+		else:
+			self.extend(([""]* len(Event.Fields), [], ""))
+		
+		# If we have no timestamp just set it to now
+		if not self[0][Event.Timestamp]:
+			self[0][Event.Timestamp] = str(get_timestamp_for_now())
+		
+	@classmethod
+	def new_for_data(cls, event_data):
+		"""
+		Create a new Event setting event_data as the backing array
+		behind the event metadata. The contents of the array must
+		contain the event metadata at the positions defined by the
+		Event.Fields enumeration.
+		"""
+		self = cls()
+		if len(event_data) != len(cls.Fields):
+			raise ValueError("event_data must have %s members, found %s" % \
+				(len(cls.Fields), len(event_data)))
+		self[0] = event_data
+		return self
+		
+	@classmethod
+	def new_for_struct(cls, struct):
+		"""Returns a new Event instance or None if `struct` is a `NULL_EVENT`"""
+		if struct == NULL_EVENT:
+			return None
+		return cls(struct)
+	
+	@classmethod
+	def new_for_values(cls, **values):
+		"""
+		Create a new Event instance from a collection of keyword
+		arguments.
+		
+		 
+		:param timestamp: Event timestamp in milliseconds since the Unix Epoch 
+		:param interpretaion: The Interpretation type of the event
+		:param manifestation: Manifestation type of the event
+		:param actor: The actor (application) that triggered the event
+		:param subjects: A list of :class:`Subject` instances
+		
+		Instead of setting the *subjects* argument one may use a more
+		convenient approach for events that have exactly one Subject.
+		Namely by using the *subject_** keys - mapping directly to their
+		counterparts in :meth:`Subject.new_for_values`:
+		
+		:param subject_uri:
+		:param subject_interpretation:
+		:param subject_manifestation:
+		:param subject_origin:
+		:param subject_mimetype:
+		:param subject_text:
+		:param subject_storage:
+		 
+		
+		"""
+		self = cls()
+		self.timestamp = values.get("timestamp", self.timestamp)
+		self.interpretation = values.get("interpretation", "")
+		self.manifestation = values.get("manifestation", "")
+		self.actor = values.get("actor", "")
+		self.subjects = values.get("subjects", self.subjects)
+		
+		if self._dict_contains_subject_keys(values):
+			if "subjects" in values:
+				raise ValueError("Subject keys, subject_*, specified together with full subject list")
+			subj = Subject()
+			subj.uri = values.get("subject_uri", "")
+			subj.interpretation = values.get("subject_interpretation", "")
+			subj.manifestation = values.get("subject_manifestation", "")
+			subj.origin = values.get("subject_origin", "")
+			subj.mimetype = values.get("subject_mimetype", "")
+			subj.text = values.get("subject_text", "")
+			subj.storage = values.get("subject_storage", "")
+			self.subjects = [subj]
+		
+		return self
+	
+	@staticmethod
+	def _dict_contains_subject_keys (dikt):
+		if "subject_uri" in dikt : return True
+		elif "subject_interpretation" in dikt : return True
+		elif "subject_manifestation" in dikt : return True
+		elif "subject_origin" in dikt : return True
+		elif "subject_mimetype" in dikt : return True
+		elif "subject_text" in dikt : return True
+		elif "subject_storage" in dikt : return True
+		return False
+	
+	def __repr__(self):
+		return "%s(%s)" %(
+			self.__class__.__name__, super(Event, self).__repr__()
+		)
+	
+	def append_subject(self, subject=None):
+		"""
+		Append a new empty Subject and return a reference to it
+		"""
+		if not subject:
+			subject = Subject()
+		self.subjects.append(subject)
+		return subject
+	
+	def get_subjects(self):
+		return self[1]	
+	
+	def set_subjects(self, subjects):
+		self[1] = subjects
+	subjects = property(get_subjects, set_subjects,
+	doc="Read/write property with a list of :class:`Subjects <Subject>`")
+		
+	def get_id(self):
+		val = self[0][Event.Id]
+		return int(val) if val else 0
+	id = property(get_id,
+	doc="Read only property containing the the event id if the event has one")
+	
+	def get_timestamp(self):
+		return self[0][Event.Timestamp]
+	
+	def set_timestamp(self, value):
+		self[0][Event.Timestamp] = str(value)
+	timestamp = property(get_timestamp, set_timestamp,
+	doc="Read/write property with the event timestamp defined as milliseconds since the Epoch. By default it is set to the moment of instance creation")
+	
+	def get_interpretation(self):
+		return self[0][Event.Interpretation]
+	
+	def set_interpretation(self, value):
+		self[0][Event.Interpretation] = value
+	interpretation = property(get_interpretation, set_interpretation,
+	doc="Read/write property defining the interpretation type of the event") 
+	
+	def get_manifestation(self):
+		return self[0][Event.Manifestation]
+	
+	def set_manifestation(self, value):
+		self[0][Event.Manifestation] = value
+	manifestation = property(get_manifestation, set_manifestation,
+	doc="Read/write property defining the manifestation type of the event")
+	
+	def get_actor(self):
+		return self[0][Event.Actor]
+	
+	def set_actor(self, value):
+		self[0][Event.Actor] = value
+	actor = property(get_actor, set_actor,
+	doc="Read/write property defining the application or entity responsible for emitting the event. For applications the format of this field is base filename of the corresponding .desktop file with an `app://` URI scheme. For example `/usr/share/applications/firefox.desktop` is encoded as `app://firefox.desktop`")
+	
+	def get_payload(self):
+		return self[2]
+	
+	def set_payload(self, value):
+		self[2] = value
+	payload = property(get_payload, set_payload,
+	doc="Free form attachment for the event. Transfered over DBus as an array of bytes")
+	
+	def matches_template(self, event_template):
+		"""
+		Return True if this event matches *event_template*. The
+		matching is done where unset fields in the template is
+		interpreted as wild cards. If the template has more than one
+		subject, this event matches if at least one of the subjects
+		on this event matches any single one of the subjects on the
+		template.
+		
+		Basically this method mimics the matching behaviour
+		found in the :meth:`FindEventIds` method on the Zeitgeist engine.
+		"""
+		# We use direct member access to speed things up a bit
+		# First match the raw event data
+		data = self[0]
+		tdata = event_template[0]
+		for m in Event.Fields:
+			if m == Event.Timestamp : continue
+			if tdata[m] and tdata[m] != data[m] : return False
+		
+		# If template has no subjects we have a match
+		if len(event_template[1]) == 0 : return True
+		
+		# Now we check the subjects
+		for tsubj in event_template[1]:
+			for subj in self[1]:		
+				if not subj.matches_template(tsubj) : continue				
+				# We have a matching subject, all good!
+				return True
+		
+		# Template has subjects, but we never found a match
+		return False
+	
+	def matches_event (self, event):
+		"""
+		Interpret *self* as the template an match *event* against it.
+		This method is the dual method of :meth:`matches_template`.
+		"""
+		#print "T: %s" % self
+		#print "E: %s" % event
+		#print "------------"
+		return event.matches_template(self)
+	
+	def in_time_range (self, time_range):
+		"""
+		Check if the event timestamp lies within a :class:`TimeRange`
+		"""
+		t = int(self.timestamp) # The timestamp may be stored as a string
+		return (t >= time_range.begin) and (t <= time_range.end)
+	
+	def _special_str(self, obj):
+		""" Return a string representation of obj
+		If obj is None, return an empty string.
+		"""
+		return unicode(obj) if obj is not None else ""
+
+	def _make_dbus_sendable(self):
+		"""
+		Ensure that all fields in the event struct are non-None
+		"""
+		for n, value in enumerate(self[0]):
+			self[0][n] = self._special_str(value)
+		for subject in self[1]:
+			for n, value in enumerate(subject):
+				subject[n] = self._special_str(value)
+		# The payload require special handling, since it is binary data
+		# If there is indeed data here, we must not unicode encode it!
+		if self[2] is None: self[2] = u""
+
+NULL_EVENT = ([], [], [])
+"""Minimal Event representation, a tuple containing three empty lists.
+This `NULL_EVENT` is used by the API to indicate a queried but not
+available (not found or blocked) Event.
+"""
+		
+		
 class StorageState(object):
 	"""
 	Enumeration class defining the possible values for the storage state
@@ -300,8 +826,33 @@ class ResultType(object):
 	MostRecentActor = enum_factory(("The last event of each different actor"))
 	LeastRecentActor = enum_factory(("The first event of each different actor"))
 
-Interpretation = SubjectInterpretation = Symbol("Interpretation", doc="TBD")
-Manifestation = SubjectManifestation = Symbol("Manifestation", doc="TBD")
+
+INTERPRETATION_DOC = \
+"""In general terms the *interpretation* of an event or subject is an abstract
+description of *"what happened"* or *"what is this"*.
+
+Each interpretation type is uniquely identified by a URI. This class provides
+a list of hard coded URI constants for programming convenience. In addition;
+each interpretation instance in this class has a *display_name* property, which
+is an internationalized string meant for end user display.
+
+The interpretation types listed here are all subclasses of *str* and may be
+used anywhere a string would be used."""
+
+MANIFESTATION_DOC = \
+"""The manifestation type of an event or subject is an abstract classification
+of *"how did this happen"* or *"how does this item exist"*.
+
+Each manifestation type is uniquely identified by a URI. This class provides
+a list of hard coded URI constants for programming convenience. In addition;
+each interpretation instance in this class has a *display_name* property, which
+is an internationalized string meant for end user display.
+
+The manifestation types listed here are all subclasses of *str* and may be
+used anywhere a string would be used."""
+
+Interpretation = SubjectInterpretation = Symbol("Interpretation", doc=INTERPRETATION_DOC)
+Manifestation = SubjectManifestation = Symbol("Manifestation", doc=MANIFESTATION_DOC)
 
 if IS_LOCAL:
 	execfile(os.path.join(runpath, "../extra/ontology/zeitgeist.py"))
