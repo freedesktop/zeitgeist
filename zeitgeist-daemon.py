@@ -39,7 +39,7 @@ parser.add_option(
 	action = "store_true", default=False, dest = "replace",
 	help = _("if another Zeitgeist instance is already running, replace it"))
 parser.add_option(
-	"--no-passive-loggers",
+	"--no-datahub",
 	action = "store_false", default=True, dest = "start_datahub",
 	help = _("do not start zeitgeist-datahub automatically"))
 parser.add_option(

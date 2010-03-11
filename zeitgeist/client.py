@@ -39,8 +39,8 @@ SIG_EVENT = "asaasay"
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.client")
 
-class _DBusInterface(dbus.Interface):
-	"""Subclass of dbus.Interface adding convenience methods."""
+class _DBusInterface(object):
+	"""Wrapper around dbus.Interface adding convenience methods."""
 
 	@staticmethod
 	def get_members(introspection_xml):
@@ -59,6 +59,36 @@ class _DBusInterface(dbus.Interface):
 			pass
 		return methods, signals
 
+	def _disconnection_safe(self, meth):
+		"""
+		Executes the given method. If it fails because the D-Bus connection
+		was lost, attempts to recover it and executes the method again.
+		"""
+		try:
+			return meth()
+		except dbus.exceptions.DBusException, e:
+			error = e.get_dbus_name()
+			if error == "org.freedesktop.DBus.Error.ServiceUnknown":
+				self.__proxy = dbus.SessionBus().get_object(
+					self.__iface.requested_bus_name, self.__object_path)
+				self.__iface = dbus.Interface(self.__proxy,
+					self.__interface_name)
+				return meth()
+			else:
+				raise
+
+	def __getattr__(self, name):
+		if name not in self.__methods:
+			raise TypeError("Unknown method name: %s" % name)
+		def _ProxyMethod(*args, **kwargs):
+			"""
+			Method wrapping around a D-Bus call, which attempts to recover
+			the connection to Zeitgeist if it got lost.
+			"""
+			return self._disconnection_safe(lambda:
+				getattr(self.__iface, name)(*args, **kwargs))
+		return _ProxyMethod
+
 	def connect(self, signal, callback, **kwargs):
 		"""Connect a callback to a signal of the current proxy instance."""
 		if signal not in self.__signals:
@@ -66,7 +96,7 @@ class _DBusInterface(dbus.Interface):
 		self.__proxy.connect_to_signal(
 			signal,
 			callback,
-			dbus_interface=self.INTERFACE_NAME,
+			dbus_interface=self.__interface_name,
 			**kwargs)
 
 	def connect_exit(self, callback):
@@ -77,17 +107,23 @@ class _DBusInterface(dbus.Interface):
 			"NameOwnerChanged",
 			lambda *args: callback(),
 			dbus_interface=dbus.BUS_DAEMON_IFACE,
-			arg0=self.BUS_NAME, # only match dying zeitgeist engines
+			arg0=self.__iface.requested_bus_name, # only match what we want
 			arg2="", # only match services with no new owner
 		)
 
-	def __init__(self, proxy, interface):
+	@property
+	def proxy(self):
+		return self.__proxy
+
+	def __init__(self, proxy, interface_name, object_path):
 		self.__proxy = proxy
-		super(_DBusInterface, self).__init__(proxy, interface)
+		self.__interface_name = interface_name
+		self.__object_path = object_path
+		self.__iface = dbus.Interface(proxy, interface_name)
 		self.__methods, self.__signals = self.get_members(proxy.Introspect())
 
-class ZeitgeistDBusInterface(_DBusInterface):
-	""" Central DBus interface to the zeitgeist engine
+class ZeitgeistDBusInterface(object):
+	""" Central DBus interface to the Zeitgeist engine
 	
 	There does not necessarily have to be one single instance of this
 	interface class, but all instances should share the same state
@@ -100,11 +136,16 @@ class ZeitgeistDBusInterface(_DBusInterface):
 	INTERFACE_NAME = "org.gnome.zeitgeist.Log"
 	OBJECT_PATH = "/org/gnome/zeitgeist/log/activity"
 	
-	@classmethod
-	def version(cls):
+	def __getattr__(self, name):
+		return getattr(self.__shared_state["dbus_interface"], name)
+	
+	def version(self):
 		"""Returns the API version"""
-		return cls.__shared_state["__proxy"].get_dbus_method("Get",
-			dbus_interface=dbus.PROPERTIES_IFACE)(cls.INTERFACE_NAME, "version")
+		dbus_interface = self.__shared_state["dbus_interface"]
+		return dbus_interface._disconnection_safe(lambda:
+			dbus_interface.proxy.get_dbus_method("Get",
+				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
+					"version"))
 	
 	@classmethod
 	def get_extension(cls, name, path):
@@ -118,20 +159,18 @@ class ZeitgeistDBusInterface(_DBusInterface):
 			interface_name = "org.gnome.zeitgeist.%s" % name
 			object_path = "/org/gnome/zeitgeist/%s" % path
 			proxy = dbus.SessionBus().get_object(cls.BUS_NAME, object_path)
-			iface = _DBusInterface(proxy, interface_name)
+			iface = _DBusInterface(proxy, interface_name, object_path)
 			iface.BUS_NAME = cls.BUS_NAME
 			iface.INTERFACE_NAME = interface_name
 			iface.OBJECT_PATH = object_path
 			cls.__shared_state["extension_interfaces"][name] = iface
-		
 		return cls.__shared_state["extension_interfaces"][name]
 	
 	def __init__(self):
-		self.__dict__ = self.__shared_state
-		if not "__proxy" in self.__shared_state:
+		if not "dbus_interface" in self.__shared_state:
 			try:
-				self.__shared_state["__proxy"] = dbus.SessionBus().get_object(
-					self.BUS_NAME, self.OBJECT_PATH)
+				proxy = dbus.SessionBus().get_object(self.BUS_NAME,
+					self.OBJECT_PATH)
 			except dbus.exceptions.DBusException, e:
 				if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
 					raise RuntimeError(
@@ -139,10 +178,9 @@ class ZeitgeistDBusInterface(_DBusInterface):
 						e.get_dbus_message())
 				else:
 					raise
-		if not "extension_interfaces" in self.__shared_state:
-		    self.__shared_state["extension_interfaces"] = {}
-		super(_DBusInterface, self).__init__(self.__shared_state["__proxy"],
-		    self.INTERFACE_NAME)
+			self.__shared_state["extension_interfaces"] = {}
+			self.__shared_state["dbus_interface"] = _DBusInterface(proxy,
+				self.INTERFACE_NAME, self.OBJECT_PATH)
 
 class Monitor(dbus.service.Object):
 	"""
@@ -252,6 +290,8 @@ class ZeitgeistClient:
 	"""
 	def __init__ (self):
 		self._iface = ZeitgeistDBusInterface()
+		self._registry = self._iface.get_extension("DataSourceRegistry",
+			"data_source_registry")
 	
 	def _safe_error_handler(self, error_handler, *args):
 		if error_handler is not None:
@@ -539,7 +579,7 @@ class ZeitgeistClient:
 		Alias for :meth:`find_events_for_templates`, for use when only
 		one template is needed.
 		"""
-		self.find_event_ids_for_templates([event_template],
+		self.find_events_for_templates([event_template],
 						events_reply_handler,
 						**kwargs)
 	
@@ -553,10 +593,17 @@ class ZeitgeistClient:
 		:meth:`Event.new_for_values() <zeitgeist.datamodel.Event.new_for_values>`.
 		"""
 		ev = Event.new_for_values(**kwargs)
+		# we need a clean dict of arguments to find_event_for_templates
+		# (LP: #510804)
+		arguments = {}
+		for arg in ("timerange", "storage_state", "num_events",
+					"result_type", "error_handler"):
+			if arg in kwargs:
+				arguments[arg] = kwargs[arg]
 		
 		self.find_events_for_templates([ev],
 						events_reply_handler,
-						**kwargs)
+						**arguments)
 	
 	def get_events (self, event_ids, events_reply_handler, error_handler=None):
 		"""
@@ -623,8 +670,8 @@ class ZeitgeistClient:
 					error_handler=self._safe_error_handler(error_handler))
 	
 	def find_related_uris_for_events(self, event_templates, uris_reply_handler,
-		time_range = None, result_event_templates=[],
-		storage_state=StorageState.Any, error_handler=None):
+		error_handler=None, time_range = None, result_event_templates=[],
+		storage_state=StorageState.Any, num_events=10, result_type=0):
 		"""
 		Warning: This API is EXPERIMENTAL and is not fully supported yet.
 		
@@ -643,6 +690,10 @@ class ZeitgeistClient:
 		    as subjects of events matching these templates
 		:param storage_state: The returned URIs must have this
 		    :class:`storage state <zeitgeist.datamodel.StorageState>`
+		:param num_events: number of related uris you want to have returned
+		:param result_type: sorting of the results by 
+			0 for relevancy
+			1 for recency
 		:param error_handler: An optional callback in case of errors.
 		    Must take a single argument being the error raised by the
 		    server. The default behaviour in case of errors is to call
@@ -657,15 +708,16 @@ class ZeitgeistClient:
 			time_range = TimeRange.always()
 		
 		self._iface.FindRelatedUris(time_range, event_templates,
-			result_event_templates, storage_state,
+			result_event_templates, storage_state, num_events, result_type,
 			reply_handler=self._safe_reply_handler(uris_reply_handler),
 			error_handler=self._safe_error_handler(error_handler,
 			                                       uris_reply_handler,
-			                                       []))
+			                                       [])
+			)
 	
 	def find_related_uris_for_uris(self, subject_uris, uris_reply_handler,
 		time_range=None, result_event_templates=[],
-		storage_state=StorageState.Any, error_handler=None):
+		storage_state=StorageState.Any,  num_events=10, result_type=0, error_handler=None):
 		"""
 		Warning: This API is EXPERIMENTAL and is not fully supported yet.
 		
@@ -681,6 +733,8 @@ class ZeitgeistClient:
 		                                  time_range=time_range,
 		                                  result_event_templates=result_event_templates,
 		                                  storage_state=storage_state,
+		                                  num_events = num_events,
+		                                  result_type = result_type,
 		                                  error_handler=error_handler)
 	
 	def install_monitor (self, time_range, event_templates,
@@ -780,7 +834,31 @@ class ZeitgeistClient:
 		self._iface.RemoveMonitor(path,
 		                          reply_handler=reply_handler,
 		                          error_handler=error_handler)
+	
+	def register_data_source(self, unique_id, name, description, event_templates):
+		"""
+		Register a data-source as currently running. If the data-source was
+		already in the database, its metadata (name, description and
+		event_templates) are updated.
 		
+		If the data-source registry isn't enabled, do nothing.
+		
+		The optional event_templates is purely informational and serves to
+		let data-source management applications and other data-sources know
+		what sort of information you log.
+		
+		:param unique_id: unique ASCII string identifying the data-source
+		:param name: data-source name (may be translated)
+		:param description: data-source description (may be translated)
+		:param event_templates: list of
+			:class:`Event <zeitgeist.datamodel.Event>` templates.
+		"""
+		# TODO: Make it possible to access the return value!
+		self._registry.RegisterDataSource(unique_id, name, description,
+			event_templates,
+			reply_handler=self._void_reply_handler,
+			error_handler=self._void_reply_handler) # Errors are ignored
+	
 	def _check_list_or_tuple(self, collection):
 		"""
 		Raise a ValueError unless 'collection' is a list or tuple

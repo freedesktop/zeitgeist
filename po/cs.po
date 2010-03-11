@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: 2009-05-30 14:48+0000\n"
-"Last-Translator: clever_fox <clever_fox@seznam.cz>\n"
+"PO-Revision-Date: 2010-02-15 05:54+0000\n"
+"Last-Translator: 6n64 <6n@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-06-11 14:08+0000\n"
+"X-Launchpad-Export-Date: 2010-03-08 05:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../zeitgeist-daemon:56
@@ -26,9 +26,9 @@ msgid "No passive loggers found, bye."
 msgstr ""
 
 #: ../zeitgeist-datahub:81
-#, fuzzy, c-format
+#, c-format
 msgid "Could not load file: %s"
-msgstr "Chyba: Není možné načíst soubor: %s"
+msgstr "Nelze načíst soubor: %s"
 
 #: ../zeitgeist-datahub:106
 #, c-format
@@ -46,17 +46,15 @@ msgstr ""
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
-msgstr "Tagy"
+msgstr "Štítky"
 
 #: ../zeitgeist/datamodel.py:212
-#, fuzzy
 msgid "Bookmarks"
-msgstr "Vytvořit záložku"
+msgstr "Záložky"
 
 #: ../zeitgeist/datamodel.py:218
-#, fuzzy
 msgid "Comments"
-msgstr "Dokumenty"
+msgstr "Komentáře"
 
 #: ../zeitgeist/datamodel.py:224
 msgid "Documents"
@@ -76,73 +74,71 @@ msgstr "Hudba"
 
 #: ../zeitgeist/datamodel.py:248
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 #: ../zeitgeist/datamodel.py:254
 msgid "Messages"
-msgstr ""
+msgstr "Zprávy"
 
 #: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
-msgstr ""
+msgstr "Kanály"
 
 #: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
-msgstr ""
+msgstr "Vysílání"
 
 #: ../zeitgeist/datamodel.py:272
 msgid "Created"
-msgstr ""
+msgstr "Vytvořeno"
 
 #: ../zeitgeist/datamodel.py:278
 msgid "Modified"
-msgstr ""
+msgstr "Upraveno"
 
 #: ../zeitgeist/datamodel.py:284
 msgid "Visited"
-msgstr ""
+msgstr "Navštíveno"
 
 #: ../zeitgeist/datamodel.py:290
 msgid "Send"
-msgstr ""
+msgstr "Odesláno"
 
 #: ../zeitgeist/datamodel.py:296
 msgid "Received"
-msgstr ""
+msgstr "Přijato"
 
 #: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
-msgstr ""
+msgstr "Varování"
 
 #: ../zeitgeist/datamodel.py:308
 msgid "Errors"
-msgstr ""
+msgstr "Chyby"
 
 #: ../zeitgeist/datamodel.py:314
 msgid "Applications"
-msgstr ""
+msgstr "Aplikace"
 
 #: ../zeitgeist/datamodel.py:324
-#, fuzzy
 msgid "Web History"
-msgstr "Histroie Firefox"
+msgstr "Historie webových stránek"
 
 #: ../zeitgeist/datamodel.py:330
 msgid "Activities"
-msgstr ""
+msgstr "Aktivity"
 
 #: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
-msgstr ""
+msgstr "Hlášení"
 
 #: ../zeitgeist/datamodel.py:342
-#, fuzzy
 msgid "Files"
-msgstr "Filtry"
+msgstr "Soubory"
 
 #: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
-msgstr ""
+msgstr "Zdroje systému"
 
 #: ../_zeitgeist/loggers/datasources/recent.py:41
 msgid "Could not import GTK; data source disabled."
@@ -157,14 +153,14 @@ msgid "Websites visited with Firefox"
 msgstr "Stránky navštívené ve Firefox"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:84
-#, fuzzy, python-format
+#, python-format
 msgid "Unable to monitor Firefox's history: %s: %s"
-msgstr "Histroie Firefox"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:87
-#, fuzzy, python-format
+#, python-format
 msgid "Monitoring Firefox's history: %s"
-msgstr "Histroie Firefox"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:92
 msgid "No Firefox profile found."
@@ -176,21 +172,14 @@ msgid "Unable to monitor Evolution: %s: %s"
 msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:59
-#, fuzzy, python-format
+#, python-format
 msgid "Monitoring Evolution: %s"
-msgstr "Histroie Firefox"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
 msgid "Watching for Tomboy notes in \"%s\"."
-msgstr ""
-
-#, fuzzy
-#~ msgid "Could not connect to D-Bus."
-#~ msgstr "Chyba: Není možné se připojit k D-Bus."
-
-#~ msgid "Error: Zeitgeist service not running."
-#~ msgstr "Chyba: služba Zeitgeist není spuštěna."
+msgstr "Dívám se na Tomboy poznámky v \"%s\"."
 
 #~ msgid ""
 #~ "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
@@ -201,6 +190,9 @@ msgstr ""
 
 #~ msgid "Stars"
 #~ msgstr "Hvězdy"
+
+#~ msgid "Error: Zeitgeist service not running."
+#~ msgstr "Chyba: služba Zeitgeist není spuštěna."
 
 #~ msgid "Notes"
 #~ msgstr "Poznámky"
@@ -262,6 +254,7 @@ msgstr ""
 #~ msgid "Tags:"
 #~ msgstr "Tagy:"
 
+#, python-format
 #~ msgid "Files related to %s"
 #~ msgstr "Soubory spojené s %s"
 
@@ -283,6 +276,7 @@ msgstr ""
 #~ msgid "Delete item from Zeitgeist"
 #~ msgstr "Smazat položku z Zeitgeist"
 
+#, python-format
 #~ msgid "Edit tags for %s"
 #~ msgstr "Editovat tagy pro %s"
 
@@ -301,9 +295,11 @@ msgstr ""
 #~ msgid "Yesterday"
 #~ msgstr "Včera"
 
+#, python-format
 #~ msgid "Could not create database: %s"
 #~ msgstr "Nebylo možné vytvořit databázi: %s"
 
+#, python-format
 #~ msgid "Error connecting with database: %s"
 #~ msgstr "Chyba při připojovaní databáze: %s"
 

@@ -83,11 +83,9 @@ class DataHub(gobject.GObject):
 			return False
 		
 		if hasattr(datasource_object, "__datasource__"):
-			object = datasource_object.__datasource__
-			if hasattr(object, "__iter__"):
-				self._sources.extend(object)
-			else:
-				self._sources.append(object)
+			objs = datasource_object.__datasource__
+			for obj in objs if hasattr(objs, "__iter__") else (objs,):
+				self._sources.append(obj(self._client))
 	
 	def _update_db_with_source(self, source):
 		"""

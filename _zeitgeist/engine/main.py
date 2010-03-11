@@ -4,7 +4,7 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
-# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009-2010 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.net>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -24,11 +24,13 @@ import sqlite3
 import time
 import sys
 import os
+import math
 import gettext
 import logging
 
-from zeitgeist.datamodel import Subject, Event, StorageState, TimeRange, \
-	ResultType, get_timestamp_for_now
+from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
+	ResultType, get_timestamp_for_now, Interpretation
+from _zeitgeist.engine.datamodel import Event, Subject	
 from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
@@ -99,7 +101,7 @@ class ZeitgeistEngine:
 				getattr(self, "_" + field).value(row["subj_" + field]))
 		return subject
 	
-	def get_events(self, ids=None, rows=None):
+	def get_events(self, ids=None, rows=None, sender=None):
 		"""
 		Look up a list of events.
 		"""
@@ -134,7 +136,7 @@ class ZeitgeistEngine:
 			# might simply have requested an event that has been
 			# deleted
 			event = events.get(id, None)
-			event = self.extensions.apply_get_hooks(event)
+			event = self.extensions.apply_get_hooks(event, sender)
 			
 			sorted_events.append(event)
 		
@@ -193,7 +195,7 @@ class ZeitgeistEngine:
 		return where
 	
 	def _find_events(self, return_mode, time_range, event_templates,
-		storage_state, max_events, order):
+		storage_state, max_events, order, sender=None):
 		"""
 		Accepts 'event_templates' as either a real list of Events or as
 		a list of tuples (event_data,subject_data) as we do in the
@@ -216,6 +218,14 @@ class ZeitgeistEngine:
 		else:
 			sql = "SELECT * FROM event_view"
 		
+		if order == ResultType.LeastRecentActor:
+			sql += """
+				NATURAL JOIN (
+					SELECT actor, min(timestamp) AS timestamp
+					FROM event_view
+					GROUP BY actor)
+				"""
+		
 		if where:
 			sql += " WHERE " + where.sql
 		
@@ -227,11 +237,8 @@ class ZeitgeistEngine:
 			" GROUP BY subj_uri ORDER BY COUNT(id) ASC, timestamp ASC",
 			" GROUP BY actor ORDER BY COUNT(id) DESC, timestamp DESC",
 			" GROUP BY actor ORDER BY COUNT(id) ASC, timestamp ASC",
-			" GROUP BY actor ORDER BY max(timestamp) DESC",
-			" GROUP BY actor ORDER BY min(timestamp) ASC")[order]
-		
-		if order == ResultType.LeastRecentActor:
-			raise NotImplementedError
+			" GROUP BY actor", # implicit: ORDER BY max(timestamp) DESC
+			" ORDER BY timestamp ASC")[order]
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
@@ -239,7 +246,7 @@ class ZeitgeistEngine:
 		result = self._cursor.execute(sql, where.arguments).fetchall()
 		
 		if return_mode == 1:
-			return self.get_events(rows=result)
+			return self.get_events(rows=result, sender=sender)
 		result = [row[0] for row in result]
 		
 		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
@@ -251,8 +258,65 @@ class ZeitgeistEngine:
 	def find_events(self, *args):
 		return self._find_events(1, *args)
 	
+	@staticmethod
+	def _generate_buckets(events):
+			"""
+			Create buckets where a size of a bucket is limited by 30 minutes
+			"""
+			t = 0
+			latest_uris = {}
+			buckets = []
+			clusters = []
+			last_event = None
+			average_acc = 0
+			
+			for event in events:
+				if int(event.timestamp) - 5*60*1000 > t:
+					t = int(event.timestamp)
+					if len(clusters) > 0:
+						if len(clusters) > 1:
+							clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
+						else:
+							clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)
+						average_acc += abs(clusters[-1][2])
+					clusters.append([])
+					
+				if len(clusters) > 0:
+					clusters[-1].append((event.timestamp))
+				last_event = event
+			
+			if len(clusters) > 0:
+				if len(clusters) > 1:
+					clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
+				else:
+					clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)				
+				average_acc += abs(clusters[-1][2])						
+			
+			average_acc = abs(average_acc) / len(clusters) + 1
+			
+			landmarks = []
+			i = 0
+			for cluster in clusters:
+				if i == 0:
+					landmarks.append(cluster[0])
+				else:
+					if (abs(cluster[2] - last_acc) != average_acc ):
+						landmarks.append(cluster[0]) 
+				last_acc = cluster[2]
+				i += 1
+				
+			t = 0	
+			for event in events:
+				if int(event.timestamp) in landmarks:
+					t = int(event.timestamp)
+					buckets.append([])
+				if len(buckets) > 0:
+					latest_uris[event.subjects[0].uri] = int(event.timestamp)
+					buckets[-1].append(event.subjects[0].uri)
+			return buckets, latest_uris
+		
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
-		result_storage_state):
+		result_storage_state, num_results, result_type):
 		"""
 		Return a list of subject URIs commonly used together with events
 		matching the given template, considering data from within the indicated
@@ -265,83 +329,68 @@ class ZeitgeistEngine:
 		the implementation may vary.
 		"""
 		
-		where = self._build_sql_event_filter(timerange, event_templates,
-			StorageState.Any)
-		if not where.may_have_results():
-			return []
+		#templates = event_templates + result_event_templates
 		
-		timestamps = [row[0] for row in self._cursor.execute("""
-			SELECT timestamp FROM event_view
-			WHERE %s
-			ORDER BY timestamp DESC
-			LIMIT 100
-			""" % where.sql, where.arguments)]
-		timestamps.reverse()
 		
-		k_tuples = []
+		events = self.find_events(timerange, result_event_templates, 
+											result_storage_state, 0, 1)
 		
-		# FIXME: We need to take result_storage_state into account
-		if result_storage_state != StorageState.Any:
-			raise NotImplementedError
+		subject_uris = []
+		for event in event_templates:
+			if len(event.subjects) > 0:
+				if  not event.subjects[0].uri in subject_uris:
+					subject_uris.append(event.subjects[0].uri)
+					
+		buckets, latest_uris = self._generate_buckets(events)
 		
-		for i, start_timestamp in enumerate(timestamps):
-			end_timestamp = timestamps[i + 1] if (i + 1) < len(timestamps) \
-				else get_timestamp_for_now()
-			
-			where = WhereClause(WhereClause.AND)
-			where.add("timestamp > ? AND timestamp < ?",
-				(start_timestamp, end_timestamp))
-			where.extend(self._build_sql_from_event_templates(
-				result_event_templates))
-			if not where.may_have_results():
-				continue
-			
-			results = self._cursor.execute("""
-				SELECT subj_uri FROM event_view
-				WHERE %s
-				GROUP BY subj_uri ORDER BY timestamp ASC LIMIT 5
-				""" % where.sql, where.arguments).fetchall()
-			if results:
-				k_tuples.append([row[0] for row in results]) # Append the URIs
+		keys_counter  = {}
 		
-		if not k_tuples:
-			# No results found. We abort here to avoid hitting a
-			# ZeroDivisionError later in the code.
-			return []
-		
-		min_support = 0
-		
-		item_dict = {}
-		for set in k_tuples:
-			for item in set:
-				if item in item_dict:
-					item_dict[item] += 1
-				else:
-					item_dict[item] = 1
-				min_support += 1
-		min_support = min_support / len(item_dict)
-		
-		# Return the values sorted from highest to lowest support
-		results = [(support, key) for key, support in item_dict.iteritems()
-			if support >= min_support]
-		return [key for support, key in sorted(results, reverse=True)]
+		for bucket in buckets:
+			counter = 0
+			for event in event_templates:
+				if event.subjects[0].uri in bucket:
+					counter += 1
+					break
+			if counter > 0:
+				for key in bucket:
+					if not key in subject_uris:
+						if not keys_counter.has_key(key):
+							keys_counter[key] = 0
+						keys_counter[key] += 1
 
-	def insert_events(self, events):
+		results = []
+		
+		if result_type == 0 or result_type == 1:
+			if result_type == 0:
+				sets = [[v, k] for k, v in keys_counter.iteritems()]
+			elif result_type == 1:
+				new_set = {}
+				for k in keys_counter.iterkeys():
+					new_set[k] = latest_uris[k]
+				sets = [[v, k] for k, v in new_set.iteritems()]
+	
+			sets.sort()
+			sets.reverse()
+			return map(lambda result: result[1], sets[:num_results])
+		else:
+			raise NotImplementedError, "Unsupported ResultType."
+
+	def insert_events(self, events, sender=None):
 		t = time.time()
-		m = map(self._insert_event_without_error, events)
+		m = map(lambda e: self._insert_event_without_error(e, sender), events)
 		self._cursor.connection.commit()
 		log.debug("Inserted %d events in %fs" % (len(m), time.time()-t))
 		return m
 	
-	def _insert_event_without_error(self, event):
+	def _insert_event_without_error(self, event, sender=None):
 		try:
-			return self._insert_event(event)
+			return self._insert_event(event, sender)
 		except Exception, e:
 			log.exception("error while inserting '%r'" %event)
 			return 0
 	
-	def _insert_event(self, event):
-		if not isinstance(event, Event):
+	def _insert_event(self, event, sender=None):
+		if not issubclass(type(event), OrigEvent):
 			raise ValueError("cannot insert object of type %r" %type(event))
 		if event.id:
 			raise ValueError("Illegal event: Predefined event id")
@@ -350,10 +399,10 @@ class ZeitgeistEngine:
 		if not event.timestamp:
 			event.timestamp = get_timestamp_for_now()
 		
-		event = self.extensions.apply_insert_hooks(event)
+		event = self.extensions.apply_insert_hooks(event, sender)
 		if event is None:
 			raise AssertionError("Inserting of event was blocked by an extension")
-		elif not isinstance(event, Event):
+		elif not issubclass(type(event), OrigEvent):
 			raise ValueError("cannot insert object of type %r" %type(event))
 		
 		id = self.next_event_id()

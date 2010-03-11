@@ -316,6 +316,18 @@ class ZeitgeistEngineTest(_engineTestClass):
 		for event in events:
 			test = any(subj.origin == "file:///tmp" for subj in event.subjects)
 			self.assertTrue(test)
+
+	def testFindMultipleEvents(self):
+		import_events("test/data/five_events.js", self.engine)
+		subj1 = Subject.new_for_values(uri="file:///home/foo.txt")
+		event_template1 = Event.new_for_values(subjects=[subj1])
+		subj2 = Subject.new_for_values(uri="file:///tmp/foo.txt")
+		event_template2 = Event.new_for_values(subjects=[subj2])
+		result = self.engine.find_eventids((0, 1000), [event_template1, event_template2], StorageState.Any, 0, 4)
+		self.assertEquals(2, len(result))
+		events = self.engine.get_events(result)
+		
+	
 	
 	def testDontFindState(self):
 		# searchin by storage state is currently not implemented
@@ -490,27 +502,35 @@ class ZeitgeistEngineTest(_engineTestClass):
 			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentActor)
 		self.assertEquals([e[0][1] for e in events], ["100", "101", "105"])
 
-	def testRelatedForEvents(self):
+	def testRelatedForEventsSortRelevancy(self):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.find_related_uris(
 			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
-			StorageState.Any)
+			StorageState.Any, 2, 0)
+		self.assertEquals(result, ["i3", "i1"])
+	
+	def testRelatedForEventsSortRecency(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
+			StorageState.Any, 2, 1)
 		self.assertEquals(result, ["i3", "i1"])
 	
 	def testRelatedForMultipleEvents(self):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.find_related_uris(
 			TimeRange.always(), [Event.new_for_values(subject_uri = "i1"),
-				Event.new_for_values(subject_uri = "i4")],
-			[], StorageState.Any)
-		self.assertEquals(result, ["i2", "i3"])
+				Event.new_for_values(subject_uri = "i4")], [],
+			StorageState.Any, 2, 0),
+		self.assertEquals(result, (["i2", "i3"],))
 	
 	def testRelatedForEventsWithManifestation(self):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.find_related_uris(TimeRange.always(),
 			[Event.new_for_values(subject_uri = "i4")],
 			[Event.new_for_values(subject_manifestation="stfu:File")],
-			StorageState.Any)
+			StorageState.Any,
+			10, 0)
 		self.assertEquals(result, ["i3", "i1", "i5"])
 
 if __name__ == "__main__":

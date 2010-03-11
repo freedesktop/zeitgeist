@@ -7,7 +7,7 @@
 # Copyright © 2009 Natan Yellin <aantny@gmail.com>
 # Copyright © 2009 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009 Shane Fagan <shanepatrickfagan@yahoo.ie>
-# Copyright © 2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +22,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import with_statement
 import os
 import re
 import fnmatch
@@ -32,7 +33,7 @@ from xdg import BaseDirectory
 
 from zeitgeist import _config
 from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, \
-	get_timestamp_for_now
+	DataSource, get_timestamp_for_now
 from _zeitgeist.loggers.zeitgeist_base import DataProvider
 
 log = logging.getLogger("zeitgeist.logger.datasources.recent")
@@ -86,7 +87,10 @@ DOCUMENT_MIMETYPES = [
 		u"application/x-abiword",
 		u"application/x-gnucash",
 		u"application/x-gnumeric",
-		SimpleMatch("application/x-java*"),
+		SimpleMatch(u"application/x-java*"),
+		SimpleMatch(u"*/x-tex"),
+		SimpleMatch(u"*/x-latex"),
+		SimpleMatch(u"*/x-dvi"),
 		u"text/plain"
 ]
 
@@ -207,13 +211,37 @@ class RecentlyUsedManagerGtk(DataProvider):
 		u"SourceCode": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
 	}
 	
-	def __init__(self):
-		DataProvider.__init__(self, name="Recently Used Documents")
+	def __init__(self, client):
+		DataProvider.__init__(self,
+			unique_id="com.zeitgeist-project,datahub,recent",
+			name="Recently Used Documents",
+			description="Logs events from GtkRecentlyUsed",
+			event_templates=[Event.new_for_values(interpretation=i) for i in (
+				Interpretation.CREATE_EVENT,
+				Interpretation.VISIT_EVENT,
+				Interpretation.MODIFY_EVENT
+			)],
+			client=client)
+		self._load_data_sources_registry()
 		self.recent_manager = recent_manager()
 		self.recent_manager.set_limit(-1)
 		self.recent_manager.connect("changed", lambda m: self.emit("reload"))
 		self.config.connect("configured", lambda m: self.emit("reload"))
-		self._timestamp_last_run = 0
+	
+	def _load_data_sources_registry(self):
+		self._ignore_apps = {}
+		def _data_source_registered(datasource):
+			for tmpl in datasource[DataSource.EventTemplates]:
+				actor = tmpl[0][Event.Actor]
+				if actor:
+					if not actor in self._ignore_apps:
+						self._ignore_apps[actor] = set()
+					interp = tmpl[0][Event.Interpretation]
+					if interp:
+						self._ignore_apps[actor].add(interp)
+		for datasource in self._registry.GetDataSources():
+			_data_source_registered(datasource)
+		self._registry.connect("DataSourceRegistered", _data_source_registered)
 	
 	@staticmethod
 	def _find_desktop_file_for_application(application):
@@ -230,10 +258,15 @@ class RecentlyUsedManagerGtk(DataProvider):
 			for path in BaseDirectory.load_data_paths("applications"):
 				for filename in (name for name in os.listdir(path) if name.endswith(".desktop")):
 					fullname = os.path.join(path, filename)
-					for line in open(fullname):
-						if line.startswith("Exec") and \
-						line.split("=", 1)[-1].strip().split()[0] == application:
-							return unicode(fullname)
+					try:
+						with open(fullname) as desktopfile:
+							for line in desktopfile:
+								if line.startswith("Exec=") and \
+								line.split("=", 1)[-1].strip().split()[0] == \
+								application:
+									return unicode(fullname)
+					except IOError:
+						pass # file may be a broken symlink (LP: #523761)
 		return None
 	
 	def _get_interpretation_for_mimetype(self, mimetype):
@@ -247,12 +280,20 @@ class RecentlyUsedManagerGtk(DataProvider):
 		return Interpretation.UNKNOWN.uri
 	
 	def _get_items(self):
-		timestamp_last_run = get_timestamp_for_now()
+		# We save the start timestamp to avoid race conditions
+		last_seen = get_timestamp_for_now()
 		
 		events = []
 		
 		for (num, info) in enumerate(self.recent_manager.get_items()):
 			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
+				last_application = info.last_application().strip()
+				application = info.get_application_info(last_application)[0].split()[0]
+				desktopfile = self._find_desktop_file_for_application(application)
+				if not desktopfile:
+					continue
+				actor = u"application://%s" % os.path.basename(desktopfile)
+				
 				subject = Subject.new_for_values(
 					uri = unicode(info.get_uri()),
 					interpretation = self._get_interpretation_for_mimetype(
@@ -263,31 +304,33 @@ class RecentlyUsedManagerGtk(DataProvider):
 					origin = info.get_uri().rpartition("/")[0]
 				)
 				
-				last_application = info.last_application().strip()
-				application = info.get_application_info(last_application)[0].split()[0]
-				desktopfile = self._find_desktop_file_for_application(application)
-				times = (
-					(info.get_added() * 1000, Interpretation.CREATE_EVENT.uri),
-					(info.get_visited() * 1000, Interpretation.VISIT_EVENT.uri),
-					(info.get_modified() * 1000, Interpretation.MODIFY_EVENT.uri)
-				)
+				times = set()
+				for meth, interp in (
+					(info.get_added, Interpretation.CREATE_EVENT.uri),
+					(info.get_visited, Interpretation.VISIT_EVENT.uri),
+					(info.get_modified, Interpretation.MODIFY_EVENT.uri)
+					):
+					if actor not in self._ignore_apps or \
+						(self._ignore_apps[actor] and
+						interp not in self._ignore_apps[actor]):
+						times.add((meth() * 1000, interp))
 				
 				is_new = False
 				for timestamp, use in times:
-					if timestamp <= self._timestamp_last_run:
+					if timestamp <= self._last_seen:
 						continue
 					is_new = True
 					events.append(Event.new_for_values(
 						timestamp = timestamp,
 						interpretation = use,
 						manifestation = Manifestation.USER_ACTIVITY.uri,
-						actor = desktopfile or u"",
+						actor = actor,
 						subjects = [subject]
 						))
 			if num % 50 == 0:
 				self._process_gobject_events()
-		self._timestamp_last_run = timestamp_last_run
+		self._last_seen = last_seen
 		return events
 
 if enabled:
-	__datasource__ = RecentlyUsedManagerGtk()
+	__datasource__ = RecentlyUsedManagerGtk

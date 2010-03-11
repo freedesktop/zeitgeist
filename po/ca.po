@@ -8,12 +8,14 @@ msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: \n"
+"PO-Revision-Date: 2009-07-14 00:27+0000\n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-03-08 05:38+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Language: Catalan\n"
 
 #: ../zeitgeist-daemon:56
@@ -36,12 +38,14 @@ msgstr "S'està actualitzant la base de dades amb noves activitats: %s"
 
 #: ../zeitgeist-datahub:136
 msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "S'ha perdut la connexió al zeitgeist-daemon; finalitzant el programa."
+msgstr ""
+"S'ha perdut la connexió al zeitgeist-daemon; finalitzant el programa."
 
 #: ../zeitgeist-datahub:139
 #, c-format
 msgid "Error logging item from \"%s\": %s"
-msgstr "S'ha trobat un error al intentar enregistrar una activitat de «%s»: %s"
+msgstr ""
+"S'ha trobat un error al intentar enregistrar una activitat de «%s»: %s"
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
@@ -141,7 +145,8 @@ msgstr "Recursos del sistema"
 
 #: ../_zeitgeist/loggers/datasources/recent.py:41
 msgid "Could not import GTK; data source disabled."
-msgstr "No s'ha pogut importar el mòdul PyGTK; s'ha inhabilitat aquesta font."
+msgstr ""
+"No s'ha pogut importar el mòdul PyGTK; s'ha inhabilitat aquesta font."
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:53
 msgid "Firefox History"
@@ -180,9 +185,6 @@ msgstr "S'està enregistrant les activitats de l'Evolution: %s"
 msgid "Watching for Tomboy notes in \"%s\"."
 msgstr "S'està enregistrant les notes del Tomboy de «%s»."
 
-#~ msgid "Could not connect to D-Bus."
-#~ msgstr "No s'ha pogut establir una connexió amb el D-Bus."
-
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Error: No s'està executant el servei del Zeitgeist."
 
@@ -200,3 +202,6 @@ msgstr "S'està enregistrant les notes del Tomboy de «%s»."
 
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Crea una nota nova"
+
+#~ msgid "Could not connect to D-Bus."
+#~ msgstr "No s'ha pogut establir una connexió amb el D-Bus."

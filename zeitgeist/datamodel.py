@@ -59,6 +59,31 @@ def get_timestamp_for_now():
 	Return the current time in milliseconds since the Unix Epoch.
 	"""
 	return int(time.time() * 1000)
+		
+
+class enum_factory(object):
+	"""factory for enums"""
+	counter = 0
+	
+	def __init__(self, doc):
+		self.__doc__ = doc
+		self._id = enum_factory.counter
+		enum_factory.counter += 1
+		
+		
+class EnumMeta(type):
+	"""Metaclass to register enums in correct order and assign interger
+	values to them
+	"""
+	def __new__(cls, name, bases, attributes):
+		enums = filter(
+			lambda x: isinstance(x[1], enum_factory), attributes.iteritems()
+		)
+		enums = sorted(enums, key=lambda x: x[1]._id)
+		for n, (key, value) in enumerate(enums):
+			attributes[key] = EnumValue(n, value.__doc__)
+		return super(EnumMeta, cls).__new__(cls, name, bases, attributes)
+
 
 class EnumValue(int):
 	"""class which behaves like an int, but has an additional docstring"""
@@ -247,38 +272,6 @@ class Symbol(str):
 	def get_all_parent(self):
 		return set(self.iter_all_parent())
 		
-
-class enum_factory(object):
-	"""factory for enums"""
-	counter = 0
-	
-	def __init__(self, doc):
-		self.__doc__ = doc
-		self._id = enum_factory.counter
-		enum_factory.counter += 1
-		
-
-class EnumValue(int):
-	"""class which behaves like an int, but has an additional docstring"""
-	def __new__(cls, value, doc=""):
-		obj = super(EnumValue, cls).__new__(EnumValue, value)
-		obj.__doc__ = "%s. ``(Integer value: %i)``" %(doc, obj)
-		return obj
-		
-		
-class EnumMeta(type):
-	"""Metaclass to register enums in correct order and assign interger
-	values to them
-	"""
-	def __new__(cls, name, bases, attributes):
-		enums = filter(
-			lambda x: isinstance(x[1], enum_factory), attributes.iteritems()
-		)
-		enums = sorted(enums, key=lambda x: x[1]._id)
-		for n, (key, value) in enumerate(enums):
-			attributes[key] = EnumValue(n, value.__doc__)
-		return super(EnumMeta, cls).__new__(cls, name, bases, attributes)
-		
 		
 class TimeRange(list):
 	"""
@@ -382,6 +375,17 @@ class TimeRange(list):
 		return result
 		
 		
+class RelevantResultType(object):
+	"""
+	An enumeration class used to define how query results should be returned
+	from the Zeitgeist engine.
+	"""
+	__metaclass__ = EnumMeta
+	
+	Recent = enum_factory("All uris with the most recent uri first")
+	Related = enum_factory("All uris with the most related one first")
+	
+	
 class Subject(list):
 	"""
 	Represents a subject of an :class:`Event`. This class is both used to
@@ -758,9 +762,6 @@ class Event(list):
 		Interpret *self* as the template an match *event* against it.
 		This method is the dual method of :meth:`matches_template`.
 		"""
-		#print "T: %s" % self
-		#print "E: %s" % event
-		#print "------------"
 		return event.matches_template(self)
 	
 	def in_time_range (self, time_range):
@@ -769,25 +770,51 @@ class Event(list):
 		"""
 		t = int(self.timestamp) # The timestamp may be stored as a string
 		return (t >= time_range.begin) and (t <= time_range.end)
-	
-	def _special_str(self, obj):
-		""" Return a string representation of obj
-		If obj is None, return an empty string.
-		"""
-		return unicode(obj) if obj is not None else ""
 
-	def _make_dbus_sendable(self):
+class DataSource(list):
+	""" Optimized and convenient data structure representing a datasource.
+	
+	This class is designed so that you can pass it directly over
+	DBus using the Python DBus bindings. It will automagically be
+	marshalled with the signature a(asaasay). See also the section
+	on the :ref:`event serialization format <event_serialization_format>`.
+	
+	This class does integer based lookups everywhere and can wrap any
+	conformant data structure without the need for marshalling back and
+	forth between DBus wire format. These two properties makes it highly
+	efficient and is recommended for use everywhere.
+	"""
+	Fields = (UniqueId,
+		Name,
+		Description,
+		EventTemplates,
+		Running,
+		LastSeen,
+		Enabled) = range(7)
+	
+	def __init__(self, unique_id, name, description, templates, running=True,
+		last_seen=None, enabled=True):
 		"""
-		Ensure that all fields in the event struct are non-None
+		Create a new DataSource object using the given parameters.
+		
+		If you want to instantiate this class from a dbus.Struct, you can
+		use: DataSource(*data_source), where data_source is the dbus.Struct.
 		"""
-		for n, value in enumerate(self[0]):
-			self[0][n] = self._special_str(value)
-		for subject in self[1]:
-			for n, value in enumerate(subject):
-				subject[n] = self._special_str(value)
-		# The payload require special handling, since it is binary data
-		# If there is indeed data here, we must not unicode encode it!
-		if self[2] is None: self[2] = u""
+		super(DataSource, self).__init__()
+		self.append(unique_id)
+		self.append(name)
+		self.append(description)
+		self.append(templates)
+		self.append(running)
+		self.append(last_seen if last_seen else get_timestamp_for_now())
+		self.append(enabled)
+	
+	def __eq__(self, source):
+		return self[self.UniqueId] == source[self.UniqueId]
+	
+	def __repr__(self):
+		return "%s: %s (%s)" % (self.__class__.__name__, self[self.UniqueId],
+			self[self.Name])
 
 NULL_EVENT = ([], [], [])
 """Minimal Event representation, a tuple containing three empty lists.

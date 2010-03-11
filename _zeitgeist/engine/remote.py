@@ -4,6 +4,7 @@
 #
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2010 Seif Lotfy <seif@lotfy.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -22,8 +23,8 @@ import dbus
 import dbus.service
 import logging
 
-from zeitgeist.datamodel import (Event, Subject, TimeRange, StorageState,
-	ResultType, NULL_EVENT)
+from zeitgeist.datamodel import TimeRange, StorageState, ResultType, NULL_EVENT
+from _zeitgeist.engine.datamodel import Event, Subject
 from _zeitgeist.engine import get_engine
 from _zeitgeist.engine.notify import MonitorManager
 from _zeitgeist.engine import constants
@@ -43,7 +44,7 @@ class RemoteInterface(SingletonApplication):
 	:const:`org.gnome.zeitgeist.Engine`.
 	"""
 	_dbus_properties = {
-		"version": property(lambda self: (0, 3, 2, 99)),
+		"version": property(lambda self: (0, 3, 2, 999)),
 	}
 	
 	# Initialization
@@ -64,8 +65,10 @@ class RemoteInterface(SingletonApplication):
 	# Reading stuff
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
-						in_signature="au", out_signature="a("+constants.SIG_EVENT+")")
-	def GetEvents(self, event_ids):
+						in_signature="au",
+						out_signature="a("+constants.SIG_EVENT+")",
+						sender_keyword="sender")
+	def GetEvents(self, event_ids, sender):
 		"""Get full event data for a set of event IDs
 		
 		Each event which is not found in the event log is represented
@@ -80,13 +83,14 @@ class RemoteInterface(SingletonApplication):
 		   :class:`Event` instances by calling *events = map(Event.new_for_struct, result)*
 		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
-		return self._make_events_sendable(_engine.get_events(event_ids))
+		return self._make_events_sendable(_engine.get_events(ids=event_ids,
+		    sender=sender))
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
-						in_signature="(xx)a("+constants.SIG_EVENT+")a("+constants.SIG_EVENT+")u",
+						in_signature="(xx)a("+constants.SIG_EVENT+")a("+constants.SIG_EVENT+")uuu",
 						out_signature="as")
 	def FindRelatedUris(self, time_range, event_templates,
-		result_event_templates, storage_state):
+		result_event_templates, storage_state, num_events, result_type):
 		"""Warning: This API is EXPERIMENTAL and is not fully supported yet.
 		
 		Get a list of URIs of subjects which frequently occur together
@@ -119,11 +123,16 @@ class RemoteInterface(SingletonApplication):
 		   available. The list of possible values is enumerated in the
 		   :class:`StorageState <zeitgeist.datamodel.StorageState>` class
 		:type storage_state: unsigned 32 bit integer, DBus signature :const:`u`
+		:param num_events: maximal amount of returned events
+		:type num_events: unsigned integer
+		:param result_type: unsigned integer 0 for relevancy 1 for recency
+		:type order: unsigned integer
 		:returns: A list of URIs matching the described criteria
 		:rtype: An array of strings, DBus signature :const:`as`.
 		"""
+		event_templates = map(Event, event_templates)
 		return _engine.find_related_uris(time_range, event_templates,
-			result_event_templates, storage_state)
+			result_event_templates, storage_state, num_events, result_type)
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="(xx)a("+constants.SIG_EVENT+")uuu",
@@ -185,9 +194,10 @@ class RemoteInterface(SingletonApplication):
 
 	@dbus.service.method(constants.DBUS_INTERFACE,
 						in_signature="(xx)a("+constants.SIG_EVENT+")uuu",
-						out_signature="a("+constants.SIG_EVENT+")")
+						out_signature="a("+constants.SIG_EVENT+")",
+						sender_keyword="sender")
 	def FindEvents(self, time_range, event_templates, storage_state,
-			num_events, result_type):
+			num_events, result_type, sender):
 		"""Get events matching a given set of templates.
 		
 		The matching is done where unset fields in the templates
@@ -227,13 +237,15 @@ class RemoteInterface(SingletonApplication):
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)
 		return self._make_events_sendable(_engine.find_events(time_range,
-			event_templates, storage_state, num_events, result_type))
+			event_templates, storage_state, num_events, result_type, sender))
 
 	# Writing stuff
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
-						in_signature="a("+constants.SIG_EVENT+")", out_signature="au")
-	def InsertEvents(self, events):
+						in_signature="a("+constants.SIG_EVENT+")",
+						out_signature="au",
+						sender_keyword="sender")
+	def InsertEvents(self, events, sender):
 		"""Inserts events into the log. Returns an array containing the IDs
 		of the inserted events
 		
@@ -260,7 +272,7 @@ class RemoteInterface(SingletonApplication):
 		"""
 		if not events : return []
 		events = map(Event, events)
-		event_ids = _engine.insert_events(events)
+		event_ids = _engine.insert_events(events, sender)
 		
 		_events = []
 		min_stamp = events[0].timestamp

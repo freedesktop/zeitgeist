@@ -3,12 +3,14 @@ msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.6\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: \n"
-"Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
+"PO-Revision-Date: 2010-02-18 05:28+0000\n"
+"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-03-08 05:38+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Language: Spanish\n"
 
 #: ../zeitgeist-daemon:56
@@ -17,7 +19,7 @@ msgstr "Iniciando el servicio de Zeitgeist..."
 
 #: ../zeitgeist-datahub:61
 msgid "No passive loggers found, bye."
-msgstr ""
+msgstr "No se encontraron registradores pasivos, adiós."
 
 #: ../zeitgeist-datahub:81
 #, c-format
@@ -31,12 +33,12 @@ msgstr "Actualizando la base de datos con elementos nuevos: %s"
 
 #: ../zeitgeist-datahub:136
 msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr ""
+msgstr "Se ha perdido la conexión con el demonio Zeitgeist, terminando."
 
 #: ../zeitgeist-datahub:139
-#, fuzzy, c-format
+#, c-format
 msgid "Error logging item from \"%s\": %s"
-msgstr "Error de tipo al grabar elemento para \"%s\": %s"
+msgstr "Error registrando elemento para \"%s\": %s"
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
@@ -44,7 +46,7 @@ msgstr "Etiquetas"
 
 #: ../zeitgeist/datamodel.py:212
 msgid "Bookmarks"
-msgstr ""
+msgstr "Marcadores"
 
 #: ../zeitgeist/datamodel.py:218
 msgid "Comments"
@@ -68,51 +70,51 @@ msgstr "Música"
 
 #: ../zeitgeist/datamodel.py:248
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: ../zeitgeist/datamodel.py:254
 msgid "Messages"
-msgstr ""
+msgstr "Mensajes"
 
 #: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
-msgstr ""
+msgstr "Canales"
 
 #: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
-msgstr ""
+msgstr "Emisiones"
 
 #: ../zeitgeist/datamodel.py:272
 msgid "Created"
-msgstr ""
+msgstr "Creado"
 
 #: ../zeitgeist/datamodel.py:278
 msgid "Modified"
-msgstr ""
+msgstr "Modificado"
 
 #: ../zeitgeist/datamodel.py:284
 msgid "Visited"
-msgstr ""
+msgstr "Visitado"
 
 #: ../zeitgeist/datamodel.py:290
 msgid "Send"
-msgstr ""
+msgstr "Enviar"
 
 #: ../zeitgeist/datamodel.py:296
 msgid "Received"
-msgstr ""
+msgstr "Recibido"
 
 #: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
-msgstr ""
+msgstr "Alertas"
 
 #: ../zeitgeist/datamodel.py:308
 msgid "Errors"
-msgstr ""
+msgstr "Errores"
 
 #: ../zeitgeist/datamodel.py:314
 msgid "Applications"
-msgstr ""
+msgstr "Aplicaciones"
 
 #: ../zeitgeist/datamodel.py:324
 msgid "Web History"
@@ -120,7 +122,7 @@ msgstr "Historial web"
 
 #: ../zeitgeist/datamodel.py:330
 msgid "Activities"
-msgstr ""
+msgstr "Actividades"
 
 #: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
@@ -132,11 +134,11 @@ msgstr "Archivos"
 
 #: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
-msgstr ""
+msgstr "Recursos del Sistema"
 
 #: ../_zeitgeist/loggers/datasources/recent.py:41
 msgid "Could not import GTK; data source disabled."
-msgstr ""
+msgstr "No se pudo importar GTK; origen de datos desactivado."
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:53
 msgid "Firefox History"
@@ -149,44 +151,37 @@ msgstr "Páginas visitadas con Firefox"
 #: ../_zeitgeist/loggers/datasources/firefox.py:84
 #, python-format
 msgid "Unable to monitor Firefox's history: %s: %s"
-msgstr ""
+msgstr "Imposible controlar el historial de Firefox: %s: %s"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:87
 #, python-format
 msgid "Monitoring Firefox's history: %s"
-msgstr ""
+msgstr "Monitorizando historial de Firefox: %s"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:92
 msgid "No Firefox profile found."
-msgstr ""
+msgstr "Perfil de Firefox no encontrado."
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:56
 #, python-format
 msgid "Unable to monitor Evolution: %s: %s"
-msgstr ""
+msgstr "Imposible controlar Evolution: %s: %s"
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:59
 #, python-format
 msgid "Monitoring Evolution: %s"
-msgstr ""
+msgstr "Monitorizando Evolution: %s"
 
 #: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
 msgid "Watching for Tomboy notes in \"%s\"."
-msgstr ""
-
-#~ msgid "Could not connect to D-Bus."
-#~ msgstr "No se pudo conectar con D-Bus."
+msgstr "Viendo las notas de Tomboy en: \"%s\"."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Error: El servicio de Zeitgeist no está activo."
 
 #~ msgid "Other"
 #~ msgstr "Otros"
-
-#, fuzzy
-#~ msgid "Development"
-#~ msgstr "Documentos"
 
 #~ msgid "Notes"
 #~ msgstr "Notas"
@@ -196,3 +191,6 @@ msgstr ""
 
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Crear una nueva nota de Tomboy"
+
+#~ msgid "Could not connect to D-Bus."
+#~ msgstr "No se pudo conectar con D-Bus."

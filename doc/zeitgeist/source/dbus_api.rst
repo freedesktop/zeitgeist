@@ -82,7 +82,7 @@ org.gnome.zeitgeist.Log
 +++++++++++++++++++++++
 
 .. autoclass:: RemoteInterface
-    :members: InsertEvents, GetEvents, FindEventIds, FindRelatedUris, DeleteEvents, DeleteLog, Quit, InstallMonitor, RemoveMonitor
+    :members: InsertEvents, GetEvents, FindEventIds, FindEvents, FindRelatedUris, DeleteEvents, DeleteLog, Quit, InstallMonitor, RemoveMonitor
 
 .. _org_gnome_zeitgeist_Monitor:
 .. index:: org.gnome.zeitgeist.Monitor
@@ -101,3 +101,9 @@ org.gnome.zeitgeist.Blacklist
 
 .. autoclass:: _zeitgeist.engine.extensions.blacklist.Blacklist
     :members: SetBlacklist, GetBlacklist
+
+org.gnome.zeitgeist.DataSourceRegistry
+++++++++++++++++++++++++++++++++++++++
+
+.. autoclass:: _zeitgeist.engine.extensions.datasource_registry.DataSourceRegistry
+    :members: RegisterDataSource, GetDataSources, SetDataSourceEnabled, DataSourceEnabled, DataSourceRegistered, DataSourceDisconnected

@@ -1,4 +1,4 @@
-# Portuguese translation for zeitgeist
+# Telugu translation for zeitgeist
 # Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the zeitgeist package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
@@ -6,11 +6,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
 "PO-Revision-Date: 2010-02-15 05:52+0000\n"
-"Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
-"Language-Team: Portuguese <pt@li.org>\n"
+"Last-Translator: Zeitgeist Framework Team <zeitgeist@lists.launchpad.net>\n"
+"Language-Team: Telugu <te@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,170 +19,164 @@ msgstr ""
 
 #: ../zeitgeist-daemon:56
 msgid "Starting Zeitgeist service..."
-msgstr "A iniciar o serviço Zeitgeist..."
+msgstr ""
 
 #: ../zeitgeist-datahub:61
 msgid "No passive loggers found, bye."
-msgstr "Nenhum logger passivo encontrado, adeus."
+msgstr ""
 
 #: ../zeitgeist-datahub:81
 #, c-format
 msgid "Could not load file: %s"
-msgstr "Incapaz de ler o ficheiro: %s"
+msgstr ""
 
 #: ../zeitgeist-datahub:106
 #, c-format
 msgid "Updating database with new %s items"
-msgstr "A actualizar base de dados com novos itens %s"
+msgstr ""
 
 #: ../zeitgeist-datahub:136
 msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "Conexão com zeitgeist-daemon perdida. Terminando."
+msgstr ""
 
 #: ../zeitgeist-datahub:139
 #, c-format
 msgid "Error logging item from \"%s\": %s"
-msgstr "Erro ao criar log do item de \"%s\": %s"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
-msgstr "Etiquetas"
+msgstr "ట్యాగులు"
 
 #: ../zeitgeist/datamodel.py:212
 msgid "Bookmarks"
-msgstr "Favoritos"
+msgstr "పేజీకలు"
 
 #: ../zeitgeist/datamodel.py:218
 msgid "Comments"
-msgstr "Comentários"
+msgstr "వ్యాఖ్యలు"
 
 #: ../zeitgeist/datamodel.py:224
 msgid "Documents"
-msgstr "Documentos"
+msgstr "పత్రాలు"
 
 #: ../zeitgeist/datamodel.py:230
 msgid "Images"
-msgstr "Imagens"
+msgstr "చిత్రాలు"
 
 #: ../zeitgeist/datamodel.py:236
 msgid "Videos"
-msgstr "Vídeos"
+msgstr "వీడియోలు"
 
 #: ../zeitgeist/datamodel.py:242
 msgid "Music"
-msgstr "Música"
+msgstr "సంగీతం"
 
 #: ../zeitgeist/datamodel.py:248
 msgid "Email"
-msgstr "E-mail"
+msgstr "ఈమెయిల్"
 
 #: ../zeitgeist/datamodel.py:254
 msgid "Messages"
-msgstr "Mensagens"
+msgstr "సందేశాలు"
 
 #: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
-msgstr "Fontes de notícias"
+msgstr "ఫీడులు"
 
 #: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
-msgstr "Difusões"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:272
 msgid "Created"
-msgstr "Criado"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:278
 msgid "Modified"
-msgstr "Modificado"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:284
 msgid "Visited"
-msgstr "Visitado"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:290
 msgid "Send"
-msgstr "Enviar"
+msgstr "పంపించు"
 
 #: ../zeitgeist/datamodel.py:296
 msgid "Received"
-msgstr "Recebido"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
-msgstr "Avisos"
+msgstr "హెచ్చరికలు"
 
 #: ../zeitgeist/datamodel.py:308
 msgid "Errors"
-msgstr "Erros"
+msgstr "పొరపాట్లు"
 
 #: ../zeitgeist/datamodel.py:314
 msgid "Applications"
-msgstr "Aplicações"
+msgstr "ఉపకరణాలు"
 
 #: ../zeitgeist/datamodel.py:324
 msgid "Web History"
-msgstr "Histórico Web"
+msgstr "వెబ్ చరిత్ర"
 
 #: ../zeitgeist/datamodel.py:330
 msgid "Activities"
-msgstr "Actividades"
+msgstr "కలాపాలు"
 
 #: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
-msgstr "Notificações"
+msgstr "గమనింపులు"
 
 #: ../zeitgeist/datamodel.py:342
 msgid "Files"
-msgstr "Ficheiros"
+msgstr "ఫైళ్ళు"
 
 #: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
-msgstr "Recursos do Sistema"
+msgstr "వ్యవస్థ వనరులు"
 
 #: ../_zeitgeist/loggers/datasources/recent.py:41
 msgid "Could not import GTK; data source disabled."
-msgstr "Incapaz de importar GTK; fonte dos dados desabilitada."
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:53
 msgid "Firefox History"
-msgstr "Histórico do Firefox"
+msgstr "ఫైర్‌ఫాక్స్ చరిత్ర"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:56
 msgid "Websites visited with Firefox"
-msgstr "Sítios visitados com Firefox"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:84
 #, python-format
 msgid "Unable to monitor Firefox's history: %s: %s"
-msgstr "Incapaz de monitorar o histórico do Firefox: %s: %s"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:87
 #, python-format
 msgid "Monitoring Firefox's history: %s"
-msgstr "A monitorar o histórico do Firefox: %s"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:92
 msgid "No Firefox profile found."
-msgstr "Nenhum perfil do Firefox encontrado."
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:56
 #, python-format
 msgid "Unable to monitor Evolution: %s: %s"
-msgstr "Incapaz de monitorar o Evolution: %s: %s"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:59
 #, python-format
 msgid "Monitoring Evolution: %s"
-msgstr "A monitorar Evolution: %s"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
 msgid "Watching for Tomboy notes in \"%s\"."
-msgstr "A procurar por notas do Tomboy em \"%s\"."
-
-#~ msgid "Error: Zeitgeist service not running."
-#~ msgstr "Erro: O serviço Zeitgeist não está em funcionamento."
-
-#~ msgid "Could not connect to D-Bus."
-#~ msgstr "Não foi possível conectar a D-Bus."
+msgstr ""

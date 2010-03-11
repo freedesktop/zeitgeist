@@ -24,7 +24,7 @@ import dbus.service
 from xdg import BaseDirectory
 import logging
 
-from zeitgeist.datamodel import Event
+from _zeitgeist.engine.datamodel import Event
 from _zeitgeist.engine.extension import Extension
 from _zeitgeist.engine import constants
 
@@ -34,17 +34,6 @@ log = logging.getLogger("zeitgeist.blacklist")
 CONFIG_FILE = os.path.join(constants.DATA_PATH, "blacklist.pickle")
 BLACKLIST_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/blacklist"
 BLACKLIST_DBUS_INTERFACE = "org.gnome.zeitgeist.Blacklist"
-
-def _event2popo(ev):
-	"""
-	Ensure that an Event instance is a Plain Old Python Object (popo)
-	without DBus wrappings etc.
-	"""
-	popo = list()
-	popo.append(map(unicode, ev[0]))
-	popo.append([map(unicode, subj) for subj in ev[1]])
-	popo.append(str(ev[2]))
-	return popo
 
 class Blacklist(Extension, dbus.service.Object):
 	"""
@@ -79,7 +68,7 @@ class Blacklist(Extension, dbus.service.Object):
 			log.debug("No existing blacklist config found")
 			self._blacklist = []
 	
-	def insert_event_hook(self, event):
+	def insert_event_hook(self, event, sender):
 		for tmpl in self._blacklist:
 			if event.matches_template(tmpl): return None
 		return event
@@ -90,7 +79,7 @@ class Blacklist(Extension, dbus.service.Object):
 		map(Event._make_dbus_sendable, self._blacklist)
 		
 		out = file(CONFIG_FILE, "w")
-		pickle.dump(map(_event2popo, self._blacklist), out)		
+		pickle.dump(map(Event.get_plain, self._blacklist), out)		
 		out.close()
 		log.debug("Blacklist updated: %s" % self._blacklist)
 	

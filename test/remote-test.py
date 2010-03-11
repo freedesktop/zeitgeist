@@ -224,10 +224,24 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 		def callback(uris):
 			mainloop.quit()
-			self.assertEquals(uris, ["i3", "i2", "i1", "i5"])
+			self.assertEquals(uris, ["i2", "i1", "i5", "i3"])
 		
-		result = self.client.find_related_uris_for_uris(["i4"], callback)
+		result = self.client.find_related_uris_for_uris(["i4"], callback, num_events=4, result_type=0)
 		mainloop.run()
+		
+	def testFindEventsForValues(self):
+		mainloop = gobject.MainLoop()
+		events = parse_events("test/data/apriori_events.js")
+		self.client.insert_events(events)
+		
+		def callback(events):
+			mainloop.quit()
+			self.assertEquals(len(events), 1)
+			self.assertEquals(events[0].actor, "firefox")
+		
+		result = self.client.find_events_for_values(callback, actor="firefox", num_events=1)
+		mainloop.run()
+		
 	
 if __name__ == "__main__":
 	unittest.main()

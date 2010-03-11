@@ -93,7 +93,7 @@ class RemoteTestCase (unittest.TestCase):
 	
 	def spawn_daemon(self):
 		os.environ.update({"ZEITGEIST_DATABASE_PATH": ":memory:"})
-		self.daemon = Popen(["./zeitgeist-daemon.py", "--no-passive-loggers"])
+		self.daemon = Popen(["./zeitgeist-daemon.py", "--no-datahub"])
 		# give the daemon some time to wake up
 		time.sleep(3)
 		err = self.daemon.poll()
