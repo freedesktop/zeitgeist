@@ -91,9 +91,25 @@ class Symbol(str):
 		for parent in self.__parent.copy():
 			if not isinstance(parent, (str, unicode)):
 				continue
+			# parent can be the name of a symbol, let's look it up in 
+			# the global namespace
 			parent_obj = globals().get(parent)
 			if parent_obj is None:
+				# parent can be an uri, where the last part is the name
+				# of the symbol, let's try to look it up
 				parent_obj = globals().get(parent.split("#")[-1])
+			if parent_obj is None:
+				# if parent_obj is still None try to explicitly lookup
+				# the symbol by its uri, look in both possible symbol
+				# collections
+				try:
+					parent_obj = Manifestation[parent]
+				except KeyError:
+					try:
+						parent_obj = Interpretation[parent]
+					except KeyError:
+						# looks like there is not way to find this symbol
+						parent_obj = None
 			if isinstance(parent_obj, self.__class__):
 				parent_obj._add_child(self)
 				self.__parent.remove(parent)
@@ -113,10 +129,17 @@ class Symbol(str):
 		if isinstance(name, int):
 			# lookup by index
 			return super(Symbol, self).__getitem__(name)
-		symbol = [s for s in self.__children.values() if s.uri == uri]
+		# look in immediate children first
+		symbol = [s for s in self.get_children() if s.uri == name]
 		if symbol:
+			assert len(symbol) == 1, "There are %i child symbols having the same uri" %len(symbol)
 			return symbol[0]
-		raise KeyError("Could not find symbol for URI: %s" % uri)
+		# if we still have no luck we try to look in all children
+		symbol = [s for s in self.get_all_children() if s.uri == name]
+		if symbol:
+			assert len(symbol) == 1, "There are %i child symbols having the same uri" %len(symbol)
+			return symbol[0]		
+		raise KeyError("Could not find symbol for URI: %s" % name)
 		
 	def __getattr__(self, name):
 		children = dict((s.name, s) for s in self.get_all_children())
@@ -304,3 +327,4 @@ if __name__ == "__main__":
 	import pprint
 	pprint.pprint(Interpretation.Software.get_all_children())
 	
+	print Interpretation["http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#MindMap"]
