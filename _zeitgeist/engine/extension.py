@@ -21,6 +21,12 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.extension")
 
+def safe_issubclass(obj, cls):
+	try:
+		return issubclass(obj, cls)
+	except TypeError:
+		return False
+
 class Extension(object):
 	""" Base class for all extensions
 	
@@ -145,10 +151,16 @@ class ExtensionsCollection(object):
 		else:
 			log.debug("Unloading extension '%s'" \
 					  % extension.__class__.__name__)
-			obj = self.__extensions[extension.__class__.__name__]
+			if safe_issubclass(extension, Extension):
+				ext_name = extension.__name__
+			elif isinstance(extension, Extension):
+				ext_name = extension.__class__.__name__
+			else:
+				raise TypeError
+			obj = self.__extensions[ext_name]
 			for method in obj.PUBLIC_METHODS:
 				del self.methods[method]
-			del self.__extensions[extension.__class__.__name__]
+			del self.__extensions[ext_name]
 	
 	def apply_get_hooks(self, event, sender):
 		# Apply extension filters if we have an event
