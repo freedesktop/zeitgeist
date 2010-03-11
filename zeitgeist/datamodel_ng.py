@@ -23,6 +23,8 @@ gettext.install("zeitgeist", unicode=1)
 
 runpath = os.path.dirname(__file__)
 
+NEEDS_CHILD_RESOLUTION = set()
+
 if not os.path.isfile(os.path.join(runpath, '_config.py.in')):
 	# we are in a global installation
 	# this means we have already parsed zeo.trig into a python file
@@ -74,18 +76,34 @@ class Symbol(str):
 		return super(Symbol, cls).__new__(Symbol, uri or name)
 		
 	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
-		"""
-		
-		parent is a set of strings containing any number of ''
-		"""
 		self.__children = dict()
-		self.__parent = parent
+		self.__parent = parent or set()
+		assert isinstance(self.__parent, set), name
 		self.__name = name
 		self.__uri = uri
 		self.__display_name = display_name
 		self.__doc = doc
-		if self.__parent is not None:
-			self.__parent._add_child(self)
+		self._resolve_children(False)
+		
+	def _resolve_children(self, must_finish=True):
+		if self.__parent is None:
+			return
+		for parent in self.__parent.copy():
+			if not isinstance(parent, (str, unicode)):
+				continue
+			parent_obj = globals().get(parent)
+			if parent_obj is None:
+				parent_obj = globals().get(parent.split("#")[-1])
+			if isinstance(parent_obj, self.__class__):
+				parent_obj._add_child(self)
+				self.__parent.remove(parent)
+				self.__parent.add(parent_obj)
+		finished = all(map(lambda x: isinstance(x, self.__class__), self.__parent))
+		if not finished:
+			if must_finish:
+				raise RuntimeError("Cannot resolve all parent symbols")
+			else:
+				NEEDS_CHILD_RESOLUTION.add(self)
 
 	def __repr__(self):
 		return "<%s %r>" %(self.__parent, self.uri)
@@ -111,7 +129,7 @@ class Symbol(str):
 					self.__name__, name))
 			print "Unrecognized %s: %s" % (self.__name__, name)
 			# symbol is auto-added as child of this symbol
-			s = Symbol(name, parent=self)
+			s = Symbol(name, parent=set([self,]))
 			return s
 
 	@property
@@ -251,12 +269,14 @@ Interpretation = SubjectInterpretation = Symbol("Interpretation", doc="TBD")
 Manifestation = SubjectManifestation = Symbol("Manifestation", doc="TBD")
 
 if IS_LOCAL:
-	execfile(os.path.join(runpath, "../extra/ontology/zeo.py"))
-	execfile(os.path.join(runpath, "../extra/ontology/nfo.py"))
+	execfile(os.path.join(runpath, "../extra/ontology/zeitgeist.py"))
 else:
 	raise NotImplementedError
 	# it should be similar to
 	execfile("/path/of/zeo.trig.py")
+	
+for symbol in NEEDS_CHILD_RESOLUTION:
+	symbol._resolve_children()
 
 if __name__ == "__main__":
 	# testing
@@ -274,7 +294,7 @@ if __name__ == "__main__":
 	
 	#~ Symbol("BOO", DataContainer) #must fail with ValueError
 	#~ Symbol("Boo", DataContainer) #must fail with ValueError
-	Symbol("Foo", DataContainer)
+	Symbol("Foo", set([DataContainer,]))
 	print DataContainer.Foo
 	
 	#~ DataContainer._add_child("booo") #must fail with TypeError

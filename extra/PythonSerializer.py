@@ -31,6 +31,20 @@ def escape_chars(text, strip=True):
 	if strip:
 		text = text.strip()
 	return text
+	
+def replace_items(item_set, item_map):
+	if not item_set:
+		return
+	for item, value in item_map.iteritems():
+		try:
+			item_set.remove(item)
+		except KeyError:
+			# item is not in set
+			continue
+		else:
+			# item was in set, replace it with value
+			item_set.add(value)
+
 
 class PythonSerializer(RecursiveSerializer):
 
@@ -40,19 +54,14 @@ class PythonSerializer(RecursiveSerializer):
 		doc = escape_chars(comments[0] if comments else "")
 		labels = list(self.store.objects(collection_type, RDFS.label))
 		display_name = escape_chars(labels[0] if labels else collection_name)
-		root_type = list(self.store.objects(collection_type, RDFS.subClassOf))
-		root_type = root_type[0] if root_type else None
-		if root_type == NIENS["InformationElement"]:
+		root_type = set(map(str, self.store.objects(collection_type, RDFS.subClassOf)))
+		replace_items(root_type,
+			{str(NIENS["InformationElement"]): "Interpretation", str(NIENS["DataObject"]): "Manifestation"})
+		if root_type:
 			stream.write(
 				#TBD: not sure ?!
-				"%s = Symbol('%s', parent=Interpretation, uri='%s', doc='%s')\n" %(collection_name,
-					display_name, collection_type, doc)
-			)
-		elif root_type == NIENS["DataObject"]:
-			stream.write(
-				#TBD: not sure ?!
-				"%s = Symbol('%s', parent=Manifestation, uri='%s', doc='%s')\n" %(collection_name,
-					display_name, collection_type, doc)
+				"%s = Symbol('%s', parent=%r, uri='%s', doc='%s')\n" %(collection_name,
+					display_name, root_type, collection_type, doc)
 			)
 		else:
 			stream.write(
@@ -61,23 +70,20 @@ class PythonSerializer(RecursiveSerializer):
 			)
 		return collection_name
 
-	def _create_symbol(self, stream, collection_name, member):
+	def _create_symbol(self, stream, member):
 		name = str(member).split("#")[-1]
 		comments = list(self.store.objects(member, RDFS.comment))
 		doc = escape_chars(comments[0] if comments else "")
 		labels = list(self.store.objects(member, RDFS.label))
 		display_name = escape_chars(labels[0] if labels else name)
-		if collection_name is None:
-			root_type = list(self.store.objects(member, RDFS.subClassOf))
-			root_type = root_type[0] if root_type else None
-			if root_type == NIENS["InformationElement"]:
-				collection_name = "Interpretation"
-			elif root_type == NIENS["DataObject"]:
-				collection_name = "Manifestation"
+		root_type = set(map(str, self.store.objects(member, RDFS.subClassOf)))
+		replace_items(root_type,
+			{str(NIENS["InformationElement"]): "Interpretation", str(NIENS["DataObject"]): "Manifestation"})
+		assert root_type
 		#TODO: displayname, how are translation handled? on trig level or on python level?
 		stream.write(
-			"Symbol('%s', parent=%s, uri='%s', display_name='%s', doc='%s')\n" %(name, 
-				collection_name, member, display_name, doc)
+			"Symbol('%s', parent=%r, uri='%s', display_name='%s', doc='%s')\n" %(name, 
+				root_type, member, display_name, doc)
 		)
 
 	def serialize(self, stream, base=None, encoding=None, **args):
@@ -103,6 +109,6 @@ class PythonSerializer(RecursiveSerializer):
 				if members:
 					collection_name = self._create_symbol_collection(stream, collection_type)
 					for member in members:
-						self._create_symbol(stream, collection_name, member)
+						self._create_symbol(stream, member)
 				else:
-					self._create_symbol(stream, None, collection_type)
+					self._create_symbol(stream, collection_type)
