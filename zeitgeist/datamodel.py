@@ -901,7 +901,16 @@ each interpretation instance in this class has a *display_name* property, which
 is an internationalized string meant for end user display.
 
 The interpretation types listed here are all subclasses of *str* and may be
-used anywhere a string would be used."""
+used anywhere a string would be used.
+
+Interpretations form a hierarchical type tree. So that fx. Audio, Video, and
+Image all are sub types of Media. These types again have their own sub types,
+like fx. Image has children Icon, Photo, and VectorImage (among others).
+
+Templates match on all sub types, so that a query on subjects with
+interpretation Media also match subjects with interpretations
+Audio, Photo, and all other sub types of Media.
+"""
 
 MANIFESTATION_DOC = \
 """The manifestation type of an event or subject is an abstract classification
@@ -913,7 +922,16 @@ each interpretation instance in this class has a *display_name* property, which
 is an internationalized string meant for end user display.
 
 The manifestation types listed here are all subclasses of *str* and may be
-used anywhere a string would be used."""
+used anywhere a string would be used.
+
+Manifestations form a hierarchical type tree. So that fx. ArchiveItem,
+Attachment, and RemoteDataObject all are sub types of FileDataObject.
+These types can again have their own sub types.
+
+Templates match on all sub types, so that a query on subjects with manifestation
+FileDataObject also match subjects of types Attachment or ArchiveItem and all
+other sub types of FileDataObject
+"""
 
 Interpretation = SubjectInterpretation = Symbol("Interpretation", doc=INTERPRETATION_DOC)
 Manifestation = SubjectManifestation = Symbol("Manifestation", doc=MANIFESTATION_DOC)
