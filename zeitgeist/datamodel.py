@@ -206,7 +206,7 @@ class Symbol(str):
 		raise KeyError("Could not find symbol for URI: %s" % name)
 		
 	def __getattr__(self, name):
-		children = dict((s.name, s) for s in self.get_all_children())
+		children = dict((s.name, s) for s in self.get_all_children() if s is not self)
 		try:
 			return children[name]
 		except KeyError:
