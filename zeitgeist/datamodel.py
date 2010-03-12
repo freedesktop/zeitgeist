@@ -177,7 +177,7 @@ class Symbol(str):
 				self.__parents.remove(parent)
 				self.__parents.add(parent_obj)
 		
-		missing_symbols = filter(lambda x: isinstance(x, self.__class__), self.__parents)
+		missing_symbols = filter(lambda x: not isinstance(x, self.__class__), self.__parents)
 		if missing_symbols:
 			if must_finish:
 				raise RuntimeError("Unable to resolve symbols: %s"
