@@ -1,0 +1,315 @@
+#
+# Copyright (c) 2009-2010 Evgeny Egorochkin <phreedom.stdin@gmail.com>
+# Copyright (c) 2010 Sebastian Trueg <trueg@kde.org>
+# Copyright (c) 2010 Andrew Lake <jamboarder@yahoo.com>
+# All rights reserved, licensed under either CC-BY or BSD.
+#
+# You are free:
+#  * to Share - to copy, distribute and transmit the work
+#  * to Remix - to adapt the work
+# Under the following conditions:
+#  * Attribution - You must attribute the work in the manner specified by the author
+#    or licensor (but not in any way that suggests that they endorse you or your use 
+#    of the work).
+#
+# Redistribution and use in source and binary forms, with or without modification, 
+# are permitted provided that the following conditions are met:
+#  * Redistributions of source code must retain the above copyright notice, this 
+#    list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this 
+#    list of conditions and the following disclaimer in the documentation and/or 
+#    other materials provided with the distribution.
+#  * Neither the names of the authors nor the names of contributors may
+#    be used to endorse or promote products derived from this ontology without 
+#    specific prior written permission.
+#
+# THIS ONTOLOGY IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+# NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS ONTOLOGY, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix nrl:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix nao:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
+@prefix nco:     <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix nie:     <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+@prefix nfo:     <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix nmm:     <http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#> .
+
+nmm: {
+
+    nmm:MusicPiece
+    a rdfs:Class ;
+    rdfs:subClassOf nfo:Media ;
+    rdfs:label "music" ;
+    rdfs:comment "Used to assign music-specific properties such a BPM to video and audio" .
+
+    nmm:musicAlbum
+    a rdf:Property ;
+    rdfs:subPropertyOf nie:isLogicalPartOf ;
+    rdfs:label "album" ;
+    rdfs:comment "Album the music belongs to" ;
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range nmm:MusicAlbum ;
+    nrl:maxCardinality 1 .
+
+    nmm:beatsPerMinute
+    a rdf:Property ;
+    rdfs:label "Beats per minute" ;
+    rdfs:comment "beats per minute" ;
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range xsd:integer .
+
+    nmm:performer
+    a rdf:Property ;
+    rdfs:subPropertyOf nco:contributor ;
+    rdfs:label "performer" ;
+    rdfs:comment "Performer" ;
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range nco:Contact .
+
+    nmm:composer
+    a rdf:Property ;
+    rdfs:subPropertyOf nco:contributor ;
+    rdfs:label "composer" ;
+    rdfs:comment "Composer" ;
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range nco:Contact .
+
+    nmm:lyricist
+    a rdf:Property ;
+    rdfs:subPropertyOf nco:contributor ;
+    rdfs:label "lyricist";
+    rdfs:comment "Lyricist";
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range nco:Contact .
+
+    nmm:trackNumber
+    a rdf:Property ;
+    rdfs:label "track number" ;
+    rdfs:comment "Track number of the music in its album" ;
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range xsd:integer .
+
+    nmm:musicBrainzTrackID
+    a rdf:Property ;
+    rdfs:subPropertyOf nie:identifier ;
+    rdfs:label "musicbrainz track ID" ;
+    rdfs:comment "MusicBrainz track ID" ;
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range xsd:integer .
+
+    nmm:trackGain
+    a rdf:Property ;
+    rdfs:label "track gain" ;
+    rdfs:comment "ReplayGain track gain" ;
+    rdfs:domain nmm:MusicPiece .
+
+    nmm:trackPeakGain
+    a rdf:Property ;
+    rdfs:label "track peak gain" ;
+    rdfs:comment "ReplayGain track peak gain" ;
+    rdfs:domain nmm:MusicPiece .
+
+
+    nmm:MusicAlbum
+    a rdfs:Class ;
+    rdfs:subClassOf nfo:MediaList ;
+    rdfs:label "music album" ;
+    rdfs:comment "The music album as provided by the publisher. Not to be confused with media lists or collections." .
+
+    nmm:musicCDIdentifier
+    a rdf:Property ;
+    rdfs:subPropertyOf nie:identifier ;
+    rdfs:label "music CD identifier" ;
+    rdfs:comment "Music CD identifier to for databases like FreeDB.org. This property is intended for music that comes from a CD, so that the CD can be identified in external databases." ;
+    rdfs:domain nmm:MusicAlbum ;
+    rdfs:range xsd:string .
+
+    nmm:internationalStandardRecordingCode
+    a rdf:Property ;
+    rdfs:subPropertyOf nie:identifier ;
+    rdfs:label "international standard recording code" ;
+    rdfs:comment "ISRC ID. Format: 'CC-XXX-YY-NNNNN'" ;
+    rdfs:domain nmm:MusicAlbum ;
+    rdfs:range xsd:string .
+
+    nmm:musicBrainzAlbumID
+    a rdf:Property ;
+    rdfs:subPropertyOf nie:identifier ;
+    rdfs:label "musicbrainz album ID" ;
+    rdfs:comment "MusicBrainz album ID" ;
+    rdfs:domain nmm:MusicAlbum ;
+    rdfs:range xsd:string .
+
+    nmm:albumGain
+    a rdf:Property ;
+    rdfs:label "album gain" ;
+    rdfs:comment "ReplayGain album(audiophile) gain" ;
+    rdfs:domain nmm:MusicAlbum .
+
+    nmm:albumPeakGain
+    a rdf:Property ;
+    rdfs:label "album peak gain" ;
+    rdfs:comment "ReplayGain album(audiophile) peak gain" ;
+    rdfs:domain nmm:MusicAlbum .
+    
+    nmm:genre 
+    a rdf:Property ;
+    rdfs:label "genre" ;
+    rdfs:comment "Genre" ;
+    rdfs:domain nfo:Media ;
+    rdfs:range xsd:string .
+    
+    nmm:artwork 
+    a rdf:Property ;
+    rdfs:label "artwork" ;
+    rdfs:comment "Associated Artwork" ;
+    rdfs:domain nfo:Media ;
+    rdfs:range nfo:Image .
+    
+    nmm:Movie 
+    a rdfs:Class ;
+    rdfs:subClassOf nfo:Video ;
+    rdfs:label "movie" ;
+    rdfs:comment "A Movie" .
+    
+    nmm:TVShow 
+    a rdfs:Class ;
+    rdfs:subClassOf nfo:Video ;
+    rdfs:label "tv show" ;
+    rdfs:comment "A TV Show" .
+    
+    nmm:TVSeries
+    a rdfs:Class ;
+    rdfs:subClassOf nie:InformationElement ;
+    rdfs:label "tv series" ;
+    rdfs:comment "A TV Series has multiple seasons and episodes" .
+    
+    nmm:series
+    a rdf:Property ;
+    rdfs:label "series" ;
+    rdfs:comment "series" ;
+    nrl:maxCardinality 1 ;
+    rdfs:domain nmm:TVShow ;
+    rdfs:range nmm:TVSeries ;
+    nrl:inverseProperty nmm:hasEpisode .
+    
+    nmm:hasEpisode
+    a rdf:Property ;
+    rdfs:label "has episode" ;
+    rdfs:comment "A TVSeries has many episodes" ;
+    rdfs:domain nmm:TVSeries ;
+    rdfs:range nmm:TVShow ;
+    nrl:inverseProperty nmm:series .
+    
+    nmm:season 
+    a rdf:Property ;
+    rdfs:label "Season" ;
+    nrl:maxCardinality 1 ;
+    rdfs:domain nmm:TVShow ;
+    rdfs:range xsd:integer .
+    
+    nmm:episodeNumber 
+    a rdf:Property ;
+    rdfs:label "Episode number" ;
+    nrl:maxCardinality 1 ;
+    rdfs:domain nmm:TVShow ;
+    rdfs:range xsd:integer .
+    
+    nmm:synopsis a rdf:Property ;
+    rdfs:label "synopsis" ;
+    rdfs:comment "Long form description of video content (plot, premise, etc.)" ;
+    nrl:maxCardinality 1 ;
+    rdfs:domain nfo:Video ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf nie:description .
+    
+    nmm:audienceRating a rdf:Property ;
+    rdfs:label "audience rating" ;
+    rdfs:comment "Rating used to identify appropriate audience for video (MPAA rating, BBFC, FSK, TV content rating, etc.)" ;
+    rdfs:domain nfo:Video ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf nao:rating .
+    
+    nmm:writer
+    a rdf:Property ;
+    rdfs:subPropertyOf nco:contributor ;
+    rdfs:label "writer" ;
+    rdfs:comment "Writer" ;
+    rdfs:domain nfo:Video ;
+    rdfs:range nco:Contact .
+    
+    nmm:director
+    a rdf:Property ;
+    rdfs:subPropertyOf nco:contributor ;
+    rdfs:label "director" ;
+    rdfs:comment "Director" ;
+    rdfs:domain nfo:Video ;
+    rdfs:range nco:Contact .
+    
+    nmm:producer 
+    a rdf:Property ;
+    rdfs:subPropertyOf nco:contributor ;
+    rdfs:label "producer" ;
+    rdfs:comment "Producer" ;
+    rdfs:domain nfo:Video ;
+    rdfs:range nco:Contact .
+    
+    nmm:actor
+    a rdf:Property ;
+    rdfs:subPropertyOf nco:contributor ;
+    rdfs:label "actor" ;
+    rdfs:comment "Actor" ;
+    rdfs:domain nfo:Video ;
+    rdfs:range nco:Contact .
+    
+    nmm:cinematographer
+    a rdf:Property ;
+    rdfs:subPropertyOf nco:contributor ;
+    rdfs:label "cinematographer" ;
+    rdfs:domain nfo:Video ;
+    rdfs:range nco:Contact .
+    
+    nmm:assistantDirector
+    a rdf:Property ;
+    rdfs:subPropertyOf nco:contributor ;
+    rdfs:label "assistant director" ;
+    rdfs:domain nfo:Video ;
+    rdfs:range nco:Contact .
+
+    nmm:releaseDate 
+    a rdf:Property ;
+    rdfs:subPropertyOf nie:informationElementDate ;
+    rdfs:label "release date" ;
+    rdfs:comment "The date the media was released." ;
+    rdfs:domain nfo:Media ;
+    rdfs:range xsd:dateTime .
+}
+
+<http://www.semanticdesktop.org/ontologies/2009/02/19/nmm/metadata>
+{
+    nmm:
+          a       nrl:DocumentGraph , nrl:Ontology ;
+          nao:hasDefaultNamespace "http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#" ;
+          nao:hasDefaultNamespaceAbbreviation "nmm" ;
+          nao:lastModified "2010-02-15T08:34:29" ;
+          nao:serializationLanguage "TriG" ;
+          nao:status "Testing" ;
+          nrl:updatable "0" ;
+          nao:version "2" .
+
+    <http://www.semanticdesktop.org/ontologies/2009/02/19/nmm/metadata>
+          a       nrl:GraphMetadata , nrl:DocumentGraph ;
+          nao:serializationLanguage "TriG" ;
+          nrl:coreGraphMetadataFor nmm: .
+}
