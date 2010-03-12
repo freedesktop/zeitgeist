@@ -933,6 +933,8 @@ FileDataObject also match subjects of types Attachment or ArchiveItem and all
 other sub types of FileDataObject
 """
 
+start_symbols = time.time()
+
 Interpretation = SubjectInterpretation = Symbol("Interpretation", doc=INTERPRETATION_DOC)
 Manifestation = SubjectManifestation = Symbol("Manifestation", doc=MANIFESTATION_DOC)
 
@@ -973,6 +975,8 @@ while NEEDS_CHILD_RESOLUTION and c:
 if NEEDS_CHILD_RESOLUTION:
 	print >> sys.stderr, ("Cannot resolve children of %r" %NEEDS_CHILD_RESOLUTION)
 	raise SystemExit(1)
+	
+end_symbols = time.time()
 
 if __name__ == "__main__":
 	x = len(Interpretation.get_all_children())
@@ -980,6 +984,7 @@ if __name__ == "__main__":
 	print >> sys.stderr, \
 		("Overall number of symbols: %i (man.: %i, int.: %i)" %(x+y, y, x))
 	print >> sys.stderr, ("Resolved %i symbols, needed %i iterations" %(initial_count, initial_count-c))
+	print >> sys.stderr, ("Loading symbols took %.4f seconds" %(end_symbols - start_symbols))
 	#
 	# shortcuts
 	EventManifestation = Manifestation.EventManifestation
