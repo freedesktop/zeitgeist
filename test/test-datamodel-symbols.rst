@@ -28,7 +28,7 @@ scratch.
     
     >>> TestSymbol.get_children()
     frozenset([])
-    >>> TestSymbol.get_parent()
+    >>> TestSymbol.get_parents()
     frozenset([])
     
 Now it is possible to register another symbol which is a sub-symbol of
