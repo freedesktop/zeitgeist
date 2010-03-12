@@ -946,16 +946,47 @@ else:
 	raise NotImplementedError
 	# it should be similar to
 	execfile("/path/of/zeo.trig.py")
+
+# try to resolve all lazy references to parent symbols
+# this operation is expensive, this is why we only allow 'c' number of
+# iterations (a sensible value seems to be the number of symbols needing
+# child resolution)
+
+initial_count = c = len(NEEDS_CHILD_RESOLUTION)
+
+while NEEDS_CHILD_RESOLUTION and c:
+	symbols = dict((str(i), i) for i in NEEDS_CHILD_RESOLUTION)
+	x = dict((str(i), i.get_parents()) for i in NEEDS_CHILD_RESOLUTION)
+	c -= 1
+	missings_parents = set(sum(map(list, x.values()), []))
+	candidates = missings_parents - set(x.keys())
+	while candidates:
+		candidate = candidates.pop()
+		resolveable = filter(lambda v: len(v[1]) == 1 and candidate in v[1], x.items())
+		if not resolveable:
+			continue
+		for uri, parent_uris in resolveable:
+			symbol = symbols[uri]
+			symbol._resolve_children()
+			NEEDS_CHILD_RESOLUTION.remove(symbol)
 	
-for symbol in NEEDS_CHILD_RESOLUTION:
-	try:
-		symbol._resolve_children()
-	except Exception, e:
-		print >> sys.stderr, ("Error resolving children of %s: %s"
-		                      % (symbol, e))
-		raise SystemExit(1)
+if NEEDS_CHILD_RESOLUTION:
+	print >> sys.stderr, ("Cannot resolve children of %r" %NEEDS_CHILD_RESOLUTION)
+	raise SystemExit(1)
 
 if __name__ == "__main__":
+	x = len(Interpretation.get_all_children())
+	y = len(Manifestation.get_all_children())
+	print >> sys.stderr, \
+		("Overall number of symbols: %i (man.: %i, int.: %i)" %(x+y, y, x))
+	print >> sys.stderr, ("Resolved %i symbols, needed %i iterations" %(initial_count, initial_count-c))
+	#
+	# shortcuts
+	EventManifestation = Manifestation.EventManifestation
+	EventInterpretation = Interpretation.EventInterpretation
+	
+	DataContainer = Interpretation.DataContainer
+	
 	# testing
 	print dir(EventManifestation)
 	print dir(Manifestation)
