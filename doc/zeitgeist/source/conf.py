@@ -225,7 +225,7 @@ class SymbolDocumenter(Documenter):
         elif isinstance(self.object, Symbol):
             # we treat symbol objects special and only document their child
             # symbols
-            return False, [(i.name, i) for i in self.object.get_children()]
+            return False, sorted((i.name, i) for i in self.object.get_children())
         return r
         
         
