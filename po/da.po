@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: 2010-02-15 05:52+0000\n"
-"Last-Translator: David Nielsen <gnomeuser@gmail.com>\n"
+"PO-Revision-Date: 2010-03-14 23:08+0000\n"
+"Last-Translator: nanker <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-03-08 05:38+0000\n"
+"X-Launchpad-Export-Date: 2010-03-15 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../zeitgeist-daemon:56
@@ -86,7 +86,7 @@ msgstr "Kilder"
 
 #: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
-msgstr "Rundsending"
+msgstr "Udsendelser"
 
 #: ../zeitgeist/datamodel.py:272
 msgid "Created"
