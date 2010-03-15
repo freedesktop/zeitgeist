@@ -955,6 +955,7 @@ if IS_LOCAL:
 else:
 	#raise NotImplementedError
 	# it should be similar to
+	# cProfile needs the absolute path to the ontology here!!!!
 	execfile("/home/markus/devel/zeitgeist/ontology_definition/extra/ontology/zeitgeist.py")
 
 # try to resolve all lazy references to parent symbols
