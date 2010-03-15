@@ -40,6 +40,20 @@ __all__ = [
 	'NULL_EVENT',
 ]
 
+# next() function is python >= 2.6
+try:
+	next = next
+except NameError:
+	# workaround this for older python versions
+	_default_next = object()
+	def next(iterator, default=_default_next):
+		try:
+			return iterator.next()
+		except StopIteration:
+			if default is not _default_next:
+				return default
+			raise
+
 runpath = os.path.dirname(__file__)
 
 NEEDS_CHILD_RESOLUTION = set()
@@ -153,14 +167,6 @@ class Symbol(str):
 			elif not isinstance(parent, (str, unicode)):
 				continue
 			if parent_obj is None:
-				# parent can be the name of a symbol, let's look it up in 
-				# the global namespace
-				parent_obj = globals().get(parent)
-			if parent_obj is None:
-				# parent can be an uri, where the last part is the name
-				# of the symbol, let's try to look it up
-				parent_obj = globals().get(parent.split("#")[-1])
-			if parent_obj is None:
 				# if parent_obj is still None try to explicitly lookup
 				# the symbol by its uri, look in both possible symbol
 				# collections
@@ -194,15 +200,17 @@ class Symbol(str):
 			# lookup by index
 			return super(Symbol, self).__getitem__(name)
 		# look in immediate children first
-		symbol = [s for s in self.get_children() if s.uri == name]
+		symbols = (s for s in self.get_children() if s.uri == name)
+		symbol = next(symbols, False)
 		if symbol:
-			assert len(symbol) == 1, "There are %i child symbols having the same uri" %len(symbol)
-			return symbol[0]
+			assert not next(symbols, False), "There is more than one symbol with uri='%s'" %name
+			return symbol
 		# if we still have no luck we try to look in all children
-		symbol = [s for s in self.get_all_children() if s.uri == name]
+		symbols = (s for s in self.iter_all_children() if s.uri == name)
+		symbol = next(symbols, False)
 		if symbol:
-			assert len(symbol) == 1, "There are %i child symbols having the same uri" %len(symbol)
-			return symbol[0]		
+			assert not next(symbols, False), "There is more than one symbol with uri='%s'" %name
+			return symbol
 		raise KeyError("Could not find symbol for URI: %s" % name)
 		
 	def __getattr__(self, name):
@@ -256,7 +264,7 @@ class Symbol(str):
 		"""
 		Returns a list of immediate child symbols
 		"""
-		return frozenset(self.__children.values())
+		return frozenset(self.__children.itervalues())
 		
 	def iter_all_children(self):
 		"""
@@ -945,9 +953,9 @@ if IS_LOCAL:
 		raise ImportError("Unable to load zeitgeist ontology, "
 		                  "please run `make` and try again.")
 else:
-	raise NotImplementedError
+	#raise NotImplementedError
 	# it should be similar to
-	execfile("/path/of/zeo.trig.py")
+	execfile("/home/markus/devel/zeitgeist/ontology_definition/extra/ontology/zeitgeist.py")
 
 # try to resolve all lazy references to parent symbols
 # this operation is expensive, this is why we only allow 'c' number of
@@ -979,43 +987,44 @@ if NEEDS_CHILD_RESOLUTION:
 end_symbols = time.time()
 
 if __name__ == "__main__":
-	x = len(Interpretation.get_all_children())
-	y = len(Manifestation.get_all_children())
-	print >> sys.stderr, \
-		("Overall number of symbols: %i (man.: %i, int.: %i)" %(x+y, y, x))
-	print >> sys.stderr, ("Resolved %i symbols, needed %i iterations" %(initial_count, initial_count-c))
-	print >> sys.stderr, ("Loading symbols took %.4f seconds" %(end_symbols - start_symbols))
-	#
-	# shortcuts
-	EventManifestation = Manifestation.EventManifestation
-	EventInterpretation = Interpretation.EventInterpretation
-	
-	DataContainer = Interpretation.DataContainer
-	
-	# testing
-	print dir(EventManifestation)
-	print dir(Manifestation)
-	print EventManifestation.UserActivity
-	
-	print DataContainer
-	print DataContainer.Filesystem
-	print DataContainer.Filesystem.__doc__
-	
-	print " OR ".join(DataContainer.get_all_children())
-	print " OR ".join(DataContainer.Filesystem.get_all_children())
-	
-	print DataContainer.Boo
-	
-	#~ Symbol("BOO", DataContainer) #must fail with ValueError
-	#~ Symbol("Boo", DataContainer) #must fail with ValueError
-	Symbol("Foo", set([DataContainer,]))
-	print DataContainer.Foo
-	
-	#~ DataContainer._add_child("booo") #must fail with TypeError
-	
-	print Interpretation
-	#~ print Interpretation.get_all_children()
-	import pprint
-	pprint.pprint(Interpretation.Software.get_all_children())
-	
-	print Interpretation["http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#MindMap"]
+	pass
+	#~ x = len(Interpretation.get_all_children())
+	#~ y = len(Manifestation.get_all_children())
+	#~ print >> sys.stderr, \
+		#~ ("Overall number of symbols: %i (man.: %i, int.: %i)" %(x+y, y, x))
+	#~ print >> sys.stderr, ("Resolved %i symbols, needed %i iterations" %(initial_count, initial_count-c))
+	#~ print >> sys.stderr, ("Loading symbols took %.4f seconds" %(end_symbols - start_symbols))
+	#~ #
+	#~ # shortcuts
+	#~ EventManifestation = Manifestation.EventManifestation
+	#~ EventInterpretation = Interpretation.EventInterpretation
+	#~ 
+	#~ DataContainer = Interpretation.DataContainer
+	#~ 
+	#~ # testing
+	#~ print dir(EventManifestation)
+	#~ print dir(Manifestation)
+	#~ print EventManifestation.UserActivity
+	#~ 
+	#~ print DataContainer
+	#~ print DataContainer.Filesystem
+	#~ print DataContainer.Filesystem.__doc__
+	#~ 
+	#~ print " OR ".join(DataContainer.get_all_children())
+	#~ print " OR ".join(DataContainer.Filesystem.get_all_children())
+	#~ 
+	#~ print DataContainer.Boo
+	#~ 
+	#~ #Symbol("BOO", DataContainer) #must fail with ValueError
+	#~ #Symbol("Boo", DataContainer) #must fail with ValueError
+	#~ Symbol("Foo", set([DataContainer,]))
+	#~ print DataContainer.Foo
+	#~ 
+	#~ #DataContainer._add_child("booo") #must fail with TypeError
+	#~ 
+	#~ print Interpretation
+	#~ #print Interpretation.get_all_children()
+	#~ import pprint
+	#~ pprint.pprint(Interpretation.Software.get_all_children())
+	#~ 
+	#~ print Interpretation["http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#MindMap"]
