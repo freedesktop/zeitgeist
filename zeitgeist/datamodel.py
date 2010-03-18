@@ -953,10 +953,8 @@ if IS_LOCAL:
 		raise ImportError("Unable to load zeitgeist ontology, "
 		                  "please run `make` and try again.")
 else:
-	#raise NotImplementedError
-	# it should be similar to
-	# cProfile needs the absolute path to the ontology here!!!!
-	execfile("/home/markus/devel/zeitgeist/ontology_definition/extra/ontology/zeitgeist.py")
+	from zeitgeist import _config
+	execfile(os.path.join(_config.datadir, "/zeitgeist/ontology/zeitgeist.py")
 
 # try to resolve all lazy references to parent symbols
 # this operation is expensive, this is why we only allow 'c' number of
