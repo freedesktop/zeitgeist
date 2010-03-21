@@ -266,62 +266,59 @@ class ZeitgeistEngine:
 		return self._find_events(1, *args)
 	
 	@staticmethod
-	def _generate_buckets(events):
-			"""
-			Create buckets where a size of a bucket is limited by 30 minutes.
-			events: list of (timestamp, subject_uri)
-			"""
-			t = 0
-			latest_uris = {}
-			buckets = []
-			clusters = []
-			last_event = None
-			average_acc = 0
-			
-			for event in events:
-				timestamp = int(event[0])
-				if timestamp - 5*60*1000 > t:
-					if len(clusters) > 0:
-						if len(clusters) > 1:
-							clusters[-1] = (clusters[-1][0], len(clusters[-1]), len(clusters[-1]) - clusters[len(clusters)-2][1])
-						else:
-							clusters[-1] = (clusters[-1][0], len(clusters[-1]), 0)
-						average_acc += abs(clusters[-1][2])
-					clusters.append([])
-				
+	def _generate_buckets(events, time_cluster_range = 300000):
+		"""
+		Create buckets where a size of a bucket is limited by 30 minutes
+		"""
+		t = 0
+		latest_uris = {}
+		buckets = []
+		clusters = []
+		average_acc = 0
+		
+		for event in events:
+			if int(event[0]) - time_cluster_range > t:
+				t = int(event[0])
 				if len(clusters) > 0:
-					clusters[-1].append(timestamp)
-				last_event = event
-			
-			# TODO: Why is this repeated? (same as in the for loop)
-			if len(clusters) > 0:
-				if len(clusters) > 1:
-					clusters[-1] = (clusters[-1][0], len(clusters[-1]), len(clusters[-1]) - clusters[len(clusters)-2][1])
-				else:
-					clusters[-1] = (clusters[-1][0], len(clusters[-1]), 0)				
-				average_acc += abs(clusters[-1][2])						
-			
-			average_acc = abs(average_acc) / len(clusters) + 1
-			
-			landmarks = []
-			i = 0
-			for cluster in clusters:
-				if i == 0:
-					landmarks.append(cluster[0])
-				elif abs(cluster[2] - last_acc) != average_acc:
-					landmarks.append(cluster[0]) 
-				last_acc = cluster[2]
-				i += 1
+					if len(clusters) > 1:
+						clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
+					else:
+						clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)
+					average_acc += abs(clusters[-1][2])
+				clusters.append([])
 				
-			t = 0	
-			for event in events:
-				timestamp = int(event[0])
-				if timestamp in landmarks:
-					buckets.append([])
-				if len(buckets) > 0:
-					latest_uris[event[1]] = timestamp
-					buckets[-1].append(event[1])
-			return buckets, latest_uris
+			if len(clusters) > 0:
+				clusters[-1].append((event[0]))
+		
+		if len(clusters) > 0:
+			if len(clusters) > 1:
+				clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
+			else:
+				clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)				
+			average_acc += abs(clusters[-1][2])						
+		
+		average_acc = abs(average_acc) / len(clusters) + 1
+		
+		landmarks = []
+		i = 0
+		for cluster in clusters:
+			if i == 0:
+				landmarks.append(cluster[0])
+			else:
+				if (abs(cluster[2] - last_acc) != average_acc ):
+					landmarks.append(cluster[0]) 
+			last_acc = cluster[2]
+			i += 1
+			
+		t = 0	
+		for event in events:
+			if int(event[0]) in landmarks:
+				t = int(event[0])
+				buckets.append([])
+			if len(buckets) > 0:
+				latest_uris[event[1]] = int(event[0])
+				buckets[-1].append(event[1])
+		return buckets, latest_uris
 		
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state, num_results, result_type):
@@ -351,6 +348,7 @@ class ZeitgeistEngine:
 		keys_counter  = {}
 		
 		for bucket in buckets:
+			print "***", bucket
 			counter = 0
 			for event in event_templates:
 				if event.subjects[0].uri in bucket:
