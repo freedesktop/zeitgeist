@@ -204,6 +204,7 @@ class ZeitgeistEngine:
 		Return modes:
 		 - 0: IDs.
 		 - 1: Events.
+		 - 2: (Timestamp, SubjectUri)
 		"""
 		
 		t = time.time()
@@ -215,8 +216,12 @@ class ZeitgeistEngine:
 		
 		if return_mode == 0:
 			sql = "SELECT DISTINCT id FROM event_view"
-		else:
+		elif return_mode == 1:
 			sql = "SELECT * FROM event_view"
+		elif return_mode == 2:
+			sql = "SELECT timestamp, subj_uri FROM event_view"
+		else:
+			raise NotImplementedError, "Unsupported return_mode."
 		
 		if order == ResultType.LeastRecentActor:
 			sql += """
@@ -247,10 +252,12 @@ class ZeitgeistEngine:
 		
 		if return_mode == 1:
 			return self.get_events(rows=result, sender=sender)
-		result = [row[0] for row in result]
-		
-		log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
-		return result
+		if return_mode == 2:
+			return result
+		else: # return_mode == 0
+			result = [row[0] for row in result]
+			log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
+			return result
 	
 	def find_eventids(self, *args):
 		return self._find_events(0, *args)
@@ -261,7 +268,8 @@ class ZeitgeistEngine:
 	@staticmethod
 	def _generate_buckets(events):
 			"""
-			Create buckets where a size of a bucket is limited by 30 minutes
+			Create buckets where a size of a bucket is limited by 30 minutes.
+			events: list of (timestamp, subject_uri)
 			"""
 			t = 0
 			latest_uris = {}
@@ -271,25 +279,26 @@ class ZeitgeistEngine:
 			average_acc = 0
 			
 			for event in events:
-				if int(event.timestamp) - 5*60*1000 > t:
-					t = int(event.timestamp)
+				timestamp = int(event[0])
+				if timestamp - 5*60*1000 > t:
 					if len(clusters) > 0:
 						if len(clusters) > 1:
-							clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
+							clusters[-1] = (clusters[-1][0], len(clusters[-1]), len(clusters[-1]) - clusters[len(clusters)-2][1])
 						else:
-							clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)
+							clusters[-1] = (clusters[-1][0], len(clusters[-1]), 0)
 						average_acc += abs(clusters[-1][2])
 					clusters.append([])
-					
+				
 				if len(clusters) > 0:
-					clusters[-1].append((event.timestamp))
+					clusters[-1].append(timestamp)
 				last_event = event
 			
+			# TODO: Why is this repeated? (same as in the for loop)
 			if len(clusters) > 0:
 				if len(clusters) > 1:
-					clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
+					clusters[-1] = (clusters[-1][0], len(clusters[-1]), len(clusters[-1]) - clusters[len(clusters)-2][1])
 				else:
-					clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)				
+					clusters[-1] = (clusters[-1][0], len(clusters[-1]), 0)				
 				average_acc += abs(clusters[-1][2])						
 			
 			average_acc = abs(average_acc) / len(clusters) + 1
@@ -299,20 +308,19 @@ class ZeitgeistEngine:
 			for cluster in clusters:
 				if i == 0:
 					landmarks.append(cluster[0])
-				else:
-					if (abs(cluster[2] - last_acc) != average_acc ):
-						landmarks.append(cluster[0]) 
+				elif abs(cluster[2] - last_acc) != average_acc:
+					landmarks.append(cluster[0]) 
 				last_acc = cluster[2]
 				i += 1
 				
 			t = 0	
 			for event in events:
-				if int(event.timestamp) in landmarks:
-					t = int(event.timestamp)
+				timestamp = int(event[0])
+				if timestamp in landmarks:
 					buckets.append([])
 				if len(buckets) > 0:
-					latest_uris[event.subjects[0].uri] = int(event.timestamp)
-					buckets[-1].append(event.subjects[0].uri)
+					latest_uris[event[1]] = timestamp
+					buckets[-1].append(event[1])
 			return buckets, latest_uris
 		
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
@@ -329,11 +337,8 @@ class ZeitgeistEngine:
 		the implementation may vary.
 		"""
 		
-		#templates = event_templates + result_event_templates
-		
-		
-		events = self.find_events(timerange, result_event_templates, 
-											result_storage_state, 0, 1)
+		events = self._find_events(2, timerange, result_event_templates,
+			result_storage_state, 0, 1)
 		
 		subject_uris = []
 		for event in event_templates:
