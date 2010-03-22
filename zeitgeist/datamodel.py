@@ -954,7 +954,7 @@ if IS_LOCAL:
 		                  "please run `make` and try again.")
 else:
 	from zeitgeist import _config
-	execfile(os.path.join(_config.datadir, "zeitgeist/ontology/zeitgeist.py")
+	execfile(os.path.join(_config.datadir, "zeitgeist/ontology/zeitgeist.py"))
 
 # try to resolve all lazy references to parent symbols
 # this operation is expensive, this is why we only allow 'c' number of
