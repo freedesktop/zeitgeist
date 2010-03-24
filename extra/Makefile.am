@@ -10,6 +10,8 @@ org.gnome.zeitgeist.service: Makefile
 CLEANFILES = org.gnome.zeitgeist.service
 EXTRA_DIST = \
 	org.gnome.zeitgeist.service.in \
-	zeitgeist-daemon.bash_completion
+	zeitgeist-daemon.bash_completion \
+	rdfxml2py \
+	PythonSerializer.py
 
 all-local: org.gnome.zeitgeist.service
