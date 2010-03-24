@@ -1,0 +1,3 @@
+usr/share/man/man1/zeitgeist-datahub.1
+usr/share/zeitgeist/_zeitgeist/loggers/*
+usr/bin/zeitgeist-datahub
