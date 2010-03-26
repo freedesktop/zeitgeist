@@ -180,12 +180,10 @@ class RemoteInterface(SingletonApplication):
 		:param order: unsigned integer representing
 			a :class:`result type <zeitgeist.datamodel.ResultType>`
 		:type order: unsigned integer
-		:returns: Full event data for all the requested IDs, up to a maximum
-			of *num_events* events, sorted and grouped as defined by the
-			*result_type* parameter. The event data can be conveniently
-			converted into a list of :class:`Event` instances by calling
-			*events = map(Event.new_for_struct, result)*
-		:rtype: A list of serialized events. DBus signature a(asaasay).
+		:returns: An array containing the IDs of all matching events,
+			up to a maximum of *num_events* events. Sorted and grouped
+			as defined by the *result_type* parameter.
+		:rtype: Array of unsigned 32 bit integers
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)
@@ -229,10 +227,12 @@ class RemoteInterface(SingletonApplication):
 		:param order: unsigned integer representing
 			a :class:`result type <zeitgeist.datamodel.ResultType>`
 		:type order: unsigned integer
-		:returns: An array containing the IDs of all matching events,
-			up to a maximum of *num_events* events. Sorted and grouped
-			as defined by the *result_type* parameter.
-		:rtype: Array of unsigned 32 bit integers
+		:returns: Full event data for all the requested IDs, up to a maximum
+			of *num_events* events, sorted and grouped as defined by the
+			*result_type* parameter. The event data can be conveniently
+			converted into a list of :class:`Event` instances by calling
+			*events = map(Event.new_for_struct, result)*
+		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)

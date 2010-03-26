@@ -1,0 +1,3 @@
+version=3
+https://launchpad.net/zeitgeist/+download \
+ http://launchpad\.net/zeitgeist/.+/.+/\+download/zeitgeist-(.+)\.tar\.gz

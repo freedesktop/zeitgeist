@@ -1,0 +1,71 @@
+Source: zeitgeist
+Section: utils
+Priority: optional
+Maintainer: Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+Build-Depends: cdbs (>= 0.4.49),
+ debhelper (>= 5.0.38),
+ gnome-pkg-tools,
+ intltool
+Build-Depends-Indep:
+ python-support (>= 0.5.3)
+Homepage: http://zeitgeist-project.com/
+Standards-Version: 3.8.3
+
+Package: zeitgeist
+Architecture: all
+Depends: ${misc:Depends},
+ zeitgeist-core,
+ zeitgeist-datahub
+Description: event logging framework
+ Zeitgeist is a service which logs the user's activities and events (files
+ opened, websites visited, conversations hold with other people, etc.) and
+ makes the relevant information available to other applications.
+ .
+ It serves as a comprehensive activity log and also makes it possible to
+ determine relationships between items based on usage patterns.
+ .
+ This metapackage depends on the Zeitgeist engine and a set of packages
+ (such as data providers) commonly used together with it.
+
+Package: zeitgeist-core
+Architecture: all
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ ${python:Depends},
+ python-xdg,
+ python-dbus,
+ python-gobject (>= 2.16.0)
+Suggests: zeitgeist-datahub
+Description: event logging framework - engine
+ Zeitgeist is a service which logs the user's activities and events (files
+ opened, websites visited, conversations hold with other people, etc.) and
+ makes the relevant information available to other applications.
+ .
+ It serves as a comprehensive activity log and also makes it possible to
+ determine relationships between items based on usage patterns.
+ .
+ This package contains the main daemon and the Python API.
+
+Package: zeitgeist-datahub
+Architecture: all
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ ${python:Depends},
+ python-xdg,
+ python-dbus,
+ python-gconf,
+ python-gobject (>= 2.16.0),
+ zeitgeist-core
+Recommends: python-gtk2 (>= 2.14.1)
+Description: event logging framework - passive logging daemon
+ Zeitgeist is a service which logs the user's activities and events (files
+ opened, websites visited, conversations hold with other people, etc.) and
+ makes the relevant information available to other applications.
+ .
+ It serves as a comprehensive activity log and also makes it possible to
+ determine relationships between items based on usage patterns.
+ .
+ This package contains zeitgeist-datahub, a daemon which starts together with
+ the main engine and inserts information collected from GtkRecentlyUsed into
+ it. Additional data collectors can be added to it and will be detected at
+ startup time.
