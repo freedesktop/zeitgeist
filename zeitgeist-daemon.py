@@ -26,22 +26,42 @@ import dbus.mainloop.glib
 import gettext
 import logging
 import optparse
+from copy import copy
 
 from zeitgeist import _config
 _config.setup_path()
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
-logging.basicConfig(level=logging.DEBUG)
 
-parser = optparse.OptionParser(version = _config.VERSION)
+def check_loglevel(option, opt, value):
+	value = value.upper()
+	if value in Options.log_levels:
+		return value
+	raise optparse.OptionValueError(
+		"option %s: invalid value: %s" % (opt, value))
+
+class Options(optparse.Option):
+
+	TYPES = optparse.Option.TYPES + ("log_levels",)
+	TYPE_CHECKER = copy(optparse.Option.TYPE_CHECKER)
+	TYPE_CHECKER["log_levels"] = check_loglevel
+
+	log_levels = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+
+parser = optparse.OptionParser(version = _config.VERSION, option_class=Options)
 parser.add_option(
 	"-r", "--replace",
 	action = "store_true", default=False, dest = "replace",
 	help = _("if another Zeitgeist instance is already running, replace it"))
 parser.add_option(
-	"--no-datahub",
+	"--no-datahub", "--no-passive-loggers",
 	action = "store_false", default=True, dest = "start_datahub",
 	help = _("do not start zeitgeist-datahub automatically"))
+parser.add_option(
+	"--log-level",
+	action = "store", type="log_levels", default="DEBUG", dest="log_level",
+	help = _("how much information should be printed; possible values:") + \
+		" %s" % ', '.join(Options.log_levels))
 parser.add_option(
 	"--quit",
 	action = "store_true", default=False, dest = "quit",
@@ -59,6 +79,8 @@ if _config.options.shell_completion:
 		options.update(option.split("/"))
 	print ' '.join(options)
 	sys.exit(0)
+
+logging.basicConfig(level=getattr(logging, _config.options.log_level))
 
 from _zeitgeist.engine.remote import RemoteInterface
 
