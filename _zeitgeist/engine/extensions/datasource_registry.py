@@ -97,7 +97,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		data = [DataSource.get_plain(datasource) for datasource in self._registry]
 		with open(DATA_FILE, "w") as data_file:
 			pickle.dump(data, data_file)
-		log.debug("Data-source registry updated.")
+		#log.debug("Data-source registry update written to disk.")
 	
 	def _get_data_source(self, unique_id):
 		for datasource in self._registry:
@@ -105,11 +105,15 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 				return datasource
 	
 	def insert_event_hook(self, event, sender):
-		# TODO: Update LastSeen time when a data-source inserts something.
 		for (unique_id, bus_names) in self._running.iteritems():
-			if sender in bus_names and not \
-				self._get_data_source(unique_id)[DataSource.Enabled]:
-				return None
+			if sender in bus_names:
+				datasource = self._get_data_source(unique_id)
+				# Update LastSeen time
+				datasource[DataSource.LastSeen] = get_timestamp_for_now()
+				self._write_to_disk()
+				# Check whether the data-source is allowed to insert events
+				if not [DataSource.Enabled]:
+					return None
 		return event
 	
 	# PUBLIC
