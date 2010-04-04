@@ -35,6 +35,7 @@ from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 	TableLookup, WhereClause
+from checkbox.job import PASS
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -265,61 +266,7 @@ class ZeitgeistEngine:
 	def find_events(self, *args):
 		return self._find_events(1, *args)
 	
-	@staticmethod
-	def _generate_buckets(events, time_cluster_range = 300000):
-		"""
-		Create buckets where a size of a bucket is limited by 30 minutes
-		"""
-		t = 0
-		latest_uris = {}
-		buckets = []
-		clusters = []
-		average_acc = 0
-		
-		for event in events:
-			if int(event[0]) - time_cluster_range > t:
-				t = int(event[0])
-				if len(clusters) > 0:
-					if len(clusters) > 1:
-						clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
-					else:
-						clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)
-					average_acc += abs(clusters[-1][2])
-				clusters.append([])
-				
-			if len(clusters) > 0:
-				clusters[-1].append((event[0]))
-		
-		if len(clusters) > 0:
-			if len(clusters) > 1:
-				clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
-			else:
-				clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)				
-			average_acc += abs(clusters[-1][2])						
-		
-		average_acc = abs(average_acc) / len(clusters) + 1
-		
-		landmarks = []
-		i = 0
-		for cluster in clusters:
-			if i == 0:
-				landmarks.append(cluster[0])
-			else:
-				if (abs(cluster[2] - last_acc) != average_acc ):
-					landmarks.append(cluster[0]) 
-			last_acc = cluster[2]
-			i += 1
-			
-		t = 0	
-		for event in events:
-			if int(event[0]) in landmarks:
-				t = int(event[0])
-				buckets.append([])
-			if len(buckets) > 0:
-				latest_uris[event[1]] = int(event[0])
-				buckets[-1].append(event[1])
-		return buckets, latest_uris
-		
+	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state, num_results, result_type):
 		"""
@@ -333,50 +280,96 @@ class ZeitgeistEngine:
 		This currently uses a modified version of the Apriori algorithm, but
 		the implementation may vary.
 		"""
+				
+		uris = self._find_events(2, timerange, result_event_templates,
+								result_storage_state, 0, 1)
 		
-		events = self._find_events(2, timerange, result_event_templates,
-			result_storage_state, 0, 1)
+		events = []
+		latest_uris = {}
 		
-		subject_uris = []
+		for event in uris:
+			events.append(event[1])
+			latest_uris[event[1]] = event[0]
+			
+		window_size = 7
+		
+		landmarks = []
 		for event in event_templates:
-			if len(event.subjects) > 0:
-				if  not event.subjects[0].uri in subject_uris:
-					subject_uris.append(event.subjects[0].uri)
-					
-		buckets, latest_uris = self._generate_buckets(events)
-		
-		keys_counter  = {}
-		
-		for bucket in buckets:
-			print "***", bucket
-			counter = 0
-			for event in event_templates:
-				if event.subjects[0].uri in bucket:
-					counter += 1
-					break
-			if counter > 0:
-				for key in bucket:
-					if not key in subject_uris:
-						if not keys_counter.has_key(key):
-							keys_counter[key] = 0
-						keys_counter[key] += 1
+			landmarks.append(event.subjects[0].uri)
+			
 
-		results = []
+		if len(events) <= 7:
+			windows = [events]
+		else:
+			windows = []
+			offset = window_size/2
+			
+			window_counter = 0
+			
+			for i in xrange(len(events)):
+				if i < offset:
+					window = events[0: i + offset + 1]
+				elif len(events) - offset - 1 < i:
+					window = events[i-offset: len(events)]
+				elif len(events) + offset +1 > i:
+					window = events[i-offset: i+offset+1]
+				windows.append(list(set(window)))
+						
+			
+			for i in xrange(offset):
+				window = events[0: offset - i]
+				windows.insert(0, list(set(window)))
+			
+			for i in xrange(offset):
+				window = events[len(events) - offset + i: len(events)]
+				windows.append(list(set(window)))
+
+		assoc = {}
+		highest_count = 0
+		for window in windows:
+			b = False
+			for j in landmarks:
+				if j in window and not b:
+					b = True
+					window_counter += 1
+			
+			if b:
+				for i in window:
+					if not i in landmarks:
+						if not assoc.has_key(i):
+							assoc[i] = 0
+						assoc[i] += 1
+						if assoc[i] > highest_count:
+							highest_count = assoc[i]
+		
+		print "finished sliding windows"
+		if highest_count%2 == 0:
+			highest_count = highest_count/2
+		else:
+			highest_count = 1+ highest_count/2 
+		
+		for key in assoc.keys():
+			print key, assoc[key], highest_count
+			if assoc[key] < highest_count:
+				del assoc[key]
+				del latest_uris[key]
 		
 		if result_type == 0 or result_type == 1:
 			if result_type == 0:
-				sets = [[v, k] for k, v in keys_counter.iteritems()]
+				sets = [[v, k] for k, v in assoc.iteritems()]
 			elif result_type == 1:
 				new_set = {}
-				for k in keys_counter.iterkeys():
+				for k in assoc.iterkeys():
 					new_set[k] = latest_uris[k]
 				sets = [[v, k] for k, v in new_set.iteritems()]
-	
 			sets.sort()
 			sets.reverse()
-			return map(lambda result: result[1], sets[:num_results])
+			sets = map(lambda result: result[1], sets[:num_results])
+			print sets
+			return sets
 		else:
 			raise NotImplementedError, "Unsupported ResultType."
+			
 
 	def insert_events(self, events, sender=None):
 		t = time.time()
