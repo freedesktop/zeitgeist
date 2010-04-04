@@ -311,22 +311,12 @@ class ZeitgeistEngine:
 				events.append(event[1])
 				latest_uris[event[1]] = event[0]
 
-			
 			start = 0
 			landmarks = [event.subjects[0].uri for event in event_templates]
-			for event in events:
-				if event in landmarks:
-					break
-				start += 1
-			
-			if start < window_size:
-				start = 0
-			
-			events = events[start:-1]
 			
 			if len(events) == 0:
 				return []
-			if len(events) <= 7:	
+			if len(events) <= 7:
 				highest_count = self.__add_window(list(set([events])), highest_count, assoc, landmarks, windows)
 			else:
 				windows = []
