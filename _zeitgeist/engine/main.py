@@ -24,6 +24,7 @@ import sqlite3
 import time
 import sys
 import os
+import gc
 import math
 import gettext
 import logging
@@ -35,7 +36,6 @@ from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 	TableLookup, WhereClause
-from checkbox.job import PASS
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -266,6 +266,23 @@ class ZeitgeistEngine:
 	def find_events(self, *args):
 		return self._find_events(1, *args)
 	
+	def __add_window(self, set, highest_count, assoc, landmarks, windows):
+		def _check_landmarks_in_set(set):
+			for i in landmarks:
+				if i in set:
+					return True
+			return False
+		if _check_landmarks_in_set(set):
+			windows.append(set)
+			for i in set:
+				if not i in landmarks:
+					if not assoc.has_key(i):
+						assoc[i] = 0
+					assoc[i] += 1
+					if assoc[i] > highest_count:
+						highest_count = assoc[i]
+		return highest_count
+	
 	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state, num_results, result_type):
@@ -280,81 +297,56 @@ class ZeitgeistEngine:
 		This currently uses a modified version of the Apriori algorithm, but
 		the implementation may vary.
 		"""
-				
-		uris = self._find_events(2, timerange, result_event_templates,
-								result_storage_state, 0, 1)
-		
-		events = []
-		latest_uris = {}
-		
-		for event in uris:
-			events.append(event[1])
-			latest_uris[event[1]] = event[0]
-			
-		window_size = 7
-		
-		landmarks = []
-		for event in event_templates:
-			landmarks.append(event.subjects[0].uri)
-			
-
-		if len(events) <= 7:
-			windows = [events]
-		else:
-			windows = []
-			offset = window_size/2
-			
-			window_counter = 0
-			
-			for i in xrange(len(events)):
-				if i < offset:
-					window = events[0: i + offset + 1]
-				elif len(events) - offset - 1 < i:
-					window = events[i-offset: len(events)]
-				elif len(events) + offset +1 > i:
-					window = events[i-offset: i+offset+1]
-				windows.append(list(set(window)))
-						
-			
-			for i in xrange(offset):
-				window = events[0: offset - i]
-				windows.insert(0, list(set(window)))
-			
-			for i in xrange(offset):
-				window = events[len(events) - offset + i: len(events)]
-				windows.append(list(set(window)))
-
-		assoc = {}
-		highest_count = 0
-		for window in windows:
-			b = False
-			for j in landmarks:
-				if j in window and not b:
-					b = True
-					window_counter += 1
-			
-			if b:
-				for i in window:
-					if not i in landmarks:
-						if not assoc.has_key(i):
-							assoc[i] = 0
-						assoc[i] += 1
-						if assoc[i] > highest_count:
-							highest_count = assoc[i]
-		
-		print "finished sliding windows"
-		if highest_count%2 == 0:
-			highest_count = highest_count/2
-		else:
-			highest_count = 1+ highest_count/2 
-		
-		for key in assoc.keys():
-			print key, assoc[key], highest_count
-			if assoc[key] < highest_count:
-				del assoc[key]
-				del latest_uris[key]
-		
 		if result_type == 0 or result_type == 1:
+	
+			uris = self._find_events(2, timerange, result_event_templates,
+									result_storage_state, 0, 1)
+			
+			events = []
+			latest_uris = {}
+			window_size = 7
+			assoc = {}
+			highest_count = 0
+			
+			for event in uris:
+				events.append(event[1])
+				latest_uris[event[1]] = event[0]
+				
+			landmarks = [event.subjects[0].uri for event in event_templates]
+				
+				
+			if len(events) <= 7:
+				highest_count = self.__add_window(list(set([events])), highest_count, assoc, landmarks, windows)
+			else:
+				windows = []
+				offset = window_size/2
+				
+				for i in xrange(len(events)):
+					if i < offset:
+						highest_count = self.__add_window(list(set(events[0: i + offset + 1])),  highest_count, assoc, landmarks, windows)
+					elif len(events) - offset - 1 < i:
+						highest_count = self.__add_window(list(set(events[i-offset: len(events)])),  highest_count, assoc, landmarks, windows)
+					else:
+						highest_count = self.__add_window(list(set(events[i-offset: i+offset+1])),  highest_count, assoc, landmarks, windows)
+				
+				for i in xrange(offset):
+					highest_count = self.__add_window(list(set(events[0: offset - i])),  highest_count, assoc, landmarks, windows)
+				
+				for i in xrange(offset):
+					highest_count = self.__add_window(list(set(events[len(events) - offset + i: len(events)])),  highest_count, assoc, landmarks, windows)
+			
+			print "finished sliding windows"
+			if highest_count%2 == 0:
+				highest_count = highest_count/2
+			else:
+				highest_count = 1+ highest_count/2 
+			
+			for key in assoc.keys():
+				print key, assoc[key], highest_count
+				if assoc[key] < highest_count:
+					del assoc[key]
+					del latest_uris[key]
+		
 			if result_type == 0:
 				sets = [[v, k] for k, v in assoc.iteritems()]
 			elif result_type == 1:
@@ -362,10 +354,14 @@ class ZeitgeistEngine:
 				for k in assoc.iterkeys():
 					new_set[k] = latest_uris[k]
 				sets = [[v, k] for k, v in new_set.iteritems()]
+				del new_set
+				
 			sets.sort()
 			sets.reverse()
 			sets = map(lambda result: result[1], sets[:num_results])
-			print sets
+			
+			del latest_uris, windows, assoc, landmarks
+			gc.collect()
 			return sets
 		else:
 			raise NotImplementedError, "Unsupported ResultType."
