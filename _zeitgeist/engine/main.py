@@ -24,7 +24,6 @@ import sqlite3
 import time
 import sys
 import os
-import gc
 import math
 import gettext
 import logging
@@ -297,87 +296,72 @@ class ZeitgeistEngine:
 		This currently uses a modified version of the Apriori algorithm, but
 		the implementation may vary.
 		"""
-		if result_type == 0 or result_type == 1:
-	
-			uris = self._find_events(2, timerange, result_event_templates,
-									result_storage_state, 0, 1)
-			
-			events = []
-			latest_uris = {}
-			window_size = 7
-			assoc = {}
-			highest_count = 0
-			
-			for event in uris:
-				events.append(event[1])
-				latest_uris[event[1]] = event[0]
-
-			
-			start = 0
-			landmarks = [event.subjects[0].uri for event in event_templates]
-			for event in events:
-				if event in landmarks:
-					break
-				start += 1
-			
-			if start < window_size:
-				start = 0
-			
-			events = events[start:-1]
-			
-			
-				
-			if len(events) <= 7:	
-				highest_count = self.__add_window(list(set([events])), highest_count, assoc, landmarks, windows)
-			else:
-				windows = []
-				offset = window_size/2
-				
-				for i in xrange(len(events)):
-					if i < offset:
-						highest_count = self.__add_window(list(set(events[0: i + offset + 1])),  highest_count, assoc, landmarks, windows)
-					elif len(events) - offset - 1 < i:
-						highest_count = self.__add_window(list(set(events[i-offset: len(events)])),  highest_count, assoc, landmarks, windows)
-					else:
-						highest_count = self.__add_window(list(set(events[i-offset: i+offset+1])),  highest_count, assoc, landmarks, windows)
-				
-				for i in xrange(offset):
-					highest_count = self.__add_window(list(set(events[0: offset - i])),  highest_count, assoc, landmarks, windows)
-				
-				for i in xrange(offset):
-					highest_count = self.__add_window(list(set(events[len(events) - offset + i: len(events)])),  highest_count, assoc, landmarks, windows)
-			
-			print "finished sliding windows"
-			if highest_count%2 == 0:
-				highest_count = highest_count/2
-			else:
-				highest_count = 1+ highest_count/2 
-			
-			"""
-			# NO NEED SINCE WE LIMIT BY COUNT :)
-			for key in assoc.keys():
-				print key, assoc[key], highest_count
-				if assoc[key] < highest_count:
-					del assoc[key]
-					del latest_uris[key]
-			"""
-			
-			if result_type == 0:
-				sets = [[v, k] for k, v in assoc.iteritems()]
-			elif result_type == 1:
-				new_set = {}
-				for k in assoc.iterkeys():
-					new_set[k] = latest_uris[k]
-				sets = [[v, k] for k, v in new_set.iteritems()]
-				
-			sets.sort()
-			sets.reverse()
-			sets = map(lambda result: result[1], sets[:num_results])
-			
-			return sets
-		else:
+		
+		if result_type not in (0, 1):
 			raise NotImplementedError, "Unsupported ResultType."
+	
+		uris = self._find_events(2, timerange, result_event_templates,
+			result_storage_state, 0, 1)
+		
+		events = [] # list of URIs
+		latest_uris = {} # URI - timestamp mapping
+		window_size = 7
+		assoc = {}
+		highest_count = 0
+		
+		for event in uris:
+			events.append(event[1])
+			latest_uris[event[1]] = event[0]
+		
+		start = 0
+		landmarks = [event.subjects[0].uri for event in event_templates]
+		for event in events:
+			if event in landmarks:
+				break
+			start += 1
+		
+		if start < window_size:
+			start = 0
+		
+		events = events[start:-1]
 			
+		if len(events) <= 7:	
+			highest_count = self.__add_window(list(set(events)), highest_count, assoc, landmarks, windows)
+		else:
+			windows = []
+			offset = window_size/2
+			
+			for i in xrange(len(events)):
+				if i < offset:
+					highest_count = self.__add_window(list(set(events[0: i + offset + 1])),  highest_count, assoc, landmarks, windows)
+				elif len(events) - offset - 1 < i:
+					highest_count = self.__add_window(list(set(events[i-offset: len(events)])),  highest_count, assoc, landmarks, windows)
+				else:
+					highest_count = self.__add_window(list(set(events[i-offset: i+offset+1])),  highest_count, assoc, landmarks, windows)
+			
+			for i in xrange(offset):
+				highest_count = self.__add_window(list(set(events[0: offset - i])),  highest_count, assoc, landmarks, windows)
+			
+			for i in xrange(offset):
+				highest_count = self.__add_window(list(set(events[len(events) - offset + i: len(events)])),  highest_count, assoc, landmarks, windows)
+		
+		print "finished sliding windows"
+		if highest_count%2 == 0:
+			highest_count = highest_count/2
+		else:
+			highest_count = 1+ highest_count/2 
+		
+		if result_type == 0:
+			sets = [[v, k] for k, v in assoc.iteritems()]
+		elif result_type == 1:
+			new_set = {}
+			for k in assoc.iterkeys():
+				new_set[k] = latest_uris[k]
+			sets = [[v, k] for k, v in new_set.iteritems()]
+			
+		sets.sort()
+		sets.reverse()
+		return map(lambda result: result[1], sets[:num_results])
 
 	def insert_events(self, events, sender=None):
 		t = time.time()
