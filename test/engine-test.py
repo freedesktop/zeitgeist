@@ -126,6 +126,44 @@ class ZeitgeistEngineTest(_engineTestClass):
 		result = self.engine.get_events([1])
 		self.assertEquals(0, len(filter(None, result)))
 	
+	def testDeleteSingleCascades(self):
+		manif_value = "stfu:EpicFailActivity"
+		
+		def row_count(table, value=None):
+			sql = "SELECT * FROM %s" % table
+			if value:
+				sql += " WHERE value=\"%s\"" % value
+			return len(self.engine._cursor.execute(sql).fetchall())
+		
+		# Ensure DB sanity
+		self.assertEquals(row_count("manifestation", manif_value), 0)
+		
+		# Insert data
+		import_events("test/data/five_events.js", self.engine)
+		self.assertEquals(row_count("manifestation", manif_value), 1)
+		
+		# Delete one event
+		event_template = Event.new_for_values(manifestation=manif_value)
+		result = self.engine.find_eventids(TimeRange.always(),
+			[event_template], StorageState.Any, 0, 1)
+		self.assertEquals(1, len(result))
+		self.engine.delete_events([result[0]])
+		
+		# Ensure it got deleted
+		self.assertEquals(row_count("manifestation", manif_value), 0)
+		
+		# Delete all other events
+		result = self.engine.find_eventids(TimeRange.always(), [],
+			StorageState.Any, 0, 1)
+		self.engine.delete_events(result)
+		
+		# Ensure everything got deleted
+		self.assertEquals(row_count("interpretation"), 0)
+		self.assertEquals(row_count("manifestation"), 0)
+		self.assertEquals(row_count("actor"), 0)
+		self.assertEquals(row_count("uri"), 0)
+		self.assertEquals(row_count("payload"), 0)
+	
 	def testIllegalPredefinedEventId(self):
 		event = Event()
 		event[0][0] = 23 # This is illegal, we assert the erro later

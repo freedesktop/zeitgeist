@@ -88,7 +88,7 @@ def create_db(file_path):
 		CREATE UNIQUE INDEX IF NOT EXISTS mimetype_value
 			ON mimetype(value)""")
 	
-	# app
+	# actor
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS actor
 			(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE)
@@ -130,22 +130,44 @@ def create_db(file_path):
 	# please start a bugreport for it. In case we agree on this change
 	# remember to also fix our unittests to reflect this change
 	cursor.execute("""
-		CREATE TABLE IF NOT EXISTS event
-			(id INTEGER,
-			 timestamp INTEGER,
-			 interpretation INTEGER,
-			 manifestation INTEGER,			 
-			 actor INTEGER,			 
-			 payload INTEGER,
-			 subj_id INTEGER,
-			 subj_interpretation INTEGER,
-			 subj_manifestation INTEGER,
-			 subj_origin INTEGER,
-			 subj_mimetype INTEGER,
-			 subj_text INTEGER,
-			 subj_storage INTEGER,
-			 CONSTRAINT unique_event UNIQUE (timestamp, interpretation, manifestation, actor, subj_id)
-			 )
+		CREATE TABLE IF NOT EXISTS event (
+			id INTEGER,
+			timestamp INTEGER,
+			interpretation INTEGER,
+			manifestation INTEGER,			 
+			actor INTEGER,			 
+			payload INTEGER,
+			subj_id INTEGER,
+			subj_interpretation INTEGER,
+			subj_manifestation INTEGER,
+			subj_origin INTEGER,
+			subj_mimetype INTEGER,
+			subj_text INTEGER,
+			subj_storage INTEGER,
+			CONSTRAINT interpretation_fk FOREIGN KEY(interpretation)
+				REFERENCES interpretation(id) ON DELETE CASCADE,
+			CONSTRAINT manifestation_fk FOREIGN KEY(manifestation)
+				REFERENCES manifestation(id) ON DELETE CASCADE,
+			CONSTRAINT actor_fk FOREIGN KEY(actor)
+				REFERENCES actor(id) ON DELETE CASCADE,
+			CONSTRAINT payload_fk FOREIGN KEY(payload)
+				REFERENCES payload(id) ON DELETE CASCADE,
+			CONSTRAINT subj_id_fk FOREIGN KEY(subj_id)
+				REFERENCES uri(id) ON DELETE CASCADE,
+			CONSTRAINT subj_interpretation_fk FOREIGN KEY(subj_interpretation)
+				REFERENCES interpretation(id) ON DELETE CASCADE,
+			CONSTRAINT subj_manifestation_fk FOREIGN KEY(subj_manifestation)
+				REFERENCES manifestation(id) ON DELETE CASCADE,
+			CONSTRAINT subj_origin_fk FOREIGN KEY(subj_origin)
+				REFERENCES uri(id) ON DELETE CASCADE,
+			CONSTRAINT subj_mimetype_fk FOREIGN KEY(subj_mimetype)
+				REFERENCES mimetype(id) ON DELETE CASCADE,
+			CONSTRAINT subj_text_fk FOREIGN KEY(subj_text)
+				REFERENCES text(id) ON DELETE CASCADE,
+			CONSTRAINT subj_storage_fk FOREIGN KEY(subj_storage)
+				REFERENCES storage(id) ON DELETE CASCADE,
+			CONSTRAINT unique_event UNIQUE (timestamp, interpretation, manifestation, actor, subj_id)
+		)
 		""")
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_id
@@ -183,7 +205,45 @@ def create_db(file_path):
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_storage
 			ON event(subj_storage)""")
-	
+
+	# Foreign key constraints don't work in SQLite. Yay!
+	for table, columns in (
+	('interpretation', ('interpretation', 'subj_interpretation')),
+	('manifestation', ('manifestation', 'subj_manifestation')),
+	('actor', ('actor',)),
+	('payload', ('payload',)),
+	('mimetype', ('subj_mimetype',)),
+	('text', ('subj_text',)),
+	('storage', ('subj_storage',)),
+	):
+		for column in columns:
+			cursor.execute("""
+				CREATE TRIGGER IF NOT EXISTS fkdc_event_%(column)s
+				BEFORE DELETE ON event
+				WHEN ((SELECT COUNT(*) FROM event WHERE %(column)s=OLD.%(column)s) < 2)
+				BEGIN
+					DELETE FROM %(table)s WHERE id=OLD.%(column)s;
+				END;
+				""" % {'column': column, 'table': table})
+
+	# ... special cases
+	cursor.execute("""
+		CREATE TRIGGER IF NOT EXISTS fkdc_event_uri_1
+		BEFORE DELETE ON event
+		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_id OR subj_origin=OLD.subj_id) < 2)
+		BEGIN
+			DELETE FROM uri WHERE id=OLD.subj_id;
+		END;
+		""" % {'column': column, 'table': table})
+	cursor.execute("""
+		CREATE TRIGGER IF NOT EXISTS fkdc_event_uri_2
+		BEFORE DELETE ON event
+		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_origin OR subj_origin=OLD.subj_origin) < 2)
+		BEGIN
+			DELETE FROM uri WHERE id=OLD.subj_origin;
+		END;
+		""" % {'column': column, 'table': table})
+
 	#cursor.execute("DROP VIEW event_view")
 	cursor.execute("""
 		CREATE VIEW IF NOT EXISTS event_view AS
