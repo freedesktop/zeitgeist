@@ -220,7 +220,7 @@ def create_db(file_path):
 			cursor.execute("""
 				CREATE TRIGGER IF NOT EXISTS fkdc_event_%(column)s
 				BEFORE DELETE ON event
-				WHEN ((SELECT COUNT(*) FROM event WHERE %(column)s=OLD.%(column)s) > 0)
+				WHEN ((SELECT COUNT(*) FROM event WHERE %(column)s=OLD.%(column)s) < 2)
 				BEGIN
 					DELETE FROM %(table)s WHERE id=OLD.%(column)s;
 				END;
@@ -230,7 +230,7 @@ def create_db(file_path):
 	cursor.execute("""
 		CREATE TRIGGER IF NOT EXISTS fkdc_event_uri_1
 		BEFORE DELETE ON event
-		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_id OR subj_origin=OLD.subj_id) > 0)
+		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_id OR subj_origin=OLD.subj_id) < 2)
 		BEGIN
 			DELETE FROM uri WHERE id=OLD.subj_id;
 		END;
@@ -238,7 +238,7 @@ def create_db(file_path):
 	cursor.execute("""
 		CREATE TRIGGER IF NOT EXISTS fkdc_event_uri_2
 		BEFORE DELETE ON event
-		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_origin OR subj_origin=OLD.subj_origin) > 0)
+		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_origin OR subj_origin=OLD.subj_origin) < 2)
 		BEGIN
 			DELETE FROM uri WHERE id=OLD.subj_origin;
 		END;
