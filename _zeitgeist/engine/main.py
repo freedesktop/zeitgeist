@@ -325,8 +325,8 @@ class ZeitgeistEngine:
 			
 			events = events[start:-1]
 			
-			
-				
+			if len(events) == 0:
+				return []
 			if len(events) <= 7:	
 				highest_count = self.__add_window(list(set([events])), highest_count, assoc, landmarks, windows)
 			else:
