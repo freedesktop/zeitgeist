@@ -311,9 +311,26 @@ class ZeitgeistEngine:
 			for event in uris:
 				events.append(event[1])
 				latest_uris[event[1]] = event[0]
-				
+
+			
+			start = 0
 			landmarks = [event.subjects[0].uri for event in event_templates]
-				
+			for event in events:
+				if event in landmarks:
+					break
+				start += 1
+			
+			if start < window_size:
+				start = 0
+			
+			events = events[start:-1]
+			events.reverse()
+			
+			for event in events:
+				if event in landmarks:
+					break
+				start += 1
+			
 				
 			if len(events) <= 7:
 				highest_count = self.__add_window(list(set([events])), highest_count, assoc, landmarks, windows)
@@ -341,12 +358,15 @@ class ZeitgeistEngine:
 			else:
 				highest_count = 1+ highest_count/2 
 			
+			"""
+			# NO NEED SINCE WE LIMIT BY COUNT :)
 			for key in assoc.keys():
 				print key, assoc[key], highest_count
 				if assoc[key] < highest_count:
 					del assoc[key]
 					del latest_uris[key]
-		
+			"""
+			
 			if result_type == 0:
 				sets = [[v, k] for k, v in assoc.iteritems()]
 			elif result_type == 1:
@@ -354,14 +374,11 @@ class ZeitgeistEngine:
 				for k in assoc.iterkeys():
 					new_set[k] = latest_uris[k]
 				sets = [[v, k] for k, v in new_set.iteritems()]
-				del new_set
 				
 			sets.sort()
 			sets.reverse()
 			sets = map(lambda result: result[1], sets[:num_results])
 			
-			del latest_uris, windows, assoc, landmarks
-			gc.collect()
 			return sets
 		else:
 			raise NotImplementedError, "Unsupported ResultType."
