@@ -146,25 +146,25 @@ def create_db(file_path):
 			subj_storage INTEGER,
 			CONSTRAINT interpretation_fk FOREIGN KEY(interpretation)
 				REFERENCES interpretation(id) ON DELETE CASCADE,
-			CONSTRAINT manifestation FOREIGN KEY(manifestation)
+			CONSTRAINT manifestation_fk FOREIGN KEY(manifestation)
 				REFERENCES manifestation(id) ON DELETE CASCADE,
-			CONSTRAINT actor FOREIGN KEY(actor)
+			CONSTRAINT actor_fk FOREIGN KEY(actor)
 				REFERENCES actor(id) ON DELETE CASCADE,
-			CONSTRAINT payload FOREIGN KEY(payload)
+			CONSTRAINT payload_fk FOREIGN KEY(payload)
 				REFERENCES payload(id) ON DELETE CASCADE,
-			CONSTRAINT subj_id FOREIGN KEY(subj_id)
+			CONSTRAINT subj_id_fk FOREIGN KEY(subj_id)
 				REFERENCES uri(id) ON DELETE CASCADE,
-			CONSTRAINT subj_interpretation FOREIGN KEY(subj_interpretation)
+			CONSTRAINT subj_interpretation_fk FOREIGN KEY(subj_interpretation)
 				REFERENCES interpretation(id) ON DELETE CASCADE,
-			CONSTRAINT subj_manifestation FOREIGN KEY(subj_manifestation)
+			CONSTRAINT subj_manifestation_fk FOREIGN KEY(subj_manifestation)
 				REFERENCES manifestation(id) ON DELETE CASCADE,
-			CONSTRAINT subj_origin FOREIGN KEY(subj_origin)
+			CONSTRAINT subj_origin_fk FOREIGN KEY(subj_origin)
 				REFERENCES uri(id) ON DELETE CASCADE,
-			CONSTRAINT subj_mimetype FOREIGN KEY(subj_mimetype)
+			CONSTRAINT subj_mimetype_fk FOREIGN KEY(subj_mimetype)
 				REFERENCES mimetype(id) ON DELETE CASCADE,
-			CONSTRAINT subj_text FOREIGN KEY(subj_text)
+			CONSTRAINT subj_text_fk FOREIGN KEY(subj_text)
 				REFERENCES text(id) ON DELETE CASCADE,
-			CONSTRAINT subj_storage FOREIGN KEY(subj_storage)
+			CONSTRAINT subj_storage_fk FOREIGN KEY(subj_storage)
 				REFERENCES storage(id) ON DELETE CASCADE,
 			CONSTRAINT unique_event UNIQUE (timestamp, interpretation, manifestation, actor, subj_id)
 		)
