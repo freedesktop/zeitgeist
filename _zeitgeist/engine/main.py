@@ -311,6 +311,7 @@ class ZeitgeistEngine:
 			for event in uris:
 				events.append(event[1])
 				latest_uris[event[1]] = event[0]
+
 				
 			landmarks = [event.subjects[0].uri for event in event_templates]
 				
@@ -341,12 +342,15 @@ class ZeitgeistEngine:
 			else:
 				highest_count = 1+ highest_count/2 
 			
+			"""
+			# NO NEED SINCE WE LIMIT BY COUNT :)
 			for key in assoc.keys():
 				print key, assoc[key], highest_count
 				if assoc[key] < highest_count:
 					del assoc[key]
 					del latest_uris[key]
-		
+			"""
+			
 			if result_type == 0:
 				sets = [[v, k] for k, v in assoc.iteritems()]
 			elif result_type == 1:
