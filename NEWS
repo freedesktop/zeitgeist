@@ -12,7 +12,14 @@ Engine:
  - Changed FindEvents, FindEventIds and FindRelatedUris to not threat zeros in
    the given TimeRange specially; "(0, 0)" can no longer be used (LP: #490242).
  - Fixed a crash in the GtkRecentlyUsed data-source parsing malfored .desktop
-   files, and added support for more file mimetypes.
+   files (LP: #526357), and added support for more file mimetypes (LP: #510761).
+ - Fixed a crash in the GtkRecentlyUsed data-source trying to read broken
+   symlinks disguised as .desktop files (LP: #523761).
+ - Renamed --no-passive-loggers option to --no-datahub. Output printed by
+   zeitgeist-datahub is no longer visible in zeitgeist-daemon's output.
+ - Added --log-level option to change the output verbosity.
+ - DeleteEvents now correctly removes any unreferenced values (URIs, actors,
+   etc.) and not only the events themselves (LP: #491646).
 
 Python API:
  - Made the Interpretation and Manifestation classes iterable.
@@ -23,8 +30,9 @@ Python API:
    access to D-Bus interfaces provided by engine extensions.
 
 Overall:
- - More little fixes (LP: #510761) and cleanup.
+ - More little fixes and code enhancements.
  - Manpage updates.
+ - Translation updates.
 
 2010-01-19: Zeitgeist 0.3.2
 ---------------------------

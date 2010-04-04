@@ -4,6 +4,7 @@
 # Update python path to use local zeitgeist module
 import sys
 import os
+import weakref
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import _zeitgeist.engine
@@ -48,7 +49,7 @@ class TestExtensions(_engineTestClass):
 		engine.extensions.load(_Extension1)
 		self.assertEqual(engine.extensions.return_hallo(), "Hallo")
 		self.assertRaises(AttributeError, engine.extensions.__getattr__, "return_boo")
-		self.assertEqual(engine.extensions.return_engine(), engine)
+		self.assertEqual(engine.extensions.return_engine(), weakref.proxy(engine))
 
 class TestExtensionHooks(_engineTestClass):
 	
