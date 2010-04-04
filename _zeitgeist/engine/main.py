@@ -24,7 +24,6 @@ import sqlite3
 import time
 import sys
 import os
-import gc
 import math
 import gettext
 import logging
