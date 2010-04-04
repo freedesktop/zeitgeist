@@ -324,6 +324,13 @@ class ZeitgeistEngine:
 				start = 0
 			
 			events = events[start:-1]
+			events.reverse()
+			
+			for event in events:
+				if event in landmarks:
+					break
+				start += 1
+			
 				
 			if len(events) <= 7:
 				highest_count = self.__add_window(list(set([events])), highest_count, assoc, landmarks, windows)
