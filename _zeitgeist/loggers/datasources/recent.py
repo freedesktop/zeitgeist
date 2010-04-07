@@ -286,7 +286,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 		events = []
 		
 		for (num, info) in enumerate(self.recent_manager.get_items()):
-			if info.exists() and not info.get_private_hint() and not info.get_uri_display().startswith("/tmp/"):
+			uri = info.get_uri()
+			if info.exists() and not info.get_private_hint() and not uri.startswith("file:///tmp/"):
 				last_application = info.last_application().strip()
 				application = info.get_application_info(last_application)[0].split()[0]
 				desktopfile = self._find_desktop_file_for_application(application)
@@ -295,13 +296,13 @@ class RecentlyUsedManagerGtk(DataProvider):
 				actor = u"application://%s" % os.path.basename(desktopfile)
 				
 				subject = Subject.new_for_values(
-					uri = unicode(info.get_uri()),
+					uri = unicode(uri),
 					interpretation = self._get_interpretation_for_mimetype(
 						unicode(info.get_mime_type())),
 					manifestation = Manifestation.FILE.uri,
 					text = info.get_display_name(),
 					mimetype = unicode(info.get_mime_type()),
-					origin = info.get_uri().rpartition("/")[0]
+					origin = uri.rpartition("/")[0]
 				)
 				
 				times = set()

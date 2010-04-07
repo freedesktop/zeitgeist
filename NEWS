@@ -30,7 +30,7 @@ Python API:
    access to D-Bus interfaces provided by engine extensions.
 
 Overall:
- - More little fixes and code enhancements.
+ - More fixs (eg. LP: #531793) and code enhancements.
  - Manpage updates.
  - Translation updates.
 
