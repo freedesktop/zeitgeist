@@ -985,6 +985,10 @@ if NEEDS_CHILD_RESOLUTION:
 	
 end_symbols = time.time()
 
+# Shortcuts
+EventManifestation = Manifestation.EventManifestation
+EventInterpretation = Interpretation.EventInterpretation
+
 if __name__ == "__main__":
 	pass
 	#~ x = len(Interpretation.get_all_children())
