@@ -28,9 +28,7 @@ gettext.install("zeitgeist", unicode=1)
 
 __all__ = [
 	'Interpretation',
-	'SubjectInterpretation',
 	'Manifestation',
-	'SubjectManifestation',
 	'ResultType',
 	'StorageState',
 	'TimeRange',
@@ -136,135 +134,77 @@ def get_name_or_str(obj):
 		return str(obj.name)
 	except AttributeError:
 		return str(obj)
-	
+
+_SYMBOLS_BY_NAME = {}
+_SYMBOLS_BY_URI = {}
+
 class Symbol(str):
-	
+
 	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None):
 		if not isCamelCase(name):
 			raise ValueError("Naming convention requires symbol name to be CamelCase, got '%s'" %name)
 		return super(Symbol, cls).__new__(Symbol, uri or name)
 		
 	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
-		self.__children = dict()
-		self.__parents = parent or set()
-		assert isinstance(self.__parents, set), name
-		self.__name = name
-		self.__uri = uri
-		self.__display_name = display_name
-		self.__doc = doc
-		self._resolve_children(False)
-		
-	def _resolve_children(self, must_finish=True):
-		if not self.__parents:
-			return
-		for parent in self.__parents.copy():
-			parent_obj = None
-			if isinstance(parent, self.__class__):
-				if self in parent.get_children():
-					# symbol is already as child of parent symbol
-					continue
-				parent_obj = parent
-			elif not isinstance(parent, (str, unicode)):
-				continue
-			if parent_obj is None:
-				# if parent_obj is still None try to explicitly lookup
-				# the symbol by its uri, look in both possible symbol
-				# collections
-				try:
-					parent_obj = Manifestation[parent]
-				except KeyError:
-					try:
-						parent_obj = Interpretation[parent]
-					except KeyError:
-						# looks like there is not way to find this symbol
-						parent_obj = None
-			if isinstance(parent_obj, self.__class__):
-				parent_obj._add_child(self)
-				self.__parents.remove(parent)
-				self.__parents.add(parent_obj)
-		
-		missing_symbols = filter(lambda x: not isinstance(x, self.__class__), self.__parents)
-		if missing_symbols:
-			if must_finish:
-				raise RuntimeError("Unable to resolve symbols: %s"
-				                   % ", ".join(missing_symbols))
-			else:
-				NEEDS_CHILD_RESOLUTION.add(self)
+		self._children = dict()
+		self._all_children = None
+		self._parents = parent or set()
+		assert isinstance(self._parents, set), name
+		self._name = name
+		self._uri = uri
+		self._display_name = display_name
+		self._doc = doc
+		_SYMBOLS_BY_NAME[name] = self
+		_SYMBOLS_BY_URI[uri] = self
 
 	def __repr__(self):
-		return "<%s '%s'>" %(", ".join(get_name_or_str(i) for i in self.get_all_parents()), self.uri)
-		
-	def __getitem__(self, name):
-		""" Get a symbol by its URI. """
-		if isinstance(name, int):
-			# lookup by index
-			return super(Symbol, self).__getitem__(name)
-		# look in immediate children first
-		symbols = (s for s in self.get_children() if s.uri == name)
-		symbol = next(symbols, False)
-		if symbol:
-			assert not next(symbols, False), "There is more than one symbol with uri='%s'" %name
-			return symbol
-		# if we still have no luck we try to look in all children
-		symbols = (s for s in self.iter_all_children() if s.uri == name)
-		symbol = next(symbols, False)
-		if symbol:
-			assert not next(symbols, False), "There is more than one symbol with uri='%s'" %name
-			return symbol
-		raise KeyError("Could not find symbol for URI: %s" % name)
+		return "<%s '%s'>" %(get_name_or_str(self), self.uri)
 		
 	def __getattr__(self, name):
-		children = dict((s.name, s) for s in self.get_all_children() if s is not self)
-		try:
-			return children[name]
-		except KeyError:
-			if not isCamelCase(name):
-				# Symbols must be CamelCase
-				raise AttributeError("%s has no attribute '%s'" % (
-					self.__name__, name))
-			print >> sys.stderr, "Unrecognized %s: %s" % (self.__name__, name)
-			# symbol is auto-added as child of this symbol
-			s = Symbol(name, parent=set([self,]))
-			return s
+		self._ensure_all_children()
+		return self._all_children[name]
+	
+	def _ensure_all_children (self):
+		if self._all_children is not None : return
+		self._all_children = dict()
+		for child in self._children.itervalues():
+			child._visit(self._all_children)
+	
+	def _visit (self, dikt):
+		dikt[self.name] = self
+		for child in self._children.itervalues():
+			child._visit(dikt) 
 
 	@property
 	def uri(self):
-		return self.__uri or self.name
+		return self._uri or self.name
 
 	@property
 	def display_name(self):
-		return self.__display_name or ""
+		return self._display_name or ""
 
 	@property
 	def name(self):
-		return self.__name
+		return self._name
 	__name__ = name
 	
 	def __dir__(self):
-		return self.__children.keys()
+		self._ensure_all_children()
+		return self._all_children.keys()
 
 	@property
 	def doc(self):
-		return self.__doc or ""
+		return self._doc or ""
 
 	@property
 	def __doc__(self):
 		return "%s\n\n	%s. ``(Display name: '%s')``" %(self.uri, self.doc.rstrip("."), self.display_name)
 		
-	def _add_child(self, symbol):
-		if not isinstance(symbol, self.__class__):
-			raise TypeError("Child-Symbols must be of type '%s', got '%s'" %(self.__class__.__name__, type(symbol)))
-		if symbol.name in self.__children:
-			raise ValueError(
-				("There is already a Symbol called '%s', "
-				 "cannot register a symbol with the same name") %symbol.name)
-		self.__children[symbol.name] = symbol
-		
 	def get_children(self):
 		"""
 		Returns a list of immediate child symbols
 		"""
-		return frozenset(self.__children.itervalues())
+		return frozenset(self._children.itervalues())
 		
 	def iter_all_children(self):
 		"""
@@ -272,7 +212,7 @@ class Symbol(str):
 		of this symbol
 		"""
 		yield self
-		for child in self.__children.itervalues():
+		for child in self._children.itervalues():
 			for sub_child in child.iter_all_children():
 				yield sub_child
 		
@@ -286,23 +226,7 @@ class Symbol(str):
 		"""
 		Returns a list of immediate parent symbols
 		"""
-		return frozenset(self.__parents)
-		
-	def iter_all_parents(self):
-		"""
-		Returns a generator that recursively iterates over all parents
-		of this symbol
-		"""
-		yield self
-		for parent_symbol in self.__parents:
-			for parent in parent_symbol.iter_all_parents():
-				yield parent
-		
-	def get_all_parents(self):
-		"""
-		Return a read-only set containing all parents of this symbol
-		"""
-		return frozenset(self.iter_all_parents())
+		return frozenset(self._parents)
 		
 		
 class TimeRange(list):
@@ -943,8 +867,10 @@ other sub types of FileDataObject
 
 start_symbols = time.time()
 
-Interpretation = SubjectInterpretation = Symbol("Interpretation", doc=INTERPRETATION_DOC)
-Manifestation = SubjectManifestation = Symbol("Manifestation", doc=MANIFESTATION_DOC)
+Interpretation = Symbol("Interpretation", doc=INTERPRETATION_DOC)
+Manifestation = Symbol("Manifestation", doc=MANIFESTATION_DOC)
+_SYMBOLS_BY_URI["Interpretation"] = Interpretation
+_SYMBOLS_BY_URI["Manifestation"] = Manifestation
 
 if IS_LOCAL:
 	try:
@@ -956,41 +882,36 @@ else:
 	from zeitgeist import _config
 	execfile(os.path.join(_config.datadir, "zeitgeist/ontology/zeitgeist.py"))
 
-# try to resolve all lazy references to parent symbols
-# this operation is expensive, this is why we only allow 'c' number of
-# iterations (a sensible value seems to be the number of symbols needing
-# child resolution)
+#
+# Bootstrap the symbol relations. We use a 2-pass strategy:
+#
+# 1) Make sure that all parents and children are registered on each symbol
+for symbol in _SYMBOLS_BY_URI.itervalues():
+	for parent in symbol._parents:
+		try:
+			_SYMBOLS_BY_URI[parent]._children[symbol.uri] = None
+		except KeyError, e:
+			print "ERROR", e, parent, symbol.uri
+			pass
+	for child in symbol._children:
+		try:
+			_SYMBOLS_BY_URI[child]._parents.add(symbol.uri)
+		except KeyError:
+			print "ERROR", e, child, symbol.uri
+			pass
 
-initial_count = c = len(NEEDS_CHILD_RESOLUTION)
+# 2) Resolve all child URIs to their actual Symbol instances
+for symbol in _SYMBOLS_BY_URI.itervalues():
+	for child_uri in symbol._children.iterkeys():
+		symbol._children[child_uri] = _SYMBOLS_BY_URI[child_uri]
 
-while NEEDS_CHILD_RESOLUTION and c:
-	symbols = dict((str(i), i) for i in NEEDS_CHILD_RESOLUTION)
-	x = dict((str(i), i.get_parents()) for i in NEEDS_CHILD_RESOLUTION)
-	c -= 1
-	missings_parents = set(sum(map(list, x.values()), []))
-	candidates = missings_parents - set(x.keys())
-	while candidates:
-		candidate = candidates.pop()
-		resolveable = filter(lambda v: len(v[1]) == 1 and candidate in v[1], x.items())
-		if not resolveable:
-			continue
-		for uri, parent_uris in resolveable:
-			symbol = symbols[uri]
-			symbol._resolve_children()
-			NEEDS_CHILD_RESOLUTION.remove(symbol)
-	
-if NEEDS_CHILD_RESOLUTION:
-	print >> sys.stderr, ("Cannot resolve children of %r" %NEEDS_CHILD_RESOLUTION)
-	raise SystemExit(1)
+
 	
 end_symbols = time.time()
-
-# Shortcuts
-EventManifestation = Manifestation.EventManifestation
-EventInterpretation = Interpretation.EventInterpretation
+print "Import time: %s" % (end_symbols - start_symbols)
 
 if __name__ == "__main__":
-	pass
+	print "Success"
 	#~ x = len(Interpretation.get_all_children())
 	#~ y = len(Manifestation.get_all_children())
 	#~ print >> sys.stderr, \

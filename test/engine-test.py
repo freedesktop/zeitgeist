@@ -20,8 +20,8 @@ test_event_1 = None
 def create_test_event_1():
 	ev = Event()
 	ev.timestamp = 0
-	ev.interpretation = Manifestation.USER_ACTIVITY
-	ev.manifestation = Interpretation.CREATE_EVENT
+	ev.interpretation = Manifestation.UserActivity
+	ev.manifestation = Interpretation.CreateEvent
 	ev.actor = TEST_ACTOR
 	subj = Subject()
 	subj.uri = u"test://mytest"
@@ -47,7 +47,7 @@ class _engineTestClass(unittest.TestCase):
 		constants.DEFAULT_EXTENSIONS = []
 		
 		# Memory backed tmp DB
-		constants.DATABASE_FILE = ":memory:"
+		constants.DATABASE_File = ":memory:"
 		
 		self.engine = get_engine()
 	
@@ -130,14 +130,14 @@ class ZeitgeistEngineTest(_engineTestClass):
 		event = Event()
 		event[0][0] = 23 # This is illegal, we assert the erro later
 		event.timestamp = 0
-		event.interpretation = Manifestation.USER_ACTIVITY
-		event.manifestation = Interpretation.CREATE_EVENT
+		event.interpretation = Manifestation.UserActivity
+		event.manifestation = Interpretation.CreateEvent
 		event.actor = "/usr/share/applications/gnome-about.desktop"
 		
 		subject = Subject()
 		subject.uri = "file:///tmp/file.txt"
-		subject.manifestation = Manifestation.FILE
-		subject.interpretation = Interpretation.DOCUMENT
+		subject.manifestation = Manifestation.File
+		subject.interpretation = Interpretation.Document
 		subject.origin = "test://"
 		subject.mimetype = "text/plain"
 		subject.text = "This subject has no text"
@@ -197,7 +197,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.testSingleInsertGet()
 		result = self.engine.find_eventids(
 			TimeRange.always(),
-			[Event.new_for_values(interpretation=Interpretation.CLOSE_EVENT)],
+			[Event.new_for_values(interpretation=Interpretation.LeaveEvent)],
 			StorageState.Any, 0, 0)
 		self.assertEquals(0, len(result))
 
@@ -376,14 +376,14 @@ class ZeitgeistEngineTest(_engineTestClass):
 	def testInsertSubjectOptionalAttributes(self):
 		ev = Event.new_for_values(
 			timestamp=123,
-			interpretation=Interpretation.VISIT_EVENT.uri,
-			manifestation=Manifestation.USER_ACTIVITY.uri,
+			interpretation=Interpretation.AccessEvent.uri,
+			manifestation=Manifestation.UserActivity.uri,
 			actor="Freak Mamma"
 		)
 		subj = Subject.new_for_values(
 			uri="void://foobar",
-			interpretation=Interpretation.DOCUMENT.uri,
-			manifestation=Manifestation.FILE.uri,
+			interpretation=Interpretation.Document.uri,
+			manifestation=Manifestation.File.uri,
 			)
 		ev.append_subject(subj)
 		
@@ -393,8 +393,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 	
 	def testEventWithoutSubject(self):
 		ev = Event.new_for_values(timestamp=123,
-					interpretation=Interpretation.VISIT_EVENT.uri,
-					manifestation=Manifestation.USER_ACTIVITY.uri,
+					interpretation=Interpretation.AccessEvent.uri,
+					manifestation=Manifestation.UserActivity.uri,
 					actor="Freak Mamma")
 		ids = self.engine.insert_events([ev,])
 		self.assertEquals(len(ids), 1)
