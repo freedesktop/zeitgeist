@@ -572,6 +572,34 @@ class ZeitgeistEngineTest(_engineTestClass):
 			StorageState.Any, 2, 0),
 		self.assertEquals(result, (["i2", "i3", ],))
 	
+	def testEventWithBinaryPayload(self):
+		ev = Event()
+		subject = Subject()
+		ev.actor = "application:///firefox.desktop"
+		ev.manifestation = Manifestation.USER_ACTIVITY
+		ev.interpretation = Interpretation.VISIT_EVENT
+		subject.uri = "http://www.google.com"
+		subject.interpretation = Interpretation.UNKNOWN
+		subject.manifestation = Manifestation.WEB_HISTORY
+		subject.mimetype = "text/html"
+		ev.subjects.append(subject)
+
+		sampleString = """
+		<Content name="Telepathy" class="Text">
+		  <header>johnsmith@foo.bar</header>
+		  <body>
+		    John: Here is a talking point
+		    You: Ok that looks fine
+		  </body>
+		  <launcher command="{application} johnsmith@foo.bar"/>
+		</Content>"""
+		
+		ev.payload = sampleString.encode("UTF-8")
+		ids = self.engine.insert_events([ev])
+		_ev = self.engine.get_events(ids)[0]
+		self.assertEquals(ev.payload, _ev.payload)
+		_ev[0][0] = "" # hack to account for the fact that ev.id is unset
+		self.assertEquals(ev, _ev)
 
 if __name__ == "__main__":
 	unittest.main()
