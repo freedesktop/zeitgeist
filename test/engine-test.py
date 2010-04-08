@@ -47,7 +47,7 @@ class _engineTestClass(unittest.TestCase):
 		constants.DEFAULT_EXTENSIONS = []
 		
 		# Memory backed tmp DB
-		constants.DATABASE_File = ":memory:"
+		constants.DATABASE_FILE = ":memory:"
 		
 		self.engine = get_engine()
 	
@@ -136,7 +136,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		
 		subject = Subject()
 		subject.uri = "file:///tmp/file.txt"
-		subject.manifestation = Manifestation.File
+		subject.manifestation = Manifestation.FileDataObject
 		subject.interpretation = Interpretation.Document
 		subject.origin = "test://"
 		subject.mimetype = "text/plain"
@@ -383,7 +383,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		subj = Subject.new_for_values(
 			uri="void://foobar",
 			interpretation=Interpretation.Document.uri,
-			manifestation=Manifestation.File.uri,
+			manifestation=Manifestation.FileDataObject.uri,
 			)
 		ev.append_subject(subj)
 		
