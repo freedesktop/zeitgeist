@@ -406,7 +406,7 @@ class ZeitgeistEngine:
 			# for different events only once, especially considering that
 			# events cannot be modified once they've been inserted.
 			payload_id = self._cursor.execute(
-				"INSERT INTO payload (value) VALUES (?)", event.payload)
+				"INSERT INTO payload (value) VALUES (?)", (event.payload,))
 			payload_id = self._cursor.lastrowid
 		else:
 			# Don't use None here, as that'd be inserted literally into the DB
