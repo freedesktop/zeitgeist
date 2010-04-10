@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: 2009-06-30 13:47+0000\n"
-"Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
+"PO-Revision-Date: 2010-04-09 13:16+0000\n"
+"Last-Translator: Jiri Grönroos <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-09 03:57+0000\n"
+"X-Launchpad-Export-Date: 2010-04-10 03:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../zeitgeist-daemon:56
 msgid "Starting Zeitgeist service..."
-msgstr "Käynnistetään Zeitgeist palvelua..."
+msgstr "Käynnistetään Zeitgeist-palvelua..."
 
 #: ../zeitgeist-datahub:61
 msgid "No passive loggers found, bye."
@@ -28,7 +28,7 @@ msgstr ""
 #: ../zeitgeist-datahub:81
 #, c-format
 msgid "Could not load file: %s"
-msgstr ""
+msgstr "Tiedostoa ei voitu ladata: %s"
 
 #: ../zeitgeist-datahub:106
 #, c-format
@@ -46,19 +46,19 @@ msgstr ""
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
-msgstr "Tägejä"
+msgstr "Tunnisteet"
 
 #: ../zeitgeist/datamodel.py:212
 msgid "Bookmarks"
-msgstr ""
+msgstr "Kirjanmerkit"
 
 #: ../zeitgeist/datamodel.py:218
 msgid "Comments"
-msgstr ""
+msgstr "Kommentit"
 
 #: ../zeitgeist/datamodel.py:224
 msgid "Documents"
-msgstr "Dokumentit"
+msgstr "Asiakirjat"
 
 #: ../zeitgeist/datamodel.py:230
 msgid "Images"
@@ -74,15 +74,15 @@ msgstr "Musiikki"
 
 #: ../zeitgeist/datamodel.py:248
 msgid "Email"
-msgstr ""
+msgstr "Sähköposti"
 
 #: ../zeitgeist/datamodel.py:254
 msgid "Messages"
-msgstr ""
+msgstr "Viestit"
 
 #: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
-msgstr ""
+msgstr "Syötteet"
 
 #: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
@@ -110,15 +110,15 @@ msgstr ""
 
 #: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
-msgstr ""
+msgstr "Varoitukset"
 
 #: ../zeitgeist/datamodel.py:308
 msgid "Errors"
-msgstr ""
+msgstr "Virheet"
 
 #: ../zeitgeist/datamodel.py:314
 msgid "Applications"
-msgstr ""
+msgstr "Sovellukset"
 
 #: ../zeitgeist/datamodel.py:324
 msgid "Web History"
@@ -134,7 +134,7 @@ msgstr ""
 
 #: ../zeitgeist/datamodel.py:342
 msgid "Files"
-msgstr ""
+msgstr "Tiedostot"
 
 #: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
@@ -146,11 +146,11 @@ msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:53
 msgid "Firefox History"
-msgstr "Firefoxin Historia"
+msgstr "Firefoxin historia"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:56
 msgid "Websites visited with Firefox"
-msgstr "Nettisivut joita vierailtu Fifoxilla"
+msgstr "Nettisivut, joilla on vierailtu Firefoxilla"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:84
 #, python-format
@@ -160,11 +160,11 @@ msgstr ""
 #: ../_zeitgeist/loggers/datasources/firefox.py:87
 #, python-format
 msgid "Monitoring Firefox's history: %s"
-msgstr ""
+msgstr "Tarkkaaillaan Firefoxin historiaa: %s"
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:92
 msgid "No Firefox profile found."
-msgstr ""
+msgstr "Firefox-profiilia ei löytynyt."
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:56
 #, python-format
@@ -174,7 +174,7 @@ msgstr ""
 #: ../_zeitgeist/loggers/datasources/evolution.py:59
 #, python-format
 msgid "Monitoring Evolution: %s"
-msgstr ""
+msgstr "Tarkkaillaan Evolutionia: %s"
 
 #: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
