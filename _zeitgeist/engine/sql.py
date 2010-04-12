@@ -252,7 +252,8 @@ def create_db(file_path):
 				event.interpretation,
 				event.manifestation,
 				event.actor,
-				event.payload,
+				(SELECT value FROM payload WHERE payload.id=event.id)
+					as payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
 					AS subj_uri,
 				event.subj_interpretation,
