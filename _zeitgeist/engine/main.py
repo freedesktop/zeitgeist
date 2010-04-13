@@ -400,17 +400,7 @@ class ZeitgeistEngine:
 		
 		id = self.next_event_id()
 		
-		if event.payload:
-			# TODO: Rigth now payloads are not unique and every event has its
-			# own one. We could optimize this to store those which are repeated
-			# for different events only once, especially considering that
-			# events cannot be modified once they've been inserted.
-			payload_id = self._cursor.execute(
-				"INSERT INTO payload (value) VALUES (?)", (event.payload,))
-			payload_id = self._cursor.lastrowid
-		else:
-			# Don't use None here, as that'd be inserted literally into the DB
-			payload_id = ""
+		payload_id = self._store_payload (event)
 		
 		# Make sure all URIs are inserted
 		_origin = [subject.origin for subject in event.subjects if subject.origin]
@@ -480,6 +470,24 @@ class ZeitgeistEngine:
 		
 		return id
 	
+	def _store_payload (self, event):
+		# TODO: Rigth now payloads are not unique and every event has its
+		# own one. We could optimize this to store those which are repeated
+		# for different events only once, especially considering that
+		# events cannot be modified once they've been inserted.
+		if event.payload:
+			# TODO: For Python >= 2.6 bytearray() is much more efficient
+			# than this hack...
+			# We need binary encoding that sqlite3 will accept, for
+			# some reason sqlite3 can not use array.array('B', event.payload)
+			payload = sqlite3.Binary("".join(map(str, event.payload)))
+			self._cursor.execute(
+				"INSERT INTO payload (value) VALUES (?)", (payload,))
+			return self._cursor.lastrowid
+		else:
+			# Don't use None here, as that'd be inserted literally into the DB
+			return ""
+
 	def delete_events (self, ids):
 		# Extract min and max timestamps for deleted events
 		self._cursor.execute("""

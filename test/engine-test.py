@@ -581,7 +581,10 @@ class ZeitgeistEngineTest(_engineTestClass):
 		subject.uri = "http://www.google.com"
 		subject.interpretation = Interpretation.UNKNOWN
 		subject.manifestation = Manifestation.WEB_HISTORY
+		subject.text = None
 		subject.mimetype = "text/html"
+		subject.origin = None
+		subject.storage = None
 		ev.subjects.append(subject)
 
 		sampleString = """
