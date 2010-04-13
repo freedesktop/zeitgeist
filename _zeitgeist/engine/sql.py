@@ -244,7 +244,8 @@ def create_db(file_path):
 		END;
 		""" % {'column': column, 'table': table})
 
-	#cursor.execute("DROP VIEW event_view")
+	# TODO: Make the DROP conditional to version upgrades. How?
+	cursor.execute("DROP VIEW IF EXISTS event_view")
 	cursor.execute("""
 		CREATE VIEW IF NOT EXISTS event_view AS
 			SELECT event.id,
@@ -252,7 +253,8 @@ def create_db(file_path):
 				event.interpretation,
 				event.manifestation,
 				event.actor,
-				event.payload,
+				(SELECT value FROM payload WHERE payload.id=event.payload)
+					AS payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
 					AS subj_uri,
 				event.subj_interpretation,
