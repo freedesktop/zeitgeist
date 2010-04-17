@@ -296,29 +296,55 @@ class ZeitgeistEngine:
 		This currently uses a modified version of the Apriori algorithm, but
 		the implementation may vary.
 		"""
+		
+		
 		if result_type == 0 or result_type == 1:
+	
+			t1 = time.time()
 	
 			uris = self._find_events(2, timerange, result_event_templates,
 									result_storage_state, 0, 1)
-			
+						
 			events = []
 			latest_uris = {}
 			window_size = 7
 			assoc = {}
 			highest_count = 0
 			
-			for event in uris:
+			landmarks = [unicode(event.subjects[0].uri) for event in event_templates]
+			
+			min = 9999999999999
+			max = 0
+			
+			min_index = 0
+			max_index = 0
+			
+			for i, event in enumerate(uris):
 				events.append(event[1])
 				latest_uris[event[1]] = event[0]
-
-			start = 0
-			landmarks = [event.subjects[0].uri for event in event_templates]
+				if unicode(event[1]) in landmarks:
+					if int(event[0]) > max:
+						max = int(event[0])
+						max_index = i
+					if int(event[0]) < min:
+						min = int(event[0])
+						min_index = i
+						
+			min_index -= window_size
+			if min_index < 0:
+				min_index = 0
 			
-			if len(events) == 0:
+			max_index += window_size
+			if max_index > len(events):
+				max_index = -1
+
+
+			if len(events) == 0 or len(landmarks) == 0:
 				return []
-			if len(events) <= 7:
+			if len(events) <= window_size:
 				highest_count = self.__add_window(list(set([events])), highest_count, assoc, landmarks, windows)
 			else:
+				events = events[min_index:max_index]
 				windows = []
 				offset = window_size/2
 				
@@ -336,21 +362,12 @@ class ZeitgeistEngine:
 				for i in xrange(offset):
 					highest_count = self.__add_window(list(set(events[len(events) - offset + i: len(events)])),  highest_count, assoc, landmarks, windows)
 			
-			print "finished sliding windows"
+			print "\n finished sliding windows in ", time.time()-t1, "\n"
 			if highest_count%2 == 0:
 				highest_count = highest_count/2
 			else:
 				highest_count = 1+ highest_count/2 
-			
-			"""
-			# NO NEED SINCE WE LIMIT BY COUNT :)
-			for key in assoc.keys():
-				print key, assoc[key], highest_count
-				if assoc[key] < highest_count:
-					del assoc[key]
-					del latest_uris[key]
-			"""
-			
+						
 			if result_type == 0:
 				sets = [[v, k] for k, v in assoc.iteritems()]
 			elif result_type == 1:
