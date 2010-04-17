@@ -313,8 +313,8 @@ class ZeitgeistEngine:
 			
 			landmarks = [unicode(event.subjects[0].uri) for event in event_templates]
 			
-			min = 9999999999999
-			max = 0
+			_min = sys.maxint
+			_max = 0
 			
 			min_index = 0
 			max_index = 0
@@ -323,11 +323,11 @@ class ZeitgeistEngine:
 				events.append(event[1])
 				latest_uris[event[1]] = event[0]
 				if unicode(event[1]) in landmarks:
-					if int(event[0]) > max:
-						max = int(event[0])
+					if int(event[0]) > _max:
+						_max = int(event[0])
 						max_index = i
-					if int(event[0]) < min:
-						min = int(event[0])
+					if int(event[0]) < _min:
+						_min = int(event[0])
 						min_index = i
 						
 			min_index -= window_size
