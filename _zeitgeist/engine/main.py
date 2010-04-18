@@ -27,6 +27,7 @@ import os
 import math
 import gettext
 import logging
+import operator
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
 	ResultType, get_timestamp_for_now, Interpretation
@@ -219,7 +220,7 @@ class ZeitgeistEngine:
 		elif return_mode == 1:
 			sql = "SELECT * FROM event_view"
 		elif return_mode == 2:
-			sql = "SELECT timestamp, subj_uri FROM event_view"
+			sql = "SELECT subj_uri, timestamp FROM event_view"
 		else:
 			raise NotImplementedError, "Unsupported return_mode."
 		
@@ -253,7 +254,7 @@ class ZeitgeistEngine:
 		if return_mode == 1:
 			return self.get_events(rows=result, sender=sender)
 		if return_mode == 2:
-			return result
+			return [list(r) for r in result]
 		else: # return_mode == 0
 			result = [row[0] for row in result]
 			log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
@@ -272,6 +273,7 @@ class ZeitgeistEngine:
 				if not i in landmarks:
 					if not assoc.has_key(i):
 						assoc[i] = 0
+						continue
 					assoc[i] += 1
 					if assoc[i] > highest_count:
 						highest_count = assoc[i]
@@ -299,72 +301,65 @@ class ZeitgeistEngine:
 	
 			uris = self._find_events(2, timerange, result_event_templates,
 									result_storage_state, 0, 1)
-						
-			events = []
-			latest_uris = {}
+
 			window_size = 7
 			assoc = {}
 			highest_count = 0
 			
 			landmarks = [unicode(event.subjects[0].uri) for event in event_templates]
 			
-			_min = t1*1000
-			_max = 0
+			latest_uris = dict(uris)
+			events = [unicode(u[0]) for u in uris]
+
+			furis = filter(lambda x: x[0] in landmarks, uris)
+			_min = min(furis, key=operator.itemgetter(1))
+			_max = max(furis, key=operator.itemgetter(1))
+			min_index = uris.index(_min)
+			max_index = uris.index(_max)
+			_min = _min[1]
+			_max = _max[1]
 			
-			min_index = 0
-			max_index = 0
-			
-			for i, event in enumerate(uris):
-				events.append(event[1])
-				latest_uris[event[1]] = event[0]
-				if unicode(event[1]) in landmarks:
-					if int(event[0]) > _max:
-						_max = int(event[0])
-						max_index = i
-					if int(event[0]) < _min:
-						_min = int(event[0])
-						min_index = i
-						
 			min_index -= window_size
 			if min_index < 0:
 				min_index = 0
-			
 			max_index += window_size
 			if max_index > len(events):
 				max_index = -1
-
-
+				
+			func = self.__add_window
+			
 			if len(events) == 0 or len(landmarks) == 0:
 				return []
+			
+			windows = []
 			if len(events) <= window_size:
-				highest_count = self.__add_window(list(set([events])), 
+				#TODO bug! windows is not defined, seems the algorithm never touches these loop
+				highest_count = func(events,
 					highest_count, assoc, landmarks, windows)
 			else:
 				events = events[min_index:max_index]
-				windows = []
 				offset = window_size/2
-				
 				for i in xrange(len(events)):
 					if i < offset:
-						highest_count = self.__add_window(
+						highest_count = func(
 							list(set(events[0: i + offset + 1])),
 							highest_count, assoc, landmarks, windows)
 					elif len(events) - offset - 1 < i:
-						highest_count = self.__add_window(
+						highest_count = func(
 							list(set(events[i-offset: len(events)])),
 							highest_count, assoc, landmarks, windows)
 					else:
-						highest_count = self.__add_window(
+						highest_count = func(
 							list(set(events[i-offset: i+offset+1])),
 							highest_count, assoc, landmarks, windows)
 				
 				for i in xrange(offset):
-					highest_count = self.__add_window(
+					highest_count = func(
 						list(set(events[0: offset - i])),  highest_count,
 						assoc, landmarks, windows)
 				
 				for i in xrange(offset):
-					highest_count = self.__add_window(
+					highest_count = func(
 						list(set(events[len(events) - offset + i: len(events)])),
 						highest_count, assoc, landmarks, windows)
 			
