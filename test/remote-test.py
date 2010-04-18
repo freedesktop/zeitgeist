@@ -162,6 +162,33 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 		self.assertEquals(2, len(result))
 	
+	def testMonitorDeleteNonExistingEvent(self):
+		result = []
+		mainloop = gobject.MainLoop()
+		events = parse_events("test/data/five_events.js")
+		
+		def timeout():
+			# We want this timeout - we should not get informed
+			# about deletions of non-existing events
+			mainloop.quit()
+			return False
+
+		def notify_insert_handler(time_range, events):
+			event_ids = map(lambda ev : ev.id, events)
+			self.client.delete_events([9999999])
+		
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			self.fail("Notified about deletion of non-existing events %s", events)
+			
+			
+		self.client.install_monitor(TimeRange(125, 145), [],
+			notify_insert_handler, notify_delete_handler)
+		
+		gobject.timeout_add_seconds(5, timeout)
+		self.client.insert_events(events)
+		mainloop.run()
+	
 	def testTwoMonitorsDeleteEvents(self):
 		result1 = []
 		result2 = []
@@ -171,6 +198,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		def timeout ():
 			mainloop.quit()
 			self.fail("Test case timed out")
+			return False
 		
 		def check_ok():
 			if len(result1) == 2 and len(result2) == 2:
