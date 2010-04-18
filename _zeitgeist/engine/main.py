@@ -342,7 +342,8 @@ class ZeitgeistEngine:
 			if len(events) == 0 or len(landmarks) == 0:
 				return []
 			if len(events) <= window_size:
-				highest_count = self.__add_window(list(set([events])), highest_count, assoc, landmarks, windows)
+				highest_count = self.__add_window(list(set([events])), 
+					highest_count, assoc, landmarks, windows)
 			else:
 				events = events[min_index:max_index]
 				windows = []
@@ -350,19 +351,30 @@ class ZeitgeistEngine:
 				
 				for i in xrange(len(events)):
 					if i < offset:
-						highest_count = self.__add_window(list(set(events[0: i + offset + 1])),  highest_count, assoc, landmarks, windows)
+						highest_count = self.__add_window(
+							list(set(events[0: i + offset + 1])),
+							highest_count, assoc, landmarks, windows)
 					elif len(events) - offset - 1 < i:
-						highest_count = self.__add_window(list(set(events[i-offset: len(events)])),  highest_count, assoc, landmarks, windows)
+						highest_count = self.__add_window(
+							list(set(events[i-offset: len(events)])),
+							highest_count, assoc, landmarks, windows)
 					else:
-						highest_count = self.__add_window(list(set(events[i-offset: i+offset+1])),  highest_count, assoc, landmarks, windows)
+						highest_count = self.__add_window(
+							list(set(events[i-offset: i+offset+1])),
+							highest_count, assoc, landmarks, windows)
 				
 				for i in xrange(offset):
-					highest_count = self.__add_window(list(set(events[0: offset - i])),  highest_count, assoc, landmarks, windows)
+					highest_count = self.__add_window(
+						list(set(events[0: offset - i])),  highest_count,
+						assoc, landmarks, windows)
 				
 				for i in xrange(offset):
-					highest_count = self.__add_window(list(set(events[len(events) - offset + i: len(events)])),  highest_count, assoc, landmarks, windows)
+					highest_count = self.__add_window(
+						list(set(events[len(events) - offset + i: len(events)])),
+						highest_count, assoc, landmarks, windows)
 			
-			print "\n finished sliding windows in ", time.time()-t1, "\n"
+			log.debug("FindRelatedUris: Finished sliding windows in %fs." % \
+				(time.time()-t1))
 			if highest_count%2 == 0:
 				highest_count = highest_count/2
 			else:
