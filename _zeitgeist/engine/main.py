@@ -521,10 +521,13 @@ class ZeitgeistEngine:
 		""" % ",".join(["?"] * len(ids)), ids)
 		timestamps = self._cursor.fetchone()
 		
-		if timestamps:
+		if timestamps and all(timestamps):
 			# FIXME: Delete unused interpretation/manifestation/text/etc.
 			self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
 				% ",".join(["?"] * len(ids)), ids)
 			self._cursor.connection.commit()
-		
-		return timestamps
+			log.debug("Deleted %s" % map(int, ids))
+			return timestamps
+		else:
+			log.debug("Tried to delete non-existing event(s): %s" % map(int, ids))
+			return None
