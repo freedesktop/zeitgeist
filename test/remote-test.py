@@ -162,6 +162,45 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 		self.assertEquals(2, len(result))
 	
+	def testTwoMonitorsDeleteEvents(self):
+		result1 = []
+		result2 = []
+		mainloop = gobject.MainLoop()
+		events = parse_events("test/data/five_events.js")
+		
+		def timeout ():
+			mainloop.quit()
+			self.fail("Test case timed out")
+		
+		def check_ok():
+			if len(result1) == 2 and len(result2) == 2:
+				mainloop.quit()
+
+		def notify_insert_handler1(time_range, events):
+			event_ids = map(lambda ev : ev.id, events)
+			self.client.delete_events(event_ids)
+		
+		def notify_delete_handler1(time_range, event_ids):
+			result1.extend(event_ids)
+			check_ok()
+		
+		def notify_delete_handler2(time_range, event_ids):
+			result2.extend(event_ids)
+			check_ok()
+			
+		self.client.install_monitor(TimeRange(125, 145), [],
+			notify_insert_handler1, notify_delete_handler1)
+		
+		self.client.install_monitor(TimeRange(125, 145), [],
+			lambda x, y: x, notify_delete_handler2)
+		
+		self.client.insert_events(events)
+		gobject.timeout_add_seconds (5, timeout)
+		mainloop.run()
+		
+		self.assertEquals(2, len(result1))
+		self.assertEquals(2, len(result1))
+
 	def testMonitorInstallRemoval(self):
 		result = []
 		mainloop = gobject.MainLoop()
