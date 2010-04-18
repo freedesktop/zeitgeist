@@ -339,6 +339,11 @@ class ZeitgeistEngine:
 			else:
 				events = events[min_index:max_index]
 				offset = window_size/2
+				
+				for i in xrange(offset):
+					highest_count = func(
+						list(set(events[0: offset - i])),  highest_count,
+						assoc, landmarks, windows)
 				for i in xrange(len(events)):
 					if i < offset:
 						highest_count = func(
@@ -352,12 +357,6 @@ class ZeitgeistEngine:
 						highest_count = func(
 							list(set(events[i-offset: i+offset+1])),
 							highest_count, assoc, landmarks, windows)
-				
-				for i in xrange(offset):
-					highest_count = func(
-						list(set(events[0: offset - i])),  highest_count,
-						assoc, landmarks, windows)
-				
 				for i in xrange(offset):
 					highest_count = func(
 						list(set(events[len(events) - offset + i: len(events)])),

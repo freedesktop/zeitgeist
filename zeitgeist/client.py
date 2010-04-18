@@ -705,7 +705,7 @@ class ZeitgeistClient:
 				"Reply handler not callable, found %s" % uris_reply_handler)
 		
 		if time_range is None:
-			time_range = TimeRange.from_seconds_ago(30*24*60*60)
+			time_range = TimeRange.until_now()
 			
 		self._iface.FindRelatedUris(time_range, event_templates,
 			result_event_templates, storage_state, num_events, result_type,
