@@ -266,12 +266,7 @@ class ZeitgeistEngine:
 		return self._find_events(1, *args)
 	
 	def __add_window(self, _set, highest_count, assoc, landmarks, windows):
-		def _check_landmarks_in_set(_set):
-			for i in landmarks:
-				if i in _set:
-					return True
-			return False
-		if _check_landmarks_in_set(_set):
+		if set(_set) & set(landmarks): # intersection != 0
 			windows.append(_set)
 			for i in _set:
 				if not i in landmarks:
