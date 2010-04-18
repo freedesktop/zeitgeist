@@ -300,7 +300,6 @@ class ZeitgeistEngine:
 		
 		if result_type == 0 or result_type == 1:
 	
-			t1 = time.time()
 	
 			uris = self._find_events(2, timerange, result_event_templates,
 									result_storage_state, 0, 1)
@@ -313,7 +312,7 @@ class ZeitgeistEngine:
 			
 			landmarks = [unicode(event.subjects[0].uri) for event in event_templates]
 			
-			_min = sys.maxint
+			_min = time.time()*1000
 			_max = 0
 			
 			min_index = 0
