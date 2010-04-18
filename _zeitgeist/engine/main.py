@@ -525,5 +525,6 @@ class ZeitgeistEngine:
 			# FIXME: Delete unused interpretation/manifestation/text/etc.
 			self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
 				% ",".join(["?"] * len(ids)), ids)
+			self._cursor.connection.commit()
 		
 		return timestamps
