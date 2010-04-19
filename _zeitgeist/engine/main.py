@@ -222,7 +222,7 @@ class ZeitgeistEngine:
 		elif return_mode == 1:
 			sql = "SELECT * FROM event_view"
 		elif return_mode == 2:
-			sql = "SELECT id, timestamp FROM event"
+			sql = "SELECT subj_id, timestamp FROM event"
 			if order not in (0, 1):
 				# We could probably support a couple more but those should
 				# be enough for now.
@@ -287,9 +287,6 @@ class ZeitgeistEngine:
 		
 		Only URIs for subjects matching the indicated `result_event_templates`
 		and `result_storage_state` are returned.
-		
-		This currently uses a modified version of the Apriori algorithm, but
-		the implementation may vary.
 		"""
 		
 		if result_type == 0 or result_type == 1:
