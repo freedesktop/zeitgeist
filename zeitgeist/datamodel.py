@@ -966,7 +966,7 @@ class DataSource(list):
 		self.append(name)
 		self.append(description)
 		self.append(templates)
-		self.append(running)
+		self.append(bool(running))
 		#self.append(last_seen if last_seen else get_timestamp_for_now())
 		self.append(enabled)
 	
