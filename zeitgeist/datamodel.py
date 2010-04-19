@@ -949,7 +949,8 @@ class DataSource(list):
 		Description,
 		EventTemplates,
 		Running,
-		LastSeen,
+		LastSeen,	# last time the data-source did something (connected,
+					# inserted events, disconnected).
 		Enabled) = range(7)
 	
 	def __init__(self, unique_id, name, description, templates, running=True,
