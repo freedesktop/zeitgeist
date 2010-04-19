@@ -514,8 +514,10 @@ class ZeitgeistEngine:
 			WHERE id IN (%s)
 		""" % ",".join(["?"] * len(ids)), ids)
 		timestamps = self._cursor.fetchone()
-		
-		if timestamps and all(timestamps):
+
+		# Make sure that we actually found some events with these ids...
+		# We can't do all(timestamps) here because the timestamps may be 0
+		if timestamps and timestamps[0] is not None and timestamps[1] is not None:
 			# FIXME: Delete unused interpretation/manifestation/text/etc.
 			self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
 				% ",".join(["?"] * len(ids)), ids)

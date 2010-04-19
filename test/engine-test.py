@@ -124,6 +124,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.testSingleInsertGet()
 		self.engine.delete_events([1])
 		result = self.engine.get_events([1])
+		print result
 		self.assertEquals(0, len(filter(None, result)))
 	
 	def testDeleteSingleCascades(self):
