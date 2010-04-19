@@ -291,10 +291,9 @@ class ZeitgeistEngine:
 		if result_type == 0 or result_type == 1:
 			
 			t1 = time.time()
-	
+			
 			uris = self._find_events(2, timerange, result_event_templates,
 									result_storage_state, 0, 1)
-
 			window_size = 7
 			assoc = defaultdict(int)
 			
@@ -335,6 +334,8 @@ class ZeitgeistEngine:
 				for i in xrange(offset):
 					func(set(events[0: offset - i]), assoc, landmarks, 
 						windows)
+					func(set(events[len(events) - offset + i: len(events)]),
+						assoc, landmarks, windows)
 					
 				it = iter(events)
 				result = tuple(islice(it, window_size))
@@ -342,9 +343,6 @@ class ZeitgeistEngine:
 					result = result[1:] + (elem,)
 					func(set(result), assoc, landmarks, windows)
 					
-				for i in xrange(offset):
-					func(set(events[len(events) - offset + i: len(events)]),
-						assoc, landmarks, windows)
 				
 			log.debug("FindRelatedUris: Finished sliding windows in %fs." % \
 				(time.time()-t1))
@@ -352,13 +350,9 @@ class ZeitgeistEngine:
 			if result_type == 0:
 				sets = [[v, k] for k, v in assoc.iteritems()]
 			elif result_type == 1:
-				new_set = {}
-				for k in assoc.iterkeys():
-					new_set[k] = latest_uris[k]
-				sets = [[v, k] for k, v in new_set.iteritems()]
+				sets = [[latest_uris[k], k] for k in assoc]
 				
-			sets.sort()
-			sets.reverse()
+			sets.sort(reverse = True)
 			sets = map(lambda result: result[1], sets[:num_results])
 			
 			return sets
