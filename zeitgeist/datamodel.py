@@ -940,6 +940,9 @@ class DataSource(list):
 	conformant data structure without the need for marshalling back and
 	forth between DBus wire format. These two properties makes it highly
 	efficient and is recommended for use everywhere.
+
+	This is part of the :const:`org.gnome.zeitgeist.DataSourceRegistry`
+	extension.
 	"""
 	Fields = (UniqueId,
 		Name,

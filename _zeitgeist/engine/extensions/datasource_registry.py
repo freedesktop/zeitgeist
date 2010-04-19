@@ -177,10 +177,10 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 						 out_signature="a"+SIG_FULL_DATASOURCE)
 	def GetDataSources(self):
 		"""
-		Get a list of data-sources.
+		Get the list of known data-sources.
 		
 		:returns: A list of
-			:class:`DataSource <zeitgeist.datamodel.DataSource>`s
+			:class:`DataSource <zeitgeist.datamodel.DataSource>` objects.
 		"""
 		return self.get_data_sources()
 
@@ -190,8 +190,12 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		"""
 		Get a list of data-sources.
 		
-		:param unique_id: unique string identifying a data-source
-		
+		:param unique_id: unique string identifying a data-source (it's a good
+			idea to use a domain name / email address / etc. as part of the
+			name, to avoid name clashes).
+		:type unique_id: string
+		:param enabled: whether the data-source is to be enabled or disabled
+		:type enabled: Bool
 		:returns: True on success, False if there is no known data-source
 			matching the given ID.
 		:rtype: Bool
