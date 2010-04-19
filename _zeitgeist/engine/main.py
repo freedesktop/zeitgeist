@@ -222,11 +222,7 @@ class ZeitgeistEngine:
 		elif return_mode == 1:
 			sql = "SELECT * FROM event_view"
 		elif return_mode == 2:
-			sql = "SELECT subj_id, timestamp FROM event"
-			if order not in (0, 1):
-				# We could probably support a couple more but those should
-				# be enough for now.
-				raise NotImplementedError, "Unsupported order for return_mode."
+			sql = "SELECT subj_uri, timestamp FROM event_view"
 		else:
 			raise NotImplementedError, "Unsupported return_mode."
 		
