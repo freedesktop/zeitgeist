@@ -36,7 +36,7 @@ log = logging.getLogger("zeitgeist.datasource_registry")
 DATA_FILE = os.path.join(constants.DATA_PATH, "datasources.pickle")
 REGISTRY_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/data_source_registry"
 REGISTRY_DBUS_INTERFACE = "org.gnome.zeitgeist.DataSourceRegistry"
-SIG_FULL_DATASOURCE = "(sssa("+constants.SIG_EVENT+")bxb)"
+SIG_FULL_DATASOURCE = "(sssa("+constants.SIG_EVENT+")bb)" # x
 
 class DataSource(OrigDataSource):
 	@classmethod
@@ -46,12 +46,12 @@ class DataSource(OrigDataSource):
 		to always be False.
 		"""
 		s = cls(l[cls.UniqueId], l[cls.Name], l[cls.Description],
-			l[cls.EventTemplates], False, l[cls.LastSeen], l[cls.Enabled])
+			l[cls.EventTemplates], False, l[cls.Enabled]) # l[cls.LastSeen]
 		return s
 	
 	def update_from_data_source(self, source):
 		for prop in (self.Name, self.Description, self.EventTemplates,
-			self.Running, self.LastSeen):
+			self.Running): # self.LastSeen
 			self[prop] = source[prop]
 
 class DataSourceRegistry(Extension, dbus.service.Object):
@@ -109,8 +109,8 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			if sender in bus_names:
 				datasource = self._get_data_source(unique_id)
 				# Update LastSeen time
-				datasource[DataSource.LastSeen] = get_timestamp_for_now()
-				self._write_to_disk()
+				#datasource[DataSource.LastSeen] = get_timestamp_for_now()
+				#self._write_to_disk()
 				# Check whether the data-source is allowed to insert events
 				if not [DataSource.Enabled]:
 					return None
@@ -244,11 +244,12 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		if not uid:
 			return
 		uid = uid[0]
+
+		datasource = self._get_data_source(uid)
 		
 		# Update LastSeen time
-		datasource = self._get_data_source(uid)
-		datasource[DataSource.LastSeen] = get_timestamp_for_now()
-		self._write_to_disk()
+		#datasource[DataSource.LastSeen] = get_timestamp_for_now()
+		#self._write_to_disk()
 		
 		strid = "%s (%s)" % (uid, datasource[DataSource.Name])
 		log.debug("Client disconnected: %s" % strid)
