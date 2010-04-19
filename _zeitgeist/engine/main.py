@@ -201,7 +201,7 @@ class ZeitgeistEngine:
 		storage_state, max_events, order, sender=None):
 		"""
 		Accepts 'event_templates' as either a real list of Events or as
-		a list of tuples (event_data,subject_data) as we do in the
+		a list of tuples (event_data, subject_data) as we do in the
 		DBus API.
 		
 		Return modes:
@@ -222,7 +222,11 @@ class ZeitgeistEngine:
 		elif return_mode == 1:
 			sql = "SELECT * FROM event_view"
 		elif return_mode == 2:
-			sql = "SELECT subj_uri, timestamp FROM event_view"
+			sql = "SELECT id, timestamp FROM event"
+			if order not in (0, 1):
+				# We could probably support a couple more but those should
+				# be enough for now.
+				raise NotImplementedError, "Unsupported order for return_mode."
 		else:
 			raise NotImplementedError, "Unsupported return_mode."
 		
@@ -293,7 +297,7 @@ class ZeitgeistEngine:
 			t1 = time.time()
 			
 			uris = self._find_events(2, timerange, result_event_templates,
-									result_storage_state, 0, 1)
+				result_storage_state, 0, ResultType.LeastRecentEvents)
 			window_size = 7
 			assoc = defaultdict(int)
 			
