@@ -38,6 +38,8 @@ from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 	TableLookup, WhereClause
+	
+WINDOW_SIZE = 7
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -289,9 +291,13 @@ class ZeitgeistEngine:
 			
 			t1 = time.time()
 			
-			uris = self._find_events(2, timerange, result_event_templates,
-				result_storage_state, 0, ResultType.LeastRecentEvents)
-			window_size = 7
+			if len(result_event_templates) == 0:
+				uris = self._find_events(2, timerange, result_event_templates,
+					result_storage_state, 0, ResultType.LeastRecentEvents)
+			else:
+				uris = self._find_events(2, timerange, result_event_templates + event_templates,
+					result_storage_state, 0, ResultType.LeastRecentEvents)
+			
 			assoc = defaultdict(int)
 			
 			landmarks = set([unicode(event.subjects[0].uri) for event in event_templates])
@@ -300,10 +306,13 @@ class ZeitgeistEngine:
 			events = [unicode(u[0]) for u in uris]
 
 			furis = filter(lambda x: x[0] in landmarks, uris)
+			if len(furis) == 0:
+				return []
+			
 			_min = min(furis, key=operator.itemgetter(1))
 			_max = max(furis, key=operator.itemgetter(1))
-			min_index = uris.index(_min) - window_size
-			max_index = uris.index(_max) + window_size
+			min_index = uris.index(_min) - WINDOW_SIZE
+			max_index = uris.index(_max) + WINDOW_SIZE
 			_min = _min[1]
 			_max = _max[1]
 			
@@ -319,12 +328,12 @@ class ZeitgeistEngine:
 			
 			windows = []
 	
-			if len(events) <= window_size:
+			if len(events) <= WINDOW_SIZE:
 				#TODO bug! windows is not defined, seems the algorithm never touches these loop
 				func(events, assoc, landmarks, windows)
 			else:
 				events = events[min_index:max_index]
-				offset = window_size/2
+				offset = WINDOW_SIZE/2
 				
 				for i in xrange(offset):
 					func(set(events[0: offset - i]), assoc, landmarks, 
@@ -333,7 +342,7 @@ class ZeitgeistEngine:
 						assoc, landmarks, windows)
 					
 				it = iter(events)
-				result = tuple(islice(it, window_size))
+				result = tuple(islice(it, WINDOW_SIZE))
 				for elem in it:
 					result = result[1:] + (elem,)
 					func(set(result), assoc, landmarks, windows)
