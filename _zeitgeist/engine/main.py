@@ -256,7 +256,7 @@ class ZeitgeistEngine:
 		if return_mode == 1:
 			return self.get_events(rows=result, sender=sender)
 		if return_mode == 2:
-			return [list(r) for r in result]
+			return map(lambda row: (row[0], row[1]), result)
 		else: # return_mode == 0
 			result = [row[0] for row in result]
 			log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
