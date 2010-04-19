@@ -305,15 +305,13 @@ class ZeitgeistEngine:
 			furis = filter(lambda x: x[0] in landmarks, uris)
 			_min = min(furis, key=operator.itemgetter(1))
 			_max = max(furis, key=operator.itemgetter(1))
-			min_index = uris.index(_min)
-			max_index = uris.index(_max)
+			min_index = uris.index(_min) - window_size
+			max_index = uris.index(_max) + window_size
 			_min = _min[1]
 			_max = _max[1]
 			
-			min_index -= window_size
 			if min_index < 0:
 				min_index = 0
-			max_index += window_size
 			if max_index > len(events):
 				max_index = -1
 				
