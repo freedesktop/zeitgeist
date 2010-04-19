@@ -266,19 +266,14 @@ class ZeitgeistEngine:
 	def find_events(self, *args):
 		return self._find_events(1, *args)
 	
-	def __add_window(self, _set, highest_count, assoc, landmarks, windows):
+	def __add_window(self, _set, assoc, landmarks, windows):
 		if set(_set) & set(landmarks): # intersection != 0
 			windows.append(_set)
 			for i in _set:
 				if not i in landmarks:
 					if not assoc.has_key(i):
 						assoc[i] = 0
-						continue
 					assoc[i] += 1
-					if assoc[i] > highest_count:
-						highest_count = assoc[i]
-		return highest_count
-	
 	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state, num_results, result_type):
@@ -304,7 +299,6 @@ class ZeitgeistEngine:
 
 			window_size = 7
 			assoc = {}
-			highest_count = 0
 			
 			landmarks = [unicode(event.subjects[0].uri) for event in event_templates]
 			
@@ -334,41 +328,32 @@ class ZeitgeistEngine:
 			windows = []
 			if len(events) <= window_size:
 				#TODO bug! windows is not defined, seems the algorithm never touches these loop
-				highest_count = func(events,
-					highest_count, assoc, landmarks, windows)
+				func(events, assoc, landmarks, windows)
 			else:
 				events = events[min_index:max_index]
 				offset = window_size/2
 				
 				for i in xrange(offset):
-					highest_count = func(
-						list(set(events[0: offset - i])),  highest_count,
+					func(list(set(events[0: offset - i])), assoc, landmarks, 
+						windows)
+				for i in xrange(offset):
+					func( list(set(events[len(events) - offset + i: len(events)])),
 						assoc, landmarks, windows)
 				for i in xrange(len(events)):
 					if i < offset:
-						highest_count = func(
-							list(set(events[0: i + offset + 1])),
-							highest_count, assoc, landmarks, windows)
+						func( list(set(events[0: i + offset + 1])), assoc, 
+							landmarks, windows)
 					elif len(events) - offset - 1 < i:
-						highest_count = func(
-							list(set(events[i-offset: len(events)])),
-							highest_count, assoc, landmarks, windows)
+						func( list(set(events[i-offset: len(events)])), assoc,
+							 landmarks, windows)
 					else:
-						highest_count = func(
-							list(set(events[i-offset: i+offset+1])),
-							highest_count, assoc, landmarks, windows)
-				for i in xrange(offset):
-					highest_count = func(
-						list(set(events[len(events) - offset + i: len(events)])),
-						highest_count, assoc, landmarks, windows)
+						func( list(set(events[i-offset: i+offset+1])), assoc,
+							landmarks, windows)
+					
 			
 			log.debug("FindRelatedUris: Finished sliding windows in %fs." % \
 				(time.time()-t1))
-			if highest_count%2 == 0:
-				highest_count = highest_count/2
-			else:
-				highest_count = 1+ highest_count/2 
-						
+			
 			if result_type == 0:
 				sets = [[v, k] for k, v in assoc.iteritems()]
 			elif result_type == 1:
