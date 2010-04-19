@@ -28,6 +28,8 @@ import math
 import gettext
 import logging
 import operator
+from itertools import islice
+from collections import defaultdict
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
 	ResultType, get_timestamp_for_now, Interpretation
@@ -267,13 +269,10 @@ class ZeitgeistEngine:
 		return self._find_events(1, *args)
 	
 	def __add_window(self, _set, assoc, landmarks, windows):
-		if set(_set) & set(landmarks): # intersection != 0
+		if _set & landmarks: # intersection != 0
 			windows.append(_set)
-			for i in _set:
-				if not i in landmarks:
-					if not assoc.has_key(i):
-						assoc[i] = 0
-					assoc[i] += 1
+			for i in _set.difference(landmarks):
+				assoc[i] += 1
 	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state, num_results, result_type):
@@ -289,18 +288,17 @@ class ZeitgeistEngine:
 		the implementation may vary.
 		"""
 		
-		
 		if result_type == 0 or result_type == 1:
-	
+			
 			t1 = time.time()
 	
 			uris = self._find_events(2, timerange, result_event_templates,
 									result_storage_state, 0, 1)
 
 			window_size = 7
-			assoc = {}
+			assoc = defaultdict(int)
 			
-			landmarks = [unicode(event.subjects[0].uri) for event in event_templates]
+			landmarks = set([unicode(event.subjects[0].uri) for event in event_templates])
 			
 			latest_uris = dict(uris)
 			events = [unicode(u[0]) for u in uris]
@@ -326,6 +324,7 @@ class ZeitgeistEngine:
 				return []
 			
 			windows = []
+	
 			if len(events) <= window_size:
 				#TODO bug! windows is not defined, seems the algorithm never touches these loop
 				func(events, assoc, landmarks, windows)
@@ -334,23 +333,19 @@ class ZeitgeistEngine:
 				offset = window_size/2
 				
 				for i in xrange(offset):
-					func(list(set(events[0: offset - i])), assoc, landmarks, 
+					func(set(events[0: offset - i]), assoc, landmarks, 
 						windows)
-				for i in xrange(offset):
-					func( list(set(events[len(events) - offset + i: len(events)])),
-						assoc, landmarks, windows)
-				for i in xrange(len(events)):
-					if i < offset:
-						func( list(set(events[0: i + offset + 1])), assoc, 
-							landmarks, windows)
-					elif len(events) - offset - 1 < i:
-						func( list(set(events[i-offset: len(events)])), assoc,
-							 landmarks, windows)
-					else:
-						func( list(set(events[i-offset: i+offset+1])), assoc,
-							landmarks, windows)
 					
-			
+				it = iter(events)
+				result = tuple(islice(it, window_size))
+				for elem in it:
+					result = result[1:] + (elem,)
+					func(set(result), assoc, landmarks, windows)
+					
+				for i in xrange(offset):
+					func(set(events[len(events) - offset + i: len(events)]),
+						assoc, landmarks, windows)
+				
 			log.debug("FindRelatedUris: Finished sliding windows in %fs." % \
 				(time.time()-t1))
 			
