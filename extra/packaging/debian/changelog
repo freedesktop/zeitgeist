@@ -1,8 +1,23 @@
-zeitgeist (0.3.2-1+ppa1) UNRELEASED; urgency=low
+zeitgeist (0.3.3-1+ppa1) UNRELEASED; urgency=low
 
   * Changes...
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Wed, 24 Mar 2010 15:44:17 +0100
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Thu, 22 Apr 2010 15:49:32 +0200
+
+zeitgeist (0.3.3-1) unstable; urgency=low
+
+  * New upstream release:
+     - Added new ReturnTypes ({Most,Least}{PopularActor,RecentActor}).
+     - Added DataSourceRegistry extension and support for extensions
+       identifying callers (when methods are executed through D-Bus).
+     - Overhauled FindRelatedUris for better results and improved performance.
+     - Several other changes and bug fixes (LP: #549567, #531793).
+  * debian/control, debian/rules:
+     - Get ride of CDBS (switch to dh7).
+     - Bump Standards-Version to 3.8.4.
+  * Add debian/source/format file with content "1.0".
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Tue, 20 Apr 2010 14:38:53 +0200
 
 zeitgeist (0.3.2-1) unstable; urgency=low
 
@@ -29,7 +44,7 @@ zeitgeist (0.3.1-1) unstable; urgency=low
 
 zeitgeist (0.3.1-0ubuntu1) lucid; urgency=low
 
-  * New upstream release. Changes since 0.3.0:
+  * New upstream release:
      - Event subscription (monitoring) support.
      - Blacklist extension.
      - Experimental FindRelatedUris method (API for it may change).
@@ -62,4 +77,3 @@ zeitgeist (0.2.0+dfsg1-0ubuntu1) karmic; urgency=low
     and has files with unclear licensing.
 
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Wed, 08 Jul 2009 00:34:59 +0200
-
