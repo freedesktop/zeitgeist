@@ -2,10 +2,7 @@
 
 import unittest
 import os
-import time
 import sys
-import signal
-from subprocess import Popen, PIPE
 
 # DBus setup
 import gobject
@@ -17,8 +14,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
 from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState)
-import testutils
 
+import testutils
 from testutils import parse_events
 
 class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
@@ -308,7 +305,14 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 		result = self.client.find_events_for_values(callback, actor="firefox", num_events=1)
 		mainloop.run()
-		
+
+	def testDataSourcesRegistry(self):
+		""" Ensure that the DataSourceRegistry extension is there. If we'd want
+		    to do any actual value checking we need to change testutils.py to
+		    use a ZEITGEIST_DATA_PATH other than ~/.local/share. """
+		iface = ZeitgeistDBusInterface()
+		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
+		registry.GetDataSources()
 	
 if __name__ == "__main__":
 	unittest.main()
