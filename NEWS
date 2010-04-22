@@ -1,3 +1,10 @@
+Engine:
+
+ - Added a LastSeen property to data-sources.
+ - Fixed a bug in the DataSourceRegistry extension where it failed to handle
+   the disconnection signal from data-sources with several running instances.
+
+
 2010-04-20: Zeitgeist 0.3.3
 ---------------------------
 

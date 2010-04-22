@@ -949,12 +949,12 @@ class DataSource(list):
 		Description,
 		EventTemplates,
 		Running,
-		#LastSeen,	# last time the data-source did something (connected,
+		LastSeen,	# last time the data-source did something (connected,
 					# inserted events, disconnected).
-		Enabled) = range(6)
+		Enabled) = range(7)
 	
 	def __init__(self, unique_id, name, description, templates, running=True,
-		enabled=True): # last_seen=None,
+		last_seen=None, enabled=True):
 		"""
 		Create a new DataSource object using the given parameters.
 		
@@ -967,7 +967,7 @@ class DataSource(list):
 		self.append(description)
 		self.append(templates)
 		self.append(bool(running))
-		#self.append(last_seen if last_seen else get_timestamp_for_now())
+		self.append(last_seen if last_seen else get_timestamp_for_now())
 		self.append(enabled)
 	
 	def __eq__(self, source):

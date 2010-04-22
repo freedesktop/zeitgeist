@@ -51,11 +51,8 @@ class DataProvider(gobject.GObject, Thread):
 			try:
 				self._last_seen = [ds[DataSource.LastSeen] for ds in \
 					self._registry.GetDataSources() if \
-					ds[DataSource.UniqueId] == unique_id][0] - 3600000
-				# We substract 1 hour to ensure no events got missed (because
-				# of LastSeen being updated on disconnect).
-				# TODO: Maybe it should be changed to (or we should add)
-				# LastInsertion, though?
+					ds[DataSource.UniqueId] == unique_id][0] - 1800000
+				# We substract 30 minutes to make sure no events get missed.
 			except IndexError:
 				self._last_seen = 0
 			self._enabled = self._registry.RegisterDataSource(unique_id, name,
