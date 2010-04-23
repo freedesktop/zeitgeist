@@ -55,7 +55,7 @@ class InterpretationTest (unittest.TestCase):
 	"""
 
 	def testPredefined(self):
-		tag = Interpretation.Tag
+		tag = Interpretation.Audio
 		self.assertTrue(tag.name != None)
 		self.assertTrue(tag.uri != None)
 		self.assertTrue(tag.display_name != None)
