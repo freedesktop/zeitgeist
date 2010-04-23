@@ -32,7 +32,7 @@ class BlacklistTest(RemoteTestCase):
 		self.assertEquals(empty, [])
 		
 	def testSetOne(self):
-		orig = Event.new_for_values(interpretation=Interpretation.OPEN_EVENT,
+		orig = Event.new_for_values(interpretation=Interpretation.AccessEvent,
 		                            subject_uri="http://nothingtoseehere.gov")
 		self.blacklist.SetBlacklist([orig])
 		result = map(Event, self.blacklist.GetBlacklist())
@@ -40,7 +40,7 @@ class BlacklistTest(RemoteTestCase):
 		self.assertEquals(len(result), 1)
 		result = result[0]
 		self.assertEquals(result.manifestation, "")
-		self.assertEquals(result.interpretation, Interpretation.OPEN_EVENT)
+		self.assertEquals(result.interpretation, Interpretation.AccessEvent)
 		self.assertEquals(len(result.subjects), 1)
 		self.assertEquals(result.subjects[0].uri, "http://nothingtoseehere.gov")
 		self.assertEquals(result.subjects[0].interpretation, "")
@@ -48,8 +48,8 @@ class BlacklistTest(RemoteTestCase):
 	def testApplyBlacklist(self):
 		self.testSetOne()
 		ev = Event()
-		ev.interpretation = Interpretation.OPEN_EVENT
-		ev.manifestation = Manifestation.USER_ACTIVITY
+		ev.interpretation = Interpretation.AccessEvent
+		ev.manifestation = Manifestation.UserActivity
 		ev.actor = "app.//foo.desktop"
 		subj = ev.append_subject()
 		subj.uri = "http://nothingtoseehere.gov"
