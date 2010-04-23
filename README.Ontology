@@ -1,0 +1,33 @@
+What needs to be done before this branch can be merged into lp:zeitgeist?
+=========================================================================
+
+Failing testcases
+*****************
+    * datamodel-test: SymbolCollectionTest.testConstruct
+      TODO: how do we support dynamic creation of symbols?
+    
+    
+
+Other stuff
+***********
+
+    * API changes, need to be documented:
+      - Symbol names are now UserActivity instead of USER_ACTIVITY
+      - OPEN_EVENT became AccessEvent, and so on.
+      
+    * describe new features:
+      - symbol hirarchy
+      
+    * describe known issues:
+      - symbol names might not be unique
+      
+    * do we need a script/hook to convert the users db to the new symbols?
+      
+    * Is our collection of symbols complete, do we miss some, if so, which?
+      
+    * i18n of Symbol attributes (optional):
+      How do we support this, on python level, or is it possible in the ontology itself?
+      
+    * beautify sphinx docs of the ontology (optional):
+      Is there a better way to document the symbols in a more structured way, like linking parents and childrens
+    
