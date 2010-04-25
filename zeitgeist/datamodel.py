@@ -135,7 +135,6 @@ def get_name_or_str(obj):
 	except AttributeError:
 		return str(obj)
 
-_SYMBOLS_BY_NAME = {}
 _SYMBOLS_BY_URI = {}
 
 class Symbol(str):
@@ -154,7 +153,6 @@ class Symbol(str):
 		self._uri = uri
 		self._display_name = display_name
 		self._doc = doc
-		_SYMBOLS_BY_NAME[name] = self
 		_SYMBOLS_BY_URI[uri] = self
 
 	def __repr__(self):
