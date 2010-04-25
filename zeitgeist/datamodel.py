@@ -139,12 +139,12 @@ _SYMBOLS_BY_URI = {}
 
 class Symbol(str):
 
-	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None):
+	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None, auto_resolve=True):
 		if not isCamelCase(name):
 			raise ValueError("Naming convention requires symbol name to be CamelCase, got '%s'" %name)
 		return super(Symbol, cls).__new__(Symbol, uri or name)
 		
-	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None):
+	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None, auto_resolve=True):
 		self._children = dict()
 		self._all_children = None
 		self._parents = parent or set()
@@ -153,14 +153,38 @@ class Symbol(str):
 		self._uri = uri
 		self._display_name = display_name
 		self._doc = doc
-		_SYMBOLS_BY_URI[uri] = self
+		if auto_resolve:
+			for parent in self._parents:
+				if isinstance(parent, (str, unicode)):
+					if parent in _SYMBOLS_BY_URI:
+						parent = _SYMBOLS_BY_URI[parent]
+				parent._children[self.uri] = self
+		else:
+			_SYMBOLS_BY_URI[uri] = self
 
 	def __repr__(self):
 		return "<%s '%s'>" %(get_name_or_str(self), self.uri)
 		
 	def __getattr__(self, name):
 		self._ensure_all_children()
-		return self._all_children[name]
+		try:
+			return self._all_children[name]
+		except KeyError:
+			raise AttributeError("'%s' object has no attribute '%s'" %(self.__class__.__name__, name))
+		
+	def __getitem__(self, key):
+		if isinstance(key, int):
+			# get char by index
+			return super(Symbol, self).__getitem__(key)
+		elif isinstance(key, (str, unicode)):
+			try:
+				# lookup by name
+				return getattr(self, key)
+			except AttributeError:
+				# lookup by uri
+				return self._children[key]
+		else:
+			raise TypeError("%s must be str, unicode or integer, not %s" %(self.__class__.__name__, type(key)))
 	
 	def _ensure_all_children (self):
 		if self._all_children is not None : return

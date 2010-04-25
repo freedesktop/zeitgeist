@@ -30,7 +30,6 @@ class SymbolTest(unittest.TestCase):
 class SymbolCollectionTest(unittest.TestCase):
 	
 	def testConstruct(self):
-		""" FIXME: this testcase fails because generating symbols on the fly is not supported, do we need it?"""
 		foo = Symbol("TestRoot")
 		self.assertEquals(len(foo.get_children()), 0)
 		Symbol("TestChild", parent=set([foo,]), uri="http://test", display_name="Small Test", doc="this is a testing Symbol")
@@ -42,11 +41,6 @@ class SymbolCollectionTest(unittest.TestCase):
 		self.assertEquals(len(foo.get_children()), 1)
 		self.assertEquals(foo["http://test"], foo.TestChild)
 		self.assertRaises(AttributeError, getattr, foo, "test2")
-		
-		self.assertEquals(foo.TEST2, "TEST2")
-		self.assertEquals(foo.TEST2.uri, "TEST2")
-		self.assertEquals(foo.TEST2.display_name, "")
-		self.assertEquals(foo.TEST2.doc, "")
 
 
 class InterpretationTest (unittest.TestCase):

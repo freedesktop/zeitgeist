@@ -35,38 +35,28 @@ Now it is possible to register another symbol which is a sub-symbol of
 `TestSymbol`
     
     >>> Symbol("SubSymbol", parent=set([TestSymbol,]), uri="http://some_other/uri#SubSymbol")
-    <Test, SubSymbol 'http://some_other/uri#SubSymbol'>
+    <SubSymbol 'http://some_other/uri#SubSymbol'>
     >>> TestSymbol.SubSymbol
-    <Test, SubSymbol 'http://some_other/uri#SubSymbol'>
-    
-Another way to create a symbol is to just call an Attribute, this will
-magically generate this symbol and cache it
-
-    >>> TestSymbol.SubSymbol.Boo
-    <Test, SubSymbol, Boo 'Boo'>
-    >>> print TestSymbol.SubSymbol.Boo.uri
-    Boo
+    <SubSymbol 'http://some_other/uri#SubSymbol'>
     
 Now let's see how getting children of a symbol works
 
     >>> sorted(TestSymbol.get_children())
-    [<Test, SubSymbol 'http://some_other/uri#SubSymbol'>]
+    [<SubSymbol 'http://some_other/uri#SubSymbol'>]
     >>> sorted(TestSymbol.get_all_children())
-    [<Test, SubSymbol, Boo 'Boo'>, <Test 'http://some/uri#TestSymbol'>, <Test, SubSymbol 'http://some_other/uri#SubSymbol'>]
+    [<Test 'http://some/uri#TestSymbol'>, <SubSymbol 'http://some_other/uri#SubSymbol'>]
     
 Getting sub symbols by uri:
 
     >>> TestSymbol["http://some_other/uri#SubSymbol"]
-    <Test, SubSymbol 'http://some_other/uri#SubSymbol'>
-    >>> TestSymbol["Boo"]
-    <Test, SubSymbol, Boo 'Boo'>
+    <SubSymbol 'http://some_other/uri#SubSymbol'>
     
 Symbol names must be CamelCase
 
     >>> TestSymbol.somesymbol
     Traceback (most recent call last):
         ...
-    AttributeError: Test has no attribute 'somesymbol'
+    AttributeError: 'Symbol' object has no attribute 'somesymbol'
 
     >>> Symbol("somesymbol", parent=set([TestSymbol,]))
     Traceback (most recent call last):
@@ -78,12 +68,12 @@ exists at this time you can give either the uri or the name of the parent
 symbol as name to avoid NameErrors:
 
     >>> Symbol("AnotherTest", parent=set(["Interpretation",]))
-    <Interpretation, AnotherTest 'AnotherTest'>
+    <AnotherTest 'AnotherTest'>
     >>> print Interpretation.AnotherTest
     AnotherTest
     >>> Symbol("JustAnotherTest",
     ...     parent=set(["http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#MindMap",]))
-    <Document, MindMap, JustAnotherTest, Interpretation 'JustAnotherTest'>
+    <JustAnotherTest 'JustAnotherTest'>
     >>> print Interpretation.MindMap.JustAnotherTest
     JustAnotherTest
     

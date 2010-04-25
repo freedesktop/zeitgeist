@@ -71,7 +71,7 @@ class PythonSerializer(RecursiveSerializer):
 		assert root_type
 		#TODO: displayname, how are translation handled? on trig level or on python level?
 		stream.write(
-			"Symbol('%s', parent=%r, uri='%s', display_name='%s', doc='%s')\n" %(name, 
+			"Symbol('%s', parent=%r, uri='%s', display_name='%s', doc='%s', auto_resolve=False)\n" %(name, 
 				root_type, symbol, display_name, doc)
 		)
 		
