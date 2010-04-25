@@ -23,8 +23,6 @@ from rdflib.Namespace import Namespace
 
 NIENS = Namespace("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#")
 
-import sys, pprint
-
 def escape_chars(text, strip=True):
 	text = text.replace("'", "\\'")
 	text = text.replace('"', '\\"')
@@ -47,9 +45,6 @@ def replace_items(item_set, item_map):
 
 
 class PythonSerializer(RecursiveSerializer):
-
-	#~ def _get_all_classes(self):
-		#~ return self.store.subjects(RDF.type, RDFS.Class)
 		
 	def _get_all_subclasses(self, *super_classes):
 		for cls in super_classes:
@@ -77,25 +72,7 @@ class PythonSerializer(RecursiveSerializer):
 		
 
 	def serialize(self, stream, base=None, encoding=None, **args):
-		#~ # this is not working yet, and does not do anything
-		#~ for resource in self.store.subjects(RDFS.subClassOf, RDFS.Resource):
-			#~ #stream.write("""class %s(RDFSResource):\n\tpass\n\n""" %str(resource).split("#")[-1])
-#~ 
-			#~ for member in self.store.subjects(RDFS.domain, resource):
-				#~ attributes = dict(self.store.predicate_objects(member))
-				#~ if attributes.pop(RDF.type) == RDFS.RDFSNS["Property"]:
-					#~ # ok, it is a property
-					#~ name = attributes.pop(RDFS.label)
-					#~ print name
-					#~ print attributes
-				#~ else:
-					#~ raise ValueError
-				#~ break
-		#~ all_classes = set(self._get_all_classes())
 		symbol_classes = set(self._get_all_subclasses(NIENS["InformationElement"], NIENS["DataObject"]))
-		#~ ignore_classes = all_classes - symbol_classes
-		#~ pprint.pprint(ignore_classes, stream=sys.stderr)
-		#~ pprint.pprint(sorted(symbol_classes), stream=sys.stderr)
 		
 		for symbol in sorted(symbol_classes):
 			self._create_symbol(
