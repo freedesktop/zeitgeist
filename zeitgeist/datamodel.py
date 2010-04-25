@@ -170,6 +170,13 @@ class Symbol(str):
 		try:
 			return self._all_children[name]
 		except KeyError:
+			for child in self.iter_all_children():
+				if child == self:
+					continue
+				try:
+					return getattr(child, name)
+				except AttributeError:
+					pass
 			raise AttributeError("'%s' object has no attribute '%s'" %(self.__class__.__name__, name))
 		
 	def __getitem__(self, key):
