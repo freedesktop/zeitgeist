@@ -933,10 +933,11 @@ for symbol in _SYMBOLS_BY_URI.itervalues():
 			print "ERROR", e, child, symbol.uri
 			pass
 
-# 2) Resolve all child URIs to their actual Symbol instances
+# 2) Resolve all child and parent URIs to their actual Symbol instances
 for symbol in _SYMBOLS_BY_URI.itervalues():
 	for child_uri in symbol._children.iterkeys():
 		symbol._children[child_uri] = _SYMBOLS_BY_URI[child_uri]
+	symbol._parents = set(_SYMBOLS_BY_URI[parent_uri] for parent_uri in symbol.get_parents())
 
 
 	
