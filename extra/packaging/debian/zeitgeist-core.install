@@ -5,4 +5,3 @@ usr/share/zeitgeist/_zeitgeist/*.*
 usr/share/zeitgeist/_zeitgeist/engine/
 usr/share/dbus-1/services/
 usr/bin/zeitgeist-daemon
-etc/bash_completion.d/zeitgeist-daemon

@@ -27,6 +27,9 @@ import os
 import math
 import gettext
 import logging
+import operator
+from itertools import islice
+from collections import defaultdict
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
 	ResultType, get_timestamp_for_now, Interpretation
@@ -35,6 +38,8 @@ from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 	TableLookup, WhereClause
+	
+WINDOW_SIZE = 7
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -198,7 +203,7 @@ class ZeitgeistEngine:
 		storage_state, max_events, order, sender=None):
 		"""
 		Accepts 'event_templates' as either a real list of Events or as
-		a list of tuples (event_data,subject_data) as we do in the
+		a list of tuples (event_data, subject_data) as we do in the
 		DBus API.
 		
 		Return modes:
@@ -219,7 +224,7 @@ class ZeitgeistEngine:
 		elif return_mode == 1:
 			sql = "SELECT * FROM event_view"
 		elif return_mode == 2:
-			sql = "SELECT timestamp, subj_uri FROM event_view"
+			sql = "SELECT subj_uri, timestamp FROM event_view"
 		else:
 			raise NotImplementedError, "Unsupported return_mode."
 		
@@ -253,7 +258,7 @@ class ZeitgeistEngine:
 		if return_mode == 1:
 			return self.get_events(rows=result, sender=sender)
 		if return_mode == 2:
-			return result
+			return map(lambda row: (row[0], row[1]), result)
 		else: # return_mode == 0
 			result = [row[0] for row in result]
 			log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
@@ -265,61 +270,12 @@ class ZeitgeistEngine:
 	def find_events(self, *args):
 		return self._find_events(1, *args)
 	
-	@staticmethod
-	def _generate_buckets(events, time_cluster_range = 300000):
-		"""
-		Create buckets where a size of a bucket is limited by 30 minutes
-		"""
-		t = 0
-		latest_uris = {}
-		buckets = []
-		clusters = []
-		average_acc = 0
-		
-		for event in events:
-			if int(event[0]) - time_cluster_range > t:
-				t = int(event[0])
-				if len(clusters) > 0:
-					if len(clusters) > 1:
-						clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
-					else:
-						clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)
-					average_acc += abs(clusters[-1][2])
-				clusters.append([])
-				
-			if len(clusters) > 0:
-				clusters[-1].append((event[0]))
-		
-		if len(clusters) > 0:
-			if len(clusters) > 1:
-				clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), len(clusters[-1])- clusters[len(clusters)-2][1])
-			else:
-				clusters[-1] = (int(clusters[-1][0]), len(clusters[-1]), 0)				
-			average_acc += abs(clusters[-1][2])						
-		
-		average_acc = abs(average_acc) / len(clusters) + 1
-		
-		landmarks = []
-		i = 0
-		for cluster in clusters:
-			if i == 0:
-				landmarks.append(cluster[0])
-			else:
-				if (abs(cluster[2] - last_acc) != average_acc ):
-					landmarks.append(cluster[0]) 
-			last_acc = cluster[2]
-			i += 1
-			
-		t = 0	
-		for event in events:
-			if int(event[0]) in landmarks:
-				t = int(event[0])
-				buckets.append([])
-			if len(buckets) > 0:
-				latest_uris[event[1]] = int(event[0])
-				buckets[-1].append(event[1])
-		return buckets, latest_uris
-		
+	def __add_window(self, _set, assoc, landmarks, windows):
+		if _set & landmarks: # intersection != 0
+			windows.append(_set)
+			for i in _set.difference(landmarks):
+				assoc[i] += 1
+	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state, num_results, result_type):
 		"""
@@ -329,54 +285,84 @@ class ZeitgeistEngine:
 		
 		Only URIs for subjects matching the indicated `result_event_templates`
 		and `result_storage_state` are returned.
-		
-		This currently uses a modified version of the Apriori algorithm, but
-		the implementation may vary.
 		"""
 		
-		events = self._find_events(2, timerange, result_event_templates,
-			result_storage_state, 0, 1)
-		
-		subject_uris = []
-		for event in event_templates:
-			if len(event.subjects) > 0:
-				if  not event.subjects[0].uri in subject_uris:
-					subject_uris.append(event.subjects[0].uri)
-					
-		buckets, latest_uris = self._generate_buckets(events)
-		
-		keys_counter  = {}
-		
-		for bucket in buckets:
-			print "***", bucket
-			counter = 0
-			for event in event_templates:
-				if event.subjects[0].uri in bucket:
-					counter += 1
-					break
-			if counter > 0:
-				for key in bucket:
-					if not key in subject_uris:
-						if not keys_counter.has_key(key):
-							keys_counter[key] = 0
-						keys_counter[key] += 1
-
-		results = []
-		
 		if result_type == 0 or result_type == 1:
-			if result_type == 0:
-				sets = [[v, k] for k, v in keys_counter.iteritems()]
-			elif result_type == 1:
-				new_set = {}
-				for k in keys_counter.iterkeys():
-					new_set[k] = latest_uris[k]
-				sets = [[v, k] for k, v in new_set.iteritems()]
+			
+			t1 = time.time()
+			
+			if len(result_event_templates) == 0:
+				uris = self._find_events(2, timerange, result_event_templates,
+					result_storage_state, 0, ResultType.LeastRecentEvents)
+			else:
+				uris = self._find_events(2, timerange, result_event_templates + event_templates,
+					result_storage_state, 0, ResultType.LeastRecentEvents)
+			
+			assoc = defaultdict(int)
+			
+			landmarks = set([unicode(event.subjects[0].uri) for event in event_templates])
+			
+			latest_uris = dict(uris)
+			events = [unicode(u[0]) for u in uris]
+
+			furis = filter(lambda x: x[0] in landmarks, uris)
+			if len(furis) == 0:
+				return []
+			
+			_min = min(furis, key=operator.itemgetter(1))
+			_max = max(furis, key=operator.itemgetter(1))
+			min_index = uris.index(_min) - WINDOW_SIZE
+			max_index = uris.index(_max) + WINDOW_SIZE
+			_min = _min[1]
+			_max = _max[1]
+			
+			if min_index < 0:
+				min_index = 0
+			if max_index > len(events):
+				max_index = -1
+				
+			func = self.__add_window
+			
+			if len(events) == 0 or len(landmarks) == 0:
+				return []
+			
+			windows = []
 	
-			sets.sort()
-			sets.reverse()
-			return map(lambda result: result[1], sets[:num_results])
+			if len(events) <= WINDOW_SIZE:
+				#TODO bug! windows is not defined, seems the algorithm never touches these loop
+				func(events, assoc, landmarks, windows)
+			else:
+				events = events[min_index:max_index]
+				offset = WINDOW_SIZE/2
+				
+				for i in xrange(offset):
+					func(set(events[0: offset - i]), assoc, landmarks, 
+						windows)
+					func(set(events[len(events) - offset + i: len(events)]),
+						assoc, landmarks, windows)
+					
+				it = iter(events)
+				result = tuple(islice(it, WINDOW_SIZE))
+				for elem in it:
+					result = result[1:] + (elem,)
+					func(set(result), assoc, landmarks, windows)
+					
+				
+			log.debug("FindRelatedUris: Finished sliding windows in %fs." % \
+				(time.time()-t1))
+			
+			if result_type == 0:
+				sets = [[v, k] for k, v in assoc.iteritems()]
+			elif result_type == 1:
+				sets = [[latest_uris[k], k] for k in assoc]
+				
+			sets.sort(reverse = True)
+			sets = map(lambda result: result[1], sets[:num_results])
+			
+			return sets
 		else:
 			raise NotImplementedError, "Unsupported ResultType."
+			
 
 	def insert_events(self, events, sender=None):
 		t = time.time()
@@ -410,17 +396,7 @@ class ZeitgeistEngine:
 		
 		id = self.next_event_id()
 		
-		if event.payload:
-			# TODO: Rigth now payloads are not unique and every event has its
-			# own one. We could optimize this to store those which are repeated
-			# for different events only once, especially considering that
-			# events cannot be modified once they've been inserted.
-			payload_id = self._cursor.execute(
-				"INSERT INTO payload (value) VALUES (?)", event.payload)
-			payload_id = self._cursor.lastrowid
-		else:
-			# Don't use None here, as that'd be inserted literally into the DB
-			payload_id = ""
+		payload_id = self._store_payload (event)
 		
 		# Make sure all URIs are inserted
 		_origin = [subject.origin for subject in event.subjects if subject.origin]
@@ -490,6 +466,24 @@ class ZeitgeistEngine:
 		
 		return id
 	
+	def _store_payload (self, event):
+		# TODO: Rigth now payloads are not unique and every event has its
+		# own one. We could optimize this to store those which are repeated
+		# for different events only once, especially considering that
+		# events cannot be modified once they've been inserted.
+		if event.payload:
+			# TODO: For Python >= 2.6 bytearray() is much more efficient
+			# than this hack...
+			# We need binary encoding that sqlite3 will accept, for
+			# some reason sqlite3 can not use array.array('B', event.payload)
+			payload = sqlite3.Binary("".join(map(str, event.payload)))
+			self._cursor.execute(
+				"INSERT INTO payload (value) VALUES (?)", (payload,))
+			return self._cursor.lastrowid
+		else:
+			# Don't use None here, as that'd be inserted literally into the DB
+			return ""
+
 	def delete_events (self, ids):
 		# Extract min and max timestamps for deleted events
 		self._cursor.execute("""
@@ -498,10 +492,15 @@ class ZeitgeistEngine:
 			WHERE id IN (%s)
 		""" % ",".join(["?"] * len(ids)), ids)
 		timestamps = self._cursor.fetchone()
-		
-		if timestamps:
-			# FIXME: Delete unused interpretation/manifestation/text/etc.
+
+		# Make sure that we actually found some events with these ids...
+		# We can't do all(timestamps) here because the timestamps may be 0
+		if timestamps and timestamps[0] is not None and timestamps[1] is not None:
 			self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
 				% ",".join(["?"] * len(ids)), ids)
-		
-		return timestamps
+			self._cursor.connection.commit()
+			log.debug("Deleted %s" % map(int, ids))
+			return timestamps
+		else:
+			log.debug("Tried to delete non-existing event(s): %s" % map(int, ids))
+			return None

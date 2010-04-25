@@ -1,7 +1,21 @@
+2010-04-22: Zeitgeist 0.3.3.1
+-----------------------------
 
 Engine:
 
- - Fixed an exception in DeleteEvents.
+ - Added a LastSeen property to data-sources.
+ - Fixed a bug in the DataSourceRegistry extension where it failed to handle
+   the disconnection signal from data-sources with several running instances.
+
+Overall:
+
+ - This fixes a bug where zeitgeist-datahub would fail to start.
+
+2010-04-20: Zeitgeist 0.3.3
+---------------------------
+
+Engine:
+
  - Added MostPopularActor, LeastPopularActor, MostRecentActor and
    LeastRecentActor as possible ReturnTypes for FindEvents and
    FindEventsId (LP: #493903).
@@ -9,10 +23,24 @@ Engine:
    executed over D-Bus.
  - Add an extension implementing a data-source registry (allowing to disable
    data-sources from a centralized place and see their description).
- - Changed FindEvents, FindEventIds and FindRelatedUris to not threat zeros in
+ - Overhauled FindRelatedUris for better results and improved performance.
+ - Changed FindEvents, FindEventIds and FindRelatedUris to not treat zeros in
    the given TimeRange specially; "(0, 0)" can no longer be used (LP: #490242).
  - Fixed a crash in the GtkRecentlyUsed data-source parsing malfored .desktop
-   files, and added support for more file mimetypes.
+   files (LP: #526357), and added support for more file mimetypes (LP: #510761).
+ - Fixed a crash in the GtkRecentlyUsed data-source trying to read broken
+   symlinks disguised as .desktop files (LP: #523761).
+ - Fixed a crash in the GtkRecentlyUsed data-source which happened when there
+   was no display friendly version of a URI (LP: #531793).
+ - Renamed --no-passive-loggers option to --no-datahub. Output printed by
+   zeitgeist-datahub is no longer visible in zeitgeist-daemon's output.
+ - Added --log-level option to change the output verbosity.
+ - DeleteEvents now correctly removes any unreferenced values (URIs, actors,
+   etc.) and not only the events themselves (LP: #491646).
+ - Fixed insertion of events with a payload (LP: #557708).
+ - Fixed an exception in DeleteEvents.
+ - Fixed event deletions not always getting committed (LP: #566184).
+ - Ignore deletion requests for non-existant events.
 
 Python API:
  - Made the Interpretation and Manifestation classes iterable.
@@ -23,8 +51,9 @@ Python API:
    access to D-Bus interfaces provided by engine extensions.
 
 Overall:
- - More little fixes (LP: #510761) and cleanup.
+ - More fixes and code enhancements.
  - Manpage updates.
+ - Translation updates.
 
 2010-01-19: Zeitgeist 0.3.2
 ---------------------------

@@ -62,7 +62,9 @@ Release Tasks
      
 5. Change working dir to your new branch
 
-6. Run './autogen.sh && make && make distcheck'
+6. Run './autogen.sh && make && make distcheck'. Unpack the tarball and
+   generate it again with "tar -czvf zeitgeist-$VERSION.tar.gz
+   zeitgeist-$VERSION" (distcheck's are bigger and may be corrupt).
 
 7. GPG sign the generated tarball with the command:
 

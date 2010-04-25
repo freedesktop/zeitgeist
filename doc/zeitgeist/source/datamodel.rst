@@ -33,7 +33,7 @@ TimeRange
     :members: 
 
 ResultType
-+++++++++++
+++++++++++
 
 .. autosymbol:: ResultType
 
@@ -41,6 +41,11 @@ StorageState
 +++++++++++++
 
 .. autosymbol:: StorageState
+
+DataSource
+++++++++++
+
+.. autosymbol:: DataSource
 
 NULL_EVENT
 ++++++++++

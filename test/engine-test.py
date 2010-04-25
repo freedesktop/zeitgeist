@@ -126,6 +126,44 @@ class ZeitgeistEngineTest(_engineTestClass):
 		result = self.engine.get_events([1])
 		self.assertEquals(0, len(filter(None, result)))
 	
+	def testDeleteSingleCascades(self):
+		manif_value = "stfu:EpicFailActivity"
+		
+		def row_count(table, value=None):
+			sql = "SELECT * FROM %s" % table
+			if value:
+				sql += " WHERE value=\"%s\"" % value
+			return len(self.engine._cursor.execute(sql).fetchall())
+		
+		# Ensure DB sanity
+		self.assertEquals(row_count("manifestation", manif_value), 0)
+		
+		# Insert data
+		import_events("test/data/five_events.js", self.engine)
+		self.assertEquals(row_count("manifestation", manif_value), 1)
+		
+		# Delete one event
+		event_template = Event.new_for_values(manifestation=manif_value)
+		result = self.engine.find_eventids(TimeRange.always(),
+			[event_template], StorageState.Any, 0, 1)
+		self.assertEquals(1, len(result))
+		self.engine.delete_events([result[0]])
+		
+		# Ensure it got deleted
+		self.assertEquals(row_count("manifestation", manif_value), 0)
+		
+		# Delete all other events
+		result = self.engine.find_eventids(TimeRange.always(), [],
+			StorageState.Any, 0, 1)
+		self.engine.delete_events(result)
+		
+		# Ensure everything got deleted
+		self.assertEquals(row_count("interpretation"), 0)
+		self.assertEquals(row_count("manifestation"), 0)
+		self.assertEquals(row_count("actor"), 0)
+		self.assertEquals(row_count("uri"), 0)
+		self.assertEquals(row_count("payload"), 0)
+	
 	def testIllegalPredefinedEventId(self):
 		event = Event()
 		event[0][0] = 23 # This is illegal, we assert the erro later
@@ -507,22 +545,29 @@ class ZeitgeistEngineTest(_engineTestClass):
 		result = self.engine.find_related_uris(
 			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
 			StorageState.Any, 2, 0)
-		self.assertEquals(result, ["i3", "i1"])
+		self.assertEquals(result, ["i1", "i3"])
+		
+	def testRelatedForResultTemplateSortRelevancy(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")],
+			[Event.new_for_values(subject_uri = "i1")],
+			StorageState.Any, 2, 0)
+		self.assertEquals(result, ["i1"])
+		
+	def testRelatedForNoneSortRelevancy(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [], [],
+			StorageState.Any, 2, 0)
+		self.assertEquals(result, [])
 	
 	def testRelatedForEventsSortRecency(self):
 		import_events("test/data/apriori_events.js", self.engine)
 		result = self.engine.find_related_uris(
 			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
 			StorageState.Any, 2, 1)
-		self.assertEquals(result, ["i3", "i1"])
-	
-	def testRelatedForMultipleEvents(self):
-		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related_uris(
-			TimeRange.always(), [Event.new_for_values(subject_uri = "i1"),
-				Event.new_for_values(subject_uri = "i4")], [],
-			StorageState.Any, 2, 0),
-		self.assertEquals(result, (["i2", "i3"],))
+		self.assertEquals(result, ["i3", "i1",])
 	
 	def testRelatedForEventsWithManifestation(self):
 		import_events("test/data/apriori_events.js", self.engine)
@@ -531,7 +576,48 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[Event.new_for_values(subject_manifestation="stfu:File")],
 			StorageState.Any,
 			10, 0)
-		self.assertEquals(result, ["i3", "i1", "i5"])
+		self.assertEquals(result, ["i1", "i3", "i5"])
+
+	
+	def testRelatedForMultipleEvents(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i1"),
+				Event.new_for_values(subject_uri = "i4")], [],
+			StorageState.Any, 2, 0),
+		self.assertEquals(result, (["i2", "i3", ],))
+	
+	def testEventWithBinaryPayload(self):
+		ev = Event()
+		subject = Subject()
+		ev.actor = "application:///firefox.desktop"
+		ev.manifestation = Manifestation.USER_ACTIVITY
+		ev.interpretation = Interpretation.VISIT_EVENT
+		subject.uri = "http://www.google.com"
+		subject.interpretation = Interpretation.UNKNOWN
+		subject.manifestation = Manifestation.WEB_HISTORY
+		subject.text = None
+		subject.mimetype = "text/html"
+		subject.origin = None
+		subject.storage = None
+		ev.subjects.append(subject)
+
+		sampleString = """
+		<Content name="Telepathy" class="Text">
+		  <header>johnsmith@foo.bar</header>
+		  <body>
+		    John: Here is a talking point
+		    You: Ok that looks fine
+		  </body>
+		  <launcher command="{application} johnsmith@foo.bar"/>
+		</Content>"""
+		
+		ev.payload = sampleString.encode("UTF-8")
+		ids = self.engine.insert_events([ev])
+		_ev = self.engine.get_events(ids)[0]
+		self.assertEquals(ev.payload, _ev.payload)
+		_ev[0][0] = "" # hack to account for the fact that ev.id is unset
+		self.assertEquals(ev, _ev)
 
 if __name__ == "__main__":
 	unittest.main()

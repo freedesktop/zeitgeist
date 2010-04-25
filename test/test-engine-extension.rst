@@ -61,8 +61,8 @@ These methods are now accessible like
     5
     >>> engine.extensions.add_value(1)
     6
-    >>> engine.extensions.get_engine() # doctest:+ELLIPSIS
-    <_zeitgeist.engine.main.ZeitgeistEngine instance at 0x...>
+    >>> engine.extensions.get_engine() is not None
+    True
 
 However, there is also a private method which is not accessible as a member
 of the engine

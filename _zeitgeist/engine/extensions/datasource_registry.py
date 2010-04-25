@@ -51,7 +51,7 @@ class DataSource(OrigDataSource):
 	
 	def update_from_data_source(self, source):
 		for prop in (self.Name, self.Description, self.EventTemplates,
-			self.Running, self.LastSeen):
+			self.LastSeen, self.Running):
 			self[prop] = source[prop]
 
 class DataSourceRegistry(Extension, dbus.service.Object):
@@ -97,7 +97,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		data = [DataSource.get_plain(datasource) for datasource in self._registry]
 		with open(DATA_FILE, "w") as data_file:
 			pickle.dump(data, data_file)
-		log.debug("Data-source registry updated.")
+		#log.debug("Data-source registry update written to disk.")
 	
 	def _get_data_source(self, unique_id):
 		for datasource in self._registry:
@@ -105,11 +105,15 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 				return datasource
 	
 	def insert_event_hook(self, event, sender):
-		# TODO: Update LastSeen time when a data-source inserts something.
 		for (unique_id, bus_names) in self._running.iteritems():
-			if sender in bus_names and not \
-				self._get_data_source(unique_id)[DataSource.Enabled]:
-				return None
+			if sender in bus_names:
+				datasource = self._get_data_source(unique_id)
+				# Update LastSeen time
+				datasource[DataSource.LastSeen] = get_timestamp_for_now()
+				self._write_to_disk()
+				# Check whether the data-source is allowed to insert events
+				if not [DataSource.Enabled]:
+					return None
 		return event
 	
 	# PUBLIC
@@ -173,10 +177,10 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 						 out_signature="a"+SIG_FULL_DATASOURCE)
 	def GetDataSources(self):
 		"""
-		Get a list of data-sources.
+		Get the list of known data-sources.
 		
 		:returns: A list of
-			:class:`DataSource <zeitgeist.datamodel.DataSource>`s
+			:class:`DataSource <zeitgeist.datamodel.DataSource>` objects.
 		"""
 		return self.get_data_sources()
 
@@ -186,8 +190,12 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		"""
 		Get a list of data-sources.
 		
-		:param unique_id: unique string identifying a data-source
-		
+		:param unique_id: unique string identifying a data-source (it's a good
+			idea to use a domain name / email address / etc. as part of the
+			name, to avoid name clashes).
+		:type unique_id: string
+		:param enabled: whether the data-source is to be enabled or disabled
+		:type enabled: Bool
 		:returns: True on success, False if there is no known data-source
 			matching the given ID.
 		:rtype: Bool
@@ -236,9 +244,10 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		if not uid:
 			return
 		uid = uid[0]
+
+		datasource = self._get_data_source(uid)
 		
 		# Update LastSeen time
-		datasource = self._get_data_source(uid)
 		datasource[DataSource.LastSeen] = get_timestamp_for_now()
 		self._write_to_disk()
 		
@@ -250,4 +259,4 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			datasource[DataSource.Running] = False
 			self.DataSourceDisconnected(datasource)
 		else:
-			del self._running[uid][owner]
+			self._running[uid].remove(owner)

@@ -739,13 +739,17 @@ class DataSource(list):
 	conformant data structure without the need for marshalling back and
 	forth between DBus wire format. These two properties makes it highly
 	efficient and is recommended for use everywhere.
+
+	This is part of the :const:`org.gnome.zeitgeist.DataSourceRegistry`
+	extension.
 	"""
 	Fields = (UniqueId,
 		Name,
 		Description,
 		EventTemplates,
 		Running,
-		LastSeen,
+		LastSeen,	# last time the data-source did something (connected,
+					# inserted events, disconnected).
 		Enabled) = range(7)
 	
 	def __init__(self, unique_id, name, description, templates, running=True,
@@ -761,7 +765,7 @@ class DataSource(list):
 		self.append(name)
 		self.append(description)
 		self.append(templates)
-		self.append(running)
+		self.append(bool(running))
 		self.append(last_seen if last_seen else get_timestamp_for_now())
 		self.append(enabled)
 	

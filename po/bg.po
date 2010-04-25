@@ -1,182 +1,210 @@
-# Hungarian translation for zeitgeist
-# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# Bulgarian translation of zeitgeist po-file.
+# Copyright (C) 2010 Free Software Foundation, Inc.
 # This file is distributed under the same license as the zeitgeist package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+# Alexander Shopov <ash@kambanaria.org>, 2010.
+#
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: zeitgeist\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: zeitgeist trunk\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: 2010-02-15 05:53+0000\n"
-"Last-Translator: Gergely Szarka <szarka.honved@gmail.com>\n"
-"Language-Team: Hungarian <hu@li.org>\n"
+"PO-Revision-Date: 2010-04-23 10:36+0000\n"
+"Last-Translator: Alexander Shopov <ash@kambanaria.org>\n"
+"Language-Team: Bulgarian <dict@fsa-bg.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-04-18 03:51+0000\n"
+"X-Launchpad-Export-Date: 2010-04-24 03:55+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../zeitgeist-daemon:56
 msgid "Starting Zeitgeist service..."
-msgstr "Zeitgeist szolgáltatás indítása..."
+msgstr "Стартира се услугата Zeitgeist…"
 
 #: ../zeitgeist-datahub:61
 msgid "No passive loggers found, bye."
-msgstr "Nem találtunk passzív naplózót, viszlát!"
+msgstr "Не са открити пасивни програми за програмни съобщения. Спиране."
 
 #: ../zeitgeist-datahub:81
 #, c-format
 msgid "Could not load file: %s"
-msgstr "Nem tudom betölteni a fájlt: %s"
+msgstr "Файлът не може да бъде зареден: %s"
 
 #: ../zeitgeist-datahub:106
 #, c-format
 msgid "Updating database with new %s items"
-msgstr "Adatbázis frissítése új %s elemekkel"
+msgstr "Базата от данни се обновява с нови елемента %s"
 
 #: ../zeitgeist-datahub:136
 msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "Elvesztettük a kapcsolatot a zeitgeist-daemonnal, a program kilép."
+msgstr "Връзката към демона на Zeitgeist е изгубена. Програмата спира."
 
 #: ../zeitgeist-datahub:139
 #, c-format
 msgid "Error logging item from \"%s\": %s"
-msgstr "Hiba történt az elem naplózásakor innen: \"%s\": %s"
+msgstr "Грешка при записване на програмно съобщение от „%s“: %s"
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
-msgstr "Címkék"
+msgstr "Етикети"
 
 #: ../zeitgeist/datamodel.py:212
 msgid "Bookmarks"
-msgstr "Könyvjelzők"
+msgstr "Отметки"
 
 #: ../zeitgeist/datamodel.py:218
 msgid "Comments"
-msgstr "Megjegyzések"
+msgstr "Коментари"
 
 #: ../zeitgeist/datamodel.py:224
 msgid "Documents"
-msgstr "Dokumentumok"
+msgstr "Документи"
 
 #: ../zeitgeist/datamodel.py:230
 msgid "Images"
-msgstr "Képek"
+msgstr "Изображения"
 
 #: ../zeitgeist/datamodel.py:236
 msgid "Videos"
-msgstr "Videók"
+msgstr "Видео"
 
 #: ../zeitgeist/datamodel.py:242
 msgid "Music"
-msgstr "Zene"
+msgstr "Музика"
 
 #: ../zeitgeist/datamodel.py:248
 msgid "Email"
-msgstr "E-mail"
+msgstr "Е-писма"
 
 #: ../zeitgeist/datamodel.py:254
 msgid "Messages"
-msgstr "Üzenetek"
+msgstr "Съобщения"
 
 #: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
-msgstr "Hírforrások"
+msgstr "Емисии"
 
 #: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
-msgstr "Broadcast-ek"
+msgstr "Излъчвания"
 
 #: ../zeitgeist/datamodel.py:272
 msgid "Created"
-msgstr "Létrehozva"
+msgstr "Създадено"
 
 #: ../zeitgeist/datamodel.py:278
 msgid "Modified"
-msgstr "Módosítva"
+msgstr "Променено"
 
 #: ../zeitgeist/datamodel.py:284
 msgid "Visited"
-msgstr "Látogatott"
+msgstr "Посетено"
 
 #: ../zeitgeist/datamodel.py:290
 msgid "Send"
-msgstr "Küldés"
+msgstr "Изпратено"
 
 #: ../zeitgeist/datamodel.py:296
 msgid "Received"
-msgstr "Fogadott"
+msgstr "Получено"
 
 #: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
-msgstr "Figyelmeztetések"
+msgstr "Предупреждения"
 
 #: ../zeitgeist/datamodel.py:308
 msgid "Errors"
-msgstr "Hibák"
+msgstr "Грешки"
 
 #: ../zeitgeist/datamodel.py:314
 msgid "Applications"
-msgstr "Alkalmazások"
+msgstr "Програми"
 
 #: ../zeitgeist/datamodel.py:324
 msgid "Web History"
-msgstr "Webes előzmények"
+msgstr "История"
 
 #: ../zeitgeist/datamodel.py:330
 msgid "Activities"
-msgstr "Tevékenységek"
+msgstr "Дейности"
 
 #: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
-msgstr "Értesítések"
+msgstr "Известявания"
 
 #: ../zeitgeist/datamodel.py:342
 msgid "Files"
-msgstr "Fájlok"
+msgstr "Файлове"
 
 #: ../zeitgeist/datamodel.py:348
 msgid "System Resources"
-msgstr "Rendszererőforrások"
+msgstr "Системни ресурси"
 
 #: ../_zeitgeist/loggers/datasources/recent.py:41
 msgid "Could not import GTK; data source disabled."
-msgstr "Nem sikerült importálni a GTK-t; az adat forrás ki lett kapcsolva."
+msgstr "Библиотеката GTK не бе внесена. Източниците на данни са изключени."
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:53
 msgid "Firefox History"
-msgstr "Firefox Előzmények"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:56
 msgid "Websites visited with Firefox"
-msgstr "Firefox-szal látogatott weboldalak"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:84
 #, python-format
 msgid "Unable to monitor Firefox's history: %s: %s"
-msgstr "Nem sikerül figyelni a Firefox előzményeit: %s: %s"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:87
 #, python-format
 msgid "Monitoring Firefox's history: %s"
-msgstr "Firefox előzményeinek figyelése: %s"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/firefox.py:92
 msgid "No Firefox profile found."
-msgstr "Nem találtam Firefox-profilt."
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:56
 #, python-format
 msgid "Unable to monitor Evolution: %s: %s"
-msgstr "Nem sikerül figyelni az Evolution-t: %s: %s"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/evolution.py:59
 #, python-format
 msgid "Monitoring Evolution: %s"
-msgstr "Evolution figyelése: %s"
+msgstr ""
 
 #: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
 msgid "Watching for Tomboy notes in \"%s\"."
-msgstr "Tomboy jegyzetek figyelése itt: \"%s\"."
+msgstr ""
+
+#~ msgid "if another Zeitgeist instance is already running, replace it"
+#~ msgstr "ако е пуснат друг процес Zeitgeist — да се замени"
+
+#~ msgid "do not start zeitgeist-datahub automatically"
+#~ msgstr "zeitgeist-datahub да не се стартира автоматично"
+
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "Файлът „%s“ не е открет. Стартира се datahub"
+
+#~ msgid "Source Code"
+#~ msgstr "Изходен код"
+
+#~ msgid "Opened"
+#~ msgstr "Отворено"
+
+#~ msgid "Saved"
+#~ msgstr "Запазено"
+
+#~ msgid "Closed"
+#~ msgstr "Затворено"
+
+#~ msgid "Focused"
+#~ msgstr "Фокусирано"
+
+#~ msgid "Unknown"
+#~ msgstr "Непознати"

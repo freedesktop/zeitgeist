@@ -2,10 +2,7 @@
 
 import unittest
 import os
-import time
 import sys
-import signal
-from subprocess import Popen, PIPE
 
 # DBus setup
 import gobject
@@ -17,8 +14,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
 from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState)
-import testutils
 
+import testutils
 from testutils import parse_events
 
 class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
@@ -162,6 +159,73 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 		self.assertEquals(2, len(result))
 	
+	def testMonitorDeleteNonExistingEvent(self):
+		result = []
+		mainloop = gobject.MainLoop()
+		events = parse_events("test/data/five_events.js")
+		
+		def timeout():
+			# We want this timeout - we should not get informed
+			# about deletions of non-existing events
+			mainloop.quit()
+			return False
+
+		def notify_insert_handler(time_range, events):
+			event_ids = map(lambda ev : ev.id, events)
+			self.client.delete_events([9999999])
+		
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			self.fail("Notified about deletion of non-existing events %s", events)
+			
+			
+		self.client.install_monitor(TimeRange(125, 145), [],
+			notify_insert_handler, notify_delete_handler)
+		
+		gobject.timeout_add_seconds(5, timeout)
+		self.client.insert_events(events)
+		mainloop.run()
+	
+	def testTwoMonitorsDeleteEvents(self):
+		result1 = []
+		result2 = []
+		mainloop = gobject.MainLoop()
+		events = parse_events("test/data/five_events.js")
+		
+		def timeout ():
+			mainloop.quit()
+			self.fail("Test case timed out")
+			return False
+		
+		def check_ok():
+			if len(result1) == 2 and len(result2) == 2:
+				mainloop.quit()
+
+		def notify_insert_handler1(time_range, events):
+			event_ids = map(lambda ev : ev.id, events)
+			self.client.delete_events(event_ids)
+		
+		def notify_delete_handler1(time_range, event_ids):
+			result1.extend(event_ids)
+			check_ok()
+		
+		def notify_delete_handler2(time_range, event_ids):
+			result2.extend(event_ids)
+			check_ok()
+			
+		self.client.install_monitor(TimeRange(125, 145), [],
+			notify_insert_handler1, notify_delete_handler1)
+		
+		self.client.install_monitor(TimeRange(125, 145), [],
+			lambda x, y: x, notify_delete_handler2)
+		
+		self.client.insert_events(events)
+		gobject.timeout_add_seconds (5, timeout)
+		mainloop.run()
+		
+		self.assertEquals(2, len(result1))
+		self.assertEquals(2, len(result1))
+
 	def testMonitorInstallRemoval(self):
 		result = []
 		mainloop = gobject.MainLoop()
@@ -224,7 +288,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 		def callback(uris):
 			mainloop.quit()
-			self.assertEquals(uris, ["i2", "i1", "i5", "i3"])
+			self.assertEquals(uris, ["i2", "i1", "i3", "i5"])
 		
 		result = self.client.find_related_uris_for_uris(["i4"], callback, num_events=4, result_type=0)
 		mainloop.run()
@@ -241,7 +305,14 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 		result = self.client.find_events_for_values(callback, actor="firefox", num_events=1)
 		mainloop.run()
-		
+
+	def testDataSourcesRegistry(self):
+		""" Ensure that the DataSourceRegistry extension is there. If we'd want
+		    to do any actual value checking we need to change testutils.py to
+		    use a ZEITGEIST_DATA_PATH other than ~/.local/share. """
+		iface = ZeitgeistDBusInterface()
+		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
+		registry.GetDataSources()
 	
 if __name__ == "__main__":
 	unittest.main()

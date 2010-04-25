@@ -18,6 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import weakref # avoid circular references as they confuse garbage collection
+
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.extension")
 
@@ -41,7 +43,7 @@ class Extension(object):
 	PUBLIC_METHODS = None
 	
 	def __init__(self, engine):
-		self.engine = engine
+		self.engine = weakref.proxy(engine)
 	
 	def insert_event_hook(self, event, sender):
 		"""
@@ -205,3 +207,6 @@ class ExtensionsCollection(object):
 		except KeyError:
 			raise AttributeError("%s instance has no attribute %r" % (
 				self.__class__.__name__, name))
+	
+	def __iter__(self):
+		return self.__extensions.itervalues()
