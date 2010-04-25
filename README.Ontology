@@ -21,6 +21,10 @@ Other stuff
     * describe known issues:
       - symbol names might not be unique
       
+    * missing symbols:
+      - Interpretation.UNKNOWN (or is this covered by just 'Interpretation'?)
+      - Manifestation.WEB_HISTORY
+      
     * do we need a script/hook to convert the users db to the new symbols?
       
     * Is our collection of symbols complete, do we miss some, if so, which?

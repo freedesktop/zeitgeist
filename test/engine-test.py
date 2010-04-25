@@ -591,11 +591,11 @@ class ZeitgeistEngineTest(_engineTestClass):
 		ev = Event()
 		subject = Subject()
 		ev.actor = "application:///firefox.desktop"
-		ev.manifestation = Manifestation.USER_ACTIVITY
-		ev.interpretation = Interpretation.VISIT_EVENT
+		ev.manifestation = Manifestation.UserActivity
+		ev.interpretation = Interpretation.AccessEvent
 		subject.uri = "http://www.google.com"
-		subject.interpretation = Interpretation.UNKNOWN
-		subject.manifestation = Manifestation.WEB_HISTORY
+		subject.interpretation = Interpretation #InterPretation.UNKNOWN
+		subject.manifestation = Manifestation #Manifestation.WEB_HISTORY
 		subject.text = None
 		subject.mimetype = "text/html"
 		subject.origin = None
