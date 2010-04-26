@@ -32,7 +32,7 @@ class InterpretationTest (unittest.TestCase):
 	"""
 
 	def testPredefined(self):
-		tag = Interpretation.Audio
+		tag = Interpretation.AUDIO
 		self.assertTrue(tag.name != None)
 		self.assertTrue(tag.uri != None)
 		self.assertTrue(tag.display_name != None)
@@ -45,7 +45,7 @@ class ManifestationTest (unittest.TestCase):
 	"""
 	
 	def testPredefined(self):
-		f = Manifestation.FileDataObject
+		f = Manifestation.FILE_DATA_OBJECT
 		self.assertTrue(f.name != None)
 		self.assertTrue(f.uri != None)
 		self.assertTrue(f.display_name != None)

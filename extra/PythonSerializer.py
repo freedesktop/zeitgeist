@@ -43,6 +43,18 @@ def replace_items(item_set, item_map):
 			# item was in set, replace it with value
 			item_set.add(value)
 
+def case_conv(name):
+	"""
+	Converts CamelCase to CAMEL_CASE
+	"""
+	result = ""
+	for i in range(len(name) - 1) :
+		if name[i].islower() and name[i+1].isupper():
+			result += name[i].upper() + "_"
+		else:
+			result += name[i].upper()
+	result += name[-1].upper()
+	return result
 
 class PythonSerializer(RecursiveSerializer):
 		
@@ -54,7 +66,7 @@ class PythonSerializer(RecursiveSerializer):
 					yield x
 					
 	def _create_symbol(self, stream, symbol, all_symbols):
-		name = str(symbol).split("#")[-1]
+		name = case_conv(str(symbol).split("#")[-1])
 		comments = list(self.store.objects(symbol, RDFS.comment))
 		doc = escape_chars(comments[0] if comments else "")
 		labels = list(self.store.objects(symbol, RDFS.label))

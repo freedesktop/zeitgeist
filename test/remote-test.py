@@ -25,12 +25,12 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	
 	def testInsertAndGetEvent(self):
 		ev = Event.new_for_values(timestamp=123,
-					interpretation=Interpretation.AccessEvent,
-					manifestation=Manifestation.UserActivity,
+					interpretation=Interpretation.ACCESS_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Freak Mamma")
 		subj = Subject.new_for_values(uri="void://foobar",
-					interpretation=Interpretation.Document,
-					manifestation=Manifestation.FileDataObject)
+					interpretation=Interpretation.DOCUMENT,
+					manifestation=Manifestation.FILE_DATA_OBJECT)
 		ev.append_subject(subj)
 		ids = self.insertEventsAndWait([ev])
 		events = self.getEventsAndWait(ids)
@@ -40,36 +40,36 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		ev = events[0]
 		self.assertTrue(isinstance(ev, Event))
 		self.assertEquals("123", ev.timestamp)
-		self.assertEquals(Interpretation.AccessEvent, ev.interpretation)
-		self.assertEquals(Manifestation.UserActivity, ev.manifestation)
+		self.assertEquals(Interpretation.ACCESS_EVENT, ev.interpretation)
+		self.assertEquals(Manifestation.USER_ACTIVITY, ev.manifestation)
 		self.assertEquals("Freak Mamma", ev.actor)
 		self.assertEquals(1, len(ev.subjects))
 		self.assertEquals("void://foobar", ev.subjects[0].uri)
-		self.assertEquals(Interpretation.Document, ev.subjects[0].interpretation)
-		self.assertEquals(Manifestation.FileDataObject, ev.subjects[0].manifestation)
+		self.assertEquals(Interpretation.DOCUMENT, ev.subjects[0].interpretation)
+		self.assertEquals(Manifestation.FILE_DATA_OBJECT, ev.subjects[0].manifestation)
 	
 	def testFindTwoOfThreeEvents(self):
 		ev1 = Event.new_for_values(timestamp=400,
-					interpretation=Interpretation.AccessEvent,
-					manifestation=Manifestation.UserActivity,
+					interpretation=Interpretation.ACCESS_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Boogaloo")	
 		ev2 = Event.new_for_values(timestamp=500,
-					interpretation=Interpretation.AccessEvent,
-					manifestation=Manifestation.UserActivity,
+					interpretation=Interpretation.ACCESS_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Boogaloo")
 		ev3 = Event.new_for_values(timestamp=600,
-					interpretation=Interpretation.SendEvent,
-					manifestation=Manifestation.UserActivity,
+					interpretation=Interpretation.SEND_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Boogaloo")
 		subj1 = Subject.new_for_values(uri="foo://bar",
-					interpretation=Interpretation.Document,
-					manifestation=Manifestation.FileDataObject)
+					interpretation=Interpretation.DOCUMENT,
+					manifestation=Manifestation.FILE_DATA_OBJECT)
 		subj2 = Subject.new_for_values(uri="foo://baz",
-					interpretation=Interpretation.Image,
-					manifestation=Manifestation.FileDataObject)
+					interpretation=Interpretation.IMAGE,
+					manifestation=Manifestation.FILE_DATA_OBJECT)
 		subj3 = Subject.new_for_values(uri="foo://quiz",
-					interpretation=Interpretation.Audio,
-					manifestation=Manifestation.FileDataObject)
+					interpretation=Interpretation.AUDIO,
+					manifestation=Manifestation.FILE_DATA_OBJECT)
 		ev1.append_subject(subj1)
 		ev2.append_subject(subj1)
 		ev2.append_subject(subj2)
@@ -82,7 +82,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(3, len(events))		
 		for event in events:
 			self.assertTrue(isinstance(event, Event))
-			self.assertEquals(Manifestation.UserActivity, event.manifestation)
+			self.assertEquals(Manifestation.USER_ACTIVITY, event.manifestation)
 			self.assertEquals("Boogaloo", event.actor)
 		
 		# Search for everything
@@ -95,7 +95,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		subj_templ2 = Subject.new_for_values(uri="foo://baz")
 		event_template = Event.new_for_values(
 					actor="Boogaloo",
-					interpretation=Interpretation.AccessEvent,
+					interpretation=Interpretation.ACCESS_EVENT,
 					subjects=[subj_templ1,subj_templ2])
 		ids = self.findEventIdsAndWait([event_template],
 						num_events=10)
