@@ -147,20 +147,13 @@ class Symbol(str):
 	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None, auto_resolve=True):
 		self._children = dict()
 		self._all_children = None
-		self._parents = parent or set()
+		self._parents = parent or set() # will be bootstrapped to a dict at module load time
 		assert isinstance(self._parents, set), name
 		self._name = name
 		self._uri = uri
 		self._display_name = display_name
 		self._doc = doc
-		if auto_resolve:
-			for parent in self._parents:
-				if isinstance(parent, (str, unicode)):
-					if parent in _SYMBOLS_BY_URI:
-						parent = _SYMBOLS_BY_URI[parent]
-				parent._children[self.uri] = self
-		else:
-			_SYMBOLS_BY_URI[uri] = self
+		_SYMBOLS_BY_URI[uri] = self
 
 	def __repr__(self):
 		return "<%s '%s'>" %(get_name_or_str(self), self.uri)
@@ -178,20 +171,6 @@ class Symbol(str):
 				except AttributeError:
 					pass
 			raise AttributeError("'%s' object has no attribute '%s'" %(self.__class__.__name__, name))
-		
-	def __getitem__(self, key):
-		if isinstance(key, int):
-			# get char by index
-			return super(Symbol, self).__getitem__(key)
-		elif isinstance(key, (str, unicode)):
-			try:
-				# lookup by name
-				return getattr(self, key)
-			except AttributeError:
-				# lookup by uri
-				return self._children[key]
-		else:
-			raise TypeError("%s must be str, unicode or integer, not %s" %(self.__class__.__name__, type(key)))
 	
 	def _ensure_all_children (self):
 		if self._all_children is not None : return
@@ -255,7 +234,7 @@ class Symbol(str):
 		"""
 		Returns a list of immediate parent symbols
 		"""
-		return frozenset(self._parents)
+		return frozenset(self._parents.itervalues())
 		
 		
 class TimeRange(list):
@@ -937,15 +916,17 @@ for symbol in _SYMBOLS_BY_URI.itervalues():
 for symbol in _SYMBOLS_BY_URI.itervalues():
 	for child_uri in symbol._children.iterkeys():
 		symbol._children[child_uri] = _SYMBOLS_BY_URI[child_uri]
-	symbol._parents = set(_SYMBOLS_BY_URI[parent_uri] for parent_uri in symbol.get_parents())
-
-
 	
-end_symbols = time.time()
-print "Import time: %s" % (end_symbols - start_symbols)
+	parents = {}
+	for parent_uri in symbol._parents:
+		parents[parent_uri] = _SYMBOLS_BY_URI[parent_uri]
+	symbol._parents = parents
+
 
 if __name__ == "__main__":
 	print "Success"
+	end_symbols = time.time()
+	print >> sys.stderr, "Import time: %s" % (end_symbols - start_symbols)
 	#~ x = len(Interpretation.get_all_children())
 	#~ y = len(Manifestation.get_all_children())
 	#~ print >> sys.stderr, \

@@ -25,23 +25,6 @@ class SymbolTest(unittest.TestCase):
 		foo = Symbol("FOO", parent=set(['Manifestation']), uri=foo_url)
 		self.assertEquals("FOO", foo.name)
 		self.assertEquals(foo_url, foo.uri)
-		
-		
-class SymbolCollectionTest(unittest.TestCase):
-	
-	def testConstruct(self):
-		foo = Symbol("TestRoot")
-		self.assertEquals(len(foo.get_children()), 0)
-		Symbol("TestChild", parent=set([foo,]), uri="http://test", display_name="Small Test", doc="this is a testing Symbol")
-		self.assertEquals(str(foo.TestChild), "http://test")
-		self.assertEquals(foo.TestChild.uri, "http://test")
-		self.assertEquals(foo.TestChild.display_name, "Small Test")
-		self.assertEquals(foo.TestChild.doc, "this is a testing Symbol")
-		
-		self.assertEquals(len(foo.get_children()), 1)
-		self.assertEquals(foo["http://test"], foo.TestChild)
-		self.assertRaises(AttributeError, getattr, foo, "test2")
-
 
 class InterpretationTest (unittest.TestCase):
 	"""
