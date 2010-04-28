@@ -219,10 +219,8 @@ class Symbol(str):
 		Returns a generator that recursively iterates over all children
 		of this symbol
 		"""
-		yield self
-		for child in self._children.itervalues():
-			for sub_child in child.iter_all_children():
-				yield sub_child
+		self._ensure_all_children()
+		return self._all_children.itervalues()
 		
 	def get_all_children(self):
 		"""
