@@ -300,7 +300,9 @@ class ZeitgeistEngine:
 			
 			assoc = defaultdict(int)
 			
-			landmarks = set([unicode(event.subjects[0].uri) for event in event_templates])
+			landmarks = self._find_events(2, timerange, event_templates,
+					result_storage_state, 0, 4)
+			landmarks = set([unicode(event[0]) for event in landmarks])
 			
 			latest_uris = dict(uris)
 			events = [unicode(u[0]) for u in uris]
