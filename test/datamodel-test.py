@@ -8,6 +8,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.datamodel import *
+from zeitgeist.datamodel import Symbol
 from testutils import parse_events
 
 
@@ -15,41 +16,15 @@ class SymbolTest(unittest.TestCase):
 	
 	def testInterpretationConstructors(self):
 		foo_url = "http://example.com/schema#Foo"
-		foo = Symbol(INTERPRETATION_ID, "FOO", uri=foo_url)
+		foo = Symbol("FOO", parent=set(['Interpretation']), uri=foo_url)
 		self.assertEquals("FOO", foo.name)
 		self.assertEquals(foo_url, foo.uri)
 
 	def testManifestationConstructors(self):
 		foo_url = "http://example.com/schema#Foo"
-		foo = Symbol(MANIFESTATION_ID, "FOO", uri=foo_url)
+		foo = Symbol("FOO", parent=set(['Manifestation']), uri=foo_url)
 		self.assertEquals("FOO", foo.name)
 		self.assertEquals(foo_url, foo.uri)
-		
-		
-class SymbolCollectionTest(unittest.TestCase):
-	
-	def testConstruct(self):
-		foo = SymbolCollection("test")
-		self.assertEquals(len(foo), 0)
-		self.assertRaises(ValueError, foo.register, "test", None, None, None)
-		foo.register("TEST", "http://test", "Small Test", "this is a testing Symbol")
-		self.assertEquals(foo.TEST, "http://test")
-		self.assertEquals(foo.TEST.uri, "http://test")
-		self.assertEquals(foo.TEST.display_name, "Small Test")
-		self.assertEquals(foo.TEST.doc, "this is a testing Symbol")
-		
-		self.assertEquals(len(foo), 1)
-		self.assertEquals(foo["http://test"], foo.TEST)
-		self.assertRaises(
-			ValueError, foo.register, "TEST", "http://test1", "Small Test", "this is a testing Symbol"
-		)
-		self.assertRaises(AttributeError, getattr, foo, "test2")
-		
-		self.assertEquals(foo.TEST2, "TEST2")
-		self.assertEquals(foo.TEST2.uri, "TEST2")
-		self.assertEquals(foo.TEST2.display_name, "")
-		self.assertEquals(foo.TEST2.doc, "")
-
 
 class InterpretationTest (unittest.TestCase):
 	"""
@@ -57,7 +32,7 @@ class InterpretationTest (unittest.TestCase):
 	"""
 
 	def testPredefined(self):
-		tag = Interpretation.TAG
+		tag = Interpretation.AUDIO
 		self.assertTrue(tag.name != None)
 		self.assertTrue(tag.uri != None)
 		self.assertTrue(tag.display_name != None)
@@ -70,7 +45,7 @@ class ManifestationTest (unittest.TestCase):
 	"""
 	
 	def testPredefined(self):
-		f = Manifestation.FILE
+		f = Manifestation.FILE_DATA_OBJECT
 		self.assertTrue(f.name != None)
 		self.assertTrue(f.uri != None)
 		self.assertTrue(f.display_name != None)

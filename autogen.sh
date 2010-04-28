@@ -17,6 +17,11 @@ which gnome-autogen.sh || {
 	exit 1
 }
 
+which rapper || {
+	echo "You need to install raptor-utils"
+	exit 1
+}
+
 export PKG_NAME
 REQUIRED_AUTOCONF_VERSION=2.57 \
 REQUIRED_AUTOMAKE_VERSION=1.9 \

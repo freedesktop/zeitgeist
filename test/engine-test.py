@@ -174,7 +174,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		
 		subject = Subject()
 		subject.uri = "file:///tmp/file.txt"
-		subject.manifestation = Manifestation.FILE
+		subject.manifestation = Manifestation.FILE_DATA_OBJECT
 		subject.interpretation = Interpretation.DOCUMENT
 		subject.origin = "test://"
 		subject.mimetype = "text/plain"
@@ -235,7 +235,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.testSingleInsertGet()
 		result = self.engine.find_eventids(
 			TimeRange.always(),
-			[Event.new_for_values(interpretation=Interpretation.CLOSE_EVENT)],
+			[Event.new_for_values(interpretation=Interpretation.LEAVE_EVENT)],
 			StorageState.Any, 0, 0)
 		self.assertEquals(0, len(result))
 
@@ -414,14 +414,14 @@ class ZeitgeistEngineTest(_engineTestClass):
 	def testInsertSubjectOptionalAttributes(self):
 		ev = Event.new_for_values(
 			timestamp=123,
-			interpretation=Interpretation.VISIT_EVENT.uri,
-			manifestation=Manifestation.USER_ACTIVITY.uri,
+			interpretation=Interpretation.ACCESS_EVENT,
+			manifestation=Manifestation.USER_ACTIVITY,
 			actor="Freak Mamma"
 		)
 		subj = Subject.new_for_values(
 			uri="void://foobar",
-			interpretation=Interpretation.DOCUMENT.uri,
-			manifestation=Manifestation.FILE.uri,
+			interpretation=Interpretation.DOCUMENT,
+			manifestation=Manifestation.FILE_DATA_OBJECT,
 			)
 		ev.append_subject(subj)
 		
@@ -431,8 +431,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 	
 	def testEventWithoutSubject(self):
 		ev = Event.new_for_values(timestamp=123,
-					interpretation=Interpretation.VISIT_EVENT.uri,
-					manifestation=Manifestation.USER_ACTIVITY.uri,
+					interpretation=Interpretation.ACCESS_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Freak Mamma")
 		ids = self.engine.insert_events([ev,])
 		self.assertEquals(len(ids), 1)
@@ -602,10 +602,10 @@ class ZeitgeistEngineTest(_engineTestClass):
 		subject = Subject()
 		ev.actor = "application:///firefox.desktop"
 		ev.manifestation = Manifestation.USER_ACTIVITY
-		ev.interpretation = Interpretation.VISIT_EVENT
+		ev.interpretation = Interpretation.ACCESS_EVENT
 		subject.uri = "http://www.google.com"
-		subject.interpretation = Interpretation.UNKNOWN
-		subject.manifestation = Manifestation.WEB_HISTORY
+		subject.interpretation = Interpretation #InterPretation.UNKNOWN
+		subject.manifestation = Manifestation #Manifestation.WEB_HISTORY
 		subject.text = None
 		subject.mimetype = "text/html"
 		subject.origin = None

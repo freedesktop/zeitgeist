@@ -17,6 +17,7 @@ AC_CONFIG_FILES([
 	Makefile
 	doc/Makefile
 	extra/Makefile
+	extra/ontology/Makefile
 	po/Makefile.in
 	zeitgeist/Makefile
 	_zeitgeist/Makefile

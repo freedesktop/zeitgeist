@@ -20,342 +20,223 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This module provides the abstract datamodel used by the Zeitgeist framework.
-In addition to providing useful constructs for dealing with the Zeitgeist data
-it also defines symbolic values for the common item types. Using symbolic values
-instead of URI strings will help detect programmer typos.
-"""
-
-import time
+import os.path
 import gettext
+import time
+import sys
 gettext.install("zeitgeist", unicode=1)
 
+__all__ = [
+	'Interpretation',
+	'Manifestation',
+	'ResultType',
+	'StorageState',
+	'TimeRange',
+	'DataSource',
+	'Event',
+	'Subject',
+	'NULL_EVENT',
+]
+
+# next() function is python >= 2.6
+try:
+	next = next
+except NameError:
+	# workaround this for older python versions
+	_default_next = object()
+	def next(iterator, default=_default_next):
+		try:
+			return iterator.next()
+		except StopIteration:
+			if default is not _default_next:
+				return default
+			raise
+
+runpath = os.path.dirname(__file__)
+
+NEEDS_CHILD_RESOLUTION = set()
+
+if not os.path.isfile(os.path.join(runpath, '_config.py.in')):
+	# we are in a global installation
+	# this means we have already parsed zeo.trig into a python file
+	# all we need is to load this python file now
+	IS_LOCAL = False
+else:
+	# we are using zeitgeist `from the branch` in development mode
+	# in this mode we would like to use the recent version of our
+	# ontology. This is why we parse the ontology to a temporary file
+	# and load it from there
+	IS_LOCAL = True
+	
 def get_timestamp_for_now():
 	"""
 	Return the current time in milliseconds since the Unix Epoch.
 	"""
 	return int(time.time() * 1000)
+		
+
+class enum_factory(object):
+	"""factory for enums"""
+	counter = 0
+	
+	def __init__(self, doc):
+		self.__doc__ = doc
+		self._id = enum_factory.counter
+		enum_factory.counter += 1
+		
+		
+class EnumMeta(type):
+	"""Metaclass to register enums in correct order and assign interger
+	values to them
+	"""
+	def __new__(cls, name, bases, attributes):
+		enums = filter(
+			lambda x: isinstance(x[1], enum_factory), attributes.iteritems()
+		)
+		enums = sorted(enums, key=lambda x: x[1]._id)
+		for n, (key, value) in enumerate(enums):
+			attributes[key] = EnumValue(n, value.__doc__)
+		return super(EnumMeta, cls).__new__(cls, name, bases, attributes)
+
+
+class EnumValue(int):
+	"""class which behaves like an int, but has an additional docstring"""
+	def __new__(cls, value, doc=""):
+		obj = super(EnumValue, cls).__new__(EnumValue, value)
+		obj.__doc__ = "%s. ``(Integer value: %i)``" %(doc, obj)
+		return obj
+
+
+class Enum(object):
+
+	def __init__(self, docstring):
+		self.__doc__ = str(docstring)
+		self.__enums = {}
+
+	def __getattr__(self, name):
+		try:
+			return self.__enums[name]
+		except KeyError:
+			raise AttributeError
+
+	def register(self, value, name, docstring):
+		ids = map(int, self.__enums.values())
+		if value in ids or name in self.__enums:
+			raise ValueError
+		self.__enums[name] = EnumValue(value, docstring)
+		
+		
+def isCamelCase(text):
+	return text and text[0].isupper() and " " not in text
+	
+def get_name_or_str(obj):
+	try:
+		return str(obj.name)
+	except AttributeError:
+		return str(obj)
+
+_SYMBOLS_BY_URI = {}
 
 class Symbol(str):
-	
-	"""Immutable string-like object representing a Symbol
-	Zeitgeist uses Symbols when defining Manifestations and 
-	Interpretations.
-	"""
-	
-	def __new__(cls, symbol_type, name, uri=None, display_name=None, doc=None):
-		obj = super(Symbol, cls).__new__(Symbol, uri or name)
-		obj.__type = symbol_type
-		obj.__name = name
-		obj.__uri = uri
-		obj.__display_name = display_name
-		obj.__doc = doc
-		return obj
-	
+
+	def __new__(cls, name, parent=None, uri=None, display_name=None, doc=None, auto_resolve=True):
+		if not isCamelCase(name):
+			raise ValueError("Naming convention requires symbol name to be CamelCase, got '%s'" %name)
+		return super(Symbol, cls).__new__(Symbol, uri or name)
+		
+	def __init__(self, name, parent=None, uri=None, display_name=None, doc=None, auto_resolve=True):
+		self._children = dict()
+		self._all_children = None
+		self._parents = parent or set() # will be bootstrapped to a dict at module load time
+		assert isinstance(self._parents, set), name
+		self._name = name
+		self._uri = uri
+		self._display_name = display_name
+		self._doc = doc
+		_SYMBOLS_BY_URI[uri] = self
+
 	def __repr__(self):
-		return "<%s %r>" %(self.__type, self.uri)
+		return "<%s '%s'>" %(get_name_or_str(self), self.uri)
+		
+	def __getattr__(self, name):
+		self._ensure_all_children()
+		try:
+			return self._all_children[name]
+		except KeyError:
+			for child in self.iter_all_children():
+				if child == self:
+					continue
+				try:
+					return getattr(child, name)
+				except AttributeError:
+					pass
+			raise AttributeError("'%s' object has no attribute '%s'" %(self.__class__.__name__, name))
 	
+	def _ensure_all_children (self):
+		if self._all_children is not None : return
+		self._all_children = dict()
+		for child in self._children.itervalues():
+			child._visit(self._all_children)
+	
+	def _visit (self, dikt):
+		dikt[self.name] = self
+		for child in self._children.itervalues():
+			child._visit(dikt) 
+
 	@property
 	def uri(self):
-		return self.__uri or self.name
-	
+		return self._uri or self.name
+
 	@property
 	def display_name(self):
-		return self.__display_name or ""
-	
+		return self._display_name or ""
+
 	@property
 	def name(self):
-		return self.__name
+		return self._name
+	__name__ = name
 	
+	def __dir__(self):
+		self._ensure_all_children()
+		return self._all_children.keys()
+
 	@property
 	def doc(self):
-		return self.__doc or ""
-		
+		return self._doc or ""
+
 	@property
 	def __doc__(self):
 		return "%s\n\n	%s. ``(Display name: '%s')``" %(self.uri, self.doc.rstrip("."), self.display_name)
-
-
-class SymbolCollection(object):
-	
-	def __init__(self, name, doc=""):
-		self.__name__ = name
-		self.__doc__ = str(doc)
-		self.__symbols = {}
-	
-	def register(self, name, uri, display_name, doc):
-		if name in self.__symbols:
-			raise ValueError("Cannot register symbol %r, a definition for "
-				"this symbol already exists" % name)
-		if not name.isupper():
-			raise ValueError("Cannot register %r, name must be uppercase" %name)
-		self.__symbols[name] = Symbol(self.__name__, name, uri, display_name, doc)
-	
-	def __len__(self):
-		return len(self.__symbols)
-	
-	def __getattr__(self, name):
-		if not name in self.__symbols:
-			if not name.isupper():
-				# Symbols must be upper-case
-				raise AttributeError("%s has no attribute '%s'" % (
-					self.__name__, name))
-			print "Unrecognized %s: %s" % (self.__name__, name)
-			self.__symbols[name] = Symbol(self.__name__, name)
-		return self.__symbols[name]
-	
-	def __getitem__(self, uri):
-		""" Get a symbol by its URI. """
-		symbol = [s for s in self.__symbols.values() if s.uri == uri]
-		if symbol:
-			return symbol[0]
-		raise KeyError("Could not find symbol for URI: %s" % uri)
-	
-	def __iter__(self):
-		return self.__symbols.itervalues()
-	
-	def __dir__(self):
-		return self.__symbols.keys()
-
-
-INTERPRETATION_ID = "interpretation"
-MANIFESTATION_ID = "manifestation"
-
-INTERPRETATION_DOC = \
-"""In general terms the *interpretation* of an event or subject is an abstract
-description of *"what happened"* or *"what is this"*.
-
-Each interpretation type is uniquely identified by a URI. This class provides
-a list of hard coded URI constants for programming convenience. In addition;
-each interpretation instance in this class has a *display_name* property, which
-is an internationalized string meant for end user display.
-
-The interpretation types listed here are all subclasses of *str* and may be
-used anywhere a string would be used."""
-
-MANIFESTATION_DOC = \
-"""The manifestation type of an event or subject is an abstract classification
-of *"how did this happen"* or *"how does this item exist"*.
-
-Each manifestation type is uniquely identified by a URI. This class provides
-a list of hard coded URI constants for programming convenience. In addition;
-each interpretation instance in this class has a *display_name* property, which
-is an internationalized string meant for end user display.
-
-The manifestation types listed here are all subclasses of *str* and may be
-used anywhere a string would be used."""
-
-
-Interpretation = SymbolCollection(INTERPRETATION_ID, doc=INTERPRETATION_DOC)
-Manifestation = SymbolCollection(MANIFESTATION_ID, doc=MANIFESTATION_DOC)
-
-#
-# Interpretation categories
-#
-Interpretation.register(
-	"TAG",
-	u"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag",
-	display_name=_("Tags"),
-	doc="User provided tags. The same tag may refer multiple items"
-)
-Interpretation.register(
-	"BOOKMARK",
-	u"http://www.semanticdesktop.org/ontologies/nfo/#Bookmark",
-	display_name=_("Bookmarks"),
-	doc="A user defined bookmark. The same bookmark may only refer exectly one item"
-)
-Interpretation.register(
-	"COMMENT",
-	u"http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#comment",
-	display_name=_("Comments"),
-	doc="User provided comment"
-)
-Interpretation.register(
-	"DOCUMENT",
-	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Document",
-	display_name=_("Documents"),
-	doc="A document, presentation, spreadsheet, or other content centric item"
-)
-Interpretation.register(
-	"SOURCECODE",
-	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#ManifestationCode",
-	display_name=_("Source Code"),
-	doc="Code in a compilable or interpreted programming language."
-)
-Interpretation.register(
-	"IMAGE",
-	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Image",
-	display_name=_("Images"),
-	doc="A photography, painting, or other digital image"
-)
-Interpretation.register(
-	"VIDEO",
-	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Video",
-	display_name=_("Videos"),
-	doc="Any form of digital video, streaming and non-streaming alike"
-)
-Interpretation.register(
-	"MUSIC",
-	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Audio",
-	display_name=_("Music"),
-	doc="Digital music or other creative audio work"
-)
-Interpretation.register(
-	"EMAIL",
-	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#Email",
-	display_name=_("Email"),
-	doc="An email is an email is an email"
-)
-Interpretation.register(
-	"IM_MESSAGE",
-	u"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#IMMessage",
-	display_name=_("Messages"),
-	doc="A message received from an instant messaging service"
-)
-Interpretation.register(
-	"FEED_MESSAGE",
-		u"http://www.tracker-project.org/temp/mfo#FeedMessage",
-	display_name=_("Feeds"),
-	doc="Any syndicated item, RSS, Atom, or other"
-)
-Interpretation.register(
-	"BROADCAST_MESSAGE",
-	u"http://zeitgeist-project.com/schema/1.0/core#BroadcastMessage",
-	display_name=_("Broadcasts"), # FIXME: better display name
-	doc="Small broadcasted message, like Twitter/Identica micro blogging (TBD in tracker)"
-)
-Interpretation.register(
-	"CREATE_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#CreateEvent",
-	display_name=_("Created"),
-	doc="Event type triggered when an item is created"
-)
-Interpretation.register(
-	"MODIFY_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#ModifyEvent",
-	display_name=_("Modified"),
-	doc="Event type triggered when an item is modified"
-)
-Interpretation.register(
-	"VISIT_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#VisitEvent",
-	display_name=_("Visited"),
-	doc="Event type triggered when an item is visited or opened"
-)
-Interpretation.register(
-	"OPEN_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#OpenEvent",
-	display_name=_("Opened"),
-	doc="Event type triggered when an item is visited or opened"
-)
-Interpretation.register(
-	"SAVE_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#SaveEvent",
-	display_name=_("Saved"),
-	doc="Event type triggered when an item is saved"
-)
-Interpretation.register(
-	"CLOSE_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#CloseEvent",
-	display_name=_("Closed"),
-	doc="Event type triggered when an item is closed"
-)
-Interpretation.register(
-	"SEND_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#SendEvent",
-	display_name=_("Send"),
-	doc="Event type triggered when the user sends/emails an item or message to a remote host"
-)
-Interpretation.register(
-	"RECEIVE_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#ReceiveEvent",
-	display_name=_("Received"),
-	doc="Event type triggered when the user has received an item from a remote host"
-)
-Interpretation.register(
-	"FOCUS_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#FocusEvent",
-	display_name=_("Focused"),
-	doc="Event type triggered when the user has switched focus to a new item"
-)
-Interpretation.register(
-	"WARN_EVENT",
-	u"http://zeitgeist-project.com/schema/1.0/core#WarnEvent",
-	display_name=_("Warnings"),
-	doc="Event type triggered when the user is warned about something"
-)
-Interpretation.register(
-	"ERROR_EVENT",
-	"http://zeitgeist-project.com/schema/1.0/core#ErrorEvent",
-	display_name=_("Errors"),
-	doc="Event type triggered when the user has encountered an error"
-)
-Interpretation.register(
-	"APPLICATION",
-		u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application",
-	display_name=_("Applications"),
-	doc="An item that is a launchable application. The item's URI must point to the relevant .desktop file"
-)
-Interpretation.register(
-	"UNKNOWN",
-	u"http://zeitgeist-project.com/schema/1.0/core#UnknownInterpretation",
-	display_name=_("Unknown"),
-	doc="An entity with an unknown interpretation"
-)
-
-#
-# Manifestation categories
-#
-Manifestation.register(
-	"WEB_HISTORY",
-		u"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebHistory",
-	display_name=_("Web History"),
-	doc="An item that has been extracted from the user's browsing history"
-)
-Manifestation.register(
-	"USER_ACTIVITY",
-	u"http://zeitgeist-project.com/schema/1.0/core#UserActivity",
-	display_name=_("Activities"),
-	doc="An item that has been created solely on the basis of user actions and is not otherwise stored in some physical location"
-)
-Manifestation.register(
-	"HEURISTIC_ACTIVITY",
-	u"http://zeitgeist-project.com/schema/1.0/core#HeuristicActivity",
-	display_name=_("Activities"),
-	doc="An application has calculated via heuristics that some relationship is very probable."
-)
-Manifestation.register(
-	"SCHEDULED_ACTIVITY",
-	u"http://zeitgeist-project.com/schema/1.0/core#ScheduledActivity",
-	display_name=_("Activities"), # FIXME: Is this a bad name?
-	doc="An event that has been triggered by some long running task activated by the user. Fx. playing a song from a playlist"
-)
-Manifestation.register(
-	"USER_NOTIFICATION",
-	u"http://zeitgeist-project.com/schema/1.0/core#UserNotification",
-	display_name=_("Notifications"),
-	doc="An item that has been send as a notification to the user"
-)
-Manifestation.register(
-	"FILE",
-	u"http://www.semanticdesktop.org/ontologies/nfo/#FileDataObject",
-	display_name=_("Files"),
-	doc="An item stored on the local filesystem"
-)
-Manifestation.register(
-	"SYSTEM_RESOURCE",
-	u"http://freedesktop.org/standards/xesam/1.0/core#SystemRessource",
-	display_name=_("System Resources"),
-	doc="An item available through the host operating system, such as an installed application or manual page (TBD in tracker)"
-)
-Manifestation.register(
-	"UNKNOWN",
-	u"http://zeitgeist-project.com/schema/1.0/core#UnknownManifestation",
-	display_name=_("Unknown"),
-	doc="An entity with an unknown manifestation"
-)
-
+		
+	def get_children(self):
+		"""
+		Returns a list of immediate child symbols
+		"""
+		return frozenset(self._children.itervalues())
+		
+	def iter_all_children(self):
+		"""
+		Returns a generator that recursively iterates over all children
+		of this symbol
+		"""
+		yield self
+		for child in self._children.itervalues():
+			for sub_child in child.iter_all_children():
+				yield sub_child
+		
+	def get_all_children(self):
+		"""
+		Return a read-only set containing all children of this symbol
+		"""
+		return frozenset(self.iter_all_children())
+		
+	def get_parents(self):
+		"""
+		Returns a list of immediate parent symbols
+		"""
+		return frozenset(self._parents.itervalues())
+		
+		
 class TimeRange(list):
 	"""
 	A class that represents a time range with a beginning and an end.
@@ -458,81 +339,6 @@ class TimeRange(list):
 		return result
 		
 		
-class enum_factory(object):
-	"""factory for enums"""
-	counter = 0
-	
-	def __init__(self, doc):
-		self.__doc__ = doc
-		self._id = enum_factory.counter
-		enum_factory.counter += 1
-		
-
-class EnumValue(int):
-	"""class which behaves like an int, but has an additional docstring"""
-	def __new__(cls, value, doc=""):
-		obj = super(EnumValue, cls).__new__(EnumValue, value)
-		obj.__doc__ = "%s. ``(Integer value: %i)``" %(doc, obj)
-		return obj
-		
-		
-class EnumMeta(type):
-	"""Metaclass to register enums in correct order and assign interger
-	values to them
-	"""
-	def __new__(cls, name, bases, attributes):
-		enums = filter(
-			lambda x: isinstance(x[1], enum_factory), attributes.iteritems()
-		)
-		enums = sorted(enums, key=lambda x: x[1]._id)
-		for n, (key, value) in enumerate(enums):
-			attributes[key] = EnumValue(n, value.__doc__)
-		return super(EnumMeta, cls).__new__(cls, name, bases, attributes)
-		
-		
-class StorageState(object):
-	"""
-	Enumeration class defining the possible values for the storage state
-	of an event subject.
-	
-	The StorageState enumeration can be used to control whether or not matched
-	events must have their subjects available to the user. Fx. not including
-	deleted files, files on unplugged USB drives, files available only when
-	a network is available etc.
-	"""
-	__metaclass__ = EnumMeta
-	
-	NotAvailable = enum_factory(("The storage medium of the events "
-		"subjects must not be available to the user"))
-	Available = enum_factory(("The storage medium of all event subjects "
-		"must be immediately available to the user"))
-	Any = enum_factory("The event subjects may or may not be available")
-
-
-class ResultType(object):
-	"""
-	An enumeration class used to define how query results should be returned
-	from the Zeitgeist engine.
-	"""
-	__metaclass__ = EnumMeta
-	
-	MostRecentEvents = enum_factory("All events with the most recent events first")
-	LeastRecentEvents = enum_factory("All events with the oldest ones first")
-	MostRecentSubjects = enum_factory(("One event for each subject only, "
-		"ordered with the most recent events first"))
-	LeastRecentSubjects = enum_factory(("One event for each subject only, "
-		"ordered with oldest events first"))
-	MostPopularSubjects = enum_factory(("One event for each subject only, "
-		"ordered by the popularity of the subject"))
-	LeastPopularSubjects = enum_factory(("One event for each subject only, "
-		"ordered ascendently by popularity"))
-	MostPopularActor = enum_factory(("The last event of each different actor,"
-		"ordered by the popularity of the actor"))
-	LeastPopularActor = enum_factory(("The last event of each different actor,"
-		"ordered ascendently by the popularity of the actor"))
-	MostRecentActor = enum_factory(("The last event of each different actor"))
-	LeastRecentActor = enum_factory(("The first event of each different actor"))
-	
 class RelevantResultType(object):
 	"""
 	An enumeration class used to define how query results should be returned
@@ -542,6 +348,7 @@ class RelevantResultType(object):
 	
 	Recent = enum_factory("All uris with the most recent uri first")
 	Related = enum_factory("All uris with the most related one first")
+	
 	
 class Subject(list):
 	"""
@@ -982,3 +789,181 @@ NULL_EVENT = ([], [], [])
 This `NULL_EVENT` is used by the API to indicate a queried but not
 available (not found or blocked) Event.
 """
+		
+		
+class StorageState(object):
+	"""
+	Enumeration class defining the possible values for the storage state
+	of an event subject.
+	
+	The StorageState enumeration can be used to control whether or not matched
+	events must have their subjects available to the user. Fx. not including
+	deleted files, files on unplugged USB drives, files available only when
+	a network is available etc.
+	"""
+	__metaclass__ = EnumMeta
+	
+	NotAvailable = enum_factory(("The storage medium of the events "
+		"subjects must not be available to the user"))
+	Available = enum_factory(("The storage medium of all event subjects "
+		"must be immediately available to the user"))
+	Any = enum_factory("The event subjects may or may not be available")
+
+
+class ResultType(object):
+	"""
+	An enumeration class used to define how query results should be returned
+	from the Zeitgeist engine.
+	"""
+	__metaclass__ = EnumMeta
+	
+	MostRecentEvents = enum_factory("All events with the most recent events first")
+	LeastRecentEvents = enum_factory("All events with the oldest ones first")
+	MostRecentSubjects = enum_factory(("One event for each subject only, "
+		"ordered with the most recent events first"))
+	LeastRecentSubjects = enum_factory(("One event for each subject only, "
+		"ordered with oldest events first"))
+	MostPopularSubjects = enum_factory(("One event for each subject only, "
+		"ordered by the popularity of the subject"))
+	LeastPopularSubjects = enum_factory(("One event for each subject only, "
+		"ordered ascendently by popularity"))
+	MostPopularActor = enum_factory(("The last event of each different actor,"
+		"ordered by the popularity of the actor"))
+	LeastPopularActor = enum_factory(("The last event of each different actor,"
+		"ordered ascendently by the popularity of the actor"))
+	MostRecentActor = enum_factory(("The last event of each different actor"))
+	LeastRecentActor = enum_factory(("The first event of each different actor"))
+
+
+INTERPRETATION_DOC = \
+"""In general terms the *interpretation* of an event or subject is an abstract
+description of *"what happened"* or *"what is this"*.
+
+Each interpretation type is uniquely identified by a URI. This class provides
+a list of hard coded URI constants for programming convenience. In addition;
+each interpretation instance in this class has a *display_name* property, which
+is an internationalized string meant for end user display.
+
+The interpretation types listed here are all subclasses of *str* and may be
+used anywhere a string would be used.
+
+Interpretations form a hierarchical type tree. So that fx. Audio, Video, and
+Image all are sub types of Media. These types again have their own sub types,
+like fx. Image has children Icon, Photo, and VectorImage (among others).
+
+Templates match on all sub types, so that a query on subjects with
+interpretation Media also match subjects with interpretations
+Audio, Photo, and all other sub types of Media.
+"""
+
+MANIFESTATION_DOC = \
+"""The manifestation type of an event or subject is an abstract classification
+of *"how did this happen"* or *"how does this item exist"*.
+
+Each manifestation type is uniquely identified by a URI. This class provides
+a list of hard coded URI constants for programming convenience. In addition;
+each interpretation instance in this class has a *display_name* property, which
+is an internationalized string meant for end user display.
+
+The manifestation types listed here are all subclasses of *str* and may be
+used anywhere a string would be used.
+
+Manifestations form a hierarchical type tree. So that fx. ArchiveItem,
+Attachment, and RemoteDataObject all are sub types of FileDataObject.
+These types can again have their own sub types.
+
+Templates match on all sub types, so that a query on subjects with manifestation
+FileDataObject also match subjects of types Attachment or ArchiveItem and all
+other sub types of FileDataObject
+"""
+
+start_symbols = time.time()
+
+Interpretation = Symbol("Interpretation", doc=INTERPRETATION_DOC)
+Manifestation = Symbol("Manifestation", doc=MANIFESTATION_DOC)
+_SYMBOLS_BY_URI["Interpretation"] = Interpretation
+_SYMBOLS_BY_URI["Manifestation"] = Manifestation
+
+if IS_LOCAL:
+	try:
+		execfile(os.path.join(runpath, "../extra/ontology/zeitgeist.py"))
+	except IOError:
+		raise ImportError("Unable to load zeitgeist ontology, "
+		                  "please run `make` and try again.")
+else:
+	from zeitgeist import _config
+	execfile(os.path.join(_config.datadir, "zeitgeist/ontology/zeitgeist.py"))
+
+#
+# Bootstrap the symbol relations. We use a 2-pass strategy:
+#
+# 1) Make sure that all parents and children are registered on each symbol
+for symbol in _SYMBOLS_BY_URI.itervalues():
+	for parent in symbol._parents:
+		try:
+			_SYMBOLS_BY_URI[parent]._children[symbol.uri] = None
+		except KeyError, e:
+			print "ERROR", e, parent, symbol.uri
+			pass
+	for child in symbol._children:
+		try:
+			_SYMBOLS_BY_URI[child]._parents.add(symbol.uri)
+		except KeyError:
+			print "ERROR", e, child, symbol.uri
+			pass
+
+# 2) Resolve all child and parent URIs to their actual Symbol instances
+for symbol in _SYMBOLS_BY_URI.itervalues():
+	for child_uri in symbol._children.iterkeys():
+		symbol._children[child_uri] = _SYMBOLS_BY_URI[child_uri]
+	
+	parents = {}
+	for parent_uri in symbol._parents:
+		parents[parent_uri] = _SYMBOLS_BY_URI[parent_uri]
+	symbol._parents = parents
+
+
+if __name__ == "__main__":
+	print "Success"
+	end_symbols = time.time()
+	print >> sys.stderr, "Import time: %s" % (end_symbols - start_symbols)
+	#~ x = len(Interpretation.get_all_children())
+	#~ y = len(Manifestation.get_all_children())
+	#~ print >> sys.stderr, \
+		#~ ("Overall number of symbols: %i (man.: %i, int.: %i)" %(x+y, y, x))
+	#~ print >> sys.stderr, ("Resolved %i symbols, needed %i iterations" %(initial_count, initial_count-c))
+	#~ print >> sys.stderr, ("Loading symbols took %.4f seconds" %(end_symbols - start_symbols))
+	#~ #
+	#~ # shortcuts
+	#~ EventManifestation = Manifestation.EventManifestation
+	#~ EventInterpretation = Interpretation.EventInterpretation
+	#~ 
+	#~ DataContainer = Interpretation.DataContainer
+	#~ 
+	#~ # testing
+	#~ print dir(EventManifestation)
+	#~ print dir(Manifestation)
+	#~ print EventManifestation.UserActivity
+	#~ 
+	#~ print DataContainer
+	#~ print DataContainer.Filesystem
+	#~ print DataContainer.Filesystem.__doc__
+	#~ 
+	#~ print " OR ".join(DataContainer.get_all_children())
+	#~ print " OR ".join(DataContainer.Filesystem.get_all_children())
+	#~ 
+	#~ print DataContainer.Boo
+	#~ 
+	#~ #Symbol("BOO", DataContainer) #must fail with ValueError
+	#~ #Symbol("Boo", DataContainer) #must fail with ValueError
+	#~ Symbol("Foo", set([DataContainer,]))
+	#~ print DataContainer.Foo
+	#~ 
+	#~ #DataContainer._add_child("booo") #must fail with TypeError
+	#~ 
+	#~ print Interpretation
+	#~ #print Interpretation.get_all_children()
+	#~ import pprint
+	#~ pprint.pprint(Interpretation.Software.get_all_children())
+	#~ 
+	#~ print Interpretation["http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#MindMap"]
