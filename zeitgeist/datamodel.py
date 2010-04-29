@@ -172,6 +172,9 @@ class Symbol(str):
 					pass
 			raise AttributeError("'%s' object has no attribute '%s'" %(self.__class__.__name__, name))
 	
+	def __getitem__ (self, uri):
+		return _SYMBOLS_BY_URI[uri]
+
 	def _ensure_all_children (self):
 		if self._all_children is not None : return
 		self._all_children = dict()

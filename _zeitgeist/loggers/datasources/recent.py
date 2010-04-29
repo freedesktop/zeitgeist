@@ -204,11 +204,11 @@ class RecentlyUsedManagerGtk(DataProvider):
 	FILTERS = {
 		# dict of name as key and the matching mimetypes as value
 		# if the value is None this filter matches all mimetypes
-		u"Document": MimeTypeSet(*DOCUMENT_MIMETYPES),
-		u"Image": MimeTypeSet(*IMAGE_MIMETYPES),
-		u"Music": MimeTypeSet(*AUDIO_MIMETYPES),
-		u"Video": MimeTypeSet(*VIDEO_MIMETYPES),
-		u"SourceCode": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
+		"DOCUMENT": MimeTypeSet(*DOCUMENT_MIMETYPES),
+		"IMAGE": MimeTypeSet(*IMAGE_MIMETYPES),
+		"MUSIC": MimeTypeSet(*AUDIO_MIMETYPES),
+		"Video": MimeTypeSet(*VIDEO_MIMETYPES),
+		"SOURCE_CODE": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
 	}
 	
 	def __init__(self, client):
@@ -218,7 +218,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 			description="Logs events from GtkRecentlyUsed",
 			event_templates=[Event.new_for_values(interpretation=i) for i in (
 				Interpretation.CREATE_EVENT,
-				Interpretation.VISIT_EVENT,
+				Interpretation.ACCESS_EVENT,
 				Interpretation.MODIFY_EVENT
 			)],
 			client=client)
@@ -276,8 +276,8 @@ class RecentlyUsedManagerGtk(DataProvider):
 				matching_filter = filter_name
 				break
 		if matching_filter:
-			return getattr(Interpretation, matching_filter.upper()).uri
-		return Interpretation.UNKNOWN.uri
+			return getattr(Interpretation, matching_filter).uri
+		return ""
 	
 	def _get_items(self):
 		# We save the start timestamp to avoid race conditions
@@ -299,7 +299,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					uri = unicode(uri),
 					interpretation = self._get_interpretation_for_mimetype(
 						unicode(info.get_mime_type())),
-					manifestation = Manifestation.FILE.uri,
+					manifestation = Manifestation.FILE_DATA_OBJECT.uri,
 					text = info.get_display_name(),
 					mimetype = unicode(info.get_mime_type()),
 					origin = uri.rpartition("/")[0]
@@ -308,7 +308,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 				times = set()
 				for meth, interp in (
 					(info.get_added, Interpretation.CREATE_EVENT.uri),
-					(info.get_visited, Interpretation.VISIT_EVENT.uri),
+					(info.get_visited, Interpretation.ACCESS_EVENT.uri),
 					(info.get_modified, Interpretation.MODIFY_EVENT.uri)
 					):
 					if actor not in self._ignore_apps or \
