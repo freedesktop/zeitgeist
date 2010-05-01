@@ -492,7 +492,7 @@ class ZeitgeistEngine:
 			SELECT MIN(timestamp), MAX(timestamp)
 			FROM event
 			WHERE id IN (%s)
-		""" % ",".join(["?"] * len(ids)), ids)
+		""" % ",".join(str(int(_id)) for _id in ids))
 		timestamps = self._cursor.fetchone()
 
 		# Make sure that we actually found some events with these ids...
