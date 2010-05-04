@@ -236,7 +236,51 @@ class Symbol(str):
 		Returns a list of immediate parent symbols
 		"""
 		return frozenset(self._parents.itervalues())
+	
+	def is_a (self, parent):
+		"""
+		Returns True if this symbol is a child of `parent`.
+		"""
+		if not isinstance (parent, Symbol):
+			try:
+				parent = _SYMBOLS_BY_URI[parent]
+			except KeyError, e:
+				# Parent is not a known URI
+				print 11111111111, self.uri, parent
+				return self.uri == parent
 		
+		# Invariant: parent is a Symbol
+		if self.uri == parent.uri : return True
+		
+		parent._ensure_all_children()
+		
+		# FIXME: We should really check that child.uri is in there,
+		#        but that is not fast with the current code layout
+		return self.name in parent._all_children
+	
+	@staticmethod
+	def uri_is_a (child, parent):
+		"""
+		Returns True if `child` is a child of `parent`. Both `child`
+		and `parent` arguments must be any combination of
+		:class:`Symbol` and/or string.
+		"""
+		if isinstance (child, basestring):
+			try:
+				child = _SYMBOLS_BY_URI[child]
+			except KeyError, e:
+				# Child is not a know URI
+				if isinstance (parent, basestring):
+					return child == parent
+				elif isinstance (parent, Symbol):
+					return child == parent.uri
+				else:
+					return False
+		
+		if not isinstance (child, Symbol):
+			raise ValueError("Child argument must be a Symbol or string. Got %s" % type(child))
+		
+		return child.is_a(parent)
 		
 class TimeRange(list):
 	"""
@@ -463,11 +507,13 @@ class Subject(list):
 		"""
 		Return True if this Subject matches *subject_template*. Empty
 		fields in the template are treated as wildcards.
+		Interpretations and manifestations are also matched if they are
+		children of the types specified in `subject_template`. 
 		
 		See also :meth:`Event.matches_template`
 		"""
 		for m in Subject.Fields:
-			if subject_template[m] and subject_template[m] != self[m] :
+			if subject_template[m] and not Symbol.uri_is_a (self[m], subject_template[m]):
 				return False
 		return True
 
@@ -693,7 +739,9 @@ class Event(list):
 		"""
 		Return True if this event matches *event_template*. The
 		matching is done where unset fields in the template is
-		interpreted as wild cards. If the template has more than one
+		interpreted as wild cards. Interpretations and manifestations
+		are also matched if they are children of the types specified
+		in `event_template`. If the template has more than one
 		subject, this event matches if at least one of the subjects
 		on this event matches any single one of the subjects on the
 		template.
@@ -707,7 +755,7 @@ class Event(list):
 		tdata = event_template[0]
 		for m in Event.Fields:
 			if m == Event.Timestamp : continue
-			if tdata[m] and tdata[m] != data[m] : return False
+			if tdata[m] and not Symbol.uri_is_a (data[m], tdata[m]) : return False
 		
 		# If template has no subjects we have a match
 		if len(event_template[1]) == 0 : return True
