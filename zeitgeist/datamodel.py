@@ -185,6 +185,22 @@ class Symbol(str):
 		dikt[self.name] = self
 		for child in self._children.itervalues():
 			child._visit(dikt) 
+	
+	@staticmethod
+	def find_child_uris_extended (uri):
+		"""
+		Creates a list of all known child URIs of `uri`, including
+		`uri` itself in the list. Hence the "extended". If `uri`
+		is unknown a list containing only `uri` is returned.
+		"""
+		try:
+			symbol = _SYMBOLS_BY_URI[uri]
+			children = [child.uri for child in symbol.get_all_children()]
+			children.append(uri)
+			return children
+		except KeyError, e:
+			return [uri]
+		
 
 	@property
 	def uri(self):

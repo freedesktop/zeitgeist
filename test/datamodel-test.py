@@ -83,6 +83,15 @@ class RelationshipTest (unittest.TestCase):
 		Assert that a symbol is a child of itself
 		"""
 		self.assertTrue(Manifestation.USER_ACTIVITY.is_a(Manifestation.USER_ACTIVITY))
+	
+	def testFindExtendedChildren (self):
+		self.assertEquals(["foo://bar"], Symbol.find_child_uris_extended("foo://bar"))
+		self.assertEquals(["http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Icon",
+		                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#VectorImage",
+		                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Cursor",
+		                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RasterImage",
+		                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Image"],
+		                  Symbol.find_child_uris_extended("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Image"))
 
 class EventTest (unittest.TestCase):
 	def setUp(self):
