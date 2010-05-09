@@ -202,8 +202,12 @@ class ZeitgeistEngine:
 				# FIXME: Expand mime children as well.
 				# Right now we only do exact matching for mimetypes
 				if subject_template.mimetype:
-					subwhere.add("subj_mimetype = ?" % subject_tempalte.mimetype)
-					
+					subwhere.add("subj_mimetype = ?",
+					             self._mimetype.id(subject_tempalte.mimetype))
+				
+				if event_template.actor:
+					subwhere.add("actor = ?",
+					             self._actor.id(event_template.actor))
 			except KeyError:
 				# Value not in DB
 				where_or.register_no_result()
