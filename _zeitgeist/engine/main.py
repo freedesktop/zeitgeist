@@ -32,7 +32,7 @@ from itertools import islice
 from collections import defaultdict
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
-	ResultType, get_timestamp_for_now, Interpretation
+	ResultType, get_timestamp_for_now, Interpretation, Symbol
 from _zeitgeist.engine.datamodel import Event, Subject	
 from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
@@ -163,16 +163,47 @@ class ZeitgeistEngine:
 		for (event_template, subject_template) in self._build_templates(templates):
 			subwhere = WhereClause(WhereClause.AND)
 			try:
-				for key in ("interpretation", "manifestation", "actor"):
-					value = getattr(event_template, key)
-					if value:
-						subwhere.add("%s = ?" % key,
-							getattr(self, "_" + key).id(value))
-				for key in ("interpretation", "manifestation", "mimetype"):
-					value = getattr(subject_template, key)
-					if value:
-						subwhere.add("subj_%s = ?" % key,
-							getattr(self, "_" + key).id(value))
+				# Expand event interpretation children
+				event_interp_where = WhereClause(WhereClause.OR)
+				for child_interp in (Symbol.find_child_uris_extended(event_template.interpretation)):
+					if child_interp:
+						event_interp_where.add("interpretation = ?",
+						                       self._interpretation.id(child_interp))
+				if event_interp_where:
+					subwhere.extend(event_interp_where)
+				
+				# Expand event manifestation children
+				event_manif_where = WhereClause(WhereClause.OR)
+				for child_manif in (Symbol.find_child_uris_extended(event_template.manifestation)):
+					if child_manif:
+						event_manif_where.add("manifestation = ?",
+						                      self._manifestation.id(child_manif))
+				if event_manif_where:
+					subwhere.extend(event_manif_where)
+				
+				# Expand subject interpretation children
+				su_interp_where = WhereClause(WhereClause.OR)
+				for child_interp in (Symbol.find_child_uris_extended(subject_template.interpretation)):
+					if child_interp:
+						su_interp_where.add("subj_interpretation = ?",
+						                    self._interpretation.id(child_interp))
+				if su_interp_where:
+					subwhere.extend(su_interp_where)
+				
+				# Expand subject manifestation children
+				su_manif_where = WhereClause(WhereClause.OR)
+				for child_manif in (Symbol.find_child_uris_extended(subject_template.manifestation)):
+					if child_manif:
+						su_manif_where.add("subj_manifestation = ?",
+						                   self._manifestation.id(child_manif))
+				if su_manif_where:
+					subwhere.extend(su_manif_where)
+				
+				# FIXME: Expand mime children as well.
+				# Right now we only do exact matching for mimetypes
+				if subject_template.mimetype:
+					subwhere.add("subj_mimetype = ?" % subject_tempalte.mimetype)
+					
 			except KeyError:
 				# Value not in DB
 				where_or.register_no_result()
@@ -183,6 +214,7 @@ class ZeitgeistEngine:
 					subwhere.add("subj_%s = ?" % key, value)
 			where_or.extend(subwhere)
 		
+		print "SQL:  ", where_or.sql, where_or.arguments
 		return where_or
 	
 	def _build_sql_event_filter(self, time_range, templates, storage_state):
