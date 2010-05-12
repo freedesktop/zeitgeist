@@ -51,6 +51,47 @@ class ManifestationTest (unittest.TestCase):
 		self.assertTrue(f.display_name != None)
 		self.assertTrue(f.doc != None)
 
+class RelationshipTest (unittest.TestCase):
+	"""
+	Tests for parent/child relationships in the loaded ontologies
+	"""
+	
+	def testDirectParents (self):
+		"""
+		Tests relationship tracking for immediate parents
+		"""
+		self.assertTrue(Interpretation.AUDIO.is_a(Interpretation.MEDIA))
+	
+	def testSecondLevelParents (self):
+		"""
+		Tests relationship tracking for second level parents
+		"""
+		self.assertTrue(Interpretation.VECTOR_IMAGE.is_a(Interpretation.MEDIA))
+		self.assertTrue(Interpretation.VECTOR_IMAGE.is_a(Interpretation.IMAGE))
+	
+	def testRootParents (self):
+		"""
+		Tests relationship tracking for root nodes, ie Interpretation
+		and Manifestation
+		"""
+		self.assertTrue(Interpretation.VECTOR_IMAGE.is_a(Interpretation))
+		self.assertTrue(Manifestation.FILE_DATA_OBJECT.is_a(Manifestation))
+		self.assertTrue(Manifestation.USER_ACTIVITY.is_a(Manifestation))
+	
+	def testReflecsive (self):
+		"""
+		Assert that a symbol is a child of itself
+		"""
+		self.assertTrue(Manifestation.USER_ACTIVITY.is_a(Manifestation.USER_ACTIVITY))
+	
+	def testFindExtendedChildren (self):
+		self.assertEquals(["foo://bar"], Symbol.find_child_uris_extended("foo://bar"))
+		self.assertEquals(["http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Icon",
+		                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#VectorImage",
+		                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Cursor",
+		                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RasterImage",
+		                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Image"],
+		                  Symbol.find_child_uris_extended("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Image"))
 
 class EventTest (unittest.TestCase):
 	def setUp(self):
@@ -115,6 +156,17 @@ class EventTest (unittest.TestCase):
 		
 		e.manifestation="ILLEGAL SNAFU"
 		self.assertFalse(e.matches_template(template))
+	
+	def testTemplateParentMatching(self):
+		template = Event.new_for_values(
+					manifestation=Manifestation.EVENT_MANIFESTATION,
+					subject_interpretation=Interpretation)
+
+		e = Event.new_for_values(
+					manifestation=Manifestation.USER_ACTIVITY,
+					subject_interpretation=Interpretation.TEXT_DOCUMENT,
+					subject_text="Foo")
+		self.assertTrue(e.matches_template(template))		
 	
 	def testTemplateFiltering(self):
 		template = Event.new_for_values(interpretation="stfu:OpenEvent")
