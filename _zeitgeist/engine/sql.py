@@ -22,6 +22,7 @@
 
 import sqlite3
 import logging
+import time
 
 from _zeitgeist.engine import constants
 
@@ -43,13 +44,55 @@ class UnicodeCursor(sqlite3.Cursor):
 		else:
 			return super(UnicodeCursor, self).execute(statement)
 
+def _get_schema_version (cursor, schema_name):
+	"""
+	Returns the schema version for schema_name or returns None in case
+	the schema doesn't exist
+	"""
+	try:
+		schema_version_result = cursor.execute("""
+			SELECT version FROM schema_version WHERE schema='core'
+		""")
+		return schema_version_result.fetchone()[0]
+	except sqlite3.OperationalError, e:
+		# The schema isn't there...
+		log.debug ("Schema '%s' not found: %s" % (schema_name, e))
+		return None
+
+def _set_schema_version (cursor, schema_name, version):
+	"""
+	Sets the version of `schema_name` to `version`
+	"""
+	cursor.execute("""
+		CREATE TABLE IF NOT EXISTS schema_version
+			(schema VARCHAR, version INT)
+	""")
+	cursor.execute("""
+		INSERT INTO schema_version VALUES (?, ?)
+	""", (schema_name, version))
+
+CORE_SCHEMA_VERSION = 1
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
-	
+	start = time.time()
 	log.info("Using database: %s" % file_path)
 	conn = sqlite3.connect(file_path)
 	conn.row_factory = sqlite3.Row
 	cursor = conn.cursor(UnicodeCursor)
+	
+	core_schema_version = _get_schema_version(cursor, "core")
+	if core_schema_version is not None:
+		if core_schema_version == CORE_SCHEMA_VERSION:
+			_time = (time.time() - start)*1000
+			log.debug("Core schema is good. DB loaded in %sms" % _time)
+			return cursor
+		else:
+			log.fatal("Unexpected schema version for core schema: %s. Expected: %s" %
+			          (core_schema_version, CORE_SCHEMA_VERSION))
+			raise SystemExit(27)
+	else:
+		log.info("Setting up initial database")
+		
 	
 	# uri
 	cursor.execute("""
@@ -270,6 +313,13 @@ def create_db(file_path):
 					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
 		""")
+	
+	# All good. Set the schema version, so we don't have to do all this
+	# sql the next time around
+	_set_schema_version (cursor, "core", CORE_SCHEMA_VERSION)
+	_time = (time.time() - start)*1000
+	log.info("DB set up in %sms" % _time)
+	cursor.connection.commit()
 	
 	return cursor
 
