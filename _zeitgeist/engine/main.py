@@ -218,7 +218,6 @@ class ZeitgeistEngine:
 					subwhere.add("subj_%s = ?" % key, value)
 			where_or.extend(subwhere)
 		
-		print "SQL:  ", where_or.sql, where_or.arguments
 		return where_or
 	
 	def _build_sql_event_filter(self, time_range, templates, storage_state):
