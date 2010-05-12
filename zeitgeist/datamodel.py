@@ -253,7 +253,7 @@ class Symbol(str):
 		"""
 		return frozenset(self._parents.itervalues())
 	
-	def is_a (self, parent):
+	def is_child_of (self, parent):
 		"""
 		Returns True if this symbol is a child of `parent`.
 		"""
@@ -275,7 +275,7 @@ class Symbol(str):
 		return self.name in parent._all_children
 	
 	@staticmethod
-	def uri_is_a (child, parent):
+	def uri_is_child_of (child, parent):
 		"""
 		Returns True if `child` is a child of `parent`. Both `child`
 		and `parent` arguments must be any combination of
@@ -296,7 +296,7 @@ class Symbol(str):
 		if not isinstance (child, Symbol):
 			raise ValueError("Child argument must be a Symbol or string. Got %s" % type(child))
 		
-		return child.is_a(parent)
+		return child.is_child_of(parent)
 		
 class TimeRange(list):
 	"""
@@ -529,7 +529,7 @@ class Subject(list):
 		See also :meth:`Event.matches_template`
 		"""
 		for m in Subject.Fields:
-			if subject_template[m] and not Symbol.uri_is_a (self[m], subject_template[m]):
+			if subject_template[m] and not Symbol.uri_is_child_of (self[m], subject_template[m]):
 				return False
 		return True
 
@@ -771,7 +771,7 @@ class Event(list):
 		tdata = event_template[0]
 		for m in Event.Fields:
 			if m == Event.Timestamp : continue
-			if tdata[m] and not Symbol.uri_is_a (data[m], tdata[m]) : return False
+			if tdata[m] and not Symbol.uri_is_child_of (data[m], tdata[m]) : return False
 		
 		# If template has no subjects we have a match
 		if len(event_template[1]) == 0 : return True

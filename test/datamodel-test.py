@@ -60,29 +60,29 @@ class RelationshipTest (unittest.TestCase):
 		"""
 		Tests relationship tracking for immediate parents
 		"""
-		self.assertTrue(Interpretation.AUDIO.is_a(Interpretation.MEDIA))
+		self.assertTrue(Interpretation.AUDIO.is_child_of(Interpretation.MEDIA))
 	
 	def testSecondLevelParents (self):
 		"""
 		Tests relationship tracking for second level parents
 		"""
-		self.assertTrue(Interpretation.VECTOR_IMAGE.is_a(Interpretation.MEDIA))
-		self.assertTrue(Interpretation.VECTOR_IMAGE.is_a(Interpretation.IMAGE))
+		self.assertTrue(Interpretation.VECTOR_IMAGE.is_child_of(Interpretation.MEDIA))
+		self.assertTrue(Interpretation.VECTOR_IMAGE.is_child_of(Interpretation.IMAGE))
 	
 	def testRootParents (self):
 		"""
 		Tests relationship tracking for root nodes, ie Interpretation
 		and Manifestation
 		"""
-		self.assertTrue(Interpretation.VECTOR_IMAGE.is_a(Interpretation))
-		self.assertTrue(Manifestation.FILE_DATA_OBJECT.is_a(Manifestation))
-		self.assertTrue(Manifestation.USER_ACTIVITY.is_a(Manifestation))
+		self.assertTrue(Interpretation.VECTOR_IMAGE.is_child_of(Interpretation))
+		self.assertTrue(Manifestation.FILE_DATA_OBJECT.is_child_of(Manifestation))
+		self.assertTrue(Manifestation.USER_ACTIVITY.is_child_of(Manifestation))
 	
 	def testReflecsive (self):
 		"""
 		Assert that a symbol is a child of itself
 		"""
-		self.assertTrue(Manifestation.USER_ACTIVITY.is_a(Manifestation.USER_ACTIVITY))
+		self.assertTrue(Manifestation.USER_ACTIVITY.is_child_of(Manifestation.USER_ACTIVITY))
 	
 	def testFindExtendedChildren (self):
 		self.assertEquals(["foo://bar"], Symbol.find_child_uris_extended("foo://bar"))
