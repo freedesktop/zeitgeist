@@ -529,8 +529,16 @@ class Subject(list):
 		See also :meth:`Event.matches_template`
 		"""
 		for m in Subject.Fields:
-			if subject_template[m] and not Symbol.uri_is_child_of (self[m], subject_template[m]):
-				return False
+			if not subject_template[m]:
+				# empty fields are handled as wildcards
+				continue
+			if m in (Subject.Interpretation, Subject.Manifestation):
+				# symbols are treated differently
+				if not Symbol.uri_is_child_of (self[m], subject_template[m]):
+					return False
+			else:
+				if subject_template[m] != self[m]:
+					return False
 		return True
 
 class Event(list):
@@ -770,8 +778,17 @@ class Event(list):
 		data = self[0]
 		tdata = event_template[0]
 		for m in Event.Fields:
-			if m == Event.Timestamp : continue
-			if tdata[m] and not Symbol.uri_is_child_of (data[m], tdata[m]) : return False
+			if m == Event.Timestamp or not tdata[m]:
+				# matching be timestamp is not supported and
+				# empty template-fields are treated as wildcards
+				continue
+			if m in (Event.Manifestation, Event.Interpretation):
+				# special check for symbols
+				if not Symbol.uri_is_child_of(data[m], tdata[m]):
+					return False
+			else:
+				if data[m] != tdata[m]:
+					return False
 		
 		# If template has no subjects we have a match
 		if len(event_template[1]) == 0 : return True
