@@ -552,7 +552,7 @@ class Subject(list):
 		using a `comp` comparison function """
 		if field_id in self.SUPPORTS_NEGATION \
 				and expression.startswith(NEGATION_OPERATOR):
-			return not self._check_match_field(expression[len(NEGATION_OPERATOR):], field_id)
+			return not self._check_field_match(field_id, expression[len(NEGATION_OPERATOR):], comp)
 		else:
 			return comp(self[field_id], expression)
 
@@ -825,7 +825,7 @@ class Event(list):
 		using a `comp` comparison function """
 		if field_id in self.SUPPORTS_NEGATION \
 				and expression.startswith(NEGATION_OPERATOR):
-			return not self._check_match_field(expression[len(NEGATION_OPERATOR):], field_id)
+			return not self._check_field_match(field_id, expression[len(NEGATION_OPERATOR):], comp)
 		else:
 			return comp(self[0][field_id], expression)
 	
