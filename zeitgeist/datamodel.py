@@ -266,7 +266,7 @@ class Symbol(str):
 				parent = _SYMBOLS_BY_URI[parent]
 			except KeyError, e:
 				# Parent is not a known URI
-				print 11111111111, self.uri, parent
+				#print 11111111111, self.uri, parent #debug output
 				return self.uri == parent
 		
 		# Invariant: parent is a Symbol

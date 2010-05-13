@@ -184,14 +184,27 @@ class EventTest (unittest.TestCase):
 		event = Event.new_for_values(
 			subject_interpretation=Interpretation.AUDIO
 		)
+		
 		template = Event.new_for_values(
 			subject_interpretation="!%s" %Interpretation.AUDIO
 		)
 		self.assertFalse(event.matches_template(template))
+		
 		template = Event.new_for_values(
 			subject_interpretation="!%s" %Interpretation.MEDIA
 		)
 		self.assertFalse(event.matches_template(template))
+		
+		template = Event.new_for_values(
+			subject_interpretation="!%s" %Interpretation.DOCUMENT
+		)
+		self.assertTrue(event.matches_template(template))
+		
+		template = Event.new_for_values(
+			subject_interpretation="!somerandomtext"
+		)
+		self.assertTrue(event.matches_template(template))
+		
 
 class TimeRangeTest (unittest.TestCase):
 
