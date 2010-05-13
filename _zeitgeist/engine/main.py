@@ -45,6 +45,11 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
 def parse_negation(kind, field, value, parse_negation=True):
+	"""checks if value starts with the negation operator,
+	if value starts with the negation operator but the field does
+	not support negation a ValueError is raised.
+	This function returns a (value_without_negation, negation)-tuple
+	"""
 	negation = False
 	if parse_negation and value.startswith(NEGATION_OPERATOR):
 		negation = True
@@ -233,7 +238,17 @@ class ZeitgeistEngine:
 			for key in ("uri", "origin", "text"):
 				value = getattr(subject_template, key)
 				if value:
-					value, negation = parse_negation(Subject, getattr(Subject, key.title()), value)
+					try:
+						value, negation = parse_negation(Subject, getattr(Subject, key.title()), value)
+					except ValueError:
+						if key == "text":
+							# we do not support negation of the text field,
+							# the text field starts with the NEGATION_OPERATOR
+							# so we handle this string as the content instead
+							# of an operator
+							negation = False
+						else:
+							raise
 					subwhere.add("subj_%s %s= ?" %(key, NEGATION_OPERATOR if negation else ""), value)
 			where_or.extend(subwhere)
 		
