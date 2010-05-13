@@ -629,5 +629,16 @@ class ZeitgeistEngineTest(_engineTestClass):
 		_ev[0][0] = "" # hack to account for the fact that ev.id is unset
 		self.assertEquals(ev, _ev)
 
+	def testQueryByParent (self):
+		ev = Event.new_for_values(subject_interpretation=Interpretation.AUDIO)
+		_ids = self.engine.insert_events ([ev])
+		
+		tmpl = Event.new_for_values(subject_interpretation=Interpretation.MEDIA)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[tmpl], StorageState.Any, 10, ResultType.MostRecentEvents)
+		
+		self.assertEquals(1, len(ids))
+		self.assertEquals(_ids, ids)
+
 if __name__ == "__main__":
 	unittest.main()
