@@ -346,12 +346,14 @@ class WhereClause:
 	
 	AND = " AND "
 	OR = " OR "
+	NOT = "NOT "
 	
-	def __init__(self, relation):
+	def __init__(self, relation, negation=False):
 		self._conditions = []
 		self.arguments = []
 		self._relation = relation
 		self._no_result_member = False
+		self._negation = negation
 	
 	def __len__(self):
 		return len(self._conditions)
@@ -375,7 +377,8 @@ class WhereClause:
 	@property
 	def sql(self):
 		if self: # Do not return "()" if there are no conditions
-			return "(" + self._relation.join(self._conditions) + ")"
+			negation = self.NOT if self._negation else ""
+			return "%s(%s)" %(negation, self._relation.join(self._conditions))
 	
 	def register_no_result(self):
 		self._no_result_member = True

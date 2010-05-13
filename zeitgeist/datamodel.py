@@ -36,6 +36,7 @@ __all__ = [
 	'Event',
 	'Subject',
 	'NULL_EVENT',
+	'NEGATION_OPERATOR',
 ]
 
 NEGATION_OPERATOR = "!"
