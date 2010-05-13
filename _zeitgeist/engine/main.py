@@ -168,7 +168,7 @@ class ZeitgeistEngine:
 				for child_interp in (Symbol.find_child_uris_extended(event_template.interpretation)):
 					if child_interp:
 						event_interp_where.add("interpretation = ?",
-						                       self._interpretation.id(child_interp))
+						                       self._interpretation[child_interp])
 				if event_interp_where:
 					subwhere.extend(event_interp_where)
 				
@@ -177,7 +177,7 @@ class ZeitgeistEngine:
 				for child_manif in (Symbol.find_child_uris_extended(event_template.manifestation)):
 					if child_manif:
 						event_manif_where.add("manifestation = ?",
-						                      self._manifestation.id(child_manif))
+						                      self._manifestation[child_manif])
 				if event_manif_where:
 					subwhere.extend(event_manif_where)
 				
@@ -186,7 +186,7 @@ class ZeitgeistEngine:
 				for child_interp in (Symbol.find_child_uris_extended(subject_template.interpretation)):
 					if child_interp:
 						su_interp_where.add("subj_interpretation = ?",
-						                    self._interpretation.id(child_interp))
+						                    self._interpretation[child_interp])
 				if su_interp_where:
 					subwhere.extend(su_interp_where)
 				
@@ -195,7 +195,7 @@ class ZeitgeistEngine:
 				for child_manif in (Symbol.find_child_uris_extended(subject_template.manifestation)):
 					if child_manif:
 						su_manif_where.add("subj_manifestation = ?",
-						                   self._manifestation.id(child_manif))
+						                   self._manifestation[child_manif])
 				if su_manif_where:
 					subwhere.extend(su_manif_where)
 				
@@ -203,19 +203,21 @@ class ZeitgeistEngine:
 				# Right now we only do exact matching for mimetypes
 				if subject_template.mimetype:
 					subwhere.add("subj_mimetype = ?",
-					             self._mimetype.id(subject_tempalte.mimetype))
+					             self._mimetype[subject_tempalte.mimetype])
 				
 				if event_template.actor:
 					subwhere.add("actor = ?",
-					             self._actor.id(event_template.actor))
-			except KeyError:
+					             self._actor[event_template.actor])
+			except KeyError, e:
 				# Value not in DB
+				log.debug("Unknown entity in query: %s" % e)
 				where_or.register_no_result()
 				continue
 			for key in ("uri", "origin", "text"):
 				value = getattr(subject_template, key)
 				if value:
 					subwhere.add("subj_%s = ?" % key, value)
+			
 			where_or.extend(subwhere)
 		
 		return where_or
@@ -246,11 +248,11 @@ class ZeitgeistEngine:
 		 - 1: Events.
 		 - 2: (Timestamp, SubjectUri)
 		"""
-		
 		t = time.time()
 		
 		where = self._build_sql_event_filter(time_range, event_templates,
 			storage_state)
+		
 		if not where.may_have_results():
 			return []
 		
