@@ -38,6 +38,10 @@ __all__ = [
 	'NULL_EVENT',
 ]
 
+NEGATION_OPERATOR = "!"
+
+EQUAL = lambda x,y: x == y
+
 # next() function is python >= 2.6
 try:
 	next = next
@@ -427,6 +431,8 @@ class Subject(list):
 		Mimetype,
 		Text,
 		Storage) = range(7)
+		
+	SUPPORTS_NEGATION = (Uri, Interpretation, Manifestation, Origin, Mimetype)
 	
 	def __init__(self, data=None):
 		super(Subject, self).__init__([""]*len(Subject.Fields))
@@ -534,12 +540,21 @@ class Subject(list):
 				continue
 			if m in (Subject.Interpretation, Subject.Manifestation):
 				# symbols are treated differently
-				if not Symbol.uri_is_child_of (self[m], subject_template[m]):
-					return False
+				comp = Symbol.uri_is_child_of
 			else:
-				if subject_template[m] != self[m]:
-					return False
+				comp = EQUAL
+			if not self._check_field_match(m, subject_template[m], comp):
+				return False
 		return True
+		
+	def _check_field_match(self, field_id, expression, comp):
+		""" Checks if an expression matches a field given by its `field_id`
+		using a `comp` comparison function """
+		if field_id in self.SUPPORTS_NEGATION \
+				and expression.startswith(NEGATION_OPERATOR):
+			return not self._check_match_field(expression[len(NEGATION_OPERATOR):], field_id)
+		else:
+			return comp(self[field_id], expression)
 
 class Event(list):
 	"""
@@ -561,6 +576,8 @@ class Event(list):
 		Interpretation,
 		Manifestation,
 		Actor) = range(5)
+		
+	SUPPORTS_NEGATION = (Interpretation, Manifestation, Actor)
 	
 	def __init__(self, struct = None):
 		"""
@@ -784,11 +801,11 @@ class Event(list):
 				continue
 			if m in (Event.Manifestation, Event.Interpretation):
 				# special check for symbols
-				if not Symbol.uri_is_child_of(data[m], tdata[m]):
-					return False
+				comp = Symbol.uri_is_child_of
 			else:
-				if data[m] != tdata[m]:
-					return False
+				comp = EQUAL
+			if not self._check_field_match(m, tdata[m], comp):
+				return False
 		
 		# If template has no subjects we have a match
 		if len(event_template[1]) == 0 : return True
@@ -802,6 +819,15 @@ class Event(list):
 		
 		# Template has subjects, but we never found a match
 		return False
+		
+	def _check_field_match(self, field_id, expression, comp):
+		""" Checks if an expression matches a field given by its `field_id`
+		using a `comp` comparison function """
+		if field_id in self.SUPPORTS_NEGATION \
+				and expression.startswith(NEGATION_OPERATOR):
+			return not self._check_match_field(expression[len(NEGATION_OPERATOR):], field_id)
+		else:
+			return comp(self[0][field_id], expression)
 	
 	def matches_event (self, event):
 		"""
