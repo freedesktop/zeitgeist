@@ -459,13 +459,13 @@ class ZeitgeistEngine:
 		if not event.timestamp:
 			event.timestamp = get_timestamp_for_now()
 		
+		id = self.next_event_id()
+		event[0][Event.Id] = id		
 		event = self.extensions.apply_insert_hooks(event, sender)
 		if event is None:
 			raise AssertionError("Inserting of event was blocked by an extension")
 		elif not issubclass(type(event), OrigEvent):
-			raise ValueError("cannot insert object of type %r" %type(event))
-		
-		id = self.next_event_id()
+			raise ValueError("cannot insert object of type %r" %type(event))		
 		
 		payload_id = self._store_payload (event)
 		

@@ -626,7 +626,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		ids = self.engine.insert_events([ev])
 		_ev = self.engine.get_events(ids)[0]
 		self.assertEquals(ev.payload, _ev.payload)
-		_ev[0][0] = "" # hack to account for the fact that ev.id is unset
+		
+		# Note: engine.insert_events() sets the id of the Event objects
 		self.assertEquals(ev, _ev)
 
 	def testQueryByParent (self):
