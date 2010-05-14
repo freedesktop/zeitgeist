@@ -372,9 +372,9 @@ class WhereClause:
 			# thekorn: this is a first (unoptimized version)
 			# see http://www.sqlite.org/optoverview.html '4.0 The LIKE optimization'
 			# for how this will look in the future
-			sql = "%s %sIN (SELECT id FROM %s WHERE value LIKE ?)" \
+			sql = "%s %sIN (SELECT id FROM %s WHERE value GLOB ?)" \
 					%(column, self.NOT if negation else "", column)
-			value += "%"
+			value += "*"
 		else:
 			sql = "%s %s= ?" %(column, "!" if negation else "")
 			if cache is not None:
