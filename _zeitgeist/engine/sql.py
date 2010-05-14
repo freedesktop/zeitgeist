@@ -79,7 +79,7 @@ def create_db(file_path):
 	conn.row_factory = sqlite3.Row
 	cursor = conn.cursor(UnicodeCursor)
 	
-	core_schema_version = _get_schema_version(cursor, "core")
+	core_schema_version = _get_schema_version(cursor, constants.CORE_SCHEMA)
 	if core_schema_version is not None:
 		if core_schema_version == constants.CORE_SCHEMA_VERSION:
 			_time = (time.time() - start)*1000
@@ -315,7 +315,7 @@ def create_db(file_path):
 	
 	# All good. Set the schema version, so we don't have to do all this
 	# sql the next time around
-	_set_schema_version (cursor, "core", constants.CORE_SCHEMA_VERSION)
+	_set_schema_version (cursor, constants.CORE_SCHEMA, constants.CORE_SCHEMA_VERSION)
 	_time = (time.time() - start)*1000
 	log.info("DB set up in %sms" % _time)
 	cursor.connection.commit()
