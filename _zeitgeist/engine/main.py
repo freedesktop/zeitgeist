@@ -176,6 +176,10 @@ class ZeitgeistEngine:
 		
 		for (event_template, subject_template) in self._build_templates(templates):
 			subwhere = WhereClause(WhereClause.AND)
+			
+			if event_template.id:
+				subwhere.add("id = ?", event_template.id)
+			
 			try:
 				value, negation = parse_negation(Event, Event.Interpretation, event_template.interpretation)
 				# Expand event interpretation children
