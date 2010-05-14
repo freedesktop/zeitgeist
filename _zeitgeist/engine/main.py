@@ -32,8 +32,8 @@ from itertools import islice
 from collections import defaultdict
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
-	ResultType, get_timestamp_for_now, Interpretation, Symbol
-from _zeitgeist.engine.datamodel import Event, Subject	
+	ResultType, get_timestamp_for_now, Interpretation, Symbol, NEGATION_OPERATOR
+from _zeitgeist.engine.datamodel import Event, Subject
 from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
@@ -43,6 +43,20 @@ WINDOW_SIZE = 7
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
+
+def parse_negation(kind, field, value, parse_negation=True):
+	"""checks if value starts with the negation operator,
+	if value starts with the negation operator but the field does
+	not support negation a ValueError is raised.
+	This function returns a (value_without_negation, negation)-tuple
+	"""
+	negation = False
+	if parse_negation and value.startswith(NEGATION_OPERATOR):
+		negation = True
+		value = value[len(NEGATION_OPERATOR):]
+	if negation and field not in kind.SUPPORTS_NEGATION:
+		raise ValueError("This field does not support negation")
+	return value, negation
 
 class ZeitgeistEngine:
 	
@@ -167,36 +181,40 @@ class ZeitgeistEngine:
 				subwhere.add("id = ?", event_template.id)
 			
 			try:
+				value, negation = parse_negation(Event, Event.Interpretation, event_template.interpretation)
 				# Expand event interpretation children
-				event_interp_where = WhereClause(WhereClause.OR)
-				for child_interp in (Symbol.find_child_uris_extended(event_template.interpretation)):
+				event_interp_where = WhereClause(WhereClause.OR, negation)
+				for child_interp in (Symbol.find_child_uris_extended(value)):
 					if child_interp:
 						event_interp_where.add("interpretation = ?",
 						                       self._interpretation[child_interp])
 				if event_interp_where:
 					subwhere.extend(event_interp_where)
 				
+				value, negation = parse_negation(Event, Event.Manifestation, event_template.manifestation)
 				# Expand event manifestation children
-				event_manif_where = WhereClause(WhereClause.OR)
-				for child_manif in (Symbol.find_child_uris_extended(event_template.manifestation)):
+				event_manif_where = WhereClause(WhereClause.OR, negation)
+				for child_manif in (Symbol.find_child_uris_extended(value)):
 					if child_manif:
 						event_manif_where.add("manifestation = ?",
 						                      self._manifestation[child_manif])
 				if event_manif_where:
 					subwhere.extend(event_manif_where)
 				
+				value, negation = parse_negation(Subject, Subject.Interpretation, subject_template.interpretation)
 				# Expand subject interpretation children
-				su_interp_where = WhereClause(WhereClause.OR)
-				for child_interp in (Symbol.find_child_uris_extended(subject_template.interpretation)):
+				su_interp_where = WhereClause(WhereClause.OR, negation)
+				for child_interp in (Symbol.find_child_uris_extended(value)):
 					if child_interp:
 						su_interp_where.add("subj_interpretation = ?",
 						                    self._interpretation[child_interp])
 				if su_interp_where:
 					subwhere.extend(su_interp_where)
 				
+				value, negation = parse_negation(Subject, Subject.Manifestation, subject_template.manifestation)
 				# Expand subject manifestation children
-				su_manif_where = WhereClause(WhereClause.OR)
-				for child_manif in (Symbol.find_child_uris_extended(subject_template.manifestation)):
+				su_manif_where = WhereClause(WhereClause.OR, negation)
+				for child_manif in (Symbol.find_child_uris_extended(value)):
 					if child_manif:
 						su_manif_where.add("subj_manifestation = ?",
 						                   self._manifestation[child_manif])
@@ -205,23 +223,37 @@ class ZeitgeistEngine:
 				
 				# FIXME: Expand mime children as well.
 				# Right now we only do exact matching for mimetypes
-				if subject_template.mimetype:
-					subwhere.add("subj_mimetype = ?",
-					             self._mimetype[subject_tempalte.mimetype])
+				# thekorn: this will be fixed when wildcards are supported
+				value, negation = parse_negation(Subject, Subject.Mimetype, subject_template.mimetype)
+				if value:
+					subwhere.add("subj_mimetype %s= ?" %(NEGATION_OPERATOR if negation else ""),
+					             self._mimetype[value])
 				
-				if event_template.actor:
-					subwhere.add("actor = ?",
-					             self._actor[event_template.actor])
+				value, negation = parse_negation(Event, Event.Actor, event_template.actor)
+				if value:
+					subwhere.add("actor %s= ?" %(NEGATION_OPERATOR if negation else ""),
+					             self._actor[value])
 			except KeyError, e:
 				# Value not in DB
 				log.debug("Unknown entity in query: %s" % e)
 				where_or.register_no_result()
 				continue
+				
 			for key in ("uri", "origin", "text"):
 				value = getattr(subject_template, key)
 				if value:
-					subwhere.add("subj_%s = ?" % key, value)
-			
+					try:
+						value, negation = parse_negation(Subject, getattr(Subject, key.title()), value)
+					except ValueError:
+						if key == "text":
+							# we do not support negation of the text field,
+							# the text field starts with the NEGATION_OPERATOR
+							# so we handle this string as the content instead
+							# of an operator
+							negation = False
+						else:
+							raise
+					subwhere.add("subj_%s %s= ?" %(key, NEGATION_OPERATOR if negation else ""), value)
 			where_or.extend(subwhere)
 		
 		return where_or

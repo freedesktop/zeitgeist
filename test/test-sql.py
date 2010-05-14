@@ -46,6 +46,27 @@ class SQLTest (unittest.TestCase):
 		
 		self.assertEquals(where.sql % tuple(where.arguments),
 		                  "(foo = 10 AND (subfoo = 68 OR subbar = 69) AND bar = 11)")
+		                  
+	def testFlatNegation(self):
+		where = WhereClause(WhereClause.OR, negation=True)
+		where.add("foo = %s", 7)
+		where.add("bar = %s", 77)
+		self.assertEquals(where.sql %tuple(where.arguments),
+			"NOT (foo = 7 OR bar = 77)")
+			
+	def testNestedNegation(self):
+		where = WhereClause(WhereClause.AND)
+		where.add ("foo = %s", 10)
+		
+		subwhere = WhereClause(WhereClause.OR, negation=True)
+		subwhere.add ("subfoo = %s", 68)
+		subwhere.add ("subbar = %s", 69)
+		where.extend(subwhere)
+		where.add ("bar = %s", 11)
+		
+		self.assertEquals(where.sql % tuple(where.arguments),
+		                  "(foo = 10 AND NOT (subfoo = 68 OR subbar = 69) AND bar = 11)")
+		
 
 if __name__ == "__main__":
 	unittest.main()
