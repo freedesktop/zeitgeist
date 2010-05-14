@@ -782,6 +782,32 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
 		)
 		self.assertEquals(3, len(ids))
+		
+		template = Event.new_for_values(
+			subject_mimetype = "text/*"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(5, len(ids))
+		
+		template = Event.new_for_values(
+			subject_uri = "http://*"
+		)
+		
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(1, len(ids))
+		
+		template = Event.new_for_values(
+			subject_origin = "file://*"
+		)
+		
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(5, len(ids))
 
 if __name__ == "__main__":
 	unittest.main()
