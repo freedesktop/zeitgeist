@@ -369,10 +369,13 @@ class WhereClause:
 			
 	def add_text_condition(self, column, value, like=False, negation=False):
 		if like:
-			raise NotImplementedError
+			# thekorn: this is a first (unoptimized version)
+			# see http://www.sqlite.org/optoverview.html '4.0 The LIKE optimization'
+			# for how this will look in the future
+			sql = "%s %sLIKE ?" %(column, self.NOT if negation else "")
 		else:
 			sql = "%s %s= ?" %(column, "!" if negation else "")
-			self.add(sql, value)
+		self.add(sql, value)
 	
 	def extend(self, where):
 		self.add(where.sql, where.arguments)
