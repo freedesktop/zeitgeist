@@ -379,7 +379,7 @@ class WhereClause:
 			# e.g.:
 			# subj_uri and subj_origin are presented as string-values
 			# actor and subj_mimetype are ids
-			# (LP: #XXXX)
+			# (LP: #580601)
 			if column in ("subj_uri", "subj_origin"):
 				value_type = "value"
 			elif column in ("actor", "subj_mimetype"):
