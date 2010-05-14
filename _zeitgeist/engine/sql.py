@@ -366,6 +366,13 @@ class WhereClause:
 			self.arguments.append(arguments)
 		else:
 			self.arguments.extend(arguments)
+			
+	def add_text_condition(self, column, value, like=False, negation=False):
+		if like:
+			raise NotImplementedError
+		else:
+			sql = "%s %s= ?" %(column, "!" if negation else "")
+			self.add(sql, value)
 	
 	def extend(self, where):
 		self.add(where.sql, where.arguments)
