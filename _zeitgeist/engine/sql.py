@@ -57,7 +57,7 @@ def _get_schema_version (cursor, schema_name):
 	except sqlite3.OperationalError, e:
 		# The schema isn't there...
 		log.debug ("Schema '%s' not found: %s" % (schema_name, e))
-		return None
+		return 0
 
 def _set_schema_version (cursor, schema_name, version):
 	"""
@@ -71,6 +71,27 @@ def _set_schema_version (cursor, schema_name, version):
 		INSERT INTO schema_version VALUES (?, ?)
 	""", (schema_name, version))
 
+def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
+	"""
+	Try and upgrade schema `schema_name` from version `old_version` to
+	`new_version`. This is done by checking for an upragde module named
+	'_zeitgeist.engine.upgrades.$schema_name_$old_version_$new_version'
+	and executing the run(cursor) method of that module
+	"""
+	# Fire of the right upgrade module
+	log.info("Upgrading database '%s' from version %s to %s. This may take a while" %
+	         (schema_name, old_version, new_version))
+	upgrader_name = "%s_%s_%s" % (schema_name, old_version, new_version)
+	module = __import__ ("_zeitgeist.engine.upgrades.%s" % upgrader_name)
+	eval("module.engine.upgrades.%s.run(cursor)" % upgrader_name)
+	
+	# Update the schema version
+	cursor.execute("""
+		UPDATE schema_version SET version=% WHERE schema='%s'
+	""" % (schema_name, new_version))
+	
+	log.info("Upgrade succesful")
+
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
 	start = time.time()
@@ -79,6 +100,7 @@ def create_db(file_path):
 	conn.row_factory = sqlite3.Row
 	cursor = conn.cursor(UnicodeCursor)
 	
+	# See if we have the right schema version, and try an upgrade if needed
 	core_schema_version = _get_schema_version(cursor, constants.CORE_SCHEMA)
 	if core_schema_version is not None:
 		if core_schema_version == constants.CORE_SCHEMA_VERSION:
@@ -86,8 +108,14 @@ def create_db(file_path):
 			log.debug("Core schema is good. DB loaded in %sms" % _time)
 			return cursor
 		else:
-			log.fatal("Unexpected schema version for core schema: %s. Expected: %s" %
-			          (core_schema_version, constants.CORE_SCHEMA_VERSION))
+			try:
+				_do_schema_upgrade (cursor,
+			                        constants.CORE_SCHEMA,
+			                        core_schema_version,
+			                        constants.CORE_SCHEMA_VERSION)			                        
+			except Exception, e:
+				log.fatal("Failed to upgrade database '%s' from version %s to %s: %s" %
+				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
 			raise SystemExit(27)
 	else:
 		log.info("Setting up initial database")
