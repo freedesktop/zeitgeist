@@ -289,6 +289,13 @@ class EventTest (unittest.TestCase):
 		)
 		filtered_events = filter(template.matches_event, events)
 		self.assertEquals(2, len(filtered_events))
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			manifestation = "!stfu:YourActivity"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(3, len(filtered_events))
 
 
 class TimeRangeTest (unittest.TestCase):

@@ -739,6 +739,15 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
 		)
 		self.assertEquals(2, len(ids))
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			manifestation = "!stfu:YourActivity"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
 
 
 if __name__ == "__main__":
