@@ -304,6 +304,25 @@ class EventTest (unittest.TestCase):
 		event = Event.new_for_values(timestamp=1000, subject_storage="sometext")
 		template = Event.new_for_values(subject_storage="xxxx")
 		self.assertRaises(ValueError, template.matches_event, event)
+		
+	def testWildcardTemplateMatching(self):
+		event = Event.new_for_values(actor="boo bar")
+		
+		template = Event.new_for_values(actor="boo*")
+		self.assertTrue(event.matches_template(template))
+		
+		event = Event.new_for_values(interpretation="boo bar")
+		
+		template = Event.new_for_values(interpretation="boo*")
+		self.assertFalse(event.matches_template(template))
+		
+	def testNegationWildcardTemplateMatching(self):
+		event = Event.new_for_values(actor="boo bar")
+		
+		template = Event.new_for_values(actor="!boo*")
+		self.assertFalse(event.matches_template(template))
+		template = Event.new_for_values(actor="!test*")
+		self.assertTrue(event.matches_template(template))
 
 
 class TimeRangeTest (unittest.TestCase):
