@@ -214,6 +214,82 @@ class EventTest (unittest.TestCase):
 		)
 		self.assertTrue(event.matches_template(template))
 		
+	def testNegationFields(self):
+		events = parse_events("test/data/five_events.js")
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(3, len(filtered_events))
+		
+		template = Event.new_for_values(
+			manifestation = "!stfu:YourActivity"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(4, len(filtered_events))
+		
+		template = Event.new_for_values(
+			actor = "!firefox"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(2, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_uri = "!file:///tmp/foo.txt"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(3, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_interpretation = "!stfu:Document"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(4, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_manifestation = "!stfu:File"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(0, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_origin = "!file:///tmp"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(0, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_mimetype = "!text/plain"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(0, len(filtered_events))
+		
+		# the next two fields do not support negation, '!' is treated as
+		# content
+		
+		template = Event.new_for_values(
+			subject_text = "!boo"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(0, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_storage = "!boo"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(0, len(filtered_events))
+		
+	def testNegationCombination(self):
+		events = parse_events("test/data/five_events.js")
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			actor = "!firefox"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(2, len(filtered_events))
+
 
 class TimeRangeTest (unittest.TestCase):
 
