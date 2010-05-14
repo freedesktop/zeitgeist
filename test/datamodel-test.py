@@ -311,10 +311,27 @@ class EventTest (unittest.TestCase):
 		template = Event.new_for_values(actor="boo*")
 		self.assertTrue(event.matches_template(template))
 		
+		# wildcards are not supported in interpretation,
+		# so they are handled as content
 		event = Event.new_for_values(interpretation="boo bar")
 		
 		template = Event.new_for_values(interpretation="boo*")
 		self.assertFalse(event.matches_template(template))
+		
+		event = Event.new_for_values(subject_uri="boo bar")
+		
+		template = Event.new_for_values(subject_uri="boo*")
+		self.assertTrue(event.matches_template(template))
+		
+		event = Event.new_for_values(subject_origin="boo bar")
+		
+		template = Event.new_for_values(subject_origin="boo*")
+		self.assertTrue(event.matches_template(template))
+		
+		event = Event.new_for_values(subject_mimetype="boo bar")
+		
+		template = Event.new_for_values(subject_mimetype="boo*")
+		self.assertTrue(event.matches_template(template))
 		
 	def testNegationWildcardTemplateMatching(self):
 		event = Event.new_for_values(actor="boo bar")
