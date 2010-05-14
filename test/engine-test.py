@@ -727,6 +727,19 @@ class ZeitgeistEngineTest(_engineTestClass):
 			#~ [template,], StorageState.Any, 10, ResultType.MostRecentEvents
 		#~ )
 		#~ self.assertEquals(0, len(ids))
+		
+	def testNegationCombination(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			actor = "!firefox"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(2, len(ids))
+
 
 if __name__ == "__main__":
 	unittest.main()
