@@ -66,6 +66,27 @@ class SQLTest (unittest.TestCase):
 		
 		self.assertEquals(where.sql % tuple(where.arguments),
 		                  "(foo = 10 AND NOT (subfoo = 68 OR subbar = 69) AND bar = 11)")
+		                  
+	def testAddTextCondition(self):
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("boo", "bar")
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(boo = bar)")
+			
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("boo", "bar", negation=True)
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(boo != bar)")
+			
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("boo", "bar", like=True)
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(boo IN (SELECT id FROM boo WHERE value GLOB bar*))")
+			
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("boo", "bar", like=True, negation=True)
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(boo NOT IN (SELECT id FROM boo WHERE value GLOB bar*))")
 		
 
 if __name__ == "__main__":
