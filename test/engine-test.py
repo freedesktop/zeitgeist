@@ -640,6 +640,20 @@ class ZeitgeistEngineTest(_engineTestClass):
 		
 		self.assertEquals(1, len(ids))
 		self.assertEquals(_ids, ids)
+		
+	def testBug580364(self):
+		events = [
+			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
+			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
+		]
+		ids_in = self.engine.insert_events(events)
+		template = Event.new_for_values(subject_storage="xxxx")
+		
+		ids_out = self.engine.find_eventids(TimeRange.always(),
+			[template], StorageState.Any, 10, ResultType.MostRecentEvents)
+		
+		self.assertEquals(0, len(ids_out))
+		
 
 if __name__ == "__main__":
 	unittest.main()
