@@ -367,14 +367,18 @@ class WhereClause:
 		else:
 			self.arguments.extend(arguments)
 			
-	def add_text_condition(self, column, value, like=False, negation=False):
+	def add_text_condition(self, column, value, like=False, negation=False, cache=None):
 		if like:
 			# thekorn: this is a first (unoptimized version)
 			# see http://www.sqlite.org/optoverview.html '4.0 The LIKE optimization'
 			# for how this will look in the future
-			sql = "%s %sLIKE ?" %(column, self.NOT if negation else "")
+			sql = "%s %sIN (SELECT id FROM %s WHERE value LIKE ?)" \
+					%(column, self.NOT if negation else "", column)
+			value += "%"
 		else:
 			sql = "%s %s= ?" %(column, "!" if negation else "")
+			if cache is not None:
+				value = cache[value]
 		self.add(sql, value)
 	
 	def extend(self, where):

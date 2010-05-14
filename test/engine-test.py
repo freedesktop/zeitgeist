@@ -763,6 +763,25 @@ class ZeitgeistEngineTest(_engineTestClass):
 			TimeRange.always(), [template], StorageState.Any, 10,
 			ResultType.MostRecentEvents
 		)
+		
+	def testWildcard(self):
+		import_events("test/data/five_events.js", self.engine)
+
+		template = Event.new_for_values(
+			actor = "ge*"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(2, len(ids))
+		
+		template = Event.new_for_values(
+			actor = "!ge*"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
 
 if __name__ == "__main__":
 	unittest.main()

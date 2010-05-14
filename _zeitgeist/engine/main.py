@@ -225,7 +225,7 @@ class ZeitgeistEngine:
 				for child_interp in (Symbol.find_child_uris_extended(value)):
 					if child_interp:
 						event_interp_where.add_text_condition("interpretation",
-						                       self._interpretation[child_interp], like=wildcard)
+						                       child_interp, like=wildcard, cache=self._interpretation)
 				if event_interp_where:
 					subwhere.extend(event_interp_where)
 				
@@ -235,7 +235,7 @@ class ZeitgeistEngine:
 				for child_manif in (Symbol.find_child_uris_extended(value)):
 					if child_manif:
 						event_manif_where.add_text_condition("manifestation",
-						                      self._manifestation[child_manif], like=wildcard)
+						                      child_manif, like=wildcard, cache=self._manifestation)
 				if event_manif_where:
 					subwhere.extend(event_manif_where)
 				
@@ -245,7 +245,7 @@ class ZeitgeistEngine:
 				for child_interp in (Symbol.find_child_uris_extended(value)):
 					if child_interp:
 						su_interp_where.add_text_condition("subj_interpretation",
-						                    self._interpretation[child_interp], like=wildcard)
+						                    child_interp, like=wildcard, cache=self._interpretation)
 				if su_interp_where:
 					subwhere.extend(su_interp_where)
 				
@@ -255,7 +255,7 @@ class ZeitgeistEngine:
 				for child_manif in (Symbol.find_child_uris_extended(value)):
 					if child_manif:
 						su_manif_where.add_text_condition("subj_manifestation",
-						                   self._manifestation[child_manif], like=wildcard)
+						                   child_manif, like=wildcard, cache=self._manifestation)
 				if su_manif_where:
 					subwhere.extend(su_manif_where)
 				
@@ -265,12 +265,11 @@ class ZeitgeistEngine:
 				value, negation, wildcard = parse_operators(Subject, Subject.Mimetype, subject_template.mimetype)
 				if value:
 					subwhere.add_text_condition("subj_mimetype",
-					             self._mimetype[value], wildcard, negation)
+					             value, wildcard, negation, cache=self._mimetype)
 				
 				value, negation, wildcard = parse_operators(Event, Event.Actor, event_template.actor)
 				if value:
-					subwhere.add_text_condition("actor",
-					             self._actor[value], wildcard, negation)
+					subwhere.add_text_condition("actor", value, wildcard, negation, cache=self._actor)
 			except KeyError, e:
 				# Value not in DB
 				log.debug("Unknown entity in query: %s" % e)
