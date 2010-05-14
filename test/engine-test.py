@@ -750,6 +750,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals(3, len(ids))
 		
 	def testBug580364(self):
+		""" for now we raise a ValueError if someone wants to search
+		by the storage field, this might change later on. (LP: #580364)"""
 		events = [
 			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
 			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
@@ -757,10 +759,10 @@ class ZeitgeistEngineTest(_engineTestClass):
 		ids_in = self.engine.insert_events(events)
 		template = Event.new_for_values(subject_storage="xxxx")
 		
-		ids_out = self.engine.find_eventids(TimeRange.always(),
-			[template], StorageState.Any, 10, ResultType.MostRecentEvents)
-		
-		self.assertEquals(0, len(ids_out))
+		self.assertRaises(ValueError, self.engine.find_eventids,
+			TimeRange.always(), [template], StorageState.Any, 10,
+			ResultType.MostRecentEvents
+		)
 
 if __name__ == "__main__":
 	unittest.main()

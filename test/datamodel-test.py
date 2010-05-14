@@ -274,11 +274,12 @@ class EventTest (unittest.TestCase):
 		filtered_events = filter(template.matches_event, events)
 		self.assertEquals(0, len(filtered_events))
 		
-		template = Event.new_for_values(
-			subject_storage = "!boo"
-		)
-		filtered_events = filter(template.matches_event, events)
-		self.assertEquals(0, len(filtered_events))
+		# searching by storage field is not supported yet, se (LP: #580364)
+		#~ template = Event.new_for_values(
+			#~ subject_storage = "!boo"
+		#~ )
+		#~ filtered_events = filter(template.matches_event, events)
+		#~ self.assertEquals(0, len(filtered_events))
 		
 	def testNegationCombination(self):
 		events = parse_events("test/data/five_events.js")
@@ -296,6 +297,13 @@ class EventTest (unittest.TestCase):
 		)
 		filtered_events = filter(template.matches_event, events)
 		self.assertEquals(3, len(filtered_events))
+		
+	def testBug580364(self):
+		""" for now we raise a ValueError if someone wants to search
+		by the storage field, this might change later on. (LP: #580364)"""
+		event = Event.new_for_values(timestamp=1000, subject_storage="sometext")
+		template = Event.new_for_values(subject_storage="xxxx")
+		self.assertRaises(ValueError, template.matches_event, event)
 
 
 class TimeRangeTest (unittest.TestCase):

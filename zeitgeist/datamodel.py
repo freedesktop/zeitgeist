@@ -541,7 +541,11 @@ class Subject(list):
 			if not subject_template[m]:
 				# empty fields are handled as wildcards
 				continue
-			if m in (Subject.Interpretation, Subject.Manifestation):
+			if m == Subject.Storage:
+				# we do not support searching by storage field for now
+				# see LP: #580364
+				raise ValueError("zeitgeist does not support searching by 'storage' field")
+			elif m in (Subject.Interpretation, Subject.Manifestation):
 				# symbols are treated differently
 				comp = Symbol.uri_is_child_of
 			else:

@@ -175,6 +175,11 @@ class ZeitgeistEngine:
 		where_or = WhereClause(WhereClause.OR)
 		
 		for (event_template, subject_template) in self._build_templates(templates):
+			# we do not support searching by storage field for now
+			# see LP: #580364
+			if subject_template[Subject.Storage]:
+				raise ValueError("zeitgeist does not support searching by 'storage' field")
+			
 			subwhere = WhereClause(WhereClause.AND)
 			
 			if event_template.id:
