@@ -385,7 +385,7 @@ class WhereClause:
 			elif column in ("actor", "subj_mimetype"):
 				value_type = "id"
 			else:
-				raise AssertionError("We don't knwo how to handle this type of data")
+				raise AssertionError("We don't know how to handle this type of data")
 			# thekorn: this is a first (unoptimized version)
 			# see http://www.sqlite.org/optoverview.html '4.0 The LIKE optimization'
 			# for how this will look in the future
