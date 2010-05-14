@@ -41,7 +41,9 @@ __all__ = [
 
 NEGATION_OPERATOR = "!"
 
-EQUAL = lambda x,y: x == y
+def EQUAL(x, y):
+	"""checks if both given arguments are equal"""
+	return x == y
 
 # next() function is python >= 2.6
 try:
