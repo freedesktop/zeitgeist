@@ -71,7 +71,6 @@ def _set_schema_version (cursor, schema_name, version):
 		INSERT INTO schema_version VALUES (?, ?)
 	""", (schema_name, version))
 
-CORE_SCHEMA_VERSION = 1
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
 	start = time.time()
@@ -82,13 +81,13 @@ def create_db(file_path):
 	
 	core_schema_version = _get_schema_version(cursor, "core")
 	if core_schema_version is not None:
-		if core_schema_version == CORE_SCHEMA_VERSION:
+		if core_schema_version == constants.CORE_SCHEMA_VERSION:
 			_time = (time.time() - start)*1000
 			log.debug("Core schema is good. DB loaded in %sms" % _time)
 			return cursor
 		else:
 			log.fatal("Unexpected schema version for core schema: %s. Expected: %s" %
-			          (core_schema_version, CORE_SCHEMA_VERSION))
+			          (core_schema_version, constants.CORE_SCHEMA_VERSION))
 			raise SystemExit(27)
 	else:
 		log.info("Setting up initial database")
@@ -316,7 +315,7 @@ def create_db(file_path):
 	
 	# All good. Set the schema version, so we don't have to do all this
 	# sql the next time around
-	_set_schema_version (cursor, "core", CORE_SCHEMA_VERSION)
+	_set_schema_version (cursor, "core", constants.CORE_SCHEMA_VERSION)
 	_time = (time.time() - start)*1000
 	log.info("DB set up in %sms" % _time)
 	cursor.connection.commit()

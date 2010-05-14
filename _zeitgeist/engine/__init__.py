@@ -53,5 +53,8 @@ class _Constants:
 		"_zeitgeist.engine.extensions.blacklist.Blacklist",
 		"_zeitgeist.engine.extensions.datasource_registry.DataSourceRegistry",
 		]
+	
+	# Required version of DB schema
+	CORE_SCHEMA_VERSION = 1
 
 constants = _Constants()
