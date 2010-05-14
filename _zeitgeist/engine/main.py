@@ -65,7 +65,11 @@ def parse_negation(kind, field, value, parse_negation=True):
 	return value, negation
 	
 def parse_wildcard(kind, field, value):
-	"""TODO"""
+	"""checks if value ends with the a wildcard,
+	if value ends with a wildcard but the field does not support wildcards
+	a ValueError is raised.
+	This function returns a (value_without_wildcard, wildcard)-tuple
+	"""
 	wildcard = False
 	if value.endswith(WILDCARD):
 		wildcard = True
@@ -75,7 +79,10 @@ def parse_wildcard(kind, field, value):
 	return value, wildcard
 	
 def parse_operators(kind, field, value):
-	"""TODO"""
+	"""runs both (parse_negation and parse_wildcard) parser functions
+	on query values, and handles the special case of Subject.Text correctly.
+	returns a (value_without_negation_and_wildcard, negation, wildcard)-tuple
+	"""
 	try:
 		value, negation = parse_negation(kind, field, value)
 	except ValueError:
