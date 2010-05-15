@@ -728,6 +728,28 @@ class ZeitgeistEngineTest(_engineTestClass):
 		#~ )
 		#~ self.assertEquals(0, len(ids))
 		
+	def testNegationOntology(self):
+		events = [
+			Event.new_for_values(interpretation=Interpretation.MEDIA, subject_uri="test"),
+			Event.new_for_values(interpretation=Interpretation.AUDIO, subject_uri="test"),
+			Event.new_for_values(interpretation=Interpretation.VIDEO, subject_uri="test"),
+			Event.new_for_values(interpretation=Interpretation.DOCUMENT, subject_uri="test"),
+		]
+		self.engine.insert_events(events)
+		
+		template = Event.new_for_values(interpretation="!%s" %Interpretation.AUDIO)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+		template = Event.new_for_values(interpretation="!%s" %Interpretation.MEDIA)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(1, len(ids))
+		
+		
 	def testNegationCombination(self):
 		import_events("test/data/five_events.js", self.engine)
 		
