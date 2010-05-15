@@ -5,11 +5,11 @@ import glob
 import unittest
 import doctest
 import logging
-
-# hide logging output
-logging.basicConfig(filename="/dev/null")
-
 import sys
+
+# redirect all debugging output to stderr
+logging.basicConfig(stream=sys.stderr)
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Find the test/ directory
@@ -29,4 +29,4 @@ for fname in os.listdir(testdir):
 		suite.addTest(unittest.defaultTestLoader.loadTestsFromModule(module))
 
 # Run all of the tests
-unittest.TextTestRunner(verbosity=2).run(suite)
+unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)

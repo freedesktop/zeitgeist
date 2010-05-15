@@ -1,0 +1,16 @@
+Zeitgeist testsuite
+===================
+
+Run all tests
+*************
+To run all tests, run
+    test/run-all-tests.py 2> /dev/null
+in the project root.
+
+
+
+Conventions
+***********
+During test runs all test result outputs (unittest-/doctest-results etc.)
+are printed to stdout, were all other output (debugging output etc.)
+are printed to stderr.

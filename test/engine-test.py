@@ -13,6 +13,7 @@ from zeitgeist.datamodel import *
 from testutils import import_events
 
 import unittest
+import logging
 
 TEST_ACTOR = "/usr/share/applications/gnome-about.desktop"
 
@@ -569,7 +570,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		result = self.engine.find_related_uris(
 			TimeRange.always(), [event], [],
 			StorageState.Any, 2, 0)
-		print "*************", result
+		logging.debug("************* %s" %result)
 		self.assertEquals(result, [])
 	
 	def testRelatedForEventsSortRecency(self):
