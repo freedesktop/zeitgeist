@@ -3,6 +3,7 @@
 import unittest
 import os
 import sys
+import logging
 
 # DBus setup
 import gobject
@@ -99,7 +100,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 					subjects=[subj_templ1,subj_templ2])
 		ids = self.findEventIdsAndWait([event_template],
 						num_events=10)
-		print "RESULTS", map(int, ids)
+		logging.debug("RESULTS %s" %map(int, ids))
 		self.assertEquals(2, len(ids))
 		
 	def testUnicodeInsert(self):
