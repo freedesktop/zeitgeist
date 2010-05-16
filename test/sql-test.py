@@ -66,6 +66,42 @@ class SQLTest (unittest.TestCase):
 		
 		self.assertEquals(where.sql % tuple(where.arguments),
 		                  "(foo = 10 AND NOT (subfoo = 68 OR subbar = 69) AND bar = 11)")
+		                  
+	def testAddTextCondition(self):
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("boo", "bar")
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(boo = bar)")
+			
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("boo", "bar", negation=True)
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(boo != bar)")
+			
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("actor", "bar", like=True)
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(actor IN (SELECT id FROM actor WHERE value GLOB bar*))")
+			
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("subj_mimetype", "bar", like=True)
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(subj_mimetype IN (SELECT id FROM mimetype WHERE value GLOB bar*))")
+			
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("subj_uri", "bar", like=True)
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(subj_uri IN (SELECT value FROM uri WHERE value GLOB bar*))")
+			
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("subj_origin", "bar", like=True)
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(subj_origin IN (SELECT value FROM uri WHERE value GLOB bar*))")
+			
+		where = WhereClause(WhereClause.AND)
+		where.add_text_condition("actor", "bar", like=True, negation=True)
+		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
+			"(actor NOT IN (SELECT id FROM actor WHERE value GLOB bar*))")
 		
 
 if __name__ == "__main__":

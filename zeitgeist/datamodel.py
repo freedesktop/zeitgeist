@@ -40,10 +40,15 @@ __all__ = [
 ]
 
 NEGATION_OPERATOR = "!"
+WILDCARD = "*"
 
 def EQUAL(x, y):
 	"""checks if both given arguments are equal"""
 	return x == y
+	
+def STARTSWITH(x, y):
+	"""checks if 'x' startswith 'y'"""
+	return x.startswith(y)
 
 # next() function is python >= 2.6
 try:
@@ -436,6 +441,7 @@ class Subject(list):
 		Storage) = range(7)
 		
 	SUPPORTS_NEGATION = (Uri, Interpretation, Manifestation, Origin, Mimetype)
+	SUPPORTS_WILDCARDS = (Uri, Origin, Mimetype)
 	
 	def __init__(self, data=None):
 		super(Subject, self).__init__([""]*len(Subject.Fields))
@@ -560,6 +566,10 @@ class Subject(list):
 		if field_id in self.SUPPORTS_NEGATION \
 				and expression.startswith(NEGATION_OPERATOR):
 			return not self._check_field_match(field_id, expression[len(NEGATION_OPERATOR):], comp)
+		elif field_id in self.SUPPORTS_WILDCARDS \
+				and expression.endswith(WILDCARD):
+			assert comp == EQUAL, "wildcards only work for pure text fields"
+			return self._check_field_match(field_id, expression[:-len(WILDCARD)], STARTSWITH)
 		else:
 			return comp(self[field_id], expression)
 
@@ -585,6 +595,7 @@ class Event(list):
 		Actor) = range(5)
 		
 	SUPPORTS_NEGATION = (Interpretation, Manifestation, Actor)
+	SUPPORTS_WILDCARDS = (Actor,)
 	
 	def __init__(self, struct = None):
 		"""
@@ -833,6 +844,10 @@ class Event(list):
 		if field_id in self.SUPPORTS_NEGATION \
 				and expression.startswith(NEGATION_OPERATOR):
 			return not self._check_field_match(field_id, expression[len(NEGATION_OPERATOR):], comp)
+		elif field_id in self.SUPPORTS_WILDCARDS \
+				and expression.endswith(WILDCARD):
+			assert comp == EQUAL, "wildcards only work for pure text fields"
+			return self._check_field_match(field_id, expression[:-len(WILDCARD)], STARTSWITH)
 		else:
 			return comp(self[0][field_id], expression)
 	
