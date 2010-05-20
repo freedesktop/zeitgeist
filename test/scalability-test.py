@@ -6,8 +6,12 @@
 
 # Update python path to use local zeitgeist module
 import sys
+import signal
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from subprocess import Popen, PIPE
+from tempfile import mkstemp
 
 from zeitgeist.datamodel import *
 from zeitgeist.client import *
@@ -113,18 +117,64 @@ class EventGenerator:
 	
 	def report(self):
 		return REPORT % (len(self), len(self.event_interpretations), len(self.event_manifestations), len(self.event_actors), self.payload_freq, self.subject_freq, len(self.subject_uris), len(self.subject_interpretations), len(self.subject_manifestations), len(self.subject_mimetypes), len(self.subject_origins), len(self.subject_storages), self.subject_text_freq)
+		
+def spawn_daemon(database_file, logger=PIPE):
+	os.environ.update({"ZEITGEIST_DATABASE_PATH": database_file})
+	daemon = Popen(
+		["./zeitgeist-daemon.py", "--no-datahub"], stderr=logger, stdout=logger
+	)
+	time.sleep(3)
+	err = daemon.poll()
+	if err:
+		raise RuntimeError("Could not start daemon,  got err=%i" % err)
+	return daemon
+	
+def kill_daemon(daemon):
+	try:
+		os.kill(daemon.pid, signal.SIGKILL)
+	except (OSError, AttributeError):
+		pass
+	else:
+		daemon.wait()
+	
  
 
 if __name__ == "__main__":
 	import sys, time
-	events = EventGenerator(10000)
+	if len(sys.argv) == 2:
+		logger = open(sys.argv[-1], "w")
+	else:
+		logger=PIPE
+	events = EventGenerator(num_events=20000, num_subjects=500)
 	print events.report() + "\n"
-	log = ZeitgeistDBusInterface()
-	start = time.time()
-	
-	# Insert events in batches of 10
-	for i in range(len(events) / 10):
-		batch = [events[i*10 + j] for j in range(10)]
-		log.InsertEvents(batch)
+	fd, database_file = mkstemp(prefix="zeitgeist.", suffix=".sqlite")
+	print "DATABASE:", database_file
+	os.close(fd)
+	daemon = spawn_daemon(database_file, logger)
+	try:
+		log = ZeitgeistDBusInterface()
+		start = time.time()
 		
-	print "Insertion time: %ss" % (time.time() - start)
+		# Insert events in batches of 10
+		for i in range(len(events) / 10):
+			batch = [events[i*10 + j] for j in range(10)]
+			log.InsertEvents(batch)
+			
+		print "Insertion time: %ss" % (time.time() - start)
+		# test for lp #583065
+		templates = []
+		for uri in events.subject_uris[:30]:
+			templates.append(Event.new_for_values(subjects=[Subject.new_for_values(uri=uri)]))
+		start = time.time()
+		ev = log.FindEvents(
+			TimeRange.until_now(),
+			templates,
+			StorageState.Any,
+			0, #all possible results
+			ResultType.MostPopularSubjects
+		)
+		print "Query time: %ss" % (time.time() - start)
+	finally:
+		kill_daemon(daemon)
+		# comment the next line if you would like to kkep the database
+		os.unlink(database_file)
