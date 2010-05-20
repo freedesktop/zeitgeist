@@ -46,8 +46,8 @@ class UnicodeCursor(sqlite3.Cursor):
 
 def _get_schema_version (cursor, schema_name):
 	"""
-	Returns the schema version for schema_name or returns None in case
-	the schema doesn't exist
+	Returns the schema version for schema_name or returns 0 in case
+	the schema doesn't exist.
 	"""
 	try:
 		schema_version_result = cursor.execute("""
@@ -74,7 +74,7 @@ def _set_schema_version (cursor, schema_name, version):
 def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 	"""
 	Try and upgrade schema `schema_name` from version `old_version` to
-	`new_version`. This is done by checking for an upragde module named
+	`new_version`. This is done by checking for an upgrade module named
 	'_zeitgeist.engine.upgrades.$schema_name_$old_version_$new_version'
 	and executing the run(cursor) method of that module
 	"""
@@ -112,7 +112,10 @@ def create_db(file_path):
 				_do_schema_upgrade (cursor,
 			                        constants.CORE_SCHEMA,
 			                        core_schema_version,
-			                        constants.CORE_SCHEMA_VERSION)			                        
+			                        constants.CORE_SCHEMA_VERSION)
+			    # Don't return here. The upgrade process might depend on the
+			    # tables, indexes, and views being set up (to avoid code dup)
+			    log.info("Running post upgrade setup")
 			except Exception, e:
 				log.fatal("Failed to upgrade database '%s' from version %s to %s: %s" %
 				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
