@@ -58,6 +58,29 @@ value is that of XDG's data dir (usually ~/.local/share/zeitgeist).
 .B ZEITGEIST_DATABASE_PATH
 This variable lets you specify an override for the filename of the main
 database. The default value is $ZEITGEIST_DATA_PATH/activity.sqlite.
+.TP
+.B ZEITGEIST_DEFAULT_EXTENSIONS
+This variable lets you specify an override for the extensions which are
+loaded at daemon startup time. Per default the \'Blacklist\' and the
+\'DataSourceRegistry\' extension are loaded.
+.TP
+.B ZEITGEIST_EXTRA_EXTENSIONS
+This variable lets you add extensions which are loaded at daemon
+startup time.
+.TP
+The ZEITGEIST_DEFAULT_EXTENSIONS and the ZEITGEIST_EXTRA_EXTENSIONS
+variable require a no-space comma separated list of module.class names.
+
+.SH EXAMPLES
+.PP
+.B environment variables
+.PP
+To start the daemon with no extensions loaded run
+    ZEITGEIST_DEFAULT_EXTENSIONS= zeitgeist-daemon
+.PP
+To run the daemon with only the non-default extensions \'bzr.notify\'
+and \'tracker.games\' run
+    ZEITGEIST_DEFAULT_EXTENSIONS= ZEITGEIST_EXTRA_EXTENSIONS=bzr.notify,tracker.games zeitgeist-daemon
 
 .SH SEE ALSO
 \fBzeitgeist-datahub\fR, \fBgnome-activity-journal\fR
