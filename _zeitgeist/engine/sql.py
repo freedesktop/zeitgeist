@@ -122,7 +122,6 @@ def create_db(file_path):
 			except Exception, e:
 				log.fatal("Failed to upgrade database '%s' from version %s to %s: %s" %
 				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
-			raise SystemExit(27)
 	else:
 		log.info("Setting up initial database")
 		
