@@ -25,7 +25,7 @@ RENAMES = \
 	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Email"),
 	
 	("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#IMMessage",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage"),s
+	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage"),
 	
 	# FIXME: FEED_MESSAGE
 	# FIXME: BROADCAST_MESSAGE
@@ -79,9 +79,6 @@ DELETED = \
 [
 	# Interpretation.COMMENT
 	"http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#comment",
-	
-	,
-	""
 ]
 
 # Never existed:
@@ -93,4 +90,5 @@ DELETED = \
 # pre 0.3.3 DBs) to DB core schema version 1
 #
 def run(cursor):
-	raise Exception("Upgrade not implemented yet. Sorry")
+	for r in RENAMES:
+		print " -> ".join(r)

@@ -53,7 +53,8 @@ def _get_schema_version (cursor, schema_name):
 		schema_version_result = cursor.execute("""
 			SELECT version FROM schema_version WHERE schema='core'
 		""")
-		return schema_version_result.fetchone()[0]
+		result = schema_version_result.fetchone()
+		return result[0] if result else 0
 	except sqlite3.OperationalError, e:
 		# The schema isn't there...
 		log.debug ("Schema '%s' not found: %s" % (schema_name, e))
@@ -65,11 +66,15 @@ def _set_schema_version (cursor, schema_name, version):
 	"""
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS schema_version
-			(schema VARCHAR, version INT)
+			(schema VARCHAR PRIMARY KEY ON CONFLICT REPLACE, version INT)
 	""")
+	
+	# The 'ON CONFLICT REPLACE' on the PK converts INSERT to UPDATE
+	# when appriopriate
 	cursor.execute("""
 		INSERT INTO schema_version VALUES (?, ?)
 	""", (schema_name, version))
+	cursor.connection.commit()
 
 def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 	"""
@@ -86,9 +91,7 @@ def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 	eval("module.engine.upgrades.%s.run(cursor)" % upgrader_name)
 	
 	# Update the schema version
-	cursor.execute("""
-		UPDATE schema_version SET version=% WHERE schema='%s'
-	""" % (schema_name, new_version))
+	_set_schema_version(cursor, schema_name, new_version)
 	
 	log.info("Upgrade succesful")
 
@@ -110,12 +113,12 @@ def create_db(file_path):
 		else:
 			try:
 				_do_schema_upgrade (cursor,
-			                        constants.CORE_SCHEMA,
-			                        core_schema_version,
-			                        constants.CORE_SCHEMA_VERSION)
-			    # Don't return here. The upgrade process might depend on the
-			    # tables, indexes, and views being set up (to avoid code dup)
-			    log.info("Running post upgrade setup")
+				                    constants.CORE_SCHEMA,
+				                    core_schema_version,
+				                    constants.CORE_SCHEMA_VERSION)
+				# Don't return here. The upgrade process might depend on the
+				# tables, indexes, and views being set up (to avoid code dup)
+				log.info("Running post upgrade setup")
 			except Exception, e:
 				log.fatal("Failed to upgrade database '%s' from version %s to %s: %s" %
 				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
