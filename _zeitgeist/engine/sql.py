@@ -57,8 +57,8 @@ def _get_schema_version (cursor, schema_name):
 	"""
 	try:
 		schema_version_result = cursor.execute("""
-			SELECT version FROM schema_version WHERE schema='core'
-		""")
+			SELECT version FROM schema_version WHERE schema=?
+		""", (schema_name,))
 		result = schema_version_result.fetchone()
 		return result[0] if result else 0
 	except sqlite3.OperationalError, e:
