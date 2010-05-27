@@ -27,13 +27,6 @@ INTERPRETATION_RENAMES = \
 	("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#IMMessage",
 	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage"),
 	
-	# FIXME: FEED_MESSAGE
-	# FIXME: BROADCAST_MESSAGE
-	# FIXME: FOCUS_EVENT
-	# FIXME: WARN_EVENT
-	# FIXME: ERROR_EVENT
-	# FIXME: http://freedesktop.org/standards/xesam/1.0/core#SystemRessource
-	
 	("http://zeitgeist-project.com/schema/1.0/core#CreateEvent",
 	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#CreateEvent"),
 	
@@ -58,6 +51,19 @@ INTERPRETATION_RENAMES = \
 	("http://zeitgeist-project.com/schema/1.0/core#ReceiveEvent",
 	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#ReceiveEvent"),
 ]
+
+# The following interpretations does not have a good candidate for replacement
+# in the Nepomuk ontology. Now with schema versions in place we can consider
+# adding our own hacky URIs for these:
+# FIXME: FEED_MESSAGE
+# FIXME: BROADCAST_MESSAGE
+# FIXME: http://freedesktop.org/standards/xesam/1.0/core#SystemRessource
+# FIXME: Note - like from Tomboy and what have we
+
+# We should reevaluate the usefulness of the following event interpretations
+# FIXME: FOCUS_EVENT - We don't have a concrete use case except so hand wavy ideas
+# FIXME: WARN_EVENT - wtf?
+# FIXME: ERROR_EVENT - wtf?
 
 MANIFESTATION_RENAMES = \
 [
