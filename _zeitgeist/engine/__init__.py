@@ -81,5 +81,9 @@ class _Constants:
 	
 	# Extensions
 	DEFAULT_EXTENSIONS = _get_extensions()
+	
+	# Required version of DB schema
+	CORE_SCHEMA="core"
+	CORE_SCHEMA_VERSION = 1
 
 constants = _Constants()

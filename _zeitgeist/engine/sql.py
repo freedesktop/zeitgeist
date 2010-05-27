@@ -22,6 +22,7 @@
 
 import sqlite3
 import logging
+import time
 
 from _zeitgeist.engine import constants
 
@@ -49,13 +50,88 @@ class UnicodeCursor(sqlite3.Cursor):
 		else:
 			return super(UnicodeCursor, self).execute(statement)
 
+def _get_schema_version (cursor, schema_name):
+	"""
+	Returns the schema version for schema_name or returns 0 in case
+	the schema doesn't exist.
+	"""
+	try:
+		schema_version_result = cursor.execute("""
+			SELECT version FROM schema_version WHERE schema=?
+		""", (schema_name,))
+		result = schema_version_result.fetchone()
+		return result[0] if result else 0
+	except sqlite3.OperationalError, e:
+		# The schema isn't there...
+		log.debug ("Schema '%s' not found: %s" % (schema_name, e))
+		return 0
+
+def _set_schema_version (cursor, schema_name, version):
+	"""
+	Sets the version of `schema_name` to `version`
+	"""
+	cursor.execute("""
+		CREATE TABLE IF NOT EXISTS schema_version
+			(schema VARCHAR PRIMARY KEY ON CONFLICT REPLACE, version INT)
+	""")
+	
+	# The 'ON CONFLICT REPLACE' on the PK converts INSERT to UPDATE
+	# when appriopriate
+	cursor.execute("""
+		INSERT INTO schema_version VALUES (?, ?)
+	""", (schema_name, version))
+	cursor.connection.commit()
+
+def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
+	"""
+	Try and upgrade schema `schema_name` from version `old_version` to
+	`new_version`. This is done by checking for an upgrade module named
+	'_zeitgeist.engine.upgrades.$schema_name_$old_version_$new_version'
+	and executing the run(cursor) method of that module
+	"""
+	# Fire of the right upgrade module
+	log.info("Upgrading database '%s' from version %s to %s. This may take a while" %
+	         (schema_name, old_version, new_version))
+	upgrader_name = "%s_%s_%s" % (schema_name, old_version, new_version)
+	module = __import__ ("_zeitgeist.engine.upgrades.%s" % upgrader_name)
+	eval("module.engine.upgrades.%s.run(cursor)" % upgrader_name)
+	
+	# Update the schema version
+	_set_schema_version(cursor, schema_name, new_version)
+	
+	log.info("Upgrade succesful")
+
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
-	
+	start = time.time()
 	log.info("Using database: %s" % file_path)
 	conn = sqlite3.connect(file_path)
 	conn.row_factory = sqlite3.Row
 	cursor = conn.cursor(UnicodeCursor)
+	
+	# See if we have the right schema version, and try an upgrade if needed
+	core_schema_version = _get_schema_version(cursor, constants.CORE_SCHEMA)
+	if core_schema_version is not None:
+		if core_schema_version == constants.CORE_SCHEMA_VERSION:
+			_time = (time.time() - start)*1000
+			log.debug("Core schema is good. DB loaded in %sms" % _time)
+			return cursor
+		else:
+			try:
+				_do_schema_upgrade (cursor,
+				                    constants.CORE_SCHEMA,
+				                    core_schema_version,
+				                    constants.CORE_SCHEMA_VERSION)
+				# Don't return here. The upgrade process might depend on the
+				# tables, indexes, and views being set up (to avoid code dup)
+				log.info("Running post upgrade setup")
+			except Exception, e:
+				log.fatal("Failed to upgrade database '%s' from version %s to %s: %s" %
+				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
+				raise SystemExit(27)
+	else:
+		log.info("Setting up initial database")
+		
 	
 	# uri
 	cursor.execute("""
@@ -276,6 +352,13 @@ def create_db(file_path):
 					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
 		""")
+	
+	# All good. Set the schema version, so we don't have to do all this
+	# sql the next time around
+	_set_schema_version (cursor, constants.CORE_SCHEMA, constants.CORE_SCHEMA_VERSION)
+	_time = (time.time() - start)*1000
+	log.info("DB set up in %sms" % _time)
+	cursor.connection.commit()
 	
 	return cursor
 
