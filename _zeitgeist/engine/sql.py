@@ -29,6 +29,12 @@ from _zeitgeist.engine import constants
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.sql")
 
+TABLE_MAP = {
+	"subj_mimetype": "mimetype",
+	"subj_origin": "uri",
+	"subj_uri": "uri",
+}
+
 class UnicodeCursor(sqlite3.Cursor):
 	
 	@staticmethod
@@ -428,12 +434,14 @@ class WhereClause:
 	
 	AND = " AND "
 	OR = " OR "
+	NOT = "NOT "
 	
-	def __init__(self, relation):
+	def __init__(self, relation, negation=False):
 		self._conditions = []
 		self.arguments = []
 		self._relation = relation
 		self._no_result_member = False
+		self._negation = negation
 	
 	def __len__(self):
 		return len(self._conditions)
@@ -446,6 +454,31 @@ class WhereClause:
 			self.arguments.append(arguments)
 		else:
 			self.arguments.extend(arguments)
+			
+	def add_text_condition(self, column, value, like=False, negation=False, cache=None):
+		if like:
+			# thekorn: unfortunatly the data in event_view is a bit inconsistent
+			# e.g.:
+			# subj_uri and subj_origin are presented as string-values
+			# actor and subj_mimetype are ids
+			# (LP: #580601)
+			if column in ("subj_uri", "subj_origin"):
+				value_type = "value"
+			elif column in ("actor", "subj_mimetype"):
+				value_type = "id"
+			else:
+				raise AssertionError("We don't know how to handle this type of data")
+			# thekorn: this is a first (unoptimized version)
+			# see http://www.sqlite.org/optoverview.html '4.0 The LIKE optimization'
+			# for how this will look in the future
+			sql = "%s %sIN (SELECT %s FROM %s WHERE value GLOB ?)" \
+					%(column, self.NOT if negation else "", value_type, TABLE_MAP.get(column, column))
+			value += "*"
+		else:
+			sql = "%s %s= ?" %(column, "!" if negation else "")
+			if cache is not None:
+				value = cache[value]
+		self.add(sql, value)
 	
 	def extend(self, where):
 		self.add(where.sql, where.arguments)
@@ -457,7 +490,8 @@ class WhereClause:
 	@property
 	def sql(self):
 		if self: # Do not return "()" if there are no conditions
-			return "(" + self._relation.join(self._conditions) + ")"
+			negation = self.NOT if self._negation else ""
+			return "%s(%s)" %(negation, self._relation.join(self._conditions))
 	
 	def register_no_result(self):
 		self._no_result_member = True

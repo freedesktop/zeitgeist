@@ -1,4 +1,4 @@
-# Galician translation for zeitgeist
+# Lithuanian translation for zeitgeist
 # Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the zeitgeist package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: 2010-05-12 20:43+0000\n"
-"Last-Translator: Zeitgeist Framework Team <zeitgeist@lists.launchpad.net>\n"
-"Language-Team: Galician <gl@li.org>\n"
+"PO-Revision-Date: 2010-05-16 15:11+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Lithuanian <lt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-13 04:42+0000\n"
+"X-Launchpad-Export-Date: 2010-05-17 05:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../zeitgeist-daemon:56
@@ -46,43 +46,43 @@ msgstr ""
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
-msgstr "Etiquetas"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:212
 msgid "Bookmarks"
-msgstr "Marcadores"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:218
 msgid "Comments"
-msgstr "Comentarios"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:224
 msgid "Documents"
-msgstr "Documentos"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:230
 msgid "Images"
-msgstr "Imaxes"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:236
 msgid "Videos"
-msgstr "Vídeos"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:242
 msgid "Music"
-msgstr "Música"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:248
 msgid "Email"
-msgstr "Correo electrónico"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:254
 msgid "Messages"
-msgstr "Mensaxes"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:260
 msgid "Feeds"
-msgstr "Fontes de novas"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:266
 msgid "Broadcasts"
@@ -90,51 +90,51 @@ msgstr ""
 
 #: ../zeitgeist/datamodel.py:272
 msgid "Created"
-msgstr "Creado"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:278
 msgid "Modified"
-msgstr "Modificado"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:284
 msgid "Visited"
-msgstr "Visitado"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:290
 msgid "Send"
-msgstr "Enviar"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:296
 msgid "Received"
-msgstr "Recibido"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:302
 msgid "Warnings"
-msgstr "Avisos"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:308
 msgid "Errors"
-msgstr "Erros"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:314
 msgid "Applications"
-msgstr "Aplicativos"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:324
 msgid "Web History"
-msgstr "Historial de navegación"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:330
 msgid "Activities"
-msgstr "Actividades"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:336
 msgid "Notifications"
-msgstr "Notificacións"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:342
 msgid "Files"
-msgstr "Ficheiros"
+msgstr ""
 
 #: ../zeitgeist/datamodel.py:348
 msgid "System Resources"

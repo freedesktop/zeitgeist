@@ -179,6 +179,168 @@ class EventTest (unittest.TestCase):
 		self.assertTrue(ev.in_time_range(TimeRange(0, 20)))
 		self.assertFalse(ev.in_time_range(TimeRange(0, 5)))
 		self.assertFalse(ev.in_time_range(TimeRange(15, 20)))
+		
+	def testNegationTemplateMatching(self):
+		event = Event.new_for_values(
+			subject_interpretation=Interpretation.AUDIO
+		)
+		
+		template = Event.new_for_values(
+			subject_interpretation="!%s" %Interpretation.AUDIO
+		)
+		self.assertFalse(event.matches_template(template))
+		
+		template = Event.new_for_values(
+			subject_interpretation="!%s" %Interpretation.MEDIA
+		)
+		self.assertFalse(event.matches_template(template))
+		
+		template = Event.new_for_values(
+			subject_interpretation="!%s" %Interpretation.DOCUMENT
+		)
+		self.assertTrue(event.matches_template(template))
+		
+		template = Event.new_for_values(
+			subject_interpretation="!somerandomtext"
+		)
+		self.assertTrue(event.matches_template(template))
+		
+		event = Event.new_for_values(
+			subject_interpretation=Interpretation.MEDIA
+		)
+		
+		template = Event.new_for_values(
+			subject_interpretation="!%s" %Interpretation.AUDIO
+		)
+		self.assertTrue(event.matches_template(template))
+		
+	def testNegationFields(self):
+		events = parse_events("test/data/five_events.js")
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(3, len(filtered_events))
+		
+		template = Event.new_for_values(
+			manifestation = "!stfu:YourActivity"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(4, len(filtered_events))
+		
+		template = Event.new_for_values(
+			actor = "!firefox"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(2, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_uri = "!file:///tmp/foo.txt"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(3, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_interpretation = "!stfu:Document"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(4, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_manifestation = "!stfu:File"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(0, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_origin = "!file:///tmp"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(0, len(filtered_events))
+		
+		template = Event.new_for_values(
+			subject_mimetype = "!text/plain"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(0, len(filtered_events))
+		
+		# the next two fields do not support negation, '!' is treated as
+		# content
+		
+		template = Event.new_for_values(
+			subject_text = "!boo"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(0, len(filtered_events))
+		
+		# searching by storage field is not supported yet, se (LP: #580364)
+		#~ template = Event.new_for_values(
+			#~ subject_storage = "!boo"
+		#~ )
+		#~ filtered_events = filter(template.matches_event, events)
+		#~ self.assertEquals(0, len(filtered_events))
+		
+	def testNegationCombination(self):
+		events = parse_events("test/data/five_events.js")
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			actor = "!firefox"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(2, len(filtered_events))
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			manifestation = "!stfu:YourActivity"
+		)
+		filtered_events = filter(template.matches_event, events)
+		self.assertEquals(3, len(filtered_events))
+		
+	def testBug580364(self):
+		""" for now we raise a ValueError if someone wants to search
+		by the storage field, this might change later on. (LP: #580364)"""
+		event = Event.new_for_values(timestamp=1000, subject_storage="sometext")
+		template = Event.new_for_values(subject_storage="xxxx")
+		self.assertRaises(ValueError, template.matches_event, event)
+		
+	def testWildcardTemplateMatching(self):
+		event = Event.new_for_values(actor="boo bar")
+		
+		template = Event.new_for_values(actor="boo*")
+		self.assertTrue(event.matches_template(template))
+		
+		# wildcards are not supported in interpretation,
+		# so they are handled as content
+		event = Event.new_for_values(interpretation="boo bar")
+		
+		template = Event.new_for_values(interpretation="boo*")
+		self.assertFalse(event.matches_template(template))
+		
+		event = Event.new_for_values(subject_uri="boo bar")
+		
+		template = Event.new_for_values(subject_uri="boo*")
+		self.assertTrue(event.matches_template(template))
+		
+		event = Event.new_for_values(subject_origin="boo bar")
+		
+		template = Event.new_for_values(subject_origin="boo*")
+		self.assertTrue(event.matches_template(template))
+		
+		event = Event.new_for_values(subject_mimetype="boo bar")
+		
+		template = Event.new_for_values(subject_mimetype="boo*")
+		self.assertTrue(event.matches_template(template))
+		
+	def testNegationWildcardTemplateMatching(self):
+		event = Event.new_for_values(actor="boo bar")
+		
+		template = Event.new_for_values(actor="!boo*")
+		self.assertFalse(event.matches_template(template))
+		template = Event.new_for_values(actor="!test*")
+		self.assertTrue(event.matches_template(template))
+
 
 class TimeRangeTest (unittest.TestCase):
 

@@ -36,7 +36,19 @@ __all__ = [
 	'Event',
 	'Subject',
 	'NULL_EVENT',
+	'NEGATION_OPERATOR',
 ]
+
+NEGATION_OPERATOR = "!"
+WILDCARD = "*"
+
+def EQUAL(x, y):
+	"""checks if both given arguments are equal"""
+	return x == y
+	
+def STARTSWITH(x, y):
+	"""checks if 'x' startswith 'y'"""
+	return x.startswith(y)
 
 # next() function is python >= 2.6
 try:
@@ -262,7 +274,7 @@ class Symbol(str):
 				parent = _SYMBOLS_BY_URI[parent]
 			except KeyError, e:
 				# Parent is not a known URI
-				print 11111111111, self.uri, parent
+				#print 11111111111, self.uri, parent #debug output
 				return self.uri == parent
 		
 		# Invariant: parent is a Symbol
@@ -427,6 +439,9 @@ class Subject(list):
 		Mimetype,
 		Text,
 		Storage) = range(7)
+		
+	SUPPORTS_NEGATION = (Uri, Interpretation, Manifestation, Origin, Mimetype)
+	SUPPORTS_WILDCARDS = (Uri, Origin, Mimetype)
 	
 	def __init__(self, data=None):
 		super(Subject, self).__init__([""]*len(Subject.Fields))
@@ -529,9 +544,34 @@ class Subject(list):
 		See also :meth:`Event.matches_template`
 		"""
 		for m in Subject.Fields:
-			if subject_template[m] and not Symbol.uri_is_child_of (self[m], subject_template[m]):
+			if not subject_template[m]:
+				# empty fields are handled as wildcards
+				continue
+			if m == Subject.Storage:
+				# we do not support searching by storage field for now
+				# see LP: #580364
+				raise ValueError("zeitgeist does not support searching by 'storage' field")
+			elif m in (Subject.Interpretation, Subject.Manifestation):
+				# symbols are treated differently
+				comp = Symbol.uri_is_child_of
+			else:
+				comp = EQUAL
+			if not self._check_field_match(m, subject_template[m], comp):
 				return False
 		return True
+		
+	def _check_field_match(self, field_id, expression, comp):
+		""" Checks if an expression matches a field given by its `field_id`
+		using a `comp` comparison function """
+		if field_id in self.SUPPORTS_NEGATION \
+				and expression.startswith(NEGATION_OPERATOR):
+			return not self._check_field_match(field_id, expression[len(NEGATION_OPERATOR):], comp)
+		elif field_id in self.SUPPORTS_WILDCARDS \
+				and expression.endswith(WILDCARD):
+			assert comp == EQUAL, "wildcards only work for pure text fields"
+			return self._check_field_match(field_id, expression[:-len(WILDCARD)], STARTSWITH)
+		else:
+			return comp(self[field_id], expression)
 
 class Event(list):
 	"""
@@ -553,6 +593,9 @@ class Event(list):
 		Interpretation,
 		Manifestation,
 		Actor) = range(5)
+		
+	SUPPORTS_NEGATION = (Interpretation, Manifestation, Actor)
+	SUPPORTS_WILDCARDS = (Actor,)
 	
 	def __init__(self, struct = None):
 		"""
@@ -770,8 +813,17 @@ class Event(list):
 		data = self[0]
 		tdata = event_template[0]
 		for m in Event.Fields:
-			if m == Event.Timestamp : continue
-			if tdata[m] and not Symbol.uri_is_child_of (data[m], tdata[m]) : return False
+			if m == Event.Timestamp or not tdata[m]:
+				# matching be timestamp is not supported and
+				# empty template-fields are treated as wildcards
+				continue
+			if m in (Event.Manifestation, Event.Interpretation):
+				# special check for symbols
+				comp = Symbol.uri_is_child_of
+			else:
+				comp = EQUAL
+			if not self._check_field_match(m, tdata[m], comp):
+				return False
 		
 		# If template has no subjects we have a match
 		if len(event_template[1]) == 0 : return True
@@ -785,6 +837,19 @@ class Event(list):
 		
 		# Template has subjects, but we never found a match
 		return False
+		
+	def _check_field_match(self, field_id, expression, comp):
+		""" Checks if an expression matches a field given by its `field_id`
+		using a `comp` comparison function """
+		if field_id in self.SUPPORTS_NEGATION \
+				and expression.startswith(NEGATION_OPERATOR):
+			return not self._check_field_match(field_id, expression[len(NEGATION_OPERATOR):], comp)
+		elif field_id in self.SUPPORTS_WILDCARDS \
+				and expression.endswith(WILDCARD):
+			assert comp == EQUAL, "wildcards only work for pure text fields"
+			return self._check_field_match(field_id, expression[:-len(WILDCARD)], STARTSWITH)
+		else:
+			return comp(self[0][field_id], expression)
 	
 	def matches_event (self, event):
 		"""

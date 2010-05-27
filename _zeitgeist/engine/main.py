@@ -32,8 +32,8 @@ from itertools import islice
 from collections import defaultdict
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
-	ResultType, get_timestamp_for_now, Interpretation, Symbol
-from _zeitgeist.engine.datamodel import Event, Subject	
+	ResultType, get_timestamp_for_now, Interpretation, Symbol, NEGATION_OPERATOR, WILDCARD
+from _zeitgeist.engine.datamodel import Event, Subject
 from _zeitgeist.engine.extension import ExtensionsCollection, load_class
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
@@ -43,6 +43,60 @@ WINDOW_SIZE = 7
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
+
+class NegationNotSupported(ValueError):
+	pass
+
+class WildcardNotSupported(ValueError):
+	pass
+
+def parse_negation(kind, field, value, parse_negation=True):
+	"""checks if value starts with the negation operator,
+	if value starts with the negation operator but the field does
+	not support negation a ValueError is raised.
+	This function returns a (value_without_negation, negation)-tuple
+	"""
+	negation = False
+	if parse_negation and value.startswith(NEGATION_OPERATOR):
+		negation = True
+		value = value[len(NEGATION_OPERATOR):]
+	if negation and field not in kind.SUPPORTS_NEGATION:
+		raise NegationNotSupported("This field does not support negation")
+	return value, negation
+	
+def parse_wildcard(kind, field, value):
+	"""checks if value ends with the a wildcard,
+	if value ends with a wildcard but the field does not support wildcards
+	a ValueError is raised.
+	This function returns a (value_without_wildcard, wildcard)-tuple
+	"""
+	wildcard = False
+	if value.endswith(WILDCARD):
+		wildcard = True
+		value = value[:-len(WILDCARD)]
+	if wildcard and field not in kind.SUPPORTS_WILDCARDS:
+		raise WildcardNotSupported("This field does not support wildcards")
+	return value, wildcard
+	
+def parse_operators(kind, field, value):
+	"""runs both (parse_negation and parse_wildcard) parser functions
+	on query values, and handles the special case of Subject.Text correctly.
+	returns a (value_without_negation_and_wildcard, negation, wildcard)-tuple
+	"""
+	try:
+		value, negation = parse_negation(kind, field, value)
+	except ValueError:
+		if kind is Subject and field == Subject.Text:
+			# we do not support negation of the text field,
+			# the text field starts with the NEGATION_OPERATOR
+			# so we handle this string as the content instead
+			# of an operator
+			negation = False
+		else:
+			raise
+	value, wildcard = parse_wildcard(kind, field, value)
+	return value, negation, wildcard
+
 
 class ZeitgeistEngine:
 	
@@ -161,61 +215,79 @@ class ZeitgeistEngine:
 		where_or = WhereClause(WhereClause.OR)
 		
 		for (event_template, subject_template) in self._build_templates(templates):
+			# we do not support searching by storage field for now
+			# see LP: #580364
+			if subject_template[Subject.Storage]:
+				raise ValueError("zeitgeist does not support searching by 'storage' field")
+			
 			subwhere = WhereClause(WhereClause.AND)
+			
+			if event_template.id:
+				subwhere.add("id = ?", event_template.id)
+			
 			try:
+				value, negation, wildcard = parse_operators(Event, Event.Interpretation, event_template.interpretation)
 				# Expand event interpretation children
-				event_interp_where = WhereClause(WhereClause.OR)
-				for child_interp in (Symbol.find_child_uris_extended(event_template.interpretation)):
+				event_interp_where = WhereClause(WhereClause.OR, negation)
+				for child_interp in (Symbol.find_child_uris_extended(value)):
 					if child_interp:
-						event_interp_where.add("interpretation = ?",
-						                       self._interpretation.id(child_interp))
+						event_interp_where.add_text_condition("interpretation",
+						                       child_interp, like=wildcard, cache=self._interpretation)
 				if event_interp_where:
 					subwhere.extend(event_interp_where)
 				
+				value, negation, wildcard = parse_operators(Event, Event.Manifestation, event_template.manifestation)
 				# Expand event manifestation children
-				event_manif_where = WhereClause(WhereClause.OR)
-				for child_manif in (Symbol.find_child_uris_extended(event_template.manifestation)):
+				event_manif_where = WhereClause(WhereClause.OR, negation)
+				for child_manif in (Symbol.find_child_uris_extended(value)):
 					if child_manif:
-						event_manif_where.add("manifestation = ?",
-						                      self._manifestation.id(child_manif))
+						event_manif_where.add_text_condition("manifestation",
+						                      child_manif, like=wildcard, cache=self._manifestation)
 				if event_manif_where:
 					subwhere.extend(event_manif_where)
 				
+				value, negation, wildcard = parse_operators(Subject, Subject.Interpretation, subject_template.interpretation)
 				# Expand subject interpretation children
-				su_interp_where = WhereClause(WhereClause.OR)
-				for child_interp in (Symbol.find_child_uris_extended(subject_template.interpretation)):
+				su_interp_where = WhereClause(WhereClause.OR, negation)
+				for child_interp in (Symbol.find_child_uris_extended(value)):
 					if child_interp:
-						su_interp_where.add("subj_interpretation = ?",
-						                    self._interpretation.id(child_interp))
+						su_interp_where.add_text_condition("subj_interpretation",
+						                    child_interp, like=wildcard, cache=self._interpretation)
 				if su_interp_where:
 					subwhere.extend(su_interp_where)
 				
+				value, negation, wildcard = parse_operators(Subject, Subject.Manifestation, subject_template.manifestation)
 				# Expand subject manifestation children
-				su_manif_where = WhereClause(WhereClause.OR)
-				for child_manif in (Symbol.find_child_uris_extended(subject_template.manifestation)):
+				su_manif_where = WhereClause(WhereClause.OR, negation)
+				for child_manif in (Symbol.find_child_uris_extended(value)):
 					if child_manif:
-						su_manif_where.add("subj_manifestation = ?",
-						                   self._manifestation.id(child_manif))
+						su_manif_where.add_text_condition("subj_manifestation",
+						                   child_manif, like=wildcard, cache=self._manifestation)
 				if su_manif_where:
 					subwhere.extend(su_manif_where)
 				
 				# FIXME: Expand mime children as well.
 				# Right now we only do exact matching for mimetypes
-				if subject_template.mimetype:
-					subwhere.add("subj_mimetype = ?",
-					             self._mimetype.id(subject_tempalte.mimetype))
+				# thekorn: this will be fixed when wildcards are supported
+				value, negation, wildcard = parse_operators(Subject, Subject.Mimetype, subject_template.mimetype)
+				if value:
+					subwhere.add_text_condition("subj_mimetype",
+					             value, wildcard, negation, cache=self._mimetype)
 				
-				if event_template.actor:
-					subwhere.add("actor = ?",
-					             self._actor.id(event_template.actor))
-			except KeyError:
+				value, negation, wildcard = parse_operators(Event, Event.Actor, event_template.actor)
+				if value:
+					subwhere.add_text_condition("actor", value, wildcard, negation, cache=self._actor)
+			except KeyError, e:
 				# Value not in DB
+				log.debug("Unknown entity in query: %s" % e)
 				where_or.register_no_result()
 				continue
+				
 			for key in ("uri", "origin", "text"):
 				value = getattr(subject_template, key)
 				if value:
-					subwhere.add("subj_%s = ?" % key, value)
+					value, negation, wildcard = parse_operators(Subject, getattr(Subject, key.title()), value)
+					subwhere.add_text_condition("subj_%s" %key, value, wildcard, negation)
 			where_or.extend(subwhere)
 		
 		return where_or
@@ -246,11 +318,11 @@ class ZeitgeistEngine:
 		 - 1: Events.
 		 - 2: (Timestamp, SubjectUri)
 		"""
-		
 		t = time.time()
 		
 		where = self._build_sql_event_filter(time_range, event_templates,
 			storage_state)
+		
 		if not where.may_have_results():
 			return []
 		
@@ -425,13 +497,13 @@ class ZeitgeistEngine:
 		if not event.timestamp:
 			event.timestamp = get_timestamp_for_now()
 		
+		id = self.next_event_id()
+		event[0][Event.Id] = id		
 		event = self.extensions.apply_insert_hooks(event, sender)
 		if event is None:
 			raise AssertionError("Inserting of event was blocked by an extension")
 		elif not issubclass(type(event), OrigEvent):
-			raise ValueError("cannot insert object of type %r" %type(event))
-		
-		id = self.next_event_id()
+			raise ValueError("cannot insert object of type %r" %type(event))		
 		
 		payload_id = self._store_payload (event)
 		

@@ -13,6 +13,7 @@ from zeitgeist.datamodel import *
 from testutils import import_events
 
 import unittest
+import logging
 
 TEST_ACTOR = "/usr/share/applications/gnome-about.desktop"
 
@@ -569,7 +570,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		result = self.engine.find_related_uris(
 			TimeRange.always(), [event], [],
 			StorageState.Any, 2, 0)
-		print "*************", result
+		logging.debug("************* %s" %result)
 		self.assertEquals(result, [])
 	
 	def testRelatedForEventsSortRecency(self):
@@ -626,8 +627,210 @@ class ZeitgeistEngineTest(_engineTestClass):
 		ids = self.engine.insert_events([ev])
 		_ev = self.engine.get_events(ids)[0]
 		self.assertEquals(ev.payload, _ev.payload)
-		_ev[0][0] = "" # hack to account for the fact that ev.id is unset
+		
+		# Note: engine.insert_events() sets the id of the Event objects
 		self.assertEquals(ev, _ev)
+
+	def testQueryByParent (self):
+		ev = Event.new_for_values(subject_interpretation=Interpretation.AUDIO)
+		_ids = self.engine.insert_events ([ev])
+		
+		tmpl = Event.new_for_values(subject_interpretation=Interpretation.MEDIA)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[tmpl], StorageState.Any, 10, ResultType.MostRecentEvents)
+		
+		self.assertEquals(1, len(ids))
+		self.assertEquals(_ids, ids)
+		
+	def testNegation(self):
+		import_events("test/data/five_events.js", self.engine)
+
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+		template = Event.new_for_values(
+			manifestation = "!stfu:YourActivity"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(4, len(ids))
+		
+		template = Event.new_for_values(
+			actor = "!firefox"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(2, len(ids))
+		
+		template = Event.new_for_values(
+			subject_uri = "!file:///tmp/foo.txt"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+		template = Event.new_for_values(
+			subject_interpretation = "!stfu:Document"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(4, len(ids))
+		
+		template = Event.new_for_values(
+			subject_manifestation = "!stfu:File"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(0, len(ids))
+		
+		template = Event.new_for_values(
+			subject_origin = "!file:///tmp"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(0, len(ids))
+		
+		template = Event.new_for_values(
+			subject_mimetype = "!text/plain"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(0, len(ids))
+		
+		# the next two fields do not support negation, '!' is treated as
+		# content
+		
+		template = Event.new_for_values(
+			subject_text = "!boo"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(0, len(ids))
+		
+		# searching by subject_storage is not working
+		#~ template = Event.new_for_values(
+			#~ subject_storage = "!boo"
+		#~ )
+		#~ ids = self.engine.find_eventids(TimeRange.always(),
+			#~ [template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		#~ )
+		#~ self.assertEquals(0, len(ids))
+		
+	def testNegationOntology(self):
+		events = [
+			Event.new_for_values(interpretation=Interpretation.MEDIA, subject_uri="test"),
+			Event.new_for_values(interpretation=Interpretation.AUDIO, subject_uri="test"),
+			Event.new_for_values(interpretation=Interpretation.VIDEO, subject_uri="test"),
+			Event.new_for_values(interpretation=Interpretation.DOCUMENT, subject_uri="test"),
+		]
+		self.engine.insert_events(events)
+		
+		template = Event.new_for_values(interpretation="!%s" %Interpretation.AUDIO)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+		template = Event.new_for_values(interpretation="!%s" %Interpretation.MEDIA)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(1, len(ids))
+		
+		
+	def testNegationCombination(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			actor = "!firefox"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(2, len(ids))
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			manifestation = "!stfu:YourActivity"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+	def testBug580364(self):
+		""" for now we raise a ValueError if someone wants to search
+		by the storage field, this might change later on. (LP: #580364)"""
+		events = [
+			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
+			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
+		]
+		ids_in = self.engine.insert_events(events)
+		template = Event.new_for_values(subject_storage="xxxx")
+		
+		self.assertRaises(ValueError, self.engine.find_eventids,
+			TimeRange.always(), [template], StorageState.Any, 10,
+			ResultType.MostRecentEvents
+		)
+		
+	def testWildcard(self):
+		import_events("test/data/five_events.js", self.engine)
+
+		template = Event.new_for_values(
+			actor = "ge*"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(2, len(ids))
+		
+		template = Event.new_for_values(
+			actor = "!ge*"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+		template = Event.new_for_values(
+			subject_mimetype = "text/*"
+		)
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(5, len(ids))
+		
+		template = Event.new_for_values(
+			subject_uri = "http://*"
+		)
+		
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(1, len(ids))
+		
+		template = Event.new_for_values(
+			subject_origin = "file://*"
+		)
+		
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(5, len(ids))
 
 if __name__ == "__main__":
 	unittest.main()
