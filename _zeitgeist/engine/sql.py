@@ -101,21 +101,13 @@ def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 	
 	log.info("Upgrade succesful")
 
-def create_db(file_path):
-	"""Create the database and return a default cursor for it"""
-	start = time.time()
-	log.info("Using database: %s" % file_path)
-	conn = sqlite3.connect(file_path)
-	conn.row_factory = sqlite3.Row
-	cursor = conn.cursor(UnicodeCursor)
-	
+def _check_core_schema_upgrade (cursor):
+	"""Return True if the schema is good and no setup needs to be run"""
 	# See if we have the right schema version, and try an upgrade if needed
 	core_schema_version = _get_schema_version(cursor, constants.CORE_SCHEMA)
 	if core_schema_version is not None:
 		if core_schema_version == constants.CORE_SCHEMA_VERSION:
-			_time = (time.time() - start)*1000
-			log.debug("Core schema is good. DB loaded in %sms" % _time)
-			return cursor
+			return True
 		else:
 			try:
 				_do_schema_upgrade (cursor,
@@ -125,13 +117,29 @@ def create_db(file_path):
 				# Don't return here. The upgrade process might depend on the
 				# tables, indexes, and views being set up (to avoid code dup)
 				log.info("Running post upgrade setup")
+				return False
 			except Exception, e:
 				log.fatal("Failed to upgrade database '%s' from version %s to %s: %s" %
 				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
 				raise SystemExit(27)
 	else:
-		log.info("Setting up initial database")
-		
+		return False
+
+
+def create_db(file_path):
+	"""Create the database and return a default cursor for it"""
+	start = time.time()
+	log.info("Using database: %s" % file_path)
+	conn = sqlite3.connect(file_path)
+	conn.row_factory = sqlite3.Row
+	cursor = conn.cursor(UnicodeCursor)
+	
+	# Always assume that temporary memory backed DBs have good schemas
+	if constants.DATABASE_FILE != ":memory:":
+		if _check_core_schema_upgrade (cursor):
+			_time = (time.time() - start)*1000
+			log.debug("Core schema is good. DB loaded in %sms" % _time)
+			return cursor
 	
 	# uri
 	cursor.execute("""

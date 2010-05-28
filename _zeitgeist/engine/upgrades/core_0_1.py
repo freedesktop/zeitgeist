@@ -1,5 +1,9 @@
 import os
 import sys
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("zeitgeist.sql")
 
 INTERPRETATION_RENAMES = \
 [
@@ -101,6 +105,13 @@ MANIFESTATION_DELETIONS = \
 # pre 0.3.3 DBs) to DB core schema version 1
 #
 def run(cursor):
+	# First check if this is really just an empty DB. The empty DB will also
+	# have a schema version of 0...
+	uri_table = cursor.execute("select name from sqlite_master where name='uri'").fetchone()
+	if not uri_table:
+		log.debug("Uninitialized DB. Skipping upgrade")
+		return
+	
 	for r in INTERPRETATION_RENAMES:
 		cursor.execute("""
 			UPDATE interpretation SET value=? WHERE value=?
