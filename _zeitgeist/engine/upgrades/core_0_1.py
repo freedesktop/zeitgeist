@@ -7,53 +7,53 @@ log = logging.getLogger("zeitgeist.sql")
 
 INTERPRETATION_RENAMES = \
 [
-	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#ManifestationCode",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SourceCode"),
+	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SourceCode",
+	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#ManifestationCode"),
 	
-	("http://www.semanticdesktop.org/ontologies/nfo/#Bookmark",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Bookmark"),
+	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Bookmark",
+	 "http://www.semanticdesktop.org/ontologies/nfo/#Bookmark"),
 	
-	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Document",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Document"),
+	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Document",
+	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Document"),
 	 
-	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Image",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Image"),
+	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Image",
+	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Image"),
 	
-	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Video",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Video"),
+	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Video",
+	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Video"),
 	
-	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Audio",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio"),
+	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio",
+	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#Audio"),
 	
-	("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#Email",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Email"),
+	("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Email",
+	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#Email"),
 	
-	("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#IMMessage",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage"),
+	("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage",
+	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo/#IMMessage"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#CreateEvent",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#CreateEvent"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#CreateEvent",
+	 "http://zeitgeist-project.com/schema/1.0/core#CreateEvent"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#ModifyEvent",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#ModifyEvent"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#ModifyEvent",
+	 "http://zeitgeist-project.com/schema/1.0/core#ModifyEvent"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#VisitEvent",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
+	 "http://zeitgeist-project.com/schema/1.0/core#VisitEvent"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#OpenEvent",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
+	 "http://zeitgeist-project.com/schema/1.0/core#OpenEvent"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#SaveEvent",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#ModifyEvent"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#ModifyEvent",
+	 "http://zeitgeist-project.com/schema/1.0/core#SaveEvent"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#CloseEvent",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
+	 "http://zeitgeist-project.com/schema/1.0/core#CloseEvent"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#SendEvent",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#SendEvent"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#SendEvent",
+	 "http://zeitgeist-project.com/schema/1.0/core#SendEvent"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#ReceiveEvent",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#ReceiveEvent"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#ReceiveEvent",
+	 "http://zeitgeist-project.com/schema/1.0/core#ReceiveEvent"),
 ]
 
 # The following interpretations does not have a good candidate for replacement
@@ -71,20 +71,20 @@ INTERPRETATION_RENAMES = \
 
 MANIFESTATION_RENAMES = \
 [
-	("http://zeitgeist-project.com/schema/1.0/core#UserActivity",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#UserActivity"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#UserActivity",
+	 "http://zeitgeist-project.com/schema/1.0/core#UserActivity"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#HeuristicActivity",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#HeuristicActivity"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#HeuristicActivity",
+	 "http://zeitgeist-project.com/schema/1.0/core#HeuristicActivity"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#ScheduledActivity",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#ScheduledActivity"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#ScheduledActivity",
+	 "http://zeitgeist-project.com/schema/1.0/core#ScheduledActivity"),
 	
-	("http://zeitgeist-project.com/schema/1.0/core#UserNotification",
-	 "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#WorldActivity"),
+	("http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#WorldActivity",
+	 "http://zeitgeist-project.com/schema/1.0/core#UserNotification"),
 	
-	("http://www.semanticdesktop.org/ontologies/nfo/#FileDataObject",
-	 "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject"),
+	("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject",
+	 "http://www.semanticdesktop.org/ontologies/nfo/#FileDataObject"),
 ]
 
 # These are left alone, but are listed here for completeness
