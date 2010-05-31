@@ -206,7 +206,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 		# if the value is None this filter matches all mimetypes
 		"DOCUMENT": MimeTypeSet(*DOCUMENT_MIMETYPES),
 		"IMAGE": MimeTypeSet(*IMAGE_MIMETYPES),
-		"MUSIC": MimeTypeSet(*AUDIO_MIMETYPES),
+		"AUDIO": MimeTypeSet(*AUDIO_MIMETYPES),
 		"VIDEO": MimeTypeSet(*VIDEO_MIMETYPES),
 		"SOURCE_CODE": MimeTypeSet(*DEVELOPMENT_MIMETYPES),
 	}
