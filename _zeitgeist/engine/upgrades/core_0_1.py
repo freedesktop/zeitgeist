@@ -113,14 +113,22 @@ def run(cursor):
 		return
 	
 	for r in INTERPRETATION_RENAMES:
-		cursor.execute("""
-			UPDATE interpretation SET value=? WHERE value=?
-		""", r)
+		try:
+			cursor.execute("""
+				UPDATE interpretation SET value=? WHERE value=?
+			""", r)
+		except sqlite3.IntegrityError:
+			# It's already there
+			pass
 	
 	for r in MANIFESTATION_RENAMES:
-		cursor.execute("""
-			UPDATE manifestation SET value=? WHERE value=?
-		""", r)
+		try:
+			cursor.execute("""
+				UPDATE manifestation SET value=? WHERE value=?
+			""", r)
+		except sqlite3.IntegrityError:
+			# It's already there
+			pass
 	
 	# START WEB HISTORY UPGRADE
 	# The case of Manifestation.WEB_HISTORY it's a little more tricky.
@@ -131,18 +139,22 @@ def run(cursor):
 	# and after that set the interpretation of all events with manifestation
 	# nfo#RemoteDataObjects to nfo#Website.
 	
-	cursor.execute("""
-		UPDATE manifestation SET value=? WHERE value=?
-	""", ("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebHistory",
-	      "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject"))
+	try:
+		cursor.execute("""
+			UPDATE manifestation SET value=? WHERE value=?
+		""", ("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebHistory",
+			  "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject"))
+	except sqlite3.IntegrityError:
+			# It's already there
+			pass
 	
 	try:
 		cursor.execute("""
 			INSERT INTO interpretation (value) VALUES (?)
 		""", ("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Website",))
-	except:
-		# Unique key constraint violation - it's already there...
-		pass
+	except sqlite3.IntegrityError:
+			# It's already there
+			pass
 	
 	website_id = cursor.execute("SELECT id FROM interpretation WHERE value='http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Website'").fetchone()[0]
 	remotes = cursor.execute("SELECT id FROM event WHERE subj_manifestation='http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject'").fetchall()
