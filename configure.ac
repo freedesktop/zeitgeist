@@ -25,5 +25,6 @@ AC_CONFIG_FILES([
 	_zeitgeist/loggers/datasources/Makefile
 	_zeitgeist/engine/Makefile
 	_zeitgeist/engine/extensions/Makefile
+	_zeitgeist/engine/upgrades/Makefile
 ])
 AC_OUTPUT

@@ -1,4 +1,4 @@
-SUBDIRS = extensions
+SUBDIRS = extensions upgrades
 
 appdir = $(prefix)/share/zeitgeist/_zeitgeist/engine/
 
