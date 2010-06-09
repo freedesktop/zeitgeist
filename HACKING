@@ -50,10 +50,14 @@ Release Tasks
    have been changes to it.
 
 2. Update NEWS file by hand
-  (hint: you can see the full change log with 'bzr log -n0 -v | less')
+  (hint: you can see the full change log with 'bzr log -n0 -v | less',
+   to get a log of all changes after the last release run
+   'bzr log -n0 -v -r tag:`bzr tags --sort=time|awk 'END{print $1}'`..|less')
 
 3. Commit your changes (with only these changes!) and push you current branch
    to lp:zeitgeist and lp:~zeitgeist/zeitgeist/zeitgeist-$VERSION
+   Before pushing make sure there is a $VERSION tag for the 'release' revision,
+   to create one run  'bzr tag $VERSION'.
 
 4. To make sure you have a pristine source tree do a clean checkout of the
    newly created branch:
