@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import sqlite3
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.sql")
