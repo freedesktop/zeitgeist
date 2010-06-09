@@ -372,5 +372,9 @@ class TimeRangeTest (unittest.TestCase):
 		self.assertTrue(first.intersect(last) == TimeRange(5, 10))
 		self.assertTrue(last.intersect(first) == TimeRange(5, 10))
 	
+	def testIsAlways(self):
+		always = TimeRange.always()
+		self.assertTrue(always.is_always())
+	
 if __name__ == '__main__':
 	unittest.main()

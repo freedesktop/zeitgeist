@@ -378,6 +378,13 @@ class TimeRange(list):
 		distant future
 		"""
 		return cls(-cls._max_stamp, cls._max_stamp)
+	
+	def is_always(self):
+		"""
+		Returns True if this time range represents the furtest past to the most
+		distant future
+		"""
+		return self.begin <= -TimeRange._max_stamp and self.end >= TimeRange._max_stamp
 		
 	def intersect(self, time_range):
 		"""
