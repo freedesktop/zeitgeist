@@ -1,3 +1,59 @@
+2010-06-10: Zeitgeist 0.4.0
+----------------------------
+
+Engine:
+ 
+ - Compile the shared-desktop-ontolgies (aka Nepomuk (aka OSCAF)) into Python
+   code at build time, and use them for out subject classification system
+ - You can now negate the fields uri, interpretation, manifestation, origin,
+   and mimetype, in event templates by prepending the field value with an
+   exclamation mark '!'.
+ - You can truncate (aka wildcard) the subject fields uri, origin, and mimetype
+   in event templates by appending an asterisk '*' to the string.
+ - Event templates now match on all child types of the specified interpretations
+   and manifestations. Ie. Interpretation.IMAGE also matches RASTER_IMAGE and
+   VECTOR_IMAGE.
+ - The core database schema is now versioned, meaning that we can migrate data
+   if the DB ever needs to change in layout. It also brings slightly faster
+   startup of the daemon when we detect that the schema version is what we
+   expect
+ - Two new environment variables ZEITGEIST_DEFAULT_EXTENSIONS and
+   ZEITGEIST_EXTRA_EXTENSIONS controlling which extensions are loaded
+ - Man pages updated with --no-datahub and environment variables to control
+   the data paths and loaded extensions
+ - Auto upgrades of schemas
+ - Some Nepomuk type URIs where wrong and will be fixed automatically in the
+   schema upgrade of the DB
+ - Fix DeleteEvents to work with arbitrarily huge amounts of IDs.
+ - Set event.id before passing events to the extension hooks so extensions
+   can make use of the event ids
+ 
+Python API:
+
+ - Removed {Interpretation,Manifestation}.UNKNOWN. If you really really (like
+   really!) can not come up with a good interpretation or manifestation
+   don't log it - or insert an empty string in stead
+ - What was subject's Manifestation.WEB_HISTORY is now represented by a
+   combination of Interpretation.WEBSITE and Manifestation.REMOTE_DATA_OBJECT
+ - Manifestation.FILE has been renamed to Manifestation.FILE_DATA_OBJECT
+ - Event interpretations OPEN_EVENT and VISIT_EVENT has been coalseced into
+   a new interpretation type called ACCESS_EVENT
+ - Event interpretation SAVE_EVENT has been coalesced into MODIFY_EVENT
+ - The following interpretations has been removed because we need a suitable
+   alternative defined in Nepomuk/OSCAF scope (Mikkel is on it):
+     BROADCAST_MESSAGE, FEED_MESSAGE, SYSTEM_RESOURCE, NOTE
+ - Interpretation.MUSIC is now AUDIO
+ - We are missing Interpretation.TAG (known bug)
+ - The following event interpretations has been removed because they had
+   unclear meanings or limited general usefulnes:
+     FOXUS_EVENT, WARN_EVENT, ERROR_EVENTs
+ - TimeRange sprouted a few new useful methods
+   
+Overall:
+ - Fixes and code enhancements and lots of new features API wise
+ - Manpage updates.
+ - Translation updates.  
+
 2010-04-22: Zeitgeist 0.3.3.1
 -----------------------------
 
