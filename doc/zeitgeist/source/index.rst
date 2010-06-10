@@ -25,7 +25,6 @@ Engine documentation
 
    engine
    Tutorial - How do extensions to the engine work? <tutorial_engine_extension>
-   Tutorial - How are symbols handled in zeitgeist? <tutorial_datamodel_symbols>
    
 Informations for developers
 ===========================

@@ -150,6 +150,13 @@ class RemoteInterface(SingletonApplication):
 		subject then events will match the template if any one of their
 		subjects match any one of the subject templates.
 		
+		The fields uri, interpretation, manifestation, origin, and mimetype
+		can be prepended with an exclamation mark '!' in order to negate
+		the matching.
+		
+		The fields uri, origin, and mimetype can be prepended with an
+		asterisk '*' in order to do truncated matching.
+		
 		This method is intended for queries potentially returning a
 		large result set. It is especially useful in cases where only
 		a portion of the results are to be displayed at the same time
@@ -202,6 +209,13 @@ class RemoteInterface(SingletonApplication):
 		are treated as wildcards. If a template has more than one
 		subject then events will match the template if any one of their
 		subjects match any one of the subject templates.
+		
+		The fields uri, interpretation, manifestation, origin, and mimetype
+		can be prepended with an exclamation mark '!' in order to negate
+		the matching.
+		
+		The fields uri, origin, and mimetype can be prepended with an
+		asterisk '*' in order to do truncated matching.
 		
 		In case you need to do a query yielding a large (or unpredictable)
 		result set and you only want to show some of the results at the
@@ -359,6 +373,9 @@ class RemoteInterface(SingletonApplication):
 		deleted.
 		
 		The monitor object must implement the interface :ref:`org.gnome.zeitgeist.Monitor <org_gnome_zeitgeist_Monitor>`
+		
+		The monitor templates are matched exactly like described in
+		:meth:`FindEventIds`.
 		
 		:param monitor_path: DBus object path to the client side monitor object. DBus signature o.
 		:param time_range: A two-tuple with the time range monitored

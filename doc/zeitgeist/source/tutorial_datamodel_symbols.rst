@@ -1,1 +1,0 @@
-../../../test/test-datamodel-symbols.rst
