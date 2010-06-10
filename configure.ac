@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [0.3.3.1])
+AC_INIT([zeitgeist], [0.4.0])
 AC_CONFIG_SRCDIR(zeitgeist-daemon.py)
 AM_INIT_AUTOMAKE([1.9 foreign])
 GNOME_COMMON_INIT
