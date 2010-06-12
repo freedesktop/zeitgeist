@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-08-08 19:40+0200\n"
-"PO-Revision-Date: 2010-03-17 05:12+0000\n"
-"Last-Translator: Zeitgeist Framework Team <zeitgeist@lists.launchpad.net>\n"
+"PO-Revision-Date: 2010-06-11 11:57+0000\n"
+"Last-Translator: Cihan Ersoy <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-07 03:45+0000\n"
+"X-Launchpad-Export-Date: 2010-06-12 03:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../zeitgeist-daemon:56
@@ -42,7 +42,7 @@ msgstr "Zeitgeist-hizmeti bağlantısı koptu, sonlandırılıyor."
 #: ../zeitgeist-datahub:139
 #, c-format
 msgid "Error logging item from \"%s\": %s"
-msgstr ""
+msgstr "\"%s\" konumundaki ögenin günlüklemesinde hata: %s"
 
 #: ../zeitgeist/datamodel.py:206
 msgid "Tags"
