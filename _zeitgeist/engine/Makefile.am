@@ -1,6 +1,6 @@
 SUBDIRS = extensions upgrades
 
-appdir = $(prefix)/share/zeitgeist/_zeitgeist/engine/
+appdir = $(datadir)/zeitgeist/_zeitgeist/engine/
 
 app_PYTHON = \
 	__init__.py \

@@ -1,6 +1,6 @@
 SUBDIRS = datasources
 
-appdir = $(prefix)/share/zeitgeist/_zeitgeist/loggers/
+appdir = $(datadir)/zeitgeist/_zeitgeist/loggers/
 
 app_PYTHON = \
 	__init__.py \

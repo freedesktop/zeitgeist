@@ -1,4 +1,4 @@
-appdir = $(prefix)/share/zeitgeist/_zeitgeist/engine/upgrades
+appdir = $(datadir)/zeitgeist/_zeitgeist/engine/upgrades
 
 app_PYTHON = \
 	__init__.py \

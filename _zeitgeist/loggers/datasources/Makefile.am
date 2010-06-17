@@ -1,4 +1,4 @@
-appdir = $(prefix)/share/zeitgeist/_zeitgeist/loggers/datasources
+appdir = $(datadir)/zeitgeist/_zeitgeist/loggers/datasources
 
 app_PYTHON = \
 	__init__.py \

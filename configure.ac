@@ -19,6 +19,7 @@ AC_CONFIG_FILES([
 	extra/Makefile
 	extra/ontology/Makefile
 	po/Makefile.in
+	zeitgeist-extension.pc
 	zeitgeist/Makefile
 	_zeitgeist/Makefile
 	_zeitgeist/loggers/Makefile
