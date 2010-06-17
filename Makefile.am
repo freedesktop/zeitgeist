@@ -17,7 +17,7 @@ EXTRA_DIST = \
 	NEWS \
 	zeitgeist-daemon.py \
 	zeitgeist-datahub.py \
-	zeitgeist-extension.pc.in
+	zeitgeist-daemon.pc.in
 
 DISTCLEANFILES = \
 	intltool-extract \
@@ -29,7 +29,7 @@ CLEANFILES = \
 	zeitgeist-datahub
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = zeitgeist-extension.pc
+pkgconfig_DATA = zeitgeist-daemon.pc
 
 zeitgeist-daemon: zeitgeist-daemon.py
 	sed \
