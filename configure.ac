@@ -27,4 +27,11 @@ AC_CONFIG_FILES([
 	_zeitgeist/engine/extensions/Makefile
 	_zeitgeist/engine/upgrades/Makefile
 ])
+
+# check for rapper
+AC_CHECK_PROG(HAVE_RAPPER, rapper, yes, no)
+if test "x$HAVE_RAPPER" = "xno"; then
+  AC_MSG_ERROR(You need the tool `rapper' from the `raptor-utils' package in order to compile Zeitgeist)
+fi
+
 AC_OUTPUT
