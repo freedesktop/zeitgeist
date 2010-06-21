@@ -49,10 +49,12 @@ except RuntimeError:
 
 print "Connecting to Zeitgeist's database..."
 cursor = get_default_cursor()
+print
 
 # TODO: Implement this, once we have cascade deletion in the database
-#print "Deleting any bogus events created by test cases..."
-#cursor.execute("DELETE FROM event  id FROM actor WHERE value LIKE 'actor%'")
+print "Deleting any bogus events created by test cases...",
+cursor.execute("DELETE FROM event WHERE actor IN (SELECT id FROM actor WHERE value LIKE 'actor%')")
+print " Done, deleted %d events." % cursor.rowcount
 
 print "Fetching old-style actor entries...",
 i = 0
