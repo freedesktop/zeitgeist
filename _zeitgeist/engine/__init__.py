@@ -42,31 +42,6 @@ def get_engine():
 		import main # _zeitgeist.engine.main
 		_engine = main.ZeitgeistEngine()
 	return _engine
-	
-def _get_extensions():
-	"""looks at the `ZEITGEIST_DEFAULT_EXTENSIONS` environment variable
-	to find the extensions which should be loaded on daemon startup, if
-	this variable is not set the `Blacklist` and the `DataSourceRegistry`
-	extension will be loaded. If this variable is set to an empty string
-	no extensions are loaded by default.
-	To load an extra set of extensions define the `ZEITGEIST_EXTRA_EXTENSIONS`
-	variable.
-	The format of these variables should just be a no-space comma
-	separated list of module.class names"""
-	default_extensions = os.environ.get("ZEITGEIST_DEFAULT_EXTENSIONS", None)
-	if default_extensions is not None:
-		extensions = default_extensions.split(",")
-	else:
-		extensions = [
-		"_zeitgeist.engine.extensions.blacklist.Blacklist",
-		"_zeitgeist.engine.extensions.datasource_registry.DataSourceRegistry",
-		]
-	extra_extensions = os.environ.get("ZEITGEIST_EXTRA_EXTENSIONS", None)
-	if extra_extensions is not None:
-		extensions += extra_extensions.split(",")
-	extensions = filter(None, extensions)
-	log.debug("daemon is configured to run with these extensions: %r" %extensions)
-	return extensions
 
 class _Constants:
 	# Directories
@@ -78,9 +53,6 @@ class _Constants:
 	# D-Bus
 	DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME
 	SIG_EVENT = "asaasay"
-	
-	# Extensions
-	DEFAULT_EXTENSIONS = _get_extensions()
 	
 	# Required version of DB schema
 	CORE_SCHEMA="core"

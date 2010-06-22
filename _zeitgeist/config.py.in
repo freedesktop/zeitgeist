@@ -1,9 +1,0 @@
-#
-# Zeitgeist Engine Build Time Configuration
-#
-# config.py.in is used to generate config.py
-#
-PREFIX = "@prefix@"
-DATADIR = "@DATADIR@"
-VERSION = "@VERSION@"
-EXTENSIONDIR = "@DATADIR@/zeitgeist/_zeitgeist/engine/extensions"

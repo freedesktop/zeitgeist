@@ -25,7 +25,6 @@ AC_CONFIG_FILES([
 	po/Makefile.in
 	zeitgeist-daemon.pc	
 	zeitgeist/Makefile
-	_zeitgeist/config.py
 	_zeitgeist/Makefile
 	_zeitgeist/loggers/Makefile
 	_zeitgeist/loggers/datasources/Makefile

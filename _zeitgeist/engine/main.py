@@ -34,7 +34,7 @@ from collections import defaultdict
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
 	ResultType, get_timestamp_for_now, Interpretation, Symbol, NEGATION_OPERATOR, WILDCARD
 from _zeitgeist.engine.datamodel import Event, Subject
-from _zeitgeist.engine.extension import ExtensionsCollection, load_class
+from _zeitgeist.engine.extension import ExtensionsCollection, get_extensions
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 	TableLookup, WhereClause
@@ -116,9 +116,9 @@ class ZeitgeistEngine:
 			raise RuntimeError("old database version")
 		
 		# Load extensions
-		default_extensions = map(load_class, constants.DEFAULT_EXTENSIONS)
+		default_extensions = get_extensions()
 		self.__extensions = ExtensionsCollection(self,
-			defaults=default_extensions)
+		                                         defaults=default_extensions)
 		
 		self._interpretation = TableLookup(cursor, "interpretation")
 		self._manifestation = TableLookup(cursor, "manifestation")

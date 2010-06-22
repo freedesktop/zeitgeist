@@ -17,11 +17,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import logging
 import weakref # avoid circular references as they confuse garbage collection
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.extension")
+
+import zeitgeist
 
 def safe_issubclass(obj, cls):
 	try:
@@ -87,7 +90,48 @@ class Extension(object):
 		"""
 		return event
 
-def load_class(path):
+def get_extensions():
+	"""looks at the `ZEITGEIST_DEFAULT_EXTENSIONS` environment variable
+	to find the extensions which should be loaded on daemon startup, if
+	this variable is not set the "extensiondir" variable of the configuration
+	will be scanned for .py files with classes extending Extension
+	If this variable is set to an empty string no extensions are loaded by
+	default.
+	To load an extra set of extensions define the `ZEITGEIST_EXTRA_EXTENSIONS`
+	variable.
+	The format of these variables should just be a no-space comma
+	separated list of module.class names"""
+	default_extensions = os.environ.get("ZEITGEIST_DEFAULT_EXTENSIONS", None)
+	if default_extensions is not None:
+		extensions = map(_load_class, default_extensions.split(","))
+	else:
+		extensions = _scan_extensions ()
+	extra_extensions = os.environ.get("ZEITGEIST_EXTRA_EXTENSIONS", None)
+	if extra_extensions is not None:
+		extensions += map(_load_class, extra_extensions.split(","))
+	extensions = filter(None, extensions)
+	log.debug("daemon is configured to run with these extensions: %r" %extensions)
+	return extensions
+
+def _scan_extensions():
+	"""Look in zeitgeist._config.extensiondir for .py files and return
+	a list of classes with all the classes that extends the Extension class"""
+	config = zeitgeist._config
+	log.debug("Searching for extensions in: %s" % config.extensiondir)	
+	extensions = []
+	modules = filter(lambda m : m.endswith(".py"), os.listdir(config.extensiondir))	
+	modules = map(lambda m : m.rpartition(".")[0], modules)
+	for mod in modules:
+		_zg = __import__ ("_zeitgeist.engine.extensions." + mod)
+		ext = getattr(_zg.engine.extensions, mod)
+		for cls in dir(ext):
+			cls = getattr(ext, cls)
+			if safe_issubclass(cls, Extension) and not cls is Extension:
+				extensions.append(cls)
+	return extensions
+			
+
+def _load_class(path):
 	"""
 	Load and return a class from a fully qualified string.
 	Fx. "_zeitgeist.engine.extensions.myext.MyClass"
