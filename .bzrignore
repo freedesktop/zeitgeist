@@ -29,3 +29,5 @@ zeitgeist-datahub
 doc/zeitgeist/build
 doc/zeitgeist/source/.static
 extra/ontology/*.py
+tools/cli/zeitgeist
+tools/gtk/zeitgeist

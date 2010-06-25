@@ -51,10 +51,18 @@ print "Connecting to Zeitgeist's database..."
 cursor = get_default_cursor()
 print
 
-# TODO: Implement this, once we have cascade deletion in the database
 print "Deleting any bogus events created by test cases...",
 cursor.execute("DELETE FROM event WHERE actor IN (SELECT id FROM actor WHERE value LIKE 'actor%')")
 print " Done, deleted %d events." % cursor.rowcount
+
+print "Deleting any inconsistent entries..."
+for field in ('interpretation', 'manifestation', 'subj_interpretation', 'subj_manifestation'):
+	result = cursor.execute(
+		"DELETE FROM event WHERE %s NOT IN (SELECT id FROM %s)" % \
+		(field, field.replace('subj_', ''))).fetchall()
+	if cursor.rowcount:
+		print " Deleted %d events for field \"%s\"." % (cursor.rowcount, field)
+print "Done."
 
 print "Fetching old-style actor entries...",
 i = 0
