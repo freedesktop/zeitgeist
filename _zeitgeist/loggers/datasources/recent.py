@@ -268,7 +268,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 					except IOError:
 						pass # file may be a broken symlink (LP: #523761)
 					except Exception, e:
-						log.warning('Corrupt .desktop file; Python traceback: %s', e)
+						log.warning('Corrupt .desktop file: %s', fullname)
 		return None
 	
 	def _get_interpretation_for_mimetype(self, mimetype):
