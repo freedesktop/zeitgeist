@@ -68,22 +68,19 @@ class TestExtensionHooks(_engineTestClass):
 	
 	def testDeleteHook(self):
 		
-		IDS = []
-		
 		class DeleteAllInsertExtension(Extension):
 			PUBLIC_METHODS = []
-				
+			del_ids = []
+			
+			@classmethod
 			def delete_event_hook(self, del_ids, sender):
-				IDS = IDS + del_ids
+				self.del_ids = del_ids
 				
 		self.engine.extensions.load(DeleteAllInsertExtension)
 		ids = import_events("test/data/five_events.js", self.engine)
 		# all inserts where blocked, so each id is 0 to indicate this
-		#self.assertEquals(filter(None, ids), [])
-		print ""
-		print IDS
-		print ""
 		self.engine.delete_events([ids[1]])
+		self.assertEquals(DeleteAllInsertExtension.del_ids, [ids[1]])
 
 if __name__ == "__main__":
 	unittest.main()
