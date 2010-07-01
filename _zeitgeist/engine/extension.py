@@ -87,7 +87,7 @@ class Extension(object):
 		"""
 		return event
 	
-	def delete_event_hook(self, ids):
+	def delete_event_hook(self, ids, sender):
 		pass
 
 
@@ -183,12 +183,12 @@ class ExtensionsCollection(object):
 				continue
 		return event
 	
-	def apply_delete_hooks(self, ids):
+	def apply_delete_hooks(self, ids, sender):
 		# Apply extension filters if we have an event
 	
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.delete_event_hook(ids, None)
+			event = ext.delete_event_hook(ids, sender)
 			
 	
 	def apply_insert_hooks(self, event, sender):

@@ -306,8 +306,11 @@ class RemoteInterface(SingletonApplication):
 		
 		return event_ids
 	
-	@dbus.service.method(constants.DBUS_INTERFACE, in_signature="au", out_signature="")
-	def DeleteEvents(self, event_ids):
+	@dbus.service.method(constants.DBUS_INTERFACE,
+	                     in_signature="au",
+	                     out_signature="",
+	                     sender_keyword="sender")
+	def DeleteEvents(self, event_ids, sender):
 		"""Delete a set of events from the log given their IDs
 		
 		:param event_ids: list of event IDs obtained, for example, by calling
@@ -315,7 +318,7 @@ class RemoteInterface(SingletonApplication):
 		:type event_ids: list of integers
 		"""
 		# FIXME: Notify monitors - how do we do this? //kamstrup
-		timestamps = _engine.delete_events(event_ids)
+		timestamps = _engine.delete_events(event_ids, sender=sender)
 		if timestamps:
 			# We need to check the return value, as the events could already
 			# have been deleted before or the IDs might even have been invalid.

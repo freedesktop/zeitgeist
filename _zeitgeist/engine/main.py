@@ -593,7 +593,7 @@ class ZeitgeistEngine:
 			# Don't use None here, as that'd be inserted literally into the DB
 			return ""
 
-	def delete_events (self, ids):
+	def delete_events (self, ids, sender=None):
 		# Extract min and max timestamps for deleted events
 		self._cursor.execute("""
 			SELECT MIN(timestamp), MAX(timestamp)
@@ -610,7 +610,7 @@ class ZeitgeistEngine:
 			self._cursor.connection.commit()
 			log.debug("Deleted %s" % map(int, ids))
 			
-			self.extensions.apply_delete_hooks(ids)
+			self.extensions.apply_delete_hooks(ids, sender)
 			
 			return timestamps
 		else:
