@@ -1,6 +1,6 @@
 SUBDIRS = engine loggers
 
-appdir = $(prefix)/share/zeitgeist/_zeitgeist/
+appdir = $(datadir)/zeitgeist/_zeitgeist/
 
 app_PYTHON = \
 	__init__.py \

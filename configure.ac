@@ -13,12 +13,17 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], "$GETTEXT_PACKAGE", [Gettext package])
 AM_GLIB_GNU_GETTEXT
 IT_PROG_INTLTOOL([0.35.0])
 
+# Expand variables needed for config.py
+AS_AC_EXPAND(DATADIR, $datarootdir)
+AC_SUBST(DATADIR)
+
 AC_CONFIG_FILES([
 	Makefile
 	doc/Makefile
 	extra/Makefile
 	extra/ontology/Makefile
 	po/Makefile.in
+	zeitgeist-daemon.pc	
 	zeitgeist/Makefile
 	_zeitgeist/Makefile
 	_zeitgeist/loggers/Makefile

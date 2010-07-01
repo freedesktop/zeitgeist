@@ -40,6 +40,8 @@ def create_test_event_1():
 class _engineTestClass(unittest.TestCase):
 	
 	def setUp (self):
+		os.environ["ZEITGEIST_DEFAULT_EXTENSIONS"] = ""
+		os.environ["ZEITGEIST_EXTRA_EXTENSIONS"] = ""
 		global test_event_1
 		test_event_1 = create_test_event_1()
 		

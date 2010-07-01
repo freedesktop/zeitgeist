@@ -1,0 +1,7 @@
+prefix=@prefix@
+extensiondir=@datadir@/zeitgeist/_zeitgeist/engine/extensions
+
+Name: @PACKAGE_NAME@
+Description: Zeitgeist Engine Extensions
+Version: @PACKAGE_VERSION@
+
