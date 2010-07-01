@@ -102,12 +102,12 @@ def get_extensions():
 	variable.
 	The format of these variables should just be a no-space comma
 	separated list of module.class names"""
-	default_extensions = os.environ.get("ZEITGEIST_DEFAULT_EXTENSIONS", None)
+	default_extensions = os.environ.get("ZEITGEIST_DEFAULT_EXTENSIONS")
 	if default_extensions is not None:
 		extensions = map(_load_class, default_extensions.split(","))
 	else:
-		extensions = _scan_extensions ()
-	extra_extensions = os.environ.get("ZEITGEIST_EXTRA_EXTENSIONS", None)
+		extensions = _scan_extensions()
+	extra_extensions = os.environ.get("ZEITGEIST_EXTRA_EXTENSIONS")
 	if extra_extensions is not None:
 		extensions += map(_load_class, extra_extensions.split(","))
 	extensions = filter(None, extensions)
@@ -123,7 +123,7 @@ def _scan_extensions():
 	modules = filter(lambda m : m.endswith(".py"), os.listdir(config.extensiondir))	
 	modules = map(lambda m : m.rpartition(".")[0], modules)
 	for mod in modules:
-		_zg = __import__ ("_zeitgeist.engine.extensions." + mod)
+		_zg = __import__("_zeitgeist.engine.extensions." + mod)
 		ext = getattr(_zg.engine.extensions, mod)
 		for cls in dir(ext):
 			cls = getattr(ext, cls)
