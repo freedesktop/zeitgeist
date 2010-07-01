@@ -86,6 +86,10 @@ class Extension(object):
 			should see it
 		"""
 		return event
+	
+	def delete_event_hook(self, ids):
+		pass
+
 
 def load_class(path):
 	"""
@@ -178,6 +182,14 @@ class ExtensionsCollection(object):
 				# not there
 				continue
 		return event
+	
+	def apply_delete_hooks(self, ids):
+		# Apply extension filters if we have an event
+	
+		# FIXME: We need a stable iteration order
+		for ext in self.__extensions.itervalues():
+			event = ext.delete_event_hook(ids, None)
+			
 	
 	def apply_insert_hooks(self, event, sender):
 		# FIXME: We need a stable iteration order

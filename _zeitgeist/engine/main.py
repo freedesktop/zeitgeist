@@ -609,6 +609,9 @@ class ZeitgeistEngine:
 				% ",".join(["?"] * len(ids)), ids)
 			self._cursor.connection.commit()
 			log.debug("Deleted %s" % map(int, ids))
+			
+			self.extensions.apply_delete_hooks(ids)
+			
 			return timestamps
 		else:
 			log.debug("Tried to delete non-existing event(s): %s" % map(int, ids))
