@@ -73,7 +73,7 @@ class TestExtensionHooks(_engineTestClass):
 			del_ids = []
 			
 			@classmethod
-			def delete_event_hook(self, del_ids, sender):
+			def delete_events_hook(self, del_ids, sender):
 				self.del_ids = del_ids
 				
 		self.engine.extensions.load(DeleteAllInsertExtension)

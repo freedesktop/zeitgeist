@@ -87,7 +87,14 @@ class Extension(object):
 		"""
 		return event
 	
-	def delete_event_hook(self, ids, sender):
+	def delete_events_hook(self, ids, sender):
+		"""
+		Hook applied after events has been deleted from the log.
+		
+		:param ids: A list of event ids for the events that has been deleted
+		:param sender: The unique DBus name for the client triggering the delete
+		:returns: Nothing
+		"""
 		pass
 
 
@@ -188,7 +195,7 @@ class ExtensionsCollection(object):
 	
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.delete_event_hook(ids, sender)
+			event = ext.delete_events_hook(ids, sender)
 			
 	
 	def apply_insert_hooks(self, event, sender):
