@@ -147,7 +147,6 @@ class ZeitgeistDBusInterface(object):
 				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
 					"version"))
 	
-	@classmethod
 	def get_extension(cls, name, path):
 		""" Returns an interface to the given extension.
 		
