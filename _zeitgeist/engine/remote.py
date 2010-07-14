@@ -324,6 +324,9 @@ class RemoteInterface(SingletonApplication):
 			# have been deleted before or the IDs might even have been invalid.
 			self._notifications.notify_delete(
 			    TimeRange(timestamps[0], timestamps[1]), event_ids)
+		if timestamps is None:
+			# unknown event id, see doc of delete_events()
+			return (-1, -1)
 		timestamp_start, timestamp_end = timestamps
 		timestamp_start = timestamp_start if timestamp_start is not None else -1
 		timestamp_end = timestamp_end if timestamp_end is not None else -1
