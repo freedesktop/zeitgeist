@@ -214,11 +214,18 @@ class ZeitgeistEngine:
 	
 		where_or = WhereClause(WhereClause.OR)
 		
-		for (event_template, subject_template) in self._build_templates(templates):
+		for template in templates:
+			event_template = Event((template[0], [], None))
+			if template[1]:
+				subject_templates = [Subject(data) for data in template[1]]
+			else:
+				subject_templates = None
+			# first of all we need to check if the query is supported at all
 			# we do not support searching by storage field for now
 			# see LP: #580364
-			if subject_template[Subject.Storage]:
-				raise ValueError("zeitgeist does not support searching by 'storage' field")
+			if subject_templates is not None:
+				if any(data[Subject.Storage] for data in subject_templates):
+					raise ValueError("zeitgeist does not support searching by 'storage' field")
 			
 			subwhere = WhereClause(WhereClause.AND)
 			
@@ -246,50 +253,51 @@ class ZeitgeistEngine:
 				if event_manif_where:
 					subwhere.extend(event_manif_where)
 				
-				value, negation, wildcard = parse_operators(Subject, Subject.Interpretation, subject_template.interpretation)
-				# Expand subject interpretation children
-				su_interp_where = WhereClause(WhereClause.OR, negation)
-				for child_interp in (Symbol.find_child_uris_extended(value)):
-					if child_interp:
-						su_interp_where.add_text_condition("subj_interpretation",
-						                    child_interp, like=wildcard, cache=self._interpretation)
-				if su_interp_where:
-					subwhere.extend(su_interp_where)
-				
-				value, negation, wildcard = parse_operators(Subject, Subject.Manifestation, subject_template.manifestation)
-				# Expand subject manifestation children
-				su_manif_where = WhereClause(WhereClause.OR, negation)
-				for child_manif in (Symbol.find_child_uris_extended(value)):
-					if child_manif:
-						su_manif_where.add_text_condition("subj_manifestation",
-						                   child_manif, like=wildcard, cache=self._manifestation)
-				if su_manif_where:
-					subwhere.extend(su_manif_where)
-				
-				# FIXME: Expand mime children as well.
-				# Right now we only do exact matching for mimetypes
-				# thekorn: this will be fixed when wildcards are supported
-				value, negation, wildcard = parse_operators(Subject, Subject.Mimetype, subject_template.mimetype)
-				if value:
-					subwhere.add_text_condition("subj_mimetype",
-					             value, wildcard, negation, cache=self._mimetype)
-				
 				value, negation, wildcard = parse_operators(Event, Event.Actor, event_template.actor)
 				if value:
 					subwhere.add_text_condition("actor", value, wildcard, negation, cache=self._actor)
+				
+				if subject_templates is not None:
+					for subject_template in subject_templates:
+						value, negation, wildcard = parse_operators(Subject, Subject.Interpretation, subject_template.interpretation)
+						# Expand subject interpretation children
+						su_interp_where = WhereClause(WhereClause.OR, negation)
+						for child_interp in (Symbol.find_child_uris_extended(value)):
+							if child_interp:
+								su_interp_where.add_text_condition("subj_interpretation",
+													child_interp, like=wildcard, cache=self._interpretation)
+						if su_interp_where:
+							subwhere.extend(su_interp_where)
+						
+						value, negation, wildcard = parse_operators(Subject, Subject.Manifestation, subject_template.manifestation)
+						# Expand subject manifestation children
+						su_manif_where = WhereClause(WhereClause.OR, negation)
+						for child_manif in (Symbol.find_child_uris_extended(value)):
+							if child_manif:
+								su_manif_where.add_text_condition("subj_manifestation",
+												   child_manif, like=wildcard, cache=self._manifestation)
+						if su_manif_where:
+							subwhere.extend(su_manif_where)
+						
+						# FIXME: Expand mime children as well.
+						# Right now we only do exact matching for mimetypes
+						# thekorn: this will be fixed when wildcards are supported
+						value, negation, wildcard = parse_operators(Subject, Subject.Mimetype, subject_template.mimetype)
+						if value:
+							subwhere.add_text_condition("subj_mimetype",
+										 value, wildcard, negation, cache=self._mimetype)
+				
+						for key in ("uri", "origin", "text"):
+							value = getattr(subject_template, key)
+							if value:
+								value, negation, wildcard = parse_operators(Subject, getattr(Subject, key.title()), value)
+								subwhere.add_text_condition("subj_%s" %key, value, wildcard, negation)
 			except KeyError, e:
 				# Value not in DB
 				log.debug("Unknown entity in query: %s" % e)
 				where_or.register_no_result()
 				continue
-				
-			for key in ("uri", "origin", "text"):
-				value = getattr(subject_template, key)
-				if value:
-					value, negation, wildcard = parse_operators(Subject, getattr(Subject, key.title()), value)
-					subwhere.add_text_condition("subj_%s" %key, value, wildcard, negation)
-			where_or.extend(subwhere)
-		
+			where_or.extend(subwhere) 
 		return where_or
 	
 	def _build_sql_event_filter(self, time_range, templates, storage_state):

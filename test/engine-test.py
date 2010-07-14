@@ -392,7 +392,18 @@ class ZeitgeistEngineTest(_engineTestClass):
 			StorageState.Any,
 			100,
 			0,)
-		self.assertEquals(2, len(result))
+		self.assertEquals(0, len(result)) # no subject with two different
+										  # interpretations at the same time
+		subj = Subject.new_for_values(uri="file:///tmp/foo.txt")
+		subj1 = Subject.new_for_values(interpretation="stfu:Image")
+		event_template = Event.new_for_values(subjects=[subj, subj1])
+		result = self.engine.find_eventids(
+			(0, 200),
+			[event_template, ],
+			StorageState.Any,
+			100,
+			0,)
+		self.assertEquals(1, len(result))		
 	
 	def testJsonImport(self):
 		import_events("test/data/single_event.js", self.engine)
