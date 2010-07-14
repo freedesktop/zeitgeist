@@ -290,18 +290,22 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		uris = self.findRelatedAndWait(["i4"], num_events=4, result_type=0)
 		self.assertEquals(set(uris), set(["i2", "i1", "i3", "i5"]))
 		
-	#~ def testFindEventsForValues(self):
-		#~ mainloop = gobject.MainLoop()
-		#~ events = parse_events("test/data/apriori_events.js")
-		#~ self.client.insert_events(events)
-		#~ 
-		#~ def callback(events):
-			#~ mainloop.quit()
-			#~ self.assertEquals(len(events), 1)
-			#~ self.assertEquals(events[0].actor, "firefox")
-		#~ 
-		#~ result = self.client.find_events_for_values(callback, actor="firefox", num_events=1)
-		#~ mainloop.run()
+	def testFindEventsForValues(self):
+		mainloop = gobject.MainLoop() # we don't have an *AndWait-helper method
+									  # for the method we would like to test,
+									  # this is why we need our own local loop
+		events = parse_events("test/data/apriori_events.js")
+		self.insertEventsAndWait(events)
+		
+		result = []
+		def callback(events):
+			result.extend(events)
+			mainloop.quit()
+		
+		self.client.find_events_for_values(callback, actor="firefox", num_events=1)
+		mainloop.run()
+		self.assertEquals(len(result), 1)
+		self.assertEquals(result[0].actor, "firefox")
 
 	def testDataSourcesRegistry(self):
 		""" Ensure that the DataSourceRegistry extension is there. If we'd want
