@@ -181,3 +181,34 @@ class RemoteTestCase (unittest.TestCase):
 		self.client.get_events(event_ids, collect_events_and_quit)
 		mainloop.run()
 		return result
+		
+	def deleteEventsAndWait(self, event_ids):
+		"""
+		
+		"""
+		mainloop = gobject.MainLoop()
+		result = []
+		
+		def collect_timestamp_and_quit(timestamps):
+			result.append(timestamps)
+			mainloop.quit()
+		
+		self.client.delete_events(event_ids, collect_timestamp_and_quit)
+		mainloop.run()
+		return result[0]
+		
+	def findRelatedAndWait(self, subject_uris, num_events, result_type):
+		"""
+		
+		"""
+		mainloop = gobject.MainLoop()
+		result = []
+		
+		def callback(uri_list):
+			result.extend(uri_list)
+			mainloop.quit()
+		
+		self.client.find_related_uris_for_uris(subject_uris, callback,
+			num_events=num_events, result_type=result_type)
+		mainloop.run()
+		return result

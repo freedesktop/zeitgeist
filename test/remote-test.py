@@ -252,27 +252,28 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(1, result.pop())
 		
 	def testDeleteEvents(self):
-		result = []
-		mainloop = gobject.MainLoop()
+		""" delete all events with actor == firefox """
 		events = parse_events("test/data/five_events.js")
-		self.client.insert_events(events)
+		self.insertEventsAndWait(events)
 		
 		event = Event()
 		event.actor = "firefox"
 		
-		ids = self.findEventIdsAndWait([event])
-		
-		def callback():	
-			ids = self.findEventIdsAndWait([])
-			self.assertEquals(2, len(ids))
-			
-		self.client.delete_events(ids, callback)
+		# get event ids with actor == firefox
+		ff_ids = self.findEventIdsAndWait([event])
+		# delete this events
+		time_range = self.deleteEventsAndWait(ff_ids)
+		# got timerange of deleted events
+		self.assertEquals(2, len(time_range))
+		# get all events, the one with actor == firefox should
+		# not be there
+		ids = self.findEventIdsAndWait([])
+		self.assertEquals(2, len(ids))
+		self.assertEquals(0, len(set(ff_ids) & set(ids)))
 		
 	def testFindByRandomActorAndGet(self):
-		result = []
-		mainloop = gobject.MainLoop()
 		events = parse_events("test/data/five_events.js")
-		self.client.insert_events(events)
+		self.insertEventsAndWait(events)
 		
 		template = Event.new_for_values(actor="/usr/bliblablu")
 		
@@ -283,35 +284,30 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(len(events), 0)
 	
 	def testFindRelated(self):
-		mainloop = gobject.MainLoop()
 		events = parse_events("test/data/apriori_events.js")
-		self.client.insert_events(events)
+		self.insertEventsAndWait(events)
 		
-		def callback(uris):
-			mainloop.quit()
-			self.assertEquals(uris, ["i2", "i1", "i3", "i5"])
+		uris = self.findRelatedAndWait(["i4"], num_events=4, result_type=0)
+		self.assertEquals(set(uris), set(["i2", "i1", "i3", "i5"]))
 		
-		result = self.client.find_related_uris_for_uris(["i4"], callback, num_events=4, result_type=0)
-		mainloop.run()
-		
-	def testFindEventsForValues(self):
-		mainloop = gobject.MainLoop()
-		events = parse_events("test/data/apriori_events.js")
-		self.client.insert_events(events)
-		
-		def callback(events):
-			mainloop.quit()
-			self.assertEquals(len(events), 1)
-			self.assertEquals(events[0].actor, "firefox")
-		
-		result = self.client.find_events_for_values(callback, actor="firefox", num_events=1)
-		mainloop.run()
+	#~ def testFindEventsForValues(self):
+		#~ mainloop = gobject.MainLoop()
+		#~ events = parse_events("test/data/apriori_events.js")
+		#~ self.client.insert_events(events)
+		#~ 
+		#~ def callback(events):
+			#~ mainloop.quit()
+			#~ self.assertEquals(len(events), 1)
+			#~ self.assertEquals(events[0].actor, "firefox")
+		#~ 
+		#~ result = self.client.find_events_for_values(callback, actor="firefox", num_events=1)
+		#~ mainloop.run()
 
 	def testDataSourcesRegistry(self):
 		""" Ensure that the DataSourceRegistry extension is there. If we'd want
 		    to do any actual value checking we need to change testutils.py to
 		    use a ZEITGEIST_DATA_PATH other than ~/.local/share. """
-		iface = ZeitgeistDBusInterface()
+		iface = self.client._iface # we know that client._iface is as clean as possible
 		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
 		registry.GetDataSources()
 	
