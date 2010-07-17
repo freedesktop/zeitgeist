@@ -1,10 +1,19 @@
-zeitgeist (0.3.3-1+ppa1) UNRELEASED; urgency=low
+zeitgeist (0.4.0-1) unstable; urgency=low
 
-  * Changes...
+  * New upstream release:
+     - Added support for negation ("!<text>") and right wildcards ("<text>*")
+       to many query fields. Also added type expansion (eg.: Image matches
+       VectorImage and RasterImage).
+     - Fixed DeleteEvents to work with arbitrarily huge amounts of IDs.
+     - Several ontology changes (renamed interpretation values). Support for
+       automatic database format upgrades.
+     - Other fixes, improvements, new API functionalities and translations.
+  * Update debian/control (add raptor-utils and python-rdflib to the build
+    dependencies) and debian/zeitgeist-core.install.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Thu, 22 Apr 2010 15:49:32 +0200
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Fri, 18 Jun 2010 22:15:38 +0200
 
-zeitgeist (0.3.3-1) unstable; urgency=low
+zeitgeist (0.3.3.1-1) unstable; urgency=low
 
   * New upstream release:
      - Added new ReturnTypes ({Most,Least}{PopularActor,RecentActor}).
