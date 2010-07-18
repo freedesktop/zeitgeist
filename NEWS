@@ -8,7 +8,7 @@ Python API:
  - ZeitgeistDBusInterface.get_extension is no longer a classmethod (in fact,
    it never really was).
  - ZeitgeistDBusInterface.get_extension now has a third optional parameter to
-   change the bus name (for Teamgeist).
+   change the bus name.
 
 Overall:
 
