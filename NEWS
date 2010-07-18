@@ -1,7 +1,16 @@
 Python API:
 
+ - Extensions found in the extensions directory are now automatically loaded.
  - ZeitgeistDBusInterface.get_extension is no longer a classmethod (in fact,
    it never really was).
+ - Let the GtkRecentlyUsed data-source ignore any exceptions while trying to
+   parse .desktop files (LP: #523761).
+
+Overall:
+
+ - Build system fixes (LP: #595577).
+ - Manpage updates.
+ - Translation updates.
 
 2010-06-10: Zeitgeist 0.4.0
 ----------------------------
@@ -34,28 +43,28 @@ Engine:
    can make use of the event ids
  
 Python API:
+ - TimeRange sprouted a few new useful methods.
 
+Ontology:
  - Removed {Interpretation,Manifestation}.UNKNOWN. If you really really (like
-   really!) can not come up with a good interpretation or manifestation
-   don't log it - or insert an empty string in stead
+   really!) can not come up with a good interpretation or manifestation don't
+   log it - or insert an empty string instead.
  - What was subject's Manifestation.WEB_HISTORY is now represented by a
-   combination of Interpretation.WEBSITE and Manifestation.REMOTE_DATA_OBJECT
- - Manifestation.FILE has been renamed to Manifestation.FILE_DATA_OBJECT
- - Event interpretations OPEN_EVENT and VISIT_EVENT has been coalseced into
-   a new interpretation type called ACCESS_EVENT
- - Event interpretation SAVE_EVENT has been coalesced into MODIFY_EVENT
+   combination of Interpretation.WEBSITE and Manifestation.REMOTE_DATA_OBJECT.
+ - Manifestation.FILE has been renamed to Manifestation.FILE_DATA_OBJECT.
+ - Event interpretations OPEN_EVENT and VISIT_EVENT has been coalesced into
+   a new interpretation type called ACCESS_EVENT.
+ - Event interpretation SAVE_EVENT has been coalesced into MODIFY_EVENT.
  - The following interpretations has been removed because we need a suitable
-   alternative defined in Nepomuk/OSCAF scope (Mikkel is on it):
-     BROADCAST_MESSAGE, FEED_MESSAGE, SYSTEM_RESOURCE, NOTE
- - Interpretation.MUSIC is now AUDIO
- - We are missing Interpretation.TAG (known bug)
+   alternative defined in the Nepomuk/OSCAF scope: BROADCAST_MESSAGE,
+   FEED_MESSAGE, SYSTEM_RESOURCE, NOTE.
+ - Interpretation.MUSIC is now Interpretation.AUDIO.
  - The following event interpretations has been removed because they had
-   unclear meanings or limited general usefulnes:
-     FOXUS_EVENT, WARN_EVENT, ERROR_EVENTs
- - TimeRange sprouted a few new useful methods
-   
+   unclear meanings or limited general usefulness: FOCUS_EVENT, WARN_EVENT,
+   ERROR_EVENT.
+
 Overall:
- - Fixes and code enhancements and lots of new features API wise
+ - Other fixes and code enhancements.
  - Manpage updates.
  - Translation updates.  
 
