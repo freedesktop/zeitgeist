@@ -1,10 +1,14 @@
-Python API:
+Engine:
 
  - Extensions found in the extensions directory are now automatically loaded.
- - ZeitgeistDBusInterface.get_extension is no longer a classmethod (in fact,
-   it never really was).
  - Let the GtkRecentlyUsed data-source ignore any exceptions while trying to
    parse .desktop files (LP: #523761).
+
+Python API:
+ - ZeitgeistDBusInterface.get_extension is no longer a classmethod (in fact,
+   it never really was).
+ - ZeitgeistDBusInterface.get_extension now has a third optional parameter to
+   change the bus name (for Teamgeist).
 
 Overall:
 
