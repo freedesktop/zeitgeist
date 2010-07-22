@@ -32,10 +32,21 @@ class _engineTestClass(unittest.TestCase):
 	
 	def setUp (self):
 		constants.DATABASE_FILE = ":memory:"
-		constants.DEFAULT_EXTENSIONS = []
+		self.save_default_ext = os.environ.get("ZEITGEIST_DEFAULT_EXTENSIONS")
+		self.save_extra_ext = os.environ.get("ZEITGEIST_EXTRA_EXTENSIONS")
+		os.environ["ZEITGEIST_DEFAULT_EXTENSIONS"] = ""
+		os.environ["ZEITGEIST_EXTRA_EXTENSIONS"] = ""
 		self.engine = get_engine()
 		
 	def tearDown (self):
+		if self.save_default_ext is not None:
+			os.environ["ZEITGEIST_DEFAULT_EXTENSIONS"] = self.save_default_ext
+		else:
+			del os.environ["ZEITGEIST_DEFAULT_EXTENSIONS"]
+		if self.save_extra_ext is not None:
+			os.environ["ZEITGEIST_EXTRA_EXTENSIONS"] = self.save_extra_ext
+		else:
+			del os.environ["ZEITGEIST_EXTRA_EXTENSIONS"]
 		self.engine.close()
 		_zeitgeist.engine._engine = None
 
