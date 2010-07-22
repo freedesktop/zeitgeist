@@ -128,7 +128,6 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		self._registry.append(source)
 		self._write_to_disk()
 		self.DataSourceRegistered(source)
-		return True
 	
 	# PUBLIC
 	def get_data_sources(self):
@@ -169,8 +168,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		    self._running[unique_id] = [sender]
 		elif sender not in self._running[unique_id]:
 		    self._running[unique_id].append(sender)
-		return self.register_data_source(unique_id, name, description,
-		    event_templates)
+		self.register_data_source(unique_id, name, description, event_templates)
 	
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
 						 in_signature="",
