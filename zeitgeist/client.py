@@ -147,20 +147,23 @@ class ZeitgeistDBusInterface(object):
 				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
 					"version"))
 	
-	@classmethod
-	def get_extension(cls, name, path):
+	def get_extension(cls, name, path, busname=None):
 		""" Returns an interface to the given extension.
 		
 		Example usage:
 			>> reg = get_extension("DataSourceRegistry", "data_source_registry")
 			>> reg.RegisterDataSource(...)
 		"""
+		if busname:
+			busname = "org.gnome.zeitgeist.%s" % busname
+		else:
+			busname = cls.BUS_NAME
 		if not name in cls.__shared_state["extension_interfaces"]:
 			interface_name = "org.gnome.zeitgeist.%s" % name
 			object_path = "/org/gnome/zeitgeist/%s" % path
-			proxy = dbus.SessionBus().get_object(cls.BUS_NAME, object_path)
+			proxy = dbus.SessionBus().get_object(busname, object_path)
 			iface = _DBusInterface(proxy, interface_name, object_path)
-			iface.BUS_NAME = cls.BUS_NAME
+			iface.BUS_NAME = busname
 			iface.INTERFACE_NAME = interface_name
 			iface.OBJECT_PATH = object_path
 			cls.__shared_state["extension_interfaces"][name] = iface

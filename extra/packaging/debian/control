@@ -3,10 +3,11 @@ Section: utils
 Priority: optional
 Maintainer: Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 Build-Depends: debhelper (>= 7.0.50~),
- intltool
-Build-Depends-Indep:
+ intltool,
  python-support (>= 0.90.0~),
- bash-completion
+ bash-completion (>= 1:1.0-1~),
+ python-rdflib,
+ raptor-utils
 Homepage: http://zeitgeist-project.com/
 Standards-Version: 3.8.4
 
