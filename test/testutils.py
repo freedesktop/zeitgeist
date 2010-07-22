@@ -184,7 +184,12 @@ class RemoteTestCase (unittest.TestCase):
 		
 	def deleteEventsAndWait(self, event_ids):
 		"""
+		Delete events given by their id and run a loop until the result 
+		containing a timetuple describing the interval of changes is
+		returned.
 		
+		This method is basically just a hack to invoke an async method
+		in a blocking manner.
 		"""
 		mainloop = gobject.MainLoop()
 		result = []
@@ -199,7 +204,10 @@ class RemoteTestCase (unittest.TestCase):
 		
 	def findRelatedAndWait(self, subject_uris, num_events, result_type):
 		"""
+		Find related subject uris to given uris and return them.
 		
+		This method is basically just a hack to invoke an async method
+		in a blocking manner.
 		"""
 		mainloop = gobject.MainLoop()
 		result = []
