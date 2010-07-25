@@ -7,176 +7,161 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-08-08 19:40+0200\n"
+"POT-Creation-Date: 2010-07-23 00:34+0000\n"
 "PO-Revision-Date: 2010-06-12 04:28+0000\n"
 "Last-Translator: Zeitgeist Framework Team <zeitgeist@lists.launchpad.net>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-13 03:51+0000\n"
+"X-Launchpad-Export-Date: 2010-07-25 04:09+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon:56
+#: ../zeitgeist-daemon.py:55 ../zeitgeist-daemon.py:68
+msgid "if another Zeitgeist instance is already running, replace it"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:59
+msgid "do not start zeitgeist-datahub automatically"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:63
+msgid "how much information should be printed; possible values:"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:105
+#, python-format
+msgid "File \"%s\" not found, not starting datahub"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:107
 msgid "Starting Zeitgeist service..."
 msgstr "Zeitgeist hizmeti başlatılıyor..."
 
-#: ../zeitgeist-datahub:61
+#: ../zeitgeist-datahub.py:62
 msgid "No passive loggers found, bye."
 msgstr "Pasif kaydedici bulunamadı, hoşça kal."
 
-#: ../zeitgeist-datahub:81
-#, c-format
+#: ../zeitgeist-datahub.py:82
+#, python-format
 msgid "Could not load file: %s"
 msgstr "Dosya yüklenemedi: %s"
 
-#: ../zeitgeist-datahub:106
-#, c-format
+#: ../zeitgeist-datahub.py:105
+#, python-format
 msgid "Updating database with new %s items"
 msgstr "Yeni %s ögeleriyle birlikte veri tabanı güncelleniyor"
 
-#: ../zeitgeist-datahub:136
+#: ../zeitgeist-datahub.py:129
 msgid "Lost connection to zeitgeist-daemon, terminating."
 msgstr "Zeitgeist-hizmeti bağlantısı koptu, sonlandırılıyor."
 
-#: ../zeitgeist-datahub:139
-#, c-format
+#: ../zeitgeist-datahub.py:132
+#, python-format
 msgid "Error logging item from \"%s\": %s"
 msgstr "\"%s\" konumundaki ögenin günlüklemesinde hata: %s"
 
-#: ../zeitgeist/datamodel.py:206
-msgid "Tags"
-msgstr "Etiketler"
-
-#: ../zeitgeist/datamodel.py:212
-msgid "Bookmarks"
-msgstr "Yer İmleri"
-
-#: ../zeitgeist/datamodel.py:218
-msgid "Comments"
-msgstr "Yorumlar"
-
-#: ../zeitgeist/datamodel.py:224
-msgid "Documents"
-msgstr "Belgeler"
-
-#: ../zeitgeist/datamodel.py:230
-msgid "Images"
-msgstr "Görüntüler"
-
-#: ../zeitgeist/datamodel.py:236
-msgid "Videos"
-msgstr "Videolar"
-
-#: ../zeitgeist/datamodel.py:242
-msgid "Music"
-msgstr "Müzik"
-
-#: ../zeitgeist/datamodel.py:248
-msgid "Email"
-msgstr "E-Posta"
-
-#: ../zeitgeist/datamodel.py:254
-msgid "Messages"
-msgstr "İletiler"
-
-#: ../zeitgeist/datamodel.py:260
-msgid "Feeds"
-msgstr "Beslemeler"
-
-#: ../zeitgeist/datamodel.py:266
-msgid "Broadcasts"
-msgstr "Yayınlar"
-
-#: ../zeitgeist/datamodel.py:272
-msgid "Created"
-msgstr "Oluşturulan"
-
-#: ../zeitgeist/datamodel.py:278
-msgid "Modified"
-msgstr "Değiştirilen"
-
-#: ../zeitgeist/datamodel.py:284
-msgid "Visited"
-msgstr "Ziyaret edilen"
-
-#: ../zeitgeist/datamodel.py:290
-msgid "Send"
-msgstr "Gönder"
-
-#: ../zeitgeist/datamodel.py:296
-msgid "Received"
-msgstr "Alınan"
-
-#: ../zeitgeist/datamodel.py:302
-msgid "Warnings"
-msgstr "Uyarılar"
-
-#: ../zeitgeist/datamodel.py:308
-msgid "Errors"
-msgstr "Hatalar"
-
-#: ../zeitgeist/datamodel.py:314
-msgid "Applications"
-msgstr "Uygulamalar"
-
-#: ../zeitgeist/datamodel.py:324
-msgid "Web History"
-msgstr "Web Geçmişi"
-
-#: ../zeitgeist/datamodel.py:330
-msgid "Activities"
-msgstr "Etkinlikler"
-
-#: ../zeitgeist/datamodel.py:336
-msgid "Notifications"
-msgstr "Bildirimler"
-
-#: ../zeitgeist/datamodel.py:342
-msgid "Files"
-msgstr "Dosyalar"
-
-#: ../zeitgeist/datamodel.py:348
-msgid "System Resources"
-msgstr "Sistem Kaynakları"
-
-#: ../_zeitgeist/loggers/datasources/recent.py:41
+#: ../_zeitgeist/loggers/datasources/recent.py:49
 msgid "Could not import GTK; data source disabled."
 msgstr "GTK içeri aktarılamadı; veri kaynağı devre dışı."
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:53
-msgid "Firefox History"
-msgstr "Firefox Geçmişi"
+#~ msgid "Tags"
+#~ msgstr "Etiketler"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:56
-msgid "Websites visited with Firefox"
-msgstr "Firefox ile ziyaret edilen web siteleri"
+#~ msgid "Comments"
+#~ msgstr "Yorumlar"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:84
+#~ msgid "Bookmarks"
+#~ msgstr "Yer İmleri"
+
+#~ msgid "Documents"
+#~ msgstr "Belgeler"
+
+#~ msgid "Email"
+#~ msgstr "E-Posta"
+
+#~ msgid "Music"
+#~ msgstr "Müzik"
+
+#~ msgid "Videos"
+#~ msgstr "Videolar"
+
+#~ msgid "System Resources"
+#~ msgstr "Sistem Kaynakları"
+
+#~ msgid "Notifications"
+#~ msgstr "Bildirimler"
+
+#~ msgid "Files"
+#~ msgstr "Dosyalar"
+
+#~ msgid "Warnings"
+#~ msgstr "Uyarılar"
+
+#~ msgid "Send"
+#~ msgstr "Gönder"
+
+#~ msgid "Web History"
+#~ msgstr "Web Geçmişi"
+
+#~ msgid "Activities"
+#~ msgstr "Etkinlikler"
+
+#~ msgid "Errors"
+#~ msgstr "Hatalar"
+
+#~ msgid "Applications"
+#~ msgstr "Uygulamalar"
+
+#~ msgid "Websites visited with Firefox"
+#~ msgstr "Firefox ile ziyaret edilen web siteleri"
+
+#~ msgid "Firefox History"
+#~ msgstr "Firefox Geçmişi"
+
+#~ msgid "Modified"
+#~ msgstr "Değiştirilen"
+
+#~ msgid "Created"
+#~ msgstr "Oluşturulan"
+
+#~ msgid "Messages"
+#~ msgstr "İletiler"
+
+#~ msgid "Broadcasts"
+#~ msgstr "Yayınlar"
+
+#~ msgid "Feeds"
+#~ msgstr "Beslemeler"
+
+#~ msgid "Visited"
+#~ msgstr "Ziyaret edilen"
+
+#~ msgid "Images"
+#~ msgstr "Görüntüler"
+
 #, python-format
-msgid "Unable to monitor Firefox's history: %s: %s"
-msgstr "Firefox geçmişi gösterilemiyor: %s: %s"
+#~ msgid "Watching for Tomboy notes in \"%s\"."
+#~ msgstr "\"%s\" üzerindeki Tomboy notları izleniyor."
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:87
+#~ msgid "No Firefox profile found."
+#~ msgstr "Firefox profili bulunamadı."
+
+#~ msgid "Received"
+#~ msgstr "Alınan"
+
 #, python-format
-msgid "Monitoring Firefox's history: %s"
-msgstr "Firefox geçmişi gösteriliyor: %s"
+#~ msgid "Monitoring Evolution: %s"
+#~ msgstr "Evolution gösteriliyor: %s"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:92
-msgid "No Firefox profile found."
-msgstr "Firefox profili bulunamadı."
-
-#: ../_zeitgeist/loggers/datasources/evolution.py:56
 #, python-format
-msgid "Unable to monitor Evolution: %s: %s"
-msgstr "Evolution gösterilemiyor: %s: %s"
+#~ msgid "Unable to monitor Firefox's history: %s: %s"
+#~ msgstr "Firefox geçmişi gösterilemiyor: %s: %s"
 
-#: ../_zeitgeist/loggers/datasources/evolution.py:59
 #, python-format
-msgid "Monitoring Evolution: %s"
-msgstr "Evolution gösteriliyor: %s"
+#~ msgid "Unable to monitor Evolution: %s: %s"
+#~ msgstr "Evolution gösterilemiyor: %s: %s"
 
-#: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
-msgid "Watching for Tomboy notes in \"%s\"."
-msgstr "\"%s\" üzerindeki Tomboy notları izleniyor."
+#~ msgid "Monitoring Firefox's history: %s"
+#~ msgstr "Firefox geçmişi gösteriliyor: %s"
