@@ -475,7 +475,7 @@ class Subject(list):
 		:param uri: The URI of the subject. Eg. *file:///tmp/ratpie.txt*
 		:param interpretation: The interpretation type of the subject, given either as a string URI or as a :class:`Interpretation` instance
 		:param manifestation: The manifestation type of the subject, given either as a string URI or as a :class:`Manifestation` instance
-		:param origin: The URI of the location where subject resides or can be said to originate from
+		:param origin: The URI of the location where subject resides or can be found
 		:param mimetype: The mimetype of the subject encoded as a string, if applicable. Eg. *text/plain*.
 		:param text: Free form textual annotation of the subject.
 		:param storage: String identifier for the storage medium of the subject. This should be the UUID of the volume or the string "net" for resources requiring a network interface, and the string "deleted" for subjects that are deleted.
@@ -515,7 +515,7 @@ class Subject(list):
 	def set_origin(self, value):
 		self[Subject.Origin] = value
 	origin = property(get_origin, set_origin,
-	doc="Read/write property with the URI of the location where the subject resides or where it can be said to originate from")
+	doc="Read/write property with the URI of the location where the subject can be found. For files this is the parent directory, or for downloaded files it would be the URL of the page where you clicked the download link")
 		
 	def get_mimetype(self):
 		return self[Subject.Mimetype]
@@ -963,13 +963,19 @@ class ResultType(object):
 	MostPopularSubjects = enum_factory(("One event for each subject only, "
 		"ordered by the popularity of the subject"))
 	LeastPopularSubjects = enum_factory(("One event for each subject only, "
-		"ordered ascendently by popularity"))
+		"ordered ascendingly by popularity"))
 	MostPopularActor = enum_factory(("The last event of each different actor,"
 		"ordered by the popularity of the actor"))
 	LeastPopularActor = enum_factory(("The last event of each different actor,"
-		"ordered ascendently by the popularity of the actor"))
+		"ordered ascendingly by the popularity of the actor"))
 	MostRecentActor = enum_factory(("The last event of each different actor"))
 	LeastRecentActor = enum_factory(("The first event of each different actor"))
+	MostPopularOrigin = enum_factory(("The last event of each different origin,"
+		"ordered by the popularity of the origins"))
+	LeastPopularOrigin = enum_factory(("The last event of each different origin,"
+		"ordered ascendingly by the popularity of the origin"))
+	MostRecentOrigin = enum_factory(("The last event of each different origin"))
+	LeastRecentOrigin = enum_factory(("The first event of each different origin"))
 
 
 INTERPRETATION_DOC = \
