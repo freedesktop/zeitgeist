@@ -7,177 +7,162 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-08 19:40+0200\n"
+"POT-Creation-Date: 2010-07-23 00:34+0000\n"
 "PO-Revision-Date: 2010-02-15 05:51+0000\n"
 "Last-Translator: oliverreiter <oliver_reiter@gmx.at>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-13 03:51+0000\n"
+"X-Launchpad-Export-Date: 2010-07-25 04:09+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon:56
+#: ../zeitgeist-daemon.py:55 ../zeitgeist-daemon.py:68
+msgid "if another Zeitgeist instance is already running, replace it"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:59
+msgid "do not start zeitgeist-datahub automatically"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:63
+msgid "how much information should be printed; possible values:"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:105
+#, python-format
+msgid "File \"%s\" not found, not starting datahub"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:107
 msgid "Starting Zeitgeist service..."
 msgstr "Zeitgeist-Service wird gestartet ..."
 
-#: ../zeitgeist-datahub:61
+#: ../zeitgeist-datahub.py:62
 msgid "No passive loggers found, bye."
 msgstr "Es wurden keine passiven Logger gefunden. Auf Wiedersehen."
 
-#: ../zeitgeist-datahub:81
-#, c-format
+#: ../zeitgeist-datahub.py:82
+#, python-format
 msgid "Could not load file: %s"
 msgstr "Datei konnte nicht geladen werden: %s"
 
-#: ../zeitgeist-datahub:106
-#, c-format
+#: ../zeitgeist-datahub.py:105
+#, python-format
 msgid "Updating database with new %s items"
 msgstr "Aktualisierung der Datenbank mit neuen %s Objekten"
 
-#: ../zeitgeist-datahub:136
+#: ../zeitgeist-datahub.py:129
 msgid "Lost connection to zeitgeist-daemon, terminating."
 msgstr "Verbindung zum Zeitgeist-Daemon verloren, Anwendung wird beendet"
 
-#: ../zeitgeist-datahub:139
-#, c-format
+#: ../zeitgeist-datahub.py:132
+#, python-format
 msgid "Error logging item from \"%s\": %s"
 msgstr "Fehler beim Protokollieren des Objektes von \"%s\": %s"
 
-#: ../zeitgeist/datamodel.py:206
-msgid "Tags"
-msgstr "Schlagwörter"
-
-#: ../zeitgeist/datamodel.py:212
-msgid "Bookmarks"
-msgstr "Lesezeichen"
-
-#: ../zeitgeist/datamodel.py:218
-msgid "Comments"
-msgstr "Kommentare"
-
-#: ../zeitgeist/datamodel.py:224
-msgid "Documents"
-msgstr "Dokumente"
-
-#: ../zeitgeist/datamodel.py:230
-msgid "Images"
-msgstr "Bilder"
-
-#: ../zeitgeist/datamodel.py:236
-msgid "Videos"
-msgstr "Videos"
-
-#: ../zeitgeist/datamodel.py:242
-msgid "Music"
-msgstr "Musik"
-
-#: ../zeitgeist/datamodel.py:248
-msgid "Email"
-msgstr "E-Mail"
-
-#: ../zeitgeist/datamodel.py:254
-msgid "Messages"
-msgstr "Nachrichten"
-
-#: ../zeitgeist/datamodel.py:260
-msgid "Feeds"
-msgstr "Abonnements"
-
-#: ../zeitgeist/datamodel.py:266
-msgid "Broadcasts"
-msgstr "Alle Nachrichten"
-
-#: ../zeitgeist/datamodel.py:272
-msgid "Created"
-msgstr "Erstellt"
-
-#: ../zeitgeist/datamodel.py:278
-msgid "Modified"
-msgstr "Geändert"
-
-#: ../zeitgeist/datamodel.py:284
-msgid "Visited"
-msgstr "Besucht"
-
-#: ../zeitgeist/datamodel.py:290
-msgid "Send"
-msgstr "Senden"
-
-#: ../zeitgeist/datamodel.py:296
-msgid "Received"
-msgstr "Empfangen"
-
-#: ../zeitgeist/datamodel.py:302
-msgid "Warnings"
-msgstr "Warnungen"
-
-#: ../zeitgeist/datamodel.py:308
-msgid "Errors"
-msgstr "Fehler"
-
-#: ../zeitgeist/datamodel.py:314
-msgid "Applications"
-msgstr "Anwendungen"
-
-#: ../zeitgeist/datamodel.py:324
-msgid "Web History"
-msgstr "Aufgerufene Webseiten"
-
-#: ../zeitgeist/datamodel.py:330
-msgid "Activities"
-msgstr "Aufgaben"
-
-#: ../zeitgeist/datamodel.py:336
-msgid "Notifications"
-msgstr "Benachrichtungen"
-
-#: ../zeitgeist/datamodel.py:342
-msgid "Files"
-msgstr "Dateien"
-
-#: ../zeitgeist/datamodel.py:348
-msgid "System Resources"
-msgstr "System Ressourcen"
-
-#: ../_zeitgeist/loggers/datasources/recent.py:41
+#: ../_zeitgeist/loggers/datasources/recent.py:49
 msgid "Could not import GTK; data source disabled."
 msgstr ""
 "Konnte die GTK-Bibliothek nicht importieren; Die Datenquelle ist deaktiviert."
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:53
-msgid "Firefox History"
-msgstr "Firefox-Chronik"
+#~ msgid "Comments"
+#~ msgstr "Kommentare"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:56
-msgid "Websites visited with Firefox"
-msgstr "Mit Firefox besuchte Webseiten"
+#~ msgid "Bookmarks"
+#~ msgstr "Lesezeichen"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:84
+#~ msgid "Tags"
+#~ msgstr "Schlagwörter"
+
+#~ msgid "Documents"
+#~ msgstr "Dokumente"
+
+#~ msgid "Modified"
+#~ msgstr "Geändert"
+
+#~ msgid "Messages"
+#~ msgstr "Nachrichten"
+
+#~ msgid "Email"
+#~ msgstr "E-Mail"
+
+#~ msgid "Feeds"
+#~ msgstr "Abonnements"
+
+#~ msgid "Created"
+#~ msgstr "Erstellt"
+
+#~ msgid "Images"
+#~ msgstr "Bilder"
+
+#~ msgid "Music"
+#~ msgstr "Musik"
+
+#~ msgid "Videos"
+#~ msgstr "Videos"
+
+#~ msgid "Visited"
+#~ msgstr "Besucht"
+
+#~ msgid "System Resources"
+#~ msgstr "System Ressourcen"
+
+#~ msgid "Activities"
+#~ msgstr "Aufgaben"
+
+#~ msgid "Notifications"
+#~ msgstr "Benachrichtungen"
+
+#~ msgid "Files"
+#~ msgstr "Dateien"
+
+#~ msgid "Received"
+#~ msgstr "Empfangen"
+
+#~ msgid "Warnings"
+#~ msgstr "Warnungen"
+
+#~ msgid "Send"
+#~ msgstr "Senden"
+
+#~ msgid "Web History"
+#~ msgstr "Aufgerufene Webseiten"
+
+#~ msgid "Errors"
+#~ msgstr "Fehler"
+
+#~ msgid "Applications"
+#~ msgstr "Anwendungen"
+
+#~ msgid "Websites visited with Firefox"
+#~ msgstr "Mit Firefox besuchte Webseiten"
+
+#~ msgid "Firefox History"
+#~ msgstr "Firefox-Chronik"
+
+#~ msgid "No Firefox profile found."
+#~ msgstr "Es konnten keine Firefox-Profile gefunden werden."
+
 #, python-format
-msgid "Unable to monitor Firefox's history: %s: %s"
-msgstr "Es ist nicht möglich die Firefox-Chronik darzustellen: %s: %s"
+#~ msgid "Unable to monitor Firefox's history: %s: %s"
+#~ msgstr "Es ist nicht möglich die Firefox-Chronik darzustellen: %s: %s"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:87
 #, python-format
-msgid "Monitoring Firefox's history: %s"
-msgstr "Darstellen der Firefox Webseitenchronik: %s"
+#~ msgid "Monitoring Firefox's history: %s"
+#~ msgstr "Darstellen der Firefox Webseitenchronik: %s"
 
-#: ../_zeitgeist/loggers/datasources/firefox.py:92
-msgid "No Firefox profile found."
-msgstr "Es konnten keine Firefox-Profile gefunden werden."
-
-#: ../_zeitgeist/loggers/datasources/evolution.py:56
 #, python-format
-msgid "Unable to monitor Evolution: %s: %s"
-msgstr "Evolution kann nicht überwacht werden: %s: %s"
+#~ msgid "Unable to monitor Evolution: %s: %s"
+#~ msgstr "Evolution kann nicht überwacht werden: %s: %s"
 
-#: ../_zeitgeist/loggers/datasources/evolution.py:59
 #, python-format
-msgid "Monitoring Evolution: %s"
-msgstr "Überwache Evolution: %s"
+#~ msgid "Watching for Tomboy notes in \"%s\"."
+#~ msgstr "Warte auf Tomboy Notizen in \"%s\"."
 
-#: ../_zeitgeist/loggers/datasources/tomboy.py:101
 #, python-format
-msgid "Watching for Tomboy notes in \"%s\"."
-msgstr "Warte auf Tomboy Notizen in \"%s\"."
+#~ msgid "Monitoring Evolution: %s"
+#~ msgstr "Überwache Evolution: %s"
+
+#~ msgid "Broadcasts"
+#~ msgstr "Alle Nachrichten"

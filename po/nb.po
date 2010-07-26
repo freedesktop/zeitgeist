@@ -7,185 +7,81 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-08 19:40+0200\n"
+"POT-Creation-Date: 2010-07-23 00:34+0000\n"
 "PO-Revision-Date: 2010-02-15 05:53+0000\n"
 "Last-Translator: Ketil Wendelbo Aanensen <ketil.w.aanensen@gmail.com>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-13 03:51+0000\n"
+"X-Launchpad-Export-Date: 2010-07-25 04:09+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon:56
+#: ../zeitgeist-daemon.py:55 ../zeitgeist-daemon.py:68
+msgid "if another Zeitgeist instance is already running, replace it"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:59
+msgid "do not start zeitgeist-datahub automatically"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:63
+msgid "how much information should be printed; possible values:"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:105
+#, python-format
+msgid "File \"%s\" not found, not starting datahub"
+msgstr ""
+
+#: ../zeitgeist-daemon.py:107
 msgid "Starting Zeitgeist service..."
 msgstr "Starter Zeitgeist-tjeneste..."
 
-#: ../zeitgeist-datahub:61
+#: ../zeitgeist-datahub.py:62
 msgid "No passive loggers found, bye."
 msgstr "Ingen passive loggere funnet, hade."
 
-#: ../zeitgeist-datahub:81
-#, c-format
+#: ../zeitgeist-datahub.py:82
+#, python-format
 msgid "Could not load file: %s"
 msgstr "Kunne ikke laste fil: %s"
 
-#: ../zeitgeist-datahub:106
-#, c-format
+#: ../zeitgeist-datahub.py:105
+#, python-format
 msgid "Updating database with new %s items"
 msgstr "Oppdaterer database med nye %s-gjenstander"
 
-#: ../zeitgeist-datahub:136
+#: ../zeitgeist-datahub.py:129
 msgid "Lost connection to zeitgeist-daemon, terminating."
 msgstr "Mistet kontakt med zeitgeist-daemon, terminerer."
 
-#: ../zeitgeist-datahub:139
-#, c-format
+#: ../zeitgeist-datahub.py:132
+#, python-format
 msgid "Error logging item from \"%s\": %s"
 msgstr "Feil ved logging av gjenstand fra \"%s\": %s"
 
-#: ../zeitgeist/datamodel.py:206
-msgid "Tags"
-msgstr "Etiketter"
-
-#: ../zeitgeist/datamodel.py:212
-msgid "Bookmarks"
-msgstr "Bokmerker"
-
-#: ../zeitgeist/datamodel.py:218
-msgid "Comments"
-msgstr "Kommentarer"
-
-#: ../zeitgeist/datamodel.py:224
-msgid "Documents"
-msgstr "Dokumenter"
-
-#: ../zeitgeist/datamodel.py:230
-msgid "Images"
-msgstr "Bilder"
-
-#: ../zeitgeist/datamodel.py:236
-msgid "Videos"
-msgstr "Filmer"
-
-#: ../zeitgeist/datamodel.py:242
-msgid "Music"
-msgstr "Musikk"
-
-#: ../zeitgeist/datamodel.py:248
-msgid "Email"
-msgstr "E-post"
-
-#: ../zeitgeist/datamodel.py:254
-msgid "Messages"
-msgstr "Meldinger"
-
-#: ../zeitgeist/datamodel.py:260
-msgid "Feeds"
-msgstr "Matinger"
-
-#: ../zeitgeist/datamodel.py:266
-msgid "Broadcasts"
-msgstr "Kringkastinger"
-
-#: ../zeitgeist/datamodel.py:272
-msgid "Created"
-msgstr "Opprettet"
-
-#: ../zeitgeist/datamodel.py:278
-msgid "Modified"
-msgstr "Endret"
-
-#: ../zeitgeist/datamodel.py:284
-msgid "Visited"
-msgstr "Besøkt"
-
-#: ../zeitgeist/datamodel.py:290
-msgid "Send"
-msgstr "Send"
-
-#: ../zeitgeist/datamodel.py:296
-msgid "Received"
-msgstr "Mottatt"
-
-#: ../zeitgeist/datamodel.py:302
-msgid "Warnings"
-msgstr "Advarsler"
-
-#: ../zeitgeist/datamodel.py:308
-msgid "Errors"
-msgstr "Feil"
-
-#: ../zeitgeist/datamodel.py:314
-msgid "Applications"
-msgstr "Programmer"
-
-#: ../zeitgeist/datamodel.py:324
-msgid "Web History"
-msgstr "Historikk for nettleser"
-
-#: ../zeitgeist/datamodel.py:330
-msgid "Activities"
-msgstr "Aktiviteter"
-
-#: ../zeitgeist/datamodel.py:336
-msgid "Notifications"
-msgstr "Varslinger"
-
-#: ../zeitgeist/datamodel.py:342
-msgid "Files"
-msgstr "Filer"
-
-#: ../zeitgeist/datamodel.py:348
-msgid "System Resources"
-msgstr "Systemressurser"
-
-#: ../_zeitgeist/loggers/datasources/recent.py:41
+#: ../_zeitgeist/loggers/datasources/recent.py:49
 msgid "Could not import GTK; data source disabled."
 msgstr "Kunne ikke importere GTK; datakilde avslått."
-
-#: ../_zeitgeist/loggers/datasources/firefox.py:53
-msgid "Firefox History"
-msgstr "Firefox-historie"
-
-#: ../_zeitgeist/loggers/datasources/firefox.py:56
-msgid "Websites visited with Firefox"
-msgstr "Nettsider besøkt med Firefox"
-
-#: ../_zeitgeist/loggers/datasources/firefox.py:84
-#, python-format
-msgid "Unable to monitor Firefox's history: %s: %s"
-msgstr "Kunne ikke overvåke Firefox' historie: %s: %s"
-
-#: ../_zeitgeist/loggers/datasources/firefox.py:87
-#, python-format
-msgid "Monitoring Firefox's history: %s"
-msgstr "Overvåker Firefox' historie: %s"
-
-#: ../_zeitgeist/loggers/datasources/firefox.py:92
-msgid "No Firefox profile found."
-msgstr "Ingen Firefox-profil funnet"
-
-#: ../_zeitgeist/loggers/datasources/evolution.py:56
-#, python-format
-msgid "Unable to monitor Evolution: %s: %s"
-msgstr "Kunne ikke overvåke Evolution: %s: %s"
-
-#: ../_zeitgeist/loggers/datasources/evolution.py:59
-#, python-format
-msgid "Monitoring Evolution: %s"
-msgstr "Overvåker Evolution: %s"
-
-#: ../_zeitgeist/loggers/datasources/tomboy.py:101
-#, python-format
-msgid "Watching for Tomboy notes in \"%s\"."
-msgstr "Ser etter Tomboy-notater i \"%s\"."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Feil: Zeitgeist-tjeneste kjører ikke."
 
+#~ msgid "Documents"
+#~ msgstr "Dokumenter"
+
 #~ msgid "Other"
 #~ msgstr "Annet"
+
+#~ msgid "Images"
+#~ msgstr "Bilder"
+
+#~ msgid "Music"
+#~ msgstr "Musikk"
+
+#~ msgid "Videos"
+#~ msgstr "Filmer"
 
 #~ msgid "Notes"
 #~ msgstr "Notater"
@@ -195,3 +91,92 @@ msgstr "Ser etter Tomboy-notater i \"%s\"."
 
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Lag et nytt Tomboy-notat"
+
+#~ msgid "Tags"
+#~ msgstr "Etiketter"
+
+#~ msgid "Comments"
+#~ msgstr "Kommentarer"
+
+#~ msgid "Messages"
+#~ msgstr "Meldinger"
+
+#~ msgid "Email"
+#~ msgstr "E-post"
+
+#~ msgid "Feeds"
+#~ msgstr "Matinger"
+
+#~ msgid "Bookmarks"
+#~ msgstr "Bokmerker"
+
+#~ msgid "Modified"
+#~ msgstr "Endret"
+
+#~ msgid "Created"
+#~ msgstr "Opprettet"
+
+#~ msgid "Broadcasts"
+#~ msgstr "Kringkastinger"
+
+#~ msgid "Warnings"
+#~ msgstr "Advarsler"
+
+#~ msgid "Send"
+#~ msgstr "Send"
+
+#~ msgid "Received"
+#~ msgstr "Mottatt"
+
+#~ msgid "Visited"
+#~ msgstr "Besøkt"
+
+#~ msgid "Web History"
+#~ msgstr "Historikk for nettleser"
+
+#~ msgid "Errors"
+#~ msgstr "Feil"
+
+#~ msgid "Applications"
+#~ msgstr "Programmer"
+
+#~ msgid "Websites visited with Firefox"
+#~ msgstr "Nettsider besøkt med Firefox"
+
+#~ msgid "Firefox History"
+#~ msgstr "Firefox-historie"
+
+#~ msgid "No Firefox profile found."
+#~ msgstr "Ingen Firefox-profil funnet"
+
+#~ msgid "System Resources"
+#~ msgstr "Systemressurser"
+
+#, python-format
+#~ msgid "Unable to monitor Firefox's history: %s: %s"
+#~ msgstr "Kunne ikke overvåke Firefox' historie: %s: %s"
+
+#~ msgid "Notifications"
+#~ msgstr "Varslinger"
+
+#~ msgid "Files"
+#~ msgstr "Filer"
+
+#~ msgid "Activities"
+#~ msgstr "Aktiviteter"
+
+#, python-format
+#~ msgid "Watching for Tomboy notes in \"%s\"."
+#~ msgstr "Ser etter Tomboy-notater i \"%s\"."
+
+#, python-format
+#~ msgid "Monitoring Evolution: %s"
+#~ msgstr "Overvåker Evolution: %s"
+
+#, python-format
+#~ msgid "Unable to monitor Evolution: %s: %s"
+#~ msgstr "Kunne ikke overvåke Evolution: %s: %s"
+
+#, python-format
+#~ msgid "Monitoring Firefox's history: %s"
+#~ msgstr "Overvåker Firefox' historie: %s"
