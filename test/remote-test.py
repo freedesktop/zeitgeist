@@ -87,21 +87,19 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			self.assertEquals("Boogaloo", event.actor)
 		
 		# Search for everything
-		import dbus
-		ids = self.findEventIdsAndWait([], num_events=3) # dbus.Array(signature="(asaasay)")
+		ids = self.findEventIdsAndWait([], num_events=3)
 		self.assertEquals(3, len(ids)) # (we can not trust the ids because we don't have a clean test environment)
 		
 		# Search for some specific templates
-		subj_templ1 = Subject.new_for_values(uri="foo://bar")
-		subj_templ2 = Subject.new_for_values(uri="foo://baz")
+		subj_templ1 = Subject.new_for_values(manifestation=Manifestation.FILE_DATA_OBJECT)
+		subj_templ2 = Subject.new_for_values(interpretation=Interpretation.IMAGE)
 		event_template = Event.new_for_values(
 					actor="Boogaloo",
 					interpretation=Interpretation.ACCESS_EVENT,
 					subjects=[subj_templ1,subj_templ2])
 		ids = self.findEventIdsAndWait([event_template],
 						num_events=10)
-		logging.debug("RESULTS %s" %map(int, ids))
-		self.assertEquals(2, len(ids))
+		self.assertEquals(1, len(ids))
 		
 	def testUnicodeInsert(self):
 		events = parse_events("test/data/unicode_event.js")
