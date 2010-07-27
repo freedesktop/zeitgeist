@@ -358,12 +358,16 @@ class ZeitgeistEngine:
 			" ORDER BY timestamp ASC",
 			" GROUP BY subj_uri ORDER BY timestamp DESC",
 			" GROUP BY subj_uri ORDER BY timestamp ASC",
-			" GROUP BY subj_uri ORDER BY COUNT(id) DESC, timestamp DESC",
+			" GROUP BY subj_uri ORDER BY COUNT(id) DESC, timestamp DESC", # FIXME: is count(id) not always 1? or is it refering to the id in the uri table?
 			" GROUP BY subj_uri ORDER BY COUNT(id) ASC, timestamp ASC",
-			" GROUP BY actor ORDER BY COUNT(id) DESC, timestamp DESC",
+			" GROUP BY actor ORDER BY COUNT(id) DESC, timestamp DESC", 
 			" GROUP BY actor ORDER BY COUNT(id) ASC, timestamp ASC",
-			" GROUP BY actor", # implicit: ORDER BY max(timestamp) DESC
-			" ORDER BY timestamp ASC")[order]
+			" GROUP BY actor", # implicit: ORDER BY max(timestamp) DESC <-- FIXME: Is this comment true? is it not ordered by insertion time, in other words rowid?
+			" ORDER BY timestamp ASC", # FIXME: missing an GROUP BY actor?
+			" GROUP BY origin ORDER BY timestamp DESC",
+			" GROUP BY origin ORDER BY timestamp ASC",
+			" GROUP BY origin ORDER BY COUNT(id) DESC, timestamp DESC",
+			" GROUP BY origin ORDER BY COUNT(id) ASC, timestamp ASC")[order]
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
