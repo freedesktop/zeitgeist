@@ -568,6 +568,20 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals([e[0][4] for e in events], ["frobnicator", "firefox"])
 		self.assertEquals([e[0][1] for e in events], ["105", "107"])
 
+	def testResultTypesMostPopularSubject(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		events = self.engine.find_eventids(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularSubjects)
+		self.assertEquals(events, [3, 5, 4, 1])
+	
+	def testResultTypesLeastPopularSubject(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		events = self.engine.find_eventids(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularSubjects)
+		self.assertEquals(events, [1, 4, 5, 3])
+	
 	def testResultTypesMostRecentActor(self):
 		import_events("test/data/twenty_events.js", self.engine)
 		

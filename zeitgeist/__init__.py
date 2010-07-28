@@ -22,8 +22,8 @@ else:
         localedir = "/usr/share/locale"
         pkgdatadir = os.path.join(bindir, "data")
         privatepythondir = bindir
-        datasourcedir = os.path.join(bindir, "_zeitgeist/loggers/datasources")
-        extensiondir = os.path.join(bindir, "_zeitgeist/engine/extensions")
+        datasourcedir = os.path.normpath(os.path.join(bindir, "_zeitgeist/loggers/datasources"))
+        extensiondir = os.path.normpath(os.path.join(bindir, "_zeitgeist/engine/extensions"))
         libdir = ""
         libexecdir = ""
         PACKAGE = "zeitgeist"
