@@ -68,7 +68,7 @@ class Blacklist(Extension, dbus.service.Object):
 			log.debug("No existing blacklist config found")
 			self._blacklist = []
 	
-	def insert_event_hook(self, event, sender):
+	def pre_insert_event(self, event, sender):
 		for tmpl in self._blacklist:
 			if event.matches_template(tmpl): return None
 		return event

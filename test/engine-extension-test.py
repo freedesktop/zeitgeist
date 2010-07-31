@@ -69,7 +69,7 @@ class TestExtensionHooks(_engineTestClass):
 		class BlockAllInsertExtension(Extension):
 			PUBLIC_METHODS = []
 				
-			def insert_event_hook(self, event, sender):
+			def pre_insert_event(self, event, sender):
 				return None
 				
 		self.engine.extensions.load(BlockAllInsertExtension)
@@ -84,7 +84,7 @@ class TestExtensionHooks(_engineTestClass):
 			del_ids = []
 			
 			@classmethod
-			def delete_events_hook(self, del_ids, sender):
+			def post_delete_events(self, del_ids, sender):
 				self.del_ids = del_ids
 				
 		self.engine.extensions.load(DeleteAllInsertExtension)
