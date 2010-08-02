@@ -57,5 +57,7 @@ class _Constants:
 	# Required version of DB schema
 	CORE_SCHEMA="core"
 	CORE_SCHEMA_VERSION = 1
+	
+	USER_EXTENSION_PATH = "~/.local/share/zeitgeist/extensions"
 
 constants = _Constants()

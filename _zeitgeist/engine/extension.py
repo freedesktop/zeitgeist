@@ -26,6 +26,7 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.extension")
 
 import zeitgeist
+from _zeitgeist.engine import constants
 
 def safe_issubclass(obj, cls):
 	try:
@@ -167,11 +168,26 @@ def _scan_extensions():
 	config = zeitgeist._config
 	log.debug("Searching for extensions in: %s" % config.extensiondir)	
 	extensions = []
-	modules = filter(lambda m : m.endswith(".py"), os.listdir(config.extensiondir))	
-	modules = map(lambda m : m.rpartition(".")[0], modules)
-	for mod in modules:
-		_zg = __import__("_zeitgeist.engine.extensions." + mod)
-		ext = getattr(_zg.engine.extensions, mod)
+	
+	# Find system extensions
+	sys_modules = filter(lambda m : m.endswith(".py"), os.listdir(config.extensiondir))
+	sys_modules = modules = map(lambda m : "_zeitgeist.engine.extensions." + m.rpartition(".")[0], sys_modules)
+	
+	# Find user extensions
+	user_modules = []
+	try:
+		user_modules = filter(lambda m : m.endswith(".py"), os.listdir(os.path.expanduser(constants.USER_EXTENSION_PATH)))
+		user_modules = map(lambda m : m.rpartition(".")[0], user_modules)
+	except OSError:
+		pass # USER_EXTENSION_PATH doesn't exist
+	
+	for mod in sys_modules + user_modules:
+		path, dot, name = mod.rpartition(".")
+		if path:
+			ext = __import__(mod, globals(), locals(), [name])
+		else:
+			ext = __import__(name)
+				
 		for cls in dir(ext):
 			cls = getattr(ext, cls)
 			if safe_issubclass(cls, Extension) and not cls is Extension:

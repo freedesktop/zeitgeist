@@ -28,8 +28,14 @@ import logging
 import optparse
 from copy import copy
 
+# Make sure we can find the private _zeitgeist namespace
 from zeitgeist import _config
 _config.setup_path()
+
+# Make sure we can load user extensions, and that they take priority over
+# system level extensions
+from _zeitgeist.engine import constants
+sys.path.insert(0, os.path.expanduser(constants.USER_EXTENSION_PATH))
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 
