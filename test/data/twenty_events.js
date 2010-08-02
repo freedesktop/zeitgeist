@@ -281,7 +281,7 @@
 				"uri" : "file:///tmp/foo.txt",
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
-				"origin" : "file:///tmp",
+				"origin" : "file:///home",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
@@ -297,7 +297,7 @@
 				"uri" : "file:///tmp/foo.txt",
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
-				"origin" : "file:///tmp",
+				"origin" : "file:///home",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
@@ -313,7 +313,7 @@
 				"uri" : "file:///tmp/foo.txt",
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
-				"origin" : "file:///tmp",
+				"origin" : "file:///etc",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"

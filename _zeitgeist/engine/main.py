@@ -358,12 +358,16 @@ class ZeitgeistEngine:
 			" ORDER BY timestamp ASC",
 			" GROUP BY subj_uri ORDER BY timestamp DESC",
 			" GROUP BY subj_uri ORDER BY timestamp ASC",
-			" GROUP BY subj_uri ORDER BY COUNT(id) DESC, timestamp DESC",
-			" GROUP BY subj_uri ORDER BY COUNT(id) ASC, timestamp ASC",
-			" GROUP BY actor ORDER BY COUNT(id) DESC, timestamp DESC",
-			" GROUP BY actor ORDER BY COUNT(id) ASC, timestamp ASC",
-			" GROUP BY actor", # implicit: ORDER BY max(timestamp) DESC
-			" ORDER BY timestamp ASC")[order]
+			" GROUP BY subj_uri ORDER BY COUNT(subj_uri) DESC, timestamp DESC",
+			" GROUP BY subj_uri ORDER BY COUNT(subj_uri) ASC, timestamp ASC",
+			" GROUP BY actor ORDER BY COUNT(actor) DESC, timestamp DESC", 
+			" GROUP BY actor ORDER BY COUNT(actor) ASC, timestamp ASC",
+			" GROUP BY actor ORDER BY timestamp DESC",
+			" GROUP BY actor ORDER BY timestamp ASC",
+			" GROUP BY subj_origin ORDER BY timestamp DESC",
+			" GROUP BY subj_origin ORDER BY timestamp ASC",
+			" GROUP BY subj_origin ORDER BY COUNT(subj_origin) DESC, timestamp DESC",
+			" GROUP BY subj_origin ORDER BY COUNT(subj_origin) ASC, timestamp ASC")[order]
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
@@ -605,6 +609,7 @@ class ZeitgeistEngine:
 			return ""
 
 	def delete_events (self, ids, sender=None):
+		ids = self.extensions.apply_pre_delete(ids, sender)
 		# Extract min and max timestamps for deleted events
 		self._cursor.execute("""
 			SELECT MIN(timestamp), MAX(timestamp)
@@ -613,8 +618,6 @@ class ZeitgeistEngine:
 		""" % ",".join(str(int(_id)) for _id in ids))
 		timestamps = self._cursor.fetchone()
 
-		
-		ids = self.extensions.apply_pre_delete(ids, sender)
 		# Make sure that we actually found some events with these ids...
 		# We can't do all(timestamps) here because the timestamps may be 0
 		if timestamps and timestamps[0] is not None and timestamps[1] is not None:

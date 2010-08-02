@@ -85,11 +85,11 @@ class Extension(object):
 		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
 			instance
 		:param sender: The D-Bus bus name of the client
-		:returns: The filtered event instance to insert into the log
+		:returns: Nothing
 		"""
 		pass
 	
-	def get_event_hook(self, event, sender):
+	def get_event(self, event, sender):
 		"""
 		Hook applied to all events before they are returned to a client.
 		The event returned from this method is progressively passed
@@ -104,7 +104,7 @@ class Extension(object):
 		event as is.
 		
 		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
-			instance
+			instance or :const:`None`
 		:param sender: The D-Bus bus name of the client
 		:returns: The filtered event instance as the client
 			should see it
@@ -121,15 +121,15 @@ class Extension(object):
 		"""
 		pass
 	
-	def pre_delete_events(self, events, sender):
+	def pre_delete_events(self, ids, sender):
 		"""
 		Hook applied before events are deleted from the log.
 		
-		:param ids: A list of event ids for the events that has been deleted
+		:param ids: A list of event ids for the events requested to be deleted
 		:param sender: The unique DBus name for the client triggering the delete
-		:returns: Nothing
+		:returns: The filtered list of event ids which should be deleted
 		"""
-		return events
+		return ids
 
 
 def get_extensions():
@@ -263,7 +263,7 @@ class ExtensionsCollection(object):
 		
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.get_event_hook(event, sender)
+			event = ext.get_event(event, sender)
 			if event is None:
 				# The event has been blocked by
 				# the extension pretend it's
@@ -283,7 +283,7 @@ class ExtensionsCollection(object):
 	
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.pre_delete_events(ids, sender)
+			ids = ext.pre_delete_events(ids, sender)
 			
 		return ids
 	
@@ -300,9 +300,6 @@ class ExtensionsCollection(object):
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
 			event = ext.post_insert_event(event, sender)
-			if event is None:
-				# The event has been blocked by the extension
-				return None
 	
 	def __len__(self):
 		return len(self.__extensions)
