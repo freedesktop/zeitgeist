@@ -285,15 +285,11 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		events = parse_events("test/data/apriori_events.js")
 		self.insertEventsAndWait(events)
 		
-		uris = self.findRelatedAndWait(["i2"], num_events=2, result_type=0)
-		print uris
-		self.assertEquals(set(uris), set(["i3", "i1"]))
-		
-		self.insertEventsAndWait(events)
-		
 		uris = self.findRelatedAndWait(["i2"], num_events=2, result_type=1)
-		print uris
-		self.assertEquals(set(uris), set(["i1", "i3"]))
+		self.assertEquals(uris, ["i3", "i1"])
+		
+		uris = self.findRelatedAndWait(["i2"], num_events=2, result_type=0)
+		self.assertEquals(uris, ["i1", "i3"])
 		
 	def testFindEventsForValues(self):
 		mainloop = gobject.MainLoop() # we don't have an *AndWait-helper method
