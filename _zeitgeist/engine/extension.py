@@ -125,7 +125,7 @@ class Extension(object):
 		"""
 		Hook applied before events are deleted from the log.
 		
-		:param ids: A list of event ids for the events requested to be deleted
+		:param ids: A list of event ids for the events that has been deleted
 		:param sender: The unique DBus name for the client triggering the delete
 		:returns: The filtered list of event ids which should be deleted
 		"""
