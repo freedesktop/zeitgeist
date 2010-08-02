@@ -1,8 +1,14 @@
 Engine:
 
+ - FindEvent*: Event subjects are now joined by a logical AND instead of OR
+   (LP: #592599).
  - Extensions found in the extensions directory are now automatically loaded.
  - Let the GtkRecentlyUsed data-source ignore any exceptions while trying to
    parse .desktop files (LP: #523761).
+ - The RegisterDataSource D-Bus method no longer returns a boolean.
+ - Extensions: Hooks have been renamed and most of them now have pre and post
+   variants (LP: #592599, #604747).
+ - DeleteEvents WTF?
 
 Python API:
  - ZeitgeistDBusInterface.get_extension is no longer a classmethod (in fact,
