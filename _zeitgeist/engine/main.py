@@ -511,7 +511,7 @@ class ZeitgeistEngine:
 		
 		id = self.next_event_id()
 		event[0][Event.Id] = id		
-		event = self.extensions.apply_insert_hooks(event, sender)
+		event = self.extensions.apply_pre_insert(event, sender)
 		if event is None:
 			raise AssertionError("Inserting of event was blocked by an extension")
 		elif not issubclass(type(event), OrigEvent):
@@ -569,6 +569,9 @@ class ZeitgeistEngine:
 						self._mimetype[subject.mimetype],
 						subject.text,
 						subject.storage))
+				
+			self.extensions.apply_post_insert(event, sender)
+				
 		except sqlite3.IntegrityError:
 			# The event was already registered.
 			# Rollback _last_event_id and return the ID of the original event
@@ -606,6 +609,7 @@ class ZeitgeistEngine:
 			return ""
 
 	def delete_events (self, ids, sender=None):
+		ids = self.extensions.apply_pre_delete(ids, sender)
 		# Extract min and max timestamps for deleted events
 		self._cursor.execute("""
 			SELECT MIN(timestamp), MAX(timestamp)
@@ -622,7 +626,7 @@ class ZeitgeistEngine:
 			self._cursor.connection.commit()
 			log.debug("Deleted %s" % map(int, ids))
 			
-			self.extensions.apply_delete_hooks(ids, sender)
+			self.extensions.apply_post_delete(ids, sender)
 			
 			return timestamps
 		else:

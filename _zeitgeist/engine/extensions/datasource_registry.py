@@ -104,7 +104,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			if datasource[DataSource.UniqueId] == unique_id:
 				return datasource
 	
-	def insert_event_hook(self, event, sender):
+	def pre_insert_event(self, event, sender):
 		for (unique_id, bus_names) in self._running.iteritems():
 			if sender in bus_names:
 				datasource = self._get_data_source(unique_id)

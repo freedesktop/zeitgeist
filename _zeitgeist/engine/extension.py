@@ -49,7 +49,7 @@ class Extension(object):
 	def __init__(self, engine):
 		self.engine = weakref.proxy(engine)
 	
-	def insert_event_hook(self, event, sender):
+	def pre_insert_event(self, event, sender):
 		"""
 		Hook applied to all events before they are inserted into the
 		log. The returned event is progressively passed through all
@@ -69,7 +69,27 @@ class Extension(object):
 		"""
 		return event
 	
-	def get_event_hook(self, event, sender):
+	def post_insert_event(self, event, sender):
+		"""
+		Hook applied to all events after they are inserted into the
+		log. The returned event is progressively passed through all
+		extensions before the final result is inserted.
+		
+		To block an event completely simply return :const:`None`.
+		The event may also be modified or completely substituted for
+		another event.
+		
+		The default implementation of this method simply returns the
+		event as is.
+		
+		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
+			instance
+		:param sender: The D-Bus bus name of the client
+		:returns: Nothing
+		"""
+		pass
+	
+	def get_event(self, event, sender):
 		"""
 		Hook applied to all events before they are returned to a client.
 		The event returned from this method is progressively passed
@@ -84,22 +104,32 @@ class Extension(object):
 		event as is.
 		
 		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
-			instance
+			instance or :const:`None`
 		:param sender: The D-Bus bus name of the client
 		:returns: The filtered event instance as the client
 			should see it
 		"""
 		return event
 	
-	def delete_events_hook(self, ids, sender):
+	def post_delete_events(self, ids, sender):
 		"""
-		Hook applied after events has been deleted from the log.
+		Hook applied after events have been deleted from the log.
 		
 		:param ids: A list of event ids for the events that has been deleted
 		:param sender: The unique DBus name for the client triggering the delete
 		:returns: Nothing
 		"""
 		pass
+	
+	def pre_delete_events(self, ids, sender):
+		"""
+		Hook applied before events are deleted from the log.
+		
+		:param ids: A list of event ids for the events that has been deleted
+		:param sender: The unique DBus name for the client triggering the delete
+		:returns: The filtered list of event ids which should be deleted
+		"""
+		return ids
 
 
 def get_extensions():
@@ -233,7 +263,7 @@ class ExtensionsCollection(object):
 		
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.get_event_hook(event, sender)
+			event = ext.get_event(event, sender)
 			if event is None:
 				# The event has been blocked by
 				# the extension pretend it's
@@ -241,22 +271,35 @@ class ExtensionsCollection(object):
 				continue
 		return event
 	
-	def apply_delete_hooks(self, ids, sender):
+	def apply_post_delete(self, ids, sender):
 		# Apply extension filters if we have an event
 	
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.delete_events_hook(ids, sender)
+			event = ext.post_delete_events(ids, sender)
 			
+	def apply_pre_delete(self, ids, sender):
+		# Apply extension filters if we have an event
 	
-	def apply_insert_hooks(self, event, sender):
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.insert_event_hook(event, sender)
+			ids = ext.pre_delete_events(ids, sender)
+			
+		return ids
+	
+	def apply_pre_insert(self, event, sender):
+		# FIXME: We need a stable iteration order
+		for ext in self.__extensions.itervalues():
+			event = ext.pre_insert_event(event, sender)
 			if event is None:
 				# The event has been blocked by the extension
 				return None
 		return event
+	
+	def apply_post_insert(self, event, sender):
+		# FIXME: We need a stable iteration order
+		for ext in self.__extensions.itervalues():
+			event = ext.post_insert_event(event, sender)
 	
 	def __len__(self):
 		return len(self.__extensions)
