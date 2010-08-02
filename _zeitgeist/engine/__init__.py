@@ -58,6 +58,6 @@ class _Constants:
 	CORE_SCHEMA="core"
 	CORE_SCHEMA_VERSION = 1
 	
-	USER_EXTENSION_PATH = "~/.local/share/zeitgeist/extensions"
+	USER_EXTENSION_PATH = os.path.join(DATA_PATH, "extensions")
 
 constants = _Constants()

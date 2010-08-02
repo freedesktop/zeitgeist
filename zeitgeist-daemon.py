@@ -35,7 +35,7 @@ _config.setup_path()
 # Make sure we can load user extensions, and that they take priority over
 # system level extensions
 from _zeitgeist.engine import constants
-sys.path.insert(0, os.path.expanduser(constants.USER_EXTENSION_PATH))
+sys.path.insert(0, constants.USER_EXTENSION_PATH)
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 
