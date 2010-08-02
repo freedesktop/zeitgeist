@@ -68,14 +68,26 @@ class TestExtensionHooks(_engineTestClass):
 		
 		class BlockAllInsertExtension(Extension):
 			PUBLIC_METHODS = []
-				
-			def pre_insert_event(self, event, sender):
+			insert_count = 0
+			do_insert = True
+			
+			@classmethod
+			def pre_insert_event(cls, event, sender):
+				if cls.do_insert:
+					cls.do_insert = False
+					return event
 				return None
+				
+			@classmethod
+			def post_insert_event(cls, event, sender):
+				cls.insert_count += 1
 				
 		self.engine.extensions.load(BlockAllInsertExtension)
 		ids = import_events("test/data/five_events.js", self.engine)
-		# all inserts where blocked, so each id is 0 to indicate this
-		self.assertEquals(filter(None, ids), [])
+		
+		# all but the first one events are blocked
+		self.assertEquals(filter(None, ids), [1])
+		self.assertEquals(BlockAllInsertExtension.insert_count, 1)
 	
 	def testDeleteHook(self):
 		
@@ -84,14 +96,43 @@ class TestExtensionHooks(_engineTestClass):
 			del_ids = []
 			
 			@classmethod
-			def post_delete_events(self, del_ids, sender):
-				self.del_ids = del_ids
+			def pre_delete_events(cls, ids, sender):
+				return ids[:1]
+			
+			@classmethod
+			def post_delete_events(cls, del_ids, sender):
+				cls.del_ids = del_ids
 				
 		self.engine.extensions.load(DeleteAllInsertExtension)
 		ids = import_events("test/data/five_events.js", self.engine)
-		# all inserts where blocked, so each id is 0 to indicate this
-		self.engine.delete_events([ids[1]])
-		self.assertEquals(DeleteAllInsertExtension.del_ids, [ids[1]])
+		
+		# we try to delete the first two events, but the engine will
+		# block the deletion of the seconds one
+		self.engine.delete_events(ids[:2])
+		self.assertEquals(DeleteAllInsertExtension.del_ids, ids[:1])
+		
+	def testGetHook(self):
+		
+		class BlockGetExtension(Extension):
+			PUBLIC_METHODS = []
+			
+			@classmethod
+			def get_event(self, event, sender):
+				if event is not None and int(event.timestamp) > 130:
+					return None
+				return event
+				
+		self.engine.extensions.load(BlockGetExtension)
+		ids = import_events("test/data/five_events.js", self.engine)
+		
+		# request all events, but only the first event object
+		# will be returned, the other events are blocked by the extension
+		# and presented as `None`
+		events = self.engine.get_events(ids)
+		self.assertEqual(len(filter(lambda x: x is not None, events)), 1)
+		
+		
+		
 
 if __name__ == "__main__":
 	unittest.main()

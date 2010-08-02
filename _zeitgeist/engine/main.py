@@ -609,6 +609,7 @@ class ZeitgeistEngine:
 			return ""
 
 	def delete_events (self, ids, sender=None):
+		ids = self.extensions.apply_pre_delete(ids, sender)
 		# Extract min and max timestamps for deleted events
 		self._cursor.execute("""
 			SELECT MIN(timestamp), MAX(timestamp)
@@ -617,8 +618,6 @@ class ZeitgeistEngine:
 		""" % ",".join(str(int(_id)) for _id in ids))
 		timestamps = self._cursor.fetchone()
 
-		
-		ids = self.extensions.apply_pre_delete(ids, sender)
 		# Make sure that we actually found some events with these ids...
 		# We can't do all(timestamps) here because the timestamps may be 0
 		if timestamps and timestamps[0] is not None and timestamps[1] is not None:
