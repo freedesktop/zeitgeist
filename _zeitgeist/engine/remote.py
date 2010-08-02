@@ -308,7 +308,7 @@ class RemoteInterface(SingletonApplication):
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
 	                     in_signature="au",
-	                     out_signature="(ii)",
+	                     out_signature="(xx)",
 	                     sender_keyword="sender")
 	def DeleteEvents(self, event_ids, sender):
 		"""Delete a set of events from the log given their IDs
