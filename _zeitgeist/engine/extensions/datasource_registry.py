@@ -200,7 +200,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			matching the given ID.
 		:rtype: Bool
 		"""
-		return self.set_data_source_enabled(unique_id, enabled)
+		self.set_data_source_enabled(unique_id, enabled)
 
 	@dbus.service.signal(REGISTRY_DBUS_INTERFACE,
 						signature="sb")
