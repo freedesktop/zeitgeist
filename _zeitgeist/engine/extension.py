@@ -73,15 +73,7 @@ class Extension(object):
 	def post_insert_event(self, event, sender):
 		"""
 		Hook applied to all events after they are inserted into the
-		log. The returned event is progressively passed through all
-		extensions before the final result is inserted.
-		
-		To block an event completely simply return :const:`None`.
-		The event may also be modified or completely substituted for
-		another event.
-		
-		The default implementation of this method simply returns the
-		event as is.
+		log.
 		
 		:param event: An :class:`Event <zeitgeist.datamodel.Event>`
 			instance
@@ -332,7 +324,7 @@ class ExtensionsCollection(object):
 	def apply_post_insert(self, event, sender):
 		# FIXME: We need a stable iteration order
 		for ext in self.__extensions.itervalues():
-			event = ext.post_insert_event(event, sender)
+			ext.post_insert_event(event, sender)
 	
 	def __len__(self):
 		return len(self.__extensions)
