@@ -14,9 +14,6 @@ Engine:
  - Extensions: Hooks have been renamed and most of them now have pre and post
    variants (LP: #592599, #604747).
  - Add new ResultTypes for sorting by subject origin
- - Change the hooks API for the Extension class to use pre_* and post* hooks
-   to make it clearer when they are run. This change also brings in a few
-   new hooks.
 
 Python API:
  - ZeitgeistDBusInterface.get_extension is no longer a classmethod (in fact,

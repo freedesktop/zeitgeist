@@ -44,7 +44,7 @@ class RemoteInterface(SingletonApplication):
 	:const:`org.gnome.zeitgeist.Engine`.
 	"""
 	_dbus_properties = {
-		"version": property(lambda self: (0, 4, 0)),
+		"version": property(lambda self: (0, 5, 0)),
 	}
 	
 	# Initialization
