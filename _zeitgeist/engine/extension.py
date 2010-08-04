@@ -253,7 +253,7 @@ class ExtensionsCollection(object):
 				"defined any methods" % extension)
 		try:
 			obj = extension(self.__engine)
-		except:
+		except Exception:
 			log.exception("Failed loading the '%s' extension" % extension.__name__)
 			return False
 
