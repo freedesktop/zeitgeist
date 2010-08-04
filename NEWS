@@ -1,14 +1,22 @@
+2010-08-04: Zeitgeist 0.5.0 "Atomic Flounder"
+---------------------------------------------
+
 Engine:
 
  - FindEvent*: Event subjects are now joined by a logical AND instead of OR
    (LP: #592599).
  - Extensions found in the extensions directory are now automatically loaded.
+ - Install a .pc file so out of tree extensions can figure out the install path.
+ - Load extensions found in ~/.local/share/zeitgeist/extensions.
  - Let the GtkRecentlyUsed data-source ignore any exceptions while trying to
    parse .desktop files (LP: #523761).
  - Fix return value of the SetDataSourceEnabled D-Bus method.
  - Extensions: Hooks have been renamed and most of them now have pre and post
    variants (LP: #592599, #604747).
- - DeleteEvents WTF?
+ - Add new ResultTypes for sorting by subject origin
+ - Change the hooks API for the Extension class to use pre_* and post* hooks
+   to make it clearer when they are run. This change also brings in a few
+   new hooks.
 
 Python API:
  - ZeitgeistDBusInterface.get_extension is no longer a classmethod (in fact,
@@ -22,8 +30,8 @@ Overall:
  - Manpage updates.
  - Translation updates.
 
-2010-06-10: Zeitgeist 0.4.0
-----------------------------
+2010-06-10: Zeitgeist 0.4.0 "Wumbo"
+-----------------------------------
 
 Engine:
  
