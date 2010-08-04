@@ -185,7 +185,7 @@ def _scan_extensions():
 	# If we have module conflicts let the user extensions win,
 	# and remove the system provided extension from our list
 	user_module_names = map(lambda m : os.path.basename(m), user_modules)
-	for mod in list(sys_modules):
+	for mod in sys_modules:
 		mod_name = mod.rpartition(".")[2]
 		if mod_name in user_module_names:
 			log.info ("Extension %s in %s overriding system extension" %
@@ -253,8 +253,8 @@ class ExtensionsCollection(object):
 				"defined any methods" % extension)
 		try:
 			obj = extension(self.__engine)
-		except:
-			log.exception("Failed loading the '%s' extension" %extension.__name__)
+		except Exception, e:
+			log.exception("Failed loading the '%s' extension" % extension.__name__)
 			return False
 
 		for method in obj.PUBLIC_METHODS:
