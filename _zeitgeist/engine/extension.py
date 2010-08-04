@@ -26,6 +26,7 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.extension")
 
 import zeitgeist
+from _zeitgeist.engine import constants
 
 def safe_issubclass(obj, cls):
 	try:
@@ -158,20 +159,47 @@ def get_extensions():
 	else:
 		log.debug("No extra extensions")
 	extensions = filter(None, extensions)
-	log.debug("daemon is configured to run with these extensions: %r" %extensions)
+	log.debug("Found extensions: %r" %extensions)
 	return extensions
 
 def _scan_extensions():
 	"""Look in zeitgeist._config.extensiondir for .py files and return
 	a list of classes with all the classes that extends the Extension class"""
-	config = zeitgeist._config
-	log.debug("Searching for extensions in: %s" % config.extensiondir)	
+	config = zeitgeist._config		
 	extensions = []
-	modules = filter(lambda m : m.endswith(".py"), os.listdir(config.extensiondir))	
-	modules = map(lambda m : m.rpartition(".")[0], modules)
-	for mod in modules:
-		_zg = __import__("_zeitgeist.engine.extensions." + mod)
-		ext = getattr(_zg.engine.extensions, mod)
+	
+	# Find system extensions
+	log.debug("Searching for system extensions in: %s" % config.extensiondir)
+	sys_modules = filter(lambda m : m.endswith(".py"), os.listdir(config.extensiondir))
+	sys_modules = modules = map(lambda m : "_zeitgeist.engine.extensions." + m.rpartition(".")[0], sys_modules)
+	
+	# Find user extensions
+	log.debug("Searching for user extensions in: %s" % constants.USER_EXTENSION_PATH)
+	user_modules = []
+	try:
+		user_modules = filter(lambda m : m.endswith(".py"), os.listdir(os.path.expanduser(constants.USER_EXTENSION_PATH)))
+		user_modules = map(lambda m : m.rpartition(".")[0], user_modules)
+	except OSError:
+		pass # USER_EXTENSION_PATH doesn't exist
+	
+	# If we have module conflicts let the user extensions win,
+	# and remove the system provided extension from our list
+	user_module_names = map(lambda m : os.path.basename(m), user_modules)
+	for mod in list(sys_modules):
+		mod_name = mod.rpartition(".")[2]
+		if mod_name in user_module_names:
+			log.info ("Extension %s in %s overriding system extension" %
+			          (mod_name, constants.USER_EXTENSION_PATH))
+			sys_modules.remove(mod)
+	
+	# Now load the modules already!
+	for mod in user_modules + sys_modules:
+		path, dot, name = mod.rpartition(".")
+		if path:
+			ext = __import__(mod, globals(), locals(), [name])
+		else:
+			ext = __import__(name)
+				
 		for cls in dir(ext):
 			cls = getattr(ext, cls)
 			if safe_issubclass(cls, Extension) and not cls is Extension:
@@ -223,7 +251,12 @@ class ExtensionsCollection(object):
 		if getattr(extension, "PUBLIC_METHODS", None) is None:
 			raise ValueError("Unable to load %r, this extension has not "
 				"defined any methods" % extension)
-		obj = extension(self.__engine)
+		try:
+			obj = extension(self.__engine)
+		except:
+			log.exception("Failed loading the '%s' extension" % extension.__name__)
+			return False
+
 		for method in obj.PUBLIC_METHODS:
 			self._register_method(method, getattr(obj, method))
 		self.__extensions[obj.__class__.__name__] = obj
