@@ -30,8 +30,6 @@ from _zeitgeist.engine.notify import MonitorManager
 from _zeitgeist.engine import constants
 from _zeitgeist.singleton import SingletonApplication
 
-_engine = get_engine()
-
 class RemoteInterface(SingletonApplication):
 	"""
 	Primary interface to the Zeitgeist engine. Used to update and query
@@ -52,6 +50,7 @@ class RemoteInterface(SingletonApplication):
 	def __init__(self, start_dbus=True, mainloop=None):
 		SingletonApplication.__init__(self)
 		self._mainloop = mainloop
+		self._engine = get_engine()
 		self._notifications = MonitorManager()
 	
 	# Private methods
@@ -83,7 +82,7 @@ class RemoteInterface(SingletonApplication):
 		   :class:`Event` instances by calling *events = map(Event.new_for_struct, result)*
 		:rtype: A list of serialized events. DBus signature a(asaasay).
 		"""
-		return self._make_events_sendable(_engine.get_events(ids=event_ids,
+		return self._make_events_sendable(self._engine.get_events(ids=event_ids,
 		    sender=sender))
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
@@ -131,7 +130,7 @@ class RemoteInterface(SingletonApplication):
 		:rtype: An array of strings, DBus signature :const:`as`.
 		"""
 		event_templates = map(Event, event_templates)
-		return _engine.find_related_uris(time_range, event_templates,
+		return self._engine.find_related_uris(time_range, event_templates,
 			result_event_templates, storage_state, num_events, result_type)
 	
 	@dbus.service.method(constants.DBUS_INTERFACE,
@@ -194,7 +193,7 @@ class RemoteInterface(SingletonApplication):
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)
-		return _engine.find_eventids(time_range, event_templates, storage_state,
+		return self._engine.find_eventids(time_range, event_templates, storage_state,
 			num_events, result_type)
 
 	@dbus.service.method(constants.DBUS_INTERFACE,
@@ -250,7 +249,7 @@ class RemoteInterface(SingletonApplication):
 		"""
 		time_range = TimeRange(time_range[0], time_range[1])
 		event_templates = map(Event, event_templates)
-		return self._make_events_sendable(_engine.find_events(time_range,
+		return self._make_events_sendable(self._engine.find_events(time_range,
 			event_templates, storage_state, num_events, result_type, sender))
 
 	# Writing stuff
@@ -286,7 +285,7 @@ class RemoteInterface(SingletonApplication):
 		"""
 		if not events : return []
 		events = map(Event, events)
-		event_ids = _engine.insert_events(events, sender)
+		event_ids = self._engine.insert_events(events, sender)
 		
 		_events = []
 		min_stamp = events[0].timestamp
@@ -317,8 +316,7 @@ class RemoteInterface(SingletonApplication):
 			:meth:`FindEventIds`
 		:type event_ids: list of integers
 		"""
-		# FIXME: Notify monitors - how do we do this? //kamstrup
-		timestamps = _engine.delete_events(event_ids, sender=sender)
+		timestamps = self._engine.delete_events(event_ids, sender=sender)
 		if timestamps:
 			# We need to check the return value, as the events could already
 			# have been deleted before or the IDs might even have been invalid.
@@ -340,7 +338,7 @@ class RemoteInterface(SingletonApplication):
 		content in one go. To delete specific subsets use
 		:meth:`FindEventIds` combined with :meth:`DeleteEvents`.
 		"""
-		_engine.delete_log()
+		self._engine.delete_log()
 	
 	@dbus.service.method(constants.DBUS_INTERFACE)
 	def Quit(self):
