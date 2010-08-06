@@ -140,8 +140,8 @@ Overall:
  - Manpage updates.
  - Translation updates.
 
-2010-01-19: Zeitgeist 0.3.2
----------------------------
+2010-01-19: Zeitgeist 0.3.2 "Shadowy Rumble"
+--------------------------------------------
 
 This release brings some nice little stuff and is used to power the first
 release of the GNOME Activity Journal.
@@ -158,8 +158,8 @@ Python API:
 Overall:
  - Some code refactoring, documentation changes and other little fixes.
 
-2010-01-10: Zeitgeist 0.3.1
----------------------------
+2010-01-10: Zeitgeist 0.3.1 "Mystical Tremor"
+---------------------------------------------
 
 Second development release leading up to the stable 0.4 series.
 
@@ -193,8 +193,8 @@ Overall:
  - Added bash-completion for zeitgeist-daemon.
  - More bugfixes and code style cleanups.
 
-2009-12-01: Zeitgeist 0.3.0
-------------------------------
+2009-12-01: Zeitgeist 0.3.0 "Voodoo Resonance"
+----------------------------------------------
 
 First development release leading up to the stable 0.4 series. This release
 is a complete rework of Zeitgeist and applications written for 0.2 won't work
@@ -232,8 +232,8 @@ There are a few DISCLAIMERS that needs to be attached to this:
    guarantee stability of services nor APIs, although we strive hard to keep
    things stable.
 
-Version 0.2.1
-------------------------------
+2009-08-17: Version 0.2.1 "Hangover"
+------------------------------------
 
 This version's D-Bus API and database is completely backwards-compatible with
 version 0.2, and it focuses on compatibility and performance enhancements.
@@ -252,7 +252,7 @@ version 0.2, and it focuses on compatibility and performance enhancements.
  - Added a "--quit" option to zeitgeist-daemon to stop any running daemon.
  - General code improvements, new test cases and other minor fixes.
 
-Version 0.2
-------------------------------
+2009-07-15: Version 0.2 "Okidoki"
+---------------------------------
 
 Initial release, because we are that cool :).
