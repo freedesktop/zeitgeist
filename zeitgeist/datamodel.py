@@ -377,7 +377,7 @@ class TimeRange(list):
 		Return a :class:`TimeRange` from the furtest past to the most
 		distant future
 		"""
-		return cls(-cls._max_stamp, cls._max_stamp)
+		return cls(0, cls._max_stamp)
 	
 	def is_always(self):
 		"""
@@ -701,6 +701,11 @@ class Event(list):
 		
 		"""
 		self = cls()
+		for key in values.keys():
+			if not key in ("timestamp", "interpretation", 
+						"manifestation", "actor", "subjects"):
+				raise ValueError("Event parameter '%s' is not supported" %key)
+			
 		self.timestamp = values.get("timestamp", self.timestamp)
 		self.interpretation = values.get("interpretation", "")
 		self.manifestation = values.get("manifestation", "")
