@@ -374,17 +374,17 @@ class TimeRange(list):
 	@classmethod
 	def always(cls):
 		"""
-		Return a :class:`TimeRange` from the furtest past to the most
+		Return a :class:`TimeRange` from 0 (January 1, 1970) to the most
 		distant future
 		"""
-		return cls(-cls._max_stamp, cls._max_stamp)
+		return cls(0, cls._max_stamp)
 	
 	def is_always(self):
 		"""
-		Returns True if this time range represents the furtest past to the most
+		Returns True if this time range represents the 0 (January 1, 1970) to the most
 		distant future
 		"""
-		return self.begin <= -TimeRange._max_stamp and self.end >= TimeRange._max_stamp
+		return self.begin == 0 and self.end >= TimeRange._max_stamp
 		
 	def intersect(self, time_range):
 		"""
@@ -482,6 +482,9 @@ class Subject(list):
 		"""
 		self = Subject()
 		for key, value in values.iteritems():
+			if not key in ("uri", "interpretation", "manifestation", "origin",
+				"mimetype", "text", "storage"):
+				raise ValueError("Subject parameter '%s' is not supported" % key)
 			setattr(self, key, value)
 		return self
 		
@@ -701,6 +704,11 @@ class Event(list):
 		
 		"""
 		self = cls()
+		for key in values:
+			if not key in ("timestamp", "interpretation", "manifestation",
+				"actor", "subjects"):
+				raise ValueError("Event parameter '%s' is not supported" % key)
+			
 		self.timestamp = values.get("timestamp", self.timestamp)
 		self.interpretation = values.get("interpretation", "")
 		self.manifestation = values.get("manifestation", "")
