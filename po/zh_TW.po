@@ -1,0 +1,66 @@
+# Chinese (Traditional) translation for zeitgeist
+# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
+# This file is distributed under the same license as the zeitgeist package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: zeitgeist\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2010-08-16 18:45+0000\n"
+"PO-Revision-Date: 2010-08-23 04:03+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-08-24 03:42+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+msgid "if another Zeitgeist instance is already running, replace it"
+msgstr "若另一個 Zeitgeist 實體已在執行中，直接取代它"
+
+#: ../zeitgeist-daemon.py:65
+msgid "do not start zeitgeist-datahub automatically"
+msgstr "不要自動啟動 zeitgeist-datahub"
+
+#: ../zeitgeist-daemon.py:69
+msgid "how much information should be printed; possible values:"
+msgstr "應該要印出多少資訊；可用的值："
+
+#: ../zeitgeist-daemon.py:111
+#, python-format
+msgid "File \"%s\" not found, not starting datahub"
+msgstr "找不到檔案「%s」，不會啟動 datahub"
+
+#: ../zeitgeist-daemon.py:113
+msgid "Starting Zeitgeist service..."
+msgstr "正在啟動 Zeitgeist 服務..."
+
+#: ../zeitgeist-datahub.py:62
+msgid "No passive loggers found, bye."
+msgstr "找不到被動式紀錄器，掰囉。"
+
+#: ../zeitgeist-datahub.py:82
+#, python-format
+msgid "Could not load file: %s"
+msgstr "無法載入檔案：%s"
+
+#: ../zeitgeist-datahub.py:105
+#, python-format
+msgid "Updating database with new %s items"
+msgstr "正在更新資料庫的 %s 個新項目"
+
+#: ../zeitgeist-datahub.py:129
+msgid "Lost connection to zeitgeist-daemon, terminating."
+msgstr "失去與 zeitgeist-daemon 的連線，正在終止。"
+
+#: ../zeitgeist-datahub.py:132
+#, python-format
+msgid "Error logging item from \"%s\": %s"
+msgstr "從「%s」紀錄項目時發生錯誤：%s"
+
+#: ../_zeitgeist/loggers/datasources/recent.py:49
+msgid "Could not import GTK; data source disabled."
+msgstr "無法匯入 GTK；資料來源已停用。"
