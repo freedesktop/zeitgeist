@@ -4,7 +4,7 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
-# Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009-2010 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -381,10 +381,10 @@ class TimeRange(list):
 	
 	def is_always(self):
 		"""
-		Returns True if this time range goes from timestamp 0 (January 1, 1970)
-		-or lower- to the most distant future.
+		Returns True if this time range represents the 0 (January 1, 1970) to the most
+		distant future
 		"""
-		return self.begin <= 0 and self.end >= TimeRange._max_stamp
+		return self.begin == 0 and self.end >= TimeRange._max_stamp
 		
 	def intersect(self, time_range):
 		"""
@@ -483,8 +483,8 @@ class Subject(list):
 		self = Subject()
 		for key, value in values.iteritems():
 			if not key in ("uri", "interpretation", "manifestation", "origin",
-				"mimetype", "text", "storage"):
-				raise ValueError("Subject parameter '%s' is not supported" % key)
+						"mimetype", "text", "storage"):
+				raise ValueError("Subject parameter '%s' is not supported" %key)
 			setattr(self, key, value)
 		return self
 		
@@ -705,9 +705,9 @@ class Event(list):
 		"""
 		self = cls()
 		for key in values:
-			if not key in ("timestamp", "interpretation", "manifestation",
-				"actor", "subjects"):
-				raise ValueError("Event parameter '%s' is not supported" % key)
+			if not key in ("timestamp", "interpretation", 
+						"manifestation", "actor", "subjects"):
+				raise ValueError("Event parameter '%s' is not supported" %key)
 			
 		self.timestamp = values.get("timestamp", self.timestamp)
 		self.interpretation = values.get("interpretation", "")
@@ -928,6 +928,35 @@ class DataSource(list):
 	def __repr__(self):
 		return "%s: %s (%s)" % (self.__class__.__name__, self[self.UniqueId],
 			self[self.Name])
+	
+	@property
+	def unique_id(self):
+		return self[self.UniqueId]
+	
+	@property
+	def name(self):
+		return self[self.Name]
+	
+	@property
+	def description(self):
+		return self[self.Description]
+	
+	@property
+	def templates(self):
+		return self[self.EventTemplates]
+	
+	@property
+	def running(self):
+		return self[self.Running]
+	
+	@property
+	def last_seen(self):
+		return self[self.LastSeen]
+	
+	@property
+	def enabled(self):
+		return self[self.Enabled]
+	
 
 NULL_EVENT = ([], [], [])
 """Minimal Event representation, a tuple containing three empty lists.
