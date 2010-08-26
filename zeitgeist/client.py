@@ -298,7 +298,7 @@ class ZeitgeistClient:
 		""" some methods of :class:`ZeitgeistClient` take a variable
 		number of arguments, where one part of the arguments are used
 		to build one :class:`Event` instance and the other part
-		is forwarded to another method. This function returns an events
+		is forwarded to another method. This function returns an event
 		and the remaining arguments."""
 		kwargs = {}
 		for arg in _FIND_EVENTS_FOR_TEMPLATES_ARGS:
