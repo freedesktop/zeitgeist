@@ -26,6 +26,7 @@ import logging
 import os.path
 import sys
 import logging
+import inspect
 
 from xml.dom.minidom import parseString as minidom_parse
 
@@ -291,6 +292,21 @@ class ZeitgeistClient:
 	always the right thing to do. If you really want to do synchronous
 	DBus calls use the raw DBus API found in the ZeitgeistDBusInterface class.
 	"""
+	
+	@staticmethod
+	def get_event_and_extra_arguments(arguments):
+		""" some methods of :class:`ZeitgeistClient` take a variable
+		number of arguments, where one part of the arguments are used
+		to build one :class:`Event` instance and the other part
+		is forwarded to another method. This function returns an events
+		and the remaining arguments."""
+		kwargs = {}
+		for arg in _FIND_EVENTS_FOR_TEMPLATES_ARGS:
+			if arg in arguments:
+				kwargs[arg] = arguments.pop(arg)
+		ev = Event.new_for_values(**arguments)
+		return ev, kwargs
+	
 	def __init__ (self):
 		self._iface = ZeitgeistDBusInterface()
 		self._registry = self._iface.get_extension("DataSourceRegistry",
@@ -497,11 +513,10 @@ class ZeitgeistClient:
 		allowed keywords are the same as the ones allowed by
 		:meth:`Event.new_for_values() <zeitgeist.datamodel.Event.new_for_values>`.
 		"""
-		ev = Event.new_for_values(**kwargs)
-		
+		ev, arguments = self.get_event_and_extra_arguments(kwargs)
 		self.find_event_ids_for_templates([ev],
 						ids_reply_handler,
-						**kwargs)
+						**arguments)
 	
 	def find_events_for_templates (self,
 					event_templates,
@@ -582,9 +597,10 @@ class ZeitgeistClient:
 		Alias for :meth:`find_events_for_templates`, for use when only
 		one template is needed.
 		"""
-		self.find_events_for_templates([event_template],
+		ev, arguments = self.get_event_and_extra_arguments(kwargs)
+		self.find_events_for_templates([ev],
 						events_reply_handler,
-						**kwargs)
+						**arguments)
 	
 	def find_events_for_values(self, events_reply_handler, **kwargs):
 		"""
@@ -595,15 +611,7 @@ class ZeitgeistClient:
 		allowed keywords are the same as the ones allowed by
 		:meth:`Event.new_for_values() <zeitgeist.datamodel.Event.new_for_values>`.
 		"""
-		ev = Event.new_for_values(**kwargs)
-		# we need a clean dict of arguments to find_event_for_templates
-		# (LP: #510804)
-		arguments = {}
-		for arg in ("timerange", "storage_state", "num_events",
-					"result_type", "error_handler"):
-			if arg in kwargs:
-				arguments[arg] = kwargs[arg]
-		
+		ev, arguments = self.get_event_and_extra_arguments(kwargs)
 		self.find_events_for_templates([ev],
 						events_reply_handler,
 						**arguments)
@@ -896,3 +904,6 @@ class ZeitgeistClient:
 		
 		if callable(normal_reply_handler):
 			normal_reply_handler(normal_reply_data)
+
+_FIND_EVENTS_FOR_TEMPLATES_ARGS = inspect.getargspec(
+	ZeitgeistClient.find_events_for_templates)[0]
