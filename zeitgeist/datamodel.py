@@ -381,8 +381,8 @@ class TimeRange(list):
 	
 	def is_always(self):
 		"""
-		Returns True if this time range represents the 0 (January 1, 1970) to the most
-		distant future
+		Returns True if this time range goes from timestamp 0 (January 1, 1970) 
+		-or lower- to the most distant future.
 		"""
 		return self.begin <= 0 and self.end >= TimeRange._max_stamp
 		
