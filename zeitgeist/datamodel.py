@@ -904,6 +904,55 @@ class DataSource(list):
 		LastSeen,	# last time the data-source did something (connected,
 					# inserted events, disconnected).
 		Enabled) = range(7)
+		
+	def get_unique_id(self):
+		return self[self.UniqueId]
+	
+	def set_unique_id(self, value):
+		self[self.UniqueId] = value
+	
+	def get_name(self):
+		return self[self.Name]
+	
+	def set_name(self, value):
+		self[self.Name] = value
+	
+	def get_description(self):
+		return self[self.Description]
+	
+	def set_description(self, value):
+		self[self.Description] = value
+	
+	def get_running(self):
+		return self[self.Running]
+	
+	def set_running(self,value):
+		self[self.Running] = value
+	
+	def get_running(self):
+		return self[self.Running]
+	
+	def running(self, value):
+		self[self.Running] = value
+	
+	def get_last_seen(self):
+		return self[self.LastSeen]
+	
+	def set_last_seen(self, value):
+		self[self.LastSeen] = value
+	
+	def get_enabled(self):
+		return self[self.Enabled]
+	
+	def set_enabled(self, value):
+		self[self.Enabled] = value
+		
+	unique_id = property(get_unique_id, set_unique_id)
+	name = property(get_name, set_name)
+	description = property(get_description, set_description)
+	running = property(get_running, set_running)
+	last_seen = property(get_last_seen, set_last_seen)
+	enabled = property(get_enabled, set_enabled)
 	
 	def __init__(self, unique_id, name, description, templates, running=True,
 		last_seen=None, enabled=True):
@@ -929,33 +978,6 @@ class DataSource(list):
 		return "%s: %s (%s)" % (self.__class__.__name__, self[self.UniqueId],
 			self[self.Name])
 	
-	@property
-	def unique_id(self):
-		return self[self.UniqueId]
-	
-	@property
-	def name(self):
-		return self[self.Name]
-	
-	@property
-	def description(self):
-		return self[self.Description]
-	
-	@property
-	def templates(self):
-		return self[self.EventTemplates]
-	
-	@property
-	def running(self):
-		return self[self.Running]
-	
-	@property
-	def last_seen(self):
-		return self[self.LastSeen]
-	
-	@property
-	def enabled(self):
-		return self[self.Enabled]
 	
 
 NULL_EVENT = ([], [], [])
