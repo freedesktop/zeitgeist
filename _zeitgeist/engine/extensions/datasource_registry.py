@@ -101,7 +101,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 	
 	def _get_data_source(self, unique_id):
 		for datasource in self._registry:
-			if datasource[DataSource.UniqueId] == unique_id:
+			if datasource.unique_id == unique_id:
 				return datasource
 	
 	def pre_insert_event(self, event, sender):
@@ -109,10 +109,10 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			if sender in bus_names:
 				datasource = self._get_data_source(unique_id)
 				# Update LastSeen time
-				datasource[DataSource.LastSeen] = get_timestamp_for_now()
+				datasource.last_seen = get_timestamp_for_now()
 				self._write_to_disk()
 				# Check whether the data-source is allowed to insert events
-				if not [DataSource.Enabled]:
+				if not datasource.enabled:
 					return None
 		return event
 	
@@ -124,7 +124,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			if datasource == source:
 				datasource.update_from_data_source(source)
 				self.DataSourceRegistered(datasource)
-				return datasource[DataSource.Enabled]
+				return datasource.enabled
 		self._registry.append(source)
 		self._write_to_disk()
 		self.DataSourceRegistered(source)
@@ -139,9 +139,9 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		datasource = self._get_data_source(unique_id)
 		if not datasource:
 			return False
-		if datasource[DataSource.Enabled] != enabled:
-			datasource[DataSource.Enabled] = enabled
-			self.DataSourceEnabled(datasource[DataSource.UniqueId], enabled)
+		if datasource.enabled != enabled:
+			datasource.enabled = enabled
+			self.DataSourceEnabled(datasource.unique_id, enabled)
 		return True
 	
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
@@ -248,15 +248,15 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		datasource = self._get_data_source(uid)
 		
 		# Update LastSeen time
-		datasource[DataSource.LastSeen] = get_timestamp_for_now()
+		datasource.last_seen = get_timestamp_for_now()
 		self._write_to_disk()
 		
-		strid = "%s (%s)" % (uid, datasource[DataSource.Name])
+		strid = "%s (%s)" % (uid, datasource.name)
 		log.debug("Client disconnected: %s" % strid)
 		if len(self._running[uid]) == 1:
 			log.debug("No remaining client running: %s" % strid)
 			del self._running[uid]
-			datasource[DataSource.Running] = False
+			datasource.running = False
 			self.DataSourceDisconnected(datasource)
 		else:
 			self._running[uid].remove(owner)
