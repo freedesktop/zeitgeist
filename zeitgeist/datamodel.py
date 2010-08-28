@@ -705,9 +705,11 @@ class Event(list):
 		"""
 		self = cls()
 		for key in values:
-			if not key in ("timestamp", "interpretation", 
-						"manifestation", "actor", "subjects"):
-				raise ValueError("Event parameter '%s' is not supported" %key)
+			if not key in ("timestamp", "interpretation", "manifestation",
+				"actor", "subjects", "subject_uri", "subject_interpretation",
+				"subject_manifestation", "subject_origin", "subject_mimetype",
+				"subject_text", "subject_storage"):
+				raise ValueError("Event parameter '%s' is not supported" % key)
 			
 		self.timestamp = values.get("timestamp", self.timestamp)
 		self.interpretation = values.get("interpretation", "")
