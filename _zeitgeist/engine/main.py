@@ -378,7 +378,7 @@ class ZeitgeistEngine:
 			log.debug("Found %d event IDs in %fs" % (len(result), time.time()- t))
 			result = [row[0] for row in result]
 		elif return_mode == 1:
-			log.debug("Found %d events in %fs" % (len(result), time.time()- t))
+			log.debug("Found %d events IDs in %fs" % (len(result), time.time()- t))
 			result = self.get_events(ids=[row[0] for row in result], sender=sender)			
 		elif return_mode == 2:
 			log.debug("Found %d (uri,timestamp) tuples in %fs" % (len(result), time.time()- t))
