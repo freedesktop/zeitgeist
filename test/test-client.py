@@ -14,12 +14,12 @@ iface = ZeitgeistDBusInterface()
 # Create an event
 #
 ev = Event.new_for_values(timestamp=123,
-			interpretation=Interpretation.VISIT_EVENT.uri,
+			interpretation=Interpretation.ACCESS_EVENT.uri,
 			manifestation=Manifestation.USER_ACTIVITY.uri,
 			actor="Freak Mamma")
 subj = Subject.new_for_values(uri="void://foobar",
 			interpretation=Interpretation.DOCUMENT.uri,
-			manifestation=Manifestation.FILE.uri)#,
+			manifestation=Manifestation.FILE_DATA_OBJECT.uri)#,
 			#origin="adsf",
 			#mimetype="text/plain",
 			#storage="bleh")
@@ -42,6 +42,6 @@ print "Got events back %s" % events
 #
 # Find event via a search
 #
-template = (["","","","",""],["","","","","","",""])
-found_ids = iface.FindEventIds((0, 200), [template,], 0, 10, 1)
+template = (["","","","",""],["","","","","","",""],[0])
+found_ids = iface.FindEventIds((0, 200), [template], 2, 10, 1)
 print "Found event ids: %s" % found_ids
