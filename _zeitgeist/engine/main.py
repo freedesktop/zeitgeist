@@ -374,14 +374,19 @@ class ZeitgeistEngine:
 		
 		result = self._cursor.execute(sql, where.arguments).fetchall()
 		
-		if return_mode == 1:
-			return self.get_events(rows=result, sender=sender)
-		if return_mode == 2:
-			return map(lambda row: (row[0], row[1]), result)
-		else: # return_mode == 0
+		if return_mode == 0:
 			result = [row[0] for row in result]
-			log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
-			return result
+			log.debug("Found %d event IDs in %fs" % (len(result), time.time()- t))
+		elif return_mode == 1:
+			result = self.get_events(rows=result, sender=sender)
+			log.debug("Found %d events in %fs" % (len(result), time.time()- t))
+		elif return_mode == 2:
+			result = map(lambda row: (row[0], row[1]), result)
+			log.debug("Found %d (uri,timestamp) tuples in %fs" % (len(result), time.time()- t))
+		else:
+			raise Exception("%d" % return_mode)
+		
+		return result
 	
 	def find_eventids(self, *args):
 		return self._find_events(0, *args)
