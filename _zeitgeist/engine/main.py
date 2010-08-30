@@ -220,12 +220,6 @@ class ZeitgeistEngine:
 				subject_templates = [Subject(data) for data in template[1]]
 			else:
 				subject_templates = None
-			# first of all we need to check if the query is supported at all
-			# we do not support searching by storage field for now
-			# see LP: #580364
-			if subject_templates is not None:
-				if any(data[Subject.Storage] for data in subject_templates):
-					raise ValueError("zeitgeist does not support searching by 'storage' field")
 			
 			subwhere = WhereClause(WhereClause.AND)
 			
@@ -292,6 +286,10 @@ class ZeitgeistEngine:
 							if value:
 								value, negation, wildcard = parse_operators(Subject, getattr(Subject, key.title()), value)
 								subwhere.add_text_condition("subj_%s" %key, value, wildcard, negation)
+						
+						if subject_template.storage:
+							subwhere.add_text_condition("subj_storage", subject_template.storage)
+						
 			except KeyError, e:
 				# Value not in DB
 				log.debug("Unknown entity in query: %s" % e)
