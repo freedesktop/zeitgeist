@@ -866,20 +866,27 @@ class ZeitgeistEngineTest(_engineTestClass):
 		)
 		self.assertEquals(3, len(ids))
 		
-	def testBug580364(self):
-		""" for now we raise a ValueError if someone wants to search
-		by the storage field, this might change later on. (LP: #580364)"""
+	def testFindStorageNotExistant(self):
 		events = [
 			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
 			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
 		]
 		ids_in = self.engine.insert_events(events)
-		template = Event.new_for_values(subject_storage="xxxx")
-		
-		self.assertRaises(ValueError, self.engine.find_eventids,
-			TimeRange.always(), [template], StorageState.Any, 10,
-			ResultType.MostRecentEvents
-		)
+		template = Event.new_for_values(subject_storage="xxx")
+		results = self.engine.find_eventids(TimeRange.always(), [template], 
+						StorageState.Any, 10, ResultType.MostRecentEvents)
+		self.assertEquals(0, len(results))
+				
+	def testFindStorage(self):
+		events = [
+			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
+			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
+		]
+		ids_in = self.engine.insert_events(events)
+		template = Event.new_for_values(subject_storage="sometext")
+		results = self.engine.find_eventids(TimeRange.always(), [template], 
+						StorageState.Any, 10, ResultType.MostRecentEvents)
+		self.assertEquals(1, len(results))
 		
 	def testWildcard(self):
 		import_events("test/data/five_events.js", self.engine)
