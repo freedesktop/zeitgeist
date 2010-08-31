@@ -867,8 +867,6 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals(3, len(ids))
 		
 	def testFindStorageNotExistant(self):
-		""" for now we raise a ValueError if someone wants to search
-		by the storage field, this might change later on. (LP: #580364)"""
 		events = [
 			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
 			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
@@ -878,23 +876,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		results = self.engine.find_eventids(TimeRange.always(), [template], 
 						StorageState.Any, 10, ResultType.MostRecentEvents)
 		self.assertEquals(0, len(results))
-		
-	def testFindStorageNotExistant(self):
-		""" for now we raise a ValueError if someone wants to search
-		by the storage field, this might change later on. (LP: #580364)"""
-		events = [
-			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
-			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
-		]
-		ids_in = self.engine.insert_events(events)
-		template = Event.new_for_values(subject_storage="xxx")
-		results = self.engine.find_eventids(TimeRange.always(), [template], 
-						StorageState.Any, 10, ResultType.MostRecentEvents)
-		self.assertEquals(0, len(results))
-		
+				
 	def testFindStorage(self):
-		""" for now we raise a ValueError if someone wants to search
-		by the storage field, this might change later on. (LP: #580364)"""
 		events = [
 			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
 			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
