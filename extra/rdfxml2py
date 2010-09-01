@@ -9,16 +9,23 @@
 import rdflib
 
 from rdflib.plugin import register
-from rdflib.syntax import serializer, serializers
+try:
+	#rdflib2
+	from rdflib.syntax.serializers import Serializer
+	from rdflib import FileInputSource
+except ImportError:
+	#rdflib3 (LP: #626224)
+	from rdflib.serializer import Serializer
+	from rdflib.parser import FileInputSource
 
-register('python', serializers.Serializer,
+register('python', Serializer,
          'PythonSerializer', 'PythonSerializer')
 
 def parse(trig_stream):
 	"""
 	Return a list of triples representing the ontology
 	"""
-	trig_in = rdflib.FileInputSource(trig_stream)
+	trig_in = FileInputSource(trig_stream)
 	ontology = rdflib.ConjunctiveGraph()
 	ontology.parse(trig_in)
 	pycode = ontology.serialize(format="python")

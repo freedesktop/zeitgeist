@@ -17,9 +17,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from rdflib.syntax.serializers.RecursiveSerializer import RecursiveSerializer
+try:
+	#rdflib2
+	from rdflib.syntax.serializers.RecursiveSerializer import RecursiveSerializer
+	from rdflib.Namespace import Namespace
+except ImportError:
+	#rdflib3 (LP: #626224)
+	from rdflib.plugins.serializers.turtle import RecursiveSerializer
+	from rdflib.namespace import Namespace
+
 from rdflib import RDF, RDFS
-from rdflib.Namespace import Namespace
 
 NIENS = Namespace("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#")
 
