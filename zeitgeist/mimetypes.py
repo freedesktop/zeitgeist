@@ -182,7 +182,7 @@ MIMES_REGEX = make_regex_tuple(
     ("application/vnd.ms-excel.*", Interpretation.SPREADSHEET),
     ("application/vnd.ms-powerpoint.*", Interpretation.PRESENTATION),
     # TeX stuff
-    (".*/x-dvi", Interpretation. PAGINATED_TEXT_DOCUMENT),
+    (".*/x-dvi", Interpretation.PAGINATED_TEXT_DOCUMENT),
     # Image types
     ("image/.*", Interpretation.IMAGE),
     # Audio
