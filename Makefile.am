@@ -64,3 +64,9 @@ dist-hook:
 	else \
 			echo A Bazaar branch is required to generate the ChangeLog >&2; \
 	fi
+
+# create API documentation
+doc: all
+	make -C doc/zeitgeist html
+	
+.PHONY: doc
