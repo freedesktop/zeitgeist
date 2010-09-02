@@ -335,7 +335,7 @@ class ZeitgeistEngine:
 		if return_mode == 0:
 			sql = "SELECT DISTINCT id FROM event_view"
 		elif return_mode == 1:
-			sql = "SELECT * FROM event_view"
+			sql = "SELECT id FROM event_view"
 		elif return_mode == 2:
 			sql = "SELECT subj_uri, timestamp FROM event_view"
 		else:
@@ -372,14 +372,19 @@ class ZeitgeistEngine:
 		
 		result = self._cursor.execute(sql, where.arguments).fetchall()
 		
-		if return_mode == 1:
-			return self.get_events(rows=result, sender=sender)
-		if return_mode == 2:
-			return map(lambda row: (row[0], row[1]), result)
-		else: # return_mode == 0
+		if return_mode == 0:
+			log.debug("Found %d event IDs in %fs" % (len(result), time.time()- t))
 			result = [row[0] for row in result]
-			log.debug("Fetched %d event IDs in %fs" % (len(result), time.time()- t))
-			return result
+		elif return_mode == 1:
+			log.debug("Found %d events IDs in %fs" % (len(result), time.time()- t))
+			result = self.get_events(ids=[row[0] for row in result], sender=sender)			
+		elif return_mode == 2:
+			log.debug("Found %d (uri,timestamp) tuples in %fs" % (len(result), time.time()- t))
+			result = map(lambda row: (row[0], row[1]), result)			
+		else:
+			raise Exception("%d" % return_mode)
+		
+		return result
 	
 	def find_eventids(self, *args):
 		return self._find_events(0, *args)
