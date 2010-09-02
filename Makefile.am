@@ -28,6 +28,8 @@ CLEANFILES = \
 	zeitgeist-daemon \
 	zeitgeist-datahub
 
+TESTS = test/run-all-tests.py
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = zeitgeist-daemon.pc
 
