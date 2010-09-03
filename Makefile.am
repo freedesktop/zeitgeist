@@ -28,8 +28,6 @@ CLEANFILES = \
 	zeitgeist-daemon \
 	zeitgeist-datahub
 
-TESTS = test/run-all-tests.py
-
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = zeitgeist-daemon.pc
 
@@ -70,3 +68,14 @@ doc: all
 	make -C doc/zeitgeist html
 	
 .PHONY: doc
+
+# hook into the `make check` command to run the testsuite
+# if the testsuite is not available (e.g. in the tarball) do nothing
+# but printing a message
+check-local:
+	@if test -e "test/run-all-tests.py"; \
+		then \
+			test/run-all-tests.py; \
+	else \
+		echo "Cannot run the testsuite, tests are not shipped"; \
+	fi
