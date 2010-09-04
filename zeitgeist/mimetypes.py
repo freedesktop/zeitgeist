@@ -22,8 +22,8 @@ import re
 from datamodel import Interpretation, Manifestation
 
 __all__ = [
-    "interpretation_for_mimetype",
-    "manifestation_for_uri",
+    "get_interpretation_for_mimetype",
+    "get_manifestation_for_uri",
 ]
 
 class RegExpr(object):
@@ -44,7 +44,7 @@ class RegExpr(object):
 def make_regex_tuple(*items):
     return tuple((RegExpr(k), v) for k, v in items)
 
-def interpretation_for_mimetype(mimetype):
+def get_interpretation_for_mimetype(mimetype):
     """ get interpretation for a given mimetype, returns :const:`None`
     if none of the predefined interpretations matches
     """
@@ -56,7 +56,7 @@ def interpretation_for_mimetype(mimetype):
             return interpretation
     return None
     
-def manifestation_for_uri(uri):
+def get_manifestation_for_uri(uri):
     """ Lookup Manifestation for a given uri based on the scheme part,
     returns :const:`None` if no suitable manifestation is found
     """
