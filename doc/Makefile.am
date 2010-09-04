@@ -5,3 +5,6 @@ man_MANS = \
 EXTRA_DIST = \
 	$(man_MANS) \
 	zeitgeist
+
+clean: clean-am
+	make -C zeitgeist/ clean

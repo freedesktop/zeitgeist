@@ -7,8 +7,17 @@ import doctest
 import logging
 import sys
 
-# redirect all debugging output to stderr
-logging.basicConfig(stream=sys.stderr)
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-v", action="count", dest="verbosity")
+(options, args) = parser.parse_args()
+
+if options.verbosity:
+	# do more fine grained stuff later
+	# redirect all debugging output to stderr
+	logging.basicConfig(stream=sys.stderr)
+else:
+	logging.basicConfig(filename="/dev/null")
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 

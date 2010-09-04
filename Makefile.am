@@ -62,3 +62,20 @@ dist-hook:
 	else \
 			echo A Bazaar branch is required to generate the ChangeLog >&2; \
 	fi
+
+# create API documentation
+doc: all
+	make -C doc/zeitgeist html
+	
+.PHONY: doc
+
+# hook into the `make check` command to run the testsuite
+# if the testsuite is not available (e.g. in the tarball) do nothing
+# but printing a message
+check-local:
+	@if test -e "test/run-all-tests.py"; \
+		then \
+			test/run-all-tests.py; \
+	else \
+		echo "Cannot run the testsuite, tests are not shipped"; \
+	fi
