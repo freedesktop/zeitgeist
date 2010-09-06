@@ -47,7 +47,9 @@ Release Tasks
 *************
 1. Bump version number to $VERSION in configure.ac and VERSION files,
    and the D-Bus API version in _zeitgeist/engine/remote.py, if there
-   have been changes to it.
+   have been changes to it. Also make sure to bump the 'version' and
+   'release' variable in doc/zeitgeist/source/conf.py to something
+   sensible (e.g. $VERSION)
 
 2. Update NEWS file by hand
   (hint: you can see the full change log with 'bzr log -n0 -v | less',
