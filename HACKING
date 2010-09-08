@@ -145,7 +145,7 @@ The importance of a bug is set by following this criterias:
    zeitgeist-daemon.
  
 Milestones:
- * If we plan to fix a big with a status of 'Wishlist', 'Low' or 'Medium'
+ * If we plan to fix a bug with a status of 'Wishlist', 'Low' or 'Medium'
    we should target this bug to a milestone
  * 'High' and 'Critical' rated bugs will always be targeted to the next
    milestone.
