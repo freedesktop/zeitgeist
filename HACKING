@@ -99,7 +99,7 @@ The zeitgeist project is using the bugtracker on launchpad.net. To report
 a bug please visit https://bugs.edge.launchpad.net/zeitgeist/+filebug
 and describe the issues you are having. Please also add useful information
 like the version of zeitgeist you are using and the python version.
-Appart from classical bugreport describing an an issue or failure, the
+Appart from classical bugreport describing an issue or failure, the
 zeitgeist team is using the bugtracker to discuss new features and
 implementation details.
 
