@@ -33,3 +33,11 @@ Informations for developers
    :maxdepth: 2
    
    HACKING
+
+Ontology
+========
+
+.. toctree::
+   :maxdepth: 2
+
+   ontology

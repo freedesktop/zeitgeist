@@ -28,6 +28,7 @@ zeitgeist-daemon
 zeitgeist-datahub
 doc/zeitgeist/build
 doc/zeitgeist/source/.static
+doc/zeitgeist/source/ontology.rst
 extra/ontology/*.py
 tools/cli/zeitgeist
 tools/gtk/zeitgeist
