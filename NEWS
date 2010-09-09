@@ -12,7 +12,7 @@ Engine:
    (LP: #580364).
  - Some optimizations in the find_events() method. Also the profiling
    data is much more useful.
-    
+
 Python API:
 
  - Check arguments of Event.new_for_values() and Subject.new_for_values()
