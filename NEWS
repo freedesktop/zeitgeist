@@ -25,6 +25,8 @@ Python API:
       interpretation for a given mime-type.
     * get_manifestation_for_uri(), which tries to lookup a manifestation
       for the given URI.
+ - The DataSource model now provides easy access to the information it
+   holds through properties.
 
 Overall:
 
