@@ -8,32 +8,32 @@ Engine:
    has no return value.
  - Initialize ZeitgeistEngine after RemoteInterface, so that --replace
    does its job before the main engine and extensions start (LP: #614315).
- - added support for queries on the Subject.Storage field of an Event
-   (LP: #580364)
- - some optimizations in the find_events() method. Also the profiling
+ - Added support for queries on the Subject.Storage field of an Event
+   (LP: #580364).
+ - Some optimizations in the find_events() method. Also the profiling
    data is much more useful.
     
 Python API:
 
- - check arguments of Event.new_for_values() and Subject.new_for_values()
-   (LP: #580372)
- - redefined the result of TimeRange.always(), unix timestamp '0' is now
-   the left corner of the intervall (LP: #614295)
+ - Check arguments of Event.new_for_values() and Subject.new_for_values()
+   (LP: #580372).
+ - Redefined the result of TimeRange.always(), UNIX timestamp "0" is now
+   the left corner of the interval (LP: #614295).
  - Added a new helper module called zeitgeist.mimetypes which basically
    provides two functions (LP: #586524):
     * get_interpretation_for_mimetype(), which tries to get a suitable
-      interpretation for a given mimetype
+      interpretation for a given mime-type.
     * get_manifestation_for_uri(), which tries to lookup a manifestation
-      for the given uri
+      for the given URI.
 
 Overall:
 
- - tool to build our ontology now supports rdflib2 and rdflib3
-   (LP: #626224)
- - Added 'make check' and 'make doc' commands to the rootlevel makefile
+ - The tool to build our ontology now supports rdflib2 and rdflib3
+   (LP: #626224).
+ - Added "make check" and "make doc" commands to the rootlevel Makefile
    (LP: #628661)
  - Translation updates.
- - Updated testsuite.
+ - Updated test suite.
  - Documentation updates.
 
 
