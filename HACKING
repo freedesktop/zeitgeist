@@ -138,12 +138,9 @@ The importance of a bug is set by following this criterias:
    failures of our testsuite are resulting in bugs which are marked as
    'High'. Also different kind of regressions (crashes, performance etc.)
    are marked with this importance.
- * Critical: This bug status is very carefully used by zeitgeist,
-   whenever this status is set all development ressources are put into
-   fixing this bug, no changes to lp:zeitgeist are allowed until this
-   bug get fixed. Example for this kind of bugs include build errors,
-   undocumented API changes or instantaneous crashes of the
-   zeitgeist-daemon.
+ * Critical: Used when a bug causes Zeitgeist to generally not work at
+   all for a large user base. This could be build failures, frequent
+   crashes, or loss of key parts of the functionality.
  
 Milestones:
  * If we plan to fix a bug with a status of 'Wishlist', 'Low' or 'Medium'
