@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 from zeitgeist.datamodel import Interpretation, Manifestation
 
-ROWS = ["Children", "URI", "Description", "Python object"]
+ROWS = ["Children", "Parent", "URI", "Description", "Python object"]
 
 PAGE_TEMPLATE = """\
 ======================
@@ -95,12 +95,19 @@ def make_children(symbol):
         result += ":ref:`symbol-%s`,\n" %child.uri.split("/")[-1].lower()
     return result.strip().strip(",")
     
+def get_one_parent(symbol):
+    parents = list(symbol.get_parents())
+    if parents:
+        return parents[0]
+    else:
+        return None
+    
 def make_python_path(symbol):
     def _gen(sym):
         yield sym.name
-        parents = list(sym.get_parents())
-        if parents:
-            for s in _gen(parents[0]):
+        parent = get_one_parent(sym)
+        if parent:
+            for s in _gen(parent):
                 yield s
     return "``zeitgeist.datamodel.%s``" %".".join(list(_gen(symbol))[::-1])
     
@@ -113,8 +120,11 @@ def doc_symbol(symbol, make_ref=True):
         result += "%s\n" %symbol.display_name
         result += "*" *len(symbol.display_name)
         result += "\n\n"
+    parent = get_one_parent(symbol)
+    if parent:
+        parent = ":ref:`symbol-%s`" %parent.uri.split("/")[-1].lower()
     result += make_table_body(False, ["**%s**" %r for r in ROWS], 
-        [make_children(symbol) or "--", symbol.uri, symbol.doc, make_python_path(symbol)]
+        [make_children(symbol) or "--", parent or "--", symbol.uri, symbol.doc, make_python_path(symbol)]
     )
     return result
     
