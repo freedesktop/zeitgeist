@@ -16,7 +16,8 @@ Testing
 *******
 
 Before each commit to lp:zeitgeist the commiter must make sure that our
-testsuite in test/ is running successfully.
+testsuite in test/ is running successfully. Easiest way to run our
+testsuite is `make check`.
 We aim to get as much code tested as possible. New features and bug fixes
 should get doc or unittests.
 
