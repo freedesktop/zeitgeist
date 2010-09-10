@@ -93,3 +93,72 @@ Release Tasks
 
 12. Now you deserve a treat!
 
+Bugs
+****
+
+The zeitgeist project is using the bugtracker on launchpad.net. To report
+a bug please visit https://bugs.edge.launchpad.net/zeitgeist/+filebug
+and describe the issues you are having. Please also add useful information
+like the version of zeitgeist you are using and the python version.
+Appart from classical bugreport describing an issue or failure, the
+zeitgeist team is using the bugtracker to discuss new features and
+implementation details.
+
+Bugtriaging
+***********
+
+The zeitgeist project is using bug status as described below:
+ * New: no bugtriager had a look at this bugreport
+ * Incomplete: the zeitgeist team has asked an explicit question
+   to get a better understanding of the bug and is waiting for
+   an answer from the original reporter or anyobne having the same issue
+ * Invalid: It turned out that the issue is not a bug in zeitgeist, or
+   cannot be fixed in zeitgeist.
+ * Won't Fix: based on the information we got on the bugreport we decided
+   that we don't want to fix this bug in a reasonable timeframe.
+ * Triaged: Based on the information in the bugreport zeitgeist developers
+   understand the issue and are able to start fixing it.
+ * In Progress: Someone is working on a fix. There should be a branch
+   attached to the bugreport, and the zeitgeist task should be assigned to
+   the developer who is working on the fix.
+ * Fix Committed: The fix for this bug has been merged into lp:zeitgeist.
+   When setting this status the triager should add information about the
+   revision in which the fix landed, and also ask the reporter and other
+   affected user to test the fix.
+ * Fix Released: The fix was released in a release of zeitgeist.
+The 'Opinion' status is not used by zeitgeist.
+
+The importance of a bug is set by following this criterias:
+ * Undecided: No decission has been made.
+ * Wishlist: we are marking feature requests as wishlist
+ * Low: issues affecting only a small number of users are marked as Low
+ * Medium: bugs which are affecting a significantly number of users are
+   of medium importance. 
+ * High: This class of bugs must be fixed before the next release, esp.
+   failures of our testsuite are resulting in bugs which are marked as
+   'High'. Also different kind of regressions (crashes, performance etc.)
+   are marked with this importance.
+ * Critical: Used when a bug causes Zeitgeist to generally not work at
+   all for a large user base. This could be build failures, frequent
+   crashes, or loss of key parts of the functionality.
+ 
+Milestones:
+ * If we plan to fix a bug with a status of 'Wishlist', 'Low' or 'Medium'
+   we should target this bug to a milestone
+ * 'High' and 'Critical' rated bugs will always be targeted to the next
+   milestone.
+ 
+Related policies:
+ * Every bug of status 'Triaged' or higher should have an importance other
+   than 'Undecided'.
+ * Each bug with status higher than 'In Progress' should get an assignee.
+   Assigning a bug to a dev should never be done without talking to him/her.
+
+Blueprints
+**********
+
+Blueprints are used in the zeitgeist project to describe a development
+story. Whenever a certain feature requires fixes for multiple bugs or
+multiple branches to be merged we use blueprints to organize the efforts
+under one central umbrella. The assignee of a blueprint is leading all
+the work to get this blueprint and all its features/fixes implemented.
