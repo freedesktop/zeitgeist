@@ -19,12 +19,14 @@ Subject
 Interpretation
 ++++++++++++++
 
-.. autosymbol:: Interpretation
+A collection of class:`Symbol` objects which represents the interpretations
+defined by the zeitgeist ontology. For more information see :ref:`symbol-interpretation`.
 
 Manifestation
 +++++++++++++
 
-.. autosymbol:: Manifestation
+A collection of class:`Symbol` objects which represents the manifestations
+defined by the zeitgeist ontology. For more information see :ref:`symbol-manifestation`.
 
 TimeRange
 +++++++++

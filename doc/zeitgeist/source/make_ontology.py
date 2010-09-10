@@ -13,10 +13,14 @@ PAGE_TEMPLATE = """\
 The Zeitgeist Ontology
 ======================
 
+.. _symbol-interpretation:
+
 Interpretations
 ===============
 
 %(interpretations)s
+
+.. _symbol-manifestation:
 
 Manifestations
 ==============
@@ -88,7 +92,7 @@ def make_children(symbol):
         return None
     result = ""
     for child in children:
-        result += ":ref:`symbol-%s`,\n" %child.uri.split("/")[-1]
+        result += ":ref:`symbol-%s`,\n" %child.uri.split("/")[-1].lower()
     return result.strip().strip(",")
     
 def make_python_path(symbol):
@@ -100,8 +104,11 @@ def make_python_path(symbol):
                 yield s
     return "``zeitgeist.datamodel.%s``" %".".join(list(_gen(symbol))[::-1])
     
-def doc_symbol(symbol):
-    result = ".. _symbol-%s:\n\n" %(symbol.uri.split("/")[-1])
+def doc_symbol(symbol, make_ref=True):
+    if make_ref:
+        result = ".. _symbol-%s:\n\n" %(symbol.uri.split("/")[-1].lower())
+    else:
+        result = ""
     if symbol.display_name:
         result += "%s\n" %symbol.display_name
         result += "*" *len(symbol.display_name)
@@ -126,14 +133,14 @@ def gen_symbol_level(symbol, level=0):
 
 def create_doc(template):
     values = dict.fromkeys(["interpretations", "manifestations"], "")
-    values["interpretations"] += doc_symbol(Interpretation)
+    values["interpretations"] += doc_symbol(Interpretation, False)
     values["interpretations"] += "\n"
     for level in gen_symbol_level(Interpretation):
         for uri in sorted(level):
             values["interpretations"] += doc_symbol(Interpretation[uri])
             values["interpretations"] += "\n"
 
-    values["manifestations"] += doc_symbol(Manifestation)
+    values["manifestations"] += doc_symbol(Manifestation, False)
     values["manifestations"] += "\n"
     for level in gen_symbol_level(Manifestation):
         for uri in sorted(level):
