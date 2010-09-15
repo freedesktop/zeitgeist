@@ -26,6 +26,7 @@ import dbus.mainloop.glib
 import gettext
 import logging
 import optparse
+import signal
 from copy import copy
 
 # Make sure we can find the private _zeitgeist namespace
@@ -94,7 +95,7 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = gobject.MainLoop()
 
 try:
-	RemoteInterface(mainloop = mainloop)
+	interface = RemoteInterface(mainloop = mainloop)
 except RuntimeError, e:
 	logging.error(unicode(e))
 	sys.exit(1)
@@ -109,6 +110,12 @@ if _config.options.start_datahub:
 	else:
 		logging.warning(
 			_("File \"%s\" not found, not starting datahub") % passive_loggers)
+
+def handle_sighup(signum, frame):
+	"""We are using the SIGHUP signal to shutdown zeitgeist in a clean way"""
+	logging.info("got SIGHUP signal, shutting down zeitgeist interface")
+	interface.Quit()
+signal.signal(signal.SIGHUP, handle_sighup)
 
 logging.info(_(u"Starting Zeitgeist service..."))
 mainloop.run()
