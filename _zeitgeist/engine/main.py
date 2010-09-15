@@ -130,6 +130,7 @@ class ZeitgeistEngine:
 		return self.__extensions
 	
 	def close(self):
+		log.debug("closing down the zeitgeist engine ...")
 		self.extensions.unload()
 		self._cursor.connection.close()
 		self._cursor = None
