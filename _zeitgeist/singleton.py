@@ -40,7 +40,7 @@ class SingletonApplication (dbus.service.Object):
 		
 		if dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
 			# already running daemon instance
-			if _config.options.replace or _config.options.quit:
+			if hasattr(_config, "options") and (_config.options.replace or _config.options.quit):
 				if _config.options.quit:
 					logging.info("Stopping the currently running instance.")
 				else:
@@ -58,13 +58,13 @@ class SingletonApplication (dbus.service.Object):
 					("An existing instance was found. Please use "
 					 "--replace to quit it and start a new instance.")
 				)
-		elif _config.options.quit:
+		elif hasattr(_config, "options") and _config.options.quit:
 			logging.info("There is no running instance; doing nothing.")
 		else:
 			# service is not running, save to start
 			logging.debug("No running instances found.")
 		
-		if _config.options.quit:
+		if hasattr(_config, "options") and _config.options.quit:
 			sys.exit(0)
 		
 		bus = dbus.service.BusName(ZeitgeistDBusInterface.BUS_NAME, sbus, do_not_queue=True)
