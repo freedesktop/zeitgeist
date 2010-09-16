@@ -25,8 +25,9 @@ help:
 
 clean:
 	rm -rf build/* source/.static
+	-rm source/ontology.rst
 
-init:
+init: ontology
 	mkdir -p build/changes build/doctrees source/.static
 
 html: init
@@ -69,3 +70,6 @@ changes: init
 	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) build/changes
 	@echo
 	@echo "The overview file is in build/changes."
+
+ontology:
+	python source/make_ontology.py > source/ontology.rst
