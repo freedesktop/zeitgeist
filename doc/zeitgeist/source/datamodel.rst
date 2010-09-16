@@ -19,13 +19,13 @@ Subject
 Interpretation
 ++++++++++++++
 
-A collection of class:`Symbol` objects which represents the interpretations
+A collection of :class:`Symbol` objects which represents the interpretations
 defined by the zeitgeist ontology. For more information see :ref:`symbol-interpretation`.
 
 Manifestation
 +++++++++++++
 
-A collection of class:`Symbol` objects which represents the manifestations
+A collection of :class:`Symbol` objects which represents the manifestations
 defined by the zeitgeist ontology. For more information see :ref:`symbol-manifestation`.
 
 TimeRange
