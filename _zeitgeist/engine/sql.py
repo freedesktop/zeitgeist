@@ -37,12 +37,10 @@ TABLE_MAP = {
 }
 
 def explain_query(cursor, statement, arguments=()):
-	log.debug("**********************************************")
 	plan = ""
 	for r in cursor.execute("EXPLAIN QUERY PLAN "+statement, arguments).fetchall():
 		plan += str(list(r)) + "\n"
-	log.debug("QUERY:\n%s (%s)\nPLAN:\n%s" % (statement, arguments, plan))
-	log.debug("**********************************************")
+	log.debug("Got query:\nQUERY:\n%s (%s)\nPLAN:\n%s" % (statement, arguments, plan))
 
 class UnicodeCursor(sqlite3.Cursor):
 	
