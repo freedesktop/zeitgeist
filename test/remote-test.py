@@ -4,6 +4,9 @@ import unittest
 import os
 import sys
 import logging
+import signal
+import time
+from subprocess import Popen, PIPE
 
 # DBus setup
 import gobject
@@ -15,6 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
 from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState)
+from _zeitgeist.engine.remote import RemoteInterface
 
 import testutils
 from testutils import parse_events
@@ -315,6 +319,34 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		iface = self.client._iface # we know that client._iface is as clean as possible
 		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
 		registry.GetDataSources()
+		
+class ZeitgeistRemoteInterfaceTest(unittest.TestCase):
+	
+	def testQuit(self):
+		"""calling Quit() on the remote interface should shutdown the
+		engine in a clean way"""
+		interface = RemoteInterface()
+		self.assertEquals(interface._engine.is_closed(), False)
+		interface.Quit()
+		self.assertEquals(interface._engine.is_closed(), True)
+		
+class ZeitgeistDaemonTest(unittest.TestCase):
+	
+	def testSIGHUP(self):
+		"""sending a SIGHUP signal to a running deamon instance results
+		in a clean shutdown"""
+		daemon = Popen(
+			["./zeitgeist-daemon.py", "--no-datahub"], stderr=PIPE, stdout=PIPE
+		)
+		# give the daemon some time to wake up
+		time.sleep(3)
+		err = daemon.poll()
+		if err:
+			raise RuntimeError("Could not start daemon,  got err=%i" % err)
+		os.kill(daemon.pid, signal.SIGHUP)
+		err = daemon.wait()
+		self.assertEqual(err, 0)
+		
 	
 if __name__ == "__main__":
 	unittest.main()

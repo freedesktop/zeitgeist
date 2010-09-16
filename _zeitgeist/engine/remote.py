@@ -345,6 +345,7 @@ class RemoteInterface(SingletonApplication):
 		"""Terminate the running Zeitgeist engine process; use with caution,
 		this action must only be triggered with the user's explicit consent,
 		as it will affect all applications using Zeitgeist"""
+		self._engine.close()
 		if self._mainloop:
 			self._mainloop.quit()
 	
