@@ -23,6 +23,7 @@
 import sqlite3
 import logging
 import time
+import os
 
 from _zeitgeist.engine import constants
 
@@ -35,7 +36,15 @@ TABLE_MAP = {
 	"subj_uri": "uri",
 }
 
+def explain_query(cursor, statement, arguments=()):
+	plan = ""
+	for r in cursor.execute("EXPLAIN QUERY PLAN "+statement, arguments).fetchall():
+		plan += str(list(r)) + "\n"
+	log.debug("Got query:\nQUERY:\n%s (%s)\nPLAN:\n%s" % (statement, arguments, plan))
+
 class UnicodeCursor(sqlite3.Cursor):
+	
+	debug_explain = os.getenv("ZEITGEIST_DEBUG_QUERY_PLANS")
 	
 	@staticmethod
 	def fix_unicode(obj):
@@ -43,12 +52,11 @@ class UnicodeCursor(sqlite3.Cursor):
 			obj = obj.decode("UTF-8")
 		return unicode(obj)		
 	
-	def execute(self, statement, parameters=None):
-		if parameters is not None:
-			parameters = [self.fix_unicode(p) for p in parameters]
-			return super(UnicodeCursor, self).execute(statement, parameters)
-		else:
-			return super(UnicodeCursor, self).execute(statement)
+	def execute(self, statement, parameters=()):
+		parameters = [self.fix_unicode(p) for p in parameters]
+		if UnicodeCursor.debug_explain:
+			explain_query(super(UnicodeCursor, self), statement, parameters)
+		return super(UnicodeCursor, self).execute(statement, parameters)
 
 def _get_schema_version (cursor, schema_name):
 	"""
