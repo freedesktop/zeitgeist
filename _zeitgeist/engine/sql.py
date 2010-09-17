@@ -444,6 +444,8 @@ def get_right_boundary(text):
 		# we need to make sure the text is decoded as 'utf-8' unicode
 		text = unicode(text, "UTF-8")
 	charpoint = ord(text[-1])
+	if charpoint == 0x10ffff:
+		return get_right_boundary(text[:-1])
 	return text[:-1] + unichr(charpoint+1)
 
 class WhereClause:
@@ -470,8 +472,16 @@ class WhereClause:
 		"""returns an optimized version of the GLOB statement as described
 		in http://www.sqlite.org/optoverview.html `4.0 The LIKE optimization`
 		"""
-		sql = "SELECT %s FROM %s WHERE (value >= ? AND value < ?)" %(column, table)
-		return sql, (prefix, get_right_boundary(prefix))
+		if isinstance(prefix, str):
+			# we need to make sure the text is decoded as 'utf-8' unicode
+			prefix = unicode(prefix, "UTF-8")
+		if not prefix:
+			# empty prefix mean 'select all', no way to optimize this
+			sql = "SELECT %s FROM %s" %(column, table)
+			return sql, ()
+		else:
+			sql = "SELECT %s FROM %s WHERE (value >= ? AND value < ?)" %(column, table)
+			return sql, (prefix, get_right_boundary(prefix))
 	
 	def __init__(self, relation, negation=False):
 		self._conditions = []

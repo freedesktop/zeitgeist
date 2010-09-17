@@ -939,6 +939,9 @@ class ZeitgeistEngineTest(_engineTestClass):
 		strings = [
 			(u"hällö, I'm gürmen - åge drikker øl - ☠ bug",),
 			(u"ä ☠ åø",),
+			(u"h" + unichr(0x10ffff),),
+			(unichr(0x10ffff),),
+			("",)
 		]
 		
 		# does it work for ascii chars?
@@ -948,6 +951,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 			cursor.execute(*stm).fetchall(),
 			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", ("h*",)).fetchall()
 		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 2)
 		
 		# bunch of unicode in the prefix
 		stm = WhereClause.make_glob_opt("value", "uri", u"ä ☠ å")
@@ -955,6 +959,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 			cursor.execute(*stm).fetchall(),
 			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", (u"ä ☠ å*",)).fetchall()
 		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
 		
 		# bunch of unicode in the prefix, prefix is not 'utf-8' decoded
 		stm = WhereClause.make_glob_opt("value", "uri", "ä ☠ å")
@@ -962,6 +967,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 			cursor.execute(*stm).fetchall(),
 			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", ("ä ☠ å*",)).fetchall()
 		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
 		
 		# select all
 		stm = WhereClause.make_glob_opt("value", "uri", "")
@@ -969,7 +975,18 @@ class ZeitgeistEngineTest(_engineTestClass):
 			cursor.execute(*stm).fetchall(),
 			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", ("*",)).fetchall()
 		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), len(strings))
 		
+		# what if the biggest char is the last character of the search prefix?
+		prefix = u"h" + unichr(0x10ffff)
+		stm = WhereClause.make_glob_opt("value", "uri", prefix)
+		self.assertEquals(
+			cursor.execute(*stm).fetchall(),
+			cursor.execute(
+				"SELECT value FROM uri WHERE value GLOB ?", (u"%s*" %prefix,)
+			).fetchall()
+		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
 
 if __name__ == "__main__":
 	unittest.main()
