@@ -105,9 +105,10 @@ class ZeitgeistEngine:
 		
 		# Find the last event id we used, and start generating
 		# new ids from that offset
-		row = cursor.execute("SELECT MIN(id), MAX(id) FROM event").fetchone()
-		self._last_event_id = row[1] if row[1] else 0
-		if row[0] == 0:
+		max_id = self._cursor.execute("SELECT MAX(id) FROM event").fetchone()[0]
+		min_id = self._cursor.execute("SELECT MIN(id) FROM event").fetchone()[0]
+		self._last_event_id = max_id or 0
+		if min_id == 0:
 			# old database version raise an error for now,
 			# maybe just change the id to self._last_event_id + 1
 			# looking closer at the old code, it seems like
