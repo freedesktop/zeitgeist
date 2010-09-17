@@ -445,6 +445,8 @@ def get_right_boundary(text):
 		text = unicode(text, "UTF-8")
 	charpoint = ord(text[-1])
 	if charpoint == 0x10ffff:
+		# if the last character is the biggest possible char we need to
+		# look at the second last
 		return get_right_boundary(text[:-1])
 	return text[:-1] + unichr(charpoint+1)
 
@@ -476,9 +478,12 @@ class WhereClause:
 			# we need to make sure the text is decoded as 'utf-8' unicode
 			prefix = unicode(prefix, "UTF-8")
 		if not prefix:
-			# empty prefix mean 'select all', no way to optimize this
+			# empty prefix means 'select all', no way to optimize this
 			sql = "SELECT %s FROM %s" %(column, table)
 			return sql, ()
+		elif all([i == unichr(0x10ffff) for i in prefix]):
+			sql = "SELECT %s FROM %s WHERE value >= ?" %(column, table)
+			return sql, (prefix,)
 		else:
 			sql = "SELECT %s FROM %s WHERE (value >= ? AND value < ?)" %(column, table)
 			return sql, (prefix, get_right_boundary(prefix))

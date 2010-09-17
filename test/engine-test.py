@@ -941,7 +941,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 			(u"ä ☠ åø",),
 			(u"h" + unichr(0x10ffff),),
 			(unichr(0x10ffff),),
-			("",)
+			("",),
+			(unichr(0x10ffff) + unichr(0x10ffff) + "aa",),
 		]
 		
 		# does it work for ascii chars?
@@ -979,6 +980,17 @@ class ZeitgeistEngineTest(_engineTestClass):
 		
 		# what if the biggest char is the last character of the search prefix?
 		prefix = u"h" + unichr(0x10ffff)
+		stm = WhereClause.make_glob_opt("value", "uri", prefix)
+		self.assertEquals(
+			cursor.execute(*stm).fetchall(),
+			cursor.execute(
+				"SELECT value FROM uri WHERE value GLOB ?", (u"%s*" %prefix,)
+			).fetchall()
+		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
+		
+		# what if the search prefix only contains of the biggest char
+		prefix = unichr(0x10ffff) + unichr(0x10ffff)
 		stm = WhereClause.make_glob_opt("value", "uri", prefix)
 		self.assertEquals(
 			cursor.execute(*stm).fetchall(),
