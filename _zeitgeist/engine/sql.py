@@ -433,6 +433,18 @@ class TableLookup(dict):
 		# Use this when fetching values which are supposed to be in the
 		# database already. Eg., in find_eventids.
 		return super(TableLookup, self).__getitem__(name)
+		
+def get_right_boundary(text):
+	""" returns the smallest string which is greater than `text` """
+	if not text:
+		# if the search prefix is empty we query for the whole range
+		# of 'utf-8 'unicode chars
+		return unichr(0x10ffff)
+	if isinstance(text, str):
+		# we need to make sure the text is decoded as 'utf-8' unicode
+		text = unicode(text, "UTF-8")
+	charpoint = ord(text[-1])
+	return text[:-1] + unichr(charpoint+1)
 
 class WhereClause:
 	"""
@@ -452,6 +464,14 @@ class WhereClause:
 	AND = " AND "
 	OR = " OR "
 	NOT = "NOT "
+	
+	@staticmethod
+	def make_glob_opt(column, table, prefix):
+		"""returns an optimized version of the GLOB statement as described
+		in http://www.sqlite.org/optoverview.html `4.0 The LIKE optimization`
+		"""
+		sql = "SELECT %s FROM %s WHERE (value >= ? AND value < ?)" %(column, table)
+		return sql, (prefix, get_right_boundary(prefix))
 	
 	def __init__(self, relation, negation=False):
 		self._conditions = []
@@ -485,12 +505,8 @@ class WhereClause:
 				value_type = "id"
 			else:
 				raise AssertionError("We don't know how to handle this type of data")
-			# thekorn: this is a first (unoptimized version)
-			# see http://www.sqlite.org/optoverview.html '4.0 The LIKE optimization'
-			# for how this will look in the future
-			sql = "%s %sIN (SELECT %s FROM %s WHERE value GLOB ?)" \
-					%(column, self.NOT if negation else "", value_type, TABLE_MAP.get(column, column))
-			value += "*"
+			glob_opt_stm, value = self.make_glob_opt(value_type, TABLE_MAP.get(column, column), value)
+			sql = "%s %sIN (%s)" %(column, self.NOT if negation else "", glob_opt_stm)
 		else:
 			sql = "%s %s= ?" %(column, "!" if negation else "")
 			if cache is not None:
