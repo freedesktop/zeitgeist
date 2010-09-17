@@ -590,8 +590,6 @@ class ZeitgeistEngine:
 					self._actor[event.actor]))
 			return self._cursor.fetchone()[0]
 		
-		self._cursor.connection.commit()
-		
 		return id
 	
 	def _store_payload (self, event):
