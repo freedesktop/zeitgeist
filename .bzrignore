@@ -32,3 +32,5 @@ doc/zeitgeist/source/ontology.rst
 extra/ontology/*.py
 tools/cli/zeitgeist
 tools/gtk/zeitgeist
+zeitgeist/_config.py
+zeitgeist-daemon.pc
