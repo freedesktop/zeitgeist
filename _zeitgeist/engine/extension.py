@@ -162,21 +162,21 @@ def _scan_extensions():
 	
 	# Find system extensions
 	log.debug("Searching for system extensions in: %s" % config.extensiondir)
-	sys_modules = filter(lambda m : m.endswith(".py"), os.listdir(config.extensiondir))
-	sys_modules = modules = map(lambda m : "_zeitgeist.engine.extensions." + m.rpartition(".")[0], sys_modules)
+	sys_modules = filter(lambda m: m.endswith(".py"), os.listdir(config.extensiondir))
+	sys_modules = map(lambda m: "_zeitgeist.engine.extensions." + m.rpartition(".")[0], sys_modules)
 	
 	# Find user extensions
 	log.debug("Searching for user extensions in: %s" % constants.USER_EXTENSION_PATH)
 	user_modules = []
 	try:
-		user_modules = filter(lambda m : m.endswith(".py"), os.listdir(os.path.expanduser(constants.USER_EXTENSION_PATH)))
-		user_modules = map(lambda m : m.rpartition(".")[0], user_modules)
+		user_modules = filter(lambda m: m.endswith(".py"), os.listdir(os.path.expanduser(constants.USER_EXTENSION_PATH)))
+		user_modules = map(lambda m: m.rpartition(".")[0], user_modules)
 	except OSError:
 		pass # USER_EXTENSION_PATH doesn't exist
 	
 	# If we have module conflicts let the user extensions win,
 	# and remove the system provided extension from our list
-	user_module_names = map(lambda m : os.path.basename(m), user_modules)
+	user_module_names = map(lambda m: os.path.basename(m), user_modules)
 	for mod in list(sys_modules):
 		mod_name = mod.rpartition(".")[2]
 		if mod_name in user_module_names:
@@ -197,7 +197,6 @@ def _scan_extensions():
 			if safe_issubclass(cls, Extension) and not cls is Extension:
 				extensions.append(cls)
 	return extensions
-			
 
 def _load_class(path):
 	"""
