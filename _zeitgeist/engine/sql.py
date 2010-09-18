@@ -141,6 +141,16 @@ def create_db(file_path):
 	conn = sqlite3.connect(file_path)
 	conn.row_factory = sqlite3.Row
 	cursor = conn.cursor(UnicodeCursor)
+
+	# Seif: as result of the optimization story (LP: #639737) we are setting
+	# journal_mode to WAL if possible, this change is irreversible but
+	# gains us a big speedup, for more information see http://www.sqlite.org/wal.html
+	if sqlite3.sqlite_version_info >= (3, 7, 0):
+		cursor.execute("PRAGMA journal_mode = WAL")
+	# Seif: another result of the performance tweaks discussed in (LP: #639737)
+	# we decided to set locking_mode to EXCLUSIVE, from now on only
+	# one connection to the database is allowed to revert this setting set locking_mode to NORMAL.
+	cursor.execute("PRAGMA locking_mode = EXCLUSIVE")
 	
 	# Always assume that temporary memory backed DBs have good schemas
 	if constants.DATABASE_FILE != ":memory:":
