@@ -24,6 +24,7 @@ extra/org.gnome.zeitgeist.service
 doc/dbus/source/.static
 _zeitgeist/engine/zeitgeist
 po/*.gmo
+po/zeitgeist.pot
 zeitgeist-daemon
 zeitgeist-datahub
 doc/zeitgeist/build
