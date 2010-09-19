@@ -159,6 +159,9 @@ def create_db(file_path):
 			log.debug("Core schema is good. DB loaded in %sms" % _time)
 			return cursor
 	
+	# the following sql statements are only executed if a new database
+	# is created or an update of the core schema was done
+	
 	# uri
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS uri
