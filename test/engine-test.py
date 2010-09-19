@@ -947,7 +947,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		
 		# does it work for ascii chars?
 		cursor.executemany("INSERT INTO uri(value) VALUES(?)", strings)
-		stm = WhereClause.make_glob_opt("value", "uri", u"h")
+		stm = WhereClause.optimize_glob("value", "uri", u"h")
 		self.assertEquals(
 			cursor.execute(*stm).fetchall(),
 			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", ("h*",)).fetchall()
@@ -955,7 +955,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals(len(cursor.execute(*stm).fetchall()), 2)
 		
 		# bunch of unicode in the prefix
-		stm = WhereClause.make_glob_opt("value", "uri", u"ä ☠ å")
+		stm = WhereClause.optimize_glob("value", "uri", u"ä ☠ å")
 		self.assertEquals(
 			cursor.execute(*stm).fetchall(),
 			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", (u"ä ☠ å*",)).fetchall()
@@ -963,7 +963,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
 		
 		# bunch of unicode in the prefix, prefix is not 'utf-8' decoded
-		stm = WhereClause.make_glob_opt("value", "uri", "ä ☠ å")
+		stm = WhereClause.optimize_glob("value", "uri", "ä ☠ å")
 		self.assertEquals(
 			cursor.execute(*stm).fetchall(),
 			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", ("ä ☠ å*",)).fetchall()
@@ -971,7 +971,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
 		
 		# select all
-		stm = WhereClause.make_glob_opt("value", "uri", "")
+		stm = WhereClause.optimize_glob("value", "uri", "")
 		self.assertEquals(
 			cursor.execute(*stm).fetchall(),
 			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", ("*",)).fetchall()
@@ -980,7 +980,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		
 		# what if the biggest char is the last character of the search prefix?
 		prefix = u"h" + unichr(0x10ffff)
-		stm = WhereClause.make_glob_opt("value", "uri", prefix)
+		stm = WhereClause.optimize_glob("value", "uri", prefix)
 		self.assertEquals(
 			cursor.execute(*stm).fetchall(),
 			cursor.execute(
@@ -989,9 +989,9 @@ class ZeitgeistEngineTest(_engineTestClass):
 		)
 		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
 		
-		# what if the search prefix only contains of the biggest char
+		# what if the search prefix only contains the biggest char
 		prefix = unichr(0x10ffff) + unichr(0x10ffff)
-		stm = WhereClause.make_glob_opt("value", "uri", prefix)
+		stm = WhereClause.optimize_glob("value", "uri", prefix)
 		self.assertEquals(
 			cursor.execute(*stm).fetchall(),
 			cursor.execute(

@@ -480,7 +480,7 @@ class WhereClause:
 	NOT = "NOT "
 	
 	@staticmethod
-	def make_glob_opt(column, table, prefix):
+	def optimize_glob(column, table, prefix):
 		"""returns an optimized version of the GLOB statement as described
 		in http://www.sqlite.org/optoverview.html `4.0 The LIKE optimization`
 		"""
@@ -530,8 +530,8 @@ class WhereClause:
 				value_type = "id"
 			else:
 				raise AssertionError("We don't know how to handle this type of data")
-			glob_opt_stm, value = self.make_glob_opt(value_type, TABLE_MAP.get(column, column), value)
-			sql = "%s %sIN (%s)" %(column, self.NOT if negation else "", glob_opt_stm)
+			optimized_glob, value = self.optimize_glob(value_type, TABLE_MAP.get(column, column), value)
+			sql = "%s %sIN (%s)" %(column, self.NOT if negation else "", optimized_glob)
 		else:
 			sql = "%s %s= ?" %(column, "!" if negation else "")
 			if cache is not None:
