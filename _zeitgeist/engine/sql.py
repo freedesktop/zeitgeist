@@ -365,10 +365,14 @@ def create_db(file_path):
 					AS payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
 					AS subj_uri,
+				(SELECT id FROM uri WHERE uri.id=event.subj_id)
+					AS subj_uri_id,
 				event.subj_interpretation,
 				event.subj_manifestation,
 				(SELECT value FROM uri WHERE uri.id=event.subj_origin)
 					AS subj_origin,
+				(SELECT id FROM uri WHERE uri.id=event.subj_origin)
+					AS subj_origin_id,
 				event.subj_mimetype,
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
@@ -519,19 +523,14 @@ class WhereClause:
 			
 	def add_text_condition(self, column, value, like=False, negation=False, cache=None):
 		if like:
-			# thekorn: unfortunatly the data in event_view is a bit inconsistent
-			# e.g.:
-			# subj_uri and subj_origin are presented as string-values
-			# actor and subj_mimetype are ids
-			# (LP: #580601)
+			assert column in ("subj_uri", "subj_origin", "actor", "subj_mimetype"), \
+				"prefix search on the %r column is not supported by zeitgeist"
 			if column in ("subj_uri", "subj_origin"):
-				value_type = "value"
-			elif column in ("actor", "subj_mimetype"):
-				value_type = "id"
+				view_column = "%s_id" %column
 			else:
-				raise AssertionError("We don't know how to handle this type of data")
-			optimized_glob, value = self.optimize_glob(value_type, TABLE_MAP.get(column, column), value)
-			sql = "%s %sIN (%s)" %(column, self.NOT if negation else "", optimized_glob)
+				view_column = column
+			optimized_glob, value = self.optimize_glob("id", TABLE_MAP.get(column, column), value)
+			sql = "%s %sIN (%s)" %(view_column, self.NOT if negation else "", optimized_glob)
 		else:
 			sql = "%s %s= ?" %(column, "!" if negation else "")
 			if cache is not None:

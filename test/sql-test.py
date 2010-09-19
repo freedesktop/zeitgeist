@@ -91,12 +91,12 @@ class SQLTest (unittest.TestCase):
 		where = WhereClause(WhereClause.AND)
 		where.add_text_condition("subj_uri", "bar", like=True)
 		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
-			"(subj_uri IN (SELECT value FROM uri WHERE (value >= bar AND value < bas)))")
+			"(subj_uri_id IN (SELECT id FROM uri WHERE (value >= bar AND value < bas)))")
 			
 		where = WhereClause(WhereClause.AND)
 		where.add_text_condition("subj_origin", "bar", like=True)
 		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
-			"(subj_origin IN (SELECT value FROM uri WHERE (value >= bar AND value < bas)))")
+			"(subj_origin_id IN (SELECT id FROM uri WHERE (value >= bar AND value < bas)))")
 			
 		where = WhereClause(WhereClause.AND)
 		where.add_text_condition("actor", "bar", like=True, negation=True)
