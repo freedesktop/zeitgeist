@@ -138,6 +138,7 @@ def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
 	start = time.time()
 	log.info("Using database: %s" % file_path)
+	new_database = not os.path.exists(file_path)
 	conn = sqlite3.connect(file_path)
 	conn.row_factory = sqlite3.Row
 	cursor = conn.cursor(UnicodeCursor)
@@ -154,11 +155,14 @@ def create_db(file_path):
 	
 	# Always assume that temporary memory backed DBs have good schemas
 	if constants.DATABASE_FILE != ":memory:":
-		if _check_core_schema_upgrade (cursor):
+		if not new_database and _check_core_schema_upgrade(cursor):
 			_time = (time.time() - start)*1000
 			log.debug("Core schema is good. DB loaded in %sms" % _time)
 			return cursor
 	
+	# the following sql statements are only executed if a new database
+	# is created or an update of the core schema was done
+	log.debug("Updating sql schema")
 	# uri
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS uri
