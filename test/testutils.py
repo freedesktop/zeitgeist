@@ -97,7 +97,7 @@ class RemoteTestCase (unittest.TestCase):
 			["./zeitgeist-daemon.py", "--no-datahub"], stderr=sys.stderr, stdout=sys.stderr, env=self.env
 		)
 		# give the daemon some time to wake up
-		time.sleep(3)
+		time.sleep(1)
 		err = self.daemon.poll()
 		if err:
 			raise RuntimeError("Could not start daemon,  got err=%i" % err)
@@ -227,3 +227,29 @@ class RemoteTestCase (unittest.TestCase):
 			num_events=num_events, result_type=result_type)
 		mainloop.run()
 		return result
+
+class DBusPrivateMessageBus(object):
+    DISPLAY = ":27"
+    
+    def run(self):
+        os.environ.update({"DISPLAY": self.DISPLAY})
+        self.display = Popen(["Xvfb", self.DISPLAY, "-screen", "0", "1024x768x8"])
+        # give the display some time to wake up
+        time.sleep(1)
+        err = self.display.poll()
+        if err:
+            raise RuntimeError("Could not start Xvfb on display %s, got err=%i" %(self.DISPLAY, err))
+        dbus = Popen(["dbus-launch"], stdout=PIPE)
+        time.sleep(1)
+        self.dbus_config = dict(l.split("=", 1) for l in dbus.communicate()[0].split("\n") if l)
+        os.environ.update(self.dbus_config)
+        
+    def quit(self):
+        os.kill(self.display.pid, signal.SIGKILL)
+        self.display.wait()
+        pid = int(self.dbus_config["DBUS_SESSION_BUS_PID"])
+        os.kill(pid, signal.SIGKILL)
+        try:
+            os.waitpid(pid, 0)
+        except OSError:
+            pass

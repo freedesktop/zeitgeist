@@ -373,7 +373,7 @@ class ZeitgeistDaemonTest(unittest.TestCase):
 			["./zeitgeist-daemon.py", "--no-datahub"], stderr=PIPE, stdout=PIPE, env=self.env
 		)
 		# give the daemon some time to wake up
-		time.sleep(3)
+		time.sleep(1)
 		err = daemon.poll()
 		if err:
 			raise RuntimeError("Could not start daemon,  got err=%i" % err)
