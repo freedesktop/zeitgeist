@@ -6,6 +6,8 @@ import sys
 import logging
 import signal
 import time
+import tempfile
+import shutil
 from subprocess import Popen, PIPE
 
 # DBus setup
@@ -18,7 +20,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
 from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState)
-from _zeitgeist.engine.remote import RemoteInterface
 
 import testutils
 from testutils import parse_events
@@ -322,9 +323,31 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 class ZeitgeistRemoteInterfaceTest(unittest.TestCase):
 	
+	def setUp(self):
+		from _zeitgeist import engine
+		from _zeitgeist.engine import sql, constants
+		engine._engine = None
+		sql.unset_cursor()
+		self.saved_data = {
+			"datapath": constants.DATA_PATH,
+			"database": constants.DATABASE_FILE,
+			"extensions": constants.USER_EXTENSION_PATH,
+		}
+		constants.DATA_PATH = tempfile.mkdtemp(prefix="zeitgeist.datapath.")
+		constants.DATABASE_FILE = ":memory:"
+		constants.USER_EXTENSION_PATH = os.path.join(constants.DATA_PATH, "extensions")
+		
+	def tearDown(self):
+		from _zeitgeist.engine import constants
+		shutil.rmtree(constants.DATA_PATH)
+		constants.DATA_PATH = self.saved_data["datapath"]
+		constants.DATABASE_FILE = self.saved_data["database"]
+		constants.USER_EXTENSION_PATH = self.saved_data["extensions"]
+	
 	def testQuit(self):
 		"""calling Quit() on the remote interface should shutdown the
 		engine in a clean way"""
+		from _zeitgeist.engine.remote import RemoteInterface
 		interface = RemoteInterface()
 		self.assertEquals(interface._engine.is_closed(), False)
 		interface.Quit()
@@ -332,11 +355,22 @@ class ZeitgeistRemoteInterfaceTest(unittest.TestCase):
 		
 class ZeitgeistDaemonTest(unittest.TestCase):
 	
+	def setUp(self):
+		self.env = os.environ.copy()
+		self.datapath = tempfile.mkdtemp(prefix="zeitgeist.datapath.")
+		self.env.update({
+			"ZEITGEIST_DATABASE_PATH": ":memory:",
+			"ZEITGEIST_DATA_PATH": self.datapath,
+		})
+		
+	def tearDown(self):
+		shutil.rmtree(self.datapath)
+	
 	def testSIGHUP(self):
 		"""sending a SIGHUP signal to a running deamon instance results
 		in a clean shutdown"""
 		daemon = Popen(
-			["./zeitgeist-daemon.py", "--no-datahub"], stderr=PIPE, stdout=PIPE
+			["./zeitgeist-daemon.py", "--no-datahub"], stderr=PIPE, stdout=PIPE, env=self.env
 		)
 		# give the daemon some time to wake up
 		time.sleep(3)

@@ -7,30 +7,23 @@ import os
 import weakref
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import _zeitgeist.engine
-from _zeitgeist.engine import constants
-from _zeitgeist.engine import get_engine
-from _zeitgeist.engine.extension import Extension
-
 import unittest
 from testutils import import_events
 
-class _Extension1(Extension):
-	PUBLIC_METHODS = ["return_hallo", "return_engine"]
-		
-	def return_hallo(self):
-		return "Hallo"
-		
-	def return_boo(self):
-		return "boo"
-		
-	def return_engine(self):
-		return self.engine
-
+Extension = None
 
 class _engineTestClass(unittest.TestCase):
 	
 	def setUp (self):
+		global Extension
+		
+		from _zeitgeist.engine import constants
+		from _zeitgeist.engine import get_engine
+		
+		if Extension is None:
+			from _zeitgeist.engine.extension import Extension as _Extension
+			Extension = _Extension
+		
 		constants.DATABASE_FILE = ":memory:"
 		self.save_default_ext = os.environ.get("ZEITGEIST_DEFAULT_EXTENSIONS")
 		self.save_extra_ext = os.environ.get("ZEITGEIST_EXTRA_EXTENSIONS")
@@ -39,6 +32,7 @@ class _engineTestClass(unittest.TestCase):
 		self.engine = get_engine()
 		
 	def tearDown (self):
+		import _zeitgeist.engine
 		if self.save_default_ext is not None:
 			os.environ["ZEITGEIST_DEFAULT_EXTENSIONS"] = self.save_default_ext
 		else:
@@ -54,13 +48,27 @@ class _engineTestClass(unittest.TestCase):
 class TestExtensions(_engineTestClass):
 	
 	def testCreateEngine(self):
-		engine = get_engine()
+
+		class _Extension1(Extension):
+			PUBLIC_METHODS = ["return_hallo", "return_engine"]
+				
+			def return_hallo(self):
+				return "Hallo"
+				
+			def return_boo(self):
+				return "boo"
+				
+			def return_engine(self):
+				return self.engine
+		
+		engine = self.engine
 		self.assertEqual(len(engine.extensions), 0)
 		self.assertRaises(AttributeError, engine.extensions.__getattr__, "return_hallo")
 		engine.extensions.load(_Extension1)
 		self.assertEqual(engine.extensions.return_hallo(), "Hallo")
 		self.assertRaises(AttributeError, engine.extensions.__getattr__, "return_boo")
 		self.assertEqual(engine.extensions.return_engine(), weakref.proxy(engine))
+		
 
 class TestExtensionHooks(_engineTestClass):
 	

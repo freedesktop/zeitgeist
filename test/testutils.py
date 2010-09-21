@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2009-2010 Markus Korn <thekorn@gmx.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +23,8 @@ import os
 import time
 import sys
 import signal
+import tempfile
+import shutil
 from subprocess import Popen, PIPE
 
 # DBus setup
@@ -40,8 +43,6 @@ try:
 except ImportError:
 	# maybe the user is using python < 2.6
 	import simplejson as json
-
-from zeitgeist.datamodel import Event, Subject
 
 def dict2event(d):
 	ev = Event()
@@ -92,9 +93,8 @@ class RemoteTestCase (unittest.TestCase):
 		self.client = None
 	
 	def spawn_daemon(self):
-		os.environ.update({"ZEITGEIST_DATABASE_PATH": ":memory:"})
 		self.daemon = Popen(
-			["./zeitgeist-daemon.py", "--no-datahub"], stderr=sys.stderr, stdout=sys.stderr
+			["./zeitgeist-daemon.py", "--no-datahub"], stderr=sys.stderr, stdout=sys.stderr, env=self.env
 		)
 		# give the daemon some time to wake up
 		time.sleep(3)
@@ -109,6 +109,12 @@ class RemoteTestCase (unittest.TestCase):
 	def setUp(self):
 		assert self.daemon is None
 		assert self.client is None
+		self.env = os.environ.copy()
+		self.datapath = tempfile.mkdtemp(prefix="zeitgeist.datapath.")
+		self.env.update({
+			"ZEITGEIST_DATABASE_PATH": ":memory:",
+			"ZEITGEIST_DATA_PATH": self.datapath,
+		})
 		self.spawn_daemon()
 		
 		# hack to clear the state of the interface
@@ -119,6 +125,7 @@ class RemoteTestCase (unittest.TestCase):
 		assert self.daemon is not None
 		assert self.client is not None
 		self.kill_daemon()
+		shutil.rmtree(self.datapath)
 	
 	def insertEventsAndWait(self, events):
 		"""

@@ -6,6 +6,8 @@ import unittest
 import doctest
 import logging
 import sys
+import tempfile
+import shutil
 
 from optparse import OptionParser
 parser = OptionParser()
@@ -27,7 +29,24 @@ doctests = glob.glob(os.path.join(testdir, "*.rst"))
 
 # Create a test suite to run all tests
 # first, add all doctests
-arguments = {"module_relative": False, "globs": {"sys": sys}}
+def doctest_setup(test):
+	test._datapath = tempfile.mkdtemp(prefix="zeitgeist.datapath.")
+	test._env = os.environ.copy()
+	os.environ.update({
+		"ZEITGEIST_DATABASE_PATH": ":memory:",
+		"ZEITGEIST_DATA_PATH": test._datapath
+	})
+	
+def doctest_teardown(test):
+	shutil.rmtree(test._datapath)
+	os.environ = test._env
+
+arguments = {
+	"module_relative": False,
+	"globs": {"sys": sys},
+	"setUp": doctest_setup,
+	"tearDown": doctest_teardown,
+}
 suite = doctest.DocFileSuite(*doctests, **arguments)
 
 # Add all of the tests from each file that ends with "-test.py"
