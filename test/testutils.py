@@ -75,7 +75,7 @@ def import_events(path, engine):
 	"""
 	Load a collection of JSON event definitions into 'engine'. Fx:
 	
-	    import_events("test/data/single_event.js", self.engine)
+		import_events("test/data/single_event.js", self.engine)
 	"""
 	events = parse_events(path)
 	
@@ -229,27 +229,27 @@ class RemoteTestCase (unittest.TestCase):
 		return result
 
 class DBusPrivateMessageBus(object):
-    DISPLAY = ":27"
-    
-    def run(self):
-        os.environ.update({"DISPLAY": self.DISPLAY})
-        self.display = Popen(["Xvfb", self.DISPLAY, "-screen", "0", "1024x768x8"])
-        # give the display some time to wake up
-        time.sleep(1)
-        err = self.display.poll()
-        if err:
-            raise RuntimeError("Could not start Xvfb on display %s, got err=%i" %(self.DISPLAY, err))
-        dbus = Popen(["dbus-launch"], stdout=PIPE)
-        time.sleep(1)
-        self.dbus_config = dict(l.split("=", 1) for l in dbus.communicate()[0].split("\n") if l)
-        os.environ.update(self.dbus_config)
-        
-    def quit(self):
-        os.kill(self.display.pid, signal.SIGKILL)
-        self.display.wait()
-        pid = int(self.dbus_config["DBUS_SESSION_BUS_PID"])
-        os.kill(pid, signal.SIGKILL)
-        try:
-            os.waitpid(pid, 0)
-        except OSError:
-            pass
+	DISPLAY = ":27"
+
+	def run(self):
+		os.environ.update({"DISPLAY": self.DISPLAY})
+		self.display = Popen(["Xvfb", self.DISPLAY, "-screen", "0", "1024x768x8"])
+		# give the display some time to wake up
+		time.sleep(1)
+		err = self.display.poll()
+		if err:
+			raise RuntimeError("Could not start Xvfb on display %s, got err=%i" %(self.DISPLAY, err))
+		dbus = Popen(["dbus-launch"], stdout=PIPE)
+		time.sleep(1)
+		self.dbus_config = dict(l.split("=", 1) for l in dbus.communicate()[0].split("\n") if l)
+		os.environ.update(self.dbus_config)
+
+	def quit(self):
+		os.kill(self.display.pid, signal.SIGKILL)
+		self.display.wait()
+		pid = int(self.dbus_config["DBUS_SESSION_BUS_PID"])
+		os.kill(pid, signal.SIGKILL)
+		try:
+			os.waitpid(pid, 0)
+		except OSError:
+			pass
