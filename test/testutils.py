@@ -94,13 +94,14 @@ class RemoteTestCase (unittest.TestCase):
 	
 	def spawn_daemon(self):
 		self.daemon = Popen(
-			["./zeitgeist-daemon.py", "--no-datahub"], stderr=sys.stderr, stdout=sys.stderr, env=self.env
+			["./zeitgeist-daemon.py", "--no-datahub"], stderr=PIPE, stdout=PIPE, env=self.env
 		)
 		# give the daemon some time to wake up
 		time.sleep(1)
 		err = self.daemon.poll()
 		if err:
-			raise RuntimeError("Could not start daemon,  got err=%i" % err)
+			description = "/".join(self.daemon.communicate())
+			raise RuntimeError("Could not start daemon, got err=%i, description=%r" %(err, description))
 	
 	def kill_daemon(self):
 		os.kill(self.daemon.pid, signal.SIGKILL)

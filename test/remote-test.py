@@ -376,7 +376,8 @@ class ZeitgeistDaemonTest(unittest.TestCase):
 		time.sleep(1)
 		err = daemon.poll()
 		if err:
-			raise RuntimeError("Could not start daemon,  got err=%i" % err)
+			description = "/".join(daemon.communicate())
+			raise RuntimeError("Could not start daemon, got err=%i, description=%r" %(err, description))
 		os.kill(daemon.pid, signal.SIGHUP)
 		err = daemon.wait()
 		self.assertEqual(err, 0)
