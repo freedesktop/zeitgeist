@@ -452,6 +452,22 @@ class TableLookup(dict):
 		# Use this when fetching values which are supposed to be in the
 		# database already. Eg., in find_eventids.
 		return super(TableLookup, self).__getitem__(name)
+		
+def get_right_boundary(text):
+	""" returns the smallest string which is greater than `text` """
+	if not text:
+		# if the search prefix is empty we query for the whole range
+		# of 'utf-8 'unicode chars
+		return unichr(0x10ffff)
+	if isinstance(text, str):
+		# we need to make sure the text is decoded as 'utf-8' unicode
+		text = unicode(text, "UTF-8")
+	charpoint = ord(text[-1])
+	if charpoint == 0x10ffff:
+		# if the last character is the biggest possible char we need to
+		# look at the second last
+		return get_right_boundary(text[:-1])
+	return text[:-1] + unichr(charpoint+1)
 
 class WhereClause:
 	"""
@@ -471,6 +487,25 @@ class WhereClause:
 	AND = " AND "
 	OR = " OR "
 	NOT = "NOT "
+	
+	@staticmethod
+	def optimize_glob(column, table, prefix):
+		"""returns an optimized version of the GLOB statement as described
+		in http://www.sqlite.org/optoverview.html `4.0 The LIKE optimization`
+		"""
+		if isinstance(prefix, str):
+			# we need to make sure the text is decoded as 'utf-8' unicode
+			prefix = unicode(prefix, "UTF-8")
+		if not prefix:
+			# empty prefix means 'select all', no way to optimize this
+			sql = "SELECT %s FROM %s" %(column, table)
+			return sql, ()
+		elif all([i == unichr(0x10ffff) for i in prefix]):
+			sql = "SELECT %s FROM %s WHERE value >= ?" %(column, table)
+			return sql, (prefix,)
+		else:
+			sql = "SELECT %s FROM %s WHERE (value >= ? AND value < ?)" %(column, table)
+			return sql, (prefix, get_right_boundary(prefix))
 	
 	def __init__(self, relation, negation=False):
 		self._conditions = []
@@ -499,9 +534,8 @@ class WhereClause:
 				view_column = "%s_id" %column
 			else:
 				view_column = column
-			sql = "%s %sIN (SELECT id FROM %s WHERE value GLOB ?)" \
-					%(view_column, self.NOT if negation else "", TABLE_MAP.get(column, column))
-			value += "*"
+			optimized_glob, value = self.optimize_glob("id", TABLE_MAP.get(column, column), value)
+			sql = "%s %sIN (%s)" %(view_column, self.NOT if negation else "", optimized_glob)
 		else:
 			sql = "%s %s= ?" %(column, "!" if negation else "")
 			if cache is not None:

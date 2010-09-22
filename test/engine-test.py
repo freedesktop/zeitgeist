@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import _zeitgeist.engine
 from _zeitgeist.engine import constants
 from _zeitgeist.engine import get_engine
+from _zeitgeist.engine.sql import WhereClause
 from zeitgeist.datamodel import *
 from testutils import import_events
 
@@ -932,6 +933,72 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
 		)
 		self.assertEquals(5, len(ids))
+		
+	def testWildcardOptimization(self):
+		cursor = self.engine._cursor
+		strings = [
+			(u"hällö, I'm gürmen - åge drikker øl - ☠ bug",),
+			(u"ä ☠ åø",),
+			(u"h" + unichr(0x10ffff),),
+			(unichr(0x10ffff),),
+			("",),
+			(unichr(0x10ffff) + unichr(0x10ffff) + "aa",),
+		]
+		
+		# does it work for ascii chars?
+		cursor.executemany("INSERT INTO uri(value) VALUES(?)", strings)
+		stm = WhereClause.optimize_glob("value", "uri", u"h")
+		self.assertEquals(
+			cursor.execute(*stm).fetchall(),
+			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", ("h*",)).fetchall()
+		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 2)
+		
+		# bunch of unicode in the prefix
+		stm = WhereClause.optimize_glob("value", "uri", u"ä ☠ å")
+		self.assertEquals(
+			cursor.execute(*stm).fetchall(),
+			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", (u"ä ☠ å*",)).fetchall()
+		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
+		
+		# bunch of unicode in the prefix, prefix is not 'utf-8' decoded
+		stm = WhereClause.optimize_glob("value", "uri", "ä ☠ å")
+		self.assertEquals(
+			cursor.execute(*stm).fetchall(),
+			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", ("ä ☠ å*",)).fetchall()
+		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
+		
+		# select all
+		stm = WhereClause.optimize_glob("value", "uri", "")
+		self.assertEquals(
+			cursor.execute(*stm).fetchall(),
+			cursor.execute("SELECT value FROM uri WHERE value GLOB ?", ("*",)).fetchall()
+		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), len(strings))
+		
+		# what if the biggest char is the last character of the search prefix?
+		prefix = u"h" + unichr(0x10ffff)
+		stm = WhereClause.optimize_glob("value", "uri", prefix)
+		self.assertEquals(
+			cursor.execute(*stm).fetchall(),
+			cursor.execute(
+				"SELECT value FROM uri WHERE value GLOB ?", (u"%s*" %prefix,)
+			).fetchall()
+		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
+		
+		# what if the search prefix only contains the biggest char
+		prefix = unichr(0x10ffff) + unichr(0x10ffff)
+		stm = WhereClause.optimize_glob("value", "uri", prefix)
+		self.assertEquals(
+			cursor.execute(*stm).fetchall(),
+			cursor.execute(
+				"SELECT value FROM uri WHERE value GLOB ?", (u"%s*" %prefix,)
+			).fetchall()
+		)
+		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
 
 if __name__ == "__main__":
 	unittest.main()
