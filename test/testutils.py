@@ -116,9 +116,9 @@ class RemoteTestCase (unittest.TestCase):
 			
 		def error_callback(stdout, stderr):
 			if "--replace" in stderr:
-				return RemoteTestCase._get_pid("zeitgeist-daemon").replace("\n", "|")
+				return "%r | %s" %(stderr, RemoteTestCase._get_pid("zeitgeist-daemon").replace("\n", "|"))
 			else:
-				return ""
+				return stderr
 			
 		return RemoteTestCase._safe_start_subprocess(
 			("./zeitgeist-daemon.py", "--no-datahub"), env, timeout, error_callback
