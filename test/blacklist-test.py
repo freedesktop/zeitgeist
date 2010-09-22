@@ -5,7 +5,6 @@
 import sys
 import os
 import unittest
-import dbus
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface
@@ -19,6 +18,9 @@ class BlacklistTest(RemoteTestCase):
 		self.blacklist = None
 	
 	def setUp(self):
+		# lazy import to get a chance to use the private bus
+		import dbus
+		
 		# We set up the connection lazily in order to wait for the
 		# engine to come up
 		super(BlacklistTest, self).setUp()
