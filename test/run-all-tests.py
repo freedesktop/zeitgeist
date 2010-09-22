@@ -63,10 +63,17 @@ if __name__ == "__main__":
 	
 	from testutils import DBusPrivateMessageBus
 	bus = DBusPrivateMessageBus()
-	bus.run()
+	err = bus.run(ignore_errors=True)
+	if err:
+		print >> sys.stderr, "*** Failed to setup private bus, error was: %s" %err
+	else:
+		print >> sys.stderr, "*** Testsuite is running using a private dbus bus"
+		config = bus.dbus_config.copy()
+		config.update({"DISPLAY": bus.DISPLAY, "pid.Xvfb": bus.display.pid})
+		print >> sys.stderr, "*** Configuration: %s" %config
 	try:
 		suite = compile_suite()
 		# Run all of the tests
 		unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
 	finally:
-		bus.quit()
+		bus.quit(ignore_errors=True)

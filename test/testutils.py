@@ -231,7 +231,7 @@ class RemoteTestCase (unittest.TestCase):
 class DBusPrivateMessageBus(object):
 	DISPLAY = ":27"
 
-	def run(self):
+	def _run(self):
 		os.environ.update({"DISPLAY": self.DISPLAY})
 		self.display = Popen(["Xvfb", self.DISPLAY, "-screen", "0", "1024x768x8"])
 		# give the display some time to wake up
@@ -243,8 +243,16 @@ class DBusPrivateMessageBus(object):
 		time.sleep(1)
 		self.dbus_config = dict(l.split("=", 1) for l in dbus.communicate()[0].split("\n") if l)
 		os.environ.update(self.dbus_config)
+		
+	def run(self, ignore_errors=False):
+		try:
+			return self._run()
+		except Exception, e:
+			if ignore_errors:
+				return e
+			raise
 
-	def quit(self):
+	def _quit(self):
 		os.kill(self.display.pid, signal.SIGKILL)
 		self.display.wait()
 		pid = int(self.dbus_config["DBUS_SESSION_BUS_PID"])
@@ -253,3 +261,11 @@ class DBusPrivateMessageBus(object):
 			os.waitpid(pid, 0)
 		except OSError:
 			pass
+			
+	def quit(self, ignore_errors=False):
+		try:
+			return self._quit()
+		except Exception, e:
+			if ignore_errors:
+				return e
+			raise
