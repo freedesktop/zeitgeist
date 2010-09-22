@@ -369,15 +369,7 @@ class ZeitgeistDaemonTest(unittest.TestCase):
 	def testSIGHUP(self):
 		"""sending a SIGHUP signal to a running deamon instance results
 		in a clean shutdown"""
-		daemon = Popen(
-			["./zeitgeist-daemon.py", "--no-datahub"], stderr=PIPE, stdout=PIPE, env=self.env
-		)
-		# give the daemon some time to wake up
-		time.sleep(1)
-		err = daemon.poll()
-		if err:
-			description = "/".join(daemon.communicate())
-			raise RuntimeError("Could not start daemon, got err=%i, description=%r" %(err, description))
+		daemon = testutils.RemoteTestCase._safe_start_daemon(env=self.env)
 		os.kill(daemon.pid, signal.SIGHUP)
 		err = daemon.wait()
 		self.assertEqual(err, 0)

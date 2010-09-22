@@ -87,21 +87,50 @@ class RemoteTestCase (unittest.TestCase):
 	remote Zeitgeist process
 	"""
 	
+	@staticmethod
+	def _get_pid(matching_string):
+		p1 = Popen(["ps", "aux"], stdout=PIPE, stderr=PIPE)
+		p2 = Popen(["grep", matching_string], stdin=p1.stdout, stderr=PIPE, stdout=PIPE)
+		return p2.communicate()[0]
+		
+	@staticmethod
+	def _safe_start_subprocess(cmd, env, timeout=1, error_callback=None):
+		""" starts `cmd` in a subprocess and check after `timeout`
+		if everything goes well"""
+		process = Popen(cmd, stderr=PIPE, stdout=PIPE, env=env)
+		# give the process some time to wake up
+		time.sleep(timeout)
+		error = process.poll()
+		if error:
+			cmd = " ".join(cmd)
+			error = "'%s' exits with error %i." %(cmd, error)
+			if error_callback:
+				error += " *** %s" %error_callback(*process.communicate())
+			raise RuntimeError(error)
+		return process
+		
+	@staticmethod
+	def _safe_start_daemon(env=None, timeout=1):
+		if env is None:
+			env = os.environ.copy()
+			
+		def error_callback(stdout, stderr):
+			if "--replace" in stderr:
+				return RemoteTestCase._get_pid("zeitgeist-daemon").replace("\n", "|")
+			else:
+				return ""
+			
+		return RemoteTestCase._safe_start_subprocess(
+			("./zeitgeist-daemon.py", "--no-datahub"), env, timeout, error_callback
+		)
+	
 	def __init__(self, methodName):
 		super(RemoteTestCase, self).__init__(methodName)
 		self.daemon = None
 		self.client = None
 	
 	def spawn_daemon(self):
-		self.daemon = Popen(
-			["./zeitgeist-daemon.py", "--no-datahub"], stderr=PIPE, stdout=PIPE, env=self.env
-		)
-		# give the daemon some time to wake up
-		time.sleep(1)
-		err = self.daemon.poll()
-		if err:
-			description = "/".join(self.daemon.communicate())
-			raise RuntimeError("Could not start daemon, got err=%i, description=%r" %(err, description))
+		self.daemon = self._safe_start_daemon(env=self.env)
 	
 	def kill_daemon(self):
 		os.kill(self.daemon.pid, signal.SIGKILL)
