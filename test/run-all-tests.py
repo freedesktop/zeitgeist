@@ -96,7 +96,7 @@ if __name__ == "__main__":
 		config.update({"DISPLAY": bus.DISPLAY, "pid.Xvfb": bus.display.pid})
 		print >> sys.stderr, "*** Configuration: %s" %config
 	try:
-		suite = compile_suite(args)
+		suite = compile_suite(args or None)
 		# Run all of the tests
 		unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
 	finally:
