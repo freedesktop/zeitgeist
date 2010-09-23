@@ -51,6 +51,14 @@ def load_tests(module, pattern):
 					break
 		else:
 			yield test
+			
+def check_name(filename, pattern):
+	if pattern is None:
+		return True
+	for p in pattern:
+		if os.path.basename(filename).startswith(p):
+			return True
+	return False
 
 def compile_suite(pattern=None):
 	# Create a test suite to run all tests
@@ -62,7 +70,8 @@ def compile_suite(pattern=None):
 		"setUp": doctest_setup,
 		"tearDown": doctest_teardown,
 	}
-	suite = doctest.DocFileSuite(*DOCTESTS, **arguments)
+	doctests = filter(lambda x: check_name(str(x), pattern), DOCTESTS)
+	suite = doctest.DocFileSuite(*doctests, **arguments)
 
 	# Add all of the tests from each file that ends with "-test.py"
 	for fname in os.listdir(TESTDIR):
