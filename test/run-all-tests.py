@@ -28,8 +28,31 @@ def doctest_setup(test):
 def doctest_teardown(test):
 	shutil.rmtree(test._datapath)
 	os.environ = test._env
+	
+def iter_tests(suite):
+	for test in suite:
+		if isinstance(test, unittest.TestSuite):
+			for t in iter_tests(test):
+				yield t
+		else:
+			yield test
+			
+def get_test_name(test):
+	return ".".join((test.__class__.__module__, test.__class__.__name__, test._testMethodName))
+	
+def load_tests(module, pattern):
+	suite = unittest.defaultTestLoader.loadTestsFromModule(module)
+	for test in iter_tests(suite):
+		name = get_test_name(test)
+		if pattern is not None:
+			for p in pattern:
+				if name.startswith(p):
+					yield test
+					break
+		else:
+			yield test
 
-def compile_suite():
+def compile_suite(pattern=None):
 	# Create a test suite to run all tests
 	
 	# first, add all doctests
@@ -46,7 +69,8 @@ def compile_suite():
 		if fname.endswith("-test.py"):
 			fname = os.path.basename(fname)[:-3] # Get the filename and chop off ".py"
 			module = __import__(fname)
-			suite.addTest(unittest.defaultTestLoader.loadTestsFromModule(module))
+			tests = list(load_tests(module, pattern))
+			suite.addTests(tests)
 	return suite
 
 if __name__ == "__main__":
@@ -72,7 +96,7 @@ if __name__ == "__main__":
 		config.update({"DISPLAY": bus.DISPLAY, "pid.Xvfb": bus.display.pid})
 		print >> sys.stderr, "*** Configuration: %s" %config
 	try:
-		suite = compile_suite()
+		suite = compile_suite(args)
 		# Run all of the tests
 		unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
 	finally:
