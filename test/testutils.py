@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2009-2010 Markus Korn <thekorn@gmx.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +23,8 @@ import os
 import time
 import sys
 import signal
+import tempfile
+import shutil
 from subprocess import Popen, PIPE
 
 # DBus setup
@@ -40,8 +43,6 @@ try:
 except ImportError:
 	# maybe the user is using python < 2.6
 	import simplejson as json
-
-from zeitgeist.datamodel import Event, Subject
 
 def dict2event(d):
 	ev = Event()
@@ -74,7 +75,7 @@ def import_events(path, engine):
 	"""
 	Load a collection of JSON event definitions into 'engine'. Fx:
 	
-	    import_events("test/data/single_event.js", self.engine)
+		import_events("test/data/single_event.js", self.engine)
 	"""
 	events = parse_events(path)
 	
@@ -86,21 +87,50 @@ class RemoteTestCase (unittest.TestCase):
 	remote Zeitgeist process
 	"""
 	
+	@staticmethod
+	def _get_pid(matching_string):
+		p1 = Popen(["ps", "aux"], stdout=PIPE, stderr=PIPE)
+		p2 = Popen(["grep", matching_string], stdin=p1.stdout, stderr=PIPE, stdout=PIPE)
+		return p2.communicate()[0]
+		
+	@staticmethod
+	def _safe_start_subprocess(cmd, env, timeout=1, error_callback=None):
+		""" starts `cmd` in a subprocess and check after `timeout`
+		if everything goes well"""
+		process = Popen(cmd, stderr=PIPE, stdout=PIPE, env=env)
+		# give the process some time to wake up
+		time.sleep(timeout)
+		error = process.poll()
+		if error:
+			cmd = " ".join(cmd)
+			error = "'%s' exits with error %i." %(cmd, error)
+			if error_callback:
+				error += " *** %s" %error_callback(*process.communicate())
+			raise RuntimeError(error)
+		return process
+		
+	@staticmethod
+	def _safe_start_daemon(env=None, timeout=1):
+		if env is None:
+			env = os.environ.copy()
+			
+		def error_callback(stdout, stderr):
+			if "--replace" in stderr:
+				return "%r | %s" %(stderr, RemoteTestCase._get_pid("zeitgeist-daemon").replace("\n", "|"))
+			else:
+				return stderr
+			
+		return RemoteTestCase._safe_start_subprocess(
+			("./zeitgeist-daemon.py", "--no-datahub"), env, timeout, error_callback
+		)
+	
 	def __init__(self, methodName):
 		super(RemoteTestCase, self).__init__(methodName)
 		self.daemon = None
 		self.client = None
 	
 	def spawn_daemon(self):
-		os.environ.update({"ZEITGEIST_DATABASE_PATH": ":memory:"})
-		self.daemon = Popen(
-			["./zeitgeist-daemon.py", "--no-datahub"], stderr=sys.stderr, stdout=sys.stderr
-		)
-		# give the daemon some time to wake up
-		time.sleep(3)
-		err = self.daemon.poll()
-		if err:
-			raise RuntimeError("Could not start daemon,  got err=%i" % err)
+		self.daemon = self._safe_start_daemon(env=self.env)
 	
 	def kill_daemon(self):
 		os.kill(self.daemon.pid, signal.SIGKILL)
@@ -109,6 +139,12 @@ class RemoteTestCase (unittest.TestCase):
 	def setUp(self):
 		assert self.daemon is None
 		assert self.client is None
+		self.env = os.environ.copy()
+		self.datapath = tempfile.mkdtemp(prefix="zeitgeist.datapath.")
+		self.env.update({
+			"ZEITGEIST_DATABASE_PATH": ":memory:",
+			"ZEITGEIST_DATA_PATH": self.datapath,
+		})
 		self.spawn_daemon()
 		
 		# hack to clear the state of the interface
@@ -119,6 +155,7 @@ class RemoteTestCase (unittest.TestCase):
 		assert self.daemon is not None
 		assert self.client is not None
 		self.kill_daemon()
+		shutil.rmtree(self.datapath)
 	
 	def insertEventsAndWait(self, events):
 		"""
@@ -220,3 +257,45 @@ class RemoteTestCase (unittest.TestCase):
 			num_events=num_events, result_type=result_type)
 		mainloop.run()
 		return result
+
+class DBusPrivateMessageBus(object):
+	DISPLAY = ":27"
+
+	def _run(self):
+		os.environ.update({"DISPLAY": self.DISPLAY})
+		self.display = Popen(["Xvfb", self.DISPLAY, "-screen", "0", "1024x768x8"])
+		# give the display some time to wake up
+		time.sleep(1)
+		err = self.display.poll()
+		if err:
+			raise RuntimeError("Could not start Xvfb on display %s, got err=%i" %(self.DISPLAY, err))
+		dbus = Popen(["dbus-launch"], stdout=PIPE)
+		time.sleep(1)
+		self.dbus_config = dict(l.split("=", 1) for l in dbus.communicate()[0].split("\n") if l)
+		os.environ.update(self.dbus_config)
+		
+	def run(self, ignore_errors=False):
+		try:
+			return self._run()
+		except Exception, e:
+			if ignore_errors:
+				return e
+			raise
+
+	def _quit(self):
+		os.kill(self.display.pid, signal.SIGKILL)
+		self.display.wait()
+		pid = int(self.dbus_config["DBUS_SESSION_BUS_PID"])
+		os.kill(pid, signal.SIGKILL)
+		try:
+			os.waitpid(pid, 0)
+		except OSError:
+			pass
+			
+	def quit(self, ignore_errors=False):
+		try:
+			return self._quit()
+		except Exception, e:
+			if ignore_errors:
+				return e
+			raise

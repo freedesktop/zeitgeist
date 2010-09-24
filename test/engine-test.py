@@ -6,10 +6,6 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import _zeitgeist.engine
-from _zeitgeist.engine import constants
-from _zeitgeist.engine import get_engine
-from _zeitgeist.engine.sql import WhereClause
 from zeitgeist.datamodel import *
 from testutils import import_events
 
@@ -41,6 +37,9 @@ def create_test_event_1():
 class _engineTestClass(unittest.TestCase):
 	
 	def setUp (self):
+		from _zeitgeist.engine import constants
+		from _zeitgeist.engine import get_engine
+		
 		self.save_default_ext = os.environ.get("ZEITGEIST_DEFAULT_EXTENSIONS")
 		self.save_extra_ext = os.environ.get("ZEITGEIST_EXTRA_EXTENSIONS")
 		os.environ["ZEITGEIST_DEFAULT_EXTENSIONS"] = ""
@@ -58,6 +57,7 @@ class _engineTestClass(unittest.TestCase):
 		self.engine = get_engine()
 	
 	def tearDown (self):
+		import _zeitgeist.engine
 		if self.save_default_ext is not None:
 			os.environ["ZEITGEIST_DEFAULT_EXTENSIONS"] = self.save_default_ext
 		else:
@@ -935,6 +935,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals(5, len(ids))
 		
 	def testWildcardOptimization(self):
+		from _zeitgeist.engine.sql import WhereClause
+		
 		cursor = self.engine._cursor
 		strings = [
 			(u"hällö, I'm gürmen - åge drikker øl - ☠ bug",),

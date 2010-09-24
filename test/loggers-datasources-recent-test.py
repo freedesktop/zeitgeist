@@ -7,16 +7,28 @@ import re
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from _zeitgeist.loggers.datasources.recent import SimpleMatch, MimeTypeSet
 
-class SimpleMatchTest(unittest.TestCase):
+SimpleMatch = None
+MimeTypeSet = None
+
+class BaseTestCase(unittest.TestCase):
+	
+	def setUp(self):
+		global SimpleMatch
+		global MimeTypeSet
+		if None in (SimpleMatch, MimeTypeSet):
+			from _zeitgeist.loggers.datasources.recent import SimpleMatch as _SM, MimeTypeSet as _MTS
+			SimpleMatch = _SM
+			MimeTypeSet = _MTS
+
+class SimpleMatchTest(BaseTestCase):
 	
 	def testmatch(self):
 		self.assertTrue(SimpleMatch("boo/*").match("boo/bar"))
 		self.assertTrue(SimpleMatch("boo/bar.*").match("boo/bar.foo"))
 		self.assertFalse(SimpleMatch("boo/bar.*").match("boo/barfoo"))
 
-class MimeTypeSetTest(unittest.TestCase):
+class MimeTypeSetTest(BaseTestCase):
 	
 	def testinit(self):
 		self.assertEquals(repr(MimeTypeSet("boo", "bar", "foo")), "MimeTypeSet('bar', 'boo', 'foo')")

@@ -23,9 +23,15 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import unittest
-from _zeitgeist.engine.sql import *
+WhereClause = None
 
 class SQLTest (unittest.TestCase):
+	
+	def setUp(self):
+		global WhereClause
+		if WhereClause is None:
+			from _zeitgeist.engine.sql import WhereClause as _WhereClause
+			WhereClause = _WhereClause
 	
 	def testFlat (self):
 		where = WhereClause(WhereClause.AND)
