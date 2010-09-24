@@ -1,1 +1,3 @@
 tools/gtk/zeitgeist-data-sources-gtk.py
+tools/cli/zeitgeist-search.py
+tools/cli/zeitgeist-stats.py
