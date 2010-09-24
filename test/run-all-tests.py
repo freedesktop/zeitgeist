@@ -105,6 +105,9 @@ if __name__ == "__main__":
 		config.update({"DISPLAY": bus.DISPLAY, "pid.Xvfb": bus.display.pid})
 		print >> sys.stderr, "*** Configuration: %s" %config
 	try:
+		os.environ["ZEITGEIST_DEFAULT_EXTENSIONS"] = \
+			"_zeitgeist.engine.extensions.blacklist.Blacklist," \
+			"_zeitgeist.engine.extensions.datasource_registry.DataSourceRegistry"
 		suite = compile_suite(args or None)
 		# Run all of the tests
 		unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
