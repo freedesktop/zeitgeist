@@ -627,6 +627,13 @@ class ZeitgeistEngineTest(_engineTestClass):
 		ids = self.engine.find_eventids(TimeRange.always(),
 			[template], StorageState.Any, 0, ResultType.LeastRecentActor)
 		self.assertEquals(ids, [2])
+		
+		# Let's also try the same with MostRecentActor... Although there
+		# should be no problem here.
+		template = Event.new_for_values(subject_uri="home/boo")
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template], StorageState.Any, 0, ResultType.LeastRecentActor)
+		self.assertEquals(ids, [2])
 	
 	def testResultTypesMostPopularOrigin(self):
 		import_events("test/data/twenty_events.js", self.engine)
