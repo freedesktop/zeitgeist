@@ -263,7 +263,11 @@ class DBusPrivateMessageBus(object):
 
 	def _run(self):
 		os.environ.update({"DISPLAY": self.DISPLAY})
-		self.display = Popen(["Xvfb", self.DISPLAY, "-screen", "0", "1024x768x8"])
+		devnull = file("/dev/null", "w")
+		self.display = Popen(
+			["Xvfb", self.DISPLAY, "-screen", "0", "1024x768x8"],
+			stderr=devnull, stdout=devnull
+		)
 		# give the display some time to wake up
 		time.sleep(1)
 		err = self.display.poll()
