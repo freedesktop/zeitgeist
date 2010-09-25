@@ -70,6 +70,10 @@ startup time.
 .TP
 The ZEITGEIST_DEFAULT_EXTENSIONS and the ZEITGEIST_EXTRA_EXTENSIONS
 variable require a no-space comma separated list of module.class names.
+.TP
+.B ZEITGEIST_DEBUG_QUERY_PLANS
+When set to a non-empty string other than 0 zeitgeist-daemon will send all
+SQL queries and their corresponding query plans to the debug log.
 
 .SH SIGNALS
 \fISIGHUP\f1: zeitgeist\-daemon will shut itself down in a clean way. 
