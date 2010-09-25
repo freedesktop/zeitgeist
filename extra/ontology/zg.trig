@@ -100,7 +100,7 @@ zg: {
         rdfs:subClassOf rdfs:Resource .
     
     zg:eventId
-        a   rdfs:Property ;
+        a   rdf:Property ;
         rdfs:comment "A unique integer id assigned to an event by the logging framework when the event is first logged" ;
         rdfs:domain zg:Event ;
         rdfs:range xsd:nonNegativeInteger ;
@@ -108,7 +108,7 @@ zg: {
         nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
     
     zg:timestamp
-        a   rdfs:Property ;
+        a   rdf:Property ;
         rdfs:comment "Timestamp in milliseconds since the Unix Epoch" ;
         rdfs:domain zg:Event ;
         rdfs:range xsd:long ;
@@ -116,7 +116,7 @@ zg: {
         nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
     
     zg:hasActor
-        a   rdfs:Property ;
+        a   rdf:Property ;
         rdfs:comment "The application or entity responsible for emitting the event. For applications the format of this field is the base filename of the corresponding .desktop file with an app:// URI scheme. For example /usr/share/applications/firefox.desktop is encoded as app://firefox.desktop" ;
         rdfs:domain zg:Event ;
         rdfs:range rdfs:Resource ;
@@ -124,7 +124,7 @@ zg: {
         nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
     
     zg:hasEventInterpretation
-        a rdfs:Property ;
+        a rdf:Property ;
         rdfs:domain zg:Event ;
         rdfs:range zg:EventInterpretation ;
         nrl:maxCardinality "1"^^xsd:nonNegativeInteger ;
@@ -132,7 +132,7 @@ zg: {
         rdfs:subPropertyOf nie:interpretedAs .
         
     zg:hasEventManifestation
-        a rdfs:Property ;
+        a rdf:Property ;
         rdfs:domain zg:Event ;
         rdfs:range zg:EventManifestation ;
         nrl:maxCardinality "1"^^xsd:nonNegativeInteger ;
@@ -140,7 +140,7 @@ zg: {
         rdfs:subPropertyOf rdfs:type .
     
     zg:hasSubject
-        a rdfs:Property ;
+        a rdf:Property ;
         rdfs:domain zg:Event ;
         rdfs:range rdfs:Resource ;
         rdfs:label "subject" .
