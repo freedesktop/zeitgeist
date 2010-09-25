@@ -71,6 +71,13 @@ startup time.
 The ZEITGEIST_DEFAULT_EXTENSIONS and the ZEITGEIST_EXTRA_EXTENSIONS
 variable require a no-space comma separated list of module.class names.
 
+.SH SIGNALS
+\fISIGHUP\f1: zeitgeist\-daemon will shut itself down in a clean way. 
+.RS
+It is recommended that system updates of Zeitgeist send this signal to 
+all running instances of zeitgeist-daemon. DBus activation will make sure 
+the updated software is automatically restarted when needed.
+
 .SH EXAMPLES
 .PP
 .B environment variables
