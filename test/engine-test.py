@@ -641,6 +641,21 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[Event.new_for_values(subject_manifestation="stfu:File")],
 			StorageState.Any, 0, ResultType.LeastRecentActor)
 		self.assertEquals([e[0][1] for e in events], ['105', '114', '119'])
+	
+	def testResultTypesLeastRecentActor2(self):
+		# The same test as before, but this time with fewer events so that
+		# it is actually understandable.
+		events = [
+			Event.new_for_values(timestamp=1, actor="gedit", subject_uri="oldFile"),
+			Event.new_for_values(timestamp=2, actor="banshee", subject_uri="oldMusic"),
+			Event.new_for_values(timestamp=3, actor="banshee", subject_uri="newMusic"),
+			Event.new_for_values(timestamp=4, actor="gedit", subject_uri="newFile"),
+		]
+		self.engine.insert_events(events)
+		
+		events = self.engine.find_events(TimeRange.always(),
+			[], StorageState.Any, 0, ResultType.LeastRecentActor)
+		self.assertEquals([e[0][1] for e in events], ['3', '4'])
 
 	def testResultTypesMostPopularOrigin(self):
 		import_events("test/data/twenty_events.js", self.engine)
