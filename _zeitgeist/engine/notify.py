@@ -226,7 +226,10 @@ class MonitorManager:
 			
 			if matching_events :
 				log.debug("Notifying %s about %s insertions" % (mon, len(matching_events)))
-				mon.notify_insert(time_range.intersect(mon.time_range), matching_events)
+				try:
+					mon.notify_insert(time_range.intersect(mon.time_range), matching_events)
+				except Exception:
+					log.exception("Failed to notify monitor: %s" % mon)
 	
 	def notify_delete (self, time_range, event_ids):
 		"""
@@ -241,7 +244,10 @@ class MonitorManager:
 			
 			if intersecting_range:
 				log.debug("Notifying %s about %s deletions" % (mon, len(event_ids)))
-				mon.notify_delete(intersecting_range, event_ids)
+				try:
+					mon.notify_delete(intersecting_range, event_ids)
+				except Exception:
+					log.exception("Failed to notify monitor: %s" % mon)
 		
 	def _name_owner_changed (self, owner, old, new):
 		"""
