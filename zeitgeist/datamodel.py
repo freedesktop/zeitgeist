@@ -1029,14 +1029,15 @@ class ResultType(object):
 		"ordered by the popularity of the actor"))
 	LeastPopularActor = enum_factory(("The last event of each different actor,"
 		"ordered ascendingly by the popularity of the actor"))
-	MostRecentActor = enum_factory(("The last event of each different actor"))
-	LeastRecentActor = enum_factory(("The first event of each different actor"))	
+	MostRecentActor = enum_factory(("The Actor that has been used to most recently"))
+	LeastRecentActor = enum_factory(("The Actor that has been used to least recently"))	
 	MostRecentOrigin = enum_factory(("The last event of each different origin"))
 	LeastRecentOrigin = enum_factory(("The first event of each different origin"))
 	MostPopularOrigin = enum_factory(("The last event of each different origin,"
 		"ordered by the popularity of the origins"))
 	LeastPopularOrigin = enum_factory(("The last event of each different origin,"
 		"ordered ascendingly by the popularity of the origin"))
+	OldestActor = enum_factory(("The first event of each different actor"))	
 
 
 INTERPRETATION_DOC = \
