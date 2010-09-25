@@ -46,6 +46,9 @@ one of the core developers (members of <http://launchpad.net/~zeitgeist>)
 
 Release Tasks
 *************
+0. Ensure the translations are up-to-date. You may find daily translation
+   exports provided by Launchpad at lp:~rainct/zeitgeist/translations.
+
 1. Bump version number to $VERSION in configure.ac and VERSION files,
    and the D-Bus API version in _zeitgeist/engine/remote.py, if there
    have been changes to it. Also make sure to bump the 'version' and
@@ -96,19 +99,20 @@ Release Tasks
 Bugs
 ****
 
-The zeitgeist project is using the bugtracker on launchpad.net. To report
-a bug please visit https://bugs.edge.launchpad.net/zeitgeist/+filebug
-and describe the issues you are having. Please also add useful information
-like the version of zeitgeist you are using and the python version.
-Appart from classical bugreport describing an issue or failure, the
-zeitgeist team is using the bugtracker to discuss new features and
+The Zeitgeist project is using the bugtracker on launchpad.net. To report
+a bug please visit https://bugs.launchpad.net/zeitgeist/+filebug and describe
+the issues you are having. Please also add useful information
+like the version of Zeitgeist you are using and the Python version.
+
+Apart from classical bug reports describing an issue or failure, the
+Zeitgeist team is using the bugtracker to discuss new features and
 implementation details.
 
-Bugtriaging
-***********
+Bug triaging
+************
 
-The zeitgeist project is using bug status as described below:
- * New: no bugtriager had a look at this bugreport
+The Zeitgeist project is using bug status as described below:
+ * New: no bug triager had a look at this bugreport
  * Incomplete: the zeitgeist team has asked an explicit question
    to get a better understanding of the bug and is waiting for
    an answer from the original reporter or anyobne having the same issue
@@ -147,7 +151,7 @@ Milestones:
    we should target this bug to a milestone
  * 'High' and 'Critical' rated bugs will always be targeted to the next
    milestone.
- 
+
 Related policies:
  * Every bug of status 'Triaged' or higher should have an importance other
    than 'Undecided'.
