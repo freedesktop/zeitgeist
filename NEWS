@@ -17,7 +17,10 @@ Engine:
    make use of the database's indexes.
  - Catch any exceptions trying to notify a monitor of changes and redirect
    them to the error log.
- - **** LeastRecentActor and OldestActor change goes here... ***
+ - Fixed LeastRecentActor sorting not working in combination with event
+   template filtering (LP: #641968).
+ - Renamed the LeastRecentActor sorting type to OldestActor and implemented
+   a new LeastRecentActor which does what it was supposed to do (LP: #646124).
 
 Datahub:
 
