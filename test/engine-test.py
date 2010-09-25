@@ -597,24 +597,6 @@ class ZeitgeistEngineTest(_engineTestClass):
 			TimeRange(105,107), [], StorageState.Any, 0, ResultType.MostRecentActor)
 		self.assertEquals([e[0][1] for e in events], ["107", "105"])
 	
-	def testResultTypesOldestActor(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(),
-			[Event.new_for_values(subject_manifestation="stfu:File")],
-			StorageState.Any, 0, ResultType.OldestActor)
-		self.assertEquals([e[0][1] for e in events], ["100", "101", "105"])
-
-	def testResultTypesLeastRecentActor(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(),
-			[Event.new_for_values(subject_manifestation="stfu:File")],
-			StorageState.Any, 0, ResultType.LeastRecentActor)
-		self.assertEquals([e[0][1] for e in events], ['105', '114', '119'])
-
 	def testResultTypesOldestActorBug641968(self):
 		events = [
 			Event.new_for_values(timestamp=1, actor="boo", subject_uri="tmp/boo"),
@@ -642,6 +624,24 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[template], StorageState.Any, 0, ResultType.OldestActor)
 		self.assertEquals(ids, [2])
 	
+	def testResultTypesOldestActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(),
+			[Event.new_for_values(subject_manifestation="stfu:File")],
+			StorageState.Any, 0, ResultType.OldestActor)
+		self.assertEquals([e[0][1] for e in events], ["100", "101", "105"])
+
+	def testResultTypesLeastRecentActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(),
+			[Event.new_for_values(subject_manifestation="stfu:File")],
+			StorageState.Any, 0, ResultType.LeastRecentActor)
+		self.assertEquals([e[0][1] for e in events], ['105', '114', '119'])
+
 	def testResultTypesMostPopularOrigin(self):
 		import_events("test/data/twenty_events.js", self.engine)
 		
