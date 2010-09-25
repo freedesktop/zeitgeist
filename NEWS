@@ -9,7 +9,7 @@ Engine:
    can be used to signal a system-wide restart request after an update.
  - Fixed a bug in TableLookup because of which the internal cache wasn't
    being used.
- - Added a new option, activated by the ZEITGEIST_DEBUG_QUEYR_PLANS, which
+ - Added a new option, activated by the ZEITGEIST_DEBUG_QUERY_PLANS, which
    prints detailed information about each query being executed.
  - Removed superfluous database commits; now they are called after all
    InsertEvent actions have been completed, not once for every event.
