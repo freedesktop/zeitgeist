@@ -343,7 +343,7 @@ class ZeitgeistEngine:
 		else:
 			raise NotImplementedError, "Unsupported return_mode."
 		
-		if order == ResultType.LeastRecentActor:
+		if order == ResultType.OldestActor:
 			sql += """
 				NATURAL JOIN (
 					SELECT actor, min(timestamp) AS timestamp
@@ -366,7 +366,8 @@ class ZeitgeistEngine:
 			" GROUP BY subj_origin ORDER BY timestamp DESC",
 			" GROUP BY subj_origin ORDER BY timestamp ASC",
 			" GROUP BY subj_origin ORDER BY COUNT(subj_origin) DESC, timestamp DESC",
-			" GROUP BY subj_origin ORDER BY COUNT(subj_origin) ASC, timestamp ASC")[order]
+			" GROUP BY subj_origin ORDER BY COUNT(subj_origin) ASC, timestamp ASC",
+			" GROUP BY actor ORDER BY timestamp ASC")[order]
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events

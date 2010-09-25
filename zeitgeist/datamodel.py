@@ -1037,6 +1037,7 @@ class ResultType(object):
 		"ordered by the popularity of the origins"))
 	LeastPopularOrigin = enum_factory(("The last event of each different origin,"
 		"ordered ascendingly by the popularity of the origin"))
+	OldestActor = enum_factory(("The first event of each different actor"))	
 
 
 INTERPRETATION_DOC = \
