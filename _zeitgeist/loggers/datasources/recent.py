@@ -244,31 +244,58 @@ class RecentlyUsedManagerGtk(DataProvider):
 		self._registry.connect("DataSourceRegistered", _data_source_registered)
 	
 	@staticmethod
-	def _find_desktop_file_for_application(application):
+	def _desktop_file_matches_app(filename, application, mimetype):
+		""" Checks whether the given .desktop file represents the indicated
+		application.
+		
+		If a mimetype is also given, only .desktop files listing it as
+		supported will be considered. This is needed to differentiate
+		between the different OpenOffice.org components, for instance.
+		"""
+		
+		try:
+			with open(filename) as desktopfile:
+				_exec = False
+				_mime = False
+				for line in desktopfile:
+					if line.startswith("Exec=") and \
+					line.split("=", 1)[-1].strip().split()[0] == application:
+						if mimetype is None or _mime:
+							return True
+						else:
+							_exec = True
+					elif line.startswith("MimeType=") and mimetype in \
+					line.split("=", 1)[-1].split(";"):
+						if _exec:
+							return True
+						else:
+							_mime = True
+						
+		except IOError:
+			pass # file may be a broken symlink (LP: #523761)
+		except Exception, e:
+			log.warning('Corrupt .desktop file: %s', filename)
+		
+		return False
+	
+	@staticmethod
+	def _find_desktop_file_for_application(application, mimetype):
 		""" Searches for a .desktop file for the given application in
 		$XDG_DATADIRS and returns the path to the found file. If no file
 		is found, returns None.
 		"""
-		
 		desktopfiles = \
 			list(BaseDirectory.load_data_paths("applications", "%s.desktop" % application))
 		if desktopfiles:
 			return unicode(desktopfiles[0])
 		else:
+			is_match = RecentlyUsedManagerGtk._desktop_file_matches_app # local stuff is accessed faster
 			for path in BaseDirectory.load_data_paths("applications"):
 				for filename in (name for name in os.listdir(path) if name.endswith(".desktop")):
 					fullname = os.path.join(path, filename)
-					try:
-						with open(fullname) as desktopfile:
-							for line in desktopfile:
-								if line.startswith("Exec=") and \
-								line.split("=", 1)[-1].strip().split()[0] == \
-								application:
-									return unicode(fullname)
-					except IOError:
-						pass # file may be a broken symlink (LP: #523761)
-					except Exception, e:
-						log.warning('Corrupt .desktop file: %s', fullname)
+					if (is_match(fullname, application, mimetype)):
+						return unicode(fullname)
+		
 		return None
 	
 	def _get_interpretation_for_mimetype(self, mimetype):
@@ -292,7 +319,12 @@ class RecentlyUsedManagerGtk(DataProvider):
 			if info.exists() and not info.get_private_hint() and not uri.startswith("file:///tmp/"):
 				last_application = info.last_application().strip()
 				application = info.get_application_info(last_application)[0].split()[0]
-				desktopfile = self._find_desktop_file_for_application(application)
+				mimetype = unicode(info.get_mime_type())
+				if application in ("ooffice", "soffice"):
+					# Special case OpenOffice.org *sigh*
+					desktopfile = self._find_desktop_file_for_application("ooffice", mimetype)
+				else:
+					desktopfile = self._find_desktop_file_for_application(application, None)
 				if not desktopfile:
 					continue
 				actor = u"application://%s" % os.path.basename(desktopfile)
@@ -303,7 +335,7 @@ class RecentlyUsedManagerGtk(DataProvider):
 						unicode(info.get_mime_type())),
 					manifestation = Manifestation.FILE_DATA_OBJECT.uri,
 					text = info.get_display_name(),
-					mimetype = unicode(info.get_mime_type()),
+					mimetype = mimetype,
 					origin = uri.rpartition("/")[0]
 				)
 				
