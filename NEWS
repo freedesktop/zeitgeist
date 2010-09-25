@@ -29,7 +29,7 @@ Overall:
  - Fix an error in the ontology; it's "rdf:Property", not "rdfs:Property".
  - Improved documentation; particularly, the ontology is now presented
    in a separate section with a more readable format.
- - Translation updates.
+ - Translation updates (Brazilian Portuguese, Catalan and Indonesian).
 
 2010-09-09: Zeitgeist 0.5.1 "Spongebob is not funny"
 ----------------------------------------------------
