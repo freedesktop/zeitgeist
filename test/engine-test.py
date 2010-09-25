@@ -600,9 +600,40 @@ class ZeitgeistEngineTest(_engineTestClass):
 		import_events("test/data/twenty_events.js", self.engine)
 		
 		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentActor)
+			TimeRange.always(),
+			[Event.new_for_values(subject_manifestation="stfu:File")],
+			StorageState.Any, 0, ResultType.LeastRecentActor)
 		self.assertEquals([e[0][1] for e in events], ["100", "101", "105"])
+		# LeastRecentActor should really be: 100, 101, 105. See bug #646124.
+		# This will be renamed to something like OldestActor.
 
+	def testResultTypesLeastRecentActorBug641968(self):
+		events = [
+			Event.new_for_values(timestamp=1, actor="boo", subject_uri="tmp/boo"),
+			Event.new_for_values(timestamp=2, actor="boo", subject_uri="home/boo"),
+			Event.new_for_values(timestamp=3, actor="bar", subject_uri="tmp/boo"),
+			Event.new_for_values(timestamp=4, actor="baz", subject_uri="tmp/boo"),
+		]
+		self.engine.insert_events(events)
+		
+		# Get the least recent actors
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[], StorageState.Any, 0, ResultType.LeastRecentActor)
+		self.assertEquals(ids, [1, 3, 4])
+		
+		# Get the least recent actors for "home/boo"
+		template = Event.new_for_values(subject_uri="home/boo")
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template], StorageState.Any, 0, ResultType.LeastRecentActor)
+		self.assertEquals(ids, [2])
+		
+		# Let's also try the same with MostRecentActor... Although there
+		# should be no problem here.
+		template = Event.new_for_values(subject_uri="home/boo")
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template], StorageState.Any, 0, ResultType.LeastRecentActor)
+		self.assertEquals(ids, [2])
+	
 	def testResultTypesMostPopularOrigin(self):
 		import_events("test/data/twenty_events.js", self.engine)
 		

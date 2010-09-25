@@ -347,11 +347,10 @@ class ZeitgeistEngine:
 			sql += """
 				NATURAL JOIN (
 					SELECT actor, min(timestamp) AS timestamp
-					FROM event_view
+					FROM event_view %s
 					GROUP BY actor)
-				"""
-		
-		if where:
+				""" % ("WHERE " + where.sql if where.sql else "")
+		elif where:
 			sql += " WHERE " + where.sql
 		
 		sql += (" ORDER BY timestamp DESC",
