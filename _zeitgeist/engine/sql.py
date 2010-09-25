@@ -400,7 +400,7 @@ class TableLookup(dict):
 	def __getitem__(self, name):
 		# Use this for inserting new properties into the database
 		if name in self:
-			super(TableLookup, self).__getitem__(name)
+			return super(TableLookup, self).__getitem__(name)
 		try:
 			self._cursor.execute(
 			"INSERT INTO %s (value) VALUES (?)" % self._table, (name,))
