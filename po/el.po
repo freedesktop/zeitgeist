@@ -7,40 +7,40 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-09-10 08:20+0000\n"
-"PO-Revision-Date: 2010-03-16 23:52+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2010-09-26 19:18+0000\n"
+"PO-Revision-Date: 2010-09-26 11:53+0000\n"
+"Last-Translator: Christos Spyroglou <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
+"X-Launchpad-Export-Date: 2010-09-27 05:21+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+#: ../zeitgeist-daemon.py:62 ../zeitgeist-daemon.py:75
 msgid "if another Zeitgeist instance is already running, replace it"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:65
+#: ../zeitgeist-daemon.py:66
 msgid "do not start zeitgeist-datahub automatically"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:69
+#: ../zeitgeist-daemon.py:70
 msgid "how much information should be printed; possible values:"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:111
+#: ../zeitgeist-daemon.py:112
 #, python-format
 msgid "File \"%s\" not found, not starting datahub"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:113
+#: ../zeitgeist-daemon.py:120
 msgid "Starting Zeitgeist service..."
-msgstr ""
+msgstr "Εκκίνηση της υπηρεσίας Zeitgeist"
 
 #: ../zeitgeist-datahub.py:62
 msgid "No passive loggers found, bye."
-msgstr ""
+msgstr "Δεν βρέθηκαν παθητικοί καταγραφείς, γειά."
 
 #: ../zeitgeist-datahub.py:82
 #, python-format
@@ -50,17 +50,17 @@ msgstr ""
 #: ../zeitgeist-datahub.py:105
 #, python-format
 msgid "Updating database with new %s items"
-msgstr ""
+msgstr "Ενημέρωση της βάσης δεδομένων με νέα %s αντικείμενα"
 
 #: ../zeitgeist-datahub.py:129
 msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr ""
+msgstr "Χάθηκε η σύνδεση με το zeitgeist-daemon, τερματισμός."
 
 #: ../zeitgeist-datahub.py:132
 #, python-format
 msgid "Error logging item from \"%s\": %s"
-msgstr ""
+msgstr "Σφάλμα καταγραφής αντικειμένου από \"%s\": %s"
 
 #: ../_zeitgeist/loggers/datasources/recent.py:49
 msgid "Could not import GTK; data source disabled."
-msgstr ""
+msgstr "Δεν μπόρεσε να εισαχθεί το GTK; η πηγή δεδομένων απενεργοποιήθηκε"
