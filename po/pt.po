@@ -7,34 +7,34 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-10 08:20+0000\n"
-"PO-Revision-Date: 2010-07-26 04:39+0000\n"
-"Last-Translator: Zeitgeist Framework Team <zeitgeist@lists.launchpad.net>\n"
+"POT-Creation-Date: 2010-09-29 09:59+0000\n"
+"PO-Revision-Date: 2010-10-01 19:29+0000\n"
+"Last-Translator: Diogo Lavareda <diogolavareda9@hotmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
+"X-Launchpad-Export-Date: 2010-10-02 05:07+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+#: ../zeitgeist-daemon.py:62 ../zeitgeist-daemon.py:75
 msgid "if another Zeitgeist instance is already running, replace it"
-msgstr ""
+msgstr "se estiver outra instancia do Zeitgeist a correr, substitui-la"
 
-#: ../zeitgeist-daemon.py:65
+#: ../zeitgeist-daemon.py:66
 msgid "do not start zeitgeist-datahub automatically"
-msgstr ""
+msgstr "não iniciar o zeitgeist-datahub automáticamente"
 
-#: ../zeitgeist-daemon.py:69
+#: ../zeitgeist-daemon.py:70
 msgid "how much information should be printed; possible values:"
 msgstr "quanta informação deve ser impressa; valores possíveis:"
 
-#: ../zeitgeist-daemon.py:111
+#: ../zeitgeist-daemon.py:112
 #, python-format
 msgid "File \"%s\" not found, not starting datahub"
 msgstr "O ficheiro \"%s\" não foi encontrado, datahub não irá iniciar"
 
-#: ../zeitgeist-daemon.py:113
+#: ../zeitgeist-daemon.py:120
 msgid "Starting Zeitgeist service..."
 msgstr "A iniciar o serviço Zeitgeist..."
 
