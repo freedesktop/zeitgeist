@@ -23,10 +23,10 @@
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Video",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
-				"mimetype" : "text/plain",
+				"mimetype" : "text/booboo",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
@@ -42,7 +42,7 @@
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
-				"mimetype" : "text/plain",
+				"mimetype" : "text/looloo",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
@@ -55,10 +55,10 @@
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Video",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
-				"mimetype" : "text/plain",
+				"mimetype" : "text/looloo",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
@@ -103,7 +103,7 @@
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Video",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
@@ -122,7 +122,7 @@
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
-				"mimetype" : "text/plain",
+				"mimetype" : "text/booboo",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
@@ -135,7 +135,7 @@
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Music",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
@@ -151,7 +151,7 @@
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Music",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
@@ -170,7 +170,7 @@
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
-				"mimetype" : "text/plain",
+				"mimetype" : "text/looloo",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
@@ -231,10 +231,10 @@
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Music",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
-				"mimetype" : "text/plain",
+				"mimetype" : "text/wumbo",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
@@ -263,7 +263,7 @@
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Music",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
@@ -295,7 +295,7 @@
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
+				"interpretation" : "stfu:Something",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///home",
 				"mimetype" : "text/plain",

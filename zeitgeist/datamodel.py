@@ -1024,7 +1024,7 @@ class ResultType(object):
 	MostPopularSubjects = enum_factory(("One event for each subject only, "
 		"ordered by the popularity of the subject"))
 	LeastPopularSubjects = enum_factory(("One event for each subject only, "
-		"ordered ascendingly by popularity"))
+		"ordered ascendingly by popularity of the mimetype"))
 	MostPopularActor = enum_factory(("The last event of each different actor,"
 		"ordered by the popularity of the actor"))
 	LeastPopularActor = enum_factory(("The last event of each different actor,"
@@ -1037,7 +1037,23 @@ class ResultType(object):
 		"ordered by the popularity of the origins"))
 	LeastPopularOrigin = enum_factory(("The last event of each different origin,"
 		"ordered ascendingly by the popularity of the origin"))
-	OldestActor = enum_factory(("The first event of each different actor"))	
+	OldestActor = enum_factory(("The first event of each different actor"))
+	MostRecentSubjectInterpretation = enum_factory(("One event for each subject interpretation only, "
+		"ordered with the most recent events first"))
+	LeastRecentSubjectInterpretation = enum_factory(("One event for each subject interpretation only, "
+		"ordered with the least recent events first"))
+	MostPopularSubjectInterpretation = enum_factory(("One event for each subject interpretation only, "
+		"ordered by the popularity of the subject interpretation"))
+	LeastPopularSubjectInterpretation = enum_factory(("One event for each subject interpretation only, "
+		"ordered ascendingly by popularity of the subject interpretation"))
+	MostRecentMimeType = enum_factory(("One event for each mimetype only, "
+		"ordered with the most recent events first"))
+	LeastRecentMimeType = enum_factory(("One event for each mimetype only, "
+		"ordered with the least recent events first"))
+	MostPopularMimeType = enum_factory(("One event for each mimetype only, "
+		"ordered by the popularity of the mimetype"))
+	LeastPopularMimeType = enum_factory(("One event for each mimetype only, "
+		"ordered ascendingly by popularity of the mimetype"))
 
 
 INTERPRETATION_DOC = \
