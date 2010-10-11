@@ -373,12 +373,12 @@ class ZeitgeistEngine:
 			" GROUP BY actor ORDER BY timestamp ASC",
 			" GROUP BY subj_interpretation ORDER BY timestamp DESC",
 			" GROUP BY subj_interpretation ORDER BY timestamp ASC",
-			" GROUP BY subj_interpretation ORDER BY count(subj_interpretation) DESC",
-			" GROUP BY subj_interpretation ORDER BY count(subj_interpretation) ASC",
+			" GROUP BY subj_interpretation ORDER BY COUNT(subj_interpretation) DESC",
+			" GROUP BY subj_interpretation ORDER BY COUNT(subj_interpretation) ASC",
 			" GROUP BY subj_mimetype ORDER BY timestamp DESC",
 			" GROUP BY subj_mimetype ORDER BY timestamp ASC",
-			" GROUP BY subj_mimetype ORDER BY count(subj_mimetype) DESC",
-			" GROUP BY subj_mimetype ORDER BY count(subj_mimetype) ASC")[order]
+			" GROUP BY subj_mimetype ORDER BY COUNT(subj_mimetype) DESC",
+			" GROUP BY subj_mimetype ORDER BY COUNT(subj_mimetype) ASC")[order]
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
