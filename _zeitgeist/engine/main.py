@@ -24,8 +24,6 @@ import sqlite3
 import time
 import sys
 import os
-import math
-import gettext
 import logging
 import operator
 from itertools import islice
