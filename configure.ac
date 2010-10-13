@@ -26,8 +26,6 @@ AC_CONFIG_FILES([
 	zeitgeist-daemon.pc	
 	zeitgeist/Makefile
 	_zeitgeist/Makefile
-	_zeitgeist/loggers/Makefile
-	_zeitgeist/loggers/datasources/Makefile
 	_zeitgeist/engine/Makefile
 	_zeitgeist/engine/extensions/Makefile
 	_zeitgeist/engine/upgrades/Makefile

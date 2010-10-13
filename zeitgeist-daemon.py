@@ -100,14 +100,13 @@ except RuntimeError, e:
 	logging.error(unicode(e))
 	sys.exit(1)
 
-passive_loggers = os.path.join(_config.bindir, "zeitgeist-datahub.py")
 if _config.options.start_datahub:
-	if os.path.isfile(passive_loggers):
+	try:
 		devnull = open(os.devnull, 'w')
-		subprocess.Popen(passive_loggers, stdin=devnull, stdout=devnull,
+		subprocess.Popen(zeitgeist-datahub, stdin=devnull, stdout=devnull,
 			stderr=devnull)
 		del devnull
-	else:
+	except:
 		logging.warning(
 			_("File \"%s\" not found, not starting datahub") % passive_loggers)
 

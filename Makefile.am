@@ -6,8 +6,7 @@ INTLTOOL = \
 	intltool-update.in
 
 bin_SCRIPTS = \
-	zeitgeist-daemon \
-	zeitgeist-datahub
+	zeitgeist-daemon 
 
 EXTRA_DIST = \
 	$(bin_SCRIPTS) \
@@ -16,7 +15,6 @@ EXTRA_DIST = \
 	COPYRIGHT \
 	NEWS \
 	zeitgeist-daemon.py \
-	zeitgeist-datahub.py \
 	zeitgeist-daemon.pc.in
 
 DISTCLEANFILES = \
@@ -25,8 +23,7 @@ DISTCLEANFILES = \
 	intltool-update
 
 CLEANFILES = \
-	zeitgeist-daemon \
-	zeitgeist-datahub
+	zeitgeist-daemon 
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = zeitgeist-daemon.pc
@@ -34,19 +31,12 @@ pkgconfig_DATA = zeitgeist-daemon.pc
 zeitgeist-daemon: zeitgeist-daemon.py
 	sed \
 		-e "s!\/usr\/bin\/env python!$(PYTHON)!" \
-		-e "s!zeitgeist-datahub\.py!zeitgeist-datahub!" \
 		< $< > $@
 	chmod +x zeitgeist-daemon
 zeitgeist-daemon: Makefile
 
-zeitgeist-datahub: zeitgeist-datahub.py
-	sed \
-		-e "s!\/usr\/bin\/env python!$(PYTHON)!" \
-		< $< > $@
-	chmod +x zeitgeist-datahub
-zeitgeist-datahub: Makefile
 
-all-local: zeitgeist-daemon zeitgeist-datahub
+all-local: zeitgeist-daemon
 
 # Generate ChangeLog
 dist-hook:

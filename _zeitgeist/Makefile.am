@@ -1,4 +1,4 @@
-SUBDIRS = engine loggers
+SUBDIRS = engine
 
 appdir = $(datadir)/zeitgeist/_zeitgeist/
 
