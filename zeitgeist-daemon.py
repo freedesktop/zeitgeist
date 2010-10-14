@@ -103,12 +103,12 @@ except RuntimeError, e:
 if _config.options.start_datahub:
 	try:
 		devnull = open(os.devnull, 'w')
-		subprocess.Popen(zeitgeist-datahub, stdin=devnull, stdout=devnull,
+		subprocess.Popen("zeitgeist-datahub", stdin=devnull, stdout=devnull,
 			stderr=devnull)
 		del devnull
 	except:
 		logging.warning(
-			_("File \"%s\" not found, not starting datahub") % passive_loggers)
+			_("File zeitgeist-datahub not found, not starting datahub"))
 
 def handle_sighup(signum, frame):
 	"""We are using the SIGHUP signal to shutdown zeitgeist in a clean way"""
