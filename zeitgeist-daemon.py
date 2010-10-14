@@ -21,13 +21,13 @@
 import sys
 import os
 import gobject
-import subprocess
 import dbus.mainloop.glib
 import gettext
 import logging
 import optparse
 import signal
 from copy import copy
+from subprocess import Popen, PIPE
 
 # Make sure we can find the private _zeitgeist namespace
 from zeitgeist import _config
@@ -39,6 +39,7 @@ from _zeitgeist.engine import constants
 sys.path.insert(0, constants.USER_EXTENSION_PATH)
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
+DATAHUB = "zeitgeist-datahub"
 
 def check_loglevel(option, opt, value):
 	value = value.upper()
@@ -46,6 +47,11 @@ def check_loglevel(option, opt, value):
 		return value
 	raise optparse.OptionValueError(
 		"option %s: invalid value: %s" % (opt, value))
+		
+def which(executable):
+	p = Popen(["which", str(executable)], stderr=PIPE, stdout=PIPE)
+	p.wait()
+	return p.stdout.read().strip() or None
 
 class Options(optparse.Option):
 
@@ -101,14 +107,20 @@ except RuntimeError, e:
 	sys.exit(1)
 
 if _config.options.start_datahub:
+	# hide all output of the datahub for now,
+	# in the future we might want to be more verbose here to make
+	# debugging easier in case sth. goes wrong with the datahub
+	devnull = open(os.devnull, "w")
 	try:
-		devnull = open(os.devnull, 'w')
-		subprocess.Popen("zeitgeist-datahub", stdin=devnull, stdout=devnull,
-			stderr=devnull)
-		del devnull
-	except:
-		logging.warning(
-			_("File zeitgeist-datahub not found, not starting datahub"))
+		# we assume to find the datahub somewhere in PATH
+		p = Popen(DATAHUB, stdin=devnull, stdout=devnull, stderr=devnull)
+	except OSError:
+		logging.warning("Unable to start the datahub, no binary found")
+	else:
+		# TODO: delayed check if the datahub is still running after some time
+		#  and not failed because of some error
+		# tell the user which datahub we are running
+		logging.debug("Running datahub (%s) with PID=%i" %(which(DATAHUB), p.pid))
 
 def handle_sighup(signum, frame):
 	"""We are using the SIGHUP signal to shutdown zeitgeist in a clean way"""
@@ -116,5 +128,5 @@ def handle_sighup(signum, frame):
 	interface.Quit()
 signal.signal(signal.SIGHUP, handle_sighup)
 
-logging.info(_(u"Starting Zeitgeist service..."))
+logging.info("Starting Zeitgeist service...")
 mainloop.run()
