@@ -69,3 +69,14 @@ check-local:
 	else \
 		echo "Cannot run the testsuite, tests are not shipped"; \
 	fi
+	
+# do the right thing to start a daemon
+#  wrap commandline options
+#  * to run the daemon without any datahub, set ZG_NODATAHUB,
+#  * to use a certain log level, set ZG_LOGLEVEL=<log-level>
+# example:
+#  make run ZG_LOGLEVEL=INFO ZG_NODATAHUB=1
+ZG_DAEMON_ARGS := $(if $(ZG_LOGLEVEL), --log-level $(ZG_LOGLEVEL),)
+ZG_DAEMON_ARGS += $(if $(ZG_NODATAHUB), --no-datahub,)
+run: all
+	./zeitgeist-daemon $(ZG_DAEMON_ARGS)
