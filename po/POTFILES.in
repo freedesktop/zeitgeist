@@ -1,8 +1,4 @@
 zeitgeist-daemon.py
-zeitgeist-datahub.py
 zeitgeist/datamodel.py
 _zeitgeist/singleton.py
-_zeitgeist/loggers/zeitgeist_base.py
-_zeitgeist/loggers/zeitgeist_setup_service.py
-_zeitgeist/loggers/datasources/recent.py
 _zeitgeist/engine/remote.py
