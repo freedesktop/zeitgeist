@@ -74,7 +74,7 @@ def parse_commandline():
 		"--log-level",
 		action="store", type="log_levels", default="DEBUG", dest="log_level",
 		help=_("how much information should be printed; possible values:") + \
-			" %s" % ', '.join(Options.log_levels))
+			" %s" % ", ".join(Options.log_levels))
 	parser.add_option(
 		"--quit",
 		action="store_true", default=False, dest="quit",
@@ -89,7 +89,7 @@ def do_shell_completion(parser):
 	options = set()
 	for option in (str(option) for option in parser.option_list):
 		options.update(option.split("/"))
-	print ' '.join(options)
+	print " ".join(options)
 	return 0
 
 def setup_interface():
