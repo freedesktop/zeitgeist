@@ -432,15 +432,18 @@ class ZeitgeistEngine:
 						pot.append(x)
 			
 			# Out of the pot we get all respected events and count which uris occur most
-			events = self.get_events(pot)
+			rows = self._cursor.execute("""
+				SELECT id, timestamp, subj_uri FROM event_view
+				WHERE id IN (%s)
+				""" % ",".join("%d" % id for id in pot)).fetchall()
+			
 			subject_uri_counter = defaultdict(int)
 			latest_uris = defaultdict(int)
-			for event in events:
-				if event and event.id not in ids:
-					subj = event.subjects[0]
-					subject_uri_counter[subj.uri] += 1
-					if latest_uris[subj.uri] < event.timestamp:
-						latest_uris[subj.uri] = event.timestamp
+			for id, timestamp, uri in rows:
+				if id not in ids:
+					subject_uri_counter[uri] += 1
+					if latest_uris[uri] < timestamp:
+						latest_uris[uri] = timestamp
 							
 			log.debug("FindRelatedUris: Finished ranking subjects %fs." % \
 				(time.time()-t1))
