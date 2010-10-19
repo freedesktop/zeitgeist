@@ -503,304 +503,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 			StorageState.Any,
 			100,
 			0,)
-		self.assertEquals(len(result), 1)	
-		
-	def testResultTypesMostRecentEvents(self):
-		import_events("test/data/five_events.js", self.engine)
-		
-		# MostRecentEvents - new -> old
-		ids = self.engine.find_eventids(
-			TimeRange.always(), [], StorageState.Any, 0,
-			ResultType.MostRecentEvents)
-		events = self.engine.get_events(ids)
-		sorted_event_ids = [
-			event.id for event in sorted(
-				events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)), reverse=True
-			)
-		]
-		self.assertEquals(ids, sorted_event_ids)
-		
-	def testResultTypesLeastRecentEvents(self):
-		import_events("test/data/five_events.js", self.engine)
-		
-		# LeastRecentEvents - old -> new
-		ids = self.engine.find_eventids(
-			TimeRange.always(), [], StorageState.Any, 0,
-			ResultType.LeastRecentEvents)
-		events = self.engine.get_events(ids)
-		sorted_event_ids = [
-			event.id for event in sorted(events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
-		]
-		self.assertEquals(ids, sorted_event_ids)
-	
-	def testResultTypesMostPopularActor(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularActor)
-		self.assertEquals([e[0][4] for e in events], ["firefox", "icedove",
-			"frobnicator"])
-		self.assertEquals([e.timestamp for e in events], ["119", "114", "105"])
-	
-	def testResultTypesMostPopularActor2(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange(105,107), [], StorageState.Any, 0, ResultType.MostPopularActor)
-		self.assertEquals(len(events), 2)
-		self.assertEquals([e[0][4] for e in events], ["firefox", "frobnicator"])
-		self.assertEquals([e.timestamp for e in events], ["107", "105"])
-
-	def testResultTypesLeastPopularActor(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularActor)
-		self.assertEquals([e[0][4] for e in events], ["frobnicator", "icedove",
-			"firefox"])
-		self.assertEquals([e.timestamp for e in events], ["105", "114", "119"])
-
-	def testResultTypesLeastPopularActor2(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange(105,107), [], StorageState.Any, 0, ResultType.LeastPopularActor)
-		self.assertEquals(len(events), 2)
-		self.assertEquals([e[0][4] for e in events], ["frobnicator", "firefox"])
-		self.assertEquals([e.timestamp for e in events], ["105", "107"])
-
-	def testResultTypesMostPopularSubject(self):
-		import_events("test/data/five_events.js", self.engine)
-		
-		events = self.engine.find_eventids(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularSubjects)
-		self.assertEquals(events, [3, 5, 4, 1])
-	
-	def testResultTypesLeastPopularSubject(self):
-		import_events("test/data/five_events.js", self.engine)
-		
-		events = self.engine.find_eventids(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularSubjects)
-		self.assertEquals(events, [1, 4, 5, 3])
-	
-	def testResultTypesMostRecentActor(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentActor)
-		self.assertEquals([e.timestamp for e in events], ["119", "114", "105"])
-	
-	def testResultTypesMostRecentActor2(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange(105,107), [], StorageState.Any, 0, ResultType.MostRecentActor)
-		self.assertEquals([e.timestamp for e in events], ["107", "105"])
-	
-	def testResultTypesOldestActorBug641968(self):
-		events = [
-			Event.new_for_values(timestamp=1, actor="boo", subject_uri="tmp/boo"),
-			Event.new_for_values(timestamp=2, actor="boo", subject_uri="home/boo"),
-			Event.new_for_values(timestamp=3, actor="bar", subject_uri="tmp/boo"),
-			Event.new_for_values(timestamp=4, actor="baz", subject_uri="tmp/boo"),
-		]
-		self.engine.insert_events(events)
-		
-		# Get the least recent actors
-		ids = self.engine.find_eventids(TimeRange.always(),
-			[], StorageState.Any, 0, ResultType.OldestActor)
-		self.assertEquals(ids, [1, 3, 4])
-		
-		# Get the least recent actors for "home/boo"
-		template = Event.new_for_values(subject_uri="home/boo")
-		ids = self.engine.find_eventids(TimeRange.always(),
-			[template], StorageState.Any, 0, ResultType.OldestActor)
-		self.assertEquals(ids, [2])
-		
-		# Let's also try the same with MostRecentActor... Although there
-		# should be no problem here.
-		template = Event.new_for_values(subject_uri="home/boo")
-		ids = self.engine.find_eventids(TimeRange.always(),
-			[template], StorageState.Any, 0, ResultType.OldestActor)
-		self.assertEquals(ids, [2])
-	
-	def testResultTypesOldestActor(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(),
-			[Event.new_for_values(subject_manifestation="stfu:File")],
-			StorageState.Any, 0, ResultType.OldestActor)
-		self.assertEquals([e.timestamp for e in events], ["100", "101", "105"])
-
-	def testResultTypesLeastRecentActor(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(),
-			[Event.new_for_values(subject_manifestation="stfu:File")],
-			StorageState.Any, 0, ResultType.LeastRecentActor)
-		self.assertEquals([e.timestamp for e in events], ['105', '114', '119'])
-	
-	def testResultTypesLeastRecentActor2(self):
-		# The same test as before, but this time with fewer events so that
-		# it is actually understandable.
-		events = [
-			Event.new_for_values(timestamp=1, actor="gedit", subject_uri="oldFile"),
-			Event.new_for_values(timestamp=2, actor="banshee", subject_uri="oldMusic"),
-			Event.new_for_values(timestamp=3, actor="banshee", subject_uri="newMusic"),
-			Event.new_for_values(timestamp=4, actor="gedit", subject_uri="newFile"),
-		]
-		self.engine.insert_events(events)
-		
-		events = self.engine.find_events(TimeRange.always(),
-			[], StorageState.Any, 0, ResultType.LeastRecentActor)
-		self.assertEquals([e.timestamp for e in events], ['3', '4'])
-
-	def testResultTypesMostPopularOrigin(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularOrigin)
-		self.assertEquals([e[1][0][3] for e in events], ["file:///tmp", "file:///home",
-			"file:///etc"])
-		self.assertEquals([e.timestamp for e in events], ["116", "118", "119"])
-
-	def testResultTypesLeastPopularOrigin(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularOrigin)
-		self.assertEquals([e[1][0][3] for e in events], ["file:///etc", "file:///home",
-			"file:///tmp"])
-		self.assertEquals([e.timestamp for e in events], ["119", "118", "116"])
-
-	def testResultTypesMostRecentOrigin(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentOrigin)
-		self.assertEquals([e.timestamp for e in events], ["119", "118", "116"])
-
-	def testResultTypesLeastRecentOrigin(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentOrigin)
-		self.assertEquals([e.timestamp for e in events], ["116", "118", "119"])
-		
-	def testResultTypesMostRecentMimetType(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentMimeType)
-		self.assertEquals([e.timestamp for e in events], ['119', '114', '110', '107'])
-		
-	def testResultTypesLeastRecentMimetType(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentMimeType)
-		self.assertEquals([e.timestamp for e in events], ['107', '110', '114', '119'])
-		
-	def testResultTypesMostPopularMimetType(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularMimeType)
-		self.assertEquals([e.timestamp for e in events], ['119', '110', '107', '114'])
-		
-	def testResultTypesLeastPopularMimetType(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularMimeType)
-		self.assertEquals([e.timestamp for e in events], ['114', '107', '110', '119'])
-		
-	def testResultTypesMostRecentSubjectInterpretation(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentSubjectInterpretation)
-		self.assertEquals([e.timestamp for e in events], ['119', '118', '116', '106'])
-		
-	def testResultTypesLeastRecentSubjectInterpretation(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentSubjectInterpretation)
-		self.assertEquals([e.timestamp for e in events], ['106', '116', '118', '119'])
-		
-	def testResultTypesMostPopularSubjectInterpretation(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularSubjectInterpretation)
-		self.assertEquals([e.timestamp for e in events], ['119', '116', '106', '118'])
-		
-	def testResultTypesLeastPopularSubjectInterpretation(self):
-		import_events("test/data/twenty_events.js", self.engine)
-		
-		events = self.engine.find_events(
-			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularSubjectInterpretation)
-		self.assertEquals([e.timestamp for e in events], ['118', '106', '116', '119'])
-
-	def testRelatedForEventsSortRelevancy(self):
-		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related_uris(
-			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
-			StorageState.Any, 2, 0)
-		self.assertEquals(result, ["i1", "i3"])
-		
-	def testRelatedForResultTemplateSortRelevancy(self):
-		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related_uris(
-			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")],
-			[Event.new_for_values(subject_uri = "i1")],
-			StorageState.Any, 2, 0)
-		self.assertEquals(result, ["i1"])
-		
-	def testRelatedForNoneSortRelevancy(self):
-		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related_uris(
-			TimeRange.always(), [], [],
-			StorageState.Any, 2, 0)
-		self.assertEquals(result, [])
-		
-	def testRelatedForActorSortRelevancy(self):
-		import_events("test/data/apriori_events.js", self.engine)
-		event = Event()
-		event.set_actor("firefox")
-		result = self.engine.find_related_uris(
-			TimeRange.always(), [event], [],
-			StorageState.Any, 2, 0)
-		logging.debug("************* %s" %result)
-		self.assertEquals(result, [])
-	
-	def testRelatedForEventsSortRecency(self):
-		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related_uris(
-			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
-			StorageState.Any, 2, 1)
-		self.assertEquals(result, ["i3", "i1",])
-	
-	def testRelatedForEventsWithManifestation(self):
-		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related_uris(TimeRange.always(),
-			[Event.new_for_values(subject_uri = "i4")],
-			[Event.new_for_values(subject_manifestation="stfu:File")],
-			StorageState.Any,
-			10, 0)
-		self.assertEquals(result, ["i1", "i3", "i5"])
-
-	
-	def testRelatedForMultipleEvents(self):
-		import_events("test/data/apriori_events.js", self.engine)
-		result = self.engine.find_related_uris(
-			TimeRange.always(), [Event.new_for_values(subject_uri = "i1"),
-				Event.new_for_values(subject_uri = "i4")], [],
-			StorageState.Any, 2, 0),
-		self.assertEquals(result, (["i2", "i3", ],))
+		self.assertEquals(len(result), 1)
 	
 	def testEventWithBinaryPayload(self):
 		ev = Event()
@@ -1110,6 +813,309 @@ class ZeitgeistEngineTest(_engineTestClass):
 			).fetchall()
 		)
 		self.assertEquals(len(cursor.execute(*stm).fetchall()), 1)
+		
+		
+class FindRelatedUrisTest(_engineTestClass):
+	
+	def testRelatedForEventsSortRelevancy(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
+			StorageState.Any, 2, 0)
+		self.assertEquals(result, ["i1", "i3"])
+		
+	def testRelatedForResultTemplateSortRelevancy(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")],
+			[Event.new_for_values(subject_uri = "i1")],
+			StorageState.Any, 2, 0)
+		self.assertEquals(result, ["i1"])
+		
+	def testRelatedForNoneSortRelevancy(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [], [],
+			StorageState.Any, 2, 0)
+		self.assertEquals(result, [])
+		
+	def testRelatedForActorSortRelevancy(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		event = Event()
+		event.set_actor("firefox")
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [event], [],
+			StorageState.Any, 2, 0)
+		logging.debug("************* %s" %result)
+		self.assertEquals(result, [])
+	
+	def testRelatedForEventsSortRecency(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i2")], [],
+			StorageState.Any, 2, 1)
+		self.assertEquals(result, ["i3", "i1",])
+	
+	def testRelatedForEventsWithManifestation(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(TimeRange.always(),
+			[Event.new_for_values(subject_uri = "i4")],
+			[Event.new_for_values(subject_manifestation="stfu:File")],
+			StorageState.Any,
+			10, 0)
+		self.assertEquals(result, ["i1", "i3", "i5"])
 
+	
+	def testRelatedForMultipleEvents(self):
+		import_events("test/data/apriori_events.js", self.engine)
+		result = self.engine.find_related_uris(
+			TimeRange.always(), [Event.new_for_values(subject_uri = "i1"),
+				Event.new_for_values(subject_uri = "i4")], [],
+			StorageState.Any, 2, 0),
+		self.assertEquals(result, (["i2", "i3", ],))
+		
+
+class ResultTypeTest(_engineTestClass):
+	
+	def testResultTypesMostRecentEvents(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		# MostRecentEvents - new -> old
+		ids = self.engine.find_eventids(
+			TimeRange.always(), [], StorageState.Any, 0,
+			ResultType.MostRecentEvents)
+		events = self.engine.get_events(ids)
+		sorted_event_ids = [
+			event.id for event in sorted(
+				events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)), reverse=True
+			)
+		]
+		self.assertEquals(ids, sorted_event_ids)
+		
+	def testResultTypesLeastRecentEvents(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		# LeastRecentEvents - old -> new
+		ids = self.engine.find_eventids(
+			TimeRange.always(), [], StorageState.Any, 0,
+			ResultType.LeastRecentEvents)
+		events = self.engine.get_events(ids)
+		sorted_event_ids = [
+			event.id for event in sorted(events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
+		]
+		self.assertEquals(ids, sorted_event_ids)
+	
+	def testResultTypesMostPopularActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularActor)
+		self.assertEquals([e[0][4] for e in events], ["firefox", "icedove",
+			"frobnicator"])
+		self.assertEquals([e.timestamp for e in events], ["119", "114", "105"])
+	
+	def testResultTypesMostPopularActor2(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange(105,107), [], StorageState.Any, 0, ResultType.MostPopularActor)
+		self.assertEquals(len(events), 2)
+		self.assertEquals([e[0][4] for e in events], ["firefox", "frobnicator"])
+		self.assertEquals([e.timestamp for e in events], ["107", "105"])
+
+	def testResultTypesLeastPopularActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularActor)
+		self.assertEquals([e[0][4] for e in events], ["frobnicator", "icedove",
+			"firefox"])
+		self.assertEquals([e.timestamp for e in events], ["105", "114", "119"])
+
+	def testResultTypesLeastPopularActor2(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange(105,107), [], StorageState.Any, 0, ResultType.LeastPopularActor)
+		self.assertEquals(len(events), 2)
+		self.assertEquals([e[0][4] for e in events], ["frobnicator", "firefox"])
+		self.assertEquals([e.timestamp for e in events], ["105", "107"])
+
+	def testResultTypesMostPopularSubject(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		events = self.engine.find_eventids(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularSubjects)
+		self.assertEquals(events, [3, 5, 4, 1])
+	
+	def testResultTypesLeastPopularSubject(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		events = self.engine.find_eventids(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularSubjects)
+		self.assertEquals(events, [1, 4, 5, 3])
+	
+	def testResultTypesMostRecentActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentActor)
+		self.assertEquals([e.timestamp for e in events], ["119", "114", "105"])
+	
+	def testResultTypesMostRecentActor2(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange(105,107), [], StorageState.Any, 0, ResultType.MostRecentActor)
+		self.assertEquals([e.timestamp for e in events], ["107", "105"])
+	
+	def testResultTypesOldestActorBug641968(self):
+		events = [
+			Event.new_for_values(timestamp=1, actor="boo", subject_uri="tmp/boo"),
+			Event.new_for_values(timestamp=2, actor="boo", subject_uri="home/boo"),
+			Event.new_for_values(timestamp=3, actor="bar", subject_uri="tmp/boo"),
+			Event.new_for_values(timestamp=4, actor="baz", subject_uri="tmp/boo"),
+		]
+		self.engine.insert_events(events)
+		
+		# Get the least recent actors
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[], StorageState.Any, 0, ResultType.OldestActor)
+		self.assertEquals(ids, [1, 3, 4])
+		
+		# Get the least recent actors for "home/boo"
+		template = Event.new_for_values(subject_uri="home/boo")
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template], StorageState.Any, 0, ResultType.OldestActor)
+		self.assertEquals(ids, [2])
+		
+		# Let's also try the same with MostRecentActor... Although there
+		# should be no problem here.
+		template = Event.new_for_values(subject_uri="home/boo")
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template], StorageState.Any, 0, ResultType.OldestActor)
+		self.assertEquals(ids, [2])
+	
+	def testResultTypesOldestActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(),
+			[Event.new_for_values(subject_manifestation="stfu:File")],
+			StorageState.Any, 0, ResultType.OldestActor)
+		self.assertEquals([e.timestamp for e in events], ["100", "101", "105"])
+
+	def testResultTypesLeastRecentActor(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(),
+			[Event.new_for_values(subject_manifestation="stfu:File")],
+			StorageState.Any, 0, ResultType.LeastRecentActor)
+		self.assertEquals([e.timestamp for e in events], ['105', '114', '119'])
+	
+	def testResultTypesLeastRecentActor2(self):
+		# The same test as before, but this time with fewer events so that
+		# it is actually understandable.
+		events = [
+			Event.new_for_values(timestamp=1, actor="gedit", subject_uri="oldFile"),
+			Event.new_for_values(timestamp=2, actor="banshee", subject_uri="oldMusic"),
+			Event.new_for_values(timestamp=3, actor="banshee", subject_uri="newMusic"),
+			Event.new_for_values(timestamp=4, actor="gedit", subject_uri="newFile"),
+		]
+		self.engine.insert_events(events)
+		
+		events = self.engine.find_events(TimeRange.always(),
+			[], StorageState.Any, 0, ResultType.LeastRecentActor)
+		self.assertEquals([e.timestamp for e in events], ['3', '4'])
+
+	def testResultTypesMostPopularOrigin(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularOrigin)
+		self.assertEquals([e[1][0][3] for e in events], ["file:///tmp", "file:///home",
+			"file:///etc"])
+		self.assertEquals([e.timestamp for e in events], ["116", "118", "119"])
+
+	def testResultTypesLeastPopularOrigin(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularOrigin)
+		self.assertEquals([e[1][0][3] for e in events], ["file:///etc", "file:///home",
+			"file:///tmp"])
+		self.assertEquals([e.timestamp for e in events], ["119", "118", "116"])
+
+	def testResultTypesMostRecentOrigin(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentOrigin)
+		self.assertEquals([e.timestamp for e in events], ["119", "118", "116"])
+
+	def testResultTypesLeastRecentOrigin(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentOrigin)
+		self.assertEquals([e.timestamp for e in events], ["116", "118", "119"])
+		
+	def testResultTypesMostRecentMimetType(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentMimeType)
+		self.assertEquals([e.timestamp for e in events], ['119', '114', '110', '107'])
+		
+	def testResultTypesLeastRecentMimetType(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentMimeType)
+		self.assertEquals([e.timestamp for e in events], ['107', '110', '114', '119'])
+		
+	def testResultTypesMostPopularMimetType(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularMimeType)
+		self.assertEquals([e.timestamp for e in events], ['119', '110', '107', '114'])
+		
+	def testResultTypesLeastPopularMimetType(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularMimeType)
+		self.assertEquals([e.timestamp for e in events], ['114', '107', '110', '119'])
+		
+	def testResultTypesMostRecentSubjectInterpretation(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentSubjectInterpretation)
+		self.assertEquals([e.timestamp for e in events], ['119', '118', '116', '106'])
+		
+	def testResultTypesLeastRecentSubjectInterpretation(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentSubjectInterpretation)
+		self.assertEquals([e.timestamp for e in events], ['106', '116', '118', '119'])
+		
+	def testResultTypesMostPopularSubjectInterpretation(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularSubjectInterpretation)
+		self.assertEquals([e.timestamp for e in events], ['119', '116', '106', '118'])
+		
+	def testResultTypesLeastPopularSubjectInterpretation(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularSubjectInterpretation)
+		self.assertEquals([e.timestamp for e in events], ['118', '106', '116', '119'])
+	
 if __name__ == "__main__":
 	unittest.main()
