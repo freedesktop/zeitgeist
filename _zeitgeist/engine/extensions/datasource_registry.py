@@ -30,7 +30,6 @@ from _zeitgeist.engine.datamodel import Event, DataSource as OrigDataSource
 from _zeitgeist.engine.extension import Extension
 from _zeitgeist.engine import constants
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.datasource_registry")
 
 DATA_FILE = os.path.join(constants.DATA_PATH, "datasources.pickle")

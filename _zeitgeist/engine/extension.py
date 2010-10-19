@@ -22,7 +22,6 @@ import os
 import logging
 import weakref # avoid circular references as they confuse garbage collection
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.extension")
 
 import zeitgeist
