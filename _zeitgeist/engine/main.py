@@ -25,8 +25,6 @@ import time
 import sys
 import os
 import logging
-import operator
-from itertools import islice
 from collections import defaultdict
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
@@ -36,8 +34,6 @@ from _zeitgeist.engine.extension import ExtensionsCollection, get_extensions
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 	TableLookup, WhereClause
-	
-WINDOW_SIZE = 7
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
@@ -325,7 +321,6 @@ class ZeitgeistEngine:
 		Return modes:
 		 - 0: IDs.
 		 - 1: Events.
-		 - 2: (Timestamp, SubjectUri)
 		"""
 		t = time.time()
 		
@@ -339,8 +334,6 @@ class ZeitgeistEngine:
 			sql = "SELECT DISTINCT id FROM event_view"
 		elif return_mode == 1:
 			sql = "SELECT id FROM event_view"
-		elif return_mode == 2:
-			sql = "SELECT subj_uri, timestamp FROM event_view"
 		else:
 			raise NotImplementedError, "Unsupported return_mode."
 		
@@ -388,10 +381,7 @@ class ZeitgeistEngine:
 			result = [row[0] for row in result]
 		elif return_mode == 1:
 			log.debug("Found %d events IDs in %fs" % (len(result), time.time()- t))
-			result = self.get_events(ids=[row[0] for row in result], sender=sender)			
-		elif return_mode == 2:
-			log.debug("Found %d (uri,timestamp) tuples in %fs" % (len(result), time.time()- t))
-			result = map(lambda row: (row[0], row[1]), result)			
+			result = self.get_events(ids=[row[0] for row in result], sender=sender)	
 		else:
 			raise Exception("%d" % return_mode)
 		
@@ -402,12 +392,6 @@ class ZeitgeistEngine:
 	
 	def find_events(self, *args):
 		return self._find_events(1, *args)
-	
-	def __add_window(self, _set, assoc, landmarks, windows):
-		if _set & landmarks: # intersection != 0
-			windows.append(_set)
-			for i in _set.difference(landmarks):
-				assoc[i] += 1
 	
 	def find_related_uris(self, timerange, event_templates, result_event_templates,
 		result_storage_state, num_results, result_type):
@@ -420,81 +404,57 @@ class ZeitgeistEngine:
 		and `result_storage_state` are returned.
 		"""
 		
-		if result_type == 0 or result_type == 1:
-			
+		if result_type in (0, 1):
+			# Instead of using sliding windows we will be using a graph representation
+
 			t1 = time.time()
 			
-			if len(result_event_templates) == 0:
-				uris = self._find_events(2, timerange, result_event_templates,
-					result_storage_state, 0, ResultType.LeastRecentEvents)
-			else:
-				uris = self._find_events(2, timerange, result_event_templates + event_templates,
+			# We pick out the ids for relational event so we can set them as roots
+			# the ids are taken from the events that match the events_templates
+			ids = self._find_events(0, timerange, event_templates,
 					result_storage_state, 0, ResultType.LeastRecentEvents)
 			
-			assoc = defaultdict(int)
+			# Pick out the result_ids for the filtered results we would like to take into account
+			# the ids are taken from the events that match the result_event_templates
+			# if no result_event_templates are set we consider all results as allowed
+			result_ids = []
+			if len(result_event_templates) > 0:
+				result_ids = self._find_events(0, timerange, result_event_templates,
+						result_storage_state, 0, ResultType.LeastRecentEvents)
 			
-			landmarks = self._find_events(2, timerange, event_templates,
-					result_storage_state, 0, 4)
-			landmarks = set([unicode(event[0]) for event in landmarks])
+			# From here we create several graphs with the maximum depth of 2
+			# and push all the nodes and vertices (events) in one pot together
+			# FIXME: the depth should be adaptable 
+			pot = []
+			for id in ids:
+				for x in xrange(id-2,id+3):
+					if len(result_ids) == 0 or x in result_ids:
+						pot.append(x)
 			
-			latest_uris = dict(uris)
-			events = [unicode(u[0]) for u in uris]
-
-			furis = filter(lambda x: x[0] in landmarks, uris)
-			if len(furis) == 0:
-				return []
+			# Out of the pot we get all respected events and count which uris occur most
+			rows = self._cursor.execute("""
+				SELECT id, timestamp, subj_uri FROM event_view
+				WHERE id IN (%s)
+				""" % ",".join("%d" % id for id in pot)).fetchall()
 			
-			_min = min(furis, key=operator.itemgetter(1))
-			_max = max(furis, key=operator.itemgetter(1))
-			min_index = uris.index(_min) - WINDOW_SIZE
-			max_index = uris.index(_max) + WINDOW_SIZE
-			_min = _min[1]
-			_max = _max[1]
-			
-			if min_index < 0:
-				min_index = 0
-			if max_index > len(events):
-				max_index = -1
-				
-			func = self.__add_window
-			
-			if len(events) == 0 or len(landmarks) == 0:
-				return []
-			
-			windows = []
-	
-			if len(events) <= WINDOW_SIZE:
-				#TODO bug! windows is not defined, seems the algorithm never touches these loop
-				func(events, assoc, landmarks, windows)
-			else:
-				events = events[min_index:max_index]
-				offset = WINDOW_SIZE/2
-				
-				for i in xrange(offset):
-					func(set(events[0: offset - i]), assoc, landmarks, 
-						windows)
-					func(set(events[len(events) - offset + i: len(events)]),
-						assoc, landmarks, windows)
-					
-				it = iter(events)
-				result = tuple(islice(it, WINDOW_SIZE))
-				for elem in it:
-					result = result[1:] + (elem,)
-					func(set(result), assoc, landmarks, windows)
-					
-				
-			log.debug("FindRelatedUris: Finished sliding windows in %fs." % \
+			subject_uri_counter = defaultdict(int)
+			latest_uris = defaultdict(int)
+			for id, timestamp, uri in rows:
+				if id not in ids:
+					subject_uri_counter[uri] += 1
+					if latest_uris[uri] < timestamp:
+						latest_uris[uri] = timestamp
+							
+			log.debug("FindRelatedUris: Finished ranking subjects %fs." % \
 				(time.time()-t1))
 			
 			if result_type == 0:
-				sets = [[v, k] for k, v in assoc.iteritems()]
+				sets = subject_uri_counter.iteritems()
 			elif result_type == 1:
-				sets = [[latest_uris[k], k] for k in assoc]
+				sets = ((k, latest_uris[k]) for k in subject_uri_counter)
 				
-			sets.sort(reverse = True)
-			sets = map(lambda result: result[1], sets[:num_results])
-			
-			return sets
+			sets = sorted(sets, reverse=True, key=lambda x: x[1])[:num_results]
+			return map(lambda result: result[0], sets)
 		else:
 			raise NotImplementedError, "Unsupported ResultType."
 			
