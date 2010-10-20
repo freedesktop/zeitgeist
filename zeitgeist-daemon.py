@@ -132,7 +132,6 @@ if __name__ == "__main__":
 	
 	logging.basicConfig(level=getattr(logging, _config.options.log_level))
 	
-	logging.info("Setup RemoteInterface")
 	try:
 		mainloop, interface = setup_interface()
 	except RuntimeError, e:
@@ -143,7 +142,6 @@ if __name__ == "__main__":
 		logging.info("Trying to start the datahub")
 		start_datahub()
 	
-	logging.info("Connect to SIGHUB signal")
 	signal.signal(signal.SIGHUP, setup_handle_sighup(interface))
 	
 	logging.info("Starting Zeitgeist service...")
