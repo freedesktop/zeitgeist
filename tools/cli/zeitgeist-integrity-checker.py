@@ -25,6 +25,7 @@ from _zeitgeist.engine.sql import get_default_cursor
 
 cursor = get_default_cursor()
 
+# Get all ids from all tables
 uris = [id[0] for id in cursor.execute("SELECT id FROM uri").fetchall()]
 interpretations = [id[0] for id in cursor.execute("SELECT id FROM interpretation").fetchall()]
 manifestations = [id[0] for id in cursor.execute("SELECT id FROM manifestation").fetchall()]
@@ -35,6 +36,7 @@ storages = [id[0] for id in cursor.execute("SELECT id FROM storage").fetchall()]
 payloads = [id[0] for id in cursor.execute("SELECT id FROM payload").fetchall()]
 events = [event for event in cursor.execute("SELECT * FROM event").fetchall()]
 
+# Create an empty "failure list" for each event field except for timestamp and event.id
 f_interpretations = []
 f_manifestations = []
 f_actors = []
@@ -47,6 +49,8 @@ f_mimetypes = []
 f_texts = []
 f_storages = []
 
+# Check if each event field if they exist in the respected ids table
+# if not add to the respected "failure list"
 for event in events:
     if not event[2] in interpretations and event[2]:
         f_interpretations.append(event[2])
