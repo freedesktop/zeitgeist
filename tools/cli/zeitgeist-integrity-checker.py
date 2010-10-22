@@ -36,53 +36,28 @@ storages = [id[0] for id in cursor.execute("SELECT id FROM storage").fetchall()]
 payloads = [id[0] for id in cursor.execute("SELECT id FROM payload").fetchall()]
 events = [event for event in cursor.execute("SELECT * FROM event").fetchall()]
 
-# Create an empty "failure list" for each event field except for timestamp and event.id
-f_interpretations = []
-f_manifestations = []
-f_actors = []
-f_payloads = []
-f_uris = []
-f_origin = []
-f_subject_interpretations = []
-f_subject_manifestations = []
-f_mimetypes = []
-f_texts = []
-f_storages = []
-
 # Check if each event field if they exist in the respected ids table
 # if not add to the respected "failure list"
 for event in events:
     if not event[2] in interpretations and event[2]:
-        f_interpretations.append(event[2])
+        print "event %i: broken interpretation %s" %(event[0], event[2])
     if not event[3] in manifestations and event[3]:
-        f_manifestations.append(event[3])
+        print "event %i: broken manifestations %s" %(event[0], event[3])
     if not event[4] in actors and event[4]:
-        f_actors.append(event[4])
+        print "event %i: broken actor %s" %(event[0], event[4])
     if not event[5] in payloads and event[5]:
-        f_payloads.append(event[5])
+        print "event %i: broken payload %s" %(event[0], event[5])
     if not event[6] in uris and event[6]:
-        f_uris.append(event[6])
+        print "event %i: broken subj_id %s" %(event[0], event[6])
     if not event[7] in interpretations and events[7]:
-        f_subject_interpretations.append(event[7])
+        print "event %i: broken subj_interpretation %s" %(event[0], event[7])
     if not event[8] in manifestations and event[8]:
-        f_subject_manifestations.append(event[8])
+        print "event %i: broken subj_manifestations %s" %(event[0], event[8])
     if not event[9] in uris and event[9]:
-        f_origin.append(event[9])
+        print "event %i: broken subj_origin %s" %(event[0], event[9])
     if not event[10] in mimetypes and event[10]:
-        f_mimetypes.append(event[10])
+        print "event %i: broken subj_mimetype. %s" %(event[0], event[10])
     if not event[11] in texts and event[11]:
-        f_texts.append(event[11])
+        print "event %i: broken subj_text %s" %(event[0], event[11])
     if not event[12] in storages and event[12]:
-        f_storages.append(event[12])
-
-print "broken event interpretation ", list(set(f_interpretations))
-print "broken event_manifestation ", list(set(f_manifestations))
-print "broken event actors ", list(set(f_actors))
-print "broken event payloads ", list(set(f_payloads))
-print "broken subject uris ", list(set(f_uris))
-print "broken subject interpretations ", list(set(f_subject_interpretations))
-print "broken subject manifestations ", list(set(f_subject_manifestations))
-print "broken subject origin ", list(set(f_origin))
-print "broken subject mimetypes ", list(set(f_mimetypes))
-print "broken subject texts ", list(set(f_texts))
-print "broken subject storages ", list(set(f_storages))
+        print "event %i: broken subj_storage %s" %(event[0], event[12])
