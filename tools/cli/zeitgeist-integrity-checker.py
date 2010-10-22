@@ -86,12 +86,3 @@ print "broken subject origin ", list(set(f_origin))
 print "broken subject mimetypes ", list(set(f_mimetypes))
 print "broken subject texts ", list(set(f_texts))
 print "broken subject storages ", list(set(f_storages))
-
-
-
-
-
-
-
-
-
