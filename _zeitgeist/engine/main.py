@@ -518,6 +518,12 @@ class ZeitgeistEngine:
 			self._cursor.execute("INSERT OR IGNORE INTO storage (value) %s"
 				% " UNION ".join(["SELECT ?"] * len(_storage)), _storage)
 		
+		# Make sure all subject interpretations are inserted
+		_interpretation = [subject.interpretation for subject in event.subjects if subject.interpretation]
+		if _interpretation:
+			self._cursor.execute("INSERT OR IGNORE INTO interpretation (value) %s"
+				% " UNION ".join(["SELECT ?"] * len(_interpretation)), _interpretation)
+		
 		try:
 			for subject in event.subjects:	
 				self._cursor.execute("""
