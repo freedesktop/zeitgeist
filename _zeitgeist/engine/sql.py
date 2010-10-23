@@ -95,7 +95,7 @@ def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 	Try and upgrade schema `schema_name` from version `old_version` to
 	`new_version`. This is done by executing a series of upgrade modules
 	named '_zeitgeist.engine.upgrades.$schema_name_$(i)_$(i+1)' and executing 
-	the run(cursor) method of that module until new_version is reached
+	the run(cursor) method of those modules until new_version is reached
 	"""
 	for i in xrange(old_version, new_version):
 		# Fire of the right upgrade module
@@ -106,7 +106,7 @@ def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 		eval("module.engine.upgrades.%s.run(cursor)" % upgrader_name)
 		
 		# Update the schema version
-		_set_schema_version(cursor, schema_name, new_version)
+		_set_schema_version(cursor, schema_name, i+1)
 	log.info("Upgrade succesful")
 
 def _check_core_schema_upgrade (cursor):
