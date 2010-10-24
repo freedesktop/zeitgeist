@@ -80,6 +80,10 @@ parser.add_option(
 	"--shell-completion",
 	action = "store_true", default=False, dest = "shell_completion",
 	help = optparse.SUPPRESS_HELP)
+parser.add_option(
+	"--log-file",
+	action = "store", default = LOG_PATH, dest = "log_file",
+	help = _("Specifies where the log file is saved"))
 
 (_config.options, _config.arguments) = parser.parse_args()
 
@@ -90,15 +94,14 @@ if _config.options.shell_completion:
 	print ' '.join(options)
 	sys.exit(0)
 
-FILENAME = os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist",
-					"daemon.log")
-try:
-	os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
-except OSError:
-	pass # directory is already there
-if os.path.exists(FILENAME):
-	os.rename(FILENAME, FILENAME + "-old")
-logging.basicConfig(filename=FILENAME, level=getattr(logging, _config.options.log_level))
+if _config.options.log_file == LOG_PATH:
+	try:
+		os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
+	except OSError:
+		pass # directory is already there
+	if os.path.exists(LOG_PATH):
+		os.rename(LOG_PATH, LOG_PATH + "-old")
+logging.basicConfig(filename=_config.options.log_file, level=getattr(logging, _config.options.log_level))
 
 # Make sure we can load user extensions, and that they take priority over
 # system level extensions
