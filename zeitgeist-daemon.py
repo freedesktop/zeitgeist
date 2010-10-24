@@ -28,15 +28,12 @@ import optparse
 import signal
 from copy import copy
 from subprocess import Popen, PIPE
+from datetime import datetime
+from xdg import BaseDirectory
 
 # Make sure we can find the private _zeitgeist namespace
 from zeitgeist import _config
 _config.setup_path()
-
-# Make sure we can load user extensions, and that they take priority over
-# system level extensions
-from _zeitgeist.engine import constants
-sys.path.insert(0, constants.USER_EXTENSION_PATH)
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 DATAHUB = "zeitgeist-datahub"
@@ -93,7 +90,21 @@ if _config.options.shell_completion:
 	print ' '.join(options)
 	sys.exit(0)
 
-logging.basicConfig(level=getattr(logging, _config.options.log_level))
+FILENAME = os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist",
+					"daemon.log")
+try:
+	os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
+except OSError:
+	pass # directory is already there
+if os.path.exists(FILENAME):
+	os.rename(FILENAME, FILENAME + "-old")
+logging.basicConfig(filename=FILENAME, level=getattr(logging, _config.options.log_level))
+
+# Make sure we can load user extensions, and that they take priority over
+# system level extensions
+# FIXME: find why sys.path.insert causes logging into a file to fail
+from _zeitgeist.engine import constants
+sys.path.insert(0, constants.USER_EXTENSION_PATH)
 
 from _zeitgeist.engine.remote import RemoteInterface
 
