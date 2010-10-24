@@ -28,12 +28,13 @@ import optparse
 import signal
 from copy import copy
 from subprocess import Popen, PIPE
-from datetime import datetime
 from xdg import BaseDirectory
 
 # Make sure we can find the private _zeitgeist namespace
 from zeitgeist import _config
 _config.setup_path()
+
+LOG_PATH = os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist", "daemon.log")
 
 gettext.install("zeitgeist", _config.localedir, unicode=1)
 DATAHUB = "zeitgeist-datahub"
