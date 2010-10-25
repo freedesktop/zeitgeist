@@ -37,7 +37,6 @@ from zeitgeist.datamodel import (Event, Subject, TimeRange, StorageState,
 
 SIG_EVENT = "asaasay"
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.client")
 
 class _DBusInterface(object):
