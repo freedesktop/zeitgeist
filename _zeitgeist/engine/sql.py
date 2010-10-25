@@ -114,7 +114,7 @@ def _check_core_schema_upgrade (cursor):
 	# See if we have the right schema version, and try an upgrade if needed
 	core_schema_version = _get_schema_version(cursor, constants.CORE_SCHEMA)
 	if core_schema_version is not None:
-		if core_schema_version == constants.CORE_SCHEMA_VERSION:
+		if core_schema_version >= constants.CORE_SCHEMA_VERSION:
 			return True
 		else:
 			try:
