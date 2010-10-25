@@ -27,7 +27,6 @@ import os
 
 from _zeitgeist.engine import constants
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.sql")
 
 TABLE_MAP = {
