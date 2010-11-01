@@ -22,7 +22,6 @@ import logging
 
 from zeitgeist.datamodel import TimeRange
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.notify")
 
 class _MonitorProxy (dbus.Interface):

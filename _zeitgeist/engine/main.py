@@ -35,7 +35,6 @@ from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 	TableLookup, WhereClause
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
 class NegationNotSupported(ValueError):

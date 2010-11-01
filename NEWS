@@ -1,3 +1,45 @@
+2010-11-01: Zeitgeist 0.6 "Buzzer Beater"
+-----------------------------------------
+
+Engine:
+
+ - Added 'zeitgeist-integrity-checker.py' tool to check the integrity
+   of an activity log.
+ - optimization of ZeitgeistEngine.find_related_uris() by using a different
+   algorithm.
+ - Improved database updates (LP: #643303, #665607)
+   The updates scripts can now handle versions jumps (e.g from core_n
+   to core_n+4). Database downgrades are also possible if schema version
+   are backward-compatible.
+ - If FindEvents-queries are run over the complete TimeRange intervall don't
+   add timestamp conditions to the SQL statement (LP: #650930)
+ - Improved speed of prefix-search queries by always using the index (LP: #641198)
+   
+Python API:
+
+ - Added a bunch of new result types: MostPopularSubjectInterpretation,
+   MostRecentSubjectInterpretation, LeastPopularSubjectInterpretation,
+   LeastRecentSubjectInterpretation, MostPopularMimetype, LeastPopularMimetype,
+   MostRecentMimetype and LeastRecentMimetype. Please see the API
+   documentation for further details (LP: #655164)
+   
+Daemon:
+
+ - Code-Improvements to zeitgeist-daemon (LP: #660415).
+ - fixed `--log-level` option of zeitgeist-daemon, library code does
+   not set the log level anymore, the application using the python
+   library has to take care of it.
+
+Overall:
+ - 'zeitgeist-datahub' is not part of the zeitgeist project anymore, please
+   use the new datahub implementation written my Michal Hruby as a
+   replacement [0] (LP: #630593).
+ - Updates to the test suite.
+ - Translation updates (added Asturian and Slovenian, various updates).
+ - Added `make run` target to the rootlevel Makefile (LP: #660423)
+ 
+[0] https://launchpad.net/zeitgeist-datahub
+
 2010-09-26: Zeitgeist 0.5.2 "Snowball Effect"
 ---------------------------------------------
 

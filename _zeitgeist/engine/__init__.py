@@ -31,7 +31,6 @@ __all__ = [
 	"constants"
 ]
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.engine")
 
 _engine = None
