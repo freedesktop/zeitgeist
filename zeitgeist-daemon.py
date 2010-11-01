@@ -25,10 +25,12 @@ import gobject
 import dbus.mainloop.glib
 import gettext
 import logging
+import logging.handlers
 import optparse
 import signal
 from subprocess import Popen, PIPE
 from xdg import BaseDirectory
+from time import time
 
 # Make sure we can find the private _zeitgeist namespace
 from zeitgeist import _config
@@ -38,8 +40,6 @@ _config.setup_path()
 # system level extensions
 from _zeitgeist.engine import constants
 sys.path.insert(0, constants.USER_EXTENSION_PATH)
-
-LOG_PATH = os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist", "daemon.log")
 
 gettext.install("zeitgeist", _config.localedir, unicode=True)
 
@@ -88,7 +88,7 @@ def parse_commandline():
 		help=optparse.SUPPRESS_HELP)
 	parser.add_option(
         "--log-file",
-        action = "store", default = LOG_PATH, dest = "log_file",
+        action = "store", default = constants.DEFAULT_LOG_PATH, dest = "log_file",
         help = _("Specifies where the log file is saved"))
 	return parser
 
@@ -137,14 +137,32 @@ if __name__ == "__main__":
 	if _config.options.shell_completion:
 		sys.exit(do_shell_completion(parser))
 	
-	if _config.options.log_file == LOG_PATH:
+	"""if _config.options.log_file == constants.DEFAULT_LOG_PATH:
 		try:
 			os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
 		except OSError:
 			pass # directory is already there
-		if os.path.exists(LOG_PATH):
-			os.rename(LOG_PATH, LOG_PATH + "-old")
-	logging.basicConfig(filename=_config.options.log_file, level=getattr(logging, _config.options.log_level))
+		if os.path.exists(constants.DEFAULT_LOG_PATH):
+			os.rename(constants.DEFAULT_LOG_PATH, constants.DEFAULT_LOG_PATH + "-old")
+	logging.basicConfig(filename=_config.options.log_file, level=getattr(logging, _config.options.log_level))"""
+	
+	logger = logging.getLogger()
+	logger.setLevel(getattr(logging, _config.options.log_level))
+	formatter = logging.Formatter("%(asctime)s %(levelname)s:%(name)s:%(message)s")
+	
+	stream_handler = logging.StreamHandler()
+	stream_handler.setFormatter(formatter)
+	logger.addHandler(stream_handler)
+	
+	if _config.options.log_file == constants.DEFAULT_LOG_PATH and \
+	not os.path.exists(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist")):
+		os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
+	try:
+		file_handler = logging.handlers.TimedRotatingFileHandler(_config.options.log_file, when='midnight', backupCount=3)
+		file_handler.setFormatter(formatter)
+		logger.addHandler(file_handler)
+	except IOError:
+		logging.warning("Can't log to specified file")
 	
 	try:
 		mainloop, interface = setup_interface()
