@@ -1,4 +1,4 @@
-# Indonesian translation for zeitgeist
+# Slovenian translation for zeitgeist
 # Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the zeitgeist package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-09-24 17:09+0000\n"
-"PO-Revision-Date: 2010-09-24 07:16+0000\n"
-"Last-Translator: tri m s <makan.aja@gmail.com>\n"
-"Language-Team: Indonesian <id@li.org>\n"
+"POT-Creation-Date: 2010-09-29 09:59+0000\n"
+"PO-Revision-Date: 2010-10-07 14:32+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Slovenian <sl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-25 05:22+0000\n"
+"X-Launchpad-Export-Date: 2010-10-08 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../zeitgeist-daemon.py:62 ../zeitgeist-daemon.py:75
@@ -36,7 +36,7 @@ msgstr ""
 
 #: ../zeitgeist-daemon.py:120
 msgid "Starting Zeitgeist service..."
-msgstr "Memulai layanan Zeitgeist..."
+msgstr ""
 
 #: ../zeitgeist-datahub.py:62
 msgid "No passive loggers found, bye."
@@ -45,7 +45,7 @@ msgstr ""
 #: ../zeitgeist-datahub.py:82
 #, python-format
 msgid "Could not load file: %s"
-msgstr "Tidak dapat memuat berkas: %s"
+msgstr ""
 
 #: ../zeitgeist-datahub.py:105
 #, python-format
