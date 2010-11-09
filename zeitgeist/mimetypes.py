@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2010 Markus Korn <thekorn@gmx.de>
+#             2010 Canonical Ltd
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -123,7 +124,6 @@ MIMES = {
     "application/javascript": Interpretation.SOURCE_CODE,
     "application/x-csh": Interpretation.SOURCE_CODE,
     "application/x-designer": Interpretation.SOURCE_CODE,
-    "application/x-desktop": Interpretation.SOURCE_CODE,
     "application/x-dia-diagram": Interpretation.SOURCE_CODE,
     "application/x-fluid": Interpretation.SOURCE_CODE,
     "application/x-glade": Interpretation.SOURCE_CODE,
@@ -167,6 +167,28 @@ MIMES = {
     "text/x-vala": Interpretation.SOURCE_CODE,
     "text/x-vhdl": Interpretation.SOURCE_CODE,
     "text/x-m4": Interpretation.SOURCE_CODE,
+    
+    # Archives
+    "application/zip": Interpretation.ARCHIVE,
+    "application/x-gzip": Interpretation.ARCHIVE,
+    "application/x-bzip": Interpretation.ARCHIVE,
+    "application/x-lzma": Interpretation.ARCHIVE,
+    "application/x-archive": Interpretation.ARCHIVE,
+    "application/x-7z-compressed": Interpretation.ARCHIVE,
+    "application/x-bzip-compressed-tar": Interpretation.ARCHIVE,
+    "application/x-lzma-compressed-tar": Interpretation.ARCHIVE,
+    "application/x-compressed-tar": Interpretation.ARCHIVE,
+    
+    # Software and packages
+    "application/x-deb": Interpretation.SOFTWARE,
+    "application/x-rpm": Interpretation.SOFTWARE,
+    "application/x-ms-dos-executable": Interpretation.SOFTWARE,
+    "application/x-executable": Interpretation.SOFTWARE,
+    "application/x-desktop": Interpretation.SOFTWARE,
+    
+    # File systems
+    "application/x-cd-image": Interpretation.FILESYSTEM_IMAGE,
+    
 }
 
 MIMES_REGEX = make_regex_tuple(
@@ -197,4 +219,5 @@ SCHEMES = tuple((
     ("https://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
     ("ssh://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
     ("sftp://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
+    ("ftp://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
 ))
