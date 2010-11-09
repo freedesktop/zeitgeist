@@ -168,7 +168,7 @@ MIMES = {
     "text/x-vhdl": Interpretation.SOURCE_CODE,
     "text/x-m4": Interpretation.SOURCE_CODE,
     
-    # Arhcives
+    # Archives
     "application/zip": Interpretation.ARCHIVE,
     "application/x-gzip": Interpretation.ARCHIVE,
     "application/x-bzip": Interpretation.ARCHIVE,
