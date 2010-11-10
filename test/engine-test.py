@@ -326,9 +326,9 @@ class ZeitgeistEngineTest(_engineTestClass):
 	def testFindWithInterpretationReturnEvents(self):
 		import_events("test/data/five_events.js", self.engine)
 		event_template = Event.new_for_values(interpretation="stfu:OpenEvent",
-		    subjects=[Subject()])
+			subjects=[Subject()])
 		events = self.engine.find_events(TimeRange.always(), [event_template],
-		    StorageState.Any, 0, 1)
+			StorageState.Any, 0, 1)
 		self.assertEquals(2, len(events))
 		for event in events:
 			self.assertEqual(event.interpretation, "stfu:OpenEvent")
@@ -378,8 +378,17 @@ class ZeitgeistEngineTest(_engineTestClass):
 		result = self.engine.find_eventids((0, 1000), [event_template1, event_template2], StorageState.Any, 0, 4)
 		self.assertEquals(2, len(result))
 		events = self.engine.get_events(result)
-		
-	
+        
+	def testFindWithMultipleSubjects(self):
+		subj1 = Subject.new_for_values(uri="file:///tmp/foo.txt")
+		subj2 = Subject.new_for_values(uri="file:///tmp/loo.txt")
+		event_template = Event.new_for_values(subjects=[subj1, subj2])
+		result = self.engine.find_eventids((0, 1000), [event_template, ], StorageState.Any, 0, 1)
+		events = self.engine.get_events(result)
+		for event in events:
+			self.assertEquals(2, len(event.subjects))
+			self.assertEquals("file:///tmp/foo.txt", engine.subjects[0])
+			self.assertEquals("file:///tmp/loo.txt", engine.subjects[1])
 	
 	def testDontFindState(self):
 		# searchin by storage state is currently not implemented
@@ -524,8 +533,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		<Content name="Telepathy" class="Text">
 		  <header>johnsmith@foo.bar</header>
 		  <body>
-		    John: Here is a talking point
-		    You: Ok that looks fine
+			John: Here is a talking point
+			You: Ok that looks fine
 		  </body>
 		  <launcher command="{application} johnsmith@foo.bar"/>
 		</Content>"""
