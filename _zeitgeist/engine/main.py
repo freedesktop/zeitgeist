@@ -174,8 +174,13 @@ class ZeitgeistEngine:
 			ids = (row[0] for row in rows)
 		
 		id_hash = dict((id, n) for n, id in enumerate(ids))
-			
+		
+		# If we are not able to get an event by the given id
+		# append None instead of raising an Error. The client
+		# might simply have requested an event that has been
+		# deleted
 		sorted_events = [None]*len(ids)
+		
 		for row in rows:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
