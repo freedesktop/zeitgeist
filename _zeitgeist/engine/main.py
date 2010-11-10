@@ -179,12 +179,16 @@ class ZeitgeistEngine:
 		# append None instead of raising an Error. The client
 		# might simply have requested an event that has been
 		# deleted
+		events = {}
 		sorted_events = [None]*len(ids)
-		
 		for row in rows:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
 			event = self._get_event_from_row(row)
+			if event.id not in events:
+				events[event.id] = event
+			else:
+				event = events[event.id]
 			event.append_subject(self._get_subject_from_row(row))
 			event = self.extensions.apply_get_hooks(event, sender)
 			if event and event.id in ids:
