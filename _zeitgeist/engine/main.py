@@ -173,29 +173,19 @@ class ZeitgeistEngine:
 		else:
 			ids = (row[0] for row in rows)
 		
-		events = {}
+		id_hash = dict((id, n) for n, id in enumerate(ids))
+			
+		sorted_events = [None]*len(ids)
 		for row in rows:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
 			event = self._get_event_from_row(row)
-			if event.id not in events:
-				events[event.id] = event
-			events[event.id].append_subject(self._get_subject_from_row(row))
-		
-		# Sort events into the requested order
-		sorted_events = []
-		for id in ids:
-			# if we are not able to get an event by the given id
-			# append None instead of raising an Error. The client
-			# might simply have requested an event that has been
-			# deleted
-			event = events.get(id, None)
+			event.append_subject(self._get_subject_from_row(row))
 			event = self.extensions.apply_get_hooks(event, sender)
-			
-			sorted_events.append(event)
-		
+			if event and event.id in ids:
+				sorted_events[id_hash[event.id]] = event
+				
 		log.debug("Got %d events in %fs" % (len(sorted_events), time.time()-t))
-
 		return sorted_events
 	
 	@staticmethod
