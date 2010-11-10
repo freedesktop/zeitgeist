@@ -185,13 +185,13 @@ class ZeitgeistEngine:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
 			event = self._get_event_from_row(row)
-			if event.id not in events:
-				events[event.id] = event
-			else:
-				event = events[event.id]
-			event.append_subject(self._get_subject_from_row(row))
-			event = self.extensions.apply_get_hooks(event, sender)
-			if event and event.id in ids:
+			if event:
+				if event.id not in events:
+					events[event.id] = event
+				else:
+					event = events[event.id]
+				event.append_subject(self._get_subject_from_row(row))
+				event = self.extensions.apply_get_hooks(event, sender)
 				sorted_events[id_hash[event.id]] = event
 				
 		log.debug("Got %d events in %fs" % (len(sorted_events), time.time()-t))
