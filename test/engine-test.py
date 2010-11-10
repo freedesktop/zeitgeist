@@ -326,9 +326,9 @@ class ZeitgeistEngineTest(_engineTestClass):
 	def testFindWithInterpretationReturnEvents(self):
 		import_events("test/data/five_events.js", self.engine)
 		event_template = Event.new_for_values(interpretation="stfu:OpenEvent",
-			subjects=[Subject()])
+		    subjects=[Subject()])
 		events = self.engine.find_events(TimeRange.always(), [event_template],
-			StorageState.Any, 0, 1)
+		    StorageState.Any, 0, 1)
 		self.assertEquals(2, len(events))
 		for event in events:
 			self.assertEqual(event.interpretation, "stfu:OpenEvent")
@@ -385,8 +385,6 @@ class ZeitgeistEngineTest(_engineTestClass):
 		event_template = Event.new_for_values(subjects=[subj1, subj2])
 		result = self.engine.insert_events([event_template])
 		events = self.engine.get_events(result)
-		print event_template
-		print events
 		self.assertEquals(2, len(events[0].subjects))
 		self.assertEquals("file:///tmp/foo.txt", events[0].subjects[0].uri)
 		self.assertEquals("file:///tmp/loo.txt", events[0].subjects[1].uri)
@@ -534,8 +532,8 @@ class ZeitgeistEngineTest(_engineTestClass):
 		<Content name="Telepathy" class="Text">
 		  <header>johnsmith@foo.bar</header>
 		  <body>
-			John: Here is a talking point
-			You: Ok that looks fine
+		    John: Here is a talking point
+		    You: Ok that looks fine
 		  </body>
 		  <launcher command="{application} johnsmith@foo.bar"/>
 		</Content>"""
