@@ -148,8 +148,9 @@ class ZeitgeistEngine:
 	
 	def _get_subject_from_row(self, row):
 		subject = Subject()
-		for field in ("uri", "origin", "text", "storage"):
+		for field in ("uri", "text", "storage"):
 			setattr(subject, field, row["subj_" + field])
+		setattr(subject, "origin", row["subj_origin_uri"])
 		for field in ("interpretation", "manifestation", "mimetype"):
 			setattr(subject, field,
 				getattr(self, "_" + field).value(row["subj_" + field]))
