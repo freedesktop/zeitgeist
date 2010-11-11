@@ -186,6 +186,8 @@ class ZeitgeistEngine:
 			# subjects are in consecutive order.
 			event = self._get_event_from_row(row)
 			if event:
+				# Check for existing event.id in event to attach 
+				# other subjects to it
 				if event.id not in events:
 					events[event.id] = event
 				else:
