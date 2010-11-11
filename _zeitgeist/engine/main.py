@@ -194,7 +194,8 @@ class ZeitgeistEngine:
 					event = events[event.id]
 				event.append_subject(self._get_subject_from_row(row))
 				event = self.extensions.apply_get_hooks(event, sender)
-				sorted_events[id_hash[event.id]] = event
+				if event is not None:
+					sorted_events[id_hash[event.id]] = event
 				
 		log.debug("Got %d events in %fs" % (len(sorted_events), time.time()-t))
 		return sorted_events
