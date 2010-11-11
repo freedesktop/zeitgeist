@@ -217,6 +217,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		events = self.engine.get_events([1, 1])
 		self.assertEqual(2, len(events))
 		self.assertEqual(2, len(filter(None, events)))
+		self.assertTrue(events[0].id == events[1].id == 1)
 		
 	def testFindEventsId(self):
 		global test_event_1
