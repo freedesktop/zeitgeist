@@ -28,8 +28,10 @@ import random
 import time
 import json
 import sys
+import logging
 
 from optparse import OptionParser
+from logging import handlers
 
 from zeitgeist.datamodel import TimeRange, StorageState, ResultType
 from zeitgeist.datamodel import Event
@@ -38,7 +40,6 @@ from _zeitgeist.engine import get_engine
 from _zeitgeist.engine.sql import UnicodeCursor
 
 from cairoplot import vertical_bar_plot
-
 
 QUERIES = [
     "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostRecentEvents",
@@ -66,6 +67,29 @@ QUERIES = [
     "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastPopularMimeType",
 ]
 
+class QueryPlanHandler(handlers.MemoryHandler):
+    
+    @staticmethod
+    def get_plan(msg):
+        msg = msg.splitlines()
+        if not "PLAN:" in msg:
+            return None
+        for plan in msg[msg.index("PLAN:")+1:]:
+            if "INDEX" not in plan and "PRIMARY KEY" not in plan:
+                return False
+        return True
+        
+    def __init__(self):
+        handlers.MemoryHandler.__init__(self, 200000, logging.DEBUG)
+        self.uses_index = None
+        
+    def emit(self, record):
+        x = self.get_plan(record.msg)
+        if x is not None:
+            if not x or self.uses_index is None:
+                self.uses_index = x
+        return handlers.MemoryHandler.emit(self, record)
+
 def get_reference_engine():
     # for now we are building an in memory db with some content
     # in the future we should use some pre-build reference db
@@ -85,6 +109,7 @@ def get_reference_engine():
         return u"applications://%i" %i
     
     min_timestamp = 0
+    #~ max_timestamp = 500
     max_timestamp = 50000
     
     nums = range(min_timestamp, max_timestamp, 500)
@@ -154,9 +179,14 @@ if __name__ == "__main__":
             existing_data = json.load(open(options.output))
         else:
             existing_data = {}
+        UnicodeCursor.debug_explain = True
+        logging.basicConfig(level=logging.DEBUG)
         for query in QUERIES:
             args = eval(query)
             start_time = time.time()
+            logging.getLogger("").removeHandler(logging.getLogger("").handlers[0])
+            handler = QueryPlanHandler()
+            logging.getLogger("").addHandler(handler)
             ids = engine.find_events(*args)
             run_time = time.time() - start_time
             if query in existing_data and options.merge:
@@ -165,11 +195,13 @@ if __name__ == "__main__":
                 run_time = (old_time * counter + run_time)/(counter + 1)
                 result[query] = {
                     "timing": run_time,
-                    "counter": counter + 1
+                    "counter": counter + 1,
+                    "uses_index": handler.uses_index,
                 }
             else:
                 result[query] = {
                     "timing": run_time,
+                    "uses_index": handler.uses_index,
                 }
         if options.output:
             f = open(options.output, "w")
