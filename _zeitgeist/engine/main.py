@@ -155,23 +155,20 @@ class ZeitgeistEngine:
 				getattr(self, "_" + field).value(row["subj_" + field]))
 		return subject
 	
-	def get_events(self, ids=None, rows=None, sender=None):
+	def get_events(self, ids, sender=None):
 		"""
 		Look up a list of events.
 		"""
 		
 		t = time.time()
 		
-		if not ids and not rows:
+		if not ids:
 			return []
 		
-		if ids:
-			rows = self._cursor.execute("""
-				SELECT * FROM event_view
-				WHERE id IN (%s)
-				""" % ",".join("%d" % id for id in ids)).fetchall()
-		else:
-			ids = (row[0] for row in rows)
+		rows = self._cursor.execute("""
+			SELECT * FROM event_view
+			WHERE id IN (%s)
+			""" % ",".join("%d" % id for id in ids)).fetchall()
 		
 		id_hash = defaultdict(list)
 		for n, id in enumerate(ids):
