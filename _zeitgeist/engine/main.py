@@ -349,10 +349,13 @@ class ZeitgeistEngine:
 		
 		sql += (" ORDER BY timestamp DESC",
 			" ORDER BY timestamp ASC",
-			" GROUP BY subj_uri_id ORDER BY timestamp DESC",
-			" GROUP BY subj_uri_id ORDER BY timestamp ASC",
-			" GROUP BY subj_uri_id ORDER BY COUNT(subj_uri_id) DESC, timestamp DESC",
-			" GROUP BY subj_uri_id ORDER BY COUNT(subj_uri_id) ASC, timestamp ASC",
+			# thekorn: please note, event.subj_id == uri.id, as in
+			# the subj_id points directly to an entry in the uri table,
+			# so we are in fact grouping by subj_uris here
+			" GROUP BY subj_id ORDER BY timestamp DESC",
+			" GROUP BY subj_id ORDER BY timestamp ASC",
+			" GROUP BY subj_id ORDER BY COUNT(subj_id) DESC, timestamp DESC",
+			" GROUP BY subj_id ORDER BY COUNT(subj_id) ASC, timestamp ASC",
 			" GROUP BY actor ORDER BY COUNT(actor) DESC, timestamp DESC", 
 			" GROUP BY actor ORDER BY COUNT(actor) ASC, timestamp ASC",
 			" GROUP BY actor ORDER BY timestamp DESC",

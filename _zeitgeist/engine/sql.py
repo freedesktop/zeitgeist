@@ -369,8 +369,7 @@ def create_db(file_path):
 					AS payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
 					AS subj_uri,
-				(SELECT id FROM uri WHERE uri.id=event.subj_id)
-					AS subj_uri_id,
+				event.subj_id, -- #this directly points to an uri
 				event.subj_interpretation,
 				event.subj_manifestation,
 				event.subj_origin,
@@ -529,7 +528,8 @@ class WhereClause:
 			assert column in ("subj_uri", "subj_origin", "actor", "subj_mimetype"), \
 				"prefix search on the %r column is not supported by zeitgeist" %column
 			if column == "subj_uri":
-				view_column = "subj_uri_id"
+				# subj_id directly points to the id of an uri entry
+				view_column = "subj_id"
 			else:
 				view_column = column
 			optimized_glob, value = self.optimize_glob("id", TABLE_MAP.get(column, column), value)
