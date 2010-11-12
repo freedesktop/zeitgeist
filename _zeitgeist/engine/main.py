@@ -175,6 +175,8 @@ class ZeitgeistEngine:
 		
 		id_hash = defaultdict(list)
 		for n, id in enumerate(ids):
+			# the same id can be at multible places (LP: #673916)
+			# cache all of them
 			id_hash[id].append(n)
 		
 		# If we are not able to get an event by the given id
@@ -198,6 +200,7 @@ class ZeitgeistEngine:
 				event = self.extensions.apply_get_hooks(event, sender)
 				if event is not None:
 					for n in id_hash[event.id]:
+						# insert the event into all necessary spots (LP: #673916)
 						sorted_events[n] = event
 				
 		log.debug("Got %d events in %fs" % (len(sorted_events), time.time()-t))
