@@ -65,12 +65,16 @@ QUERIES = [
     "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastRecentMimeType",
     "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostPopularMimeType",
     "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastPopularMimeType",
+    ("TimeRange.always(), [Event.new_for_values(actor='applications://1*')],"
+     " StorageState.Any, 6, ResultType.MostRecentActor"),
 ]
 
 class QueryPlanHandler(handlers.MemoryHandler):
     
     @staticmethod
     def get_plan(msg):
+        if "SELECT id FROM event_view" not in msg:
+            return None
         msg = msg.splitlines()
         if not "PLAN:" in msg:
             return None
@@ -118,7 +122,8 @@ def get_reference_engine():
         end = nums[0]
         events = [
             Event.new_for_values(
-                actor=make_actor(i), timestamp="%i" %i, subject_uri=u"http://%i" %i
+                actor=make_actor(i), timestamp="%i" %i, subject_uri=u"http://%i" %i,
+                subject_origin=(u"http://%i" %i)[:8]
             ) for i in range(start, end)]
         engine.insert_events(events)
     return engine
