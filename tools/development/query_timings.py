@@ -32,6 +32,7 @@ import logging
 
 from optparse import OptionParser
 from logging import handlers
+from collections import defaultdict
 
 from zeitgeist.datamodel import TimeRange, StorageState, ResultType
 from zeitgeist.datamodel import Event
@@ -154,9 +155,14 @@ def plot(output_filename, *data_files):
     queries = filter(lambda x: x != "__metadata__", sorted(set(sum([d.keys() for d in raw_data], []))))
     data = []
     max_value = 0
-    for query in queries:
+    no_index = list()
+    for n, query in enumerate(queries):
         x = [float(d[query]["timing"]) for d in raw_data]
         y = max(x)
+        idx_border = [not d[query].get("uses_index", True) for d in raw_data]
+        for i, b in enumerate(idx_border):
+            if b:
+                no_index.append((n, i))
         if y > max_value:
             max_value = y
         data.append(x)
@@ -165,7 +171,7 @@ def plot(output_filename, *data_files):
     vertical_bar_plot(
         output_filename, data, len(QUERIES)*400, 600,
         x_labels=queries, y_labels=y_labels,
-        grid=True, series_labels=series_labels)
+        grid=True, series_labels=series_labels, bar_borders=no_index)
     
 
 if __name__ == "__main__":

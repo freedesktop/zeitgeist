@@ -6,6 +6,7 @@
 # Copyright (c) 2008 Rodrigo Moreira Araújo
 #
 # Author: Rodrigo Moreiro Araujo <alf.rodrigo@gmail.com>
+#         Markus Korn <thekorn@gmx.de>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -28,6 +29,7 @@
 #TODO: x_label colision problem on Horizontal Bar Plot
 #TODO: y_label's eat too much space on HBP
 
+# thekorn: added optional borders around vertical bars in VerticalBarPlot
 
 __version__ = 1.1
 
@@ -1056,6 +1058,7 @@ class BarPlot(Plot):
             self.render_vert_labels()
             
     def render_legend(self):
+        has_border = bool(getattr(self, "bar_borders", False))
         cr = self.context
         cr.set_font_size(self.font_size)
         cr.set_line_width(self.line_width)
@@ -1070,7 +1073,7 @@ class BarPlot(Plot):
         
         #Draw a bounding box
         bounding_box_width = max_width + color_box_width + 15
-        bounding_box_height = (len(self.series_labels)+0.5) * max_height
+        bounding_box_height = (len(self.series_labels) + int(has_border) +0.5) * max_height
         cr.set_source_rgba(1,1,1)
         cr.rectangle(self.dimensions[HORZ] - self.border - bounding_box_width, self.border,
                             bounding_box_width, bounding_box_height)
@@ -1100,6 +1103,21 @@ class BarPlot(Plot):
             cr.set_source_rgba(0, 0, 0)
             cr.move_to(self.dimensions[HORZ] - self.border - max_width - 5, self.border + ((idx+1)*max_height))
             cr.show_text(key)
+            
+        if has_border:
+            idx += 1
+            
+            cr.set_source_rgba(1, 0, 0)
+            cr.rectangle(self.dimensions[HORZ] - self.border - max_width - color_box_width - 10, 
+                                self.border + color_box_height + (idx*max_height),
+                                color_box_width, color_box_height)
+            cr.stroke()
+            
+            #Draw series labels
+            cr.set_source_rgba(0, 0, 0)
+            cr.move_to(self.dimensions[HORZ] - self.border - max_width - 5, self.border + ((idx+1)*max_height))
+            cr.show_text("is not using index")
+            
 
 
 class HorizontalBarPlot(BarPlot):
@@ -1457,7 +1475,12 @@ class VerticalBarPlot(BarPlot):
                         self.context.fill()
                     else:
                         self.context.rectangle(x0, self.plot_top - data.content*self.steps[VERT], inner_step, data.content*self.steps[VERT])
-                        self.context.fill()
+                        if (i, number) in self.bar_borders:
+                            self.context.fill_preserve()
+                            self.context.set_source_rgb(1, 0, 0)
+                            self.context.stroke()
+                        else:
+                            self.context.fill()
                     
                     x0 += inner_step
     
@@ -2224,7 +2247,8 @@ def vertical_bar_plot(name,
                       y_labels = None, 
                       x_bounds = None, 
                       y_bounds = None,
-                      colors = None):
+                      colors = None,
+                      bar_borders=None):
     #TODO: Fix docstring for vertical_bar_plot
     '''
         - Function to generate vertical Bar Plot Charts.
@@ -2256,6 +2280,7 @@ def vertical_bar_plot(name,
     plot = VerticalBarPlot(name, data, width, height, background, border, 
                            display_values, grid, rounded_corners, stack, three_dimension, 
                            series_labels, x_labels, y_labels, x_bounds, y_bounds, colors)
+    plot.bar_borders = bar_borders or list()
     plot.render()
     plot.commit()
 
