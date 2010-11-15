@@ -86,10 +86,6 @@ def parse_commandline():
 		"--shell-completion",
 		action="store_true", default=False, dest="shell_completion",
 		help=optparse.SUPPRESS_HELP)
-	parser.add_option(
-        "--log-file",
-        action = "store", default = constants.DEFAULT_LOG_PATH, dest = "log_file",
-        help = _("Specifies where the log file is saved"))
 	return parser
 
 def do_shell_completion(parser):
@@ -128,6 +124,29 @@ def setup_handle_sighup(interface):
 		logging.info("got SIGHUP signal, shutting down zeitgeist interface")
 		interface.Quit()
 	return handle_sighup
+
+def setup_logger(log_level):
+	logger = logging.getLogger()
+	logger.setLevel(getattr(logging, log_level))
+	formatter = logging.Formatter("[%(asctime)s] - %(levelname)s - %(name)s - %(message)s")
+	
+	stream_handler = logging.StreamHandler()
+	stream_handler.setFormatter(formatter)
+	logger.addHandler(stream_handler)
+	
+	try:
+		log_file = os.environ["ZEITGEIST_LOG_FILE"]
+	except KeyError:
+		log_file = constants.DEFAULT_LOG_PATH
+	if log_file == constants.DEFAULT_LOG_PATH and \
+	not os.path.exists(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist")):
+		os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
+	try:
+		file_handler = logging.handlers.TimedRotatingFileHandler(log_file, when="midnight", backupCount=3)
+		file_handler.setFormatter(formatter)
+		logger.addHandler(file_handler)
+	except IOError:
+		logging.warning("Can't log to specified file")
 	
 if __name__ == "__main__":
 	
@@ -137,32 +156,7 @@ if __name__ == "__main__":
 	if _config.options.shell_completion:
 		sys.exit(do_shell_completion(parser))
 	
-	"""if _config.options.log_file == constants.DEFAULT_LOG_PATH:
-		try:
-			os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
-		except OSError:
-			pass # directory is already there
-		if os.path.exists(constants.DEFAULT_LOG_PATH):
-			os.rename(constants.DEFAULT_LOG_PATH, constants.DEFAULT_LOG_PATH + "-old")
-	logging.basicConfig(filename=_config.options.log_file, level=getattr(logging, _config.options.log_level))"""
-	
-	logger = logging.getLogger()
-	logger.setLevel(getattr(logging, _config.options.log_level))
-	formatter = logging.Formatter("%(asctime)s %(levelname)s:%(name)s:%(message)s")
-	
-	stream_handler = logging.StreamHandler()
-	stream_handler.setFormatter(formatter)
-	logger.addHandler(stream_handler)
-	
-	if _config.options.log_file == constants.DEFAULT_LOG_PATH and \
-	not os.path.exists(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist")):
-		os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
-	try:
-		file_handler = logging.handlers.TimedRotatingFileHandler(_config.options.log_file, when='midnight', backupCount=3)
-		file_handler.setFormatter(formatter)
-		logger.addHandler(file_handler)
-	except IOError:
-		logging.warning("Can't log to specified file")
+	setup_logger(_config.options.log_level)
 	
 	try:
 		mainloop, interface = setup_interface()
