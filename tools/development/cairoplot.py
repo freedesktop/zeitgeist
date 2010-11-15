@@ -30,6 +30,7 @@
 #TODO: y_label's eat too much space on HBP
 
 # thekorn: added optional borders around vertical bars in VerticalBarPlot
+# thekorn: break long x-axis labels into two lines
 
 __version__ = 1.1
 
@@ -1389,10 +1390,19 @@ class VerticalBarPlot(BarPlot):
         for item in self.labels[HORZ]:
             self.context.set_source_rgba(*self.label_color)
             width = self.context.text_extents(item)[2]
-            if x - width/2 > next_x and x - width/2 > self.borders[HORZ]:
-                self.context.move_to(x - width/2, self.dimensions[VERT] - self.borders[VERT] + self.max_value[HORZ] + 3)
-                self.context.show_text(item)
-                next_x = x + width/2
+            if not(x - width/2 > next_x and x - width/2 > self.borders[HORZ]):
+                items = [item[:len(item)/2], item[len(item)/2:],]
+            else:
+                items = [item,]
+            for i, item in enumerate(items):
+                width = self.context.text_extents(item)[2]
+                height = self.context.text_extents(item)[3]
+                v_space = (len(items) - i - 1) * height
+                
+                if x - width/2 > next_x and x - width/2 > self.borders[HORZ]:
+                    self.context.move_to(x - width/2, self.dimensions[VERT] - self.borders[VERT] + self.max_value[HORZ] + 3 - v_space + 3)
+                    self.context.show_text(item)
+            next_x = x + width/2
             x += step + self.space
             
     def render_vert_labels(self):
