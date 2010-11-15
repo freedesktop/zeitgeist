@@ -369,7 +369,7 @@ def create_db(file_path):
 					AS payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
 					AS subj_uri,
-				event.subj_id, -- #this directly points to an uri
+				event.subj_id, -- #this directly points to an id in the uri table
 				event.subj_interpretation,
 				event.subj_manifestation,
 				event.subj_origin,
