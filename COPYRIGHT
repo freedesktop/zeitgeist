@@ -1,6 +1,6 @@
 Zeitgeist
 
-Copyright © 2008-2009 by the AUTHORS
+Copyright © 2008-2010 by the AUTHORS
 
 If you have contributed to this project then you deserve to be on this list.
 Contact us (see: AUTHORS) and we'll add you.
@@ -20,17 +20,3 @@ copyright holders:
 
  You should have received a copy of the GNU Lesser General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
------------------------------------------------------------
-
-File zeitgeist/loggers/iso_strptime.py is part of wadllib, which is
-copyright © 2009 by Canonical Ltd. It is released under the following license:
-
- wadllib is free software: you can redistribute it and/or modify it under the
- terms of the GNU Lesser General Public License as published by the Free
- Software Foundation, version 3 of the License.
-
- wadllib is distributed in the hope that it will be useful, but WITHOUT ANY
- WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- details.
