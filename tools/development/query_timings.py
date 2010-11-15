@@ -18,10 +18,22 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# usage
+# USAGE
+#
+# To run the benchmarks on a certain branch of zeitgeist make sure this
+# branch is in PYTHONPATH.
+# To benchmark and output timing to 'output.json' run
 #  ./query_timings.py -o output.json
+# If you already have data in the output file and want to merge both
+# data sets (build avg.) run
 #  ./query_timings.py -m -o output.json
+# To plot the data use the '--plot' argument, multible '--plot' arguments
+# will define multible series.
 #  ./query_timings.py --plot output.json --plot output1.json -o plot.svg
+# In short, a run always looks like:
+#  PYTHONPATH=../trunk tools/development/query_timings.py --name "lp:zeitgeist" -o trunk.json
+#  PYTHONPATH=. tools/development/query_timings.py --name "lp:some-branch" -o somebranch.json
+#  PYTHONPATH=. tools/development/query_timings.py --plot somebranch.json --plot trunk.json -o benchmark.svg
 
 import os
 import random
