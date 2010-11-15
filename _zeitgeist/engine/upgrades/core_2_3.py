@@ -1,4 +1,4 @@
-# upgrading from db version 2 to 1
+# upgrading from db version 2 to 3
 # this requires no update to the actual data in the database
 # it is only a schema change of event_view. This change is done
 # in sql.create_db()
