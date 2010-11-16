@@ -4,7 +4,7 @@ Maintainer: Zeitgeist Developer Team <zeitgeist@lists.launchpad.net>
 Source: https://launchpad.net/zeitgeist/+download
 
 Files: *
-Copyright: © 2008-2009, Seif Lotfy <seilo@geekyogre.com>
+Copyright: © 2008-2010, Seif Lotfy <seilo@geekyogre.com>
            © 2009-2010, Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
            © 2009-2010, Markus Korn <thekorn@gmx.de>
            © 2009-2010, Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
@@ -16,11 +16,6 @@ License: LGPL-3+
 Files: po/*
 Copyright: © 2009 Rosetta Contributors and Canonical Ltd.
 License: LGPL-3+
-
-Files: zeitgeist/loggers/iso_strptime.py
-Copyright: © 2009, Canonical Ltd.
-License: LGPL-3
- See `/usr/share/common-licenses/LGPL-3'.
 
 Files: debian/*
 Copyright: © 2009, Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
