@@ -31,7 +31,8 @@
 # will define multible series.
 #  ./query_timings.py --plot output.json --plot output1.json -o plot.svg
 # In short, a run always looks like:
-#  PYTHONPATH=../trunk tools/development/query_timings.py --name "lp:zeitgeist" -o trunk.json
+#  PYTHONPATH=../trunk tools/development/query_timings.py --name "lp:zeitgeist" -o trunk.json \
+#       --queries tools/development/query_sets/timerange_always.txt
 #  PYTHONPATH=. tools/development/query_timings.py --name "lp:some-branch" -o somebranch.json
 #  PYTHONPATH=. tools/development/query_timings.py --plot somebranch.json --plot trunk.json -o benchmark.svg
 
@@ -53,34 +54,6 @@ from _zeitgeist.engine import get_engine
 from _zeitgeist.engine.sql import UnicodeCursor
 
 from cairoplot import vertical_bar_plot
-
-QUERIES = [
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostRecentEvents",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastRecentEvents",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostRecentSubjects",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastRecentSubjects",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostPopularSubjects",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastPopularSubjects",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostPopularActor",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastPopularActor",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostRecentActor",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastRecentActor",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostRecentOrigin",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastRecentOrigin",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostPopularOrigin",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastPopularOrigin",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.OldestActor",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostRecentSubjectInterpretation",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastRecentSubjectInterpretation",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostPopularSubjectInterpretation",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastPopularSubjectInterpretation",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostRecentMimeType",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastRecentMimeType",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.MostPopularMimeType",
-    "TimeRange.always(), [], StorageState.Any, 6, ResultType.LeastPopularMimeType",
-    ("TimeRange.always(), [Event.new_for_values(actor='applications://1*')],"
-     " StorageState.Any, 6, ResultType.MostRecentActor"),
-]
 
 class QueryPlanHandler(handlers.MemoryHandler):
     
@@ -140,10 +113,15 @@ def get_reference_engine():
             ) for i in range(start, end)]
         engine.insert_events(events)
     return engine
+    
+def get_query_set(source):
+    for line in open(source):
+        yield line.strip()
 
 def get_cmdline():
     parser = OptionParser()
     parser.add_option("-o", dest="output", help="write output to FILE", metavar="FILE")
+    parser.add_option("--queries", dest="queryset", help="run all queries in FILE", metavar="FILE")
     parser.add_option("--name", dest="name", help="name of the data series", metavar="NAME")
     parser.add_option("-i", dest="isolated", action="store_true",
         default=False, help="run each query isolated")
@@ -160,18 +138,33 @@ def get_name(data, alternative_name):
         return data["__metadata__"]["name"]
     except:
         return alternative_name
+        
+def get_data(dataset, query):
+    try:
+        return float(dataset[query]["timing"])
+    except:
+        return 0.0
+        
+def compare_queries(a, b):
+    result = cmp(a.strip().split()[-1], b.strip().split()[-1])
+    if result != 0:
+        return result
+    return cmp(a[0], b[0])
     
 def plot(output_filename, *data_files):
     raw_data = map(lambda x: json.load(open(x)), data_files)
     series_labels = map(lambda x: get_name(x[1], data_files[x[0]]), enumerate(raw_data))
-    queries = filter(lambda x: x != "__metadata__", sorted(set(sum([d.keys() for d in raw_data], []))))
+    queries = sorted(
+        filter(lambda x: x != "__metadata__", set(sum([d.keys() for d in raw_data], []))),
+        cmp=compare_queries
+    )
     data = []
     max_value = 0
     no_index = list()
     for n, query in enumerate(queries):
-        x = [float(d[query]["timing"]) for d in raw_data]
+        x = [get_data(d, query) for d in raw_data]
         y = max(x)
-        idx_border = [not d[query].get("uses_index", True) for d in raw_data]
+        idx_border = [not d.get(query, {}).get("uses_index", True) for d in raw_data]
         for i, b in enumerate(idx_border):
             if b:
                 no_index.append((n, i))
@@ -181,7 +174,7 @@ def plot(output_filename, *data_files):
     y_parts = max_value / float(4)
     y_labels = ["%.2fs" %(i*y_parts) for i in range(5)]
     vertical_bar_plot(
-        output_filename, data, len(QUERIES)*400, 600,
+        output_filename, data, len(queries)*400, 600,
         x_labels=queries, y_labels=y_labels,
         grid=True, series_labels=series_labels, bar_borders=no_index)
     
@@ -192,6 +185,7 @@ if __name__ == "__main__":
         assert options.output
         plot(options.output, *options.plot_files)
     else:
+        assert options.queryset
         engine = get_reference_engine()
         result = {}
         if options.name:
@@ -204,7 +198,7 @@ if __name__ == "__main__":
             existing_data = {}
         UnicodeCursor.debug_explain = True
         logging.basicConfig(level=logging.DEBUG)
-        for query in QUERIES:
+        for query in get_query_set(options.queryset):
             args = eval(query)
             start_time = time.time()
             logging.getLogger("").removeHandler(logging.getLogger("").handlers[0])
