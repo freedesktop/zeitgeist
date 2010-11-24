@@ -386,7 +386,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals(2, len(result))
 		events = self.engine.get_events(result)
 		
-	def testFindWithMultipleSubjects(self):
+	def testGetWithMultipleSubjects(self):
 		subj1 = Subject.new_for_values(uri="file:///tmp/foo.txt")
 		subj2 = Subject.new_for_values(uri="file:///tmp/loo.txt")
 		event_template = Event.new_for_values(subjects=[subj1, subj2])
@@ -395,6 +395,14 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals(2, len(events[0].subjects))
 		self.assertEquals("file:///tmp/foo.txt", events[0].subjects[0].uri)
 		self.assertEquals("file:///tmp/loo.txt", events[0].subjects[1].uri)
+	
+	def testFindEventIdsWithMultipleSubjects(self):
+		subj1 = Subject.new_for_values(uri="file:///tmp/foo.txt")
+		subj2 = Subject.new_for_values(uri="file:///tmp/loo.txt")
+		event = Event.new_for_values(subjects=[subj1, subj2])
+		orig_ids = self.engine.insert_events([event])
+		result_ids = self.engine.find_eventids(TimeRange.always(), [Event()], StorageState.Any, 0, 1)
+		self.assertEquals(orig_ids, result_ids)
 	
 	def testDontFindState(self):
 		# searchin by storage state is currently not implemented
