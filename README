@@ -4,19 +4,110 @@ The Zeitgeist Engine
 Zeitgeist is a service that logs the users activity. The log can be queried
 and managed in various ways over a DBus API.
 
-Note that this package only contains the daemon, which you can use
-together with several different user interfaces. If you don't know
-which to use, try out https://launchpad.net/gnome-zeitgeist/.
+This package contains the Zeitgeist Daemon, which is for all intents an
+purposes an idle service. To take advantage of the Zeitgeist Daemon you
+something that insert log statements into it (also known as data providers or
+data sources) and you need some applications (or application plugins) to
+query and display the logged data.
 
-For more information, see:
- - https://launchpad.net/zeitgeist
- - http://zeitgeist-project.com/
+Zeitgeist Data Providers
+------------------------
 
-----------------------------------------------------------------------
+There is a host of data providers developed for Zeitgeist. There is a more
+or less canonical data provider known as the Zeitgeist Data Hub, but note
+that it is not more canonical that you can go without it if that is the better
+option for you. The Zeitgeist Data Hub is hosted on Launchpad:
 
-Dependencies:
+  https://launchpad.net/zeitgeist-datahub
+
+There is also a suite of extra data providers which is available for
+your cherry picking pleasure:
+
+  https://launchpad.net/zeitgeist-dataproviders
+
+Zeitgeist Client Libraries
+--------------------------
+
+For Python development this package also contains a complete async client
+for working with the Zeitgeist DBus API. The API documentation can be build
+if you have Sphinx installed, otherwise you can browse it online at:
+
+ http://zeitgeist-project.com/documentation/
+
+A GObject/C library for working with the Zeitgeist DBus API is available at:
+
+  https://launchpad.net/libzeitgeist
+
+A CLI/C# library is available from:
+
+  https://launchpad.net/zeitgeist-sharp
+
+You can also find the documentation for the raw DBus API on:
+
+  http://zeitgeist-project.com/documentation/
+
+Zeitgeist GUIs and Plugins
+--------------------------
+
+The Gnome Activity Journal (also known as just GAJ) is hosted on:
+
+  https://launchpad.net/gnome-activity-journal
+
+Or a light Zeitgeist powered file browser known as Sezen:
+
+  https://launchpad.net/sezen
+
+The Unity Shell (https://launchpad.net/unity) uses Zeitgeist in an indirect
+way by querying its two data daemons; unity-place-files and
+unity-place-applications:
+
+  https://launchpad.net/unity-place-files
+  https://launchpad.net/unity-place-applications
+
+
+Zeitgeist Extensions
+--------------------
+
+You can write extensions for the core Zeitgeist daemon. These are written in
+Python an run directly inside the Zeitgeist Daemon process with raw access to
+the underlying database. This is not normally something you need to do, but
+if you have very special needs that are unlikely to get accepted in the core
+Zeitgeist Daemon you can almost certainly get away with with doing it as an
+extension.
+
+There is a collection of Zeitgeist Extensions developed on:
+
+  https://launchpad.net/zeitgeist-extensions
+
+Notably this suite of extensions contain the Zeitgeist Full Text Search (FTS)
+extension which is needed by some GUI tools in order to give full text search
+capabilities to the daemon.
+
+Extensions can be deployed simply by dropping a Python module in either
+$PREFIX/share/zeitgeist/_zeitgeist/engine/extensions or for developers and the
+adventurous users they can be deployed in the home directory under
+~/.local/share/zeitgeist/extensions/. Note that user extensions take precendence
+over the system installed ones.
+
+
+Official Website
+----------------
+
+  http://zeitgeist-project.com/
+
+
+Dependencies
+------------
+
+For building from a release tarball you need:
 
  - python 2.5 or higher
  - python-gobject (2.16.0 or higher)
  - python-dbus
  - python-xdg
+ 
+Additionally, if building from a source code checkout you need:
+
+ - rapper (RDF conversion tool)
+ - rdflib (Python module for working with RDF graphs)
+
