@@ -369,14 +369,12 @@ def create_db(file_path):
 					AS payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
 					AS subj_uri,
-				(SELECT id FROM uri WHERE uri.id=event.subj_id)
-					AS subj_uri_id,
+				event.subj_id, -- #this directly points to an id in the uri table
 				event.subj_interpretation,
 				event.subj_manifestation,
+				event.subj_origin,
 				(SELECT value FROM uri WHERE uri.id=event.subj_origin)
-					AS subj_origin,
-				(SELECT id FROM uri WHERE uri.id=event.subj_origin)
-					AS subj_origin_id,
+					AS subj_origin_uri,
 				event.subj_mimetype,
 				(SELECT value FROM text WHERE text.id = event.subj_text)
 					AS subj_text,
@@ -528,14 +526,17 @@ class WhereClause:
 	def add_text_condition(self, column, value, like=False, negation=False, cache=None):
 		if like:
 			assert column in ("subj_uri", "subj_origin", "actor", "subj_mimetype"), \
-				"prefix search on the %r column is not supported by zeitgeist"
-			if column in ("subj_uri", "subj_origin"):
-				view_column = "%s_id" %column
+				"prefix search on the %r column is not supported by zeitgeist" %column
+			if column == "subj_uri":
+				# subj_id directly points to the id of an uri entry
+				view_column = "subj_id"
 			else:
 				view_column = column
 			optimized_glob, value = self.optimize_glob("id", TABLE_MAP.get(column, column), value)
 			sql = "%s %sIN (%s)" %(view_column, self.NOT if negation else "", optimized_glob)
 		else:
+			if column == "subj_origin":
+				column = "subj_origin_uri"
 			sql = "%s %s= ?" %(column, "!" if negation else "")
 			if cache is not None:
 				value = cache[value]

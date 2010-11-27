@@ -148,8 +148,9 @@ class ZeitgeistEngine:
 	
 	def _get_subject_from_row(self, row):
 		subject = Subject()
-		for field in ("uri", "origin", "text", "storage"):
+		for field in ("uri", "text", "storage"):
 			setattr(subject, field, row["subj_" + field])
+		setattr(subject, "origin", row["subj_origin_uri"])
 		for field in ("interpretation", "manifestation", "mimetype"):
 			setattr(subject, field,
 				getattr(self, "_" + field).value(row["subj_" + field]))
@@ -353,10 +354,13 @@ class ZeitgeistEngine:
 		
 		sql += (" ORDER BY timestamp DESC",
 			" ORDER BY timestamp ASC",
-			" GROUP BY subj_uri ORDER BY timestamp DESC",
-			" GROUP BY subj_uri ORDER BY timestamp ASC",
-			" GROUP BY subj_uri ORDER BY COUNT(subj_uri) DESC, timestamp DESC",
-			" GROUP BY subj_uri ORDER BY COUNT(subj_uri) ASC, timestamp ASC",
+			# thekorn: please note, event.subj_id == uri.id, as in
+			# the subj_id points directly to an entry in the uri table,
+			# so we are in fact grouping by subj_uris here
+			" GROUP BY subj_id ORDER BY timestamp DESC",
+			" GROUP BY subj_id ORDER BY timestamp ASC",
+			" GROUP BY subj_id ORDER BY COUNT(subj_id) DESC, timestamp DESC",
+			" GROUP BY subj_id ORDER BY COUNT(subj_id) ASC, timestamp ASC",
 			" GROUP BY actor ORDER BY COUNT(actor) DESC, timestamp DESC", 
 			" GROUP BY actor ORDER BY COUNT(actor) ASC, timestamp ASC",
 			" GROUP BY actor ORDER BY timestamp DESC",

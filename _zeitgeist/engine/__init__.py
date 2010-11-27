@@ -56,7 +56,7 @@ class _Constants:
 	
 	# Required version of DB schema
 	CORE_SCHEMA="core"
-	CORE_SCHEMA_VERSION = 2
+	CORE_SCHEMA_VERSION = 3
 	
 	USER_EXTENSION_PATH = os.path.join(DATA_PATH, "extensions")
 
