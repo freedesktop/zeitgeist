@@ -136,17 +136,16 @@ def setup_logger(log_level):
 	
 	try:
 		log_file = os.environ["ZEITGEIST_LOG_FILE"]
+		if not os.path.exists(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist")):
+			os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
 	except KeyError:
 		log_file = constants.DEFAULT_LOG_PATH
-	if log_file == constants.DEFAULT_LOG_PATH and \
-	not os.path.exists(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist")):
-		os.mkdir(os.path.join(BaseDirectory.xdg_cache_home, "zeitgeist"))
 	try:
 		file_handler = logging.handlers.TimedRotatingFileHandler(log_file, when="midnight", backupCount=3)
 		file_handler.setFormatter(formatter)
 		logger.addHandler(file_handler)
-	except IOError:
-		logging.warning("Can't log to specified file")
+	except IOError, e:
+		logging.warning("Can't log to %s: %s" % (e.filename, e.strerror))
 	
 if __name__ == "__main__":
 	
