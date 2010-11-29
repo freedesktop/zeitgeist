@@ -305,12 +305,17 @@ class ZeitgeistEngine:
 		if storage_state != StorageState.Any:
 			raise NotImplementedError
 		
+		# thekorn: we are using the unary operator here to tell sql to not use
+		# the index on the timestamp column at the first place. This `fix` for
+		# (LP: #672965) is based on some benchmarks, which suggest a performance
+		# win, but we might not oversee all implications.
+		# (see http://www.sqlite.org/optoverview.html section 6.0)
 		where = WhereClause(WhereClause.AND)
 		min_time, max_time = time_range
 		if min_time != 0:
-			where.add("timestamp >= ?", min_time)
+			where.add("+timestamp >= ?", min_time)
 		if max_time != sys.maxint:
-			where.add("timestamp <= ?", max_time)
+			where.add("+timestamp <= ?", max_time)
 		
 		where.extend(self._build_sql_from_event_templates(templates))
 		
