@@ -37,4 +37,10 @@ if test "x$HAVE_RAPPER" = "xno"; then
   AC_MSG_ERROR(You need the tool `rapper' from the `raptor-utils' package in order to compile Zeitgeist)
 fi
 
+# check for rdflib
+AC_CHECK_PROG(HAVE_RDFLIB, rdfpipe, yes, no)
+if test "x$HAVE_RDFLIB" = "xno"; then
+  AC_MSG_ERROR(You need the tool `rdfpipe' from the `python-rdflib' package in order to compile Zeitgeist)
+fi
+
 AC_OUTPUT
