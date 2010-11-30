@@ -47,10 +47,10 @@ class UnicodeCursor(sqlite3.Cursor):
 	
 	@staticmethod
 	def fix_unicode(obj):
-		if isinstance(obj, int):
+		if isinstance(obj, (int, long)):
 			# thekorn: as long as we are using the unary operator for timestamp
 			# related queries we have to make sure that integers are not
-			# converted to strings.
+			# converted to strings, same applies for long numbers.
 			return obj
 		if isinstance(obj, str):
 			obj = obj.decode("UTF-8")

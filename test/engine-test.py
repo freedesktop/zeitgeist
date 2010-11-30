@@ -1139,6 +1139,33 @@ class ResultTypeTest(_engineTestClass):
 		events = self.engine.find_events(
 			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularSubjectInterpretation)
 		self.assertEquals([e.timestamp for e in events], ['118', '106', '116', '119'])
+
+class ZeitgeistEngineBugsTest(_engineTestClass):
+	
+	def testBug683146(self):
+		""" test if different types for timestamp work correctly """
+		subjects = [Subject.new_for_values(uri="http://test"),]
+		events = [
+			Event.new_for_values(timestamp=1300000000, subjects=subjects),
+			Event.new_for_values(timestamp=1200000000L, subjects=subjects),
+			Event.new_for_values(timestamp=1, subjects=subjects),
+		]
+		ids = self.engine.insert_events(events)
+		result = self.engine.find_eventids(
+			(1300000000 - 10, 1300000000 + 10),
+			[], StorageState.Any, 10, 0
+		)
+		self.assertEquals(len(result), 1)
+		result = self.engine.find_eventids(
+			(1200000000L - 10, 1200000000L + 10),
+			[], StorageState.Any, 10, 0
+		)
+		self.assertEquals(len(result), 1)
+		result = self.engine.find_eventids(
+			(0, 10),
+			[], StorageState.Any, 10, 0
+		)
+		self.assertEquals(len(result), 1)
 	
 if __name__ == "__main__":
 	unittest.main()
