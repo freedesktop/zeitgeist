@@ -45,7 +45,6 @@ class SingletonApplication (dbus.service.Object):
 					logging.info("Stopping the currently running instance.")
 				else:
 					logging.debug("Replacing currently running process.")
-				# TODO: This only works for the engine and wont work for the DataHub
 				interface = ZeitgeistDBusInterface()
 				interface.Quit()
 				while dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
