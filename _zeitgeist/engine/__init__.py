@@ -48,6 +48,8 @@ class _Constants:
 		BaseDirectory.save_data_path("zeitgeist"))
 	DATABASE_FILE = os.environ.get("ZEITGEIST_DATABASE_PATH",
 		os.path.join(DATA_PATH, "activity.sqlite"))
+	DEFAULT_LOG_PATH = os.path.join(BaseDirectory.xdg_cache_home,
+		"zeitgeist", "daemon.log")
 	
 	# D-Bus
 	DBUS_INTERFACE = ZeitgeistDBusInterface.INTERFACE_NAME

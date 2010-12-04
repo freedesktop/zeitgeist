@@ -25,9 +25,12 @@ import gobject
 import dbus.mainloop.glib
 import gettext
 import logging
+import logging.handlers
 import optparse
 import signal
 from subprocess import Popen, PIPE
+from xdg import BaseDirectory
+from time import time
 
 # Make sure we can find the private _zeitgeist namespace
 from zeitgeist import _config
@@ -121,7 +124,29 @@ def setup_handle_sighup(interface):
 		logging.info("got SIGHUP signal, shutting down zeitgeist interface")
 		interface.Quit()
 	return handle_sighup
+
+def setup_logger(log_level):
+	logger = logging.getLogger()
+	logger.setLevel(getattr(logging, log_level))
+	formatter = logging.Formatter("[%(asctime)s] - %(levelname)s - %(name)s - %(message)s")
 	
+	stream_handler = logging.StreamHandler()
+	stream_handler.setFormatter(formatter)
+	logger.addHandler(stream_handler)
+	
+	try:
+		log_file = os.environ["ZEITGEIST_LOG_FILE"]
+	except KeyError:
+		log_file = constants.DEFAULT_LOG_PATH
+		if not os.path.exists(os.path.dirname(log_file)):
+			os.mkdir(os.path.dirname(log_file))
+	try:
+		file_handler = logging.handlers.TimedRotatingFileHandler(log_file, when="midnight", backupCount=3)
+		file_handler.setFormatter(formatter)
+		logger.addHandler(file_handler)
+	except IOError, e:
+		logging.warning("Can't log to %s: %s" % (e.filename, e.strerror))
+
 if __name__ == "__main__":
 	
 	parser = parse_commandline()
@@ -130,7 +155,7 @@ if __name__ == "__main__":
 	if _config.options.shell_completion:
 		sys.exit(do_shell_completion(parser))
 	
-	logging.basicConfig(level=getattr(logging, _config.options.log_level))
+	setup_logger(_config.options.log_level)
 	
 	try:
 		mainloop, interface = setup_interface()
