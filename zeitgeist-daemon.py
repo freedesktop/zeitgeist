@@ -139,7 +139,7 @@ def setup_logger(log_level):
 	except KeyError:
 		log_file = constants.DEFAULT_LOG_PATH
 		if not os.path.exists(os.path.dirname(log_file)):
-			os.mkdir(os.path.dirname(log_file))
+			os.makedirs(os.path.dirname(log_file))
 	try:
 		file_handler = logging.handlers.TimedRotatingFileHandler(log_file, when="midnight", backupCount=3)
 		file_handler.setFormatter(formatter)
