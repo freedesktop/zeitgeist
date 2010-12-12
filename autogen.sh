@@ -20,8 +20,7 @@ which rapper || {
 export PKG_NAME
 
 if which gnome-autogen.sh ; then
-  REQUIRED_AUTOMAKE_VERSION=1.11bzr branch lp:~seif/zeitgeist/fix-gnome-autogen
-
+  REQUIRED_AUTOMAKE_VERSION=1.11 \
   REQUIRED_AUTOCONF_VERSION=2.57 \
   REQUIRED_AUTOMAKE_VERSION=1.9 \
   REQUIRED_INTLTOOL_VERSION=0.35.0 \
@@ -42,7 +41,6 @@ else
     echo "   sure the gnome-autogen.sh script is in your \$PATH."
     echo "2. You need to install the following scripts:"
     echo "   * intltool"
-    echo "   * libtool"
     echo "   * automake"
     echo "   * autoconf"
     echo "   Additionally, you need to make"
