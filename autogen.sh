@@ -20,7 +20,8 @@ which rapper || {
 export PKG_NAME
 
 if which gnome-autogen.sh ; then
-  REQUIRED_AUTOMAKE_VERSION=1.11
+  REQUIRED_AUTOMAKE_VERSION=1.11bzr branch lp:~seif/zeitgeist/fix-gnome-autogen
+
   REQUIRED_AUTOCONF_VERSION=2.57 \
   REQUIRED_AUTOMAKE_VERSION=1.9 \
   REQUIRED_INTLTOOL_VERSION=0.35.0 \
@@ -34,6 +35,7 @@ else
     autoreconf --force --install || \
       (echo "There was an error in running autoreconf." > /dev/stderr;
        exit 1)
+    ./configure "$@"
   else
     echo "No build script available.  You have two choices:"
     echo "1. You need to install the gnome-common module and make"
