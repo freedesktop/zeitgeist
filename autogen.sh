@@ -12,19 +12,39 @@ PKG_NAME=zeitgeist
 	exit 1
 }
 
-which gnome-autogen.sh || {
-	echo "You need to install gnome-common from the GNOME Git Repository"
-	exit 1
-}
-
 which rapper || {
 	echo "You need to install raptor-utils"
 	exit 1
 }
 
 export PKG_NAME
-REQUIRED_AUTOCONF_VERSION=2.57 \
-REQUIRED_AUTOMAKE_VERSION=1.9 \
-REQUIRED_INTLTOOL_VERSION=0.35.0 \
-REQUIRED_PKG_CONFIG_VERSION=0.16.0 \
-	USE_GNOME2_MACROS=1 . gnome-autogen.sh --enable-uninstalled-build "$@"
+
+if which gnome-autogen.sh ; then
+  REQUIRED_AUTOMAKE_VERSION=1.11 \
+  REQUIRED_AUTOCONF_VERSION=2.57 \
+  REQUIRED_AUTOMAKE_VERSION=1.9 \
+  REQUIRED_INTLTOOL_VERSION=0.35.0 \
+  REQUIRED_PKG_CONFIG_VERSION=0.16.0 \
+	    USE_GNOME2_MACROS=1 . gnome-autogen.sh --enable-uninstalled-build "$@"
+else
+  if which intltoolize && which autoreconf ; then
+    intltoolize --copy --force --automake || \
+      (echo "There was an error in running intltoolize." > /dev/stderr;
+       exit 1)
+    autoreconf --force --install || \
+      (echo "There was an error in running autoreconf." > /dev/stderr;
+       exit 1)
+    ./configure "$@"
+  else
+    echo "No build script available.  You have two choices:"
+    echo "1. You need to install the gnome-common module and make"
+    echo "   sure the gnome-autogen.sh script is in your \$PATH."
+    echo "2. You need to install the following scripts:"
+    echo "   * intltool"
+    echo "   * automake"
+    echo "   * autoconf"
+    echo "   Additionally, you need to make"
+    echo "   sure that they are in your \$PATH."
+    exit 1
+  fi
+fi
