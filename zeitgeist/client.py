@@ -596,10 +596,9 @@ class ZeitgeistClient:
 		Alias for :meth:`find_events_for_templates`, for use when only
 		one template is needed.
 		"""
-		ev, arguments = self.get_event_and_extra_arguments(kwargs)
-		self.find_events_for_templates([ev],
+		self.find_events_for_templates([event_template],
 						events_reply_handler,
-						**arguments)
+						**kwargs)
 	
 	def find_events_for_values(self, events_reply_handler, **kwargs):
 		"""
