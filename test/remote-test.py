@@ -8,6 +8,7 @@ import signal
 import time
 import tempfile
 import shutil
+import pickle
 from subprocess import Popen, PIPE
 
 # DBus setup
@@ -321,13 +322,26 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
 		registry.GetDataSources()
 		
-	def testFindEventsWithPayload(self):
+	def testFindEventsWithStringPayload(self):
 		mainloop = gobject.MainLoop()
 		payload = "Hello World"
 		def callback(ids):
 			def callback2(events):
 				mainloop.quit()
-				self.assertEquals(''.join(map(chr, events[0].payload)), payload)
+				self.assertEquals(events[0].payload, map(ord, payload))
+			self.client.get_events(ids, callback2)
+		events = [Event.new_for_values(actor=u"boo", timestamp=124, subject_uri="file://yomomma")]
+		events[0].payload = payload
+		self.client.insert_events(events, callback)
+		mainloop.run()
+		
+	def testFindEventsWithBinaryPayload(self):
+		mainloop = gobject.MainLoop()
+		payload = pickle.dumps(1234)
+		def callback(ids):
+			def callback2(events):
+				mainloop.quit()
+				self.assertEquals(events[0].payload, map(ord, payload))
 			self.client.get_events(ids, callback2)
 		events = [Event.new_for_values(actor=u"boo", timestamp=124, subject_uri="file://yomomma")]
 		events[0].payload = payload

@@ -47,7 +47,7 @@ class Event(OrigEvent):
 		if self[2] is None:
 			self[2] = u""
 		else:
-			self[2] = map(ord, self[2])
+			self[2] = str(self[2])
 			
 	@staticmethod
 	def get_plain(ev):
