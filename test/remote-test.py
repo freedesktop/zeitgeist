@@ -1,4 +1,5 @@
 #! /usr/bin/python
+# -.- coding: utf-8 -.-
 
 import unittest
 import os
@@ -325,6 +326,19 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	def testFindEventsWithStringPayload(self):
 		mainloop = gobject.MainLoop()
 		payload = "Hello World"
+		def callback(ids):
+			def callback2(events):
+				mainloop.quit()
+				self.assertEquals(events[0].payload, map(ord, payload))
+			self.client.get_events(ids, callback2)
+		events = [Event.new_for_values(actor=u"boo", timestamp=124, subject_uri="file://yomomma")]
+		events[0].payload = payload
+		self.client.insert_events(events, callback)
+		mainloop.run()
+		
+	def testFindEventsWithNonASCIPayload(self):
+		mainloop = gobject.MainLoop()
+		payload = unicode('×☠☻☮'.decode('utf-8'))
 		def callback(ids):
 			def callback2(events):
 				mainloop.quit()
