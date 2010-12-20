@@ -44,7 +44,7 @@ class Extension(object):
 	inserted and retrieved from the log. These hooks can either block the
 	event completely, modify it, or add additional metadata to it.
 	"""
-	PUBLIC_METHODS = None
+	PUBLIC_METHODS = []
 	
 	def __init__(self, engine):
 		self.engine = weakref.proxy(engine)
@@ -238,9 +238,6 @@ class ExtensionsCollection(object):
 		if not issubclass(extension, Extension):
 			raise TypeError("Unable to load %r, all extensions must be "
 				"subclasses of %r" % (extension, Extension))
-		if getattr(extension, "PUBLIC_METHODS", None) is None:
-			raise ValueError("Unable to load %r, this extension has not "
-				"defined any methods" % extension)
 		try:
 			obj = extension(self.__engine)
 		except Exception:

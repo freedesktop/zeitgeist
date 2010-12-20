@@ -93,18 +93,6 @@ TypeError is raised
       ...
     TypeError: Unable to load <type 'set'>, all extensions must be subclasses of <class '...Extension'>
 
-Also, if an extension does not define any public method a ValueErro is raised
-
-    >>> class FailExtension(Extension):
-    ...
-    ...     def get_boo(self):
-    ...         return "boo"
-    ...
-    >>> engine.extensions.load(FailExtension) # doctest:+ELLIPSIS
-    Traceback (most recent call last):
-      ...
-    ValueError: Unable to load <...FailExtension'>, this extension has not defined any methods
-
 At a last step, let's unload all extensions
 
     >>> engine.extensions.unload()
