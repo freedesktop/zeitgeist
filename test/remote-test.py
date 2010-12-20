@@ -321,6 +321,19 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
 		registry.GetDataSources()
 		
+	def testFindEventsWithPayload(self):
+		mainloop = gobject.MainLoop()
+		payload = "Hello World"
+		def callback(ids):
+			def callback2(events):
+				mainloop.quit()
+				self.assertEquals(events[0].payload, payload)
+			self.client.get_events(ids, callback2)
+		events = [Event.new_for_values(actor=u"boo", timestamp=124, subject_uri="file://yomomma")]
+		events[0].payload = payload
+		self.client.insert_events(events, callback)
+		mainloop.run()
+		
 class ZeitgeistRemoteInterfaceTest(unittest.TestCase):
 	
 	def setUp(self):
