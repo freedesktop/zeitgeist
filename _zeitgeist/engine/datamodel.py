@@ -44,8 +44,11 @@ class Event(OrigEvent):
 				subject[n] = self._to_unicode(value)
 		# The payload require special handling, since it is binary data
 		# If there is indeed data here, we must not unicode encode it!
-		if self[2] is None: self[2] = u""
-	
+		if self[2] is None:
+			self[2] = u""
+		else:
+			self[2] = map(ord, self[2])
+			
 	@staticmethod
 	def get_plain(ev):
 		"""
