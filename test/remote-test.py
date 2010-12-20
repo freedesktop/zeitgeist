@@ -327,7 +327,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		def callback(ids):
 			def callback2(events):
 				mainloop.quit()
-				self.assertEquals(events[0].payload, payload)
+				self.assertEquals(''.join(map(chr, events[0].payload)), payload)
 			self.client.get_events(ids, callback2)
 		events = [Event.new_for_values(actor=u"boo", timestamp=124, subject_uri="file://yomomma")]
 		events[0].payload = payload
