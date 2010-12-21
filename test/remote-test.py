@@ -338,7 +338,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 	def testFindEventsWithNonASCIPayload(self):
 		mainloop = gobject.MainLoop()
-		payload = unicode('×☠☻☮'.decode('utf-8'))
+		payload = u"äöü".encode("utf-8")
 		def callback(ids):
 			def callback2(events):
 				mainloop.quit()
