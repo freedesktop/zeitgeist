@@ -147,6 +147,14 @@ class ZeitgeistDBusInterface(object):
 				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
 					"version"))
 	
+	def extensions(self):
+		"""Returns active extensions"""
+		dbus_interface = self.__shared_state["dbus_interface"]
+		return dbus_interface._disconnection_safe(lambda:
+			dbus_interface.proxy.get_dbus_method("Get",
+				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
+					"extensions"))
+					
 	def get_extension(cls, name, path, busname=None):
 		""" Returns an interface to the given extension.
 		
@@ -327,8 +335,15 @@ class ZeitgeistClient:
 				"Reply handler not callable, found %s" % reply_handler)
 		return self._void_reply_handler
 	
+	# Properties
+	
 	def get_version(self):
 		return [int(i) for i in self._iface.version()]
+		
+	def get_extensions(self):
+		return [unicode(i) for i in self._iface.extensions()]
+	
+	# Methods
 	
 	def insert_event (self, event, ids_reply_handler=None, error_handler=None):
 		"""

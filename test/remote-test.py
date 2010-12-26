@@ -353,6 +353,23 @@ class ZeitgeistRemoteInterfaceTest(unittest.TestCase):
 		interface.Quit()
 		self.assertEquals(interface._engine.is_closed(), True)
 		
+
+class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
+	
+	def __init__(self, methodName):
+		super(ZeitgeistRemotePropertiesTest, self).__init__(methodName)
+		
+	def testExtensions(self):
+		self.assertEquals(
+			sorted(self.client.get_extensions()),
+			["Blacklist", "DataSourceRegistry"]
+		)
+		self.assertEquals(
+			sorted(self.client._iface.extensions()),
+			["Blacklist", "DataSourceRegistry"]
+		)
+		
+		
 class ZeitgeistDaemonTest(unittest.TestCase):
 	
 	def setUp(self):
