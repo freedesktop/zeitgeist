@@ -54,7 +54,14 @@ class UnicodeCursor(sqlite3.Cursor):
 			return obj
 		if isinstance(obj, str):
 			obj = obj.decode("UTF-8")
-		return unicode(obj)		
+		# seif: Python’s default encoding is ASCII, so whenever a character with
+		# an ASCII value > 127 is in the input data, you’ll get a UnicodeDecodeError
+		# because that character can’t be handled by the ASCII encoding.
+		try:
+			obj = unicode(obj)
+		except UnicodeDecodeError, ex:
+			pass
+		return obj
 	
 	def execute(self, statement, parameters=()):
 		parameters = [self.fix_unicode(p) for p in parameters]

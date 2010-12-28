@@ -140,6 +140,20 @@ class TestExtensionHooks(_engineTestClass):
 		self.assertEqual(len(filter(lambda x: x is not None, events)), 1)
 		
 		
+class TestExtensionsCollection(_engineTestClass):
+		
+	def testIterNames(self):
+		SampleExtension1 = type("SampleExtension1", (Extension,), dict(Extension.__dict__))
+		SampleExtension2 = type("SampleExtension2", (Extension,), dict(Extension.__dict__))
+		
+		self.engine.extensions.load(SampleExtension1)
+		self.assertEquals(list(self.engine.extensions.iter_names()), ["SampleExtension1"])
+		
+		self.engine.extensions.load(SampleExtension2)
+		self.assertEquals(
+			sorted(self.engine.extensions.iter_names()),
+			["SampleExtension1", "SampleExtension2"]
+		)
 		
 
 if __name__ == "__main__":

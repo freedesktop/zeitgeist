@@ -44,8 +44,11 @@ class Event(OrigEvent):
 				subject[n] = self._to_unicode(value)
 		# The payload require special handling, since it is binary data
 		# If there is indeed data here, we must not unicode encode it!
-		if self[2] is None: self[2] = u""
-	
+		if self[2] is None:
+			self[2] = u""
+		elif isinstance(self[2], unicode):
+			self[2] = str(self[2])
+			
 	@staticmethod
 	def get_plain(ev):
 		"""
@@ -55,7 +58,9 @@ class Event(OrigEvent):
 		popo = []
 		popo.append(map(unicode, ev[0]))
 		popo.append([map(unicode, subj) for subj in ev[1]])
-		popo.append(str(ev[2]))
+		# We need the check here so that if D-Bus gives us an empty
+		# byte array we don't serialize the text "dbus.Array(...)".
+		popo.append(str(ev[2]) if ev[2] else u'')
 		return popo
 
 class Subject(OrigSubject):
