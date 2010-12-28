@@ -19,9 +19,9 @@ DBusGMainLoop(set_as_default=True)
 
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
+from _zeitgeist.engine.datamodel import Event as ZgEvent
 from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
-	TimeRange, StorageState)
+	TimeRange, StorageState, DataSource)
 
 import testutils
 from testutils import parse_events
@@ -183,7 +183,6 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			self.fail("Notified about deletion of non-existing events %s", events)
-			
 			
 		self.client.install_monitor(TimeRange(125, 145), [],
 			notify_insert_handler, notify_delete_handler)
@@ -393,7 +392,175 @@ class ZeitgeistRemoteInterfaceTest(unittest.TestCase):
 		self.assertEquals(interface._engine.is_closed(), False)
 		interface.Quit()
 		self.assertEquals(interface._engine.is_closed(), True)
+
+
+class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
+	
+	_ds1 = [
+		"www.example.com/foo",
+		"Foo Source",
+		"Awakes the foo in you",
+		[
+			Event.new_for_values(subject_manifestation = "!stfu:File"),
+			Event.new_for_values(interpretation = "stfu:CreateEvent")
+		],
+	]
+
+	_ds2 = [
+		"www.example.org/bar",
+		u"© mwhahaha çàéü",
+		u"ThŊ§ ıs teĦ ün↓çØÐe¡",
+		[]
+	]
+
+	_ds2b = [
+		"www.example.org/bar", # same unique ID as _ds2
+		u"This string has been translated into the ASCII language",
+		u"Now the unicode is gone :(",
+		[
+			Event.new_for_values(subject_manifestation = "nah"),
+		],
+	]
+	
+	def __init__(self, methodName):
+		super(ZeitgeistRemoteDataSourceRegistryTest, self).__init__(methodName)
+	
+	def _register_data_source_python_api(self, *args):
+		mainloop = gobject.MainLoop()
+		self.client.register_data_source(*args,
+			reply_handler=lambda: mainloop.quit(),
+			error_handler=lambda: fail("Error registering data-source"))
+		mainloop.run()
+	
+	def _assertDataSourceEquals(self, dsdbus, dsref):
+		self.assertEquals(dsdbus[DataSource.UniqueId], dsref[0])
+		self.assertEquals(dsdbus[DataSource.Name], dsref[1])
+		self.assertEquals(dsdbus[DataSource.Description], dsref[2])
+		self.assertEquals(len(dsdbus[DataSource.EventTemplates]), len(dsref[3]))
+		for i, template in enumerate(dsref[3]):
+			tmpl = dsdbus[DataSource.EventTemplates][i]
+			self.assertEquals(ZgEvent.get_plain(tmpl), ZgEvent.get_plain(template))
+	
+	def testPresence(self):
+		""" Ensure that the DataSourceRegistry extension is there """
+		iface = self.client._iface # we know that client._iface is as clean as possible
+		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
+		registry.GetDataSources()
+	
+	def testGetDataSourcesEmpty(self):
+		self.assertEquals(self.client._registry.GetDataSources(), [])
+	
+	def testRegisterDataSource(self):
+		self.client.register_data_source(*self._ds1)
+		datasources = list(self.client._registry.GetDataSources())
+		self.assertEquals(len(datasources), 1)
+		self._assertDataSourceEquals(datasources[0], self._ds1)
+	
+	def testRegisterDataSourceUnicode(self):
+		self.client.register_data_source(*self._ds2)
+		datasources = list(self.client._registry.GetDataSources())
+		self.assertEquals(len(datasources), 1)
+		self._assertDataSourceEquals(datasources[0], self._ds2)
+	
+	def testRegisterDataSources(self):
+		# Insert two data-sources
+		self.client._registry.RegisterDataSource(*self._ds1)
+		self.client._registry.RegisterDataSource(*self._ds2)
 		
+		# Verify that they have been inserted correctly
+		datasources = list(self.client._registry.GetDataSources())
+		self.assertEquals(len(datasources), 2)
+		self._assertDataSourceEquals(datasources[0], self._ds1)
+		self._assertDataSourceEquals(datasources[1], self._ds2)
+		
+		# Change the information of the second data-source
+		self.client._registry.RegisterDataSource(*self._ds2b)
+		
+		# Verify that it changed correctly
+		datasources = list(self.client._registry.GetDataSources())
+		self.assertEquals(len(datasources), 2)
+		self._assertDataSourceEquals(datasources[0], self._ds1)
+		self._assertDataSourceEquals(datasources[1], self._ds2b)
+	
+	def testSetDataSourceEnabled(self):
+		# Insert a data-source -- it should be enabled by default
+		self.client._registry.RegisterDataSource(*self._ds1)
+		ds = list(self.client._registry.GetDataSources())[0]
+		self.assertEquals(ds[DataSource.Enabled], True)
+		
+		# Now we can choose to disable it...
+		self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
+		ds = list(self.client._registry.GetDataSources())[0]
+		self.assertEquals(ds[DataSource.Enabled], False)
+		
+		# And enable it again!
+		self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
+		ds = list(self.client._registry.GetDataSources())[0]
+		self.assertEquals(ds[DataSource.Enabled], True)
+	
+	def testDataSourceSignals(self):
+		mainloop = gobject.MainLoop()
+		global hit
+		hit = 0
+		
+		def cb_registered(datasource):
+			global hit
+			self.assertEquals(hit, 0)
+			hit = 1
+		
+		def cb_enabled(unique_id, enabled):
+			global hit
+			if hit == 1:
+				self.assertEquals(enabled, False)
+				hit = 2
+			elif hit == 2:
+				self.assertEquals(enabled, True)
+				hit = 3
+				# We're done -- change this if we figure out how to force a
+				# disconnection from the bus, so we can also check the
+				# DataSourceDisconnected signal.
+				mainloop.quit()
+			else:
+				self.fail("Unexpected number of signals: %d." % hit)
+		
+		#def cb_disconnect(datasource):
+		#	self.assertEquals(hit, 3)
+		#	mainloop.quit()
+		
+		def cb_timeout():
+			mainloop.quit()
+			self.fail("Timed out -- operations not completed in 1 minute.")
+		
+		# Connect to signals
+		self.client._registry.connect('DataSourceRegistered', cb_registered)
+		self.client._registry.connect('DataSourceEnabled', cb_enabled)
+		#self.client._registry.connect('DataSourceDisconnected', cb_disconnect)
+		
+		# Register data-source, disable it, enable it again
+		gobject.idle_add(self.testSetDataSourceEnabled)
+		
+		# Add an arbitrary timeout so this test won't block if it fails
+		gobject.timeout_add_seconds(30, cb_timeout)
+		
+		mainloop.run()
+
+
+class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
+	
+	def __init__(self, methodName):
+		super(ZeitgeistRemotePropertiesTest, self).__init__(methodName)
+		
+	def testExtensions(self):
+		self.assertEquals(
+			sorted(self.client.get_extensions()),
+			["Blacklist", "DataSourceRegistry"]
+		)
+		self.assertEquals(
+			sorted(self.client._iface.extensions()),
+			["Blacklist", "DataSourceRegistry"]
+		)
+
+
 class ZeitgeistDaemonTest(unittest.TestCase):
 	
 	def setUp(self):
@@ -414,7 +581,7 @@ class ZeitgeistDaemonTest(unittest.TestCase):
 		os.kill(daemon.pid, signal.SIGHUP)
 		err = daemon.wait()
 		self.assertEqual(err, 0)
-		
-	
+
+
 if __name__ == "__main__":
 	unittest.main()

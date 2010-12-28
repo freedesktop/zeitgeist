@@ -58,7 +58,9 @@ class Event(OrigEvent):
 		popo = []
 		popo.append(map(unicode, ev[0]))
 		popo.append([map(unicode, subj) for subj in ev[1]])
-		popo.append(str(ev[2]))
+		# We need the check here so that if D-Bus gives us an empty
+		# byte array we don't serialize the text "dbus.Array(...)".
+		popo.append(str(ev[2]) if ev[2] else u'')
 		return popo
 
 class Subject(OrigSubject):

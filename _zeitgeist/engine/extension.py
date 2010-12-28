@@ -32,6 +32,19 @@ def safe_issubclass(obj, cls):
 		return issubclass(obj, cls)
 	except TypeError:
 		return False
+		
+def get_extension_name(extension):
+	""" We are using the name of the Extension-class as extension's unique
+	name, later we might want to prepend modul or package names.
+	"""
+	if safe_issubclass(extension, Extension):
+		return extension.__name__
+	elif isinstance(extension, Extension):
+		return extension.__class__.__name__
+	else:
+		raise TypeError(
+			"Can't identify %r, an extension has to be a subclass or "
+			"instance of extension.Extension" %extension)
 
 class Extension(object):
 	""" Base class for all extensions
@@ -234,19 +247,20 @@ class ExtensionsCollection(object):
 		return "%s(%r)" %(self.__class__.__name__, sorted(self.__methods.keys()))
 			
 	def load(self, extension):
-		log.debug("Loading extension '%s'" % extension.__name__)
 		if not issubclass(extension, Extension):
 			raise TypeError("Unable to load %r, all extensions must be "
 				"subclasses of %r" % (extension, Extension))
+		ext_name = get_extension_name(extension)
+		log.debug("Loading extension '%s'" %ext_name)
 		try:
 			obj = extension(self.__engine)
 		except Exception:
-			log.exception("Failed loading the '%s' extension" % extension.__name__)
+			log.exception("Failed loading the '%s' extension" %ext_name)
 			return False
 
 		for method in obj.PUBLIC_METHODS:
 			self._register_method(method, getattr(obj, method))
-		self.__extensions[obj.__class__.__name__] = obj
+		self.__extensions[ext_name] = obj
 		
 	def unload(self, extension=None):
 		"""
@@ -260,17 +274,11 @@ class ExtensionsCollection(object):
 			
 			# We need to clone the key list to avoid concurrent
 			# modification of the extension dict
-			for ext_name in list(self.__extensions.iterkeys()):
-				self.unload(self.__extensions[ext_name])
+			for ext in list(self):
+				self.unload(ext)
 		else:
-			log.debug("Unloading extension '%s'" \
-					  % extension.__class__.__name__)
-			if safe_issubclass(extension, Extension):
-				ext_name = extension.__name__
-			elif isinstance(extension, Extension):
-				ext_name = extension.__class__.__name__
-			else:
-				raise TypeError
+			ext_name = get_extension_name(extension)
+			log.debug("Unloading extension '%s'" %ext_name)
 			obj = self.__extensions[ext_name]
 			for method in obj.PUBLIC_METHODS:
 				del self.methods[method]
@@ -343,3 +351,6 @@ class ExtensionsCollection(object):
 	
 	def __iter__(self):
 		return self.__extensions.itervalues()
+		
+	def iter_names(self):
+		return self.__extensions.iterkeys()

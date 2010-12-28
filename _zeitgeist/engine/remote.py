@@ -43,6 +43,7 @@ class RemoteInterface(SingletonApplication):
 	"""
 	_dbus_properties = {
 		"version": property(lambda self: (0, 6, 0)),
+		"extensions": property(lambda self: list(self._engine.extensions.iter_names())),
 	}
 	
 	# Initialization
@@ -348,6 +349,8 @@ class RemoteInterface(SingletonApplication):
 		self._engine.close()
 		if self._mainloop:
 			self._mainloop.quit()
+		# remove the interface from all busses (in our case from the session bus)
+		self.remove_from_connection()
 	
 	# Properties interface
 
