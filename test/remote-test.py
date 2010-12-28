@@ -9,6 +9,7 @@ import signal
 import time
 import tempfile
 import shutil
+import pickle
 from subprocess import Popen, PIPE
 
 # DBus setup
@@ -312,8 +313,46 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		mainloop.run()
 		self.assertEquals(len(result), 1)
 		self.assertEquals(result[0].actor, "firefox")
-
-
+		
+	def testFindEventsWithStringPayload(self):
+		mainloop = gobject.MainLoop()
+		payload = "Hello World"
+		def callback(ids):
+			def callback2(events):
+				mainloop.quit()
+				self.assertEquals(events[0].payload, map(ord, payload))
+			self.client.get_events(ids, callback2)
+		events = [Event.new_for_values(actor=u"boo", timestamp=124, subject_uri="file://yomomma")]
+		events[0].payload = payload
+		self.client.insert_events(events, callback)
+		mainloop.run()
+		
+	def testFindEventsWithNonASCIIPayload(self):
+		mainloop = gobject.MainLoop()
+		payload = u"äöü".encode("utf-8")
+		def callback(ids):
+			def callback2(events):
+				mainloop.quit()
+				self.assertEquals(events[0].payload, map(ord, payload))
+			self.client.get_events(ids, callback2)
+		events = [Event.new_for_values(actor=u"boo", timestamp=124, subject_uri="file://yomomma")]
+		events[0].payload = payload
+		self.client.insert_events(events, callback)
+		mainloop.run()
+		
+	def testFindEventsWithBinaryPayload(self):
+		mainloop = gobject.MainLoop()
+		payload = pickle.dumps(1234)
+		def callback(ids):
+			def callback2(events):
+				mainloop.quit()
+				self.assertEquals(events[0].payload, map(ord, payload))
+			self.client.get_events(ids, callback2)
+		events = [Event.new_for_values(actor=u"boo", timestamp=124, subject_uri="file://yomomma")]
+		events[0].payload = payload
+		self.client.insert_events(events, callback)
+		mainloop.run()
+		
 class ZeitgeistRemoteInterfaceTest(unittest.TestCase):
 	
 	def setUp(self):
