@@ -327,7 +327,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.client.insert_events(events, callback)
 		mainloop.run()
 		
-	def testFindEventsWithNonASCIPayload(self):
+	def testFindEventsWithNonASCIIPayload(self):
 		mainloop = gobject.MainLoop()
 		payload = u"äöü".encode("utf-8")
 		def callback(ids):
