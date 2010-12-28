@@ -357,7 +357,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		[
 			Event.new_for_values(subject_manifestation = "!stfu:File"),
 			Event.new_for_values(interpretation = "stfu:CreateEvent")
-		]
+		],
 	]
 
 	_ds2 = [
@@ -365,6 +365,15 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		u"© mwhahaha çàéü",
 		u"ThŊ§ ıs teĦ ün↓çØÐe¡",
 		[]
+	]
+
+	_ds2b = [
+		"www.example.org/bar", # same unique ID as _ds2
+		u"This string has been translated into the ASCII language",
+		u"Now the unicode is gone :(",
+		[
+			Event.new_for_values(subject_manifestation = "nah"),
+		],
 	]
 	
 	def __init__(self, methodName):
@@ -406,6 +415,88 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		datasources = list(self.client._registry.GetDataSources())
 		self.assertEquals(len(datasources), 1)
 		self._assertDataSourceEquals(datasources[0], self._ds2)
+	
+	def testRegisterDataSources(self):
+		# Insert two data-sources
+		self.client._registry.RegisterDataSource(*self._ds1)
+		self.client._registry.RegisterDataSource(*self._ds2)
+		
+		# Verify that they have been inserted correctly
+		datasources = list(self.client._registry.GetDataSources())
+		self.assertEquals(len(datasources), 2)
+		self._assertDataSourceEquals(datasources[0], self._ds1)
+		self._assertDataSourceEquals(datasources[1], self._ds2)
+		
+		# Change the information of the second data-source
+		self.client._registry.RegisterDataSource(*self._ds2b)
+		
+		# Verify that it changed correctly
+		datasources = list(self.client._registry.GetDataSources())
+		self.assertEquals(len(datasources), 2)
+		self._assertDataSourceEquals(datasources[0], self._ds1)
+		self._assertDataSourceEquals(datasources[1], self._ds2b)
+	
+	def testSetDataSourceEnabled(self):
+		# Insert a data-source -- it should be enabled by default
+		self.client._registry.RegisterDataSource(*self._ds1)
+		ds = list(self.client._registry.GetDataSources())[0]
+		self.assertEquals(ds[DataSource.Enabled], True)
+		
+		# Now we can choose to disable it...
+		self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
+		ds = list(self.client._registry.GetDataSources())[0]
+		self.assertEquals(ds[DataSource.Enabled], False)
+		
+		# And enable it again!
+		self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
+		ds = list(self.client._registry.GetDataSources())[0]
+		self.assertEquals(ds[DataSource.Enabled], True)
+	
+	def testDataSourceSignals(self):
+		mainloop = gobject.MainLoop()
+		global hit
+		hit = 0
+		
+		def cb_registered(datasource):
+			global hit
+			self.assertEquals(hit, 0)
+			hit = 1
+		
+		def cb_enabled(unique_id, enabled):
+			global hit
+			if hit == 1:
+				self.assertEquals(enabled, False)
+				hit = 2
+			elif hit == 2:
+				self.assertEquals(enabled, True)
+				hit = 3
+				# We're done -- change this if we figure out how to force a
+				# disconnection from the bus, so we can also check the
+				# DataSourceDisconnected signal.
+				mainloop.quit()
+			else:
+				self.fail("Unexpected number of signals: %d." % hit)
+		
+		#def cb_disconnect(datasource):
+		#	self.assertEquals(hit, 3)
+		#	mainloop.quit()
+		
+		def cb_timeout():
+			mainloop.quit()
+			self.fail("Timed out -- operations not completed in 1 minute.")
+		
+		# Connect to signals
+		self.client._registry.connect('DataSourceRegistered', cb_registered)
+		self.client._registry.connect('DataSourceEnabled', cb_enabled)
+		#self.client._registry.connect('DataSourceDisconnected', cb_disconnect)
+		
+		# Register data-source, disable it, enable it again
+		gobject.idle_add(self.testSetDataSourceEnabled)
+		
+		# Add an arbitrary timeout so this test won't block if it fails
+		gobject.timeout_add_seconds(60, cb_timeout)
+		
+		mainloop.run()
 
 
 class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
