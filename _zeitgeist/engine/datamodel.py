@@ -46,7 +46,7 @@ class Event(OrigEvent):
 		# If there is indeed data here, we must not unicode encode it!
 		if self[2] is None:
 			self[2] = u""
-		else:
+		elif isinstance(self[2], unicode):
 			self[2] = str(self[2])
 			
 	@staticmethod

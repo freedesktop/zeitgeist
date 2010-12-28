@@ -59,7 +59,7 @@ class UnicodeCursor(sqlite3.Cursor):
 		# because that character can’t be handled by the ASCII encoding.
 		try:
 			obj = unicode(obj)
-		except:
+		except UnicodeDecodeError, ex:
 			pass
 		return obj
 	
