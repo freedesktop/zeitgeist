@@ -313,14 +313,6 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		mainloop.run()
 		self.assertEquals(len(result), 1)
 		self.assertEquals(result[0].actor, "firefox")
-
-	def testDataSourcesRegistry(self):
-		""" Ensure that the DataSourceRegistry extension is there. If we'd want
-		    to do any actual value checking we need to change testutils.py to
-		    use a ZEITGEIST_DATA_PATH other than ~/.local/share. """
-		iface = self.client._iface # we know that client._iface is as clean as possible
-		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
-		registry.GetDataSources()
 		
 	def testFindEventsWithStringPayload(self):
 		mainloop = gobject.MainLoop()
