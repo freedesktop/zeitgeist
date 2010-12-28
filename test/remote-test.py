@@ -1,4 +1,5 @@
 #! /usr/bin/python
+# -.- coding: utf-8 -.-
 
 import unittest
 import os
@@ -17,9 +18,9 @@ DBusGMainLoop(set_as_default=True)
 
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
-from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
-	TimeRange, StorageState)
+from _zeitgeist.engine.datamodel import Event
+from zeitgeist.datamodel import (Subject, Interpretation, Manifestation,
+	TimeRange, StorageState, DataSource)
 
 import testutils
 from testutils import parse_events
@@ -313,14 +314,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(len(result), 1)
 		self.assertEquals(result[0].actor, "firefox")
 
-	def testDataSourcesRegistry(self):
-		""" Ensure that the DataSourceRegistry extension is there. If we'd want
-		    to do any actual value checking we need to change testutils.py to
-		    use a ZEITGEIST_DATA_PATH other than ~/.local/share. """
-		iface = self.client._iface # we know that client._iface is as clean as possible
-		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
-		registry.GetDataSources()
-		
+
 class ZeitgeistRemoteInterfaceTest(unittest.TestCase):
 	
 	def setUp(self):
@@ -352,7 +346,67 @@ class ZeitgeistRemoteInterfaceTest(unittest.TestCase):
 		self.assertEquals(interface._engine.is_closed(), False)
 		interface.Quit()
 		self.assertEquals(interface._engine.is_closed(), True)
-		
+
+
+class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
+	
+	_ds1 = [
+		"www.example.com/foo",
+		"Foo Source",
+		"Awakes the foo in you",
+		[
+			Event.new_for_values(subject_manifestation = "!stfu:File"),
+			Event.new_for_values(interpretation = "stfu:CreateEvent")
+		]
+	]
+
+	_ds2 = [
+		"www.example.org/bar",
+		u"© mwhahaha çàéü",
+		u"ThŊ§ ıs teĦ ün↓çØÐe¡",
+		[]
+	]
+	
+	def __init__(self, methodName):
+		super(ZeitgeistRemoteDataSourceRegistryTest, self).__init__(methodName)
+	
+	def _register_data_source_python_api(self, *args):
+		mainloop = gobject.MainLoop()
+		self.client.register_data_source(*args,
+			reply_handler=lambda: mainloop.quit(),
+			error_handler=lambda: fail("Error registering data-source"))
+		mainloop.run()
+	
+	def _assertDataSourceEquals(self, dsdbus, dsref):
+		self.assertEquals(dsdbus[DataSource.UniqueId], dsref[0])
+		self.assertEquals(dsdbus[DataSource.Name], dsref[1])
+		self.assertEquals(dsdbus[DataSource.Description], dsref[2])
+		self.assertEquals(len(dsdbus[DataSource.EventTemplates]), len(dsref[3]))
+		for i, template in enumerate(dsref[3]):
+			tmpl = dsdbus[DataSource.EventTemplates][i]
+			self.assertEquals(Event.get_plain(tmpl), Event.get_plain(template))
+	
+	def testPresence(self):
+		""" Ensure that the DataSourceRegistry extension is there """
+		iface = self.client._iface # we know that client._iface is as clean as possible
+		registry = iface.get_extension("DataSourceRegistry", "data_source_registry")
+		registry.GetDataSources()
+	
+	def testGetDataSourcesEmpty(self):
+		self.assertEquals(self.client._registry.GetDataSources(), [])
+	
+	def testRegisterDataSource(self):
+		self.client.register_data_source(*self._ds1)
+		datasources = list(self.client._registry.GetDataSources())
+		self.assertEquals(len(datasources), 1)
+		self._assertDataSourceEquals(datasources[0], self._ds1)
+	
+	def testRegisterDataSourceUnicode(self):
+		self.client.register_data_source(*self._ds2)
+		datasources = list(self.client._registry.GetDataSources())
+		self.assertEquals(len(datasources), 1)
+		self._assertDataSourceEquals(datasources[0], self._ds2)
+
 
 class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
 	
@@ -368,8 +422,8 @@ class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
 			sorted(self.client._iface.extensions()),
 			["Blacklist", "DataSourceRegistry"]
 		)
-		
-		
+
+
 class ZeitgeistDaemonTest(unittest.TestCase):
 	
 	def setUp(self):
@@ -390,7 +444,7 @@ class ZeitgeistDaemonTest(unittest.TestCase):
 		os.kill(daemon.pid, signal.SIGHUP)
 		err = daemon.wait()
 		self.assertEqual(err, 0)
-		
-	
+
+
 if __name__ == "__main__":
 	unittest.main()
