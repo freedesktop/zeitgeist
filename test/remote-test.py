@@ -18,8 +18,8 @@ DBusGMainLoop(set_as_default=True)
 
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from _zeitgeist.engine.datamodel import Event
-from zeitgeist.datamodel import (Subject, Interpretation, Manifestation,
+from _zeitgeist.engine.datamodel import Event as ZgEvent
+from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState, DataSource)
 
 import testutils
@@ -182,7 +182,6 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			self.fail("Notified about deletion of non-existing events %s", events)
-			
 			
 		self.client.install_monitor(TimeRange(125, 145), [],
 			notify_insert_handler, notify_delete_handler)
@@ -393,7 +392,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		self.assertEquals(len(dsdbus[DataSource.EventTemplates]), len(dsref[3]))
 		for i, template in enumerate(dsref[3]):
 			tmpl = dsdbus[DataSource.EventTemplates][i]
-			self.assertEquals(Event.get_plain(tmpl), Event.get_plain(template))
+			self.assertEquals(ZgEvent.get_plain(tmpl), ZgEvent.get_plain(template))
 	
 	def testPresence(self):
 		""" Ensure that the DataSourceRegistry extension is there """
@@ -494,7 +493,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		gobject.idle_add(self.testSetDataSourceEnabled)
 		
 		# Add an arbitrary timeout so this test won't block if it fails
-		gobject.timeout_add_seconds(60, cb_timeout)
+		gobject.timeout_add_seconds(30, cb_timeout)
 		
 		mainloop.run()
 
