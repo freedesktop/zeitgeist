@@ -417,13 +417,6 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 	def __init__(self, methodName):
 		super(ZeitgeistRemoteDataSourceRegistryTest, self).__init__(methodName)
 	
-	def _register_data_source_python_api(self, *args):
-		mainloop = gobject.MainLoop()
-		self.client.register_data_source(*args,
-			reply_handler=lambda: mainloop.quit(),
-			error_handler=lambda: fail("Error registering data-source"))
-		mainloop.run()
-	
 	def _assertDataSourceEquals(self, dsdbus, dsref):
 		self.assertEquals(dsdbus[DataSource.UniqueId], dsref[0])
 		self.assertEquals(dsdbus[DataSource.Name], dsref[1])
