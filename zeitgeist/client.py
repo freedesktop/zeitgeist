@@ -859,7 +859,12 @@ class ZeitgeistClient:
 		                          reply_handler=reply_handler,
 		                          error_handler=error_handler)
 	
-	def register_data_source(self, unique_id, name, description, event_templates):
+	# Data-source related class variables
+	self._data_source_unique_id = None
+	self._data_source_enabled = None
+	
+	def register_data_source(self, unique_id, name, description,
+		event_templates, enabled_callback=None):
 		"""
 		Register a data-source as currently running. If the data-source was
 		already in the database, its metadata (name, description and
@@ -876,12 +881,51 @@ class ZeitgeistClient:
 		:param description: data-source description (may be translated)
 		:param event_templates: list of
 			:class:`Event <zeitgeist.datamodel.Event>` templates.
+		:param enabled_callback: method to call as response with the `enabled'
+			status of the data-source, and after that every time said status
+			is toggled. See set_data_source_enabled_callback() for more
+			information.
 		"""
-		# TODO: Make it possible to access the return value!
+		
+		self._data_source_unique_id = unique_id
+		
+		if enabled_callback is not None:
+			self.set_data_source_enabled_callback(enabled_callback)
+		
+		def _data_source_register_cb(self, enabled):
+			self._data_source_enabled = enabled
+			if self._data_source_callback is not None:
+				self._data_source_callback(self._data_source_enabled)
+		
 		self._registry.RegisterDataSource(unique_id, name, description,
 			event_templates,
-			reply_handler=self._void_reply_handler,
+			reply_handler=_data_source_register_cb,
 			error_handler=self._void_reply_handler) # Errors are ignored
+	
+	def set_data_source_enabled_callback(self, enabled_callback):
+		"""
+		This method may only be used after having called register_data_source
+		before.
+		
+		It registers a method to be called whenever the `enabled' status of
+		the previously registered data-source changes.
+		
+		Remember that on some systems the DataSourceRegistry extension may be
+		disabled, in which case this method will have no effect.
+		"""
+		
+		assert self._data_source_unique_id is not None, \
+			'set_data_source_enabled_callback() called before ' \
+			'register_data_source()'
+		
+		assert callable(callback), \
+			'enabled_callback: expected a callable method'
+		
+		if self._data_source_callback is None:
+			# Here connect to the DataSourceEnabled signal and have it call
+			# enabled_callback
+		
+		self._data_source_callback = callback
 	
 	def _check_list_or_tuple(self, collection):
 		"""
