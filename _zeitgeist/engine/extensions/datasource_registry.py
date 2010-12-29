@@ -72,17 +72,18 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		dbus.service.Object.__init__(self, dbus.SessionBus(),
 			REGISTRY_DBUS_OBJECT_PATH)
 		
+		self._registry = {}
 		if os.path.exists(DATA_FILE):
 			try:
-				self._registry = [DataSource.from_list(
-					datasource) for datasource in pickle.load(open(DATA_FILE))]
+				with open(DATA_FILE) as data_file:
+					for datasource in pickle.load(data_file):
+						ds = DataSource.from_list(datasource)
+						self._registry[ds[DataSource.UniqueId]] = ds
 				log.debug("Loaded data-source data from %s" % DATA_FILE)
 			except Exception, e:
 				log.warn("Failed to load data file %s: %s" % (DATA_FILE, e))
-				self._registry = []
 		else:
 			log.debug("No existing data-source data found.")
-			self._registry = []
 		self._running = {}
 		
 		# Connect to client disconnection signals
@@ -93,20 +94,16 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 	    )
 	
 	def _write_to_disk(self):
-		data = [DataSource.get_plain(datasource) for datasource in self._registry]
+		data = [DataSource.get_plain(datasource) for datasource in
+			self._registry.itervalues()]
 		with open(DATA_FILE, "w") as data_file:
 			pickle.dump(data, data_file)
 		#log.debug("Data-source registry update written to disk.")
 	
-	def _get_data_source(self, unique_id):
-		for datasource in self._registry:
-			if datasource.unique_id == unique_id:
-				return datasource
-	
 	def pre_insert_event(self, event, sender):
 		for (unique_id, bus_names) in self._running.iteritems():
 			if sender in bus_names:
-				datasource = self._get_data_source(unique_id)
+				datasource = self._registry[unique_id]
 				# Update LastSeen time
 				datasource.last_seen = get_timestamp_for_now()
 				self._write_to_disk()
@@ -119,23 +116,22 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 	def register_data_source(self, unique_id, name, description, templates):
 		source = DataSource(str(unique_id), unicode(name), unicode(description),
 			map(Event.new_for_struct, templates))
-		for datasource in self._registry:
-			if datasource == source:
-				datasource.update_from_data_source(source)
-				self.DataSourceRegistered(datasource)
-				return datasource.enabled
-		self._registry.append(source)
+		if unique_id in self._registry:
+			datasource = self._registry[unique_id]
+			datasource.update_from_data_source(source)
+		else:
+			datasource = self._registry[unique_id] = source
 		self._write_to_disk()
-		self.DataSourceRegistered(source)
-		return True
+		self.DataSourceRegistered(datasource)
+		return datasource.enabled
 	
 	# PUBLIC
 	def get_data_sources(self):
-		return self._registry
+		return self._registry.values()
 	
 	# PUBLIC
 	def set_data_source_enabled(self, unique_id, enabled):
-		datasource = self._get_data_source(unique_id)
+		datasource = self._registry[unique_id]
 		if not datasource:
 			return False
 		if datasource.enabled != enabled:
@@ -244,7 +240,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			return
 		uid = uid[0]
 
-		datasource = self._get_data_source(uid)
+		datasource = self._registry[uid]
 		
 		# Update LastSeen time
 		datasource.last_seen = get_timestamp_for_now()

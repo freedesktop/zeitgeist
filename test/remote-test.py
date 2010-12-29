@@ -455,6 +455,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		# Verify that they have been inserted correctly
 		datasources = list(self.client._registry.GetDataSources())
 		self.assertEquals(len(datasources), 2)
+		datasources.sort(key=lambda x: x[DataSource.UniqueId])
 		self._assertDataSourceEquals(datasources[0], self._ds1)
 		self._assertDataSourceEquals(datasources[1], self._ds2)
 		
@@ -464,6 +465,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		# Verify that it changed correctly
 		datasources = list(self.client._registry.GetDataSources())
 		self.assertEquals(len(datasources), 2)
+		datasources.sort(key=lambda x: x[DataSource.UniqueId])
 		self._assertDataSourceEquals(datasources[0], self._ds1)
 		self._assertDataSourceEquals(datasources[1], self._ds2b)
 	
