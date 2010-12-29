@@ -106,11 +106,13 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 				datasource = self._registry[unique_id]
 				# Update LastSeen time
 				datasource.last_seen = get_timestamp_for_now()
-				self._write_to_disk()
 				# Check whether the data-source is allowed to insert events
 				if not datasource.enabled:
 					return None
 		return event
+	
+	def unload(self):
+		self._write_to_disk()
 	
 	# PUBLIC
 	def register_data_source(self, unique_id, name, description, templates):
@@ -244,7 +246,6 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		
 		# Update LastSeen time
 		datasource.last_seen = get_timestamp_for_now()
-		self._write_to_disk()
 		
 		strid = "%s (%s)" % (uid, datasource.name)
 		log.debug("Client disconnected: %s" % strid)
