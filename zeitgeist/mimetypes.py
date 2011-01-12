@@ -89,6 +89,7 @@ MIMES = {
     "application/postscript": Interpretation.PAGINATED_TEXT_DOCUMENT,
     "application/ps": Interpretation.PAGINATED_TEXT_DOCUMENT,
     "application/rtf": Interpretation.PAGINATED_TEXT_DOCUMENT,
+    "image/vnd.djvu": Interpretation.PAGINATED_TEXT_DOCUMENT,
 
     # Gnome office
     "application/x-abiword": Interpretation.PAGINATED_TEXT_DOCUMENT,
