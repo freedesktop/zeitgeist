@@ -60,5 +60,12 @@ class _Constants:
 	CORE_SCHEMA_VERSION = 3
 	
 	USER_EXTENSION_PATH = os.path.join(DATA_PATH, "extensions")
+	
+	__default_cache_size = 2000
+	if "ZEITGEIST_CACHE_SIZE" in os.environ:
+		CACHE_SIZE = int(os.environ["ZEITGEIST_CACHE_SIZE"])
+	else:
+		CACHE_SIZE = __default_cache_size
+	log.debug("Cache size = %i" %CACHE_SIZE)
 
 constants = _Constants()

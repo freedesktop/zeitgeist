@@ -34,6 +34,7 @@ from _zeitgeist.engine.extension import ExtensionsCollection, get_extensions
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 	TableLookup, WhereClause
+from _zeitgeist.lrucache import LRUCache
 
 log = logging.getLogger("zeitgeist.engine")
 
@@ -118,6 +119,7 @@ class ZeitgeistEngine:
 		self._manifestation = TableLookup(cursor, "manifestation")
 		self._mimetype = TableLookup(cursor, "mimetype")
 		self._actor = TableLookup(cursor, "actor")
+		self._event_cache = LRUCache(constants.CACHE_SIZE)
 	
 	@property
 	def extensions(self):
@@ -166,10 +168,22 @@ class ZeitgeistEngine:
 		if not ids:
 			return []
 		
-		rows = self._cursor.execute("""
-			SELECT * FROM event_view
-			WHERE id IN (%s)
-			""" % ",".join("%d" % id for id in ids)).fetchall()
+		# Split ids into cached and uncached
+		uncached_ids = []
+		cached_ids = []
+		
+		# Id ids batch greater than CACHE_SIZE ids ignore cache
+		use_cache = True
+		if len(ids) > constants.CACHE_SIZE/2:
+			use_cache = False
+		if not use_cache:
+			uncached_ids = ids
+		else:
+			for id in ids:
+				if id in self._event_cache:
+					cached_ids.append(id)
+				else:
+					uncached_ids.append(id)
 		
 		id_hash = defaultdict(list)
 		for n, id in enumerate(ids):
@@ -183,10 +197,36 @@ class ZeitgeistEngine:
 		# deleted
 		events = {}
 		sorted_events = [None]*len(ids)
+		
+		for id in cached_ids:
+			event = self._event_cache[id]
+			if event:
+				event = self.extensions.apply_get_hooks(event, sender)
+				if event is not None:
+					for n in id_hash[event.id]:
+						# insert the event into all necessary spots (LP: #673916)
+						sorted_events[n] = event
+		
+		# Get uncached events
+		rows = self._cursor.execute("""
+			SELECT * FROM event_view
+			WHERE id IN (%s)
+			""" % ",".join("%d" % id for id in uncached_ids)).fetchall()
+		
+		log.debug("Got %d raw events in %fs" % (len(rows), time.time()-t))
+		t = time.time()
+		
+		t_get_event = 0
+		t_get_subject = 0
+		t_apply_get_hooks = 0
+		
 		for row in rows:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
+			t_get_event -= time.time()
 			event = self._get_event_from_row(row)
+			t_get_event += time.time()
+			
 			if event:
 				# Check for existing event.id in event to attach 
 				# other subjects to it
@@ -194,14 +234,28 @@ class ZeitgeistEngine:
 					events[event.id] = event
 				else:
 					event = events[event.id]
+				
+				# Avoid caching events with payloads to have keep the cache MB size 
+				# at a decent level
+				if use_cache and not event.payload:
+					self._event_cache[event.id] = event
+					
+				t_get_subject -= time.time()
 				event.append_subject(self._get_subject_from_row(row))
+				t_get_subject += time.time()
+			
+				t_apply_get_hooks -= time.time()
 				event = self.extensions.apply_get_hooks(event, sender)
+				t_apply_get_hooks += time.time()
 				if event is not None:
 					for n in id_hash[event.id]:
 						# insert the event into all necessary spots (LP: #673916)
 						sorted_events[n] = event
-				
+						
 		log.debug("Got %d events in %fs" % (len(sorted_events), time.time()-t))
+		log.debug("    Where time spent in _get_event_from_row in %fs" % (t_get_event))
+		log.debug("    Where time spent in _get_subject_from_row in %fs" % (t_get_subject))
+		log.debug("    Where time spent in apply_get_hooks in %fs" % (t_apply_get_hooks))
 		return sorted_events
 	
 	@staticmethod
@@ -604,6 +658,11 @@ class ZeitgeistEngine:
 		""" % ",".join(str(int(_id)) for _id in ids))
 		timestamps = self._cursor.fetchone()
 
+		# Remove events from cache
+		for id in ids:
+			if id in self._event_cache:
+				del self._event_cache[id]
+		
 		# Make sure that we actually found some events with these ids...
 		# We can't do all(timestamps) here because the timestamps may be 0
 		if timestamps and timestamps[0] is not None and timestamps[1] is not None:
@@ -613,7 +672,6 @@ class ZeitgeistEngine:
 			log.debug("Deleted %s" % map(int, ids))
 			
 			self.extensions.apply_post_delete(ids, sender)
-			
 			return timestamps
 		else:
 			log.debug("Tried to delete non-existing event(s): %s" % map(int, ids))
