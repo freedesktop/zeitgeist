@@ -152,8 +152,12 @@ class ZeitgeistEngine:
 			setattr(subject, field, row["subj_" + field])
 		setattr(subject, "origin", row["subj_origin_uri"])
 		for field in ("interpretation", "manifestation", "mimetype"):
-			setattr(subject, field,
-				getattr(self, "_" + field).value(row["subj_" + field]))
+			try:
+				setattr(subject, field,
+					getattr(self, "_" + field).value(row["subj_" + field]))
+			except KeyError, e:
+				log.error("Event %i broken: Table %s has no id %i" %(row["id"], field, row["subj_" + field]))
+				return None
 		return subject
 	
 	def get_events(self, ids, sender=None):
@@ -194,12 +198,14 @@ class ZeitgeistEngine:
 					events[event.id] = event
 				else:
 					event = events[event.id]
-				event.append_subject(self._get_subject_from_row(row))
-				event = self.extensions.apply_get_hooks(event, sender)
-				if event is not None:
-					for n in id_hash[event.id]:
-						# insert the event into all necessary spots (LP: #673916)
-						sorted_events[n] = event
+				subject = self._get_subject_from_row(row)
+				if subject:
+					event.append_subject(self._get_subject_from_row(row))
+					event = self.extensions.apply_get_hooks(event, sender)
+					if event is not None:
+						for n in id_hash[event.id]:
+							# insert the event into all necessary spots (LP: #673916)
+							sorted_events[n] = event
 				
 		log.debug("Got %d events in %fs" % (len(sorted_events), time.time()-t))
 		return sorted_events
