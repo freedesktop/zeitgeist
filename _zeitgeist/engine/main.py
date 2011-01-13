@@ -152,11 +152,15 @@ class ZeitgeistEngine:
 			setattr(subject, field, row["subj_" + field])
 		setattr(subject, "origin", row["subj_origin_uri"])
 		for field in ("interpretation", "manifestation", "mimetype"):
+			# Try to get subject attributes from row using the attributed field id
+			# If attribute does not exist we break the attribute fetching and return
+			# None instead of of crashing
 			try:
 				setattr(subject, field,
 					getattr(self, "_" + field).value(row["subj_" + field]))
 			except KeyError, e:
-				log.error("Event %i broken: Table %s has no id %i" %(row["id"], field, row["subj_" + field]))
+				log.error("Event %i broken: Table %s has no id %i" \
+						%(row["id"], field, row["subj_" + field]))
 				return None
 		return subject
 	
@@ -199,8 +203,11 @@ class ZeitgeistEngine:
 				else:
 					event = events[event.id]
 				subject = self._get_subject_from_row(row)
+				# Check if subject has a proper value. If none than something went
+				# wrong while trying to fetch the subject from the row. So instead
+				# of failing and raising an error. We silently skip the event.
 				if subject:
-					event.append_subject(self._get_subject_from_row(row))
+					event.append_subject(subject)
 					event = self.extensions.apply_get_hooks(event, sender)
 					if event is not None:
 						for n in id_hash[event.id]:
