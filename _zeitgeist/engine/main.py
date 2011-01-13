@@ -142,7 +142,15 @@ class ZeitgeistEngine:
 		event[0][Event.Id] = row["id"] # Id property is read-only in the public API
 		event.timestamp = row["timestamp"]
 		for field in ("interpretation", "manifestation", "actor"):
-			setattr(event, field, getattr(self, "_" + field).value(row[field]))
+			# Try to get event attributes from row using the attributed field id
+			# If attribute does not exist we break the attribute fetching and return
+			# None instead of of crashing
+			try:
+				setattr(event, field, getattr(self, "_" + field).value(row[field]))
+			except KeyError, e:
+				log.error("Event %i broken: Table %s has no id %i" \
+						%(row["id"], field, row[field]))
+				return None
 		event.payload = row["payload"] or "" # default payload: empty string
 		return event
 	

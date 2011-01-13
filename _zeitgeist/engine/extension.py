@@ -62,6 +62,15 @@ class Extension(object):
 	def __init__(self, engine):
 		self.engine = weakref.proxy(engine)
 	
+	def unload(self):
+		"""
+		This method gets called before Zeitgeist stops.
+		
+		Execution of this method isn't guaranteed, and you shouldn't do
+		anything slow in there.
+		"""
+		pass
+	
 	def pre_insert_event(self, event, sender):
 		"""
 		Hook applied to all events before they are inserted into the
@@ -278,8 +287,9 @@ class ExtensionsCollection(object):
 				self.unload(ext)
 		else:
 			ext_name = get_extension_name(extension)
-			log.debug("Unloading extension '%s'" %ext_name)
+			log.debug("Unloading extension '%s'" % ext_name)
 			obj = self.__extensions[ext_name]
+			obj.unload()
 			for method in obj.PUBLIC_METHODS:
 				del self.methods[method]
 			del self.__extensions[ext_name]
