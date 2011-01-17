@@ -61,11 +61,9 @@ class _Constants:
 	
 	USER_EXTENSION_PATH = os.path.join(DATA_PATH, "extensions")
 	
-	__default_cache_size = 2000
-	if "ZEITGEIST_CACHE_SIZE" in os.environ:
-		CACHE_SIZE = int(os.environ["ZEITGEIST_CACHE_SIZE"])
-	else:
-		CACHE_SIZE = __default_cache_size
+	# configure runtime cache for events
+	# default size is 2000
+	CACHE_SIZE = int(os.environ.get("ZEITGEIST_CACHE_SIZE", 2000))
 	log.debug("Cache size = %i" %CACHE_SIZE)
 
 constants = _Constants()

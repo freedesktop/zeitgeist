@@ -4,7 +4,7 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
-# Copyright © 2009-2010 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009-2011 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.net>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -37,6 +37,9 @@ from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 from _zeitgeist.lrucache import LRUCache
 
 log = logging.getLogger("zeitgeist.engine")
+
+# we only allow replacement of half of the cache at once.
+MAX_CACHE_BATCH_SIZE = constants.CACHE_SIZE/2
 
 class NegationNotSupported(ValueError):
 	pass
@@ -188,9 +191,9 @@ class ZeitgeistEngine:
 		uncached_ids = []
 		cached_ids = []
 		
-		# Id ids batch greater than CACHE_SIZE ids ignore cache
+		# If ids batch greater than MAX_CACHE_BATCH_SIZE ids ignore cache
 		use_cache = True
-		if len(ids) > constants.CACHE_SIZE/2:
+		if len(ids) > MAX_CACHE_BATCH_SIZE:
 			use_cache = False
 		if not use_cache:
 			uncached_ids = ids
