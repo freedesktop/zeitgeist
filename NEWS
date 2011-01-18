@@ -1,3 +1,40 @@
+2011-01-18: Zeitgeist 0.7.0 "All I have is this woodchuck."
+-----------------------------------------
+
+Engine:
+
+ - Added some new mimetype mappings
+ - Speed up the GetEvents method by caching events (LP: #686732)
+ - Allow extension without public method (LP: #691660)
+ - Added a read-only DBus property "extensions" to org.gnome.zeitgeist.Log 
+   (LP: #693861)
+ - Added helper function to get an extension's name
+ - Fixed bug in RemoteInterface.Quit(): make sure to close connection to the
+   used bus if this method gets called, this is needed if RemoteInterface
+   does not know anything about the loop it is running in.
+ - Fix sending payload from engine to client (LP: #692645)
+ - Improve performance of DataSourceRegistry (LP: #695311)
+ - Improve performance of find_event queries with timerange other than 
+   TimeRange.always() (LP: #672965)
+ - Add an auto-filter for broken database entries (LP: #598666 workaround)
+ - Introduce new DB schema (version 3) that bundles a few performance related 
+   fixes (LP: #673452, #673394)
+ 
+Python API:
+
+ - Fix find_event_for_template to stop ignoring the template (LP: #690377)
+ - Add get_extensions method to ZeitgeistClient
+ 
+Overall:
+
+ - Using logging output for debugging purposes (LP: #660440)
+ - Stop building man page for zeitgeist-datahub (LP: #680360)
+ - Allow easy building for KDE (LP: #683280)
+ - Logging output now displays how many events were actually inserted from 
+   the batch of requested inserts (LP: #660440)
+ - Changed License to LGPL 2.1+
+ 
+
 2010-11-01: Zeitgeist 0.6 "Buzzer Beater"
 -----------------------------------------
 
