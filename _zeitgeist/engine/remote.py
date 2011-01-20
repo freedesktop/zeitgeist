@@ -371,6 +371,11 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
 						 in_signature="ss", out_signature="v")
 	def Get(self, interface_name, property_name):
+		if interface_name != constants.DBUS_INTERFACE:
+			raise ValueError(
+				"'%s' doesn't know anything about the '%s' interface" \
+				%(constants.DBUS_INTERFACE, interface_name)
+			)
 		try:
 			return self._dbus_properties[property_name].fget(self)
 		except KeyError, e:
@@ -379,6 +384,11 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
 						 in_signature="ssv", out_signature="")
 	def Set(self, interface_name, property_name, value):
+		if interface_name != constants.DBUS_INTERFACE:
+			raise ValueError(
+				"'%s' doesn't know anything about the '%s' interface" \
+				%(constants.DBUS_INTERFACE, interface_name)
+			)
 		try:
 			prop = self._dbus_properties[property_name].fset(self, value)
 		except (KeyError, TypeError), e:
@@ -387,6 +397,11 @@ class RemoteInterface(SingletonApplication):
 	@dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
 						 in_signature="s", out_signature="a{sv}")
 	def GetAll(self, interface_name):
+		if interface_name != constants.DBUS_INTERFACE:
+			raise ValueError(
+				"'%s' doesn't know anything about the '%s' interface" \
+				%(constants.DBUS_INTERFACE, interface_name)
+			)
 		return dict((k, v.fget(self)) for (k,v) in self._dbus_properties.items())
 		
 	# Instrospection Interface
