@@ -23,12 +23,26 @@ import dbus
 import dbus.service
 import logging
 
+from xml.etree import ElementTree
+
 from zeitgeist.datamodel import TimeRange, StorageState, ResultType, NULL_EVENT
 from _zeitgeist.engine.datamodel import Event, Subject
 from _zeitgeist.engine import get_engine
 from _zeitgeist.engine.notify import MonitorManager
 from _zeitgeist.engine import constants
 from _zeitgeist.singleton import SingletonApplication
+
+class DBUSProperty(property):
+	
+	def __init__(self, fget=None, fset=None, in_signature=None, out_signature=None):
+		assert not (fget and not out_signature), "fget needs a dbus signature"
+		assert not (fset and not in_signature), "fset needs a dbus signature"
+		assert (fget and not fset) or (fset and fget), \
+			"dbus properties needs to be either readonly or readwritable"
+		self.in_signature = in_signature
+		self.out_signature = out_signature
+		super(DBUSProperty, self).__init__(fget, fset)
+
 
 class RemoteInterface(SingletonApplication):
 	"""
@@ -42,8 +56,8 @@ class RemoteInterface(SingletonApplication):
 	:const:`org.gnome.zeitgeist.Engine`.
 	"""
 	_dbus_properties = {
-		"version": property(lambda self: (0, 7, 0)),
-		"extensions": property(lambda self: list(self._engine.extensions.iter_names())),
+		"version": DBUSProperty(lambda self: (0, 7, 0), out_signature="iii"),
+		"extensions": DBUSProperty(lambda self: list(self._engine.extensions.iter_names()), out_signature="as"),
 	}
 	
 	# Initialization
@@ -374,6 +388,26 @@ class RemoteInterface(SingletonApplication):
 						 in_signature="s", out_signature="a{sv}")
 	def GetAll(self, interface_name):
 		return dict((k, v.fget(self)) for (k,v) in self._dbus_properties.items())
+		
+	# Instrospection Interface
+	
+	@dbus.service.method(dbus.INTROSPECTABLE_IFACE, in_signature="", out_signature="s",
+						 path_keyword="object_path", connection_keyword="connection")
+	def Introspect(self, object_path, connection):
+		data = dbus.service.Object.Introspect(self, object_path, connection)
+		xml = ElementTree.fromstring(data)
+		for iface in xml.findall("interface"):
+			if iface.attrib["name"] != constants.DBUS_INTERFACE:
+				continue
+			for prop_name, prop_func in self._dbus_properties.iteritems():
+				prop = {"name": prop_name}
+				if prop_func.fset is not None:
+					prop["access"] = "readwrite"
+				else:
+					prop["access"] = "read"
+				prop["type"] = prop_func.out_signature
+				iface.append(ElementTree.Element("property", prop))
+		return ElementTree.tostring(xml, encoding="UTF-8")
 	
 	# Notifications interface
 	
