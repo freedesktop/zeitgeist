@@ -28,7 +28,7 @@ import sys
 import logging
 import inspect
 
-from xml.dom.minidom import parseString as minidom_parse
+from xml.etree import ElementTree
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
@@ -48,11 +48,11 @@ class _DBusInterface(object):
 		a tuple, where the first item is a list of all methods and the
 		second one a list of all signals for the related interface
 		"""
-		doc = minidom_parse(introspection_xml)
-		nodes = doc.getElementsByTagName("signal")
-		signals = [node.getAttribute("name") for node in nodes]
-		nodes = doc.getElementsByTagName("method")
-		methods = [node.getAttribute("name") for node in nodes]
+		xml = ElementTree.fromstring(introspection_xml)
+		nodes = xml.findall("interface/signal")
+		signals = [node.attrib["name"] for node in nodes]
+		nodes = xml.findall("interface/method")
+		methods = [node.attrib["name"] for node in nodes]
 		try:
 			methods.remove("Introspect") # Introspect is not part of the API
 		except ValueError:
