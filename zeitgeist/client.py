@@ -2,7 +2,7 @@
 
 # Zeitgeist
 #
-# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2011 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
 #
@@ -41,6 +41,8 @@ log = logging.getLogger("zeitgeist.client")
 class _DBusInterface(object):
 	"""Wrapper around dbus.Interface adding convenience methods."""
 
+	reconnect_callbacks = []
+
 	@staticmethod
 	def get_members(introspection_xml):
 		"""Parses the XML context returned by Introspect() and returns
@@ -58,6 +60,13 @@ class _DBusInterface(object):
 			pass
 		return methods, signals
 
+	def reconnect(self):
+		self.__proxy = dbus.SessionBus().get_object(self.__iface.requested_bus_name,
+			self.__object_path)
+		self.__iface = dbus.Interface(self.__proxy, self.__interface_name)
+		for callback in self.reconnect_callbacks:
+			callback()
+
 	def _disconnection_safe(self, meth, *args, **kwargs):
 		"""
 		Executes the given method. If it fails because the D-Bus connection
@@ -70,10 +79,7 @@ class _DBusInterface(object):
 		def reconnecting_error_handler(e):
 			error = e.get_dbus_name()
 			if error == "org.freedesktop.DBus.Error.ServiceUnknown":
-				self.__proxy = dbus.SessionBus().get_object(
-					self.__iface.requested_bus_name, self.__object_path)
-				self.__iface = dbus.Interface(self.__proxy,
-					self.__interface_name)
+				self.reconnect()
 				# We don't use the reconnecting_error_handler here since that'd
 				# get us into an endless loop if Zeitgeist really isn't there.
 				return meth(*args, **original_kwargs)
@@ -171,7 +177,7 @@ class ZeitgeistDBusInterface(object):
 			dbus_interface.proxy.get_dbus_method("Get",
 				dbus_interface=dbus.PROPERTIES_IFACE),
 				self.INTERFACE_NAME, "extensions")
-					
+	
 	def get_extension(cls, name, path, busname=None):
 		""" Returns an interface to the given extension.
 		
@@ -209,6 +215,8 @@ class ZeitgeistDBusInterface(object):
 			self.__shared_state["extension_interfaces"] = {}
 			self.__shared_state["dbus_interface"] = _DBusInterface(proxy,
 				self.INTERFACE_NAME, self.OBJECT_PATH)
+			self.reconnect_callbacks = \
+				self.__shared_state["dbus_interface"].reconnect_callbacks
 
 class Monitor(dbus.service.Object):
 	"""
@@ -317,6 +325,8 @@ class ZeitgeistClient:
 	DBus calls use the raw DBus API found in the ZeitgeistDBusInterface class.
 	"""
 	
+	_installed_monitors = []
+	
 	@staticmethod
 	def get_event_and_extra_arguments(arguments):
 		""" some methods of :class:`ZeitgeistClient` take a variable
@@ -335,6 +345,18 @@ class ZeitgeistClient:
 		self._iface = ZeitgeistDBusInterface()
 		self._registry = self._iface.get_extension("DataSourceRegistry",
 			"data_source_registry")
+		
+		# Reconnect all active monitors if the connection is reset.
+		def reconnect_monitors():
+			log.info("Reconnected to Zeitgeist engine...")
+			for monitor in self._installed_monitors:
+				self._iface.InstallMonitor(monitor.path,
+					monitor.time_range,
+					monitor.templates,
+					reply_handler=self._void_reply_handler,
+					error_handler=lambda err: log.warn(
+						"Error reinstalling monitor: %s" % err))
+		self._iface.reconnect_callbacks.append(reconnect_monitors)
 	
 	def _safe_error_handler(self, error_handler, *args):
 		if error_handler is not None:
@@ -837,6 +859,7 @@ class ZeitgeistClient:
 		                           reply_handler=self._void_reply_handler,
 		                           error_handler=lambda err: log.warn(
 									"Error installing monitor: %s" % err))
+		self._installed_monitors.append(mon)
 		return mon
 	
 	def remove_monitor (self, monitor, monitor_removed_handler=None):
@@ -875,6 +898,7 @@ class ZeitgeistClient:
 		self._iface.RemoveMonitor(path,
 		                          reply_handler=reply_handler,
 		                          error_handler=error_handler)
+		self._installed_monitors.remove(monitor)
 	
 	def register_data_source(self, unique_id, name, description, event_templates):
 		"""
