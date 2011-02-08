@@ -8,7 +8,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2.1 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -118,12 +118,13 @@ def start_datahub():
 		# tell the user which datahub we are running
 		logging.debug("Running datahub (%s) with PID=%i" %(which(DATAHUB), p.pid))
 
-def setup_handle_sighup(interface):
-	def handle_sighup(signum, frame):
-		"""We are using the SIGHUP signal to shutdown zeitgeist in a clean way"""
-		logging.info("got SIGHUP signal, shutting down zeitgeist interface")
+def setup_handle_exit(interface):
+	def handle_exit(signum=None, frame=None):
+		""" We want to end Zeitgeist in a clean way when we receive a
+		SIGTERM or SIGHUP signal, or the user pressed Ctrl+C. """
+		logging.info("Shutting down Zeitgeist interface...")
 		interface.Quit()
-	return handle_sighup
+	return handle_exit
 
 def setup_logger(log_level):
 	logger = logging.getLogger()
@@ -167,7 +168,13 @@ if __name__ == "__main__":
 		logging.info("Trying to start the datahub")
 		start_datahub()
 	
-	signal.signal(signal.SIGHUP, setup_handle_sighup(interface))
+	handle_exit = setup_handle_exit(interface)
+	
+	signal.signal(signal.SIGHUP, handle_exit)
+	signal.signal(signal.SIGTERM, handle_exit)
 	
 	logging.info("Starting Zeitgeist service...")
-	mainloop.run()
+	try:
+		mainloop.run()
+	except KeyboardInterrupt:
+		handle_exit()

@@ -7,7 +7,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2.1 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -61,6 +61,15 @@ class Extension(object):
 	
 	def __init__(self, engine):
 		self.engine = weakref.proxy(engine)
+	
+	def unload(self):
+		"""
+		This method gets called before Zeitgeist stops.
+		
+		Execution of this method isn't guaranteed, and you shouldn't do
+		anything slow in there.
+		"""
+		pass
 	
 	def pre_insert_event(self, event, sender):
 		"""
@@ -278,8 +287,9 @@ class ExtensionsCollection(object):
 				self.unload(ext)
 		else:
 			ext_name = get_extension_name(extension)
-			log.debug("Unloading extension '%s'" %ext_name)
+			log.debug("Unloading extension '%s'" % ext_name)
 			obj = self.__extensions[ext_name]
+			obj.unload()
 			for method in obj.PUBLIC_METHODS:
 				del self.methods[method]
 			del self.__extensions[ext_name]

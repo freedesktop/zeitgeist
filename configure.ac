@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [0.6])
+AC_INIT([zeitgeist], [0.7])
 AC_CONFIG_SRCDIR(zeitgeist-daemon.py)
 AM_INIT_AUTOMAKE([1.9 foreign])
 GNOME_COMMON_INIT
@@ -37,10 +37,13 @@ if test "x$HAVE_RAPPER" = "xno"; then
   AC_MSG_ERROR(You need the tool `rapper' from the `raptor-utils' package in order to compile Zeitgeist)
 fi
 
-# check for rdflib
-AC_CHECK_PROG(HAVE_RDFLIB, rdfpipe, yes, no)
-if test "x$HAVE_RDFLIB" = "xno"; then
-  AC_MSG_ERROR(You need the tool `rdfpipe' from the `python-rdflib' package in order to compile Zeitgeist)
+# check for python-rdflib
+AC_MSG_CHECKING([for python-rdflib])
+echo "import rdflib" | python - 2>/dev/null
+if test $? -ne 0 ; then
+  AC_MSG_FAILURE([failed.  Please install the python-rdflib package.])
+else
+  AC_MSG_RESULT([yes])
 fi
 
 AC_OUTPUT

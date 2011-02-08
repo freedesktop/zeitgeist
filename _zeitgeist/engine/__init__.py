@@ -8,7 +8,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2.1 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -60,5 +60,10 @@ class _Constants:
 	CORE_SCHEMA_VERSION = 3
 	
 	USER_EXTENSION_PATH = os.path.join(DATA_PATH, "extensions")
+	
+	# configure runtime cache for events
+	# default size is 2000
+	CACHE_SIZE = int(os.environ.get("ZEITGEIST_CACHE_SIZE", 2000))
+	log.debug("Cache size = %i" %CACHE_SIZE)
 
 constants = _Constants()

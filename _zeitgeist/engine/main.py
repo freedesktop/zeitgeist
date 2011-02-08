@@ -4,12 +4,12 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
-# Copyright © 2009-2010 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2009-2011 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2.1 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -34,8 +34,12 @@ from _zeitgeist.engine.extension import ExtensionsCollection, get_extensions
 from _zeitgeist.engine import constants
 from _zeitgeist.engine.sql import get_default_cursor, unset_cursor, \
 	TableLookup, WhereClause
+from _zeitgeist.lrucache import LRUCache
 
 log = logging.getLogger("zeitgeist.engine")
+
+# we only allow replacement of half of the cache at once.
+MAX_CACHE_BATCH_SIZE = constants.CACHE_SIZE/2
 
 class NegationNotSupported(ValueError):
 	pass
@@ -118,6 +122,7 @@ class ZeitgeistEngine:
 		self._manifestation = TableLookup(cursor, "manifestation")
 		self._mimetype = TableLookup(cursor, "mimetype")
 		self._actor = TableLookup(cursor, "actor")
+		self._event_cache = LRUCache(constants.CACHE_SIZE)
 	
 	@property
 	def extensions(self):
@@ -142,7 +147,15 @@ class ZeitgeistEngine:
 		event[0][Event.Id] = row["id"] # Id property is read-only in the public API
 		event.timestamp = row["timestamp"]
 		for field in ("interpretation", "manifestation", "actor"):
-			setattr(event, field, getattr(self, "_" + field).value(row[field]))
+			# Try to get event attributes from row using the attributed field id
+			# If attribute does not exist we break the attribute fetching and return
+			# None instead of of crashing
+			try:
+				setattr(event, field, getattr(self, "_" + field).value(row[field]))
+			except KeyError, e:
+				log.error("Event %i broken: Table %s has no id %i" \
+						%(row["id"], field, row[field]))
+				return None
 		event.payload = row["payload"] or "" # default payload: empty string
 		return event
 	
@@ -152,8 +165,16 @@ class ZeitgeistEngine:
 			setattr(subject, field, row["subj_" + field])
 		setattr(subject, "origin", row["subj_origin_uri"])
 		for field in ("interpretation", "manifestation", "mimetype"):
-			setattr(subject, field,
-				getattr(self, "_" + field).value(row["subj_" + field]))
+			# Try to get subject attributes from row using the attributed field id
+			# If attribute does not exist we break the attribute fetching and return
+			# None instead of of crashing
+			try:
+				setattr(subject, field,
+					getattr(self, "_" + field).value(row["subj_" + field]))
+			except KeyError, e:
+				log.error("Event %i broken: Table %s has no id %i" \
+						%(row["id"], field, row["subj_" + field]))
+				return None
 		return subject
 	
 	def get_events(self, ids, sender=None):
@@ -166,10 +187,22 @@ class ZeitgeistEngine:
 		if not ids:
 			return []
 		
-		rows = self._cursor.execute("""
-			SELECT * FROM event_view
-			WHERE id IN (%s)
-			""" % ",".join("%d" % id for id in ids)).fetchall()
+		# Split ids into cached and uncached
+		uncached_ids = []
+		cached_ids = []
+		
+		# If ids batch greater than MAX_CACHE_BATCH_SIZE ids ignore cache
+		use_cache = True
+		if len(ids) > MAX_CACHE_BATCH_SIZE:
+			use_cache = False
+		if not use_cache:
+			uncached_ids = ids
+		else:
+			for id in ids:
+				if id in self._event_cache:
+					cached_ids.append(id)
+				else:
+					uncached_ids.append(id)
 		
 		id_hash = defaultdict(list)
 		for n, id in enumerate(ids):
@@ -183,10 +216,36 @@ class ZeitgeistEngine:
 		# deleted
 		events = {}
 		sorted_events = [None]*len(ids)
+		
+		for id in cached_ids:
+			event = self._event_cache[id]
+			if event:
+				event = self.extensions.apply_get_hooks(event, sender)
+				if event is not None:
+					for n in id_hash[event.id]:
+						# insert the event into all necessary spots (LP: #673916)
+						sorted_events[n] = event
+		
+		# Get uncached events
+		rows = self._cursor.execute("""
+			SELECT * FROM event_view
+			WHERE id IN (%s)
+			""" % ",".join("%d" % id for id in uncached_ids)).fetchall()
+		
+		log.debug("Got %d raw events in %fs" % (len(rows), time.time()-t))
+		t = time.time()
+		
+		t_get_event = 0
+		t_get_subject = 0
+		t_apply_get_hooks = 0
+		
 		for row in rows:
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
+			t_get_event -= time.time()
 			event = self._get_event_from_row(row)
+			t_get_event += time.time()
+			
 			if event:
 				# Check for existing event.id in event to attach 
 				# other subjects to it
@@ -194,14 +253,32 @@ class ZeitgeistEngine:
 					events[event.id] = event
 				else:
 					event = events[event.id]
-				event.append_subject(self._get_subject_from_row(row))
-				event = self.extensions.apply_get_hooks(event, sender)
-				if event is not None:
-					for n in id_hash[event.id]:
-						# insert the event into all necessary spots (LP: #673916)
-						sorted_events[n] = event
-				
+					
+				t_get_subject -= time.time()
+				subject = self._get_subject_from_row(row)
+				t_get_subject += time.time()
+				# Check if subject has a proper value. If none than something went
+				# wrong while trying to fetch the subject from the row. So instead
+				# of failing and raising an error. We silently skip the event.
+				if subject:
+					event.append_subject(subject)
+					if use_cache and not event.payload:
+						self._event_cache[event.id] = event
+					t_apply_get_hooks -= time.time()
+					event = self.extensions.apply_get_hooks(event, sender)
+					t_apply_get_hooks += time.time()
+					if event is not None:
+						for n in id_hash[event.id]:
+							# insert the event into all necessary spots (LP: #673916)
+							sorted_events[n] = event
+					# Avoid caching events with payloads to have keep the cache MB size 
+					# at a decent level
+					
+
 		log.debug("Got %d events in %fs" % (len(sorted_events), time.time()-t))
+		log.debug("    Where time spent in _get_event_from_row in %fs" % (t_get_event))
+		log.debug("    Where time spent in _get_subject_from_row in %fs" % (t_get_subject))
+		log.debug("    Where time spent in apply_get_hooks in %fs" % (t_apply_get_hooks))
 		return sorted_events
 	
 	@staticmethod
@@ -604,6 +681,11 @@ class ZeitgeistEngine:
 		""" % ",".join(str(int(_id)) for _id in ids))
 		timestamps = self._cursor.fetchone()
 
+		# Remove events from cache
+		for id in ids:
+			if id in self._event_cache:
+				del self._event_cache[id]
+		
 		# Make sure that we actually found some events with these ids...
 		# We can't do all(timestamps) here because the timestamps may be 0
 		if timestamps and timestamps[0] is not None and timestamps[1] is not None:
@@ -613,7 +695,6 @@ class ZeitgeistEngine:
 			log.debug("Deleted %s" % map(int, ids))
 			
 			self.extensions.apply_post_delete(ids, sender)
-			
 			return timestamps
 		else:
 			log.debug("Tried to delete non-existing event(s): %s" % map(int, ids))
