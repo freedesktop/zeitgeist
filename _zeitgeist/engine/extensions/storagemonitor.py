@@ -3,10 +3,11 @@
 # Zeitgeist
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2011 Canonical Ltd
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2.1 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -29,6 +30,7 @@ from _zeitgeist.engine import constants
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.storagemonitor")
+
 #
 # Storage mediums we need to handle:
 #
@@ -137,9 +139,9 @@ class StorageMonitor(Extension):
 	def _on_volume_added (self, mon, volume):
 		self.add_storage_medium (self._get_volume_id(volume))
 	
-	def _on_volume_removed (self, mon, vol):
+	def _on_volume_removed (self, mon, volume):
 		self.remove_storage_medium (self._get_volume_id(volume))
-	
+
 	def _get_volume_id (self, volume):
 		"""
 		Get a string identifier for a gio.Volume. The id is constructed
@@ -223,9 +225,7 @@ class NMNetworkMonitor:
 
 class ConnmanNetworkMonitor:
 	"""
-	Checks whether there is a funtioning network interface via
-	NetworkManager (requires NM >= 0.8).
-	See http://projects.gnome.org/NetworkManager/developers/spec-08.html
+	Checks whether there is a funtioning network interface via Connman
 	"""
 	CM_BUS_NAME = "net.connman"
 	CM_IFACE = "net.connman.Manager"
@@ -249,6 +249,12 @@ class ConnmanNetworkMonitor:
 		                                    ConnmanNetworkMonitor.CM_OBJECT_PATH)
 		self._cm = dbus.Interface(proxy, ConnmanNetworkMonitor.CM_IFACE)
 		self._cm.connect_to_signal("StateChanged", self._on_state_changed)
+		#
+		# ^^ There is a bug in some Connman versions causing it to not emit the
+		#    net.connman.Manager.StateChanged signal. We take our chances this
+		#    instance is working properly :-)
+		#
+
 		
 		# Register the initial state
 		state = self._cm.GetState()
