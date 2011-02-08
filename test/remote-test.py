@@ -447,6 +447,9 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		self.assertEquals(len(datasources), 1)
 		self._assertDataSourceEquals(datasources[0], self._ds2)
 	
+	def testRegisterDataSourceWithCallback(self):
+		self.client.register_data_source(*self._ds1, enabled_callback=lambda x: True)
+	
 	def testRegisterDataSources(self):
 		# Insert two data-sources
 		self.client._registry.RegisterDataSource(*self._ds1)
@@ -485,8 +488,21 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		ds = list(self.client._registry.GetDataSources())[0]
 		self.assertEquals(ds[DataSource.Enabled], True)
 	
-	def testDataSourceSignals(self):
+	def _create_mainloop(self):
 		mainloop = gobject.MainLoop()
+		
+		def cb_timeout():
+			mainloop.quit()
+			self.fail("Timed out -- operations not completed in reasonable time.")
+		
+		# Add an arbitrary timeout so this test won't block if it fails
+		gobject.timeout_add_seconds(30, cb_timeout)
+		
+		return mainloop
+	
+	def testDataSourceSignals(self):
+		mainloop = self._create_mainloop()
+		
 		global hit
 		hit = 0
 		
@@ -514,10 +530,6 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		#	self.assertEquals(hit, 3)
 		#	mainloop.quit()
 		
-		def cb_timeout():
-			mainloop.quit()
-			self.fail("Timed out -- operations not completed in 1 minute.")
-		
 		# Connect to signals
 		self.client._registry.connect('DataSourceRegistered', cb_registered)
 		self.client._registry.connect('DataSourceEnabled', cb_enabled)
@@ -526,11 +538,40 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		# Register data-source, disable it, enable it again
 		gobject.idle_add(self.testSetDataSourceEnabled)
 		
-		# Add an arbitrary timeout so this test won't block if it fails
-		gobject.timeout_add_seconds(30, cb_timeout)
+		mainloop.run()
+	
+	def testRegisterDataSourceEnabledCallbackOnRegister(self):
+		mainloop = self._create_mainloop()
+		
+		def callback(enabled):
+			mainloop.quit()
+		self.client.register_data_source(*self._ds1, enabled_callback=callback)
 		
 		mainloop.run()
-
+	
+	def testRegisterDataSourceEnabledCallbackOnChange(self):
+		mainloop = self._create_mainloop()
+		global hit
+		hit = 0
+		
+		# Register a callback
+		def callback(enabled):
+			global hit
+			if hit == 0:
+				# Register callback
+				hit = 1
+			elif hit == 1:
+				# Disable callback
+				mainloop.quit()
+			else:
+				self.fail("Unexpected number of signals: %d." % hit)
+		self.client.register_data_source(*self._ds1)
+		self.client.set_data_source_enabled_callback(self._ds1[0], callback)
+		
+		# Disable the data-source
+		self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
+		
+		mainloop.run()
 
 class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
 	

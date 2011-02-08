@@ -2,7 +2,7 @@
 
 # Zeitgeist
 #
-# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2011 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
 #
@@ -877,8 +877,8 @@ class ZeitgeistClient:
 		                          error_handler=error_handler)
 	
 	# Data-source related class variables
-	self._data_source_unique_id = None
-	self._data_source_enabled = None
+	_data_sources = {}
+	_data_sources_callback_installed = False
 	
 	def register_data_source(self, unique_id, name, description,
 		event_templates, enabled_callback=None):
@@ -904,25 +904,35 @@ class ZeitgeistClient:
 			information.
 		"""
 		
-		self._data_source_unique_id = unique_id
+		self._data_sources[unique_id] = {'enabled': None, 'callback': None}
 		
 		if enabled_callback is not None:
-			self.set_data_source_enabled_callback(enabled_callback)
+			self.set_data_source_enabled_callback(unique_id, enabled_callback)
+
+		def _data_source_enabled_cb(unique_id, enabled):
+			if unique_id not in self._data_sources:
+				return
+			self._data_sources[unique_id]['enabled'] = enabled
+			callback = self._data_sources[unique_id]['callback']
+			if callback is not None:
+				callback(enabled)
 		
-		def _data_source_register_cb(self, enabled):
-			self._data_source_enabled = enabled
-			if self._data_source_callback is not None:
-				self._data_source_callback(self._data_source_enabled)
-		
+		def _data_source_register_cb(enabled):
+			_data_source_enabled_cb(unique_id, enabled)
+
+		if not self._data_sources_callback_installed:
+			self._registry.connect('DataSourceEnabled', _data_source_enabled_cb)
+			self._data_sources_callback_installed = True
+
 		self._registry.RegisterDataSource(unique_id, name, description,
 			event_templates,
 			reply_handler=_data_source_register_cb,
 			error_handler=self._void_reply_handler) # Errors are ignored
 	
-	def set_data_source_enabled_callback(self, enabled_callback):
+	def set_data_source_enabled_callback(self, unique_id, enabled_callback):
 		"""
-		This method may only be used after having called register_data_source
-		before.
+		This method may only be used after having registered the given unique_id
+		with register_data_source before.
 		
 		It registers a method to be called whenever the `enabled' status of
 		the previously registered data-source changes.
@@ -931,18 +941,14 @@ class ZeitgeistClient:
 		disabled, in which case this method will have no effect.
 		"""
 		
-		assert self._data_source_unique_id is not None, \
+		assert unique_id in self._data_sources, \
 			'set_data_source_enabled_callback() called before ' \
 			'register_data_source()'
 		
-		assert callable(callback), \
+		assert callable(enabled_callback), \
 			'enabled_callback: expected a callable method'
 		
-		if self._data_source_callback is None:
-			# Here connect to the DataSourceEnabled signal and have it call
-			# enabled_callback
-		
-		self._data_source_callback = callback
+		self._data_sources[unique_id]['callback'] = enabled_callback
 	
 	def _check_list_or_tuple(self, collection):
 		"""
