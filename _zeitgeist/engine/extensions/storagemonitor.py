@@ -116,7 +116,7 @@ class StorageMonitor(Extension):
 	
 	def _find_storage (self, uri):
 		"""
-		Given a URI find the name of the storage medium is resides on
+		Given a URI find the name of the storage medium it resides on
 		"""
 		uri_scheme = uri.rpartition("://")[0]
 		if uri_scheme in ["http", "ftp", "sftp", "ssh", "mailto"]:
@@ -217,7 +217,7 @@ class NMNetworkMonitor:
 		self._on_state_changed(state)
 		
 	def _on_state_changed(self, state):
-		log.debug("NetworkManager network state")
+		log.debug("NetworkManager network state: %s" % state)
 		if state == NetworkMonitor.NM_STATE_CONNECTED:
 			self._up ()
 		else:
