@@ -25,7 +25,6 @@ import dbus.mainloop.glib
 import logging
 import os.path
 import sys
-import logging
 import inspect
 
 from xml.dom.minidom import parseString as minidom_parse
