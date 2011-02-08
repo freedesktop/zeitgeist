@@ -64,6 +64,9 @@ log = logging.getLogger("zeitgeist.storagemonitor")
 #        are ejected, and also guess "UNKNOWN"
 #
 
+import logging
+log = logging.getLogger("zeitgeist.storagemonitor")
+
 from zeitgeist.datamodel import StorageState
 from _zeitgeist.engine.sql import get_default_cursor
 
@@ -86,10 +89,17 @@ class StorageMonitor(Extension):
 		mon.connect("volume-added", self._on_volume_added)
 		mon.connect("volume-removed", self._on_volume_removed)
 		
-		# Write connectivity to the DB
-		self._network = NetworkMonitor(
-			lambda : self.add_storage_medium("net"),
-			lambda : self.remove_storage_medium("net"))
+		# Write connectivity to the DB. Dynamically decide whether to use
+		# Connman or NetworkManager
+		if dbus.SystemBus().name_has_owner ("net.connman"):
+			self._network = ConnmanNetworkMonitor(lambda : self.add_storage_medium("net"),
+			                                      lambda : self.remove_storage_medium("net"))
+		elif dbus.SystemBus().name_has_owner ("org.freedesktop.NetworkManager"):
+			self._network = NMNetworkMonitor(lambda : self.add_storage_medium("net"),
+			                               lambda : self.remove_storage_medium("net"))
+		else:
+			log.info("No network monitoring system found (Connman or NetworkManager)."
+			         "Network monitoring disabled")
 	
 	def insert_event_hook (self, event):
 		"""
@@ -164,7 +174,7 @@ class StorageMonitor(Extension):
 		# FIXME
 		print "REMOVE", medium_name
 
-class NetworkMonitor:
+class NMNetworkMonitor:
 	"""
 	Checks whether there is a funtioning network interface via
 	NetworkManager (requires NM >= 0.8).
@@ -181,13 +191,14 @@ class NetworkMonitor:
 	NM_STATE_DISCONNECTED = 4
 	
 	def __init__ (self, on_network_up, on_network_down):
+		log.debug("Creating NetworkManager network monitor")
 		if not callable(on_network_up):
 			raise TypeError((
-				"First argument to NetworkMonitor constructor "
+				"First argument to NMNetworkMonitor constructor "
 				"must be callable, found %s" % on_network_up))
 		if not callable(on_network_down):
 			raise TypeError((
-				"Second argument to NetworkMonitor constructor "
+				"Second argument to NMNetworkMonitor constructor "
 				"must be callable, found %s" % on_network_up))
 		
 		self._up = on_network_up
@@ -204,7 +215,48 @@ class NetworkMonitor:
 		self._on_state_changed(state)
 		
 	def _on_state_changed(self, state):
+		log.debug("NetworkManager network state")
 		if state == NetworkMonitor.NM_STATE_CONNECTED:
+			self._up ()
+		else:
+			self._down()
+
+class ConnmanNetworkMonitor:
+	"""
+	Checks whether there is a funtioning network interface via
+	NetworkManager (requires NM >= 0.8).
+	See http://projects.gnome.org/NetworkManager/developers/spec-08.html
+	"""
+	CM_BUS_NAME = "net.connman"
+	CM_IFACE = "net.connman.Manager"
+	CM_OBJECT_PATH = "/"
+	
+	def __init__ (self, on_network_up, on_network_down):
+		log.debug("Creating Connman network monitor")
+		if not callable(on_network_up):
+			raise TypeError((
+				"First argument to ConnmanNetworkMonitor constructor "
+				"must be callable, found %s" % on_network_up))
+		if not callable(on_network_down):
+			raise TypeError((
+				"Second argument to ConnmanNetworkMonitor constructor "
+				"must be callable, found %s" % on_network_up))
+		
+		self._up = on_network_up
+		self._down = on_network_down
+		
+		proxy = dbus.SystemBus().get_object(ConnmanNetworkMonitor.CM_BUS_NAME,
+		                                    ConnmanNetworkMonitor.CM_OBJECT_PATH)
+		self._cm = dbus.Interface(proxy, ConnmanNetworkMonitor.CM_IFACE)
+		self._cm.connect_to_signal("StateChanged", self._on_state_changed)
+		
+		# Register the initial state
+		state = self._cm.GetState()
+		self._on_state_changed(state)
+		
+	def _on_state_changed(self, state):
+		log.debug("Connman network state is '%s'" % state)
+		if state == "online":
 			self._up ()
 		else:
 			self._down()
