@@ -59,23 +59,41 @@ class _DBusInterface(object):
 			pass
 		return methods, signals
 
-	def _disconnection_safe(self, meth):
+	def _disconnection_safe(self, meth, *args, **kwargs):
 		"""
 		Executes the given method. If it fails because the D-Bus connection
 		was lost, attempts to recover it and executes the method again.
 		"""
-		try:
-			return meth()
-		except dbus.exceptions.DBusException, e:
+		
+		custom_error_handler = None
+		original_kwargs = dict(kwargs)
+
+		def reconnecting_error_handler(e):
 			error = e.get_dbus_name()
 			if error == "org.freedesktop.DBus.Error.ServiceUnknown":
 				self.__proxy = dbus.SessionBus().get_object(
 					self.__iface.requested_bus_name, self.__object_path)
 				self.__iface = dbus.Interface(self.__proxy,
 					self.__interface_name)
-				return meth()
+				# We don't use the reconnecting_error_handler here since that'd
+				# get us into an endless loop if Zeitgeist really isn't there.
+				return meth(*args, **original_kwargs)
 			else:
-				raise
+				if custom_error_handler is not None:
+					custom_error_handler(e)
+				else:
+					raise
+
+		if 'error_handler' in kwargs:
+			# If the method is being called asynchronously it'll call the given
+			# handler on failure instead of directly raising an exception.
+			custom_error_handler = kwargs['error_handler']
+			kwargs['error_handler'] = reconnecting_error_handler
+
+		try:
+			return meth(*args, **kwargs)
+		except dbus.exceptions.DBusException, e:
+			reconnecting_error_handler()
 
 	def __getattr__(self, name):
 		if name not in self.__methods:
@@ -85,8 +103,8 @@ class _DBusInterface(object):
 			Method wrapping around a D-Bus call, which attempts to recover
 			the connection to Zeitgeist if it got lost.
 			"""
-			return self._disconnection_safe(lambda:
-				getattr(self.__iface, name)(*args, **kwargs))
+			return self._disconnection_safe(getattr(self.__iface, name),
+				*args, **kwargs)
 		return _ProxyMethod
 
 	def connect(self, signal, callback, **kwargs):
@@ -142,18 +160,18 @@ class ZeitgeistDBusInterface(object):
 	def version(self):
 		"""Returns the API version"""
 		dbus_interface = self.__shared_state["dbus_interface"]
-		return dbus_interface._disconnection_safe(lambda:
+		return dbus_interface._disconnection_safe(
 			dbus_interface.proxy.get_dbus_method("Get",
-				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
-					"version"))
+				dbus_interface=dbus.PROPERTIES_IFACE),
+			self.INTERFACE_NAME, "version")
 	
 	def extensions(self):
 		"""Returns active extensions"""
 		dbus_interface = self.__shared_state["dbus_interface"]
-		return dbus_interface._disconnection_safe(lambda:
+		return dbus_interface._disconnection_safe(
 			dbus_interface.proxy.get_dbus_method("Get",
-				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
-					"extensions"))
+				dbus_interface=dbus.PROPERTIES_IFACE),
+				self.INTERFACE_NAME, "extensions")
 					
 	def get_extension(cls, name, path, busname=None):
 		""" Returns an interface to the given extension.
