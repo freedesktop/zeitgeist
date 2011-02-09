@@ -2,7 +2,7 @@
 
 # Zeitgeist
 #
-# Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2011 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
 #
@@ -25,7 +25,6 @@ import dbus.mainloop.glib
 import logging
 import os.path
 import sys
-import logging
 import inspect
 
 from xml.dom.minidom import parseString as minidom_parse
@@ -41,6 +40,8 @@ log = logging.getLogger("zeitgeist.client")
 
 class _DBusInterface(object):
 	"""Wrapper around dbus.Interface adding convenience methods."""
+
+	reconnect_callbacks = []
 
 	@staticmethod
 	def get_members(introspection_xml):
@@ -59,23 +60,45 @@ class _DBusInterface(object):
 			pass
 		return methods, signals
 
-	def _disconnection_safe(self, meth):
+	def reconnect(self):
+		self.__proxy = dbus.SessionBus().get_object(self.__iface.requested_bus_name,
+			self.__object_path)
+		self.__iface = dbus.Interface(self.__proxy, self.__interface_name)
+		for callback in self.reconnect_callbacks:
+			callback()
+
+	def _disconnection_safe(self, meth, *args, **kwargs):
 		"""
 		Executes the given method. If it fails because the D-Bus connection
 		was lost, attempts to recover it and executes the method again.
 		"""
-		try:
-			return meth()
-		except dbus.exceptions.DBusException, e:
+		
+		custom_error_handler = None
+		original_kwargs = dict(kwargs)
+
+		def reconnecting_error_handler(e):
 			error = e.get_dbus_name()
 			if error == "org.freedesktop.DBus.Error.ServiceUnknown":
-				self.__proxy = dbus.SessionBus().get_object(
-					self.__iface.requested_bus_name, self.__object_path)
-				self.__iface = dbus.Interface(self.__proxy,
-					self.__interface_name)
-				return meth()
+				self.reconnect()
+				# We don't use the reconnecting_error_handler here since that'd
+				# get us into an endless loop if Zeitgeist really isn't there.
+				return meth(*args, **original_kwargs)
 			else:
-				raise
+				if custom_error_handler is not None:
+					custom_error_handler(e)
+				else:
+					raise
+
+		if 'error_handler' in kwargs:
+			# If the method is being called asynchronously it'll call the given
+			# handler on failure instead of directly raising an exception.
+			custom_error_handler = kwargs['error_handler']
+			kwargs['error_handler'] = reconnecting_error_handler
+
+		try:
+			return meth(*args, **kwargs)
+		except dbus.exceptions.DBusException, e:
+			reconnecting_error_handler()
 
 	def __getattr__(self, name):
 		if name not in self.__methods:
@@ -85,8 +108,8 @@ class _DBusInterface(object):
 			Method wrapping around a D-Bus call, which attempts to recover
 			the connection to Zeitgeist if it got lost.
 			"""
-			return self._disconnection_safe(lambda:
-				getattr(self.__iface, name)(*args, **kwargs))
+			return self._disconnection_safe(getattr(self.__iface, name),
+				*args, **kwargs)
 		return _ProxyMethod
 
 	def connect(self, signal, callback, **kwargs):
@@ -142,19 +165,19 @@ class ZeitgeistDBusInterface(object):
 	def version(self):
 		"""Returns the API version"""
 		dbus_interface = self.__shared_state["dbus_interface"]
-		return dbus_interface._disconnection_safe(lambda:
+		return dbus_interface._disconnection_safe(
 			dbus_interface.proxy.get_dbus_method("Get",
-				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
-					"version"))
+				dbus_interface=dbus.PROPERTIES_IFACE),
+			self.INTERFACE_NAME, "version")
 	
 	def extensions(self):
 		"""Returns active extensions"""
 		dbus_interface = self.__shared_state["dbus_interface"]
-		return dbus_interface._disconnection_safe(lambda:
+		return dbus_interface._disconnection_safe(
 			dbus_interface.proxy.get_dbus_method("Get",
-				dbus_interface=dbus.PROPERTIES_IFACE)(self.INTERFACE_NAME,
-					"extensions"))
-					
+				dbus_interface=dbus.PROPERTIES_IFACE),
+				self.INTERFACE_NAME, "extensions")
+	
 	def get_extension(cls, name, path, busname=None):
 		""" Returns an interface to the given extension.
 		
@@ -192,6 +215,8 @@ class ZeitgeistDBusInterface(object):
 			self.__shared_state["extension_interfaces"] = {}
 			self.__shared_state["dbus_interface"] = _DBusInterface(proxy,
 				self.INTERFACE_NAME, self.OBJECT_PATH)
+			self.reconnect_callbacks = \
+				self.__shared_state["dbus_interface"].reconnect_callbacks
 
 class Monitor(dbus.service.Object):
 	"""
@@ -300,6 +325,8 @@ class ZeitgeistClient:
 	DBus calls use the raw DBus API found in the ZeitgeistDBusInterface class.
 	"""
 	
+	_installed_monitors = []
+	
 	@staticmethod
 	def get_event_and_extra_arguments(arguments):
 		""" some methods of :class:`ZeitgeistClient` take a variable
@@ -318,6 +345,18 @@ class ZeitgeistClient:
 		self._iface = ZeitgeistDBusInterface()
 		self._registry = self._iface.get_extension("DataSourceRegistry",
 			"data_source_registry")
+		
+		# Reconnect all active monitors if the connection is reset.
+		def reconnect_monitors():
+			log.info("Reconnected to Zeitgeist engine...")
+			for monitor in self._installed_monitors:
+				self._iface.InstallMonitor(monitor.path,
+					monitor.time_range,
+					monitor.templates,
+					reply_handler=self._void_reply_handler,
+					error_handler=lambda err: log.warn(
+						"Error reinstalling monitor: %s" % err))
+		self._iface.reconnect_callbacks.append(reconnect_monitors)
 	
 	def _safe_error_handler(self, error_handler, *args):
 		if error_handler is not None:
@@ -820,6 +859,7 @@ class ZeitgeistClient:
 		                           reply_handler=self._void_reply_handler,
 		                           error_handler=lambda err: log.warn(
 									"Error installing monitor: %s" % err))
+		self._installed_monitors.append(mon)
 		return mon
 	
 	def remove_monitor (self, monitor, monitor_removed_handler=None):
@@ -858,8 +898,14 @@ class ZeitgeistClient:
 		self._iface.RemoveMonitor(path,
 		                          reply_handler=reply_handler,
 		                          error_handler=error_handler)
+		self._installed_monitors.remove(monitor)
 	
-	def register_data_source(self, unique_id, name, description, event_templates):
+	# Data-source related class variables
+	_data_sources = {}
+	_data_sources_callback_installed = False
+	
+	def register_data_source(self, unique_id, name, description,
+		event_templates, enabled_callback=None):
 		"""
 		Register a data-source as currently running. If the data-source was
 		already in the database, its metadata (name, description and
@@ -876,12 +922,57 @@ class ZeitgeistClient:
 		:param description: data-source description (may be translated)
 		:param event_templates: list of
 			:class:`Event <zeitgeist.datamodel.Event>` templates.
+		:param enabled_callback: method to call as response with the `enabled'
+			status of the data-source, and after that every time said status
+			is toggled. See set_data_source_enabled_callback() for more
+			information.
 		"""
-		# TODO: Make it possible to access the return value!
+		
+		self._data_sources[unique_id] = {'enabled': None, 'callback': None}
+		
+		if enabled_callback is not None:
+			self.set_data_source_enabled_callback(unique_id, enabled_callback)
+
+		def _data_source_enabled_cb(unique_id, enabled):
+			if unique_id not in self._data_sources:
+				return
+			self._data_sources[unique_id]['enabled'] = enabled
+			callback = self._data_sources[unique_id]['callback']
+			if callback is not None:
+				callback(enabled)
+		
+		def _data_source_register_cb(enabled):
+			_data_source_enabled_cb(unique_id, enabled)
+
+		if not self._data_sources_callback_installed:
+			self._registry.connect('DataSourceEnabled', _data_source_enabled_cb)
+			self._data_sources_callback_installed = True
+
 		self._registry.RegisterDataSource(unique_id, name, description,
 			event_templates,
-			reply_handler=self._void_reply_handler,
+			reply_handler=_data_source_register_cb,
 			error_handler=self._void_reply_handler) # Errors are ignored
+	
+	def set_data_source_enabled_callback(self, unique_id, enabled_callback):
+		"""
+		This method may only be used after having registered the given unique_id
+		with register_data_source before.
+		
+		It registers a method to be called whenever the `enabled' status of
+		the previously registered data-source changes.
+		
+		Remember that on some systems the DataSourceRegistry extension may be
+		disabled, in which case this method will have no effect.
+		"""
+		
+		if unique_id not in self._data_sources:
+			raise ValueError, 'set_data_source_enabled_callback() called before ' \
+			'register_data_source()'
+		
+		if not callable(enabled_callback):
+			raise TypeError, 'enabled_callback: expected a callable method'
+		
+		self._data_sources[unique_id]['callback'] = enabled_callback
 	
 	def _check_list_or_tuple(self, collection):
 		"""
