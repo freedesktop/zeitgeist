@@ -941,12 +941,12 @@ class ZeitgeistClient:
 		disabled, in which case this method will have no effect.
 		"""
 		
-		assert unique_id in self._data_sources, \
-			'set_data_source_enabled_callback() called before ' \
+		if unique_id not in self._data_sources:
+			raise ValueError, 'set_data_source_enabled_callback() called before ' \
 			'register_data_source()'
 		
-		assert callable(enabled_callback), \
-			'enabled_callback: expected a callable method'
+		if not callable(enabled_callback):
+			raise TypeError, 'enabled_callback: expected a callable method'
 		
 		self._data_sources[unique_id]['callback'] = enabled_callback
 	

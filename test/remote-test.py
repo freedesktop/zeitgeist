@@ -496,7 +496,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 			self.fail("Timed out -- operations not completed in reasonable time.")
 		
 		# Add an arbitrary timeout so this test won't block if it fails
-		gobject.timeout_add_seconds(30, cb_timeout)
+		gobject.timeout_add_seconds(10, cb_timeout)
 		
 		return mainloop
 	
