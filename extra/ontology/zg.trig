@@ -65,7 +65,7 @@ zg: {
     
     zg:DenyEvent
         a rdfs:Class ;
-        rdfs:comment "Event triggered when the user denies a request of some sort. Examples could be rejecting a phone call, rejecting a file transfer, or denying a friendship request over an IM protocol. See also DenyEvent for when the user denies a similar request. See also AcceptEvent" ;
+        rdfs:comment "Event triggered when the user denies a request of some sort. Examples could be rejecting a phone call, rejecting a file transfer, or denying a friendship request over an IM protocol. See also AcceptEvent for the converse event type" ;
         rdfs:subClassOf zg:EventInterpretation .
     
     zg:ExpireEvent
