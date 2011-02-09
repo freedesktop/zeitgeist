@@ -66,6 +66,8 @@ log = logging.getLogger("zeitgeist.storagemonitor")
 #        are ejected, and also guess "unknown"
 #
 
+import dbus
+import dbus.service
 import sqlite3
 import gio
 import logging
@@ -74,7 +76,10 @@ log = logging.getLogger("zeitgeist.storagemonitor")
 from zeitgeist.datamodel import StorageState
 from _zeitgeist.engine.sql import get_default_cursor
 
-class StorageMonitor(Extension):
+STORAGE_MONITOR_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/storagemonitor"
+STORAGE_MONITOR_DBUS_INTERFACE = "org.gnome.zeitgeist.StorageMonitor"
+
+class StorageMonitor(Extension, dbus.service.Object):
 	"""
 	
 	"""
@@ -82,6 +87,9 @@ class StorageMonitor(Extension):
 	
 	def __init__ (self, engine):		
 		Extension.__init__(self, engine)
+		dbus.service.Object.__init__(self, dbus.SessionBus(),
+		                             STORAGE_MONITOR_DBUS_OBJECT_PATH)
+		
 		self._db = get_default_cursor()
 		mon = gio.VolumeMonitor()
 		
@@ -186,6 +194,11 @@ class StorageMonitor(Extension):
 		
 		self._db.connection.commit()
 		
+		# Notify DBus that the storage is available
+		self.StorageAvailable(medium_name, { "available" : True,
+		                                     "icon" : icon or "",
+		                                     "display-name" : display_name or ""})
+		
 	def remove_storage_medium (self, medium_name):
 		"""
 		Mark storage medium  as `not` available in the Zeitgeist DB
@@ -203,6 +216,34 @@ class StorageMonitor(Extension):
 				self._db.connection.rollback()
 		
 		self._db.connection.commit()
+		
+		# Notify DBus that the storage is unavailable
+		self.StorageUnavailable(medium_name)
+	
+	@dbus.service.method(STORAGE_MONITOR_DBUS_INTERFACE,
+	                     out_signature="a(sa{sv})")
+	def GetStorages (self):
+		storage_mediums = []
+		storage_data = self._db.execute("SELECT value, state, icon, display_name FROM storage").fetchall()
+		
+		for row in storage_data:
+			if not row[0] : continue
+			storage_mediums.append((row[0],
+			                       { "available" : bool(row[1]),
+			                         "icon" : row[2] or "",
+			                         "display-name" : row[3] or ""}))
+		
+		return storage_mediums
+	
+	@dbus.service.signal(STORAGE_MONITOR_DBUS_INTERFACE,
+	                     signature="sa{sv}")
+	def StorageAvailable (self, storage_id, storage_description):
+		pass
+	
+	@dbus.service.signal(STORAGE_MONITOR_DBUS_INTERFACE,
+	                     signature="s")
+	def StorageUnavailable (self, storage_id):
+		pass
 
 class NMNetworkMonitor:
 	"""
