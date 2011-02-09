@@ -26,7 +26,6 @@ zg: {
     zg:CreateEvent
         a rdfs:Class ;
         rdfs:comment "Event type triggered when an item is created" ;
-        rdfs:label "Created" ; 
         rdfs:subClassOf zg:EventInterpretation .
     
     zg:AccessEvent
@@ -57,7 +56,21 @@ zg: {
     zg:SendEvent
         a rdfs:Class ;
         rdfs:comment "Event triggered when something is send to an external party. The event manifestation must be set according to the world view of the sending party. Most often the item that is being send will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" ;
-        rdfs:comment "Event triggered by" ;
+        rdfs:subClassOf zg:EventInterpretation .
+    
+    zg:AcceptEvent
+        a rdfs:Class ;
+        rdfs:comment "Event triggered when the user accepts a request of some sort. Examples could be answering a phone call, accepting a file transfer, or accepting a friendship request over an IM protocol. See also DenyEvent for when the user denies a similar request" ;
+        rdfs:subClassOf zg:EventInterpretation .
+    
+    zg:DenyEvent
+        a rdfs:Class ;
+        rdfs:comment "Event triggered when the user denies a request of some sort. Examples could be rejecting a phone call, rejecting a file transfer, or denying a friendship request over an IM protocol. See also DenyEvent for when the user denies a similar request. See also AcceptEvent" ;
+        rdfs:subClassOf zg:EventInterpretation .
+    
+    zg:ExpireEvent
+        a rdfs:Class ;
+        rdfs:comment "Event triggered when something expires or times out. These types of events are normally not triggered by the user, but by the operating system or some external party. Examples are a recurring calendar item or task deadline that expires or a when the user fails to respond to an external request such as a phone call" ;
         rdfs:subClassOf zg:EventInterpretation .
     
 # manifestations
