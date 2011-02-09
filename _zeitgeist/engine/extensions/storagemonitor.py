@@ -63,7 +63,7 @@ log = logging.getLogger("zeitgeist.storagemonitor")
 #   +display_name
 #
 # FIXME: We can not guess what the correct ID of CDs and DVDs were when they
-#        are ejected, and also guess "UNKNOWN"
+#        are ejected, and also guess "unknown"
 #
 
 import sqlite3
@@ -105,7 +105,7 @@ class StorageMonitor(Extension):
 			log.info("No network monitoring system found (Connman or NetworkManager)."
 			         "Network monitoring disabled")
 	
-	def insert_event_hook (self, event):
+	def pre_insert_event (self, event, dbus_sender):
 		"""
 		On-the-fly add subject.storage to events if it is not set
 		"""
@@ -121,7 +121,7 @@ class StorageMonitor(Extension):
 		Given a URI find the name of the storage medium it resides on
 		"""
 		uri_scheme = uri.rpartition("://")[0]
-		if uri_scheme in ["http", "ftp", "sftp", "ssh", "mailto"]:
+		if uri_scheme in ["http", "https", "ftp", "sftp", "ssh", "mailto"]:
 			return "net"
 		elif uri_scheme == "file":
 			# Note: gio.File.find_enclosing_mount() does not behave
@@ -135,7 +135,7 @@ class StorageMonitor(Extension):
 				mount = gio.File(uri=uri).find_enclosing_mount()
 			except gio.Error:
 				return "local"
-			if mount is None: return "UNKNOWN"
+			if mount is None: return "unknown"
 			return self._get_volume_id(mount.get_volume())
 	
 	def _on_volume_added (self, mon, volume):
@@ -162,7 +162,7 @@ class StorageMonitor(Extension):
 		volume_id = volume.get_name()
 		if volume_id : return volume_id
 		
-		return "UNKNOWN"
+		return "unknown"
 		
 	def add_storage_medium (self, medium_name, icon, display_name):
 		"""
