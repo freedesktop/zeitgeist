@@ -108,7 +108,7 @@ class StorageMonitor(Extension, dbus.service.Object):
 			                                      lambda : self.remove_storage_medium("net"))
 		elif dbus.SystemBus().name_has_owner ("org.freedesktop.NetworkManager"):
 			self._network = NMNetworkMonitor(lambda : self.add_storage_medium("net", "stock_internet", "Internet"),
-			                               lambda : self.remove_storage_medium("net"))
+			                                 lambda : self.remove_storage_medium("net"))
 		else:
 			log.info("No network monitoring system found (Connman or NetworkManager)."
 			         "Network monitoring disabled")
@@ -147,7 +147,12 @@ class StorageMonitor(Extension, dbus.service.Object):
 			return self._get_volume_id(mount.get_volume())
 	
 	def _on_volume_added (self, mon, volume):
-		self.add_storage_medium (self._get_volume_id(volume), volume.get_icon().to_string(), volume.get_name())
+		icon = volume.get_icon()
+		if isinstance(icon, gio.ThemedIcon):
+			icon_name = icon.get_names()[0]
+		else:
+			icon_name = ""
+		self.add_storage_medium (self._get_volume_id(volume), icon_name, volume.get_name())
 	
 	def _on_volume_removed (self, mon, volume):
 		self.remove_storage_medium (self._get_volume_id(volume))
