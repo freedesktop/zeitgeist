@@ -1,4 +1,25 @@
+# find *.py zeitgeist/*.py _zeitgeist/*.py _zeitgeist/engine/*.py _zeitgeist/engine/*/*.py
 zeitgeist-daemon.py
+zeitgeist/client.py
+zeitgeist/_config.py
 zeitgeist/datamodel.py
+zeitgeist/__init__.py
+zeitgeist/mimetypes.py
+_zeitgeist/__init__.py
+_zeitgeist/lrucache.py
 _zeitgeist/singleton.py
+_zeitgeist/engine/datamodel.py
+_zeitgeist/engine/extension.py
+_zeitgeist/engine/__init__.py
+_zeitgeist/engine/main.py
+_zeitgeist/engine/notify.py
 _zeitgeist/engine/remote.py
+_zeitgeist/engine/sql.py
+_zeitgeist/engine/extensions/blacklist.py
+_zeitgeist/engine/extensions/datasource_registry.py
+_zeitgeist/engine/extensions/__init__.py
+_zeitgeist/engine/upgrades/core_0_1.py
+_zeitgeist/engine/upgrades/core_1_2.py
+_zeitgeist/engine/upgrades/core_2_3.py
+_zeitgeist/engine/upgrades/core_3_4.py
+_zeitgeist/engine/upgrades/__init__.py

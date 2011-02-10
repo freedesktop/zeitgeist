@@ -7,63 +7,49 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-10 08:20+0000\n"
+"POT-Creation-Date: 2011-02-10 12:36+0100\n"
 "PO-Revision-Date: 2010-02-15 05:52+0000\n"
 "Last-Translator: Nicolas DERIVE <kalon33@ubuntu.com>\n"
 "Language-Team: French <fr@li.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+#: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:65
+#: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:69
+#: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:111
-#, python-format
-msgid "File \"%s\" not found, not starting datahub"
-msgstr ""
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Démarrage du service d'indexation de Zeitgeist..."
 
-#: ../zeitgeist-daemon.py:113
-msgid "Starting Zeitgeist service..."
-msgstr "Démarrage du service d'indexation de Zeitgeist..."
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Aucun journalisateur passif trouvé, au revoir."
 
-#: ../zeitgeist-datahub.py:62
-msgid "No passive loggers found, bye."
-msgstr "Aucun journalisateur passif trouvé, au revoir."
+#~ msgid "Could not load file: %s"
+#~ msgstr "Impossible de charger le fichier : %s"
 
-#: ../zeitgeist-datahub.py:82
-#, python-format
-msgid "Could not load file: %s"
-msgstr "Impossible de charger le fichier : %s"
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Mise à jour de la base avec %s nouveaux éléments"
 
-#: ../zeitgeist-datahub.py:105
-#, python-format
-msgid "Updating database with new %s items"
-msgstr "Mise à jour de la base avec %s nouveaux éléments"
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "La connexion à zeitgeist-démon a été perdue, arrêt en cours."
 
-#: ../zeitgeist-datahub.py:129
-msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "La connexion à zeitgeist-démon a été perdue, arrêt en cours."
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Erreur lors de la journalisation de l'item à partir de \"%s\" : %s"
 
-#: ../zeitgeist-datahub.py:132
-#, python-format
-msgid "Error logging item from \"%s\": %s"
-msgstr "Erreur lors de la journalisation de l'item à partir de \"%s\" : %s"
-
-#: ../_zeitgeist/loggers/datasources/recent.py:49
-msgid "Could not import GTK; data source disabled."
-msgstr "Impossible d'importer GTK; source de données désactivée."
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Impossible d'importer GTK; source de données désactivée."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Erreur: le service d'indexation de Zeitgeist n'est pas actif."
@@ -131,19 +117,15 @@ msgstr "Impossible d'importer GTK; source de données désactivée."
 #~ msgid "Activities"
 #~ msgstr "Activités"
 
-#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Suivi de l'historique d'Evolution en cours  %s"
 
-#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Impossible de suivre l'historique de Firefox : %s : %s"
 
-#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Impossible de suivre l'historique d'Evolution : %s : %s"
 
-#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Suivi de l'historique de Firefox en cours  %s"
 
@@ -159,7 +141,6 @@ msgstr "Impossible d'importer GTK; source de données désactivée."
 #~ msgid "Visited"
 #~ msgstr "Visité"
 
-#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Surveiller les notes Tomboy dans \"%s\"."
 

@@ -8,63 +8,52 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist trunk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-10 08:20+0000\n"
+"POT-Creation-Date: 2011-02-10 12:36+0100\n"
 "PO-Revision-Date: 2010-04-23 10:36+0000\n"
 "Last-Translator: Alexander Shopov <ash@kambanaria.org>\n"
 "Language-Team: Bulgarian <dict@fsa-bg.org>\n"
+"Language: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+#: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
 msgstr "ако е пуснат друг процес Zeitgeist — да се замени"
 
-#: ../zeitgeist-daemon.py:65
+#: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
 msgstr "zeitgeist-datahub да не се стартира автоматично"
 
-#: ../zeitgeist-daemon.py:69
+#: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:111
-#, python-format
-msgid "File \"%s\" not found, not starting datahub"
-msgstr "Файлът „%s“ не е открет. Стартира се datahub"
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "Файлът „%s“ не е открет. Стартира се datahub"
 
-#: ../zeitgeist-daemon.py:113
-msgid "Starting Zeitgeist service..."
-msgstr "Стартира се услугата Zeitgeist…"
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Стартира се услугата Zeitgeist…"
 
-#: ../zeitgeist-datahub.py:62
-msgid "No passive loggers found, bye."
-msgstr "Не са открити пасивни програми за програмни съобщения. Спиране."
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Не са открити пасивни програми за програмни съобщения. Спиране."
 
-#: ../zeitgeist-datahub.py:82
-#, python-format
-msgid "Could not load file: %s"
-msgstr "Файлът не може да бъде зареден: %s"
+#~ msgid "Could not load file: %s"
+#~ msgstr "Файлът не може да бъде зареден: %s"
 
-#: ../zeitgeist-datahub.py:105
-#, python-format
-msgid "Updating database with new %s items"
-msgstr "Базата от данни се обновява с нови елемента %s"
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Базата от данни се обновява с нови елемента %s"
 
-#: ../zeitgeist-datahub.py:129
-msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "Връзката към демона на Zeitgeist е изгубена. Програмата спира."
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Връзката към демона на Zeitgeist е изгубена. Програмата спира."
 
-#: ../zeitgeist-datahub.py:132
-#, python-format
-msgid "Error logging item from \"%s\": %s"
-msgstr "Грешка при записване на програмно съобщение от „%s“: %s"
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Грешка при записване на програмно съобщение от „%s“: %s"
 
-#: ../_zeitgeist/loggers/datasources/recent.py:49
-msgid "Could not import GTK; data source disabled."
-msgstr "Библиотеката GTK не бе внесена. Източниците на данни са изключени."
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Библиотеката GTK не бе внесена. Източниците на данни са изключени."
 
 #~ msgid "Tags"
 #~ msgstr "Етикети"

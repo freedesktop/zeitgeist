@@ -6,64 +6,50 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-09-10 08:20+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-02-10 12:36+0100\n"
 "PO-Revision-Date: 2010-02-15 05:51+0000\n"
 "Last-Translator: Zeitgeist Framework Team <zeitgeist@lists.launchpad.net>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+#: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:65
+#: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:69
+#: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:111
-#, python-format
-msgid "File \"%s\" not found, not starting datahub"
-msgstr ""
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Starting Zeitgeist service..."
 
-#: ../zeitgeist-daemon.py:113
-msgid "Starting Zeitgeist service..."
-msgstr "Starting Zeitgeist service..."
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "No passive loggers found, bye."
 
-#: ../zeitgeist-datahub.py:62
-msgid "No passive loggers found, bye."
-msgstr "No passive loggers found, bye."
+#~ msgid "Could not load file: %s"
+#~ msgstr "Could not load file: %s"
 
-#: ../zeitgeist-datahub.py:82
-#, python-format
-msgid "Could not load file: %s"
-msgstr "Could not load file: %s"
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Updating database with new %s items"
 
-#: ../zeitgeist-datahub.py:105
-#, python-format
-msgid "Updating database with new %s items"
-msgstr "Updating database with new %s items"
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Lost connection to zeitgeist-daemon, terminating."
 
-#: ../zeitgeist-datahub.py:129
-msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "Lost connection to zeitgeist-daemon, terminating."
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Error logging item from \"%s\": %s"
 
-#: ../zeitgeist-datahub.py:132
-#, python-format
-msgid "Error logging item from \"%s\": %s"
-msgstr "Error logging item from \"%s\": %s"
-
-#: ../_zeitgeist/loggers/datasources/recent.py:49
-msgid "Could not import GTK; data source disabled."
-msgstr "Could not import GTK; data source disabled."
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Could not import GTK; data source disabled."
 
 #~ msgid "Tags"
 #~ msgstr "Tags"
@@ -146,22 +132,17 @@ msgstr "Could not import GTK; data source disabled."
 #~ msgid "No Firefox profile found."
 #~ msgstr "No Firefox profile found."
 
-#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Unable to monitor Firefox's history: %s: %s"
 
-#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Watching for Tomboy notes in \"%s\"."
 
-#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Monitoring Evolution: %s"
 
-#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Monitoring Firefox's history: %s"
 
-#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Unable to monitor Evolution: %s: %s"

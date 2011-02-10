@@ -7,63 +7,52 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-10 08:20+0000\n"
+"POT-Creation-Date: 2011-02-10 12:36+0100\n"
 "PO-Revision-Date: 2010-08-06 18:50+0000\n"
 "Last-Translator: Zeitgeist Framework Team <zeitgeist@lists.launchpad.net>\n"
 "Language-Team: Finnish <fi@li.org>\n"
+"Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+#: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
 msgstr "Jos toinen Zeigeist-taho on toiminnassa, korvaa se"
 
-#: ../zeitgeist-daemon.py:65
+#: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
 msgstr "älä käynnistä zeigeist-datakeskitintä automaattisesti"
 
-#: ../zeitgeist-daemon.py:69
+#: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
 msgstr "kuinka paljon tietoa tulisi tulostaa; mahdolliset arvot:"
 
-#: ../zeitgeist-daemon.py:111
-#, python-format
-msgid "File \"%s\" not found, not starting datahub"
-msgstr "Tiedostoa \"%s\" ei löytynyt, datakeskitintä ei aloiteta"
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "Tiedostoa \"%s\" ei löytynyt, datakeskitintä ei aloiteta"
 
-#: ../zeitgeist-daemon.py:113
-msgid "Starting Zeitgeist service..."
-msgstr "Käynnistetään Zeitgeist-palvelua..."
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Käynnistetään Zeitgeist-palvelua..."
 
-#: ../zeitgeist-datahub.py:62
-msgid "No passive loggers found, bye."
-msgstr "Yhtään passiivista kirjautujaa ei löytynyt, näkemiin."
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Yhtään passiivista kirjautujaa ei löytynyt, näkemiin."
 
-#: ../zeitgeist-datahub.py:82
-#, python-format
-msgid "Could not load file: %s"
-msgstr "Ei voitua ladata tiedostoa: %s"
+#~ msgid "Could not load file: %s"
+#~ msgstr "Ei voitua ladata tiedostoa: %s"
 
-#: ../zeitgeist-datahub.py:105
-#, python-format
-msgid "Updating database with new %s items"
-msgstr "Päivitetään tietokantaa uudella %s kohdalla"
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Päivitetään tietokantaa uudella %s kohdalla"
 
-#: ../zeitgeist-datahub.py:129
-msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "Yhteys zeitgeist-velhoon katkesi, lopetetaan."
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Yhteys zeitgeist-velhoon katkesi, lopetetaan."
 
-#: ../zeitgeist-datahub.py:132
-#, python-format
-msgid "Error logging item from \"%s\": %s"
-msgstr "Kohdetta kirjattaessa välillä \"%s\":%s tapahtui virhe"
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Kohdetta kirjattaessa välillä \"%s\":%s tapahtui virhe"
 
-#: ../_zeitgeist/loggers/datasources/recent.py:49
-msgid "Could not import GTK; data source disabled."
-msgstr "Kohdetta GTK ei voitu tuoda, datalähde estetty"
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Kohdetta GTK ei voitu tuoda, datalähde estetty"
 
 #~ msgid "Open Journal"
 #~ msgstr "Avaa Päiväkirja"
@@ -165,7 +154,6 @@ msgstr "Kohdetta GTK ei voitu tuoda, datalähde estetty"
 #~ msgid "Tags:"
 #~ msgstr "Tägit:"
 
-#, python-format
 #~ msgid "Files related to %s"
 #~ msgstr "Tiedostoja liittyen %s"
 
@@ -187,7 +175,6 @@ msgstr "Kohdetta GTK ei voitu tuoda, datalähde estetty"
 #~ msgid "Delete item from Zeitgeist"
 #~ msgstr "Poista Zeitgeististä"
 
-#, python-format
 #~ msgid "Edit tags for %s"
 #~ msgstr "Muokkaa tägejä %s"
 
@@ -206,11 +193,9 @@ msgstr "Kohdetta GTK ei voitu tuoda, datalähde estetty"
 #~ msgid "Yesterday"
 #~ msgstr "Eilen"
 
-#, python-format
 #~ msgid "Could not create database: %s"
 #~ msgstr "Ei voitu luoda tietokantaa: %s"
 
-#, python-format
 #~ msgid "Error connecting with database: %s"
 #~ msgstr "Virhe: Yhteydessä tietokantaan: %s"
 

@@ -7,63 +7,37 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-10 08:20+0000\n"
+"POT-Creation-Date: 2011-02-10 12:36+0100\n"
 "PO-Revision-Date: 2010-02-15 05:54+0000\n"
 "Last-Translator: 6n64 <6n@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+#: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:65
+#: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:69
+#: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:111
-#, python-format
-msgid "File \"%s\" not found, not starting datahub"
-msgstr ""
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Spouštím službu Zeitgeist..."
 
-#: ../zeitgeist-daemon.py:113
-msgid "Starting Zeitgeist service..."
-msgstr "Spouštím službu Zeitgeist..."
+#~ msgid "Could not load file: %s"
+#~ msgstr "Nelze načíst soubor: %s"
 
-#: ../zeitgeist-datahub.py:62
-msgid "No passive loggers found, bye."
-msgstr ""
-
-#: ../zeitgeist-datahub.py:82
-#, python-format
-msgid "Could not load file: %s"
-msgstr "Nelze načíst soubor: %s"
-
-#: ../zeitgeist-datahub.py:105
-#, python-format
-msgid "Updating database with new %s items"
-msgstr "Obnovuji databázi s %s novými položkami."
-
-#: ../zeitgeist-datahub.py:129
-msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr ""
-
-#: ../zeitgeist-datahub.py:132
-#, python-format
-msgid "Error logging item from \"%s\": %s"
-msgstr ""
-
-#: ../_zeitgeist/loggers/datasources/recent.py:49
-msgid "Could not import GTK; data source disabled."
-msgstr ""
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Obnovuji databázi s %s novými položkami."
 
 #~ msgid ""
 #~ "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
@@ -156,7 +130,6 @@ msgstr ""
 #~ msgid "Tags:"
 #~ msgstr "Tagy:"
 
-#, python-format
 #~ msgid "Files related to %s"
 #~ msgstr "Soubory spojené s %s"
 
@@ -178,7 +151,6 @@ msgstr ""
 #~ msgid "Delete item from Zeitgeist"
 #~ msgstr "Smazat položku z Zeitgeist"
 
-#, python-format
 #~ msgid "Edit tags for %s"
 #~ msgstr "Editovat tagy pro %s"
 
@@ -197,11 +169,9 @@ msgstr ""
 #~ msgid "Yesterday"
 #~ msgstr "Včera"
 
-#, python-format
 #~ msgid "Could not create database: %s"
 #~ msgstr "Nebylo možné vytvořit databázi: %s"
 
-#, python-format
 #~ msgid "Error connecting with database: %s"
 #~ msgstr "Chyba při připojovaní databáze: %s"
 
@@ -268,7 +238,6 @@ msgstr ""
 #~ msgid "Files"
 #~ msgstr "Soubory"
 
-#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Dívám se na Tomboy poznámky v \"%s\"."
 
