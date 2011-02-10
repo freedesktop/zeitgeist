@@ -81,7 +81,28 @@ STORAGE_MONITOR_DBUS_INTERFACE = "org.gnome.zeitgeist.StorageMonitor"
 
 class StorageMonitor(Extension, dbus.service.Object):
 	"""
+	The Storage Monitor monitors the availability of network interfaces and
+	storage devices and updates the Zeitgeist database with this information so
+	clients can efficiently query based on the storage identifier and availability
+	of the storage media the event subjects reside on.
 	
+	For storage devices the monitor will use the UUID of the partition that a
+	subject reside on as storage id. For network URIs the storage monitor will
+	use the fixed identifier :const:`net`. For subjects residing on persistent,
+	but unidentifiable, media attached to the computer the id :const:`local`
+	will be used. For URIs that can't be handled the storage id will be set
+	to :const:`unknown`. The :const:`local` and :const:`unknown` storage media
+	are considered to be always in an available state. To determine the
+	availability of the :const:`net` media the monitor will use either Connman
+	or NetworkManager - what ever is available on the host system.
+
+	For subjects being inserted into the log that doesn't have a storage id set
+	on them this extension will try and figure it out on the fly and update
+	the subject appropriately before its inserted into the log.
+	
+	The storage monitor of the Zeitgeist engine has DBus object path
+	:const:`/org/gnome/zeitgeist/storagemonitor` under the bus name
+	:const:`org.gnome.zeitgeist.Engine`.
 	"""
 	PUBLIC_METHODS = []
 	
@@ -228,6 +249,17 @@ class StorageMonitor(Extension, dbus.service.Object):
 	@dbus.service.method(STORAGE_MONITOR_DBUS_INTERFACE,
 	                     out_signature="a(sa{sv})")
 	def GetStorages (self):
+		"""
+		Retrieve a list describing all storage media known by the Zeitgeist daemon.
+		A storage medium is indetified by a key - as set in the subject
+		:const:`storage` field. For each storage id there is a dict of properties
+		that will minimally include the following: :const:`available` with a boolean
+		value, :const:`icon` a string with the name of the icon to use for the
+		storage medium, and :const:`display-name` a string with a human readable
+		name for the storage medium.
+		
+		The DBus signature of the return value of this method is :const:`a(sa{sv})`.
+		"""
 		storage_mediums = []
 		storage_data = self._db.execute("SELECT value, state, icon, display_name FROM storage").fetchall()
 		
@@ -243,11 +275,29 @@ class StorageMonitor(Extension, dbus.service.Object):
 	@dbus.service.signal(STORAGE_MONITOR_DBUS_INTERFACE,
 	                     signature="sa{sv}")
 	def StorageAvailable (self, storage_id, storage_description):
+		"""
+		The Zeitgeist daemon emits this signal when the storage medium with id
+		:const:`storage_id` has become available.
+		
+		The second parameter for this signal is a dictionary containing string
+		keys and variant values. The keys that are guaranteed to be there are
+		:const:`available` with a boolean value, :const:`icon` a string with the
+		name of the icon to use for the storage medium, and :const:`display-name`
+		a string with a human readable name for the storage medium.
+		
+		The DBus signature of this signal is :const:`sa{sv}`.
+		"""
 		pass
 	
 	@dbus.service.signal(STORAGE_MONITOR_DBUS_INTERFACE,
 	                     signature="s")
 	def StorageUnavailable (self, storage_id):
+		"""
+		The Zeitgeist daemon emits this signal when the storage medium with id
+		:const:`storage_id` is no longer available.
+		
+		The DBus signature of this signal is :const:`s`.
+		"""
 		pass
 
 class NMNetworkMonitor:
