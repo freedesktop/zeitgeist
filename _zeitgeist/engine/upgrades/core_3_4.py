@@ -3,7 +3,7 @@
 # Changes:
 #
 # * Appends to new rows to the 'storage' table that is needed by the new
-#   storgaemonitor extension. This is actually backwards compatible.
+#   storagemonitor extension. This is actually backwards compatible.
 
 from zeitgeist.datamodel import StorageState
 

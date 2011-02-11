@@ -21,6 +21,7 @@
 import os
 import dbus
 import dbus.service
+import sqlite3
 import gio
 import logging
 
@@ -30,6 +31,9 @@ from _zeitgeist.engine import constants
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("zeitgeist.storagemonitor")
+
+from zeitgeist.datamodel import StorageState
+from _zeitgeist.engine.sql import get_default_cursor
 
 #
 # Storage mediums we need to handle:
@@ -65,16 +69,6 @@ log = logging.getLogger("zeitgeist.storagemonitor")
 # FIXME: We can not guess what the correct ID of CDs and DVDs were when they
 #        are ejected, and also guess "unknown"
 #
-
-import dbus
-import dbus.service
-import sqlite3
-import gio
-import logging
-log = logging.getLogger("zeitgeist.storagemonitor")
-
-from zeitgeist.datamodel import StorageState
-from _zeitgeist.engine.sql import get_default_cursor
 
 STORAGE_MONITOR_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/storagemonitor"
 STORAGE_MONITOR_DBUS_INTERFACE = "org.gnome.zeitgeist.StorageMonitor"
@@ -125,11 +119,11 @@ class StorageMonitor(Extension, dbus.service.Object):
 		# Write connectivity to the DB. Dynamically decide whether to use
 		# Connman or NetworkManager
 		if dbus.SystemBus().name_has_owner ("net.connman"):
-			self._network = ConnmanNetworkMonitor(lambda : self.add_storage_medium("net", "stock_internet", "Internet"),
-			                                      lambda : self.remove_storage_medium("net"))
+			self._network = ConnmanNetworkMonitor(lambda: self.add_storage_medium("net", "stock_internet", "Internet"),
+			                                      lambda: self.remove_storage_medium("net"))
 		elif dbus.SystemBus().name_has_owner ("org.freedesktop.NetworkManager"):
-			self._network = NMNetworkMonitor(lambda : self.add_storage_medium("net", "stock_internet", "Internet"),
-			                                 lambda : self.remove_storage_medium("net"))
+			self._network = NMNetworkMonitor(lambda: self.add_storage_medium("net", "stock_internet", "Internet"),
+			                                 lambda: self.remove_storage_medium("net"))
 		else:
 			log.info("No network monitoring system found (Connman or NetworkManager)."
 			         "Network monitoring disabled")
@@ -214,9 +208,9 @@ class StorageMonitor(Extension, dbus.service.Object):
 		except sqlite3.IntegrityError, e:
 			try:
 				self._db.execute("UPDATE storage SET state=?, icon=?, display_name=? WHERE value=?", (StorageState.Available, icon, display_name, medium_name))
-			except:
+			except Exception, e:
 				log.warn("Error updating storage state for '%s': %s" % (medium_name, e))
-				self._db.connection.rollback()
+				return
 		
 		self._db.connection.commit()
 		
@@ -237,9 +231,9 @@ class StorageMonitor(Extension, dbus.service.Object):
 		except sqlite3.IntegrityError, e:
 			try:
 				self._db.execute("UPDATE storage SET state=? WHERE value=?", (StorageState.NotAvailable, medium_name))
-			except:
+			except Exception, e:
 				log.warn("Error updating storage state for '%s': %s" % (medium_name, e))
-				self._db.connection.rollback()
+				return
 		
 		self._db.connection.commit()
 		
