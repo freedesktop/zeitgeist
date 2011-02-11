@@ -29,11 +29,10 @@ from zeitgeist.datamodel import Event
 from _zeitgeist.engine.extension import Extension
 from _zeitgeist.engine import constants
 
-logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger("zeitgeist.storagemonitor")
-
 from zeitgeist.datamodel import StorageState
 from _zeitgeist.engine.sql import get_default_cursor
+
+log = logging.getLogger("zeitgeist.storagemonitor")
 
 #
 # Storage mediums we need to handle:
