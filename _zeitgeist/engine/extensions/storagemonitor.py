@@ -245,7 +245,7 @@ class StorageMonitor(Extension, dbus.service.Object):
 	def GetStorages (self):
 		"""
 		Retrieve a list describing all storage media known by the Zeitgeist daemon.
-		A storage medium is indetified by a key - as set in the subject
+		A storage medium is identified by a key - as set in the subject
 		:const:`storage` field. For each storage id there is a dict of properties
 		that will minimally include the following: :const:`available` with a boolean
 		value, :const:`icon` a string with the name of the icon to use for the
