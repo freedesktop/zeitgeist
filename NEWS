@@ -3,7 +3,7 @@
 
 Engine:
 
- -
+ - Expose property information in the D-Bus introspection output.
 
 Python API:
 
