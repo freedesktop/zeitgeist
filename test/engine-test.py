@@ -147,19 +147,12 @@ class ZeitgeistEngineTest(_engineTestClass):
 		# delete it thereafter - there's no event with that interpretation
 		# left (so the interpretation is removed from the database)
 		self.testDeleteSingle()
+		self.assertEqual(len(self.engine._interpretation), 0)
 		
 		# Now we insert an event with the same interpretation again
-		global test_event_1
 		ids = self.engine.insert_events([test_event_1])
-		
-		# And we clear the interpretation cache
-		from _zeitgeist.engine import sql
-		self.engine._interpretation = sql.TableLookup(self.engine._cursor, "interpretation")
-		
-		# Now we check if the event was inserted correctly (ie. whether
-		# the interpretation was restored)
-		result = self.engine.get_events(ids)
-		self.assertEqual(result[0][1], test_event_1[1])
+		self.assertEqual(len(self.engine._interpretation), 2)
+		self.assertEqual(len(self.engine._cursor.execute("SELECT * FROM interpretation").fetchall()), 2)
 	
 	def testDeleteSingleCascades(self):
 		manif_value = "stfu:EpicFailActivity"
