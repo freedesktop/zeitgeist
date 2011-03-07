@@ -693,7 +693,15 @@ class ZeitgeistEngine:
 				% ",".join(["?"] * len(ids)), ids)
 			self._cursor.connection.commit()
 			log.debug("Deleted %s" % map(int, ids))
-			
+			clean_fix_cache = False
+			for cached_table, cached_id in self._cursor.execute("SELECT * FROM _fix_cache"):
+				if cached_table not in ("interpretation", "manifestation", "mimetype", "actor"):
+					raise ValueError("Unable to fix cache for '%s'" %cached_table)
+				clean_fix_cache = True
+				getattr(self, "_%s" %cached_table).remove_id(cached_id)
+			if clean_fix_cache:
+				# delete all rows from _fix_cache, as all caches are fixed by now
+				self._cursor.execute("DELETE FROM _fix_cache")
 			self.extensions.apply_post_delete(ids, sender)
 			return timestamps
 		else:

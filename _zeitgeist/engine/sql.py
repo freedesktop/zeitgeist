@@ -396,6 +396,8 @@ def create_db(file_path):
 					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
 		""")
+		
+	cursor.execute("CREATE TABLE IF NOT EXISTS _fix_cache (t VARCHAR, id INTRGER)")
 	
 	# All good. Set the schema version, so we don't have to do all this
 	# sql the next time around
@@ -432,6 +434,14 @@ class TableLookup(dict):
 			self[row["value"]] = row["id"]
 		
 		self._inv_dict = dict((value, key) for key, value in self.iteritems())
+		
+		cursor.execute("""
+			CREATE TRIGGER IF NOT EXISTS fkdc_cache_%(table)s
+			BEFORE DELETE ON %(table)s
+			BEGIN
+				INSERT INTO _fix_cache VALUES ("%(table)s", OLD.id);
+			END;
+			""" % {'table': table})
 	
 	def __getitem__(self, name):
 		# Use this for inserting new properties into the database
@@ -461,6 +471,11 @@ class TableLookup(dict):
 		# Use this when fetching values which are supposed to be in the
 		# database already. Eg., in find_eventids.
 		return super(TableLookup, self).__getitem__(name)
+		
+	def remove_id(self, id):
+		value = self.value(id)
+		del self._inv_dict[id]
+		del self[value]
 		
 def get_right_boundary(text):
 	""" returns the smallest string which is greater than `text` """
