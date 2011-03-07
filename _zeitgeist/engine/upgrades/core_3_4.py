@@ -50,7 +50,7 @@ def run(cursor):
 				REFERENCES manifestation(id) ON DELETE CASCADE,
 			CONSTRAINT actor_fk FOREIGN KEY(actor)
 				REFERENCES actor(id) ON DELETE CASCADE,
-			CONSTRAINT actor_fk FOREIGN KEY(origin)
+			CONSTRAINT origin_fk FOREIGN KEY(origin)
 				REFERENCES uri(id) ON DELETE CASCADE,
 			CONSTRAINT payload_fk FOREIGN KEY(payload)
 				REFERENCES payload(id) ON DELETE CASCADE,
