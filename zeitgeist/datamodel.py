@@ -612,9 +612,10 @@ class Event(list):
 		Timestamp,
 		Interpretation,
 		Manifestation,
-		Actor) = range(5)
+		Actor,
+		Origin) = range(6)
 		
-	SUPPORTS_NEGATION = (Interpretation, Manifestation, Actor)
+	SUPPORTS_NEGATION = (Interpretation, Manifestation, Actor, Origin)
 	SUPPORTS_WILDCARDS = (Actor,)
 	
 	def __init__(self, struct = None):
@@ -695,7 +696,8 @@ class Event(list):
 		:param timestamp: Event timestamp in milliseconds since the Unix Epoch 
 		:param interpretaion: The Interpretation type of the event
 		:param manifestation: Manifestation type of the event
-		:param actor: The actor (application) that triggered the event
+		:param actor: The actor (application) that triggered the event		
+		:param origin: The origin (domain) where the event was triggered
 		:param subjects: A list of :class:`Subject` instances
 		
 		Instead of setting the *subjects* argument one may use a more
@@ -716,7 +718,7 @@ class Event(list):
 		self = cls()
 		for key in values:
 			if not key in ("timestamp", "interpretation", "manifestation",
-				"actor", "subjects", "subject_uri", "subject_interpretation",
+				"actor", "origin", "subjects", "subject_uri", "subject_interpretation",
 				"subject_manifestation", "subject_origin", "subject_mimetype",
 				"subject_text", "subject_storage"):
 				raise ValueError("Event parameter '%s' is not supported" % key)
@@ -725,6 +727,7 @@ class Event(list):
 		self.interpretation = values.get("interpretation", "")
 		self.manifestation = values.get("manifestation", "")
 		self.actor = values.get("actor", "")
+		self.actor = values.get("origin", "")
 		self.subjects = values.get("subjects", self.subjects)
 		
 		if self._dict_contains_subject_keys(values):
@@ -812,6 +815,14 @@ class Event(list):
 		self[0][Event.Actor] = value
 	actor = property(get_actor, set_actor,
 	doc="Read/write property defining the application or entity responsible for emitting the event. For applications the format of this field is base filename of the corresponding .desktop file with an `app://` URI scheme. For example `/usr/share/applications/firefox.desktop` is encoded as `app://firefox.desktop`")
+	
+	def get_origin(self):
+		return self[0][Event.Origin]
+	
+	def set_origin(self, value):
+		self[0][Event.Origin] = value
+	origin = property(get_origin, set_origin,
+	doc="Read/write property defining the origin where the event was emitted.")
 	
 	def get_payload(self):
 		return self[2]
