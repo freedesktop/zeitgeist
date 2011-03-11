@@ -727,7 +727,7 @@ class Event(list):
 		self.interpretation = values.get("interpretation", "")
 		self.manifestation = values.get("manifestation", "")
 		self.actor = values.get("actor", "")
-		self.actor = values.get("origin", "")
+		self.origin = values.get("origin", "")
 		self.subjects = values.get("subjects", self.subjects)
 		
 		if self._dict_contains_subject_keys(values):
