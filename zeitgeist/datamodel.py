@@ -495,11 +495,15 @@ class Subject(list):
 		
 	def set_uri(self, value):
 		self[Subject.Uri] = value
+		if not self[Subject.UriCurrent] or self[Subject.UriCurrent].strip() == "":
+			self[Subject.UriCurrent] = value
 	uri = property(get_uri, set_uri,
 	doc="Read/write property with the URI of the subject encoded as a string")
 	
 	def get_uri_current(self):
-		return self[Subject.Uri]
+		if not self[Subject.UriCurrent] or self[Subject.UriCurrent].strip()=="":
+			return self[Subject.Uri]
+		return self[Subject.UriCurrent]
 		
 	def set_uri_current(self, value):
 		self[Subject.UriCurrent] = value
@@ -735,6 +739,7 @@ class Event(list):
 				raise ValueError("Subject keys, subject_*, specified together with full subject list")
 			subj = Subject()
 			subj.uri = values.get("subject_uri", "")
+			subj.uri_current = values.get("subject_uri_current", "") or ""
 			subj.interpretation = values.get("subject_interpretation", "")
 			subj.manifestation = values.get("subject_manifestation", "")
 			subj.origin = values.get("subject_origin", "")

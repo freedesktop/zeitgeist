@@ -161,7 +161,7 @@ class ZeitgeistEngine:
 	
 	def _get_subject_from_row(self, row):
 		subject = Subject()
-		for field in ("uri", "text", "storage"):
+		for field in ("uri", "text", "storage", "uri_current"):
 			setattr(subject, field, row["subj_" + field])
 		setattr(subject, "origin", row["subj_origin_uri"])
 		for field in ("interpretation", "manifestation", "mimetype"):
@@ -586,9 +586,10 @@ class ZeitgeistEngine:
 		
 		# Make sure all URIs are inserted
 		_origin = [subject.origin for subject in event.subjects if subject.origin]
+		_uri_current = [subject.uri_current for subject in event.subjects if subject.uri_current]
 		self._cursor.execute("INSERT OR IGNORE INTO uri (value) %s"
-			% " UNION ".join(["SELECT ?"] * (len(event.subjects) + len(_origin))),
-			[subject.uri for subject in event.subjects] + _origin)
+			% " UNION ".join(["SELECT ?"] * (len(event.subjects) + len(_origin)+ len(_uri_current))),
+			[subject.uri for subject in event.subjects] + _origin + _uri_current)
 		
 		# Make sure all mimetypes are inserted
 		_mimetype = [subject.mimetype for subject in event.subjects \
@@ -637,9 +638,9 @@ class ZeitgeistEngine:
 						self._mimetype[subject.mimetype],
 						subject.text,
 						subject.storage))
-				
+			
 			self.extensions.apply_post_insert(event, sender)
-				
+			
 		except sqlite3.IntegrityError:
 			# The event was already registered.
 			# Rollback _last_event_id and return the ID of the original event
@@ -657,9 +658,9 @@ class ZeitgeistEngine:
 		if event.interpretation == Interpretation.MOVE_EVENT:
 			for subject in event.subjects:
 				self._cursor.execute("""
-					UPDATE event SET subject_id_current=? WHERE subject_id_current=?
-					""", (subject.uri_current, subject.uri))
-		
+					UPDATE event SET subj_id_current=(SELECT id FROM uri WHERE value=?)
+					 WHERE subj_id_current=(SELECT id FROM uri WHERE value=?)
+						""", (subject.uri_current, subject.uri))
 		return id
 	
 	def _store_payload (self, event):
