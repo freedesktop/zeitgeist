@@ -440,15 +440,16 @@ class Subject(list):
 	create new subjects.
 	"""
 	Fields = (Uri,
+		CurrentURI,
 		Interpretation,
 		Manifestation,
 		Origin,
 		Mimetype,
 		Text,
-		Storage) = range(7)
+		Storage) = range(8)
 		
-	SUPPORTS_NEGATION = (Uri, Interpretation, Manifestation, Origin, Mimetype)
-	SUPPORTS_WILDCARDS = (Uri, Origin, Mimetype)
+	SUPPORTS_NEGATION = (Uri, CurrentURI, Interpretation, Manifestation, Origin, Mimetype)
+	SUPPORTS_WILDCARDS = (Uri, CurrentURI, Origin, Mimetype)
 	
 	def __init__(self, data=None):
 		super(Subject, self).__init__([""]*len(Subject.Fields))
@@ -473,6 +474,7 @@ class Subject(list):
 		to the keyword arguments passed to this method.
 		
 		:param uri: The URI of the subject. Eg. *file:///tmp/ratpie.txt*
+		:param current_uri: The current URI of the subject. Eg. *file:///tmp/ratpie.txt*
 		:param interpretation: The interpretation type of the subject, given either as a string URI or as a :class:`Interpretation` instance
 		:param manifestation: The manifestation type of the subject, given either as a string URI or as a :class:`Manifestation` instance
 		:param origin: The URI of the location where subject resides or can be found
@@ -482,7 +484,7 @@ class Subject(list):
 		"""
 		self = Subject()
 		for key, value in values.iteritems():
-			if not key in ("uri", "interpretation", "manifestation", "origin",
+			if not key in ("uri", "current_uri", "interpretation", "manifestation", "origin",
 						"mimetype", "text", "storage"):
 				raise ValueError("Subject parameter '%s' is not supported" %key)
 			setattr(self, key, value)
@@ -495,6 +497,14 @@ class Subject(list):
 		self[Subject.Uri] = value
 	uri = property(get_uri, set_uri,
 	doc="Read/write property with the URI of the subject encoded as a string")
+	
+	def get_current_uri(self):
+		return self[Subject.Uri]
+		
+	def set_current_uri(self, value):
+		self[Subject.CurrentUri] = value
+	current_uri = property(get_current_uri, set_current_uri,
+	doc="Read/write property with the CurrentURI of the subject encoded as a string")
 		
 	def get_interpretation(self):
 		return self[Subject.Interpretation]

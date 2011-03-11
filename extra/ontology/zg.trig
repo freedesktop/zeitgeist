@@ -47,7 +47,7 @@ zg: {
         a rdfs:Class ;
         rdfs:comment "Event triggered because a resource has been deleted or otherwise made permanently unavailable. Fx. when deleting a file. FIXME: How about when moving to trash?" ;
         rdfs:subClassOf zg:EventInterpretation .
-        
+    
     zg:ReceiveEvent
         a rdfs:Class ;
         rdfs:comment "Event triggered when something is received from an external party. The event manifestation must be set according to the world view of the receiving party. Most often the item that is being received will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" ;
@@ -72,6 +72,12 @@ zg: {
         a rdfs:Class ;
         rdfs:comment "Event triggered when something expires or times out. These types of events are normally not triggered by the user, but by the operating system or some external party. Examples are a recurring calendar item or task deadline that expires or a when the user fails to respond to an external request such as a phone call" ;
         rdfs:subClassOf zg:EventInterpretation .
+        
+    zg:MoveEvent
+        a rdfs:Class ;
+        rdfs:comment "Event triggered when a resource has been moved from a location to another. Fx. moving a file from a folder to another.";
+        rdfs:subClassOf zg:EventInterpretation.
+        
     
 # manifestations
     
