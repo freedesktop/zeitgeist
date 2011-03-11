@@ -440,13 +440,13 @@ class Subject(list):
 	create new subjects.
 	"""
 	Fields = (Uri,
-		UriCurrent,
 		Interpretation,
 		Manifestation,
 		Origin,
 		Mimetype,
 		Text,
-		Storage) = range(8)
+		Storage,
+		UriCurrent) = range(8)
 		
 	SUPPORTS_NEGATION = (Uri, UriCurrent, Interpretation, Manifestation, Origin, Mimetype)
 	SUPPORTS_WILDCARDS = (Uri, UriCurrent, Origin, Mimetype)
