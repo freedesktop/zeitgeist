@@ -630,7 +630,7 @@ class ZeitgeistEngine:
 						None, # event origin
 						payload_id,
 						subject.uri,
-						subject.current_uri,
+						subject.uri_current,
 						self._interpretation[subject.interpretation],
 						self._manifestation[subject.manifestation],
 						subject.origin,
@@ -658,7 +658,7 @@ class ZeitgeistEngine:
 			for subject in event.subjects:
 				self._cursor.execute("""
 					UPDATE event SET subject_id_current=? WHERE subject_id_current=?
-					""", (subject.current_uri, subject.uri))
+					""", (subject.uri_current, subject.uri))
 		
 		return id
 	
