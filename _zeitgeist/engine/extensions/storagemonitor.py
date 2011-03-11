@@ -323,19 +323,19 @@ class NMNetworkMonitor:
 		self._up = on_network_up
 		self._down = on_network_down
 		
-		proxy = dbus.SystemBus().get_object(NetworkMonitor.NM_BUS_NAME,
-		                                    NetworkMonitor.NM_OBJECT_PATH)
+		proxy = dbus.SystemBus().get_object(NMNetworkMonitor.NM_BUS_NAME,
+		                                    NMNetworkMonitor.NM_OBJECT_PATH)
 		self._props = dbus.Interface(proxy, dbus.PROPERTIES_IFACE)
-		self._nm = dbus.Interface(proxy, NetworkMonitor.NM_IFACE)
+		self._nm = dbus.Interface(proxy, NMNetworkMonitor.NM_IFACE)
 		self._nm.connect_to_signal("StateChanged", self._on_state_changed)
 		
 		# Register the initial state
-		state = self._props.Get(NetworkMonitor.NM_IFACE, "State")
+		state = self._props.Get(NMNetworkMonitor.NM_IFACE, "State")
 		self._on_state_changed(state)
 		
 	def _on_state_changed(self, state):
 		log.debug("NetworkManager network state: %s" % state)
-		if state == NetworkMonitor.NM_STATE_CONNECTED:
+		if state == NMNetworkMonitor.NM_STATE_CONNECTED:
 			self._up ()
 		else:
 			self._down()
