@@ -84,10 +84,10 @@ def run(cursor):
 	cursor.execute("""
 		INSERT INTO event
 		SELECT
-			id, timestamp, interpretation, manifestation, actor, NULL,
-			payload, subj_id, subj_id AS subj_id_current, subj_interpretation,
+			id, timestamp, interpretation, manifestation, actor,
+			payload, subj_id, subj_interpretation,
 			subj_manifestation, subj_origin, subj_mimetype, subj_text,
-			subj_storage
+			subj_storage, NULL AS origin, subj_id AS subj_id_current
 		FROM event_old
 		""")
 	# Finally, delete the old table
