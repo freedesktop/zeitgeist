@@ -391,15 +391,11 @@ def create_db(file_path):
 				event.interpretation,
 				event.manifestation,
 				event.actor,
-				event.origin,
 				(SELECT value FROM payload WHERE payload.id=event.payload)
 					AS payload,
 				(SELECT value FROM uri WHERE uri.id=event.subj_id)
 					AS subj_uri,
 				event.subj_id, -- #this directly points to an id in the uri table
-				(SELECT value FROM uri WHERE uri.id=event.subj_id_current)
-					AS subj_uri_current,
-				event.subj_id_current, -- #this directly points to an id in the uri table
 				event.subj_interpretation,
 				event.subj_manifestation,
 				event.subj_origin,
