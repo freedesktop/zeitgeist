@@ -34,16 +34,16 @@ def run(cursor):
 			interpretation INTEGER,
 			manifestation INTEGER,
 			actor INTEGER,
-			origin INTEGER,
 			payload INTEGER,
 			subj_id INTEGER,
-			subj_id_current INTEGER,
 			subj_interpretation INTEGER,
 			subj_manifestation INTEGER,
 			subj_origin INTEGER,
 			subj_mimetype INTEGER,
 			subj_text INTEGER,
 			subj_storage INTEGER,
+			origin INTEGER,
+			subj_id_current INTEGER,
 			CONSTRAINT interpretation_fk FOREIGN KEY(interpretation)
 				REFERENCES interpretation(id) ON DELETE CASCADE,
 			CONSTRAINT manifestation_fk FOREIGN KEY(manifestation)
