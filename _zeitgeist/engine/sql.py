@@ -138,7 +138,7 @@ def _check_core_schema_upgrade (cursor):
 				log.info("Running post upgrade setup")
 				return False
 			except Exception, e:
-				log.fatal("Failed to upgrade database '%s' from version %s to %s: %s" %
+				log.exception("Failed to upgrade database '%s' from version %s to %s: %s" %
 				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
 				raise SystemExit(27)
 	else:
@@ -251,10 +251,9 @@ def create_db(file_path):
 			ON storage(value)""")
 	
 	# event - the primary table for log statements
-	# note that event.id is NOT unique, we can have multiple subjects per id
-	# timestamps are integers (for now), if you would like to change it
-	# please start a bugreport for it. In case we agree on this change
-	# remember to also fix our unittests to reflect this change
+	#  - Note that event.id is NOT unique, we can have multiple subjects per ID
+	#  - Timestamps are integers.
+	#  - (event-)origin and subj_id_current are added to the end of the table
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS event (
 			id INTEGER,
@@ -262,16 +261,16 @@ def create_db(file_path):
 			interpretation INTEGER,
 			manifestation INTEGER,
 			actor INTEGER,
-			origin INTEGER,
 			payload INTEGER,
 			subj_id INTEGER,
-			subj_id_current INTEGER,
 			subj_interpretation INTEGER,
 			subj_manifestation INTEGER,
 			subj_origin INTEGER,
 			subj_mimetype INTEGER,
 			subj_text INTEGER,
 			subj_storage INTEGER,
+			origin INTEGER,
+			subj_id_current INTEGER,
 			CONSTRAINT interpretation_fk FOREIGN KEY(interpretation)
 				REFERENCES interpretation(id) ON DELETE CASCADE,
 			CONSTRAINT manifestation_fk FOREIGN KEY(manifestation)
@@ -412,7 +411,11 @@ def create_db(file_path):
 				(SELECT value FROM storage
 					WHERE storage.id=event.subj_storage) AS subj_storage,
 				(SELECT state FROM storage
-					WHERE storage.id=event.subj_storage) AS subj_storage_state
+					WHERE storage.id=event.subj_storage) AS subj_storage_state,
+				event.origin,
+				(SELECT value FROM uri WHERE uri.id=event.origin)
+					AS event_origin_uri,
+				event.subj_id_current
 			FROM event
 		""")
 	

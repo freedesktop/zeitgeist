@@ -34,16 +34,16 @@ def run(cursor):
 			interpretation INTEGER,
 			manifestation INTEGER,
 			actor INTEGER,
-			origin INTEGER,
 			payload INTEGER,
 			subj_id INTEGER,
-			subj_id_current INTEGER,
 			subj_interpretation INTEGER,
 			subj_manifestation INTEGER,
 			subj_origin INTEGER,
 			subj_mimetype INTEGER,
 			subj_text INTEGER,
 			subj_storage INTEGER,
+			origin INTEGER,
+			subj_id_current INTEGER,
 			CONSTRAINT interpretation_fk FOREIGN KEY(interpretation)
 				REFERENCES interpretation(id) ON DELETE CASCADE,
 			CONSTRAINT manifestation_fk FOREIGN KEY(manifestation)
@@ -84,10 +84,10 @@ def run(cursor):
 	cursor.execute("""
 		INSERT INTO event
 		SELECT
-			id, timestamp, interpretation, manifestation, actor, NULL,
-			payload, subj_id, subj_id AS subj_id_current, subj_interpretation,
+			id, timestamp, interpretation, manifestation, actor,
+			payload, subj_id, subj_interpretation,
 			subj_manifestation, subj_origin, subj_mimetype, subj_text,
-			subj_storage
+			subj_storage, NULL AS origin, subj_id AS subj_id_current
 		FROM event_old
 		""")
 	# Finally, delete the old table
