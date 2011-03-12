@@ -138,7 +138,7 @@ def _check_core_schema_upgrade (cursor):
 				log.info("Running post upgrade setup")
 				return False
 			except Exception, e:
-				log.fatal("Failed to upgrade database '%s' from version %s to %s: %s" %
+				log.exception("Failed to upgrade database '%s' from version %s to %s: %s" %
 				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
 				raise SystemExit(27)
 	else:
