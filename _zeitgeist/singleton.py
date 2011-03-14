@@ -19,11 +19,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import sys
 import dbus
 
 from zeitgeist.client import ZeitgeistDBusInterface
 from zeitgeist import _config
+
+log = logging.getLogger("singleton")
 
 class SingletonApplication (dbus.service.Object):
 	"""
@@ -34,37 +35,52 @@ class SingletonApplication (dbus.service.Object):
 	"""
 	
 	def __init__ (self):
-		logging.debug("Checking for another running instance...")
-		sbus = dbus.SessionBus()
-		dbus_service = sbus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus")
+		log.debug("Checking for another running instance...")
+		self._session_bus = dbus.SessionBus()
+		self._dbus_service = self._session_bus.get_object("org.freedesktop.DBus",
+			"/org/freedesktop/DBus")
 		
-		if dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
+		if self._dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
 			# already running daemon instance
-			if hasattr(_config, "options") and (_config.options.replace or _config.options.quit):
-				if _config.options.quit:
-					logging.info("Stopping the currently running instance.")
-				else:
-					logging.debug("Replacing currently running process.")
-				interface = ZeitgeistDBusInterface()
-				interface.Quit()
-				while dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
-					pass
-				# TODO: We should somehow set a timeout and kill the old process
-				# if it doesn't quit when we ask it to. (Perhaps we should at least
-				# steal the bus using replace_existing=True)
-			else:
-				raise RuntimeError(
-					("An existing instance was found. Please use "
-					 "--replace to quit it and start a new instance.")
-				)
+			self._handle_existing_instance()
 		elif hasattr(_config, "options") and _config.options.quit:
 			logging.info("There is no running instance; doing nothing.")
-		else:
-			# service is not running, save to start
-			logging.debug("No running instances found.")
 		
 		if hasattr(_config, "options") and _config.options.quit:
-			sys.exit(0)
+			raise SystemExit(0)
 		
-		bus = dbus.service.BusName(ZeitgeistDBusInterface.BUS_NAME, sbus, do_not_queue=True)
+		bus = self._acquire_bus(recursive=True)
 		dbus.service.Object.__init__(self, bus, ZeitgeistDBusInterface.OBJECT_PATH)
+
+	def _acquire_bus(self, recursive):
+		try:
+			return dbus.service.BusName(ZeitgeistDBusInterface.BUS_NAME,
+				self._session_bus, do_not_queue=True)
+		except dbus.NameExistsException:
+			# Look what we've got, a race condition! (LP: #732015)
+			if recursive:
+				# Let's call _handle_existing_instance again; it'll either raise
+				# a RuntimeError or free the bus for us.
+				self._handle_existing_instance()
+				if recursive:
+					# If we're still here, try to get the bus a second time.
+					return self._acquire_bus(recursive=False)
+			else:
+				raise RuntimeError("Failed to acquire the bus. Please try again.")
+
+	def _handle_existing_instance(self):
+		if hasattr(_config, "options") and (_config.options.replace or _config.options.quit):
+			if _config.options.quit:
+				logging.info("Stopping the currently running instance...")
+			else:
+				logging.debug("Replacing currently running process...")
+			interface = ZeitgeistDBusInterface()
+			interface.Quit()
+			while self._dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
+				pass
+			# TODO: We should somehow set a timeout and kill the old process
+			# if it doesn't quit when we ask it to. (Perhaps we should at least
+			# steal the bus using replace_existing=True)
+		else:
+			raise RuntimeError("An existing instance was found. Please use " \
+				 "--replace to quit it and start a new instance.")
