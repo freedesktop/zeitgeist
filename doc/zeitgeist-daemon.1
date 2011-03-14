@@ -82,15 +82,26 @@ It is recommended that system updates of Zeitgeist send this signal to
 all running instances of zeitgeist-daemon. DBus activation will make sure 
 the updated software is automatically restarted when needed.
 
+.SH EXIT CODES
+.TP
+.B 0
+Zeitgeist terminated normally.
+.TP
+.B 1
+An unspecified error occurred.
+.TP
+.B 27
+A database upgrade failed.
+
 .SH EXAMPLES
 .PP
 .B environment variables
 .PP
-To start the daemon with no extensions loaded run
+To start the daemon with no extensions loaded run:
     ZEITGEIST_DEFAULT_EXTENSIONS= zeitgeist-daemon
 .PP
 To run the daemon with only the non-default extensions \'bzr.notify\'
-and \'tracker.games\' run
+and \'tracker.games\' run:
     ZEITGEIST_DEFAULT_EXTENSIONS= ZEITGEIST_EXTRA_EXTENSIONS=bzr.notify,tracker.games zeitgeist-daemon
 
 .SH SEE ALSO
