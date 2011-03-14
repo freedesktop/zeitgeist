@@ -4,6 +4,8 @@
 #
 # Copyright © 2009 Natan Yellin <aantny@gmail.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.de>
+# Copyright © 2011 Collabora Ltd.
+#             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -26,7 +28,18 @@ from zeitgeist import _config
 
 log = logging.getLogger("singleton")
 
-class SingletonApplication (dbus.service.Object):
+class _DBusFlags:
+
+	NameAcquired = 1		# REQUEST_NAME_REPLY_PRIMARY_OWNER
+	NameQueued = 2			# REQUEST_NAME_REPLY_IN_QUEUE 
+	NameAlreadyExists = 3	# REQUEST_NAME_REPLY_EXISTS
+	NameAlreadyOwned = 4	# REQUEST_NAME_REPLY_ALREADY_OWNED
+
+	AllowReplacement = 1	# NAME_FLAG_ALLOW_REPLACEMENT
+	ReplaceExisting = 2		# NAME_FLAG_REPLACE_EXISTING
+	DoNotQueue = 4			# NAME_FLAG_DO_NOT_QUEUE
+
+class SingletonApplication(dbus.service.Object):
 	"""
 	Base class for singleton applications and dbus services.
 	
@@ -36,11 +49,7 @@ class SingletonApplication (dbus.service.Object):
 	
 	def __init__ (self):
 		log.debug("Checking for another running instance...")
-		self._session_bus = dbus.SessionBus()
-		self._dbus_service = self._session_bus.get_object("org.freedesktop.DBus",
-			"/org/freedesktop/DBus")
-		
-		if self._dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
+		if dbus.SessionBus().name_has_owner(ZeitgeistDBusInterface.BUS_NAME):
 			# already running daemon instance
 			self._handle_existing_instance()
 		elif hasattr(_config, "options") and _config.options.quit:
@@ -50,21 +59,21 @@ class SingletonApplication (dbus.service.Object):
 			raise SystemExit(0)
 		
 		bus = self._acquire_bus(recursive=True)
-		dbus.service.Object.__init__(self, bus, ZeitgeistDBusInterface.OBJECT_PATH)
+		dbus.service.Object.__init__(self, dbus.SessionBus(),
+			ZeitgeistDBusInterface.OBJECT_PATH)
 
 	def _acquire_bus(self, recursive):
-		try:
-			return dbus.service.BusName(ZeitgeistDBusInterface.BUS_NAME,
-				self._session_bus, do_not_queue=True)
-		except dbus.NameExistsException:
+		result = dbus.SessionBus().request_name(ZeitgeistDBusInterface.BUS_NAME,
+			_DBusFlags.DoNotQueue)
+		if result != _DBusFlags.NameAcquired:
 			# Look what we've got, a race condition! (LP: #732015)
 			if recursive:
 				# Let's call _handle_existing_instance again; it'll either raise
 				# a RuntimeError or free the bus for us.
 				self._handle_existing_instance()
-				if recursive:
-					# If we're still here, try to get the bus a second time.
-					return self._acquire_bus(recursive=False)
+
+				# If we're still here, try to get the bus a second time.
+				return self._acquire_bus(recursive=False)
 			else:
 				raise RuntimeError("Failed to acquire the bus. Please try again.")
 
@@ -74,13 +83,17 @@ class SingletonApplication (dbus.service.Object):
 				logging.info("Stopping the currently running instance...")
 			else:
 				logging.debug("Replacing currently running process...")
-			interface = ZeitgeistDBusInterface()
-			interface.Quit()
-			while self._dbus_service.NameHasOwner(ZeitgeistDBusInterface.BUS_NAME):
-				pass
-			# TODO: We should somehow set a timeout and kill the old process
-			# if it doesn't quit when we ask it to. (Perhaps we should at least
-			# steal the bus using replace_existing=True)
+			try:
+				interface = ZeitgeistDBusInterface()
+				interface.Quit()
+				while dbus.SessionBus().name_has_owner(ZeitgeistDBusInterface.BUS_NAME):
+					pass
+				# TODO: We should somehow set a timeout and kill the old process
+				# if it doesn't quit when we ask it to. (Perhaps we should at least
+				# steal the bus using replace_existing=True)
+			except dbus.exceptions.DBusException, e:
+				if e.get_dbus_name() != "org.freedesktop.DBus.Error.ServiceUnknown":
+					raise
 		else:
 			raise RuntimeError("An existing instance was found. Please use " \
 				 "--replace to quit it and start a new instance.")
