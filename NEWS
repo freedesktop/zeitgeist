@@ -10,13 +10,15 @@ Python API:
  - Expose DataSourceRegistry's enabled status in a callback.
  - Automatically reconnect to Zeitgeist if the connection is lost when using
    methods asynchronously (so far this only happened for synchronous calls).
- - Reinstall all active monitors upon reconnection (LP: #673008).
+ - Reinstall all active monitors upon reconnection (LP: #673008, #727226).
+ - Fix a (harmless) race condition requesting the bus name (LP: #732015).
 
 Overall:
 
  - Added new event interpretation types: AcceptEvent, DenyEvent and ExpireEvent.
  - Include NCO in the generated ontologies.
  - Better configure check for python-rdflib.
+ - Update the manpage to document exit codes.
 
 
 2011-01-18: Zeitgeist 0.7.0 "All I have is this woodchuck."
