@@ -123,7 +123,7 @@ class _DBusInterface(object):
 			**kwargs)
 
 	def connect_exit(self, callback):
-		"""Executes callback when the RemoteInterface exists"""
+		"""Executes callback when the RemoteInterface exits"""
 		bus_obj = dbus.SessionBus().get_object(dbus.BUS_DAEMON_IFACE,
 			dbus.BUS_DAEMON_PATH)
 		bus_obj.connect_to_signal(
