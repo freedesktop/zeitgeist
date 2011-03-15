@@ -2,9 +2,11 @@
 
 # Zeitgeist
 #
-# Copyright © 2009-2011 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright © 2009-2011 Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2011 Markus Korn <thekorn@gmx.de>
+# Copyright © 2011 Collabora Ltd.
+#             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -41,7 +43,10 @@ log = logging.getLogger("zeitgeist.client")
 class _DBusInterface(object):
 	"""Wrapper around dbus.Interface adding convenience methods."""
 
-	reconnect_callbacks = []
+	# We initialize those as sets in the constructor. Remember that we can't do
+	# that here because otherwise all instances would share their state.
+	_disconnect_callbacks = None
+	_reconnect_callbacks = None
 
 	@staticmethod
 	def get_members(introspection_xml):
@@ -64,8 +69,6 @@ class _DBusInterface(object):
 		self.__proxy = dbus.SessionBus().get_object(self.__iface.requested_bus_name,
 			self.__object_path)
 		self.__iface = dbus.Interface(self.__proxy, self.__interface_name)
-		for callback in self.reconnect_callbacks:
-			callback()
 
 	def _disconnection_safe(self, meth, *args, **kwargs):
 		"""
@@ -123,16 +126,16 @@ class _DBusInterface(object):
 			**kwargs)
 
 	def connect_exit(self, callback):
-		"""Executes callback when the RemoteInterface exits"""
-		bus_obj = dbus.SessionBus().get_object(dbus.BUS_DAEMON_IFACE,
-			dbus.BUS_DAEMON_PATH)
-		bus_obj.connect_to_signal(
-			"NameOwnerChanged",
-			lambda *args: callback(),
-			dbus_interface=dbus.BUS_DAEMON_IFACE,
-			arg0=self.__iface.requested_bus_name, # only match what we want
-			arg2="", # only match services with no new owner
-		)
+		"""Executes callback when the remote interface disappears from the bus"""
+		self._disconnect_callbacks.add(callback)
+
+	def connect_join(self, callback):
+		"""
+		Executes callback when someone claims the Zeitgeist D-Bus name.
+		This may be used to perform some action if the daemon is restarted while
+		it was being used.
+		"""
+		self._reconnect_callbacks.add(callback)
 
 	@property
 	def proxy(self):
@@ -144,6 +147,21 @@ class _DBusInterface(object):
 		self.__object_path = object_path
 		self.__iface = dbus.Interface(proxy, interface_name)
 		self.__methods, self.__signals = self.get_members(proxy.Introspect())
+		
+		self._disconnect_callbacks = set()
+		self._reconnect_callbacks = set()
+		
+		# Listen to (dis)connection notifications, for connect_exit and connect_join
+		def name_owner_changed(connection_name):
+			if connection_name == "":
+				callbacks = self._disconnect_callbacks
+			else:
+				self.reconnect()
+				callbacks = self._reconnect_callbacks
+			for callback in callbacks:
+				callback()
+		dbus.SessionBus().watch_name_owner(self.__iface.requested_bus_name,
+			name_owner_changed)
 
 class ZeitgeistDBusInterface(object):
 	""" Central DBus interface to the Zeitgeist engine
@@ -215,8 +233,6 @@ class ZeitgeistDBusInterface(object):
 			self.__shared_state["extension_interfaces"] = {}
 			self.__shared_state["dbus_interface"] = _DBusInterface(proxy,
 				self.INTERFACE_NAME, self.OBJECT_PATH)
-			self.reconnect_callbacks = \
-				self.__shared_state["dbus_interface"].reconnect_callbacks
 
 class Monitor(dbus.service.Object):
 	"""
@@ -356,7 +372,7 @@ class ZeitgeistClient:
 					reply_handler=self._void_reply_handler,
 					error_handler=lambda err: log.warn(
 						"Error reinstalling monitor: %s" % err))
-		self._iface.reconnect_callbacks.append(reconnect_monitors)
+		self._iface.connect_join(reconnect_monitors)
 	
 	def _safe_error_handler(self, error_handler, *args):
 		if error_handler is not None:
