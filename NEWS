@@ -17,7 +17,7 @@ Overall:
 
  - Added new event interpretation types: AcceptEvent, DenyEvent and ExpireEvent.
  - Include NCO in the generated ontologies.
- - Better configure check for python-rdflib.
+ - Better ./configure check for python-rdflib.
  - Update the manpage to document exit codes.
 
 
@@ -42,12 +42,13 @@ Engine:
  - Add an auto-filter for broken database entries (LP: #598666 workaround)
  - Introduce new DB schema (version 3) that bundles a few performance related 
    fixes (LP: #673452, #673394)
- 
+ - Added a (LRU-type) event cache to speed up similar requests.
+
 Python API:
 
  - Fix find_event_for_template to stop ignoring the template (LP: #690377)
  - Add get_extensions method to ZeitgeistClient
- 
+
 Overall:
 
  - Using logging output for debugging purposes (LP: #660440)
@@ -56,7 +57,6 @@ Overall:
  - Logging output now displays how many events were actually inserted from 
    the batch of requested inserts (LP: #660440)
  - Changed License to LGPL 2.1+
- 
 
 2010-11-01: Zeitgeist 0.6 "Buzzer Beater"
 -----------------------------------------
