@@ -1,9 +1,11 @@
-2011-03-??: Zeitgeist 0.8.0 "Achmed the donkey"
+2011-03-??: Zeitgeist 0.7.1 "Achmed the donkey"
 -----------------------------------------------
 
 Engine:
 
  - Expose property information in the D-Bus introspection output.
+ - Mention column names explicitly when inserting events, for compatibility
+   with the upcoming 0.8 release.
 
 Python API:
 
