@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-10 12:36+0100\n"
+"POT-Creation-Date: 2011-03-20 15:48+0100\n"
 "PO-Revision-Date: 2010-09-26 11:53+0000\n"
 "Last-Translator: Christos Spyroglou <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -30,25 +30,17 @@ msgstr ""
 msgid "how much information should be printed; possible values:"
 msgstr ""
 
-#, python-format
 #~ msgid "Updating database with new %s items"
 #~ msgstr "Ενημέρωση της βάσης δεδομένων με νέα %s αντικείμενα"
 
 #~ msgid "Starting Zeitgeist service..."
 #~ msgstr "Εκκίνηση της υπηρεσίας Zeitgeist"
 
-#, python-format
 #~ msgid "Error logging item from \"%s\": %s"
 #~ msgstr "Σφάλμα καταγραφής αντικειμένου από \"%s\": %s"
 
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "Δεν μπόρεσε να εισαχθεί το GTK; η πηγή δεδομένων απενεργοποιήθηκε"
-
 #~ msgid "No passive loggers found, bye."
 #~ msgstr "Δεν βρέθηκαν παθητικοί καταγραφείς, γειά."
-
-#~ msgid "Updating database with new %s items"
-#~ msgstr "Ενημέρωση της βάσης δεδομένων με νέα %s αντικείμενα"
 
 #~ msgid "Lost connection to zeitgeist-daemon, terminating."
 #~ msgstr "Χάθηκε η σύνδεση με το zeitgeist-daemon, τερματισμός."

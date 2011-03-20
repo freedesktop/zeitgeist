@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-10 12:36+0100\n"
+"POT-Creation-Date: 2011-03-20 15:48+0100\n"
 "PO-Revision-Date: 2010-10-01 19:29+0000\n"
 "Last-Translator: Diogo Lavareda <diogolavareda9@hotmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -42,7 +42,6 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "Could not load file: %s"
 #~ msgstr "Incapaz de ler o ficheiro: %s"
 
-#, python-format
 #~ msgid "Updating database with new %s items"
 #~ msgstr "A actualizar base de dados com novos itens %s"
 
@@ -61,13 +60,6 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "Could not connect to D-Bus."
 #~ msgstr "Não foi possível conectar a D-Bus."
 
-#~ msgid "Lost connection to zeitgeist-daemon, terminating."
-#~ msgstr "Conexão com zeitgeist-daemon perdida. Terminando."
-
-#, python-format
-#~ msgid "Could not load file: %s"
-#~ msgstr "Incapaz de ler o ficheiro: %s"
-
 #~ msgid "Comments"
 #~ msgstr "Comentários"
 
@@ -76,10 +68,6 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 
 #~ msgid "Documents"
 #~ msgstr "Documentos"
-
-#, python-format
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "Erro ao criar log do item de \"%s\": %s"
 
 #~ msgid "Created"
 #~ msgstr "Criado"
@@ -144,10 +132,6 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "No Firefox profile found."
 #~ msgstr "Nenhum perfil do Firefox encontrado."
 
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "Incapaz de importar GTK; fonte dos dados desabilitada."
-
-#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "A procurar por notas do Tomboy em \"%s\"."
 
@@ -169,12 +153,5 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "Broadcasts"
 #~ msgstr "Difusões"
 
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "Nenhum logger passivo encontrado, adeus."
-
 #~ msgid "Email"
 #~ msgstr "Correio Electrónico"
-
-#, python-format
-#~ msgid "File \"%s\" not found, not starting datahub"
-#~ msgstr "O ficheiro \"%s\" não foi encontrado, datahub não irá iniciar"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-07 21:46+0000\n"
+"POT-Creation-Date: 2011-03-20 15:48+0100\n"
 "PO-Revision-Date: 2010-12-07 18:03+0000\n"
 "Last-Translator: Edmund Johnson <edmund@jumpingmouse.co.uk>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
@@ -54,32 +54,14 @@ msgstr "how much information should be printed; possible values:"
 #~ msgid "Tags"
 #~ msgstr "Tags"
 
-#~ msgid "Lost connection to zeitgeist-daemon, terminating."
-#~ msgstr "Lost connection to zeitgeist-daemon, terminating."
-
-#, python-format
-#~ msgid "Could not load file: %s"
-#~ msgstr "Could not load file: %s"
-
 #~ msgid "Comments"
 #~ msgstr "Comments"
 
 #~ msgid "Bookmarks"
 #~ msgstr "Bookmarks"
 
-#, python-format
-#~ msgid "Updating database with new %s items"
-#~ msgstr "Updating database with new %s items"
-
-#~ msgid "Starting Zeitgeist service..."
-#~ msgstr "Starting Zeitgeist service..."
-
 #~ msgid "Documents"
 #~ msgstr "Documents"
-
-#, python-format
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "Error logging item from \"%s\": %s"
 
 #~ msgid "Created"
 #~ msgstr "Created"
@@ -159,10 +141,6 @@ msgstr "how much information should be printed; possible values:"
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Monitoring Evolution: %s"
 
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "Could not import GTK; data source disabled."
-
-#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Monitoring Firefox's history: %s"
 
