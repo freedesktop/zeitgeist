@@ -1,7 +1,7 @@
 # find *.py zeitgeist/*.py _zeitgeist/*.py _zeitgeist/engine/*.py _zeitgeist/engine/*/*.py
 zeitgeist-daemon.py
 zeitgeist/client.py
-zeitgeist/_config.py
+zeitgeist/_config.py.in
 zeitgeist/datamodel.py
 zeitgeist/__init__.py
 zeitgeist/mimetypes.py
