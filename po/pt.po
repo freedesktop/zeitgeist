@@ -15,7 +15,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-02 05:07+0000\n"
+"X-Launchpad-Export-Date: 2010-11-02 04:53+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
@@ -24,7 +24,7 @@ msgstr "se estiver outra instancia do Zeitgeist a correr, substitui-la"
 
 #: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
-msgstr "não iniciar o zeitgeist-datahub automáticamente"
+msgstr "não iniciar o zeitgeist-datahub automaticamente"
 
 #: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
@@ -42,6 +42,7 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "Could not load file: %s"
 #~ msgstr "Incapaz de ler o ficheiro: %s"
 
+#, python-format
 #~ msgid "Updating database with new %s items"
 #~ msgstr "A actualizar base de dados com novos itens %s"
 
@@ -60,6 +61,13 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "Could not connect to D-Bus."
 #~ msgstr "Não foi possível conectar a D-Bus."
 
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Conexão com zeitgeist-daemon perdida. Terminando."
+
+#, python-format
+#~ msgid "Could not load file: %s"
+#~ msgstr "Incapaz de ler o ficheiro: %s"
+
 #~ msgid "Comments"
 #~ msgstr "Comentários"
 
@@ -68,6 +76,10 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 
 #~ msgid "Documents"
 #~ msgstr "Documentos"
+
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Erro ao criar log do item de \"%s\": %s"
 
 #~ msgid "Created"
 #~ msgstr "Criado"
@@ -132,6 +144,10 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "No Firefox profile found."
 #~ msgstr "Nenhum perfil do Firefox encontrado."
 
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Incapaz de importar GTK; fonte dos dados desabilitada."
+
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "A procurar por notas do Tomboy em \"%s\"."
 
@@ -153,5 +169,12 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "Broadcasts"
 #~ msgstr "Difusões"
 
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Nenhum logger passivo encontrado, adeus."
+
 #~ msgid "Email"
 #~ msgstr "Correio Electrónico"
+
+#, python-format
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "O ficheiro \"%s\" não foi encontrado, datahub não irá iniciar"
