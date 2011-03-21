@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
 "PO-Revision-Date: 2010-02-15 05:53+0000\n"
 "Last-Translator: Gergely Szarka <szarka.honved@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
-"Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: hu\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
@@ -30,26 +30,19 @@ msgstr ""
 msgid "how much information should be printed; possible values:"
 msgstr ""
 
-#~ msgid "Starting Zeitgeist service..."
-#~ msgstr "Zeitgeist szolgáltatás indítása..."
-
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "Nem találtunk passzív naplózót, viszlát!"
-
-#~ msgid "Could not load file: %s"
-#~ msgstr "Nem tudom betölteni a fájlt: %s"
-
-#~ msgid "Updating database with new %s items"
-#~ msgstr "Adatbázis frissítése új %s elemekkel"
-
 #~ msgid "Lost connection to zeitgeist-daemon, terminating."
 #~ msgstr "Elvesztettük a kapcsolatot a zeitgeist-daemonnal, a program kilép."
 
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "Hiba történt az elem naplózásakor innen: \"%s\": %s"
+#, python-format
+#~ msgid "Could not load file: %s"
+#~ msgstr "Nem tudom betölteni a fájlt: %s"
 
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "Nem sikerült importálni a GTK-t; az adat forrás ki lett kapcsolva."
+#, python-format
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Adatbázis frissítése új %s elemekkel"
+
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Zeitgeist szolgáltatás indítása..."
 
 #~ msgid "Notifications"
 #~ msgstr "Értesítések"
@@ -84,8 +77,18 @@ msgstr ""
 #~ msgid "Firefox History"
 #~ msgstr "Firefox Előzmények"
 
+#, python-format
+#~ msgid "Monitoring Firefox history: %s"
+#~ msgstr "Firefox előzmények figyelése: %s"
+
+#~ msgid "Could not connect to D-Bus."
+#~ msgstr "Nem tudok csatlakozni a D-Bus-hoz."
+
 #~ msgid "No Firefox profile found."
 #~ msgstr "Nem találtam Firefox-profilt."
+
+#~ msgid "Error: Zeitgeist service not running."
+#~ msgstr "Hiba: Nem fut a Zeitgeist szolgáltatás."
 
 #~ msgid "Tags"
 #~ msgstr "Címkék"
@@ -126,23 +129,38 @@ msgstr ""
 #~ msgid "Visited"
 #~ msgstr "Látogatott"
 
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Nem találtunk passzív naplózót, viszlát!"
+
 #~ msgid "Broadcasts"
 #~ msgstr "Broadcast-ek"
 
 #~ msgid "System Resources"
 #~ msgstr "Rendszererőforrások"
 
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Nem sikerül figyelni a Firefox előzményeit: %s: %s"
 
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Nem sikerült importálni a GTK-t; az adat forrás ki lett kapcsolva."
+
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Nem sikerül figyelni az Evolution-t: %s: %s"
 
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Hiba történt az elem naplózásakor innen: \"%s\": %s"
+
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Evolution figyelése: %s"
 
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Firefox előzményeinek figyelése: %s"
 
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Tomboy jegyzetek figyelése itt: \"%s\"."

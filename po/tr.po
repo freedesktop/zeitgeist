@@ -7,58 +7,44 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
 "PO-Revision-Date: 2010-06-12 04:28+0000\n"
 "Last-Translator: Zeitgeist Framework Team <zeitgeist@lists.launchpad.net>\n"
 "Language-Team: Turkish <tr@li.org>\n"
-"Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: tr\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
-msgstr ""
+msgstr "Eğer başka bir Zeitgeist örneği zaten çalışıyorsa, yerine koy"
 
 #: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
-msgstr ""
+msgstr "zeitgeist-datahub'u otomatik başlatma"
 
 #: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
-msgstr ""
-
-#~ msgid "Starting Zeitgeist service..."
-#~ msgstr "Zeitgeist hizmeti başlatılıyor..."
-
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "Pasif kaydedici bulunamadı, hoşça kal."
-
-#~ msgid "Could not load file: %s"
-#~ msgstr "Dosya yüklenemedi: %s"
-
-#~ msgid "Updating database with new %s items"
-#~ msgstr "Yeni %s ögeleriyle birlikte veri tabanı güncelleniyor"
-
-#~ msgid "Lost connection to zeitgeist-daemon, terminating."
-#~ msgstr "Zeitgeist-hizmeti bağlantısı koptu, sonlandırılıyor."
-
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "\"%s\" konumundaki ögenin günlüklemesinde hata: %s"
-
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "GTK içeri aktarılamadı; veri kaynağı devre dışı."
+msgstr "ne kadar bilgi yazdırılmalı; olası değerler:"
 
 #~ msgid "Tags"
 #~ msgstr "Etiketler"
+
+#, python-format
+#~ msgid "Could not load file: %s"
+#~ msgstr "Dosya yüklenemedi: %s"
 
 #~ msgid "Comments"
 #~ msgstr "Yorumlar"
 
 #~ msgid "Bookmarks"
 #~ msgstr "Yer İmleri"
+
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Zeitgeist hizmeti başlatılıyor..."
 
 #~ msgid "Documents"
 #~ msgstr "Belgeler"
@@ -126,6 +112,7 @@ msgstr ""
 #~ msgid "Images"
 #~ msgstr "Görüntüler"
 
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "\"%s\" üzerindeki Tomboy notları izleniyor."
 
@@ -135,14 +122,39 @@ msgstr ""
 #~ msgid "Received"
 #~ msgstr "Alınan"
 
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Evolution gösteriliyor: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Firefox geçmişi gösterilemiyor: %s: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Evolution gösterilemiyor: %s: %s"
 
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Firefox geçmişi gösteriliyor: %s"
+
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "GTK içeri aktarılamadı; veri kaynağı devre dışı."
+
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Zeitgeist-hizmeti bağlantısı koptu, sonlandırılıyor."
+
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Pasif kaydedici bulunamadı, hoşça kal."
+
+#, python-format
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Yeni %s ögeleriyle birlikte veri tabanı güncelleniyor"
+
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "\"%s\" konumundaki ögenin günlüklemesinde hata: %s"
+
+#, python-format
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "\"%s\" dosyası bulunamadı, datahub başlatılmıyor"

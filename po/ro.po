@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
 "PO-Revision-Date: 2010-08-22 05:22+0000\n"
 "Last-Translator: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>\n"
 "Language-Team: Romanian <ro@li.org>\n"
-"Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: ro\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
@@ -32,32 +32,15 @@ msgstr "nu porni zeitgeist-datahub automat"
 msgid "how much information should be printed; possible values:"
 msgstr "cât de multe informații ar trebui să fie tipărite; valori posibile:"
 
-#~ msgid "File \"%s\" not found, not starting datahub"
-#~ msgstr "Fișierul „%s” nu a fost găsit, nu se pornește datahub"
+#~ msgid "Tags"
+#~ msgstr "Etichete"
 
 #~ msgid "Starting Zeitgeist service..."
 #~ msgstr "Se pornește serviciul Zeitgeist..."
 
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "Nu s-a găsit niciun jurnal pasiv, se iese."
-
+#, python-format
 #~ msgid "Could not load file: %s"
 #~ msgstr "Nu s-a putut încărca fișierul: %s"
-
-#~ msgid "Updating database with new %s items"
-#~ msgstr "Se actualizează baza de date cu noi elemente %s"
-
-#~ msgid "Lost connection to zeitgeist-daemon, terminating."
-#~ msgstr "S-a pierdut conexiunea la zeitgeist-daemon, se termină execuția."
-
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "Eroare la înregistrarea în jurnal a unui element de la „%s”: %s"
-
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "Nu s-a putut importa GTK; sursa de date este dezactivată."
-
-#~ msgid "Tags"
-#~ msgstr "Etichete"
 
 #~ msgid "Comments"
 #~ msgstr "Comentarii"
@@ -67,6 +50,10 @@ msgstr "cât de multe informații ar trebui să fie tipărite; valori posibile:"
 
 #~ msgid "Documents"
 #~ msgstr "Documente"
+
+#, python-format
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Se actualizează baza de date cu noi elemente %s"
 
 #~ msgid "Created"
 #~ msgstr "Creat"
@@ -134,20 +121,42 @@ msgstr "cât de multe informații ar trebui să fie tipărite; valori posibile:"
 #~ msgid "No Firefox profile found."
 #~ msgstr "Nu s-a găsit niciun profil Firefox."
 
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Monitorizare Evolution: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Nu s-a putut monitoriza istoricul Firefox: %s: %s"
 
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Nu s-a putut importa GTK; sursa de date este dezactivată."
+
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Nu s-a putut monitoriza Evolution: %s: %s"
 
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Monitorizare istoric Firefox: %s"
 
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Se urmăresc notițele Tomboy din „%s”."
 
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "S-a pierdut conexiunea la zeitgeist-daemon, se termină execuția."
+
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Nu s-a găsit niciun jurnal pasiv, se iese."
+
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Eroare la înregistrarea în jurnal a unui element de la „%s”: %s"
+
 #~ msgid "Broadcasts"
 #~ msgstr "Difuzare"
+
+#, python-format
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "Fișierul „%s” nu a fost găsit, nu se pornește datahub"

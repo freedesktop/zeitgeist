@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
 "PO-Revision-Date: 2010-02-15 05:51+0000\n"
 "Last-Translator: oliverreiter <oliver_reiter@gmx.at>\n"
 "Language-Team: German <de@li.org>\n"
-"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: de\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
@@ -33,25 +33,19 @@ msgstr ""
 #~ msgid "Starting Zeitgeist service..."
 #~ msgstr "Zeitgeist-Service wird gestartet ..."
 
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "Es wurden keine passiven Logger gefunden. Auf Wiedersehen."
-
-#~ msgid "Could not load file: %s"
-#~ msgstr "Datei konnte nicht geladen werden: %s"
-
+#, python-format
 #~ msgid "Updating database with new %s items"
 #~ msgstr "Aktualisierung der Datenbank mit neuen %s Objekten"
 
 #~ msgid "Lost connection to zeitgeist-daemon, terminating."
 #~ msgstr "Verbindung zum Zeitgeist-Daemon verloren, Anwendung wird beendet"
 
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "Fehler beim Protokollieren des Objektes von \"%s\": %s"
+#~ msgid "Error: Zeitgeist service not running."
+#~ msgstr "Fehler: Zeitgeist ist nicht gestartet"
 
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr ""
-#~ "Konnte die GTK-Bibliothek nicht importieren; Die Datenquelle ist "
-#~ "deaktiviert."
+#, python-format
+#~ msgid "Could not load file: %s"
+#~ msgstr "Datei konnte nicht geladen werden: %s"
 
 #~ msgid "Comments"
 #~ msgstr "Kommentare"
@@ -131,20 +125,36 @@ msgstr ""
 #~ msgid "No Firefox profile found."
 #~ msgstr "Es konnten keine Firefox-Profile gefunden werden."
 
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Es ist nicht möglich die Firefox-Chronik darzustellen: %s: %s"
 
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr ""
+#~ "Konnte die GTK-Bibliothek nicht importieren; Die Datenquelle ist deaktiviert."
+
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Darstellen der Firefox Webseitenchronik: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Evolution kann nicht überwacht werden: %s: %s"
 
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Warte auf Tomboy Notizen in \"%s\"."
 
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Überwache Evolution: %s"
 
 #~ msgid "Broadcasts"
 #~ msgstr "Alle Nachrichten"
+
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Es wurden keine passiven Logger gefunden. Auf Wiedersehen."
+
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Fehler beim Protokollieren des Objektes von \"%s\": %s"

@@ -2,16 +2,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
-"PO-Revision-Date: 2010-09-06 09:21+0000\n"
-"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
+"PO-Revision-Date: 2011-01-05 05:03+0000\n"
+"Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-06 05:47+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: \n"
 "X-Poedit-Language: Spanish\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
@@ -26,30 +26,14 @@ msgstr "no iniciar automáticamente zeitgeist-datahub"
 msgid "how much information should be printed; possible values:"
 msgstr "cuánta información debería imprimirse, los valores posibles son:"
 
-#~ msgid "File \"%s\" not found, not starting datahub"
-#~ msgstr "Archivo «%s» no encontrado, el datahub no se puede iniciar"
-
 #~ msgid "Starting Zeitgeist service..."
 #~ msgstr "Iniciando el servicio de Zeitgeist..."
 
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "No se encontraron registradores pasivos, adiós."
-
-#~ msgid "Could not load file: %s"
-#~ msgstr "No se pudo cargar el archivo: %s"
-
+#, python-format
 #~ msgid "Updating database with new %s items"
 #~ msgstr "Actualizando la base de datos con elementos nuevos: %s"
 
-#~ msgid "Lost connection to zeitgeist-daemon, terminating."
-#~ msgstr "Se ha perdido la conexión con el demonio Zeitgeist, terminando."
-
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "Error registrando elemento para \"%s\": %s"
-
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "No se pudo importar GTK; origen de datos desactivado."
-
+#, c-format
 #~ msgid "Type error logging item from \"%s\": %s"
 #~ msgstr "Error de tipo al grabar elemento para \"%s\": %s"
 
@@ -88,6 +72,10 @@ msgstr "cuánta información debería imprimirse, los valores posibles son:"
 
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Crear una nueva nota de Tomboy"
+
+#, python-format
+#~ msgid "Could not load file: %s"
+#~ msgstr "No se pudo cargar el archivo: %s"
 
 #~ msgid "Tags"
 #~ msgstr "Etiquetas"
@@ -134,15 +122,21 @@ msgstr "cuánta información debería imprimirse, los valores posibles son:"
 #~ msgid "Broadcasts"
 #~ msgstr "Emisiones"
 
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Imposible controlar el historial de Firefox: %s: %s"
+
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "No se pudo importar GTK; origen de datos desactivado."
 
 #~ msgid "Warnings"
 #~ msgstr "Alertas"
 
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Viendo las notas de Tomboy en: \"%s\"."
 
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Imposible controlar Evolution: %s: %s"
 
@@ -161,11 +155,27 @@ msgstr "cuánta información debería imprimirse, los valores posibles son:"
 #~ msgid "Received"
 #~ msgstr "Recibido"
 
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Monitorizando historial de Firefox: %s"
 
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Monitorizando Evolution: %s"
 
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Error registrando elemento para \"%s\": %s"
+
 #~ msgid "Feeds"
 #~ msgstr "Canales"
+
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "No se encontraron registradores pasivos, adiós."
+
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Se ha perdido la conexión con el demonio Zeitgeist, terminando."
+
+#, python-format
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "Archivo «%s» no encontrado, el datahub no se puede iniciar"

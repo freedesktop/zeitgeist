@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
 "PO-Revision-Date: 2010-09-19 14:02+0000\n"
 "Last-Translator: Siegfried Gevatter <rainct@ubuntu.com>\n"
 "Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-20 05:43+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: \n"
 "X-Poedit-Language: Catalan\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
@@ -32,34 +32,24 @@ msgstr "no iniciïs el zeitgeist-datahub automàticament"
 msgid "how much information should be printed; possible values:"
 msgstr "quanta informació s'ha de mostrar; valors possibles:"
 
-#~ msgid "File \"%s\" not found, not starting datahub"
-#~ msgstr ""
-#~ "No s'ha trobat el fitxer «%s», no s'iniciarà el gestor de monitors "
-#~ "passius."
-
 #~ msgid "Starting Zeitgeist service..."
 #~ msgstr "S'està iniciant el servei Zeitgeist..."
 
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "No s'han trobat monitors passius; adéu."
+#, c-format
+#~ msgid "Error: Could not load file: %s"
+#~ msgstr "Error: No s'ha pogut carregar el fitxer: %s"
 
-#~ msgid "Could not load file: %s"
-#~ msgstr "No s'ha pogut carregar el fitxer: %s"
-
+#, python-format
 #~ msgid "Updating database with new %s items"
 #~ msgstr "S'està actualitzant la base de dades amb noves activitats: %s"
 
-#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#, c-format
+#~ msgid "Type error logging item from \"%s\": %s"
 #~ msgstr ""
-#~ "S'ha perdut la connexió al zeitgeist-daemon; finalitzant el programa."
+#~ "Tipus de variable errònia al intentar registrar una activitat de «%s»: %s"
 
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr ""
-#~ "S'ha trobat un error al intentar enregistrar una activitat de «%s»: %s"
-
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr ""
-#~ "No s'ha pogut importar el mòdul PyGTK; s'ha inhabilitat aquesta font."
+#~ msgid "Error: Could not connect to D-Bus."
+#~ msgstr "Error: No s'ha pogut establir una connexió amb el D-Bus."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Error: No s'està executant el servei del Zeitgeist."
@@ -96,6 +86,14 @@ msgstr "quanta informació s'ha de mostrar; valors possibles:"
 
 #~ msgid "Make a new Tomboy note"
 #~ msgstr "Crea una nota nova"
+
+#, python-format
+#~ msgid "Could not load file: %s"
+#~ msgstr "No s'ha pogut carregar el fitxer: %s"
+
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr ""
+#~ "S'ha perdut la connexió al zeitgeist-daemon; finalitzant el programa."
 
 #~ msgid "Tags"
 #~ msgstr "Etiquetes"
@@ -160,20 +158,58 @@ msgstr "quanta informació s'ha de mostrar; valors possibles:"
 #~ msgid "Could not connect to D-Bus."
 #~ msgstr "No s'ha pogut establir una connexió amb el D-Bus."
 
+#, python-format
+#~ msgid "Unable to monitor Firefox history %s: %s"
+#~ msgstr "No ses pot fer un seguiment del fitxer «%s» del Firefox: %s"
+
+#, python-format
+#~ msgid "Monitoring Firefox history: %s"
+#~ msgstr "S'està enregistrant l'historial del Firefox de: %s"
+
 #~ msgid "No Firefox profile found."
 #~ msgstr "No s'ha trobat cap perfil del Firefox."
 
+#, python-format
+#~ msgid "Unable to monitor Evolution's folders.db %s: %s"
+#~ msgstr "No es pot fer un seguiment del fitxer «%s» de l'Evolution: %s"
+
+#, python-format
+#~ msgid "Monitoring Evolution's '%s'"
+#~ msgstr "S'està enregistrant activitats de l'Evolution de: %s"
+
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "No s'han trobat monitors passius; adéu."
+
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr ""
+#~ "S'ha trobat un error al intentar enregistrar una activitat de «%s»: %s"
+
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr ""
+#~ "No s'ha pogut importar el mòdul PyGTK; s'ha inhabilitat aquesta font."
+
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "No es pot fer un seguiment del fitxer «%s» del Firefox: %s"
 
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "S'està enregistrant l'historial del Firefox: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "No es pot fer un seguiment del fitxer «%s» de l'Evolution: %s"
 
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "S'està enregistrant les activitats de l'Evolution: %s"
 
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "S'està enregistrant les notes del Tomboy de «%s»."
+
+#, python-format
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr ""
+#~ "No s'ha trobat el fitxer «%s», no s'iniciarà el gestor de monitors passius."

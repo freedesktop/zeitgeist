@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
 "PO-Revision-Date: 2010-09-03 07:29+0000\n"
 "Last-Translator: Daniel Nylander <yeager@ubuntu.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
-"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: sv\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
@@ -30,30 +30,6 @@ msgstr "starta inte zeitgeist-datahub automatiskt"
 msgid "how much information should be printed; possible values:"
 msgstr "hur mycket information som ska skrivas ut; möjliga värden:"
 
-#~ msgid "File \"%s\" not found, not starting datahub"
-#~ msgstr "Filen \"%s\" finns inte, startar inte datahub"
-
-#~ msgid "Starting Zeitgeist service..."
-#~ msgstr "Startar Zeitgeist-tjänsten..."
-
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "Inga passiva loggare hittades, adjö."
-
-#~ msgid "Could not load file: %s"
-#~ msgstr "Kunde inte läsa in fil: %s"
-
-#~ msgid "Updating database with new %s items"
-#~ msgstr "Uppdaterar databas med nya %s-element."
-
-#~ msgid "Lost connection to zeitgeist-daemon, terminating."
-#~ msgstr "Tappade anslutning till zeitgeist-daemon, avslutar."
-
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "Misslyckades att logga objekt från \"%s\": %s"
-
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "Kunde inte importera GTK; datakälla inaktiverad."
-
 #~ msgid "Open Journal"
 #~ msgstr "Öppna Dagbok"
 
@@ -61,14 +37,21 @@ msgstr "hur mycket information som ska skrivas ut; möjliga värden:"
 #~ "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
 #~ "computer."
 #~ msgstr ""
-#~ "GNOME Zeitgeist är ett verktyg för att enkelt bläddra igenom och hitta "
-#~ "filer på din dator."
+#~ "GNOME Zeitgeist är ett verktyg för att enkelt bläddra igenom och hitta filer "
+#~ "på din dator."
 
 #~ msgid "Stars"
 #~ msgstr "Stjärnor"
 
 #~ msgid "Journal"
 #~ msgstr "Dagbok"
+
+#, c-format
+#~ msgid "Error: Could not load file: %s"
+#~ msgstr "Fel: Kunde inte ladda fil: %s"
+
+#~ msgid "Error: Could not connect to D-Bus."
+#~ msgstr "Fel: Kunde inte kontakta D-Bus."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Fel: Zeitgeist tjänsten körs inte."
@@ -118,6 +101,9 @@ msgstr "hur mycket information som ska skrivas ut; möjliga värden:"
 #~ msgid "Calendar"
 #~ msgstr "Kalender"
 
+#~ msgid "Filters"
+#~ msgstr "Filter"
+
 #~ msgid "Enable Grouping"
 #~ msgstr "Aktivera Gruppering"
 
@@ -145,6 +131,7 @@ msgstr "hur mycket information som ska skrivas ut; möjliga värden:"
 #~ msgid "Tags:"
 #~ msgstr "Etiketter:"
 
+#, python-format
 #~ msgid "Files related to %s"
 #~ msgstr "Filer relaterade till %s"
 
@@ -163,6 +150,7 @@ msgstr "hur mycket information som ska skrivas ut; möjliga värden:"
 #~ msgid "Delete item from Zeitgeist"
 #~ msgstr "Radera post från Zeitgeist"
 
+#, python-format
 #~ msgid "Edit tags for %s"
 #~ msgstr "Redigera etiketter för %s"
 
@@ -181,9 +169,11 @@ msgstr "hur mycket information som ska skrivas ut; möjliga värden:"
 #~ msgid "Yesterday"
 #~ msgstr "Igår"
 
+#, python-format
 #~ msgid "Could not create database: %s"
 #~ msgstr "Kunde inte skapa databas: %s"
 
+#, python-format
 #~ msgid "Error connecting with database: %s"
 #~ msgstr "Fel vid kontakt med databas: %s"
 
@@ -205,11 +195,18 @@ msgstr "hur mycket information som ska skrivas ut; möjliga värden:"
 #~ msgid "Tags"
 #~ msgstr "Taggar"
 
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Tappade anslutning till zeitgeist-daemon, avslutar."
+
 #~ msgid "Comments"
 #~ msgstr "Kommentarer"
 
 #~ msgid "Bookmarks"
 #~ msgstr "Bokmärken"
+
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Misslyckades att logga objekt från \"%s\": %s"
 
 #~ msgid "Modified"
 #~ msgstr "Ändrad"
@@ -259,6 +256,20 @@ msgstr "hur mycket information som ska skrivas ut; möjliga värden:"
 #~ msgid "No Firefox profile found."
 #~ msgstr "Hittade ingen Firefox-profil."
 
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Kunde inte importera GTK; datakälla inaktiverad."
+
+#, python-format
+#~ msgid "Could not load file: %s"
+#~ msgstr "Kunde inte läsa in fil: %s"
+
+#, python-format
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Uppdaterar databas med nya %s-element."
+
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Startar Zeitgeist-tjänsten..."
+
 #~ msgid "Feeds"
 #~ msgstr "Webbkanaler"
 
@@ -271,17 +282,29 @@ msgstr "hur mycket information som ska skrivas ut; möjliga värden:"
 #~ msgid "Firefox History"
 #~ msgstr "Firefox-historik"
 
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Kan inte övervaka Evolution: %s: %s"
 
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Letar efter Tomboy-anteckningar i \"%s\"."
 
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Övervakar Evolution: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Kan inte övervaka Firefox historik: %s: %s"
 
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Övervakar Firefox historik: %s"
+
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Inga passiva loggare hittades, adjö."
+
+#, python-format
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "Filen \"%s\" finns inte, startar inte datahub"
