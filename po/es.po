@@ -2,65 +2,59 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-10 08:20+0000\n"
+"POT-Creation-Date: 2011-03-20 15:48+0100\n"
 "PO-Revision-Date: 2010-09-06 09:21+0000\n"
 "Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
+"X-Launchpad-Export-Date: 2011-01-06 05:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Language: Spanish\n"
 
-#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+#: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
-msgstr "Si otra instancia Zeitgeist ya se está ejecutando, reemplázala"
+msgstr "Si ya se está ejecutando otra instancia de Zeitgeist, reemplácela"
 
-#: ../zeitgeist-daemon.py:65
+#: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
 msgstr "no iniciar automáticamente zeitgeist-datahub"
 
-#: ../zeitgeist-daemon.py:69
+#: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
-msgstr ""
-"qué cantidad de información se debe imprimir, los valores posibles son:"
+msgstr "cuánta información debería imprimirse, los valores posibles son:"
 
-#: ../zeitgeist-daemon.py:111
-#, python-format
-msgid "File \"%s\" not found, not starting datahub"
-msgstr "Archivo «%s» no encontrado, el datahub no se puede iniciar"
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "Archivo «%s» no encontrado, el datahub no se puede iniciar"
 
-#: ../zeitgeist-daemon.py:113
-msgid "Starting Zeitgeist service..."
-msgstr "Iniciando el servicio de Zeitgeist..."
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Iniciando el servicio de Zeitgeist..."
 
-#: ../zeitgeist-datahub.py:62
-msgid "No passive loggers found, bye."
-msgstr "No se encontraron registradores pasivos, adiós."
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "No se encontraron registradores pasivos, adiós."
 
-#: ../zeitgeist-datahub.py:82
-#, python-format
-msgid "Could not load file: %s"
-msgstr "No se pudo cargar el archivo: %s"
+#~ msgid "Could not load file: %s"
+#~ msgstr "No se pudo cargar el archivo: %s"
 
-#: ../zeitgeist-datahub.py:105
-#, python-format
-msgid "Updating database with new %s items"
-msgstr "Actualizando la base de datos con elementos nuevos: %s"
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Actualizando la base de datos con elementos nuevos: %s"
 
-#: ../zeitgeist-datahub.py:129
-msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "Se ha perdido la conexión con el demonio Zeitgeist, terminando."
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Se ha perdido la conexión con el demonio Zeitgeist, terminando."
 
-#: ../zeitgeist-datahub.py:132
-#, python-format
-msgid "Error logging item from \"%s\": %s"
-msgstr "Error registrando elemento para \"%s\": %s"
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Error registrando elemento para \"%s\": %s"
 
-#: ../_zeitgeist/loggers/datasources/recent.py:49
-msgid "Could not import GTK; data source disabled."
-msgstr "No se pudo importar GTK; origen de datos desactivado."
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "No se pudo importar GTK; origen de datos desactivado."
+
+#~ msgid "Type error logging item from \"%s\": %s"
+#~ msgstr "Error de tipo al grabar elemento para \"%s\": %s"
+
+#~ msgid "Error: Could not connect to D-Bus."
+#~ msgstr "Error: No se pudo conectar con D-Bus."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Error: El servicio de Zeitgeist no está activo."
@@ -140,18 +134,15 @@ msgstr "No se pudo importar GTK; origen de datos desactivado."
 #~ msgid "Broadcasts"
 #~ msgstr "Emisiones"
 
-#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Imposible controlar el historial de Firefox: %s: %s"
 
 #~ msgid "Warnings"
 #~ msgstr "Alertas"
 
-#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Viendo las notas de Tomboy en: \"%s\"."
 
-#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Imposible controlar Evolution: %s: %s"
 
@@ -170,11 +161,9 @@ msgstr "No se pudo importar GTK; origen de datos desactivado."
 #~ msgid "Received"
 #~ msgstr "Recibido"
 
-#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Monitorizando historial de Firefox: %s"
 
-#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Monitorizando Evolution: %s"
 

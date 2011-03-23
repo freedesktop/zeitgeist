@@ -9,7 +9,7 @@ In general, follow PEP 8 <http://www.python.org/dev/peps/pep-0008/>.
 Especially try to keep the lines shorter than 80 characters. We are also
 using TAB for indention.
 
-Zeitgeist supports Python 2.5 and later.
+Zeitgeist supports Python 2.6 and later.
 
 
 Testing
@@ -86,6 +86,7 @@ Release Tasks
 9. Send announcement email to the mailing lists:
 
     + zeitgeist@lists.launchpad.net
+    + dev@lists.zeitgeist-project.com
     + gnome-zeitgeist-users@lists.launchpad.net
     + gnome-announce-list@gnome.org
 

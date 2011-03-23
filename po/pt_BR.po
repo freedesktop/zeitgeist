@@ -7,65 +7,54 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-21 18:23+0000\n"
+"POT-Creation-Date: 2011-03-20 15:48+0100\n"
 "PO-Revision-Date: 2010-09-21 07:46+0000\n"
 "Last-Translator: André Gondim <andregondim@ubuntu.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-09-22 05:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon.py:62 ../zeitgeist-daemon.py:75
+#: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
 msgstr "se já estiver executando outra instância do Zeitgeist, substitua"
 
-#: ../zeitgeist-daemon.py:66
+#: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
 msgstr ""
 "não inicie automaticamente o datahub do zeitgeist (datahub é um centro "
 "administrativo com acesso a múltiplas e independentes bases de dados)"
 
-#: ../zeitgeist-daemon.py:70
+#: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
 msgstr "quanta informação deve ser impressa; valores possíveis:"
 
-#: ../zeitgeist-daemon.py:112
-#, python-format
-msgid "File \"%s\" not found, not starting datahub"
-msgstr "O arquivo \"% s\" não foi encontrado, Datahub não iniciado"
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "O arquivo \"% s\" não foi encontrado, Datahub não iniciado"
 
-#: ../zeitgeist-daemon.py:120
-msgid "Starting Zeitgeist service..."
-msgstr "Iniciando serviço Zeitgeist..."
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Iniciando serviço Zeitgeist..."
 
-#: ../zeitgeist-datahub.py:62
-msgid "No passive loggers found, bye."
-msgstr "Nenhum logger passivo encontrado, até logo."
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Nenhum logger passivo encontrado, até logo."
 
-#: ../zeitgeist-datahub.py:82
-#, python-format
-msgid "Could not load file: %s"
-msgstr "Não foi possível carregar o arquivo: %s"
+#~ msgid "Could not load file: %s"
+#~ msgstr "Não foi possível carregar o arquivo: %s"
 
-#: ../zeitgeist-datahub.py:105
-#, python-format
-msgid "Updating database with new %s items"
-msgstr "Atualizando banco de dados com os novos %s itens"
+#~ msgid "Updating database with new %s items"
+#~ msgstr "Atualizando banco de dados com os novos %s itens"
 
-#: ../zeitgeist-datahub.py:129
-msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "Perda de conexão com o zeitgeist-daemon, encerrando."
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Perda de conexão com o zeitgeist-daemon, encerrando."
 
-#: ../zeitgeist-datahub.py:132
-#, python-format
-msgid "Error logging item from \"%s\": %s"
-msgstr "Erro ao criar log do item de \"%s\": %s"
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Erro ao criar log do item de \"%s\": %s"
 
-#: ../_zeitgeist/loggers/datasources/recent.py:49
-msgid "Could not import GTK; data source disabled."
-msgstr "Não foi possível importar GTK; fonte de dados desabilitada."
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Não foi possível importar GTK; fonte de dados desabilitada."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Erro: O serviço do Zeitgeist não está rodando."
@@ -73,15 +62,12 @@ msgstr "Não foi possível importar GTK; fonte de dados desabilitada."
 #~ msgid "No Firefox profile found."
 #~ msgstr "Nenhum perfil do Firefox foi encontrado."
 
-#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Monitorando Evolution: %s"
 
-#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Não foi possível monitorar o histórico do Firefox: %s: %s"
 
-#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Monitorando histórico do Firefox: %s"
 
@@ -160,11 +146,9 @@ msgstr "Não foi possível importar GTK; fonte de dados desabilitada."
 #~ msgid "Firefox History"
 #~ msgstr "Histórico do Firefox"
 
-#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Buscando notas do Tomboy em \"%s\"."
 
-#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Não foi possível monitorar o Evolution: %s: %s"
 

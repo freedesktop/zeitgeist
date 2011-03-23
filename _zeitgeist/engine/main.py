@@ -167,7 +167,7 @@ class ZeitgeistEngine:
 		for field in ("interpretation", "manifestation", "mimetype"):
 			# Try to get subject attributes from row using the attributed field id
 			# If attribute does not exist we break the attribute fetching and return
-			# None instead of of crashing
+			# None instead of crashing
 			try:
 				setattr(subject, field,
 					getattr(self, "_" + field).value(row["subj_" + field]))
@@ -612,7 +612,12 @@ class ZeitgeistEngine:
 		try:
 			for subject in event.subjects:	
 				self._cursor.execute("""
-					INSERT INTO event VALUES (
+					INSERT INTO event (
+						id, timestamp, interpretation, manifestation, actor,
+						payload, subj_id,
+						subj_interpretation, subj_manifestation, subj_origin,
+						subj_mimetype, subj_text, subj_storage
+					) VALUES (
 						?, ?, ?, ?, ?, ?,
 						(SELECT id FROM uri WHERE value=?),
 						?, ?,
