@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNOME Zeitgeist 0.0.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-10 12:36+0100\n"
+"POT-Creation-Date: 2011-03-20 15:48+0100\n"
 "PO-Revision-Date: 2010-09-06 09:21+0000\n"
 "Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: The Zeitgeist Team <zeitgeist-users@lists.launchpad.net>\n"
@@ -10,13 +10,13 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
+"X-Launchpad-Export-Date: 2011-01-06 05:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Language: Spanish\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
-msgstr "Si otra instancia Zeitgeist ya se está ejecutando, reemplázala"
+msgstr "Si ya se está ejecutando otra instancia de Zeitgeist, reemplácela"
 
 #: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
@@ -24,8 +24,7 @@ msgstr "no iniciar automáticamente zeitgeist-datahub"
 
 #: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
-msgstr ""
-"qué cantidad de información se debe imprimir, los valores posibles son:"
+msgstr "cuánta información debería imprimirse, los valores posibles son:"
 
 #~ msgid "File \"%s\" not found, not starting datahub"
 #~ msgstr "Archivo «%s» no encontrado, el datahub no se puede iniciar"
@@ -50,6 +49,12 @@ msgstr ""
 
 #~ msgid "Could not import GTK; data source disabled."
 #~ msgstr "No se pudo importar GTK; origen de datos desactivado."
+
+#~ msgid "Type error logging item from \"%s\": %s"
+#~ msgstr "Error de tipo al grabar elemento para \"%s\": %s"
+
+#~ msgid "Error: Could not connect to D-Bus."
+#~ msgstr "Error: No se pudo conectar con D-Bus."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Error: El servicio de Zeitgeist no está activo."

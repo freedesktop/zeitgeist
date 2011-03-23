@@ -1,22 +1,31 @@
-2011-03-??: Zeitgeist 0.8.0 "Achmed the donkey"
+2011-04-?: Zeitgeist 0.8.0 "Ahmed the donkey"
+-----------------------------------------------
+
+...
+
+2011-03-20: Zeitgeist 0.7.1 "Made in Aarhus"
 -----------------------------------------------
 
 Engine:
 
  - Expose property information in the D-Bus introspection output.
+ - Mention column names explicitly when inserting events, for compatibility
+   with the upcoming 0.8 release.
 
 Python API:
 
  - Expose DataSourceRegistry's enabled status in a callback.
  - Automatically reconnect to Zeitgeist if the connection is lost when using
    methods asynchronously (so far this only happened for synchronous calls).
- - Reinstall all active monitors upon reconnection (LP: #673008).
+ - Reinstall all active monitors upon reconnection (LP: #673008, #727226).
+ - Fix a (harmless) race condition requesting the bus name (LP: #732015).
 
 Overall:
 
  - Added new event interpretation types: AcceptEvent, DenyEvent and ExpireEvent.
  - Include NCO in the generated ontologies.
- - Better configure check for python-rdflib.
+ - Better ./configure check for python-rdflib.
+ - Update the manpage to document exit codes.
 
 
 2011-01-18: Zeitgeist 0.7.0 "All I have is this woodchuck."
@@ -40,12 +49,13 @@ Engine:
  - Add an auto-filter for broken database entries (LP: #598666 workaround)
  - Introduce new DB schema (version 3) that bundles a few performance related 
    fixes (LP: #673452, #673394)
- 
+ - Added a (LRU-type) event cache to speed up similar requests.
+
 Python API:
 
  - Fix find_event_for_template to stop ignoring the template (LP: #690377)
  - Add get_extensions method to ZeitgeistClient
- 
+
 Overall:
 
  - Using logging output for debugging purposes (LP: #660440)
@@ -54,7 +64,6 @@ Overall:
  - Logging output now displays how many events were actually inserted from 
    the batch of requested inserts (LP: #660440)
  - Changed License to LGPL 2.1+
- 
 
 2010-11-01: Zeitgeist 0.6 "Buzzer Beater"
 -----------------------------------------
