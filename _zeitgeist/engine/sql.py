@@ -4,7 +4,7 @@
 #
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
-# Copyright © 2009 Markus Korn <thekorn@gmx.net>
+# Copyright © 2009-2011 Markus Korn <thekorn@gmx.net>
 # Copyright © 2009 Seif Lotfy <seif@lotfy.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -164,6 +164,11 @@ def create_db(file_path):
 	# we decided to set locking_mode to EXCLUSIVE, from now on only
 	# one connection to the database is allowed to revert this setting set locking_mode to NORMAL.
 	cursor.execute("PRAGMA locking_mode = EXCLUSIVE")
+	
+	# as part of the workaround for (LP: #598666) we need to
+	# create the '_fix_cache' TEMP table on every start,
+	# this table gets purged once the engine gets closed.
+	cursor.execute("CREATE TEMP TABLE _fix_cache (t VARCHAR, id INTEGER)")
 	
 	# Always assume that temporary memory backed DBs have good schemas
 	if constants.DATABASE_FILE != ":memory:":
@@ -396,8 +401,6 @@ def create_db(file_path):
 					WHERE storage.id=event.subj_storage) AS subj_storage_state
 			FROM event
 		""")
-		
-	cursor.execute("CREATE TABLE IF NOT EXISTS _fix_cache (t VARCHAR, id INTRGER)")
 	
 	# All good. Set the schema version, so we don't have to do all this
 	# sql the next time around
@@ -436,7 +439,7 @@ class TableLookup(dict):
 		self._inv_dict = dict((value, key) for key, value in self.iteritems())
 		
 		cursor.execute("""
-			CREATE TRIGGER IF NOT EXISTS fkdc_cache_%(table)s
+			CREATE TEMP TRIGGER fkdc_cache_%(table)s
 			BEFORE DELETE ON %(table)s
 			BEGIN
 				INSERT INTO _fix_cache VALUES ("%(table)s", OLD.id);

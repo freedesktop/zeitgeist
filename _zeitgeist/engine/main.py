@@ -5,7 +5,7 @@
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009-2011 Seif Lotfy <seif@lotfy.com>
-# Copyright © 2009 Markus Korn <thekorn@gmx.net>
+# Copyright © 2009-2011 Markus Korn <thekorn@gmx.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -131,6 +131,11 @@ class ZeitgeistEngine:
 	def close(self):
 		log.debug("Closing down the zeitgeist engine...")
 		self.extensions.unload()
+		# make sure all symbol table are in good shape
+		# this Exception should never be raised, it would indicate a bug
+		# in the workaround for (LP: #598666)
+		if self._cursor.execute("SELECT * FROM _fix_cache").fetchone():
+			raise RuntimeError("Symbol cache is in bad state")
 		self._cursor.connection.close()
 		self._cursor = None
 		unset_cursor()
@@ -707,6 +712,7 @@ class ZeitgeistEngine:
 			if clean_fix_cache:
 				# delete all rows from _fix_cache, as all caches are fixed by now
 				self._cursor.execute("DELETE FROM _fix_cache")
+				self._cursor.connection.commit()
 			self.extensions.apply_post_delete(ids, sender)
 			return timestamps
 		else:
