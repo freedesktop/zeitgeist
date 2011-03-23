@@ -367,7 +367,7 @@ class RemoteInterface(SingletonApplication):
 		if self._mainloop:
 			self._mainloop.quit()
 		# remove the interface from all busses (in our case from the session bus)
-		self.remove_from_connection()
+		self._safe_quit()
 	
 	# Properties interface
 
