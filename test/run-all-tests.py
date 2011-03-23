@@ -8,8 +8,10 @@ import logging
 import sys
 import tempfile
 import shutil
+import signal
 
 from optparse import OptionParser
+from testutils import RemoteTestCase
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -24,8 +26,11 @@ def doctest_setup(test):
 		"ZEITGEIST_DATABASE_PATH": ":memory:",
 		"ZEITGEIST_DATA_PATH": test._datapath
 	})
+	test._daemon = RemoteTestCase._safe_start_daemon()
 	
 def doctest_teardown(test):
+	os.kill(test._daemon.pid, signal.SIGKILL)
+	test._daemon.wait()
 	shutil.rmtree(test._datapath)
 	os.environ = test._env
 	

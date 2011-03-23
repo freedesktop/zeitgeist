@@ -87,7 +87,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		# fixing id, the initial event does not have any id set
 		test_event_1[0][0] = 1
 		
-		self.assertEqual(resulting_event, test_event_1)		
+		self.assertEqual(resulting_event, test_event_1)
 		
 		# Reset the id because other test cases rely on this one
 		test_event_1[0][0] = None
@@ -139,6 +139,20 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.engine.delete_events([1])
 		result = self.engine.get_events([1])
 		self.assertEquals(0, len(filter(None, result)))
+	
+	def testEventInsertionAfterRemovingCachedRow(self):
+		# This test case reproduces bug #598666: "Invalid cache access".
+		
+		# Insert an event with interpretation "tinky winky" and
+		# delete it thereafter - there's no event with that interpretation
+		# left (so the interpretation is removed from the database)
+		self.testDeleteSingle()
+		self.assertEqual(len(self.engine._interpretation), 0)
+		
+		# Now we insert an event with the same interpretation again
+		ids = self.engine.insert_events([test_event_1])
+		self.assertEqual(len(self.engine._interpretation), 2)
+		self.assertEqual(len(self.engine._cursor.execute("SELECT * FROM interpretation").fetchall()), 2)
 	
 	def testDeleteSingleCascades(self):
 		manif_value = "stfu:EpicFailActivity"

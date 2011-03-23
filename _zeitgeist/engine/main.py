@@ -167,7 +167,7 @@ class ZeitgeistEngine:
 		for field in ("interpretation", "manifestation", "mimetype"):
 			# Try to get subject attributes from row using the attributed field id
 			# If attribute does not exist we break the attribute fetching and return
-			# None instead of of crashing
+			# None instead of crashing
 			try:
 				setattr(subject, field,
 					getattr(self, "_" + field).value(row["subj_" + field]))

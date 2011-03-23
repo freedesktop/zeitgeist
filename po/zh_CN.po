@@ -6,64 +6,50 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-09-10 08:20+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-03-20 15:48+0100\n"
 "PO-Revision-Date: 2010-03-20 05:33+0000\n"
 "Last-Translator: Xhacker Liu <liu.dongyuan@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: ../zeitgeist-daemon.py:61 ../zeitgeist-daemon.py:74
+#: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:65
+#: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:69
+#: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
 msgstr ""
 
-#: ../zeitgeist-daemon.py:111
-#, python-format
-msgid "File \"%s\" not found, not starting datahub"
-msgstr ""
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "正在启动 Zeitgeist 服务..."
 
-#: ../zeitgeist-daemon.py:113
-msgid "Starting Zeitgeist service..."
-msgstr "正在启动 Zeitgeist 服务..."
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "未找到被动式日志记录程序，退出。"
 
-#: ../zeitgeist-datahub.py:62
-msgid "No passive loggers found, bye."
-msgstr "未找到被动式日志记录程序，退出。"
+#~ msgid "Could not load file: %s"
+#~ msgstr "无法载入文件：%s"
 
-#: ../zeitgeist-datahub.py:82
-#, python-format
-msgid "Could not load file: %s"
-msgstr "无法载入文件：%s"
+#~ msgid "Updating database with new %s items"
+#~ msgstr "正在更新数据库，添加 %s 项记录"
 
-#: ../zeitgeist-datahub.py:105
-#, python-format
-msgid "Updating database with new %s items"
-msgstr "正在更新数据库，添加 %s 项记录"
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "失去与 zeitgeist-daemon 守护进程的连接，终止。"
 
-#: ../zeitgeist-datahub.py:129
-msgid "Lost connection to zeitgeist-daemon, terminating."
-msgstr "失去与 zeitgeist-daemon 守护进程的连接，终止。"
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "为 %s 项记录日志出错：%s"
 
-#: ../zeitgeist-datahub.py:132
-#, python-format
-msgid "Error logging item from \"%s\": %s"
-msgstr "为 %s 项记录日志出错：%s"
-
-#: ../_zeitgeist/loggers/datasources/recent.py:49
-msgid "Could not import GTK; data source disabled."
-msgstr "无法导入 GTK，数据源已禁用。"
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "无法导入 GTK，数据源已禁用。"
 
 #~ msgid "Tags"
 #~ msgstr "标签"
@@ -143,23 +129,18 @@ msgstr "无法导入 GTK，数据源已禁用。"
 #~ msgid "No Firefox profile found."
 #~ msgstr "未找到 Firefox 配置。"
 
-#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "正在监视 %s 中的 Tomboy 便笺。"
 
-#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "正在监视 Evolution：%s"
 
-#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "无法监视 Firefox 历史记录：%s：%s"
 
-#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "无法监视 Evolution：%s：%s"
 
-#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "正在监视 Firefox 历史记录：%s"
 
