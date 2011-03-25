@@ -911,18 +911,18 @@ class FindRelatedUrisTest(_engineTestClass):
 			StorageState.Any, 2, 0),
 		self.assertEquals(result, (["i2", "i3", ],))
 		
-	def testSubjectUriCurrent(self):
+	def testSubjectCurrentUri(self):
 		subj = Subject.new_for_values(uri="http://x")
 		event = Event.new_for_values(subjects=[subj])
 		ids1 = self.engine.insert_events([event])
 		
-		subj = Subject.new_for_values(uri="http://x", uri_current="http://y")
+		subj = Subject.new_for_values(uri="http://x", current_uri="http://y")
 		event = Event.new_for_values(interpretation=Interpretation.MOVE_EVENT, subjects=[subj])
 		ids2 = self.engine.insert_events([event])
 		
 		results = self.engine.get_events(ids1 + ids2)
-		self.assertEquals(subj.uri_current, results[0].subjects[0].uri_current)
-		self.assertEquals(subj.uri_current, results[1].subjects[0].uri_current)
+		self.assertEquals(subj.current_uri, results[0].subjects[0].current_uri)
+		self.assertEquals(subj.current_uri, results[1].subjects[0].current_uri)
 		
 
 class ResultTypeTest(_engineTestClass):

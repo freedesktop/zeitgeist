@@ -161,7 +161,7 @@ class ZeitgeistEngine:
 	
 	def _get_subject_from_row(self, row):
 		subject = Subject()
-		for field in ("uri", "text", "storage", "uri_current"):
+		for field in ("uri", "text", "storage", "current_uri"):
 			setattr(subject, field, row["subj_" + field])
 		setattr(subject, "origin", row["subj_origin_uri"])
 		for field in ("interpretation", "manifestation", "mimetype"):
@@ -586,10 +586,12 @@ class ZeitgeistEngine:
 		
 		# Make sure all URIs are inserted
 		_origin = [subject.origin for subject in event.subjects if subject.origin]
-		_uri_current = [subject.uri_current for subject in event.subjects if subject.uri_current]
+		_current_uri = [subject.current_uri
+			for subject in event.subjects if subject.current_uri]
 		self._cursor.execute("INSERT OR IGNORE INTO uri (value) %s"
-			% " UNION ".join(["SELECT ?"] * (len(event.subjects) + len(_origin)+ len(_uri_current))),
-			[subject.uri for subject in event.subjects] + _origin + _uri_current)
+			% " UNION ".join(["SELECT ?"] * (len(event.subjects) +
+				len(_origin) + len(_current_uri))),
+			[subject.uri for subject in event.subjects] + _origin + _current_uri)
 		
 		# Make sure all mimetypes are inserted
 		_mimetype = [subject.mimetype for subject in event.subjects \
@@ -636,7 +638,7 @@ class ZeitgeistEngine:
 						None, # event origin
 						payload_id,
 						subject.uri,
-						subject.uri_current,
+						subject.current_uri,
 						self._interpretation[subject.interpretation],
 						self._manifestation[subject.manifestation],
 						subject.origin,
@@ -665,7 +667,7 @@ class ZeitgeistEngine:
 				self._cursor.execute("""
 					UPDATE event SET subj_id_current=(SELECT id FROM uri WHERE value=?)
 					 WHERE subj_id_current=(SELECT id FROM uri WHERE value=?)
-						""", (subject.uri_current, subject.uri))
+						""", (subject.current_uri, subject.uri))
 		return id
 	
 	def _store_payload (self, event):

@@ -446,10 +446,10 @@ class Subject(list):
 		Mimetype,
 		Text,
 		Storage,
-		UriCurrent) = range(8)
+		CurrentUri) = range(8)
 		
-	SUPPORTS_NEGATION = (Uri, UriCurrent, Interpretation, Manifestation, Origin, Mimetype)
-	SUPPORTS_WILDCARDS = (Uri, UriCurrent, Origin, Mimetype)
+	SUPPORTS_NEGATION = (Uri, CurrentUri, Interpretation, Manifestation, Origin, Mimetype)
+	SUPPORTS_WILDCARDS = (Uri, CurrentUri, Origin, Mimetype)
 	
 	def __init__(self, data=None):
 		super(Subject, self).__init__([""]*len(Subject.Fields))
@@ -474,7 +474,7 @@ class Subject(list):
 		to the keyword arguments passed to this method.
 		
 		:param uri: The URI of the subject. Eg. *file:///tmp/ratpie.txt*
-		:param uri_current: The current URI of the subject. Eg. *file:///tmp/ratpie.txt*
+		:param current_uri: The current known URI of the subject (if it was moved or deleted).
 		:param interpretation: The interpretation type of the subject, given either as a string URI or as a :class:`Interpretation` instance
 		:param manifestation: The manifestation type of the subject, given either as a string URI or as a :class:`Manifestation` instance
 		:param origin: The URI of the location where subject resides or can be found
@@ -484,7 +484,7 @@ class Subject(list):
 		"""
 		self = Subject()
 		for key, value in values.iteritems():
-			if not key in ("uri", "uri_current", "interpretation", "manifestation", "origin",
+			if not key in ("uri", "current_uri", "interpretation", "manifestation", "origin",
 						"mimetype", "text", "storage"):
 				raise ValueError("Subject parameter '%s' is not supported" %key)
 			setattr(self, key, value)
@@ -495,20 +495,20 @@ class Subject(list):
 		
 	def set_uri(self, value):
 		self[Subject.Uri] = value
-		if not self[Subject.UriCurrent] or self[Subject.UriCurrent].strip() == "":
-			self[Subject.UriCurrent] = value
+		if not self[Subject.CurrentUri] or not self[Subject.CurrentUri].strip():
+			self[Subject.CurrentUri] = value
 	uri = property(get_uri, set_uri,
 	doc="Read/write property with the URI of the subject encoded as a string")
 	
-	def get_uri_current(self):
-		if not self[Subject.UriCurrent] or self[Subject.UriCurrent].strip()=="":
+	def get_current_uri(self):
+		if not self[Subject.CurrentUri] or not self[Subject.CurrentUri].strip():
 			return self[Subject.Uri]
-		return self[Subject.UriCurrent]
-		
-	def set_uri_current(self, value):
-		self[Subject.UriCurrent] = value
-	uri_current = property(get_uri_current, set_uri_current,
-	doc="Read/write property with the UriCurrent of the subject encoded as a string")
+		return self[Subject.CurrentUri]
+	
+	def set_current_uri(self, value):
+		self[Subject.CurrentUri] = value
+	current_uri = property(get_current_uri, set_current_uri,
+	doc="Read/write property with the current URI of the subject encoded as a string")
 		
 	def get_interpretation(self):
 		return self[Subject.Interpretation]
@@ -739,7 +739,7 @@ class Event(list):
 				raise ValueError("Subject keys, subject_*, specified together with full subject list")
 			subj = Subject()
 			subj.uri = values.get("subject_uri", "")
-			subj.uri_current = values.get("subject_uri_current", "") or ""
+			subj.current_uri = values.get("subject_current_uri", "") or ""
 			subj.interpretation = values.get("subject_interpretation", "")
 			subj.manifestation = values.get("subject_manifestation", "")
 			subj.origin = values.get("subject_origin", "")
