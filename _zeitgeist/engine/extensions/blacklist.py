@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+#             2011 Manish Sinha <manishsinha@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -47,7 +48,7 @@ class Blacklist(Extension, dbus.service.Object):
 	:const:`/org/gnome/zeitgeist/blacklist` under the bus name
 	:const:`org.gnome.zeitgeist.Engine`.
 	"""
-	PUBLIC_METHODS = ["set_blacklist", "get_blacklist"]
+	PUBLIC_METHODS = ["add_blacklist", "get_blacklist"]
 	
 	def __init__ (self, engine):		
 		Extension.__init__(self, engine)
@@ -62,20 +63,20 @@ class Blacklist(Extension, dbus.service.Object):
 			except Exception, e:
 				log.warn("Failed to load blacklist config file %s: %s"\
 				         % (CONFIG_FILE, e))
-				self._blacklist = []
+				self._blacklist = {}
 		else:
 			log.debug("No existing blacklist config found")
-			self._blacklist = []
+			self._blacklist = {}
 	
 	def pre_insert_event(self, event, sender):
-		for tmpl in self._blacklist:
+		for tmpl in self._blacklist.iteritems():
 			if event.matches_template(tmpl): return None
 		return event
 	
 	# PUBLIC
-	def set_blacklist(self, event_templates):
-		self._blacklist = event_templates
-		map(Event._make_dbus_sendable, self._blacklist)
+	def add_blacklist(self, event_id, event_template):
+		Event._make_dbus_sendable(event_template)
+		self._blacklist[event_id] = event_template
 		
 		out = file(CONFIG_FILE, "w")
 		pickle.dump(map(Event.get_plain, self._blacklist), out)		
@@ -87,10 +88,10 @@ class Blacklist(Extension, dbus.service.Object):
 		return self._blacklist
 	
 	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
-	                     in_signature="a("+constants.SIG_EVENT+")")
-	def SetBlacklist(self, event_templates):
+	                     in_signature="s("+constants.SIG_EVENT+")")
+	def AddTemplate(self, event_id, event_template):
 		"""
-		Set the blacklist to :const:`event_templates`. Events
+		Set the blacklist to :const:`event_template`. Events
 		matching any these templates will be blocked from insertion
 		into the log. It is still possible to find and look up events
 		matching the blacklist which was inserted before the blacklist
@@ -99,12 +100,12 @@ class Blacklist(Extension, dbus.service.Object):
 		:param event_templates: A list of
 		    :class:`Events <zeitgeist.datamodel.Event>`
 		"""
-		tmp = map(Event, event_templates)
-		self.set_blacklist(tmp)
+		tmp = Event(event_template)
+		self.add_blacklist(event_id, tmp)
 		
 	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
 	                     in_signature="",
-	                     out_signature="a("+constants.SIG_EVENT+")")
+	                     out_signature="a{s("+constants.SIG_EVENT+")}")
 	def GetBlacklist(self):
 		"""
 		Get the current blacklist templates.
