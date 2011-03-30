@@ -677,9 +677,12 @@ class ZeitgeistEngine:
 		if event.interpretation == Interpretation.MOVE_EVENT:
 			for subject in event.subjects:
 				self._cursor.execute("""
-					UPDATE event SET subj_id_current=(SELECT id FROM uri WHERE value=?)
-					 WHERE subj_id_current=(SELECT id FROM uri WHERE value=?) AND interpretation!=?
-						""", (subject.current_uri, subject.uri, self._interpretation[Interpretation.MOVE_EVENT]))
+					UPDATE event
+					SET subj_id_current=(SELECT id FROM uri WHERE value=?)
+					WHERE subj_id_current=(SELECT id FROM uri WHERE value=?)
+						AND interpretation!=?
+						""", (subject.current_uri, subject.uri,
+							self._interpretation[Interpretation.MOVE_EVENT]))
 			# The cache has to be updated
 			for c_event in self._event_cache:
 				for c_subject in c_event[1].subjects:
