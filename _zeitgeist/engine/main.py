@@ -573,7 +573,17 @@ class ZeitgeistEngine:
 			raise ValueError("Illegal event format: No subject")
 		if not event.timestamp:
 			event.timestamp = get_timestamp_for_now()
-		
+		if not event.interpretation == Interpretation.MOVE_EVENT:
+			for subject in event.subjects:
+				if not subject.uri == subject.current_uri:
+					raise ValueError("Illegal event: unless event.interpretation is 'MOVE_EVENT' \
+						then subject.uri and subject.current_uri have to be the same")
+		elif event.interpretation == Interpretation.MOVE_EVENT:
+			for subject in event.subjects:
+				if subject.uri == subject.current_uri:
+					raise ValueError("Redundant event: event.interpretation indicates the uri has \
+						been moved yet the subject.uri and subject.current_uri are identical")
+			
 		id = self.next_event_id()
 		event[0][Event.Id] = id		
 		event = self.extensions.apply_pre_insert(event, sender)
@@ -666,8 +676,13 @@ class ZeitgeistEngine:
 			for subject in event.subjects:
 				self._cursor.execute("""
 					UPDATE event SET subj_id_current=(SELECT id FROM uri WHERE value=?)
-					 WHERE subj_id_current=(SELECT id FROM uri WHERE value=?)
-						""", (subject.current_uri, subject.uri))
+					 WHERE subj_id_current=(SELECT id FROM uri WHERE value=?) AND interpretation!=?
+						""", (subject.current_uri, subject.uri, self._interpretation[Interpretation.MOVE_EVENT]))
+			# The cache has to be updated
+			for c_event in self._event_cache:
+				for c_subject in c_event[1].subjects:
+					if c_subject.current_uri == subject.uri:
+						c_subject.current_uri = subject.current_uri
 		return id
 	
 	def _store_payload (self, event):

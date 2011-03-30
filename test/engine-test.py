@@ -924,6 +924,15 @@ class FindRelatedUrisTest(_engineTestClass):
 		self.assertEquals(subj.current_uri, results[0].subjects[0].current_uri)
 		self.assertEquals(subj.current_uri, results[1].subjects[0].current_uri)
 		
+		subj = Subject.new_for_values(uri="http://y", current_uri="http://x")
+		event = Event.new_for_values(interpretation=Interpretation.MOVE_EVENT, subjects=[subj])
+		ids3 = self.engine.insert_events([event])
+		
+		results = self.engine.get_events(ids1 + ids2 + ids3)
+		self.assertEquals("http://x", results[0].subjects[0].current_uri)
+		self.assertEquals("http://y", results[1].subjects[0].current_uri)
+		self.assertEquals("http://x", results[2].subjects[0].current_uri)
+		
 
 class ResultTypeTest(_engineTestClass):
 	
