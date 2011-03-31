@@ -3,7 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
-#             2011 Manish Sinha <manishsinha@ubuntu.com>
+#           © 2011 Manish Sinha <manishsinha@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -19,7 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import pickle
+import json
 import dbus
 import dbus.service
 from xdg import BaseDirectory
@@ -31,7 +31,7 @@ from _zeitgeist.engine import constants
 
 log = logging.getLogger("zeitgeist.blacklist")
 
-CONFIG_FILE = os.path.join(constants.DATA_PATH, "blacklist.pickle")
+CONFIG_FILE = os.path.join(constants.DATA_PATH, "blacklist.json")
 BLACKLIST_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/blacklist"
 BLACKLIST_DBUS_INTERFACE = "org.gnome.zeitgeist.Blacklist"
 
@@ -56,10 +56,8 @@ class Blacklist(Extension, dbus.service.Object):
 		                             BLACKLIST_DBUS_OBJECT_PATH)
 		if os.path.exists(CONFIG_FILE):
 			try:
-				pcl_file = open(CONFIG_FILE, "rb")
-				raw_blacklist = pickle.load(pcl_file)
-				self._blacklist = map(Event, raw_blacklist)
-				print type(self._blacklist)
+				pcl_file = open(CONFIG_FILE, "r")
+				self._blacklist = json.load(pcl_file)
 				log.debug("Loaded blacklist config from %s"
 				          % CONFIG_FILE)
 			except Exception, e:
@@ -71,7 +69,6 @@ class Blacklist(Extension, dbus.service.Object):
 			self._blacklist = {}
 	
 	def pre_insert_event(self, event, sender):
-		print type(self._blacklist)
 		for tmpl in self._blacklist.iteritems():
 			if event.matches_template(tmpl): return None
 		return event
@@ -79,11 +76,10 @@ class Blacklist(Extension, dbus.service.Object):
 	# PUBLIC
 	def add_blacklist(self, event_id, event_template):
 		Event._make_dbus_sendable(event_template)
-		print type(self._blacklist)
 		self._blacklist[event_id] = event_template
 		
-		out = file(CONFIG_FILE, "wb")
-		pickle.dump(map(Event.get_plain, self._blacklist), out)		
+		out = file(CONFIG_FILE, "w")
+		json.dump(self._blacklist, out)		
 		out.close()
 		log.debug("Blacklist added: %s" % self._blacklist)
 	
@@ -92,8 +88,8 @@ class Blacklist(Extension, dbus.service.Object):
 		event_template = self._blacklist[event_id]
 		del self._blacklist[event_id]
 		
-		out = file(CONFIG_FILE, "wb")
-		pickle.dump(map(Event.get_plain, self._blacklist), out)		
+		out = file(CONFIG_FILE, "w")
+		json.dump(self._blacklist, out)		
 		out.close()
 		log.debug("Blacklist deleted: %s" % self._blacklist)
 		
