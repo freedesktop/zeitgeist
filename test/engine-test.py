@@ -933,6 +933,10 @@ class FindRelatedUrisTest(_engineTestClass):
 		self.assertEquals("http://y", results[1].subjects[0].current_uri)
 		self.assertEquals("http://x", results[2].subjects[0].current_uri)
 		
+	def testIllegalMoveEvent(self):
+		subj = Subject.new_for_values(uri="http://x", current_uri="http://y")
+		event = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT, subjects=[subj])
+		self.assertRaises(ValueError, self.engine._insert_event, event)
 
 class ResultTypeTest(_engineTestClass):
 	
