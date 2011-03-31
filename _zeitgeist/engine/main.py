@@ -684,10 +684,12 @@ class ZeitgeistEngine:
 						""", (subject.current_uri, subject.uri,
 							self._interpretation[Interpretation.MOVE_EVENT]))
 			# The cache has to be updated
-			for c_event in self._event_cache:
-				for c_subject in c_event[1].subjects:
-					if c_subject.current_uri == subject.uri:
-						c_subject.current_uri = subject.current_uri
+			for id, c_event in self._event_cache:
+				for i, c_subject in enumerate(c_event.subjects):
+					if c_subject.current_uri == subject.uri and \
+						not c_event.interpretation == Interpretation.MOVE_EVENT:
+						self._event_cache[id].subjects[i].current_uri = subject.current_uri
+						
 		return id
 	
 	def _store_payload (self, event):
