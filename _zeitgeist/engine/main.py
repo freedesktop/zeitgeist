@@ -7,7 +7,7 @@
 # Copyright © 2009-2011 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.net>
 # Copyright © 2011 Collabora Ltd.
-# 		Authored by: Seif Lotfy <seif@lotfy.com>
+# 		      By Seif Lotfy <seif@lotfy.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
