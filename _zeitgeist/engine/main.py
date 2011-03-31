@@ -578,13 +578,11 @@ class ZeitgeistEngine:
 		if not event.interpretation == Interpretation.MOVE_EVENT:
 			for subject in event.subjects:
 				if not subject.uri == subject.current_uri:
-					raise ValueError("Illegal event: unless event.interpretation is 'MOVE_EVENT' \
-						then subject.uri and subject.current_uri have to be the same")
+					raise ValueError("Illegal event: unless event.interpretation is 'MOVE_EVENT' then subject.uri and subject.current_uri have to be the same")
 		if event.interpretation == Interpretation.MOVE_EVENT:
 			for subject in event.subjects:
 				if subject.uri == subject.current_uri:
-					raise ValueError("Redundant event: event.interpretation indicates the uri has \
-						been moved yet the subject.uri and subject.current_uri are identical")
+					raise ValueError("Redundant event: event.interpretation indicates the uri has been moved yet the subject.uri and subject.current_uri are identical")
 			
 		id = self.next_event_id()
 		event[0][Event.Id] = id		

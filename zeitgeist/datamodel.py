@@ -487,7 +487,11 @@ class Subject(list):
 			if not key in ("uri", "current_uri", "interpretation", "manifestation", "origin",
 						"mimetype", "text", "storage"):
 				raise ValueError("Subject parameter '%s' is not supported" %key)
-			setattr(self, key, value)
+			if not key == "current_uri":
+				setattr(self, key, value)
+		# Make sure Uri is set first before Current_Uri to avoid overwriting
+		if "current_uri" in values.keys():
+			setattr(self, "current_uri", values["current_uri"])
 		return self
 		
 	def get_uri(self):
@@ -495,10 +499,9 @@ class Subject(list):
 		
 	def set_uri(self, value):
 		self[Subject.Uri] = value
-		if not self[Subject.CurrentUri] or not self[Subject.CurrentUri].strip():
-			self[Subject.CurrentUri] = value
+		self[Subject.CurrentUri] = value
 	uri = property(get_uri, set_uri,
-	doc="Read/write property with the URI of the subject encoded as a string")
+	doc="Read/write property with the URI of the subject encoded as a string (Warning: writing this property overwrites Current URI")
 	
 	def get_current_uri(self):
 		if not self[Subject.CurrentUri] or not self[Subject.CurrentUri].strip():
