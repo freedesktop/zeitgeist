@@ -107,3 +107,9 @@ org.gnome.zeitgeist.DataSourceRegistry
 
 .. autoclass:: _zeitgeist.engine.extensions.datasource_registry.DataSourceRegistry
     :members: RegisterDataSource, GetDataSources, SetDataSourceEnabled, DataSourceEnabled, DataSourceRegistered, DataSourceDisconnected
+
+org.gnome.zeitgeist.StorageMonitor
++++++++++++++++++++++++++++++
+
+.. autoclass:: _zeitgeist.engine.extensions.storagemonitor.StorageMonitor
+    :members: GetStorages, StorageAvailable, StorageUnavailable

@@ -242,7 +242,9 @@ def create_db(file_path):
 		CREATE TABLE IF NOT EXISTS storage
 			(id INTEGER PRIMARY KEY,
 			 value VARCHAR UNIQUE,
-			 state INTEGER)
+			 state INTEGER,
+			 icon VARCHAR,
+			 display_name VARCHAR)
 		""")
 	cursor.execute("""
 		CREATE UNIQUE INDEX IF NOT EXISTS storage_value
