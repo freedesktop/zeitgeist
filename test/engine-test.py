@@ -911,6 +911,32 @@ class FindRelatedUrisTest(_engineTestClass):
 			StorageState.Any, 2, 0),
 		self.assertEquals(result, (["i2", "i3", ],))
 		
+	def testSubjectCurrentUri(self):
+		subj = Subject.new_for_values(uri="http://x")
+		event = Event.new_for_values(subjects=[subj])
+		ids1 = self.engine.insert_events([event])
+		
+		subj = Subject.new_for_values(uri="http://x", current_uri="http://y")
+		event = Event.new_for_values(interpretation=Interpretation.MOVE_EVENT, subjects=[subj])
+		ids2 = self.engine.insert_events([event])
+		
+		results = self.engine.get_events(ids1 + ids2)
+		self.assertEquals(subj.current_uri, results[0].subjects[0].current_uri)
+		self.assertEquals(subj.current_uri, results[1].subjects[0].current_uri)
+		
+		subj = Subject.new_for_values(uri="http://y", current_uri="http://x")
+		event = Event.new_for_values(interpretation=Interpretation.MOVE_EVENT, subjects=[subj])
+		ids3 = self.engine.insert_events([event])
+		
+		results = self.engine.get_events(ids1 + ids2 + ids3)
+		self.assertEquals("http://x", results[0].subjects[0].current_uri)
+		self.assertEquals("http://y", results[1].subjects[0].current_uri)
+		self.assertEquals("http://x", results[2].subjects[0].current_uri)
+		
+	def testIllegalMoveEvent(self):
+		subj = Subject.new_for_values(uri="http://x", current_uri="http://y")
+		event = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT, subjects=[subj])
+		self.assertRaises(ValueError, self.engine._insert_event, event)
 
 class ResultTypeTest(_engineTestClass):
 	
@@ -1153,6 +1179,7 @@ class ResultTypeTest(_engineTestClass):
 		events = self.engine.find_events(
 			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularSubjectInterpretation)
 		self.assertEquals([e.timestamp for e in events], ['118', '106', '116', '119'])
+		
 
 class ZeitgeistEngineBugsTest(_engineTestClass):
 	

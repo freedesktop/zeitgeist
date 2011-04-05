@@ -33,6 +33,7 @@ TABLE_MAP = {
 	"subj_mimetype": "mimetype",
 	"subj_origin": "uri",
 	"subj_uri": "uri",
+	"subj_current_uri": "uri",
 }
 
 def explain_query(cursor, statement, arguments=()):
@@ -411,6 +412,8 @@ def create_db(file_path):
 				event.origin,
 				(SELECT value FROM uri WHERE uri.id=event.origin)
 					AS event_origin_uri,
+				(SELECT value FROM uri WHERE uri.id=event.subj_id_current)
+					AS subj_current_uri,
 				event.subj_id_current
 			FROM event
 		""")

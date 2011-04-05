@@ -340,6 +340,12 @@ class EventTest (unittest.TestCase):
 		self.assertFalse(event.matches_template(template))
 		template = Event.new_for_values(actor="!test*")
 		self.assertTrue(event.matches_template(template))
+		
+	def testCurrentUri(self):
+		subj = Subject()
+		subj.uri = "Wonneproppen"
+		self.assertTrue(subj.uri, "Wonneproppen")
+		self.assertTrue(subj.current_uri, "Wonneproppen")
 
 
 class TimeRangeTest (unittest.TestCase):
