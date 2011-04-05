@@ -69,8 +69,8 @@ class Blacklist(Extension, dbus.service.Object):
 			self._blacklist = {}
 	
 	def pre_insert_event(self, event, sender):
-		for tmpl in self._blacklist.iteritems():
-			if event.matches_template(tmpl): return None
+		for tmpl in self._blacklist.itervalues():
+			if event.matches_template(Event(tmpl)): return None
 		return event
 	
 	# PUBLIC
