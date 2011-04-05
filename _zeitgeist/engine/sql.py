@@ -138,7 +138,7 @@ def _check_core_schema_upgrade (cursor):
 				log.info("Running post upgrade setup")
 				return False
 			except Exception, e:
-				log.fatal("Failed to upgrade database '%s' from version %s to %s: %s" %
+				log.exception("Failed to upgrade database '%s' from version %s to %s: %s" %
 				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
 				raise SystemExit(27)
 	else:
@@ -251,17 +251,16 @@ def create_db(file_path):
 			ON storage(value)""")
 	
 	# event - the primary table for log statements
-	# note that event.id is NOT unique, we can have multiple subjects per id
-	# timestamps are integers (for now), if you would like to change it
-	# please start a bugreport for it. In case we agree on this change
-	# remember to also fix our unittests to reflect this change
+	#  - Note that event.id is NOT unique, we can have multiple subjects per ID
+	#  - Timestamps are integers.
+	#  - (event-)origin and subj_id_current are added to the end of the table
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS event (
 			id INTEGER,
 			timestamp INTEGER,
 			interpretation INTEGER,
-			manifestation INTEGER,			 
-			actor INTEGER,			 
+			manifestation INTEGER,
+			actor INTEGER,
 			payload INTEGER,
 			subj_id INTEGER,
 			subj_interpretation INTEGER,
@@ -270,15 +269,21 @@ def create_db(file_path):
 			subj_mimetype INTEGER,
 			subj_text INTEGER,
 			subj_storage INTEGER,
+			origin INTEGER,
+			subj_id_current INTEGER,
 			CONSTRAINT interpretation_fk FOREIGN KEY(interpretation)
 				REFERENCES interpretation(id) ON DELETE CASCADE,
 			CONSTRAINT manifestation_fk FOREIGN KEY(manifestation)
 				REFERENCES manifestation(id) ON DELETE CASCADE,
 			CONSTRAINT actor_fk FOREIGN KEY(actor)
 				REFERENCES actor(id) ON DELETE CASCADE,
+			CONSTRAINT origin_fk FOREIGN KEY(origin)
+				REFERENCES uri(id) ON DELETE CASCADE,
 			CONSTRAINT payload_fk FOREIGN KEY(payload)
 				REFERENCES payload(id) ON DELETE CASCADE,
 			CONSTRAINT subj_id_fk FOREIGN KEY(subj_id)
+				REFERENCES uri(id) ON DELETE CASCADE,
+			CONSTRAINT subj_id_current_fk FOREIGN KEY(subj_id_current)
 				REFERENCES uri(id) ON DELETE CASCADE,
 			CONSTRAINT subj_interpretation_fk FOREIGN KEY(subj_interpretation)
 				REFERENCES interpretation(id) ON DELETE CASCADE,
@@ -311,8 +316,14 @@ def create_db(file_path):
 		CREATE INDEX IF NOT EXISTS event_actor
 			ON event(actor)""")
 	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_origin
+			ON event(origin)""")
+	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_id
 			ON event(subj_id)""")
+	cursor.execute("""
+		CREATE INDEX IF NOT EXISTS event_subj_id_current
+			ON event(subj_id_current)""")
 	cursor.execute("""
 		CREATE INDEX IF NOT EXISTS event_subj_interpretation
 			ON event(subj_interpretation)""")
@@ -353,24 +364,25 @@ def create_db(file_path):
 				""" % {'column': column, 'table': table})
 
 	# ... special cases
-	cursor.execute("""
-		CREATE TRIGGER IF NOT EXISTS fkdc_event_uri_1
-		BEFORE DELETE ON event
-		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_id OR subj_origin=OLD.subj_id) < 2)
-		BEGIN
-			DELETE FROM uri WHERE id=OLD.subj_id;
-		END;
-		""" % {'column': column, 'table': table})
-	cursor.execute("""
-		CREATE TRIGGER IF NOT EXISTS fkdc_event_uri_2
-		BEFORE DELETE ON event
-		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_origin OR subj_origin=OLD.subj_origin) < 2)
-		BEGIN
-			DELETE FROM uri WHERE id=OLD.subj_origin;
-		END;
-		""" % {'column': column, 'table': table})
+	for num, column in enumerate(('subj_id', 'subj_origin',
+	'subj_id_current', 'origin')):
+		cursor.execute("""
+			CREATE TRIGGER IF NOT EXISTS fkdc_event_uri_%(num)d
+			BEFORE DELETE ON event
+			WHEN ((
+				SELECT COUNT(*)
+				FROM event
+				WHERE
+					origin=OLD.%(column)s
+					OR subj_id=OLD.%(column)s
+					OR subj_id_current=OLD.%(column)s
+					OR subj_origin=OLD.%(column)s
+				) < 2)
+			BEGIN
+				DELETE FROM uri WHERE id=OLD.%(column)s;
+			END;
+			""" % {'num': num+1, 'column': column})
 
-	# TODO: Make the DROP conditional to version upgrades. How?
 	cursor.execute("DROP VIEW IF EXISTS event_view")
 	cursor.execute("""
 		CREATE VIEW IF NOT EXISTS event_view AS
@@ -395,7 +407,11 @@ def create_db(file_path):
 				(SELECT value FROM storage
 					WHERE storage.id=event.subj_storage) AS subj_storage,
 				(SELECT state FROM storage
-					WHERE storage.id=event.subj_storage) AS subj_storage_state
+					WHERE storage.id=event.subj_storage) AS subj_storage_state,
+				event.origin,
+				(SELECT value FROM uri WHERE uri.id=event.origin)
+					AS event_origin_uri,
+				event.subj_id_current
 			FROM event
 		""")
 	

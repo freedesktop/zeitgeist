@@ -614,11 +614,12 @@ class ZeitgeistEngine:
 				self._cursor.execute("""
 					INSERT INTO event (
 						id, timestamp, interpretation, manifestation, actor,
-						payload, subj_id,
+						origin, payload, subj_id, subj_id_current,
 						subj_interpretation, subj_manifestation, subj_origin,
 						subj_mimetype, subj_text, subj_storage
 					) VALUES (
-						?, ?, ?, ?, ?, ?,
+						?, ?, ?, ?, ?, ?, ?,
+						(SELECT id FROM uri WHERE value=?),
 						(SELECT id FROM uri WHERE value=?),
 						?, ?,
 						(SELECT id FROM uri WHERE value=?),
@@ -631,8 +632,10 @@ class ZeitgeistEngine:
 						self._interpretation[event.interpretation],
 						self._manifestation[event.manifestation],
 						self._actor[event.actor],
+						None, # event origin
 						payload_id,
 						subject.uri,
+						subject.uri, # subj_id_current
 						self._interpretation[subject.interpretation],
 						self._manifestation[subject.manifestation],
 						subject.origin,
