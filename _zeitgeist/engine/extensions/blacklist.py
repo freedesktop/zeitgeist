@@ -123,10 +123,10 @@ class Blacklist(Extension, dbus.service.Object):
 	                     out_signature="a{s("+constants.SIG_EVENT+")}")
 	def GetTemplates(self):
 		"""
-		Get the current blacklist templates.
+		Get the current list of blacklist templates.
 		
-		:returns: An object of
-		    :class:`Events <zeitgeist.datamodel.Event>`
+		:returns: An dictionary of { string ,
+		    :class:`Events <zeitgeist.datamodel.Event>` }
 		"""
 		return self.get_blacklist()
 	
@@ -135,7 +135,8 @@ class Blacklist(Extension, dbus.service.Object):
 	                     out_signature="")
 	def RemoveTemplate(self, blacklist_id):
 		"""
-		Remove a template
+		Remove a blacklist template which is identified by the 
+		        blacklist_id provided
 		
 		:param blacklist_id: A string identifier for a blacklist template
 		
@@ -149,9 +150,22 @@ class Blacklist(Extension, dbus.service.Object):
 	@dbus.service.signal(BLACKLIST_DBUS_INTERFACE,
 	                      signature="s("+constants.SIG_EVENT+")")
 	def TemplateAdded(self, blacklist_id, event_template):
+	    """
+	    Raised when a template is added
+	    
+	    :param blacklist_id: The Id of the Blacklist template used for
+	        setting the Blacklist
+	    :param event_template: The blacklist template which was set
+	    """
 		pass
 
 	@dbus.service.signal(BLACKLIST_DBUS_INTERFACE,
 	                      signature="s("+constants.SIG_EVENT+")")
 	def TemplateRemoved(self, blacklist_id, event_template):
+	    """
+	    Raised when a template is deleted
+	    
+	    :param blacklist_id: The Id of the Blacklist template which was deleted
+	    :param event_template: The blacklist template which was deleted 
+	    """
 		pass
