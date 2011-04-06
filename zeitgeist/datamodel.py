@@ -454,7 +454,9 @@ class Subject(list):
 	def __init__(self, data=None):
 		super(Subject, self).__init__([""]*len(Subject.Fields))
 		if data:
-			if len(data) != len(Subject.Fields):
+			# Old Libraries only send 7 and the last field is always going to be the current_uri
+			if len(data) < len(Subject.Fields) - 1:
+				print data
 				raise ValueError(
 					"Invalid subject data length %s, expected %s"
 					% (len(data), len(Subject.Fields)))
