@@ -48,7 +48,7 @@ class Blacklist(Extension, dbus.service.Object):
 	:const:`/org/gnome/zeitgeist/blacklist` under the bus name
 	:const:`org.gnome.zeitgeist.Engine`.
 	"""
-	PUBLIC_METHODS = ["add_blacklist", "get_blacklist"]
+	PUBLIC_METHODS = ["add_blacklist", "remove_blacklist", "get_blacklist"]
 	
 	def __init__ (self, engine):		
 		Extension.__init__(self, engine)
@@ -74,9 +74,9 @@ class Blacklist(Extension, dbus.service.Object):
 		return event
 	
 	# PUBLIC
-	def add_blacklist(self, event_id, event_template):
+	def add_blacklist(self, blacklist_id, event_template):
 		Event._make_dbus_sendable(event_template)
-		self._blacklist[event_id] = event_template
+		self._blacklist[blacklist_id] = event_template
 		
 		out = file(CONFIG_FILE, "w")
 		json.dump(self._blacklist, out)		
@@ -84,9 +84,9 @@ class Blacklist(Extension, dbus.service.Object):
 		log.debug("Blacklist added: %s" % self._blacklist)
 	
 	# PUBLIC
-	def remove_blacklist(self, event_id):
-		event_template = self._blacklist[event_id]
-		del self._blacklist[event_id]
+	def remove_blacklist(self, blacklist_id):
+		event_template = self._blacklist[blacklist_id]
+		del self._blacklist[blacklist_id]
 		
 		out = file(CONFIG_FILE, "w")
 		json.dump(self._blacklist, out)		
@@ -101,7 +101,7 @@ class Blacklist(Extension, dbus.service.Object):
 	
 	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
 	                     in_signature="s("+constants.SIG_EVENT+")")
-	def AddTemplate(self, event_id, event_template):
+	def AddTemplate(self, blacklist_id, event_template):
 		"""
 		Set the blacklist to :const:`event_template`. Events
 		matching any these templates will be blocked from insertion
@@ -109,14 +109,14 @@ class Blacklist(Extension, dbus.service.Object):
 		matching the blacklist which was inserted before the blacklist
 		banned them.
 		
-		:param event_id: A string identifier for a blacklist template
+		:param blacklist_id: A string identifier for a blacklist template
 		
 		:param event_template: An object of
 		    :class:`Events <zeitgeist.datamodel.Event>`
 		"""
 		tmp = Event(event_template)
-		self.add_blacklist(event_id, tmp)
-		self.TemplateAdded(event_id, event_template)
+		self.add_blacklist(blacklist_id, tmp)
+		self.TemplateAdded(blacklist_id, event_template)
 		
 	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
 	                     in_signature="",
@@ -133,25 +133,25 @@ class Blacklist(Extension, dbus.service.Object):
 	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
 	                     in_signature="s",
 	                     out_signature="")
-	def RemoveTemplates(self, event_id):
+	def RemoveTemplate(self, blacklist_id):
 		"""
 		Remove a template
 		
-		:param event_id: A string identifier for a blacklist template
+		:param blacklist_id: A string identifier for a blacklist template
 		
 		"""
 		try:
-			event_template = self.remove_blacklist(event_id)
-			self.TemplateRemoved(event_id, event_template)
+			event_template = self.remove_blacklist(blacklist_id)
+			self.TemplateRemoved(blacklist_id, event_template)
 		except KeyError:
-			log.debug("Blacklist %s not found " % event_id)
+			log.debug("Blacklist %s not found " % blacklist_id)
 	
 	@dbus.service.signal(BLACKLIST_DBUS_INTERFACE,
 	                      signature="s("+constants.SIG_EVENT+")")
-	def TemplateAdded(self, event_id, event_template):
+	def TemplateAdded(self, blacklist_id, event_template):
 		pass
 
 	@dbus.service.signal(BLACKLIST_DBUS_INTERFACE,
 	                      signature="s("+constants.SIG_EVENT+")")
-	def TemplateRemoved(self, event_id, event_template):
+	def TemplateRemoved(self, blacklist_id, event_template):
 		pass
