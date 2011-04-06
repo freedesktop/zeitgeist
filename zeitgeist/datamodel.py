@@ -274,7 +274,6 @@ class Symbol(str):
 				parent = _SYMBOLS_BY_URI[parent]
 			except KeyError, e:
 				# Parent is not a known URI
-				#print 11111111111, self.uri, parent #debug output
 				return self.uri == parent
 		
 		# Invariant: parent is a Symbol
@@ -456,7 +455,6 @@ class Subject(list):
 		if data:
 			# Old Libraries only send 7 and the last field is always going to be the current_uri
 			if len(data) < len(Subject.Fields) - 1:
-				print data
 				raise ValueError(
 					"Invalid subject data length %s, expected %s"
 					% (len(data), len(Subject.Fields)))
