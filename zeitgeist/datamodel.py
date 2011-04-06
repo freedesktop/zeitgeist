@@ -454,10 +454,11 @@ class Subject(list):
 		super(Subject, self).__init__([""]*len(Subject.Fields))
 		if data:
 			# Old Libraries only send 7 and the last field is always going to be the current_uri
-			if len(data) < len(Subject.Fields) - 1:
-				raise ValueError(
-					"Invalid subject data length %s, expected %s"
-					% (len(data), len(Subject.Fields)))
+			if len(data) == 7:
+				data.append(data[0])
+			if len(data) < 8:
+				raise ValueError("Invalid subject data length %s, expected %s"% (len(data), 8))
+			# if only 7 fields are set in data then append the uri to the end of the data as "current_uri"
 			super(Subject, self).__init__(data)
 		else:
 			super(Subject, self).__init__([""]*len(Subject.Fields))
@@ -670,6 +671,9 @@ class Event(list):
 		# If we have no timestamp just set it to now
 		if not self[0][Event.Timestamp]:
 			self[0][Event.Timestamp] = str(get_timestamp_for_now())
+		# If we have no origin for Event then we set None
+		if len(self[0]) == 5:
+			self[0].append(None)
 		
 	@classmethod
 	def new_for_data(cls, event_data):
