@@ -57,7 +57,10 @@ class Blacklist(Extension, dbus.service.Object):
 		if os.path.exists(CONFIG_FILE):
 			try:
 				pcl_file = open(CONFIG_FILE, "r")
-				self._blacklist = json.load(pcl_file)
+				self._blacklist = {}
+				blacklist = json.load(pcl_file)
+				[self._blacklist.setdefault(key, Event(blacklist[key])) \
+				                    for key in blacklist]
 				log.debug("Loaded blacklist config from %s"
 				          % CONFIG_FILE)
 			except Exception, e:
@@ -70,13 +73,13 @@ class Blacklist(Extension, dbus.service.Object):
 	
 	def pre_insert_event(self, event, sender):
 		for tmpl in self._blacklist.itervalues():
-			if event.matches_template(Event(tmpl)): return None
+			if event.matches_template(tmpl): return None
 		return event
 	
 	# PUBLIC
 	def add_blacklist(self, blacklist_id, event_template):
 		Event._make_dbus_sendable(event_template)
-		self._blacklist[blacklist_id] = event_template
+		self._blacklist[blacklist_id] = Event(event_template)
 		
 		out = file(CONFIG_FILE, "w")
 		json.dump(self._blacklist, out)		
@@ -150,22 +153,22 @@ class Blacklist(Extension, dbus.service.Object):
 	@dbus.service.signal(BLACKLIST_DBUS_INTERFACE,
 	                      signature="s("+constants.SIG_EVENT+")")
 	def TemplateAdded(self, blacklist_id, event_template):
-	    """
-	    Raised when a template is added
-	    
-	    :param blacklist_id: The Id of the Blacklist template used for
-	        setting the Blacklist
-	    :param event_template: The blacklist template which was set
-	    """
+		"""
+		Raised when a template is added
+		
+		:param blacklist_id: The Id of the Blacklist template used for
+		    setting the Blacklist
+		:param event_template: The blacklist template which was set
+		"""
 		pass
 
 	@dbus.service.signal(BLACKLIST_DBUS_INTERFACE,
 	                      signature="s("+constants.SIG_EVENT+")")
 	def TemplateRemoved(self, blacklist_id, event_template):
-	    """
-	    Raised when a template is deleted
-	    
-	    :param blacklist_id: The Id of the Blacklist template which was deleted
-	    :param event_template: The blacklist template which was deleted 
-	    """
+		"""
+		Raised when a template is deleted
+		
+		:param blacklist_id: The Id of the Blacklist template which was deleted
+		:param event_template: The blacklist template which was deleted 
+		"""
 		pass
