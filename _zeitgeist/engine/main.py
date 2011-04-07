@@ -737,11 +737,17 @@ class ZeitgeistEngine:
 				% ",".join(["?"] * len(ids)), ids)
 			self._cursor.connection.commit()
 			log.debug("Deleted %s" % map(int, ids))
+			# thekorn: this is the keypart of the workaround for (LP: #598666)
+			# After an event got deleted we need to check the _fix_cache table
+			# for entries and remove these entries from the cache. Afterwards
+			# we have to purge all entries from the _fix_cache table.
 			clean_fix_cache = False
 			for cached_table, cached_id in self._cursor.execute("SELECT * FROM _fix_cache"):
 				if cached_table not in ("interpretation", "manifestation", "mimetype", "actor"):
 					raise ValueError("Unable to fix cache for '%s'" %cached_table)
 				clean_fix_cache = True
+				# remove deleted item from cache, for caches we are using
+				# the naming convention self._<table_name>
 				getattr(self, "_%s" %cached_table).remove_id(cached_id)
 			if clean_fix_cache:
 				# delete all rows from _fix_cache, as all caches are fixed by now

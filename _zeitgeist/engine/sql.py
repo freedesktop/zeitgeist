@@ -166,9 +166,13 @@ def create_db(file_path):
 	# one connection to the database is allowed to revert this setting set locking_mode to NORMAL.
 	cursor.execute("PRAGMA locking_mode = EXCLUSIVE")
 	
-	# as part of the workaround for (LP: #598666) we need to
+	# thekorn: as part of the workaround for (LP: #598666) we need to
 	# create the '_fix_cache' TEMP table on every start,
 	# this table gets purged once the engine gets closed.
+	# When a cahced value gets deleted we automatically store the name
+	# of the cache and the value's id to this table. It's then up to
+	# the python code to delete items from the cache based on the content
+	# of this table.
 	cursor.execute("CREATE TEMP TABLE _fix_cache (t VARCHAR, id INTEGER)")
 	
 	# Always assume that temporary memory backed DBs have good schemas
