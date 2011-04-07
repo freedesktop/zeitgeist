@@ -460,12 +460,12 @@ class TableLookup(dict):
 		self._inv_dict = dict((value, key) for key, value in self.iteritems())
 		
 		cursor.execute("""
-			CREATE TEMP TRIGGER fkdc_cache_%(table)s
+			CREATE TEMP TRIGGER update_cache_%(table)s
 			BEFORE DELETE ON %(table)s
 			BEGIN
 				INSERT INTO _fix_cache VALUES ("%(table)s", OLD.id);
 			END;
-			""" % {'table': table})
+			""" % {"table": table})
 	
 	def __getitem__(self, name):
 		# Use this for inserting new properties into the database
