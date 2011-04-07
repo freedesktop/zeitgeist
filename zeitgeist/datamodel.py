@@ -451,14 +451,16 @@ class Subject(list):
 	SUPPORTS_WILDCARDS = (Uri, CurrentUri, Origin, Mimetype)
 	
 	def __init__(self, data=None):
-		super(Subject, self).__init__([""]*len(Subject.Fields))
 		if data:
-			# Old Libraries only send 7 and the last field is always going to be the current_uri
-			if len(data) == 7:
-				data.append(data[0])
-			if len(data) < 8:
-				raise ValueError("Invalid subject data length %s, expected %s"% (len(data), 8))
-			# if only 7 fields are set in data then append the uri to the end of the data as "current_uri"
+			if len(data) == len(Subject.Fields) - 1:
+				# Old versions of zeitgeist don't know anything about
+				# currentUri of a subject, their datastructure has only
+				# seven fields, in this it's safe to use Uri as CurrentUri
+				data.append(data[Subject.Uri])
+			if len(data) != len(Subject.Fields):
+				raise ValueError(
+					"Invalid subject data length %s, expected %s" \
+					%(len(data), len(Subject.Fields)))
 			super(Subject, self).__init__(data)
 		else:
 			super(Subject, self).__init__([""]*len(Subject.Fields))
