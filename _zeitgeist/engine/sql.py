@@ -169,11 +169,11 @@ def create_db(file_path):
 	# thekorn: as part of the workaround for (LP: #598666) we need to
 	# create the '_fix_cache' TEMP table on every start,
 	# this table gets purged once the engine gets closed.
-	# When a cahced value gets deleted we automatically store the name
+	# When a cached value gets deleted we automatically store the name
 	# of the cache and the value's id to this table. It's then up to
 	# the python code to delete items from the cache based on the content
 	# of this table.
-	cursor.execute("CREATE TEMP TABLE _fix_cache (t VARCHAR, id INTEGER)")
+	cursor.execute("CREATE TEMP TABLE _fix_cache (table_name VARCHAR, id INTEGER)")
 	
 	# Always assume that temporary memory backed DBs have good schemas
 	if constants.DATABASE_FILE != ":memory:":
