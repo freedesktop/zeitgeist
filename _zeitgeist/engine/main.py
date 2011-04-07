@@ -6,6 +6,8 @@
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009-2011 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009 Markus Korn <thekorn@gmx.net>
+# Copyright © 2011 Collabora Ltd.
+# 		      By Seif Lotfy <seif@lotfy.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -163,7 +165,9 @@ class ZeitgeistEngine:
 		subject = Subject()
 		for field in ("uri", "text", "storage"):
 			setattr(subject, field, row["subj_" + field])
-		setattr(subject, "origin", row["subj_origin_uri"])
+		subject.origin = row["subj_origin_uri"]
+		if row["subj_current_uri"]:
+			subject.current_uri = row["subj_current_uri"]
 		for field in ("interpretation", "manifestation", "mimetype"):
 			# Try to get subject attributes from row using the attributed field id
 			# If attribute does not exist we break the attribute fetching and return
@@ -573,7 +577,15 @@ class ZeitgeistEngine:
 			raise ValueError("Illegal event format: No subject")
 		if not event.timestamp:
 			event.timestamp = get_timestamp_for_now()
-		
+		if not event.interpretation == Interpretation.MOVE_EVENT:
+			for subject in event.subjects:
+				if not subject.uri == subject.current_uri:
+					raise ValueError("Illegal event: unless event.interpretation is 'MOVE_EVENT' then subject.uri and subject.current_uri have to be the same")
+		if event.interpretation == Interpretation.MOVE_EVENT:
+			for subject in event.subjects:
+				if subject.uri == subject.current_uri:
+					raise ValueError("Redundant event: event.interpretation indicates the uri has been moved yet the subject.uri and subject.current_uri are identical")
+			
 		id = self.next_event_id()
 		event[0][Event.Id] = id		
 		event = self.extensions.apply_pre_insert(event, sender)
@@ -586,9 +598,12 @@ class ZeitgeistEngine:
 		
 		# Make sure all URIs are inserted
 		_origin = [subject.origin for subject in event.subjects if subject.origin]
+		_current_uri = [subject.current_uri
+			for subject in event.subjects if subject.current_uri]
 		self._cursor.execute("INSERT OR IGNORE INTO uri (value) %s"
-			% " UNION ".join(["SELECT ?"] * (len(event.subjects) + len(_origin))),
-			[subject.uri for subject in event.subjects] + _origin)
+			% " UNION ".join(["SELECT ?"] * (len(event.subjects) +
+				len(_origin) + len(_current_uri))),
+			[subject.uri for subject in event.subjects] + _origin + _current_uri)
 		
 		# Make sure all mimetypes are inserted
 		_mimetype = [subject.mimetype for subject in event.subjects \
@@ -614,11 +629,12 @@ class ZeitgeistEngine:
 				self._cursor.execute("""
 					INSERT INTO event (
 						id, timestamp, interpretation, manifestation, actor,
-						payload, subj_id,
+						origin, payload, subj_id, subj_id_current,
 						subj_interpretation, subj_manifestation, subj_origin,
 						subj_mimetype, subj_text, subj_storage
 					) VALUES (
-						?, ?, ?, ?, ?, ?,
+						?, ?, ?, ?, ?, ?, ?,
+						(SELECT id FROM uri WHERE value=?),
 						(SELECT id FROM uri WHERE value=?),
 						?, ?,
 						(SELECT id FROM uri WHERE value=?),
@@ -631,17 +647,19 @@ class ZeitgeistEngine:
 						self._interpretation[event.interpretation],
 						self._manifestation[event.manifestation],
 						self._actor[event.actor],
+						None, # event origin
 						payload_id,
 						subject.uri,
+						subject.current_uri,
 						self._interpretation[subject.interpretation],
 						self._manifestation[subject.manifestation],
 						subject.origin,
 						self._mimetype[subject.mimetype],
 						subject.text,
 						subject.storage))
-				
+			
 			self.extensions.apply_post_insert(event, sender)
-				
+			
 		except sqlite3.IntegrityError:
 			# The event was already registered.
 			# Rollback _last_event_id and return the ID of the original event
@@ -656,6 +674,22 @@ class ZeitgeistEngine:
 					self._actor[event.actor]))
 			return self._cursor.fetchone()[0]
 		
+		if event.interpretation == Interpretation.MOVE_EVENT:
+			for subject in event.subjects:
+				self._cursor.execute("""
+					UPDATE event
+					SET subj_id_current=(SELECT id FROM uri WHERE value=?)
+					WHERE subj_id_current=(SELECT id FROM uri WHERE value=?)
+						AND interpretation!=?
+						""", (subject.current_uri, subject.uri,
+							self._interpretation[Interpretation.MOVE_EVENT]))
+			# The cache has to be updated
+			for id, c_event in self._event_cache:
+				for i, c_subject in enumerate(c_event.subjects):
+					if c_subject.current_uri == subject.uri and \
+						not c_event.interpretation == Interpretation.MOVE_EVENT:
+						self._event_cache[id].subjects[i].current_uri = subject.current_uri
+						
 		return id
 	
 	def _store_payload (self, event):
