@@ -911,6 +911,9 @@ class FindRelatedUrisTest(_engineTestClass):
 			StorageState.Any, 2, 0),
 		self.assertEquals(result, (["i2", "i3", ],))
 		
+
+class MoveEvent(_engineTestClass):
+		
 	def testSubjectCurrentUri(self):
 		subj = Subject.new_for_values(uri="http://x")
 		event = Event.new_for_values(subjects=[subj])
@@ -937,6 +940,7 @@ class FindRelatedUrisTest(_engineTestClass):
 		subj = Subject.new_for_values(uri="http://x", current_uri="http://y")
 		event = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT, subjects=[subj])
 		self.assertRaises(ValueError, self.engine._insert_event, event)
+
 
 class ResultTypeTest(_engineTestClass):
 	
