@@ -163,9 +163,11 @@ class ZeitgeistEngine:
 	
 	def _get_subject_from_row(self, row):
 		subject = Subject()
-		for field in ("uri", "text", "storage"): # "current_uri"
+		for field in ("uri", "text", "storage"):
 			setattr(subject, field, row["subj_" + field])
-		setattr(subject, "origin", row["subj_origin_uri"])
+		subject.origin = row["subj_origin_uri"]
+		if row["subj_current_uri"]:
+			subject.current_uri = row["subj_current_uri"]
 		for field in ("interpretation", "manifestation", "mimetype"):
 			# Try to get subject attributes from row using the attributed field id
 			# If attribute does not exist we break the attribute fetching and return
