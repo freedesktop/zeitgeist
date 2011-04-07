@@ -4,7 +4,7 @@
 #
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
-# Copyright © 2009 Markus Korn <thekorn@gmx.net>
+# Copyright © 2009-2011 Markus Korn <thekorn@gmx.net>
 # Copyright © 2009 Seif Lotfy <seif@lotfy.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -165,6 +165,15 @@ def create_db(file_path):
 	# we decided to set locking_mode to EXCLUSIVE, from now on only
 	# one connection to the database is allowed to revert this setting set locking_mode to NORMAL.
 	cursor.execute("PRAGMA locking_mode = EXCLUSIVE")
+	
+	# thekorn: as part of the workaround for (LP: #598666) we need to
+	# create the '_fix_cache' TEMP table on every start,
+	# this table gets purged once the engine gets closed.
+	# When a cahced value gets deleted we automatically store the name
+	# of the cache and the value's id to this table. It's then up to
+	# the python code to delete items from the cache based on the content
+	# of this table.
+	cursor.execute("CREATE TEMP TABLE _fix_cache (t VARCHAR, id INTEGER)")
 	
 	# Always assume that temporary memory backed DBs have good schemas
 	if constants.DATABASE_FILE != ":memory:":
@@ -453,6 +462,14 @@ class TableLookup(dict):
 			self[row["value"]] = row["id"]
 		
 		self._inv_dict = dict((value, key) for key, value in self.iteritems())
+		
+		cursor.execute("""
+			CREATE TEMP TRIGGER update_cache_%(table)s
+			BEFORE DELETE ON %(table)s
+			BEGIN
+				INSERT INTO _fix_cache VALUES ("%(table)s", OLD.id);
+			END;
+			""" % {"table": table})
 	
 	def __getitem__(self, name):
 		# Use this for inserting new properties into the database
@@ -482,6 +499,11 @@ class TableLookup(dict):
 		# Use this when fetching values which are supposed to be in the
 		# database already. Eg., in find_eventids.
 		return super(TableLookup, self).__getitem__(name)
+		
+	def remove_id(self, id):
+		value = self.value(id)
+		del self._inv_dict[id]
+		del self[value]
 		
 def get_right_boundary(text):
 	""" returns the smallest string which is greater than `text` """

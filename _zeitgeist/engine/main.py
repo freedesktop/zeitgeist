@@ -5,7 +5,7 @@
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2010 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 # Copyright © 2009-2011 Seif Lotfy <seif@lotfy.com>
-# Copyright © 2009 Markus Korn <thekorn@gmx.net>
+# Copyright © 2009-2011 Markus Korn <thekorn@gmx.net>
 # Copyright © 2011 Collabora Ltd.
 # 		      By Seif Lotfy <seif@lotfy.com>
 #
@@ -133,6 +133,11 @@ class ZeitgeistEngine:
 	def close(self):
 		log.debug("Closing down the zeitgeist engine...")
 		self.extensions.unload()
+		# make sure all symbol table are in good shape
+		# this Exception should never be raised, it would indicate a bug
+		# in the workaround for (LP: #598666)
+		if self._cursor.execute("SELECT * FROM _fix_cache").fetchone():
+			raise RuntimeError("Symbol cache is in bad state")
 		self._cursor.connection.close()
 		self._cursor = None
 		unset_cursor()
@@ -732,7 +737,22 @@ class ZeitgeistEngine:
 				% ",".join(["?"] * len(ids)), ids)
 			self._cursor.connection.commit()
 			log.debug("Deleted %s" % map(int, ids))
-			
+			# thekorn: this is the keypart of the workaround for (LP: #598666)
+			# After an event got deleted we need to check the _fix_cache table
+			# for entries and remove these entries from the cache. Afterwards
+			# we have to purge all entries from the _fix_cache table.
+			clean_fix_cache = False
+			for cached_table, cached_id in self._cursor.execute("SELECT * FROM _fix_cache"):
+				if cached_table not in ("interpretation", "manifestation", "mimetype", "actor"):
+					raise ValueError("Unable to fix cache for '%s'" %cached_table)
+				clean_fix_cache = True
+				# remove deleted item from cache, for caches we are using
+				# the naming convention self._<table_name>
+				getattr(self, "_%s" %cached_table).remove_id(cached_id)
+			if clean_fix_cache:
+				# delete all rows from _fix_cache, as all caches are fixed by now
+				self._cursor.execute("DELETE FROM _fix_cache")
+				self._cursor.connection.commit()
 			self.extensions.apply_post_delete(ids, sender)
 			return timestamps
 		else:
