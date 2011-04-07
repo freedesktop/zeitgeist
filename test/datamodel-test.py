@@ -340,6 +340,12 @@ class EventTest (unittest.TestCase):
 		self.assertFalse(event.matches_template(template))
 		template = Event.new_for_values(actor="!test*")
 		self.assertTrue(event.matches_template(template))
+		
+	def testCurrentUri(self):
+		subj = Subject()
+		subj.uri = "Wonneproppen"
+		self.assertTrue(subj.uri, "Wonneproppen")
+		self.assertTrue(subj.current_uri, "Wonneproppen")
 
 
 class TimeRangeTest (unittest.TestCase):
@@ -375,6 +381,30 @@ class TimeRangeTest (unittest.TestCase):
 	def testIsAlways(self):
 		always = TimeRange.always()
 		self.assertTrue(always.is_always())
+		
+		
+class SubjectTest(unittest.TestCase):
+	
+	def testNoCurrentUri(self):
+		subject_data = ["Uri", "Interpretation", "Manifestation", "Origin",
+			"Mimetype", "Text", "Storage"]
+		subject = Subject(subject_data)
+		self.assertEqual(subject.uri, subject.current_uri)
+		
+	def testWrongNumberOfArguments(self):
+		self.assertRaises(ValueError, Subject, ["Uri", "Interpretation"])
+		self.assertRaises(ValueError, Subject, ["boo"]*(len(Subject.Fields) + 1))
+		
+	def testEmptySubject(self):
+		subject = Subject()
+		self.assertTrue(subject.uri == subject.current_uri == "")
+		uri = "file:///path/to/file"
+		subject.uri = uri
+		self.assertEqual(subject.uri, subject.current_uri)
+		new_uri = "http:///www.remote.location"
+		subject.current_uri = new_uri
+		self.assertEqual(subject.current_uri, new_uri)
+		self.assertEqual(subject.uri, uri)
 	
 if __name__ == '__main__':
 	unittest.main()

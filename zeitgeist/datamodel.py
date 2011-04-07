@@ -274,7 +274,6 @@ class Symbol(str):
 				parent = _SYMBOLS_BY_URI[parent]
 			except KeyError, e:
 				# Parent is not a known URI
-				#print 11111111111, self.uri, parent #debug output
 				return self.uri == parent
 		
 		# Invariant: parent is a Symbol
@@ -445,18 +444,23 @@ class Subject(list):
 		Origin,
 		Mimetype,
 		Text,
-		Storage) = range(7)
+		Storage,
+		CurrentUri) = range(8)
 		
-	SUPPORTS_NEGATION = (Uri, Interpretation, Manifestation, Origin, Mimetype)
-	SUPPORTS_WILDCARDS = (Uri, Origin, Mimetype)
+	SUPPORTS_NEGATION = (Uri, CurrentUri, Interpretation, Manifestation, Origin, Mimetype)
+	SUPPORTS_WILDCARDS = (Uri, CurrentUri, Origin, Mimetype)
 	
 	def __init__(self, data=None):
-		super(Subject, self).__init__([""]*len(Subject.Fields))
 		if data:
+			if len(data) == len(Subject.Fields) - 1:
+				# Old versions of zeitgeist don't know anything about
+				# currentUri of a subject, their datastructure has only
+				# seven fields, in this it's safe to use Uri as CurrentUri
+				data.append(data[Subject.Uri])
 			if len(data) != len(Subject.Fields):
 				raise ValueError(
-					"Invalid subject data length %s, expected %s"
-					% (len(data), len(Subject.Fields)))
+					"Invalid subject data length %s, expected %s" \
+					%(len(data), len(Subject.Fields)))
 			super(Subject, self).__init__(data)
 		else:
 			super(Subject, self).__init__([""]*len(Subject.Fields))
@@ -473,6 +477,7 @@ class Subject(list):
 		to the keyword arguments passed to this method.
 		
 		:param uri: The URI of the subject. Eg. *file:///tmp/ratpie.txt*
+		:param current_uri: The current known URI of the subject (if it was moved or deleted).
 		:param interpretation: The interpretation type of the subject, given either as a string URI or as a :class:`Interpretation` instance
 		:param manifestation: The manifestation type of the subject, given either as a string URI or as a :class:`Manifestation` instance
 		:param origin: The URI of the location where subject resides or can be found
@@ -482,10 +487,14 @@ class Subject(list):
 		"""
 		self = Subject()
 		for key, value in values.iteritems():
-			if not key in ("uri", "interpretation", "manifestation", "origin",
+			if not key in ("uri", "current_uri", "interpretation", "manifestation", "origin",
 						"mimetype", "text", "storage"):
 				raise ValueError("Subject parameter '%s' is not supported" %key)
-			setattr(self, key, value)
+			if not key == "current_uri":
+				setattr(self, key, value)
+		# Make sure Uri is set first before Current_Uri to avoid overwriting
+		if "current_uri" in values.keys():
+			setattr(self, "current_uri", values["current_uri"])
 		return self
 		
 	def get_uri(self):
@@ -493,8 +502,19 @@ class Subject(list):
 		
 	def set_uri(self, value):
 		self[Subject.Uri] = value
+		self[Subject.CurrentUri] = value
 	uri = property(get_uri, set_uri,
-	doc="Read/write property with the URI of the subject encoded as a string")
+	doc="Read/write property with the URI of the subject encoded as a string (Warning: writing this property overwrites Current URI")
+	
+	def get_current_uri(self):
+		if not self[Subject.CurrentUri] or not self[Subject.CurrentUri].strip():
+			return self[Subject.Uri]
+		return self[Subject.CurrentUri]
+	
+	def set_current_uri(self, value):
+		self[Subject.CurrentUri] = value
+	current_uri = property(get_current_uri, set_current_uri,
+	doc="Read/write property with the current URI of the subject encoded as a string")
 		
 	def get_interpretation(self):
 		return self[Subject.Interpretation]
@@ -602,9 +622,10 @@ class Event(list):
 		Timestamp,
 		Interpretation,
 		Manifestation,
-		Actor) = range(5)
+		Actor,
+		Origin) = range(6)
 		
-	SUPPORTS_NEGATION = (Interpretation, Manifestation, Actor)
+	SUPPORTS_NEGATION = (Interpretation, Manifestation, Actor, Origin)
 	SUPPORTS_WILDCARDS = (Actor,)
 	
 	def __init__(self, struct = None):
@@ -652,6 +673,9 @@ class Event(list):
 		# If we have no timestamp just set it to now
 		if not self[0][Event.Timestamp]:
 			self[0][Event.Timestamp] = str(get_timestamp_for_now())
+		# If we have no origin for Event then we set None
+		if len(self[0]) == 5:
+			self[0].append(None)
 		
 	@classmethod
 	def new_for_data(cls, event_data):
@@ -685,7 +709,8 @@ class Event(list):
 		:param timestamp: Event timestamp in milliseconds since the Unix Epoch 
 		:param interpretaion: The Interpretation type of the event
 		:param manifestation: Manifestation type of the event
-		:param actor: The actor (application) that triggered the event
+		:param actor: The actor (application) that triggered the event		
+		:param origin: The origin (domain) where the event was triggered
 		:param subjects: A list of :class:`Subject` instances
 		
 		Instead of setting the *subjects* argument one may use a more
@@ -706,7 +731,7 @@ class Event(list):
 		self = cls()
 		for key in values:
 			if not key in ("timestamp", "interpretation", "manifestation",
-				"actor", "subjects", "subject_uri", "subject_interpretation",
+				"actor", "origin", "subjects", "subject_uri", "subject_interpretation",
 				"subject_manifestation", "subject_origin", "subject_mimetype",
 				"subject_text", "subject_storage"):
 				raise ValueError("Event parameter '%s' is not supported" % key)
@@ -715,6 +740,7 @@ class Event(list):
 		self.interpretation = values.get("interpretation", "")
 		self.manifestation = values.get("manifestation", "")
 		self.actor = values.get("actor", "")
+		self.origin = values.get("origin", "")
 		self.subjects = values.get("subjects", self.subjects)
 		
 		if self._dict_contains_subject_keys(values):
@@ -722,6 +748,7 @@ class Event(list):
 				raise ValueError("Subject keys, subject_*, specified together with full subject list")
 			subj = Subject()
 			subj.uri = values.get("subject_uri", "")
+			subj.current_uri = values.get("subject_current_uri", "")
 			subj.interpretation = values.get("subject_interpretation", "")
 			subj.manifestation = values.get("subject_manifestation", "")
 			subj.origin = values.get("subject_origin", "")
@@ -802,6 +829,14 @@ class Event(list):
 		self[0][Event.Actor] = value
 	actor = property(get_actor, set_actor,
 	doc="Read/write property defining the application or entity responsible for emitting the event. For applications the format of this field is base filename of the corresponding .desktop file with an `app://` URI scheme. For example `/usr/share/applications/firefox.desktop` is encoded as `app://firefox.desktop`")
+	
+	def get_origin(self):
+		return self[0][Event.Origin]
+	
+	def set_origin(self, value):
+		self[0][Event.Origin] = value
+	origin = property(get_origin, set_origin,
+	doc="Read/write property defining the origin where the event was emitted.")
 	
 	def get_payload(self):
 		return self[2]
