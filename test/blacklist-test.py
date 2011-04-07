@@ -29,18 +29,19 @@ class BlacklistTest(RemoteTestCase):
 		self.blacklist = dbus.Interface(obj, "org.gnome.zeitgeist.Blacklist")
 	
 	def testClear(self):
-		self.blacklist.SetBlacklist([])
-		empty = self.blacklist.GetBlacklist()
-		self.assertEquals(empty, [])
+		allTemplates = self.blacklist.GetTemplates()
+		[self.blacklist.RemoveTemplate(key) for key in allTemplates.iterkeys()]
+		newAllTemplates = self.blacklist.GetTemplates()
+		self.assertEquals(len(newAllTemplates), 0)
 		
 	def testSetOne(self):
 		orig = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT,
 		                            subject_uri="http://nothingtoseehere.gov")
-		self.blacklist.SetBlacklist([orig])
-		result = map(Event, self.blacklist.GetBlacklist())
+		self.blacklist.AddTemplate("Foobar", orig)
+		res = self.blacklist.GetTemplates()
 		
-		self.assertEquals(len(result), 1)
-		result = result[0]
+		self.assertEquals(len(res), 1)
+		result = Event(res["Foobar"])
 		self.assertEquals(result.manifestation, "")
 		self.assertEquals(result.interpretation, Interpretation.ACCESS_EVENT)
 		self.assertEquals(len(result.subjects), 1)
@@ -49,18 +50,17 @@ class BlacklistTest(RemoteTestCase):
 	
 	def testApplyBlacklist(self):
 		self.testSetOne()
-		ev = Event()
-		ev.interpretation = Interpretation.ACCESS_EVENT
+		ev = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT,
+		                            subject_uri="http://nothingtoseehere.gov")
 		ev.manifestation = Manifestation.USER_ACTIVITY
 		ev.actor = "app.//foo.desktop"
-		subj = ev.append_subject()
-		subj.uri = "http://nothingtoseehere.gov"
+
 		inserted_ids = self.insertEventsAndWait([ev])
 		self.assertEquals(1, len(inserted_ids))
-		self.assertEquals(0, inserted_ids[0])
+		self.assertEquals(0, int(inserted_ids[0]))
 		
 		# Now change the event to pass the blacklist
-		subj.uri = "htpp://totallyvaliduri.com"
+		ev.get_subjects()[0].uri = "htpp://totallyvaliduri.com"
 		inserted_ids = self.insertEventsAndWait([ev])
 		self.assertEquals(1, len(inserted_ids))
 		self.assertTrue(0 != inserted_ids[0])
@@ -73,9 +73,10 @@ class BlacklistTest(RemoteTestCase):
 		del self.blacklist
 		iface = ZeitgeistDBusInterface()
 		blacklist = iface.get_extension("Blacklist", "blacklist")
-		blacklist.SetBlacklist([])
-		empty = blacklist.GetBlacklist()
-		self.assertEquals(empty, [])
+		allTemplates = blacklist.GetTemplates()
+		[blacklist.RemoveTemplate(key) for key in allTemplates.iterkeys()]
+		newAllTemplates = blacklist.GetTemplates()
+		self.assertEquals(len(newAllTemplates), 0)
 
 if __name__ == "__main__":
 	unittest.main()

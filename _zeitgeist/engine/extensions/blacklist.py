@@ -3,6 +3,7 @@
 # Zeitgeist
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+#           © 2011 Manish Sinha <manishsinha@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import pickle
+import json
 import dbus
 import dbus.service
 from xdg import BaseDirectory
@@ -30,7 +31,7 @@ from _zeitgeist.engine import constants
 
 log = logging.getLogger("zeitgeist.blacklist")
 
-CONFIG_FILE = os.path.join(constants.DATA_PATH, "blacklist.pickle")
+CONFIG_FILE = os.path.join(constants.DATA_PATH, "blacklist.json")
 BLACKLIST_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/blacklist"
 BLACKLIST_DBUS_INTERFACE = "org.gnome.zeitgeist.Blacklist"
 
@@ -47,7 +48,7 @@ class Blacklist(Extension, dbus.service.Object):
 	:const:`/org/gnome/zeitgeist/blacklist` under the bus name
 	:const:`org.gnome.zeitgeist.Engine`.
 	"""
-	PUBLIC_METHODS = ["set_blacklist", "get_blacklist"]
+	PUBLIC_METHODS = ["add_blacklist", "remove_blacklist", "get_blacklist"]
 	
 	def __init__ (self, engine):		
 		Extension.__init__(self, engine)
@@ -55,61 +56,119 @@ class Blacklist(Extension, dbus.service.Object):
 		                             BLACKLIST_DBUS_OBJECT_PATH)
 		if os.path.exists(CONFIG_FILE):
 			try:
-				raw_blacklist = pickle.load(file(CONFIG_FILE))
-				self._blacklist = map(Event, raw_blacklist)
+				pcl_file = open(CONFIG_FILE, "r")
+				self._blacklist = {}
+				blacklist = json.load(pcl_file)
+				[self._blacklist.setdefault(key, Event(blacklist[key])) \
+				                    for key in blacklist]
 				log.debug("Loaded blacklist config from %s"
 				          % CONFIG_FILE)
 			except Exception, e:
 				log.warn("Failed to load blacklist config file %s: %s"\
 				         % (CONFIG_FILE, e))
-				self._blacklist = []
+				self._blacklist = {}
 		else:
 			log.debug("No existing blacklist config found")
-			self._blacklist = []
+			self._blacklist = {}
 	
 	def pre_insert_event(self, event, sender):
-		for tmpl in self._blacklist:
+		for tmpl in self._blacklist.itervalues():
 			if event.matches_template(tmpl): return None
 		return event
 	
 	# PUBLIC
-	def set_blacklist(self, event_templates):
-		self._blacklist = event_templates
-		map(Event._make_dbus_sendable, self._blacklist)
+	def add_blacklist(self, blacklist_id, event_template):
+		Event._make_dbus_sendable(event_template)
+		self._blacklist[blacklist_id] = Event(event_template)
 		
 		out = file(CONFIG_FILE, "w")
-		pickle.dump(map(Event.get_plain, self._blacklist), out)		
+		json.dump(self._blacklist, out)		
 		out.close()
-		log.debug("Blacklist updated: %s" % self._blacklist)
+		log.debug("Blacklist added: %s" % self._blacklist)
+	
+	# PUBLIC
+	def remove_blacklist(self, blacklist_id):
+		event_template = self._blacklist[blacklist_id]
+		del self._blacklist[blacklist_id]
+		
+		out = file(CONFIG_FILE, "w")
+		json.dump(self._blacklist, out)		
+		out.close()
+		log.debug("Blacklist deleted: %s" % self._blacklist)
+		
+		return event_template
 	
 	# PUBLIC
 	def get_blacklist(self):
 		return self._blacklist
 	
 	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
-	                     in_signature="a("+constants.SIG_EVENT+")")
-	def SetBlacklist(self, event_templates):
+	                     in_signature="s("+constants.SIG_EVENT+")")
+	def AddTemplate(self, blacklist_id, event_template):
 		"""
-		Set the blacklist to :const:`event_templates`. Events
+		Set the blacklist to :const:`event_template`. Events
 		matching any these templates will be blocked from insertion
 		into the log. It is still possible to find and look up events
 		matching the blacklist which was inserted before the blacklist
 		banned them.
 		
-		:param event_templates: A list of
+		:param blacklist_id: A string identifier for a blacklist template
+		
+		:param event_template: An object of
 		    :class:`Events <zeitgeist.datamodel.Event>`
 		"""
-		tmp = map(Event, event_templates)
-		self.set_blacklist(tmp)
+		tmp = Event(event_template)
+		self.add_blacklist(blacklist_id, tmp)
+		self.TemplateAdded(blacklist_id, event_template)
 		
 	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
 	                     in_signature="",
-	                     out_signature="a("+constants.SIG_EVENT+")")
-	def GetBlacklist(self):
+	                     out_signature="a{s("+constants.SIG_EVENT+")}")
+	def GetTemplates(self):
 		"""
-		Get the current blacklist templates.
+		Get the current list of blacklist templates.
 		
-		:returns: A list of
-		    :class:`Events <zeitgeist.datamodel.Event>`
+		:returns: An dictionary of { string ,
+		    :class:`Events <zeitgeist.datamodel.Event>` }
 		"""
 		return self.get_blacklist()
+	
+	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
+	                     in_signature="s",
+	                     out_signature="")
+	def RemoveTemplate(self, blacklist_id):
+		"""
+		Remove a blacklist template which is identified by the 
+		        blacklist_id provided
+		
+		:param blacklist_id: A string identifier for a blacklist template
+		
+		"""
+		try:
+			event_template = self.remove_blacklist(blacklist_id)
+			self.TemplateRemoved(blacklist_id, event_template)
+		except KeyError:
+			log.debug("Blacklist %s not found " % blacklist_id)
+	
+	@dbus.service.signal(BLACKLIST_DBUS_INTERFACE,
+	                      signature="s("+constants.SIG_EVENT+")")
+	def TemplateAdded(self, blacklist_id, event_template):
+		"""
+		Raised when a template is added
+		
+		:param blacklist_id: The Id of the Blacklist template used for
+		    setting the Blacklist
+		:param event_template: The blacklist template which was set
+		"""
+		pass
+
+	@dbus.service.signal(BLACKLIST_DBUS_INTERFACE,
+	                      signature="s("+constants.SIG_EVENT+")")
+	def TemplateRemoved(self, blacklist_id, event_template):
+		"""
+		Raised when a template is deleted
+		
+		:param blacklist_id: The Id of the Blacklist template which was deleted
+		:param event_template: The blacklist template which was deleted 
+		"""
+		pass
