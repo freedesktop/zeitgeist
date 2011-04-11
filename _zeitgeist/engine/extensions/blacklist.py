@@ -142,7 +142,7 @@ class Blacklist(Extension, dbus.service.Object):
 			event_template = self.remove_blacklist(blacklist_id)
 			self.TemplateRemoved(blacklist_id, event_template)
 		except KeyError:
-			log.debug("Blacklist %s not found " % blacklist_id)
+			log.debug('Blacklist template identified as "%s" not found.' % blacklist_id)
 	
 	@dbus.service.signal(BLACKLIST_DBUS_INTERFACE,
 	                      signature="s("+constants.SIG_EVENT+")")
