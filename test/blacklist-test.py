@@ -29,10 +29,17 @@ class BlacklistTest(RemoteTestCase):
 		self.blacklist = dbus.Interface(obj, "org.gnome.zeitgeist.Blacklist")
 	
 	def testClear(self):
+		# Insert a blacklist template
+		self.blacklist.AddTemplate("unicorns",
+			Event.new_for_values(subject_uri="a"))
+		self.assertTrue(len(self.blacklist.GetTemplates()) > 0)
+		
+		# Now remove all existing templates...
 		allTemplates = self.blacklist.GetTemplates()
 		[self.blacklist.RemoveTemplate(key) for key in allTemplates.iterkeys()]
-		newAllTemplates = self.blacklist.GetTemplates()
-		self.assertEquals(len(newAllTemplates), 0)
+		
+		# And ensure that they are indeed gone.
+		self.assertEquals(len(self.blacklist.GetTemplates()), 0)
 		
 	def testSetOne(self):
 		orig = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT,

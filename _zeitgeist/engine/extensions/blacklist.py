@@ -31,7 +31,7 @@ from _zeitgeist.engine import constants
 
 log = logging.getLogger("zeitgeist.blacklist")
 
-CONFIG_FILE = os.path.join(constants.DATA_PATH, "blacklist.json")
+DATA_FILE = os.path.join(constants.DATA_PATH, "blacklist.json")
 BLACKLIST_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/blacklist"
 BLACKLIST_DBUS_INTERFACE = "org.gnome.zeitgeist.Blacklist"
 
@@ -50,22 +50,21 @@ class Blacklist(Extension, dbus.service.Object):
 	"""
 	PUBLIC_METHODS = ["add_blacklist", "remove_blacklist", "get_blacklist"]
 	
-	def __init__ (self, engine):		
+	def __init__ (self, engine):
 		Extension.__init__(self, engine)
 		dbus.service.Object.__init__(self, dbus.SessionBus(),
-		                             BLACKLIST_DBUS_OBJECT_PATH)
-		if os.path.exists(CONFIG_FILE):
+			BLACKLIST_DBUS_OBJECT_PATH)
+		if os.path.exists(DATA_FILE):
 			try:
-				pcl_file = open(CONFIG_FILE, "r")
 				self._blacklist = {}
-				blacklist = json.load(pcl_file)
+				with open(DATA_FILE, "r") as data_file:
+					blacklist = json.load(pcl_file)
 				[self._blacklist.setdefault(key, Event(blacklist[key])) \
-				                    for key in blacklist]
-				log.debug("Loaded blacklist config from %s"
-				          % CONFIG_FILE)
+					for key in blacklist]
+				log.debug("Loaded blacklist config from %s" % DATA_FILE)
 			except Exception, e:
-				log.warn("Failed to load blacklist config file %s: %s"\
-				         % (CONFIG_FILE, e))
+				log.warn("Failed to load blacklist config file %s: %s" \
+					% (DATA_FILE, e))
 				self._blacklist = {}
 		else:
 			log.debug("No existing blacklist config found")
@@ -76,14 +75,16 @@ class Blacklist(Extension, dbus.service.Object):
 			if event.matches_template(tmpl): return None
 		return event
 	
+	def _write_to_disk(self):
+		with open(DATA_FILE, "w") as data_file:
+			json.dump(self._blacklist, data_file)
+	
 	# PUBLIC
 	def add_blacklist(self, blacklist_id, event_template):
 		Event._make_dbus_sendable(event_template)
 		self._blacklist[blacklist_id] = Event(event_template)
 		
-		out = file(CONFIG_FILE, "w")
-		json.dump(self._blacklist, out)		
-		out.close()
+		self._write_to_disk()
 		log.debug("Blacklist added: %s" % self._blacklist)
 	
 	# PUBLIC
@@ -91,9 +92,7 @@ class Blacklist(Extension, dbus.service.Object):
 		event_template = self._blacklist[blacklist_id]
 		del self._blacklist[blacklist_id]
 		
-		out = file(CONFIG_FILE, "w")
-		json.dump(self._blacklist, out)		
-		out.close()
+		self._write_to_disk()
 		log.debug("Blacklist deleted: %s" % self._blacklist)
 		
 		return event_template
@@ -106,19 +105,16 @@ class Blacklist(Extension, dbus.service.Object):
 	                     in_signature="s("+constants.SIG_EVENT+")")
 	def AddTemplate(self, blacklist_id, event_template):
 		"""
-		Set the blacklist to :const:`event_template`. Events
-		matching any these templates will be blocked from insertion
-		into the log. It is still possible to find and look up events
-		matching the blacklist which was inserted before the blacklist
-		banned them.
+		Adds a new :const:`event_template` to the blacklist. Events
+		matching the template will be blocked from insertion into the
+		log. It is still possible to find and look up events matching
+		the template which were inserted before it was banned.
 		
-		:param blacklist_id: A string identifier for a blacklist template
-		
-		:param event_template: An object of
-		    :class:`Events <zeitgeist.datamodel.Event>`
+		:param blacklist_id: A string identifier for the blacklist template
+		:param event_template: the :class:`Events <zeitgeist.datamodel.Event>`
+			template to be blacklisted
 		"""
-		tmp = Event(event_template)
-		self.add_blacklist(blacklist_id, tmp)
+		self.add_blacklist(blacklist_id, Event(event_template))
 		self.TemplateAdded(blacklist_id, event_template)
 		
 	@dbus.service.method(BLACKLIST_DBUS_INTERFACE,
@@ -128,8 +124,8 @@ class Blacklist(Extension, dbus.service.Object):
 		"""
 		Get the current list of blacklist templates.
 		
-		:returns: An dictionary of { string ,
-		    :class:`Events <zeitgeist.datamodel.Event>` }
+		:returns: A dictionary of { string,
+			:class:`Event <zeitgeist.datamodel.Event>` }
 		"""
 		return self.get_blacklist()
 	
@@ -138,11 +134,9 @@ class Blacklist(Extension, dbus.service.Object):
 	                     out_signature="")
 	def RemoveTemplate(self, blacklist_id):
 		"""
-		Remove a blacklist template which is identified by the 
-		        blacklist_id provided
+		Remove the blacklist template identified by the provided blacklist_id.
 		
 		:param blacklist_id: A string identifier for a blacklist template
-		
 		"""
 		try:
 			event_template = self.remove_blacklist(blacklist_id)
@@ -154,11 +148,10 @@ class Blacklist(Extension, dbus.service.Object):
 	                      signature="s("+constants.SIG_EVENT+")")
 	def TemplateAdded(self, blacklist_id, event_template):
 		"""
-		Raised when a template is added
+		Raised when a template is added.
 		
-		:param blacklist_id: The Id of the Blacklist template used for
-		    setting the Blacklist
-		:param event_template: The blacklist template which was set
+		:param blacklist_id: The Id of the newly added blacklist template
+		:param event_template: The blacklist template which was added
 		"""
 		pass
 
@@ -166,9 +159,9 @@ class Blacklist(Extension, dbus.service.Object):
 	                      signature="s("+constants.SIG_EVENT+")")
 	def TemplateRemoved(self, blacklist_id, event_template):
 		"""
-		Raised when a template is deleted
+		Raised when a template is deleted.
 		
-		:param blacklist_id: The Id of the Blacklist template which was deleted
-		:param event_template: The blacklist template which was deleted 
+		:param blacklist_id: The Id of the Blacklist template which was removed
+		:param event_template: The blacklist template which was removed 
 		"""
 		pass
