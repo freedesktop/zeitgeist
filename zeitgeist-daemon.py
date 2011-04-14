@@ -22,6 +22,7 @@
 import sys
 import os
 import gobject
+import glib
 import dbus.mainloop.glib
 import gettext
 import logging
@@ -109,14 +110,16 @@ def start_datahub():
 	devnull = open(os.devnull, "w")
 	try:
 		# we assume to find the datahub somewhere in PATH
-		p = Popen(DATAHUB, stdin=devnull, stdout=devnull, stderr=devnull)
+		pid, stdin, stdout, stderr = glib.spawn_async(
+			[DATAHUB,],
+			flags=glib.SPAWN_SEARCH_PATH | glib.SPAWN_STDOUT_TO_DEV_NULL | glib.SPAWN_STDERR_TO_DEV_NULL)
 	except OSError:
 		logging.warning("Unable to start the datahub, no binary found")
 	else:
 		# TODO: delayed check if the datahub is still running after some time
 		#  and not failed because of some error
 		# tell the user which datahub we are running
-		logging.debug("Running datahub (%s) with PID=%i" %(which(DATAHUB), p.pid))
+		logging.debug("Running datahub (%s) with PID=%i" %(which(DATAHUB), pid))
 
 def setup_handle_exit(interface):
 	def handle_exit(signum=None, frame=None):
