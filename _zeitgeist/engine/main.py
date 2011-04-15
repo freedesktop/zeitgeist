@@ -380,7 +380,8 @@ class ZeitgeistEngine:
 		
 		# FIXME: We need to take storage_state into account
 		if storage_state != StorageState.Any:
-			raise NotImplementedError
+			log.warning("Ignoring StorageState (%d) in query: not implemented."
+				% storage_state)
 		
 		# thekorn: we are using the unary operator here to tell sql to not use
 		# the index on the timestamp column at the first place. This `fix` for

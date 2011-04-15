@@ -418,17 +418,6 @@ class ZeitgeistEngineTest(_engineTestClass):
 		result_ids = self.engine.find_eventids(TimeRange.always(), [Event()], StorageState.Any, 0, 1)
 		self.assertEquals(orig_ids, result_ids)
 	
-	def testDontFindState(self):
-		# searchin by storage state is currently not implemented
-		# checking for the error
-		import_events("test/data/twenty_events.js", self.engine)
-		self.assertRaises(NotImplementedError, self.engine.find_eventids,
-			(1, 10000000),
-			[],
-			StorageState.Available,
-			1,
-			0,)
-			
 	def testFindEventsEventTemplate(self):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject.new_for_values(interpretation="stfu:Bee")
