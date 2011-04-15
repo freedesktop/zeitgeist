@@ -1,3 +1,20 @@
+2011-04-??: Zeitgeist 0.7.2 "..."
+-----------------------------------------------
+
+This release is comprised mostly of some minor changes to ease the migration
+to Zeitgeist 0.8.0.
+
+Engine:
+
+ - Degrade NotImplementedError raised when querying with a storage state
+   other than StorageState.Any to a warning.
+
+Python API:
+
+ - Accept events with more than the expected number of arguments (so Python
+   applications using this version of the Python API work when version 0.8.0
+   or later of the engine is running).
+
 2011-03-20: Zeitgeist 0.7.1 "Made in Aarhus"
 -----------------------------------------------
 
@@ -21,7 +38,6 @@ Overall:
  - Include NCO in the generated ontologies.
  - Better ./configure check for python-rdflib.
  - Update the manpage to document exit codes.
-
 
 2011-01-18: Zeitgeist 0.7.0 "All I have is this woodchuck."
 -----------------------------------------------------------

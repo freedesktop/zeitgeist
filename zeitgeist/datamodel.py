@@ -453,7 +453,7 @@ class Subject(list):
 	def __init__(self, data=None):
 		super(Subject, self).__init__([""]*len(Subject.Fields))
 		if data:
-			if len(data) != len(Subject.Fields):
+			if len(data) < len(Subject.Fields):
 				raise ValueError(
 					"Invalid subject data length %s, expected %s"
 					% (len(data), len(Subject.Fields)))
