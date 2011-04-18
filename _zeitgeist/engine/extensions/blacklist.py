@@ -58,7 +58,7 @@ class Blacklist(Extension, dbus.service.Object):
 			try:
 				self._blacklist = {}
 				with open(DATA_FILE, "r") as data_file:
-					blacklist = json.load(pcl_file)
+					blacklist = json.load(data_file)
 				[self._blacklist.setdefault(key, Event(blacklist[key])) \
 					for key in blacklist]
 				log.debug("Loaded blacklist config from %s" % DATA_FILE)
