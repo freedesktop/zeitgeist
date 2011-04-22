@@ -100,6 +100,6 @@ class SingletonApplication(dbus.service.Object):
 				 
 	def _safe_quit(self):
 		# safely quit the interface on the bus by removing this interface
-		# from the bus, and relasing the (by-hand) registered bus name
+		# from the bus, and releasing the (by-hand) registered bus name
 		self.remove_from_connection()
 		self.connection.release_name(ZeitgeistDBusInterface.BUS_NAME)
