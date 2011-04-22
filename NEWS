@@ -1,7 +1,20 @@
 2011-04-?: Zeitgeist 0.8.0 "Ahmed the donkey"
 -----------------------------------------------
 
-...
+Engine:
+
+ - Enabled filtering by availability in FindEvents.
+ - Added an origin property to events, matching that for subjects (LP: #425258).
+ - Added a current_uri property to subjects, which unlike all other properties
+   is mutable.
+ - Added support for "move" events, which automatically update the current_uri
+   property where appropriate (LP: #602211).
+ - Fixed inconsistencies caused by the internal cache not being updated when
+   events were deleted (LP: #598666).
+ - Added a Storage Monitor extension which tracks network connectivity and
+   removable devices (LP: #489194).
+ - Fixed datahub launching to avoid zombie processes (LP: #739780).
+ - Replaced the Blacklist extension giving it a more capable API (LP: #612344).
 
 2011-03-20: Zeitgeist 0.7.1 "Made in Aarhus"
 -----------------------------------------------
