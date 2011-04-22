@@ -94,14 +94,18 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			dbus_interface=dbus.BUS_DAEMON_IFACE,
 			arg2="", # only match services with no new owner
 		)
+		
+		self._dirty = True
 		gobject.timeout_add(DISK_WRITE_TIMEOUT, self._write_to_disk)
 		
 	def _write_to_disk(self):
 		data = [DataSource.get_plain(datasource) for datasource in
 			self._registry.itervalues()]
 		try:
-			with open(DATA_FILE, "w") as data_file:
-				pickle.dump(data, data_file)
+			if self._dirty:
+				self._dirty = False
+				with open(DATA_FILE, "w") as data_file:
+					pickle.dump(data, data_file)
 		except Exception, e:
 			log.warn("Failed to write to data file %s: %s" % (DATA_FILE, e))
 		return True
@@ -113,6 +117,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 				datasource = self._registry[unique_id]
 				# Update LastSeen time
 				datasource.last_seen = get_timestamp_for_now()
+				self._dirty = True
 				# Check whether the data-source is allowed to insert events
 				if not datasource.enabled:
 					return None
