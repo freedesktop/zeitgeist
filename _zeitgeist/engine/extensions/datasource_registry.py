@@ -23,6 +23,7 @@ import os
 import cPickle as pickle
 import dbus
 import dbus.service
+import gobject
 import logging
 
 from zeitgeist.datamodel import get_timestamp_for_now
@@ -36,6 +37,7 @@ DATA_FILE = os.path.join(constants.DATA_PATH, "datasources.pickle")
 REGISTRY_DBUS_OBJECT_PATH = "/org/gnome/zeitgeist/data_source_registry"
 REGISTRY_DBUS_INTERFACE = "org.gnome.zeitgeist.DataSourceRegistry"
 SIG_FULL_DATASOURCE = "(sssa("+constants.SIG_EVENT+")bxb)"
+DISK_WRITE_TIMEOUT = 5*60*1000 # 5 Minutes
 
 class DataSource(OrigDataSource):
 	@classmethod
@@ -88,16 +90,21 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		
 		# Connect to client disconnection signals
 		dbus.SessionBus().add_signal_receiver(self._name_owner_changed,
-		    signal_name="NameOwnerChanged",
-		    dbus_interface=dbus.BUS_DAEMON_IFACE,
-		    arg2="", # only match services with no new owner
-	    )
-	
+			signal_name="NameOwnerChanged",
+			dbus_interface=dbus.BUS_DAEMON_IFACE,
+			arg2="", # only match services with no new owner
+		)
+		gobject.timeout_add(DISK_WRITE_TIMEOUT, self._write_to_disk)
+		
 	def _write_to_disk(self):
 		data = [DataSource.get_plain(datasource) for datasource in
 			self._registry.itervalues()]
-		with open(DATA_FILE, "w") as data_file:
-			pickle.dump(data, data_file)
+		try:
+			with open(DATA_FILE, "w") as data_file:
+				pickle.dump(data, data_file)
+		except Exception, e:
+			log.warn("Failed to write to data file %s: %s" % (DATA_FILE, e))
+		return True
 		#log.debug("Data-source registry update written to disk.")
 	
 	def pre_insert_event(self, event, sender):
