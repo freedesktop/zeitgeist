@@ -164,7 +164,8 @@ if __name__ == "__main__":
 	try:
 		mainloop, interface = setup_interface()
 	except RuntimeError, e:
-		logging.exception("Failed to setup the RemoteInterface")
+		logging.info("Failed to setup the RemoteInterface")
+		logging.info(e.message)
 		sys.exit(1)
 	
 	if _config.options.start_datahub:
