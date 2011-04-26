@@ -163,6 +163,7 @@ class ZeitgeistEngine:
 				log.error("Event %i broken: Table %s has no id %i" \
 						%(row["id"], field, row[field]))
 				return None
+		event.origin = row["event_origin_uri"] or ""
 		event.payload = row["payload"] or "" # default payload: empty string
 		return event
 	
@@ -338,6 +339,10 @@ class ZeitgeistEngine:
 				if value:
 					subwhere.add_text_condition("actor", value, wildcard, negation, cache=self._actor)
 				
+				value, negation, wildcard = parse_operators(Event, Event.Origin, event_template.origin)
+				if value:
+					subwhere.add_text_condition("origin", value, wildcard, negation)
+				
 				if subject_templates is not None:
 					for subject_template in subject_templates:
 						value, negation, wildcard = parse_operators(Subject, Subject.Interpretation, subject_template.interpretation)
@@ -372,7 +377,12 @@ class ZeitgeistEngine:
 							value = getattr(subject_template, key)
 							if value:
 								value, negation, wildcard = parse_operators(Subject, getattr(Subject, key.title()), value)
-								subwhere.add_text_condition("subj_%s" %key, value, wildcard, negation)
+								subwhere.add_text_condition("subj_%s" % key, value, wildcard, negation)
+						
+						if subject_template.current_uri:
+							value, negation, wildcard = parse_operators(Subject,
+								Subject.CurrentUri, subject_template.current_uri)
+							subwhere.add_text_condition("subj_current_uri", value, wildcard, negation)
 						
 						if subject_template.storage:
 							subwhere.add_text_condition("subj_storage", subject_template.storage)
@@ -446,7 +456,8 @@ class ZeitgeistEngine:
 		elif where:
 			sql += " WHERE " + where.sql
 		
-		sql += (" ORDER BY timestamp DESC",
+		sql += (
+			" ORDER BY timestamp DESC",
 			" ORDER BY timestamp ASC",
 			# thekorn: please note, event.subj_id == uri.id, as in
 			# the subj_id points directly to an entry in the uri table,
@@ -587,11 +598,13 @@ class ZeitgeistEngine:
 			event.timestamp = get_timestamp_for_now()
 		if not event.interpretation == Interpretation.MOVE_EVENT:
 			for subject in event.subjects:
-				if not subject.uri == subject.current_uri:
+				if not subject.current_uri:
+					subject.current_uri = subject.uri
+				elif not subject.uri == subject.current_uri:
 					raise ValueError("Illegal event: unless event.interpretation is 'MOVE_EVENT' then subject.uri and subject.current_uri have to be the same")
 		if event.interpretation == Interpretation.MOVE_EVENT:
 			for subject in event.subjects:
-				if subject.uri == subject.current_uri:
+				if subject.uri == subject.current_uri or not subject.current_uri:
 					raise ValueError("Redundant event: event.interpretation indicates the uri has been moved yet the subject.uri and subject.current_uri are identical")
 			
 		id = self.next_event_id()
@@ -609,9 +622,9 @@ class ZeitgeistEngine:
 		_current_uri = [subject.current_uri
 			for subject in event.subjects if subject.current_uri]
 		self._cursor.execute("INSERT OR IGNORE INTO uri (value) %s"
-			% " UNION ".join(["SELECT ?"] * (len(event.subjects) +
-				len(_origin) + len(_current_uri))),
-			[subject.uri for subject in event.subjects] + _origin + _current_uri)
+			% " UNION ".join(["SELECT ?"] * (1 + len(event.subjects) +
+				len(_origin) + len(_current_uri))), [event.origin] + _origin +
+			[subject.uri for subject in event.subjects] + _current_uri)
 		
 		# Make sure all mimetypes are inserted
 		_mimetype = [subject.mimetype for subject in event.subjects \
@@ -633,7 +646,7 @@ class ZeitgeistEngine:
 				% " UNION ".join(["SELECT ?"] * len(_storage)), _storage)
 		
 		try:
-			for subject in event.subjects:	
+			for subject in event.subjects:
 				self._cursor.execute("""
 					INSERT INTO event (
 						id, timestamp, interpretation, manifestation, actor,
@@ -641,7 +654,9 @@ class ZeitgeistEngine:
 						subj_interpretation, subj_manifestation, subj_origin,
 						subj_mimetype, subj_text, subj_storage
 					) VALUES (
-						?, ?, ?, ?, ?, ?, ?,
+						?, ?, ?, ?, ?,
+						(SELECT id FROM uri WHERE value=?),
+						?,
 						(SELECT id FROM uri WHERE value=?),
 						(SELECT id FROM uri WHERE value=?),
 						?, ?,
@@ -655,7 +670,7 @@ class ZeitgeistEngine:
 						self._interpretation[event.interpretation],
 						self._manifestation[event.manifestation],
 						self._actor[event.actor],
-						None, # event origin
+						event.origin,
 						payload_id,
 						subject.uri,
 						subject.current_uri,

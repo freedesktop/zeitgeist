@@ -390,6 +390,26 @@ class ZeitgeistEngineTest(_engineTestClass):
 		for event in events:
 			self.assertEqual(event.manifestation, "stfu:EpicFailActivity")
 	
+	def testFindWithEventOrigin(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		event_template = Event.new_for_values(origin="origin3")
+		result = self.engine.find_eventids(TimeRange.always(),
+			[event_template], StorageState.Any, 0, 1)
+		events = self.engine.get_events(result)
+		
+		self.assertTrue(len(events) > 0)
+		self.assertTrue(all(ev.origin == "origin3" for ev in events))
+	
+	def testFindWithEventOriginNegatedWildcard(self):
+		import_events("test/data/twenty_events.js", self.engine)
+		event_template = Event.new_for_values(origin="!origin*")
+		result = self.engine.find_eventids(TimeRange.always(),
+			[event_template], StorageState.Any, 0, 1)
+		events = self.engine.get_events(result)
+		
+		self.assertTrue(len(events) > 0)
+		self.assertFalse(any(ev.origin.startswith("origin") for ev in events))
+	
 	def testFindWithSubjectOrigin(self):
 		import_events("test/data/five_events.js", self.engine)
 		subj = Subject.new_for_values(origin="file:///tmp")
@@ -767,7 +787,14 @@ class ZeitgeistEngineTest(_engineTestClass):
 		template = Event.new_for_values(
 			subject_uri = "http://*"
 		)
-		
+		ids = self.engine.find_eventids(TimeRange.always(),
+			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		)
+		self.assertEquals(1, len(ids))
+
+		template = Event.new_for_values(
+			subject_current_uri = "http://*"
+		)
 		ids = self.engine.find_eventids(TimeRange.always(),
 			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
 		)
@@ -776,7 +803,6 @@ class ZeitgeistEngineTest(_engineTestClass):
 		template = Event.new_for_values(
 			subject_origin = "file://*"
 		)
-		
 		ids = self.engine.find_eventids(TimeRange.always(),
 			[template,], StorageState.Any, 10, ResultType.MostRecentEvents
 		)
@@ -1094,8 +1120,6 @@ class ResultTypeTest(_engineTestClass):
 		events = self.engine.find_events(TimeRange.always(),
 			[], StorageState.Any, 0, ResultType.LeastRecentActor)
 		self.assertEquals([e.timestamp for e in events], ['3', '4'])
-
-
 
 	def testResultTypesMostPopularSubjectOrigin(self):
 		import_events("test/data/twenty_events.js", self.engine)

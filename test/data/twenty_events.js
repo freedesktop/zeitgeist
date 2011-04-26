@@ -4,6 +4,7 @@
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "firefox",
+		"origin" : "origin2",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
@@ -20,6 +21,7 @@
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "icedove",
+		"origin" : "origin1",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
@@ -36,6 +38,7 @@
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "firefox",
+		"origin" : "origin1",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
@@ -52,6 +55,7 @@
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
 		"actor" : "icedove",
+		"origin" : "origin3",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",

@@ -470,6 +470,15 @@ class Subject(list):
 			self.__class__.__name__, super(Subject, self).__repr__()
 		)
 	
+	def __eq__(self, other):
+		for field in Subject.Fields:
+			if field is Subject.CurrentUri and not self[field] or \
+			not other[field]:
+				continue
+			if self[field] != other[field]:
+				return False
+		return True
+	
 	@staticmethod
 	def new_for_values (**values):
 		"""
@@ -490,11 +499,7 @@ class Subject(list):
 			if not key in ("uri", "current_uri", "interpretation", "manifestation", "origin",
 						"mimetype", "text", "storage"):
 				raise ValueError("Subject parameter '%s' is not supported" %key)
-			if not key == "current_uri":
-				setattr(self, key, value)
-		# Make sure Uri is set first before Current_Uri to avoid overwriting
-		if "current_uri" in values.keys():
-			setattr(self, "current_uri", values["current_uri"])
+			setattr(self, key, value)
 		return self
 		
 	def get_uri(self):
@@ -502,13 +507,10 @@ class Subject(list):
 		
 	def set_uri(self, value):
 		self[Subject.Uri] = value
-		self[Subject.CurrentUri] = value
 	uri = property(get_uri, set_uri,
-	doc="Read/write property with the URI of the subject encoded as a string (Warning: writing this property overwrites Current URI")
+	doc="Read/write property with the URI of the subject encoded as a string")
 	
 	def get_current_uri(self):
-		if not self[Subject.CurrentUri] or not self[Subject.CurrentUri].strip():
-			return self[Subject.Uri]
 		return self[Subject.CurrentUri]
 	
 	def set_current_uri(self, value):
@@ -624,9 +626,9 @@ class Event(list):
 		Manifestation,
 		Actor,
 		Origin) = range(6)
-		
+	
 	SUPPORTS_NEGATION = (Interpretation, Manifestation, Actor, Origin)
-	SUPPORTS_WILDCARDS = (Actor,)
+	SUPPORTS_WILDCARDS = (Actor, Origin)
 	
 	def __init__(self, struct = None):
 		"""
@@ -719,19 +721,19 @@ class Event(list):
 		counterparts in :meth:`Subject.new_for_values`:
 		
 		:param subject_uri:
+		:param subject_current_uri:
 		:param subject_interpretation:
 		:param subject_manifestation:
 		:param subject_origin:
 		:param subject_mimetype:
 		:param subject_text:
 		:param subject_storage:
-		 
-		
 		"""
 		self = cls()
 		for key in values:
 			if not key in ("timestamp", "interpretation", "manifestation",
-				"actor", "origin", "subjects", "subject_uri", "subject_interpretation",
+				"actor", "origin", "subjects", "subject_uri",
+				"subject_current_uri", "subject_interpretation",
 				"subject_manifestation", "subject_origin", "subject_mimetype",
 				"subject_text", "subject_storage"):
 				raise ValueError("Event parameter '%s' is not supported" % key)
@@ -761,13 +763,14 @@ class Event(list):
 	
 	@staticmethod
 	def _dict_contains_subject_keys (dikt):
-		if "subject_uri" in dikt : return True
-		elif "subject_interpretation" in dikt : return True
-		elif "subject_manifestation" in dikt : return True
-		elif "subject_origin" in dikt : return True
-		elif "subject_mimetype" in dikt : return True
-		elif "subject_text" in dikt : return True
-		elif "subject_storage" in dikt : return True
+		if "subject_uri" in dikt: return True
+		elif "subject_current_uri" in dikt: return True
+		elif "subject_interpretation" in dikt: return True
+		elif "subject_manifestation" in dikt: return True
+		elif "subject_origin" in dikt: return True
+		elif "subject_mimetype" in dikt: return True
+		elif "subject_text" in dikt: return True
+		elif "subject_storage" in dikt: return True
 		return False
 	
 	def __repr__(self):
@@ -1066,11 +1069,11 @@ class ResultType(object):
 		"ordered ascendingly by the popularity of the actor"))
 	MostRecentActor = enum_factory(("The Actor that has been used to most recently"))
 	LeastRecentActor = enum_factory(("The Actor that has been used to least recently"))	
-	MostRecentOrigin = enum_factory(("The last event of each different origin"))
-	LeastRecentOrigin = enum_factory(("The first event of each different origin"))
-	MostPopularOrigin = enum_factory(("The last event of each different origin,"
+	MostRecentOrigin = enum_factory(("The last event of each different subject origin"))
+	LeastRecentOrigin = enum_factory(("The first event of each different subject origin"))
+	MostPopularOrigin = enum_factory(("The last event of each different subject origin,"
 		"ordered by the popularity of the origins"))
-	LeastPopularOrigin = enum_factory(("The last event of each different origin,"
+	LeastPopularOrigin = enum_factory(("The last event of each different subject origin,"
 		"ordered ascendingly by the popularity of the origin"))
 	OldestActor = enum_factory(("The first event of each different actor"))
 	MostRecentSubjectInterpretation = enum_factory(("One event for each subject interpretation only, "
@@ -1089,7 +1092,6 @@ class ResultType(object):
 		"ordered by the popularity of the mimetype"))
 	LeastPopularMimeType = enum_factory(("One event for each mimetype only, "
 		"ordered ascendingly by popularity of the mimetype"))
-
 
 INTERPRETATION_DOC = \
 """In general terms the *interpretation* of an event or subject is an abstract

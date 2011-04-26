@@ -51,6 +51,7 @@ def dict2event(d):
 	ev.interpretation = str(d.get("interpretation", "").encode("UTF-8"))
 	ev.manifestation = str(d.get("manifestation", "").encode("UTF-8"))
 	ev.actor = str(d.get("actor", "").encode("UTF-8"))
+	ev.origin = str(d.get("origin", "").encode("UTF-8"))
 	ev.payload = str(d.get("payload", "").encode("UTF-8"))
 	
 	subjects = d.get("subjects", [])

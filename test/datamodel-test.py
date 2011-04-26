@@ -344,8 +344,8 @@ class EventTest (unittest.TestCase):
 	def testCurrentUri(self):
 		subj = Subject()
 		subj.uri = "Wonneproppen"
-		self.assertTrue(subj.uri, "Wonneproppen")
-		self.assertTrue(subj.current_uri, "Wonneproppen")
+		self.assertEqual(subj.uri, "Wonneproppen")
+		self.assertEqual(subj.current_uri, "")
 
 
 class TimeRangeTest (unittest.TestCase):
@@ -400,7 +400,7 @@ class SubjectTest(unittest.TestCase):
 		self.assertTrue(subject.uri == subject.current_uri == "")
 		uri = "file:///path/to/file"
 		subject.uri = uri
-		self.assertEqual(subject.uri, subject.current_uri)
+		self.assertEqual(subject.current_uri, "")
 		new_uri = "http:///www.remote.location"
 		subject.current_uri = new_uri
 		self.assertEqual(subject.current_uri, new_uri)

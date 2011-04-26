@@ -30,6 +30,7 @@ from _zeitgeist.engine import constants
 log = logging.getLogger("zeitgeist.sql")
 
 TABLE_MAP = {
+	"origin": "uri",
 	"subj_mimetype": "mimetype",
 	"subj_origin": "uri",
 	"subj_uri": "uri",
@@ -580,17 +581,22 @@ class WhereClause:
 			
 	def add_text_condition(self, column, value, like=False, negation=False, cache=None):
 		if like:
-			assert column in ("subj_uri", "subj_origin", "actor", "subj_mimetype"), \
-				"prefix search on the %r column is not supported by zeitgeist" %column
+			assert column in ("origin", "subj_uri", "subj_current_uri",
+			"subj_origin", "actor", "subj_mimetype"), \
+				"prefix search on the %r column is not supported by zeitgeist" % column
 			if column == "subj_uri":
 				# subj_id directly points to the id of an uri entry
 				view_column = "subj_id"
+			elif column == "subj_current_uri":
+				view_column = "subj_id_current"
 			else:
 				view_column = column
 			optimized_glob, value = self.optimize_glob("id", TABLE_MAP.get(column, column), value)
 			sql = "%s %sIN (%s)" %(view_column, self.NOT if negation else "", optimized_glob)
 		else:
-			if column == "subj_origin":
+			if column == "origin":
+				column ="event_origin_uri"
+			elif column == "subj_origin":
 				column = "subj_origin_uri"
 			sql = "%s %s= ?" %(column, "!" if negation else "")
 			if cache is not None:
