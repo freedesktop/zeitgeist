@@ -148,7 +148,7 @@ class Blacklist(Extension, dbus.service.Object):
 	                      signature="s("+constants.SIG_EVENT+")")
 	def TemplateAdded(self, blacklist_id, event_template):
 		"""
-		Raised when a template is added.
+		This signal is emmitted when a template is added.
 		
 		:param blacklist_id: The Id of the newly added blacklist template
 		:param event_template: The blacklist template which was added
@@ -159,7 +159,7 @@ class Blacklist(Extension, dbus.service.Object):
 	                      signature="s("+constants.SIG_EVENT+")")
 	def TemplateRemoved(self, blacklist_id, event_template):
 		"""
-		Raised when a template is deleted.
+		This signal is emmitted when a template is deleted.
 		
 		:param blacklist_id: The Id of the Blacklist template which was removed
 		:param event_template: The blacklist template which was removed 
