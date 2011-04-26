@@ -595,6 +595,8 @@ class WhereClause:
 				view_column = column
 			optimized_glob, value = self.optimize_glob("id", TABLE_MAP.get(column, column), value)
 			sql = "%s %sIN (%s)" %(view_column, self.NOT if negation else "", optimized_glob)
+			if negation:
+				sql += " OR %s IS NULL" % view_column
 		else:
 			if column == "origin":
 				column ="event_origin_uri"

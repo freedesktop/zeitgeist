@@ -107,7 +107,8 @@ class SQLTest (unittest.TestCase):
 		where = WhereClause(WhereClause.AND)
 		where.add_text_condition("actor", "bar", like=True, negation=True)
 		self.assertEquals(where.sql.replace("?", "%s") % tuple(where.arguments),
-			"(actor NOT IN (SELECT id FROM actor WHERE (value >= bar AND value < bas)))")
+			"(actor NOT IN (SELECT id FROM actor " \
+			"WHERE (value >= bar AND value < bas)) OR actor IS NULL)")
 		
 
 if __name__ == "__main__":
