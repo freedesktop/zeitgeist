@@ -619,11 +619,13 @@ class ZeitgeistEngine:
 		
 		# Make sure all URIs are inserted
 		_origin = [subject.origin for subject in event.subjects if subject.origin]
+		if event.origin:
+			_origin.append(event.origin)
 		_current_uri = [subject.current_uri
 			for subject in event.subjects if subject.current_uri]
 		self._cursor.execute("INSERT OR IGNORE INTO uri (value) %s"
-			% " UNION ".join(["SELECT ?"] * (1 + len(event.subjects) +
-				len(_origin) + len(_current_uri))), [event.origin] + _origin +
+			% " UNION ".join(["SELECT ?"] * (len(event.subjects) +
+				len(_origin) + len(_current_uri))), _origin +
 			[subject.uri for subject in event.subjects] + _current_uri)
 		
 		# Make sure all mimetypes are inserted
