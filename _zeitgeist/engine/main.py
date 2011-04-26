@@ -305,6 +305,13 @@ class ZeitgeistEngine:
 		
 		for template in templates:
 			event_template = Event((template[0], [], None))
+			# FIXME: We need to make sure that all fields are string. Using DBus
+			# one can send an array of strings < 7. In our case with the new API
+			# with event.origin and subject.origin can be None. Maybe we should 
+			# look at the datamodel for that.
+			for i, field in enumerate(event_template[0]):
+				if not field:
+					event_template[0][i] = ""
 			if template[1]:
 				subject_templates = [Subject(data) for data in template[1]]
 			else:
@@ -345,7 +352,14 @@ class ZeitgeistEngine:
 					subwhere.add_text_condition("origin", value, wildcard, negation)
 				
 				if subject_templates is not None:
+					# FIXME: We need to make sure that all fields are string. Using DBus
+					# one can send an array of strings < 7. In our case with the new API
+					# with event.origin and subject.origin can be None. Maybe we should 
+					# look at the datamodel for that.
 					for subject_template in subject_templates:
+						for i, field in enumerate(subject_template):
+							if not field:
+								subject_template[i] = ""
 						value, negation, wildcard = parse_operators(Subject, Subject.Interpretation, subject_template.interpretation)
 						# Expand subject interpretation children
 						su_interp_where = WhereClause(WhereClause.OR, negation)
