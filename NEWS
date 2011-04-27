@@ -2,18 +2,21 @@
 -----------------------------------------------
 
 This release is comprised mostly of some minor changes to ease the migration
-to Zeitgeist 0.8.0.
-
+to Zeitgeist 0.8.0. It also includes several fixes backported from that release.
+ 
 Engine:
 
  - Degrade NotImplementedError raised when querying with a storage state
    other than StorageState.Any to a warning.
+ - Do not print a traceback when Zeitgeist fails to start because another
+   instance is already running, just show a plain error message (LP: #744818).
 
 Python API:
 
  - Accept events with more than the expected number of arguments (so Python
    applications using this version of the Python API work when version 0.8.0
    or later of the engine is running).
+ - Fix bug in the connection (to Zeitgeist) recovery code (LP: #771970).
 
 2011-03-20: Zeitgeist 0.7.1 "Made in Aarhus"
 -----------------------------------------------
