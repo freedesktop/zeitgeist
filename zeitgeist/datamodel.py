@@ -633,15 +633,15 @@ class Event(list):
 		super(Event, self).__init__()
 		if struct:
 			if len(struct) == 1:
-				self.append(struct[0])
+				self.append(self._check_event_struct(struct[0]))
 				self.append([])
 				self.append("")
 			elif len(struct) == 2:
-				self.append(struct[0])
+				self.append(self._check_event_struct(struct[0]))
 				self.append(map(Subject, struct[1]))
 				self.append("")
 			elif len(struct) == 3:
-				self.append(struct[0])
+				self.append(self._check_event_struct(struct[0]))
 				self.append(map(Subject, struct[1]))
 				self.append(struct[2])
 			else:
@@ -655,7 +655,17 @@ class Event(list):
 		# If we have no origin for Event then we set None
 		if len(self[0]) == 5:
 			self[0].append(None)
-		
+	
+	@classmethod
+	def _check_event_struct(cls, event_data):
+		if len(event_data) == len(cls.Fields) - 1:
+			# Old versions of Zeitgeist didn't have the event origin field.
+			event_data.append("")
+		if len(event_data) != len(cls.Fields):
+			raise ValueError("event_data must have %s members, found %s" % \
+				(len(cls.Fields), len(event_data)))
+		return event_data
+	
 	@classmethod
 	def new_for_data(cls, event_data):
 		"""
@@ -665,10 +675,7 @@ class Event(list):
 		Event.Fields enumeration.
 		"""
 		self = cls()
-		if len(event_data) != len(cls.Fields):
-			raise ValueError("event_data must have %s members, found %s" % \
-				(len(cls.Fields), len(event_data)))
-		self[0] = event_data
+		self[0] = self._check_event_struct(event_data)
 		return self
 		
 	@classmethod
