@@ -17,6 +17,7 @@ Engine:
  - Replaced the Blacklist extension giving it a more capable API (LP: #612344).
  - Do not print a traceback when Zeitgeist fails to start because another
    instance is already running, just show a plain error message (LP: #744818).
+ - Simplified log output format when printing to stderr.
 
 Python API:
 

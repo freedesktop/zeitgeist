@@ -132,10 +132,10 @@ def setup_handle_exit(interface):
 def setup_logger(log_level):
 	logger = logging.getLogger()
 	logger.setLevel(getattr(logging, log_level))
-	formatter = logging.Formatter("[%(asctime)s] - %(levelname)s - %(name)s - %(message)s")
 	
 	stream_handler = logging.StreamHandler()
-	stream_handler.setFormatter(formatter)
+	stream_handler.setFormatter(logging.Formatter(
+		"[%(levelname)s - %(name)s] %(message)s"))
 	logger.addHandler(stream_handler)
 	
 	try:
@@ -145,8 +145,10 @@ def setup_logger(log_level):
 		if not os.path.exists(os.path.dirname(log_file)):
 			os.makedirs(os.path.dirname(log_file))
 	try:
-		file_handler = logging.handlers.TimedRotatingFileHandler(log_file, when="midnight", backupCount=3)
-		file_handler.setFormatter(formatter)
+		file_handler = logging.handlers.TimedRotatingFileHandler(log_file,
+			when="midnight", backupCount=3)
+		file_handler.setFormatter(logging.Formatter(
+			"[%(asctime)s] - %(levelname)s - %(name)s - %(message)s"))
 		logger.addHandler(file_handler)
 	except IOError, e:
 		logging.warning("Can't log to %s: %s" % (e.filename, e.strerror))
