@@ -15,6 +15,12 @@ Engine:
    removable devices (LP: #489194).
  - Fixed datahub launching to avoid zombie processes (LP: #739780).
  - Replaced the Blacklist extension giving it a more capable API (LP: #612344).
+ - Do not print a traceback when Zeitgeist fails to start because another
+   instance is already running, just show a plain error message (LP: #744818).
+
+Python API:
+
+ - Fix bug in the connection (to Zeitgeist) recovery code (LP: #771970).
 
 2011-03-20: Zeitgeist 0.7.1 "Made in Aarhus"
 -----------------------------------------------
