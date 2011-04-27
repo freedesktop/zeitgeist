@@ -120,35 +120,10 @@ class EnumValue(int):
 		obj.__doc__ = "%s. ``(Integer value: %i)``" %(doc, obj)
 		return obj
 
-
-class Enum(object):
-
-	def __init__(self, docstring):
-		self.__doc__ = str(docstring)
-		self.__enums = {}
-
-	def __getattr__(self, name):
-		try:
-			return self.__enums[name]
-		except KeyError:
-			raise AttributeError
-
-	def register(self, value, name, docstring):
-		ids = map(int, self.__enums.values())
-		if value in ids or name in self.__enums:
-			raise ValueError
-		self.__enums[name] = EnumValue(value, docstring)
-		
 		
 def isCamelCase(text):
 	return text and text[0].isupper() and " " not in text
 	
-def get_name_or_str(obj):
-	try:
-		return str(obj.name)
-	except AttributeError:
-		return str(obj)
-
 _SYMBOLS_BY_URI = {}
 
 class Symbol(str):
