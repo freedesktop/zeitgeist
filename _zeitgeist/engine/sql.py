@@ -572,14 +572,15 @@ class WhereClause:
 	def __len__(self):
 		return len(self._conditions)
 	
-	def add(self, condition, arguments):
+	def add(self, condition, arguments=None):
 		if not condition:
 			return
 		self._conditions.append(condition)
-		if not hasattr(arguments, "__iter__"):
-			self.arguments.append(arguments)
-		else:
-			self.arguments.extend(arguments)
+		if arguments is not None:
+			if not hasattr(arguments, "__iter__"):
+				self.arguments.append(arguments)
+			else:
+				self.arguments.extend(arguments)
 			
 	def add_text_condition(self, column, value, like=False, negation=False, cache=None):
 		if like:
