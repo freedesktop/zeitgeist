@@ -123,7 +123,13 @@ class EnumValue(int):
 		
 def isCamelCase(text):
 	return text and text[0].isupper() and " " not in text
-	
+
+def get_name_or_str(obj):
+    try:
+        return str(obj.name)
+    except AttributeError:
+        return str(obj)
+
 _SYMBOLS_BY_URI = {}
 
 class Symbol(str):
