@@ -101,7 +101,7 @@ class _DBusInterface(object):
 		try:
 			return meth(*args, **kwargs)
 		except dbus.exceptions.DBusException, e:
-			reconnecting_error_handler()
+			reconnecting_error_handler(e)
 
 	def __getattr__(self, name):
 		if name not in self.__methods:
