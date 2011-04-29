@@ -276,22 +276,6 @@
 			}
 		]
 	},{
-		"timestamp" : 118,
-		"interpretation" : "stfu:OpenEvent",
-		"manifestation" : "stfu:UserActivity",
-		"actor" : "firefox",
-		"subjects" : [
-			{
-				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Something",
-				"manifestation" : "stfu:File",
-				"origin" : "file:///home",
-				"mimetype" : "text/plain",
-				"text" : "this item has not text... rly!",
-				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
-			}
-		]
-	},{
 		"timestamp" : 119,
 		"interpretation" : "stfu:EvilEvent",
 		"manifestation" : "stfu:UserActivity",
@@ -302,6 +286,22 @@
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///etc",
+				"mimetype" : "text/plain",
+				"text" : "this item has not text... rly!",
+				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
+			}
+		]
+	},{
+		"timestamp" : 118,
+		"interpretation" : "stfu:OpenEvent",
+		"manifestation" : "stfu:UserActivity",
+		"actor" : "firefox",
+		"subjects" : [
+			{
+				"uri" : "file:///tmp/foo.txt",
+				"interpretation" : "stfu:Something",
+				"manifestation" : "stfu:File",
+				"origin" : "file:///home",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"

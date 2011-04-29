@@ -1035,6 +1035,22 @@ class ResultTypeTest(_engineTestClass):
 		self.assertEquals([e[0][4] for e in events], ["frobnicator", "firefox"])
 		self.assertEquals([e.timestamp for e in events], ["105", "107"])
 
+	def testResultTypesMostRecentSubject(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostRecentSubjects)
+		self.assertEquals([e.timestamp for e in events],
+			["163", "153", "143", "123"])
+
+	def testResultTypesLeastRecentSubject(self):
+		import_events("test/data/five_events.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastRecentSubjects)
+		self.assertEquals([e.timestamp for e in events],
+			["123", "143", "153", "163"])
+
 	def testResultTypesMostPopularSubject(self):
 		import_events("test/data/five_events.js", self.engine)
 		
