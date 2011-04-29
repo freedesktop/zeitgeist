@@ -84,22 +84,6 @@
 			}
 		]
 	},{
-		"timestamp" : 105,
-		"interpretation" : "stfu:OpenEvent",
-		"manifestation" : "stfu:UserActivity",
-		"actor" : "frobnicator",
-		"subjects" : [
-			{
-				"uri" : "file:///tmp/foo.txt",
-				"interpretation" : "stfu:Document",
-				"manifestation" : "stfu:File",
-				"origin" : "file:///tmp",
-				"mimetype" : "text/plain",
-				"text" : "this item has not text... rly!",
-				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
-			}
-		]
-	},{
 		"timestamp" : 106,
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:UserActivity",
@@ -323,7 +307,21 @@
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
 		]
+	},{
+		"timestamp" : 105,
+		"interpretation" : "stfu:OpenEvent",
+		"manifestation" : "stfu:UserActivity",
+		"actor" : "frobnicator",
+		"subjects" : [
+			{
+				"uri" : "file:///tmp/foo.txt",
+				"interpretation" : "stfu:Document",
+				"manifestation" : "stfu:File",
+				"origin" : "file:///tmp",
+				"mimetype" : "text/plain",
+				"text" : "this item has not text... rly!",
+				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
+			}
+		]
 	}
-	
-	
 ]

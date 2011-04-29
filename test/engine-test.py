@@ -978,8 +978,9 @@ class ResultTypeTest(_engineTestClass):
 			ResultType.MostRecentEvents)
 		events = self.engine.get_events(ids)
 		sorted_event_ids = [
-			event.id for event in sorted(
-				events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)), reverse=True
+			event.id for event in sorted(events,
+				cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)),
+				reverse=True
 			)
 		]
 		self.assertEquals(ids, sorted_event_ids)
@@ -993,7 +994,8 @@ class ResultTypeTest(_engineTestClass):
 			ResultType.LeastRecentEvents)
 		events = self.engine.get_events(ids)
 		sorted_event_ids = [
-			event.id for event in sorted(events, cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
+			event.id for event in sorted(events,
+				cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
 		]
 		self.assertEquals(ids, sorted_event_ids)
 	
@@ -1036,16 +1038,18 @@ class ResultTypeTest(_engineTestClass):
 	def testResultTypesMostPopularSubject(self):
 		import_events("test/data/five_events.js", self.engine)
 		
-		events = self.engine.find_eventids(
+		events = self.engine.find_events(
 			TimeRange.always(), [], StorageState.Any, 0, ResultType.MostPopularSubjects)
-		self.assertEquals(events, [3, 5, 4, 1])
+		self.assertEquals([e.timestamp for e in events],
+			["143", "163", "153", "123"])
 	
 	def testResultTypesLeastPopularSubject(self):
 		import_events("test/data/five_events.js", self.engine)
 		
-		events = self.engine.find_eventids(
+		events = self.engine.find_events(
 			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularSubjects)
-		self.assertEquals(events, [1, 4, 5, 3])
+		self.assertEquals([e.timestamp for e in events],
+			["123", "153", "163", "143"])
 	
 	def testResultTypesMostRecentActor(self):
 		import_events("test/data/twenty_events.js", self.engine)
