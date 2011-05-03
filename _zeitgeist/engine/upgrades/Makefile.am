@@ -5,4 +5,5 @@ app_PYTHON = \
 	core_0_1.py \
 	core_1_2.py \
 	core_2_3.py \
+	core_3_4.py \
 	$(NULL)
