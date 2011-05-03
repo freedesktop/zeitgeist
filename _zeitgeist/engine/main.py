@@ -447,43 +447,84 @@ class ZeitgeistEngine:
 		else:
 			raise NotImplementedError, "Unsupported return_mode."
 		
-		if order == ResultType.OldestActor:
-			sql += """
-				NATURAL JOIN (
-					SELECT actor, min(timestamp) AS timestamp
-					FROM event_view %s
-					GROUP BY actor)
-				""" % ("WHERE " + where.sql if where.sql else "")
-		elif where:
-			sql += " WHERE " + where.sql
+		wheresql = " WHERE %s" % where.sql if where else ""
 		
-		sql += (
-			" ORDER BY timestamp DESC",
-			" ORDER BY timestamp ASC",
-			# thekorn: please note, event.subj_id == uri.id, as in
-			# the subj_id points directly to an entry in the uri table,
-			# so we are in fact grouping by subj_uris here
-			" GROUP BY subj_id ORDER BY timestamp DESC",
-			" GROUP BY subj_id ORDER BY timestamp ASC",
-			" GROUP BY subj_id ORDER BY COUNT(subj_id) DESC, timestamp DESC",
-			" GROUP BY subj_id ORDER BY COUNT(subj_id) ASC, timestamp ASC",
-			" GROUP BY actor ORDER BY COUNT(actor) DESC, timestamp DESC", 
-			" GROUP BY actor ORDER BY COUNT(actor) ASC, timestamp ASC",
-			" GROUP BY actor ORDER BY timestamp DESC",
-			" GROUP BY actor ORDER BY timestamp ASC",
-			" GROUP BY subj_origin ORDER BY timestamp DESC",
-			" GROUP BY subj_origin ORDER BY timestamp ASC",
-			" GROUP BY subj_origin ORDER BY COUNT(subj_origin) DESC, timestamp DESC",
-			" GROUP BY subj_origin ORDER BY COUNT(subj_origin) ASC, timestamp ASC",
-			" GROUP BY actor ORDER BY timestamp ASC",
-			" GROUP BY subj_interpretation ORDER BY timestamp DESC",
-			" GROUP BY subj_interpretation ORDER BY timestamp ASC",
-			" GROUP BY subj_interpretation ORDER BY COUNT(subj_interpretation) DESC",
-			" GROUP BY subj_interpretation ORDER BY COUNT(subj_interpretation) ASC",
-			" GROUP BY subj_mimetype ORDER BY timestamp DESC",
-			" GROUP BY subj_mimetype ORDER BY timestamp ASC",
-			" GROUP BY subj_mimetype ORDER BY COUNT(subj_mimetype) DESC",
-			" GROUP BY subj_mimetype ORDER BY COUNT(subj_mimetype) ASC")[order]
+		def group_and_sort(field, wheresql, time_asc=False, count_asc=None,
+			aggregation_type='max'):
+			
+			args = {
+				'field': field,
+				'aggregation_type': aggregation_type,
+				'where_sql': wheresql,
+				'time_sorting': 'ASC' if time_asc else 'DESC',
+				'aggregation_sql': '',
+				'order_sql': '',
+			}
+			
+			if count_asc is not None:
+				args['aggregation_sql'] = ', COUNT(%s) AS num_events' % \
+					field
+				args['order_sql'] = 'num_events %s,' % \
+					('ASC' if count_asc else 'DESC')
+			
+			return """
+				NATURAL JOIN (
+					SELECT %(field)s,
+						%(aggregation_type)s(timestamp) AS timestamp
+						%(aggregation_sql)s
+					FROM event_view %(where_sql)s
+					GROUP BY %(field)s)
+				GROUP BY %(field)s
+				ORDER BY %(order_sql)s timestamp %(time_sorting)s
+				""" % args
+		
+		if order == ResultType.MostRecentEvents:
+			sql += wheresql + " ORDER BY timestamp DESC"
+		elif order == ResultType.LeastRecentEvents:
+			sql += wheresql + " ORDER BY timestamp ASC"
+		elif order == ResultType.MostRecentSubjects:
+			# Remember, event.subj_id identifies the subject URI
+			sql += group_and_sort('subj_id', wheresql, time_asc=False)
+		elif order == ResultType.LeastRecentSubjects:
+			sql += group_and_sort('subj_id', wheresql, time_asc=True)
+		elif order == ResultType.MostPopularSubjects:
+			sql += group_and_sort('subj_id', wheresql, time_asc=False, count_asc=False)
+		elif order == ResultType.LeastPopularSubjects:
+			sql += group_and_sort('subj_id', wheresql, time_asc=True, count_asc=True)
+		elif order == ResultType.MostRecentActor:
+			sql += group_and_sort('actor', wheresql, time_asc=False)
+		elif order == ResultType.LeastRecentActor:
+			sql += group_and_sort('actor', wheresql, time_asc=True)
+		elif order == ResultType.MostPopularActor:
+			sql += group_and_sort('actor', wheresql, time_asc=False, count_asc=False)
+		elif order == ResultType.LeastPopularActor:
+			sql += group_and_sort('actor', wheresql, time_asc=True, count_asc=True)
+		elif order == ResultType.OldestActor:
+			sql += group_and_sort('actor', wheresql, time_asc=True, aggregation_type='min')
+		elif order == ResultType.MostRecentOrigin:
+			sql += group_and_sort('subj_origin', wheresql, time_asc=False)
+		elif order == ResultType.LeastRecentOrigin:
+			sql += group_and_sort('subj_origin', wheresql, time_asc=True)
+		elif order == ResultType.MostPopularOrigin:
+			sql += group_and_sort('subj_origin', wheresql, time_asc=False, count_asc=False)
+		elif order == ResultType.LeastPopularOrigin:
+			sql += group_and_sort('subj_origin', wheresql, time_asc=True, count_asc=True)
+		elif order == ResultType.MostRecentSubjectInterpretation:
+			sql += group_and_sort('subj_interpretation', wheresql, time_asc=False)
+		elif order == ResultType.LeastRecentSubjectInterpretation:
+			sql += group_and_sort('subj_interpretation', wheresql, time_asc=True)
+		elif order == ResultType.MostPopularSubjectInterpretation:
+			sql += group_and_sort('subj_interpretation', wheresql, time_asc=False, count_asc=False)
+		elif order == ResultType.LeastPopularSubjectInterpretation:
+			sql += group_and_sort('subj_interpretation', wheresql, time_asc=True, count_asc=True)
+		elif order == ResultType.MostRecentMimeType:
+			sql += group_and_sort('subj_mimetype', wheresql, time_asc=False)
+		elif order == ResultType.LeastRecentMimeType:
+			sql += group_and_sort('subj_mimetype', wheresql, time_asc=True)
+		elif order == ResultType.MostPopularMimeType:
+			sql += group_and_sort('subj_mimetype', wheresql, time_asc=False, count_asc=False)
+		elif order == ResultType.LeastPopularMimeType:
+			sql += group_and_sort('subj_mimetype', wheresql, time_asc=True, count_asc=True)
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
