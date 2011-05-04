@@ -821,7 +821,12 @@ class Event(list):
 	def set_actor(self, value):
 		self[0][Event.Actor] = value
 	actor = property(get_actor, set_actor,
-	doc="Read/write property defining the application or entity responsible for emitting the event. For applications the format of this field is base filename of the corresponding .desktop file with an `app://` URI scheme. For example `/usr/share/applications/firefox.desktop` is encoded as `app://firefox.desktop`")
+	doc="Read/write property defining the application or entity responsible "
+		"for emitting the event. For applications, the format of this field is "
+		"the base filename of the corresponding .desktop file with an "
+		"`application://` URI scheme. For example, "
+		"`/usr/share/applications/firefox.desktop` is encoded as "
+		"`application://firefox.desktop`")
 	
 	def get_origin(self):
 		return self[0][Event.Origin]
