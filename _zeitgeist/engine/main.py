@@ -484,47 +484,60 @@ class ZeitgeistEngine:
 			sql += wheresql + " ORDER BY timestamp ASC"
 		elif order == ResultType.MostRecentSubjects:
 			# Remember, event.subj_id identifies the subject URI
-			sql += group_and_sort('subj_id', wheresql, time_asc=False)
+			sql += group_and_sort("subj_id", wheresql, time_asc=False)
 		elif order == ResultType.LeastRecentSubjects:
-			sql += group_and_sort('subj_id', wheresql, time_asc=True)
+			sql += group_and_sort("subj_id", wheresql, time_asc=True)
 		elif order == ResultType.MostPopularSubjects:
-			sql += group_and_sort('subj_id', wheresql, time_asc=False, count_asc=False)
+			sql += group_and_sort("subj_id", wheresql, time_asc=False,
+				count_asc=False)
 		elif order == ResultType.LeastPopularSubjects:
-			sql += group_and_sort('subj_id', wheresql, time_asc=True, count_asc=True)
+			sql += group_and_sort("subj_id", wheresql, time_asc=True,
+				count_asc=True)
 		elif order == ResultType.MostRecentActor:
-			sql += group_and_sort('actor', wheresql, time_asc=False)
+			sql += group_and_sort("actor", wheresql, time_asc=False)
 		elif order == ResultType.LeastRecentActor:
-			sql += group_and_sort('actor', wheresql, time_asc=True)
+			sql += group_and_sort("actor", wheresql, time_asc=True)
 		elif order == ResultType.MostPopularActor:
-			sql += group_and_sort('actor', wheresql, time_asc=False, count_asc=False)
+			sql += group_and_sort("actor", wheresql, time_asc=False,
+				count_asc=False)
 		elif order == ResultType.LeastPopularActor:
-			sql += group_and_sort('actor', wheresql, time_asc=True, count_asc=True)
+			sql += group_and_sort("actor", wheresql, time_asc=True,
+				count_asc=True)
 		elif order == ResultType.OldestActor:
-			sql += group_and_sort('actor', wheresql, time_asc=True, aggregation_type='min')
+			sql += group_and_sort("actor", wheresql, time_asc=True,
+				aggregation_type="min")
 		elif order == ResultType.MostRecentOrigin:
-			sql += group_and_sort('subj_origin', wheresql, time_asc=False)
+			sql += group_and_sort("subj_origin", wheresql, time_asc=False)
 		elif order == ResultType.LeastRecentOrigin:
-			sql += group_and_sort('subj_origin', wheresql, time_asc=True)
+			sql += group_and_sort("subj_origin", wheresql, time_asc=True)
 		elif order == ResultType.MostPopularOrigin:
-			sql += group_and_sort('subj_origin', wheresql, time_asc=False, count_asc=False)
+			sql += group_and_sort("subj_origin", wheresql, time_asc=False,
+				count_asc=False)
 		elif order == ResultType.LeastPopularOrigin:
-			sql += group_and_sort('subj_origin', wheresql, time_asc=True, count_asc=True)
+			sql += group_and_sort("subj_origin", wheresql, time_asc=True,
+				count_asc=True)
 		elif order == ResultType.MostRecentSubjectInterpretation:
-			sql += group_and_sort('subj_interpretation', wheresql, time_asc=False)
+			sql += group_and_sort("subj_interpretation", wheresql,
+				time_asc=False)
 		elif order == ResultType.LeastRecentSubjectInterpretation:
-			sql += group_and_sort('subj_interpretation', wheresql, time_asc=True)
+			sql += group_and_sort("subj_interpretation", wheresql,
+				time_asc=True)
 		elif order == ResultType.MostPopularSubjectInterpretation:
-			sql += group_and_sort('subj_interpretation', wheresql, time_asc=False, count_asc=False)
+			sql += group_and_sort("subj_interpretation", wheresql,
+				time_asc=False, count_asc=False)
 		elif order == ResultType.LeastPopularSubjectInterpretation:
-			sql += group_and_sort('subj_interpretation', wheresql, time_asc=True, count_asc=True)
+			sql += group_and_sort("subj_interpretation", wheresql,
+				time_asc=True, count_asc=True)
 		elif order == ResultType.MostRecentMimeType:
-			sql += group_and_sort('subj_mimetype', wheresql, time_asc=False)
+			sql += group_and_sort("subj_mimetype", wheresql, time_asc=False)
 		elif order == ResultType.LeastRecentMimeType:
-			sql += group_and_sort('subj_mimetype', wheresql, time_asc=True)
+			sql += group_and_sort("subj_mimetype", wheresql, time_asc=True)
 		elif order == ResultType.MostPopularMimeType:
-			sql += group_and_sort('subj_mimetype', wheresql, time_asc=False, count_asc=False)
+			sql += group_and_sort("subj_mimetype", wheresql, time_asc=False,
+				count_asc=False)
 		elif order == ResultType.LeastPopularMimeType:
-			sql += group_and_sort('subj_mimetype', wheresql, time_asc=True, count_asc=True)
+			sql += group_and_sort("subj_mimetype", wheresql, time_asc=True,
+				count_asc=True)
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
