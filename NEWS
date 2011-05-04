@@ -3,6 +3,7 @@
 
 Engine:
 
+ - Fixed secondary sorting by timestamp for most ResultTypes (LP: #772041).
  - Enabled filtering by availability in FindEvents.
  - Added an origin property to events, matching that for subjects (LP: #425258).
  - Added a current_uri property to subjects, which unlike all other properties
