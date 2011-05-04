@@ -482,6 +482,16 @@ class ZeitgeistEngine:
 			sql += wheresql + " ORDER BY timestamp DESC"
 		elif order == ResultType.LeastRecentEvents:
 			sql += wheresql + " ORDER BY timestamp ASC"
+		elif order == ResultType.MostRecentEventOrigin:
+			sql += group_and_sort("origin", wheresql, time_asc=False)
+		elif order == ResultType.LeastRecentEventOrigin:
+			sql += group_and_sort("origin", wheresql, time_asc=True)
+		elif order == ResultType.MostPopularEventOrigin:
+			sql += group_and_sort("origin", wheresql, time_asc=False,
+				count_asc=False)
+		elif order == ResultType.LeastPopularEventOrigin:
+			sql += group_and_sort("origin", wheresql, time_asc=True,
+				count_asc=True)
 		elif order == ResultType.MostRecentSubjects:
 			# Remember, event.subj_id identifies the subject URI
 			sql += group_and_sort("subj_id", wheresql, time_asc=False)

@@ -1060,7 +1060,8 @@ class ResultType(object):
 	MostRecentActor = enum_factory(("The Actor that has been used to most recently"))
 	LeastRecentActor = enum_factory(("The Actor that has been used to least recently"))	
 	MostRecentOrigin = enum_factory(("The last event of each different subject origin"))
-	LeastRecentOrigin = enum_factory(("The first event of each different subject origin"))
+	LeastRecentOrigin = enum_factory(("The last event of each different subject "
+		"origin, ordered by least recently used first"))
 	MostPopularOrigin = enum_factory(("The last event of each different subject origin,"
 		"ordered by the popularity of the origins"))
 	LeastPopularOrigin = enum_factory(("The last event of each different subject origin,"
@@ -1082,6 +1083,21 @@ class ResultType(object):
 		"ordered by the popularity of the mimetype"))
 	LeastPopularMimeType = enum_factory(("One event for each mimetype only, "
 		"ordered ascendingly by popularity of the mimetype"))
+	MostRecentEventOrigin = enum_factory(("The last event of each different origin"))
+	LeastRecentEventOrigin = enum_factory(("The last event of each different "
+		" origin, ordered by least recently used first"))
+	MostPopularEventOrigin = enum_factory(("The last event of each different origin,"
+		"ordered by the popularity of the origins"))
+	LeastPopularEventOrigin = enum_factory(("The last event of each different origin,"
+		"ordered ascendingly by the popularity of the origin"))
+
+	# We should eventually migrate over to those names to disambiguate
+	# subject origin and event origin
+	# FIXME: this is breaking badly
+	#MostRecentSubjectOrigin = MostRecentOrigin
+	#LeastRecentSubjectOrigin = LeastRecentOrigin
+	#MostPopularSubjectOrigin = MostPopularOrigin
+	#LeastPopularSubjectOrigin = LeastPopularOrigin
 
 INTERPRETATION_DOC = \
 """In general terms the *interpretation* of an event or subject is an abstract

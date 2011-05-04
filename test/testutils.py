@@ -58,6 +58,7 @@ def dict2event(d):
 	for sd in subjects:
 		subj = Subject()
 		subj.uri = str(sd.get("uri", "").encode("UTF-8"))
+		subj.current_uri = str(sd.get("current_uri", "")).encode("UTF-8")
 		subj.interpretation = str(sd.get("interpretation", "").encode("UTF-8"))
 		subj.manifestation = str(sd.get("manifestation", "").encode("UTF-8"))
 		subj.origin = str(sd.get("origin", "").encode("UTF-8"))
