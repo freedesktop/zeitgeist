@@ -940,26 +940,27 @@ class FindRelatedUrisTest(_engineTestClass):
 class MoveEvent(_engineTestClass):
 		
 	def testSubjectCurrentUri(self):
-		subj = Subject.new_for_values(uri="http://x")
-		event = Event.new_for_values(subjects=[subj])
+		event = Event.new_for_values(timestamp=100, subject_uri="http://x")
 		ids1 = self.engine.insert_events([event])
 		
-		subj = Subject.new_for_values(uri="http://x", current_uri="http://y")
-		event = Event.new_for_values(interpretation=Interpretation.MOVE_EVENT, subjects=[subj])
+		subj1 = Subject.new_for_values(uri="http://x", current_uri="http://y")
+		event = Event.new_for_values(timestamp=200,
+			interpretation=Interpretation.MOVE_EVENT, subjects=[subj1])
 		ids2 = self.engine.insert_events([event])
 		
 		results = self.engine.get_events(ids1 + ids2)
-		self.assertEquals(subj.current_uri, results[0].subjects[0].current_uri)
-		self.assertEquals(subj.current_uri, results[1].subjects[0].current_uri)
+		self.assertEquals(subj1.current_uri, results[0].subjects[0].current_uri)
+		self.assertEquals(subj1.current_uri, results[1].subjects[0].current_uri)
 		
-		subj = Subject.new_for_values(uri="http://y", current_uri="http://x")
-		event = Event.new_for_values(interpretation=Interpretation.MOVE_EVENT, subjects=[subj])
+		subj2 = Subject.new_for_values(uri="http://y", current_uri="http://x")
+		event = Event.new_for_values(timestamp=300,
+			interpretation=Interpretation.MOVE_EVENT, subjects=[subj2])
 		ids3 = self.engine.insert_events([event])
 		
 		results = self.engine.get_events(ids1 + ids2 + ids3)
-		self.assertEquals("http://x", results[0].subjects[0].current_uri)
-		self.assertEquals("http://y", results[1].subjects[0].current_uri)
-		self.assertEquals("http://x", results[2].subjects[0].current_uri)
+		self.assertEquals(subj2.current_uri, results[0].subjects[0].current_uri)
+		self.assertEquals(subj1.current_uri, results[1].subjects[0].current_uri)
+		self.assertEquals(subj2.current_uri, results[2].subjects[0].current_uri)
 	
 	def testMoveEventTimeWarp(self):
 		def get_uris():
