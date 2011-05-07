@@ -87,29 +87,6 @@ def get_timestamp_for_now():
 	Return the current time in milliseconds since the Unix Epoch.
 	"""
 	return int(time.time() * 1000)
-		
-
-class enum_factory(object):
-	"""factory for enums"""
-	counter = 0
-	
-	def __init__(self, doc):
-		self.__doc__ = doc
-		self._id = enum_factory.counter
-		enum_factory.counter += 1
-		
-class EnumMeta(type):
-	"""Metaclass to register enums in correct order and assign interger
-	values to them
-	"""
-	def __new__(cls, name, bases, attributes):
-		enums = filter(
-			lambda x: isinstance(x[1], enum_factory), attributes.iteritems()
-		)
-		enums = sorted(enums, key=lambda x: x[1]._id)
-		for n, (key, value) in enumerate(enums):
-			attributes[key] = EnumValue(n, value.__doc__)
-		return super(EnumMeta, cls).__new__(cls, name, bases, attributes)
 
 class EnumValue(int):
 	"""Class which behaves like an int, but has an additional docstring"""
@@ -397,19 +374,8 @@ class TimeRange(list):
 				result.end = time_range.end
 		
 		return result
-		
-		
-class RelevantResultType(object):
-	"""
-	An enumeration class used to define how query results should be returned
-	from the Zeitgeist engine.
-	"""
-	__metaclass__ = EnumMeta
-	
-	Recent = enum_factory("All uris with the most recent uri first")
-	Related = enum_factory("All uris with the most related one first")
-	
-	
+
+
 class Subject(list):
 	"""
 	Represents a subject of an :class:`Event`. This class is both used to
@@ -1010,16 +976,23 @@ class DataSource(list):
 	def __repr__(self):
 		return "%s: %s (%s)" % (self.__class__.__name__, self[self.UniqueId],
 			self[self.Name])
-	
-	
+
 
 NULL_EVENT = ([], [], [])
 """Minimal Event representation, a tuple containing three empty lists.
 This `NULL_EVENT` is used by the API to indicate a queried but not
 available (not found or blocked) Event.
 """
-		
-		
+
+class RelevantResultType(object):
+	"""
+	An enumeration class used to define how query results should be returned
+	from the Zeitgeist engine.
+	"""
+	
+	Recent = EnumValue(0, "All uris with the most recent uri first")
+	Related = EnumValue(1, "All uris with the most related one first")
+
 class StorageState(object):
 	"""
 	Enumeration class defining the possible values for the storage state
@@ -1030,89 +1003,94 @@ class StorageState(object):
 	deleted files, files on unplugged USB drives, files available only when
 	a network is available etc.
 	"""
-	__metaclass__ = EnumMeta
 	
-	NotAvailable = enum_factory(("The storage medium of the events "
-		"subjects must not be available to the user"))
-	Available = enum_factory(("The storage medium of all event subjects "
-		"must be immediately available to the user"))
-	Any = enum_factory("The event subjects may or may not be available")
-
+	NotAvailable = EnumValue(0, "The storage medium of the events "
+		"subjects must not be available to the user")
+	Available = EnumValue(1, "The storage medium of all event subjects "
+		"must be immediately available to the user")
+	Any = EnumValue(2, "The event subjects may or may not be available")
 
 class ResultType(object):
 	"""
 	An enumeration class used to define how query results should be returned
 	from the Zeitgeist engine.
 	"""
-	__metaclass__ = EnumMeta
 	
-	MostRecentEvents = enum_factory("All events with the most recent events first")
-	LeastRecentEvents = enum_factory("All events with the oldest ones first")
-	MostRecentSubjects = enum_factory(("One event for each subject only, "
-		"ordered with the most recent events first"))
-	LeastRecentSubjects = enum_factory(("One event for each subject only, "
-		"ordered with oldest events first"))
-	MostPopularSubjects = enum_factory(("One event for each subject only, "
-		"ordered by the popularity of the subject"))
-	LeastPopularSubjects = enum_factory(("One event for each subject only, "
-		"ordered ascendingly by popularity of the subject"))
-	MostPopularActor = enum_factory(("The last event of each different actor,"
-		"ordered by the popularity of the actor"))
-	LeastPopularActor = enum_factory(("The last event of each different actor,"
-		"ordered ascendingly by the popularity of the actor"))
-	MostRecentActor = enum_factory(("The Actor that has been used to most recently"))
-	LeastRecentActor = enum_factory(("The Actor that has been used to least recently"))	
-	MostRecentOrigin = enum_factory(("The last event of each different subject origin"))
-	LeastRecentOrigin = enum_factory(("The last event of each different subject "
-		"origin, ordered by least recently used first"))
-	MostPopularOrigin = enum_factory(("The last event of each different subject origin,"
-		"ordered by the popularity of the origins"))
-	LeastPopularOrigin = enum_factory(("The last event of each different subject origin,"
-		"ordered ascendingly by the popularity of the origin"))
-	OldestActor = enum_factory(("The first event of each different actor"))
-	MostRecentSubjectInterpretation = enum_factory(("One event for each subject interpretation only, "
-		"ordered with the most recent events first"))
-	LeastRecentSubjectInterpretation = enum_factory(("One event for each subject interpretation only, "
-		"ordered with the least recent events first"))
-	MostPopularSubjectInterpretation = enum_factory(("One event for each subject interpretation only, "
-		"ordered by the popularity of the subject interpretation"))
-	LeastPopularSubjectInterpretation = enum_factory(("One event for each subject interpretation only, "
-		"ordered ascendingly by popularity of the subject interpretation"))
-	MostRecentMimeType = enum_factory(("One event for each mimetype only, "
-		"ordered with the most recent events first"))
-	LeastRecentMimeType = enum_factory(("One event for each mimetype only, "
-		"ordered with the least recent events first"))
-	MostPopularMimeType = enum_factory(("One event for each mimetype only, "
-		"ordered by the popularity of the mimetype"))
-	LeastPopularMimeType = enum_factory(("One event for each mimetype only, "
-		"ordered ascendingly by popularity of the mimetype"))
-	MostRecentCurrentUri = enum_factory(("One event for each subject only "
+	MostRecentEvents = EnumValue(0,
+		"All events with the most recent events first")
+	LeastRecentEvents = EnumValue(1, "All events with the oldest ones first")
+	MostRecentSubjects = EnumValue(2, "One event for each subject only, "
+		"ordered with the most recent events first")
+	LeastRecentSubjects = EnumValue(3, "One event for each subject only, "
+		"ordered with oldest events first")
+	MostPopularSubjects = EnumValue(4, "One event for each subject only, "
+		"ordered by the popularity of the subject")
+	LeastPopularSubjects = EnumValue(5, "One event for each subject only, "
+		"ordered ascendingly by popularity of the subject")
+	MostPopularActor = EnumValue(6, "The last event of each different actor,"
+		"ordered by the popularity of the actor")
+	LeastPopularActor = EnumValue(7, "The last event of each different actor,"
+		"ordered ascendingly by the popularity of the actor")
+	MostRecentActor = EnumValue(8,
+		"The Actor that has been used to most recently")
+	LeastRecentActor = EnumValue(9,
+		"The Actor that has been used to least recently")
+	MostRecentOrigin = EnumValue(10,
+		"The last event of each different subject origin")
+	LeastRecentOrigin = EnumValue(11, "The last event of each different "
+		"subject origin, ordered by least recently used first")
+	MostPopularOrigin = EnumValue(12, "The last event of each different "
+		"subject origin, ordered by the popularity of the origins")
+	LeastPopularOrigin = EnumValue(13, "The last event of each different "
+		"subject origin, ordered ascendingly by the popularity of the origin")
+	OldestActor = EnumValue(14, "The first event of each different actor")
+	MostRecentSubjectInterpretation = EnumValue(15, "One event for each "
+		"subject interpretation only, ordered with the most recent "
+		"events first")
+	LeastRecentSubjectInterpretation = EnumValue(16, "One event for each "
+		"subject interpretation only, ordered with the least recent "
+		"events first")
+	MostPopularSubjectInterpretation = EnumValue(17, "One event for each "
+		"subject interpretation only, ordered by the popularity of the "
+		"subject interpretation")
+	LeastPopularSubjectInterpretation = EnumValue(18, "One event for each "
+		"subject interpretation only, ordered ascendingly by popularity of "
+		"the subject interpretation")
+	MostRecentMimeType = EnumValue(19, "One event for each mimetype only, "
+		"ordered with the most recent events first")
+	LeastRecentMimeType = EnumValue(20, "One event for each mimetype only, "
+		"ordered with the least recent events first")
+	MostPopularMimeType = EnumValue(21, "One event for each mimetype only, "
+		"ordered by the popularity of the mimetype")
+	LeastPopularMimeType = EnumValue(22, "One event for each mimetype only, "
+		"ordered ascendingly by popularity of the mimetype")
+	MostRecentCurrentUri = EnumValue(23, "One event for each subject only "
 		"(by current_uri instead of uri), "
-		"ordered with the most recent events first"))
-	LeastRecentCurrentUri = enum_factory(("One event for each subject only "
+		"ordered with the most recent events first")
+	LeastRecentCurrentUri = EnumValue(24, "One event for each subject only "
 		"(by current_uri instead of uri), "
-		"ordered with oldest events first"))
-	MostPopularCurrentUri = enum_factory(("One event for each subject only "
+		"ordered with oldest events first")
+	MostPopularCurrentUri = EnumValue(25, "One event for each subject only "
 		"(by current_uri instead of uri), "
-		"ordered by the popularity of the subject"))
-	LeastPopularCurrentUri = enum_factory(("One event for each subject only "
+		"ordered by the popularity of the subject")
+	LeastPopularCurrentUri = EnumValue(26, "One event for each subject only "
 		"(by current_uri instead of uri), "
-		"ordered ascendingly by popularity of the subject"))
-	MostRecentEventOrigin = enum_factory(("The last event of each different origin"))
-	LeastRecentEventOrigin = enum_factory(("The last event of each different "
-		" origin, ordered by least recently used first"))
-	MostPopularEventOrigin = enum_factory(("The last event of each different origin,"
-		"ordered by the popularity of the origins"))
-	LeastPopularEventOrigin = enum_factory(("The last event of each different origin,"
-		"ordered ascendingly by the popularity of the origin"))
+		"ordered ascendingly by popularity of the subject")
+	MostRecentEventOrigin = EnumValue(27,
+		"The last event of each different origin")
+	LeastRecentEventOrigin = EnumValue(28, "The last event of each "
+		" different origin, ordered by least recently used first")
+	MostPopularEventOrigin = EnumValue(29, "The last event of each "
+		"different origin, ordered by the popularity of the origins")
+	LeastPopularEventOrigin = EnumValue(30, "The last event of each "
+		"different origin, ordered ascendingly by the popularity of the origin")
 
 	# We should eventually migrate over to those names to disambiguate
-	# subject origin and event origin
-	# FIXME: this is breaking badly
-	#MostRecentSubjectOrigin = MostRecentOrigin
-	#LeastRecentSubjectOrigin = LeastRecentOrigin
-	#MostPopularSubjectOrigin = MostPopularOrigin
-	#LeastPopularSubjectOrigin = LeastPopularOrigin
+	# subject origin and event origin:
+	MostRecentSubjectOrigin = MostRecentOrigin
+	LeastRecentSubjectOrigin = LeastRecentOrigin
+	MostPopularSubjectOrigin = MostPopularOrigin
+	LeastPopularSubjectOrigin = LeastPopularOrigin
 
 INTERPRETATION_DOC = \
 """In general terms the *interpretation* of an event or subject is an abstract
