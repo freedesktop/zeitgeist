@@ -124,7 +124,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	
 	def testMonitorInsertEvents(self):
 		result = []
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		events = parse_events("test/data/five_events.js")
 		
@@ -145,7 +145,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		
 	def testMonitorDeleteEvents(self):
 		result = []
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		events = parse_events("test/data/five_events.js")
 		
 		def notify_insert_handler(time_range, events):
@@ -167,7 +167,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	
 	def testMonitorDeleteNonExistingEvent(self):
 		result = []
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop(None)
 		events = parse_events("test/data/five_events.js")
 		
 		def timeout():
@@ -194,13 +194,8 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	def testTwoMonitorsDeleteEvents(self):
 		result1 = []
 		result2 = []
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		events = parse_events("test/data/five_events.js")
-		
-		def timeout ():
-			mainloop.quit()
-			self.fail("Test case timed out")
-			return False
 		
 		def check_ok():
 			if len(result1) == 2 and len(result2) == 2:
@@ -225,19 +220,18 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			lambda x, y: x, notify_delete_handler2)
 		
 		self.client.insert_events(events)
-		gobject.timeout_add_seconds (5, timeout)
 		mainloop.run()
 		
 		self.assertEquals(2, len(result1))
-		self.assertEquals(2, len(result1))
+		self.assertEquals(2, len(result2))
 
 	def testMonitorInstallRemoval(self):
 		result = []
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		
 		def notify_insert_handler(notification_type, events):
-		     pass
+			pass
 		
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
@@ -247,8 +241,8 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			notify_insert_handler, notify_delete_handler)
 		
 		def removed_handler(result_state):
-		        result.append(result_state)
-		        mainloop.quit()
+			result.append(result_state)
+			mainloop.quit()
 		
 		self.client.remove_monitor(mon, removed_handler)
 		mainloop.run()
@@ -298,9 +292,9 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(uris, ["i1", "i3"])
 		
 	def testFindEventsForValues(self):
-		mainloop = gobject.MainLoop() # we don't have an *AndWait-helper method
-									  # for the method we would like to test,
-									  # this is why we need our own local loop
+		# We don't have an *AndWait-helper method for the method we would
+		# like to test, this is why we need our own local loop
+		mainloop = self.create_mainloop()
 		events = parse_events("test/data/apriori_events.js")
 		self.insertEventsAndWait(events)
 		
@@ -313,9 +307,9 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		mainloop.run()
 		self.assertEquals(len(result), 1)
 		self.assertEquals(result[0].actor, "firefox")
-		
+	
 	def testFindEventsWithStringPayload(self):
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		payload = "Hello World"
 		def callback(ids):
 			def callback2(events):
@@ -328,7 +322,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		mainloop.run()
 		
 	def testFindEventsWithNonASCIIPayload(self):
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		payload = u"äöü".encode("utf-8")
 		def callback(ids):
 			def callback2(events):
@@ -341,7 +335,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		mainloop.run()
 		
 	def testFindEventsWithBinaryPayload(self):
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		payload = pickle.dumps(1234)
 		def callback(ids):
 			def callback2(events):
@@ -488,20 +482,8 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		ds = list(self.client._registry.GetDataSources())[0]
 		self.assertEquals(ds[DataSource.Enabled], True)
 	
-	def _create_mainloop(self):
-		mainloop = gobject.MainLoop()
-		
-		def cb_timeout():
-			mainloop.quit()
-			self.fail("Timed out -- operations not completed in reasonable time.")
-		
-		# Add an arbitrary timeout so this test won't block if it fails
-		gobject.timeout_add_seconds(5, cb_timeout)
-		
-		return mainloop
-	
 	def testDataSourceSignals(self):
-		mainloop = self._create_mainloop()
+		mainloop = self.create_mainloop()
 		
 		global hit
 		hit = 0
@@ -541,7 +523,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		mainloop.run()
 	
 	def testRegisterDataSourceEnabledCallbackOnRegister(self):
-		mainloop = self._create_mainloop()
+		mainloop = self.create_mainloop()
 		
 		def callback(enabled):
 			mainloop.quit()
@@ -550,7 +532,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		mainloop.run()
 	
 	def testRegisterDataSourceEnabledCallbackOnChange(self):
-		mainloop = self._create_mainloop()
+		mainloop = self.create_mainloop()
 		global hit
 		hit = 0
 		

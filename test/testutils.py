@@ -4,6 +4,8 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2010 Markus Korn <thekorn@gmx.de>
+# Copyright © 2011 Collabora Ltd.
+#             By Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -167,7 +169,7 @@ class RemoteTestCase (unittest.TestCase):
 		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		result = []
 		
 		def collect_ids_and_quit(ids):
@@ -188,7 +190,7 @@ class RemoteTestCase (unittest.TestCase):
 		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		result = []
 		
 		def collect_ids_and_quit(ids):
@@ -210,7 +212,7 @@ class RemoteTestCase (unittest.TestCase):
 		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		result = []
 		
 		def collect_events_and_quit(events):
@@ -230,7 +232,7 @@ class RemoteTestCase (unittest.TestCase):
 		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		result = []
 		
 		def collect_timestamp_and_quit(timestamps):
@@ -248,7 +250,7 @@ class RemoteTestCase (unittest.TestCase):
 		This method is basically just a hack to invoke an async method
 		in a blocking manner.
 		"""
-		mainloop = gobject.MainLoop()
+		mainloop = self.create_mainloop()
 		result = []
 		
 		def callback(uri_list):
@@ -259,6 +261,40 @@ class RemoteTestCase (unittest.TestCase):
 			num_events=num_events, result_type=result_type)
 		mainloop.run()
 		return result
+	
+	def create_mainloop(self, timeout=5):
+		
+		class MainLoopWithFailure(object):
+			
+			def __init__(self):
+				self._mainloop = gobject.MainLoop()
+				self.failed = False
+			
+			def __getattr__(self, name):
+				return getattr(self._mainloop, name)
+			
+			def fail(self, message):
+				self.failed = True
+				self.failure_message = message
+				mainloop.quit()
+			
+			def run(self):
+				assert self.failed is False
+				self._mainloop.run()
+				if self.failed:
+					raise AssertionError, self.failure_message
+		
+		mainloop = MainLoopWithFailure()
+		if timeout is not None:
+			def cb_timeout():
+				mainloop.fail("Timed out -- "
+					"operations not completed in reasonable time.")
+				return False # stop timeout from being called again
+			
+			# Add an arbitrary timeout so this test won't block if it fails
+			gobject.timeout_add_seconds(timeout, cb_timeout)
+		
+		return mainloop
 
 class DBusPrivateMessageBus(object):
 	DISPLAY = ":27"
