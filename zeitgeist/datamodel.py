@@ -98,7 +98,6 @@ class enum_factory(object):
 		self._id = enum_factory.counter
 		enum_factory.counter += 1
 		
-		
 class EnumMeta(type):
 	"""Metaclass to register enums in correct order and assign interger
 	values to them
@@ -112,23 +111,22 @@ class EnumMeta(type):
 			attributes[key] = EnumValue(n, value.__doc__)
 		return super(EnumMeta, cls).__new__(cls, name, bases, attributes)
 
-
 class EnumValue(int):
-	"""class which behaves like an int, but has an additional docstring"""
+	"""Class which behaves like an int, but has an additional docstring"""
+	
 	def __new__(cls, value, doc=""):
 		obj = super(EnumValue, cls).__new__(EnumValue, value)
 		obj.__doc__ = "%s. ``(Integer value: %i)``" %(doc, obj)
 		return obj
 
-		
 def isCamelCase(text):
 	return text and text[0].isupper() and " " not in text
 
 def get_name_or_str(obj):
-    try:
-        return str(obj.name)
-    except AttributeError:
-        return str(obj)
+	try:
+		return str(obj.name)
+	except AttributeError:
+		return str(obj)
 
 _SYMBOLS_BY_URI = {}
 
