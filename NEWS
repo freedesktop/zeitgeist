@@ -8,6 +8,7 @@ Engine:
  - Added an origin property to events, matching that for subjects (LP: #425258).
  - Added a current_uri property to subjects, which unlike all other properties
    is mutable.
+ - Add new sorting types for origin and current_uri.
  - Added support for "move" events, which automatically update the current_uri
    property where appropriate (LP: #602211).
  - Fixed inconsistencies caused by the internal cache not being updated when
@@ -23,6 +24,10 @@ Engine:
 Python API:
 
  - Fix bug in the connection (to Zeitgeist) recovery code (LP: #771970).
+ - Added new ResultTypes: {Most,Least}{Recent,Popular}{CurrentUri,EventOrigin}.
+ - Created *SubjectOrigin alias for all {Most,Least}{Recent,Popular}Origin
+   ResultTypes.
+ - Minor documentation improvements (fixed typos, etc).
 
 2011-03-20: Zeitgeist 0.7.1 "Made in Aarhus"
 -----------------------------------------------
