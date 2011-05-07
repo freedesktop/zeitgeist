@@ -960,7 +960,46 @@ class MoveEvent(_engineTestClass):
 		self.assertEquals("http://x", results[0].subjects[0].current_uri)
 		self.assertEquals("http://y", results[1].subjects[0].current_uri)
 		self.assertEquals("http://x", results[2].subjects[0].current_uri)
+	
+	def testMoveEventTimeWarp(self):
+		def get_uris():
+			return [(e[0][1], e[1][0][7]) for e in self.engine.find_events(
+				TimeRange.always(), [Event.new_for_values(
+					interpretation="!"+Interpretation.MOVE_EVENT)],
+				StorageState.Any, 0,
+				ResultType.LeastRecentEvents)]
 		
+		# Let's insert some test events...
+		s1 = Event.new_for_values(timestamp=100, subject_uri="A")
+		s2 = Event.new_for_values(timestamp=200, subject_uri="A")
+		s3 = Event.new_for_values(timestamp=300, subject_uri="A")
+		s4 = Event.new_for_values(timestamp=400, subject_uri="B")
+		s5 = Event.new_for_values(timestamp=500, subject_uri="A")
+		self.engine.insert_events([s1, s2, s3, s4, s5])
+		self.assertEquals(get_uris(), [
+			(s1.timestamp, "A"), (s2.timestamp, "A"),
+			(s3.timestamp, "A"), (s4.timestamp, "B"),
+			(s5.timestamp, "A")])
+		
+		# Now we insert a move event and ensure only older events are affected
+		m1 = Event.new_for_values(timestamp=500,
+			interpretation=Interpretation.MOVE_EVENT, subject_uri="A",
+			subject_current_uri="X")
+		self.engine.insert_events([m1])
+		uris = get_uris()
+		self.assertEquals(uris, [
+			(s1.timestamp, "X"), (s2.timestamp, "X"),
+			(s3.timestamp, "X"), (s4.timestamp, "B"),
+			(s5.timestamp, "A")])
+		
+		# While we're at it, let's ensure both the cache and the DB are fine
+		self.engine._event_cache.clear()
+		self.assertEquals(get_uris(), uris)
+		
+		# FIXME: We need a lot more evil tests here to fully reproduce bug
+		# 778140, but the more advanced cases are left for the next release
+		# after 0.8.0.
+	
 	def testIllegalMoveEvent(self):
 		subj = Subject.new_for_values(uri="http://x", current_uri="http://y")
 		event = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT, subjects=[subj])

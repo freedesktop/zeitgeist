@@ -666,14 +666,18 @@ class ZeitgeistEngine:
 				if not subject.current_uri:
 					subject.current_uri = subject.uri
 				elif not subject.uri == subject.current_uri:
-					raise ValueError("Illegal event: unless event.interpretation is 'MOVE_EVENT' then subject.uri and subject.current_uri have to be the same")
+					raise ValueError("Illegal event: unless "
+						"event.interpretation is 'MOVE_EVENT' then subject.uri "
+						"and subject.current_uri have to be the same")
 		if event.interpretation == Interpretation.MOVE_EVENT:
 			for subject in event.subjects:
 				if subject.uri == subject.current_uri or not subject.current_uri:
-					raise ValueError("Redundant event: event.interpretation indicates the uri has been moved yet the subject.uri and subject.current_uri are identical")
+					raise ValueError("Redundant event: event.interpretation "
+						"indicates the uri has been moved yet the subject.uri "
+						"and subject.current_uri are identical")
 			
-		id = self.next_event_id()
-		event[0][Event.Id] = id		
+		event_id = self.next_event_id()
+		event[0][Event.Id] = event_id
 		event = self.extensions.apply_pre_insert(event, sender)
 		if event is None:
 			raise AssertionError("Inserting of event was blocked by an extension")
@@ -732,7 +736,7 @@ class ZeitgeistEngine:
 						(SELECT id FROM text WHERE value=?),
 						(SELECT id from storage WHERE value=?)
 					)""", (
-						id,
+						event_id,
 						event.timestamp,
 						self._interpretation[event.interpretation],
 						self._manifestation[event.manifestation],
@@ -770,17 +774,19 @@ class ZeitgeistEngine:
 					UPDATE event
 					SET subj_id_current=(SELECT id FROM uri WHERE value=?)
 					WHERE subj_id_current=(SELECT id FROM uri WHERE value=?)
-						AND interpretation!=?
+						AND interpretation!=? AND timestamp<?
 						""", (subject.current_uri, subject.uri,
-							self._interpretation[Interpretation.MOVE_EVENT]))
+							self._interpretation[Interpretation.MOVE_EVENT],
+							event.timestamp))
 			# The cache has to be updated
-			for id, c_event in self._event_cache:
-				for i, c_subject in enumerate(c_event.subjects):
-					if c_subject.current_uri == subject.uri and \
+			for _id, c_event in self._event_cache:
+				if c_event.timestamp < event.timestamp:
+					for c_subject in c_event.subjects:
+						if c_subject.current_uri == subject.uri and \
 						not c_event.interpretation == Interpretation.MOVE_EVENT:
-						self._event_cache[id].subjects[i].current_uri = subject.current_uri
-						
-		return id
+							c_subject.current_uri = subject.current_uri
+		
+		return event_id
 	
 	def _store_payload (self, event):
 		# TODO: Rigth now payloads are not unique and every event has its
