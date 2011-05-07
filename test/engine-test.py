@@ -1001,6 +1001,18 @@ class MoveEvent(_engineTestClass):
 		# 778140, but the more advanced cases are left for the next release
 		# after 0.8.0.
 	
+	def testMoveEventTimeWarp2(self):
+		# There is no guarantee events are logged in the correct order.
+		# This is why the timestamp has to be checked.....
+		import_events("test/data/five_events.js", self.engine)
+		import_events("test/data/five_events_ext_move.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0,
+			ResultType.LeastRecentCurrentUri)
+		self.assertEquals([e.timestamp for e in events],
+			["123", "153", "200"])
+	
 	def testIllegalMoveEvent(self):
 		subj = Subject.new_for_values(uri="http://x", current_uri="http://y")
 		event = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT, subjects=[subj])
@@ -1106,7 +1118,47 @@ class ResultTypeTest(_engineTestClass):
 			TimeRange.always(), [], StorageState.Any, 0, ResultType.LeastPopularSubjects)
 		self.assertEquals([e.timestamp for e in events],
 			["123", "153", "163", "143"])
+
+	def testResultTypesMostRecentCurrentUri(self):
+		import_events("test/data/five_events.js", self.engine)
+		import_events("test/data/five_events_ext_move.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0,
+			ResultType.MostRecentCurrentUri)
+		self.assertEquals([e.timestamp for e in events],
+			["200", "153", "123"])
+
+	def testResultTypesLeastRecentCurrentUri(self):
+		import_events("test/data/five_events.js", self.engine)
+		import_events("test/data/five_events_ext_move.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0,
+			ResultType.LeastRecentCurrentUri)
+		self.assertEquals([e.timestamp for e in events],
+			["123", "153", "200"])
+
+	def testResultTypesMostPopularCurrentUri(self):
+		import_events("test/data/five_events.js", self.engine)
+		import_events("test/data/five_events_ext_move.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0,
+			ResultType.MostPopularCurrentUri)
+		self.assertEquals([e.timestamp for e in events],
+			["200", "123", "153"])
 	
+	def testResultTypesLeastPopularCurrentUri(self):
+		import_events("test/data/five_events.js", self.engine)
+		import_events("test/data/five_events_ext_move.js", self.engine)
+		
+		events = self.engine.find_events(
+			TimeRange.always(), [], StorageState.Any, 0,
+			ResultType.LeastPopularSubjects)
+		self.assertEquals([e.timestamp for e in events],
+			["123", "153", "163", "200"])
+
 	def testResultTypesMostRecentActor(self):
 		import_events("test/data/twenty_events.js", self.engine)
 		

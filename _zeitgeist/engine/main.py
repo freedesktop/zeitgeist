@@ -503,6 +503,16 @@ class ZeitgeistEngine:
 		elif order == ResultType.LeastPopularSubjects:
 			sql += group_and_sort("subj_id", wheresql, time_asc=True,
 				count_asc=True)
+		elif order == ResultType.MostRecentCurrentUri:
+			sql += group_and_sort("subj_id_current", wheresql, time_asc=False)
+		elif order == ResultType.LeastRecentCurrentUri:
+			sql += group_and_sort("subj_id_current", wheresql, time_asc=True)
+		elif order == ResultType.MostPopularCurrentUri:
+			sql += group_and_sort("subj_id_current", wheresql, time_asc=False,
+				count_asc=False)
+		elif order == ResultType.LeastPopularCurrentUri:
+			sql += group_and_sort("subj_id_current", wheresql, time_asc=True,
+				count_asc=True)
 		elif order == ResultType.MostRecentActor:
 			sql += group_and_sort("actor", wheresql, time_asc=False)
 		elif order == ResultType.LeastRecentActor:

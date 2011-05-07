@@ -1088,6 +1088,18 @@ class ResultType(object):
 		"ordered by the popularity of the mimetype"))
 	LeastPopularMimeType = enum_factory(("One event for each mimetype only, "
 		"ordered ascendingly by popularity of the mimetype"))
+	MostRecentCurrentUri = enum_factory(("One event for each subject only "
+		"(by current_uri instead of uri), "
+		"ordered with the most recent events first"))
+	LeastRecentCurrentUri = enum_factory(("One event for each subject only "
+		"(by current_uri instead of uri), "
+		"ordered with oldest events first"))
+	MostPopularCurrentUri = enum_factory(("One event for each subject only "
+		"(by current_uri instead of uri), "
+		"ordered by the popularity of the subject"))
+	LeastPopularCurrentUri = enum_factory(("One event for each subject only "
+		"(by current_uri instead of uri), "
+		"ordered ascendingly by popularity of the subject"))
 	MostRecentEventOrigin = enum_factory(("The last event of each different origin"))
 	LeastRecentEventOrigin = enum_factory(("The last event of each different "
 		" origin, ordered by least recently used first"))
