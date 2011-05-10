@@ -66,7 +66,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 	:const:`org.gnome.zeitgeist.DataSourceRegistry`.
 	"""
 	PUBLIC_METHODS = ["register_data_source", "get_data_sources",
-		"set_data_source_enabled"]
+		"set_data_source_enabled", "get_data_source_from_id"]
 	
 	def __init__ (self, engine):
 	
@@ -125,7 +125,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 	
 	def unload(self):
 		self._write_to_disk()
-	
+
 	# PUBLIC
 	def register_data_source(self, unique_id, name, description, templates):
 		source = DataSource(str(unique_id), unicode(name), unicode(description),
@@ -152,7 +152,14 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			datasource.enabled = enabled
 			self.DataSourceEnabled(datasource.unique_id, enabled)
 		return True
-	
+
+	# PUBLIC
+	def get_data_source_from_id(self, unique_id):
+		if unique_id in self._registry:
+			return self._registry[unique_id]
+		else:
+			raise KeyError("DataSource not found: %s" % unique_id)
+
 	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
 						 in_signature="sssa("+constants.SIG_EVENT+")",
 						 out_signature="b",
@@ -210,6 +217,13 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		:rtype: Bool
 		"""
 		self.set_data_source_enabled(unique_id, enabled)
+
+	@dbus.service.method(REGISTRY_DBUS_INTERFACE,
+						 in_signature="s",
+						 out_signature=SIG_FULL_DATASOURCE,
+						 sender_keyword="sender")
+	def GetDataSourceFromId(self, unique_id, sender):
+		return self.get_data_source_from_id(unique_id)
 
 	@dbus.service.signal(REGISTRY_DBUS_INTERFACE,
 						signature="sb")

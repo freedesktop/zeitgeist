@@ -16,6 +16,7 @@ from subprocess import Popen, PIPE
 import gobject
 from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
+from dbus.exceptions import DBusException
 
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -481,7 +482,19 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
 		ds = list(self.client._registry.GetDataSources())[0]
 		self.assertEquals(ds[DataSource.Enabled], True)
-	
+
+	def testGetDataSourceFromId(self):
+		# Insert a data-source -- and then retrieve it by id
+		self.client._registry.RegisterDataSource(*self._ds1)
+		ds = self.client._registry.GetDataSourceFromId(self._ds1[0])
+		self._assertDataSourceEquals(ds, self._ds1)
+		
+		# Retrieve a data-source from an id that has not been registered
+		try:
+			self.client._registry.GetDataSourceFromId(self._ds2[0])
+		except DBusException, dbe:
+			print dbe.message.strip("\n").split("\n")[-1]
+		
 	def testDataSourceSignals(self):
 		mainloop = self.create_mainloop()
 		
@@ -552,7 +565,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		
 		# Disable the data-source
 		self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
-		
+
 		mainloop.run()
 
 class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
