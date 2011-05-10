@@ -490,11 +490,10 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		self._assertDataSourceEquals(ds, self._ds1)
 		
 		# Retrieve a data-source from an id that has not been registered
-		try:
-			self.client._registry.GetDataSourceFromId(self._ds2[0])
-		except DBusException, dbe:
-			print dbe.message.strip("\n").split("\n")[-1]
-		
+		self.assertRaises(DBusException,
+				  self.client._registry.GetDataSourceFromId,
+				  self._ds2[0])
+
 	def testDataSourceSignals(self):
 		mainloop = self.create_mainloop()
 		
