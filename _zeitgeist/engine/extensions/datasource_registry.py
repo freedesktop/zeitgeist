@@ -223,6 +223,15 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 						 out_signature=SIG_FULL_DATASOURCE,
 						 sender_keyword="sender")
 	def GetDataSourceFromId(self, unique_id, sender):
+		"""
+		Get a specific data-source from its unique id.
+		If no data-source has been registered to the specified unique
+		id, a KeyError is raised.
+
+		:param unique_id: unique string identifying a data-source
+		:type unique_id: string
+		:returns: class:`DataSource <zeitgeist.datamodel.DataSource>` object 
+		"""
 		return self.get_data_source_from_id(unique_id)
 
 	@dbus.service.signal(REGISTRY_DBUS_INTERFACE,
