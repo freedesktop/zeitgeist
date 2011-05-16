@@ -26,6 +26,7 @@ import sqlite3
 import logging
 import time
 import os
+import shutil
 
 from _zeitgeist.engine import constants
 
@@ -113,7 +114,8 @@ def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 	the run(cursor) method of those modules until new_version is reached
 	"""
 	for i in xrange(old_version, new_version):
-		# Fire of the right upgrade module
+		_set_schema_version(cursor, schema_name, -1)
+		# Fire off the right upgrade module
 		log.info("Upgrading database '%s' from version %s to %s. This may take a while" %
 		         (schema_name, i, i+1))
 		upgrader_name = "%s_%s_%s" % (schema_name, i, i+1)
@@ -122,6 +124,8 @@ def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 		
 		# Update the schema version
 		_set_schema_version(cursor, schema_name, i+1)
+		_do_schema_backup()
+
 	log.info("Upgrade succesful")
 
 def _check_core_schema_upgrade (cursor):
@@ -133,10 +137,19 @@ def _check_core_schema_upgrade (cursor):
 			return True
 		else:
 			try:
+				if core_schema_version <= -1:
+					cursor.connection.commit()
+					cursor.connection.close()
+					_do_schema_restore()
+					cursor = _connect_to_db(constants.DATABASE_FILE)
+					core_schema_version = _get_schema_version(cursor, constants.CORE_SCHEMA)
+					log.info("Database corrupted, upgrading from version %s" % core_schema_version)
+
 				_do_schema_upgrade (cursor,
 				                    constants.CORE_SCHEMA,
 				                    core_schema_version,
 				                    constants.CORE_SCHEMA_VERSION)
+
 				# Don't return here. The upgrade process might depend on the
 				# tables, indexes, and views being set up (to avoid code dup)
 				log.info("Running post upgrade setup")
@@ -148,15 +161,24 @@ def _check_core_schema_upgrade (cursor):
 	else:
 		return False
 
+def _do_schema_backup ():
+	shutil.copyfile(constants.DATABASE_FILE, constants.DATABASE_FILE_BACKUP)
+
+def _do_schema_restore ():
+	shutil.move(constants.DATABASE_FILE_BACKUP, constants.DATABASE_FILE)
+
+def _connect_to_db(file_path):
+	conn = sqlite3.connect(file_path)
+	conn.row_factory = sqlite3.Row
+	cursor = conn.cursor(UnicodeCursor)
+	return cursor
 
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
 	start = time.time()
 	log.info("Using database: %s" % file_path)
 	new_database = not os.path.exists(file_path)
-	conn = sqlite3.connect(file_path)
-	conn.row_factory = sqlite3.Row
-	cursor = conn.cursor(UnicodeCursor)
+	cursor = _connect_to_db(file_path)
 
 	# Seif: as result of the optimization story (LP: #639737) we are setting
 	# journal_mode to WAL if possible, this change is irreversible but
