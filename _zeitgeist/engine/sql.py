@@ -143,7 +143,7 @@ def _check_core_schema_upgrade (cursor):
 					_do_schema_restore()
 					cursor = _connect_to_db(constants.DATABASE_FILE)
 					core_schema_version = _get_schema_version(cursor, constants.CORE_SCHEMA)
-					log.info("Database corrupted, upgrading from version %s" % core_schema_version)
+					log.info("Database corrupted at upgrade -- upgrading from version %s" % core_schema_version)
 
 				_do_schema_upgrade (cursor,
 				                    constants.CORE_SCHEMA,
@@ -154,6 +154,9 @@ def _check_core_schema_upgrade (cursor):
 				# tables, indexes, and views being set up (to avoid code dup)
 				log.info("Running post upgrade setup")
 				return False
+			except sqlite3.OperationalError:
+				log.exception("Database corrupted at startup -- rebuilding")
+				os.remove(constants.DATABASE_FILE)
 			except Exception, e:
 				log.exception("Failed to upgrade database '%s' from version %s to %s: %s" %
 				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
