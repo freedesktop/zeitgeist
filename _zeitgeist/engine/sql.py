@@ -114,6 +114,7 @@ def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 	named '_zeitgeist.engine.upgrades.$schema_name_$(i)_$(i+1)' and executing 
 	the run(cursor) method of those modules until new_version is reached
 	"""
+	_do_schema_backup()
 	for i in xrange(old_version, new_version):
 		_set_schema_version(cursor, schema_name, -1)
 		# Fire off the right upgrade module
@@ -125,7 +126,6 @@ def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 		
 		# Update the schema version
 		_set_schema_version(cursor, schema_name, i+1)
-		_do_schema_backup()
 
 	log.info("Upgrade succesful")
 
@@ -153,9 +153,7 @@ def _check_core_schema_upgrade (cursor):
 			# Don't return here. The upgrade process might depend on the
 			# tables, indexes, and views being set up (to avoid code dup)
 			log.info("Running post upgrade setup")
-			# FIXME: This can return True, we just need a decent testing
-			# framework first
-			return True, cursor
+			return False, cursor
 		except IOError, ioe:
 			log.exception("Database backup does not exist -- proceeding")
 			return False, cursor
