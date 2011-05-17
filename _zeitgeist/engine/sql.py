@@ -6,6 +6,7 @@
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2011 Markus Korn <thekorn@gmx.net>
 # Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2011 J.P. Lacerda <jpaflacerda@gmail.com>
 # Copyright © 2011 Collabora Ltd.
 #             By Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
@@ -153,7 +154,10 @@ def _check_core_schema_upgrade (cursor):
 				# Don't return here. The upgrade process might depend on the
 				# tables, indexes, and views being set up (to avoid code dup)
 				log.info("Running post upgrade setup")
+				# FIXME: This can return True, we just need a decent testing
+				# framework first.
 				return False
+			
 			except sqlite3.OperationalError:
 				log.exception("Database corrupted at startup -- rebuilding")
 				os.remove(constants.DATABASE_FILE)
