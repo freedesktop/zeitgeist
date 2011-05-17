@@ -112,36 +112,6 @@ class SQLTest (unittest.TestCase):
 			"(actor NOT IN (SELECT id FROM actor " \
 			"WHERE (value >= bar AND value < bas)) OR actor IS NULL)")
 
-	def testEarlyUpgradeCorruption(self):
-		# Set up the testing environment:
-		DATABASE_TEST_FILE = os.environ.get("ZEITGEIST_DATABASE_PATH",
-			os.path.join(constants.DATA_PATH, "activity.test.sqlite"))
-		DATABASE_TEST_FILE_BACKUP = os.environ.get("ZEITGEIST_DATABASE_PATH",
-			os.path.join(constants.DATA_PATH, "activity.test.sqlite.bck"))
-		if os.path.exists(constants.DATABASE_FILE): 
-			shutil.move(constants.DATABASE_FILE, DATABASE_TEST_FILE)
-		if os.path.exists(constants.DATABASE_FILE_BACKUP):
-			shutil.move(constants.DATABASE_FILE_BACKUP, DATABASE_TEST_FILE_BACKUP)
-
-		# Ensure we are at version 0:
-		cursor = sql._connect_to_db(constants.DATABASE_FILE)
-		self.assertEqual(0, sql._get_schema_version(cursor, constants.CORE_SCHEMA))
-
-		# If upgrade core_0_1 fails, we have no backup to restore from:
-		self.assertRaises(IOError,
-				  sql._do_schema_restore)
-
-		# Solution: let the database structure run through create_db:
-		cursor = sql.create_db(constants.DATABASE_FILE)
-		self.assertEqual(constants.CORE_SCHEMA_VERSION,
-				 sql._get_schema_version(cursor, constants.CORE_SCHEMA))
-
-		# Clean-up after ourselves:
-		if os.path.exists(DATABASE_TEST_FILE):
-			shutil.move(DATABASE_TEST_FILE, constants.DATABASE_FILE)
-		if os.path.exists(DATABASE_TEST_FILE_BACKUP):
-			shutil.move(DATABASE_TEST_FILE_BACKUP, constants.DATABASE_FILE_BACKUP)
-
 	def testUpgradeCorruption(self):
 		# Set up the testing environment:
 		DATABASE_TEST_FILE = os.environ.get("ZEITGEIST_DATABASE_PATH",

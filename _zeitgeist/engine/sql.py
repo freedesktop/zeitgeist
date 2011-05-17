@@ -154,9 +154,6 @@ def _check_core_schema_upgrade (cursor):
 			# tables, indexes, and views being set up (to avoid code dup)
 			log.info("Running post upgrade setup")
 			return False, cursor
-		except IOError, ioe:
-			log.exception("Database backup does not exist -- proceeding")
-			return False, cursor
 		except sqlite3.OperationalError:
 			# Something went wrong while applying the upgrade -- this is
 			# probably due to a non existing table (this occurs when 
