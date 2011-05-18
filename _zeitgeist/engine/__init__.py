@@ -48,8 +48,7 @@ class _Constants:
 		BaseDirectory.save_data_path("zeitgeist"))
 	DATABASE_FILE = os.environ.get("ZEITGEIST_DATABASE_PATH",
 		os.path.join(DATA_PATH, "activity.sqlite"))
-	DATABASE_FILE_BACKUP = os.environ.get("ZEITGEIST_DATABASE_PATH",
-		os.path.join(DATA_PATH, "activity.sqlite.bck"))
+	DATABASE_FILE_BACKUP = os.path.join(DATA_PATH, "activity.sqlite.bck")
 	DEFAULT_LOG_PATH = os.path.join(BaseDirectory.xdg_cache_home,
 		"zeitgeist", "daemon.log")
 	
