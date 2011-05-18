@@ -6,6 +6,7 @@
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2011 Markus Korn <thekorn@gmx.net>
 # Copyright © 2009 Seif Lotfy <seif@lotfy.com>
+# Copyright © 2011 J.P. Lacerda <jpaflacerda@gmail.com>
 # Copyright © 2011 Collabora Ltd.
 #             By Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
@@ -26,6 +27,7 @@ import sqlite3
 import logging
 import time
 import os
+import shutil
 
 from _zeitgeist.engine import constants
 
@@ -112,51 +114,87 @@ def _do_schema_upgrade (cursor, schema_name, old_version, new_version):
 	named '_zeitgeist.engine.upgrades.$schema_name_$(i)_$(i+1)' and executing 
 	the run(cursor) method of those modules until new_version is reached
 	"""
+	_do_schema_backup()
+	_set_schema_version(cursor, schema_name, -1)
 	for i in xrange(old_version, new_version):
-		# Fire of the right upgrade module
-		log.info("Upgrading database '%s' from version %s to %s. This may take a while" %
-		         (schema_name, i, i+1))
+		# Fire off the right upgrade module
+		log.info("Upgrading database '%s' from version %s to %s. "
+			"This may take a while" % (schema_name, i, i+1))
 		upgrader_name = "%s_%s_%s" % (schema_name, i, i+1)
 		module = __import__ ("_zeitgeist.engine.upgrades.%s" % upgrader_name)
 		eval("module.engine.upgrades.%s.run(cursor)" % upgrader_name)
 		
-		# Update the schema version
-		_set_schema_version(cursor, schema_name, i+1)
+	# Update the schema version
+	_set_schema_version(cursor, schema_name, new_version)
+
 	log.info("Upgrade succesful")
 
 def _check_core_schema_upgrade (cursor):
-	"""Return True if the schema is good and no setup needs to be run"""
+	"""
+	Checks whether the schema is good or, if it is outdated, triggers any
+	necessary upgrade scripts. This method will also attempt to restore a
+	database backup in case a previous upgrade was cancelled midway.
+	
+	It returns a boolean indicating whether the schema was good and the
+	database cursor (which will have changed if the database was restored).
+	"""
 	# See if we have the right schema version, and try an upgrade if needed
 	core_schema_version = _get_schema_version(cursor, constants.CORE_SCHEMA)
-	if core_schema_version is not None:
-		if core_schema_version >= constants.CORE_SCHEMA_VERSION:
-			return True
-		else:
-			try:
-				_do_schema_upgrade (cursor,
-				                    constants.CORE_SCHEMA,
-				                    core_schema_version,
-				                    constants.CORE_SCHEMA_VERSION)
-				# Don't return here. The upgrade process might depend on the
-				# tables, indexes, and views being set up (to avoid code dup)
-				log.info("Running post upgrade setup")
-				return False
-			except Exception, e:
-				log.exception("Failed to upgrade database '%s' from version %s to %s: %s" %
-				          (constants.CORE_SCHEMA, core_schema_version, constants.CORE_SCHEMA_VERSION, e))
-				raise SystemExit(27)
+	if core_schema_version >= constants.CORE_SCHEMA_VERSION:
+		return True, cursor
 	else:
-		return False
+		try:
+			if core_schema_version <= -1:
+				cursor.connection.commit()
+				cursor.connection.close()
+				_do_schema_restore()
+				cursor = _connect_to_db(constants.DATABASE_FILE)
+				core_schema_version = _get_schema_version(cursor,
+					constants.CORE_SCHEMA)
+				log.exception("Database corrupted at upgrade -- "
+					"upgrading from version %s" % core_schema_version)
 
+			_do_schema_upgrade (cursor,
+				constants.CORE_SCHEMA,
+				core_schema_version,
+				constants.CORE_SCHEMA_VERSION)
+
+			# Don't return here. The upgrade process might depend on the
+			# tables, indexes, and views being set up (to avoid code dup)
+			log.info("Running post upgrade setup")
+			return False, cursor
+		except sqlite3.OperationalError:
+			# Something went wrong while applying the upgrade -- this is
+			# probably due to a non existing table (this occurs when 
+			# applying core_3_4, for example). We just need to fall through
+			# the rest of create_db to fix this...
+			log.exception("Database corrupted -- proceeding")
+			return False, cursor
+		except Exception, e:
+			log.exception(
+				"Failed to upgrade database '%s' from version %s to %s: %s" % \
+				(constants.CORE_SCHEMA, core_schema_version,
+				constants.CORE_SCHEMA_VERSION, e))
+			raise SystemExit(27)
+
+def _do_schema_backup ():
+	shutil.copyfile(constants.DATABASE_FILE, constants.DATABASE_FILE_BACKUP)
+
+def _do_schema_restore ():
+	shutil.move(constants.DATABASE_FILE_BACKUP, constants.DATABASE_FILE)
+
+def _connect_to_db(file_path):
+	conn = sqlite3.connect(file_path)
+	conn.row_factory = sqlite3.Row
+	cursor = conn.cursor(UnicodeCursor)
+	return cursor
 
 def create_db(file_path):
 	"""Create the database and return a default cursor for it"""
 	start = time.time()
 	log.info("Using database: %s" % file_path)
 	new_database = not os.path.exists(file_path)
-	conn = sqlite3.connect(file_path)
-	conn.row_factory = sqlite3.Row
-	cursor = conn.cursor(UnicodeCursor)
+	cursor = _connect_to_db(file_path)
 
 	# Seif: as result of the optimization story (LP: #639737) we are setting
 	# journal_mode to WAL if possible, this change is irreversible but
@@ -179,8 +217,9 @@ def create_db(file_path):
 	cursor.execute("CREATE TEMP TABLE _fix_cache (table_name VARCHAR, id INTEGER)")
 	
 	# Always assume that temporary memory backed DBs have good schemas
-	if constants.DATABASE_FILE != ":memory:":
-		if not new_database and _check_core_schema_upgrade(cursor):
+	if constants.DATABASE_FILE != ":memory:" and not new_database:
+		do_upgrade, cursor = _check_core_schema_upgrade(cursor)
+		if do_upgrade:
 			_time = (time.time() - start)*1000
 			log.debug("Core schema is good. DB loaded in %sms" % _time)
 			return cursor
