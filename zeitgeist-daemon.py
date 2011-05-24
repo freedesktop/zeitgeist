@@ -153,7 +153,7 @@ def setup_logger(log_level):
 	except IOError, e:
 		logging.warning("Can't log to %s: %s" % (e.filename, e.strerror))
 
-if __name__ == "__main__":
+def main():
 	
 	parser = parse_commandline()
 	
@@ -184,3 +184,6 @@ if __name__ == "__main__":
 		mainloop.run()
 	except KeyboardInterrupt:
 		handle_exit()
+
+if __name__ == "__main__":
+	main()
