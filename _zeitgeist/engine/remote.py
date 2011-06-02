@@ -59,7 +59,7 @@ class RemoteInterface(SingletonApplication):
 	_dbus_properties = {
 		"version": DBUSProperty(lambda self: (0, 8, 0), out_signature="iii"),
 		"extensions": DBUSProperty(
-			lambda self: list(self._engine.extensions.iter_names()),
+			lambda self: dbus.Array(self._engine.extensions.iter_names(), 's'),
 			out_signature="as"),
 	}
 	
