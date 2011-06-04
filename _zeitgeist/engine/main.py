@@ -238,10 +238,10 @@ class ZeitgeistEngine:
 						sorted_events[n] = event
 		
 		# Get uncached events
-		rows = self._cursor.execute("""
+		rows = tuple(row for row in self._cursor.execute("""
 			SELECT * FROM event_view
 			WHERE id IN (%s)
-			""" % ",".join("%d" % id for id in uncached_ids)).fetchall()
+			""" % ",".join("%d" % id for id in uncached_ids)))
 		
 		log.debug("Got %d raw events in %fs" % (len(rows), time.time()-t))
 		t = time.time()
@@ -562,14 +562,13 @@ class ZeitgeistEngine:
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
 		
-		result = self._cursor.execute(sql, where.arguments).fetchall()
+		result = tuple(r[0] for r in self._cursor.execute(sql, where.arguments))
 		
 		if return_mode == 0:
 			log.debug("Found %d event IDs in %fs" % (len(result), time.time()- t))
-			result = [row[0] for row in result]
 		elif return_mode == 1:
 			log.debug("Found %d events IDs in %fs" % (len(result), time.time()- t))
-			result = self.get_events(ids=[row[0] for row in result], sender=sender)	
+			result = self.get_events(ids=result, sender=sender)	
 		else:
 			raise Exception("%d" % return_mode)
 		
