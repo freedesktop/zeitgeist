@@ -27,8 +27,10 @@ import sqlite3
 import time
 import sys
 import os
+import gc
 import logging
 from collections import defaultdict
+import array
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
 	ResultType, get_timestamp_for_now, Interpretation, Symbol, NEGATION_OPERATOR, WILDCARD
@@ -562,7 +564,13 @@ class ZeitgeistEngine:
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
 		
-		result = tuple(r[0] for r in self._cursor.execute(sql, where.arguments))
+		self._cursor.execute(sql, where.arguments)
+		
+		def fetch():
+			for row in self._cursor:
+				yield row[0]
+		
+		result = array.array("i", fetch())
 		
 		if return_mode == 0:
 			log.debug("Found %d event IDs in %fs" % (len(result), time.time()- t))
