@@ -116,7 +116,7 @@ The Zeitgeist project is using bug status as described below:
  * New: no bug triager had a look at this bugreport
  * Incomplete: the zeitgeist team has asked an explicit question
    to get a better understanding of the bug and is waiting for
-   an answer from the original reporter or anyobne having the same issue
+   an answer from the original reporter or anyone having the same issue
  * Invalid: It turned out that the issue is not a bug in zeitgeist, or
    cannot be fixed in zeitgeist.
  * Won't Fix: based on the information we got on the bugreport we decided
