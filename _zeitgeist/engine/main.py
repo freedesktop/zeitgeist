@@ -30,7 +30,7 @@ import os
 import gc
 import logging
 from collections import defaultdict
-import array
+from array import array
 
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
 	ResultType, get_timestamp_for_now, Interpretation, Symbol, NEGATION_OPERATOR, WILDCARD
@@ -240,19 +240,19 @@ class ZeitgeistEngine:
 						sorted_events[n] = event
 		
 		# Get uncached events
-		rows = tuple(row for row in self._cursor.execute("""
-			SELECT * FROM event_view
-			WHERE id IN (%s)
-			""" % ",".join("%d" % id for id in uncached_ids)))
+		rows = self._cursor.execute("""	SELECT * FROM event_view WHERE id IN (%s)
+			""" % ",".join("%d" % id for id in uncached_ids))
 		
-		log.debug("Got %d raw events in %fs" % (len(rows), time.time()-t))
+		time_get_uncached = time.time() - t
 		t = time.time()
 		
 		t_get_event = 0
 		t_get_subject = 0
 		t_apply_get_hooks = 0
 		
+		row_counter = 0
 		for row in rows:
+			row_counter += 1
 			# Assumption: all rows of a same event for its different
 			# subjects are in consecutive order.
 			t_get_event -= time.time()
@@ -288,6 +288,7 @@ class ZeitgeistEngine:
 					# at a decent level
 					
 
+		log.debug("Got %d raw events in %fs" % (row_counter, time_get_uncached))
 		log.debug("Got %d events in %fs" % (len(sorted_events), time.time()-t))
 		log.debug("    Where time spent in _get_event_from_row in %fs" % (t_get_event))
 		log.debug("    Where time spent in _get_subject_from_row in %fs" % (t_get_subject))
@@ -563,19 +564,12 @@ class ZeitgeistEngine:
 		
 		if max_events > 0:
 			sql += " LIMIT %d" % max_events
-		
-		self._cursor.execute(sql, where.arguments)
-		
-		def fetch():
-			for row in self._cursor:
-				yield row[0]
-		
-		result = array.array("i", fetch())
+		result = array("i", self._cursor.execute(sql, where.arguments).fetch(0))
 		
 		if return_mode == 0:
 			log.debug("Found %d event IDs in %fs" % (len(result), time.time()- t))
 		elif return_mode == 1:
-			log.debug("Found %d events IDs in %fs" % (len(result), time.time()- t))
+			log.debug("Found %d events in %fs" % (len(result), time.time()- t))
 			result = self.get_events(ids=result, sender=sender)	
 		else:
 			raise Exception("%d" % return_mode)

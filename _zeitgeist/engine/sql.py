@@ -28,6 +28,7 @@ import logging
 import time
 import os
 import shutil
+import gc
 
 from _zeitgeist.engine import constants
 
@@ -74,6 +75,14 @@ class UnicodeCursor(sqlite3.Cursor):
 		if UnicodeCursor.debug_explain:
 			explain_query(super(UnicodeCursor, self), statement, parameters)
 		return super(UnicodeCursor, self).execute(statement, parameters)
+
+	def fetch(self, index=-1):
+		if index >= 0:
+			for row in self:
+				yield row[index]
+		else:
+			for row in self:
+				yield row
 
 def _get_schema_version (cursor, schema_name):
 	"""
@@ -206,6 +215,8 @@ def create_db(file_path):
 	# we decided to set locking_mode to EXCLUSIVE, from now on only
 	# one connection to the database is allowed to revert this setting set locking_mode to NORMAL.
 	cursor.execute("PRAGMA locking_mode = EXCLUSIVE")
+	# Seif: Disable cache since we already kinda support our own cache (LRUCache)
+	cursor.execute("PRAGMA cache_size = 0")
 	
 	# thekorn: as part of the workaround for (LP: #598666) we need to
 	# create the '_fix_cache' TEMP table on every start,
