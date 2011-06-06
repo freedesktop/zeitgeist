@@ -28,7 +28,6 @@ import logging
 import time
 import os
 import shutil
-import gc
 
 from _zeitgeist.engine import constants
 

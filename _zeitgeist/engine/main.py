@@ -27,7 +27,6 @@ import sqlite3
 import time
 import sys
 import os
-import gc
 import logging
 from collections import defaultdict
 from array import array
