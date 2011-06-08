@@ -200,8 +200,8 @@ class ZeitgeistEngine:
 			return []
 		
 		# Split ids into cached and uncached
-		uncached_ids = []
-		cached_ids = []
+		uncached_ids = array("i")
+		cached_ids = array("i")
 		
 		# If ids batch greater than MAX_CACHE_BATCH_SIZE ids ignore cache
 		use_cache = True
