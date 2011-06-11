@@ -216,7 +216,7 @@ class ZeitgeistEngine:
 				else:
 					uncached_ids.append(id)
 		
-		id_hash = defaultdict(list)
+		id_hash = defaultdict(lambda: array("i"))
 		for n, id in enumerate(ids):
 			# the same id can be at multible places (LP: #673916)
 			# cache all of them
