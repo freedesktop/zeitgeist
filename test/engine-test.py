@@ -446,7 +446,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		event = Event.new_for_values(subjects=[subj1, subj2])
 		orig_ids = self.engine.insert_events([event])
 		result_ids = self.engine.find_eventids(TimeRange.always(), [Event()], StorageState.Any, 0, 1)
-		self.assertEquals(orig_ids, result_ids)
+		self.assertEquals(orig_ids, list(result_ids))
 
 	def testFindEventsEventTemplate(self):
 		import_events("test/data/five_events.js", self.engine)
@@ -603,7 +603,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[tmpl], StorageState.Any, 10, ResultType.MostRecentEvents)
 		
 		self.assertEquals(1, len(ids))
-		self.assertEquals(_ids, ids)
+		self.assertEquals(_ids, list(ids))
 		
 	def testNegation(self):
 		import_events("test/data/five_events.js", self.engine)
@@ -1035,7 +1035,7 @@ class ResultTypeTest(_engineTestClass):
 				reverse=True
 			)
 		]
-		self.assertEquals(ids, sorted_event_ids)
+		self.assertEquals(list(ids), sorted_event_ids)
 		
 	def testResultTypesLeastRecentEvents(self):
 		import_events("test/data/five_events.js", self.engine)
@@ -1049,7 +1049,7 @@ class ResultTypeTest(_engineTestClass):
 			event.id for event in sorted(events,
 				cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
 		]
-		self.assertEquals(ids, sorted_event_ids)
+		self.assertEquals(list(ids), sorted_event_ids)
 	
 	def testResultTypesMostPopularActor(self):
 		import_events("test/data/twenty_events.js", self.engine)
@@ -1185,20 +1185,20 @@ class ResultTypeTest(_engineTestClass):
 		# Get the least recent actors
 		ids = self.engine.find_eventids(TimeRange.always(),
 			[], StorageState.Any, 0, ResultType.OldestActor)
-		self.assertEquals(ids, [1, 3, 4])
+		self.assertEquals(list(ids), [1, 3, 4])
 		
 		# Get the least recent actors for "home/boo"
 		template = Event.new_for_values(subject_uri="home/boo")
 		ids = self.engine.find_eventids(TimeRange.always(),
 			[template], StorageState.Any, 0, ResultType.OldestActor)
-		self.assertEquals(ids, [2])
+		self.assertEquals(list(ids), [2])
 		
 		# Let's also try the same with MostRecentActor... Although there
 		# should be no problem here.
 		template = Event.new_for_values(subject_uri="home/boo")
 		ids = self.engine.find_eventids(TimeRange.always(),
 			[template], StorageState.Any, 0, ResultType.OldestActor)
-		self.assertEquals(ids, [2])
+		self.assertEquals(list(ids), [2])
 	
 	def testResultTypesOldestActor(self):
 		import_events("test/data/twenty_events.js", self.engine)

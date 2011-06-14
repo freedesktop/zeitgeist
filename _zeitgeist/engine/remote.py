@@ -77,7 +77,7 @@ class RemoteInterface(SingletonApplication):
 		for event in events:
 			if event is not None:
 				event._make_dbus_sendable()
-		return [NULL_EVENT if event is None else event for event in events]
+		return tuple(NULL_EVENT if event is None else event for event in events)
 	
 	# Reading stuff
 	

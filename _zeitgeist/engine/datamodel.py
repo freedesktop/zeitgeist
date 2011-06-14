@@ -78,4 +78,4 @@ class DataSource(OrigDataSource):
 			}.iteritems():
 			for prop in props:
 				datasource[prop] = plaintype(datasource[prop])
-		return list(datasource)
+		return tuple(datasource)

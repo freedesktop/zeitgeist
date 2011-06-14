@@ -75,6 +75,14 @@ class UnicodeCursor(sqlite3.Cursor):
 			explain_query(super(UnicodeCursor, self), statement, parameters)
 		return super(UnicodeCursor, self).execute(statement, parameters)
 
+	def fetch(self, index=None):
+		if index is not None:
+			for row in self:
+				yield row[index]
+		else:
+			for row in self:
+				yield row
+
 def _get_schema_version (cursor, schema_name):
 	"""
 	Returns the schema version for schema_name or returns 0 in case
