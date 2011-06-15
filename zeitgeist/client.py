@@ -69,6 +69,7 @@ class _DBusInterface(object):
 		self.__proxy = dbus.SessionBus().get_object(self.__iface.requested_bus_name,
 			self.__object_path)
 		self.__iface = dbus.Interface(self.__proxy, self.__interface_name)
+		self._load_introspection_data()
 
 	def _disconnection_safe(self, meth, *args, **kwargs):
 		"""
@@ -104,7 +105,7 @@ class _DBusInterface(object):
 			reconnecting_error_handler(e)
 
 	def __getattr__(self, name):
-		if name not in self.__methods:
+		if name not in self.__methods and self.__methods is not None:
 			raise TypeError("Unknown method name: %s" % name)
 		def _ProxyMethod(*args, **kwargs):
 			"""
@@ -117,6 +118,8 @@ class _DBusInterface(object):
 
 	def connect(self, signal, callback, **kwargs):
 		"""Connect a callback to a signal of the current proxy instance."""
+		if self.__signals is None:
+			self.reconnect()
 		if signal not in self.__signals:
 			raise TypeError("Unknown signal name: %s" % signal)
 		self.__proxy.connect_to_signal(
@@ -141,12 +144,16 @@ class _DBusInterface(object):
 	def proxy(self):
 		return self.__proxy
 
+	def _load_introspection_data(self):
+		self.__methods, self.__signals = self.get_members(
+			self.__proxy.Introspect())
+
 	def __init__(self, proxy, interface_name, object_path):
 		self.__proxy = proxy
 		self.__interface_name = interface_name
 		self.__object_path = object_path
 		self.__iface = dbus.Interface(proxy, interface_name)
-		self.__methods, self.__signals = self.get_members(proxy.Introspect())
+		self._load_introspection_data()
 		
 		self._disconnect_callbacks = set()
 		self._reconnect_callbacks = set()
@@ -155,6 +162,7 @@ class _DBusInterface(object):
 		def name_owner_changed(connection_name):
 			if connection_name == "":
 				callbacks = self._disconnect_callbacks
+				self.__methods = self.__signals = None
 			else:
 				self.reconnect()
 				callbacks = self._reconnect_callbacks
