@@ -293,19 +293,10 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(uris, ["i1", "i3"])
 		
 	def testFindEventsForValues(self):
-		# We don't have an *AndWait-helper method for the method we would
-		# like to test, this is why we need our own local loop
-		mainloop = self.create_mainloop()
 		events = parse_events("test/data/apriori_events.js")
 		self.insertEventsAndWait(events)
 		
-		result = []
-		def callback(events):
-			result.extend(events)
-			mainloop.quit()
-		
-		self.client.find_events_for_values(callback, actor="firefox", num_events=1)
-		mainloop.run()
+		result = self.findEventsForValuesAndWait(actor="firefox", num_events=1)
 		self.assertEquals(len(result), 1)
 		self.assertEquals(result[0].actor, "firefox")
 	

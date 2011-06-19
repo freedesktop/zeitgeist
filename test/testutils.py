@@ -222,7 +222,23 @@ class RemoteTestCase (unittest.TestCase):
 		self.client.get_events(event_ids, collect_events_and_quit)
 		mainloop.run()
 		return result
+	
+	def findEventsForValuesAndWait(self, *args, **kwargs):
+		"""
+		Execute ZeitgeistClient.find_events_for_value in a blocking manner.
+		"""
+		mainloop = self.create_mainloop()
+		result = []
 		
+		def collect_events_and_quit(events):
+			result.extend(events)
+			mainloop.quit()
+		
+		self.client.find_events_for_values(
+			collect_events_and_quit, *args, **kwargs)
+		mainloop.run()
+		return result
+	
 	def deleteEventsAndWait(self, event_ids):
 		"""
 		Delete events given by their id and run a loop until the result 
