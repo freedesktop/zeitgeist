@@ -577,6 +577,8 @@ class Event(list):
 	SUPPORTS_NEGATION = (Interpretation, Manifestation, Actor, Origin)
 	SUPPORTS_WILDCARDS = (Actor, Origin)
 	
+	_subject_type = Subject
+	
 	def __init__(self, struct = None):
 		"""
 		If 'struct' is set it must be a list containing the event
@@ -608,11 +610,11 @@ class Event(list):
 				self.append("")
 			elif len(struct) == 2:
 				self.append(self._check_event_struct(struct[0]))
-				self.append(map(Subject, struct[1]))
+				self.append(map(self._subject_type, struct[1]))
 				self.append("")
 			elif len(struct) == 3:
 				self.append(self._check_event_struct(struct[0]))
-				self.append(map(Subject, struct[1]))
+				self.append(map(self._subject_type, struct[1]))
 				self.append(struct[2])
 			else:
 				raise ValueError("Invalid struct length %s" % len(struct))
@@ -702,7 +704,7 @@ class Event(list):
 		if self._dict_contains_subject_keys(values):
 			if "subjects" in values:
 				raise ValueError("Subject keys, subject_*, specified together with full subject list")
-			subj = Subject()
+			subj = self._subject_type()
 			subj.uri = values.get("subject_uri", "")
 			subj.current_uri = values.get("subject_current_uri", "")
 			subj.interpretation = values.get("subject_interpretation", "")
@@ -737,12 +739,12 @@ class Event(list):
 		Append a new empty Subject and return a reference to it
 		"""
 		if not subject:
-			subject = Subject()
+			subject = self._subject_type()
 		self.subjects.append(subject)
 		return subject
 	
 	def get_subjects(self):
-		return self[1]	
+		return self[1]
 	
 	def set_subjects(self, subjects):
 		self[1] = subjects

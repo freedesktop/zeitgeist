@@ -257,13 +257,20 @@ class Monitor(dbus.service.Object):
 	
 	# Used in Monitor._next_path() to generate unique path names
 	_last_path_id = 0
+	
+	_event_type = Event
 
 	def __init__ (self, time_range, event_templates, insert_callback,
-		delete_callback, monitor_path=None):
+		delete_callback, monitor_path=None, event_type=None):
 		if not monitor_path:
 			monitor_path = Monitor._next_path()
 		elif isinstance(monitor_path, (str, unicode)):
 			monitor_path = dbus.ObjectPath(monitor_path)
+		
+		if event_type:
+			if not issubclass(event_type, Event):
+				raise TypeError("Event subclass expected.")
+			self._event_type = event_type
 		
 		self._time_range = time_range
 		self._templates = event_templates
@@ -271,7 +278,6 @@ class Monitor(dbus.service.Object):
 		self._insert_callback = insert_callback
 		self._delete_callback = delete_callback
 		dbus.service.Object.__init__(self, dbus.SessionBus(), monitor_path)
-
 	
 	def get_path (self): return self._path
 	path = property(get_path,
@@ -303,7 +309,7 @@ class Monitor(dbus.service.Object):
 		    See :meth:`ZeitgeistClient.install_monitor`
 		"""
 		self._insert_callback(TimeRange(time_range[0], time_range[1]),
-			map(Event, events))
+			map(self._event_type, events))
 	
 	@dbus.service.method("org.gnome.zeitgeist.Monitor",
 	                     in_signature="(xx)au")
@@ -350,6 +356,7 @@ class ZeitgeistClient:
 	"""
 	
 	_installed_monitors = []
+	_event_type = Event
 	
 	@staticmethod
 	def get_event_and_extra_arguments(arguments):
@@ -381,6 +388,35 @@ class ZeitgeistClient:
 					error_handler=lambda err: log.warn(
 						"Error reinstalling monitor: %s" % err))
 		self._iface.connect_join(reconnect_monitors)
+	
+	def register_event_subclass(self, event_type):
+		"""
+		Register a subclass of Event with this ZeiteistClient instance. When
+		data received over D-Bus is instantiated into an Event class, the
+		provided subclass will be used.
+		"""
+		if not issubclass(event_type, Event):
+			raise TypeError("Event subclass expected.")
+		self._event_type = event_type
+	
+	def register_subject_subclass(self, subject_type):
+		"""
+		Register a subclass of Subject with this ZeiteistClient instance. When
+		data received over D-Bus is instantiated into a Subject class, the
+		provided subclass will be used.
+		
+		Note that this method works by changing the Event type associated with
+		this ZeitgeistClient instance, so it should always be called *after*
+		any register_event_subclass calls.
+		
+		Even better, if you also have a custom Event subclass, you may directly
+		override the Subject type by changing its _subject_type class variable.
+		"""
+		if not issubclass(subject_type, Subject):
+			raise TypeError("Subject subclass expected.")
+		class EventWithCustomSubject(self._event_type):
+			_subject_type = subject_type
+		self._event_type = EventWithCustomSubject
 	
 	def _safe_error_handler(self, error_handler, *args):
 		if error_handler is not None:
@@ -664,7 +700,7 @@ class ZeitgeistClient:
 					num_events,
 					result_type,
 					reply_handler=lambda raw: events_reply_handler(
-						map(Event.new_for_struct, raw)),
+						map(self._event_type.new_for_struct, raw)),
 					error_handler=self._safe_error_handler(error_handler,
 						events_reply_handler, []))
 	
@@ -725,7 +761,7 @@ class ZeitgeistClient:
 		# the raw DBus reply into a list of Event instances
 		self._iface.GetEvents(event_ids,
 				reply_handler=lambda raw: events_reply_handler(
-					map(Event.new_for_struct, raw)),
+					map(self._event_type.new_for_struct, raw)),
 				error_handler=self._safe_error_handler(error_handler,
 						events_reply_handler, []))
 	
@@ -876,7 +912,8 @@ class ZeitgeistClient:
 		
 		
 		mon = Monitor(time_range, event_templates, notify_insert_handler,
-			notify_delete_handler, monitor_path=monitor_path)
+			notify_delete_handler, monitor_path=monitor_path,
+			event_type=self._event_type)
 		self._iface.InstallMonitor(mon.path,
 		                           mon.time_range,
 		                           mon.templates,
