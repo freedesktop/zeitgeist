@@ -392,7 +392,7 @@ class ZeitgeistClient:
 	def register_event_subclass(self, event_type):
 		"""
 		Register a subclass of Event with this ZeiteistClient instance. When
-		data received over D-Bus is instantiated into an Event class, the
+		data received over D-Bus is instantiated into an Event object, the
 		provided subclass will be used.
 		"""
 		if not issubclass(event_type, Event):
@@ -402,7 +402,7 @@ class ZeitgeistClient:
 	def register_subject_subclass(self, subject_type):
 		"""
 		Register a subclass of Subject with this ZeiteistClient instance. When
-		data received over D-Bus is instantiated into a Subject class, the
+		data received over D-Bus is instantiated into a Subject object, the
 		provided subclass will be used.
 		
 		Note that this method works by changing the Event type associated with
