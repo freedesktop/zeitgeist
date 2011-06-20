@@ -986,7 +986,18 @@ This `NULL_EVENT` is used by the API to indicate a queried but not
 available (not found or blocked) Event.
 """
 
-class RelevantResultType(object):
+class _Enumeration(object):
+
+	@classmethod
+	def iteritems(self):
+		"""
+		Return an iterator yielding (name, value) tuples for all items in
+		this enumeration.
+		"""
+		return iter(map(lambda x: (x, getattr(self, x)),
+			filter(lambda x: not x.startswith('__'), sorted(self.__dict__))))
+
+class RelevantResultType(_Enumeration):
 	"""
 	An enumeration class used to define how query results should be returned
 	from the Zeitgeist engine.
@@ -995,7 +1006,7 @@ class RelevantResultType(object):
 	Recent = EnumValue(0, "All uris with the most recent uri first")
 	Related = EnumValue(1, "All uris with the most related one first")
 
-class StorageState(object):
+class StorageState(_Enumeration):
 	"""
 	Enumeration class defining the possible values for the storage state
 	of an event subject.
@@ -1012,7 +1023,7 @@ class StorageState(object):
 		"must be immediately available to the user")
 	Any = EnumValue(2, "The event subjects may or may not be available")
 
-class ResultType(object):
+class ResultType(_Enumeration):
 	"""
 	An enumeration class used to define how query results should be returned
 	from the Zeitgeist engine.
