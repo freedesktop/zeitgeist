@@ -329,6 +329,16 @@ class TimeRange(list):
 		return cls(now - (sec * 1000), now)
 	
 	@classmethod
+	def from_timestamp(cls, timestamp):
+		"""
+		Return a :class:`TimeRange` ranging from the given timestamp until
+		the end of time.
+		
+		The given timestamp is expected to be expressed in miliseconds.
+		"""
+		return cls(int(timestamp), cls._max_stamp)
+	
+	@classmethod
 	def always(cls):
 		"""
 		Return a :class:`TimeRange` from 0 (January 1, 1970) to the most
