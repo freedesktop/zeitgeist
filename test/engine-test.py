@@ -935,7 +935,7 @@ class FindRelatedUrisTest(_engineTestClass):
 				Event.new_for_values(subject_uri = "i4")], [],
 			StorageState.Any, 2, 0),
 		self.assertEquals(result, (["i2", "i3", ],))
-		
+
 
 class MoveEvent(_engineTestClass):
 		
@@ -962,14 +962,20 @@ class MoveEvent(_engineTestClass):
 		self.assertEquals(subj1.current_uri, results[1].subjects[0].current_uri)
 		self.assertEquals(subj2.current_uri, results[2].subjects[0].current_uri)
 	
+	def _get_all_timestamp_uri_pairs(self):
+		return [(e[0][1], e[1][0][7]) for e in self.engine.find_events(
+			TimeRange.always(), [Event.new_for_values(
+				interpretation="!"+Interpretation.MOVE_EVENT)],
+			StorageState.Any, 0,
+			ResultType.LeastRecentEvents)]
+
+	@staticmethod
+	def _make_move_event(timestamp, old_uri, new_uri):
+		return Event.new_for_values(timestamp=timestamp,
+			interpretation=Interpretation.MOVE_EVENT,
+			subject_uri=old_uri, subject_current_uri=new_uri)
+
 	def testMoveEventTimeWarp(self):
-		def get_uris():
-			return [(e[0][1], e[1][0][7]) for e in self.engine.find_events(
-				TimeRange.always(), [Event.new_for_values(
-					interpretation="!"+Interpretation.MOVE_EVENT)],
-				StorageState.Any, 0,
-				ResultType.LeastRecentEvents)]
-		
 		# Let's insert some test events...
 		s1 = Event.new_for_values(timestamp=100, subject_uri="A")
 		s2 = Event.new_for_values(timestamp=200, subject_uri="A")
@@ -977,17 +983,15 @@ class MoveEvent(_engineTestClass):
 		s4 = Event.new_for_values(timestamp=400, subject_uri="B")
 		s5 = Event.new_for_values(timestamp=500, subject_uri="A")
 		self.engine.insert_events([s1, s2, s3, s4, s5])
-		self.assertEquals(get_uris(), [
+		self.assertEquals(self._get_all_timestamp_uri_pairs(), [
 			(s1.timestamp, "A"), (s2.timestamp, "A"),
 			(s3.timestamp, "A"), (s4.timestamp, "B"),
 			(s5.timestamp, "A")])
 		
 		# Now we insert a move event and ensure only older events are affected
-		m1 = Event.new_for_values(timestamp=500,
-			interpretation=Interpretation.MOVE_EVENT, subject_uri="A",
-			subject_current_uri="X")
+		m1 = self._make_move_event(500, "A", "X")
 		self.engine.insert_events([m1])
-		uris = get_uris()
+		uris = self._get_all_timestamp_uri_pairs()
 		self.assertEquals(uris, [
 			(s1.timestamp, "X"), (s2.timestamp, "X"),
 			(s3.timestamp, "X"), (s4.timestamp, "B"),
@@ -995,12 +999,12 @@ class MoveEvent(_engineTestClass):
 		
 		# While we're at it, let's ensure both the cache and the DB are fine
 		self.engine._event_cache.clear()
-		self.assertEquals(get_uris(), uris)
+		self.assertEquals(self._get_all_timestamp_uri_pairs(), uris)
 		
 		# FIXME: We need a lot more evil tests here to fully reproduce bug
 		# 778140, but the more advanced cases are left for the next release
 		# after 0.8.0.
-	
+
 	def testMoveEventTimeWarp2(self):
 		# There is no guarantee events are logged in the correct order.
 		# This is why the timestamp has to be checked.....
@@ -1014,8 +1018,14 @@ class MoveEvent(_engineTestClass):
 			["123", "153", "200"])
 	
 	def testIllegalMoveEvent(self):
+		# Incorrect event type with uri != current_uri
 		subj = Subject.new_for_values(uri="http://x", current_uri="http://y")
 		event = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT, subjects=[subj])
+		self.assertRaises(ValueError, self.engine._insert_event, event)
+		
+		# Move event with uri == current_uri
+		subj = Subject.new_for_values(uri="http://x", current_uri="http://x")
+		event = Event.new_for_values(interpretation=Interpretation.MOVE_EVENT, subjects=[subj])
 		self.assertRaises(ValueError, self.engine._insert_event, event)
 
 
