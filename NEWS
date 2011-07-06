@@ -8,6 +8,7 @@ Engine:
  - A backup of the database is created before attempting schema upgrades. If
    something goes wrong, the backup is automatically restored (LP: #660307).
  - Fixed the "extensions" D-Bus property when it's an empty list (LP: #787691).
+ - Add PID to the output being logged in ~/.cache/ (LP: #806030).
  - Minor memory usage improvements.
 
 Python API:

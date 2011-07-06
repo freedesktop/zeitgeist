@@ -129,6 +129,16 @@ def setup_handle_exit(interface):
 		interface.Quit()
 	return handle_exit
 
+class CustomFileLogFormatter(logging.Formatter):
+
+	def __init__(self):
+		format = "[%(asctime)s] - %(levelname)s - %(name)s - %(message)s"
+		logging.Formatter.__init__(self, format)
+		self._pid = os.getpid()
+
+	def format(self, record):
+		return "%s %s" % (self._pid, logging.Formatter.format(self, record))
+
 def setup_logger(log_level):
 	logger = logging.getLogger()
 	logger.setLevel(getattr(logging, log_level))
@@ -147,8 +157,7 @@ def setup_logger(log_level):
 	try:
 		file_handler = logging.handlers.TimedRotatingFileHandler(log_file,
 			when="midnight", backupCount=3)
-		file_handler.setFormatter(logging.Formatter(
-			"[%(asctime)s] - %(levelname)s - %(name)s - %(message)s"))
+		file_handler.setFormatter(CustomFileLogFormatter())
 		logger.addHandler(file_handler)
 	except IOError, e:
 		logging.warning("Can't log to %s: %s" % (e.filename, e.strerror))
