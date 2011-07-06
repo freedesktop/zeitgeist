@@ -1,7 +1,23 @@
-2011-05-?: Zeitgeist 0.8.1
+2011-07-6: Zeitgeist 0.8.1
 -------------------------------------------------
 
-List changes here...
+Engine:
+
+ - Added a GetDataSourceFromId D-Bus method to the data-source registry
+   extension (LP: #691690).
+ - A backup of the database is created before attempting schema upgrades. If
+   something goes wrong, the backup is automatically restored (LP: #660307).
+ - Fixed the "extensions" D-Bus property when it's an empty list (LP: #787691).
+ - Minor memory usage improvements.
+
+Python API:
+
+ - Changed _DBusInterface to update introspected data after reconnections.
+ - Added support for registering custom Event and Subject subclasses with
+   ZeitgeistClient (LP: #799199).
+ - Added an "iteritems()" method to all enumerations (RelevantResultType,
+   StorageState and ResultType).
+ - Added a "from_timestamp(timestamp)" method to TimeRange.
 
 2011-04-07: Zeitgeist 0.8.0 "I only got a donkey"
 -------------------------------------------------
@@ -28,7 +44,7 @@ Engine:
 
 Python API:
 
- - Fix bug in the connection (to Zeitgeist) recovery code (LP: #771970).
+ - Fixed a bug in the connection (to Zeitgeist) recovery code (LP: #771970).
  - Added new ResultTypes: {Most,Least}{Recent,Popular}{CurrentUri,EventOrigin}.
  - Created *SubjectOrigin alias for all {Most,Least}{Recent,Popular}Origin
    ResultTypes.
