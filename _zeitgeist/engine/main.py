@@ -133,7 +133,10 @@ class ZeitgeistEngine:
 		return self.__extensions
 	
 	def close(self):
-		log.debug("Closing down the zeitgeist engine...")
+		if self._cursor is None:
+			log.debug("The Zeitgeist engine is closed already")
+			return
+		log.debug("Closing down the Zeitgeist engine...")
 		self.extensions.unload()
 		# make sure all symbol table are in good shape
 		# this Exception should never be raised, it would indicate a bug
