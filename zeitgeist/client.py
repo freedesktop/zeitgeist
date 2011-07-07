@@ -72,7 +72,7 @@ class _DBusInterface(object):
 		self.__iface = dbus.Interface(self.__proxy, self.__interface_name)
 		self._load_introspection_data()
 
-	def _disconnection_safe(self, meth, *args, **kwargs):
+	def _disconnection_safe(self, method_name, *args, **kwargs):
 		"""
 		Executes the given method. If it fails because the D-Bus connection
 		was lost, attempts to recover it and executes the method again.
@@ -87,6 +87,7 @@ class _DBusInterface(object):
 				self.reconnect()
 				# We don't use the reconnecting_error_handler here since that'd
 				# get us into an endless loop if Zeitgeist really isn't there.
+				meth = getattr(self.__iface, method_name)
 				return meth(*args, **original_kwargs)
 			else:
 				if custom_error_handler is not None:
@@ -101,9 +102,10 @@ class _DBusInterface(object):
 			kwargs['error_handler'] = reconnecting_error_handler
 
 		try:
+			meth = getattr(self.__iface, method_name)
 			return meth(*args, **kwargs)
 		except dbus.exceptions.DBusException, e:
-			reconnecting_error_handler(e)
+			return reconnecting_error_handler(e)
 
 	def __getattr__(self, name):
 		if name not in self.__methods and self.__methods is not None:
@@ -113,8 +115,7 @@ class _DBusInterface(object):
 			Method wrapping around a D-Bus call, which attempts to recover
 			the connection to Zeitgeist if it got lost.
 			"""
-			return self._disconnection_safe(getattr(self.__iface, name),
-				*args, **kwargs)
+			return self._disconnection_safe(name, *args, **kwargs)
 		return _ProxyMethod
 
 	def connect(self, signal, callback, **kwargs):

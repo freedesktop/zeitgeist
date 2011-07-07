@@ -47,11 +47,6 @@ class DBusInterfaceReconnection(testutils.RemoteTestCase):
 		self.spawn_daemon()
 		
 		# Can we still check for it?
-		try:
-			self.assertEquals(len(self.client._iface.GetEvents(ids)), 1)
-		except Exception:
-			print "\n==> The first method call after reconnecting failed!"
-		
 		self.assertEquals(len(self.client._iface.GetEvents(ids)), 1)
 
 	def testSignalReconnection(self):

@@ -17,6 +17,8 @@ Python API:
  - Changed _DBusInterface to update introspected data after reconnections.
  - Added support for registering custom Event and Subject subclasses with
    ZeitgeistClient (LP: #799199).
+ - Fixed reconnection after a Zeitgeist restart so that the method call trig-
+   gering the reconnection also works -and not only later calls- (LP: #736176).
  - Added signal reconnection on engine restart for extensions (LP: #806967).
  - Added an "iteritems()" method to all enumerations (RelevantResultType,
    StorageState and ResultType).
