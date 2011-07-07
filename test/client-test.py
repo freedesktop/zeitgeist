@@ -17,23 +17,22 @@ from testutils import parse_events
 
 class DBusInterfaceSignals(testutils.RemoteTestCase):
 	"""
-	This functionality tests the signal connection support in _DBusInterface
+	This class tests the signal connection support in _DBusInterface
 	(zeitgeist.client module). In particular, it ensures that it stays working
 	after reconnections.
 	"""
 
-	_ds1 = ["www.example.com/foo", "Name", "Description", []]
-
 	def testSignalReconnection(self):
 		mainloop = self.create_mainloop()
-		self.client._registry.RegisterDataSource(*self._ds1)
+		datasource = ["www.example.com/foo", "Name", "Description", []]
+		self.client._registry.RegisterDataSource(*datasource)
 		
 		def cb_enabled(unique_id, enabled):
 			mainloop.quit()
 		
 		def enable_disable():
-			self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
-			self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
+			self.client._registry.SetDataSourceEnabled(datasource[0], False)
+			self.client._registry.SetDataSourceEnabled(datasource[0], True)
 		
 		self.client._registry.connect('DataSourceEnabled', cb_enabled)
 		gobject.idle_add(enable_disable)
