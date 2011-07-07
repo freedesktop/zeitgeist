@@ -57,7 +57,7 @@ class RemoteInterface(SingletonApplication):
 	:const:`org.gnome.zeitgeist.Engine`.
 	"""
 	_dbus_properties = {
-		"version": DBUSProperty(lambda self: (0, 8, 0), out_signature="iii"),
+		"version": DBUSProperty(lambda self: (0, 8, 1), out_signature="iii"),
 		"extensions": DBUSProperty(
 			lambda self: dbus.Array(self._engine.extensions.iter_names(), 's'),
 			out_signature="as"),
