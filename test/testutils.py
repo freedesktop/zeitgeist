@@ -148,6 +148,7 @@ class RemoteTestCase (unittest.TestCase):
 		self.env.update({
 			"ZEITGEIST_DATABASE_PATH": ":memory:",
 			"ZEITGEIST_DATA_PATH": self.datapath,
+			"XDG_CACHE_HOME": os.path.join(self.datapath, "cache"),
 		})
 		self.spawn_daemon()
 		
@@ -159,7 +160,11 @@ class RemoteTestCase (unittest.TestCase):
 		assert self.daemon is not None
 		assert self.client is not None
 		self.kill_daemon()
-		shutil.rmtree(self.datapath)
+		if 'ZEITGEIST_TESTS_KEEP_TMP' in os.environ:
+			print '\n\nAll temporary files have been preserved in %s\n' \
+				% self.datapath
+		else:
+			shutil.rmtree(self.datapath)
 	
 	def insertEventsAndWait(self, events):
 		"""
