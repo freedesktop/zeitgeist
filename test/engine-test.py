@@ -489,7 +489,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 		self.assertEquals("stfu:Document", subj.interpretation)
 		self.assertEquals("stfu:File", subj.manifestation)
 		self.assertEquals("text/plain", subj.mimetype)
-		self.assertEquals("this item has not text... rly!", subj.text)
+		self.assertEquals("this item has no text... rly!", subj.text)
 		self.assertEquals("368c991f-8b59-4018-8130-3ce0ec944157", subj.storage)
 		
 	def testInsertSubjectOptionalAttributes(self):

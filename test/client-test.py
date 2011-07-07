@@ -34,6 +34,26 @@ class DBusInterfaceReconnection(testutils.RemoteTestCase):
 			10, datamodel.ResultType.MostRecentEvents)
 		self.assertEquals(len(found_ids), 1)
 
+	def testMethodCallAfterReconnection(self):
+		# Insert an event
+		events = parse_events("test/data/single_event.js")
+		ids = self.client._iface.InsertEvents(events)
+		
+		# We can now check for it
+		self.assertEquals(len(self.client._iface.GetEvents(ids)), 1)
+		
+		# Restart the daemon
+		self.kill_daemon(signal.SIGHUP)
+		self.spawn_daemon()
+		
+		# Can we still check for it?
+		try:
+			self.assertEquals(len(self.client._iface.GetEvents(ids)), 1)
+		except Exception:
+			print "\n==> The first method call after reconnecting failed!"
+		
+		self.assertEquals(len(self.client._iface.GetEvents(ids)), 1)
+
 	def testSignalReconnection(self):
 		mainloop = self.create_mainloop()
 		datasource = ["www.example.com/foo", "Name", "Description", []]
