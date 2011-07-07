@@ -1,12 +1,13 @@
 #!/usr/bin/python
 # -.- coding: utf-8 -.-
 
-# Update python path to use local zeitgeist module
+import gobject
+import signal
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import unittest
+# Update python path to use local zeitgeist module
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from zeitgeist.client import ZeitgeistClient
 from zeitgeist import datamodel
@@ -14,7 +15,36 @@ from zeitgeist import datamodel
 import testutils
 from testutils import parse_events
 
-class EventAndSubjectOverrides (testutils.RemoteTestCase):
+class DBusInterfaceSignals(testutils.RemoteTestCase):
+	"""
+	This functionality tests the signal connection support in _DBusInterface
+	(zeitgeist.client module). In particular, it ensures that it stays working
+	after reconnections.
+	"""
+
+	_ds1 = ["www.example.com/foo", "Name", "Description", []]
+
+	def testSignalReconnection(self):
+		mainloop = self.create_mainloop()
+		self.client._registry.RegisterDataSource(*self._ds1)
+		
+		def cb_enabled(unique_id, enabled):
+			mainloop.quit()
+		
+		def enable_disable():
+			self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
+			self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
+		
+		self.client._registry.connect('DataSourceEnabled', cb_enabled)
+		gobject.idle_add(enable_disable)
+		
+		# Restart the daemon
+		self.kill_daemon(signal.SIGHUP)
+		self.spawn_daemon()
+		
+		mainloop.run()
+
+class EventAndSubjectOverrides(testutils.RemoteTestCase):
 	"""
 	This class tests the functionality allowing users to override the
 	Event and Subject types instantiated by ZeitgeistClient (LP: #799199).

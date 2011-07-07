@@ -47,6 +47,7 @@ class _DBusInterface(object):
 	# that here because otherwise all instances would share their state.
 	_disconnect_callbacks = None
 	_reconnect_callbacks = None
+	_generic_callbacks = None
 
 	@staticmethod
 	def get_members(introspection_xml):
@@ -122,6 +123,7 @@ class _DBusInterface(object):
 			self.reconnect()
 		if signal not in self.__signals:
 			raise TypeError("Unknown signal name: %s" % signal)
+		self._generic_callbacks.add((signal, callback))
 		self.__proxy.connect_to_signal(
 			signal,
 			callback,
@@ -157,6 +159,7 @@ class _DBusInterface(object):
 		
 		self._disconnect_callbacks = set()
 		self._reconnect_callbacks = set()
+		self._generic_callbacks = set()
 		
 		# Listen to (dis)connection notifications, for connect_exit and connect_join
 		def name_owner_changed(connection_name):
@@ -166,6 +169,12 @@ class _DBusInterface(object):
 			else:
 				self.reconnect()
 				callbacks = self._reconnect_callbacks
+				for signal, callback in self._generic_callbacks:
+					try:
+						self.connect(signal, callback)
+					except TypeError:
+						log.exception("Failed to reconnect to signal \"%s\" "
+							"after engine disconnection." % signal)
 			for callback in callbacks:
 				callback()
 		dbus.SessionBus().watch_name_owner(self.__iface.requested_bus_name,
