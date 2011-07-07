@@ -136,8 +136,8 @@ class RemoteTestCase (unittest.TestCase):
 	def spawn_daemon(self):
 		self.daemon = self._safe_start_daemon(env=self.env)
 	
-	def kill_daemon(self):
-		os.kill(self.daemon.pid, signal.SIGKILL)
+	def kill_daemon(self, kill_signal=signal.SIGKILL):
+		os.kill(self.daemon.pid, kill_signal)
 		self.daemon.wait()
 		
 	def setUp(self):
@@ -278,7 +278,8 @@ class RemoteTestCase (unittest.TestCase):
 		mainloop.run()
 		return result
 	
-	def create_mainloop(self, timeout=5):
+	@staticmethod
+	def create_mainloop(timeout=5):
 		
 		class MainLoopWithFailure(object):
 			
