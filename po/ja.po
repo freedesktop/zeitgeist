@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
 "PO-Revision-Date: 2010-02-15 05:52+0000\n"
 "Last-Translator: kawaji <jiro.kawada@gmail.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
-"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: ja\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
@@ -36,20 +36,20 @@ msgstr ""
 #~ msgid "No passive loggers found, bye."
 #~ msgstr "パッシブ・ロガーが見つかりませんでした。さようなら。"
 
+#, python-format
 #~ msgid "Could not load file: %s"
 #~ msgstr "ファイルを読み込めませんでした: %s"
 
+#, python-format
 #~ msgid "Updating database with new %s items"
 #~ msgstr "新しい %s アイテムにともない、データベースを更新しています"
 
 #~ msgid "Lost connection to zeitgeist-daemon, terminating."
 #~ msgstr "zeitgeist-daemon への接続が失われたため、終了処理しています。"
 
+#, python-format
 #~ msgid "Error logging item from \"%s\": %s"
 #~ msgstr "\"%s\" のアイテムのログ記録でエラー: %s"
-
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "GTK をインポートできなかったため、データソースは無効化されました。"
 
 #~ msgid "Tags"
 #~ msgstr "タグ"
@@ -123,26 +123,34 @@ msgstr ""
 #~ msgid "System Resources"
 #~ msgstr "システムリソース"
 
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "GTK をインポートできなかったため、データソースは無効化されました。"
+
 #~ msgid "Firefox History"
 #~ msgstr "Firefox 履歴"
 
 #~ msgid "Websites visited with Firefox"
 #~ msgstr "Firefox で訪問したウェブサイト"
 
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Firefox の履歴を監視できません: %s: %s"
 
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Firefox の履歴を監視しています: %s"
 
 #~ msgid "No Firefox profile found."
 #~ msgstr "Firefox のプロファイルが見つかりませんでした。"
 
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Evolution を監視できません: %s: %s"
 
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Evolution を監視しています: %s"
 
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "\"%s\" にある Tomboy ノートを監視しています。"

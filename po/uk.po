@@ -7,49 +7,28 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
 "PO-Revision-Date: 2010-02-15 05:47+0000\n"
 "Last-Translator: brabadu <brabadu@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
-"Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 05:08+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:51+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: uk\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
-msgstr ""
+msgstr "якщо інший екземпляр Zeitgeist вже працює, замініть його"
 
 #: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
-msgstr ""
+msgstr "не запускати zeitgeist-datahub автоматично"
 
 #: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
-msgstr ""
-
-#~ msgid "Starting Zeitgeist service..."
-#~ msgstr "Файло-облікова/пошукова система Зайтгайст завантажується..."
-
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "Не знайдено пасивних журналів, бувайте."
-
-#~ msgid "Could not load file: %s"
-#~ msgstr "Неможливо завантажити файл: %s"
-
-#~ msgid "Updating database with new %s items"
-#~ msgstr "До бази даних додаються нові %s елементи"
-
-#~ msgid "Lost connection to zeitgeist-daemon, terminating."
-#~ msgstr "Втрачено зв'язок з демоном zeitgeist-daemon, виходжу."
-
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "Помилка запису в журнал елемента з \"%s\": %s"
-
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "Не вдається імпортувати GTK; джерело даних деактивовано."
+msgstr "який об'єм інформації потрібно друкувати; допустиме значення:"
 
 #~ msgid "Open Journal"
 #~ msgstr "Відкрити журнал дій"
@@ -58,14 +37,32 @@ msgstr ""
 #~ "GNOME Zeitgeist is a tool for easily browsing and finding files on your "
 #~ "computer."
 #~ msgstr ""
-#~ "Файло-облікова/пошукова система Зайтгайст є інструментом швидкого пошуку "
-#~ "та перегляду файлів на Вашому компютері"
+#~ "Файло-облікова/пошукова система Зайтгайст є інструментом швидкого пошуку та "
+#~ "перегляду файлів на Вашому компютері"
 
 #~ msgid "Stars"
 #~ msgstr "Зірки"
 
 #~ msgid "Journal"
 #~ msgstr "Журнал"
+
+#, c-format
+#~ msgid "Error: Could not load file: %s"
+#~ msgstr "Помилка: Неможливо завантажити файл: %s"
+
+#, python-format
+#~ msgid "Updating database with new %s items"
+#~ msgstr "До бази даних додаються нові %s елементи"
+
+#, c-format
+#~ msgid "Type error logging item from \"%s\": %s"
+#~ msgstr "Пункт журналу помилок вводу \"%s\": %s"
+
+#~ msgid "Starting Zeitgeist service..."
+#~ msgstr "Файло-облікова/пошукова система Зайтгайст завантажується..."
+
+#~ msgid "Error: Could not connect to D-Bus."
+#~ msgstr "Помилка: Неможливо зєднатись з D-Bus."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr ""
@@ -125,6 +122,9 @@ msgstr ""
 #~ msgid "Calendar"
 #~ msgstr "Календар"
 
+#~ msgid "Filters"
+#~ msgstr "Фільтри"
+
 #~ msgid "Enable Grouping"
 #~ msgstr "Запровадити групування елементів"
 
@@ -152,6 +152,7 @@ msgstr ""
 #~ msgid "Tags:"
 #~ msgstr "Мітки:"
 
+#, python-format
 #~ msgid "Files related to %s"
 #~ msgstr "Файли, що мають стосунок до %s"
 
@@ -164,6 +165,9 @@ msgstr ""
 #~ msgid "Unbookmark"
 #~ msgstr "Зняти закладку"
 
+#~ msgid "Bookmark"
+#~ msgstr "Встановити закладку"
+
 #~ msgid "Show related activities"
 #~ msgstr "Відобразити повязані з елементом дії"
 
@@ -173,6 +177,7 @@ msgstr ""
 #~ msgid "Delete item from Zeitgeist"
 #~ msgstr "Видалити елемент з бази Зайтгайст"
 
+#, python-format
 #~ msgid "Edit tags for %s"
 #~ msgstr "Керування мітками %s ..."
 
@@ -191,9 +196,11 @@ msgstr ""
 #~ msgid "Yesterday"
 #~ msgstr "Вчора"
 
+#, python-format
 #~ msgid "Could not create database: %s"
 #~ msgstr "Помилка створення бази даних: %s"
 
+#, python-format
 #~ msgid "Error connecting with database: %s"
 #~ msgstr "Помилка зєднання з базою даних: %s"
 
@@ -212,11 +219,18 @@ msgstr ""
 #~ msgid "Zeitgeist Tray Icon"
 #~ msgstr "Значок Зайтгайст в зоні сповіщення"
 
+#, python-format
+#~ msgid "Could not load file: %s"
+#~ msgstr "Неможливо завантажити файл: %s"
+
 #~ msgid "Could not connect to D-Bus."
 #~ msgstr "Неможливо зєднатись з D-Bus."
 
 #~ msgid "Created"
 #~ msgstr "Створено"
+
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Втрачено зв'язок з демоном zeitgeist-daemon, виходжу."
 
 #~ msgid "Comments"
 #~ msgstr "Коментарі"
@@ -272,20 +286,35 @@ msgstr ""
 #~ msgid "Files"
 #~ msgstr "Файли"
 
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "Слідкую за нотатками Tomboy у \"%s\"."
 
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "Відслідковую Evolution: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Неможливо відслідковувати історію Firefox: %s: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Неможливо відслідковувати Evolution: %s: %s"
 
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "Відслідковую історію Firefox: %s"
 
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Не вдається імпортувати GTK; джерело даних деактивовано."
+
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Помилка запису в журнал елемента з \"%s\": %s"
+
 #~ msgid "Broadcasts"
 #~ msgstr "Трансляції"
+
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Не знайдено пасивних журналів, бувайте."

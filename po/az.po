@@ -1,4 +1,4 @@
-# Estonian translation for zeitgeist
+# Azerbaijani translation for zeitgeist
 # Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
 # This file is distributed under the same license as the zeitgeist package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-07 21:46+0000\n"
-"PO-Revision-Date: 2011-03-18 17:26+0000\n"
+"PO-Revision-Date: 2011-04-13 12:42+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Estonian <et@li.org>\n"
+"Language-Team: Azerbaijani <az@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
-"X-Generator: Launchpad (build 12559)\n"
+"X-Launchpad-Export-Date: 2011-04-15 05:08+0000\n"
+"X-Generator: Launchpad (build 12735)\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"

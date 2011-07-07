@@ -7,43 +7,45 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
-"PO-Revision-Date: 2010-09-26 11:53+0000\n"
-"Last-Translator: Christos Spyroglou <Unknown>\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
+"PO-Revision-Date: 2010-11-01 10:01+0000\n"
+"Last-Translator: Markus Korn <thekorn@gmx.de>\n"
 "Language-Team: Greek <el@li.org>\n"
-"Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-02 04:53+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: el\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
-msgstr ""
+msgstr "αν εκτελείται άλλη περίσταση του Zeitgeist, να αντικατασταθεί"
 
 #: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
-msgstr ""
+msgstr "να μην εκκινείται αυτόματα το zeitgeist-datahub"
 
 #: ../zeitgeist-daemon.py:79
 msgid "how much information should be printed; possible values:"
-msgstr ""
+msgstr "πόση πληροφορία θα εμφανίζεται· πιθανές τιμές:"
 
+#, python-format
 #~ msgid "Updating database with new %s items"
 #~ msgstr "Ενημέρωση της βάσης δεδομένων με νέα %s αντικείμενα"
 
 #~ msgid "Starting Zeitgeist service..."
 #~ msgstr "Εκκίνηση της υπηρεσίας Zeitgeist"
 
+#, python-format
 #~ msgid "Error logging item from \"%s\": %s"
 #~ msgstr "Σφάλμα καταγραφής αντικειμένου από \"%s\": %s"
+
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Δεν μπόρεσε να εισαχθεί το GTK; η πηγή δεδομένων απενεργοποιήθηκε"
 
 #~ msgid "No passive loggers found, bye."
 #~ msgstr "Δεν βρέθηκαν παθητικοί καταγραφείς, γειά."
 
 #~ msgid "Lost connection to zeitgeist-daemon, terminating."
 #~ msgstr "Χάθηκε η σύνδεση με το zeitgeist-daemon, τερματισμός."
-
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "Δεν μπόρεσε να εισαχθεί το GTK; η πηγή δεδομένων απενεργοποιήθηκε"

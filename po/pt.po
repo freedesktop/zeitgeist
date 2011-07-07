@@ -7,20 +7,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeitgeist\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 15:48+0100\n"
-"PO-Revision-Date: 2010-10-01 19:29+0000\n"
-"Last-Translator: Diogo Lavareda <diogolavareda9@hotmail.com>\n"
+"POT-Creation-Date: 2010-12-07 21:46+0000\n"
+"PO-Revision-Date: 2010-11-01 10:47+0000\n"
+"Last-Translator: Tiago Silva <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
-"Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-02 04:53+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-03-21 04:50+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
+"Language: pt\n"
 
 #: ../zeitgeist-daemon.py:71 ../zeitgeist-daemon.py:84
 msgid "if another Zeitgeist instance is already running, replace it"
-msgstr "se estiver outra instancia do Zeitgeist a correr, substitui-la"
+msgstr "se já existir outra instância do Zeitgeist em execução, substitua-a"
 
 #: ../zeitgeist-daemon.py:75
 msgid "do not start zeitgeist-datahub automatically"
@@ -30,35 +30,28 @@ msgstr "não iniciar o zeitgeist-datahub automaticamente"
 msgid "how much information should be printed; possible values:"
 msgstr "quanta informação deve ser impressa; valores possíveis:"
 
-#~ msgid "File \"%s\" not found, not starting datahub"
-#~ msgstr "O ficheiro \"%s\" não foi encontrado, datahub não irá iniciar"
-
 #~ msgid "Starting Zeitgeist service..."
 #~ msgstr "A iniciar o serviço Zeitgeist..."
 
-#~ msgid "No passive loggers found, bye."
-#~ msgstr "Nenhum logger passivo encontrado, adeus."
-
-#~ msgid "Could not load file: %s"
-#~ msgstr "Incapaz de ler o ficheiro: %s"
-
+#, python-format
 #~ msgid "Updating database with new %s items"
 #~ msgstr "A actualizar base de dados com novos itens %s"
 
-#~ msgid "Lost connection to zeitgeist-daemon, terminating."
-#~ msgstr "Conexão com zeitgeist-daemon perdida. Terminando."
-
-#~ msgid "Error logging item from \"%s\": %s"
-#~ msgstr "Erro ao criar log do item de \"%s\": %s"
-
-#~ msgid "Could not import GTK; data source disabled."
-#~ msgstr "Incapaz de importar GTK; fonte dos dados desabilitada."
+#~ msgid "Error: Could not connect to D-Bus."
+#~ msgstr "Erro: Não foi possível conectar a D-Bus."
 
 #~ msgid "Error: Zeitgeist service not running."
 #~ msgstr "Erro: O serviço Zeitgeist não está em funcionamento."
 
 #~ msgid "Could not connect to D-Bus."
 #~ msgstr "Não foi possível conectar a D-Bus."
+
+#~ msgid "Lost connection to zeitgeist-daemon, terminating."
+#~ msgstr "Conexão com zeitgeist-daemon perdida. Terminando."
+
+#, python-format
+#~ msgid "Could not load file: %s"
+#~ msgstr "Incapaz de ler o ficheiro: %s"
 
 #~ msgid "Comments"
 #~ msgstr "Comentários"
@@ -68,6 +61,10 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 
 #~ msgid "Documents"
 #~ msgstr "Documentos"
+
+#, python-format
+#~ msgid "Error logging item from \"%s\": %s"
+#~ msgstr "Erro ao criar log do item de \"%s\": %s"
 
 #~ msgid "Created"
 #~ msgstr "Criado"
@@ -132,18 +129,26 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "No Firefox profile found."
 #~ msgstr "Nenhum perfil do Firefox encontrado."
 
+#~ msgid "Could not import GTK; data source disabled."
+#~ msgstr "Incapaz de importar GTK; fonte dos dados desabilitada."
+
+#, python-format
 #~ msgid "Watching for Tomboy notes in \"%s\"."
 #~ msgstr "A procurar por notas do Tomboy em \"%s\"."
 
+#, python-format
 #~ msgid "Monitoring Evolution: %s"
 #~ msgstr "A monitorar Evolution: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Firefox's history: %s: %s"
 #~ msgstr "Incapaz de monitorar o histórico do Firefox: %s: %s"
 
+#, python-format
 #~ msgid "Unable to monitor Evolution: %s: %s"
 #~ msgstr "Incapaz de monitorar o Evolution: %s: %s"
 
+#, python-format
 #~ msgid "Monitoring Firefox's history: %s"
 #~ msgstr "A monitorar o histórico do Firefox: %s"
 
@@ -153,5 +158,12 @@ msgstr "quanta informação deve ser impressa; valores possíveis:"
 #~ msgid "Broadcasts"
 #~ msgstr "Difusões"
 
+#~ msgid "No passive loggers found, bye."
+#~ msgstr "Nenhum logger passivo encontrado, adeus."
+
 #~ msgid "Email"
 #~ msgstr "Correio Electrónico"
+
+#, python-format
+#~ msgid "File \"%s\" not found, not starting datahub"
+#~ msgstr "O ficheiro \"%s\" não foi encontrado, datahub não irá iniciar"
