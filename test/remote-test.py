@@ -562,7 +562,10 @@ class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
 	
 	def __init__(self, methodName):
 		super(ZeitgeistRemotePropertiesTest, self).__init__(methodName)
-		
+	
+	def testVersion(self):
+		self.assertTrue(len(self.client.get_version()) >= 2)
+	
 	def testExtensions(self):
 		self.assertEquals(
 			sorted(self.client.get_extensions()),

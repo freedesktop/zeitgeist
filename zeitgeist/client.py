@@ -67,15 +67,16 @@ class _DBusInterface(object):
 		return methods, signals
 
 	def reconnect(self):
-		self.__proxy = dbus.SessionBus().get_object(self.__iface.requested_bus_name,
-			self.__object_path)
+		self.__proxy = dbus.SessionBus().get_object(
+			self.__iface.requested_bus_name, self.__object_path)
 		self.__iface = dbus.Interface(self.__proxy, self.__interface_name)
 		self._load_introspection_data()
 
-	def _disconnection_safe(self, method_name, *args, **kwargs):
+	def _disconnection_safe(self, method_getter, *args, **kwargs):
 		"""
-		Executes the given method. If it fails because the D-Bus connection
-		was lost, attempts to recover it and executes the method again.
+		Executes the method returned by method_getter. If it fails because
+		the D-Bus connection was lost, it attempts to recover it and executes
+		the method again.
 		"""
 		
 		custom_error_handler = None
@@ -87,8 +88,7 @@ class _DBusInterface(object):
 				self.reconnect()
 				# We don't use the reconnecting_error_handler here since that'd
 				# get us into an endless loop if Zeitgeist really isn't there.
-				meth = getattr(self.__iface, method_name)
-				return meth(*args, **original_kwargs)
+				return method_getter()(*args, **original_kwargs)
 			else:
 				if custom_error_handler is not None:
 					custom_error_handler(e)
@@ -102,8 +102,7 @@ class _DBusInterface(object):
 			kwargs['error_handler'] = reconnecting_error_handler
 
 		try:
-			meth = getattr(self.__iface, method_name)
-			return meth(*args, **kwargs)
+			return method_getter()(*args, **kwargs)
 		except dbus.exceptions.DBusException, e:
 			return reconnecting_error_handler(e)
 
@@ -115,8 +114,14 @@ class _DBusInterface(object):
 			Method wrapping around a D-Bus call, which attempts to recover
 			the connection to Zeitgeist if it got lost.
 			"""
-			return self._disconnection_safe(name, *args, **kwargs)
+			return self._disconnection_safe(
+				lambda: getattr(self.__iface, name), *args, **kwargs)
 		return _ProxyMethod
+
+	def get_property(self, property_name):
+		return self._disconnection_safe(
+			lambda: self.__proxy.get_dbus_method("Get", dbus.PROPERTIES_IFACE),
+			self.__interface_name, property_name)
 
 	def connect(self, signal, callback, **kwargs):
 		"""Connect a callback to a signal of the current proxy instance."""
@@ -201,18 +206,12 @@ class ZeitgeistDBusInterface(object):
 	def version(self):
 		"""Returns the API version"""
 		dbus_interface = self.__shared_state["dbus_interface"]
-		return dbus_interface._disconnection_safe(
-			dbus_interface.proxy.get_dbus_method("Get",
-				dbus_interface=dbus.PROPERTIES_IFACE),
-			self.INTERFACE_NAME, "version")
+		return dbus_interface.get_property("version")
 	
 	def extensions(self):
 		"""Returns active extensions"""
 		dbus_interface = self.__shared_state["dbus_interface"]
-		return dbus_interface._disconnection_safe(
-			dbus_interface.proxy.get_dbus_method("Get",
-				dbus_interface=dbus.PROPERTIES_IFACE),
-				self.INTERFACE_NAME, "extensions")
+		return dbus_interface.get_property("extensions")
 	
 	def get_extension(cls, name, path, busname=None):
 		""" Returns an interface to the given extension.

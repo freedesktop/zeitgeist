@@ -1,4 +1,15 @@
-2011-07-7: Zeitgeist 0.8.1 "The Snake and the Holy Grail"
+2011-07-?: Zeitgeist 0.8.? "???"
+--------------------------------
+
+Engine:
+
+ - ...
+
+Python API:
+
+ - Fix regression that broke properties (get_version and get_extensions).
+
+2011-07-07: Zeitgeist 0.8.1 "The Snake and the Holy Grail"
 ---------------------------------------------------------
 
 Engine:
