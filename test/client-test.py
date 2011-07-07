@@ -15,12 +15,24 @@ from zeitgeist import datamodel
 import testutils
 from testutils import parse_events
 
-class DBusInterfaceSignals(testutils.RemoteTestCase):
+class DBusInterfaceReconnection(testutils.RemoteTestCase):
 	"""
-	This class tests the signal connection support in _DBusInterface
-	(zeitgeist.client module). In particular, it ensures that it stays working
-	after reconnections.
+	This class tests the _DBusInterface class (from the zeitgeist.client
+	module) . In particular, it ensures that method calls and signals stay
+	working after engine restarts.
 	"""
+
+	def testRawMethodCalls(self):
+		events = parse_events("test/data/single_event.js")
+		ids = self.client._iface.InsertEvents(events)
+		self.assertEquals(len(ids), 1)
+		found_events = self.client._iface.GetEvents(ids)
+		self.assertTrue(found_events)
+		template = (["","","","",""],["","","","","","",""],[0])
+		found_ids = self.client._iface.FindEventIds(
+			(0, 200), [template], datamodel.StorageState.Any,
+			10, datamodel.ResultType.MostRecentEvents)
+		self.assertEquals(len(found_ids), 1)
 
 	def testSignalReconnection(self):
 		mainloop = self.create_mainloop()

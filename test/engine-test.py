@@ -75,7 +75,7 @@ class ZeitgeistEngineTest(_engineTestClass):
 	"""
 		
 	def testSingleInsertGet(self):
-		global test_event_1			
+		global test_event_1
 		# Insert item and event
 		ids = self.engine.insert_events([test_event_1])
 		result = self.engine.get_events(ids)
