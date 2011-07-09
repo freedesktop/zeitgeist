@@ -117,16 +117,16 @@ class ZeitgeistEngine:
 			# to be 100% sure.
 			raise RuntimeError("old database version")
 		
-		# Load extensions
-		default_extensions = get_extensions()
-		self.__extensions = ExtensionsCollection(self,
-		                                         defaults=default_extensions)
-		
 		self._interpretation = TableLookup(cursor, "interpretation")
 		self._manifestation = TableLookup(cursor, "manifestation")
 		self._mimetype = TableLookup(cursor, "mimetype")
 		self._actor = TableLookup(cursor, "actor")
 		self._event_cache = LRUCache(constants.CACHE_SIZE)
+
+		# Load extensions
+		default_extensions = get_extensions()
+		self.__extensions = ExtensionsCollection(self,
+			defaults=default_extensions)
 	
 	@property
 	def extensions(self):

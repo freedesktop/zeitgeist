@@ -3,7 +3,8 @@
 
 Engine:
 
- - ...
+ - Load extensions after the internal database lookup/cache tables have
+   been initialized.
 
 Python API:
 
