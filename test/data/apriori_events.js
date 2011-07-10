@@ -1,7 +1,7 @@
 [
 	{
 		"timestamp" : 1234561001000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -18,7 +18,7 @@
 	},
 	{
 		"timestamp" : 1234561002000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -35,7 +35,7 @@
 	},
 	{
 		"timestamp" : 1234561003000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -52,7 +52,7 @@
 	},
 	{
 		"timestamp" : 1234562001000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -69,7 +69,7 @@
 	},
 	{
 		"timestamp" : 1234562002000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -86,7 +86,7 @@
 	},
 	{
 		"timestamp" : 1234563001000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -103,7 +103,7 @@
 	},
 	{
 		"timestamp" : 1234563002000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -120,7 +120,7 @@
 	},
 	{
 		"timestamp" : 1234564001000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -137,7 +137,7 @@
 	},
 	{
 		"timestamp" : 1234564002000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -154,7 +154,7 @@
 	},
 	{
 		"timestamp" : 1234564003000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -171,7 +171,7 @@
 	},
 	{
 		"timestamp" : 1234565001000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -188,7 +188,7 @@
 	},
 	{
 		"timestamp" : 1234565002000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -205,7 +205,7 @@
 	},
 	{
 		"timestamp" : 1234566001000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -222,7 +222,7 @@
 	},
 	{
 		"timestamp" : 1234566002000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -239,7 +239,7 @@
 	},
 	{
 		"timestamp" : 1234567001000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -256,7 +256,7 @@
 	},
 	{
 		"timestamp" : 1234567002000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -273,7 +273,7 @@
 	},
 	{
 		"timestamp" : 1234568001000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -290,7 +290,7 @@
 	},
 	{
 		"timestamp" : 1234568002000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -307,7 +307,7 @@
 	},
 	{
 		"timestamp" : 1234568003000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -324,7 +324,7 @@
 	},
 	{
 		"timestamp" : 1234568004000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -341,7 +341,7 @@
 	},
 	{
 		"timestamp" : 1234569001000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -358,7 +358,7 @@
 	},
 	{
 		"timestamp" : 1234569002000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#AccessEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
@@ -375,7 +375,7 @@
 	},
 	{
 		"timestamp" : 1234569003000,
-		"interpretation" : "stfu:OpenEvent",
+		"interpretation" : "http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#LeaveEvent",
 		"manifestation" : "stfu:YourActivity",
 		"actor" : "firefox",
 		"subjects" : [
