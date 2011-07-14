@@ -84,7 +84,7 @@ class SingletonApplication(dbus.service.Object):
 			else:
 				logging.debug("Replacing currently running process...")
 			try:
-				interface = ZeitgeistDBusInterface()
+				interface = ZeitgeistDBusInterface(reconnect=False)
 				interface.Quit()
 				while dbus.SessionBus().name_has_owner(ZeitgeistDBusInterface.BUS_NAME):
 					pass

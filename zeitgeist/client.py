@@ -67,6 +67,8 @@ class _DBusInterface(object):
 		return methods, signals
 
 	def reconnect(self):
+		if not self._reconnect_when_needed:
+			return
 		self.__proxy = dbus.SessionBus().get_object(
 			self.__iface.requested_bus_name, self.__object_path)
 		self.__iface = dbus.Interface(self.__proxy, self.__interface_name)
@@ -156,11 +158,12 @@ class _DBusInterface(object):
 		self.__methods, self.__signals = self.get_members(
 			self.__proxy.Introspect())
 
-	def __init__(self, proxy, interface_name, object_path):
+	def __init__(self, proxy, interface_name, object_path, reconnect=True):
 		self.__proxy = proxy
 		self.__interface_name = interface_name
 		self.__object_path = object_path
 		self.__iface = dbus.Interface(proxy, interface_name)
+		self._reconnect_when_needed = reconnect
 		self._load_introspection_data()
 		
 		self._disconnect_callbacks = set()
@@ -173,6 +176,8 @@ class _DBusInterface(object):
 				callbacks = self._disconnect_callbacks
 				self.__methods = self.__signals = None
 			else:
+				if not self._reconnect_when_needed:
+					return
 				self.reconnect()
 				callbacks = self._reconnect_callbacks
 				for signal, callback in self._generic_callbacks:
@@ -235,7 +240,7 @@ class ZeitgeistDBusInterface(object):
 			cls.__shared_state["extension_interfaces"][name] = iface
 		return cls.__shared_state["extension_interfaces"][name]
 	
-	def __init__(self):
+	def __init__(self, reconnect=True):
 		if not "dbus_interface" in self.__shared_state:
 			try:
 				proxy = dbus.SessionBus().get_object(self.BUS_NAME,
@@ -249,7 +254,7 @@ class ZeitgeistDBusInterface(object):
 					raise
 			self.__shared_state["extension_interfaces"] = {}
 			self.__shared_state["dbus_interface"] = _DBusInterface(proxy,
-				self.INTERFACE_NAME, self.OBJECT_PATH)
+				self.INTERFACE_NAME, self.OBJECT_PATH, reconnect)
 
 class Monitor(dbus.service.Object):
 	"""
