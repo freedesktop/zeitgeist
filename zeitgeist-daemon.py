@@ -113,7 +113,7 @@ def start_datahub():
 		pid, stdin, stdout, stderr = glib.spawn_async(
 			[DATAHUB,],
 			flags=glib.SPAWN_SEARCH_PATH | glib.SPAWN_STDOUT_TO_DEV_NULL | glib.SPAWN_STDERR_TO_DEV_NULL)
-	except OSError:
+	except (OSError, glib.GError):
 		logging.warning("Unable to start the datahub, no binary found")
 	else:
 		# TODO: delayed check if the datahub is still running after some time
