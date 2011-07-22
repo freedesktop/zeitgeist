@@ -1,10 +1,12 @@
-2011-07-?: Zeitgeist 0.8.? "???"
---------------------------------
+2011-07-22: Zeitgeist 0.8.1.1 "Grass Frog"
+------------------------------------------
 
 Engine:
 
  - Load extensions after the internal database lookup/cache tables have
    been initialized.
+ - Fix problem when replacing an existing Zeitgeist instance (LP: #809569).
+ - Fix possible crash when zeitgeist-datahub isn't available (LP: #791392).
 
 Python API:
 
