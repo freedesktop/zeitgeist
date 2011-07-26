@@ -27,7 +27,8 @@ GLIB_REQUIRED=2.26.0
 
 BLUEBIRD_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
                    gobject-2.0 >= $GLIB_REQUIRED
-                   gio-unix-2.0 >= $GLIB_REQUIRED"
+                   gio-unix-2.0 >= $GLIB_REQUIRED
+                   sqlite3"
 
 PKG_CHECK_MODULES(BLUEBIRD, [$BLUEBIRD_REQUIRED])
 AC_SUBST(BLUEBIRD_CFLAGS)

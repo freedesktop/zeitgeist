@@ -3,9 +3,15 @@
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
+ * Based upon a Python implementation (2009-2011) by:
+ *  Markus Korn <thekorn@gmx.net>
+ *  Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+ *  Seif Lotfy <seif@lotfy.com>
+ *  Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 2.1 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -13,16 +19,49 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-public class Engine : Object {
+using Sqlite;
+
+public errordomain EngineError
+{
+	DATABASE_ERROR
+}
+
+public class Engine : Object
+{
+
+	Database database;
+	uint32 last_id;
+
+	public Engine () throws EngineError
+	{
+		int rc;
+	
+		rc = Database.open(
+			"/home/rainct/.local/share/zeitgeist/activity.sqlite",
+			out database);
+		if (rc != Sqlite.OK) {
+			stderr.printf ("Can't open database: %d, %s\n", rc,
+				database.errmsg ());
+			throw new EngineError.DATABASE_ERROR("Fail.");
+		}
+		
+		rc = database.exec ("SELECT MAX(id) FROM event",
+			(n_columns, values, column_names) =>
+			{
+				last_id = int.parse(values[0]);
+				return 0;
+			}, null);
+		
+		stdout.printf("last_id: %u\n", last_id);
+	}
 
 	public void close ()
 	{
-	
 	}
 
 }

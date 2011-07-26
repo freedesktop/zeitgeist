@@ -6,8 +6,8 @@
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 2.1 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
@@ -197,7 +197,7 @@ public class Event : Object
 		
 		vb.open(new VariantType("aas"));
 		for (int i = 0; i < subjects.length; ++i) {
-			vb.add_value(subjects[i].);
+			vb.add_value(subjects[i].to_variant());
 		}
 		vb.close();
 		
@@ -239,7 +239,7 @@ public class Subject : Object
 
 	public Variant to_variant()
 	{
-		var vb = new VariantBuilder(new VariantType("aas"));
+		var vb = new VariantBuilder(new VariantType("as"));
 		vb.open(new VariantType("as"));
 		vb.add("s", uri);
 		vb.add("s", interpretation);
@@ -249,7 +249,8 @@ public class Subject : Object
 		vb.add("s", text);
 		vb.add("s", storage);
 		vb.add("s", current_uri);
-		return vb.close();
+		vb.close();
+		return vb.end();
 	}
 
 }

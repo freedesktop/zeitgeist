@@ -10,6 +10,7 @@ AM_CPPFLAGS = \
 VALAFLAGS = \
 	--pkg gio-2.0 \
 	--target-glib=2.26 \
+	--pkg sqlite3 \
 	$(NULL)
 
 bluebird_SOURCES = \

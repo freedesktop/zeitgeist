@@ -5,8 +5,8 @@
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 2.1 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
@@ -36,7 +36,16 @@ public class ZeitgeistDaemon : Object
 	public ZeitgeistDaemon ()
 	{
 		stdout.printf("Hi!\n");
+		
+		try
+		{
 		engine = new Engine();
+		}
+		catch (EngineError e)
+		{
+			Quit();
+		}
+		
 		notifications = new MonitorManager();
 
 		var vb = new VariantBuilder(new VariantType("(asaasay)"));

@@ -14,14 +14,14 @@ bluebirddoc_DATA = \
 	COPYING \
 	AUTHORS \
 	INSTALL \
-	NEWS\
+	NEWS \
 	$(NULL)
 
 EXTRA_DIST = \
 	$(bluebirddoc_DATA) \
 	intltool-extract.in \
 	intltool-merge.in \
-	intltool-update.in\
+	intltool-update.in \
 	$(NULL)
 
 DISTCLEANFILES = \
