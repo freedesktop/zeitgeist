@@ -3,7 +3,7 @@
  * Copyright © 2011 Collabora Ltd.
  *             By Seif Lotfy <seif@lotfy.com>
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
- * 			 © Manish Sinha <manishsinha@ubuntu.com>
+ * Copyright © 20011 Manish Sinha <manishsinha@ubuntu.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
