@@ -20,8 +20,8 @@
  */
 
 public struct TimeRange {
-	uint start;
-	uint end;
+	int64 start;
+	int64 end;
 }
 
 [DBus (name = "org.gnome.zeitgeist.Log")]
@@ -35,18 +35,20 @@ public class Zeitgeist : Object {
 		stdout.printf("Hi!\n");
 		engine = new Engine();
 		notifications = new MonitorManager();
+		var vari = new Variant("u", 5);
+		new Event.from_variant(@vari);
 	}
 
 	// FIXME
 	[DBus (signature = "a(asaasay)")]
-	public Variant GetEvents (uint[] event_ids, BusName sender) {
+	public Variant GetEvents (uint32[] event_ids, BusName sender) {
 		stdout.printf ("yeah!\n");
 		//return new Variant("us", 5, "OK");
 		return 1;
 	}
 
 	// FIXME
-	public string[] FindRelatedUris (uint[] time_range,
+	public string[] FindRelatedUris (TimeRange time_range,
 			[DBus (signature = "a(asaasay)")] Variant event_templates,
 			[DBus (signature = "a(asaasay)")] Variant result_event_templates,
 			uint storage_state, uint num_events, uint result_type,
@@ -125,8 +127,7 @@ public class Zeitgeist : Object {
 	}
 
 	static int main (string[] args) {
-		var zeitgeist = new Zeitgeist ();
-		zeitgeist.run ();
+		run ();
 		return 0;
 	}
 

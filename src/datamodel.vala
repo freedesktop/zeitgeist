@@ -18,3 +18,30 @@
  *
  */
 
+public class Event : Object {
+
+	uint32?   id;
+	int64     timestamp;
+	string    interpretation;
+	string    manifestation;
+	string    actor;
+	string    origin;
+	
+	Subject[] subjects;
+	uint8[]   payload;
+
+	public Event.from_variant (Variant event_variant) {
+		stdout.printf("VAR: %u\n\n", event_variant.get_uint32());
+	}
+
+}
+
+public class Subject : Object {
+	string uri;
+	string interpretation;
+	string manifestation;
+	string mimetype;
+	string origin;
+	string text;
+	string storage;
+}
