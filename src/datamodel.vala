@@ -144,8 +144,8 @@ public enum StorageState
 	Any = 2				// The event subjects may or may not be available
 }
 
-public class Event : Object {
-
+public class Event : Object
+{
 	public uint32    id { get; set; }
 	public int64     timestamp { get; set; }
 	public string    interpretation { get; set; }
@@ -153,8 +153,8 @@ public class Event : Object {
 	public string    actor { get; set; }
 	public string    origin { get; set; }
 	
-	public Subject[] subjects { get; set; }
-	public uint8[]   payload { get; set; }
+	public GenericArray<Subject> subjects { get; set; }
+	public ByteArray payload { get; set; }
 
 	public Event.from_variant (Variant event_variant) {
 		// Event signature: (asaasay)

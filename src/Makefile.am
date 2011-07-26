@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
 
 VALAFLAGS = \
 	--pkg gio-2.0 \
+	--target-glib=2.26 \
 	$(NULL)
 
 bluebird_SOURCES = \
