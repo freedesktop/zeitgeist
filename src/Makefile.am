@@ -19,6 +19,7 @@ bluebird_SOURCES = \
 	extension.vala \
 	notify.vala \
 	sql.vala \
+	constants.vala \
 	$(NULL)
 
 bluebird_LDADD = \
