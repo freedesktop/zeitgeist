@@ -31,3 +31,5 @@ DISTCLEANFILES = \
 	po/.intltool-merge-cache \
 	$(NULL)
 
+run: all
+	./src/bluebird

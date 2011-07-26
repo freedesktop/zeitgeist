@@ -1,11 +1,15 @@
 NULL = 
 
+bin_PROGRAMS = bluebird
+
 AM_CPPFLAGS = \
 	$(BLUEBIRD_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	$(NULL)
 
-bin_PROGRAMS = bluebird
+VALAFLAGS = \
+	--pkg gio-2.0 \
+	$(NULL)
 
 bluebird_SOURCES = \
 	zeitgeist-daemon.vala \
@@ -13,7 +17,6 @@ bluebird_SOURCES = \
 	engine.vala \
 	extension.vala \
 	notify.vala \
-	remote.vala \
 	sql.vala \
 	$(NULL)
 
@@ -27,3 +30,5 @@ EXTRA_DIST = \
 DISTCLEANFILES = \
 	$(NULL)
 
+clean:
+	rm -f *.c *.o *.stamp

@@ -1,4 +1,4 @@
-AC_INIT([bluebird], [0.1.0], [seif@lotfy.com], [bluebird])
+AC_INIT([bluebird], [0.1.0], [dev@lists.zeitgeist-project.com], [bluebird])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -23,9 +23,13 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-GLIB_REQUIRED=2.12.0
+GLIB_REQUIRED=2.26.0
 
-PKG_CHECK_MODULES(BLUEBIRD, glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED)
+BLUEBIRD_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
+                   gobject-2.0 >= $GLIB_REQUIRED
+                   gio-unix-2.0 >= $GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(BLUEBIRD, [$BLUEBIRD_REQUIRED])
 AC_SUBST(BLUEBIRD_CFLAGS)
 AC_SUBST(BLUEBIRD_LIBS)
 
