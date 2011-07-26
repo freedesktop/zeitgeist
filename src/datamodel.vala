@@ -21,98 +21,98 @@
  */
 
 public enum ResultType {
-	MOST_RECENT_EVENTS,     			// 0	All events with the most recent
+	MOST_RECENT_EVENTS,     				// 0	All events with the most
+							//		recent events first
+	LEAST_RECENT_EVENTS, 	        		// 1	All events with the oldest
+							//		ones first
+	MOST_RECENT_SUBJECTS,   				// 2	One event for each subject
+							//		only, ordered with the most recent
 							//		events first
-	LEAST_RECENT_EVENTS, 	        		// 1	All events with the oldest ones
-							//		first
-	MOST_RECENT_SUBJECTS,   			// 2	One event for each subject only,
-							//		ordered with the most recent
-							//		events first
-	LEAST_RECENT_SUBJECTS,		      		// 3	One event for each subject only,
-							//		ordered with oldest events first
-	MOST_POPULAR_SUBJECTS, 				// 4	One event for each subject only,
-							//		ordered by the popularity of the
+	LEAST_RECENT_SUBJECTS,		      		// 3	One event for each subject
+							//		only, ordered with oldest events first
+	MOST_POPULAR_SUBJECTS, 					// 4	One event for each subject
+							//		only, ordered by the popularity of the
 							//		subject
-	LEAST_POPULAR_SUBJECTS,				// 5	One event for each subject only,
-							//		ordered ascendingly by
+	LEAST_POPULAR_SUBJECTS,					// 5	One event for each subject
+							//		only, ordered ascendingly by
 							//		popularity of the subject
-	MOST_POPULAR_ACTOR,				// 6	The last event of each different
-							//		actor ordered by the popularity
+	MOST_POPULAR_ACTOR,						// 6	The last event of each
+							//		different actor ordered by the popularity
 							//		of the actor
-	LEAST_POPULAR_ACTOR, 				// 7	The last event of each different
-							//		actor, ordered ascendingly by
+	LEAST_POPULAR_ACTOR, 					// 7	The last event of each
+							//		different actor, ordered ascendingly by
 							//		the popularity of the actor
-	MOST_RECENT_ACTOR,				// 8	The actor that has been used to
-							//		most recently
-	LEAST_RECENT_ACTOR,				// 9	The actor that has been used to
-							//		least recently
-	MOST_RECENT_ORIGIN,				// 10	The last event of each different
-							//		subject origin.
-	LEAST_RECENT_ORIGIN,				// 11	The last event of each different
-							//		subject origin, ordered by least
+	MOST_RECENT_ACTOR,						// 8	The actor that has been used
+							//		to most recently
+	LEAST_RECENT_ACTOR,						// 9	The actor that has been used
+							//		to least recently
+	MOST_RECENT_ORIGIN,						// 10	The last event of each
+							//		different subject origin.
+	LEAST_RECENT_ORIGIN,					// 11	The last event of each
+							//		different subject origin, ordered by least
 							//		recently used first
-	MOST_POPULAR_ORIGIN,				// 12	The last event of each different
-							//		subject origin, ordered by the
+	MOST_POPULAR_ORIGIN,					// 12	The last event of each
+							//		different subject origin, ordered by the
 							//		popularity of the origins")
-	LEAST_POPULAR_ORIGIN,				// 13	The last event of each different
-							//		subject origin, ordered
+	LEAST_POPULAR_ORIGIN,					// 13	The last event of each
+							//		different subject origin, ordered
 							//		ascendingly by the popularity
 							//		of the origin
-	OLDEST_ACTOR,					// 14	The first event of each
+	OLDEST_ACTOR,							// 14	The first event of each
 							//		different actor
 	MOST_RECENT_SUBJECT_INTERPRETATION,		// 15	One event for each subject
 							//		interpretation only, ordered
 							//		with the most recent events
 							//		first
-	LEAST_RECENT_SUBJECT_INTERPRETATION,		// 16	One event for each subject
+	LEAST_RECENT_SUBJECT_INTERPRETATION,	// 16	One event for each subject
 							//		interpretation only, ordered
 							//		with the least recent events
 							//		first
-	MOST_POPULAR_SUBJECT_INTERPRETATION,		// 17	One event for each subject
+	MOST_POPULAR_SUBJECT_INTERPRETATION,	// 17	One event for each subject
 							//		interpretation only, ordered by
 							//		the popularity of the subject
 							//		interpretation
-	LEAST_POPULAR_SUBJECT_INTERPRETATION,		// 18	One event for each subject
+	LEAST_POPULAR_SUBJECT_INTERPRETATION,	// 18	One event for each subject
 							//		interpretation only, ordered
 							//		ascendingly by popularity of
 							//		the subject interpretation
-	MOST_RECENT_MIMETYPE,				// 19	One event for each mimetype only
-							//		ordered with the most recent
+	MOST_RECENT_MIMETYPE,					// 19	One event for each mimetype
+							//		only ordered with the most recent
 							//		events first
-	LEAST_RECENT_MIMETYPE,				// 20	One event for each mimetype only
-							//		ordered with the least recent
+	LEAST_RECENT_MIMETYPE,					// 20	One event for each mimetype
+							//		only ordered with the least recent
 							//		events first
-	MOST_POPULAR_MIMETYPE,				// 21	One event for each mimetype only
-							//		ordered by the popularity of the
+	MOST_POPULAR_MIMETYPE,					// 21	One event for each mimetype
+							//		only ordered by the popularity of the
 							//		mimetype
-	LEAST_POPULAR_MIMETYPE,				// 22	One event for each mimetype only
-							//		ordered ascendingly by
+	LEAST_POPULAR_MIMETYPE,					// 22	One event for each mimetype
+							//		only ordered ascendingly by
 							//		popularity of the mimetype
-	MOST_RECENT_CURRENT_URI,			// 23	One event for each subject only
-							//		by current_uri instead of uri
+	MOST_RECENT_CURRENT_URI,				// 23	One event for each subject
+							//		only by current_uri instead of uri
 							//		ordered with the most recent
 							//		events first
-	LEAST_RECENT_CURRENT_URI,			// 24	One event for each subject only
-							//		by current_uri instead of uri
+	LEAST_RECENT_CURRENT_URI,				// 24	One event for each subject
+							//		only by current_uri instead of uri
 							//		ordered with oldest events first
-	MOST_POPULAR_CURRENT_URI,			// 25	One event for each subject only
-							//		by current_uri instead of uri
+	MOST_POPULAR_CURRENT_URI,				// 25	One event for each subject
+							//		only by current_uri instead of uri
 							//		ordered by the popularity of the
 							//		subject
-	LEAST_POPULAR_CURRENT_URI,			// 26	One event for each subject only
-							//		by current_uri instead of uri
+	LEAST_POPULAR_CURRENT_URI,				// 26	One event for each subject
+							//		only by current_uri instead of uri
 							//		ordered ascendingly by
 							//		popularity of the subject
-	MOST_RECENT_EVENT_ORIGIN,			// 27	The last event of each different
-							//		origin
-	LEAST_RECENT_EVENT_ORIGIN,			// 28	The last event of each different
-							//		origin, ordered by least
+	MOST_RECENT_EVENT_ORIGIN,				// 27	The last event of each
+							//		different origin
+	LEAST_RECENT_EVENT_ORIGIN,				// 28	The last event of each
+							//		different origin, ordered by least
 							//		recently used first
-	MOST_POPULAR_EVENT_ORIGIN,			// 29	The last event of each different
-							//		origin ordered by the popularity
+	MOST_POPULAR_EVENT_ORIGIN,				// 29	The last event of each
+							//		different origin ordered by the popularity
 							//		of the origins
-	LEAST_POPULAR_EVENT_ORIGIN,			// 30	The last event of each different
-							//		origin, ordered ascendingly by
+	LEAST_POPULAR_EVENT_ORIGIN,				// 30	The last event of each
+							//		different origin, ordered ascendingly by
 							//		the popularity of the origin
 }
 
@@ -138,10 +138,10 @@ public enum RelevantResultType
 public enum StorageState
 {
 	NOT_AVAILABLE = 0, 	// The storage medium of the events
-				// 		subjects must not be available to the user
+						// subjects must not be available to the user
 	AVAILABLE = 1, 		// The storage medium of all event subjects
-				// 		must be immediately available to the user
-	ANY = 2			// The event subjects may or may not be available
+						// must be immediately available to the user
+	ANY = 2				// The event subjects may or may not be available
 }
 
 public class Event : Object
@@ -192,6 +192,7 @@ public class Subject : Object {
 	public string origin { get; set; }
 	public string text { get; set; }
 	public string storage { get; set; }
+	public string current_uri { get; set; }
 
 	public Subject.from_variant (Variant subject_variant) {
 		VariantIter iter = subject_variant.iterator();
@@ -204,6 +205,7 @@ public class Subject : Object {
 		origin = (string) iter.next_value();
 		text = (string) iter.next_value();
 		storage = (string) iter.next_value();
+		current_uri = (string) iter.next_value();
 	}
 
 }
