@@ -3,7 +3,7 @@
  * Copyright © 2011 Collabora Ltd.
  *             By Seif Lotfy <seif@lotfy.com>
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
- * Copyright © 20011 Manish Sinha <manishsinha@ubuntu.com>
+ * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,31 +117,31 @@ public enum ResultType {
 }
 
 /*
- * An enumeration class used to define how query results should 
+ * An enumeration class used to define how query results should
  * be returned from the Zeitgeist engine.
  */
 public enum RelevantResultType
 {
-	Recent = 0, 		// 0	All uris with the most recent uri first
-	Related = 1, 		// 1	All uris with the most related one first
+	Recent = 0, 		// All uris with the most recent uri first
+	Related = 1, 		// All uris with the most related one first
 }
 
 /* 
- * Enumeration class defining the possible values for the storage 
+ * Enumeration class defining the possible values for the storage
  * state of an event subject.
  * 
- * The StorageState enumeration can be used to control whether or 
- * not matched events must have their subjects available to the user. 
- * Fx. not including deleted files, files on unplugged USB drives, 
+ * The StorageState enumeration can be used to control whether or
+ * not matched events must have their subjects available to the user.
+ * Fx. not including deleted files, files on unplugged USB drives,
  * files available only when a network is available etc.
  */
 public enum StorageState
 {
-	NotAvailable = 0, 	// 0	The storage medium of the events 
-						// 		subjects must not be available to the user
-	Available = 1, 		// 1	The storage medium of all event subjects
-						//		must be immediately available to the user
-	Any = 2				// 2	The event subjects may or may not be available
+	NotAvailable = 0, 	// The storage medium of the events
+						// subjects must not be available to the user
+	Available = 1, 		// The storage medium of all event subjects
+						// must be immediately available to the user
+	Any = 2				// The event subjects may or may not be available
 }
 
 public class Event : Object {
@@ -157,12 +157,32 @@ public class Event : Object {
 	public uint8[]   payload { get; set; }
 
 	public Event.from_variant (Variant event_variant) {
-		stdout.printf("VAR: %u\n\n", event_variant.get_uint32());
+		// Event signature: (asaasay)
+		VariantIter iter = event_variant.iterator();
+		
+		assert (iter.n_children() == 3);
+		VariantIter event_array = iter.next_value().iterator();
+		VariantIter subjects_array = iter.next_value().iterator();
+		VariantIter payload_array = iter.next_value().iterator();
+		
+		assert (event_array.n_children() >= 6);
+		id = (uint32) event_array.next_value();
+		timestamp = (int64) event_array.next_value();
+		interpretation = (string) event_array.next_value();
+		manifestation = (string) event_array.next_value();
+		actor = (string) event_array.next_value();
+		origin = (string) event_array.next_value();
+		
+		//string foo = (string) ai.next_value();
+		//string foa = (string) ai.next_value();
+		//Variant b = iter.next_value();
+		//stdout.printf("VAR: %s\n\n", foa);
 	}
 
 }
 
 public class Subject : Object {
+
 	public string uri { get; set; }
 	public string interpretation { get; set; }
 	public string manifestation { get; set; }
@@ -170,4 +190,8 @@ public class Subject : Object {
 	public string origin { get; set; }
 	public string text { get; set; }
 	public string storage { get; set; }
+
+	public Subject.from_variant (Variant subject_variant) {
+	}
+
 }

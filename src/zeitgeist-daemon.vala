@@ -35,8 +35,18 @@ public class Zeitgeist : Object {
 		stdout.printf("Hi!\n");
 		engine = new Engine();
 		notifications = new MonitorManager();
-		var vari = new Variant("u", 5);
-		new Event.from_variant(@vari);
+		/*var vb1 = new VariantBuilder(VariantType.TUPLE);
+		var vb2 = new VariantBuilder(VariantType.ARRAY);
+		vb2.add("s", "foo");
+		vb2.add("s", "bar");
+		vb1.add("as", vb2);*/
+		// (asaasay)
+		Variant v1 = "foo";
+		/*Variant v2 = "bar";
+		Variant arr = new Variant[]{v1, v2};
+		Variant vb1 = new VariantBuilder(VariantType.TUPLE);
+		vb1.add("as", arr);
+		new Event.from_variant(new Variant("(as)", arr1));*/
 	}
 
 	// FIXME
