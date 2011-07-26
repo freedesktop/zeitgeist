@@ -156,8 +156,7 @@ public class Event : Object
 	public GenericArray<Subject> subjects { get; set; }
 	public ByteArray payload { get; set; }
 
-	public Event.from_variant (Variant event_variant) {
-		// Event signature: (asaasay)
+	public Event.from_variant (Variant event_variant) { // (asaasay)
 		VariantIter iter = event_variant.iterator();
 		
 		assert (iter.n_children() == 3);
@@ -173,10 +172,13 @@ public class Event : Object
 		actor = (string) event_array.next_value();
 		origin = (string) event_array.next_value();
 		
-		//string foo = (string) ai.next_value();
-		//string foa = (string) ai.next_value();
-		//Variant b = iter.next_value();
-		//stdout.printf("VAR: %s\n\n", foa);
+		subjects = new GenericArray<Subject>();
+		for (int i = 0; i < subjects_array.n_children(); ++i) {
+			Variant subject_variant = subjects_array.next_value();
+			subjects.add(new Subject.from_variant(subject_variant));
+		}
+		
+		// Parse payload...
 	}
 
 }
@@ -192,6 +194,16 @@ public class Subject : Object {
 	public string storage { get; set; }
 
 	public Subject.from_variant (Variant subject_variant) {
+		VariantIter iter = subject_variant.iterator();
+		
+		assert (iter.n_children() >= 8);
+		uri = (string) iter.next_value();
+		interpretation = (string) iter.next_value();
+		manifestation = (string) iter.next_value();
+		mimetype = (string) iter.next_value();
+		origin = (string) iter.next_value();
+		text = (string) iter.next_value();
+		storage = (string) iter.next_value();
 	}
 
 }
