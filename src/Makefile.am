@@ -31,4 +31,4 @@ DISTCLEANFILES = \
 	$(NULL)
 
 clean:
-	rm -f *.c *.o *.stamp
+	rm -f *.c *.o *.stamp *.~[0-9]~

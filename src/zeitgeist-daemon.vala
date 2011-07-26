@@ -1,8 +1,8 @@
 /* zeitgeist-daemon.vala
  *
- * Copyright (C) 2011 Seif Lotfy <seif@lotfy.com>
- * Copyright (C) 2011 Collabora Ltd.
- *               By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ * Copyright © 2011 Seif Lotfy <seif@lotfy.com>
+ * Copyright © 2011 Collabora Ltd.
+ *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,14 @@ public struct TimeRange {
 [DBus (name = "org.gnome.zeitgeist.Log")]
 public class Zeitgeist : Object {
 
+	private static MainLoop mainloop;
+	private Engine engine;
+	private MonitorManager notifications;
+
 	public Zeitgeist () {
 		stdout.printf("Hi!\n");
+		engine = new Engine();
+		notifications = new MonitorManager();
 	}
 
 	// FIXME
@@ -81,7 +87,9 @@ public class Zeitgeist : Object {
 	//public void DeleteLog ();
 
 	public void Quit () {
-		stdout.printf("BYE");
+		stdout.printf("BYE\n");
+		engine.close();
+		mainloop.quit();
 	}
 
 	public void InstallMonitor (ObjectPath monitor_path,
@@ -112,7 +120,8 @@ public class Zeitgeist : Object {
 			on_bus_aquired,
 			() => {},
 			() => stderr.printf ("Could not aquire name\n"));
-		new MainLoop ().run ();
+		mainloop = new MainLoop ();
+		mainloop.run ();
 	}
 
 	static int main (string[] args) {
