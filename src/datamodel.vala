@@ -181,6 +181,31 @@ public class Event : Object
 		// Parse payload...
 	}
 
+	public Variant to_variant () {
+		var vb = new VariantBuilder(new VariantType("(asaasay)"));
+		
+		vb.open(new VariantType("as"));
+		vb.add("s", id);
+		vb.add("s", timestamp);
+		vb.add("s", interpretation);
+		vb.add("s", manifestation);
+		vb.add("s", actor);
+		vb.add("s", origin);
+		vb.close();
+		
+		vb.open(new VariantType("aas"));
+		for (int i = 0; i < subjects.length; ++i) {
+			vb.add_value(subjects[i].);
+		}
+		vb.close();
+		
+		vb.open(new VariantType("ay"));
+		// payload...
+		vb.close();
+
+		return vb.end();
+	}
+
 }
 
 public class Subject : Object {
@@ -206,6 +231,20 @@ public class Subject : Object {
 		text = (string) iter.next_value();
 		storage = (string) iter.next_value();
 		current_uri = (string) iter.next_value();
+	}
+
+	public Variant to_variant() {
+		var vb = new VariantBuilder(new VariantType("aas"));
+		vb.open(new VariantType("as"));
+		vb.add("s", uri);
+		vb.add("s", interpretation);
+		vb.add("s", manifestation);
+		vb.add("s", origin);
+		vb.add("s", mimetype);
+		vb.add("s", text);
+		vb.add("s", storage);
+		vb.add("s", current_uri);
+		return vb.close();
 	}
 
 }

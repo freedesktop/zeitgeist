@@ -35,19 +35,21 @@ namespace Zeitgeist
 		public const string SIG_EVENT = "asaasay";
 
 		// Required version of DB schema
-		public const string CORE_SCHEMA="core";
+		public const string CORE_SCHEMA = "core";
 		public const int CORE_SCHEMA_VERSION = 4;
 
 		public const string USER_EXTENSION_PATH = "";
 
 		// configure runtime cache for events
 		// default size is 2000
-		public const string CACHE_SIZE = "";
+		public const uint CACHE_SIZE = 0;
 
 		public void initialize ()
 		{
+			// FIXME: prepend "/zeitgeist"
 			BASE_DIRECTORY = Environment.get_user_data_dir ();
 			DATA_PATH = Environment.get_variable ("ZEITGEIST_DATA_PATH");
+			// FIXME: make sure paths exist
 		}
 	}
 }
