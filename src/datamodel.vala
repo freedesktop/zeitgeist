@@ -20,7 +20,8 @@
  *
  */
 
-public enum ResultType {
+public enum ResultType
+{
 	MOST_RECENT_EVENTS,     				// 0	All events with the most
 							//		recent events first
 	LEAST_RECENT_EVENTS, 	        		// 1	All events with the oldest
@@ -181,7 +182,8 @@ public class Event : Object
 		// Parse payload...
 	}
 
-	public Variant to_variant () {
+	public Variant to_variant ()
+	{
 		var vb = new VariantBuilder(new VariantType("(asaasay)"));
 		
 		vb.open(new VariantType("as"));
@@ -208,7 +210,8 @@ public class Event : Object
 
 }
 
-public class Subject : Object {
+public class Subject : Object
+{
 
 	public string uri { get; set; }
 	public string interpretation { get; set; }
@@ -219,7 +222,8 @@ public class Subject : Object {
 	public string storage { get; set; }
 	public string current_uri { get; set; }
 
-	public Subject.from_variant (Variant subject_variant) {
+	public Subject.from_variant (Variant subject_variant)
+	{
 		VariantIter iter = subject_variant.iterator();
 		
 		assert (iter.n_children() >= 8);
@@ -233,7 +237,8 @@ public class Subject : Object {
 		current_uri = (string) iter.next_value();
 	}
 
-	public Variant to_variant() {
+	public Variant to_variant()
+	{
 		var vb = new VariantBuilder(new VariantType("aas"));
 		vb.open(new VariantType("as"));
 		vb.add("s", uri);

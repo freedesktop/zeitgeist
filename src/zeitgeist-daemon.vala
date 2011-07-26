@@ -19,19 +19,22 @@
  *
  */
 
-public struct TimeRange {
+public struct TimeRange
+{
 	int64 start;
 	int64 end;
 }
 
 [DBus (name = "org.gnome.zeitgeist.Log")]
-public class ZeitgeistDaemon : Object {
+public class ZeitgeistDaemon : Object
+{
 
 	private static MainLoop mainloop;
 	private Engine engine;
 	private MonitorManager notifications;
 
-	public ZeitgeistDaemon () {
+	public ZeitgeistDaemon ()
+	{
 		stdout.printf("Hi!\n");
 		engine = new Engine();
 		notifications = new MonitorManager();
@@ -65,7 +68,8 @@ public class ZeitgeistDaemon : Object {
 
 	// FIXME
 	[DBus (signature = "a(asaasay)")]
-	public Variant GetEvents (uint32[] event_ids, BusName sender) {
+	public Variant GetEvents (uint32[] event_ids, BusName sender)
+	{
 		stdout.printf ("yeah!\n");
 		//return new Variant("us", 5, "OK");
 		return 1;
@@ -76,7 +80,8 @@ public class ZeitgeistDaemon : Object {
 			[DBus (signature = "a(asaasay)")] Variant event_templates,
 			[DBus (signature = "a(asaasay)")] Variant result_event_templates,
 			uint storage_state, uint num_events, uint result_type,
-			BusName sender) {
+			BusName sender)
+	{
 		return new string[] { "hi", "bar" };
 	}
 
@@ -84,7 +89,8 @@ public class ZeitgeistDaemon : Object {
 	public uint[] FindEventIds (uint[] time_range,
 			[DBus (signature = "a(asaasay)")] Variant event_templates,
 			uint storage_state, uint num_events, uint result_type,
-			BusName sender) {
+			BusName sender)
+	{
 		return new uint[] { 1, 2, 3 };
 	}
 
@@ -93,26 +99,30 @@ public class ZeitgeistDaemon : Object {
 	public uint[] FindEvents (uint[] time_range,
 			[DBus (signature = "a(asaasay)")] Variant event_templates,
 			uint storage_state, uint num_events, uint result_type,
-			BusName sender) {
+			BusName sender)
+	{
 		return new uint[] { 1, 2, 3 };
 	}
 
 	// FIXME
 	public uint[] InsertEvents (
 			[DBus (signature = "a(asaasay)")] Variant events,
-			BusName sender) {
+			BusName sender)
+	{
 		return new uint[] { 1, 2, 3 };
 	}
 
 	//FIXME
-	public TimeRange DeleteEvents (uint[] event_ids, BusName sender) {
+	public TimeRange DeleteEvents (uint[] event_ids, BusName sender)
+	{
 		return TimeRange() { start = 30, end = 40 };
 	}
 
 	// This is stupid. We don't need it.
 	//public void DeleteLog ();
 
-	public void Quit () {
+	public void Quit ()
+	{
 		stdout.printf("BYE\n");
 		engine.close();
 		mainloop.quit();
@@ -121,25 +131,32 @@ public class ZeitgeistDaemon : Object {
 	public void InstallMonitor (ObjectPath monitor_path,
 			TimeRange time_range,
 			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			BusName owner) {
+			BusName owner)
+	{
 		stdout.printf("i'll let you know!\n");
 	}
 
-	public void RemoveMonitor (ObjectPath monitor_path, BusName owner) {
+	public void RemoveMonitor (ObjectPath monitor_path, BusName owner)
+	{
 		stdout.printf("bye my friend\n");
 	}
 
-	static void on_bus_aquired (DBusConnection conn) {
-		try {
+	static void on_bus_aquired (DBusConnection conn)
+	{
+		try
+		{
 			conn.register_object (
 				"/org/gnome/zeitgeist/log/activity",
 				new ZeitgeistDaemon ());
-		} catch (IOError e) {
+		}
+		catch (IOError e)
+		{
 			stderr.printf ("Could not register service\n");
 		}
 	}
 
-	static void run () {
+	static void run ()
+	{
 		// TODO: look at zeitgeist/singleton.py
 		Bus.own_name (BusType.SESSION, "org.gnome.zeitgeist.Engine",
 			BusNameOwnerFlags.NONE,
@@ -150,7 +167,8 @@ public class ZeitgeistDaemon : Object {
 		mainloop.run ();
 	}
 
-	static int main (string[] args) {
+	static int main (string[] args)
+	{
 		Zeitgeist.Constants.initialize ();
 		run ();
 		return 0;
