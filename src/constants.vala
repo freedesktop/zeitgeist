@@ -18,29 +18,37 @@
  *
  */
 
-public class Constants : Object {
+namespace Zeitgeist
+{
+  namespace Constants
+  {
+	  public static string BASE_DIRECTORY;
+	  public static string DATA_PATH;
 
-	public string BASE_DIRECTORY = Environment.get_user_data_dir ();
-	// Directories
-	public string DATA_PATH = Environment.get_variable ("ZEITGEIST_DATA_PATH");
-	public const string DATABASE_FILE = "";
-	public const string DATABASE_FILE_BACKUP = "";
-	public const string DEFAULT_LOG_PATH = "";
+    // Directories
+    public const string DATABASE_FILE = "";
+    public const string DATABASE_FILE_BACKUP = "";
+    public const string DEFAULT_LOG_PATH = "";
 
-	// D-Bus
-	public const string DBUS_INTERFACE = "";
-	public const string SIG_EVENT = "asaasay";
+    // D-Bus
+    public const string DBUS_INTERFACE = "";
+    public const string SIG_EVENT = "asaasay";
 
-	// Required version of DB schema
-	public const string CORE_SCHEMA="core";
-	public const int CORE_SCHEMA_VERSION = 4;
+    // Required version of DB schema
+    public const string CORE_SCHEMA="core";
+    public const int CORE_SCHEMA_VERSION = 4;
 
-	public const string USER_EXTENSION_PATH = "";
+    public const string USER_EXTENSION_PATH = "";
 
-	// configure runtime cache for events
-	// default size is 2000
-	public const string CACHE_SIZE = "";
-
-	public Constants(){}
+    // configure runtime cache for events
+    // default size is 2000
+    public const string CACHE_SIZE = "";
+    
+    public void initialize ()
+    {
+      BASE_DIRECTORY = Environment.get_user_data_dir ();
+      DATA_PATH = Environment.get_variable ("ZEITGEIST_DATA_PATH");
+    }
+  }
 }
 

@@ -25,13 +25,13 @@ public struct TimeRange {
 }
 
 [DBus (name = "org.gnome.zeitgeist.Log")]
-public class Zeitgeist : Object {
+public class Daemon : Object {
 
 	private static MainLoop mainloop;
 	private Engine engine;
 	private MonitorManager notifications;
 
-	public Zeitgeist () {
+	public Daemon () {
 		stdout.printf("Hi!\n");
 		engine = new Engine();
 		notifications = new MonitorManager();
@@ -133,7 +133,7 @@ public class Zeitgeist : Object {
 		try {
 			conn.register_object (
 				"/org/gnome/zeitgeist/log/activity",
-				new Zeitgeist ());
+				new Daemon ());
 		} catch (IOError e) {
 			stderr.printf ("Could not register service\n");
 		}
@@ -151,6 +151,7 @@ public class Zeitgeist : Object {
 	}
 
 	static int main (string[] args) {
+    Zeitgeist.Constants.initialize ();
 		run ();
 		return 0;
 	}
