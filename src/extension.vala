@@ -17,32 +17,18 @@
  *
  */
  
+ 
 public abstract class Extension: Object
 {
-    public virtual void unload()
-    {
-    }
+    public abstract void unload();
 
-    public virtual Event pre_insert_event(Event event, string sender)
-    {
-        return event;
-    }
+    public abstract Event pre_insert_event(Event event, BusName sender);
 
-    public virtual void post_insert_event(Event event, string sender)
-    {
-    }
+    public abstract void post_insert_event(Event event, BusName sender);
 
-    public virtual Event get_event(Event event, string sender)
-    {
-        return event;
-    }
+    public abstract Event get_event(Event event, BusName sender);
 
-    public virtual void post_delete_events(Event event, string sender)
-    {
-    }
+    public abstract void post_delete_events(Event event, BusName sender);
 
-    public virtual Event pre_delete_events(Event event, string sender)
-    {
-        return event;
-    }
+    public abstract Event pre_delete_events(Event event, BusName sender);
 }
