@@ -3,6 +3,7 @@
  * Copyright © 2011 Collabora Ltd.
  *             By Seif Lotfy <seif@lotfy.com>
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ * 			 © Manish Sinha <manishsinha@ubuntu.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,15 +80,15 @@ public enum ResultType {
 
 public class Event : Object {
 
-	uint32?   id;
-	int64     timestamp;
-	string    interpretation;
-	string    manifestation;
-	string    actor;
-	string    origin;
+	public uint32?   id { get; set; }
+	public int64     timestamp { get; set; }
+	public string    interpretation { get; set; }
+	public string    manifestation { get; set; }
+	public string    actor { get; set; }
+	public string    origin { get; set; }
 	
-	Subject[] subjects;
-	uint8[]   payload;
+	public Subject[] subjects { get; set; }
+	public uint8[]   payload { get; set; }
 
 	public Event.from_variant (Variant event_variant) {
 		stdout.printf("VAR: %u\n\n", event_variant.get_uint32());
@@ -96,11 +97,11 @@ public class Event : Object {
 }
 
 public class Subject : Object {
-	string uri;
-	string interpretation;
-	string manifestation;
-	string mimetype;
-	string origin;
-	string text;
-	string storage;
+	public string uri { get; set; }
+	public string interpretation { get; set; }
+	public string manifestation { get; set; }
+	public string mimetype { get; set; }
+	public string origin { get; set; }
+	public string text { get; set; }
+	public string storage { get; set; }
 }
