@@ -19,12 +19,6 @@
  *
  */
 
-public struct TimeRange
-{
-	int64 start;
-	int64 end;
-}
-
 [DBus (name = "org.gnome.zeitgeist.Log")]
 public class ZeitgeistDaemon : Object
 {

@@ -64,4 +64,29 @@ public class Engine : Object
 	{
 	}
 
+/*
+	if ((rc = db.prepare_v2 (args[2], -1, out stmt, null)) == 1) {
+		printerr ("SQL error: %d, %s\n", rc, db.errmsg ());
+		return;
+	}
+
+	cols = stmt.column_count();
+	do {
+		rc = stmt.step();
+		switch (rc) {
+			case Sqlite.DONE:
+				break;
+			case Sqlite.ROW:
+				for (col = 0; col < cols; col++) {
+					string txt = stmt.column_text(col);
+					print ("%s = %s\n", stmt.column_name (col), txt);
+				}
+				break;
+			default:
+				printerr ("Error: %d, %s\n", rc, db.errmsg ());
+				break;
+		}
+	} while (rc == Sqlite.ROW);
+*/
+
 }

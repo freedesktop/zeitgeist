@@ -20,6 +20,12 @@
  *
  */
 
+public struct TimeRange
+{
+	int64 start;
+	int64 end;
+}
+
 public enum ResultType
 {
 	MOST_RECENT_EVENTS,     				// 0	All events with the most
