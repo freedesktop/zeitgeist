@@ -52,7 +52,7 @@ namespace Zeitgeist
 
 		public void initialize ()
 		{
-			// FIXME: prepend "/zeitgeist"
+			// FIXME: append "/zeitgeist"
 			BASE_DIRECTORY = Environment.get_user_data_dir ();
 			DATA_PATH = Environment.get_variable ("ZEITGEIST_DATA_PATH");
 			// FIXME: make sure paths exist
