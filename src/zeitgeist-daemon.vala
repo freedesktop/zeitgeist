@@ -53,7 +53,7 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
         
         try
         {
-        engine = new Engine();
+            engine = new Engine();
         }
         catch (EngineError e)
         {
