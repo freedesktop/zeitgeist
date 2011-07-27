@@ -24,25 +24,7 @@
  *
  */
 
-public class Engine : Object
+public errordomain EngineError
 {
-
-	Zeitgeist.SQLite.ZeitgeistDatabase database;
-	uint32 last_id;
-
-	public Engine () throws EngineError
-	{
-		database = new Zeitgeist.SQLite.ZeitgeistDatabase();
-		last_id = database.get_last_id();
-		
-		// FIXME: initialize TableLookups
-		// FIXME: load extensions
-		
-		stdout.printf("last_id: %u\n", last_id);
-	}
-
-	public void close ()
-	{
-	}
-
+	DATABASE_ERROR
 }

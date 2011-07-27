@@ -21,6 +21,7 @@ bluebird_SOURCES = \
 	notify.vala \
 	sql.vala \
 	constants.vala \
+	errors.vala \
 	$(NULL)
 
 bluebird_LDADD = \
