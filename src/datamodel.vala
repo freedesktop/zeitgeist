@@ -180,23 +180,42 @@ public class Event : Object
     public GenericArray<Subject> subjects { get; set; }
     public ByteArray payload { get; set; }
 
+    construct
+    {
+        subjects = new GenericArray<Subject> ();
+        // FIXME: construct also payload? or make it nullable?
+    }
+
+    public int num_subjects ()
+    {
+        return subjects.length;
+    }
+
+    public void add_subject (Subject subject)
+    {
+        subjects.add (subject);
+    }
+
     public Event.from_variant (Variant event_variant) { // (asaasay)
+        assert (event_variant.get_type_string () == "(asaasay)");
+
         VariantIter iter = event_variant.iterator();
         
         assert (iter.n_children() == 3);
         VariantIter event_array = iter.next_value().iterator();
         VariantIter subjects_array = iter.next_value().iterator();
         VariantIter payload_array = iter.next_value().iterator();
-        
-        assert (event_array.n_children() >= 6);
-        id = (uint32) event_array.next_value();
-        timestamp = (int64) event_array.next_value();
+
+        var event_props = event_array.n_children ();
+        assert (event_props >= 5);
+        id = (uint32) uint64.parse ((string) event_array.next_value());
+        timestamp = int64.parse ((string) event_array.next_value());
         interpretation = (string) event_array.next_value();
         manifestation = (string) event_array.next_value();
         actor = (string) event_array.next_value();
-        origin = (string) event_array.next_value();
+        // let's keep this compatible with older clients
+        if (event_props >= 6) origin = (string) event_array.next_value();
         
-        subjects = new GenericArray<Subject>();
         for (int i = 0; i < subjects_array.n_children(); ++i) {
             Variant subject_variant = subjects_array.next_value();
             subjects.add(new Subject.from_variant(subject_variant));
@@ -210,8 +229,8 @@ public class Event : Object
         var vb = new VariantBuilder(new VariantType("(asaasay)"));
         
         vb.open(new VariantType("as"));
-        vb.add("s", id);
-        vb.add("s", timestamp);
+        vb.add("s", id.to_string ());
+        vb.add("s", timestamp.to_string ());
         vb.add("s", interpretation);
         vb.add("s", manifestation);
         vb.add("s", actor);
@@ -231,6 +250,22 @@ public class Event : Object
         return vb.end();
     }
 
+    public static GenericArray<Event> variant_to_events (Variant vevents)
+    {
+        GenericArray<Event> events = new GenericArray<Event> ();
+
+        assert (vevents.get_type_string () == "a(asaasay)");
+
+        var iter = vevents.iterator ();
+        Variant? event = iter.next_value ();
+        while (event != null)
+        {
+            events.add (new Event.from_variant (event));
+            event = iter.next_value ();
+        }
+
+        return events;
+    }
 }
 
 public class Subject : Object
@@ -249,7 +284,8 @@ public class Subject : Object
     {
         VariantIter iter = subject_variant.iterator();
         
-        assert (iter.n_children() >= 8);
+        var subject_props = iter.n_children ();
+        assert (subject_props >= 7);
         uri = (string) iter.next_value();
         interpretation = (string) iter.next_value();
         manifestation = (string) iter.next_value();
@@ -257,7 +293,8 @@ public class Subject : Object
         origin = (string) iter.next_value();
         text = (string) iter.next_value();
         storage = (string) iter.next_value();
-        current_uri = (string) iter.next_value();
+        // let's keep this compatible with older clients
+        if (subject_props >= 8) current_uri = (string) iter.next_value();
     }
 
     public Variant to_variant()
