@@ -30,7 +30,7 @@ public class ZeitgeistDatabase : Object
 
 	public ZeitgeistDatabase () throws EngineError
 	{
-		int rc = Database.open(
+		int rc = Database.open_v2(
 			"/home/rainct/.local/share/zeitgeist/activity.sqlite",
 			out database);
 		assert_query_success(rc, "Can't open database");
@@ -52,6 +52,23 @@ public class ZeitgeistDatabase : Object
 		return last_id;
 	}
 
+	public void close ()
+	{
+		// FIXME: make sure symbol tables are consistent (ie.
+		//        _fix_cache is empty)
+		
+		// SQLite connection is implicitly closed upon destruction
+		database = null;
+	}
+
+	/**
+	 * Ensure `rc' is SQLITE_OK. If it isn't, print an error message
+	 * and throw an error.
+	 *
+	 * @param rc error code returned by a SQLite call
+	 * @param msg message to print if `rc' indicates an error
+	 * @throws EngineError
+	 **/
 	private void assert_query_success (int rc, string msg) throws EngineError
 	{
 		if (rc != Sqlite.OK)

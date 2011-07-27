@@ -41,8 +41,27 @@ public class Engine : Object
 		stdout.printf("last_id: %u\n", last_id);
 	}
 
+	public GenericArray<Event> get_events(uint32 event_ids,
+			BusName? sender=null)
+	{
+		var events = new GenericArray<Event>();
+		return events;
+	}
+
+	// next_event_id(): last_id + 1; return last_id;
+	// it's used in only one place, we can just inline it.
+
+	/**
+	 * Clear all resources Engine is using (close database connection,
+	 * unload extensions, etc.).
+	 *
+	 * After executing this method on an Engine instance, no other function
+	 * of said instance may be called.
+	 */
 	public void close ()
 	{
+		// FIXME: unload extensions
+		database.close();
 	}
 
 }
