@@ -17,6 +17,7 @@ bluebird_SOURCES = \
 	zeitgeist-daemon.vala \
 	datamodel.vala \
 	engine.vala \
+	remote.vala \
 	extension.vala \
 	notify.vala \
 	sql.vala \

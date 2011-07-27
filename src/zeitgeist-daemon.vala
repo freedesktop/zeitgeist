@@ -19,88 +19,41 @@
  *
  */
 
-[DBus (name = "org.gnome.zeitgeist.Log")]
-public interface ILog : Object
-{
-	public abstract TimeRange delete_events (uint[] event_ids,
-      BusName sender) throws IOError;
-
-	public abstract uint[] find_event_ids (TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			uint storage_state, uint num_events, uint result_type,
-			BusName sender) throws IOError;
-
-	[DBus (signature = "a(asaasay)")]
-	public abstract Variant find_events (TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			uint storage_state, uint num_events, uint result_type,
-			BusName sender) throws IOError;
-
-	public abstract string[] find_related_uris (TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			[DBus (signature = "a(asaasay)")] Variant result_event_templates,
-			uint storage_state, uint num_events, uint result_type,
-			BusName sender) throws IOError;
-
-	[DBus (signature = "a(asaasay)")]
-	public abstract Variant get_events (uint32[] event_ids,
-      BusName sender) throws IOError;
-
-	public abstract uint[] insert_events (
-			[DBus (signature = "a(asaasay)")] Variant events,
-			BusName sender) throws IOError;
-
-	public abstract void install_monitor (ObjectPath monitor_path,
-			TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			BusName owner) throws IOError;
-
-	public abstract void remove_monitor (ObjectPath monitor_path,
-      BusName owner) throws IOError;
-
-	public abstract void quit () throws IOError;
-
-  public abstract string[] extensions { owned get; }
-	[DBus (signature = "iii")]
-  public abstract Variant version { owned get; }
-}
-
-public class ZeitgeistDaemon : Object, ILog
+public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
 {
 
 	private static MainLoop mainloop;
 	private Engine engine;
 	private MonitorManager notifications;
 
-  public string[] extensions
-  {
-    owned get
-    {
-      string[] ext = { "extension1", "extension2" };
-      return ext;
-    }
-  }
+	public string[] extensions
+	{
+		owned get
+		{
+			string[] ext = { "extension1", "extension2" };
+			return ext;
+		}
+	}
 
-	[DBus (signature = "iii")]
-  public Variant version
-  {
-    owned get
-    {
-      var vb = new VariantBuilder (new VariantType ("(iii)"));
-      vb.add ("i", 0);
-      vb.add ("i", 1);
-      vb.add ("i", 2);
-      return vb.end ();
-    }
-  }
-  
+	public Variant version
+	{
+		owned get
+		{
+			var vb = new VariantBuilder (new VariantType ("(iii)"));
+			vb.add ("i", 0);
+			vb.add ("i", 1);
+			vb.add ("i", 2);
+			return vb.end ();
+		}
+	}
+
 	public ZeitgeistDaemon ()
 	{
 		stdout.printf("Hi!\n");
 		
 		try
 		{
-  		engine = new Engine();
+		engine = new Engine();
 		}
 		catch (EngineError e)
 		{
@@ -137,7 +90,6 @@ public class ZeitgeistDaemon : Object, ILog
 	}
 
 	// FIXME
-	[DBus (signature = "a(asaasay)")]
 	public Variant get_events (uint32[] event_ids, BusName sender)
 	{
 		stdout.printf ("yeah!\n");
@@ -147,8 +99,8 @@ public class ZeitgeistDaemon : Object, ILog
 
 	// FIXME
 	public string[] find_related_uris (TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			[DBus (signature = "a(asaasay)")] Variant result_event_templates,
+			Variant event_templates,
+			Variant result_event_templates,
 			uint storage_state, uint num_events, uint result_type,
 			BusName sender)
 	{
@@ -157,7 +109,7 @@ public class ZeitgeistDaemon : Object, ILog
 
 	// FIXME
 	public uint[] find_event_ids (TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
+			Variant event_templates,
 			uint storage_state, uint num_events, uint result_type,
 			BusName sender)
 	{
@@ -165,9 +117,8 @@ public class ZeitgeistDaemon : Object, ILog
 	}
 
 	// FIXME
-	[DBus (signature = "a(asaasay)")]
 	public Variant find_events (TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
+			Variant event_templates,
 			uint storage_state, uint num_events, uint result_type,
 			BusName sender)
 	{
@@ -176,20 +127,17 @@ public class ZeitgeistDaemon : Object, ILog
 
 	// FIXME
 	public uint[] insert_events (
-			[DBus (signature = "a(asaasay)")] Variant events,
+			Variant events,
 			BusName sender)
 	{
 		return new uint[] { 1, 2, 3 };
 	}
 
-	//FIXME
+	// FIXME
 	public TimeRange delete_events (uint[] event_ids, BusName sender)
 	{
 		return TimeRange() { start = 30, end = 40 };
 	}
-
-	// This is stupid. We don't need it.
-	//public void DeleteLog ();
 
 	public void quit ()
 	{
@@ -200,7 +148,7 @@ public class ZeitgeistDaemon : Object, ILog
 
 	public void install_monitor (ObjectPath monitor_path,
 			TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
+			Variant event_templates,
 			BusName owner)
 	{
 		stdout.printf("i'll let you know!\n");
@@ -217,7 +165,7 @@ public class ZeitgeistDaemon : Object, ILog
 		{
 			conn.register_object (
 				"/org/gnome/zeitgeist/log/activity",
-				(ILog) new ZeitgeistDaemon ());
+				(Zeitgeist.RemoteLogInterface) new ZeitgeistDaemon ());
 		}
 		catch (IOError e)
 		{
