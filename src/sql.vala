@@ -117,3 +117,5 @@ public class ZeitgeistDatabase : Object
 }
 
 } // namespace
+
+// vim:expandtab:ts=4:sw=4

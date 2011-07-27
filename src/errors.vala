@@ -28,3 +28,5 @@ public errordomain EngineError
 {
     DATABASE_ERROR
 }
+
+// vim:expandtab:ts=4:sw=4

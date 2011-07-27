@@ -37,3 +37,5 @@ public abstract class Extension : Object
     // FIXME: Idem as post_delete_events.
     public abstract Event pre_delete_events(Event event, BusName sender);
 }
+
+// vim:expandtab:ts=4:sw=4

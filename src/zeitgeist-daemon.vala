@@ -193,3 +193,5 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
     }
 
 }
+
+// vim:expandtab:ts=4:sw=4
