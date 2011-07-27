@@ -1,4 +1,4 @@
-/* zeitgeist-daemon.vala
+/* engine.vala
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>

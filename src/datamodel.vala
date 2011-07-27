@@ -1,4 +1,4 @@
-/* zeitgeist-daemon.vala
+/* datamodel.vala
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Seif Lotfy <seif@lotfy.com>
