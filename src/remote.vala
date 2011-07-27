@@ -22,71 +22,71 @@
 namespace Zeitgeist
 {
 
-	[DBus (name = "org.gnome.zeitgeist.Log")]
-	public interface RemoteLogInterface : Object
-	{
+    [DBus (name = "org.gnome.zeitgeist.Log")]
+    public interface RemoteLogInterface : Object
+    {
 
-		public abstract TimeRange delete_events (
-			uint[] event_ids,
-			BusName sender
-		) throws IOError;
+        public abstract TimeRange delete_events (
+            uint[] event_ids,
+            BusName sender
+        ) throws IOError;
 
-		// This is stupid. We don't need it.
-		//public void DeleteLog ();
+        // This is stupid. We don't need it.
+        //public void DeleteLog ();
 
-		public abstract uint[] find_event_ids (
-			TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			uint storage_state, uint num_events, uint result_type,
-			BusName sender
-		) throws IOError;
+        public abstract uint[] find_event_ids (
+            TimeRange time_range,
+            [DBus (signature = "a(asaasay)")] Variant event_templates,
+            uint storage_state, uint num_events, uint result_type,
+            BusName sender
+        ) throws IOError;
 
-		[DBus (signature = "a(asaasay)")]
-		public abstract Variant find_events (
-			TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			uint storage_state, uint num_events, uint result_type,
-			BusName sender
-		) throws IOError;
+        [DBus (signature = "a(asaasay)")]
+        public abstract Variant find_events (
+            TimeRange time_range,
+            [DBus (signature = "a(asaasay)")] Variant event_templates,
+            uint storage_state, uint num_events, uint result_type,
+            BusName sender
+        ) throws IOError;
 
-		public abstract string[] find_related_uris (
-			TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			[DBus (signature = "a(asaasay)")] Variant result_event_templates,
-			uint storage_state, uint num_events, uint result_type,
-			BusName sender
-		) throws IOError;
+        public abstract string[] find_related_uris (
+            TimeRange time_range,
+            [DBus (signature = "a(asaasay)")] Variant event_templates,
+            [DBus (signature = "a(asaasay)")] Variant result_event_templates,
+            uint storage_state, uint num_events, uint result_type,
+            BusName sender
+        ) throws IOError;
 
-		[DBus (signature = "a(asaasay)")]
-		public abstract Variant get_events (
-			uint32[] event_ids,
-			BusName sender
-		) throws IOError;
+        [DBus (signature = "a(asaasay)")]
+        public abstract Variant get_events (
+            uint32[] event_ids,
+            BusName sender
+        ) throws IOError;
 
-		public abstract uint[] insert_events (
-			[DBus (signature = "a(asaasay)")] Variant events,
-			BusName sender
-		) throws IOError;
+        public abstract uint[] insert_events (
+            [DBus (signature = "a(asaasay)")] Variant events,
+            BusName sender
+        ) throws IOError;
 
-		public abstract void install_monitor (
-			ObjectPath monitor_path,
-			TimeRange time_range,
-			[DBus (signature = "a(asaasay)")] Variant event_templates,
-			BusName owner
-		) throws IOError;
+        public abstract void install_monitor (
+            ObjectPath monitor_path,
+            TimeRange time_range,
+            [DBus (signature = "a(asaasay)")] Variant event_templates,
+            BusName owner
+        ) throws IOError;
 
-		public abstract void remove_monitor (
-			ObjectPath monitor_path,
-			BusName owner
-		) throws IOError;
+        public abstract void remove_monitor (
+            ObjectPath monitor_path,
+            BusName owner
+        ) throws IOError;
 
-		public abstract void quit () throws IOError;
+        public abstract void quit () throws IOError;
 
-		public abstract string[] extensions { owned get; }
+        public abstract string[] extensions { owned get; }
 
-		[DBus (signature = "iii")]
-		public abstract Variant version { owned get; }
+        [DBus (signature = "iii")]
+        public abstract Variant version { owned get; }
 
-	}
+    }
 
 }
