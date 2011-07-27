@@ -25,62 +25,69 @@ using Zeitgeist;
 namespace Zeitgeist.SQLite
 {
 
-	public class ZeitgeistDatabase : Object
+public class ZeitgeistDatabase : Object
+{
+
+	// FIXME: Should this be accessible from engine.vala or not?
+	//  Probably it should, since otherwise there won't be much
+	//  functionallity left for engine.vala.
+	public Database database;
+
+	public ZeitgeistDatabase () throws EngineError
 	{
-		Database database;
-	
-		public ZeitgeistDatabase () throws EngineError
-		{
-			string xdg_home_dir = Environment.get_user_data_dir();
-			string sqlite_filepath = Path.build_filename(xdg_home_dir, 
-				Constants.ZEITGEIST_DATA_FOLDER, Constants.ZEITGEIST_DATABASE_FILENAME);
-			int rc = Database.open_v2(
-				sqlite_filepath,
-				out database);
-			assert_query_success(rc, "Can't open database");
-			
-			// FIXME: check DB integrity, create it if needed, etc.
-		}
-	
-		public uint32 get_last_id () throws EngineError
-		{
-			int last_id = -1;
-			int rc = database.exec ("SELECT MAX(id) FROM event",
-				(n_columns, values, column_names) =>
-				{
-					last_id = int.parse(values[0]);
-					return 0;
-				}, null);
-			assert_query_success(rc, "Can't query database");
-			assert (last_id != -1);
-			return last_id;
-		}
-	
-		public void close ()
-		{
-			// FIXME: make sure symbol tables are consistent (ie.
-			//        _fix_cache is empty)
-			
-			// SQLite connection is implicitly closed upon destruction
-			database = null;
-		}
-	
-		/**
-		 * Ensure `rc' is SQLITE_OK. If it isn't, print an error message
-		 * and throw an error.
-		 *
-		 * @param rc error code returned by a SQLite call
-		 * @param msg message to print if `rc' indicates an error
-		 * @throws EngineError
-		 **/
-		private void assert_query_success (int rc, string msg) throws EngineError
-		{
-			if (rc != Sqlite.OK)
+		// FIXME: move this out of here
+		string xdg_home_dir = Environment.get_user_data_dir();
+		string sqlite_filepath = Path.build_filename(xdg_home_dir,
+			Constants.ZEITGEIST_DATA_FOLDER,
+			Constants.ZEITGEIST_DATABASE_FILENAME);
+		
+		int rc = Database.open_v2(
+			sqlite_filepath,
+			out database);
+		assert_query_success(rc, "Can't open database");
+		
+		// FIXME: check DB integrity, create it if needed, etc.
+	}
+
+	public uint32 get_last_id () throws EngineError
+	{
+		int last_id = -1;
+		int rc = database.exec ("SELECT MAX(id) FROM event",
+			(n_columns, values, column_names) =>
 			{
-				stderr.printf ("%s: %d, %s\n", msg, rc, database.errmsg ());
-				throw new EngineError.DATABASE_ERROR("Fail.");
-			}
+				last_id = int.parse(values[0]);
+				return 0;
+			}, null);
+		assert_query_success(rc, "Can't query database");
+		assert (last_id != -1);
+		return last_id;
+	}
+
+	public void close ()
+		{
+		// FIXME: make sure symbol tables are consistent (ie.
+		//        _fix_cache is empty)
+		
+		// SQLite connection is implicitly closed upon destruction
+		database = null;
+	}
+
+	/**
+	 * Ensure `rc' is SQLITE_OK. If it isn't, print an error message
+	 * and throw an error.
+	 *
+	 * @param rc error code returned by a SQLite call
+	 * @param msg message to print if `rc' indicates an error
+	 * @throws EngineError
+	 **/
+	private void assert_query_success (int rc, string msg) throws EngineError
+	{
+		if (rc != Sqlite.OK)
+		{
+			stderr.printf ("%s: %d, %s\n", msg, rc, database.errmsg ());
+			throw new EngineError.DATABASE_ERROR("Fail.");
 		}
+	}
 	
 	/*
 		if ((rc = db.prepare_v2 (args[2], -1, out stmt, null)) == 1) {
@@ -107,5 +114,6 @@ namespace Zeitgeist.SQLite
 		} while (rc == Sqlite.ROW);
 	*/
 	
-	}
 }
+
+} // namespace
