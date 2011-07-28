@@ -59,15 +59,22 @@ public class Engine : Object
         Sqlite.Statement stmt;
         int rc;
         
+        assert (event_ids.length > 0);
+        string sql_condition = "?";
+        for (int i = 1; i < event_ids.length; ++i)
+            sql_condition += ", ?";
         string sql = """
             SELECT * FROM event_view
-            WHERE id > 201 AND id < 210
+            WHERE id IN (""" + sql_condition + """)
             """;
-        
+
         if ((rc = db.prepare_v2 (sql, -1, out stmt)) == 1) {
             printerr ("SQL error: %d, %s\n", rc, db.errmsg ());
             throw new EngineError.DATABASE_ERROR("Fail.");
         }
+
+        for (int i = 0; i < event_ids.length; ++i)
+            stmt.bind_int64(i+1, event_ids[i]);
 
         var events = new GenericArray<Event>();
         events.length = event_ids.length;
@@ -133,7 +140,7 @@ public class Engine : Object
             stdout.printf ("\n");
         }
 
-        return new events;
+        return events;
     }
 
     // next_event_id(): last_id + 1; return last_id;
