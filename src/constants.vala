@@ -24,9 +24,7 @@ namespace Zeitgeist
 {
     namespace Constants
     {
-        public static string BASE_DIRECTORY;
         public static string DATA_PATH;
-
         // Directories
         public const string DATABASE_FILE = "";
         public const string DATABASE_FILE_BACKUP = "";
@@ -47,20 +45,38 @@ namespace Zeitgeist
         public const uint CACHE_SIZE = 0;
 
         public const string ZEITGEIST_DATA_FOLDER = "bluebird";
-        public const string ZEITGEIST_DATABASE_FILENAME = "activity.sqlite";
 
         public void initialize ()
         {
-            // FIXME: append "/zeitgeist"
-            BASE_DIRECTORY = Path.build_filename(Environment.get_user_data_dir (), ZEITGEIST_DATA_FOLDER);
-            // If directory does not exist create directory
-            if (!FileUtils.test (BASE_DIRECTORY, FileTest.IS_DIR)){
-                 DirUtils.create (BASE_DIRECTORY, 0755);
-            }
+            // Get the value of the ZEITGEIST_DATA_PATH environment variable. 
+            // If it isn't set, then set it tothe value of XDG Data Path + /zeitgeist/
+            // but first makes sure the directory exists
             DATA_PATH = Environment.get_variable ("ZEITGEIST_DATA_PATH");
-            
-            stdout.printf("BASE_DIRECTORY = %s\n", BASE_DIRECTORY);
+            if (DATA_PATH == null)
+            {
+                DATA_PATH = Path.build_filename (Environment.get_user_data_dir (), ZEITGEIST_DATA_FOLDER);
+                // If directory does not exist create directory
+                if (!FileUtils.test (DATA_PATH , FileTest.IS_DIR)){
+                     DirUtils.create (DATA_PATH , 0755);
+                }
+            }
             stdout.printf("DATA_PATH = %s\n", DATA_PATH);
+            
+            
+            DATABASE_FILE = Environment.get_variable ("ZEITGEIST_DATABASE_PATH");
+            if (DATABASE_FILE == null)
+            {
+                Path.build_filename (DATA_PATH, "activity.sqlite");
+            }
+            stdout.printf("DATABASE_FILE = %s\n", DATABASE_FILE);
+            
+            
+            DATABASE_FILE_BACKUP = Environment.get_variable ("ZEITGEIST_DATABASE_BACKUP_PATH");
+            if (DATABASE_FILE_BACKUP == null)
+            {
+                Path.build_filename (DATA_PATH, "activity.sqlite.bck");
+            }
+            stdout.printf("DATABASE_FILE = %s\n", DATABASE_FILE_BACKUP);
         }
     }
 }

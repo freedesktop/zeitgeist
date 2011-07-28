@@ -194,6 +194,7 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
     static int main (string[] args)
     {
         Zeitgeist.Constants.initialize ();
+        //Zeitgeist.Constants.BASE_DIRECTORY = "";
         run ();
         return 0;
     }

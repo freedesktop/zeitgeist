@@ -37,9 +37,7 @@ public class ZeitgeistDatabase : Object
     {
         // FIXME: move this out of here
         string xdg_home_dir = Environment.get_user_data_dir();
-        string sqlite_filepath = Path.build_filename(xdg_home_dir,
-            Constants.ZEITGEIST_DATA_FOLDER,
-            Constants.ZEITGEIST_DATABASE_FILENAME);
+        string sqlite_filepath = Path.build_filename(Constants.DATABASE_FILE);
         
         int rc = Database.open_v2(
             sqlite_filepath,
