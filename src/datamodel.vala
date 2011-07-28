@@ -261,7 +261,7 @@ public class Event : Object
                        "num subjects: %d\n",
                        id, timestamp, actor, interpretation,
                        manifestation, origin, subjects.length);
-        for (int i=0; i<subjects.length; i++)
+        for (int i = 0; i < subjects.length; i++)
         {
             var s = subjects[i];
             stdout.printf ("  Subject #%d:\n" +

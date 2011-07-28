@@ -25,6 +25,30 @@ using Zeitgeist;
 namespace Zeitgeist.SQLite
 {
 
+public enum EventViewRows
+{
+    ID,
+    TIMESTAMP,
+    INTERPRETATION,
+    MANIFESTATION,
+    ACTOR,
+    PAYLOAD,
+    SUBJECT_URI,
+    SUBJECT_ID,
+    SUBJECT_INTERPRETATION,
+    SUBJECT_MANIFESTATION,
+    SUBJECT_ORIGIN,
+    SUBJECT_ORIGIN_URI,
+    SUBJECT_MIMETYPE,
+    SUBJECT_TEXT,
+    SUBJECT_STORAGE,
+    SUBJECT_STORAGE_STATE,
+    ORIGIN,
+    EVENT_ORIGIN_URI,
+    SUBJECT_CURRENT_URI,
+    SUBJECT_ID_CURRENT
+}
+
 public class ZeitgeistDatabase : Object
 {
 

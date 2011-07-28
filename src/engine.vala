@@ -24,6 +24,8 @@
  *
  */
 
+using Zeitgeist.SQLite;
+
 public class Engine : Object
 {
 
@@ -41,10 +43,10 @@ public class Engine : Object
         stdout.printf("last_id: %u\n", last_id);
         
         // FIXME: tmp:
-        get_events({1,2,3});
+        get_events({ 202, 203, 204, 205, 206, 207, 208, 209 });
     }
 
-    public Event[] get_events(uint32[] event_ids,
+    public GenericArray<Event> get_events(uint32[] event_ids,
             BusName? sender=null) throws EngineError
     {
         // TODO: Consider if we still want the cache. This should be done
@@ -59,7 +61,7 @@ public class Engine : Object
         
         string sql = """
             SELECT * FROM event_view
-            WHERE id < 1000
+            WHERE id > 201 AND id < 210
             """;
         
         if ((rc = db.prepare_v2 (sql, -1, out stmt)) == 1) {
@@ -67,43 +69,71 @@ public class Engine : Object
             throw new EngineError.DATABASE_ERROR("Fail.");
         }
 
-        var events = new GenericArray<uint32>();
+        var events = new GenericArray<Event>();
+        events.length = event_ids.length;
 
         int num_columns = stmt.column_count();
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
-            for (int i = 0; i < num_columns; i++)
+            uint32 event_id = (uint32) uint64.parse(
+                stmt.column_text (EventViewRows.ID));
+            int index = search_event_ids_array(event_ids, event_id);
+            assert (index >= 0);
+            
+            // FIXME: get real values from TableLookup
+            
+            Event event;
+            if (events[index] != null)
             {
-                if (stmt.column_name (i) == "id") {
-                    string txt = stmt.column_text (i);
-                    //print ("%s = %s\n", stmt.column_name (i), txt);
-                }
+                // We already got this event before, so we only need to
+                // take the missing subject data.
+                event = events[index];
             }
+            else
+            {
+                event = new Event ();
+                event.id = event_id;
+                event.timestamp = int64.parse(
+                    stmt.column_text (EventViewRows.TIMESTAMP));
+                event.interpretation = stmt.column_text (
+                    EventViewRows.INTERPRETATION);
+                event.manifestation = stmt.column_text (
+                    EventViewRows.MANIFESTATION);
+                event.actor = stmt.column_text (EventViewRows.ACTOR);
+                event.origin = stmt.column_text (EventViewRows.ORIGIN);
+                // FIXME: payload
+                events[index] = event;
+            }
+            
+            Subject subject = new Subject ();
+            subject.uri = stmt.column_text (EventViewRows.SUBJECT_URI);
+            subject.text = stmt.column_text (EventViewRows.SUBJECT_TEXT);
+            subject.storage = stmt.column_text (EventViewRows.SUBJECT_STORAGE);
+            subject.origin = stmt.column_text (EventViewRows.SUBJECT_ORIGIN_URI);
+            subject.current_uri = stmt.column_text (
+                EventViewRows.SUBJECT_CURRENT_URI);
+            subject.interpretation = stmt.column_text (
+                EventViewRows.SUBJECT_INTERPRETATION);
+            subject.manifestation = stmt.column_text (
+                EventViewRows.SUBJECT_MANIFESTATION);
+            subject.mimetype = stmt.column_text (
+                EventViewRows.SUBJECT_MIMETYPE);
+            
+            event.add_subject(subject);
         }
         if (rc != Sqlite.DONE) 
         {
             printerr ("Error: %d, %s\n", rc, db.errmsg ());
             // FIXME: throw some error??
         }
-        /*
-        for row in rows:
-            // Assumption: all rows of a same event for its different
-            // subjects are in consecutive order.
-            event = get_event_from_row(row)
-            if event: // ??
-                // Check for existing event.id in event to tattach
-                // other subjects to it
-                if event.id not in events:
-                    events[event.id] = event
-                else:
-                    event = events[event.id]
-                subject = get_subject_from_row(row)
-                if subject: // ??
-                    event.add_subject(subject)
-                    // FIXME: call extension 'get_event' hooks
-        */
         
-        return new Event[0];
+        for (int i = 0; i < event_ids.length; ++i)
+        {
+            events[i].debug_print ();
+            stdout.printf ("\n");
+        }
+
+        return new events;
     }
 
     // next_event_id(): last_id + 1; return last_id;
@@ -120,6 +150,14 @@ public class Engine : Object
     {
         // FIXME: unload extensions
         database.close();
+    }
+
+    private static int search_event_ids_array(uint32[] arr, uint32 needle)
+    {
+        for (int i = 0; i < arr.length; ++i)
+            if (arr[i] == needle)
+                return i;
+        return -1;
     }
 
 }
