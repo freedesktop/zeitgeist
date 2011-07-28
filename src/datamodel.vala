@@ -150,7 +150,7 @@ public enum RelevantResultType
     RELATED = 1, // All uris with the most related one first
 }
 
-/* 
+/**
  * Enumeration class defining the possible values for the storage
  * state of an event subject.
  * 

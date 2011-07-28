@@ -27,7 +27,7 @@ namespace Zeitgeist
     {
 
         public abstract TimeRange delete_events (
-            uint[] event_ids,
+            uint32[] event_ids,
             BusName sender
         ) throws IOError;
 
