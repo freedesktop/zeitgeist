@@ -11,6 +11,7 @@ VALAFLAGS = \
 	--pkg gio-2.0 \
 	--target-glib=2.26 \
 	--pkg sqlite3 \
+	--pkg posix \
 	$(NULL)
 
 bluebird_SOURCES = \

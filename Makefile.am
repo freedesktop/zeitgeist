@@ -36,3 +36,6 @@ run: all
 
 debug: all
 	gdb ./src/bluebird
+
+test: all
+	./test/dbus/run-all-tests.py

@@ -22,6 +22,8 @@
 public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
 {
 
+    private static ZeitgeistDaemon instance;
+
     private static MainLoop mainloop;
     private Engine engine;
     private MonitorManager notifications;
@@ -57,7 +59,8 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
         }
         catch (EngineError e)
         {
-            //quit();
+            // FIXME
+            //quit ();
         }
         
         notifications = new MonitorManager();
@@ -146,9 +149,9 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
 
     public void quit ()
     {
-        stdout.printf("BYE\n");
-        engine.close();
-        mainloop.quit();
+        stdout.printf ("BYE\n");
+        engine.close ();
+        mainloop.quit ();
     }
 
     public void install_monitor (ObjectPath monitor_path,
@@ -166,11 +169,12 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
 
     static void on_bus_aquired (DBusConnection conn)
     {
+        instance = new ZeitgeistDaemon ();
         try
         {
             conn.register_object (
                 "/org/gnome/zeitgeist/log/activity",
-                (Zeitgeist.RemoteLogInterface) new ZeitgeistDaemon ());
+                (Zeitgeist.RemoteLogInterface) instance);
         }
         catch (IOError e)
         {
@@ -190,9 +194,18 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
         mainloop.run ();
     }
 
+    static void handle_exit ()
+    {
+        instance.quit ();
+    }
+
     static int main (string[] args)
     {
         Zeitgeist.Constants.initialize ();
+        
+        Posix.signal (Posix.SIGHUP, handle_exit);
+        Posix.signal (Posix.SIGTERM, handle_exit);
+        
         run ();
         return 0;
     }
