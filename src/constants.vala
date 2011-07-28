@@ -46,7 +46,7 @@ namespace Zeitgeist
         // default size is 2000
         public const uint CACHE_SIZE = 0;
 
-        public const string ZEITGEIST_DATA_FOLDER = "zeitgeist";
+        public const string ZEITGEIST_DATA_FOLDER = "bluebird";
         public const string ZEITGEIST_DATABASE_FILENAME = "activity.sqlite";
 
         public void initialize ()
@@ -55,7 +55,7 @@ namespace Zeitgeist
             BASE_DIRECTORY = Path.build_filename(Environment.get_user_data_dir (), ZEITGEIST_DATA_FOLDER);
             // If directory does not exist create directory
             if (!FileUtils.test (BASE_DIRECTORY, FileTest.IS_DIR)){
-                File.new_for_path (BASE_DIRECTORY).make_directory ();
+                 DirUtils.create (BASE_DIRECTORY, 0755);
             }
             DATA_PATH = Environment.get_variable ("ZEITGEIST_DATA_PATH");
             
