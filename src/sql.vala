@@ -36,8 +36,7 @@ public class ZeitgeistDatabase : Object
     public ZeitgeistDatabase () throws EngineError
     {
         // FIXME: move this out of here
-        string xdg_home_dir = Environment.get_user_data_dir();
-        string sqlite_filepath = Path.build_filename(Constants.DATABASE_FILE);
+        string sqlite_filepath = Constants.DATABASE_FILE_PATH;
         
         int rc = Database.open_v2(
             sqlite_filepath,

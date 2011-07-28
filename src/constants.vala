@@ -26,9 +26,9 @@ namespace Zeitgeist
     {
         public static string DATA_PATH;
         // Directories
-        public const string DATABASE_FILE = "";
-        public const string DATABASE_FILE_BACKUP = "";
-        public const string DEFAULT_LOG_PATH = "";
+        public static string DATABASE_FILE_PATH;
+        public static string DATABASE_FILE_BACKUP_PATH;
+        public static string DEFAULT_LOG_PATH;
 
         // D-Bus
         public const string DBUS_INTERFACE = "";
@@ -63,20 +63,20 @@ namespace Zeitgeist
             stdout.printf("DATA_PATH = %s\n", DATA_PATH);
             
             
-            DATABASE_FILE = Environment.get_variable ("ZEITGEIST_DATABASE_PATH");
-            if (DATABASE_FILE == null)
+            DATABASE_FILE_PATH = Environment.get_variable ("ZEITGEIST_DATABASE_PATH");
+            if (DATABASE_FILE_PATH == null)
             {
-                Path.build_filename (DATA_PATH, "activity.sqlite");
+                DATABASE_FILE_PATH = Path.build_filename (DATA_PATH, "activity.sqlite");
             }
-            stdout.printf("DATABASE_FILE = %s\n", DATABASE_FILE);
+            stdout.printf("DATABASE_FILE_PATH = %s\n", DATABASE_FILE_PATH);
             
             
-            DATABASE_FILE_BACKUP = Environment.get_variable ("ZEITGEIST_DATABASE_BACKUP_PATH");
-            if (DATABASE_FILE_BACKUP == null)
+            DATABASE_FILE_BACKUP_PATH = Environment.get_variable ("ZEITGEIST_DATABASE_BACKUP_PATH");
+            if (DATABASE_FILE_BACKUP_PATH == null)
             {
-                Path.build_filename (DATA_PATH, "activity.sqlite.bck");
+                DATABASE_FILE_BACKUP_PATH =Path.build_filename (DATA_PATH, "activity.sqlite.bck");
             }
-            stdout.printf("DATABASE_FILE = %s\n", DATABASE_FILE_BACKUP);
+            stdout.printf("DATABASE_FILE_BACKUP_PATH = %s\n", DATABASE_FILE_BACKUP_PATH);
         }
     }
 }
