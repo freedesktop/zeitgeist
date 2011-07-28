@@ -133,8 +133,8 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
         var events = Event.variant_to_events (vevents);
         for (int i=0; i<events.length; i++)
         {
-            var event = events[i];
-            debug ("Got event:\n%s\n%s\n%s", event.actor, event.interpretation, event.manifestation);
+            stdout.printf ("============== Inserting event: =============\n");
+            events[i].debug_print ();
         }
         return new uint[] { 1, 2, 3 };
     }

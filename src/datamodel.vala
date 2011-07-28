@@ -250,6 +250,35 @@ public class Event : Object
         return vb.end();
     }
 
+    public void debug_print ()
+    {
+        stdout.printf ("id: %d\t" +
+                       "timestamp: %li\n" +
+                       "actor: %s\n" +
+                       "interpretation: %s\n" +
+                       "manifestation: %s\n" +
+                       "origin: %s\n" +
+                       "num subjects: %d\n",
+                       id, timestamp, actor, interpretation,
+                       manifestation, origin, subjects.length);
+        for (int i=0; i<subjects.length; i++)
+        {
+            var s = subjects[i];
+            stdout.printf ("  Subject #%d:\n" +
+                           "    uri: %s\n" +
+                           "    interpretation: %s\n" +
+                           "    manifestation: %s\n" +
+                           "    mimetype: %s\n" +
+                           "    origin: %s\n" +
+                           "    text: %s\n" +
+                           "    current_uri: %s\n" +
+                           "    storage: %s\n",
+                           i, s.uri, s.interpretation, s.manifestation,
+                           s.mimetype, s.origin, s.text, s.current_uri,
+                           s.storage);
+        }
+    }
+
     public static GenericArray<Event> variant_to_events (Variant vevents)
     {
         GenericArray<Event> events = new GenericArray<Event> ();
