@@ -92,9 +92,8 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
     // FIXME
     public Variant get_events (uint32[] event_ids, BusName sender)
     {
-        stdout.printf ("yeah!\n");
-        //return new Variant("us", 5, "OK");
-        return 1;
+        GenericArray<Event> events = engine.get_events(event_ids);
+        return Event.events_to_variant(events);
     }
 
     // FIXME

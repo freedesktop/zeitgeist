@@ -295,6 +295,19 @@ public class Event : Object
 
         return events;
     }
+
+    public static Variant events_to_variant (GenericArray<Event> events)
+    {
+        var vb = new VariantBuilder(new VariantType("a(asaasay)"));
+
+        vb.open(new VariantType("a(asaasay)"));
+        for (int i = 0; i < events.length; ++i)
+            vb.add_value (events[i].to_variant ());
+        vb.close();
+
+        return vb.end();
+    }
+
 }
 
 public class Subject : Object

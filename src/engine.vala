@@ -47,9 +47,6 @@ public class Engine : Object
         actors_table = new TableLookup(database, "actor");
         
         // FIXME: load extensions
-        
-        // FIXME: tmp:
-        get_events({ 202, 203, 204, 205, 206, 207, 208, 209 });
     }
 
     public GenericArray<Event> get_events(uint32[] event_ids,
@@ -144,6 +141,10 @@ public class Engine : Object
             events[i].debug_print ();
             stdout.printf ("\n");
         }
+
+        // FIXME: make sure nulls become NULL_EVENT
+        // FIXME: what happens if a query requests the same element in
+        //        more than one place?
 
         return events;
     }
