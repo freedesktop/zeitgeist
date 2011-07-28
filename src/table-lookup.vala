@@ -32,16 +32,18 @@ namespace Zeitgeist.SQLite
 
         unowned Sqlite.Database db;
 
+        string table;
         private HashTable<int, string> id_to_value;
         private HashTable<string, int> value_to_id;
 
         public TableLookup (ZeitgeistDatabase database, string table_name)
         {
             db = database.database;
+            table = table_name;
             id_to_value = new HashTable<int, string>(direct_hash, direct_equal);
             value_to_id = new HashTable<string, int>(str_hash, str_equal);
             
-            int rc = db.exec ("SELECT id, value FROM " + table_name,
+            int rc = db.exec ("SELECT id, value FROM " + table,
                 (n_columns, values, column_names) =>
                 {
                     id_to_value.insert (int.parse(values[0]), values[1]);
@@ -66,25 +68,28 @@ namespace Zeitgeist.SQLite
 
         public int get_id (string name)
         {
-            int? id = value_to_id.lookup (name);
-            if (id == null)
+            int id = value_to_id.lookup (name);
+            print("pre --> %d\n", id);
+            if (id == 0)
             {
-                // FIXME
-                /*if name in self:
-                    return super(TableLookup, self).__getitem__(name)
-                try:
-                    self._cursor.execute(
-                    "INSERT INTO %s (value) VALUES (?)" % self._table, (name,))
-                    id = self._cursor.lastrowid
-                except sqlite3.IntegrityError:
-                    # This shouldn't happen, but just in case
-                    # FIXME: Maybe we should remove it?
-                    id = self._cursor.execute("SELECT id FROM %s WHERE value=?"
-                        % self._table, (name,)).fetchone()[0]
-                # If we are here it's a newly inserted value, insert it into cache
-                self[name] = id
-                self._inv_dict[id] = name
-                return id*/
+                int rc;
+                Sqlite.Statement stmt;
+                
+                string sql = "INSERT INTO " + table + " (value) VALUES (?)";
+                if ((rc = db.prepare_v2 (sql, -1, out stmt)) != Sqlite.OK) {
+                    critical ("SQL error: %d, %s\n", rc, db.errmsg ());
+                }
+                
+                stmt.bind_text(1, name);
+                if (stmt.step() != Sqlite.DONE) {
+                    critical ("SQL error: %d, %s\n", rc, db.errmsg ());
+                }
+                
+                id = (int) db.last_insert_rowid();
+                
+                id_to_value.insert (id, name);
+                value_to_id.insert (name, id);
+                print("ID --> %d\n", id);
             }
             return id;
         }

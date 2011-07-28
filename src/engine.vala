@@ -41,11 +41,10 @@ public class Engine : Object
         database = new Zeitgeist.SQLite.ZeitgeistDatabase();
         last_id = database.get_last_id();
         
-        // FIXME: initialize TableLookups
         interpretations_table = new TableLookup(database, "interpretation");
-        manifestations_table = new TableLookup(database, "manifestations");
+        manifestations_table = new TableLookup(database, "manifestation");
         mimetypes_table = new TableLookup(database, "mimetype");
-        actors_table = new TableLookup(database, "actors");
+        actors_table = new TableLookup(database, "actor");
         
         // FIXME: load extensions
         
@@ -75,7 +74,7 @@ public class Engine : Object
             WHERE id IN (""" + sql_condition + """)
             """;
 
-        if ((rc = db.prepare_v2 (sql, -1, out stmt)) == 1) {
+        if ((rc = db.prepare_v2 (sql, -1, out stmt)) != Sqlite.OK) {
             printerr ("SQL error: %d, %s\n", rc, db.errmsg ());
             throw new EngineError.DATABASE_ERROR("Fail.");
         }
