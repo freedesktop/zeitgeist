@@ -83,6 +83,18 @@ namespace Zeitgeist.SQLite
             return last_id;
         }
 
+        public void begin_transaction () throws EngineError
+        {
+            int rc = database.exec ("BEGIN");
+            assert_query_success (rc, "Can't start transaction");
+        }
+
+        public void end_transaction () throws EngineError
+        {
+            int rc = database.exec ("COMMIT");
+            assert_query_success (rc, "Can't commit transaction");
+        }
+
         public void close ()
             {
             // FIXME: make sure symbol tables are consistent (ie.
@@ -108,31 +120,6 @@ namespace Zeitgeist.SQLite
                 throw new EngineError.DATABASE_ERROR("Fail.");
             }
         }
-
-        /*
-            if ((rc = db.prepare_v2 (args[2], -1, out stmt, null)) == 1) {
-                printerr ("SQL error: %d, %s\n", rc, db.errmsg ());
-                return;
-            }
-
-            cols = stmt.column_count();
-            do {
-                rc = stmt.step();
-            switch (rc) {
-                    case Sqlite.DONE:
-                        break;
-                    case Sqlite.ROW:
-                        for (col = 0; col < cols; col++) {
-                            string txt = stmt.column_text(col);
-                            print ("%s = %s\n", stmt.column_name (col), txt);
-                        }
-                        break;
-                    default:
-                        printerr ("Error: %d, %s\n", rc, db.errmsg ());
-                        break;
-                }
-            } while (rc == Sqlite.ROW);
-        */
 
     }
 

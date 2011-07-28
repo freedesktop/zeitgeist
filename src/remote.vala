@@ -34,7 +34,7 @@ namespace Zeitgeist
         // This is stupid. We don't need it.
         //public void DeleteLog ();
 
-        public abstract uint[] find_event_ids (
+        public abstract uint32[] find_event_ids (
             TimeRange time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
@@ -63,7 +63,7 @@ namespace Zeitgeist
             BusName sender
         ) throws IOError;
 
-        public abstract uint[] insert_events (
+        public abstract uint32[] insert_events (
             [DBus (signature = "a(asaasay)")] Variant events,
             BusName sender
         ) throws IOError;

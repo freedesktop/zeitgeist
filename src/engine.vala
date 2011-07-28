@@ -30,15 +30,19 @@ public class Engine : Object
 {
 
     Zeitgeist.SQLite.ZeitgeistDatabase database;
+    unowned Sqlite.Database db;
+    
     TableLookup interpretations_table;
     TableLookup manifestations_table;
     TableLookup mimetypes_table;
     TableLookup actors_table;
+    
     uint32 last_id;
 
     public Engine () throws EngineError
     {
         database = new Zeitgeist.SQLite.ZeitgeistDatabase();
+        db = database.database;
         last_id = database.get_last_id();
         
         interpretations_table = new TableLookup(database, "interpretation");
@@ -58,11 +62,12 @@ public class Engine : Object
         //  to enhance the performance of SQLite now, and event processing
         //  will be faster now being C.
         
-        unowned Sqlite.Database db = database.database;
         Sqlite.Statement stmt;
         int rc;
         
         assert (event_ids.length > 0);
+        // FIXME: use StringBuilder and insert numbers directly, since they
+        // are injection-safe and we can't reuse the query anyway
         string sql_condition = "?";
         for (int i = 1; i < event_ids.length; ++i)
             sql_condition += ", ?";
@@ -149,8 +154,131 @@ public class Engine : Object
         return events;
     }
 
-    // next_event_id(): last_id + 1; return last_id;
-    // it's used in only one place, we can just inline it.
+    public uint32[] insert_events (GenericArray<Event> events,
+        BusName? sender=null) throws EngineError
+    {
+        uint32[] event_ids = new uint32[events.length];
+        database.begin_transaction();
+        for (int i = 0; i < events.length; ++i)
+        {
+            try
+            {
+                event_ids[i] = insert_event (events[i], sender);
+            } catch (EngineError e)
+            {
+                warning ("Could not insert event.\n");
+                event_ids[i] = 0;
+            }
+            print("%u\n", event_ids[i]);
+        }
+        database.end_transaction();
+        return event_ids;
+    }
+
+    public uint32 insert_event (Event event,
+        BusName? sender=null)
+    {
+        assert (event.id == 0);
+        assert (event.num_subjects () > 0);
+        // FIXME: make sure event timestamp is sane
+        
+        /* FIXME:
+        if (event.interpretation == interpretation.MOVE_EVENT)
+        {
+            // check all subjects for uri != current_uri
+        }
+        else
+        {
+            // check all subjects for uri == current_uri
+        }
+        */
+
+        event.id = ++last_id;
+
+        // FIXME: call pre_insert extension hooks
+        //        if afterwards event == null, return and ignore the event
+
+        // FIXME: store the payload
+        // payload_id = store_payload (event);
+
+        // FIXME: Move this into insert_events to get more performance doing
+        //        them all at once? This needs some testing.
+        // make sure all URIs, mimetypes, texts and storages are inserted
+
+        // FIXME: Should we add something just like TableLookup but with LRU
+        //        for those? Or is embedding the query faster? Needs testing!
+
+        // FIXME: we can reuse this query for all insertions! move this into
+        //        something running at startup so it's done only once.
+        Sqlite.Statement insertion_query;
+
+        string sql = """
+            INSERT INTO event (
+                id, timestamp, interpretation, manifestation, actor,
+                origin, payload, subj_id, subj_id_current,
+                subj_interpretation, subj_manifestation, subj_origin,
+                subj_mimetype, subj_text, subj_storage
+            ) VALUES (
+                ?, ?, ?, ?, ?,
+                (SELECT id FROM uri WHERE value=?),
+                ?,
+                (SELECT id FROM uri WHERE value=?),
+                (SELECT id FROM uri WHERE value=?),
+                ?, ?,
+                (SELECT id FROM uri WHERE value=?),
+                ?,
+                (SELECT id FROM text WHERE value=?),
+                (SELECT id from storage WHERE value=?)
+            )""";
+
+        int rc;
+        if ((rc = db.prepare_v2 (sql, -1, out insertion_query)) != Sqlite.OK) {
+            printerr ("SQL error: %d, %s\n", rc, db.errmsg ());
+            throw new EngineError.DATABASE_ERROR("Fail.");
+        }
+        // ---
+
+        for (int i = 0; i < event.num_subjects(); ++i)
+        {
+            
+            //insertion_query.reset()
+            
+            unowned Subject subject = event.subjects[i];
+            
+            // FIXME: Do we need to set those every time or is just changing
+            //        the subject enough?
+            insertion_query.bind_int64 (1, event.id);
+            insertion_query.bind_int64 (2, event.timestamp);
+            insertion_query.bind_int64 (3,
+                interpretations_table.get_id (event.interpretation));
+            insertion_query.bind_int64 (4,
+                manifestations_table.get_id (event.manifestation));
+            insertion_query.bind_int64 (5, actors_table.get_id (event.actor));
+            insertion_query.bind_text (6, event.origin);
+            insertion_query.bind_int64 (7, 0 /*payload_id*/);
+            
+            insertion_query.bind_text (8, subject.uri);
+            insertion_query.bind_text (9, subject.current_uri);
+            insertion_query.bind_int64 (10,
+                interpretations_table.get_id (subject.interpretation));
+            insertion_query.bind_int64 (11,
+                manifestations_table.get_id (subject.manifestation));
+            insertion_query.bind_text (12, subject.origin);
+            insertion_query.bind_int64 (13,
+                mimetypes_table.get_id (subject.mimetype));
+            // FIXME: Consider a storages_table table. Too dangerous?
+            insertion_query.bind_text (14, subject.storage);
+        }
+
+        /*
+        if (event.interpretation == MOVE_EVENT)
+        {
+            handle_move_event (event);
+        }
+        */
+
+        return 1;
+    }
 
     /**
      * Clear all resources Engine is using (close database connection,

@@ -69,7 +69,6 @@ namespace Zeitgeist.SQLite
         public int get_id (string name)
         {
             int id = value_to_id.lookup (name);
-            print("pre --> %d\n", id);
             if (id == 0)
             {
                 int rc;
@@ -89,7 +88,6 @@ namespace Zeitgeist.SQLite
                 
                 id_to_value.insert (id, name);
                 value_to_id.insert (name, id);
-                print("ID --> %d\n", id);
             }
             return id;
         }

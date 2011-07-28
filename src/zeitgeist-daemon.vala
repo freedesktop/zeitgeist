@@ -65,6 +65,7 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
         
         notifications = new MonitorManager();
 
+        // FIXME: tmp:
         var vb = new VariantBuilder(new VariantType("(asaasay)"));
         vb.open(new VariantType("as"));
             vb.add("s", "0"); // id
@@ -89,7 +90,10 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
         vb.open(new VariantType("ay"));
         vb.close();
 
-        new Event.from_variant(vb.end());
+        var events = new GenericArray<Event>();
+        events.add(new Event.from_variant(vb.end()));
+        engine.insert_events(events);
+        // ---
     }
 
     // FIXME
