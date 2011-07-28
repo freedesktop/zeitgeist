@@ -17,25 +17,90 @@
  *
  */
 
+/**
+ * Base class for all extensions
+ *
+ * Every extension has to define a list of accessible methods as
+ * 'PUBLIC_METHODS'. The constructor of an Extension object takes the
+ * engine object it extends as the only argument.
+ *
+ * In addition each extension has a set of hooks to control how events are
+ * inserted and retrieved from the log. These hooks can either block the
+ * event completely, modify it, or add additional metadata to it.
+ */
 public abstract class Extension : Object
 {
-    // FIXME: Document all functions with valadocs. Descriptions can
-    // be mostly copied from extension.py.
-
+    /**
+     * This method gets called before Zeitgeist stops.
+     * 
+     * Execution of this method isn't guaranteed, and you shouldn't do
+     * anything slow in there.
+     */
     public abstract void unload();
 
+    /**
+     * Hook applied to all events before they are inserted into the
+     * log. The returned event is progressively passed through all
+     * extensions before the final result is inserted.
+     *
+     * To block an event completely simply return null.
+     * The event may also be modified or completely substituted for
+     * another event.
+     *
+     * The default implementation of this method simply returns the
+     * event as is.
+     *
+     * @param event: A Event instance
+     * @param sender: The D-Bus bus name of the client
+     * @returns: The filtered event instance to insert into the log
+     */
     public abstract Event pre_insert_event(Event event, BusName sender);
 
+    /**
+     * Hook applied to all events after they are inserted into the log.
+     * 
+     * @param event: A Event instance
+     * @param sender: The D-Bus bus name of the client
+     * @returns: Nothing
+     */
     public abstract void post_insert_event(Event event, BusName sender);
 
+    /**
+     * Hook applied to all events before they are returned to a client.
+     * The event returned from this method is progressively passed
+     * through all extensions before they final result is returned to
+     * the client.
+     *
+     * To prevent an event from ever leaving the server process simply
+     * return null. The event may also be changed in place
+     * or fully substituted for another event.
+     *
+     * The default implementation of this method simply returns the
+     * event as is.
+     *
+     * @param event: A Eventinstance or None
+     * @param sender: The D-Bus bus name of the client
+     * @returns: The filtered event instance as the client should see it
+     */
     public abstract Event get_event(Event event, BusName sender);
 
-    // FIXME: In Python this takes "uint32 event_ids", since deleting
-    //  events doesn't look them up. What do we want to do here?
-    public abstract void post_delete_events(Event event, BusName sender);
+    /**
+     * Hook applied after events have been deleted from the log.
+     *
+     * @param ids: A list of event ids for the events that has been deleted
+     * @param sender: The unique DBus name for the client triggering the delete
+     * @returns: Nothing
+     */
+    public abstract void post_delete_events(uint32 ids, BusName sender);
 
-    // FIXME: Idem as post_delete_events.
-    public abstract Event pre_delete_events(Event event, BusName sender);
+    /**
+     * Hook applied before events are deleted from the log.
+     * 
+     * @param ids: A list of event ids for the events requested to be deleted
+     * @param sender: The unique DBus name for the client triggering the delete
+     * @returns: The filtered list of event ids which should be deleted
+     */
+    public abstract Event pre_delete_events(uint32 ids, BusName sender);
 }
 
 // vim:expandtab:ts=4:sw=4
