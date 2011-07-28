@@ -32,35 +32,36 @@ namespace Zeitgeist.SQLite
 
         unowned Sqlite.Database db;
 
-        private HashTable<string, int> value_to_id;
         private HashTable<int, string> id_to_value;
+        private HashTable<string, int> value_to_id;
 
         public TableLookup (ZeitgeistDatabase database, string table_name)
         {
             db = database.database;
+            id_to_value = new HashTable<int, string>(direct_hash, direct_equal);
             value_to_id = new HashTable<string, int>(str_hash, str_equal);
-            id_to_value = new HashTable<int, string>(int_hash, int_equal);
             
-            int rc = db.exec ("SELECT MAX(id) FROM event",
+            int rc = db.exec ("SELECT id, value FROM " + table_name,
                 (n_columns, values, column_names) =>
                 {
-                    //last_id = int.parse(values[0]);
+                    id_to_value.insert (int.parse(values[0]), values[1]);
+                    value_to_id.insert (values[1], int.parse(values[0]));
                     return 0;
                 }, null);
-            assert_query_success(rc, "Can't query database");
+            if (rc != Sqlite.OK)
+            {
+                critical ("Can't init tables: %d, %s\n", rc, db.errmsg ());
+            }
             
-            /*for row in cursor.execute("SELECT id, value FROM %s" % table):
-                self[row["value"]] = row["id"]
-        
-            self._inv_dict = dict((value, key) for key, value in self.iteritems())
-    
+            /* FIXME: add this:
             cursor.execute("""
                 CREATE TEMP TRIGGER update_cache_%(table)s
                 BEFORE DELETE ON %(table)s
                 BEGIN
                     INSERT INTO _fix_cache VALUES ("%(table)s", OLD.id);
                 END;
-                """ % {"table": table})*/
+                """ % {"table": table})
+            */
         }
 
         public int get_id (string name)
@@ -68,6 +69,7 @@ namespace Zeitgeist.SQLite
             int? id = value_to_id.lookup (name);
             if (id == null)
             {
+                // FIXME
                 /*if name in self:
                     return super(TableLookup, self).__getitem__(name)
                 try:

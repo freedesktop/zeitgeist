@@ -33,3 +33,6 @@ DISTCLEANFILES = \
 
 run: all
 	./src/bluebird
+
+debug: all
+	gdb ./src/bluebird

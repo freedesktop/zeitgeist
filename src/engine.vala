@@ -32,7 +32,7 @@ public class Engine : Object
     Zeitgeist.SQLite.ZeitgeistDatabase database;
     TableLookup interpretations_table;
     TableLookup manifestations_table;
-    TableLookup mimetype_table;
+    TableLookup mimetypes_table;
     TableLookup actors_table;
     uint32 last_id;
 
@@ -43,6 +43,9 @@ public class Engine : Object
         
         // FIXME: initialize TableLookups
         interpretations_table = new TableLookup(database, "interpretation");
+        manifestations_table = new TableLookup(database, "manifestations");
+        mimetypes_table = new TableLookup(database, "mimetype");
+        actors_table = new TableLookup(database, "actors");
         
         // FIXME: load extensions
         
@@ -103,13 +106,13 @@ public class Engine : Object
             {
                 event = new Event ();
                 event.id = event_id;
-                event.timestamp = int64.parse(
-                    stmt.column_text (EventViewRows.TIMESTAMP));
-                event.interpretation = stmt.column_text (
-                    EventViewRows.INTERPRETATION);
-                event.manifestation = stmt.column_text (
-                    EventViewRows.MANIFESTATION);
-                event.actor = stmt.column_text (EventViewRows.ACTOR);
+                event.timestamp = stmt.column_int64 (EventViewRows.TIMESTAMP);
+                event.interpretation = interpretations_table.get_value (
+                    stmt.column_int (EventViewRows.INTERPRETATION));
+                event.manifestation = manifestations_table.get_value (
+                    stmt.column_int (EventViewRows.MANIFESTATION));
+                event.actor = actors_table.get_value (
+                    stmt.column_int (EventViewRows.ACTOR));
                 event.origin = stmt.column_text (EventViewRows.ORIGIN);
                 // FIXME: payload
                 events[index] = event;
@@ -122,12 +125,12 @@ public class Engine : Object
             subject.origin = stmt.column_text (EventViewRows.SUBJECT_ORIGIN_URI);
             subject.current_uri = stmt.column_text (
                 EventViewRows.SUBJECT_CURRENT_URI);
-            subject.interpretation = stmt.column_text (
-                EventViewRows.SUBJECT_INTERPRETATION);
-            subject.manifestation = stmt.column_text (
-                EventViewRows.SUBJECT_MANIFESTATION);
-            subject.mimetype = stmt.column_text (
-                EventViewRows.SUBJECT_MIMETYPE);
+            subject.interpretation = interpretations_table.get_value (
+                stmt.column_int (EventViewRows.SUBJECT_INTERPRETATION));
+            subject.manifestation = manifestations_table.get_value (
+                stmt.column_int (EventViewRows.SUBJECT_MANIFESTATION));
+            subject.mimetype = mimetypes_table.get_value (
+                stmt.column_int (EventViewRows.SUBJECT_MIMETYPE));
             
             event.add_subject(subject);
         }
@@ -137,11 +140,11 @@ public class Engine : Object
             // FIXME: throw some error??
         }
         
-        /*for (int i = 0; i < event_ids.length; ++i)
+        for (int i = 0; i < event_ids.length; ++i)
         {
             events[i].debug_print ();
             stdout.printf ("\n");
-        }*/
+        }
 
         return events;
     }
