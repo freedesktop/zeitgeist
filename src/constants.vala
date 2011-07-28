@@ -25,10 +25,11 @@ namespace Zeitgeist
     namespace Constants
     {
         public static string DATA_PATH;
-        // Directories
+        // Paths
         public static string DATABASE_FILE_PATH;
         public static string DATABASE_FILE_BACKUP_PATH;
         public static string DEFAULT_LOG_PATH;
+        public static string LOCAL_EXTENSIONS_PATH;
 
         // D-Bus
         public const string DBUS_INTERFACE = "";
@@ -77,6 +78,12 @@ namespace Zeitgeist
                 DATABASE_FILE_BACKUP_PATH =Path.build_filename (DATA_PATH, "activity.sqlite.bck");
             }
             stdout.printf("DATABASE_FILE_BACKUP_PATH = %s\n", DATABASE_FILE_BACKUP_PATH);
+            
+            LOCAL_EXTENSIONS_PATH = Path.build_filename (DATA_PATH, "extensions");
+            if (!FileUtils.test (LOCAL_EXTENSIONS_PATH , FileTest.IS_DIR)){
+                     DirUtils.create (LOCAL_EXTENSIONS_PATH , 0755);
+            }
+            stdout.printf("LOCAL_EXTENSIONS_PATH = %s\n", LOCAL_EXTENSIONS_PATH);
         }
     }
 }
