@@ -289,8 +289,8 @@ public class Subject : Object
         uri = (string) iter.next_value();
         interpretation = (string) iter.next_value();
         manifestation = (string) iter.next_value();
-        mimetype = (string) iter.next_value();
         origin = (string) iter.next_value();
+        mimetype = (string) iter.next_value();
         text = (string) iter.next_value();
         storage = (string) iter.next_value();
         // let's keep this compatible with older clients
