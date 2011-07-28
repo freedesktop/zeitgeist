@@ -161,14 +161,7 @@ public class Engine : Object
         database.begin_transaction();
         for (int i = 0; i < events.length; ++i)
         {
-            try
-            {
-                event_ids[i] = insert_event (events[i], sender);
-            } catch (EngineError e)
-            {
-                warning ("Could not insert event.\n");
-                event_ids[i] = 0;
-            }
+            event_ids[i] = insert_event (events[i], sender);
             print("%u\n", event_ids[i]);
         }
         database.end_transaction();
@@ -205,6 +198,19 @@ public class Engine : Object
         //        them all at once? This needs some testing.
         // make sure all URIs, mimetypes, texts and storages are inserted
 
+        var uris = new GenericArray<string> ();
+        if (event.origin != "")
+            uris.add (event.origin);
+        for (int i = 0; i < event.num_subjects(); ++i)
+        {
+            unowned Subject subject = event.subjects[i];
+            uris.add(subject.uri);
+            uris.add(subject.current_uri);
+            if (subject.origin != "")
+                uris.add(subject.origin);
+        }
+        string sql1 = "INSERT OR IGNORE INTO uri (value) ...";
+
         // FIXME: Should we add something just like TableLookup but with LRU
         //        for those? Or is embedding the query faster? Needs testing!
 
@@ -233,29 +239,28 @@ public class Engine : Object
 
         int rc;
         if ((rc = db.prepare_v2 (sql, -1, out insertion_query)) != Sqlite.OK) {
-            printerr ("SQL error: %d, %s\n", rc, db.errmsg ());
-            throw new EngineError.DATABASE_ERROR("Fail.");
+            warning ("SQL error: %d, %s\n", rc, db.errmsg ());
+            return 0;
         }
         // ---
 
+        insertion_query.clear_bindings();
+
+        insertion_query.bind_int64 (1, event.id);
+        insertion_query.bind_int64 (2, event.timestamp);
+        insertion_query.bind_int64 (3,
+            interpretations_table.get_id (event.interpretation));
+        insertion_query.bind_int64 (4,
+            manifestations_table.get_id (event.manifestation));
+        insertion_query.bind_int64 (5, actors_table.get_id (event.actor));
+        insertion_query.bind_text (6, event.origin);
+        insertion_query.bind_int64 (7, 0 /*payload_id*/);
+
         for (int i = 0; i < event.num_subjects(); ++i)
         {
-            
-            //insertion_query.reset()
+            insertion_query.reset();
             
             unowned Subject subject = event.subjects[i];
-            
-            // FIXME: Do we need to set those every time or is just changing
-            //        the subject enough?
-            insertion_query.bind_int64 (1, event.id);
-            insertion_query.bind_int64 (2, event.timestamp);
-            insertion_query.bind_int64 (3,
-                interpretations_table.get_id (event.interpretation));
-            insertion_query.bind_int64 (4,
-                manifestations_table.get_id (event.manifestation));
-            insertion_query.bind_int64 (5, actors_table.get_id (event.actor));
-            insertion_query.bind_text (6, event.origin);
-            insertion_query.bind_int64 (7, 0 /*payload_id*/);
             
             insertion_query.bind_text (8, subject.uri);
             insertion_query.bind_text (9, subject.current_uri);
@@ -268,6 +273,11 @@ public class Engine : Object
                 mimetypes_table.get_id (subject.mimetype));
             // FIXME: Consider a storages_table table. Too dangerous?
             insertion_query.bind_text (14, subject.storage);
+            
+            if (insertion_query.step() != Sqlite.DONE) {
+                warning ("SQL error: %d, %s\n", rc, db.errmsg ());
+                return 0;
+            }
         }
 
         /*
@@ -277,7 +287,7 @@ public class Engine : Object
         }
         */
 
-        return 1;
+        return event.id;
     }
 
     /**
