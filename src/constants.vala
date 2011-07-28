@@ -47,15 +47,20 @@ namespace Zeitgeist
         public const uint CACHE_SIZE = 0;
 
         public const string ZEITGEIST_DATA_FOLDER = "zeitgeist";
-
         public const string ZEITGEIST_DATABASE_FILENAME = "activity.sqlite";
 
         public void initialize ()
         {
             // FIXME: append "/zeitgeist"
-            BASE_DIRECTORY = Environment.get_user_data_dir ();
+            BASE_DIRECTORY = Environment.get_user_data_dir () + "/"+ ZEITGEIST_DATA_FOLDER;
+            // If directory does not exist create directory
+            if (!FileUtils.test (BASE_DIRECTORY, FileTest.IS_DIR)){
+                File.new_for_path (BASE_DIRECTORY).make_directory ();
+            }
             DATA_PATH = Environment.get_variable ("ZEITGEIST_DATA_PATH");
-            // FIXME: make sure paths exist
+            
+            stdout.printf("BASE_DIRECTORY = %s\n", BASE_DIRECTORY);
+            stdout.printf("DATA_PATH = %s\n", DATA_PATH);
         }
     }
 }
