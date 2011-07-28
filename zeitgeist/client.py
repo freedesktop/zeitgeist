@@ -156,7 +156,7 @@ class _DBusInterface(object):
 
 	def _load_introspection_data(self):
 		self.__methods, self.__signals = self.get_members(
-			self.__proxy.Introspect())
+			self.__proxy.Introspect(dbus_interface='org.freedesktop.DBus.Introspectable'))
 
 	def __init__(self, proxy, interface_name, object_path, reconnect=True):
 		self.__proxy = proxy
