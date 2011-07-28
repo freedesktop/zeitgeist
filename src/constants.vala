@@ -52,7 +52,7 @@ namespace Zeitgeist
         public void initialize ()
         {
             // FIXME: append "/zeitgeist"
-            BASE_DIRECTORY = Environment.get_user_data_dir () + "/"+ ZEITGEIST_DATA_FOLDER;
+            BASE_DIRECTORY = Path.build_filename(Environment.get_user_data_dir (), ZEITGEIST_DATA_FOLDER);
             // If directory does not exist create directory
             if (!FileUtils.test (BASE_DIRECTORY, FileTest.IS_DIR)){
                 File.new_for_path (BASE_DIRECTORY).make_directory ();
