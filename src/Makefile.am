@@ -23,6 +23,7 @@ bluebird_SOURCES = \
 	sql.vala \
 	constants.vala \
 	errors.vala \
+	table-lookup.vala \
 	$(NULL)
 
 bluebird_LDADD = \

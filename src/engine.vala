@@ -30,6 +30,10 @@ public class Engine : Object
 {
 
     Zeitgeist.SQLite.ZeitgeistDatabase database;
+    TableLookup interpretations_table;
+    TableLookup manifestations_table;
+    TableLookup mimetype_table;
+    TableLookup actors_table;
     uint32 last_id;
 
     public Engine () throws EngineError
@@ -38,9 +42,9 @@ public class Engine : Object
         last_id = database.get_last_id();
         
         // FIXME: initialize TableLookups
-        // FIXME: load extensions
+        interpretations_table = new TableLookup(database, "interpretation");
         
-        stdout.printf("last_id: %u\n", last_id);
+        // FIXME: load extensions
         
         // FIXME: tmp:
         get_events({ 202, 203, 204, 205, 206, 207, 208, 209 });
@@ -79,7 +83,6 @@ public class Engine : Object
         var events = new GenericArray<Event>();
         events.length = event_ids.length;
 
-        int num_columns = stmt.column_count();
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
             uint32 event_id = (uint32) uint64.parse(
@@ -128,17 +131,17 @@ public class Engine : Object
             
             event.add_subject(subject);
         }
-        if (rc != Sqlite.DONE) 
+        if (rc != Sqlite.DONE)
         {
             printerr ("Error: %d, %s\n", rc, db.errmsg ());
             // FIXME: throw some error??
         }
         
-        for (int i = 0; i < event_ids.length; ++i)
+        /*for (int i = 0; i < event_ids.length; ++i)
         {
             events[i].debug_print ();
             stdout.printf ("\n");
-        }
+        }*/
 
         return events;
     }
