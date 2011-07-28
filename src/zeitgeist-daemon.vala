@@ -110,7 +110,7 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
     }
 
     // FIXME
-    public uint[] find_event_ids (TimeRange time_range,
+    public uint32[] find_event_ids (TimeRange time_range,
             Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
             BusName sender)
@@ -128,12 +128,12 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
     }
 
     // FIXME
-    public uint[] insert_events (
+    public uint32[] insert_events (
             Variant vevents,
             BusName sender)
     {
         var events = Event.variant_to_events (vevents);
-        for (int i=0; i<events.length; i++)
+        for (int i = 0; i < events.length; i++)
         {
             stdout.printf ("============== Inserting event: =============\n");
             events[i].debug_print ();
@@ -142,7 +142,7 @@ public class ZeitgeistDaemon : Object, Zeitgeist.RemoteLogInterface
     }
 
     // FIXME
-    public TimeRange delete_events (uint[] event_ids, BusName sender)
+    public TimeRange delete_events (uint32[] event_ids, BusName sender)
     {
         return TimeRange() { start = 30, end = 40 };
     }
