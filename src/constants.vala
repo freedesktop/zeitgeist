@@ -57,8 +57,16 @@ namespace Zeitgeist
             {
                 DATA_PATH = Path.build_filename (Environment.get_user_data_dir (), ZEITGEIST_DATA_FOLDER);
                 // If directory does not exist create directory
-                if (!FileUtils.test (DATA_PATH , FileTest.IS_DIR)){
+                if (!FileUtils.test (DATA_PATH , FileTest.IS_DIR))
+                {
                      DirUtils.create (DATA_PATH , 0755);
+                }
+            }
+            else
+            {
+                if (!FileUtils.test (DATA_PATH , FileTest.IS_DIR)){
+                    // FIXME throw error here
+                    stdout.printf("ERROR: %s does not exist \n", DATA_PATH);
                 }
             }
             stdout.printf("DATA_PATH = %s\n", DATA_PATH);
