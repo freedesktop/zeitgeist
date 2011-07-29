@@ -110,7 +110,8 @@ public class Engine : Object
                     stmt.column_int (EventViewRows.MANIFESTATION));
                 event.actor = actors_table.get_value (
                     stmt.column_int (EventViewRows.ACTOR));
-                event.origin = stmt.column_text (EventViewRows.ORIGIN);
+                event.origin = stmt.column_text (
+                    EventViewRows.EVENT_ORIGIN_URI);
                 // FIXME: payload
                 events[index] = event;
             }
@@ -236,68 +237,38 @@ public class Engine : Object
         // FIXME: Should we add something just like TableLookup but with LRU
         //        for those? Or is embedding the query faster? Needs testing!
 
-        // FIXME: we can reuse this query for all insertions! move this into
-        //        something running at startup so it's done only once.
-        Sqlite.Statement insertion_query;
-
-        string sql = """
-            INSERT INTO event (
-                id, timestamp, interpretation, manifestation, actor,
-                origin, payload, subj_id, subj_id_current,
-                subj_interpretation, subj_manifestation, subj_origin,
-                subj_mimetype, subj_text, subj_storage
-            ) VALUES (
-                ?, ?, ?, ?, ?,
-                (SELECT id FROM uri WHERE value=?),
-                ?,
-                (SELECT id FROM uri WHERE value=?),
-                (SELECT id FROM uri WHERE value=?),
-                ?, ?,
-                (SELECT id FROM uri WHERE value=?),
-                ?,
-                (SELECT id FROM text WHERE value=?),
-                (SELECT id from storage WHERE value=?)
-            )""";
-
         int rc;
+        unowned Sqlite.Statement insert_stmt = database.event_insertion_stmt;
 
-        if ((rc = db.prepare_v2 (sql, -1, out insertion_query)) != Sqlite.OK) {
-            warning ("SQL error: %d, %s\n", rc, db.errmsg ());
-            return 0;
-        }
-        // ---
-
-        insertion_query.clear_bindings();
-
-        insertion_query.bind_int64 (1, event.id);
-        insertion_query.bind_int64 (2, event.timestamp);
-        insertion_query.bind_int64 (3,
+        insert_stmt.bind_int64 (1, event.id);
+        insert_stmt.bind_int64 (2, event.timestamp);
+        insert_stmt.bind_int64 (3,
             interpretations_table.get_id (event.interpretation));
-        insertion_query.bind_int64 (4,
+        insert_stmt.bind_int64 (4,
             manifestations_table.get_id (event.manifestation));
-        insertion_query.bind_int64 (5, actors_table.get_id (event.actor));
-        insertion_query.bind_text (6, event.origin);
-        insertion_query.bind_int64 (7, 0 /*payload_id*/);
+        insert_stmt.bind_int64 (5, actors_table.get_id (event.actor));
+        insert_stmt.bind_text (6, event.origin);
+        insert_stmt.bind_int64 (7, 0 /*payload_id*/);
 
         for (int i = 0; i < event.num_subjects(); ++i)
         {
-            insertion_query.reset();
+            insert_stmt.reset();
             
             unowned Subject subject = event.subjects[i];
             
-            insertion_query.bind_text (8, subject.uri);
-            insertion_query.bind_text (9, subject.current_uri);
-            insertion_query.bind_int64 (10,
+            insert_stmt.bind_text (8, subject.uri);
+            insert_stmt.bind_text (9, subject.current_uri);
+            insert_stmt.bind_int64 (10,
                 interpretations_table.get_id (subject.interpretation));
-            insertion_query.bind_int64 (11,
+            insert_stmt.bind_int64 (11,
                 manifestations_table.get_id (subject.manifestation));
-            insertion_query.bind_text (12, subject.origin);
-            insertion_query.bind_int64 (13,
+            insert_stmt.bind_text (12, subject.origin);
+            insert_stmt.bind_int64 (13,
                 mimetypes_table.get_id (subject.mimetype));
             // FIXME: Consider a storages_table table. Too dangerous?
-            insertion_query.bind_text (14, subject.storage);
+            insert_stmt.bind_text (14, subject.storage);
             
-            if ((rc = insertion_query.step()) != Sqlite.DONE) {
+            if ((rc = insert_stmt.step()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)
                 {
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
@@ -307,31 +278,24 @@ public class Engine : Object
                 // Rollback last_id and return the ID of the original event
                 --last_id;
 
-                // FIXME: move this to SQL, init stmt at startup and reuse
-                Sqlite.Statement stmt;
-                sql = """
-                    SELECT id FROM event
-                    WHERE timestamp=? AND interpretation=? AND
-                        manifestation=? AND actor=?
-                    """;
-                if ((rc = db.prepare_v2 (sql, -1, out stmt)) != Sqlite.OK) {
-                    warning ("SQL error: %d, %s\n", rc, db.errmsg ());
-                    return 0;
-                }
-                
-                stmt.bind_int64 (1, event.timestamp);
-                stmt.bind_int64 (2,
+                unowned Sqlite.Statement retrieval_stmt =
+                    database.id_retrieval_stmt;
+
+                retrieval_stmt.reset ();
+
+                retrieval_stmt.bind_int64 (1, event.timestamp);
+                retrieval_stmt.bind_int64 (2,
                     interpretations_table.get_id (event.interpretation));
-                stmt.bind_int64 (3,
+                retrieval_stmt.bind_int64 (3,
                     manifestations_table.get_id (event.manifestation));
-                stmt.bind_int64 (4, actors_table.get_id (event.actor));
+                retrieval_stmt.bind_int64 (4, actors_table.get_id (event.actor));
                 
-                if ((rc = stmt.step()) != Sqlite.ROW) {
+                if ((rc = retrieval_stmt.step()) != Sqlite.ROW) {
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
                     return 0;
                 }
                 
-                return stmt.column_int (0);
+                return retrieval_stmt.column_int (0);
             }
         }
 

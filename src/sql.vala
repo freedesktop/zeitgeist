@@ -52,6 +52,9 @@ namespace Zeitgeist.SQLite
     public class ZeitgeistDatabase : Object
     {
 
+        public Sqlite.Statement event_insertion_stmt;
+        public Sqlite.Statement id_retrieval_stmt;
+
         // FIXME: Should this be accessible from engine.vala or not?
         //  Probably it should, since otherwise there won't be much
         //  functionallity left for engine.vala.
@@ -60,13 +63,15 @@ namespace Zeitgeist.SQLite
         public ZeitgeistDatabase () throws EngineError
         {
             string sqlite_filepath = Constants.DATABASE_FILE_PATH;
-            
+
             int rc = Database.open_v2(
                 sqlite_filepath,
                 out database);
             assert_query_success(rc, "Can't open database");
-            
+
             // FIXME: check DB integrity, create it if needed, etc.
+
+            prepare_queries ();
         }
 
         public uint32 get_last_id () throws EngineError
@@ -146,6 +151,44 @@ namespace Zeitgeist.SQLite
                 warning ("%s\n", error_message);
                 throw new EngineError.DATABASE_ERROR(error_message);
             }
+        }
+
+        private void prepare_queries () throws EngineError
+        {
+            int rc;
+            string sql;
+
+            // Event insertion statement
+            sql = """
+                INSERT INTO event (
+                    id, timestamp, interpretation, manifestation, actor,
+                    origin, payload, subj_id, subj_id_current,
+                    subj_interpretation, subj_manifestation, subj_origin,
+                    subj_mimetype, subj_text, subj_storage
+                ) VALUES (
+                    ?, ?, ?, ?, ?,
+                    (SELECT id FROM uri WHERE value=?),
+                    ?,
+                    (SELECT id FROM uri WHERE value=?),
+                    (SELECT id FROM uri WHERE value=?),
+                    ?, ?,
+                    (SELECT id FROM uri WHERE value=?),
+                    ?,
+                    (SELECT id FROM text WHERE value=?),
+                    (SELECT id from storage WHERE value=?)
+                )""";
+
+            rc = database.prepare_v2 (sql, -1, out event_insertion_stmt);
+            assert_query_success (rc, "Insertion query error");
+
+            // Event ID retrieval statement
+            sql = """
+                SELECT id FROM event
+                WHERE timestamp=? AND interpretation=? AND
+                    manifestation=? AND actor=?
+                """;
+            rc = database.prepare_v2 (sql, -1, out id_retrieval_stmt);
+            assert_query_success (rc, "Event ID retrieval query error");
         }
 
     }
