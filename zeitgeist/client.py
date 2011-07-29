@@ -109,7 +109,7 @@ class _DBusInterface(object):
 			return reconnecting_error_handler(e)
 
 	def __getattr__(self, name):
-		if name not in self.__methods and self.__methods is not None:
+		if self.__methods is not None and name not in self.__methods:
 			raise TypeError("Unknown method name: %s" % name)
 		def _ProxyMethod(*args, **kwargs):
 			"""
@@ -156,7 +156,8 @@ class _DBusInterface(object):
 
 	def _load_introspection_data(self):
 		self.__methods, self.__signals = self.get_members(
-			self.__proxy.Introspect(dbus_interface='org.freedesktop.DBus.Introspectable'))
+			self.__proxy.Introspect(
+				dbus_interface='org.freedesktop.DBus.Introspectable'))
 
 	def __init__(self, proxy, interface_name, object_path, reconnect=True):
 		self.__proxy = proxy
