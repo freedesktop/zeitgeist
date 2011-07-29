@@ -24,6 +24,7 @@
  *
  */
 
+using Zeitgeist;
 using Zeitgeist.SQLite;
 
 public class Engine : Object
