@@ -60,9 +60,7 @@ class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 		Calling Quit() on the remote interface should shutdown the
 		engine in a clean way.
 		"""
-		from _zeitgeist.engine.remote import RemoteInterface
-		interface = RemoteInterface()
-		interface.Quit()
+		self.client._iface.Quit()
 
 	def testSIGHUP(self):
 		"""
