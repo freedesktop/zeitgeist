@@ -66,23 +66,19 @@ public class Engine : Object
         int rc;
         
         assert (event_ids.length > 0);
-        // FIXME: use StringBuilder and insert numbers directly, since they
-        // are injection-safe and we can't reuse the query anyway
-        string sql_condition = "?";
-        for (int i = 1; i < event_ids.length; ++i)
-            sql_condition += ", ?";
+        var sql_condition = new StringBuilder ();
+        sql_condition.append (event_ids[0].to_string());
+        for (int i = 1; i < event_ids.length; ++i) {
+            sql_condition.append (", ");
+            sql_condition.append (event_ids[i].to_string());
+        }
         string sql = """
             SELECT * FROM event_view
-            WHERE id IN (""" + sql_condition + """)
+            WHERE id IN (""" + sql_condition.str + """)
             """;
 
-        if ((rc = db.prepare_v2 (sql, -1, out stmt)) != Sqlite.OK) {
-            printerr ("SQL error: %d, %s\n", rc, db.errmsg ());
-            throw new EngineError.DATABASE_ERROR("Fail.");
-        }
-
-        for (int i = 0; i < event_ids.length; ++i)
-            stmt.bind_int64(i+1, event_ids[i]);
+        rc = db.prepare_v2 (sql, -1, out stmt);
+        database.assert_query_success(rc, "SQL error");
 
         var events = new GenericArray<Event>();
         events.length = event_ids.length;
@@ -194,22 +190,48 @@ public class Engine : Object
         // FIXME: store the payload
         // payload_id = store_payload (event);
 
-        // FIXME: Move this into insert_events to get more performance doing
-        //        them all at once? This needs some testing.
-        // make sure all URIs, mimetypes, texts and storages are inserted
-
-        var uris = new GenericArray<string> ();
-        if (event.origin != "")
-            uris.add (event.origin);
-        for (int i = 0; i < event.num_subjects(); ++i)
+        // Make sure all the URIs, mimetypes, texts and storage are inserted
         {
-            unowned Subject subject = event.subjects[i];
-            uris.add(subject.uri);
-            uris.add(subject.current_uri);
-            if (subject.origin != "")
-                uris.add(subject.origin);
+            var uris = new GenericArray<string> ();
+            var mimetypes = new GenericArray<string> ();
+            var texts = new GenericArray<string> ();
+            var storages = new GenericArray<string> ();
+
+            if (event.origin != "")
+                uris.add (event.origin);
+
+            for (int i = 0; i < event.num_subjects(); ++i)
+            {
+                unowned Subject subject = event.subjects[i];
+                uris.add (subject.uri);
+                uris.add (subject.current_uri);
+                if (subject.origin != "")
+                    uris.add (subject.origin);
+                if (subject.mimetype != "")
+                    mimetypes.add (subject.mimetype);
+                if (subject.text != "")
+                    texts.add (subject.text);
+                if (subject.storage != "")
+                    storages.add (subject.storage);
+            }
+
+            try
+            {
+                if (uris.length > 0)
+                    database.insert_or_ignore_into_table ("uri", uris);
+                if (mimetypes.length > 0)
+                    database.insert_or_ignore_into_table ("mimetype", mimetypes);
+                if (texts.length > 0)
+                    database.insert_or_ignore_into_table ("text", texts);
+                if (storages.length > 0)
+                    database.insert_or_ignore_into_table ("storage", storages);
+            }
+            catch (EngineError e)
+            {
+                warning ("Can't insert data for event: " + e.message);
+                return 0;
+            }
         }
-        string sql1 = "INSERT OR IGNORE INTO uri (value) ...";
 
         // FIXME: Should we add something just like TableLookup but with LRU
         //        for those? Or is embedding the query faster? Needs testing!
@@ -238,6 +260,7 @@ public class Engine : Object
             )""";
 
         int rc;
+
         if ((rc = db.prepare_v2 (sql, -1, out insertion_query)) != Sqlite.OK) {
             warning ("SQL error: %d, %s\n", rc, db.errmsg ());
             return 0;
@@ -274,9 +297,41 @@ public class Engine : Object
             // FIXME: Consider a storages_table table. Too dangerous?
             insertion_query.bind_text (14, subject.storage);
             
-            if (insertion_query.step() != Sqlite.DONE) {
-                warning ("SQL error: %d, %s\n", rc, db.errmsg ());
-                return 0;
+            if ((rc = insertion_query.step()) != Sqlite.DONE) {
+                if (rc != Sqlite.CONSTRAINT)
+                {
+                    warning ("SQL error: %d, %s\n", rc, db.errmsg ());
+                    return 0;
+                }
+                // This event was already registered.
+                // Rollback last_id and return the ID of the original event
+                --last_id;
+
+                // FIXME: move this to SQL, init stmt at startup and reuse
+                Sqlite.Statement stmt;
+                sql = """
+                    SELECT id FROM event
+                    WHERE timestamp=? AND interpretation=? AND
+                        manifestation=? AND actor=?
+                    """;
+                if ((rc = db.prepare_v2 (sql, -1, out stmt)) != Sqlite.OK) {
+                    warning ("SQL error: %d, %s\n", rc, db.errmsg ());
+                    return 0;
+                }
+                
+                stmt.bind_int64 (1, event.timestamp);
+                stmt.bind_int64 (2,
+                    interpretations_table.get_id (event.interpretation));
+                stmt.bind_int64 (3,
+                    manifestations_table.get_id (event.manifestation));
+                stmt.bind_int64 (4, actors_table.get_id (event.actor));
+                
+                if ((rc = stmt.step()) != Sqlite.ROW) {
+                    warning ("SQL error: %d, %s\n", rc, db.errmsg ());
+                    return 0;
+                }
+                
+                return stmt.column_int (0);
             }
         }
 

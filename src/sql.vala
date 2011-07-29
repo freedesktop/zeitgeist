@@ -83,6 +83,30 @@ namespace Zeitgeist.SQLite
             return last_id;
         }
 
+        public void insert_or_ignore_into_table (string table_name,
+            GenericArray<string> values) throws EngineError
+        {
+            int rc;
+
+            assert (values.length > 0);
+            var sql = new StringBuilder ();
+            sql.append ("INSERT OR IGNORE INTO ");
+            sql.append (table_name);
+            sql.append (" (value) SELECT ?");
+            for (int i = 1; i < values.length; ++i)
+                sql.append (" UNION SELECT ?");
+
+            Statement stmt;
+            rc = database.prepare_v2 (sql.str, -1, out stmt);
+            assert_query_success (rc, "SQL error");
+
+            for (int i = 0; i < values.length; ++i)
+                stmt.bind_text (i+1, values[i]);
+
+            rc = stmt.step();
+            assert_query_success(rc, "SQL error", Sqlite.DONE);
+        }
+
         public void begin_transaction () throws EngineError
         {
             int rc = database.exec ("BEGIN");
@@ -112,12 +136,15 @@ namespace Zeitgeist.SQLite
          * @param msg message to print if `rc' indicates an error
          * @throws EngineError
          **/
-        private void assert_query_success (int rc, string msg) throws EngineError
+        public void assert_query_success (int rc, string msg,
+            int success_code=Sqlite.OK) throws EngineError
         {
-            if (rc != Sqlite.OK)
+            if (rc != success_code)
             {
-                stderr.printf ("%s: %d, %s\n", msg, rc, database.errmsg ());
-                throw new EngineError.DATABASE_ERROR("Fail.");
+                string error_message = "%s: %d, %s".printf(
+                    msg, rc, database.errmsg ());
+                warning ("%s\n", error_message);
+                throw new EngineError.DATABASE_ERROR(error_message);
             }
         }
 

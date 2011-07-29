@@ -52,7 +52,8 @@ namespace Zeitgeist.SQLite
                 }, null);
             if (rc != Sqlite.OK)
             {
-                critical ("Can't init tables: %d, %s\n", rc, db.errmsg ());
+                critical ("Can't init %s table: %d, %s\n", table,
+                    rc, db.errmsg ());
             }
             
             /* FIXME: add this:
