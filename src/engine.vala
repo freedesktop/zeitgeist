@@ -67,10 +67,10 @@ public class Engine : Object
         
         assert (event_ids.length > 0);
         var sql_condition = new StringBuilder ();
-        sql_condition.append (event_ids[0].to_string());
+        sql_condition.append_printf ("%u", event_ids[0]);
         for (int i = 1; i < event_ids.length; ++i) {
             sql_condition.append (", ");
-            sql_condition.append (event_ids[i].to_string());
+            sql_condition.append_printf ("%u", event_ids[i]);
         }
         string sql = """
             SELECT * FROM event_view
