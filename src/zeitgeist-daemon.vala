@@ -145,7 +145,7 @@ namespace Zeitgeist
                 stdout.printf ("============== Inserting event: =============\n");
                 events[i].debug_print ();
             }
-            return new uint[] { 1, 2, 3 };
+            return engine.insert_events(events);
         }
 
         // FIXME

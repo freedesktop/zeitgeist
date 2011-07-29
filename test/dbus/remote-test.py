@@ -52,6 +52,32 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 	def __init__(self, methodName):
 		super(ZeitgeistRemoteAPITest, self).__init__(methodName)
 
+	def testInsertAndGetEvent(self):
+		# FIXME: load event from .json instead of hardcoding it here.
+		ev = Event.new_for_values(timestamp=123,
+					interpretation=Interpretation.ACCESS_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
+					actor="Freak Mamma")
+		subj = Subject.new_for_values(uri="void://foobar",
+					interpretation=Interpretation.DOCUMENT,
+					manifestation=Manifestation.FILE_DATA_OBJECT)
+		ev.append_subject(subj)
+		ids = self.insertEventsAndWait([ev])
+		events = self.getEventsAndWait(ids)
+		self.assertEquals(1, len(ids))
+		self.assertEquals(1, len(events))
+		
+		ev = events[0]
+		self.assertTrue(isinstance(ev, Event))
+		self.assertEquals("123", ev.timestamp)
+		self.assertEquals(Interpretation.ACCESS_EVENT, ev.interpretation)
+		self.assertEquals(Manifestation.USER_ACTIVITY, ev.manifestation)
+		self.assertEquals("Freak Mamma", ev.actor)
+		self.assertEquals(1, len(ev.subjects))
+		self.assertEquals("void://foobar", ev.subjects[0].uri)
+		self.assertEquals(Interpretation.DOCUMENT, ev.subjects[0].interpretation)
+		self.assertEquals(Manifestation.FILE_DATA_OBJECT, ev.subjects[0].manifestation)
+
 
 class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 
