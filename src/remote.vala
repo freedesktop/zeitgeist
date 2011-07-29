@@ -82,9 +82,10 @@ namespace Zeitgeist
 
         public abstract void quit () throws IOError;
 
+        [DBus (name = "extensions")]
         public abstract string[] extensions { owned get; }
 
-        [DBus (signature = "iii")]
+        [DBus (signature = "iii", name = "version")]
         public abstract Variant version { owned get; }
 
     }
