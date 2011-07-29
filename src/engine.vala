@@ -70,8 +70,7 @@ public class Engine : Object
         var sql_condition = new StringBuilder ();
         sql_condition.append_printf ("%u", event_ids[0]);
         for (int i = 1; i < event_ids.length; ++i) {
-            sql_condition.append (", ");
-            sql_condition.append_printf ("%u", event_ids[i]);
+            sql_condition.append_printf (", %u", event_ids[i]);
         }
         string sql = """
             SELECT * FROM event_view
