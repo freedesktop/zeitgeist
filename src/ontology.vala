@@ -22,24 +22,25 @@
 public class Symbol
 {
     private static HashTable<string, Symbol> all_symbols = null;
-    private unowned List<string> parents;
-    private unowned List<string> children;
-    private unowned List<string> all_children;
+    private List<string> parents;
+    private List<string> children;
     public string   name { get; private set; }
     public string   uri { get; private set; }
     public string   display_name { get; private set; }
     public string   doc { get; private set; }
     
     private Symbol(string uri, string name, string display_name, string doc, 
-                List<string> parents, List<string> children, 
-                List<string> all_children){
+                string[] parents,string[] children){
         this.name = name;
         this.uri = uri;
         this.display_name = display_name;
         this.doc = doc;
-        this.parents = parents;
-        this.children = children;
-        this. all_children = all_children;
+        this.parents = new List<string>();
+        for (int i = 0; i < parents.length; i++)
+            this.parents.append(parents[i]);
+        this.children = new List<string>();
+        for (int i = 0; i < children.length; i++)
+            this.children.append(children[i]);
     }
     
     public List<string> get_parents()
