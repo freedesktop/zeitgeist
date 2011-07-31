@@ -236,24 +236,24 @@ namespace Zeitgeist
 
         public Variant to_variant ()
         {
-            var vb = new VariantBuilder(new VariantType("(asaasay)"));
+            var vb = new VariantBuilder (new VariantType ("(asaasay)"));
             
-            vb.open(new VariantType("as"));
-            vb.add("s", id.to_string ());
-            vb.add("s", timestamp.to_string ());
-            vb.add("s", interpretation);
-            vb.add("s", manifestation);
-            vb.add("s", actor);
-            vb.add("s", origin);
-            vb.close();
+            vb.open (new VariantType ("as"));
+            vb.add ("s", id.to_string ());
+            vb.add ("s", timestamp.to_string ());
+            vb.add ("s", interpretation ?? "");
+            vb.add ("s", manifestation ?? "");
+            vb.add ("s", actor ?? "");
+            vb.add ("s", origin ?? "");
+            vb.close ();
             
-            vb.open(new VariantType("aas"));
+            vb.open (new VariantType ("aas"));
             for (int i = 0; i < subjects.length; ++i) {
-                vb.add_value(subjects[i].to_variant());
+                vb.add_value (subjects[i].to_variant ());
             }
-            vb.close();
+            vb.close ();
             
-            vb.open(new VariantType("ay"));
+            vb.open (new VariantType ("ay"));
             // payload...
             if (payload != null)
             {
@@ -261,9 +261,9 @@ namespace Zeitgeist
                     new VariantType ("ay"), payload.data, false, payload);
                 vb.add_value (payload_variant);
             }
-            vb.close();
+            vb.close ();
 
-            return vb.end();
+            return vb.end ();
         }
 
         public void debug_print ()
@@ -319,12 +319,10 @@ namespace Zeitgeist
         {
             var vb = new VariantBuilder(new VariantType("a(asaasay)"));
 
-            vb.open(new VariantType("a(asaasay)"));
             for (int i = 0; i < events.length; ++i)
                 vb.add_value (events[i].to_variant ());
-            vb.close();
 
-            return vb.end();
+            return vb.end ();
         }
 
     }
@@ -360,18 +358,17 @@ namespace Zeitgeist
 
         public Variant to_variant()
         {
-            var vb = new VariantBuilder(new VariantType("as"));
-            vb.open(new VariantType("as"));
-            vb.add("s", uri);
-            vb.add("s", interpretation);
-            vb.add("s", manifestation);
-            vb.add("s", origin);
-            vb.add("s", mimetype);
-            vb.add("s", text);
-            vb.add("s", storage);
-            vb.add("s", current_uri);
-            vb.close();
-            return vb.end();
+            var vb = new VariantBuilder (new VariantType ("as"));
+            vb.add ("s", uri ?? "");
+            vb.add ("s", interpretation ?? "");
+            vb.add ("s", manifestation ?? "");
+            vb.add ("s", origin ?? "");
+            vb.add ("s", mimetype ?? "");
+            vb.add ("s", text ?? "");
+            vb.add ("s", storage ?? "");
+            vb.add ("s", current_uri ?? "");
+
+            return vb.end ();
         }
 
     }
