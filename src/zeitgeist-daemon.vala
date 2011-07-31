@@ -211,6 +211,8 @@ namespace Zeitgeist
         {
             Constants.initialize ();
             
+            Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
+            
             Posix.signal (Posix.SIGHUP, handle_exit);
             Posix.signal (Posix.SIGTERM, handle_exit);
             
