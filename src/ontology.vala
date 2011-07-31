@@ -18,35 +18,35 @@
  *
  */
  
-public static HashTable<string, Symbol> SymbolsCollection = null;
 
 public class Symbol
 {
+    private static HashTable<string, Symbol> all_symbols = null;
     private GenericArray<string> parents;
     private GenericArray<string> children;
-    private GenericArray<string> allChildren;
+    private GenericArray<string> all_children;
     public string   name { get; private set; }
     public string   uri { get; private set; }
-    public string   displayName { get; private set; }
+    public string   display_name { get; private set; }
     public string   doc { get; private set; }
     
-    public Symbol(string uri, string name, string displayName, string doc, 
+    private Symbol(string uri, string name, string display_name, string doc, 
                 GenericArray<string> parents, GenericArray<string> children, 
-                GenericArray<string> allChildren){
+                GenericArray<string> all_children){
         this.name = name;
         this.uri = uri;
-        this.displayName = displayName;
+        this.display_name = display_name;
         this.doc = doc;
         this.parents = parents;
         this.children = children;
-        this. allChildren = allChildren;
+        this. all_children = all_children;
     }
     
     public List<Symbol> get_parents()
     {
        var results = new List<Symbol>();
        for (int i = 0; i < parents.length; i++){
-            results.append(SymbolsCollection.lookup(parents[i]));
+            results.append(all_symbols.lookup(parents[i]));
        }
        return results;
     }
@@ -55,7 +55,7 @@ public class Symbol
     {
         var results = new List<Symbol>();
         for (int i = 0; i < children.length; i++){
-            results.append(SymbolsCollection.lookup(children[i]));
+            results.append(all_symbols.lookup(children[i]));
         }
         return results;
     }
@@ -63,8 +63,8 @@ public class Symbol
     public List<Symbol> get_all_children()
     {
         var results = new List<Symbol>();
-        for (int i = 0; i < allChildren.length; i++){
-            results.append(SymbolsCollection.lookup(allChildren[i]));
+        for (int i = 0; i < all_children.length; i++){
+            results.append(all_symbols.lookup(all_children[i]));
         }
         return results;
     }
@@ -85,8 +85,13 @@ public class Symbol
     
     public void register()
     {
-        if (SymbolsCollection == null)
-            SymbolsCollection = new HashTable<string, Symbol>(str_hash, str_equal);
-        SymbolsCollection.insert(uri, this);
+        if (all_symbols == null)
+            all_symbols = new HashTable<string, Symbol>(str_hash, str_equal);
+        all_symbols.insert(uri, this);
+    }
+    
+    public static Symbol from_uri(string uri)
+    {
+        return all_symbols.lookup(uri);
     }
 }
