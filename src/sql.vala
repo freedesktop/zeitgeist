@@ -19,7 +19,6 @@
  *
  */
 
-using Sqlite;
 using Zeitgeist;
 
 namespace Zeitgeist.SQLite
@@ -58,18 +57,16 @@ namespace Zeitgeist.SQLite
         // FIXME: Should this be accessible from engine.vala or not?
         //  Probably it should, since otherwise there won't be much
         //  functionallity left for engine.vala.
-        public Database database;
+        public Sqlite.Database database;
 
         public ZeitgeistDatabase () throws EngineError
         {
-            string sqlite_filepath = Constants.DATABASE_FILE_PATH;
-
-            int rc = Database.open_v2(
-                sqlite_filepath,
+            int rc = Sqlite.Database.open_v2(
+                Constants.DATABASE_FILE_PATH,
                 out database);
             assert_query_success(rc, "Can't open database");
 
-            // FIXME: check DB integrity, create it if needed, etc.
+            DatabaseSchema.ensure_schema(database);
 
             prepare_queries ();
         }
@@ -80,7 +77,10 @@ namespace Zeitgeist.SQLite
             int rc = database.exec ("SELECT MAX(id) FROM event",
                 (n_columns, values, column_names) =>
                 {
-                    last_id = int.parse(values[0]);
+                    if (values[0] == null)
+                        last_id = 0;
+                    else
+                        last_id = int.parse(values[0]);
                     return 0;
                 }, null);
             assert_query_success(rc, "Can't query database");
@@ -101,7 +101,7 @@ namespace Zeitgeist.SQLite
             for (int i = 1; i < values.length; ++i)
                 sql.append (" UNION SELECT ?");
 
-            Statement stmt;
+            Sqlite.Statement stmt;
             rc = database.prepare_v2 (sql.str, -1, out stmt);
             assert_query_success (rc, "SQL error");
 

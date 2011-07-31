@@ -35,6 +35,7 @@ namespace Zeitgeist.SQLite
         string table;
         private HashTable<int, string> id_to_value;
         private HashTable<string, int> value_to_id;
+        Sqlite.Statement insertion_stmt;
 
         public TableLookup (ZeitgeistDatabase database, string table_name)
         {
@@ -42,8 +43,10 @@ namespace Zeitgeist.SQLite
             table = table_name;
             id_to_value = new HashTable<int, string>(direct_hash, direct_equal);
             value_to_id = new HashTable<string, int>(str_hash, str_equal);
-            
-            int rc = db.exec ("SELECT id, value FROM " + table,
+
+            int rc;
+
+            rc = db.exec ("SELECT id, value FROM " + table,
                 (n_columns, values, column_names) =>
                 {
                     id_to_value.insert (int.parse(values[0]), values[1]);
@@ -55,16 +58,13 @@ namespace Zeitgeist.SQLite
                 critical ("Can't init %s table: %d, %s\n", table,
                     rc, db.errmsg ());
             }
-            
-            /* FIXME: add this:
-            cursor.execute("""
-                CREATE TEMP TRIGGER update_cache_%(table)s
-                BEFORE DELETE ON %(table)s
-                BEGIN
-                    INSERT INTO _fix_cache VALUES ("%(table)s", OLD.id);
-                END;
-                """ % {"table": table})
-            */
+
+            string sql = "INSERT INTO " + table + " (value) VALUES (?)";
+            rc = db.prepare_v2 (sql, -1, out insertion_stmt);
+            if (rc != Sqlite.OK)
+            {
+                critical ("SQL error: %d, %s\n", rc, db.errmsg ());
+            }
         }
 
         public int get_id (string name)
@@ -73,19 +73,14 @@ namespace Zeitgeist.SQLite
             if (id == 0)
             {
                 int rc;
-                Sqlite.Statement stmt;
-                
-                string sql = "INSERT INTO " + table + " (value) VALUES (?)";
-                if ((rc = db.prepare_v2 (sql, -1, out stmt)) != Sqlite.OK) {
+                insertion_stmt.reset ();
+                insertion_stmt.bind_text (1, name);
+                if ((rc = insertion_stmt.step ()) != Sqlite.DONE)
+                {
                     critical ("SQL error: %d, %s\n", rc, db.errmsg ());
                 }
                 
-                stmt.bind_text(1, name);
-                if (stmt.step() != Sqlite.DONE) {
-                    critical ("SQL error: %d, %s\n", rc, db.errmsg ());
-                }
-                
-                id = (int) db.last_insert_rowid();
+                id = (int) db.last_insert_rowid ();
                 
                 id_to_value.insert (id, name);
                 value_to_id.insert (name, id);

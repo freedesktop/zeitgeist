@@ -191,10 +191,9 @@ public class Engine : Object
         // FIXME: store the payload
         // payload_id = store_payload (event);
 
-        // Make sure all the URIs, mimetypes, texts and storage are inserted
+        // Make sure all the URIs, texts and storage are inserted
         {
             var uris = new GenericArray<string> ();
-            var mimetypes = new GenericArray<string> ();
             var texts = new GenericArray<string> ();
             var storages = new GenericArray<string> ();
 
@@ -208,8 +207,6 @@ public class Engine : Object
                 uris.add (subject.current_uri);
                 if (subject.origin != "")
                     uris.add (subject.origin);
-                if (subject.mimetype != "")
-                    mimetypes.add (subject.mimetype);
                 if (subject.text != "")
                     texts.add (subject.text);
                 if (subject.storage != "")
@@ -220,8 +217,6 @@ public class Engine : Object
             {
                 if (uris.length > 0)
                     database.insert_or_ignore_into_table ("uri", uris);
-                if (mimetypes.length > 0)
-                    database.insert_or_ignore_into_table ("mimetype", mimetypes);
                 if (texts.length > 0)
                     database.insert_or_ignore_into_table ("text", texts);
                 if (storages.length > 0)
