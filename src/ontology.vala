@@ -44,17 +44,26 @@ public class Symbol
     
     public List<Symbol> get_parents()
     {
-       var results = new List<Symbol>();
-       for (int i = 0; i < parents.length; i++){
-            results.append(all_symbols.lookup(parents[i]));
-       }
-       return results;
+        var results = new List<Symbol>();
+        for (int i = 0; i < parents.length; i++)
+        {
+            var parent = all_symbols.lookup(parents[i]);
+            results.append(parent);
+            // Recursivly get the other parents
+            foreach (Symbol s in parent.get_parents())
+            {
+                if (results.index(s) > -1)
+                    results.append(s);
+            }
+        }
+        return results;
     }
     
     public List<Symbol> get_children()
     {
         var results = new List<Symbol>();
-        for (int i = 0; i < children.length; i++){
+        for (int i = 0; i < children.length; i++)
+        {
             results.append(all_symbols.lookup(children[i]));
         }
         return results;
@@ -63,15 +72,24 @@ public class Symbol
     public List<Symbol> get_all_children()
     {
         var results = new List<Symbol>();
-        for (int i = 0; i < all_children.length; i++){
-            results.append(all_symbols.lookup(all_children[i]));
+        for (int i = 0; i < children.length; i++)
+        {
+            var child = all_symbols.lookup(children[i]);
+            results.append(child);
+            // Recursivly get the other children
+            foreach (Symbol s in child.get_all_children())
+            {
+                if (results.index(s) > -1)
+                    results.append(s);
+            }
         }
         return results;
     }
     
     public bool is_a(Symbol symbol)
     {
-        for (int i = 0; i < parents.length; i++){
+        for (int i = 0; i < parents.length; i++)
+        {
             if (symbol.uri == parents[i])
                 return true;
         }

@@ -186,7 +186,6 @@ namespace Zeitgeist
         construct
         {
             subjects = new GenericArray<Subject> ();
-            // FIXME: construct also payload? or make it nullable?
         }
 
         public int num_subjects ()
@@ -207,7 +206,7 @@ namespace Zeitgeist
             assert (iter.n_children() == 3);
             VariantIter event_array = iter.next_value().iterator();
             VariantIter subjects_array = iter.next_value().iterator();
-            VariantIter payload_array = iter.next_value().iterator();
+            Variant payload_variant = iter.next_value ();
 
             var event_props = event_array.n_children ();
             assert (event_props >= 5);
@@ -225,32 +224,46 @@ namespace Zeitgeist
             }
             
             // Parse payload...
+            uint payload_length = (uint) payload_variant.n_children ();
+            if (payload_length > 0)
+            {
+                payload = new ByteArray.sized (payload_length);
+                unowned uint8[] data = (uint8[]?) payload_variant.get_data ();
+                data.length = (int) payload_length;
+                payload.append (data);
+            }
         }
 
         public Variant to_variant ()
         {
-            var vb = new VariantBuilder(new VariantType("(asaasay)"));
+            var vb = new VariantBuilder (new VariantType ("(asaasay)"));
             
-            vb.open(new VariantType("as"));
-            vb.add("s", id.to_string ());
-            vb.add("s", timestamp.to_string ());
-            vb.add("s", interpretation);
-            vb.add("s", manifestation);
-            vb.add("s", actor);
-            vb.add("s", origin);
-            vb.close();
+            vb.open (new VariantType ("as"));
+            vb.add ("s", id.to_string ());
+            vb.add ("s", timestamp.to_string ());
+            vb.add ("s", interpretation ?? "");
+            vb.add ("s", manifestation ?? "");
+            vb.add ("s", actor ?? "");
+            vb.add ("s", origin ?? "");
+            vb.close ();
             
-            vb.open(new VariantType("aas"));
+            vb.open (new VariantType ("aas"));
             for (int i = 0; i < subjects.length; ++i) {
-                vb.add_value(subjects[i].to_variant());
+                vb.add_value (subjects[i].to_variant ());
             }
-            vb.close();
+            vb.close ();
             
-            vb.open(new VariantType("ay"));
+            vb.open (new VariantType ("ay"));
             // payload...
-            vb.close();
+            if (payload != null)
+            {
+                Variant payload_variant = Variant.new_from_data<ByteArray> (
+                    new VariantType ("ay"), payload.data, false, payload);
+                vb.add_value (payload_variant);
+            }
+            vb.close ();
 
-            return vb.end();
+            return vb.end ();
         }
 
         public void debug_print ()
@@ -294,12 +307,9 @@ namespace Zeitgeist
 
             assert (vevents.get_type_string () == "a(asaasay)");
 
-            var iter = vevents.iterator ();
-            Variant? event = iter.next_value ();
-            while (event != null)
+            foreach (Variant event in vevents)
             {
                 events.add (new Event.from_variant (event));
-                event = iter.next_value ();
             }
 
             return events;
@@ -309,12 +319,10 @@ namespace Zeitgeist
         {
             var vb = new VariantBuilder(new VariantType("a(asaasay)"));
 
-            vb.open(new VariantType("a(asaasay)"));
             for (int i = 0; i < events.length; ++i)
                 vb.add_value (events[i].to_variant ());
-            vb.close();
 
-            return vb.end();
+            return vb.end ();
         }
 
     }
@@ -350,18 +358,17 @@ namespace Zeitgeist
 
         public Variant to_variant()
         {
-            var vb = new VariantBuilder(new VariantType("as"));
-            vb.open(new VariantType("as"));
-            vb.add("s", uri);
-            vb.add("s", interpretation);
-            vb.add("s", manifestation);
-            vb.add("s", origin);
-            vb.add("s", mimetype);
-            vb.add("s", text);
-            vb.add("s", storage);
-            vb.add("s", current_uri);
-            vb.close();
-            return vb.end();
+            var vb = new VariantBuilder (new VariantType ("as"));
+            vb.add ("s", uri ?? "");
+            vb.add ("s", interpretation ?? "");
+            vb.add ("s", manifestation ?? "");
+            vb.add ("s", origin ?? "");
+            vb.add ("s", mimetype ?? "");
+            vb.add ("s", text ?? "");
+            vb.add ("s", storage ?? "");
+            vb.add ("s", current_uri ?? "");
+
+            return vb.end ();
         }
 
     }
