@@ -18,49 +18,75 @@
  *
  */
  
-public class SymbolsCollection
-{
-
-}
+public static HashTable<string, Symbol> SymbolsCollection = null;
 
 public class Symbol
 {
-    private HashTable<string, Symbol> children;
-    public HashTable<string, Symbol> allChildren;
+    private GenericArray<string> parents;
+    private GenericArray<string> children;
+    private GenericArray<string> allChildren;
     public string   name { get; private set; }
     public string   uri { get; private set; }
     public string   displayName { get; private set; }
     public string   doc { get; private set; }
     
-    public Symbol(string uri, string name, string displayName, string doc){
+    public Symbol(string uri, string name, string displayName, string doc, 
+                GenericArray<string> parents, GenericArray<string> children, 
+                GenericArray<string> allChildren){
         this.name = name;
         this.uri = uri;
         this.displayName = displayName;
         this.doc = doc;
+        this.parents = parents;
+        this.children = children;
+        this. allChildren = allChildren;
     }
     
-    public GenericArray<Symbol> get_parents()
+    public List<Symbol> get_parents()
     {
-        return new GenericArray<Symbol>();
+       var results = new List<Symbol>();
+       for (int i = 0; i < parents.length; i++){
+            results.append(SymbolsCollection.lookup(parents[i]));
+       }
+       return results;
     }
     
-    public GenericArray<Symbol> get_children()
+    public List<Symbol> get_children()
     {
-        return new GenericArray<Symbol>();
+        var results = new List<Symbol>();
+        for (int i = 0; i < children.length; i++){
+            results.append(SymbolsCollection.lookup(children[i]));
+        }
+        return results;
     }
     
-    public GenericArray<Symbol> get_all_children()
+    public List<Symbol> get_all_children()
     {
-        return new GenericArray<Symbol>();
+        var results = new List<Symbol>();
+        for (int i = 0; i < allChildren.length; i++){
+            results.append(SymbolsCollection.lookup(allChildren[i]));
+        }
+        return results;
     }
     
     public bool is_a(Symbol symbol)
     {
-        return true;
+        for (int i = 0; i < parents.length; i++){
+            if (symbol.uri == parents[i])
+                return true;
+        }
+        return false;
     }
     
     public string to_string()
     {
         return this.uri;
+    }
+    
+    public void register()
+    {
+        if (SymbolsCollection == null)
+            SymbolsCollection = new HashTable<string, Symbol>(str_hash, str_equal);
+        SymbolsCollection.insert(uri, this);
     }
 }
