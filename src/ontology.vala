@@ -22,17 +22,17 @@
 public class Symbol
 {
     private static HashTable<string, Symbol> all_symbols = null;
-    private GenericArray<string> parents;
-    private GenericArray<string> children;
-    private GenericArray<string> all_children;
+    private unowned List<string> parents;
+    private unowned List<string> children;
+    private unowned List<string> all_children;
     public string   name { get; private set; }
     public string   uri { get; private set; }
     public string   display_name { get; private set; }
     public string   doc { get; private set; }
     
     private Symbol(string uri, string name, string display_name, string doc, 
-                GenericArray<string> parents, GenericArray<string> children, 
-                GenericArray<string> all_children){
+                List<string> parents, List<string> children, 
+                List<string> all_children){
         this.name = name;
         this.uri = uri;
         this.display_name = display_name;
@@ -42,57 +42,49 @@ public class Symbol
         this. all_children = all_children;
     }
     
-    public List<Symbol> get_parents()
+    public List<string> get_parents()
     {
-        var results = new List<Symbol>();
-        for (int i = 0; i < parents.length; i++)
+        var results = new List<string>();
+        foreach (string uri in parents)
         {
-            var parent = all_symbols.lookup(parents[i]);
-            results.append(parent);
+            results.append(uri);
+            var parent = all_symbols.lookup(uri);
             // Recursivly get the other parents
-            foreach (Symbol s in parent.get_parents())
-            {
+            foreach (string s in parent.get_parents())
                 if (results.index(s) > -1)
                     results.append(s);
-            }
         }
         return results;
     }
     
-    public List<Symbol> get_children()
+    public List<string> get_children()
     {
-        var results = new List<Symbol>();
-        for (int i = 0; i < children.length; i++)
-        {
-            results.append(all_symbols.lookup(children[i]));
-        }
+        var results = new List<string>();
+        foreach (string uri in children)
+            results.append(uri);
         return results;
     }
     
-    public List<Symbol> get_all_children()
+    public List<string> get_all_children()
     {
-        var results = new List<Symbol>();
-        for (int i = 0; i < children.length; i++)
+        var results = new List<string>();
+        foreach (string uri in children)
         {
-            var child = all_symbols.lookup(children[i]);
-            results.append(child);
+            results.append(uri);
+            var child = all_symbols.lookup(uri);
             // Recursivly get the other children
-            foreach (Symbol s in child.get_all_children())
-            {
+            foreach (string s in child.get_all_children())
                 if (results.index(s) > -1)
                     results.append(s);
-            }
         }
         return results;
     }
     
     public bool is_a(Symbol symbol)
     {
-        for (int i = 0; i < parents.length; i++)
-        {
-            if (symbol.uri == parents[i])
+        foreach (string uri in get_parents())
+            if (symbol.uri == uri)
                 return true;
-        }
         return false;
     }
     
