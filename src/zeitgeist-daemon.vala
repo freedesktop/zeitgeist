@@ -58,17 +58,18 @@ namespace Zeitgeist
             
             try
             {
-                //engine = new Engine();
+                engine = new Engine();
             }
             catch (EngineError e)
             {
                 // FIXME
-                //quit ();
+                quit ();
             }
             
             notifications = new MonitorManager();
 
             // FIXME: tmp:
+            /*
             var vb = new VariantBuilder(new VariantType("(asaasay)"));
             vb.open(new VariantType("as"));
                 vb.add("s", "0"); // id
@@ -96,7 +97,7 @@ namespace Zeitgeist
             var events = new GenericArray<Event>();
             events.add(new Event.from_variant(vb.end()));
             engine.insert_events(events);
-            // ---
+            */
         }
 
         // FIXME
