@@ -24,17 +24,10 @@ public class Symbol
     private static HashTable<string, Symbol> all_symbols = null;
     private List<string> parents;
     private List<string> children;
-    public string   name { get; private set; }
     public string   uri { get; private set; }
-    public string   display_name { get; private set; }
-    public string   doc { get; private set; }
     
-    private Symbol(string uri, string name, string display_name, string doc, 
-                string[] parents,string[] children){
-        this.name = name;
+    private Symbol(string uri, string[] parents,string[] children){
         this.uri = uri;
-        this.display_name = display_name;
-        this.doc = doc;
         this.parents = new List<string>();
         for (int i = 0; i < parents.length; i++)
             this.parents.append(parents[i]);
