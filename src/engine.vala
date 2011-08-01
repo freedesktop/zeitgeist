@@ -90,8 +90,6 @@ public class Engine : Object
             int index = search_event_ids_array(event_ids, event_id);
             assert (index >= 0);
             
-            // FIXME: get real values from TableLookup
-            
             Event event;
             if (events[index] != null)
             {
@@ -115,7 +113,7 @@ public class Engine : Object
                 // FIXME: payload
                 events[index] = event;
             }
-            
+
             Subject subject = new Subject ();
             subject.uri = stmt.column_text (EventViewRows.SUBJECT_URI);
             subject.text = stmt.column_text (EventViewRows.SUBJECT_TEXT);
@@ -137,7 +135,8 @@ public class Engine : Object
             printerr ("Error: %d, %s\n", rc, db.errmsg ());
             // FIXME: throw some error??
         }
-        
+
+        // TODO: tmp:
         for (int i = 0; i < event_ids.length; ++i)
         {
             events[i].debug_print ();
@@ -260,8 +259,9 @@ public class Engine : Object
             insert_stmt.bind_text (12, subject.origin);
             insert_stmt.bind_int64 (13,
                 mimetypes_table.get_id (subject.mimetype));
+            insert_stmt.bind_text (14, subject.text);
             // FIXME: Consider a storages_table table. Too dangerous?
-            insert_stmt.bind_text (14, subject.storage);
+            insert_stmt.bind_text (15, subject.storage);
             
             if ((rc = insert_stmt.step()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)

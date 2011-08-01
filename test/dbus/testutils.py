@@ -318,6 +318,27 @@ class RemoteTestCase (unittest.TestCase):
 			gobject.timeout_add_seconds(timeout, cb_timeout)
 		
 		return mainloop
+	
+	@staticmethod
+	def get_plain_event(ev):
+		"""
+		Ensure that an Event instance is a Plain Old Python Object (popo),
+		without DBus wrappings etc.
+		"""
+		popo = []
+		popo.append(map(unicode, ev[0]))
+		popo.append([map(unicode, subj) for subj in ev[1]])
+		# We need the check here so that if D-Bus gives us an empty
+		# byte array we don't serialize the text "dbus.Array(...)".
+		popo.append(str(ev[2]) if ev[2] else u'')
+		return popo
+	
+	def assertEventsEqual(self, ev1, ev2):
+		ev1 = self.get_plain_event(ev1)
+		ev2 = self.get_plain_event(ev2)
+		if (ev1[0][0] and not ev2[0][0]) or (ev2[0][0] and not ev1[0][0]):
+			ev1[0][0] = ev2[0][0] = "" # delete IDs
+		self.assertEqual(ev1, ev2)
 
 class DBusPrivateMessageBus(object):
 	DISPLAY = ":27"
