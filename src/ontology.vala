@@ -17,17 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
 
 public class Symbol
 {
     private static HashTable<string, Symbol> all_symbols = null;
     private List<string> parents;
     private List<string> children;
-    public string   uri { get; private set; }
+    public string uri { get; private set; }
+    public string display_name { get; private set; }
     
-    private Symbol(string uri, string[] parents,string[] children){
+    private Symbol(string uri, string display_name, string[] parents,string[] children){
         this.uri = uri;
+        this.display_name = display_name;
         this.parents = new List<string>();
         for (int i = 0; i < parents.length; i++)
             this.parents.append(parents[i]);
@@ -36,48 +37,42 @@ public class Symbol
             this.children.append(children[i]);
     }
     
-    public List<string> get_parents()
+    public static List<string> get_all_parents(string symbbol_uri)
     {
+        var symbol = all_symbols.lookup(symbbol_uri);
         var results = new List<string>();
-        foreach (string uri in parents)
+        foreach (string uri in symbol.parents)
         {
             results.append(uri);
             var parent = all_symbols.lookup(uri);
             // Recursivly get the other parents
-            foreach (string s in parent.get_parents())
+            foreach (string s in get_all_parents(uri))
                 if (results.index(s) > -1)
                     results.append(s);
         }
         return results;
     }
     
-    public List<string> get_children()
+    public static List<string> get_all_children(string symbbol_uri)
     {
+        var symbol = all_symbols.lookup(symbbol_uri);
         var results = new List<string>();
-        foreach (string uri in children)
-            results.append(uri);
-        return results;
-    }
-    
-    public List<string> get_all_children()
-    {
-        var results = new List<string>();
-        foreach (string uri in children)
+        foreach (string uri in symbol.children)
         {
             results.append(uri);
             var child = all_symbols.lookup(uri);
             // Recursivly get the other children
-            foreach (string s in child.get_all_children())
+            foreach (string s in child.get_all_children(uri))
                 if (results.index(s) > -1)
                     results.append(s);
         }
         return results;
     }
     
-    public bool is_a(Symbol symbol)
+    public static bool is_a(string symbol_uri, string parent_uri)
     {
-        foreach (string uri in get_parents())
-            if (symbol.uri == uri)
+        foreach (string uri in get_all_parents(symbol_uri))
+            if (parent_uri == uri)
                 return true;
         return false;
     }
@@ -87,11 +82,13 @@ public class Symbol
         return this.uri;
     }
     
-    public void register()
+    public static void register(string uri, string display_name, string[] parents,
+                                string[] children)
     {
         if (all_symbols == null)
             all_symbols = new HashTable<string, Symbol>(str_hash, str_equal);
-        all_symbols.insert(uri, this);
+        Symbol symbol = new Symbol(uri, display_name, parents, children);
+        all_symbols.insert(uri, symbol);
     }
     
     public static Symbol from_uri(string uri)
