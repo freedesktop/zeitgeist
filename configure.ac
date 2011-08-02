@@ -36,6 +36,23 @@ AC_SUBST(BLUEBIRD_LIBS)
 
 AC_CONFIG_FILES([Makefile
 	src/Makefile
+	extra/Makefile
+	extra/ontology/Makefile
 	po/Makefile.in])
+
+# check for rapper
+AC_CHECK_PROG(HAVE_RAPPER, rapper, yes, no)
+if test "x$HAVE_RAPPER" = "xno"; then
+  AC_MSG_ERROR(You need the tool `rapper' from the `raptor-utils' package in order to compile Zeitgeist)
+fi
+
+# check for python-rdflib
+AC_MSG_CHECKING([for python-rdflib])
+echo "import rdflib" | python - 2>/dev/null
+if test $? -ne 0 ; then
+  AC_MSG_FAILURE([failed.  Please install the python-rdflib package.])
+else
+  AC_MSG_RESULT([yes])
+fi
 
 AC_OUTPUT
