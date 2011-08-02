@@ -31,3 +31,4 @@ src/.libs
 src/*.c
 src/*.stamp
 src/bluebird
+test/direct/where-clause-test
