@@ -23,7 +23,7 @@ namespace Zeitgeist
 {
 
     [DBus (name = "org.gnome.zeitgeist.Log")]
-    public interface RemoteLogInterface : Object
+    public interface RemoteLog : Object
     {
 
         public abstract TimeRange delete_events (
@@ -87,6 +87,22 @@ namespace Zeitgeist
 
         [DBus (signature = "iii", name = "version")]
         public abstract Variant version { owned get; }
+
+    }
+
+    [DBus (name = "org.gnome.zeitgeist.Monitor")]
+    public interface RemoteMonitor : Object
+    {
+
+        public abstract void notify_insert (
+            TimeRange time_range,
+            [DBus (signature = "a(asaasay)")] Variant events
+        ) throws IOError;
+
+        public abstract void notify_delete (
+            TimeRange time_range,
+            uint32[] event_ids
+        ) throws IOError;
 
     }
 

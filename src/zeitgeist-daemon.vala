@@ -23,7 +23,7 @@
 namespace Zeitgeist
 {
 
-    public class Daemon : Object, RemoteLogInterface
+    public class Daemon : Object, RemoteLog
     {
 
         private static Daemon instance;
@@ -183,7 +183,7 @@ namespace Zeitgeist
             {
                 conn.register_object (
                     "/org/gnome/zeitgeist/log/activity",
-                    (RemoteLogInterface) instance);
+                    (RemoteLog) instance);
             }
             catch (IOError e)
             {
