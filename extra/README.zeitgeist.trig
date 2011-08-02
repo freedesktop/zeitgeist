@@ -1,0 +1,19 @@
+
+Get a more readable JSON output by running:
+    rapper -i trig -o json zeitgeist.trig
+    
+TODO/open questions:
+  * is the way items are defined here correct?
+    for example:
+        * tags being a subclass of noa:Tag
+  * how do we parse this?
+    - python-librdf (pulls in alot of dependencies)
+    - writing our own parser
+  * how can we add this to our sphinx docs
+  * how is this (esp. the displayname attribute) translatable
+  * CreateEvent vs. the old CREATE_EVENT
+  * enumerations start with 1 and not 0
+
+ressources:
+http://techbase.kde.org/index.php?title=Development/Tutorials/Metadata/Nepomuk/RDFIntroduction
+http://sourceforge.net/apps/trac/oscaf/browser/trunk/ontologies/nfo/nfo.trig

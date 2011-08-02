@@ -1,0 +1,46 @@
+#! /usr/bin/python
+
+#
+# Parses an ontology from a .xml file formatted in RDF/XML and outputs a
+# loadable Python module representing the ontology
+#
+
+# API docs for rdflib on http://www.rdflib.net/rdflib-2.4.0/html/index.html
+import rdflib
+
+from rdflib.plugin import register
+try:
+	#rdflib2
+	from rdflib.syntax.serializers import Serializer
+	from rdflib import FileInputSource
+except ImportError:
+	#rdflib3 (LP: #626224)
+	from rdflib.serializer import Serializer
+	from rdflib.parser import FileInputSource
+
+register('python', Serializer,
+         'PythonSerializer', 'PythonSerializer')
+
+def parse(trig_stream):
+	"""
+	Return a list of triples representing the ontology
+	"""
+	trig_in = FileInputSource(trig_stream)
+	ontology = rdflib.ConjunctiveGraph()
+	ontology.parse(trig_in)
+	pycode = ontology.serialize(format="python")
+	print pycode	
+
+if __name__ == "__main__":
+	import sys, os
+	
+	# On no args, read from stdin
+	if len(sys.argv) <= 1:
+		print >> sys.stderr, "Parsing from stdin"
+		parse(sys.stdin)
+	else:
+		for trig_filename in sys.argv[1:]:
+			print >> sys.stderr, "Parsing " + trig_filename
+			parse(file(trig_filename))
+
+

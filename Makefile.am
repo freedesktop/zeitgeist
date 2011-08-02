@@ -4,6 +4,7 @@ NULL =
 
 SUBDIRS = \
 	src \
+	extra \
 	po \
 	$(NULL)
 

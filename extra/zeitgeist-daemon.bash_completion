@@ -1,0 +1,14 @@
+# -*- shell-script -*-
+#
+# Bash tab auto-completion rules for the zeitgeist-daemon command.
+# Put this file in /etc/bash_completion.d/ and bash will automatically load it.
+#
+# By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+
+have zeitgeist-daemon &&
+_zeitgeist_daemon()
+{
+	local cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=($(compgen -W "`zeitgeist-daemon --shell-completion`" -- $cur))
+}
+[ "${have:-}" ] && complete -F _zeitgeist_daemon -o default zeitgeist-daemon
