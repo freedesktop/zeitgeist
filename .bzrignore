@@ -33,3 +33,4 @@ src/*.stamp
 src/bluebird
 test/direct/where-clause-test
 extra/ontology/*.py
+query-operators-test

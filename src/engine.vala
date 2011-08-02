@@ -161,8 +161,38 @@ public class Engine : Object
         uint storage_state, uint max_events, uint result_type,
         BusName? sender=null) throws EngineError
     {
-        // build_sql_event_filter(time_range, tempaltes, storage_state)
-        // if not may_have_reults: return []
+
+        WhereClause where = new WhereClause (WhereClause.Type.AND);
+
+        /**
+         * We are using the unary operator here to tell SQLite to not use
+         * the index on the timestamp column at the first place. This is a
+         * "fix" for (LP: #672965) based on some benchmarks, which suggest
+         * a performance win, but we might not oversee all implications.
+         * (See http://www.sqlite.org/optoverview.html, section 6.0).
+         *    -- Markus Korn, 29/11/2010
+         */
+        if (time_range.start != 0)
+            where.add ("+timestamp >= ?", time_range.start.to_string ());
+        if (time_range.end != 0)
+            where.add ("+timestamp <= ?", time_range.end.to_string ());
+
+        if (storage_state == StorageState.AVAILABLE ||
+            storage_state == StorageState.NOT_AVAILABLE)
+        {
+            where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
+                storage_state.to_string ());
+        }
+        else if (storage_state != StorageState.ANY)
+        {
+            throw new EngineError.INVALID_ARGUMENT(
+                "Unknown storage state '%u'".printf(storage_state));
+        }
+
+        WhereClause foo = get_where_clause_from_event_templates (
+            event_templates);
+        // where.extend (foo)
+        // if (!where.may_have_results ()) return []
         
         // FIXME: IDs: SELECT DISTINCT / events: SELECT
         // Is the former faster or can we just do the unique'ing on our side?
@@ -517,6 +547,106 @@ public class Engine : Object
                 field,
                 field,
                 order_sql, time_sorting);
+    }
+
+    // Used by find_event_ids
+    private WhereClause get_where_clause_from_event_templates (
+        GenericArray<Event> templates)
+    {
+        WhereClause where_or = new WhereClause (WhereClause.Type.OR);
+        for (int i = 0; i < templates.length; ++i)
+        {
+            Event event_template = templates[i];
+            WhereClause subwhere = new WhereClause (WhereClause.Type.AND);
+            if (event_template.id != 0)
+                subwhere.add ("id=?", event_template.id.to_string());
+            // inter
+
+/*
+				value, negation, wildcard = parse_operators(Event, Event.Interpretation, event_template.interpretation)
+				# Expand event interpretation children
+				event_interp_where = WhereClause(WhereClause.OR, negation)
+				for child_interp in (Symbol.find_child_uris_extended(value)):
+					if child_interp:
+						event_interp_where.add_text_condition("interpretation",
+						                       child_interp, like=wildcard, cache=self._interpretation)
+				if event_interp_where:
+					subwhere.extend(event_interp_where)
+*/
+
+            // manif
+            // actor
+            // origin
+            for (int j = 0; j < event_template.num_subjects(); ++j)
+            {
+                Subject subject_template = event_template.subjects[i];
+                // interpret
+                // manif
+                // mimetypes
+                // uri, origin, text
+                // current_uri
+                if (subject_template.storage != "")
+                    subwhere.add_text_condition ("subj_storage",
+                        subject_template.storage);
+            }
+        }
+        return where_or;
+    }
+
+    private static string[] NEGATION_SUPPORTED = {
+        "actor", "current_uri", "interpretation", "manifestation",
+        "mimetype", "origin", "uri" };
+
+    // Used by get_where_clause_from_event_templates
+    /**
+     * Check if the value starts with the negation operator. If it does:
+     *  - Ensure the field accepts the operator. If it doesn't (and the field
+     *    isn't "text", which accepts it as regular text), throw an error.
+     *  - Remove the operator from the value.
+     *  - Return true.
+     * Otherwise, return false.
+     */
+    protected bool parse_negation (string field, ref string val)
+        throws EngineError.INVALID_ARGUMENT
+    {
+        if (!val.has_prefix ("!") || field == "text") return false;
+        if (!(field in NEGATION_SUPPORTED))
+        {
+            string error_message =
+                "Field '%s' doesn't support negation".printf (field);
+            warning(error_message);
+            throw new EngineError.INVALID_ARGUMENT (error_message);
+        }
+        val = val.substring (1);
+        return true;
+    }
+
+    private static string[] WILDCARDS_SUPPORTED = {
+        "actor", "current_uri", "mimetype", "origin", "uri" };
+
+    // Used by get_where_clause_from_event_templates
+    /**
+     * Check if the value ends with the wildcard character. If it does:
+     *  - Ensure that the field accepts the operator. If it doesn't (and
+     *    the field isn't "text", which accepts it as regular text), throw
+     *    an error.
+     *  - Remove the wildcard character from the value.
+     *  - Return true.
+     * Otherwise, return false.
+     */
+    protected bool parse_wildcard (string field, ref string val)
+        throws EngineError.INVALID_ARGUMENT
+    {
+        if (!val.has_suffix ("*") || field == "text") return false;
+        if (!(field in WILDCARDS_SUPPORTED))
+        {
+            string error_message =
+                "Field '%s' doesn't support wildcards".printf (field);
+            warning(error_message);
+            throw new EngineError.INVALID_ARGUMENT (error_message);
+        }
+        val = val.substring (0, val.char_count () - 1);
+        return true;
     }
 
 }

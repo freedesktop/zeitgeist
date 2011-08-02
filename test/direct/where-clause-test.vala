@@ -33,5 +33,5 @@ void main (string[] args)
 
 public void foo_test ()
 {
-    var wc = new Zeitgeist.WhereClause ();
+    var wc = new Zeitgeist.WhereClause (Zeitgeist.WhereClause.Type.AND);
 }
