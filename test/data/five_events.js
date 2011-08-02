@@ -59,7 +59,7 @@
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
-				"text" : "this item has not text... rly!",
+				"text" : "this item *",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
 		]
@@ -75,7 +75,7 @@
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
-				"text" : "this item has not text... rly!",
+				"text" : "some text",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
 		]

@@ -303,7 +303,31 @@ class ZeitgeistEngineTest(_engineTestClass):
 			[Event.new_for_values(actor="fake://foobar")],
 			StorageState.Any, 0, 0)
 		self.assertEquals(0, len(result))
-	
+
+	def testFindWithSubjectText(self):
+		import_events("test/data/five_events.js", self.engine)
+		result = self.engine.find_eventids(
+			(1, 10000000),
+			[Event.new_for_values(subject_text='this is not real')],
+			StorageState.Any,
+			0,
+			0)
+		self.assertEquals(0, len(result))
+		result = self.engine.find_eventids(
+			(1, 10000000),
+			[Event.new_for_values(subject_text='some text')],
+			StorageState.Any,
+			0,
+			0)
+		self.assertEquals(1, len(result))
+		result = self.engine.find_eventids(
+			(1, 10000000),
+			[Event.new_for_values(subject_text='this *')],
+			StorageState.Any,
+			0,
+			0)
+		self.assertEquals(1, len(result))
+
 	def testSortFindByTimeAsc(self):
 		import_events("test/data/twenty_events.js", self.engine)
 		result = self.engine.find_eventids(
