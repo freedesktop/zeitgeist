@@ -23,8 +23,9 @@ private class Symbol
     private static HashTable<string, Symbol> all_symbols = null;
     private List<string> parents;
     private List<string> children;
-    public string uri { get; private set; }
-    public string display_name { get; private set; }
+    private List<string> all_children;
+    private string uri;
+    private string display_name;
     
     private Symbol(string uri, string display_name, string[] parents,string[] children){
         this.uri = uri;
@@ -37,9 +38,15 @@ private class Symbol
             this.children.append(children[i]);
     }
     
-    public static List<string> get_all_parents(string symbbol_uri)
+    public static string get_display_name(string symbol_uri)
     {
-        var symbol = all_symbols.lookup(symbbol_uri);
+        var symbol = all_symbols.lookup(symbol_uri);
+        return symbol.display_name;
+    }
+    
+    public static List<string> get_all_parents(string symbol_uri)
+    {
+        var symbol = all_symbols.lookup(symbol_uri);
         var results = new List<string>();
         foreach (string uri in symbol.parents)
         {
@@ -53,41 +60,30 @@ private class Symbol
         return results;
     }
     
-    public static List<string> get_all_children(string symbbol_uri)
+    public static List<string> get_all_children(string symbol_uri)
     {
-        var symbol = all_symbols.lookup(symbbol_uri);
         var results = new List<string>();
-        foreach (string uri in symbol.children)
-        {
+        var symbol = all_symbols.lookup(symbol_uri);
+        foreach (string uri in symbol.all_children)
             results.append(uri);
-            var child = all_symbols.lookup(uri);
-            // Recursivly get the other children
-            foreach (string s in child.get_all_children(uri))
-                if (results.index(s) > -1)
-                    results.append(s);
-        }
         return results;
     }
     
     public static List<string> get_children(string symbol_uri)
     {
-        var symbol = all_symbols.lookup(symbol_uri);
         var results = new List<string>();
+        var symbol = all_symbols.lookup(symbol_uri);
         foreach (string uri in symbol.children)
-        {
             results.append(uri);
-        }
         return results;
     }
     
     public static List<string> get_parents(string symbol_uri)
     {
-        var symbol = all_symbols.lookup(symbol_uri);
         var results = new List<string>();
+        var symbol = all_symbols.lookup(symbol_uri);
         foreach (string uri in symbol.parents)
-        {
             results.append(uri);
-        }
         return results;
     }
     
