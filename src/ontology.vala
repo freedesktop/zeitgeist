@@ -56,7 +56,6 @@ namespace Zeitgeist
             foreach (string uri in symbol.parents)
             {
                 results.append (uri);
-                var parent = all_symbols.lookup (uri);
                 // Recursively get the other parents
                 foreach (string parent_uri in get_all_parents (uri))
                     if (results.index (parent_uri) > -1)
