@@ -175,7 +175,7 @@ namespace Zeitgeist.SQLite
                     (SELECT id FROM uri WHERE value=?),
                     ?,
                     (SELECT id FROM text WHERE value=?),
-                    (SELECT id from storage WHERE value=?)
+                    (SELECT id FROM storage WHERE value=?)
                 )""";
 
             rc = database.prepare_v2 (sql, -1, out event_insertion_stmt);

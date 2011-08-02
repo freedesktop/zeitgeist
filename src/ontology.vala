@@ -18,7 +18,7 @@
  *
  */
 
-public class Symbol
+private class Symbol
 {
     private static HashTable<string, Symbol> all_symbols = null;
     private List<string> parents;
