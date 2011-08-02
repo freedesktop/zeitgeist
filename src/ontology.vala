@@ -1,4 +1,4 @@
-/* datamodel.vala
+/* ontology.vala
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Seif Lotfy <seif@lotfy.com>
@@ -26,86 +26,84 @@ private class Symbol
     private List<string> all_children;
     private string uri;
     private string display_name;
-    
-    private Symbol(string uri, string display_name, string[] parents,string[] children){
+
+    private Symbol (string uri, string display_name, string[] parents,
+        string[] children)
+    {
         this.uri = uri;
         this.display_name = display_name;
-        this.parents = new List<string>();
+        this.parents = new List<string> ();
         for (int i = 0; i < parents.length; i++)
-            this.parents.append(parents[i]);
-        this.children = new List<string>();
+            this.parents.append (parents[i]);
+        this.children = new List<string> ();
         for (int i = 0; i < children.length; i++)
-            this.children.append(children[i]);
+            this.children.append (children[i]);
     }
-    
-    public static string get_display_name(string symbol_uri)
+
+    public static string get_display_name (string symbol_uri)
     {
         var symbol = all_symbols.lookup(symbol_uri);
         return symbol.display_name;
     }
-    
+
     public static List<string> get_all_parents(string symbol_uri)
     {
-        var symbol = all_symbols.lookup(symbol_uri);
-        var results = new List<string>();
+        var symbol = all_symbols.lookup (symbol_uri);
+        var results = new List<string> ();
         foreach (string uri in symbol.parents)
         {
-            results.append(uri);
-            var parent = all_symbols.lookup(uri);
-            // Recursivly get the other parents
-            foreach (string s in get_all_parents(uri))
-                if (results.index(s) > -1)
-                    results.append(s);
+            results.append (uri);
+            var parent = all_symbols.lookup (uri);
+            // Recursively get the other parents
+            foreach (string parent in get_all_parents (uri))
+                if (results.index(parent) > -1)
+                    results.append (parent);
         }
         return results;
     }
-    
-    public static List<string> get_all_children(string symbol_uri)
+
+    public static List<string> get_all_children (string symbol_uri)
     {
-        var results = new List<string>();
-        var symbol = all_symbols.lookup(symbol_uri);
+        var results = new List<string> ();
+        var symbol = all_symbols.lookup (symbol_uri);
         foreach (string uri in symbol.all_children)
-            results.append(uri);
+            results.append (uri);
         return results;
     }
-    
-    public static List<string> get_children(string symbol_uri)
+
+    public static List<string> get_children (string symbol_uri)
     {
-        var results = new List<string>();
-        var symbol = all_symbols.lookup(symbol_uri);
+        var results = new List<string> ();
+        var symbol = all_symbols.lookup (symbol_uri);
         foreach (string uri in symbol.children)
             results.append(uri);
         return results;
     }
-    
-    public static List<string> get_parents(string symbol_uri)
+
+    public static List<string> get_parents (string symbol_uri)
     {
         var results = new List<string>();
-        var symbol = all_symbols.lookup(symbol_uri);
+        var symbol = all_symbols.lookup (symbol_uri);
         foreach (string uri in symbol.parents)
-            results.append(uri);
+            results.append (uri);
         return results;
     }
-    
-    public static bool is_a(string symbol_uri, string parent_uri)
+
+    public static bool is_a (string symbol_uri, string parent_uri)
     {
-        foreach (string uri in get_all_parents(symbol_uri))
+        foreach (string uri in get_all_parents (symbol_uri))
             if (parent_uri == uri)
                 return true;
         return false;
     }
-    
-    public static void register(string uri, string display_name, string[] parents,
-                                string[] children)
+
+    public static void register (string uri, string display_name,
+        string[] parents, string[] children)
     {
         if (all_symbols == null)
-            all_symbols = new HashTable<string, Symbol>(str_hash, str_equal);
-        Symbol symbol = new Symbol(uri, display_name, parents, children);
-        all_symbols.insert(uri, symbol);
+            all_symbols = new HashTable<string, Symbol> (str_hash, str_equal);
+        Symbol symbol = new Symbol (uri, display_name, parents, children);
+        all_symbols.insert (uri, symbol);
     }
-    
-    public string to_string()
-    {
-        return this.uri;
-    }
+
 }
