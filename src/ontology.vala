@@ -69,17 +69,34 @@ private class Symbol
         return results;
     }
     
+    public static List<string> get_children(string symbol_uri)
+    {
+        var symbol = all_symbols.lookup(symbol_uri);
+        var results = new List<string>();
+        foreach (string uri in symbol.children)
+        {
+            results.append(uri);
+        }
+        return results;
+    }
+    
+    public static List<string> get_parents(string symbol_uri)
+    {
+        var symbol = all_symbols.lookup(symbol_uri);
+        var results = new List<string>();
+        foreach (string uri in symbol.parents)
+        {
+            results.append(uri);
+        }
+        return results;
+    }
+    
     public static bool is_a(string symbol_uri, string parent_uri)
     {
         foreach (string uri in get_all_parents(symbol_uri))
             if (parent_uri == uri)
                 return true;
         return false;
-    }
-    
-    public string to_string()
-    {
-        return this.uri;
     }
     
     public static void register(string uri, string display_name, string[] parents,
@@ -94,5 +111,10 @@ private class Symbol
     public static Symbol from_uri(string uri)
     {
         return all_symbols.lookup(uri);
+    }
+    
+    public string to_string()
+    {
+        return this.uri;
     }
 }
