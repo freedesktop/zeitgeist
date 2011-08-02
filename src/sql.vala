@@ -64,7 +64,7 @@ namespace Zeitgeist.SQLite
             int rc = Sqlite.Database.open_v2(
                 Constants.DATABASE_FILE_PATH,
                 out database);
-            assert_query_success(rc, "Can't open database");
+            assert_query_success (rc, "Can't open database");
 
             DatabaseSchema.ensure_schema(database);
 
@@ -80,10 +80,10 @@ namespace Zeitgeist.SQLite
                     if (values[0] == null)
                         last_id = 0;
                     else
-                        last_id = int.parse(values[0]);
+                        last_id = int.parse (values[0]);
                     return 0;
                 }, null);
-            assert_query_success(rc, "Can't query database");
+            assert_query_success (rc, "Can't query database");
             assert (last_id != -1);
             return last_id;
         }
@@ -108,8 +108,8 @@ namespace Zeitgeist.SQLite
             for (int i = 0; i < values.length; ++i)
                 stmt.bind_text (i+1, values[i]);
 
-            rc = stmt.step();
-            assert_query_success(rc, "SQL error", Sqlite.DONE);
+            rc = stmt.step ();
+            assert_query_success (rc, "SQL error", Sqlite.DONE);
         }
 
         public void begin_transaction () throws EngineError

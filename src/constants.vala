@@ -66,7 +66,7 @@ namespace Zeitgeist
                     critical ("Directory %s doesn't exist.\n", DATA_PATH);
                 }
             }
-            stdout.printf("DATA_PATH = %s\n", DATA_PATH);
+            stdout.printf ("DATA_PATH = %s\n", DATA_PATH);
             
             DATABASE_FILE_PATH = Environment.get_variable (
                 "ZEITGEIST_DATABASE_PATH");
@@ -75,7 +75,7 @@ namespace Zeitgeist
                 DATABASE_FILE_PATH = Path.build_filename (DATA_PATH,
                     "activity.sqlite");
             }
-            stdout.printf("DATABASE_FILE_PATH = %s\n", DATABASE_FILE_PATH);
+            stdout.printf ("DATABASE_FILE_PATH = %s\n", DATABASE_FILE_PATH);
             
             DATABASE_FILE_BACKUP_PATH = Environment.get_variable (
                 "ZEITGEIST_DATABASE_BACKUP_PATH");
@@ -84,7 +84,7 @@ namespace Zeitgeist
                 DATABASE_FILE_BACKUP_PATH = Path.build_filename (DATA_PATH,
                     "activity.sqlite.bck");
             }
-            stdout.printf("DATABASE_FILE_BACKUP_PATH = %s\n",
+            stdout.printf ("DATABASE_FILE_BACKUP_PATH = %s\n",
                 DATABASE_FILE_BACKUP_PATH);
             
             LOCAL_EXTENSIONS_PATH = Path.build_filename (DATA_PATH,
@@ -94,7 +94,7 @@ namespace Zeitgeist
                 // FIXME: Why? There's no need to create it. --RainCT
                 DirUtils.create (LOCAL_EXTENSIONS_PATH, 0755);
             }
-            stdout.printf("LOCAL_EXTENSIONS_PATH = %s\n", LOCAL_EXTENSIONS_PATH);
+            stdout.printf ("LOCAL_EXTENSIONS_PATH = %s\n", LOCAL_EXTENSIONS_PATH);
         }
     }
 }
