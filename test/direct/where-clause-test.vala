@@ -1,4 +1,4 @@
-/* zeitgeist-daemon.vala
+/* where-clause-test.vala
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
@@ -24,10 +24,14 @@
  *
  */
 
-public errordomain EngineError
+void main (string[] args)
 {
-    DATABASE_ERROR,
-    INVALID_ARGUMENT
+    Test.init (ref args);
+    Test.add_func ("/WhereClause/foo", foo_test);
+    Test.run ();
 }
 
-// vim:expandtab:ts=4:sw=4
+public void foo_test ()
+{
+    var wc = new Zeitgeist.WhereClause ();
+}

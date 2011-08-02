@@ -140,7 +140,7 @@ namespace Zeitgeist.SQLite
          * @param rc error code returned by a SQLite call
          * @param msg message to print if `rc' indicates an error
          * @throws EngineError
-         **/
+         */
         public void assert_query_success (int rc, string msg,
             int success_code=Sqlite.OK) throws EngineError
         {
@@ -149,7 +149,7 @@ namespace Zeitgeist.SQLite
                 string error_message = "%s: %d, %s".printf(
                     msg, rc, database.errmsg ());
                 warning ("%s\n", error_message);
-                throw new EngineError.DATABASE_ERROR(error_message);
+                throw new EngineError.DATABASE_ERROR (error_message);
             }
         }
 

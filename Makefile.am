@@ -39,3 +39,6 @@ debug: all
 
 test: all
 	./test/dbus/run-all-tests.py
+
+test-direct: all
+	cd ./test/direct/ && make run;

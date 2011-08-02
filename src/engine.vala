@@ -52,6 +52,11 @@ public class Engine : Object
         actors_table = new TableLookup(database, "actor");
         
         // FIXME: load extensions
+        
+        // FIXME: tmp:
+        TimeRange tr = TimeRange () { start = 1, end = 100000000000000 };
+        GenericArray<Event> evs = new GenericArray<Event> ();
+        find_event_ids (tr, evs, 0, 0, 0);
     }
 
     public GenericArray<Event> get_events(uint32[] event_ids,
@@ -85,6 +90,7 @@ public class Engine : Object
 
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
+            // FIXME: change this to "(uint32) column_int64(...)"?
             uint32 event_id = (uint32) uint64.parse(
                 stmt.column_text (EventViewRows.ID));
             int index = search_event_ids_array(event_ids, event_id);
@@ -148,6 +154,159 @@ public class Engine : Object
         //        more than one place?
 
         return events;
+    }
+
+    public uint32[] find_event_ids (TimeRange time_range,
+        GenericArray<Event> event_templates,
+        uint storage_state, uint max_events, uint result_type,
+        BusName? sender=null) throws EngineError
+    {
+        // build_sql_event_filter(time_range, tempaltes, storage_state)
+        // if not may_have_reults: return []
+        
+        // FIXME: IDs: SELECT DISTINCT / events: SELECT
+        // Is the former faster or can we just do the unique'ing on our side?
+
+        string sql = "SELECT id FROM event_view WHERE 1";// + where.sql + .. + order
+        string where_sql = "";
+
+        message (group_and_sort("origin", "FOO"));
+
+        switch (result_type)
+        {
+            case ResultType.MOST_RECENT_EVENTS:
+                sql += where_sql + " ORDER BY timestamp DESC";
+                break;
+            case ResultType.LEAST_RECENT_EVENTS:
+                sql += where_sql + " ORDER BY timestamp ASC";
+                break;
+            case ResultType.MOST_RECENT_EVENT_ORIGIN:
+                sql += group_and_sort ("origin", where_sql, false);
+                break;
+            case ResultType.LEAST_RECENT_EVENT_ORIGIN:
+                sql += group_and_sort ("origin", where_sql, true);
+                break;
+            case ResultType.MOST_POPULAR_EVENT_ORIGIN:
+                sql += group_and_sort ("origin", where_sql, false, false);
+                break;
+            case ResultType.LEAST_POPULAR_EVENT_ORIGIN:
+                sql += group_and_sort ("origin", where_sql, true, true);
+                break;
+            case ResultType.MOST_RECENT_SUBJECTS:
+                sql += group_and_sort ("subj_id", where_sql, false);
+                break;
+            case ResultType.LEAST_RECENT_SUBJECTS:
+                sql += group_and_sort ("subj_id", where_sql, true);
+                break;
+            case ResultType.MOST_POPULAR_SUBJECTS:
+                sql += group_and_sort ("subj_id", where_sql, false, false);
+                break;
+            case ResultType.LEAST_POPULAR_SUBJECTS:
+                sql += group_and_sort ("subj_id", where_sql, true, true);
+                break;
+            case ResultType.MOST_RECENT_CURRENT_URI:
+                sql += group_and_sort ("subj_id_current", where_sql, false);
+                break;
+            case ResultType.LEAST_RECENT_CURRENT_URI:
+                sql += group_and_sort ("subj_id_current", where_sql, true);
+                break;
+            case ResultType.MOST_POPULAR_CURRENT_URI:
+                sql += group_and_sort ("subj_id_current", where_sql,
+                    false, false);
+                break;
+            case ResultType.LEAST_POPULAR_CURRENT_URI:
+                sql += group_and_sort ("subj_id_current", where_sql,
+                    true, true);
+                break;
+            case ResultType.MOST_RECENT_ACTOR:
+                sql += group_and_sort ("actor", where_sql, false);
+                break;
+            case ResultType.LEAST_RECENT_ACTOR:
+                sql += group_and_sort ("actor", where_sql, true);
+                break;
+            case ResultType.MOST_POPULAR_ACTOR:
+                sql += group_and_sort ("actor", where_sql, false, false);
+                break;
+            case ResultType.LEAST_POPULAR_ACTOR:
+                sql += group_and_sort ("actor", where_sql, true, true);
+                break;
+            case ResultType.OLDEST_ACTOR:
+                sql += group_and_sort ("actor", where_sql, true, null, "min");
+                break;
+            case ResultType.MOST_RECENT_ORIGIN:
+                sql += group_and_sort ("subj_origin", where_sql, false);
+                break;
+            case ResultType.LEAST_RECENT_ORIGIN:
+                sql += group_and_sort ("subj_origin", where_sql, true);
+                break;
+            case ResultType.MOST_POPULAR_ORIGIN:
+                sql += group_and_sort ("subj_origin", where_sql, false, false);
+                break;
+            case ResultType.LEAST_POPULAR_ORIGIN:
+                sql += group_and_sort ("subj_origin", where_sql, true, true);
+                break;
+            case ResultType.MOST_RECENT_SUBJECT_INTERPRETATION:
+                sql += group_and_sort ("subj_interpretation", where_sql, false);
+                break;
+            case ResultType.LEAST_RECENT_SUBJECT_INTERPRETATION:
+                sql += group_and_sort ("subj_interpretation", where_sql, true);
+                break;
+            case ResultType.MOST_POPULAR_SUBJECT_INTERPRETATION:
+                sql += group_and_sort ("subj_interpretation", where_sql,
+                    false, false);
+                break;
+            case ResultType.LEAST_POPULAR_SUBJECT_INTERPRETATION:
+                sql += group_and_sort ("subj_interpretation", where_sql,
+                    true, true);
+                break;
+            case ResultType.MOST_RECENT_MIMETYPE:
+                sql += group_and_sort ("subj_mimetype", where_sql, false);
+                break;
+            case ResultType.LEAST_RECENT_MIMETYPE:
+                sql += group_and_sort ("subj_mimetype", where_sql, true);
+                break;
+            case ResultType.MOST_POPULAR_MIMETYPE:
+                sql += group_and_sort ("subj_mimetype", where_sql,
+                    false, false);
+                break;
+            case ResultType.LEAST_POPULAR_MIMETYPE:
+                sql += group_and_sort ("subj_mimetype", where_sql,
+                    true, true);
+                break;
+            default:
+                string error_message = "Invalid ResultType.";
+                warning (error_message);
+                throw new EngineError.INVALID_ARGUMENT (error_message);
+        }
+
+        if (max_events > 0)
+            sql += " LIMIT %u".printf (max_events);
+
+        int rc;
+        Sqlite.Statement stmt;
+
+        rc = db.prepare_v2 (sql, -1, out stmt);
+        database.assert_query_success(rc, "SQL error");
+
+        uint32[] event_ids = {};
+
+        while ((rc = stmt.step()) == Sqlite.ROW)
+        {
+            event_ids += (uint32) uint64.parse(
+                stmt.column_text (EventViewRows.ID));
+        }
+        if (rc != Sqlite.DONE)
+        {
+            string error_message = "Error in find_event_ids: %d, %s".printf (
+                rc, db.errmsg ());
+            warning (error_message);
+            throw new EngineError.DATABASE_ERROR (error_message);
+        }
+
+        for (int i = 0; i < event_ids.length; ++i)
+            message("%u", event_ids[i]);
+
+        return event_ids;
     }
 
     public uint32[] insert_events (GenericArray<Event> events,
@@ -317,12 +476,47 @@ public class Engine : Object
         database.close();
     }
 
+    // Used by get_events
     private static int search_event_ids_array(uint32[] arr, uint32 needle)
     {
         for (int i = 0; i < arr.length; ++i)
             if (arr[i] == needle)
                 return i;
         return -1;
+    }
+
+    // Used by find_event_ids
+    private string group_and_sort (string field, string where_sql,
+        bool time_asc=false, bool? count_asc=null,
+        string aggregation_type="max")
+    {
+        string time_sorting = (time_asc) ? "ASC" : "DESC";
+        string aggregation_sql = "";
+        string order_sql = "";
+
+        if (count_asc != null)
+        {
+            aggregation_sql = ", COUNT(%s) AS num_events".printf (field);
+            order_sql = "num_events %s,".printf ((count_asc) ? "ASC" : "DESC");
+        }
+
+        return """
+            NATURAL JOIN (
+                SELECT %s,
+                %s(timestamp) AS timestamp
+                %s
+                FROM event_view %s
+                GROUP BY %s)
+            GROUP BY %s
+            ORDER BY %s timestamp %s
+            """.printf (
+                field,
+                aggregation_type,
+                aggregation_sql,
+                where_sql,
+                field,
+                field,
+                order_sql, time_sorting);
     }
 
 }

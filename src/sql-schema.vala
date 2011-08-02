@@ -1,4 +1,4 @@
-/* sql_schema.vala
+/* sql-schema.vala
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
@@ -333,7 +333,7 @@ namespace Zeitgeist.SQLite
          *
          * @param database the database on which to run the query
          * @param sql the SQL query to run
-         **/
+         */
         private static void exec_query (Sqlite.Database database,
             string sql)
         {
