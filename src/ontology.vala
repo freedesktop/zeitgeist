@@ -104,11 +104,6 @@ private class Symbol
         all_symbols.insert(uri, symbol);
     }
     
-    public static Symbol from_uri(string uri)
-    {
-        return all_symbols.lookup(uri);
-    }
-    
     public string to_string()
     {
         return this.uri;
