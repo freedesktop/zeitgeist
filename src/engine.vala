@@ -56,10 +56,10 @@ public class Engine : Object
         // FIXME: tmp:
         TimeRange tr = TimeRange () { start = 1, end = 100000000000000 };
         GenericArray<Event> evs = new GenericArray<Event> ();
-        find_event_ids (tr, evs, 0, 0, 0);
+        //find_event_ids (tr, evs, 0, 0, 0);
     }
 
-    public GenericArray<Event> get_events(uint32[] event_ids,
+    public GenericArray<Event?> get_events(uint32[] event_ids,
             BusName? sender=null) throws EngineError
     {
         // TODO: Consider if we still want the cache. This should be done
@@ -71,21 +71,16 @@ public class Engine : Object
         Sqlite.Statement stmt;
         int rc;
         
-        assert (event_ids.length > 0);
-        var sql_condition = new StringBuilder ();
-        sql_condition.append_printf ("%u", event_ids[0]);
-        for (int i = 1; i < event_ids.length; ++i) {
-            sql_condition.append_printf (", %u", event_ids[i]);
-        }
+        var sql_event_ids = database.get_sql_string_from_event_ids (event_ids);
         string sql = """
             SELECT * FROM event_view
-            WHERE id IN (""" + sql_condition.str + """)
-            """;
+            WHERE id IN (%s)
+            """.printf (sql_event_ids);
 
         rc = db.prepare_v2 (sql, -1, out stmt);
         database.assert_query_success(rc, "SQL error");
 
-        var events = new GenericArray<Event>();
+        var events = new GenericArray<Event?>();
         events.length = event_ids.length;
 
         while ((rc = stmt.step()) == Sqlite.ROW)
@@ -145,11 +140,13 @@ public class Engine : Object
         // TODO: tmp:
         for (int i = 0; i < event_ids.length; ++i)
         {
-            events[i].debug_print ();
+            if (events[i] != null)
+                events[i].debug_print ();
+            else
+                stdout.printf ("NULL_EVENT\n");
             stdout.printf ("\n");
         }
 
-        // FIXME: make sure nulls become NULL_EVENT
         // FIXME: what happens if a query requests the same element in
         //        more than one place?
 
@@ -347,7 +344,6 @@ public class Engine : Object
         for (int i = 0; i < events.length; ++i)
         {
             event_ids[i] = insert_event (events[i], sender);
-            print("%u\n", event_ids[i]);
         }
         database.end_transaction();
         return event_ids;
@@ -491,6 +487,32 @@ public class Engine : Object
         */
 
         return event.id;
+    }
+
+    public TimeRange? delete_events (uint32[] event_ids, BusName sender)
+    {
+        // FIXME: extensions pre_delete
+
+        TimeRange? time_range = database.get_time_range_for_event_ids (
+            event_ids);
+
+        string sql_event_ids = database.get_sql_string_from_event_ids (
+            event_ids);
+
+        if (time_range == null)
+        {
+            warning ("Tried to delete non-existing event(s): %s".printf (
+                sql_event_ids));
+            return null;
+        }
+
+        int rc = db.exec ("DELETE FROM event WHERE id IN (%s)".printf(
+            sql_event_ids), null, null);
+        database.assert_query_success (rc, "SQL Error");
+        message ("Deleted %d (out of %d) events.".printf (
+            db.changes(), event_ids.length));
+
+        return time_range;
     }
 
     /**

@@ -4,9 +4,6 @@
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
  * Based upon a Python implementation (2009-2011) by:
- *  Markus Korn <thekorn@gmx.net>
- *  Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
- *  Seif Lotfy <seif@lotfy.com>
  *  Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
  * This program is free software: you can redistribute it and/or modify

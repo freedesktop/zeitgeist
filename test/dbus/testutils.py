@@ -37,7 +37,8 @@ DBusGMainLoop(set_as_default=True)
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
-from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, TimeRange
+from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, \
+	TimeRange, NULL_EVENT
 
 # Json handling is special in Python 2.5...
 try:
@@ -325,6 +326,11 @@ class RemoteTestCase (unittest.TestCase):
 		Ensure that an Event instance is a Plain Old Python Object (popo),
 		without DBus wrappings etc.
 		"""
+		if not ev:
+			return NULL_EVENT
+		for subject in ev.subjects:
+			if not subject.current_uri:
+				subject.current_uri = subject.uri
 		popo = []
 		popo.append(map(unicode, ev[0]))
 		popo.append([map(unicode, subj) for subj in ev[1]])
@@ -336,8 +342,9 @@ class RemoteTestCase (unittest.TestCase):
 	def assertEventsEqual(self, ev1, ev2):
 		ev1 = self.get_plain_event(ev1)
 		ev2 = self.get_plain_event(ev2)
-		if (ev1[0][0] and not ev2[0][0]) or (ev2[0][0] and not ev1[0][0]):
-			ev1[0][0] = ev2[0][0] = "" # delete IDs
+		if ev1 is not NULL_EVENT and ev2 is not NULL_EVENT:
+			if (ev1[0][0] and not ev2[0][0]) or (ev2[0][0] and not ev1[0][0]):
+				ev1[0][0] = ev2[0][0] = "" # delete IDs
 		self.assertEqual(ev1, ev2)
 
 class DBusPrivateMessageBus(object):

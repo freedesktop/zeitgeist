@@ -20,8 +20,8 @@ SRC_FILES = \
 	../../src/sql.vala \
 	$(NULL)
 
-all:
+build:
 	valac $(VALAFLAGS) query-operators-test.vala $(SRC_FILES)
 
-run: all
+run: build
 	./query-operators-test

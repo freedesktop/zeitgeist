@@ -315,13 +315,34 @@ namespace Zeitgeist
             return events;
         }
 
-        public static Variant to_variant (GenericArray<Event> events)
+        public static Variant to_variant (GenericArray<Event?> events)
         {
             var vb = new VariantBuilder(new VariantType("a(asaasay)"));
 
             for (int i = 0; i < events.length; ++i)
-                vb.add_value (events[i].to_variant ());
+            {
+                if (events[i] != null)
+                {
+                    vb.add_value (events[i].to_variant ());
+                }
+                else
+                {
+                    vb.add_value (get_null_event_variant ());
+                }
+            }
 
+            return vb.end ();
+        }
+
+        private static Variant get_null_event_variant ()
+        {
+            var vb = new VariantBuilder (new VariantType ("(asaasay)"));
+            vb.open (new VariantType ("as"));
+            vb.close ();
+            vb.open (new VariantType ("aas"));
+            vb.close ();
+            vb.open (new VariantType ("ay"));
+            vb.close ();
             return vb.end ();
         }
 

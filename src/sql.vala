@@ -69,6 +69,11 @@ namespace Zeitgeist.SQLite
             DatabaseSchema.ensure_schema(database);
 
             prepare_queries ();
+
+            // Register a data change notification callback to look for
+            // deletions, so we can keep the TableLookups up to date.
+            database.update_hook (update_callback);
+            database.exec ("DELETE FROM event WHERE 1", null, null);
         }
 
         public uint32 get_last_id () throws EngineError
@@ -86,6 +91,50 @@ namespace Zeitgeist.SQLite
             assert_query_success (rc, "Can't query database");
             assert (last_id != -1);
             return last_id;
+        }
+
+        /**
+         * Join all given event_ids into a comma-separated string suitable
+         * for use in a SQL query like "WHERE id IN (...)".
+         */
+        public string get_sql_string_from_event_ids (uint32[] event_ids)
+            requires (event_ids.length > 0)
+        {
+            var sql_condition = new StringBuilder ();
+            sql_condition.append_printf ("%u", event_ids[0]);
+            for (int i = 1; i < event_ids.length; ++i) {
+                sql_condition.append_printf (", %u", event_ids[i]);
+            }
+            return sql_condition.str;
+        }
+
+        public TimeRange? get_time_range_for_event_ids (uint32[] event_ids)
+            throws EngineError
+        {
+            if (event_ids.length == 0)
+                return null;
+
+            string sql = """
+                SELECT MIN(timestamp), MAX(timestamp)
+                FROM event
+                WHERE id IN (%s)
+                """.printf (get_sql_string_from_event_ids (event_ids));
+
+            TimeRange? time_range = null;
+            int rc = database.exec (sql,
+                (n_columns, values, column_names) =>
+                {
+                    if (values[0] != null)
+                    {
+                        time_range = TimeRange ();
+                        time_range.start = int64.parse (values[0]);
+                        time_range.end = int64.parse (values[1]);
+                    }
+                    return 0;
+                }, null);
+            assert_query_success (rc, "SQL Error");
+
+            return time_range;
         }
 
         public void insert_or_ignore_into_table (string table_name,
@@ -189,6 +238,19 @@ namespace Zeitgeist.SQLite
                 """;
             rc = database.prepare_v2 (sql, -1, out id_retrieval_stmt);
             assert_query_success (rc, "Event ID retrieval query error");
+        }
+
+        protected static void update_callback (Sqlite.Action action,
+            string dbname, string table, int64 rowid)
+        {
+            if (action != Sqlite.Action.DELETE)
+                return;
+            // FIXME!
+            /*
+            stdout.printf ("%s", dbname); // = main
+            stdout.printf ("%s", table);
+            stdout.printf ("%li", (long) rowid);
+            */
         }
 
     }

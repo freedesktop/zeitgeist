@@ -64,7 +64,7 @@ namespace Zeitgeist
             catch (EngineError e)
             {
                 // FIXME
-                quit ();
+                safe_exit ();
             }
             
             notifications = new MonitorManager();
@@ -97,7 +97,7 @@ namespace Zeitgeist
 
             var events = new GenericArray<Event>();
             events.add(new Event.from_variant(vb.end()));
-            engine.insert_events(events);
+            stdout.printf ("INSERTED: %u\n", engine.insert_events(events)[0]);
             */
         }
 
@@ -144,16 +144,31 @@ namespace Zeitgeist
             var events = Events.from_variant (vevents);
             for (int i = 0; i < events.length; i++)
             {
-                stdout.printf ("============== Inserting event: =============\n");
+                stdout.printf ("============ Inserting event: ============\n");
                 events[i].debug_print ();
             }
-            return engine.insert_events(events);
+
+            // FIXME: trigger notifications
+
+            return engine.insert_events (events, sender);
         }
 
         // FIXME
         public TimeRange delete_events (uint32[] event_ids, BusName sender)
         {
-            return TimeRange() { start = 30, end = 40 };
+            TimeRange? time_range = engine.delete_events (event_ids, sender);
+            if (time_range != null)
+            {
+                // FIXME: trigger notifications
+            }
+            else
+            {
+                // All the given event_ids are invalid or the events
+                // have already been deleted before!
+                time_range = TimeRange () { start = -1, end = -1 };
+            }
+
+            return time_range;
         }
 
         public void quit ()
@@ -203,9 +218,17 @@ namespace Zeitgeist
             mainloop.run ();
         }
 
-        static void handle_exit ()
+        static void safe_exit ()
         {
-            instance.quit ();
+            try
+            {
+                instance.quit ();
+            }
+            catch (IOError e)
+            {
+                // try/catch to silence valac warning
+                assert_not_reached ();
+            }
         }
 
         static int main (string[] args)
@@ -214,8 +237,8 @@ namespace Zeitgeist
             
             Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
             
-            Posix.signal (Posix.SIGHUP, handle_exit);
-            Posix.signal (Posix.SIGTERM, handle_exit);
+            Posix.signal (Posix.SIGHUP, safe_exit);
+            Posix.signal (Posix.SIGTERM, safe_exit);
             
             run ();
             return 0;
