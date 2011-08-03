@@ -24,41 +24,45 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import rdflib
+import sys
+import os
+import commands
 
+import rdflib
 from rdflib.plugin import register
 try:
 	# rdflib2
 	from rdflib.syntax.serializers import Serializer
-	from rdflib import FileInputSource
+	from rdflib import StringInputSource
 except ImportError:
 	# rdflib3 (LP: #626224)
 	from rdflib.serializer import Serializer
-	from rdflib.parser import FileInputSource
+	from rdflib.parser import StringInputSource
 
 register('python', Serializer, 'OntologySerializer', 'PythonSerializer')
 register('vala', Serializer, 'OntologySerializer', 'ValaSerializer')
 
-def parse(trig_stream):
+def trig2rdfxml(filename):
+	if not os.path.isfile(filename):
+		raise SystemExit, 'File doesn\'t exist: %s' % filename
+	return commands.getoutput(
+		"rapper -i trig -o rdfxml %s 2>/dev/null" % filename)
+
+def parse(rdfxml_stream):
 	"""
 	Return a list of triples representing the ontology
 	"""
-	trig_in = FileInputSource(trig_stream)
 	ontology = rdflib.ConjunctiveGraph()
-	ontology.parse(trig_in)
+	ontology.parse(StringInputSource(rdfxml_stream))
 	#pycode = ontology.serialize(format="python")
 	#print pycode
 	valacode = ontology.serialize(format="vala")
 	print valacode
 
 if __name__ == "__main__":
-	import sys, os
-	
-	# On no args, read from stdin
-	if len(sys.argv) <= 1:
-		print >> sys.stderr, "Parsing from stdin"
-		parse(sys.stdin)
-	else:
-		for trig_filename in sys.argv[1:]:
-			print >> sys.stderr, "Parsing " + trig_filename
-			parse(file(trig_filename))
+	if len(sys.argv) < 2:
+		raise SystemExit, "Usage: %s <filename>" % sys.argv[0]
+	for trig_filename in sys.argv[1:]:
+		print >>sys.stderr, "Parsing " + trig_filename
+		rdfxml = trig2rdfxml(trig_filename)
+		parse(rdfxml)
