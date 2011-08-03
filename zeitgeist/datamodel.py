@@ -628,6 +628,11 @@ class Event(list):
 				self.append(struct[2])
 			else:
 				raise ValueError("Invalid struct length %s" % len(struct))
+			# If this event is being created from an existing Event instance,
+			# make a copy of the list holding the event information. This
+			# enables the idiom "event2 = Event(event1)" to copy an event.
+			if isinstance(struct, Event):
+				self[0] = list(self[0])
 		else:
 			self.extend(([""]* len(Event.Fields), [], ""))
 		
