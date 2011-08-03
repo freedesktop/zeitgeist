@@ -20,9 +20,15 @@
 
 void main (string[] args)
 {
+
     Test.init (ref args);
+
+    // Do not abort on warning()s.
+    Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
+
     Test.add_func ("/ParseNegation/main", parse_negation_test);
     Test.add_func ("/ParseWildcard/main", parse_wildcard_test);
+
     Test.run ();
 }
 
@@ -62,18 +68,15 @@ public void parse_negation_test ()
     assert (val == "negation");
 
     // Test wildcard in string that doesn't support it
-    /* FIXME: this isn't working, it's making the test abort
     val = "!negation";
     try
     {
         engine.PUBLIC_parse_negation ("unsupported", ref val);
         assert_not_reached();
     }
-    catch (EngineError e)
+    catch (EngineError.INVALID_ARGUMENT e)
     {
-        // assert e == INVALID_ARGUMENT
     }
-    */
 
     // Test wildcard character in meaningless position in string that
     // doesn't support wildcards
@@ -103,18 +106,15 @@ public void parse_wildcard_test ()
     assert (val == "yes wildcar");
 
     // Test wildcard in string that doesn't support it
-    /* FIXME: this isn't working, it's making the test abort
     val = "another wildcard *";
     try
     {
         engine.PUBLIC_parse_wildcard ("unsupported", ref val);
         assert_not_reached();
     }
-    catch (EngineError e)
+    catch (EngineError.INVALID_ARGUMENT e)
     {
-        // assert e == INVALID_ARGUMENT
     }
-    */
 
     // Test wildcard character in meaningless position in string that
     // doesn't support wildcards
