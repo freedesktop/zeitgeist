@@ -16,3 +16,6 @@ EXTRA_DIST = \
 	PythonSerializer.py
 
 all-local: org.gnome.zeitgeist.service
+
+clean:
+	rm -rf *.pyc *.~[0-9]~
