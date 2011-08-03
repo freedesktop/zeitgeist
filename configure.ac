@@ -38,6 +38,9 @@ AC_CONFIG_FILES([Makefile
 	src/Makefile
 	extra/Makefile
 	extra/ontology/Makefile
+	test/Makefile
+	test/dbus/Makefile
+	test/direct/Makefile
 	po/Makefile.in])
 
 # check for rapper

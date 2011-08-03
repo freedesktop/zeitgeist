@@ -1,10 +1,9 @@
 NULL = 
 
-#Build in these directories:
-
 SUBDIRS = \
 	src \
 	extra \
+	test \
 	po \
 	$(NULL)
 

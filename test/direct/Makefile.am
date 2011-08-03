@@ -1,5 +1,3 @@
-# FIXME: Change this into a proper Makefile.am.
-
 VALAFLAGS = \
 	--pkg gio-2.0 \
 	--target-glib=2.26 \
@@ -23,9 +21,7 @@ SRC_FILES = \
 	$(NULL)
 
 all:
-	#valac $(VALAFLAGS) where-clause-test.vala $(SRC_FILES)
 	valac $(VALAFLAGS) query-operators-test.vala $(SRC_FILES)
 
 run: all
-	#./where-clause-test
 	./query-operators-test
