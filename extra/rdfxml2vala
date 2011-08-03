@@ -7,6 +7,7 @@
 
 # API docs for rdflib on http://www.rdflib.net/rdflib-2.4.0/html/index.html
 import rdflib
+import commands
 
 from rdflib.plugin import register
 try:
@@ -19,32 +20,39 @@ except ImportError:
 	from rdflib.parser import FileInputSource
 
 register('python', Serializer,
-         'PythonSerializer', 'PythonSerializer')
+         'ValaSerializer', 'ValaSerializer')
 
-def parse(trig_stream):
+def parse(trig_stream, root_dict):
 	"""
 	Return a list of triples representing the ontology
 	"""
 	trig_in = FileInputSource(trig_stream)
 	ontology = rdflib.ConjunctiveGraph()
 	ontology.parse(trig_in)
-	pycode = ontology.serialize(format="python")
-	print pycode	
+	valacode = ontology.serialize(format="python", root_dict=root_dict)
+	return valacode
 
 if __name__ == "__main__":
 	import sys, os
 	
+	root_dict = {"Interpretation":[], "Manifestation":[]}
+	output = "namespace Zeitgeist\n{\n"
+	xml_output = ""
 	# On no args, read from stdin
 	if len(sys.argv) <= 1:
-		print >> sys.stderr, "Parsing from stdin"
-		s = sys.stdin
-		print "-------------------"
-		print s.read()
-		print "-------------------"
-		parse(s)
+		print "No path to trig files given"
 	else:
-		for trig_filename in sys.argv[1:]:
-			print >> sys.stderr, "Parsing " + trig_filename
-			parse(file(trig_filename))
+		path = sys.argv[1]
+		dirList=os.listdir(sys.argv[1])
+		for trig_filename in dirList:
+			if trig_filename.endswith(".trig"):
+				print >> sys.stderr, "Parsing " + path + trig_filename
+				xml = commands.getoutput("rapper -i trig -o rdfxml " + path + trig_filename)
+				f = open("/tmp/trig", "w")
+				f.write(xml)
+				f.close()
+			output = output + parse(file("/tmp/trig"), root_dict)
+	output = output + "}"
+	print output
 
 
