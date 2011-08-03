@@ -100,14 +100,10 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		# Try deleting one of them
 		self.deleteEventsAndWait([ids[0]])
 
-		# Make sure it's gone
-		retrieved_events = self.getEventsAndWait([ids[0]])
+		# Make sure it's gone, but the second one is still there
+		retrieved_events = self.getEventsAndWait(ids)
 		self.assertEquals(retrieved_events[0], None)
-
-		# But the second one is still there
-		retrieved_events = self.getEventsAndWait([ids[1]])
-		self.assertEquals(1, len(retrieved_events))
-		self.assertEventsEqual(retrieved_events[0], event2)
+		self.assertEventsEqual(retrieved_events[1], event2)
 
 class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 

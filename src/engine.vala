@@ -351,9 +351,9 @@ public class Engine : Object
 
     public uint32 insert_event (Event event,
         BusName? sender=null)
+        requires (event.id == 0)
+        requires (event.num_subjects () > 0)
     {
-        assert (event.id == 0);
-        assert (event.num_subjects () > 0);
         // FIXME: make sure event timestamp is sane
         
         /* FIXME:
@@ -419,6 +419,10 @@ public class Engine : Object
         int rc;
         unowned Sqlite.Statement insert_stmt = database.event_insertion_stmt;
 
+        // We need to call reset here (even if we do so again in the subjects
+        // loop) since calling .bind_* after a .step() invocation is illegal.
+        insert_stmt.reset();
+
         insert_stmt.bind_int64 (1, event.id);
         insert_stmt.bind_int64 (2, event.timestamp);
         insert_stmt.bind_int64 (3,
@@ -432,7 +436,7 @@ public class Engine : Object
         for (int i = 0; i < event.num_subjects(); ++i)
         {
             insert_stmt.reset();
-            
+
             unowned Subject subject = event.subjects[i];
             
             insert_stmt.bind_text (8, subject.uri);

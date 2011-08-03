@@ -146,6 +146,7 @@ namespace Zeitgeist
             {
                 stdout.printf ("============ Inserting event: ============\n");
                 events[i].debug_print ();
+                stdout.printf ("\n");
             }
 
             // FIXME: trigger notifications
