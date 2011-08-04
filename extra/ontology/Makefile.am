@@ -16,7 +16,7 @@ ontology_pydir = $(datadir)/zeitgeist/ontology
 
 zeitgeist.py: $(ontology_trig_DATA)
 	echo -e "#\n# Auto-generated from all .trig files ($^). Do not edit.\n#" > $@
-	$(top_srcdir)/extra/rdfxml2code `pwd` --python >> $@
+	$(top_srcdir)/extra/ontology2code --dump-python >> $@
 
 CLEANFILES = \
 	$(ontology_py_DATA)

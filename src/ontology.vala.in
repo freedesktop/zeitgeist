@@ -2,6 +2,7 @@
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Seif Lotfy <seif@lotfy.com>
+ *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -99,7 +100,7 @@ namespace Zeitgeist
             return false;
         }
 
-        public static void register (string uri, string display_name,
+        internal static void register (string uri, string display_name,
             string[] parents, string[] children)
         {
             if (all_symbols == null)
@@ -110,4 +111,11 @@ namespace Zeitgeist
 
     }
 
+    internal void initialize_symbols ()
+    {
+        // *insert-auto-generated-code*
+    }
+
 }
+
+// vim:expandtab:ts=4:sw=4

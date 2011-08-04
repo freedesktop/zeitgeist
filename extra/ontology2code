@@ -24,10 +24,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import os
+import re
+import sys
 import glob
+import codecs
 import commands
+import StringIO
 
 import rdflib
 from rdflib import RDF, RDFS
@@ -78,11 +81,11 @@ class Symbol:
 
 	def __init__(self, collection, name, uri, parents, display_name, doc):
 		self._collection = collection
-		self.name = name
-		self.uri = uri
-		self.parents = parents
-		self.display_name = display_name
-		self.doc = doc
+		self.name = str(name)
+		self.uri = str(uri)
+		self.parents = [str(parent) for parent in parents]
+		self.display_name = str(display_name)
+		self.doc = str(doc)
 
 	@property
 	def children(self):
@@ -94,10 +97,6 @@ class Symbol:
 					childs.add(symbol)
 			self._children = childs
 		return self._children
-
-	@property
-	def parents_set(self):
-		return set((symbol.uri for symbol in self.parents))
 
 	def debug_print(self):
 		print "Name: %s" % self.name
@@ -157,6 +156,10 @@ class Utils:
 				# item was in set, replace it with value
 				item_set.add(value)
 
+	@staticmethod
+	def indent(text, indentation):
+		return re.sub(r'(?m)^(.+)$', r'%s\1' % indentation, text)
+
 class OntologyParser:
 
 	symbols = None
@@ -209,9 +212,8 @@ class OntologyParser:
 			display_name = Utils.escape_chars(labels[0] if labels else name)
 
 			# Parents
-			root_type = set(ontology.objects(symbol, RDFS.subClassOf)
+			parents = set(ontology.objects(symbol, RDFS.subClassOf)
 				).intersection(all_symbols)
-			parents = [str(url) for url in root_type]
 
 			if symbol in symbol_classes:
 				assert parents
@@ -235,20 +237,20 @@ class PythonSerializer(GenericSerializer):
 
 	def dump(self):
 		for symbol in sorted(self.symbols.itervalues()):
-			parents = symbol.parents_set
+			parents = set((symbol.uri for symbol in symbol.parents))
 			Utils.replace_items(parents, {
-				str(NIENS["InformationElement"]): "Interpretation",
-				str(NIENS["DataObject"]): "Manifestation" })
+				str(NIENS['InformationElement']): 'Interpretation',
+				str(NIENS['DataObject']): 'Manifestation' })
 			print "Symbol('%s', parent=%r, uri='%s', display_name='%s', " \
-			"doc='%s', auto_resolve=False)" % (symbol.name, parents,
+				"doc='%s', auto_resolve=False)" % (symbol.name, parents,
 				symbol.uri, symbol.display_name, symbol.doc)
 
 class ValaSerializer(GenericSerializer):
 
 	@staticmethod
 	def symbol_name(symbol):
-		ns, name = symbol.uri[symbol.uri.rfind("/")+1:].split("#")
-		return "%s_%s" % (ns.upper(), Utils.camel2upper(name))
+		ns, name = symbol.uri[symbol.uri.rfind('/')+1:].split('#')
+		return '%s_%s' % (ns.upper(), Utils.camel2upper(name))
 
 	@classmethod
 	def build_doc(cls, name, symbol, doc_prefix=""):
@@ -256,49 +258,137 @@ class ValaSerializer(GenericSerializer):
 		Build a C-style docstring for gtk-doc processing.
 		"""
 		uri_link = '<ulink url="%s">%s</ulink>' % (symbol.uri,
-			symbol.uri.replace("#", "&num;"))
+			symbol.uri.replace('#', '&num;'))
 		doc = symbol.doc
 
 		# List children
-		children = ["#" + cls.symbol_name(child) for child in symbol.children]
+		children = ['#' + cls.symbol_name(child) for child in symbol.children]
 		if children:
-			doc += "\n\n Children: %s" % ", ".join(children)
+			doc += '\n\n Children: %s' % ', '.join(children)
 		else:
-			doc += "\n\n Children: None"
+			doc += '\n\n Children: None'
 
 		# List parents
-		parents = ["#" + cls.symbol_name(parent) for parent in symbol.parents]
-		if parents and not parents in (["#INTERPRETATION"], ["#MANIFESTATION"]):
-			doc += "\n\n Parents: %s" % ", ".join(parents)
+		parents = ['#' + cls.symbol_name(parent) for parent in symbol.parents]
+		if parents and not parents in (['#INTERPRETATION'], ['#MANIFESTATION']):
+			doc += '\n\n Parents: %s' % ', '.join(parents)
 		else:
-			doc += "\n\n Parents: None"
+			doc += '\n\n Parents: None'
 	
 		# Convert docstring to gtk-doc style C comment
-		doc = doc.replace("\n", "\n *")
-		doc = "/**\n * %s:\n *\n * %s%s\n * \n * %s\n */" % (
+		doc = doc.replace('\n', '\n *')
+		doc = '/**\n * %s:\n *\n * %s%s\n * \n * %s\n */' % (
 			name, doc_prefix, uri_link, doc)
 		return doc
 
-	def dump(self):
-		print "namespace Zeitgeist\n{\n"
+	def dump_uris(self, dest):
+		dest.write('namespace Zeitgeist\n{\n\n')
 		for symbol in sorted(self.symbols.itervalues()):
 			name = self.symbol_name(symbol)
 			# FIXME: (event/subject) interpretation/manifestation
+			# FIXME: Zeitgeist.ZG_FOO_BAR -> Zeitgeist.ZG.FOO_BAR
 			doc = self.build_doc(name, symbol,
-				doc_prefix="Macro defining the interpretation type ")
-			print '    %s' % doc.replace('\n', '\n    ').strip()
-			print "    public const string %s = \"%s\";" % (name, symbol.uri)
-			print
-		print "}"
+				doc_prefix='Macro defining the interpretation type ')
+			dest.write('    %s\n' % doc.replace('\n', '\n    ').strip())
+			dest.write('    public const string %s = "%s";\n\n' % (name,
+				symbol.uri))
+		dest.write('}')
+
+	def dump_symbols(self, dest):
+		dest.write('string uri, display_name;\n')
+		dest.write('string[] parents, children;\n')
+		dest.write('\n')
+		first = True
+		for symbol in sorted(self.symbols.itervalues()):
+			if first:
+				first = False
+			else:
+				dest.write('\n')
+			parent_uris = ', '.join(self.symbol_name(uri)
+				for uri in symbol.parents)
+			children_uris = ', '.join(self.symbol_name(uri)
+				for uri in symbol.children)
+			# FIXME: add description
+			dest.write('uri = Zeitgeist.%s;\n' % self.symbol_name(symbol))
+			dest.write('display_name = "%s";\n' % symbol.display_name)
+			dest.write('parents = { %s };\n' % parent_uris)
+			dest.write('children = { %s };\n' % children_uris)
+			dest.write('Symbol.register (uri, display_name, ' \
+				'parents, children);\n')
+
+class OntologyCodeGenerator:
+
+	_INSERTION_MARK = '// *insert-auto-generated-code*'
+
+	_selfpath = None
+	_basepath = None
+	_parser = None
+	_python_serializer = None
+	_vala_serializer = None
+
+	def __init__(self):
+		self._selfpath = os.path.dirname(os.path.abspath(__file__))
+		self._basepath = os.path.join(self._selfpath, '..')
+		self._parser = OntologyParser(os.path.join(self._selfpath, 'ontology'))
+		self._python_serializer = PythonSerializer(self._parser)
+		self._vala_serializer = ValaSerializer(self._parser)
+
+	def generate_python(self):
+		self._python_serializer.dump()
+
+	def generate_vala(self):
+		self._write_file('src/ontology-uris.vala.in', 'src/ontology-uris.vala',
+			self._vala_serializer.dump_uris, 'vala')
+		self._write_file('src/ontology.vala.in', 'src/ontology.vala',
+			self._vala_serializer.dump_symbols, 'vala')
+
+	def _write_file(self, tplfilename, outfilename, content_generator, _type):
+		print >>sys.stderr, "Generating %s..." % outfilename
+
+		# Read template file
+		tplfilename = os.path.join(self._basepath, tplfilename)
+		template = open(tplfilename).read()
+
+		# Generate output
+		content = StringIO.StringIO()
+		content_generator(content)
+		content = content.getvalue()
+
+		# Write header
+		output = StringIO.StringIO()
+		self._write_header(output, _type)
+
+		# Write template, insert the generated output into the correct
+		# position (marked by "// *insert-auto-generated-code*").
+		insertion_pos = template.find(self._INSERTION_MARK)
+		indentation = insertion_pos - template.rfind('\n', 0, insertion_pos) - 1
+		start_pos = template.rfind('\n', 0, insertion_pos) + 1
+		continue_pos = insertion_pos
+		output.write(template[:start_pos])
+		output.write(Utils.indent(content, ' ' * indentation))
+		output.write(template[continue_pos+len(self._INSERTION_MARK):])
+
+		# Write everything to the result file
+		outpath = os.path.join(self._basepath, outfilename)
+		open(outpath, 'w').write(output.getvalue())
+
+	def _write_header(self, dest, _type):
+		if _type == 'vala':
+			dest.write('// This file has been auto-generated by the ' \
+				'ontology2code script.\n')
+			dest.write('// Do not modify it directly.\n\n')
+		else:
+			raise NotImplementedError
+
+	def _generate_vala_uris(self, dest):
+		pass
 
 if __name__ == "__main__":
-	if len(sys.argv) != 3 or sys.argv[2] not in ('--vala', '--python'):
-		raise SystemExit, 'Usage: %s <directory> [--vala|--python]' % \
+	if len(sys.argv) != 2 or sys.argv[1] not in ('--vala', '--dump-python'):
+		raise SystemExit, 'Usage: %s [--vala|--dump-python]' % \
 			sys.argv[0]
-	parser = OntologyParser(sys.argv[1])
-	python_serializer = PythonSerializer(parser)
-	vala_serializer = ValaSerializer(parser)
-	if sys.argv[2] == '--vala':
-		vala_serializer.dump()
-	elif sys.argv[2] == '--python':
-		python_serializer.dump()
+	generator = OntologyCodeGenerator()
+	if sys.argv[1] == '--vala':
+		generator.generate_vala()
+	elif sys.argv[1] == '--dump-python':
+		generator.generate_python()

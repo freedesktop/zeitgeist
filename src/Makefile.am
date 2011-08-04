@@ -28,6 +28,7 @@ bluebird_SOURCES = \
 	sql-schema.vala \
 	where-clause.vala \
 	ontology.vala \
+	ontology-uris.vala \
 	$(NULL)
 
 bluebird_LDADD = \
@@ -40,5 +41,12 @@ EXTRA_DIST = \
 DISTCLEANFILES = \
 	$(NULL)
 
+# FIXME: can we make this depend on $(ontology_trig_DATA)?
+generate-ontology:
+	$(top_srcdir)/extra/ontology2code --vala
+
+ontology.vala: generate-ontology
+ontology-uris.vala: generate-ontology
+
 clean:
-	rm -f *.c *.o *.stamp *.~[0-9]~
+	rm -f ontology.vala ontology-uris.vala *.c *.o *.stamp *.~[0-9]~
