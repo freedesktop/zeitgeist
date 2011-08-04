@@ -31,6 +31,7 @@ import glob
 import codecs
 import commands
 import StringIO
+import collections
 
 import rdflib
 from rdflib import RDF, RDFS
@@ -52,9 +53,14 @@ class SymbolCollection(dict):
 
 	closed = False
 
-	def register(self, name, uri, parents, display_name, doc):
+	_by_namespace = None
+
+	def __init__(self):
+		self._by_namespace = collections.defaultdict(lambda: [])
+
+	def register(self, uri, parents, display_name, doc):
 		assert not self.closed
-		symbol = Symbol(self, name, uri, parents, display_name, doc)
+		symbol = Symbol(self, uri, parents, display_name, doc)
 		self[uri] = symbol
 
 	def post_process(self):
@@ -62,6 +68,10 @@ class SymbolCollection(dict):
 		for symbol in self.itervalues():
 			for (i, parent) in enumerate(symbol.parents):
 				symbol.parents[i] = self[parent]
+			self._by_namespace[symbol.namespace].append(symbol)
+
+	def iter_by_namespace(self):
+		return self._by_namespace.iteritems()
 
 	def debug_print(self):
 		for symbol in self.registered_symbols.itervalues():
@@ -71,6 +81,7 @@ class SymbolCollection(dict):
 class Symbol:
 
 	name = None
+	namespace = None
 	uri = None
 	parents = None
 	display_name = None
@@ -79,12 +90,15 @@ class Symbol:
 	_collection = None
 	_children = None
 
-	def __init__(self, collection, name, uri, parents, display_name, doc):
+	def __init__(self, collection, uri, parents, display_name, doc):
 		self._collection = collection
-		self.name = str(name)
 		self.uri = str(uri)
+		self.namespace, self.name = self.uri[self.uri.rfind('/')+1:].split('#')
+		self.name = Utils.camel2upper(self.name)
+		self.namespace = self.namespace.upper()
 		self.parents = [str(parent) for parent in parents]
-		self.display_name = str(display_name)
+		self.display_name = str(display_name) if display_name is not None \
+			else self.name
 		self.doc = str(doc)
 
 	@property
@@ -113,7 +127,8 @@ class Symbol:
 		return self.doc
 
 	def __cmp__(self, other):
-		return cmp(self.name, other.name)
+		return cmp(self.namespace, other.namespace) or \
+			cmp(self.name, other.name)
 
 	def __hash__(self):
 		return self.uri.__hash__()
@@ -200,16 +215,13 @@ class OntologyParser:
 			# URI
 			uri = str(symbol)
 
-			# Name (for code)
-			name = Utils.camel2upper(str(symbol).split("#")[-1])
-
 			# Description
 			comments = list(ontology.objects(symbol, RDFS.comment))
 			doc = Utils.escape_chars(comments[0] if comments else "")
 
 			# Display name
 			labels = list(ontology.objects(symbol, RDFS.label))
-			display_name = Utils.escape_chars(labels[0] if labels else name)
+			display_name = Utils.escape_chars(labels[0]) if labels else None
 
 			# Parents
 			parents = set(ontology.objects(symbol, RDFS.subClassOf)
@@ -219,7 +231,7 @@ class OntologyParser:
 				assert parents
 
 			# And we have a new Symbol!
-			symbols.register(name, uri, parents, display_name, doc)
+			symbols.register(uri, parents, display_name, doc)
 
 		symbols.post_process()
 		return symbols
@@ -248,12 +260,11 @@ class PythonSerializer(GenericSerializer):
 class ValaSerializer(GenericSerializer):
 
 	@staticmethod
-	def symbol_name(symbol):
-		ns, name = symbol.uri[symbol.uri.rfind('/')+1:].split('#')
-		return '%s_%s' % (ns.upper(), Utils.camel2upper(name))
+	def symbol_link(symbol):
+		return '%s_%s' % (symbol.namespace, symbol.name)
 
 	@classmethod
-	def build_doc(cls, name, symbol, doc_prefix=""):
+	def build_doc(cls, symbol, doc_prefix=""):
 		"""
 		Build a C-style docstring for gtk-doc processing.
 		"""
@@ -262,14 +273,14 @@ class ValaSerializer(GenericSerializer):
 		doc = symbol.doc
 
 		# List children
-		children = ['#' + cls.symbol_name(child) for child in symbol.children]
+		children = ['#' + cls.symbol_link(child) for child in symbol.children]
 		if children:
 			doc += '\n\n Children: %s' % ', '.join(children)
 		else:
 			doc += '\n\n Children: None'
 
 		# List parents
-		parents = ['#' + cls.symbol_name(parent) for parent in symbol.parents]
+		parents = ['#' + cls.symbol_link(parent) for parent in symbol.parents]
 		if parents and not parents in (['#INTERPRETATION'], ['#MANIFESTATION']):
 			doc += '\n\n Parents: %s' % ', '.join(parents)
 		else:
@@ -278,43 +289,41 @@ class ValaSerializer(GenericSerializer):
 		# Convert docstring to gtk-doc style C comment
 		doc = doc.replace('\n', '\n *')
 		doc = '/**\n * %s:\n *\n * %s%s\n * \n * %s\n */' % (
-			name, doc_prefix, uri_link, doc)
+			symbol.name, doc_prefix, uri_link, doc)
 		return doc
 
 	def dump_uris(self, dest):
-		dest.write('namespace Zeitgeist\n{\n\n')
-		for symbol in sorted(self.symbols.itervalues()):
-			name = self.symbol_name(symbol)
-			# FIXME: (event/subject) interpretation/manifestation
-			# FIXME: Zeitgeist.ZG_FOO_BAR -> Zeitgeist.ZG.FOO_BAR
-			doc = self.build_doc(name, symbol,
-				doc_prefix='Macro defining the interpretation type ')
-			dest.write('    %s\n' % doc.replace('\n', '\n    ').strip())
-			dest.write('    public const string %s = "%s";\n\n' % (name,
-				symbol.uri))
-		dest.write('}')
+		dest.write('namespace Zeitgeist\n{\n')
+		for namespace, symbols in sorted(self.symbols.iter_by_namespace()):
+			dest.write('\n    namespace %s\n    {\n\n' % namespace)
+			for symbol in sorted(symbols):
+				# FIXME: (event/subject) interpretation/manifestation ??
+				doc = self.build_doc(symbol,
+					doc_prefix='Macro defining the interpretation type ')
+				dest.write('	    %s\n' % doc.replace('\n', '\n	    '
+					).strip())
+				dest.write('	    public const string %s = "%s";\n\n' % (
+					symbol.name, symbol.uri))
+			dest.write('    }\n')
+		dest.write('}\n')
 
 	def dump_symbols(self, dest):
 		dest.write('string uri, display_name;\n')
-		dest.write('string[] parents, children;\n')
-		dest.write('\n')
-		first = True
-		for symbol in sorted(self.symbols.itervalues()):
-			if first:
-				first = False
-			else:
-				dest.write('\n')
-			parent_uris = ', '.join(self.symbol_name(uri)
-				for uri in symbol.parents)
-			children_uris = ', '.join(self.symbol_name(uri)
-				for uri in symbol.children)
-			# FIXME: add description
-			dest.write('uri = Zeitgeist.%s;\n' % self.symbol_name(symbol))
-			dest.write('display_name = "%s";\n' % symbol.display_name)
-			dest.write('parents = { %s };\n' % parent_uris)
-			dest.write('children = { %s };\n' % children_uris)
-			dest.write('Symbol.register (uri, display_name, ' \
-				'parents, children);\n')
+		dest.write('string[] parents, children;\n\n')
+		for namespace, symbols in sorted(self.symbols.iter_by_namespace()):
+			for symbol in sorted(symbols):
+				parent_uris = ', '.join('%s.%s' % (symbol.namespace,
+					symbol.name) for uri in symbol.parents)
+				children_uris = ', '.join('%s.%s' % (symbol.namespace,
+					symbol.name) for uri in symbol.children)
+				# FIXME: add description
+				dest.write('uri = Zeitgeist.%s.%s;\n' % (symbol.namespace,
+					symbol.name))
+				dest.write('display_name = "%s";\n' % symbol.display_name)
+				dest.write('parents = { %s };\n' % parent_uris)
+				dest.write('children = { %s };\n' % children_uris)
+				dest.write('Symbol.register (uri, display_name, ' \
+					'parents, children);\n\n')
 
 class OntologyCodeGenerator:
 
@@ -352,7 +361,7 @@ class OntologyCodeGenerator:
 		# Generate output
 		content = StringIO.StringIO()
 		content_generator(content)
-		content = content.getvalue()
+		content = content.getvalue().strip('\n')
 
 		# Write header
 		output = StringIO.StringIO()

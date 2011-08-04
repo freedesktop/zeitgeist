@@ -42,7 +42,7 @@ DISTCLEANFILES = \
 	$(NULL)
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
-generate-ontology:
+generate-ontology: ontology.vala.in ontology-uris.vala.in
 	$(top_srcdir)/extra/ontology2code --vala
 
 ontology.vala: generate-ontology
