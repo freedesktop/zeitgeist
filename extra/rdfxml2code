@@ -137,20 +137,6 @@ class OntologyParser:
 		result += name[-1].upper()
 		return result
 
-	@staticmethod
-	def _replace_items(item_set, item_map):
-		if not item_set:
-			return
-		for item, value in item_map.iteritems():
-			try:
-				item_set.remove(item)
-			except KeyError:
-				# item is not in set
-				continue
-			else:
-				# item was in set, replace it with value
-				item_set.add(value)
-
 	def _parse(self, rdfxml_stream):
 		"""
 		Parse an RDFXML stream into a SymbolCollection.
@@ -210,10 +196,24 @@ class GenericSerializer:
 
 class PythonSerializer(GenericSerializer):
 
+	@staticmethod
+	def _replace_items(item_set, item_map):
+		if not item_set:
+			return
+		for item, value in item_map.iteritems():
+			try:
+				item_set.remove(item)
+			except KeyError:
+				# item is not in set
+				continue
+			else:
+				# item was in set, replace it with value
+				item_set.add(value)
+
 	def dump(self):
 		for symbol in sorted(self.symbols.itervalues()):
 			parents = symbol.parents_set
-			OntologyParser._replace_items(parents, {
+			self._replace_items(parents, {
 				str(NIENS["InformationElement"]): "Interpretation",
 				str(NIENS["DataObject"]): "Manifestation" })
 			print "Symbol('%s', parent=%r, uri='%s', display_name='%s', " \
@@ -228,9 +228,13 @@ class ValaSerializer(GenericSerializer):
 				(symbol.name, symbol.uri)
 
 if __name__ == "__main__":
-	if len(sys.argv) != 2:
-		raise SystemExit, 'Usage: %s <directory>' % sys.argv[0]
+	if len(sys.argv) != 3 or sys.argv[2] not in ('--vala', '--python'):
+		raise SystemExit, 'Usage: %s <directory> [--vala|--python]' % \
+			sys.argv[0]
 	parser = OntologyParser(sys.argv[1])
 	python_serializer = PythonSerializer(parser)
 	vala_serializer = ValaSerializer(parser)
-	vala_serializer.dump()
+	if sys.argv[2] == '--vala':
+		vala_serializer.dump()
+	elif sys.argv[2] == '--python':
+		python_serializer.dump()
