@@ -51,7 +51,7 @@ class SymbolCollection(dict):
 
 	def register(self, name, uri, parents, display_name, doc):
 		assert not self.closed
-		symbol = Symbol(name, uri, parents, display_name, doc)
+		symbol = Symbol(self, name, uri, parents, display_name, doc)
 		self[uri] = symbol
 
 	def post_process(self):
@@ -73,12 +73,27 @@ class Symbol:
 	display_name = None
 	doc = None
 
-	def __init__(self, name, uri, parents, display_name, doc):
+	_collection = None
+	_children = None
+
+	def __init__(self, collection, name, uri, parents, display_name, doc):
+		self._collection = collection
 		self.name = name
 		self.uri = uri
 		self.parents = parents
 		self.display_name = display_name
 		self.doc = doc
+
+	@property
+	def children(self):
+		""" Return all direct children of this Symbol. """
+		if self._children is None:
+			childs = set()
+			for symbol in self._collection.itervalues():
+				if self in symbol.parents:
+					childs.add(symbol)
+			self._children = childs
+		return self._children
 
 	@property
 	def parents_set(self):
@@ -95,8 +110,52 @@ class Symbol:
 	def __str__(self):
 		return self.name
 
+	def __doc__(self):
+		return self.doc
+
 	def __cmp__(self, other):
 		return cmp(self.name, other.name)
+
+	def __hash__(self):
+		return self.uri.__hash__()
+
+class Utils:
+
+	@staticmethod
+	def escape_chars(text, strip=True):
+		text = text.replace("'", "\\'")
+		text = text.replace('"', '\\"')
+		if strip:
+			text = text.strip()
+		return text
+
+	@staticmethod
+	def camel2upper(name):
+		"""
+		Convert CamelCase to CAMEL_CASE
+		"""
+		result = ""
+		for i in range(len(name) - 1) :
+			if name[i].islower() and name[i+1].isupper():
+				result += name[i].upper() + "_"
+			else:
+				result += name[i].upper()
+		result += name[-1].upper()
+		return result
+
+	@staticmethod
+	def replace_items(item_set, item_map):
+		if not item_set:
+			return
+		for item, value in item_map.iteritems():
+			try:
+				item_set.remove(item)
+			except KeyError:
+				# item is not in set
+				continue
+			else:
+				# item was in set, replace it with value
+				item_set.add(value)
 
 class OntologyParser:
 
@@ -114,28 +173,6 @@ class OntologyParser:
 		return commands.getoutput(
 			"cat %s | rapper -i trig -o rdfxml -I ZeitgeistNamespace - " \
 			"2>/dev/null" % files)
-
-	@staticmethod
-	def _escape_chars(text, strip=True):
-		text = text.replace("'", "\\'")
-		text = text.replace('"', '\\"')
-		if strip:
-			text = text.strip()
-		return text
-
-	@staticmethod
-	def _camel2upper(name):
-		"""
-		Convert CamelCase to CAMEL_CASE
-		"""
-		result = ""
-		for i in range(len(name) - 1) :
-			if name[i].islower() and name[i+1].isupper():
-				result += name[i].upper() + "_"
-			else:
-				result += name[i].upper()
-		result += name[-1].upper()
-		return result
 
 	def _parse(self, rdfxml_stream):
 		"""
@@ -161,15 +198,15 @@ class OntologyParser:
 			uri = str(symbol)
 
 			# Name (for code)
-			name = self._camel2upper(str(symbol).split("#")[-1])
+			name = Utils.camel2upper(str(symbol).split("#")[-1])
 
 			# Description
 			comments = list(ontology.objects(symbol, RDFS.comment))
-			doc = self._escape_chars(comments[0] if comments else "")
+			doc = Utils.escape_chars(comments[0] if comments else "")
 
 			# Display name
 			labels = list(ontology.objects(symbol, RDFS.label))
-			display_name = self._escape_chars(labels[0] if labels else name)
+			display_name = Utils.escape_chars(labels[0] if labels else name)
 
 			# Parents
 			root_type = set(ontology.objects(symbol, RDFS.subClassOf)
@@ -196,24 +233,10 @@ class GenericSerializer:
 
 class PythonSerializer(GenericSerializer):
 
-	@staticmethod
-	def _replace_items(item_set, item_map):
-		if not item_set:
-			return
-		for item, value in item_map.iteritems():
-			try:
-				item_set.remove(item)
-			except KeyError:
-				# item is not in set
-				continue
-			else:
-				# item was in set, replace it with value
-				item_set.add(value)
-
 	def dump(self):
 		for symbol in sorted(self.symbols.itervalues()):
 			parents = symbol.parents_set
-			self._replace_items(parents, {
+			Utils.replace_items(parents, {
 				str(NIENS["InformationElement"]): "Interpretation",
 				str(NIENS["DataObject"]): "Manifestation" })
 			print "Symbol('%s', parent=%r, uri='%s', display_name='%s', " \
@@ -222,10 +245,51 @@ class PythonSerializer(GenericSerializer):
 
 class ValaSerializer(GenericSerializer):
 
+	@staticmethod
+	def symbol_name(symbol):
+		ns, name = symbol.uri[symbol.uri.rfind("/")+1:].split("#")
+		return "%s_%s" % (ns.upper(), Utils.camel2upper(name))
+
+	@classmethod
+	def build_doc(cls, name, symbol, doc_prefix=""):
+		"""
+		Build a C-style docstring for gtk-doc processing.
+		"""
+		uri_link = '<ulink url="%s">%s</ulink>' % (symbol.uri,
+			symbol.uri.replace("#", "&num;"))
+		doc = symbol.doc
+
+		# List children
+		children = ["#" + cls.symbol_name(child) for child in symbol.children]
+		if children:
+			doc += "\n\n Children: %s" % ", ".join(children)
+		else:
+			doc += "\n\n Children: None"
+
+		# List parents
+		parents = ["#" + cls.symbol_name(parent) for parent in symbol.parents]
+		if parents and not parents in (["#INTERPRETATION"], ["#MANIFESTATION"]):
+			doc += "\n\n Parents: %s" % ", ".join(parents)
+		else:
+			doc += "\n\n Parents: None"
+	
+		# Convert docstring to gtk-doc style C comment
+		doc = doc.replace("\n", "\n *")
+		doc = "/**\n * %s:\n *\n * %s%s\n * \n * %s\n */" % (
+			name, doc_prefix, uri_link, doc)
+		return doc
+
 	def dump(self):
+		print "namespace Zeitgeist\n{\n"
 		for symbol in sorted(self.symbols.itervalues()):
-			print "    public const string %s = \"%s\"" % \
-				(symbol.name, symbol.uri)
+			name = self.symbol_name(symbol)
+			# FIXME: (event/subject) interpretation/manifestation
+			doc = self.build_doc(name, symbol,
+				doc_prefix="Macro defining the interpretation type ")
+			print '    %s' % doc.replace('\n', '\n    ').strip()
+			print "    public const string %s = \"%s\";" % (name, symbol.uri)
+			print
+		print "}"
 
 if __name__ == "__main__":
 	if len(sys.argv) != 3 or sys.argv[2] not in ('--vala', '--python'):
