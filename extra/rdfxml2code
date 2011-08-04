@@ -3,13 +3,13 @@
 
 # Zeitgeist
 #
-# Parses an ontology from a .xml file formatted in RDF/XML and outputs a
-# loadable Python module representing the ontology
-#
 # Copyright © 2009-2010 Markus Korn <thekorn@gmx.de>
 # Copyright © 2010 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+# Copyright © 2010 Canonical Ltd.
+#             By Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2011 Collabora Ltd.
 #             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+#             By Seif Lotfy <seif@lotfy.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -26,43 +26,211 @@
 
 import sys
 import os
+import glob
 import commands
 
 import rdflib
+from rdflib import RDF, RDFS
 from rdflib.plugin import register
 try:
 	# rdflib2
 	from rdflib.syntax.serializers import Serializer
 	from rdflib import StringInputSource
+	from rdflib.Namespace import Namespace
 except ImportError:
 	# rdflib3 (LP: #626224)
 	from rdflib.serializer import Serializer
 	from rdflib.parser import StringInputSource
+	from rdflib.namespace import Namespace
 
-register('python', Serializer, 'OntologySerializer', 'PythonSerializer')
-register('vala', Serializer, 'OntologySerializer', 'ValaSerializer')
+NIENS = Namespace("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#")
 
-def trig2rdfxml(filename):
-	if not os.path.isfile(filename):
-		raise SystemExit, 'File doesn\'t exist: %s' % filename
-	return commands.getoutput(
-		"rapper -i trig -o rdfxml %s 2>/dev/null" % filename)
+class SymbolCollection(dict):
 
-def parse(rdfxml_stream):
-	"""
-	Return a list of triples representing the ontology
-	"""
-	ontology = rdflib.ConjunctiveGraph()
-	ontology.parse(StringInputSource(rdfxml_stream))
-	#pycode = ontology.serialize(format="python")
-	#print pycode
-	valacode = ontology.serialize(format="vala")
-	print valacode
+	closed = False
+
+	def register(self, name, uri, parents, display_name, doc):
+		assert not self.closed
+		symbol = Symbol(name, uri, parents, display_name, doc)
+		self[uri] = symbol
+
+	def post_process(self):
+		self.closed = True
+		for symbol in self.itervalues():
+			for (i, parent) in enumerate(symbol.parents):
+				symbol.parents[i] = self[parent]
+
+	def debug_print(self):
+		for symbol in self.registered_symbols.itervalues():
+			symbol.debug_print()
+			print
+
+class Symbol:
+
+	name = None
+	uri = None
+	parents = None
+	display_name = None
+	doc = None
+
+	def __init__(self, name, uri, parents, display_name, doc):
+		self.name = name
+		self.uri = uri
+		self.parents = parents
+		self.display_name = display_name
+		self.doc = doc
+
+	@property
+	def parents_set(self):
+		return set((symbol.uri for symbol in self.parents))
+
+	def debug_print(self):
+		print "Name: %s" % self.name
+		print "  URI: %s" % self.uri
+		print "  Display Name: %s" % self.display_name
+		print "  Parents: %s" % ', '.join([str(p) for p in self.parents])
+		doc = self.doc if len(self.doc) <= 50 else "%s..." % self.doc[:47]
+		print "  Description: %s" % doc
+
+	def __str__(self):
+		return self.name
+
+	def __cmp__(self, other):
+		return cmp(self.name, other.name)
+
+class OntologyParser:
+
+	symbols = None
+
+	def __init__(self, directory):
+		rdfxml = self._load_rdfxml_from_trig_directory(directory)
+		self.symbols = self._parse(rdfxml)
+
+	@staticmethod
+	def _load_rdfxml_from_trig_directory(directory):
+		if not os.path.isdir(directory):
+			raise SystemExit, 'Directory doesn\'t exist: %s' % directory
+		files = ' '.join(glob.glob(os.path.join(directory, '*.trig')))
+		return commands.getoutput(
+			"cat %s | rapper -i trig -o rdfxml -I ZeitgeistNamespace - " \
+			"2>/dev/null" % files)
+
+	@staticmethod
+	def _escape_chars(text, strip=True):
+		text = text.replace("'", "\\'")
+		text = text.replace('"', '\\"')
+		if strip:
+			text = text.strip()
+		return text
+
+	@staticmethod
+	def _camel2upper(name):
+		"""
+		Convert CamelCase to CAMEL_CASE
+		"""
+		result = ""
+		for i in range(len(name) - 1) :
+			if name[i].islower() and name[i+1].isupper():
+				result += name[i].upper() + "_"
+			else:
+				result += name[i].upper()
+		result += name[-1].upper()
+		return result
+
+	@staticmethod
+	def _replace_items(item_set, item_map):
+		if not item_set:
+			return
+		for item, value in item_map.iteritems():
+			try:
+				item_set.remove(item)
+			except KeyError:
+				# item is not in set
+				continue
+			else:
+				# item was in set, replace it with value
+				item_set.add(value)
+
+	def _parse(self, rdfxml_stream):
+		"""
+		Parse an RDFXML stream into a SymbolCollection.
+		"""
+		ontology = rdflib.ConjunctiveGraph()
+		ontology.parse(StringInputSource(rdfxml_stream))
+		
+		def _get_all_classes(*super_classes):
+			for cls in super_classes:
+				for subclass in ontology.subjects(RDFS.subClassOf, cls):
+					yield subclass
+					for x in _get_all_classes(subclass):
+						yield x
+		
+		parent_classes = [NIENS['InformationElement'], NIENS['DataObject']]
+		symbol_classes = set(_get_all_classes(*parent_classes))
+		all_symbols = symbol_classes.union(parent_classes)
+		
+		symbols = SymbolCollection()
+		for symbol in sorted(all_symbols):
+			# URI
+			uri = str(symbol)
+
+			# Name (for code)
+			name = self._camel2upper(str(symbol).split("#")[-1])
+
+			# Description
+			comments = list(ontology.objects(symbol, RDFS.comment))
+			doc = self._escape_chars(comments[0] if comments else "")
+
+			# Display name
+			labels = list(ontology.objects(symbol, RDFS.label))
+			display_name = self._escape_chars(labels[0] if labels else name)
+
+			# Parents
+			root_type = set(ontology.objects(symbol, RDFS.subClassOf)
+				).intersection(all_symbols)
+			parents = [str(url) for url in root_type]
+
+			if symbol in symbol_classes:
+				assert parents
+
+			# And we have a new Symbol!
+			symbols.register(name, uri, parents, display_name, doc)
+
+		symbols.post_process()
+		return symbols
+
+class GenericSerializer:
+
+	parser = None
+	symbols = None
+
+	def __init__(self, parser):
+		self.parser = parser
+		self.symbols = parser.symbols
+
+class PythonSerializer(GenericSerializer):
+
+	def dump(self):
+		for symbol in sorted(self.symbols.itervalues()):
+			parents = symbol.parents_set
+			OntologyParser._replace_items(parents, {
+				str(NIENS["InformationElement"]): "Interpretation",
+				str(NIENS["DataObject"]): "Manifestation" })
+			print "Symbol('%s', parent=%r, uri='%s', display_name='%s', " \
+			"doc='%s', auto_resolve=False)" % (symbol.name, parents,
+				symbol.uri, symbol.display_name, symbol.doc)
+
+class ValaSerializer(GenericSerializer):
+
+	def dump(self):
+		for symbol in sorted(self.symbols.itervalues()):
+			print "    public const string %s = \"%s\"" % \
+				(symbol.name, symbol.uri)
 
 if __name__ == "__main__":
-	if len(sys.argv) < 2:
-		raise SystemExit, "Usage: %s <filename>" % sys.argv[0]
-	for trig_filename in sys.argv[1:]:
-		print >>sys.stderr, "Parsing " + trig_filename
-		rdfxml = trig2rdfxml(trig_filename)
-		parse(rdfxml)
+	if len(sys.argv) != 2:
+		raise SystemExit, 'Usage: %s <directory>' % sys.argv[0]
+	parser = OntologyParser(sys.argv[1])
+	python_serializer = PythonSerializer(parser)
+	vala_serializer = ValaSerializer(parser)
+	vala_serializer.dump()
