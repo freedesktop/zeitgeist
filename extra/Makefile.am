@@ -12,8 +12,8 @@ CLEANFILES = org.gnome.zeitgeist.service \
 EXTRA_DIST = \
 	org.gnome.zeitgeist.service.in \
 	zeitgeist-daemon.bash_completion \
-	rdfxml2py \
-	PythonSerializer.py
+	ontology2code \
+	$(NULL)
 
 all-local: org.gnome.zeitgeist.service
 
