@@ -94,12 +94,12 @@ namespace Zeitgeist
     public interface RemoteMonitor : Object
     {
 
-        public abstract void notify_insert (
+        public async abstract void notify_insert (
             TimeRange time_range,
             [DBus (signature = "a(asaasay)")] Variant events
         ) throws IOError;
 
-        public abstract void notify_delete (
+        public async abstract void notify_delete (
             TimeRange time_range,
             uint32[] event_ids
         ) throws IOError;
