@@ -30,12 +30,14 @@ namespace Zeitgeist
         private List<string> all_children;
         private string uri;
         private string display_name;
+        private string description;
 
-        private Symbol (string uri, string display_name, string[] parents,
-            string[] children)
+        private Symbol (string uri, string display_name, string description,
+            string[] parents, string[] children)
         {
             this.uri = uri;
             this.display_name = display_name;
+            this.description = description;
             this.parents = new List<string> ();
             for (int i = 0; i < parents.length; i++)
                 this.parents.append (parents[i]);
@@ -48,6 +50,12 @@ namespace Zeitgeist
         {
             var symbol = all_symbols.lookup (symbol_uri);
             return symbol.display_name;
+        }
+
+        public static string get_description(string symbol_uri)
+        {
+            var symbol = all_symbols.lookup (symbol_uri);
+            return symbol.description;
         }
 
         public static List<string> get_all_parents(string symbol_uri)
@@ -101,11 +109,12 @@ namespace Zeitgeist
         }
 
         internal static void register (string uri, string display_name,
-            string[] parents, string[] children)
+            string description, string[] parents, string[] children)
         {
             if (all_symbols == null)
                 all_symbols = new HashTable<string, Symbol> (str_hash, str_equal);
-            Symbol symbol = new Symbol (uri, display_name, parents, children);
+            Symbol symbol = new Symbol (uri, display_name, description,
+                parents, children);
             all_symbols.insert (uri, symbol);
         }
 

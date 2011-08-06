@@ -136,9 +136,9 @@ class Symbol:
 class Utils:
 
 	@staticmethod
-	def escape_chars(text, strip=True):
-		text = text.replace("'", "\\'")
-		text = text.replace('"', '\\"')
+	def escape_chars(text, quotes='"', strip=True):
+		assert len(quotes) == 1
+		text = text.replace('%s' % quotes, '\\%s' % quotes)
 		if strip:
 			text = text.strip()
 		return text
@@ -217,11 +217,11 @@ class OntologyParser:
 
 			# Description
 			comments = list(ontology.objects(symbol, RDFS.comment))
-			doc = Utils.escape_chars(comments[0] if comments else "")
+			doc = comments[0] if comments else ''
 
 			# Display name
 			labels = list(ontology.objects(symbol, RDFS.label))
-			display_name = Utils.escape_chars(labels[0]) if labels else None
+			display_name = (labels[0]) if labels else None
 
 			# Parents
 			parents = set(ontology.objects(symbol, RDFS.subClassOf)
@@ -255,7 +255,8 @@ class PythonSerializer(GenericSerializer):
 				str(NIENS['DataObject']): 'Manifestation' })
 			print "Symbol('%s', parent=%r, uri='%s', display_name='%s', " \
 				"doc='%s', auto_resolve=False)" % (symbol.name, parents,
-				symbol.uri, symbol.display_name, symbol.doc)
+				symbol.uri, Utils.escape_chars(symbol.display_name, '\''),
+				Utils.escape_chars(symbol.doc, '\''))
 
 class ValaSerializer(GenericSerializer):
 
@@ -308,7 +309,7 @@ class ValaSerializer(GenericSerializer):
 		dest.write('}\n')
 
 	def dump_symbols(self, dest):
-		dest.write('string uri, display_name;\n')
+		dest.write('string uri, display_name, description;\n')
 		dest.write('string[] parents, children;\n\n')
 		for namespace, symbols in sorted(self.symbols.iter_by_namespace()):
 			for symbol in sorted(symbols):
@@ -316,13 +317,15 @@ class ValaSerializer(GenericSerializer):
 					symbol.name) for uri in symbol.parents)
 				children_uris = ', '.join('%s.%s' % (symbol.namespace,
 					symbol.name) for uri in symbol.children)
-				# FIXME: add description
 				dest.write('uri = Zeitgeist.%s.%s;\n' % (symbol.namespace,
 					symbol.name))
-				dest.write('display_name = "%s";\n' % symbol.display_name)
+				dest.write('description = "%s";\n' % Utils.escape_chars(
+					symbol.doc, '"'));
+				dest.write('display_name = "%s";\n' % Utils.escape_chars(
+					symbol.display_name, '"'))
 				dest.write('parents = { %s };\n' % parent_uris)
 				dest.write('children = { %s };\n' % children_uris)
-				dest.write('Symbol.register (uri, display_name, ' \
+				dest.write('Symbol.register (uri, display_name, description, ' \
 					'parents, children);\n\n')
 
 class OntologyCodeGenerator:
