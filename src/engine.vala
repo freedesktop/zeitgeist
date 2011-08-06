@@ -336,6 +336,15 @@ public class Engine : Object
         return event_ids;
     }
 
+    public GenericArray<Event?> find_events (TimeRange time_range,
+        GenericArray<Event> event_templates,
+        uint storage_state, uint max_events, uint result_type,
+        BusName? sender=null) throws EngineError
+    {
+        return get_events(find_event_ids(time_range, event_templates, storage_state,
+                        max_events, result_type));
+    }
+
     public uint32[] insert_events (GenericArray<Event> events,
         BusName? sender=null) throws EngineError
     {
