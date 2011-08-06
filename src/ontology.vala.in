@@ -33,7 +33,7 @@ namespace Zeitgeist
         private string description;
 
         private Symbol (string uri, string display_name, string description,
-            string[] parents, string[] children)
+            string[] parents, string[] children, string[] all_children)
         {
             this.uri = uri;
             this.display_name = display_name;
@@ -44,6 +44,9 @@ namespace Zeitgeist
             this.children = new List<string> ();
             for (int i = 0; i < children.length; i++)
                 this.children.append (children[i]);
+            this.all_children = new List<string> ();
+            for (int i = 0; i < all_children.length; i++)
+                this.all_children.append (all_children[i]);
         }
 
         public static string get_display_name (string symbol_uri)
@@ -109,12 +112,13 @@ namespace Zeitgeist
         }
 
         internal static void register (string uri, string display_name,
-            string description, string[] parents, string[] children)
+            string description, string[] parents, string[] children,
+            string[] all_children)
         {
             if (all_symbols == null)
                 all_symbols = new HashTable<string, Symbol> (str_hash, str_equal);
             Symbol symbol = new Symbol (uri, display_name, description,
-                parents, children);
+                parents, children, all_children);
             all_symbols.insert (uri, symbol);
         }
 

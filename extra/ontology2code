@@ -89,6 +89,7 @@ class Symbol:
 
 	_collection = None
 	_children = None
+	_all_children = None
 
 	def __init__(self, collection, uri, parents, display_name, doc):
 		self._collection = collection
@@ -111,6 +112,17 @@ class Symbol:
 					childs.add(symbol)
 			self._children = childs
 		return self._children
+
+	@property
+	def all_children(self):
+		""" Return all children of this Symbol, recursively. """
+		if self._all_children is None:
+			all_children = set()
+			for symbol in self.children:
+				all_children.update([symbol])
+				all_children.update(symbol.all_children)
+			self._all_children = all_children
+		return self._all_children
 
 	def debug_print(self):
 		print "Name: %s" % self.name
@@ -310,13 +322,15 @@ class ValaSerializer(GenericSerializer):
 
 	def dump_symbols(self, dest):
 		dest.write('string uri, display_name, description;\n')
-		dest.write('string[] parents, children;\n\n')
+		dest.write('string[] parents, children, all_children;\n\n')
 		for namespace, symbols in sorted(self.symbols.iter_by_namespace()):
 			for symbol in sorted(symbols):
-				parent_uris = ', '.join('%s.%s' % (symbol.namespace,
-					symbol.name) for uri in symbol.parents)
-				children_uris = ', '.join('%s.%s' % (symbol.namespace,
-					symbol.name) for uri in symbol.children)
+				parent_uris = ', '.join('%s.%s' % (s.namespace, s.name) for
+					s in symbol.parents)
+				children_uris = ', '.join('%s.%s' % (s.namespace, s.name)
+					for s in symbol.children)
+				all_children_uris = ', '.join('%s.%s' % (s.namespace,
+					s.name) for s in symbol.all_children)
 				dest.write('uri = Zeitgeist.%s.%s;\n' % (symbol.namespace,
 					symbol.name))
 				dest.write('description = "%s";\n' % Utils.escape_chars(
@@ -325,8 +339,9 @@ class ValaSerializer(GenericSerializer):
 					symbol.display_name, '"'))
 				dest.write('parents = { %s };\n' % parent_uris)
 				dest.write('children = { %s };\n' % children_uris)
+				dest.write('all_children = { %s };\n' % all_children_uris)
 				dest.write('Symbol.register (uri, display_name, description, ' \
-					'parents, children);\n\n')
+					'parents, children, all_children);\n\n')
 
 class OntologyCodeGenerator:
 
