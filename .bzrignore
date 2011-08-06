@@ -36,3 +36,4 @@ extra/ontology/*.py
 query-operators-test
 src/ontology.vala
 src/ontology-uris.vala
+extra/org.gnome.zeitgeist.service

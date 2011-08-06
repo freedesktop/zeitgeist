@@ -341,8 +341,8 @@ public class Engine : Object
         uint storage_state, uint max_events, uint result_type,
         BusName? sender=null) throws EngineError
     {
-        return get_events(find_event_ids(time_range, event_templates, storage_state,
-                        max_events, result_type));
+        return get_events(find_event_ids(time_range, event_templates,
+            storage_state, max_events, result_type));
     }
 
     public uint32[] insert_events (GenericArray<Event> events,
