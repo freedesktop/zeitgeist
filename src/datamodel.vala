@@ -269,7 +269,7 @@ namespace Zeitgeist
         public void debug_print ()
         {
             stdout.printf ("id: %d\t" +
-                           "timestamp: %li\n" +
+                           "timestamp: %" + int64.FORMAT + "\n" +
                            "actor: %s\n" +
                            "interpretation: %s\n" +
                            "manifestation: %s\n" +
