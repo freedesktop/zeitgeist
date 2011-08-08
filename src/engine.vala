@@ -188,8 +188,9 @@ public class Engine : Object
 
         WhereClause foo = get_where_clause_from_event_templates (
             event_templates);
-        // where.extend (foo)
-        // if (!where.may_have_results ()) return []
+        where.extend (foo);
+        if (!where.may_have_results ())
+            return new uint32[0];
         
         // FIXME: IDs: SELECT DISTINCT / events: SELECT
         // Is the former faster or can we just do the unique'ing on our side?
