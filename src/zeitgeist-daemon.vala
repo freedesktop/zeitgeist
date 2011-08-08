@@ -184,12 +184,13 @@ namespace Zeitgeist
                 Variant event_templates,
                 BusName owner)
         {
-            stdout.printf("i'll let you know!\n");
+            notifications.install_monitor (owner, monitor_path, time_range,
+                Events.from_variant (event_templates));
         }
 
         public void remove_monitor (ObjectPath monitor_path, BusName owner)
         {
-            stdout.printf("bye my friend\n");
+            notifications.remove_monitor (owner, monitor_path);
         }
 
         static void on_bus_aquired (DBusConnection conn)
