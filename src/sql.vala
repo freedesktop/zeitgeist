@@ -73,7 +73,6 @@ namespace Zeitgeist.SQLite
             // Register a data change notification callback to look for
             // deletions, so we can keep the TableLookups up to date.
             database.update_hook (update_callback);
-            database.exec ("DELETE FROM event WHERE 1", null, null);
         }
 
         public uint32 get_last_id () throws EngineError
