@@ -211,7 +211,13 @@ namespace Zeitgeist
             var event_props = event_array.n_children ();
             assert (event_props >= 5);
             id = (uint32) uint64.parse ((string) event_array.next_value());
-            timestamp = int64.parse ((string) event_array.next_value());
+            var str_timestamp = (string) event_array.next_value();
+            if (str_timestamp == "") {
+                var now = TimeVal();
+                timestamp = ((int64) now.tv_sec * 1000) + (int64) now.tv_usec;
+            }
+            else
+                timestamp = int64.parse (str_timestamp);
             interpretation = (string) event_array.next_value();
             manifestation = (string) event_array.next_value();
             actor = (string) event_array.next_value();
