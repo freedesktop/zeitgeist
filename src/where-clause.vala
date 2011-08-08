@@ -50,21 +50,21 @@ namespace Zeitgeist
             NOT
         }
 
-        private static string AND = " AND ";
-        private static string OR  = " OR ";
-        private static string NOT = " NOT ";
+        private static string[] RELATION_SIGNS = { " AND ", " OR ", " NOT " };
 
         private static string[] PREFIX_SEARCH_SUPPORTED = {
             "origin", "subj_uri", "subj_current_uri", "subj_origin",
             "actor", "subj_mimetype" };
 
         private WhereClause.Type clause_type;
+        private bool negated;
         private GenericArray<string> conditions;
         private GenericArray<string> arguments;
 
-        public WhereClause (WhereClause.Type type)
+        public WhereClause (WhereClause.Type type, bool negate=false)
         {
             clause_type = type;
+            negated = negate;
             conditions = new GenericArray<string> ();
             arguments = new GenericArray<string> ();
         }
@@ -122,6 +122,32 @@ namespace Zeitgeist
                 add (sql, val);
             }
         }
+
+        public void extend (WhereClause clause)
+        {
+            add_with_array (clause.get_sql_conditions (), clause.arguments);
+            /*if not where.may_have_results():
+            if self._relation == self.AND:
+                self.clear()
+            self.register_no_result()
+            */
+	    }
+
+        public bool may_have_results ()
+        {
+            return conditions.length > 0; // or not self._no_result_member
+        }
+
+        public string get_sql_conditions ()
+        {
+            if (conditions.length == 0)
+                return "()";
+            string negation_sign = (negated) ? "!" : "";
+            string relation_sign = RELATION_SIGNS[clause_type];
+            string conditions_string = string.joinv (relation_sign,
+                (string[]) ((PtrArray*) conditions)->pdata);
+            return "%s(%s)".printf (negation_sign, conditions_string);
+		}
 
         /**
          * Return an optimized version of the GLOB statement as described in

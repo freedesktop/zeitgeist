@@ -2,7 +2,7 @@
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
- *             2011 Michal Hruby <michal.mhr@gmail.com>
+ * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
