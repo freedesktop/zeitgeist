@@ -52,11 +52,6 @@ public class Engine : Object
         actors_table = new TableLookup(database, "actor");
         
         // FIXME: load extensions
-        
-        // FIXME: tmp:
-        TimeRange tr = TimeRange () { start = 1, end = 100000000000000 };
-        GenericArray<Event> evs = new GenericArray<Event> ();
-        //find_event_ids (tr, evs, 0, 0, 0);
     }
 
     public GenericArray<Event?> get_events(uint32[] event_ids,
@@ -170,15 +165,17 @@ public class Engine : Object
          *    -- Markus Korn, 29/11/2010
          */
         if (time_range.start != 0)
-            where.add ("+timestamp >= ?", time_range.start.to_string ());
+            where.add (("+timestamp >= %" + int64.FORMAT).printf(
+                time_range.start));
         if (time_range.end != 0)
-            where.add ("+timestamp <= ?", time_range.end.to_string ());
+            where.add (("+timestamp <= %" + int64.FORMAT).printf(
+                time_range.end));
 
         if (storage_state == StorageState.AVAILABLE ||
             storage_state == StorageState.NOT_AVAILABLE)
         {
-            where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
-                storage_state.to_string ());
+            //where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
+            //    storage_state.to_string ());
         }
         else if (storage_state != StorageState.ANY)
         {
@@ -186,19 +183,17 @@ public class Engine : Object
                 "Unknown storage state '%u'".printf(storage_state));
         }
 
-        WhereClause foo = get_where_clause_from_event_templates (
-            event_templates);
-        where.extend (foo);
-        if (!where.may_have_results ())
-            return new uint32[0];
+        //WhereClause foo = get_where_clause_from_event_templates (
+        //    event_templates);
+        //where.extend (foo);
+        //if (!where.may_have_results ())
+        //    return new uint32[0];
         
         // FIXME: IDs: SELECT DISTINCT / events: SELECT
         // Is the former faster or can we just do the unique'ing on our side?
 
-        string sql = "SELECT id FROM event_view WHERE 1";// + where.sql + .. + order
-        string where_sql = "";
-
-        message (group_and_sort("origin", "FOO"));
+        string sql = "SELECT id FROM event_view WHERE " ;
+        string where_sql = where.get_sql_conditions ();
 
         switch (result_type)
         {
@@ -316,6 +311,10 @@ public class Engine : Object
         rc = db.prepare_v2 (sql, -1, out stmt);
         database.assert_query_success(rc, "SQL error");
 
+        //var arguments = where.get_bind_arguments ();
+        //for (int i = 0; i < arguments.length; ++i)
+        //    stmt.bind_text (i + 1, arguments[i]);
+
         uint32[] event_ids = {};
 
         while ((rc = stmt.step()) == Sqlite.ROW)
@@ -330,9 +329,6 @@ public class Engine : Object
             warning (error_message);
             throw new EngineError.DATABASE_ERROR (error_message);
         }
-
-        for (int i = 0; i < event_ids.length; ++i)
-            message("%u", event_ids[i]);
 
         return event_ids;
     }
@@ -587,16 +583,36 @@ public class Engine : Object
 
     // Used by find_event_ids
     private WhereClause get_where_clause_from_event_templates (
-        GenericArray<Event> templates)
+        GenericArray<Event> templates) throws EngineError
     {
-        WhereClause where_or = new WhereClause (WhereClause.Type.OR);
+        WhereClause where = new WhereClause (WhereClause.Type.OR);
         for (int i = 0; i < templates.length; ++i)
         {
             Event event_template = templates[i];
-            WhereClause subwhere = new WhereClause (WhereClause.Type.AND);
-            if (event_template.id != 0)
-                subwhere.add ("id=?", event_template.id.to_string());
-            // inter
+            where.extend (
+                get_where_clause_from_event_template (event_template));
+        }
+        return where;
+    }
+
+    // Used by get_where_clause_from_event_templates
+    private WhereClause get_where_clause_from_event_template (Event template)
+        throws EngineError
+    {
+            WhereClause where = new WhereClause (WhereClause.Type.AND);
+
+            // FIXME: Right now we are always calling parse_{negation,wildcard}
+            // and giving it the field name to check if it's good (to complain
+            // if !/* is used where it isn't expected). Is this really needed?
+
+            // URI
+            if (template.id != 0)
+                where.add ("id=?", template.id.to_string());
+
+            // Interpretation
+            /*var event_interpretation_where = new WhereClause (
+                WhereClause.Type.OR,
+                parse_negation("interpretation", ref template.interpretation));*/
 
 /*
 				value, negation, wildcard = parse_operators(Event, Event.Interpretation, event_template.interpretation)
@@ -607,26 +623,26 @@ public class Engine : Object
 						event_interp_where.add_text_condition("interpretation",
 						                       child_interp, like=wildcard, cache=self._interpretation)
 				if event_interp_where:
-					subwhere.extend(event_interp_where)
+					where.extend(event_interp_where)
 */
 
             // manif
             // actor
             // origin
-            for (int j = 0; j < event_template.num_subjects(); ++j)
+            for (int i = 0; i < template.num_subjects(); ++i)
             {
-                Subject subject_template = event_template.subjects[i];
+                Subject subject_template = template.subjects[i];
                 // interpret
                 // manif
                 // mimetypes
                 // uri, origin, text
                 // current_uri
                 if (subject_template.storage != "")
-                    subwhere.add_text_condition ("subj_storage",
+                    where.add_text_condition ("subj_storage",
                         subject_template.storage);
             }
-        }
-        return where_or;
+
+            return where;
     }
 
     private static string[] NEGATION_SUPPORTED = {

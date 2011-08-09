@@ -105,6 +105,29 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(retrieved_events[0], None)
 		self.assertEventsEqual(retrieved_events[1], event2)
 
+	def testFindEventIds(self):
+		# Insert an event
+		events = parse_events("test/data/single_event.js")
+		ids = self.insertEventsAndWait(events)
+
+		# Retrieve all existing event IDs, make sure they are correct
+		retrieved_ids = self.findEventIdsAndWait([])
+		self.assertEquals(retrieved_ids, ids)
+
+	def testFindEventIdsForTimeRange(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		ids = self.insertEventsAndWait(events)
+
+		# Make sure that filtering by time range we get the right ones
+		retrieved_ids = self.findEventIdsAndWait([],
+			timerange=TimeRange(133, 153))
+		self.assertEquals(retrieved_ids, [4, 2, 3]) # TS: [133, 143, 153]
+
+		retrieved_ids = self.findEventIdsAndWait([],
+			timerange=TimeRange(163, 163))
+		self.assertEquals(retrieved_ids, [5]) # Timestamps: [163]
+
 class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 
 	def testQuit(self):

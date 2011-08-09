@@ -124,7 +124,9 @@ namespace Zeitgeist
                 uint storage_state, uint num_events, uint result_type,
                 BusName sender)
         {
-            return new uint[] { 1, 2, 3 };
+            return engine.find_event_ids (time_range,
+                Events.from_variant(event_templates),
+                storage_state, num_events, result_type, sender);
         }
 
         // FIXME

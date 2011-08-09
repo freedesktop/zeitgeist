@@ -138,16 +138,33 @@ namespace Zeitgeist
             return conditions.length > 0; // or not self._no_result_member
         }
 
+        /**
+         * This is dangerous. Only use it if you're made full of awesome.
+         */
+        private T[] generic_array_to_unowned_array<T> (GenericArray<T> gptrarr)
+        {
+            long[] pointers = new long[gptrarr.length + 1];
+            Memory.copy(pointers, ((PtrArray *) gptrarr)->pdata,
+                (gptrarr.length) * sizeof (void *));
+            return (T[]) pointers;
+        }
+
         public string get_sql_conditions ()
         {
             if (conditions.length == 0)
                 return "()";
             string negation_sign = (negated) ? "!" : "";
             string relation_sign = RELATION_SIGNS[clause_type];
+            
             string conditions_string = string.joinv (relation_sign,
-                (string[]) ((PtrArray*) conditions)->pdata);
+                generic_array_to_unowned_array<string> (conditions));
             return "%s(%s)".printf (negation_sign, conditions_string);
 		}
+
+        public unowned GenericArray<string> get_bind_arguments ()
+        {
+            return arguments;
+        }
 
         /**
          * Return an optimized version of the GLOB statement as described in
