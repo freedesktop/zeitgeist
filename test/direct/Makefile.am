@@ -11,17 +11,19 @@ SRC_FILES = \
 	../../src/notify.vala \
 	../../src/table-lookup.vala \
 	../../src/datamodel.vala  \
-	../../src/ontology.vala \
 	../../src/where-clause.vala \
 	../../src/remote.vala \
 	../../src/errors.vala \
 	../../src/sql-schema.vala \
 	../../src/extension.vala \
 	../../src/sql.vala \
+	../../src/ontology.vala \
+	../../src/ontology-uris.vala \
 	$(NULL)
 
 build:
 	valac $(VALAFLAGS) query-operators-test.vala $(SRC_FILES)
+	valac $(VALAFLAGS) where-clause-test.vala $(SRC_FILES)
 
 run: build
-	./query-operators-test
+	./where-clause-test # ./where-clause-test

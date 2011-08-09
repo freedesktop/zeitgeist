@@ -46,11 +46,10 @@ namespace Zeitgeist
         public enum Type
         {
             AND,
-            OR,
-            NOT
+            OR
         }
 
-        private static string[] RELATION_SIGNS = { " AND ", " OR ", " NOT " };
+        private static string[] RELATION_SIGNS = { " AND ", " OR " };
 
         private static string[] PREFIX_SEARCH_SUPPORTED = {
             "origin", "subj_uri", "subj_current_uri", "subj_origin",
@@ -153,7 +152,7 @@ namespace Zeitgeist
         {
             if (conditions.length == 0)
                 return "()";
-            string negation_sign = (negated) ? "!" : "";
+            string negation_sign = (negated) ? "NOT " : "";
             string relation_sign = RELATION_SIGNS[clause_type];
             
             string conditions_string = string.joinv (relation_sign,

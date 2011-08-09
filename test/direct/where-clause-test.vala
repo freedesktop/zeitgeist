@@ -27,11 +27,30 @@
 void main (string[] args)
 {
     Test.init (ref args);
-    Test.add_func ("/WhereClause/foo", foo_test);
+
+    // Do not abort on warning()s.
+    Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
+
+    Test.add_func ("/WhereClause/basic", basic_test);
+
     Test.run ();
 }
 
-public void foo_test ()
+public void basic_test ()
 {
-    var wc = new Zeitgeist.WhereClause (Zeitgeist.WhereClause.Type.AND);
+    Zeitgeist.WhereClause wc;
+
+    wc = new Zeitgeist.WhereClause (Zeitgeist.WhereClause.Type.AND);
+    wc.add ("1st condition");
+    wc.add ("2nd condition");
+    assert (wc.get_sql_conditions () == "(1st condition AND 2nd condition)");
+
+    wc = new Zeitgeist.WhereClause (Zeitgeist.WhereClause.Type.OR);
+    wc.add ("1st condition");
+    wc.add ("2nd condition");
+    assert (wc.get_sql_conditions () == "(1st condition OR 2nd condition)");
+
+    wc = new Zeitgeist.WhereClause (Zeitgeist.WhereClause.Type.AND, true);
+    wc.add ("some condition");
+    assert (wc.get_sql_conditions () == "NOT (some condition)");
 }
