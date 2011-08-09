@@ -42,11 +42,11 @@ DISTCLEANFILES = \
 	$(NULL)
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
-generate-ontology: ontology.vala.in ontology-uris.vala.in
+ontology.vala.stamp: ontology.vala.in ontology-uris.vala.in
 	$(top_srcdir)/extra/ontology2code --vala
+	touch "$@"
 
-ontology.vala: generate-ontology
-ontology-uris.vala: generate-ontology
+ontology.vala ontology-uris.vala: ontology.vala.stamp
 
 clean:
 	rm -f ontology.vala ontology-uris.vala *.c *.o *.stamp *.~[0-9]~
