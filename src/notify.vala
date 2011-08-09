@@ -35,17 +35,15 @@ namespace Zeitgeist
             // FIXME: it'd be nice if this supported arg2
             try
             {
-                var conn = Bus.get_sync (BusType.SESSION);
-                conn.signal_subscribe ("org.freedesktop.DBus",
+                var connection = Bus.get_sync (BusType.SESSION);
+                connection.signal_subscribe ("org.freedesktop.DBus",
                     "org.freedesktop.DBus", "NameOwnerChanged",
                     "/org/freedesktop/DBus", null, 0,
-                    (connection, sender, path, @interface, @signal, parameters) =>
+                    (conn, sender, path, ifc_name, sig_name, parameters) =>
                     {
                         var arg0 = parameters.get_child_value (0).dup_string ();
                         var arg1 = parameters.get_child_value (1).dup_string ();
                         var arg2 = parameters.get_child_value (2).dup_string ();
-
-                        debug ("%s %s %s", arg0, arg1, arg2);
 
                         if (arg2 != "") return;
 
