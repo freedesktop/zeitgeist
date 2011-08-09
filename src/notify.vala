@@ -39,7 +39,7 @@ namespace Zeitgeist
                 conn.signal_subscribe ("org.freedesktop.DBus",
                     "org.freedesktop.DBus", "NameOwnerChanged",
                     "/org/freedesktop/DBus", null, 0,
-                    (connection, sender, path, interface, signal, parameters) =>
+                    (connection, sender, path, @interface, @signal, parameters) =>
                     {
                         var arg0 = parameters.get_child_value (0).dup_string ();
                         var arg1 = parameters.get_child_value (1).dup_string ();
