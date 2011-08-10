@@ -83,45 +83,40 @@ namespace Zeitgeist
                 arguments.add (args[i]);
         }
 
-        public void add_text_condition (string column, int val,
-            bool like=false, bool negation=false)
+        public void add_match_condition (string column, int val,
+            bool negation=false)
             throws EngineError.INVALID_ARGUMENT
         {
-            if (like)
+            string sql = "%s %s= %d".printf (column, (negation) ? "!" : "", val);
+            add (sql);
+        }
+
+        public void add_wildcard_condition (string column, string needle,
+            bool negation=false)
+        {
+            if (!(column in PREFIX_SEARCH_SUPPORTED))
             {
-                assert (false);
-                /*if (!(column in PREFIX_SEARCH_SUPPORTED))
-                {
-                    string error_message =
-                        "Prefix search is not supported for column '%s'."
-                        .printf (column);
-                    warning (error_message);
-                    throw new EngineError.INVALID_ARGUMENT (error_message);
-                }
-
-                // FIXME: mess with the column name
-
-                var values = new GenericArray<string> ();
-                values.add(val);
-                string optimized_glob = optimize_glob(
-                    "id", table_map.get(col, col), ref values);
-
-                string sql;
-                if (!negation)
-                    sql = "%s IN (%s)".printf (column, optimized_glob);
-                else
-                    sql = "%s NOT IN (%s) OR %s is NULL".printf (column,
-                        optimized_glob, column);
-                add_with_array (sql, values);*/
+                string error_message =
+                    "Prefix search is not supported for column '%s'."
+                    .printf (column);
+                warning (error_message);
+                throw new EngineError.INVALID_ARGUMENT (error_message);
             }
+
+            // FIXME: mess with the column name
+
+            var values = new GenericArray<string> ();
+            values.add(needle);
+            string optimized_glob = optimize_glob (
+                "id", column, ref values); // table_map.get(col, col)
+
+            string sql;
+            if (!negation)
+                sql = "%s IN (%s)".printf (column, optimized_glob);
             else
-            {
-                // FIXME: lookup value in cache if appropriate, otherwise change
-                // column name
-                string sql = "%s %s= %d".printf (column, (negation) ? "!" : "",
-                    val);
-                add (sql);
-            }
+                sql = "%s NOT IN (%s) OR %s is NULL".printf (column,
+                    optimized_glob, column);
+            add_with_array (sql, values);
         }
 
         public void extend (WhereClause clause)
@@ -174,7 +169,7 @@ namespace Zeitgeist
          * Return an optimized version of the GLOB statement as described in
          * http://www.sqlite.org/optoverview.html "4.0 The LIKE optimization".
          */
-        /*private static string optimize_glob (string column, string table,
+        private static string optimize_glob (string column, string table,
             ref GenericArray<string> args)
             requires (args.length == 1)
         {
@@ -194,12 +189,12 @@ namespace Zeitgeist
                 args.add (get_right_boundary (prefix));
             }
             return sql;
-        }*/
+        }
 
         /**
          * Return the smallest string which is greater than the given `text`.
          */
-        /*private string get_right_boundary (string text)
+        private static string get_right_boundary (string text)
         {
             if (text == "")
                 return new StringBuilder ().append_unichar(0x10ffff).str;
@@ -214,7 +209,7 @@ namespace Zeitgeist
             }
             return head +
                 new StringBuilder ().append_unichar(charpoint + 1).str;
-        }*/
+        }
 
     }
 

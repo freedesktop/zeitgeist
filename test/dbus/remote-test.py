@@ -133,10 +133,15 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		events = parse_events("test/data/five_events.js")
 		self.insertEventsAndWait(events)
 
-		# Retrieve events for a particular actor
+		# Retrieve events for a particular manifestation
 		template = Event.new_for_values(manifestation='stfu:BooActivity')
 		ids = self.findEventIdsAndWait([template])
 		self.assertEquals(ids, [2])
+
+		# Retrieve events excluding a particular manifestation
+		template = Event.new_for_values(manifestation='!stfu:BooActivity')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [5, 4, 3, 1])
 
 	def testFindEventIdsForActor(self):
 		# Insert some events...
@@ -152,6 +157,11 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		template = Event.new_for_values(actor='!gedit')
 		ids = self.findEventIdsAndWait([template])
 		self.assertEquals(map(int, ids), [5, 4, 2, 1])
+
+		# Retrieve events with actor matching a prefix
+		template = Event.new_for_values(actor='g*')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [3, 2])
 
 class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 

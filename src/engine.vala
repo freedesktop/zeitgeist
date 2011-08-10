@@ -628,24 +628,42 @@ public class Engine : Object
 					where.extend(event_interp_where)
 */
 
-            // manif
+            // Interpretation
+            if (template.interpretation != "")
+            {
+                string val = template.interpretation;
+                bool negated = parse_negation ("interpretation", ref val);
+
+                where.add_match_condition ("interpretation",
+                    interpretations_table.get_id (val), negated);
+            }
+
+            // Manifestation
             if (template.manifestation != "")
             {
-                where.add_text_condition ("manifestation",
-                    manifestations_table.get_id (template.manifestation));
+                string val = template.manifestation;
+                bool negated = parse_negation ("manifestation", ref val);
+
+                where.add_match_condition ("manifestation",
+                    manifestations_table.get_id (val), negated);
             }
 
-            // actor
+            // Actor
             if (template.actor != "")
             {
-                string actor = template.actor;
-                bool negated = parse_negation ("actor", ref actor);
+                string val = template.actor;
+                bool like = parse_wildcard ("actor", ref val);
+                bool negated = parse_negation ("actor", ref val);
 
-                where.add_text_condition ("actor",
-                    actors_table.get_id (actor), false, negated);
+                if (like)
+                    where.add_wildcard_condition ("actor", val, negated);
+                else
+                    where.add_match_condition ("actor",
+                        actors_table.get_id (val), negated);
             }
 
-            // origin
+            // Origin
+            // FIXME...
 
             for (int i = 0; i < template.num_subjects(); ++i)
             {
@@ -684,7 +702,7 @@ public class Engine : Object
         {
             string error_message =
                 "Field '%s' doesn't support negation".printf (field);
-            warning(error_message);
+            warning (error_message);
             throw new EngineError.INVALID_ARGUMENT (error_message);
         }
         val = val.substring (1);
@@ -712,7 +730,7 @@ public class Engine : Object
         {
             string error_message =
                 "Field '%s' doesn't support wildcards".printf (field);
-            warning(error_message);
+            warning (error_message);
             throw new EngineError.INVALID_ARGUMENT (error_message);
         }
         val = val.substring (0, val.char_count () - 1);
