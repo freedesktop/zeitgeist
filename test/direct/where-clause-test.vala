@@ -30,7 +30,7 @@ void main (string[] args)
     Test.add_func ("/WhereClause/basic", basic_test);
     Test.add_func ("/WhereClause/nested", nested_test);
     Test.add_func ("/WhereClause/nested_negation", nested_negation_test);
-    Test.add_func ("/WhereClause/text_condition", text_condition_test);
+    Test.add_func ("/WhereClause/match_condition", match_condition_test);
 
     Test.run ();
 }
@@ -98,21 +98,20 @@ public void nested_negation_test ()
         "OR cond3)");
 }
 
-public void text_condition_test ()
+public void match_condition_test ()
 {
     WhereClause where;
 
     // Plain
     where = new WhereClause (WhereClause.Type.AND);
-    where.add_text_condition ("field1", "value1");
-    assert (where.get_sql_conditions () == "(field1 = ?)");
-    assert (where.get_bind_arguments ().length == 1);
-    assert (where.get_bind_arguments ()[0] == "value1");
+    where.add_match_condition ("field1", 5);
+    assert (where.get_sql_conditions () == "(field1 = 5)");
+    assert (where.get_bind_arguments ().length == 0);
 
     // Negation
     where = new WhereClause (WhereClause.Type.AND);
-    where.add_text_condition ("f2", "v2", false, true);
-    assert (where.get_sql_conditions () == "(f2 != ?)");
+    where.add_match_condition ("f2", 3, true);
+    assert (where.get_sql_conditions () == "(f2 != 3)");
 
     // FIXME: test LIKE stuff...
 }

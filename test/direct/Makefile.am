@@ -27,3 +27,7 @@ build:
 
 run: build
 	./where-clause-test # ./where-clause-test
+
+clean:
+	rm -f where-clause-test query-operators-test \
+		*.~[0-9]~
