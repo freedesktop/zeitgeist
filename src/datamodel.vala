@@ -22,11 +22,66 @@
 
 namespace Zeitgeist
 {
-
-    public struct TimeRange
+    namespace Timestamp
     {
-        int64 start;
-        int64 end;
+        public static int64 now ()
+        {
+            return from_timeval (TimeVal ());
+        }
+
+        public static int64 from_timeval (TimeVal tv)
+        {
+            int64 result;
+            result = ((int64) tv.tv_sec) * 1000;
+            result += (int64) tv.tv_usec;
+
+            return result;
+        }
+    }
+
+    [CCode (type_signature = "(xx)")]
+    public class TimeRange: Object
+    {
+        public int64 start { get; private set; }
+        public int64 end { get; private set; }
+
+        public TimeRange (int64 start_msec, int64 end_msec)
+        {
+            start = start_msec;
+            end = end_msec;
+        }
+
+        public TimeRange.anytime ()
+        {
+            this (0, int64.MAX);
+        }
+
+        public TimeRange.to_now ()
+        {
+            this (0, Timestamp.now ());
+        }
+
+        public TimeRange.from_now ()
+        {
+            this (Timestamp.now (), int64.MAX);
+        }
+
+        public TimeRange.from_variant (Variant variant)
+        {
+            assert (variant.get_type_string () == "(xx)");
+
+            int64 start_msec = 0;
+            int64 end_msec = 0;
+
+            variant.get ("(xx)", &start_msec, &end_msec);
+
+            this (start_msec, end_msec);
+        }
+
+        public Variant to_variant ()
+        {
+            return new Variant ("(xx)", start, end);
+        }
     }
 
     public enum ResultType

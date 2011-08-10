@@ -126,9 +126,9 @@ namespace Zeitgeist.SQLite
                 {
                     if (values[0] != null)
                     {
-                        time_range = TimeRange ();
-                        time_range.start = int64.parse (values[0]);
-                        time_range.end = int64.parse (values[1]);
+                        int64 start = int64.parse (values[0]);
+                        int64 end = int64.parse (values[1]);
+                        time_range = new TimeRange (start, end);
                     }
                     return 0;
                 }, null);

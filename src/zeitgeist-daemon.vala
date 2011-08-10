@@ -109,7 +109,7 @@ namespace Zeitgeist
         }
 
         // FIXME
-        public string[] find_related_uris (TimeRange time_range,
+        public string[] find_related_uris (Variant time_range,
                 Variant event_templates,
                 Variant result_event_templates,
                 uint storage_state, uint num_events, uint result_type,
@@ -119,18 +119,19 @@ namespace Zeitgeist
         }
 
         // FIXME
-        public uint32[] find_event_ids (TimeRange time_range,
+        public uint32[] find_event_ids (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
                 BusName sender)
         {
-            return engine.find_event_ids (time_range,
+            return engine.find_event_ids (
+                new TimeRange.from_variant (time_range),
                 Events.from_variant(event_templates),
                 storage_state, num_events, result_type, sender);
         }
 
         // FIXME
-        public Variant find_events (TimeRange time_range,
+        public Variant find_events (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
                 BusName sender)
@@ -155,13 +156,13 @@ namespace Zeitgeist
 
             uint32[] event_ids = engine.insert_events (events, sender);
             // FIXME: time_range
-            notifications.notify_insert (TimeRange (), events);
+            notifications.notify_insert (new TimeRange (-1, -1), events);
 
             return event_ids;
         }
 
         // FIXME
-        public TimeRange delete_events (uint32[] event_ids, BusName sender)
+        public Variant delete_events (uint32[] event_ids, BusName sender)
         {
             TimeRange? time_range = engine.delete_events (event_ids, sender);
             if (time_range != null)
@@ -172,10 +173,10 @@ namespace Zeitgeist
             {
                 // All the given event_ids are invalid or the events
                 // have already been deleted before!
-                time_range = TimeRange () { start = -1, end = -1 };
+                time_range = new TimeRange (-1, -1);
             }
 
-            return time_range;
+            return time_range.to_variant ();
         }
 
         public void quit ()
@@ -186,11 +187,12 @@ namespace Zeitgeist
         }
 
         public void install_monitor (ObjectPath monitor_path,
-                TimeRange time_range,
+                Variant time_range,
                 Variant event_templates,
                 BusName owner)
         {
-            notifications.install_monitor (owner, monitor_path, time_range,
+            notifications.install_monitor (owner, monitor_path,
+                new TimeRange.from_variant (time_range),
                 Events.from_variant (event_templates));
         }
 

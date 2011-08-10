@@ -125,7 +125,7 @@ namespace Zeitgeist
                 debug ("Notifying %s about %d insertions",
                     p.get_name (), matched.length);
 
-                proxy_object.notify_insert (time_range, 
+                proxy_object.notify_insert (time_range.to_variant (), 
                     Events.to_variant (matched));
             }
 
@@ -134,7 +134,8 @@ namespace Zeitgeist
             {
                 // FIXME: intersect the time range
 
-                proxy_object.notify_delete (time_range, event_ids);
+                proxy_object.notify_delete (time_range.to_variant (),
+                    event_ids);
             }
         }
 

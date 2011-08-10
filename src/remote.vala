@@ -26,7 +26,8 @@ namespace Zeitgeist
     public interface RemoteLog : Object
     {
 
-        public abstract TimeRange delete_events (
+        [DBus (signature = "(xx)")]
+        public abstract Variant delete_events (
             uint32[] event_ids,
             BusName sender
         ) throws IOError;
@@ -35,7 +36,7 @@ namespace Zeitgeist
         //public void DeleteLog ();
 
         public abstract uint32[] find_event_ids (
-            TimeRange time_range,
+            [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
             BusName sender
@@ -43,14 +44,14 @@ namespace Zeitgeist
 
         [DBus (signature = "a(asaasay)")]
         public abstract Variant find_events (
-            TimeRange time_range,
+            [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
             BusName sender
         ) throws IOError;
 
         public abstract string[] find_related_uris (
-            TimeRange time_range,
+            [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             [DBus (signature = "a(asaasay)")] Variant result_event_templates,
             uint storage_state, uint num_events, uint result_type,
@@ -70,7 +71,7 @@ namespace Zeitgeist
 
         public abstract void install_monitor (
             ObjectPath monitor_path,
-            TimeRange time_range,
+            [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             BusName owner
         ) throws IOError;
@@ -95,12 +96,12 @@ namespace Zeitgeist
     {
 
         public async abstract void notify_insert (
-            TimeRange time_range,
+            [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant events
         ) throws IOError;
 
         public async abstract void notify_delete (
-            TimeRange time_range,
+            [DBus (signature = "(xx)")] Variant time_range,
             uint32[] event_ids
         ) throws IOError;
 
