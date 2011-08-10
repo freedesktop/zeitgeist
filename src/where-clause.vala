@@ -154,7 +154,7 @@ namespace Zeitgeist
                 return "()";
             string negation_sign = (negated) ? "NOT " : "";
             string relation_sign = RELATION_SIGNS[clause_type];
-            
+
             string conditions_string = string.joinv (relation_sign,
                 generic_array_to_unowned_array<string> (conditions));
             return "%s(%s)".printf (negation_sign, conditions_string);
@@ -194,13 +194,13 @@ namespace Zeitgeist
         /**
          * Return the smallest string which is greater than the given `text`.
          */
-        private static string get_right_boundary (string text)
+        protected static string get_right_boundary (string text)
         {
             if (text == "")
                 return new StringBuilder ().append_unichar(0x10ffff).str;
             int len = text.char_count () - 1;
             unichar charpoint = text.get_char (text.index_of_nth_char (len));
-            string head = text.substring (len - 1);
+            string head = text.substring (0, text.index_of_nth_char (len - 1));
             if (charpoint == 0x10ffff)
             {
                 // If the last char is the biggest possible char we need to
@@ -214,3 +214,5 @@ namespace Zeitgeist
     }
 
 }
+
+// vim:expandtab:ts=4:sw=4

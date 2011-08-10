@@ -56,7 +56,7 @@ namespace Zeitgeist
         public Daemon ()
         {
             stdout.printf("Hi!\n");
-            
+
             try
             {
                 engine = new Engine();
@@ -66,7 +66,7 @@ namespace Zeitgeist
                 // FIXME
                 safe_exit ();
             }
-            
+
             notifications = new MonitorManager();
 
             // FIXME: tmp:
@@ -244,12 +244,12 @@ namespace Zeitgeist
         static int main (string[] args)
         {
             Constants.initialize ();
-            
+
             Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
-            
+
             Posix.signal (Posix.SIGHUP, safe_exit);
             Posix.signal (Posix.SIGTERM, safe_exit);
-            
+
             run ();
             return 0;
         }

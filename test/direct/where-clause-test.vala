@@ -31,8 +31,23 @@ void main (string[] args)
     Test.add_func ("/WhereClause/nested", nested_test);
     Test.add_func ("/WhereClause/nested_negation", nested_negation_test);
     Test.add_func ("/WhereClause/match_condition", match_condition_test);
-
+    Test.add_func ("/WhereClause/glob/right_boundary", right_boundary_test);
     Test.run ();
+}
+
+private class PublicWhereClause : WhereClause
+{
+
+    public PublicWhereClause (WhereClause.Type type, bool negate=false)
+    {
+        base (type, negate);
+    }
+
+    public new static string get_right_boundary (string text)
+    {
+        return WhereClause.get_right_boundary(text);
+    }
+
 }
 
 public void basic_test ()
@@ -115,3 +130,12 @@ public void match_condition_test ()
 
     // FIXME: test LIKE stuff...
 }
+
+public void right_boundary_test ()
+{
+    var clause = new PublicWhereClause (WhereClause.Type.AND);
+    assert (clause.get_right_boundary ("a") == "ab");
+    assert (clause.get_right_boundary ("hello") == "help");
+}
+
+// vim:expandtab:ts=4:sw=4
