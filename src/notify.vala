@@ -41,6 +41,7 @@ namespace Zeitgeist
                     "/org/freedesktop/DBus", null, 0,
                     (conn, sender, path, ifc_name, sig_name, parameters) =>
                     {
+                        // name, old_owner, new_owner
                         var arg0 = parameters.get_child_value (0).dup_string ();
                         var arg1 = parameters.get_child_value (1).dup_string ();
                         var arg2 = parameters.get_child_value (2).dup_string ();
@@ -49,7 +50,21 @@ namespace Zeitgeist
 
                         if (arg1 in peers)
                         {
-                            // FIXME: remove the monitor ourselves
+                            string[] hashes;
+                            string prefix = "%s#".printf (arg1);
+                            foreach (unowned string mon_hash in monitors.get_keys ())
+                            {
+                                if (mon_hash.has_prefix (prefix))
+                                {
+                                    hashes += mon_hash;
+                                }
+                            }
+
+                            foreach (unowned string hash in hashes)
+                            {
+                                do_remove_monitor (hash);
+                            }
+                            // FIXME: remove from peers
                         }
                     });
             }
@@ -86,6 +101,41 @@ namespace Zeitgeist
                 event_templates = templates;
             }
 
+            private bool matches (Event event)
+            {
+                // FIXME: match based on the event_templates
+                return true;
+            }
+
+            // FIXME: we need to queue the notification if proxy_object == null
+            public void notify_insert (TimeRange tr, GenericArray<Event> events)
+                requires (proxy_object != null)
+            {
+                var matched = new GenericArray<Event> ();
+
+                for (int i=0; i<events.length; i++)
+                {
+                    if (this.matches (events[i])) matched.add (events[i]);
+                }
+
+                if (matched.length == 0) return;
+
+                // FIXME: intersect the time range
+                DBusProxy p = (DBusProxy) proxy_object;
+                debug ("Notifying %s about %d insertions",
+                    p.get_name (), matched.length);
+
+                proxy_object.notify_insert (time_range, 
+                    Events.to_variant (matched));
+            }
+
+            public void notify_delete (TimeRange tr, uint32[] event_ids)
+                requires (proxy_object != null)
+            {
+                // FIXME: intersect the time range
+
+                proxy_object.notify_delete (time_range, event_ids);
+            }
         }
 
         public void install_monitor (BusName peer, string object_path,
@@ -110,6 +160,11 @@ namespace Zeitgeist
         public void remove_monitor (BusName peer, string object_path)
         {
             var hash = "%s#%s".printf (peer, object_path);
+            do_remove_monitor (hash);
+        }
+
+        private void do_remove_monitor (string hash)
+        {
             if (monitors.lookup (hash) != null)
             {
                 monitors.remove (hash);
@@ -122,6 +177,22 @@ namespace Zeitgeist
             }
         }
 
+        public void notify_insert (TimeRange time_range,
+            GenericArray<Event> events)
+        {
+            foreach (unowned Monitor mon in monitors.get_values ())
+            {
+                mon.notify_insert (time_range, events);
+            }
+        }
+
+        public void notify_delete (TimeRange time_range, uint32[] event_ids)
+        {
+            foreach (unowned Monitor mon in monitors.get_values ())
+            {
+                mon.notify_delete (time_range, event_ids);
+            }
+        }
     }
 
 }

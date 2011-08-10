@@ -47,8 +47,8 @@ namespace Zeitgeist
             {
                 var vb = new VariantBuilder (new VariantType ("(iii)"));
                 vb.add ("i", 0);
-                vb.add ("i", 1);
-                vb.add ("i", 2);
+                vb.add ("i", 8);
+                vb.add ("i", 99);
                 return vb.end ();
             }
         }
@@ -153,7 +153,11 @@ namespace Zeitgeist
 
             // FIXME: trigger notifications
 
-            return engine.insert_events (events, sender);
+            uint32[] event_ids = engine.insert_events (events, sender);
+            // FIXME: time_range
+            notifications.notify_insert (TimeRange (), events);
+
+            return event_ids;
         }
 
         // FIXME
