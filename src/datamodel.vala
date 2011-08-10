@@ -33,7 +33,7 @@ namespace Zeitgeist
         {
             int64 result;
             result = ((int64) tv.tv_sec) * 1000;
-            result += (int64) tv.tv_usec;
+            result += ((int64) tv.tv_usec) / 1000;
 
             return result;
         }
