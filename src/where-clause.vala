@@ -83,12 +83,13 @@ namespace Zeitgeist
                 arguments.add (args[i]);
         }
 
-        public void add_text_condition (string column, string val,
+        public void add_text_condition (string column, int val,
             bool like=false, bool negation=false)
             throws EngineError.INVALID_ARGUMENT
         {
             if (like)
             {
+                assert (false);
                 /*if (!(column in PREFIX_SEARCH_SUPPORTED))
                 {
                     string error_message =
@@ -117,14 +118,18 @@ namespace Zeitgeist
             {
                 // FIXME: lookup value in cache if appropriate, otherwise change
                 // column name
-                string sql = "%s %s= ?".printf (column, (negation) ? "!" : "");
-                add (sql, val);
+                string sql = "%s %s= %d".printf (column, (negation) ? "!" : "",
+                    val);
+                add (sql);
             }
         }
 
         public void extend (WhereClause clause)
         {
-            add_with_array (clause.get_sql_conditions (), clause.arguments);
+            string sql = clause.get_sql_conditions ();
+            if (sql == "()")
+                return;
+            add_with_array (sql, clause.arguments);
             /*if not where.may_have_results():
             if self._relation == self.AND:
                 self.clear()

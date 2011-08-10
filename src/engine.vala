@@ -183,17 +183,19 @@ public class Engine : Object
                 "Unknown storage state '%u'".printf(storage_state));
         }
 
-        //WhereClause foo = get_where_clause_from_event_templates (
-        //    event_templates);
-        //where.extend (foo);
+        WhereClause tpl_conditions = get_where_clause_from_event_templates (
+            event_templates);
+        where.extend (tpl_conditions);
         //if (!where.may_have_results ())
         //    return new uint32[0];
         
         // FIXME: IDs: SELECT DISTINCT / events: SELECT
         // Is the former faster or can we just do the unique'ing on our side?
 
-        string sql = "SELECT id FROM event_view WHERE " ;
+        string sql = "SELECT id FROM event_view " ;
         string where_sql = where.get_sql_conditions ();
+        if (where_sql != "()")
+            where_sql = "WHERE " + where_sql;
 
         switch (result_type)
         {
@@ -627,8 +629,24 @@ public class Engine : Object
 */
 
             // manif
+            if (template.manifestation != "")
+            {
+                where.add_text_condition ("manifestation",
+                    manifestations_table.get_id (template.manifestation));
+            }
+
             // actor
+            if (template.actor != "")
+            {
+                string actor = template.actor;
+                bool negated = parse_negation ("actor", ref actor);
+
+                where.add_text_condition ("actor",
+                    actors_table.get_id (actor), false, negated);
+            }
+
             // origin
+
             for (int i = 0; i < template.num_subjects(); ++i)
             {
                 Subject subject_template = template.subjects[i];
@@ -637,9 +655,9 @@ public class Engine : Object
                 // mimetypes
                 // uri, origin, text
                 // current_uri
-                if (subject_template.storage != "")
-                    where.add_text_condition ("subj_storage",
-                        subject_template.storage);
+                //if (subject_template.storage != "")
+                //    where.add_text_condition ("subj_storage",
+                //        subject_template.storage);
             }
 
             return where;

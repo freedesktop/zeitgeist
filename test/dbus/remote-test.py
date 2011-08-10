@@ -128,6 +128,31 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			timerange=TimeRange(163, 163))
 		self.assertEquals(retrieved_ids, [5]) # Timestamps: [163]
 
+	def testFindEventIdsForManifestation(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular actor
+		template = Event.new_for_values(manifestation='stfu:BooActivity')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [2])
+
+	def testFindEventIdsForActor(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular actor
+		template = Event.new_for_values(actor='gedit')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [3])
+
+		# Retrieve events excluding a particular actor
+		template = Event.new_for_values(actor='!gedit')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [5, 4, 2, 1])
+
 class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 
 	def testQuit(self):
