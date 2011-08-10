@@ -32,12 +32,12 @@ public class Engine : Object
 
     Zeitgeist.SQLite.ZeitgeistDatabase database;
     unowned Sqlite.Database db;
-    
+
     TableLookup interpretations_table;
     TableLookup manifestations_table;
     TableLookup mimetypes_table;
     TableLookup actors_table;
-    
+
     uint32 last_id;
 
     public Engine () throws EngineError
@@ -45,12 +45,12 @@ public class Engine : Object
         database = new Zeitgeist.SQLite.ZeitgeistDatabase();
         db = database.database;
         last_id = database.get_last_id();
-        
+
         interpretations_table = new TableLookup(database, "interpretation");
         manifestations_table = new TableLookup(database, "manifestation");
         mimetypes_table = new TableLookup(database, "mimetype");
         actors_table = new TableLookup(database, "actor");
-        
+
         // FIXME: load extensions
     }
 
@@ -62,10 +62,10 @@ public class Engine : Object
         //  It'd also benchmark it again first, we may have better options
         //  to enhance the performance of SQLite now, and event processing
         //  will be faster now being C.
-        
+
         Sqlite.Statement stmt;
         int rc;
-        
+
         var sql_event_ids = database.get_sql_string_from_event_ids (event_ids);
         string sql = """
             SELECT * FROM event_view
@@ -85,7 +85,7 @@ public class Engine : Object
                 stmt.column_text (EventViewRows.ID));
             int index = search_event_ids_array(event_ids, event_id);
             assert (index >= 0);
-            
+
             Event event;
             if (events[index] != null)
             {
@@ -123,7 +123,7 @@ public class Engine : Object
                 stmt.column_int (EventViewRows.SUBJECT_MANIFESTATION));
             subject.mimetype = mimetypes_table.get_value (
                 stmt.column_int (EventViewRows.SUBJECT_MIMETYPE));
-            
+
             event.add_subject(subject);
         }
         if (rc != Sqlite.DONE)
@@ -188,7 +188,7 @@ public class Engine : Object
         where.extend (tpl_conditions);
         //if (!where.may_have_results ())
         //    return new uint32[0];
-        
+
         // FIXME: IDs: SELECT DISTINCT / events: SELECT
         // Is the former faster or can we just do the unique'ing on our side?
 
@@ -313,9 +313,9 @@ public class Engine : Object
         rc = db.prepare_v2 (sql, -1, out stmt);
         database.assert_query_success(rc, "SQL error");
 
-        //var arguments = where.get_bind_arguments ();
-        //for (int i = 0; i < arguments.length; ++i)
-        //    stmt.bind_text (i + 1, arguments[i]);
+        var arguments = where.get_bind_arguments ();
+        for (int i = 0; i < arguments.length; ++i)
+            stmt.bind_text (i + 1, arguments[i]);
 
         uint32[] event_ids = {};
 
@@ -363,7 +363,7 @@ public class Engine : Object
         requires (event.num_subjects () > 0)
     {
         // FIXME: make sure event timestamp is sane
-        
+
         /* FIXME:
         if (event.interpretation == interpretation.MOVE_EVENT)
         {
@@ -446,7 +446,7 @@ public class Engine : Object
             insert_stmt.reset();
 
             unowned Subject subject = event.subjects[i];
-            
+
             insert_stmt.bind_text (8, subject.uri);
             insert_stmt.bind_text (9, subject.current_uri);
             insert_stmt.bind_int64 (10,
@@ -459,7 +459,7 @@ public class Engine : Object
             insert_stmt.bind_text (14, subject.text);
             // FIXME: Consider a storages_table table. Too dangerous?
             insert_stmt.bind_text (15, subject.storage);
-            
+
             if ((rc = insert_stmt.step()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)
                 {
@@ -481,12 +481,12 @@ public class Engine : Object
                 retrieval_stmt.bind_int64 (3,
                     manifestations_table.get_id (event.manifestation));
                 retrieval_stmt.bind_int64 (4, actors_table.get_id (event.actor));
-                
+
                 if ((rc = retrieval_stmt.step()) != Sqlite.ROW) {
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
                     return 0;
                 }
-                
+
                 return retrieval_stmt.column_int (0);
             }
         }

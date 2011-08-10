@@ -161,7 +161,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		# Retrieve events with actor matching a prefix
 		template = Event.new_for_values(actor='g*')
 		ids = self.findEventIdsAndWait([template])
-		self.assertEquals(map(int, ids), [3, 2])
+		self.assertEquals(map(int, ids), [2, 3])
 
 class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 

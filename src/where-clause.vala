@@ -178,9 +178,9 @@ namespace Zeitgeist
             if (prefix == "") {
                 sql = "SELECT %s FROM %s".printf (column, table);
             }
-            else if (false)
+            else if (false) // ...
             {
-                //...
+                // FIXME: check for all(i == unichr(0x10ffff)...)
             }
             else
             {
