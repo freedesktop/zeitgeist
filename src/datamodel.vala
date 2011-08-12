@@ -265,19 +265,20 @@ namespace Zeitgeist
 
             var event_props = event_array.n_children ();
             assert (event_props >= 5);
-            id = (uint32) uint64.parse ((string) event_array.next_value());
-            var str_timestamp = (string) event_array.next_value();
+            id = (uint32) uint64.parse (event_array.next_value().get_string ());
+            var str_timestamp = event_array.next_value().get_string ();
             if (str_timestamp == "") {
                 var now = TimeVal();
                 timestamp = ((int64) now.tv_sec * 1000) + (int64) now.tv_usec;
             }
             else
                 timestamp = int64.parse (str_timestamp);
-            interpretation = (string) event_array.next_value();
-            manifestation = (string) event_array.next_value();
-            actor = (string) event_array.next_value();
+            interpretation = event_array.next_value().get_string ();
+            manifestation = event_array.next_value().get_string ();
+            actor = event_array.next_value().get_string ();
             // let's keep this compatible with older clients
-            if (event_props >= 6) origin = (string) event_array.next_value();
+            if (event_props >= 6)
+                origin = event_array.next_value().get_string ();
             
             for (int i = 0; i < subjects_array.n_children(); ++i) {
                 Variant subject_variant = subjects_array.next_value();
@@ -288,6 +289,7 @@ namespace Zeitgeist
             uint payload_length = (uint) payload_variant.n_children ();
             if (payload_length > 0)
             {
+                debug ("there was payload with length: %u", payload_length);
                 payload = new ByteArray.sized (payload_length);
                 unowned uint8[] data = (uint8[]?) payload_variant.get_data ();
                 data.length = (int) payload_length;
@@ -427,15 +429,16 @@ namespace Zeitgeist
             
             var subject_props = iter.n_children ();
             assert (subject_props >= 7);
-            uri = (string) iter.next_value();
-            interpretation = (string) iter.next_value();
-            manifestation = (string) iter.next_value();
-            origin = (string) iter.next_value();
-            mimetype = (string) iter.next_value();
-            text = (string) iter.next_value();
-            storage = (string) iter.next_value();
+            uri = iter.next_value().get_string ();
+            interpretation = iter.next_value().get_string ();
+            manifestation = iter.next_value().get_string ();
+            origin = iter.next_value().get_string ();
+            mimetype = iter.next_value().get_string ();
+            text = iter.next_value().get_string ();
+            storage = iter.next_value().get_string ();
             // let's keep this compatible with older clients
-            if (subject_props >= 8) current_uri = (string) iter.next_value();
+            if (subject_props >= 8)
+                current_uri = iter.next_value().get_string ();
         }
 
         public Variant to_variant()
