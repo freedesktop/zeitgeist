@@ -102,7 +102,11 @@ class RemoteTestCase (unittest.TestCase):
 	def _safe_start_subprocess(cmd, env, timeout=1, error_callback=None):
 		""" starts `cmd` in a subprocess and check after `timeout`
 		if everything goes well"""
-		process = Popen(cmd, stderr=PIPE, stdout=PIPE, env=env)
+		args = { 'env': env }
+		if not '--verbose-subprocess' in sys.argv:
+			args['stderr'] = PIPE
+			args['stdout'] = PIPE
+		process = Popen(cmd, **args)
 		# give the process some time to wake up
 		time.sleep(timeout)
 		error = process.poll()

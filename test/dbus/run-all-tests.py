@@ -117,6 +117,7 @@ if __name__ == "__main__":
 		# do more fine grained stuff later
 		# redirect all debugging output to stderr
 		logging.basicConfig(stream=sys.stderr)
+		sys.argv.append('--verbose-subprocess')
 	else:
 		logging.basicConfig(filename="/dev/null")
 	

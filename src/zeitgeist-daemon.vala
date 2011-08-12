@@ -243,8 +243,6 @@ namespace Zeitgeist
 
         static int main (string[] args)
         {
-            Constants.initialize ();
-
             Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
 
             Posix.signal (Posix.SIGHUP, safe_exit);

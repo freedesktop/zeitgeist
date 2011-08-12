@@ -121,9 +121,9 @@ namespace Zeitgeist
 
         public void extend (WhereClause clause)
         {
-            string sql = clause.get_sql_conditions ();
-            if (sql == "()")
+            if (clause.is_empty ())
                 return;
+            string sql = clause.get_sql_conditions ();
             add_with_array (sql, clause.arguments);
             /*if not where.may_have_results():
             if self._relation == self.AND:
@@ -131,6 +131,11 @@ namespace Zeitgeist
             self.register_no_result()
             */
 	    }
+
+        public bool is_empty ()
+        {
+            return conditions.length == 0;
+        }
 
         public bool may_have_results ()
         {
@@ -150,11 +155,12 @@ namespace Zeitgeist
 
         public string get_sql_conditions ()
         {
-            if (conditions.length == 0)
-                return "()";
+            assert (conditions.length > 0);
             string negation_sign = (negated) ? "NOT " : "";
             string relation_sign = RELATION_SIGNS[clause_type];
 
+            if (conditions.length == 1)
+                return "%s%s".printf (negation_sign, conditions[0]);
             string conditions_string = string.joinv (relation_sign,
                 generic_array_to_unowned_array<string> (conditions));
             return "%s(%s)".printf (negation_sign, conditions_string);

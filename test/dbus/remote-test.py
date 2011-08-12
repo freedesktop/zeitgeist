@@ -128,6 +128,23 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 			timerange=TimeRange(163, 163))
 		self.assertEquals(retrieved_ids, [5]) # Timestamps: [163]
 
+	def testFindEventIdsForInterpretation(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular interpretation
+		template = Event.new_for_values(interpretation='stfu:Document')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [1])
+
+		# Retrieve events excluding a particular interpretation
+		template = Event.new_for_values(interpretation='!stfu:Document')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [5, 4, 3, 2])
+
+		# FIXME: test children
+
 	def testFindEventIdsForManifestation(self):
 		# Insert some events...
 		events = parse_events("test/data/five_events.js")

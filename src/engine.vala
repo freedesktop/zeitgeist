@@ -192,10 +192,12 @@ public class Engine : Object
         // FIXME: IDs: SELECT DISTINCT / events: SELECT
         // Is the former faster or can we just do the unique'ing on our side?
 
-        string sql = "SELECT id FROM event_view " ;
-        string where_sql = where.get_sql_conditions ();
-        if (where_sql != "()")
-            where_sql = "WHERE " + where_sql;
+        string sql = "SELECT id FROM event_view ";
+        string where_sql = "";
+        if (!where.is_empty ())
+        {
+            where_sql = "WHERE " + where.get_sql_conditions ();
+        }
 
         switch (result_type)
         {
@@ -633,9 +635,18 @@ public class Engine : Object
             {
                 string val = template.interpretation;
                 bool negated = parse_negation ("interpretation", ref val);
+                List<string> symbols = Symbol.get_all_children (val);
+                symbols.append (val);
 
-                where.add_match_condition ("interpretation",
-                    interpretations_table.get_id (val), negated);
+                WhereClause interp_where = new WhereClause(
+                    WhereClause.Type.OR, negated);
+                foreach (string uri in symbols)
+                {
+                    interp_where.add_match_condition ("interpretation",
+                        interpretations_table.get_id (uri));
+                }
+                if (!interp_where.is_empty ())
+                    where.extend (interp_where);
             }
 
             // Manifestation
