@@ -33,19 +33,21 @@ PKG_CHECK_MODULES(BLUEBIRD, [$BLUEBIRD_REQUIRED])
 AC_SUBST(BLUEBIRD_CFLAGS)
 AC_SUBST(BLUEBIRD_LIBS)
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([
+	Makefile
 	src/Makefile
 	extra/Makefile
 	extra/ontology/Makefile
 	test/Makefile
 	test/dbus/Makefile
 	test/direct/Makefile
-	po/Makefile.in])
+	po/Makefile.in
+])
 
 # check for rapper
 AC_CHECK_PROG(HAVE_RAPPER, rapper, yes, no)
 if test "x$HAVE_RAPPER" = "xno"; then
-  AC_MSG_ERROR(You need the tool `rapper' from the `raptor-utils' package in order to compile Zeitgeist)
+  AC_MSG_ERROR("You need the tool `rapper' from the `raptor-utils' package in order to compile Zeitgeist")
 fi
 
 # check for python-rdflib

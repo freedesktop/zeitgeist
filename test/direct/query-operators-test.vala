@@ -32,7 +32,7 @@ void main (string[] args)
     Test.run ();
 }
 
-private class PublicEngine : Engine
+private class PublicEngine : Zeitgeist.Engine
 {
     public bool PUBLIC_parse_negation (string field, ref string val)
         throws EngineError

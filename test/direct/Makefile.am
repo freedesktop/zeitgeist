@@ -5,29 +5,37 @@ VALAFLAGS = \
 	--pkg posix \
 	$(NULL)
 
-SRC_FILES = \
-	../../src/engine.vala \
-	../../src/constants.vala \
-	../../src/notify.vala \
-	../../src/table-lookup.vala \
-	../../src/datamodel.vala  \
-	../../src/where-clause.vala \
-	../../src/remote.vala \
-	../../src/errors.vala \
-	../../src/sql-schema.vala \
-	../../src/extension.vala \
-	../../src/sql.vala \
-	../../src/ontology.vala \
-	../../src/ontology-uris.vala \
+TESTS = \
+	marshalling \
+	query-operators-test \
+	where-clause-test \
 	$(NULL)
 
-build:
-	valac $(VALAFLAGS) query-operators-test.vala $(SRC_FILES)
-	valac $(VALAFLAGS) where-clause-test.vala $(SRC_FILES)
+SRC_FILES = \
+	$(top_srcdir)/src/engine.vala \
+	$(top_srcdir)/src/constants.vala \
+	$(top_srcdir)/src/notify.vala \
+	$(top_srcdir)/src/table-lookup.vala \
+	$(top_srcdir)/src/datamodel.vala  \
+	$(top_srcdir)/src/where-clause.vala \
+	$(top_srcdir)/src/remote.vala \
+	$(top_srcdir)/src/errors.vala \
+	$(top_srcdir)/src/sql-schema.vala \
+	$(top_srcdir)/src/extension.vala \
+	$(top_srcdir)/src/sql.vala \
+	$(top_srcdir)/src/ontology.vala \
+	$(top_srcdir)/src/ontology-uris.vala \
+	$(NULL)
 
-run: build
-	./where-clause-test # ./where-clause-test
+marshalling: marshalling.vala $(top_srcdir)/src/datamodel.vala
+	$(VALAC) $(VALAFLAGS) -o $@ $^
 
-clean:
-	rm -f where-clause-test query-operators-test \
-		*.~[0-9]~
+query-operators-test: query-operators-test.vala $(SRC_FILES)
+	$(VALAC) $(VALAFLAGS) -o $@ $^
+
+where-clause-test: where-clause-test.vala $(SRC_FILES)
+	$(VALAC) $(VALAFLAGS) -o $@ $^
+
+clean-local:
+	rm -f *.~[0-9]~
+
