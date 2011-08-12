@@ -3,6 +3,7 @@ VALAFLAGS = \
 	--target-glib=2.26 \
 	--pkg sqlite3 \
 	--pkg posix \
+	$(srcdir)/assertions.vapi \
 	$(NULL)
 
 TESTS = \
@@ -38,4 +39,11 @@ where-clause-test: where-clause-test.vala $(SRC_FILES)
 
 clean-local:
 	rm -f *.~[0-9]~
+
+EXTRA_DIST = \
+	marshalling.vala \
+	query-operators-test.vala \
+	where-clause-test.vala \
+	assertions.vapi \
+	$(NULL)
 
