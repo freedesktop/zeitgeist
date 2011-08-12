@@ -27,6 +27,9 @@
 using Zeitgeist;
 using Zeitgeist.SQLite;
 
+namespace Zeitgeist
+{ // FIXME: increase indentation once we're ok with breaking 'bzr diff'
+
 public class Engine : Object
 {
 
@@ -747,6 +750,8 @@ public class Engine : Object
         val = val.substring (0, val.char_count () - 1);
         return true;
     }
+
+}
 
 }
 
