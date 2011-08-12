@@ -637,7 +637,7 @@ public class Engine : Object
             if (template.interpretation != "")
             {
                 string val = template.interpretation;
-                bool negated = parse_negation ("interpretation", ref val);
+                bool negated = parse_negation (ref val);
                 List<string> symbols = Symbol.get_all_children (val);
                 symbols.append (val);
 
@@ -656,7 +656,7 @@ public class Engine : Object
             if (template.manifestation != "")
             {
                 string val = template.manifestation;
-                bool negated = parse_negation ("manifestation", ref val);
+                bool negated = parse_negation (ref val);
 
                 where.add_match_condition ("manifestation",
                     manifestations_table.get_id (val), negated);
@@ -666,8 +666,8 @@ public class Engine : Object
             if (template.actor != "")
             {
                 string val = template.actor;
-                bool like = parse_wildcard ("actor", ref val);
-                bool negated = parse_negation ("actor", ref val);
+                bool like = parse_wildcard (ref val);
+                bool negated = parse_negation (ref val);
 
                 if (like)
                     where.add_wildcard_condition ("actor", val, negated);
@@ -695,60 +695,90 @@ public class Engine : Object
             return where;
     }
 
+    // FIXME: remove this
     private static string[] NEGATION_SUPPORTED = {
         "actor", "current_uri", "interpretation", "manifestation",
         "mimetype", "origin", "uri" };
 
     // Used by get_where_clause_from_event_templates
     /**
-     * Check if the value starts with the negation operator. If it does:
-     *  - Ensure the field accepts the operator. If it doesn't (and the field
-     *    isn't "text", which accepts it as regular text), throw an error.
-     *  - Remove the operator from the value.
-     *  - Return true.
-     * Otherwise, return false.
+     * Check if the value starts with the negation operator. If it does,
+     * remove the operator from the value and return true. Otherwise,
+     * return false.
      */
-    protected bool parse_negation (string field, ref string val)
-        throws EngineError.INVALID_ARGUMENT
+    protected bool parse_negation (ref string val)
     {
-        if (!val.has_prefix ("!") || field == "text") return false;
-        if (!(field in NEGATION_SUPPORTED))
-        {
-            string error_message =
-                "Field '%s' doesn't support negation".printf (field);
-            warning (error_message);
-            throw new EngineError.INVALID_ARGUMENT (error_message);
-        }
-        val = val.substring (1);
+        if (!val.has_prefix ("!"))
+            return false;
+        val = val.substring (1); // FIXME: fix for unicode
         return true;
     }
 
+    // Used by get_where_clause_from_event_templates
+    /**
+     * If the value starts with the negation operator, throw an
+     * error.
+     */
+    protected void assert_no_negation (string field, string val)
+        throws EngineError.INVALID_ARGUMENT
+    {
+        if (!val.has_prefix ("!"))
+            return;
+        string error_message =
+            "Field '%s' doesn't support negation".printf (field);
+        warning (error_message);
+        throw new EngineError.INVALID_ARGUMENT (error_message);
+    }
+
+    // FIXME: remove this
     private static string[] WILDCARDS_SUPPORTED = {
         "actor", "current_uri", "mimetype", "origin", "uri" };
 
     // Used by get_where_clause_from_event_templates
     /**
-     * Check if the value ends with the wildcard character. If it does:
-     *  - Ensure that the field accepts the operator. If it doesn't (and
-     *    the field isn't "text", which accepts it as regular text), throw
-     *    an error.
-     *  - Remove the wildcard character from the value.
-     *  - Return true.
+     * Check if the value ends with the wildcard character. If it does,
+     * remove the wildcard character from the value and return true.
      * Otherwise, return false.
      */
-    protected bool parse_wildcard (string field, ref string val)
+    protected bool parse_wildcard (ref string val)
+    {
+        if (!val.has_suffix ("*"))
+            return false;
+        val = val.substring (0, val.char_count () - 1); // Fix for utf-8
+        return true;
+    }
+
+    // Used by get_where_clause_from_event_templates
+    /**
+     * If the value ends with the wildcard character, throw an error.
+     */
+    protected void assert_no_wildcard (string field, string val)
         throws EngineError.INVALID_ARGUMENT
     {
-        if (!val.has_suffix ("*") || field == "text") return false;
-        if (!(field in WILDCARDS_SUPPORTED))
+        if (!val.has_suffix ("*"))
+            return;
+        string error_message =
+            "Field '%s' doesn't support wildcards".printf (field);
+        warning (error_message);
+        throw new EngineError.INVALID_ARGUMENT (error_message);
+    }
+
+    protected WhereClause get_where_clause_for_symbol (string table_name,
+        string symbol)
+    {
+        string _symbol = symbol;
+        bool negated = parse_negation (ref _symbol);
+        List<string> symbols = Symbol.get_all_children (symbol);
+        symbols.append (_symbol);
+
+        WhereClause subwhere = new WhereClause(
+            WhereClause.Type.OR, negated);
+        foreach (string uri in symbols)
         {
-            string error_message =
-                "Field '%s' doesn't support wildcards".printf (field);
-            warning (error_message);
-            throw new EngineError.INVALID_ARGUMENT (error_message);
+            subwhere.add_match_condition (table_name,
+                interpretations_table.get_id (uri));
         }
-        val = val.substring (0, val.char_count () - 1);
-        return true;
+        return subwhere;
     }
 
 }
