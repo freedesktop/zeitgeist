@@ -139,7 +139,7 @@ namespace Zeitgeist
                 uint storage_state, uint num_events, uint result_type,
                 BusName sender)
         {
-            return 1;
+            return Events.to_variant (new GenericArray<Event> ());
         }
 
         // FIXME
