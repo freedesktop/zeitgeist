@@ -416,7 +416,8 @@ public class Engine : Object
 
             database.assert_query_success(rc, "SQL error");
 
-            GenericArray<RelatedUri?> uris = new GenericArray<RelatedUri?>();
+            // FIXME: fix this ugly code
+            GenericArray<RelatedUri?> temp_related_uris = new GenericArray<RelatedUri?>();
             
             while ((rc = stmt.step()) == Sqlite.ROW)
             {
@@ -425,8 +426,12 @@ public class Engine : Object
                     timestamp = stmt.column_int64 (1),
                     uri = stmt.column_text (2)
                 };
-                uris.add(ruri);
+                temp_related_uris.add(ruri);
             }
+
+            RelatedUri[] related_uris = new RelatedUri[temp_related_uris.length];
+            for (int i=0; i<related_uris.length; i++)
+                related_uris[i] = temp_related_uris[i];
 
             if (rc != Sqlite.DONE)
             {
@@ -436,7 +441,32 @@ public class Engine : Object
                 throw new EngineError.DATABASE_ERROR (error_message);
             }
             
-            // FIXME: Slide through windows and with a static size of 5 events
+            HashTable<string, uint32> counter = new HashTable<string, uint32>(str_hash, str_equal);
+            
+            for (int i=0; i<related_uris.length; i++)
+            {
+                RelatedUri[] window = null;
+                if (i+5 < related_uris.length)
+                    window = related_uris[i:i+5];
+                else
+                    window = related_uris[i:related_uris.length];
+                bool count_in_window = false;
+                for (int j=0; j<window.length; j++)
+                {
+                    if (window[j].id in ids)
+                    {
+                        count_in_window = true;
+                        break;
+                    }
+                }
+                if (count_in_window)
+                {
+                    for (int j=0; j<window.length; j++)
+                    {
+                        // FIXME: Start counting elements in window
+                    }
+                }
+            }
             
             string[] results = new string[max_results];
             return results;
