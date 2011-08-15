@@ -717,17 +717,17 @@ public class Engine : Object
                 WhereClause.Type.OR,
                 parse_negation("interpretation", ref template.interpretation));*/
 
-/*
-    value, negation, wildcard = parse_operators(Event, Event.Interpretation, event_template.interpretation)
-    # Expand event interpretation children
-    event_interp_where = WhereClause(WhereClause.OR, negation)
-    for child_interp in (Symbol.find_child_uris_extended(value)):
-    	if child_interp:
-    		event_interp_where.add_text_condition("interpretation",
-    		                       child_interp, like=wildcard, cache=self._interpretation)
-    if event_interp_where:
-    	where.extend(event_interp_where)
-*/
+            /*
+                value, negation, wildcard = parse_operators(Event, Event.Interpretation, event_template.interpretation)
+                # Expand event interpretation children
+                event_interp_where = WhereClause(WhereClause.OR, negation)
+                for child_interp in (Symbol.find_child_uris_extended(value)):
+                	if child_interp:
+                		event_interp_where.add_text_condition("interpretation",
+                		                       child_interp, like=wildcard, cache=self._interpretation)
+                if event_interp_where:
+                	where.extend(event_interp_where)
+            */
 
             // Interpretation
             if (template.interpretation != "")
