@@ -351,7 +351,7 @@ public class Engine : Object
 
     private struct RelatedUri {
         public uint32 id;
-        public uint64 timestamp;
+        public int64 timestamp;
         public string uri;
     }
 
@@ -429,9 +429,9 @@ public class Engine : Object
                 temp_related_uris.add(ruri);
             }
 
-            RelatedUri[] related_uris = new RelatedUri[temp_related_uris.length];
-            for (int i=0; i<related_uris.length; i++)
-                related_uris[i] = temp_related_uris[i];
+            // RelatedUri[] related_uris = new RelatedUri[temp_related_uris.length];
+            // for (int i=0; i<related_uris.length; i++)
+            //    related_uris[i] = temp_related_uris[i];
 
             if (rc != Sqlite.DONE)
             {
@@ -443,21 +443,16 @@ public class Engine : Object
             
             HashTable<string, uint32> counter = new HashTable<string, uint32>(str_hash, str_equal);
             
-            for (int i=0; i<related_uris.length; i++)
+            for (int i=0; i<temp_related_uris.length; i++)
             {
-                RelatedUri[] window = null;
-                if (i+5 < related_uris.length)
-                    window = related_uris[i:i+5];
-                else
-                    window = related_uris[i:related_uris.length];
+                GenericArray<RelatedUri?> window = new GenericArray<RelatedUri?>();
+                
                 bool count_in_window = false;
-                for (int j=0; j<window.length; j++)
+                for (int j=i; j < i+5 && j < temp_related_uris.length; j++)
                 {
-                    if (window[j].id in ids)
-                    {
+                    window.add(temp_related_uris[j]);
+                    if (temp_related_uris[j].id in ids)
                         count_in_window = true;
-                        break;
-                    }
                 }
                 if (count_in_window)
                 {
