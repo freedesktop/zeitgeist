@@ -349,6 +349,102 @@ public class Engine : Object
             storage_state, max_events, result_type));
     }
 
+    private struct RelatedUri {
+        public uint32 id;
+        public uint64 timestamp;
+        public string uri;
+    }
+
+    public string[] find_related_uris (TimeRange time_range,
+        GenericArray<Event> event_templates,
+        GenericArray<Event> result_event_templates,
+        uint storage_state, uint max_results, uint result_type,
+        BusName? sender=null) throws EngineError.INVALID_ARGUMENT
+    { 
+        /** 
+        * Return a list of subject URIs commonly used together with events
+        * matching the given template, considering data from within the indicated
+        * timerange.
+        * Only URIs for subjects matching the indicated `result_event_templates`
+        * and `result_storage_state` are returned.
+        */
+        //FXIME: implement calculation
+        if (result_type == 0 || result_type == 1)
+        {
+            // We pick out the ids for relational event so we can set them as 
+            // roots the ids are taken from the events that match the events_templates
+            uint32[] ids = find_event_ids (time_range, event_templates, storage_state,
+                0, ResultType.LEAST_RECENT_EVENTS);
+            
+            // FIXME: If no results for the event_templates is found raise error
+            if (event_templates.length > 0 && ids.length == 0)
+            {
+                throw new EngineError.INVALID_ARGUMENT("No results found for the event_templates");
+            }
+            
+            // Pick out the result_ids for the filtered results we would like to
+            // take into account the ids are taken from the events that match 
+            // the result_event_templates if no result_event_templates are set we
+            // consider all results as allowed
+            uint32[] result_ids = null;
+            if (result_event_templates.length > 0)
+                result_ids = find_event_ids (time_range, result_event_templates, storage_state,
+                    0, ResultType.LEAST_RECENT_EVENTS);
+            else
+                result_ids = new uint32[0];
+            
+            // From here we create several graphs with the maximum depth of 2
+            // and push all the nodes and vertices (events) in one pot together
+            // FIXME: the depth should be adaptable 
+            
+            uint32[] pot = new uint32[ids.length + result_ids.length];
+           
+            for (uint32 i=0; i < ids.length; i++)
+                pot[i] = ids[i];
+            for (uint32 i=0; i < result_ids.length; i++)
+                pot[ids.length + i] = result_ids[ids.length + i];
+
+            Sqlite.Statement stmt;
+
+            var sql_event_ids = database.get_sql_string_from_event_ids (pot);
+            string sql = """
+               SELECT id, timestamp, subj_uri FROM event_view 
+               WHERE id IN (%s) ORDER BY timestamp ASC
+               """.printf (sql_event_ids);
+
+            int rc = db.prepare_v2 (sql, -1, out stmt);
+
+            database.assert_query_success(rc, "SQL error");
+
+            GenericArray<RelatedUri?> uris = new GenericArray<RelatedUri?>();
+            
+            while ((rc = stmt.step()) == Sqlite.ROW)
+            {
+                RelatedUri ruri = RelatedUri(){
+                    id = (uint32) uint64.parse(stmt.column_text (0)),
+                    timestamp = stmt.column_int64 (1),
+                    uri = stmt.column_text (2)
+                };
+                uris.add(ruri);
+            }
+
+            if (rc != Sqlite.DONE)
+            {
+                string error_message = "Error in find_related_uris: %d, %s".printf (
+                    rc, db.errmsg ());
+                warning (error_message);
+                throw new EngineError.DATABASE_ERROR (error_message);
+            }
+            
+            // FIXME: Slide through windows and with a static size of 5 events
+            
+            string[] results = new string[max_results];
+            return results;
+        }
+        else
+            throw new EngineError.DATABASE_ERROR ("Unsupported ResultType.");
+    }
+
     public uint32[] insert_events (GenericArray<Event> events,
         BusName? sender=null) throws EngineError
     {
@@ -622,15 +718,15 @@ public class Engine : Object
                 parse_negation("interpretation", ref template.interpretation));*/
 
 /*
-				value, negation, wildcard = parse_operators(Event, Event.Interpretation, event_template.interpretation)
-				# Expand event interpretation children
-				event_interp_where = WhereClause(WhereClause.OR, negation)
-				for child_interp in (Symbol.find_child_uris_extended(value)):
-					if child_interp:
-						event_interp_where.add_text_condition("interpretation",
-						                       child_interp, like=wildcard, cache=self._interpretation)
-				if event_interp_where:
-					where.extend(event_interp_where)
+    value, negation, wildcard = parse_operators(Event, Event.Interpretation, event_template.interpretation)
+    # Expand event interpretation children
+    event_interp_where = WhereClause(WhereClause.OR, negation)
+    for child_interp in (Symbol.find_child_uris_extended(value)):
+    	if child_interp:
+    		event_interp_where.add_text_condition("interpretation",
+    		                       child_interp, like=wildcard, cache=self._interpretation)
+    if event_interp_where:
+    	where.extend(event_interp_where)
 */
 
             // Interpretation

@@ -115,7 +115,10 @@ namespace Zeitgeist
                 uint storage_state, uint num_events, uint result_type,
                 BusName sender)
         {
-            return new string[] { "hi", "bar" };
+            return engine.find_related_uris(new TimeRange.from_variant (time_range),
+                Events.from_variant(event_templates),
+                Events.from_variant(result_event_templates),
+                storage_state, num_events, result_type);
         }
 
         // FIXME
