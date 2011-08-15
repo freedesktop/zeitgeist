@@ -353,6 +353,7 @@ public class Engine : Object
         public uint32 id;
         public int64 timestamp;
         public string uri;
+        public int32 counter;
     }
 
     public string[] find_related_uris (TimeRange time_range,
@@ -424,7 +425,8 @@ public class Engine : Object
                 RelatedUri ruri = RelatedUri(){
                     id = (uint32) uint64.parse(stmt.column_text (0)),
                     timestamp = stmt.column_int64 (1),
-                    uri = stmt.column_text (2)
+                    uri = stmt.column_text (2),
+                    counter = 0
                 };
                 temp_related_uris.add(ruri);
             }
@@ -441,28 +443,64 @@ public class Engine : Object
                 throw new EngineError.DATABASE_ERROR (error_message);
             }
             
-            HashTable<string, uint32> counter = new HashTable<string, uint32>(str_hash, str_equal);
+            HashTable<string, RelatedUri?> uri_counter = new HashTable<string, RelatedUri?>(str_hash, str_equal);
             
-            for (int i=0; i<temp_related_uris.length; i++)
+            for (int i=-5; i<temp_related_uris.length; i++)
             {
                 GenericArray<RelatedUri?> window = new GenericArray<RelatedUri?>();
                 
                 bool count_in_window = false;
                 for (int j=i; j < i+5 && j < temp_related_uris.length; j++)
                 {
-                    window.add(temp_related_uris[j]);
-                    if (temp_related_uris[j].id in ids)
-                        count_in_window = true;
+                    if (j > -1)
+                    {
+                        window.add(temp_related_uris[j]);
+                        if (temp_related_uris[j].id in ids)
+                            count_in_window = true;
+                    }
                 }
                 if (count_in_window)
                 {
                     for (int j=0; j<window.length; j++)
                     {
                         // FIXME: Start counting elements in window
+                        if (uri_counter.lookup(window[j].uri) == null)
+                        {
+                            RelatedUri ruri = RelatedUri()
+                            {
+                                id = window[j].id,
+                                timestamp = window[j].timestamp,
+                                uri = window[j].uri,
+                                counter = 0
+                            };
+                            uri_counter.insert(window[j].uri, ruri);
+                        }
+                        uri_counter.lookup(window[j].uri).counter++;
+                        uri_counter.lookup(window[j].uri).timestamp = window[j].timestamp;
                     }
                 }
             }
             
+            // We have the big hashtable with the structs, now we sort them by
+            // most used and limit the result then sort again
+            /*GenericArray<RelatedUri?> temp_results = new  GenericArray<RelatedUri?>();
+            List<RelatedUri?> values = uri_counter.get_values();
+            values.sort ((a, b) => a.counter - b.counter);
+            foreach (RelatedUri ruri in values)
+            {   
+                if (temp_results.length < max_results)
+                    temp_results.add(ruri);
+                else
+                    break;
+            }
+            
+            stdout.printf("%i\n", temp_results.length);
+            for (int i = 0; i < temp_results.length - 1; i++)
+            {
+                stdout.printf("%s %i\n", temp_results[i].uri, temp_results[i].counter);
+            }
+            */
+
             string[] results = new string[max_results];
             return results;
         }
