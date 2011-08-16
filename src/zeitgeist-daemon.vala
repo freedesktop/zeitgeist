@@ -245,6 +245,8 @@ namespace Zeitgeist
             Posix.signal (Posix.SIGHUP, safe_exit);
             Posix.signal (Posix.SIGTERM, safe_exit);
 
+			Constants.initialize ();
+
             run ();
             return 0;
         }
