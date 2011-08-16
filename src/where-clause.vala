@@ -103,20 +103,21 @@ namespace Zeitgeist
             bool negation=false)
         {
             string search_column;
-			switch (column)
-			{
-				case "origin":
-				case "subj_origin":
-				case "subj_uri":
-				case "subj_current_uri":
-					search_column = "uri";
-					break;
-				case "subj_mimetype":
-					search_column = "mimetype";
-					break;
-				default:
-					assert_not_reached ();
-			}
+            switch (column)
+            {
+                case "origin":
+                case "subj_origin":
+                case "subj_uri":
+                case "subj_current_uri":
+                    search_column = "uri";
+                    break;
+                case "subj_mimetype":
+                    search_column = "mimetype";
+                    break;
+                default:
+                    search_column = column;
+                    break;
+            }
 
             var values = new GenericArray<string> ();
             values.add(needle);
