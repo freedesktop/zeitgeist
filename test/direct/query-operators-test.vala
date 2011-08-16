@@ -27,98 +27,114 @@ void main (string[] args)
     Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
 
     Test.add_func ("/ParseNegation/main", parse_negation_test);
+    Test.add_func ("/ParseNegation/assert", assert_no_negation_test);
     Test.add_func ("/ParseWildcard/main", parse_wildcard_test);
+	Test.add_func ("/ParseWildlcard/assert", assert_no_wildcard_test);
 
     Test.run ();
 }
 
 private class PublicEngine : Zeitgeist.Engine
 {
-    public bool PUBLIC_parse_negation (string field, ref string val)
-        throws EngineError
+    public bool PUBLIC_parse_negation (ref string val)
     {
-        return parse_negation(field, ref val);
+        return parse_negation (ref val);
     }
 
-    public bool PUBLIC_parse_wildcard (string field, ref string val)
-        throws EngineError
+	public void PUBLIC_assert_no_negation (string field, string val)
+		throws EngineError
+	{
+		assert_no_negation (field, val);
+	}
+
+    public bool PUBLIC_parse_wildcard (ref string val)
     {
-        return parse_wildcard(field, ref val);
+        return parse_wildcard (ref val);
     }
+
+	public void PUBLIC_assert_no_wildcard (string field, string val)
+		throws EngineError
+	{
+		assert_no_wildcard (field, val);
+	}
+
 }
 
 public void parse_negation_test ()
 {
-    PublicEngine engine = new PublicEngine();
+    PublicEngine engine = new PublicEngine ();
     string val;
 
     // Test string without a negation
     val = "no negation";
-    assert (engine.PUBLIC_parse_negation ("mimetype", ref val) == false);
+    assert (engine.PUBLIC_parse_negation (ref val) == false);
     assert (val == "no negation");
-
-    // Test "text" field string with negation character (should be ignored)
-    val = "!something";
-    assert (engine.PUBLIC_parse_negation ("text", ref val) == false);
-    assert (val == "!something");
 
     // Test string with a valid negation
     val = "!negation";
-    assert (engine.PUBLIC_parse_negation ("mimetype", ref val) == true);
+    assert (engine.PUBLIC_parse_negation (ref val) == true);
     assert (val == "negation");
 
-    // Test wildcard in string that doesn't support it
-    val = "!negation";
-    try
-    {
-        engine.PUBLIC_parse_negation ("unsupported", ref val);
-        assert_not_reached();
-    }
-    catch (EngineError.INVALID_ARGUMENT e)
-    {
-    }
-
-    // Test wildcard character in meaningless position in string that
-    // doesn't support wildcards
+    // Test negation character in a meaningless position
     val = "some ! chars";
-    assert (engine.PUBLIC_parse_negation ("unsupported", ref val) == false);
+    assert (engine.PUBLIC_parse_negation (ref val) == false);
     assert (val == "some ! chars");
+}
+
+public void assert_no_negation_test ()
+{
+	PublicEngine engine = new PublicEngine ();
+
+	engine.PUBLIC_assert_no_negation ("field name", "good");
+	engine.PUBLIC_assert_no_negation ("field name", "good!");
+	engine.PUBLIC_assert_no_negation ("field name", "go!od");
+
+	try
+	{
+		engine.PUBLIC_assert_no_negation ("field name", "!bad");
+		assert_not_reached ();
+	}
+	catch (EngineError.INVALID_ARGUMENT e)
+	{
+	}
 }
 
 public void parse_wildcard_test ()
 {
-    PublicEngine engine = new PublicEngine();
+    PublicEngine engine = new PublicEngine ();
     string val;
 
     // Test string without a wildcard
     val = "no wildcard";
-    assert (engine.PUBLIC_parse_wildcard ("mimetype", ref val) == false);
+    assert (engine.PUBLIC_parse_wildcard (ref val) == false);
     assert (val == "no wildcard");
-
-    // Test "text" field string with wildcard character (should be ignored)
-    val = "something*";
-    assert (engine.PUBLIC_parse_wildcard ("text", ref val) == false);
-    assert (val == "something*");
 
     // Test string with a valid wildcard
     val = "yes wildcar*";
-    assert (engine.PUBLIC_parse_wildcard ("mimetype", ref val) == true);
+    assert (engine.PUBLIC_parse_wildcard (ref val) == true);
     assert (val == "yes wildcar");
 
-    // Test wildcard in string that doesn't support it
-    val = "another wildcard *";
-    try
-    {
-        engine.PUBLIC_parse_wildcard ("unsupported", ref val);
-        assert_not_reached();
-    }
-    catch (EngineError.INVALID_ARGUMENT e)
-    {
-    }
-
-    // Test wildcard character in meaningless position in string that
-    // doesn't support wildcards
+    // Test wildcard character in a meaningless position
     val = "some * chars";
-    assert (engine.PUBLIC_parse_wildcard ("unsupported", ref val) == false);
+    assert (engine.PUBLIC_parse_wildcard ( ref val) == false);
     assert (val == "some * chars");
+}
+
+
+public void assert_no_wildcard_test ()
+{
+	PublicEngine engine = new PublicEngine ();
+
+	engine.PUBLIC_assert_no_wildcard ("field name", "good");
+	engine.PUBLIC_assert_no_wildcard ("field name", "*good");
+	engine.PUBLIC_assert_no_wildcard ("field name", "go*od");
+
+	try
+	{
+		engine.PUBLIC_assert_no_wildcard ("field name", "bad*");
+		assert_not_reached ();
+	}
+	catch (EngineError.INVALID_ARGUMENT e)
+	{
+	}
 }

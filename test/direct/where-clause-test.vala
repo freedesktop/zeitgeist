@@ -67,7 +67,7 @@ public void basic_test ()
 
     where = new WhereClause (WhereClause.Type.AND, true);
     where.add ("some condition");
-    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL, "NOT (some condition)");
+    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL, "NOT some condition");
 }
 
 public void nested_test ()
@@ -112,7 +112,7 @@ public void nested_negation_test ()
     where.add ("cond3");
 
     assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL,
-        "(cond1 OR NOT (cond2) OR cond3)");
+        "(cond1 OR NOT cond2 OR cond3)");
 }
 
 public void match_condition_test ()
@@ -123,13 +123,13 @@ public void match_condition_test ()
     where = new WhereClause (WhereClause.Type.AND);
     where.add_match_condition ("field1", 5);
     assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL,
-        "(field1 = 5)");
+        "field1 = 5");
     assert_cmpint (where.get_bind_arguments ().length, OperatorType.EQUAL, 0);
 
     // Negation
     where = new WhereClause (WhereClause.Type.AND);
     where.add_match_condition ("f2", 3, true);
-    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL, "(f2 != 3)");
+    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL, "f2 != 3");
 
     // FIXME: test LIKE stuff...
 }
