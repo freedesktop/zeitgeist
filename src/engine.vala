@@ -539,12 +539,12 @@ public class Engine : Object
         BusName? sender=null) throws EngineError
     {
         uint32[] event_ids = new uint32[events.length];
-        database.begin_transaction();
+        database.begin_transaction ();
         for (int i = 0; i < events.length; ++i)
         {
             event_ids[i] = insert_event (events[i], sender);
         }
-        database.end_transaction();
+        database.end_transaction ();
         return event_ids;
     }
 
@@ -799,30 +799,9 @@ public class Engine : Object
     {
             WhereClause where = new WhereClause (WhereClause.Type.AND);
 
-            // FIXME: Right now we are always calling parse_{negation,wildcard}
-            // and giving it the field name to check if it's good (to complain
-            // if !/* is used where it isn't expected). Is this really needed?
-
-            // URI
+            // Event ID
             if (template.id != 0)
                 where.add ("id=?", template.id.to_string());
-
-            // Interpretation
-            /*var event_interpretation_where = new WhereClause (
-                WhereClause.Type.OR,
-                parse_negation("interpretation", ref template.interpretation));*/
-
-            /*
-                value, negation, wildcard = parse_operators(Event, Event.Interpretation, event_template.interpretation)
-                # Expand event interpretation children
-                event_interp_where = WhereClause(WhereClause.OR, negation)
-                for child_interp in (Symbol.find_child_uris_extended(value)):
-                    if child_interp:
-                        event_interp_where.add_text_condition("interpretation",
-                                               child_interp, like=wildcard, cache=self._interpretation)
-                if event_interp_where:
-                    where.extend(event_interp_where)
-            */
 
             // Interpretation
             if (template.interpretation != "")

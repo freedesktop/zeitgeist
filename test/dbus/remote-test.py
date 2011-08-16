@@ -144,16 +144,14 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.insertEventsAndWait(events)
 
 		# Retrieve events for a particular interpretation
-		template = Event.new_for_values(interpretation='stfu:Document')
+		template = Event.new_for_values(interpretation='stfu:OpenEvent')
 		ids = self.findEventIdsAndWait([template])
-		self.assertEquals(ids, [1])
+		self.assertEquals(ids, [5, 1])
 
 		# Retrieve events excluding a particular interpretation
-		template = Event.new_for_values(interpretation='!stfu:Document')
+		template = Event.new_for_values(interpretation='!stfu:OpenEvent')
 		ids = self.findEventIdsAndWait([template])
-		self.assertEquals(map(int, ids), [5, 4, 3, 2])
-
-		# FIXME: test children
+		self.assertEquals(map(int, ids), [4, 2, 3])
 
 	def testFindEventIdsForManifestation(self):
 		# Insert some events...

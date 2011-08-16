@@ -67,7 +67,7 @@ namespace Zeitgeist
                 }
             }
             stdout.printf ("DATA_PATH = %s\n", DATA_PATH);
-            
+
             DATABASE_FILE_PATH = Environment.get_variable (
                 "ZEITGEIST_DATABASE_PATH");
             if (DATABASE_FILE_PATH == null)
@@ -76,7 +76,7 @@ namespace Zeitgeist
                     "activity.sqlite");
             }
             stdout.printf ("DATABASE_FILE_PATH = %s\n", DATABASE_FILE_PATH);
-            
+
             DATABASE_FILE_BACKUP_PATH = Environment.get_variable (
                 "ZEITGEIST_DATABASE_BACKUP_PATH");
             if (DATABASE_FILE_BACKUP_PATH == null)
@@ -86,7 +86,7 @@ namespace Zeitgeist
             }
             stdout.printf ("DATABASE_FILE_BACKUP_PATH = %s\n",
                 DATABASE_FILE_BACKUP_PATH);
-            
+
             LOCAL_EXTENSIONS_PATH = Path.build_filename (DATA_PATH,
                 "extensions");
             if (!FileUtils.test (LOCAL_EXTENSIONS_PATH, FileTest.IS_DIR))
