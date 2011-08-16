@@ -219,7 +219,7 @@ namespace Zeitgeist
                 return new StringBuilder ().append_unichar(0x10ffff).str;
             int len = text.char_count () - 1;
             unichar charpoint = text.get_char (text.index_of_nth_char (len));
-            string head = text.substring (0, text.index_of_nth_char (len - 1));
+            string head = text.substring (0, text.index_of_nth_char (len));
             if (charpoint == 0x10ffff)
             {
                 // If the last char is the biggest possible char we need to

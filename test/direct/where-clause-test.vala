@@ -137,8 +137,9 @@ public void match_condition_test ()
 public void right_boundary_test ()
 {
     var clause = new PublicWhereClause (WhereClause.Type.AND);
-    assert_cmpstr (clause.get_right_boundary ("a"), OperatorType.EQUAL, "ab");
-    assert_cmpstr (clause.get_right_boundary ("hello"), OperatorType.EQUAL, "help");
+    assert_cmpstr (clause.get_right_boundary ("a"), OperatorType.EQUAL, "b");
+    assert_cmpstr (clause.get_right_boundary ("hello"), OperatorType.EQUAL, "hellp");
+    assert_cmpstr (clause.get_right_boundary ("a b"), OperatorType.EQUAL, "a c");
 }
 
 // vim:expandtab:ts=4:sw=4
