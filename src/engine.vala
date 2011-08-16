@@ -806,30 +806,19 @@ public class Engine : Object
             // Interpretation
             if (template.interpretation != "")
             {
-                string val = template.interpretation;
-                bool negated = parse_negation (ref val);
-                List<string> symbols = Symbol.get_all_children (val);
-                symbols.append (val);
-
-                WhereClause interp_where = new WhereClause(
-                    WhereClause.Type.OR, negated);
-                foreach (string uri in symbols)
-                {
-                    interp_where.add_match_condition ("interpretation",
-                        interpretations_table.get_id (uri));
-                }
-                if (!interp_where.is_empty ())
-                    where.extend (interp_where);
+                WhereClause subwhere = get_where_clause_for_symbol ("interpretation",
+					template.interpretation, interpretations_table);
+                if (!subwhere.is_empty ())
+                    where.extend (subwhere);
             }
 
             // Manifestation
             if (template.manifestation != "")
             {
-                string val = template.manifestation;
-                bool negated = parse_negation (ref val);
-
-                where.add_match_condition ("manifestation",
-                    manifestations_table.get_id (val), negated);
+				WhereClause subwhere = get_where_clause_for_symbol ("manifestation",
+					template.manifestation, manifestations_table);
+				if (!subwhere.is_empty ())
+					where.extend (subwhere);
             }
 
             // Actor
@@ -934,7 +923,7 @@ public class Engine : Object
     }
 
     protected WhereClause get_where_clause_for_symbol (string table_name,
-        string symbol)
+        string symbol, TableLookup lookup_table)
     {
         string _symbol = symbol;
         bool negated = parse_negation (ref _symbol);
@@ -946,7 +935,7 @@ public class Engine : Object
         foreach (string uri in symbols)
         {
             subwhere.add_match_condition (table_name,
-                interpretations_table.get_id (uri));
+                lookup_table.get_id (uri));
         }
         return subwhere;
     }
