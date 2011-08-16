@@ -372,6 +372,7 @@ public class Engine : Object
         //FXIME: implement calculation
         if (result_type == 0 || result_type == 1)
         {
+            
             // We pick out the ids for relational event so we can set them as 
             // roots the ids are taken from the events that match the events_templates
             uint32[] ids = find_event_ids (time_range, event_templates, storage_state,
@@ -476,32 +477,56 @@ public class Engine : Object
                             uri_counter.insert(window[j].uri, ruri);
                         }
                         uri_counter.lookup(window[j].uri).counter++;
-                        uri_counter.lookup(window[j].uri).timestamp = window[j].timestamp;
+                        if (uri_counter.lookup(window[j].uri).timestamp < window[j].timestamp)
+                            uri_counter.lookup(window[j].uri).timestamp = window[j].timestamp;
                     }
                 }
             }
             
+            
             // We have the big hashtable with the structs, now we sort them by
             // most used and limit the result then sort again
-            /*GenericArray<RelatedUri?> temp_results = new  GenericArray<RelatedUri?>();
-            List<RelatedUri?> values = uri_counter.get_values();
+            List<RelatedUri?> temp_ruris = new  List<RelatedUri?>();
+            List<RelatedUri?> values = new List<RelatedUri?>();
+            
+            foreach (var uri in uri_counter.get_values())
+                values.append(uri);
+            
             values.sort ((a, b) => a.counter - b.counter);
+            values.sort ((a, b) => {
+                    int64 delta = a.timestamp - b.timestamp; 
+                    if (delta < 0) return 1; 
+                    else if (delta > 0) return -1; 
+                    else return 0;});
+            
             foreach (RelatedUri ruri in values)
             {   
-                if (temp_results.length < max_results)
-                    temp_results.add(ruri);
+                if (temp_ruris.length() < max_results)
+                    temp_ruris.append(ruri);
                 else
                     break;
             }
             
-            stdout.printf("%i\n", temp_results.length);
-            for (int i = 0; i < temp_results.length - 1; i++)
+            // Sort by recency
+            if (result_type == 1)
+                temp_ruris.sort ((a, b) => {
+                    int64 delta = a.timestamp - b.timestamp; 
+                    if (delta < 0) return 1; 
+                    else if (delta > 0) return -1; 
+                    else return 0;});
+                
+            string[] results = new string[temp_ruris.length()];
+            
+            int i = 0;
+            foreach (var uri in temp_ruris)
             {
-                stdout.printf("%s %i\n", temp_results[i].uri, temp_results[i].counter);
+                results[i] = uri.uri;
+                stdout.printf("%i %lld %s\n", uri.counter, 
+                    uri.timestamp,
+                    uri.uri);
+                i++;
             }
-            */
-
-            string[] results = new string[max_results];
+            
             return results;
         }
         else
