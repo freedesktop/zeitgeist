@@ -483,51 +483,52 @@ public class Engine : Object
                     }
                 }
             }
-            
-            
+
+
             // We have the big hashtable with the structs, now we sort them by
             // most used and limit the result then sort again
             List<RelatedUri?> temp_ruris = new  List<RelatedUri?>();
             List<RelatedUri?> values = new List<RelatedUri?>();
-            
+
             foreach (var uri in uri_counter.get_values())
                 values.append(uri);
-            
+
             values.sort ((a, b) => a.counter - b.counter);
             values.sort ((a, b) => {
-                    int64 delta = a.timestamp - b.timestamp; 
-                    if (delta < 0) return 1; 
-                    else if (delta > 0) return -1; 
-                    else return 0;});
-            
+                    int64 delta = a.timestamp - b.timestamp;
+                    if (delta < 0) return 1;
+                    else if (delta > 0) return -1;
+                    else return 0;
+                });
+
             foreach (RelatedUri ruri in values)
-            {   
+            {
                 if (temp_ruris.length() < max_results)
                     temp_ruris.append(ruri);
                 else
                     break;
             }
-            
+
             // Sort by recency
             if (result_type == 1)
                 temp_ruris.sort ((a, b) => {
-                    int64 delta = a.timestamp - b.timestamp; 
-                    if (delta < 0) return 1; 
-                    else if (delta > 0) return -1; 
+                    int64 delta = a.timestamp - b.timestamp;
+                    if (delta < 0) return 1;
+                    else if (delta > 0) return -1;
                     else return 0;});
-                
+
             string[] results = new string[temp_ruris.length()];
-            
+
             int i = 0;
             foreach (var uri in temp_ruris)
             {
                 results[i] = uri.uri;
-                stdout.printf("%i %lld %s\n", uri.counter, 
+                stdout.printf("%i %lld %s\n", uri.counter,
                     uri.timestamp,
                     uri.uri);
                 i++;
             }
-            
+
             return results;
         }
         else
@@ -816,11 +817,11 @@ public class Engine : Object
                 # Expand event interpretation children
                 event_interp_where = WhereClause(WhereClause.OR, negation)
                 for child_interp in (Symbol.find_child_uris_extended(value)):
-                	if child_interp:
-                		event_interp_where.add_text_condition("interpretation",
-                		                       child_interp, like=wildcard, cache=self._interpretation)
+                    if child_interp:
+                        event_interp_where.add_text_condition("interpretation",
+                                               child_interp, like=wildcard, cache=self._interpretation)
                 if event_interp_where:
-                	where.extend(event_interp_where)
+                    where.extend(event_interp_where)
             */
 
             // Interpretation
