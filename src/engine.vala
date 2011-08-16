@@ -2,6 +2,7 @@
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ *             By Seif Lotfy <seif@lotfy.com>
  *
  * Based upon a Python implementation (2009-2011) by:
  *  Markus Korn <thekorn@gmx.net>
@@ -585,6 +586,8 @@ public class Engine : Object
             {
                 unowned Subject subject = event.subjects[i];
                 uris.add (subject.uri);
+                if (subject.current_uri == null)
+                    subject.current_uri = subject.uri;
                 uris.add (subject.current_uri);
                 if (subject.origin != "")
                     uris.add (subject.origin);
@@ -680,6 +683,9 @@ public class Engine : Object
             }
         }
 
+        stdout.printf ("============ Inserted event: ============\n");
+        event.debug_print ();
+        stdout.printf ("\n");
         /*
         if (event.interpretation == MOVE_EVENT)
         {

@@ -148,12 +148,6 @@ namespace Zeitgeist
                 BusName sender)
         {
             var events = Events.from_variant (vevents);
-            for (int i = 0; i < events.length; i++)
-            {
-                stdout.printf ("============ Inserting event: ============\n");
-                events[i].debug_print ();
-                stdout.printf ("\n");
-            }
 
             // FIXME: trigger notifications
 
