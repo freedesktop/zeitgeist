@@ -91,24 +91,37 @@ namespace Zeitgeist
             add (sql);
         }
 
+        public void add_text_condition (string column, string val,
+            bool negation=false)
+            throws EngineError.INVALID_ARGUMENT
+        {
+            string sql = "%s %s= ?".printf (column, (negation) ? "!" : "");
+            add (sql, val);
+        }
+
         public void add_wildcard_condition (string column, string needle,
             bool negation=false)
         {
-            if (!(column in PREFIX_SEARCH_SUPPORTED))
-            {
-                string error_message =
-                    "Prefix search is not supported for column '%s'."
-                    .printf (column);
-                warning (error_message);
-                throw new EngineError.INVALID_ARGUMENT (error_message);
-            }
-
-            // FIXME: mess with the column name
+            string search_column;
+			switch (column)
+			{
+				case "origin":
+				case "subj_origin":
+				case "subj_uri":
+				case "subj_current_uri":
+					search_column = "uri";
+					break;
+				case "subj_mimetype":
+					search_column = "mimetype";
+					break;
+				default:
+					assert_not_reached ();
+			}
 
             var values = new GenericArray<string> ();
             values.add(needle);
             string optimized_glob = optimize_glob (
-                "id", column, ref values); // table_map.get(col, col)
+                "id", search_column, ref values);
 
             string sql;
             if (!negation)
@@ -116,7 +129,7 @@ namespace Zeitgeist
             else
                 sql = "%s NOT IN (%s) OR %s is NULL".printf (column,
                     optimized_glob, column);
-            add_with_array (sql, values);
+			add_with_array (sql, values);
         }
 
         public void extend (WhereClause clause)

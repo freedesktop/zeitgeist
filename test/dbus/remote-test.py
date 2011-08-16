@@ -188,6 +188,21 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		ids = self.findEventIdsAndWait([template])
 		self.assertEquals(map(int, ids), [2, 3])
 
+	def testFindEventIdsForEventOrigin(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular actor
+		template = Event.new_for_values(origin='big bang')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [5, 3])
+
+		# Now let's try with wildcard and negation
+		template = Event.new_for_values(origin='!big *')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [4, 2, 1])
+
 class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 
 	def testQuit(self):

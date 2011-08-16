@@ -20,6 +20,7 @@
 		"interpretation" : "stfu:ShalalalalaEvent",
 		"manifestation" : "stfu:BooActivity",
 		"actor" : "geany",
+		"origin" : "belly",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
@@ -36,6 +37,7 @@
 		"interpretation" : "stfu:FoobarEvent",
 		"manifestation" : "stfu:SomeActivity",
 		"actor" : "gedit",
+		"origin" : "big bang",
 		"subjects" : [
 			{
 				"uri" : "file:///tmp/foo.txt",
@@ -68,6 +70,7 @@
 		"interpretation" : "stfu:OpenEvent",
 		"manifestation" : "stfu:EpicFailActivity",
 		"actor" : "firefox",
+		"origin" : "big bang",
 		"subjects" : [
 			{
 				"uri" : "file:///home/foo.txt",

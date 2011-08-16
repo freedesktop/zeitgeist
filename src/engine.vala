@@ -836,7 +836,17 @@ public class Engine : Object
             }
 
             // Origin
-            // FIXME...
+			if (template.origin != "")
+			{
+				string val = template.origin;
+				bool like = parse_wildcard (ref val);
+				bool negated = parse_negation (ref val);
+
+				if (like)
+					where.add_wildcard_condition ("origin", val, negated);
+				else
+					where.add_text_condition ("event_origin_uri", val, negated);
+			}
 
             for (int i = 0; i < template.num_subjects(); ++i)
             {
@@ -917,7 +927,7 @@ public class Engine : Object
         if (!val.has_suffix ("*"))
             return;
         string error_message =
-            "Field '%s' doesn't support wildcards".printf (field);
+            "Field '%s' doesn't support prefix search".printf (field);
         warning (error_message);
         throw new EngineError.INVALID_ARGUMENT (error_message);
     }
