@@ -392,11 +392,8 @@ public class Engine : Object
             // the result_event_templates if no result_event_templates are set we
             // consider all results as allowed
             uint32[] result_ids = null;
-            if (result_event_templates.length > 0)
-                result_ids = find_event_ids (time_range, result_event_templates,
-                    storage_state, 0, ResultType.LEAST_RECENT_EVENTS);
-            else
-                result_ids = new uint32[0];
+            result_ids = find_event_ids (time_range, result_event_templates,
+                storage_state, 0, ResultType.LEAST_RECENT_EVENTS);
 
             // From here we create several graphs with the maximum depth of 2
             // and push all the nodes and vertices (events) in one pot together
