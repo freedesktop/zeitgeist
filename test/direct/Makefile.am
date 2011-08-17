@@ -4,6 +4,7 @@ VALAFLAGS = \
 	--pkg sqlite3 \
 	--pkg posix \
 	$(srcdir)/assertions.vapi \
+	--Xcc=-w \
 	$(NULL)
 
 TESTS = \
