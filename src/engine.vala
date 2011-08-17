@@ -365,8 +365,8 @@ public class Engine : Object
     { 
         /** 
         * Return a list of subject URIs commonly used together with events
-        * matching the given template, considering data from within the indicated
-        * timerange.
+        * matching the given template, considering data from within the
+        * indicated timerange.
         * Only URIs for subjects matching the indicated `result_event_templates`
         * and `result_storage_state` are returned.
         */
@@ -374,15 +374,17 @@ public class Engine : Object
         if (result_type == 0 || result_type == 1)
         {
             
-            // We pick out the ids for relational event so we can set them as 
-            // roots the ids are taken from the events that match the events_templates
-            uint32[] ids = find_event_ids (time_range, event_templates, storage_state,
-                0, ResultType.LEAST_RECENT_EVENTS);
+            // We pick out the ids for relational event so we can set them as
+            // roots the ids are taken from the events that match the
+            // events_templates
+            uint32[] ids = find_event_ids (time_range, event_templates,
+                storage_state, 0, ResultType.LEAST_RECENT_EVENTS);
             
             // FIXME: If no results for the event_templates is found raise error
             if (event_templates.length > 0 && ids.length == 0)
             {
-                throw new EngineError.INVALID_ARGUMENT("No results found for the event_templates");
+                throw new EngineError.INVALID_ARGUMENT(
+                    "No results found for the event_templates");
             }
             
             // Pick out the result_ids for the filtered results we would like to
@@ -391,8 +393,8 @@ public class Engine : Object
             // consider all results as allowed
             uint32[] result_ids = null;
             if (result_event_templates.length > 0)
-                result_ids = find_event_ids (time_range, result_event_templates, storage_state,
-                    0, ResultType.LEAST_RECENT_EVENTS);
+                result_ids = find_event_ids (time_range, result_event_templates,
+                    storage_state, 0, ResultType.LEAST_RECENT_EVENTS);
             else
                 result_ids = new uint32[0];
             
@@ -420,7 +422,7 @@ public class Engine : Object
             database.assert_query_success(rc, "SQL error");
 
             // FIXME: fix this ugly code
-            GenericArray<RelatedUri?> temp_related_uris = new GenericArray<RelatedUri?>();
+            var temp_related_uris = new GenericArray<RelatedUri?>();
             
             while ((rc = stmt.step()) == Sqlite.ROW)
             {
@@ -439,17 +441,19 @@ public class Engine : Object
 
             if (rc != Sqlite.DONE)
             {
-                string error_message = "Error in find_related_uris: %d, %s".printf (
+                string error_message =
+                    "Error in find_related_uris: %d, %s".printf (
                     rc, db.errmsg ());
                 warning (error_message);
                 throw new EngineError.DATABASE_ERROR (error_message);
             }
 
-            HashTable<string, RelatedUri?> uri_counter = new HashTable<string, RelatedUri?>(str_hash, str_equal);
+            var uri_counter = new HashTable<string, RelatedUri?>(
+                str_hash, str_equal);
 
             for (int i=-5; i<temp_related_uris.length; i++)
             {
-                GenericArray<RelatedUri?> window = new GenericArray<RelatedUri?>();
+                var window = new GenericArray<RelatedUri?>();
 
                 bool count_in_window = false;
                 for (int j=i; j < i+5 && j < temp_related_uris.length; j++)
@@ -478,8 +482,10 @@ public class Engine : Object
                             uri_counter.insert(window[j].uri, ruri);
                         }
                         uri_counter.lookup(window[j].uri).counter++;
-                        if (uri_counter.lookup(window[j].uri).timestamp < window[j].timestamp)
-                            uri_counter.lookup(window[j].uri).timestamp = window[j].timestamp;
+                        if (uri_counter.lookup(window[j].uri).timestamp
+                                < window[j].timestamp)
+                            uri_counter.lookup(window[j].uri).timestamp =
+                                window[j].timestamp;
                     }
                 }
             }
