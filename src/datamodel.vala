@@ -234,7 +234,7 @@ namespace Zeitgeist
         public string    manifestation { get; set; }
         public string    actor { get; set; }
         public string    origin { get; set; }
-        
+
         public GenericArray<Subject> subjects { get; set; }
         public ByteArray? payload { get; set; }
 
@@ -257,7 +257,7 @@ namespace Zeitgeist
             assert (event_variant.get_type_string () == "(asaasay)");
 
             VariantIter iter = event_variant.iterator();
-            
+
             assert (iter.n_children() == 3);
             VariantIter event_array = iter.next_value().iterator();
             VariantIter subjects_array = iter.next_value().iterator();
@@ -279,12 +279,12 @@ namespace Zeitgeist
             // let's keep this compatible with older clients
             if (event_props >= 6)
                 origin = event_array.next_value().get_string ();
-            
+
             for (int i = 0; i < subjects_array.n_children(); ++i) {
                 Variant subject_variant = subjects_array.next_value();
                 subjects.add(new Subject.from_variant(subject_variant));
             }
-            
+
             // Parse payload...
             uint payload_length = (uint) payload_variant.n_children ();
             if (payload_length > 0)
@@ -300,7 +300,7 @@ namespace Zeitgeist
         public Variant to_variant ()
         {
             var vb = new VariantBuilder (new VariantType ("(asaasay)"));
-            
+
             vb.open (new VariantType ("as"));
             vb.add ("s", id.to_string ());
             vb.add ("s", timestamp.to_string ());
@@ -309,15 +309,14 @@ namespace Zeitgeist
             vb.add ("s", actor ?? "");
             vb.add ("s", origin ?? "");
             vb.close ();
-            
+
             vb.open (new VariantType ("aas"));
             for (int i = 0; i < subjects.length; ++i) {
                 vb.add_value (subjects[i].to_variant ());
             }
             vb.close ();
-            
+
             vb.open (new VariantType ("ay"));
-            // payload...
             if (payload != null)
             {
                 Variant payload_variant = Variant.new_from_data<ByteArray> (
@@ -426,7 +425,7 @@ namespace Zeitgeist
         public Subject.from_variant (Variant subject_variant)
         {
             VariantIter iter = subject_variant.iterator();
-            
+
             var subject_props = iter.n_children ();
             assert (subject_props >= 7);
             uri = iter.next_value().get_string ();
