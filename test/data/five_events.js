@@ -10,7 +10,7 @@
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
-				"mimetype" : "text/plain",
+				"mimetype" : "meat/raw",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
 			}
@@ -25,7 +25,7 @@
 			{
 				"uri" : "file:///tmp/foo.txt",
 				"interpretation" : "stfu:Image",
-				"manifestation" : "stfu:File",
+				"manifestation" : "stfu:Ethereal",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
@@ -76,10 +76,10 @@
 				"uri" : "file:///home/foo.txt",
 				"interpretation" : "stfu:Bar",
 				"manifestation" : "stfu:File",
-				"origin" : "file:///tmp",
-				"mimetype" : "text/plain",
+				"origin" : "http://fake",
+				"mimetype" : "vegetables/green",
 				"text" : "some text",
-				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
+				"storage" : "2342342-354-535-345-aeaeaeae"
 			}
 		]
 	}

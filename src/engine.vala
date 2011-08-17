@@ -812,8 +812,10 @@ public class Engine : Object
             // Interpretation
             if (template.interpretation != "")
             {
-                WhereClause subwhere = get_where_clause_for_symbol ("interpretation",
-					template.interpretation, interpretations_table);
+                assert_no_wildcard ("interpretation", template.interpretation);
+                WhereClause subwhere = get_where_clause_for_symbol (
+                    "interpretation", template.interpretation,
+                    interpretations_table);
                 if (!subwhere.is_empty ())
                     where.extend (subwhere);
             }
@@ -821,10 +823,12 @@ public class Engine : Object
             // Manifestation
             if (template.manifestation != "")
             {
-				WhereClause subwhere = get_where_clause_for_symbol ("manifestation",
-					template.manifestation, manifestations_table);
-				if (!subwhere.is_empty ())
-					where.extend (subwhere);
+                assert_no_wildcard ("manifestation", template.interpretation);
+                WhereClause subwhere = get_where_clause_for_symbol (
+                    "manifestation", template.manifestation,
+                    manifestations_table);
+                if (!subwhere.is_empty ())
+                   where.extend (subwhere);
             }
 
             // Actor
@@ -857,14 +861,107 @@ public class Engine : Object
             for (int i = 0; i < template.num_subjects(); ++i)
             {
                 Subject subject_template = template.subjects[i];
-                // interpret
-                // manif
-                // mimetypes
-                // uri, origin, text
-                // current_uri
-                //if (subject_template.storage != "")
-                //    where.add_text_condition ("subj_storage",
-                //        subject_template.storage);
+
+                // Subject interpretation
+                if (subject_template.interpretation != "")
+                {
+                    assert_no_wildcard ("subject interpretation",
+                        template.interpretation);
+                    WhereClause subwhere = get_where_clause_for_symbol (
+                        "subj_interpretation", subject_template.interpretation,
+                        interpretations_table);
+                    if (!subwhere.is_empty ())
+                        where.extend (subwhere);
+                }
+
+                // Subject manifestation
+                if (subject_template.manifestation != "")
+                {
+                    assert_no_wildcard ("subject manifestation",
+                        subject_template.manifestation);
+                    WhereClause subwhere = get_where_clause_for_symbol (
+                        "subj_manifestation", subject_template.manifestation,
+                        manifestations_table);
+                    if (!subwhere.is_empty ())
+                        where.extend (subwhere);
+                }
+
+                // Mime-Type
+                if (subject_template.mimetype != "")
+                {
+                    string val = subject_template.mimetype;
+                    bool like = parse_wildcard (ref val);
+                    bool negated = parse_negation (ref val);
+
+                    if (like)
+                        where.add_wildcard_condition (
+                            "subj_mimetype", val, negated);
+                    else
+                        where.add_match_condition ("subj_mimetype",
+                            mimetypes_table.get_id (val), negated);
+                }
+
+                // URI
+                if (subject_template.uri != "")
+                {
+                    string val = subject_template.uri;
+                    bool like = parse_wildcard (ref val);
+                    bool negated = parse_negation (ref val);
+
+                    if (like)
+                        where.add_wildcard_condition ("subj_uri", val, negated);
+                    else
+                        where.add_text_condition ("subj_uri", val, negated);
+                }
+
+                // Origin
+                if (subject_template.origin != "")
+                {
+                    string val = subject_template.origin;
+                    bool like = parse_wildcard (ref val);
+                    bool negated = parse_negation (ref val);
+
+                    if (like)
+                        where.add_wildcard_condition (
+                            "subj_origin", val, negated);
+                    else
+                        where.add_text_condition (
+                            "subj_origin_uri", val, negated);
+                }
+
+                // Text
+                if (subject_template.text != "")
+                {
+                    // Negation and prefix search isn't supported for
+                    // subject texts, but "!" and "*" are valid as
+                    // plain text characters.
+                    where.add_text_condition ("subj_text",
+                        subject_template.text, false);
+                }
+
+                // Current URI
+                if (subject_template.current_uri != "")
+                {
+                    string val = subject_template.current_uri;
+                    bool like = parse_wildcard (ref val);
+                    bool negated = parse_negation (ref val);
+
+                    if (like)
+                        where.add_wildcard_condition (
+                            "subj_current_uri", val, negated);
+                    else
+                        where.add_text_condition (
+                            "subj_current_uri", val, negated);
+                }
+
+                // Subject storage
+                if (subject_template.storage != "")
+                {
+                    string val = subject_template.storage;
+                    assert_no_negation ("subject storage", val);
+                    assert_no_wildcard ("subject storage", val);
+                    where.add_text_condition ("subj_storage", val);
+                }
             }
 
             return where;

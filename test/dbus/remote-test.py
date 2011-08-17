@@ -203,6 +203,122 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		ids = self.findEventIdsAndWait([template])
 		self.assertEquals(map(int, ids), [4, 2, 1])
 
+	def testFindEventIdsForSubjectInterpretation(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular subject interpretation
+		template = Event.new_for_values(subject_interpretation='stfu:Document')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [1])
+
+		# Retrieve events excluding a particular subject interpretation
+		template = Event.new_for_values(subject_interpretation='!stfu:Document')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [5, 4, 2, 3])
+
+	def testFindEventIdsForSubjectManifestation(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular subject manifestation
+		template = Event.new_for_values(subject_manifestation='stfu:File')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [5, 4, 3, 1])
+
+		# Retrieve events excluding a particular subject interpretation
+		template = Event.new_for_values(subject_manifestation='!stfu:File')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [2])
+
+	def testFindEventIdsForSubjectMimeType(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular mime-type
+		template = Event.new_for_values(subject_mimetype='text/plain')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [4, 2, 3])
+
+		# Now let's try with wildcard and negation
+		template = Event.new_for_values(subject_mimetype='!meat/*')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [5, 4, 2, 3])
+
+	def testFindEventIdsForSubjectUri(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular URI
+		template = Event.new_for_values(subject_uri='file:///tmp/foo.txt')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [2, 3])
+
+		# Now let's try with wildcard...
+		template = Event.new_for_values(subject_uri='http://*')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [1])
+
+		# ... and negation
+		template = Event.new_for_values(subject_uri='!file:///tmp/foo.txt')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [5, 4, 1])
+
+	def testFindEventIdsForSubjectOrigin(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular origin
+		template = Event.new_for_values(subject_origin='file:///tmp')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [4, 2, 3, 1])
+
+		# Now let's try with wildcard and negation
+		template = Event.new_for_values(subject_origin='!file:*')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [5])
+
+	def testFindEventIdsForSubjectText(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events with a particular text
+		template = Event.new_for_values(subject_text='this item *')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [4])
+
+	def testFindEventIdsForSubjectCurrentUri(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular current URI
+		template = Event.new_for_values(subject_current_uri='http://www.google.de')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [1])
+
+		# Now let's try with wildcard and negation
+		template = Event.new_for_values(subject_current_uri='!http:*')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [5, 4, 2, 3])
+
+	def testFindEventIdsForSubjectStorage(self):
+		# Insert some events...
+		events = parse_events("test/data/five_events.js")
+		self.insertEventsAndWait(events)
+
+		# Retrieve events for a particular subject storage
+		template = Event.new_for_values(subject_storage=
+			'368c991f-8b59-4018-8130-3ce0ec944157')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [4, 2, 3, 1])
+
 class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 
 	def testQuit(self):
