@@ -362,8 +362,8 @@ public class Engine : Object
         GenericArray<Event> result_event_templates,
         uint storage_state, uint max_results, uint result_type,
         BusName? sender=null) throws EngineError.INVALID_ARGUMENT
-    { 
-        /** 
+    {
+        /**
         * Return a list of subject URIs commonly used together with events
         * matching the given template, considering data from within the
         * indicated timerange.
@@ -373,22 +373,22 @@ public class Engine : Object
         //FXIME: implement calculation
         if (result_type == 0 || result_type == 1)
         {
-            
+
             // We pick out the ids for relational event so we can set them as
             // roots the ids are taken from the events that match the
             // events_templates
             uint32[] ids = find_event_ids (time_range, event_templates,
                 storage_state, 0, ResultType.LEAST_RECENT_EVENTS);
-            
+
             // FIXME: If no results for the event_templates is found raise error
             if (event_templates.length > 0 && ids.length == 0)
             {
                 throw new EngineError.INVALID_ARGUMENT(
                     "No results found for the event_templates");
             }
-            
+
             // Pick out the result_ids for the filtered results we would like to
-            // take into account the ids are taken from the events that match 
+            // take into account the ids are taken from the events that match
             // the result_event_templates if no result_event_templates are set we
             // consider all results as allowed
             uint32[] result_ids = null;
@@ -397,13 +397,13 @@ public class Engine : Object
                     storage_state, 0, ResultType.LEAST_RECENT_EVENTS);
             else
                 result_ids = new uint32[0];
-            
+
             // From here we create several graphs with the maximum depth of 2
             // and push all the nodes and vertices (events) in one pot together
-            // FIXME: the depth should be adaptable 
-            
+            // FIXME: the depth should be adaptable
+
             uint32[] pot = new uint32[ids.length + result_ids.length];
-           
+
             for (uint32 i=0; i < ids.length; i++)
                 pot[i] = ids[i];
             for (uint32 i=0; i < result_ids.length; i++)
@@ -423,7 +423,7 @@ public class Engine : Object
 
             // FIXME: fix this ugly code
             var temp_related_uris = new GenericArray<RelatedUri?>();
-            
+
             while ((rc = stmt.step()) == Sqlite.ROW)
             {
                 RelatedUri ruri = RelatedUri(){
