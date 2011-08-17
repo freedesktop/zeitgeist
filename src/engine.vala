@@ -444,13 +444,13 @@ public class Engine : Object
                 warning (error_message);
                 throw new EngineError.DATABASE_ERROR (error_message);
             }
-            
+
             HashTable<string, RelatedUri?> uri_counter = new HashTable<string, RelatedUri?>(str_hash, str_equal);
-            
+
             for (int i=-5; i<temp_related_uris.length; i++)
             {
                 GenericArray<RelatedUri?> window = new GenericArray<RelatedUri?>();
-                
+
                 bool count_in_window = false;
                 for (int j=i; j < i+5 && j < temp_related_uris.length; j++)
                 {
@@ -587,7 +587,7 @@ public class Engine : Object
             {
                 unowned Subject subject = event.subjects[i];
                 uris.add (subject.uri);
-                if (subject.current_uri == null)
+                if (subject.current_uri == "")
                     subject.current_uri = subject.uri;
                 uris.add (subject.current_uri);
                 if (subject.origin != "")
