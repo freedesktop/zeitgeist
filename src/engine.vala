@@ -370,8 +370,9 @@ public class Engine : Object
         * Only URIs for subjects matching the indicated `result_event_templates`
         * and `result_storage_state` are returned.
         */
-        //FXIME: implement calculation
-        if (result_type == 0 || result_type == 1)
+        //FIXME: implement calculation
+        if (result_type == ResultType.MOST_RECENT_EVENTS || 
+            result_type == ResultType.LEAST_RECENT_EVENTS)
         {
 
             // We pick out the ids for relational event so we can set them as
@@ -391,7 +392,7 @@ public class Engine : Object
             // take into account the ids are taken from the events that match
             // the result_event_templates if no result_event_templates are set we
             // consider all results as allowed
-            uint32[] result_ids = null;
+            uint32[] result_ids;
             result_ids = find_event_ids (time_range, result_event_templates,
                 storage_state, 0, ResultType.LEAST_RECENT_EVENTS);
 
@@ -429,7 +430,7 @@ public class Engine : Object
                     uri = stmt.column_text (2),
                     counter = 0
                 };
-                temp_related_uris.add(ruri);
+                temp_related_uris.add (ruri);
             }
 
             // RelatedUri[] related_uris = new RelatedUri[temp_related_uris.length];
@@ -448,41 +449,43 @@ public class Engine : Object
             var uri_counter = new HashTable<string, RelatedUri?>(
                 str_hash, str_equal);
 
-            for (int i=-5; i<temp_related_uris.length; i++)
+            for (int i = 0; i < temp_related_uris.length; i++)
             {
-                var window = new GenericArray<RelatedUri?>();
+                var window = new GenericArray<unowned RelatedUri?>();
 
                 bool count_in_window = false;
-                for (int j=i; j < i+5 && j < temp_related_uris.length; j++)
+                for (int j = int.max (0, i - 5);
+                    j < int.min (i, temp_related_uris.length);
+                    j++)
                 {
-                    if (j > -1)
-                    {
-                        window.add(temp_related_uris[j]);
-                        if (temp_related_uris[j].id in ids)
-                            count_in_window = true;
-                    }
+                    window.add(temp_related_uris[j]);
+                    if (temp_related_uris[j].id in ids)
+                        count_in_window = true;
                 }
+
                 if (count_in_window)
                 {
-                    for (int j=0; j<window.length; j++)
+                    for (int j = 0; j < window.length; j++)
                     {
                         // FIXME: Start counting elements in window
-                        if (uri_counter.lookup(window[j].uri) == null)
+                        if (uri_counter.lookup (window[j].uri) == null)
                         {
-                            RelatedUri ruri = RelatedUri()
+                            RelatedUri ruri = RelatedUri ()
                             {
                                 id = window[j].id,
                                 timestamp = window[j].timestamp,
                                 uri = window[j].uri,
                                 counter = 0
                             };
-                            uri_counter.insert(window[j].uri, ruri);
+                            uri_counter.insert (window[j].uri, ruri);
                         }
-                        uri_counter.lookup(window[j].uri).counter++;
-                        if (uri_counter.lookup(window[j].uri).timestamp
+                        uri_counter.lookup (window[j].uri).counter++;
+                        if (uri_counter.lookup (window[j].uri).timestamp
                                 < window[j].timestamp)
-                            uri_counter.lookup(window[j].uri).timestamp =
+                        {
+                            uri_counter.lookup (window[j].uri).timestamp =
                                 window[j].timestamp;
+                        }
                     }
                 }
             }
