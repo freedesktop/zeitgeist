@@ -22,14 +22,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import glob
 import unittest
-import doctest
 import logging
 import sys
-import tempfile
-import shutil
-import signal
 
 from optparse import OptionParser
 from testutils import RemoteTestCase
@@ -38,23 +33,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Find the test/ directory
 TESTDIR = os.path.dirname(os.path.abspath(__file__))
-DOCTESTS = glob.glob(os.path.join(TESTDIR, "*.rst"))
 
-def doctest_setup(test):
-	test._datapath = tempfile.mkdtemp(prefix="zeitgeist.datapath.")
-	test._env = os.environ.copy()
-	os.environ.update({
-		"ZEITGEIST_DATABASE_PATH": ":memory:",
-		"ZEITGEIST_DATA_PATH": test._datapath
-	})
-	test._daemon = RemoteTestCase._safe_start_daemon()
-	
-def doctest_teardown(test):
-	os.kill(test._daemon.pid, signal.SIGKILL)
-	test._daemon.wait()
-	shutil.rmtree(test._datapath)
-	os.environ = test._env
-	
 def iter_tests(suite):
 	for test in suite:
 		if isinstance(test, unittest.TestSuite):
@@ -62,10 +41,11 @@ def iter_tests(suite):
 				yield t
 		else:
 			yield test
-			
+
 def get_test_name(test):
-	return ".".join((test.__class__.__module__, test.__class__.__name__, test._testMethodName))
-	
+	return ".".join((test.__class__.__module__,
+		test.__class__.__name__, test._testMethodName))
+
 def load_tests(module, pattern):
 	suite = unittest.defaultTestLoader.loadTestsFromModule(module)
 	for test in iter_tests(suite):
@@ -77,32 +57,15 @@ def load_tests(module, pattern):
 					break
 		else:
 			yield test
-			
-def check_name(filename, pattern):
-	if pattern is None:
-		return True
-	for p in pattern:
-		if os.path.basename(filename).startswith(p):
-			return True
-	return False
 
 def compile_suite(pattern=None):
 	# Create a test suite to run all tests
-	
-	# first, add all doctests
-	arguments = {
-		"module_relative": False,
-		"globs": {"sys": sys},
-		"setUp": doctest_setup,
-		"tearDown": doctest_teardown,
-	}
-	doctests = filter(lambda x: check_name(str(x), pattern), DOCTESTS)
-	suite = doctest.DocFileSuite(*doctests, **arguments)
+	suite = unittest.TestSuite()
 
 	# Add all of the tests from each file that ends with "-test.py"
 	for fname in os.listdir(TESTDIR):
 		if fname.endswith("-test.py"):
-			fname = os.path.basename(fname)[:-3] # Get the filename and chop off ".py"
+			fname = os.path.basename(fname)[:-3] # filename without the ".py"
 			module = __import__(fname)
 			tests = list(load_tests(module, pattern))
 			suite.addTests(tests)
