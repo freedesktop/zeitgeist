@@ -909,7 +909,7 @@ public class Engine : Object
                     bool negated = parse_negation (ref val);
 
                     if (like)
-                        where.add_wildcard_condition ("subj_uri", val, negated);
+                        where.add_wildcard_condition ("subj_id", val, negated);
                     else
                         where.add_text_condition ("subj_uri", val, negated);
                 }
@@ -948,7 +948,7 @@ public class Engine : Object
 
                     if (like)
                         where.add_wildcard_condition (
-                            "subj_current_uri", val, negated);
+                            "subj_id_current", val, negated);
                     else
                         where.add_text_condition (
                             "subj_current_uri", val, negated);

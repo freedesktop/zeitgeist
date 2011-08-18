@@ -51,10 +51,6 @@ namespace Zeitgeist
 
         private static string[] RELATION_SIGNS = { " AND ", " OR " };
 
-        private static string[] PREFIX_SEARCH_SUPPORTED = {
-            "origin", "subj_uri", "subj_current_uri", "subj_origin",
-            "actor", "subj_mimetype" };
-
         private WhereClause.Type clause_type;
         private bool negated;
         private GenericArray<string> conditions;
@@ -107,8 +103,8 @@ namespace Zeitgeist
             {
                 case "origin":
                 case "subj_origin":
-                case "subj_uri":
-                case "subj_current_uri":
+                case "subj_id":
+                case "subj_id_current":
                     search_column = "uri";
                     break;
                 case "subj_mimetype":
