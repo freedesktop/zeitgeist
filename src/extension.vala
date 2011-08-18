@@ -17,7 +17,7 @@
  *
  */
 
-namespace Zeitgeist.Extension
+namespace Zeitgeist
 {
     /**
      * Base class for all extensions
@@ -62,8 +62,8 @@ namespace Zeitgeist.Extension
          * @param sender: The D-Bus bus name of the client
          * @returns: The filtered event instance to insert into the log
          */
-        public virtual GenericArray<Event> pre_insert_events (
-            GenericArray<Event> events, BusName sender)
+        public virtual GenericArray<Event?> pre_insert_events (
+            GenericArray<Event?> events, BusName sender)
         {
             return events;
         }
@@ -75,7 +75,7 @@ namespace Zeitgeist.Extension
          * @param sender: The D-Bus bus name of the client
          * @returns: Nothing
          */
-        public virtual void post_insert_events (GenericArray<Event> events,
+        public virtual void post_insert_events (GenericArray<Event?> events,
             BusName sender)
         {
         }
