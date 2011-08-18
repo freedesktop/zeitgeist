@@ -84,9 +84,7 @@ public class Engine : Object
 
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
-            // FIXME: change this to "(uint32) column_int64(...)"?
-            uint32 event_id = (uint32) uint64.parse(
-                stmt.column_text (EventViewRows.ID));
+            uint32 event_id = (uint32) stmt.column_int64 (EventViewRows.ID);
             int index = search_event_ids_array(event_ids, event_id);
             assert (index >= 0);
 
@@ -132,7 +130,7 @@ public class Engine : Object
         }
         if (rc != Sqlite.DONE)
         {
-            printerr ("Error: %d, %s\n", rc, db.errmsg ());
+            warning ("Error: %d, %s\n", rc, db.errmsg ());
             // FIXME: throw some error??
         }
 
@@ -178,8 +176,8 @@ public class Engine : Object
         if (storage_state == StorageState.AVAILABLE ||
             storage_state == StorageState.NOT_AVAILABLE)
         {
-            //where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
-            //    storage_state.to_string ());
+            where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
+                storage_state.to_string ());
         }
         else if (storage_state != StorageState.ANY)
         {
