@@ -42,7 +42,9 @@ namespace Zeitgeist.Extension
          * Execution of this method isn't guaranteed, and you shouldn't do
          * anything slow in there.
          */
-        public abstract void unload();
+        public virtual void unload ()
+        {
+        }
     
         /**
          * Hook applied to all events before they are inserted into the
@@ -60,7 +62,11 @@ namespace Zeitgeist.Extension
          * @param sender: The D-Bus bus name of the client
          * @returns: The filtered event instance to insert into the log
          */
-        public abstract Event pre_insert_event(Event event, BusName sender);
+        public virtual GenericArray<Event> pre_insert_events (
+            GenericArray<Event> events, BusName sender)
+        {
+            return events;
+        }
     
         /**
          * Hook applied to all events after they are inserted into the log.
@@ -69,26 +75,10 @@ namespace Zeitgeist.Extension
          * @param sender: The D-Bus bus name of the client
          * @returns: Nothing
          */
-        public abstract void post_insert_event(Event event, BusName sender);
-    
-        /**
-         * Hook applied to all events before they are returned to a client.
-         * The event returned from this method is progressively passed
-         * through all extensions before they final result is returned to
-         * the client.
-         *
-         * To prevent an event from ever leaving the server process simply
-         * return null. The event may also be changed in place
-         * or fully substituted for another event.
-         *
-         * The default implementation of this method simply returns the
-         * event as is.
-         *
-         * @param event: A Eventinstance or None
-         * @param sender: The D-Bus bus name of the client
-         * @returns: The filtered event instance as the client should see it
-         */
-        public abstract Event get_event(Event event, BusName sender);
+        public virtual void post_insert_events (GenericArray<Event> events,
+            BusName sender)
+        {
+        }
     
         /**
          * Hook applied after events have been deleted from the log.
@@ -97,16 +87,23 @@ namespace Zeitgeist.Extension
          * @param sender: The unique DBus name for the client triggering the delete
          * @returns: Nothing
          */
-        public abstract void post_delete_events(uint32[] ids, BusName sender);
+        public virtual void post_delete_events (uint32[] ids, BusName sender)
+        {
+        }
     
         /**
          * Hook applied before events are deleted from the log.
          *
          * @param ids: A list of event ids for the events requested to be deleted
          * @param sender: The unique DBus name for the client triggering the delete
-         * @returns: The filtered list of event ids which should be deleted
+         * @returns: The filtered list of event ids which should be deleted or
+         *           null to specify no change.
          */
-        public abstract Event pre_delete_events(uint32[] ids, BusName sender);
+        public virtual uint32[]? pre_delete_events (uint32[] ids,
+            BusName sender)
+        {
+            return null;
+        }
     }
 }
 // vim:expandtab:ts=4:sw=4
