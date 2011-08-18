@@ -382,8 +382,9 @@ public class Engine : Object
             // FIXME: If no results for the event_templates is found raise error
             if (event_templates.length > 0 && ids.length == 0)
             {
-                throw new EngineError.INVALID_ARGUMENT(
-                    "No results found for the event_templates");
+                //throw new EngineError.INVALID_ARGUMENT(
+                //    "No results found for the event_templates");
+                return new string[0];
             }
 
             // Pick out the result_ids for the filtered results we would like to
@@ -465,7 +466,6 @@ public class Engine : Object
                 {
                     for (int j = 0; j < window.length; j++)
                     {
-                        // FIXME: Start counting elements in window
                         if (uri_counter.lookup (window[j].uri) == null)
                         {
                             RelatedUri ruri = RelatedUri ()
@@ -591,6 +591,18 @@ public class Engine : Object
             {
                 unowned Subject subject = event.subjects[i];
                 uris.add (subject.uri);
+                
+                if (event.interpretation == ZG.MOVE_EVENT 
+                    && subject.uri == subject.current_uri)
+                {
+                    //FIXME: throw Error here
+                }
+                else if (event.interpretation != ZG.MOVE_EVENT 
+                    && subject.uri != subject.current_uri)
+                {
+                    //FIXME: throw Error here
+                }
+                
                 if (subject.current_uri == "")
                     subject.current_uri = subject.uri;
                 uris.add (subject.current_uri);
@@ -691,12 +703,11 @@ public class Engine : Object
         stdout.printf ("============ Inserted event: ============\n");
         event.debug_print ();
         stdout.printf ("\n");
-        /*
-        if (event.interpretation == MOVE_EVENT)
+        
+        if (event.interpretation == ZG.MOVE_EVENT)
         {
             handle_move_event (event);
         }
-        */
 
         return event.id;
     }
@@ -844,17 +855,17 @@ public class Engine : Object
             }
 
             // Origin
-			if (template.origin != "")
-			{
-				string val = template.origin;
-				bool like = parse_wildcard (ref val);
-				bool negated = parse_negation (ref val);
+            if (template.origin != "")
+            {
+                string val = template.origin;
+                bool like = parse_wildcard (ref val);
+                bool negated = parse_negation (ref val);
 
-				if (like)
-					where.add_wildcard_condition ("origin", val, negated);
-				else
-					where.add_text_condition ("event_origin_uri", val, negated);
-			}
+                if (like)
+                    where.add_wildcard_condition ("origin", val, negated);
+                else
+                    where.add_text_condition ("event_origin_uri", val, negated);
+            }
 
             for (int i = 0; i < template.num_subjects(); ++i)
             {
@@ -1049,6 +1060,11 @@ public class Engine : Object
                 lookup_table.get_id (uri));
         }
         return subwhere;
+    }
+    
+    private void handle_move_event(Event event)
+    {
+    
     }
 
 }
