@@ -559,17 +559,6 @@ public class Engine : Object
     {
         // FIXME: make sure event timestamp is sane
 
-        /* FIXME:
-        if (event.interpretation == interpretation.MOVE_EVENT)
-        {
-            // check all subjects for uri != current_uri
-        }
-        else
-        {
-            // check all subjects for uri == current_uri
-        }
-        */
-
         event.id = ++last_id;
 
         // FIXME: call pre_insert extension hooks
@@ -592,20 +581,24 @@ public class Engine : Object
                 unowned Subject subject = event.subjects[i];
                 uris.add (subject.uri);
                 
+                if (subject.current_uri == "" || subject.current_uri == null)
+                    subject.current_uri = subject.uri;
+                
                 if (event.interpretation == ZG.MOVE_EVENT 
                     && subject.uri == subject.current_uri)
                 {
                     //FIXME: throw Error here
+                    return 0;
                 }
                 else if (event.interpretation != ZG.MOVE_EVENT 
                     && subject.uri != subject.current_uri)
                 {
                     //FIXME: throw Error here
+                    return 0;
                 }
                 
-                if (subject.current_uri == "")
-                    subject.current_uri = subject.uri;
                 uris.add (subject.current_uri);
+                
                 if (subject.origin != "")
                     uris.add (subject.origin);
                 if (subject.text != "")
