@@ -26,11 +26,14 @@ namespace Zeitgeist
     public class Daemon : Object, RemoteLog
     {
 
-        private static Daemon instance;
-
+        private static Daemon? instance;
         private static MainLoop mainloop;
+
         private Engine engine;
         private MonitorManager notifications;
+
+        private uint log_register_id;
+        private unowned DBusConnection connection;
 
         public string[] extensions
         {
@@ -99,6 +102,12 @@ namespace Zeitgeist
             events.add(new Event.from_variant(vb.end()));
             stdout.printf ("INSERTED: %u\n", engine.insert_events(events)[0]);
             */
+        }
+
+        ~Daemon ()
+        {
+            stdout.printf ("BYE\n");
+            engine.close ();
         }
 
         // FIXME
@@ -178,8 +187,11 @@ namespace Zeitgeist
 
         public void quit ()
         {
-            stdout.printf ("BYE\n");
-            engine.close ();
+            do_quit ();
+        }
+
+        private void do_quit ()
+        {
             mainloop.quit ();
         }
 
@@ -198,14 +210,28 @@ namespace Zeitgeist
             notifications.remove_monitor (owner, monitor_path);
         }
 
+        public void register_dbus_object (DBusConnection conn) throws Error
+        {
+            connection = conn;
+            log_register_id = conn.register_object<RemoteLog> (
+                    "/org/gnome/zeitgeist/log/activity", this);
+        }
+
+        public void unregister_dbus_object ()
+        {
+            if (log_register_id != 0)
+            {
+                connection.unregister_object (log_register_id);
+                log_register_id = 0;
+            }
+        }
+
         static void on_bus_aquired (DBusConnection conn)
         {
             instance = new Daemon ();
             try
             {
-                conn.register_object (
-                    "/org/gnome/zeitgeist/log/activity",
-                    (RemoteLog) instance);
+                instance.register_dbus_object (conn);
             }
             catch (IOError e)
             {
@@ -221,27 +247,21 @@ namespace Zeitgeist
                 on_bus_aquired,
                 () => {},
                 () => stderr.printf ("Could not aquire name\n"));
+
             mainloop = new MainLoop ();
             mainloop.run ();
+
+            instance.unregister_dbus_object ();
+            instance = null;
         }
 
         static void safe_exit ()
         {
-            try
-            {
-                instance.quit ();
-            }
-            catch (IOError e)
-            {
-                // try/catch to silence valac warning
-                assert_not_reached ();
-            }
+            instance.do_quit ();
         }
 
         static int main (string[] args)
         {
-            Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
-
             Posix.signal (Posix.SIGHUP, safe_exit);
             Posix.signal (Posix.SIGTERM, safe_exit);
 
