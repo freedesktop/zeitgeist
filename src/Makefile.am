@@ -22,7 +22,7 @@ bluebird_SOURCES = \
 	extension.vala \
 	notify.vala \
 	sql.vala \
-	constants.vala \
+	utils.vala \
 	errors.vala \
 	table-lookup.vala \
 	sql-schema.vala \
