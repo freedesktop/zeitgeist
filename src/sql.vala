@@ -61,12 +61,12 @@ namespace Zeitgeist.SQLite
 
         public ZeitgeistDatabase () throws EngineError
         {
-            int rc = Sqlite.Database.open_v2(
-                Constants.DATABASE_FILE_PATH,
+            int rc = Sqlite.Database.open_v2 (
+                Utils.get_database_file_path (),
                 out database);
             assert_query_success (rc, "Can't open database");
 
-            DatabaseSchema.ensure_schema(database);
+            DatabaseSchema.ensure_schema (database);
 
             prepare_queries ();
 
