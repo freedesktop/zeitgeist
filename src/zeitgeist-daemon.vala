@@ -1,6 +1,7 @@
 /* zeitgeist-daemon.vala
  *
  * Copyright © 2011 Seif Lotfy <seif@lotfy.com>
+ * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *             By Seif Lotfy <seif@lotfy.com>
@@ -31,6 +32,7 @@ namespace Zeitgeist
 
         private Engine engine;
         private MonitorManager notifications;
+        private ExtensionCollection extension_collection;
 
         private uint log_register_id;
         private unowned DBusConnection connection;
@@ -70,7 +72,8 @@ namespace Zeitgeist
                 safe_exit ();
             }
 
-            notifications = new MonitorManager();
+            notifications = new MonitorManager ();
+            extension_collection = new ExtensionCollection ();
 
             // FIXME: tmp:
             /*

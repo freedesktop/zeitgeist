@@ -1,6 +1,7 @@
 /* extension.vala
  *
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
+ * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -105,5 +106,72 @@ namespace Zeitgeist
             return null;
         }
     }
+
+    public class ExtensionLoader: TypeModule
+    {
+        public string module_path { get; construct; }
+
+        private Module? module = null;
+        private Type extension_type;
+
+        [CCode (has_target = false)]
+        delegate Type RegisterExtensionFunc (TypeModule module);
+
+        public ExtensionLoader (string module_path)
+        {
+            Object (module_path: module_path);
+        }
+
+        protected override bool load ()
+        {
+            module = Module.open (module_path, ModuleFlags.BIND_LOCAL);
+            if (module == null)
+            {
+                warning ("%s", Module.error ());
+                return false;
+            }
+
+            void* func_ptr;
+            if (module.symbol ("zeitgeist_extension_register", out func_ptr))
+            {
+                RegisterExtensionFunc func = (RegisterExtensionFunc) func_ptr;
+                extension_type = func (this);
+
+                if (extension_type.is_a (typeof (Extension)) == false)
+                {
+                    extension_type = Type.INVALID;
+                    warning ("Type implemented in \"%s\" does not subclass " +
+                        "Zeitgeist.Extension!", module_path);
+                    return false;
+                }
+            }
+            else
+            {
+                warning ("%s", Module.error ());
+                return false;
+            }
+
+            return true;
+        }
+
+        protected override void unload ()
+        {
+            module = null;
+        }
+
+        public Extension? create_instance ()
+        {
+            if (this.use ())
+            {
+                Extension? instance = Object.@new (extension_type) as Extension;
+                this.unuse ();
+                return instance;
+            }
+
+            return null;
+        }
+
+    }
+
 }
 // vim:expandtab:ts=4:sw=4

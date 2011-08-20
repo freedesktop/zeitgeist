@@ -267,10 +267,8 @@ namespace Zeitgeist
             assert (event_props >= 5);
             id = (uint32) uint64.parse (event_array.next_value().get_string ());
             var str_timestamp = event_array.next_value().get_string ();
-            if (str_timestamp == "") {
-                var now = TimeVal();
-                timestamp = ((int64) now.tv_sec * 1000) + (int64) now.tv_usec;
-            }
+            if (str_timestamp == "")
+                timestamp = Timestamp.now ();
             else
                 timestamp = int64.parse (str_timestamp);
             interpretation = event_array.next_value().get_string ();

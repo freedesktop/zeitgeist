@@ -12,6 +12,7 @@ VALAFLAGS = \
 	--target-glib=2.26 \
 	--pkg sqlite3 \
 	--pkg posix \
+	--pkg gmodule-2.0 \
 	$(NULL)
 
 bluebird_SOURCES = \
@@ -20,6 +21,7 @@ bluebird_SOURCES = \
 	engine.vala \
 	remote.vala \
 	extension.vala \
+	extension-collection.vala \
 	notify.vala \
 	sql.vala \
 	utils.vala \
