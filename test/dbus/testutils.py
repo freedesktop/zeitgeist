@@ -83,8 +83,7 @@ def import_events(path, engine):
 		import_events("test/data/single_event.js", self.engine)
 	"""
 	events = parse_events(path)
-	
-	return engine.insert_events(events)
+	return engine.insertEventsAndWait(events)
 
 class RemoteTestCase (unittest.TestCase):
 	"""
@@ -227,6 +226,9 @@ class RemoteTestCase (unittest.TestCase):
 		result = []
 		
 		def collect_events_and_quit(events):
+			for event in events:
+				if event:
+					event[0][0] = int(event.id)
 			result.extend(events)
 			mainloop.quit()
 			
