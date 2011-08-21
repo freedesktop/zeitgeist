@@ -15,7 +15,7 @@ VALAFLAGS = \
 	--pkg gmodule-2.0 \
 	$(NULL)
 
-bluebird_SOURCES = \
+bluebird_VALASOURCES = \
 	zeitgeist-daemon.vala \
 	datamodel.vala \
 	engine.vala \
@@ -33,22 +33,41 @@ bluebird_SOURCES = \
 	ontology-uris.vala \
 	$(NULL)
 
+bluebird_SOURCES = \
+	zeitgeist-engine_vala.stamp \
+	$(bluebird_VALASOURCES:.vala=.c) \
+	$(NULL)
+
 bluebird_LDADD = \
 	$(BLUEBIRD_LIBS) \
 	$(NULL)
 
-EXTRA_DIST = \
-	$(NULL)
+bluebird_LDFLAGS = -export-dynamic -no-undefined
 
-DISTCLEANFILES = \
-	$(NULL)
+BUILT_SOURCES = zeitgeist-engine_vala.stamp
+
+zeitgeist-engine.vapi zeitgeist-engine_vala.stamp: $(bluebird_VALASOURCES)
+	$(VALAC) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
+	touch "$@"
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
-ontology.vala.stamp: ontology.vala.in ontology-uris.vala.in
+ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
 	$(top_srcdir)/extra/ontology2code --vala
 	touch "$@"
 
-ontology.vala ontology-uris.vala: ontology.vala.stamp
+ontology.vala ontology-uris.vala: ontology_vala.stamp
 
-clean:
-	rm -f ontology.vala ontology-uris.vala *.c *.o *.stamp *.~[0-9]~
+EXTRA_DIST = \
+	$(bluebird_VALASOURCES) \
+	ontology_vala.stamp \
+	zeitgeist-engine.vapi \
+	zeitgeist-engine_vala.stamp \
+	$(NULL)
+
+DISTCLEANFILES = \
+	ontology.vala \
+	ontology-uris.vala \
+	$(NULL)
+
+distclean-local:
+	rm -f *.c *.o *.stamp *.~[0-9]~

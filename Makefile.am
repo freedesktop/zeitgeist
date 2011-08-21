@@ -2,6 +2,7 @@ NULL =
 
 SUBDIRS = \
 	src \
+	extensions \
 	extra \
 	test \
 	po \

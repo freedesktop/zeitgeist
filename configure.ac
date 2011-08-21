@@ -36,6 +36,7 @@ AC_SUBST(BLUEBIRD_LIBS)
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
+	extensions/Makefile
 	extra/Makefile
 	extra/ontology/Makefile
 	test/Makefile
