@@ -47,6 +47,56 @@ from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 import testutils
 from testutils import parse_events
 
+TEST_ACTOR = "/usr/share/applications/gnome-about.desktop"
+
+test_event_1 = None
+def create_test_event_1():
+	ev = Event()
+	ev.timestamp = 0
+	ev.interpretation = Manifestation.USER_ACTIVITY
+	ev.manifestation = Interpretation.CREATE_EVENT
+	ev.actor = TEST_ACTOR
+	subj = Subject()
+	subj.uri = u"test://mytest"
+	subj.manifestation = "lala"
+	subj.interpretation = "tinky winky"
+	subj.origin = "test://"
+	subj.mimetype = "YOMAMA"
+	subj.text = "SUCKS"
+	subj.storage = "MyStorage"
+	subj.current_uri = u"test://mytest"
+
+	ev.append_subject(subj)
+	return ev
+
+
+class ZeitgeistEngineTest(testutils.RemoteTestCase):
+
+	def testSingleInsertGet(self):
+		test_event_1 = create_test_event_1()
+		# Insert item and event
+		ids = self.insertEventsAndWait([test_event_1])
+		self.assertEquals(1, len(ids))
+		
+		result = self.getEventsAndWait(ids)
+		resulting_event = result.pop()
+		self.assertEquals(len(resulting_event), len(test_event_1))
+		
+		# fixing id, the initial event does not have any id set
+		test_event_1[0][0] = ids[0]
+	
+		print "************************"
+		for i, metadata in enumerate(resulting_event[0]):
+			print resulting_event[0][i], "   ||   ", test_event_1[0][i]
+		for i, metadata in enumerate(resulting_event[1][0]):
+			print resulting_event[1][0][i], "   ||   ", test_event_1[1][0][i]
+		for i, metadata in enumerate(resulting_event[2]):
+			print resulting_event[2][i], "   ||   ", test_event_1[2][i]
+		print "************************"
+	
+		#FIXME: Why is it failing
+		self.assertEqual(resulting_event, test_event_1)
+
 class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 
 	def testInsertAndGetEvent(self):
