@@ -277,6 +277,8 @@ namespace Zeitgeist
             // let's keep this compatible with older clients
             if (event_props >= 6)
                 origin = event_array.next_value().get_string ();
+            else
+                origin = "";
 
             for (int i = 0; i < subjects_array.n_children(); ++i) {
                 Variant subject_variant = subjects_array.next_value();
@@ -436,6 +438,8 @@ namespace Zeitgeist
             // let's keep this compatible with older clients
             if (subject_props >= 8)
                 current_uri = iter.next_value().get_string ();
+            else
+                current_uri = ""; // FIXME: uri?
         }
 
         public Variant to_variant()
