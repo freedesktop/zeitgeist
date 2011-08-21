@@ -3,6 +3,7 @@ VALAFLAGS = \
 	--target-glib=2.26 \
 	--pkg sqlite3 \
 	--pkg posix \
+	--pkg gmodule-2.0 \
 	$(srcdir)/assertions.vapi \
 	--Xcc=-w \
 	$(NULL)
@@ -15,7 +16,7 @@ TESTS = \
 
 SRC_FILES = \
 	$(top_srcdir)/src/engine.vala \
-	$(top_srcdir)/src/constants.vala \
+	$(top_srcdir)/src/utils.vala \
 	$(top_srcdir)/src/notify.vala \
 	$(top_srcdir)/src/table-lookup.vala \
 	$(top_srcdir)/src/datamodel.vala  \
