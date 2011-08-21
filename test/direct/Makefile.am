@@ -42,6 +42,12 @@ where-clause-test: where-clause-test.vala $(SRC_FILES)
 clean-local:
 	rm -f *.~[0-9]~
 
+DISTCLEANFILES = \
+	marshalling \
+	query-operators-test \
+	where-clause-test \
+	$(NULL)
+
 EXTRA_DIST = \
 	marshalling.vala \
 	query-operators-test.vala \

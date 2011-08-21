@@ -60,6 +60,9 @@ ontology.vala ontology-uris.vala: ontology_vala.stamp
 EXTRA_DIST = \
 	$(bluebird_VALASOURCES) \
 	ontology_vala.stamp \
+	ontology.vala.in \
+	ontology-uris.vala.in \
+	zeitgeist-engine.h \
 	zeitgeist-engine.vapi \
 	zeitgeist-engine_vala.stamp \
 	$(NULL)
