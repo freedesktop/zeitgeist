@@ -1,6 +1,6 @@
 NULL =
 
-lib_LTLIBRARIES = ds-registry.la
+noinst_LTLIBRARIES = ds-registry.la
 
 AM_CPPFLAGS = \
 	$(BLUEBIRD_CFLAGS) \
