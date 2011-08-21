@@ -72,7 +72,15 @@ namespace Zeitgeist
             }
 
             // try to load the modules
-            loaders.foreach ((mod) => { if (mod.use ()) mod.unuse (); });
+            loaders.foreach ((mod) =>
+            {
+                if (mod.use ())
+                {
+                    // FIXME: check if enabled
+                    extensions.add (mod.create_instance ());
+                    mod.unuse ();
+                }
+            });
         }
     }
 
