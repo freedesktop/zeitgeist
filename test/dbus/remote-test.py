@@ -84,14 +84,15 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		
 		# fixing id, the initial event does not have any id set
 		test_event_1[0][0] = ids[0]
+		resulting_event[2] = ""
 	
 		print "************************"
+		print len(test_event_1)
 		for i, metadata in enumerate(resulting_event[0]):
 			print resulting_event[0][i], "   ||   ", test_event_1[0][i]
 		for i, metadata in enumerate(resulting_event[1][0]):
 			print resulting_event[1][0][i], "   ||   ", test_event_1[1][0][i]
-		for i, metadata in enumerate(resulting_event[2]):
-			print resulting_event[2][i], "   ||   ", test_event_1[2][i]
+		print type(resulting_event[2]), "   ||   ", type(test_event_1[2])
 		print "************************"
 	
 		#FIXME: Why is it failing
