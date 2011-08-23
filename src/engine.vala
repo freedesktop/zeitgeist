@@ -1057,7 +1057,23 @@ public class Engine : Object
     
     private void handle_move_event(Event event)
     {
-    
+        for (int i = 0; i < event.subjects.length; i++)
+        {
+            Subject subject = event.subjects[i];
+            int rc;
+            unowned Sqlite.Statement move_stmt = database.move_handling_stmt;
+            move_stmt.reset();
+            move_stmt.bind_text (1, subject.current_uri);
+            move_stmt.bind_text (2, subject.uri);
+            move_stmt.bind_text (3, event.interpretation);
+            move_stmt.bind_int64 (4, event.timestamp);
+            if ((rc = move_stmt.step()) != Sqlite.DONE) {
+                if (rc != Sqlite.CONSTRAINT)
+                {
+                    warning ("SQL error: %d, %s\n", rc, db.errmsg ());
+                }
+            }
+        }
     }
 
 }

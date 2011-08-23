@@ -1,7 +1,8 @@
 /* sql.vala
  *
  * Copyright © 2011 Collabora Ltd.
- *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com> 
+ *             By Seif Lotfy <seif@lotfy.com>
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -53,6 +54,7 @@ namespace Zeitgeist.SQLite
 
         public Sqlite.Statement event_insertion_stmt;
         public Sqlite.Statement id_retrieval_stmt;
+        public Sqlite.Statement move_handling_stmt;
 
         // FIXME: Should this be accessible from engine.vala or not?
         //  Probably it should, since otherwise there won't be much
@@ -238,6 +240,16 @@ namespace Zeitgeist.SQLite
                 """;
             rc = database.prepare_v2 (sql, -1, out id_retrieval_stmt);
             assert_query_success (rc, "Event ID retrieval query error");
+            
+            // Move handling statment
+            sql = """
+            UPDATE event
+                SET subj_id_current=(SELECT id FROM uri WHERE value=?)
+                    WHERE subj_id_current=(SELECT id FROM uri WHERE value=?)
+                    AND interpretation!=? AND timestamp<?
+            """;
+            rc = database.prepare_v2 (sql, -1, out move_handling_stmt);
+            assert_query_success (rc, "Move handling error");
         }
 
         protected static void update_callback (Sqlite.Action action,

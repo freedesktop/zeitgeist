@@ -837,8 +837,8 @@ class ResultTypeTest(testutils.RemoteTestCase):
 		events = self.getEventsAndWait(ids)
 		
 		self.assertEquals([e.timestamp for e in events],
-			["200", "153", "123"]) #FIXME: handling "MOVE_EVENT" not implmented yet
-
+			["200", "153", "123"])
+		
 	def testResultTypesLeastRecentCurrentUri(self):
 		import_events("test/data/five_events.js", self)
 		import_events("test/data/five_events_ext_move.js", self)
@@ -848,7 +848,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastRecentCurrentUri)
 		events = self.getEventsAndWait(ids)
 		self.assertEquals([e.timestamp for e in events],
-			["123", "153", "200"]) #FIXME: handling "MOVE_EVENT" not implmented yet
+			["123", "153", "200"])
 
 	def testResultTypesMostPopularCurrentUri(self):
 		import_events("test/data/five_events.js", self)
@@ -859,7 +859,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostPopularCurrentUri)
 		events = self.getEventsAndWait(ids)
 		self.assertEquals([e.timestamp for e in events],
-			["200", "123", "153"]) #FIXME: handling "MOVE_EVENT" not implmented yet
+			["200", "123", "153"]) 
 	
 	def testResultTypesLeastPopularCurrentUri(self):
 		import_events("test/data/five_events.js", self)
@@ -870,7 +870,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularCurrentUri)
 		events = self.getEventsAndWait(ids)
 		self.assertEquals([e.timestamp for e in events],
-			["123", "153", "163", "200"]) #FIXME: handling "MOVE_EVENT" not implmented yet
+			["123", "153", "163", "200"]) #FIXME: Sorting by LeastPopularCurrentUri not implmented yet or faulty
 
 	def testResultTypesMostRecentActor(self):
 		import_events("test/data/twenty_events.js", self)
