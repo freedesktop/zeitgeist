@@ -386,6 +386,322 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		self.assertEquals("this item has no text... rly!", subj.text)
 		self.assertEquals("368c991f-8b59-4018-8130-3ce0ec944157", subj.storage)
 		
+	def testInsertSubjectOptionalAttributes(self):
+		ev = Event.new_for_values(
+			timestamp=123,
+			interpretation=Interpretation.ACCESS_EVENT,
+			manifestation=Manifestation.USER_ACTIVITY,
+			actor="Freak Mamma"
+		)
+		subj = Subject.new_for_values(
+			uri="void://foobar",
+			interpretation=Interpretation.DOCUMENT,
+			manifestation=Manifestation.FILE_DATA_OBJECT,
+			)
+		ev.append_subject(subj)
+		
+		ids = self.insertEventsAndWait([ev,])
+		result = self.getEventsAndWait(ids)
+		self.assertEquals(len(ids), len(result))
+		
+	def testEventWithoutSubject(self):
+		ev = Event.new_for_values(timestamp=123,
+					interpretation=Interpretation.ACCESS_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
+					actor="Freak Mamma")
+		ids = self.insertEventsAndWait([ev,])
+		self.assertEquals(len(ids), 1)
+		# event is not inserted, id == 0 means error
+		self.assertEquals(ids[0], 0)
+		# check if really not events were inserted
+		ids = self.findEventIdsAndWait([ev],
+			num_events = 0,
+			result_type =  ResultType.MostRecentEvents)
+		self.assertEquals(len(ids), 0)
+		
+	def testUnicodeEventInsert(self):
+		# Insert and get a unicode event
+		ids = import_events("test/data/unicode_event.js", self)
+		self.assertEquals(len(ids), 1)
+		result = self.getEventsAndWait(ids)
+		self.assertEquals(1, len(result))
+		event = result[0]
+		self.assertEquals(1, len(event.subjects))
+		self.assertEquals(u"hällö, I'm gürmen - åge drikker øl - ☠", event.subjects[0].text)
+		self.assertEquals(u"http://live.gnome.org/☠", event.subjects[0].uri)
+		
+		# update the event we got from the DB's timestamp and insert
+		# it again, we want to to test some ping-pong back and forth
+		event[0][Event.Id] = ""  #FIXME: It used to be None but it did not work until i passed an empty string
+		event.timestamp = str(243)
+		ids = self.insertEventsAndWait([event])
+		result = self.getEventsAndWait(ids)
+		self.assertEquals(1, len(result))
+		event = result[0]
+		self.assertEquals(1, len(event.subjects))
+		self.assertEquals(u"hällö, I'm gürmen - åge drikker øl - ☠", event.subjects[0].text)
+		self.assertEquals(u"http://live.gnome.org/☠", event.subjects[0].uri)		
+		
+		# try and find a unicode event, we use unicode and not
+		# inconsequently on deliberation
+		subj = Subject.new_for_values(text="hällö, I'm gürmen - åge drikker øl - ☠",
+					origin="file:///åges_øl í",
+					uri=u"http://live.gnome.org/☠")
+		event_template = Event.new_for_values(subjects=[subj,])
+		
+		
+		result = self.findEventIdsAndWait([event_template],
+			timerange = (0,200),
+			num_events = 100,
+			result_type = 0)
+		self.assertEquals(len(result), 1)
+		
+	def testEventWithBinaryPayload(self):
+		ev = Event()
+		subject = Subject()
+		ev.actor = "application:///firefox.desktop"
+		ev.manifestation = Manifestation.USER_ACTIVITY
+		ev.interpretation = Interpretation.ACCESS_EVENT
+		subject.uri = "http://www.google.com"
+		subject.interpretation = Interpretation #InterPretation.UNKNOWN
+		subject.manifestation = Manifestation #Manifestation.WEB_HISTORY
+		subject.text = ""
+		subject.mimetype = "text/html"
+		subject.origin = ""
+		subject.storage = ""
+		ev.subjects.append(subject)
+
+		sampleString = """
+		<Content name="Telepathy" class="Text">
+		  <header>johnsmith@foo.bar</header>
+		  <body>
+		    John: Here is a talking point
+		    You: Ok that looks fine
+		  </body>
+		  <launcher command="{application} johnsmith@foo.bar"/>
+		</Content>"""
+		
+		ev.payload = sampleString.encode("UTF-8")
+		ids = self.insertEventsAndWait([ev])
+		_ev = self.getEventsAndWait(ids)[0]
+		self.assertEquals(ev.payload, _ev.payload) #FIXME: Are we missing payloads?
+		
+		# Note: engine.insert_events() sets the id of the Event objects
+		self.assertEquals(ev, _ev)
+		
+	def testQueryByParent (self):
+		ev = Event.new_for_values(subject_interpretation=Interpretation.AUDIO)
+		_ids = self.insertEventsAndWait([ev])
+		
+		tmpl = Event.new_for_values(subject_interpretation=Interpretation.MEDIA)
+		ids = self.findEventIdsAndWait([tmpl],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents)
+		
+		self.assertEquals(1, len(ids))
+		self.assertEquals(_ids, list(ids))
+		
+	def testNegation(self):
+		import_events("test/data/five_events.js", self)
+
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+		template = Event.new_for_values(
+			manifestation = "!stfu:YourActivity"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(4, len(ids))
+		
+		template = Event.new_for_values(
+			actor = "!firefox"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(2, len(ids))
+		
+		template = Event.new_for_values(
+			subject_uri = "!file:///tmp/foo.txt"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+		template = Event.new_for_values(
+			subject_interpretation = "!stfu:Document"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(4, len(ids))
+		
+		template = Event.new_for_values(
+			subject_manifestation = "!stfu:File"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(0, len(ids)) #FIXME: Negation not working for subj_manifestations
+		
+		template = Event.new_for_values(
+			subject_origin = "!file:///tmp"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(0, len(ids)) #FIXME: Negation not working for subj_origin
+		
+		template = Event.new_for_values(
+			subject_mimetype = "!text/plain"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(0, len(ids)) #FIXME: Negation not working for subj_mimetype
+		
+		# the next two fields do not support negation, '!' is treated as
+		# content
+		
+		template = Event.new_for_values(
+			subject_text = "!boo"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(0, len(ids))
+		
+		# searching by subject_storage is not working
+		#~ template = Event.new_for_values(
+			#~ subject_storage = "!boo"
+		#~ )
+		#~ ids = self.engine.find_eventids(TimeRange.always(),
+			#~ [template,], StorageState.Any, 10, ResultType.MostRecentEvents
+		#~ )
+		#~ self.assertEquals(0, len(ids))
+		
+	def testNegationCombination(self):
+		import_events("test/data/five_events.js", self)
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			actor = "!firefox"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(2, len(ids))
+		
+		template = Event.new_for_values(
+			interpretation = "!stfu:OpenEvent",
+			manifestation = "!stfu:YourActivity"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+	def testFindStorageNotExistant(self):
+		events = [
+			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
+			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
+		]
+		ids_in = self.insertEventsAndWait(events)
+		template = Event.new_for_values(subject_storage="xxx")
+		results = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(0, len(results))
+				
+	def testFindStorage(self):
+		events = [
+			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
+			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
+		]
+		ids_in = self.insertEventsAndWait(events)
+		template = Event.new_for_values(subject_storage="sometext")
+		results = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(1, len(results))
+	
+	def testWildcard(self):
+		import_events("test/data/five_events.js", self)
+
+		template = Event.new_for_values(
+			actor = "ge*"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(2, len(ids))
+		
+		template = Event.new_for_values(
+			actor = "!ge*"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(3, len(ids))
+		
+		template = Event.new_for_values(
+			subject_mimetype = "text/*"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(5, len(ids)) #FIXME: Wildcards don't work for subj_mimetype'
+		
+		template = Event.new_for_values(
+			subject_uri = "http://*"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(1, len(ids))
+
+		template = Event.new_for_values(
+			subject_current_uri = "http://*"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(1, len(ids))
+		
+		template = Event.new_for_values(
+			subject_origin = "file://*"
+		)
+		ids = self.findEventIdsAndWait([template,],
+			num_events = 10, 
+			result_type = ResultType.MostRecentEvents
+		)
+		self.assertEquals(5, len(ids)) #FIXME: Wildcards don't work for subj_origin'
 
 if __name__ == "__main__":
 	unittest.main()
