@@ -956,9 +956,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 		]
 		self.insertEventsAndWait(events)
 		
-		ids = self.findEventIdsAndWait(
-			[Event.new_for_values(subject_manifestation="stfu:File")],
-			timerange = (105,107),
+		ids = self.findEventIdsAndWait([],
 			num_events = 0, 
 			result_type = ResultType.LeastRecentActor)
 		self.assertEquals([e.timestamp for e in events], ['3', '4'])

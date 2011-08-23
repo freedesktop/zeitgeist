@@ -194,7 +194,7 @@ public class Engine : Object
         // FIXME: IDs: SELECT DISTINCT / events: SELECT
         // Is the former faster or can we just do the unique'ing on our side?
 
-        string sql = "SELECT id FROM event_view ";
+        string sql = "SELECT DISTINCT id FROM event_view ";
         string where_sql = "";
         if (!where.is_empty ())
         {
