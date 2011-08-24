@@ -870,7 +870,8 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularCurrentUri)
 		events = self.getEventsAndWait(ids)
 		self.assertEquals([e.timestamp for e in events],
-			["123", "153", "163", "200"]) #FIXME: Sorting by LeastPopularCurrentUri not implmented yet or faulty
+			["153", "123", "200"]) #Zeitgeist 0.8 does this test wrong.
+				#This is the expected results
 
 	def testResultTypesMostRecentActor(self):
 		import_events("test/data/twenty_events.js", self)
