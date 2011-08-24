@@ -36,7 +36,6 @@ namespace Zeitgeist
      */
     public class ExtensionCollection : Object
     {
-        private GenericArray<ExtensionLoader> loaders;
         private GenericArray<Extension> extensions;
 
         public ExtensionCollection ()
@@ -44,12 +43,17 @@ namespace Zeitgeist
             Object ();
         }
 
+        ~ExtensionCollection ()
+        {
+            extensions.foreach ((ext) => { ext.unload (); });
+        }
+
         construct
         {
-            loaders = new GenericArray<ExtensionLoader> ();
             extensions = new GenericArray<Extension> ();
             
-            // TODO: load extensions from system & user directories
+            // TODO: load extensions from system & user directories, and make
+            // sure the order is correct
             unowned string ext_dir1 = Utils.get_local_extensions_path ();
             Dir? user_ext_dir = Dir.open (ext_dir1);
             if (user_ext_dir != null)
@@ -61,7 +65,10 @@ namespace Zeitgeist
                     {
                         string path = Path.build_filename (ext_dir1, file_name);
                         debug ("Loading extension: \"%s\"", path);
-                        loaders.add (new ExtensionLoader (path));
+                        var loader = new ModuleLoader (path);
+                        // FIXME: check if enabled
+                        Extension? extension = loader.create_instance ();
+                        if (extension != null) extensions.add (extension);
                     }
                     else
                     {
@@ -70,17 +77,6 @@ namespace Zeitgeist
                     file_name = user_ext_dir.read_name ();
                 }
             }
-
-            // try to load the modules
-            loaders.foreach ((mod) =>
-            {
-                if (mod.use ())
-                {
-                    // FIXME: check if enabled
-                    extensions.add (mod.create_instance ());
-                    mod.unuse ();
-                }
-            });
         }
     }
 

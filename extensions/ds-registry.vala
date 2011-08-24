@@ -39,7 +39,7 @@ namespace Zeitgeist
             [DBus (signature = "(sssa(asaasay)bxb)")] Variant data_source);
     }
 
-    class DataSource
+    class DataSource: Object
     {
         private GenericArray<Event> event_templates;
         private string unique_id;
@@ -108,6 +108,18 @@ namespace Zeitgeist
             var connection = Bus.get_sync (BusType.SESSION, null);
             registration_id = connection.register_object<RemoteRegistry> (
                 "/org/gnome/zeitgeist/data_source_registry", this);
+        }
+
+        public override void unload ()
+        {
+            var connection = Bus.get_sync (BusType.SESSION, null);
+            if (registration_id != 0)
+            {
+                connection.unregister_object (registration_id);
+                registration_id = 0;
+            }
+
+            debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
         }
 
         public Variant get_data_sources ()

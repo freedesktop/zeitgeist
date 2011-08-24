@@ -107,17 +107,35 @@ namespace Zeitgeist
         }
     }
 
-    public class ExtensionLoader: TypeModule
+    [CCode (has_target = false)]
+    public delegate Type RegisterExtensionFunc (TypeModule module);
+
+    public abstract class ExtensionLoader: TypeModule
+    {
+        public Type extension_type { get; protected set; }
+
+        public virtual Extension? create_instance ()
+        {
+            if (this.use ())
+            {
+                if (extension_type == Type.INVALID) return null;
+                Extension? instance = Object.@new (extension_type) as Extension;
+                debug ("Loaded extension: %s", extension_type.name ());
+                this.unuse ();
+                return instance;
+            }
+
+            return null;
+        }
+    }
+
+    public class ModuleLoader: ExtensionLoader
     {
         public string module_path { get; construct; }
 
         private Module? module = null;
-        private Type extension_type;
 
-        [CCode (has_target = false)]
-        delegate Type RegisterExtensionFunc (TypeModule module);
-
-        public ExtensionLoader (string module_path)
+        public ModuleLoader (string module_path)
         {
             Object (module_path: module_path);
         }
@@ -144,6 +162,10 @@ namespace Zeitgeist
                         "Zeitgeist.Extension!", module_path);
                     return false;
                 }
+
+                // according to docs initialized TypeModule is not supposed
+                // to be unreferenced, so we do this
+                this.ref ();
             }
             else
             {
@@ -158,17 +180,42 @@ namespace Zeitgeist
         {
             module = null;
         }
+    }
 
-        public Extension? create_instance ()
+    public class BuiltinExtension: ExtensionLoader
+    {
+        private RegisterExtensionFunc reg_func;
+
+        public BuiltinExtension (RegisterExtensionFunc func)
         {
-            if (this.use ())
+            Object ();
+            reg_func = func;
+        }
+
+        protected override bool load ()
+        {
+            if (extension_type == Type.INVALID)
             {
-                Extension? instance = Object.@new (extension_type) as Extension;
-                this.unuse ();
-                return instance;
+                extension_type = reg_func (this);
+
+                if (extension_type.is_a (typeof (Extension)) == false)
+                {
+                    extension_type = Type.INVALID;
+                    warning ("Type implemented by \"%p\" does not subclass " +
+                        "Zeitgeist.Extension!", this.reg_func);
+                    return false;
+                }
+                
+                // according to docs initialized TypeModule is not supposed
+                // to be unreferenced, so we do this
+                this.ref ();
             }
 
-            return null;
+            return true;
+        }
+
+        protected override void unload ()
+        {
         }
 
     }
