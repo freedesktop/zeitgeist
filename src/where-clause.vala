@@ -126,7 +126,7 @@ namespace Zeitgeist
             else
                 sql = "%s NOT IN (%s) OR %s is NULL".printf (column,
                     optimized_glob, column);
-			add_with_array (sql, values);
+            add_with_array (sql, values);
         }
 
         public void extend (WhereClause clause)

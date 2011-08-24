@@ -224,7 +224,9 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		result = self.findEventIdsAndWait([Event.new_for_values(subject_text='some text')])
 		self.assertEquals(1, len(result))
 		result = self.findEventIdsAndWait([Event.new_for_values(subject_text='this *')])
-		self.assertEquals(4, len(result)) #FIXME: Completely broken (cant find wildcards)
+		self.assertEquals(0, len(result)) #We don't support wildcards for text
+		result = self.findEventIdsAndWait([Event.new_for_values(subject_text='this item *')])
+		self.assertEquals(1, len(result))
 
 	def testSortFindByTimeAsc(self):
 		import_events("test/data/twenty_events.js", self)
@@ -556,7 +558,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events = 10, 
 			result_type = ResultType.MostRecentEvents
 		)
-		self.assertEquals(0, len(ids)) #FIXME: Negation not working for subj_manifestations
+		self.assertEquals(1, len(ids))
 		
 		template = Event.new_for_values(
 			subject_origin = "!file:///tmp"
@@ -565,7 +567,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events = 10, 
 			result_type = ResultType.MostRecentEvents
 		)
-		self.assertEquals(0, len(ids)) #FIXME: Negation not working for subj_origin
+		self.assertEquals(1, len(ids))
 		
 		template = Event.new_for_values(
 			subject_mimetype = "!text/plain"
@@ -574,7 +576,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events = 10, 
 			result_type = ResultType.MostRecentEvents
 		)
-		self.assertEquals(0, len(ids)) #FIXME: Negation not working for subj_mimetype
+		self.assertEquals(2, len(ids))
 		
 		# the next two fields do not support negation, '!' is treated as
 		# content
@@ -749,7 +751,6 @@ class ResultTypeTest(testutils.RemoteTestCase):
 		
 	def testResultTypesMostPopularActor2(self):
 		import_events("test/data/twenty_events.js", self)
-		
 		
 		ids = self.findEventIdsAndWait([],
 			timerange = (105,107),
