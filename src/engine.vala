@@ -79,22 +79,14 @@ public class Engine : Object
         rc = db.prepare_v2 (sql, -1, out stmt);
         database.assert_query_success(rc, "SQL error");
 
-        var events = new GenericArray<Event?>();
-        events.length = event_ids.length;
-
+        var events = new HashTable<uint32, Event?>(direct_hash, direct_equal);
+       
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
             uint32 event_id = (uint32) stmt.column_int64 (EventViewRows.ID);
-            int index = search_event_ids_array(event_ids, event_id);
-            assert (index >= 0);
-
-            Event event;
-            if (events[index] != null)
-            {
-                // We already got this event before, so we only need to
-                // take the missing subject data.
-                event = events[index];
-            }
+            Event event; 
+            if (events.lookup(event_id)!= null)
+                event = events.lookup(event_id);
             else
             {
                 event = new Event ();
@@ -109,8 +101,9 @@ public class Engine : Object
                 event.origin = stmt.column_text (
                     EventViewRows.EVENT_ORIGIN_URI);
                 // FIXME: payload
-                events[index] = event;
+                events.insert(event_id, event);
             }
+
 
             Subject subject = new Subject ();
             subject.uri = stmt.column_text (EventViewRows.SUBJECT_URI);
@@ -133,21 +126,22 @@ public class Engine : Object
             warning ("Error: %d, %s\n", rc, db.errmsg ());
             // FIXME: throw some error??
         }
-
-        // TODO: tmp:
+        
+        /* //Print
         for (int i = 0; i < event_ids.length; ++i)
         {
-            if (events[i] != null)
-                events[i].debug_print ();
+            var event = events.lookup(i);
+            if (event != null)
+               event.debug_print ();
             else
                 stdout.printf ("NULL_EVENT\n");
             stdout.printf ("\n");
-        }
+        }*/
 
-        // FIXME: what happens if a query requests the same element in
-        //        more than one place?
-
-        return events;
+        var results = new GenericArray<Event?>();
+        foreach (var id in event_ids)
+            results.add(events.lookup(id));
+        return results;
     }
 
     public uint32[] find_event_ids (TimeRange time_range,

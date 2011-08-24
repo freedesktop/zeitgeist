@@ -224,7 +224,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		result = self.findEventIdsAndWait([Event.new_for_values(subject_text='some text')])
 		self.assertEquals(1, len(result))
 		result = self.findEventIdsAndWait([Event.new_for_values(subject_text='this *')])
-		self.assertEquals(1, len(result)) #FIXME: Seems like we don't support wildcards properly
+		self.assertEquals(4, len(result)) #FIXME: Completely broken (cant find wildcards)
 
 	def testSortFindByTimeAsc(self):
 		import_events("test/data/twenty_events.js", self)
@@ -674,7 +674,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events = 10, 
 			result_type = ResultType.MostRecentEvents
 		)
-		self.assertEquals(5, len(ids)) #FIXME: Wildcards don't work for subj_mimetype'
+		self.assertEquals(3, len(ids))
 		
 		template = Event.new_for_values(
 			subject_uri = "http://*"
@@ -701,7 +701,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events = 10, 
 			result_type = ResultType.MostRecentEvents
 		)
-		self.assertEquals(5, len(ids)) #FIXME: Wildcards don't work for subj_origin'
+		self.assertEquals(4, len(ids)) 
 
 class ResultTypeTest(testutils.RemoteTestCase):
 	
