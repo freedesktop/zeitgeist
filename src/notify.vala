@@ -86,7 +86,9 @@ namespace Zeitgeist
                 TimeRange tr, GenericArray<Event> templates)
             {
                 Bus.get_proxy<RemoteMonitor> (BusType.SESSION, peer,
-                    object_path, 0, null, (obj, res) =>
+                    object_path, DBusProxyFlags.DO_NOT_LOAD_PROPERTIES |
+                    DBusProxyFlags.DO_NOT_CONNECT_SIGNALS,
+                    null, (obj, res) =>
                     {
                         try
                         {
