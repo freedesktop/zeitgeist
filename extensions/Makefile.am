@@ -1,7 +1,7 @@
 NULL =
 
-extensionsdir = $(libdir)/zeitgeist/extensions
-extensions_LTLIBRARIES = ds-registry.la
+#extensionsdir = $(libdir)/zeitgeist/extensions
+noinst_LTLIBRARIES = ds-registry.la
 
 AM_CPPFLAGS = \
 	$(BLUEBIRD_CFLAGS) \

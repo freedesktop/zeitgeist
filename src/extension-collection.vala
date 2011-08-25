@@ -50,7 +50,15 @@ namespace Zeitgeist
 
         construct
         {
+            Extension? extension;
             extensions = new GenericArray<Extension> ();
+
+            // load the builtin extensions first
+#if BUILTIN_EXTENSIONS
+            var bel = new BuiltinExtension (data_source_registry_init);
+            extension = bel.create_instance ();
+            if (extension != null) extensions.add (extension);
+#endif
             
             // TODO: load extensions from system & user directories, and make
             // sure the order is correct
@@ -67,7 +75,7 @@ namespace Zeitgeist
                         debug ("Loading extension: \"%s\"", path);
                         var loader = new ModuleLoader (path);
                         // FIXME: check if enabled
-                        Extension? extension = loader.create_instance ();
+                        extension = loader.create_instance ();
                         if (extension != null) extensions.add (extension);
                     }
                     else
@@ -79,6 +87,10 @@ namespace Zeitgeist
             }
         }
     }
+
+#if BUILTIN_EXTENSIONS
+    private extern static Type data_source_registry_init (TypeModule mod);
+#endif
 
 }
 // vim:expandtab:ts=4:sw=4

@@ -8,11 +8,17 @@ AM_CPPFLAGS = \
 	$(NULL)
 
 VALAFLAGS = \
-	--pkg gio-2.0 \
 	--target-glib=2.26 \
+	-D BUILTIN_EXTENSIONS \
+	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	--pkg posix \
 	--pkg gmodule-2.0 \
+	$(NULL)
+
+
+extensions_VALASOURCES = \
+	ext-data-source-registry.vala \
 	$(NULL)
 
 bluebird_VALASOURCES = \
@@ -36,6 +42,7 @@ bluebird_VALASOURCES = \
 bluebird_SOURCES = \
 	zeitgeist-engine_vala.stamp \
 	$(bluebird_VALASOURCES:.vala=.c) \
+	$(extensions_VALASOURCES:.vala=.c) \
 	$(NULL)
 
 bluebird_LDADD = \
@@ -44,10 +51,14 @@ bluebird_LDADD = \
 
 bluebird_LDFLAGS = -export-dynamic -no-undefined
 
-BUILT_SOURCES = zeitgeist-engine_vala.stamp
+BUILT_SOURCES = zeitgeist-engine_vala.stamp extensions_vala.stamp
 
-zeitgeist-engine.vapi zeitgeist-engine_vala.stamp: $(bluebird_VALASOURCES)
+zeitgeist-engine_vala.stamp zeitgeist-engine.vapi: $(bluebird_VALASOURCES)
 	$(VALAC) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
+	touch "$@"
+
+extensions_vala.stamp: zeitgeist-engine.vapi $(extensions_VALASOURCES)
+	$(VALAC) $(VALAFLAGS) $(EXT_FLAGS) -C $(filter %.vala %.vapi,$^)
 	touch "$@"
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
@@ -65,6 +76,7 @@ EXTRA_DIST = \
 	zeitgeist-engine.h \
 	zeitgeist-engine.vapi \
 	zeitgeist-engine_vala.stamp \
+	extensions_vala.stamp \
 	$(NULL)
 
 DISTCLEANFILES = \

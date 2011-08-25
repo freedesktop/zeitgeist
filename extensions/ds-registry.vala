@@ -148,8 +148,13 @@ namespace Zeitgeist
     }
 
     [ModuleInit]
+#if BUILTIN_EXTENSIONS
+    Type data_source_registry_init (TypeModule module)
+    {
+#else
     Type extension_register (TypeModule module)
     {
+#endif
         return typeof (DataSourceRegistry);
     }
 }
