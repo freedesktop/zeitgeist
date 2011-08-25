@@ -86,6 +86,21 @@ namespace Zeitgeist
                 }
             }
         }
+
+        public string[] get_extension_names ()
+        {
+            string[] result = {};
+            for (int i = 0; i < extensions.length; i++)
+            {
+                unowned string ext_name = extensions[i].get_type ().name ();
+                if (ext_name.has_prefix ("Zeitgeist"))
+                    result += ext_name.substring (9);
+                else
+                    result += ext_name;
+            }
+
+            return result;
+        }
     }
 
 #if BUILTIN_EXTENSIONS

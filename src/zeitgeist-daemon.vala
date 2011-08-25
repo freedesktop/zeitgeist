@@ -41,7 +41,7 @@ namespace Zeitgeist
         {
             owned get
             {
-                string[] ext = { "extension1", "extension2" };
+                string[] ext = extension_collection.get_extension_names ();
                 return ext;
             }
         }
