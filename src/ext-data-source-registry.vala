@@ -1,0 +1,1 @@
+../extensions/ds-registry.vala
