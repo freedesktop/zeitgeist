@@ -105,8 +105,10 @@ namespace Zeitgeist
 
             private bool matches (Event event)
             {
-                // FIXME: match based on the event_templates
-                return true;
+                for (var i = 0; i < event_templates.length; i++)
+                    if (event.matches_template(event_templates[i]))
+                        return true;
+                return false;
             }
 
             // FIXME: we need to queue the notification if proxy_object == null
@@ -117,6 +119,7 @@ namespace Zeitgeist
 
                 for (int i=0; i<events.length; i++)
                 {
+                    debug("Checking event %u subscribers", events[i].id);
                     if (this.matches (events[i])) matched.add (events[i]);
                 }
 

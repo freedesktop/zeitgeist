@@ -355,7 +355,69 @@ namespace Zeitgeist
                                s.mimetype, s.origin, s.text, s.current_uri,
                                s.storage);
             }
+       }
+        
+        private bool check_field_match(string event_property, string event_template_property,
+             bool is_symbol = true)
+        {
+            var matches = true;
+            var is_negated = (event_template_property[0] == '!');
+            
+            var template_property = event_template_property;
+            if (is_negated)
+                template_property = template_property[1:template_property.length];
+                
+            if (template_property == "")
+                return true;
+            else if (template_property == event_property)
+                matches = true;
+            else if (is_symbol &&
+                Symbol.get_all_parents(event_property).index(template_property) > -1)
+                matches = true;
+            else
+                matches = false;
+            if (is_negated){
+                matches = !matches;
+            }
+            debug("Checking matches for %s", event_template_property);
+            return matches;
+        }
 
+        public bool matches_event(Event event)
+        {
+            return event.matches_template(this);
+        }
+
+        public bool matches_template(Event template_event)
+        {
+            /**
+            Return True if this event matches *event_template*. The
+            matching is done where unset fields in the template is
+            interpreted as wild cards. Interpretations and manifestations
+            are also matched if they are children of the types specified
+            in `event_template`. If the template has more than one
+            subject, this event matches if at least one of the subjects
+            on this event matches any single one of the subjects on the
+            template.
+            */
+            //Check if interpretation is child of template_event or same
+            debug("Checking if event %u matches template_event %u\n",
+                this.id, template_event.id);
+            if (!check_field_match(this.interpretation, template_event.interpretation))
+                return false;
+            //Check if manifestation is child of template_event or same
+            if (!check_field_match(this.manifestation, template_event.manifestation))
+                return false;
+            //Check if actor is equal to template_event actor
+            if (!check_field_match(this.actor, template_event.actor, false))
+                return false;
+            //Check if origin is equal to template_event origin
+            if (!check_field_match(this.origin, template_event.origin, false))
+                return false;
+            
+            //FIXME: Check for subject matching
+            
+            return true;
         }
 
     }
@@ -455,6 +517,32 @@ namespace Zeitgeist
             vb.add ("s", current_uri ?? "");
 
             return vb.end ();
+        }
+
+        private bool check_field_match(string subj_property, string subj_template_property,
+             bool is_symbol = true)
+        {
+            var matches = true;
+            var is_negated = (subj_template_property[0] == '!');
+            
+            var template_property = subj_template_property;
+            if (is_negated)
+                template_property = template_property[1:template_property.length];
+                
+            if (template_property == "")
+                return true;
+            else if (template_property == subj_property)
+                matches = true;
+            else if (is_symbol &&
+                Symbol.get_all_parents(subj_property).index(template_property) > -1)
+                matches = true;
+            else
+                matches = false;
+            if (is_negated){
+                matches = !matches;
+            }
+            debug("Checking matches for %s", subj_template_property);
+            return matches;
         }
 
     }
