@@ -70,6 +70,7 @@ ontology.vala ontology-uris.vala: ontology_vala.stamp
 
 EXTRA_DIST = \
 	$(bluebird_VALASOURCES) \
+	$(extensions_VALASOURCES) \
 	ontology_vala.stamp \
 	ontology.vala.in \
 	ontology-uris.vala.in \
