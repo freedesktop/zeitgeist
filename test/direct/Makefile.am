@@ -30,7 +30,7 @@ SRC_FILES = \
 	$(top_srcdir)/src/ontology-uris.vala \
 	$(NULL)
 
-marshalling: marshalling.vala $(top_srcdir)/src/datamodel.vala
+marshalling: marshalling.vala $(SRC_FILES)
 	$(VALAC) $(VALAFLAGS) -o $@ $^
 
 query-operators-test: query-operators-test.vala $(SRC_FILES)
