@@ -57,7 +57,7 @@ namespace Zeitgeist
 
             if (!FileUtils.test (DATA_PATH, FileTest.IS_DIR))
             {
-                 DirUtils.create (DATA_PATH, 0755);
+                 DirUtils.create_with_parents (DATA_PATH, 0755);
             }
 
             debug ("DATA_PATH = %s", DATA_PATH);
@@ -99,11 +99,13 @@ namespace Zeitgeist
             LOCAL_EXTENSIONS_PATH = Path.build_filename (get_data_path (),
                 "extensions");
 
+            /*
             if (!FileUtils.test (LOCAL_EXTENSIONS_PATH, FileTest.IS_DIR))
             {
                 // FIXME: Why? There's no need to create it. --RainCT
                 DirUtils.create (LOCAL_EXTENSIONS_PATH, 0755);
             }
+            */
 
             debug ("LOCAL_EXTENSIONS_PATH = %s", LOCAL_EXTENSIONS_PATH);
             
