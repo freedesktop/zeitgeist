@@ -41,18 +41,32 @@ namespace Zeitgeist
 
     class DataSource: Object
     {
-        private GenericArray<Event> event_templates;
-        private string unique_id;
-        private string name;
-        private string description;
+        public GenericArray<Event>? event_templates { get; set; }
+        public string unique_id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
 
-        bool enabled;
-        bool running;
-        int64 timestamp;
+        public bool enabled { get; set; }
+        public bool running { get; set; }
+        public int64 timestamp { get; set; }
+
+        public DataSource ()
+        {
+            Object ();
+        }
+
+        public DataSource.full (string unique_id, string name,
+            string description, GenericArray<Event> templates)
+        {
+            Object (unique_id: unique_id, name: name, description: description,
+                event_templates: templates);
+        }
 
         public DataSource.from_variant (Variant variant)
         {
             // we expect (sssa(asaasay)bxb)
+            warn_if_fail (variant.get_type_string () == "(sssa(asaasay)bxb)"
+                || variant.get_type_string () == "sssa(asaasay)");
             var iter = variant.iterator ();
 
             assert (iter.n_children () >= 4);
@@ -78,9 +92,15 @@ namespace Zeitgeist
             vb.add ("s", unique_id);
             vb.add ("s", name);
             vb.add ("s", description);
-            vb.open (new VariantType ("a(asaasay)"));
-            vb.add_value (Events.to_variant (event_templates));
-            vb.close ();
+            if (event_templates != null && event_templates.length > 0)
+            {
+                vb.add_value (Events.to_variant (event_templates));
+            }
+            else
+            {
+                vb.open (new VariantType ("a(asaasay)"));
+                vb.close ();
+            }
 
             vb.add ("b", enabled);
             vb.add ("x", timestamp);
@@ -92,7 +112,7 @@ namespace Zeitgeist
 
     class DataSourceRegistry: Extension, RemoteRegistry
     {
-        private GenericArray<DataSource> sources;
+        private HashTable<string, DataSource> sources;
         private uint registration_id;
 
         DataSourceRegistry ()
@@ -102,8 +122,10 @@ namespace Zeitgeist
 
         construct
         {
-            sources = new GenericArray<DataSource> ();
-            
+            sources = new HashTable<string, DataSource> (str_hash, str_equal);
+
+            // FIXME: load data sources
+
             // this will be called after bus is acquired, so it shouldn't block
             var connection = Bus.get_sync (BusType.SESSION, null);
             registration_id = connection.register_object<RemoteRegistry> (
@@ -126,11 +148,17 @@ namespace Zeitgeist
         {
             var array = new VariantBuilder (new VariantType (
                 "a(sssa(asaasay)bxb)"));
-            for (int i = 0; i < sources.length; i++)
+            List<unowned DataSource> data_sources = sources.get_values ();
+            data_sources.sort ((a, b) =>
             {
-                array.add_value (sources[i].to_variant ());
+                return strcmp (a.unique_id, b.unique_id);
+            });
+
+            foreach (unowned DataSource ds in data_sources)
+            {
+                array.add_value (ds.to_variant ());
             }
-            
+
             return array.end ();
         }
 
@@ -138,12 +166,40 @@ namespace Zeitgeist
             string description, Variant event_templates)
         {
             debug ("%s: %s, %s, %s", Log.METHOD, unique_id, name, description);
-            return false;
+            unowned DataSource? ds = sources.lookup (unique_id);
+            if (ds != null)
+            {
+                // FIXME: update timestamp?
+                return ds.enabled;
+            }
+            else
+            {
+                var templates = Events.from_variant (event_templates);
+                DataSource new_ds = new DataSource.full (unique_id, name,
+                    description, templates);
+                sources.insert (unique_id, new_ds);
+
+                data_source_registered (new_ds.to_variant ());
+
+                return true;
+            }
         }
 
         public void set_data_source_enabled (string unique_id, bool enabled)
         {
             debug ("%s: %s, %d", Log.METHOD, unique_id, (int) enabled);
+            unowned DataSource? ds = sources.lookup (unique_id);
+            if (ds != null)
+            {
+                bool changed = ds.enabled != enabled;
+                ds.enabled = enabled;
+
+                if (changed) data_source_enabled (unique_id, enabled);
+            }
+            else
+            {
+                warning ("DataSource \"%s\" wasn't registered!", unique_id);
+            }
         }
     }
 
