@@ -1012,7 +1012,8 @@ public class Engine : Object
     {
         if (!val.has_suffix ("*"))
             return false;
-        val = val.substring (0, val.char_count () - 1); // Fix for utf-8
+        unowned uint8[] val_data = val.data;
+        val_data[val_data.length-1] = '\0';
         return true;
     }
 
