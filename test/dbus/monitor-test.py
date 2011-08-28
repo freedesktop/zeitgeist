@@ -108,7 +108,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 			mainloop.quit()
 			self.fail("Unexpected delete notification")
 			
-		self.client.install_monitor([0,150], [tmpl],
+		self.client.install_monitor([0,155], [tmpl],
 			notify_insert_handler, notify_delete_handler)
 		self.client.insert_events(events)
 		mainloop.run()

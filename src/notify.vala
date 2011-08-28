@@ -109,6 +109,8 @@ namespace Zeitgeist
                 for (var i = 0; i < event_templates.length; i++)
                     if (event.matches_template(event_templates[i]))
                         return true;
+                if (event_templates.length == 0)
+                    return true;
                 return false;
             }
 
@@ -181,7 +183,9 @@ namespace Zeitgeist
                 {
                     var matching_events = new GenericArray<Event>();
                     for (int i=0; i<events.length; i++)
-                        if (mon.matches(events[i]))
+                        if (mon.matches(events[i]) 
+                            && events[i].timestamp >= intersection_timerange.start
+                            && events[i].timestamp <= intersection_timerange.end)
                             matching_events.add(events[i]);
                     if (matching_events.length > 0)
                     {
@@ -193,7 +197,6 @@ namespace Zeitgeist
 
         public void notify_delete (TimeRange time_range, uint32[] event_ids)
         {
-            stdout.printf("---> COMMENCING DELETE NOTIFICATION\n");
             foreach (unowned Monitor mon in monitors.get_values ())
             {
                 var intersection_timerange = time_range.intersect(mon.time_range);
