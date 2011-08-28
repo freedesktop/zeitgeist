@@ -400,6 +400,7 @@ namespace Zeitgeist
             on this event matches any single one of the subjects on the
             template.
             */
+            
             //Check if interpretation is child of template_event or same
             debug("Checking if event %u matches template_event %u\n",
                 this.id, template_event.id);
@@ -416,8 +417,15 @@ namespace Zeitgeist
                 return false;
             
             //FIXME: Check for subject matching
+            if (template_event.subjects.length == 0)
+                return true;
             
-            return true;
+            for (int i=0; i<this.subjects.length; i++)
+                for (int j=0; j<template_event.subjects.length; j++)
+                    if (this.subjects[i].matches_template(template_event.subjects[j]))
+                        return true;
+            
+            return false;
         }
 
     }
@@ -543,6 +551,35 @@ namespace Zeitgeist
             }
             debug("Checking matches for %s", subj_template_property);
             return matches;
+        }
+    
+        public bool matches_subject(Subject subject)
+        {
+            return subject.matches_template(this);
+        }
+
+        public bool matches_template(Subject template_subject)
+        {
+            /**
+            Return True if this Subject matches *subject_template*. Empty
+            fields in the template are treated as wildcards.
+            Interpretations and manifestations are also matched if they are
+            children of the types specified in `subject_template`. 
+            */
+            if (!check_field_match(this.uri, template_subject.uri))
+                return false;
+            if (!check_field_match(this.current_uri, template_subject.current_uri))
+                return false;
+            if (!check_field_match(this.interpretation, template_subject.interpretation, true))
+                return false;
+            if (!check_field_match(this.manifestation, template_subject.manifestation, true))
+                return false;
+            if (!check_field_match(this.origin, template_subject.origin))
+                return false;
+            if (!check_field_match(this.mimetype, template_subject.mimetype))
+                return false;
+            
+            return true;
         }
 
     }

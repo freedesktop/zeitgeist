@@ -71,6 +71,50 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		
 		self.assertEquals(2, len(result))
 		
+	def testMonitorInsertEventsWithSubjectTemplate(self):
+		result = []
+		mainloop = self.create_mainloop()
+		tmpl = Event.new_for_values(
+			subjects=[Subject.new_for_values(uri="file:///tmp/bar.txt")])
+		events = parse_events("test/data/five_events.js")
+		
+		def notify_insert_handler(time_range, events):
+			result.extend(events)
+			mainloop.quit()
+		
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			self.fail("Unexpected delete notification")
+			
+		self.client.install_monitor(TimeRange.always(), [tmpl],
+			notify_insert_handler, notify_delete_handler)
+		self.client.insert_events(events)
+		mainloop.run()
+		
+		self.assertEquals(1, len(result))
+	
+	def testMonitorInsertEventsWithNegatedSubjectTemplate(self):
+		result = []
+		mainloop = self.create_mainloop()
+		tmpl = Event.new_for_values(
+			subjects=[Subject.new_for_values(uri="!file:///tmp/bar.txt")])
+		events = parse_events("test/data/five_events.js")
+		
+		def notify_insert_handler(time_range, events):
+			result.extend(events)
+			mainloop.quit()
+		
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			self.fail("Unexpected delete notification")
+			
+		self.client.install_monitor(TimeRange.always(), [tmpl],
+			notify_insert_handler, notify_delete_handler)
+		self.client.insert_events(events)
+		mainloop.run()
+		
+		self.assertEquals(4, len(result))
+	
 	def testMonitorDeleteEvents(self):
 		result = []
 		mainloop = self.create_mainloop()
