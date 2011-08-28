@@ -82,6 +82,33 @@ namespace Zeitgeist
         {
             return new Variant ("(xx)", start, end);
         }
+        
+        public TimeRange? intersect(TimeRange time_range)
+        {
+            var result = new TimeRange(0,0);
+            if (start < time_range.start)
+                if (end < time_range.start)
+                    return null;
+                else
+                    result.start = time_range.start;
+            else
+                if (start > time_range.end)
+                    return null;
+                else
+                    result.start = start;
+            
+            if (end < time_range.end)
+                if (end < time_range.start)
+                    return null;
+                else
+                    result.end = end;
+            else
+                if (start > time_range.end)
+                    return null;
+                else
+                    result.end = time_range.end;
+            return result;
+        }
     }
 
     public enum ResultType

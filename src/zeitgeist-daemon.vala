@@ -74,37 +74,6 @@ namespace Zeitgeist
 
             notifications = new MonitorManager ();
             extension_collection = new ExtensionCollection ();
-
-            // FIXME: tmp:
-            /*
-            var vb = new VariantBuilder(new VariantType("(asaasay)"));
-            vb.open(new VariantType("as"));
-                vb.add("s", "0"); // id
-                vb.add("s", "123"); // timestamp
-                vb.add("s", "stfu:OpenEvent"); // interpretation
-                vb.add("s", "stfu:UserActivity"); // manifestation
-                vb.add("s", "firefox"); // actor
-                vb.add("s", "nowhere"); // origin
-            vb.close();
-            vb.open(new VariantType("aas"));
-                vb.open(new VariantType("as"));
-                    vb.add("s", "file:///tmp/foo.txt"); // uri
-                    vb.add("s", "stfu:Document"); // interpretation
-                    vb.add("s", "stfu:File"); // manifestation
-                    vb.add("s", "file:///tmp"); // origin
-                    vb.add("s", "text/plain"); // mimetype
-                    vb.add("s", "this item has no text... rly!"); // text
-                    vb.add("s", "368c991f-8b59-4018-8130-3ce0ec944157"); // storage
-                    vb.add("s", "file:///tmp/foo.txt"); // current_uri
-                vb.close();
-            vb.close();
-            vb.open(new VariantType("ay"));
-            vb.close();
-
-            var events = new GenericArray<Event>();
-            events.add(new Event.from_variant(vb.end()));
-            stdout.printf ("INSERTED: %u\n", engine.insert_events(events)[0]);
-            */
         }
 
         ~Daemon ()
@@ -157,18 +126,21 @@ namespace Zeitgeist
                 storage_state, num_events, result_type, sender));
         }
 
-        // FIXME
         public uint32[] insert_events (
                 Variant vevents,
                 BusName sender)
         {
             var events = Events.from_variant (vevents);
 
-            // FIXME: trigger notifications
-
             uint32[] event_ids = engine.insert_events (events, sender);
-            // FIXME: time_range
-            notifications.notify_insert (new TimeRange (-1, -1), events);
+            var min_timestamp = events[0].timestamp;
+            var max_timestamp = min_timestamp;
+            for(int i=0; i<events.length; i++)
+            {
+                min_timestamp = int64.min(min_timestamp, events[i].timestamp);
+                max_timestamp = int64.max(max_timestamp, events[i].timestamp);
+            }
+            notifications.notify_insert (new TimeRange (min_timestamp, max_timestamp), events);
 
             return event_ids;
         }
@@ -176,18 +148,16 @@ namespace Zeitgeist
         // FIXME
         public Variant delete_events (uint32[] event_ids, BusName sender)
         {
+            //FIXME: Why is this not called?
             TimeRange? time_range = engine.delete_events (event_ids, sender);
             if (time_range != null)
             {
-                // FIXME: trigger notifications
+                notifications.notify_delete(time_range, event_ids);
             }
             else
             {
-                // All the given event_ids are invalid or the events
-                // have already been deleted before!
                 time_range = new TimeRange (-1, -1);
             }
-
             return time_range.to_variant ();
         }
 

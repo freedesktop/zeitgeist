@@ -2,6 +2,7 @@
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ *             By Seif Lotfy <seif@lotfy.com>
  * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -79,7 +80,7 @@ namespace Zeitgeist
         {
 
             private GenericArray<Event> event_templates;
-            private TimeRange time_range;
+            public TimeRange time_range;
             private RemoteMonitor? proxy_object = null;
 
             public Monitor (BusName peer, string object_path,
@@ -103,7 +104,7 @@ namespace Zeitgeist
                 event_templates = templates;
             }
 
-            private bool matches (Event event)
+            public bool matches (Event event)
             {
                 for (var i = 0; i < event_templates.length; i++)
                     if (event.matches_template(event_templates[i]))
@@ -112,20 +113,9 @@ namespace Zeitgeist
             }
 
             // FIXME: we need to queue the notification if proxy_object == null
-            public void notify_insert (TimeRange tr, GenericArray<Event> events)
+            public void notify_insert (TimeRange tr, GenericArray<Event> matched)
                 requires (proxy_object != null)
             {
-                var matched = new GenericArray<Event> ();
-
-                for (int i=0; i<events.length; i++)
-                {
-                    debug("Checking event %u subscribers", events[i].id);
-                    if (this.matches (events[i])) matched.add (events[i]);
-                }
-
-                if (matched.length == 0) return;
-
-                // FIXME: intersect the time range
                 DBusProxy p = (DBusProxy) proxy_object;
                 debug ("Notifying %s about %d insertions",
                     p.get_name (), matched.length);
@@ -137,8 +127,6 @@ namespace Zeitgeist
             public void notify_delete (TimeRange tr, uint32[] event_ids)
                 requires (proxy_object != null)
             {
-                // FIXME: intersect the time range
-
                 proxy_object.notify_delete (time_range.to_variant (),
                     event_ids);
             }
@@ -188,15 +176,31 @@ namespace Zeitgeist
         {
             foreach (unowned Monitor mon in monitors.get_values ())
             {
-                mon.notify_insert (time_range, events);
+                var intersection_timerange = time_range.intersect(mon.time_range);
+                if (intersection_timerange.start <= intersection_timerange.end)
+                {
+                    var matching_events = new GenericArray<Event>();
+                    for (int i=0; i<events.length; i++)
+                        if (mon.matches(events[i]))
+                            matching_events.add(events[i]);
+                    if (matching_events.length > 0)
+                    {
+                        mon.notify_insert(intersection_timerange, matching_events);
+                    }
+                }
             }
         }
 
         public void notify_delete (TimeRange time_range, uint32[] event_ids)
         {
+            stdout.printf("---> COMMENCING DELETE NOTIFICATION\n");
             foreach (unowned Monitor mon in monitors.get_values ())
             {
-                mon.notify_delete (time_range, event_ids);
+                var intersection_timerange = time_range.intersect(mon.time_range);
+                if (intersection_timerange != null)
+                {
+                    mon.notify_delete(intersection_timerange, event_ids);
+                }
             }
         }
     }
