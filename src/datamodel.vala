@@ -358,9 +358,9 @@ namespace Zeitgeist
        }
         
         private bool check_field_match(string event_property, string event_template_property,
-             bool is_symbol = true)
+             bool is_symbol = false, bool can_wildcard = false)
         {
-            var matches = true;
+            var matches = false;
             var is_negated = (event_template_property[0] == '!');
             
             var template_property = event_template_property;
@@ -374,8 +374,9 @@ namespace Zeitgeist
             else if (is_symbol &&
                 Symbol.get_all_parents(event_property).index(template_property) > -1)
                 matches = true;
-            else
-                matches = false;
+            else if (can_wildcard && template_property.has_suffix("*"))
+                if (event_property.index_of(template_property[0:template_property.length-1]) > -1)
+                    matches = true;
             if (is_negated){
                 matches = !matches;
             }
@@ -404,16 +405,16 @@ namespace Zeitgeist
             //Check if interpretation is child of template_event or same
             debug("Checking if event %u matches template_event %u\n",
                 this.id, template_event.id);
-            if (!check_field_match(this.interpretation, template_event.interpretation))
+            if (!check_field_match(this.interpretation, template_event.interpretation, true))
                 return false;
             //Check if manifestation is child of template_event or same
-            if (!check_field_match(this.manifestation, template_event.manifestation))
+            if (!check_field_match(this.manifestation, template_event.manifestation, true))
                 return false;
             //Check if actor is equal to template_event actor
-            if (!check_field_match(this.actor, template_event.actor, false))
+            if (!check_field_match(this.actor, template_event.actor, false, true))
                 return false;
             //Check if origin is equal to template_event origin
-            if (!check_field_match(this.origin, template_event.origin, false))
+            if (!check_field_match(this.origin, template_event.origin, false, true))
                 return false;
             
             //FIXME: Check for subject matching
@@ -528,9 +529,9 @@ namespace Zeitgeist
         }
 
         private bool check_field_match(string subj_property, string subj_template_property,
-             bool is_symbol = true)
+             bool is_symbol = false, bool can_wildcard = false)
         {
-            var matches = true;
+            var matches = false;
             var is_negated = (subj_template_property[0] == '!');
             
             var template_property = subj_template_property;
@@ -544,8 +545,9 @@ namespace Zeitgeist
             else if (is_symbol &&
                 Symbol.get_all_parents(subj_property).index(template_property) > -1)
                 matches = true;
-            else
-                matches = false;
+            else if (can_wildcard && template_property.has_suffix("*"))
+                if (subj_property.index_of(template_property[0:template_property.length-1]) > -1)
+                    matches = true;
             if (is_negated){
                 matches = !matches;
             }
@@ -566,17 +568,17 @@ namespace Zeitgeist
             Interpretations and manifestations are also matched if they are
             children of the types specified in `subject_template`. 
             */
-            if (!check_field_match(this.uri, template_subject.uri))
+            if (!check_field_match(this.uri, template_subject.uri, false, true))
                 return false;
-            if (!check_field_match(this.current_uri, template_subject.current_uri))
+            if (!check_field_match(this.current_uri, template_subject.current_uri, false, true))
                 return false;
             if (!check_field_match(this.interpretation, template_subject.interpretation, true))
                 return false;
             if (!check_field_match(this.manifestation, template_subject.manifestation, true))
                 return false;
-            if (!check_field_match(this.origin, template_subject.origin))
+            if (!check_field_match(this.origin, template_subject.origin, false, true))
                 return false;
-            if (!check_field_match(this.mimetype, template_subject.mimetype))
+            if (!check_field_match(this.mimetype, template_subject.mimetype, false, true))
                 return false;
             
             return true;
