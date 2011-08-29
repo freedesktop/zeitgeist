@@ -138,9 +138,9 @@ public class Engine : Object
             stdout.printf ("\n");
         }*/
 
-        var results = new GenericArray<Event?>();
+        var results = new GenericArray<Event?> ();
         foreach (var id in event_ids)
-            results.add(events.lookup(id));
+            results.add (events.lookup (id));
         return results;
     }
 
@@ -338,7 +338,7 @@ public class Engine : Object
         uint storage_state, uint max_events, uint result_type,
         BusName? sender=null) throws EngineError
     {
-        return get_events(find_event_ids(time_range, event_templates,
+        return get_events (find_event_ids (time_range, event_templates,
             storage_state, max_events, result_type));
     }
 
@@ -353,7 +353,7 @@ public class Engine : Object
         GenericArray<Event> event_templates,
         GenericArray<Event> result_event_templates,
         uint storage_state, uint max_results, uint result_type,
-        BusName? sender=null) throws EngineError.INVALID_ARGUMENT
+        BusName? sender=null) throws EngineError
     {
         /**
         * Return a list of subject URIs commonly used together with events
@@ -988,7 +988,7 @@ public class Engine : Object
      * error.
      */
     protected void assert_no_negation (string field, string val)
-        throws EngineError.INVALID_ARGUMENT
+        throws EngineError
     {
         if (!val.has_prefix ("!"))
             return;
@@ -1022,7 +1022,7 @@ public class Engine : Object
      * If the value ends with the wildcard character, throw an error.
      */
     protected void assert_no_wildcard (string field, string val)
-        throws EngineError.INVALID_ARGUMENT
+        throws EngineError
     {
         if (!val.has_suffix ("*"))
             return;

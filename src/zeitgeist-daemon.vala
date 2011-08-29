@@ -125,19 +125,18 @@ namespace Zeitgeist
             engine.close ();
         }
 
-        // FIXME
         public Variant get_events (uint32[] event_ids, BusName sender)
+            throws Error
         {
             GenericArray<Event> events = engine.get_events (event_ids);
             return Events.to_variant (events);
         }
 
-        // FIXME
         public string[] find_related_uris (Variant time_range,
                 Variant event_templates,
                 Variant result_event_templates,
                 uint storage_state, uint num_events, uint result_type,
-                BusName sender)
+                BusName sender) throws Error
         {
             return engine.find_related_uris(new TimeRange.from_variant (time_range),
                 Events.from_variant(event_templates),
@@ -145,11 +144,10 @@ namespace Zeitgeist
                 storage_state, num_events, result_type);
         }
 
-        // FIXME
         public uint32[] find_event_ids (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
-                BusName sender)
+                BusName sender) throws Error
         {
             return engine.find_event_ids (
                 new TimeRange.from_variant (time_range),
@@ -157,11 +155,10 @@ namespace Zeitgeist
                 storage_state, num_events, result_type, sender);
         }
 
-        // FIXME
         public Variant find_events (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
-                BusName sender)
+                BusName sender) throws Error
         {
             return Events.to_variant (engine.find_events (
                 new TimeRange.from_variant (time_range),
@@ -171,7 +168,7 @@ namespace Zeitgeist
 
         public uint32[] insert_events (
                 Variant vevents,
-                BusName sender)
+                BusName sender) throws Error
         {
             var events = Events.from_variant (vevents);
 
@@ -190,6 +187,7 @@ namespace Zeitgeist
 
         // FIXME
         public Variant delete_events (uint32[] event_ids, BusName sender)
+            throws Error
         {
             //FIXME: Why is this not called?
             TimeRange? time_range = engine.delete_events (event_ids, sender);
@@ -204,7 +202,7 @@ namespace Zeitgeist
             return time_range.to_variant ();
         }
 
-        public void quit ()
+        public void quit () throws Error
         {
             do_quit ();
         }
@@ -217,7 +215,7 @@ namespace Zeitgeist
         public void install_monitor (ObjectPath monitor_path,
                 Variant time_range,
                 Variant event_templates,
-                BusName owner)
+                BusName owner) throws Error
         {
             notifications.install_monitor (owner, monitor_path,
                 new TimeRange.from_variant (time_range),
@@ -225,6 +223,7 @@ namespace Zeitgeist
         }
 
         public void remove_monitor (ObjectPath monitor_path, BusName owner)
+            throws Error
         {
             notifications.remove_monitor (owner, monitor_path);
         }

@@ -24,10 +24,26 @@
  *
  */
 
-public errordomain EngineError
+namespace Zeitgeist
 {
-    DATABASE_ERROR,
-    INVALID_ARGUMENT
+    [DBus (name = "org.gnome.zeitgeist.EngineError")]
+    public errordomain EngineError
+    {
+        DATABASE_ERROR,
+        INVALID_ARGUMENT
+    }
+
+    // vala doesn't include proper headers, this fixes it
+    private static void vala_bug_workaround ()
+    {
+        try
+        {
+            var bus = Bus.get_sync (BusType.SESSION, null);
+        }
+        catch (Error err)
+        {
+        }
+    }
 }
 
 // vim:expandtab:ts=4:sw=4
