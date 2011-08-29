@@ -26,6 +26,49 @@ namespace Zeitgeist
 
     public class Daemon : Object, RemoteLog
     {
+        private static bool show_version_info = false;
+        private static bool show_options = false;
+        private static bool no_datahub = false;
+        private static bool replace_mode = false;
+        private static bool quit_daemon = false;
+        private static string log_level = "";
+
+        const OptionEntry[] options =
+        {
+            {
+                "version", 'v', 0, OptionArg.NONE, out show_version_info,
+                "Print program's version number and exit", null
+            },
+            {
+                "no-datahub", 0, 0, OptionArg.NONE, out no_datahub,
+                "Do not start zeitgeist-datahub automatically", null
+            },
+            {
+                "no-passive-loggers", 0, 0, OptionArg.NONE, out no_datahub,
+                "Do not start zeitgeist-datahub automatically", null
+            },
+            {
+                "replace", 'r', 0, OptionArg.NONE, out replace_mode,
+                "If another Zeitgeist instance is already running, replace it",
+                null
+            },
+            {
+                "quit", 0, 0, OptionArg.NONE, out quit_daemon,
+                "Quit running Zeitgeist daemon instance", null
+            },
+            {
+                "log-level", 0, 0, OptionArg.STRING, out log_level,
+                "How much information should be printed; possible values: " +
+                "DEBUG, INFO, WARNING, ERROR, CRITICAL", "LEVEL"
+            },
+            {
+                "shell-completion", 0, OptionFlags.HIDDEN, OptionArg.NONE,
+                out show_options, null, null
+            },
+            {
+                null
+            }
+        };
 
         private static Daemon? instance;
         private static MainLoop mainloop;
@@ -241,7 +284,38 @@ namespace Zeitgeist
             Posix.signal (Posix.SIGHUP, safe_exit);
             Posix.signal (Posix.SIGTERM, safe_exit);
 
-            run ();
+            var opt_context = new OptionContext (" - Zeitgeist daemon");
+            opt_context.add_main_entries (options, null);
+
+            try
+            {
+                opt_context.parse (ref args);
+
+                if (show_version_info)
+                {
+                    stdout.printf ("0.8.99\n"); // FIXME!
+                    return 0;
+                }
+                if (show_options)
+                {
+                    foreach (unowned OptionEntry? entry in options)
+                    {
+                        if (entry.long_name != null)
+                            stdout.printf ("--%s ", entry.long_name);
+                        if (entry.short_name != 0)
+                            stdout.printf ("-%c ", entry.short_name);
+                    }
+                    stdout.printf ("--help\n");
+
+                    return 0;
+                }
+                run ();
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
+            }
+
             return 0;
         }
 
