@@ -54,17 +54,11 @@ namespace Zeitgeist
                             string[] hashes;
                             string prefix = "%s#".printf (arg1);
                             foreach (unowned string mon_hash in monitors.get_keys ())
-                            {
                                 if (mon_hash.has_prefix (prefix))
-                                {
                                     hashes += mon_hash;
-                                }
-                            }
 
                             foreach (unowned string hash in hashes)
-                            {
                                 do_remove_monitor (hash);
-                            }
                             // FIXME: remove from peers
                         }
                     });
@@ -80,7 +74,7 @@ namespace Zeitgeist
         {
 
             private GenericArray<Event> event_templates;
-            public TimeRange time_range;
+            private TimeRange time_range;
             private RemoteMonitor? proxy_object = null;
 
             public Monitor (BusName peer, string object_path,
@@ -104,7 +98,7 @@ namespace Zeitgeist
                 event_templates = templates;
             }
 
-            public bool matches (Event event)
+            private bool matches (Event event)
             {
                 if (event_templates.length == 0)
                     return true;
@@ -115,22 +109,37 @@ namespace Zeitgeist
             }
 
             // FIXME: we need to queue the notification if proxy_object == null
-            public void notify_insert (TimeRange tr, GenericArray<Event> matched)
+            public void notify_insert (TimeRange time_range, GenericArray<Event> events)
                 requires (proxy_object != null)
             {
-                DBusProxy p = (DBusProxy) proxy_object;
-                debug ("Notifying %s about %d insertions",
-                    p.get_name (), matched.length);
+                var intersection_timerange = time_range.intersect(this.time_range);
+                if (intersection_timerange.start <= intersection_timerange.end)
+                {
+                    var matching_events = new GenericArray<Event>();
+                    for (int i=0; i<events.length; i++)
+                        if (matches(events[i]) 
+                            && events[i].timestamp >= intersection_timerange.start
+                            && events[i].timestamp <= intersection_timerange.end)
+                            matching_events.add(events[i]);
+                    if (matching_events.length > 0)
+                    {
+                        DBusProxy p = (DBusProxy) proxy_object;
+                        debug ("Notifying %s about %d insertions",
+                            p.get_name (), matching_events.length);
 
-                proxy_object.notify_insert (time_range.to_variant (),
-                    Events.to_variant (matched));
+                        proxy_object.notify_insert (intersection_timerange.to_variant (), 
+                            Events.to_variant (matching_events));
+                    }
+                }
             }
 
-            public void notify_delete (TimeRange tr, uint32[] event_ids)
+            public void notify_delete (TimeRange time_range, uint32[] event_ids)
                 requires (proxy_object != null)
             {
-                proxy_object.notify_delete (time_range.to_variant (),
-                    event_ids);
+                var intersection_timerange = time_range.intersect(this.time_range);
+                if (intersection_timerange != null)
+                    proxy_object.notify_delete (intersection_timerange.to_variant (),
+                        event_ids);
             }
         }
 
@@ -177,34 +186,13 @@ namespace Zeitgeist
             GenericArray<Event> events)
         {
             foreach (unowned Monitor mon in monitors.get_values ())
-            {
-                var intersection_timerange = time_range.intersect(mon.time_range);
-                if (intersection_timerange.start <= intersection_timerange.end)
-                {
-                    var matching_events = new GenericArray<Event>();
-                    for (int i=0; i<events.length; i++)
-                        if (mon.matches(events[i]) 
-                            && events[i].timestamp >= intersection_timerange.start
-                            && events[i].timestamp <= intersection_timerange.end)
-                            matching_events.add(events[i]);
-                    if (matching_events.length > 0)
-                    {
-                        mon.notify_insert(intersection_timerange, matching_events);
-                    }
-                }
-            }
+                mon.notify_insert(time_range, events);
         }
 
         public void notify_delete (TimeRange time_range, uint32[] event_ids)
         {
             foreach (unowned Monitor mon in monitors.get_values ())
-            {
-                var intersection_timerange = time_range.intersect(mon.time_range);
-                if (intersection_timerange != null)
-                {
-                    mon.notify_delete(intersection_timerange, event_ids);
-                }
-            }
+                mon.notify_delete(time_range, event_ids);
         }
     }
 
