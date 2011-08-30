@@ -84,10 +84,8 @@ public class Engine : Object
         while ((rc = stmt.step ()) == Sqlite.ROW)
         {
             uint32 event_id = (uint32) stmt.column_int64 (EventViewRows.ID);
-            Event event;
-            if (events.lookup (event_id) != null)
-                event = events.lookup (event_id);
-            else
+            Event? event = events.lookup (event_id);
+            if (event == null)
             {
                 event = new Event ();
                 event.id = event_id;
@@ -103,7 +101,6 @@ public class Engine : Object
                 // FIXME: payload
                 events.insert (event_id, event);
             }
-
 
             Subject subject = new Subject ();
             subject.uri = stmt.column_text (EventViewRows.SUBJECT_URI);
@@ -726,15 +723,6 @@ public class Engine : Object
     {
         // FIXME: unload extensions
         database.close();
-    }
-
-    // Used by get_events
-    private static int search_event_ids_array(uint32[] arr, uint32 needle)
-    {
-        for (int i = 0; i < arr.length; ++i)
-            if (arr[i] == needle)
-                return i;
-        return -1;
     }
 
     // Used by find_event_ids
