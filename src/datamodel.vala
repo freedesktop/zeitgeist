@@ -82,8 +82,8 @@ namespace Zeitgeist
         {
             return new Variant ("(xx)", start, end);
         }
-        
-        public TimeRange? intersect(TimeRange time_range)
+
+        public TimeRange? intersect (TimeRange time_range)
         {
             var result = new TimeRange(0,0);
             if (start < time_range.start)
@@ -96,7 +96,7 @@ namespace Zeitgeist
                     return null;
                 else
                     result.start = start;
-            
+
             if (end < time_range.end)
                 if (end < time_range.start)
                     return null;
@@ -238,7 +238,7 @@ namespace Zeitgeist
     /**
      * Enumeration class defining the possible values for the storage
      * state of an event subject.
-     * 
+     *
      * The StorageState enumeration can be used to control whether or
      * not matched events must have their subjects available to the user.
      * Fx. not including deleted files, files on unplugged USB drives,
@@ -383,40 +383,47 @@ namespace Zeitgeist
                                s.storage);
             }
        }
-        
-        private bool check_field_match(string event_property, string event_template_property,
-             bool is_symbol = false, bool can_wildcard = false)
+
+        private bool check_field_match (string event_property,
+            string event_template_property, bool is_symbol = false,
+            bool can_wildcard = false)
         {
             var matches = false;
+
+            // FIXME: use common code!
             var is_negated = (event_template_property[0] == '!');
-            
             var template_property = event_template_property;
             if (is_negated)
                 template_property = template_property[1:template_property.length];
-                
-            if (template_property == "")
+
+            if (template_property == "") {
                 return true;
-            else if (template_property == event_property)
-                matches = true;
-            else if (is_symbol &&
-                Symbol.get_all_parents(event_property).index(template_property) > -1)
-                matches = true;
-            else if (can_wildcard && template_property.has_suffix("*"))
-                if (event_property.index_of(template_property[0:template_property.length-1]) > -1)
-                    matches = true;
-            if (is_negated){
-                matches = !matches;
             }
-            debug("Checking matches for %s", event_template_property);
-            return matches;
+            else if (template_property == event_property)
+            {
+                matches = true;
+            }
+            else if (is_symbol &&
+                Symbol.get_all_parents (event_property).index (template_property) > -1)
+            {
+                matches = true;
+            }
+            else if (can_wildcard && template_property.has_suffix("*")) // FIXME: use common code?
+            {
+                if (event_property.index_of (
+                        template_property[0:template_property.length-1]) > -1)
+                    matches = true;
+            }
+            debug ("Checking matches for %s", event_template_property);
+            return (is_negated) ? !matches : matches;
         }
 
-        public bool matches_event(Event event)
+        public bool matches_event (Event event)
         {
-            return event.matches_template(this);
+            return event.matches_template (this);
         }
 
-        public bool matches_template(Event template_event)
+        public bool matches_template (Event template_event)
         {
             /**
             Return True if this event matches *event_template*. The
@@ -428,31 +435,31 @@ namespace Zeitgeist
             on this event matches any single one of the subjects on the
             template.
             */
-            
+
             //Check if interpretation is child of template_event or same
             debug("Checking if event %u matches template_event %u\n",
                 this.id, template_event.id);
-            if (!check_field_match(this.interpretation, template_event.interpretation, true))
+            if (!check_field_match (this.interpretation, template_event.interpretation, true))
                 return false;
             //Check if manifestation is child of template_event or same
-            if (!check_field_match(this.manifestation, template_event.manifestation, true))
+            if (!check_field_match (this.manifestation, template_event.manifestation, true))
                 return false;
             //Check if actor is equal to template_event actor
-            if (!check_field_match(this.actor, template_event.actor, false, true))
+            if (!check_field_match (this.actor, template_event.actor, false, true))
                 return false;
             //Check if origin is equal to template_event origin
-            if (!check_field_match(this.origin, template_event.origin, false, true))
+            if (!check_field_match (this.origin, template_event.origin, false, true))
                 return false;
-            
+
             //FIXME: Check for subject matching
             if (template_event.subjects.length == 0)
                 return true;
-            
-            for (int i=0; i<this.subjects.length; i++)
-                for (int j=0; j<template_event.subjects.length; j++)
-                    if (this.subjects[i].matches_template(template_event.subjects[j]))
+
+            for (int i = 0; i < this.subjects.length; i++)
+                for (int j = 0; j < template_event.subjects.length; j++)
+                    if (this.subjects[i].matches_template (template_event.subjects[j]))
                         return true;
-            
+
             return false;
         }
 
@@ -540,7 +547,7 @@ namespace Zeitgeist
                 current_uri = ""; // FIXME: uri?
         }
 
-        public Variant to_variant()
+        public Variant to_variant ()
         {
             var vb = new VariantBuilder (new VariantType ("as"));
             vb.add ("s", uri ?? "");
@@ -555,22 +562,23 @@ namespace Zeitgeist
             return vb.end ();
         }
 
-        private bool check_field_match(string subj_property, string subj_template_property,
+        // FIXME: Why is this duplicated??? delete, delete, delete.
+        private bool check_field_match (string subj_property, string subj_template_property,
              bool is_symbol = false, bool can_wildcard = false)
         {
             var matches = false;
             var is_negated = (subj_template_property[0] == '!');
-            
+
             var template_property = subj_template_property;
             if (is_negated)
                 template_property = template_property[1:template_property.length];
-                
+
             if (template_property == "")
                 return true;
             else if (template_property == subj_property)
                 matches = true;
             else if (is_symbol &&
-                Symbol.get_all_parents(subj_property).index(template_property) > -1)
+                Symbol.get_all_parents (subj_property).index (template_property) > -1)
                 matches = true;
             else if (can_wildcard && template_property.has_suffix("*"))
                 if (subj_property.index_of(template_property[0:template_property.length-1]) > -1)
@@ -581,33 +589,34 @@ namespace Zeitgeist
             debug("Checking matches for %s", subj_template_property);
             return matches;
         }
-    
-        public bool matches_subject(Subject subject)
+
+        // FIXME: what's the point of this function?
+        public bool matches_subject (Subject subject)
         {
-            return subject.matches_template(this);
+            return subject.matches_template (this);
         }
 
-        public bool matches_template(Subject template_subject)
+        public bool matches_template (Subject template_subject)
         {
             /**
             Return True if this Subject matches *subject_template*. Empty
             fields in the template are treated as wildcards.
             Interpretations and manifestations are also matched if they are
-            children of the types specified in `subject_template`. 
+            children of the types specified in `subject_template`.
             */
-            if (!check_field_match(this.uri, template_subject.uri, false, true))
+            if (!check_field_match (this.uri, template_subject.uri, false, true))
                 return false;
-            if (!check_field_match(this.current_uri, template_subject.current_uri, false, true))
+            if (!check_field_match (this.current_uri, template_subject.current_uri, false, true))
                 return false;
-            if (!check_field_match(this.interpretation, template_subject.interpretation, true))
+            if (!check_field_match (this.interpretation, template_subject.interpretation, true))
                 return false;
-            if (!check_field_match(this.manifestation, template_subject.manifestation, true))
+            if (!check_field_match (this.manifestation, template_subject.manifestation, true))
                 return false;
-            if (!check_field_match(this.origin, template_subject.origin, false, true))
+            if (!check_field_match (this.origin, template_subject.origin, false, true))
                 return false;
-            if (!check_field_match(this.mimetype, template_subject.mimetype, false, true))
+            if (!check_field_match (this.mimetype, template_subject.mimetype, false, true))
                 return false;
-            
+
             return true;
         }
 

@@ -85,7 +85,7 @@ public class Engine : Object
         {
             uint32 event_id = (uint32) stmt.column_int64 (EventViewRows.ID);
             Event event;
-            if (events.lookup (event_id)!= null)
+            if (events.lookup (event_id) != null)
                 event = events.lookup (event_id);
             else
             {
