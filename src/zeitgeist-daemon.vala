@@ -197,6 +197,8 @@ namespace Zeitgeist
             }
             else
             {
+                // All the given event_ids are invalod or the events
+                // have already been deleted before!
                 time_range = new TimeRange (-1, -1);
             }
             return time_range.to_variant ();
