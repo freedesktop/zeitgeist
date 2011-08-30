@@ -103,8 +103,12 @@ namespace Zeitgeist
                 if (event_templates.length == 0)
                     return true;
                 for (var i = 0; i < event_templates.length; i++)
+                {
                     if (event.matches_template (event_templates[i]))
+                    {
                         return true;
+                    }
+                }
                 return false;
             }
 
@@ -117,10 +121,14 @@ namespace Zeitgeist
                 {
                     var matching_events = new GenericArray<Event>();
                     for (int i=0; i<events.length; i++)
+                    {
                         if (matches(events[i]) 
+                        {
                             && events[i].timestamp >= intersection_timerange.start
                             && events[i].timestamp <= intersection_timerange.end)
                             matching_events.add(events[i]);
+                        }
+                    }
                     if (matching_events.length > 0)
                     {
                         DBusProxy p = (DBusProxy) proxy_object;
@@ -138,8 +146,10 @@ namespace Zeitgeist
             {
                 var intersection_timerange = time_range.intersect(this.time_range);
                 if (intersection_timerange != null)
+                {
                     proxy_object.notify_delete (intersection_timerange.to_variant (),
                         event_ids);
+                }
             }
         }
 
