@@ -44,8 +44,8 @@ namespace Zeitgeist
                 "Do not start zeitgeist-datahub automatically", null
             },
             {
-                "no-passive-loggers", 0, 0, OptionArg.NONE, out no_datahub,
-                "Do not start zeitgeist-datahub automatically", null
+                "no-passive-loggers", 0, OptionFlags.HIDDEN, OptionArg.NONE,
+                out no_datahub, null, null
             },
             {
                 "replace", 'r', 0, OptionArg.NONE, out replace_mode,
