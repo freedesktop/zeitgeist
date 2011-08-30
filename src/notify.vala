@@ -123,9 +123,9 @@ namespace Zeitgeist
                     for (int i=0; i<events.length; i++)
                     {
                         if (matches(events[i]) 
-                        {
                             && events[i].timestamp >= intersection_timerange.start
                             && events[i].timestamp <= intersection_timerange.end)
+                        {
                             matching_events.add(events[i]);
                         }
                     }
