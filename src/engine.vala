@@ -77,16 +77,16 @@ public class Engine : Object
             """.printf (sql_event_ids);
 
         rc = db.prepare_v2 (sql, -1, out stmt);
-        database.assert_query_success(rc, "SQL error");
+        database.assert_query_success (rc, "SQL error");
 
-        var events = new HashTable<uint32, Event?>(direct_hash, direct_equal);
-       
-        while ((rc = stmt.step()) == Sqlite.ROW)
+        var events = new HashTable<uint32, Event?> (direct_hash, direct_equal);
+
+        while ((rc = stmt.step ()) == Sqlite.ROW)
         {
             uint32 event_id = (uint32) stmt.column_int64 (EventViewRows.ID);
-            Event event; 
-            if (events.lookup(event_id)!= null)
-                event = events.lookup(event_id);
+            Event event;
+            if (events.lookup (event_id)!= null)
+                event = events.lookup (event_id);
             else
             {
                 event = new Event ();
@@ -101,7 +101,7 @@ public class Engine : Object
                 event.origin = stmt.column_text (
                     EventViewRows.EVENT_ORIGIN_URI);
                 // FIXME: payload
-                events.insert(event_id, event);
+                events.insert (event_id, event);
             }
 
 
@@ -126,19 +126,9 @@ public class Engine : Object
             warning ("Error: %d, %s\n", rc, db.errmsg ());
             // FIXME: throw some error??
         }
-        
-        /* //Print
-        for (int i = 0; i < event_ids.length; ++i)
-        {
-            var event = events.lookup(i);
-            if (event != null)
-               event.debug_print ();
-            else
-                stdout.printf ("NULL_EVENT\n");
-            stdout.printf ("\n");
-        }*/
 
         var results = new GenericArray<Event?> ();
+        results.length = event_ids.length;
         foreach (var id in event_ids)
             results.add (events.lookup (id));
         return results;
