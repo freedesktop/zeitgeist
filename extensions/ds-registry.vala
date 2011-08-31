@@ -204,14 +204,16 @@ namespace Zeitgeist
             }
         }
         
-        public Variant get_data_source_from_id (string unique_id)
+        public Variant get_data_source_from_id (string unique_id) throws Error
         {
             unowned DataSource? ds = sources.lookup (unique_id);
             if (ds != null)
             {
-                return ds.to_variant();
+                return ds.to_variant ();
             }
-            throw new EngineError.INVALID_KEY("Datasource with Unique ID: %s not found");
+
+            throw new EngineError.INVALID_KEY (
+                "Datasource with unique ID: %s not found".printf (unique_id));
         }
     }
 
