@@ -211,7 +211,7 @@ namespace Zeitgeist
             {
                 return ds.to_variant();
             }
-            return null;
+            throw new EngineError.INVALID_KEY("Datasource with Unique ID: %s not found");
         }
     }
 

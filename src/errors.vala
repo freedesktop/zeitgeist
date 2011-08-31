@@ -30,7 +30,8 @@ namespace Zeitgeist
     public errordomain EngineError
     {
         DATABASE_ERROR,
-        INVALID_ARGUMENT
+        INVALID_ARGUMENT,
+        INVALID_KEY,
     }
 
     // vala doesn't include proper headers, this fixes it
