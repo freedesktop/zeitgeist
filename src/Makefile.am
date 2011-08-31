@@ -19,6 +19,7 @@ VALAFLAGS = \
 
 extensions_VALASOURCES = \
 	ext-data-source-registry.vala \
+	ext-blacklist.vala \
 	$(NULL)
 
 bluebird_VALASOURCES = \

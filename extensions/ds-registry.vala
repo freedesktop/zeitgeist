@@ -2,6 +2,10 @@
  *
  * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
  *
+ * Based upon a Python implementation (2009-2010) by:
+ *  Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ *  Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 2.1 of the License, or
@@ -32,7 +36,7 @@ namespace Zeitgeist
             bool enabled) throws Error;
         [DBus (signature = "(sssa(asaasay)bxb)")]
         public abstract Variant get_data_source_from_id (string id) throws Error;
-        
+
         public signal void data_source_disconnected (
             [DBus (signature = "(sssa(asaasay)bxb)")] Variant data_source);
         public signal void data_source_enabled (string unique_id,

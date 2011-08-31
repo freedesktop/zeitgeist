@@ -37,3 +37,11 @@ query-operators-test
 src/ontology.vala
 src/ontology-uris.vala
 extra/org.gnome.zeitgeist.service
+extensions/.deps
+extensions/.libs
+extensions/*.c
+extensions/*.stamp
+extensions/*.la
+extensions/*.lo
+test/direct/marshalling
+test/dbus/__pycache__
