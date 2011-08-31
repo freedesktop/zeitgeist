@@ -30,7 +30,9 @@ namespace Zeitgeist
             throws Error;
         public abstract void set_data_source_enabled (string unique_id,
             bool enabled) throws Error;
-
+        [DBus (signature = "(sssa(asaasay)bxb)")]
+        public abstract Variant get_data_source_from_id (string id) throws Error;
+        
         public signal void data_source_disconnected (
             [DBus (signature = "(sssa(asaasay)bxb)")] Variant data_source);
         public signal void data_source_enabled (string unique_id,
@@ -200,6 +202,16 @@ namespace Zeitgeist
             {
                 warning ("DataSource \"%s\" wasn't registered!", unique_id);
             }
+        }
+        
+        public Variant get_data_source_from_id (string unique_id)
+        {
+            unowned DataSource? ds = sources.lookup (unique_id);
+            if (ds != null)
+            {
+                return ds.to_variant();
+            }
+            return null;
         }
     }
 

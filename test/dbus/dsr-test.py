@@ -85,6 +85,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		without DBus wrappings etc.
 		"""
 		popo = []
+		ev[0][0] = ""
 		popo.append(map(unicode, ev[0]))
 		popo.append([map(unicode, subj) for subj in ev[1]])
 		# We need the check here so that if D-Bus gives us an empty
