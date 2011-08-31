@@ -55,11 +55,20 @@ namespace Zeitgeist
 
             // load the builtin extensions first
 #if BUILTIN_EXTENSIONS
-            var bel = new BuiltinExtension (data_source_registry_init);
-            extension = bel.create_instance ();
-            if (extension != null) extensions.add (extension);
+            RegisterExtensionFunc[] builtins =
+            {
+                data_source_registry_init,
+                blacklist_init
+            };
+
+            foreach (var func in builtins)
+            {
+                ExtensionLoader builtin = new BuiltinExtension (func);
+                extension = builtin.create_instance ();
+                if (extension != null) extensions.add (extension);
+            }
 #endif
-            
+
             // TODO: load extensions from system & user directories, and make
             // sure the order is correct
             unowned string ext_dir1 = Utils.get_local_extensions_path ();
@@ -105,6 +114,7 @@ namespace Zeitgeist
 
 #if BUILTIN_EXTENSIONS
     private extern static Type data_source_registry_init (TypeModule mod);
+    private extern static Type blacklist_init (TypeModule mod);
 #endif
 
 }

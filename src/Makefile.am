@@ -5,6 +5,7 @@ bin_PROGRAMS = bluebird
 AM_CPPFLAGS = \
 	$(BLUEBIRD_CFLAGS) \
 	-include $(CONFIG_HEADER) \
+	-w \
 	$(NULL)
 
 VALAFLAGS = \
@@ -16,7 +17,7 @@ VALAFLAGS = \
 	--pkg gmodule-2.0 \
 	$(NULL)
 
-
+# Make sure every extension has only one vala file!
 extensions_VALASOURCES = \
 	ext-data-source-registry.vala \
 	ext-blacklist.vala \
@@ -59,7 +60,8 @@ zeitgeist-engine_vala.stamp zeitgeist-engine.vapi: $(bluebird_VALASOURCES)
 	touch "$@"
 
 extensions_vala.stamp: zeitgeist-engine.vapi $(extensions_VALASOURCES)
-	$(VALAC) $(VALAFLAGS) $(EXT_FLAGS) -C $(filter %.vala %.vapi,$^)
+	$(foreach ext_src,$(filter %.vala,$^),\
+		$(VALAC) $(VALAFLAGS) $(EXT_FLAGS) -C zeitgeist-engine.vapi $(ext_src) || exit 1;)
 	touch "$@"
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
