@@ -200,9 +200,10 @@ namespace Zeitgeist
 
                 if (extension_type.is_a (typeof (Extension)) == false)
                 {
+                    warning ("Type \"%s\" implemented by [%p] does not " +
+                        "subclass Zeitgeist.Extension!",
+                        extension_type.name (), this.reg_func);
                     extension_type = Type.INVALID;
-                    warning ("Type implemented by \"%p\" does not subclass " +
-                        "Zeitgeist.Extension!", this.reg_func);
                     return false;
                 }
                 
