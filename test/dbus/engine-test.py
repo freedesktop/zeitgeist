@@ -961,7 +961,8 @@ class ResultTypeTest(testutils.RemoteTestCase):
 		ids = self.findEventIdsAndWait([],
 			num_events = 0, 
 			result_type = ResultType.LeastRecentActor)
-		self.assertEquals([e.timestamp for e in events], ['3', '4'])
+		recv_events = self.getEventsAndWait(ids)
+		self.assertEquals([e.timestamp for e in recv_events], ['3', '4'])
 	
 	def testResultTypesMostPopularEventOrigin(self):
 		import_events("test/data/twenty_events.js", self)
