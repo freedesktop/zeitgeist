@@ -60,59 +60,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		retrieved_events = self.getEventsAndWait(ids)
 		self.assertEquals(1, len(retrieved_events))
 		self.assertEventsEqual(retrieved_events[0], events[0])
-	
-	def testFindTwoOfThreeEvents(self):
-		ev1 = Event.new_for_values(timestamp=400,
-					interpretation=Interpretation.ACCESS_EVENT,
-					manifestation=Manifestation.USER_ACTIVITY,
-					actor="Boogaloo")	
-		ev2 = Event.new_for_values(timestamp=500,
-					interpretation=Interpretation.ACCESS_EVENT,
-					manifestation=Manifestation.USER_ACTIVITY,
-					actor="Boogaloo")
-		ev3 = Event.new_for_values(timestamp=600,
-					interpretation=Interpretation.SEND_EVENT,
-					manifestation=Manifestation.USER_ACTIVITY,
-					actor="Boogaloo")
-		subj1 = Subject.new_for_values(uri="foo://bar",
-					interpretation=Interpretation.DOCUMENT,
-					manifestation=Manifestation.FILE_DATA_OBJECT)
-		subj2 = Subject.new_for_values(uri="foo://baz",
-					interpretation=Interpretation.IMAGE,
-					manifestation=Manifestation.FILE_DATA_OBJECT)
-		subj3 = Subject.new_for_values(uri="foo://quiz",
-					interpretation=Interpretation.AUDIO,
-					manifestation=Manifestation.FILE_DATA_OBJECT)
-		ev1.append_subject(subj1)
-		ev2.append_subject(subj1)
-		ev2.append_subject(subj2)
-		ev3.append_subject(subj2)
-		ev3.append_subject(subj3)
-		ids = self.insertEventsAndWait([ev1, ev2, ev3])
-		self.assertEquals(3, len(ids))
-		
-		events = self.getEventsAndWait(ids)
-		self.assertEquals(3, len(events))		
-		for event in events:
-			self.assertTrue(isinstance(event, Event))
-			self.assertEquals(Manifestation.USER_ACTIVITY, event.manifestation)
-			self.assertEquals("Boogaloo", event.actor)
-		
-		# Search for everything
-		ids = self.findEventIdsAndWait([], num_events=3)
-		self.assertEquals(3, len(ids)) # (we can not trust the ids because we don't have a clean test environment)
-		
-		# Search for some specific templates
-		subj_templ1 = Subject.new_for_values(manifestation=Manifestation.FILE_DATA_OBJECT)
-		subj_templ2 = Subject.new_for_values(interpretation=Interpretation.IMAGE)
-		event_template = Event.new_for_values(
-					actor="Boogaloo",
-					interpretation=Interpretation.ACCESS_EVENT,
-					subjects=[subj_templ1,subj_templ2])
-		ids = self.findEventIdsAndWait([event_template],
-						num_events=10)
-		self.assertEquals(1, len(ids))
-		
+
 	def testUnicodeInsert(self):
 		events = parse_events("test/data/unicode_event.js")
 		ids = self.insertEventsAndWait(events)
@@ -171,6 +119,61 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		retrieved_events = self.getEventsAndWait(ids)
 		self.assertEquals(retrieved_events[0], None)
 		self.assertEventsEqual(retrieved_events[1], event2)
+
+class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
+
+	def testFindTwoOfThreeEvents(self):
+        # FIXME: use json instead of hardcoding stuff here...
+		ev1 = Event.new_for_values(timestamp=400,
+					interpretation=Interpretation.ACCESS_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
+					actor="Boogaloo")	
+		ev2 = Event.new_for_values(timestamp=500,
+					interpretation=Interpretation.ACCESS_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
+					actor="Boogaloo")
+		ev3 = Event.new_for_values(timestamp=600,
+					interpretation=Interpretation.SEND_EVENT,
+					manifestation=Manifestation.USER_ACTIVITY,
+					actor="Boogaloo")
+		subj1 = Subject.new_for_values(uri="foo://bar",
+					interpretation=Interpretation.DOCUMENT,
+					manifestation=Manifestation.FILE_DATA_OBJECT)
+		subj2 = Subject.new_for_values(uri="foo://baz",
+					interpretation=Interpretation.IMAGE,
+					manifestation=Manifestation.FILE_DATA_OBJECT)
+		subj3 = Subject.new_for_values(uri="foo://quiz",
+					interpretation=Interpretation.AUDIO,
+					manifestation=Manifestation.FILE_DATA_OBJECT)
+		ev1.append_subject(subj1)
+		ev2.append_subject(subj1)
+		ev2.append_subject(subj2)
+		ev3.append_subject(subj2)
+		ev3.append_subject(subj3)
+		ids = self.insertEventsAndWait([ev1, ev2, ev3])
+		self.assertEquals(3, len(ids))
+		
+		events = self.getEventsAndWait(ids)
+		self.assertEquals(3, len(events))		
+		for event in events:
+			self.assertTrue(isinstance(event, Event))
+			self.assertEquals(Manifestation.USER_ACTIVITY, event.manifestation)
+			self.assertEquals("Boogaloo", event.actor)
+		
+		# Search for everything
+		ids = self.findEventIdsAndWait([], num_events=3)
+		self.assertEquals(3, len(ids))
+		
+		# Search for some specific templates
+		subj_templ1 = Subject.new_for_values(manifestation=Manifestation.FILE_DATA_OBJECT)
+		subj_templ2 = Subject.new_for_values(interpretation=Interpretation.IMAGE)
+		event_template = Event.new_for_values(
+					actor="Boogaloo",
+					interpretation=Interpretation.ACCESS_EVENT,
+					subjects=[subj_templ1,subj_templ2])
+		ids = self.findEventIdsAndWait([event_template],
+						num_events=10)
+		self.assertEquals(1, len(ids))
 
 class ZeitgeistRemoteFindEventIdsTest(testutils.RemoteTestCase):
 	"""
