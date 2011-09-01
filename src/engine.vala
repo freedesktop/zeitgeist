@@ -126,8 +126,11 @@ public class Engine : Object
 
         var results = new GenericArray<Event?> ();
         results.length = event_ids.length;
+        int i = 0;
         foreach (var id in event_ids)
-            results.add (events.lookup (id));
+        {
+            results.set(i++, events.lookup (id));
+        }
         return results;
     }
 
