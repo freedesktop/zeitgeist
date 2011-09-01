@@ -72,7 +72,16 @@ namespace Zeitgeist
             // TODO: load extensions from system & user directories, and make
             // sure the order is correct
             unowned string ext_dir1 = Utils.get_local_extensions_path ();
-            Dir? user_ext_dir = Dir.open (ext_dir1);
+            Dir? user_ext_dir;
+            try
+            {
+                user_ext_dir = Dir.open (ext_dir1);
+            }
+            catch (Error e)
+            {
+                warning (
+                    "Couldn't open local extensions directory: %s", e.message);
+            }
             if (user_ext_dir != null)
             {
                 unowned string? file_name = user_ext_dir.read_name ();
