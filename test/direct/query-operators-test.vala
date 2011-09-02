@@ -42,7 +42,7 @@ private class PublicEngine : Zeitgeist.Engine
     }
 
 	public void PUBLIC_assert_no_negation (string field, string val)
-		throws EngineError
+		throws Zeitgeist.EngineError
 	{
 		assert_no_negation (field, val);
 	}
@@ -53,7 +53,7 @@ private class PublicEngine : Zeitgeist.Engine
     }
 
 	public void PUBLIC_assert_no_wildcard (string field, string val)
-		throws EngineError
+		throws Zeitgeist.EngineError
 	{
 		assert_no_wildcard (field, val);
 	}
@@ -94,7 +94,7 @@ public void assert_no_negation_test ()
 		engine.PUBLIC_assert_no_negation ("field name", "!bad");
 		assert_not_reached ();
 	}
-	catch (EngineError.INVALID_ARGUMENT e)
+	catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)
 	{
 	}
 }
@@ -134,7 +134,7 @@ public void assert_no_wildcard_test ()
 		engine.PUBLIC_assert_no_wildcard ("field name", "bad*");
 		assert_not_reached ();
 	}
-	catch (EngineError.INVALID_ARGUMENT e)
+	catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)
 	{
 	}
 }
