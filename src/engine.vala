@@ -351,7 +351,7 @@ public class Engine : Object
         * and `result_storage_state` are returned.
         */
         //FIXME: implement calculation
-        if (result_type == ResultType.MOST_RECENT_EVENTS || 
+        if (result_type == ResultType.MOST_RECENT_EVENTS ||
             result_type == ResultType.LEAST_RECENT_EVENTS)
         {
 

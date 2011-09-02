@@ -39,14 +39,14 @@ namespace Zeitgeist
     {
         /**
          * This method gets called before Zeitgeist stops.
-         * 
+         *
          * Execution of this method isn't guaranteed, and you shouldn't do
          * anything slow in there.
          */
         public virtual void unload ()
         {
         }
-    
+
         /**
          * Hook applied to all events before they are inserted into the
          * log. The returned event is progressively passed through all
@@ -68,10 +68,10 @@ namespace Zeitgeist
         {
             return events;
         }
-    
+
         /**
          * Hook applied to all events after they are inserted into the log.
-         * 
+         *
          * @param event: A Event instance
          * @param sender: The D-Bus bus name of the client
          * @returns: Nothing
@@ -80,7 +80,7 @@ namespace Zeitgeist
             BusName sender)
         {
         }
-    
+
         /**
          * Hook applied after events have been deleted from the log.
          *
@@ -91,7 +91,7 @@ namespace Zeitgeist
         public virtual void post_delete_events (uint32[] ids, BusName sender)
         {
         }
-    
+
         /**
          * Hook applied before events are deleted from the log.
          *
@@ -206,7 +206,7 @@ namespace Zeitgeist
                     extension_type = Type.INVALID;
                     return false;
                 }
-                
+
                 // according to docs initialized TypeModule is not supposed
                 // to be unreferenced, so we do this
                 this.ref ();
