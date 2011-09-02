@@ -34,15 +34,16 @@ namespace Zeitgeist
 public class Engine : Object
 {
 
-    Zeitgeist.SQLite.ZeitgeistDatabase database;
-    unowned Sqlite.Database db;
+    private Zeitgeist.SQLite.ZeitgeistDatabase database;
+    private ExtensionCollection extension_collection;
+    private unowned Sqlite.Database db;
 
-    TableLookup interpretations_table;
-    TableLookup manifestations_table;
-    TableLookup mimetypes_table;
-    TableLookup actors_table;
+    private TableLookup interpretations_table;
+    private TableLookup manifestations_table;
+    private TableLookup mimetypes_table;
+    private TableLookup actors_table;
 
-    uint32 last_id;
+    private uint32 last_id;
 
     public Engine () throws EngineError
     {
@@ -54,6 +55,13 @@ public class Engine : Object
         manifestations_table = new TableLookup(database, "manifestation");
         mimetypes_table = new TableLookup(database, "mimetype");
         actors_table = new TableLookup(database, "actor");
+
+        extension_collection = new ExtensionCollection ();
+    }
+
+    public string[] get_extension_names ()
+    {
+        return extension_collection.get_extension_names ();
     }
 
     public GenericArray<Event?> get_events(uint32[] event_ids,
@@ -562,25 +570,25 @@ public class Engine : Object
             {
                 unowned Subject subject = event.subjects[i];
                 uris.add (subject.uri);
-                
+
                 if (subject.current_uri == "" || subject.current_uri == null)
                     subject.current_uri = subject.uri;
-                
-                if (event.interpretation == ZG.MOVE_EVENT 
+
+                if (event.interpretation == ZG.MOVE_EVENT
                     && subject.uri == subject.current_uri)
                 {
                     //FIXME: throw Error here
                     return 0;
                 }
-                else if (event.interpretation != ZG.MOVE_EVENT 
+                else if (event.interpretation != ZG.MOVE_EVENT
                     && subject.uri != subject.current_uri)
                 {
                     //FIXME: throw Error here
                     return 0;
                 }
-                
+
                 uris.add (subject.current_uri);
-                
+
                 if (subject.origin != "")
                     uris.add (subject.origin);
                 if (subject.text != "")
@@ -678,7 +686,7 @@ public class Engine : Object
         stdout.printf ("============ Inserted event: ============\n");
         event.debug_print ();
         stdout.printf ("\n");
-        
+
         if (event.interpretation == ZG.MOVE_EVENT)
         {
             handle_move_event (event);
@@ -1028,7 +1036,7 @@ public class Engine : Object
         }
         return subwhere;
     }
-    
+
     private void handle_move_event(Event event)
     {
         for (int i = 0; i < event.subjects.length; i++)

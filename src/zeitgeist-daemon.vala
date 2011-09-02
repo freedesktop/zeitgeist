@@ -75,7 +75,6 @@ namespace Zeitgeist
 
         private Engine engine;
         private MonitorManager notifications;
-        private ExtensionCollection extension_collection;
 
         private uint log_register_id;
         private unowned DBusConnection connection;
@@ -84,7 +83,7 @@ namespace Zeitgeist
         {
             owned get
             {
-                string[] ext = extension_collection.get_extension_names ();
+                string[] ext = engine.get_extension_names ();
                 return ext;
             }
         }
@@ -116,7 +115,6 @@ namespace Zeitgeist
             }
 
             notifications = new MonitorManager ();
-            extension_collection = new ExtensionCollection ();
         }
 
         ~Daemon ()
