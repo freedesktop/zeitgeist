@@ -114,15 +114,6 @@ namespace Zeitgeist
 
             return vb.end ();
         }
-        
-        public void update_from_data_source(DataSource source)
-        {
-            this.name = source.name;
-            this.description = source.description;
-            this.event_templates = source.event_templates;
-            this.running = source.running;
-            this.timestamp = source.timestamp;
-        }
     }
 
     class DataSourceRegistry: Extension, RemoteRegistry
@@ -184,10 +175,14 @@ namespace Zeitgeist
             unowned DataSource? ds = sources.lookup (unique_id);
             if (ds != null)
             {
-                // FIXME: update timestamp?
                 var templates = Events.from_variant (event_templates);
-                ds.update_from_data_source(new DataSource.full (unique_id, name,
-                    description, templates));
+                ds.name = name;
+                ds.description = description;
+                ds.event_templates = templates;
+                // FIXME: update the timestamp?
+                //ds.timestamp = Timestamp.now ();
+                ds.running = true;
+
                 return ds.enabled;
             }
             else
@@ -195,11 +190,13 @@ namespace Zeitgeist
                 var templates = Events.from_variant (event_templates);
                 DataSource new_ds = new DataSource.full (unique_id, name,
                     description, templates);
+                new_ds.enabled = true;
+                new_ds.running = true;
+                new_ds.timestamp = Timestamp.now ();
                 sources.insert (unique_id, new_ds);
 
                 data_source_registered (new_ds.to_variant ());
-                new_ds.enabled = true;
-                new_ds.running = true;
+
                 return new_ds.enabled;
             }
         }
