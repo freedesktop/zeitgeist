@@ -105,5 +105,5 @@ class SingletonApplication(dbus.service.Object):
 			self.remove_from_connection()
 			self.connection.release_name(ZeitgeistDBusInterface.BUS_NAME)
 		except Exception, e:
-			log.debug("Could not remove singelton properly due to the following error: %s"
+			log.error("Could not remove singleton properly due to the following error: %s"
 					%e)
