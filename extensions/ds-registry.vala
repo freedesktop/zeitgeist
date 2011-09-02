@@ -108,11 +108,20 @@ namespace Zeitgeist
                 vb.close ();
             }
 
-            vb.add ("b", enabled);
-            vb.add ("x", timestamp);
             vb.add ("b", running);
+            vb.add ("x", timestamp);
+            vb.add ("b", enabled);
 
             return vb.end ();
+        }
+        
+        public void update_from_data_source(DataSource source)
+        {
+            this.name = source.name;
+            this.description = source.description;
+            this.event_templates = source.event_templates;
+            this.running = source.running;
+            this.timestamp = source.timestamp;
         }
     }
 
@@ -176,6 +185,9 @@ namespace Zeitgeist
             if (ds != null)
             {
                 // FIXME: update timestamp?
+                var templates = Events.from_variant (event_templates);
+                ds.update_from_data_source(new DataSource.full (unique_id, name,
+                    description, templates));
                 return ds.enabled;
             }
             else
@@ -186,8 +198,9 @@ namespace Zeitgeist
                 sources.insert (unique_id, new_ds);
 
                 data_source_registered (new_ds.to_variant ());
-
-                return true;
+                new_ds.enabled = true;
+                new_ds.running = true;
+                return new_ds.enabled;
             }
         }
 
