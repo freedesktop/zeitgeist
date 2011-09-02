@@ -52,58 +52,76 @@ namespace Zeitgeist
          * log. The returned event is progressively passed through all
          * extensions before the final result is inserted.
          *
-         * To block an event completely simply return null.
+         * To block an event completely simply replace it with NULL.
          * The event may also be modified or completely substituted for
          * another event.
          *
-         * The default implementation of this method simply returns the
-         * event as is.
-         *
-         * @param event: A Event instance
-         * @param sender: The D-Bus bus name of the client
-         * @returns: The filtered event instance to insert into the log
+         * @param events: A GenericArray of Event instances
+         * @param sender: The D-Bus bus name of the client or NULL
          */
-        public virtual GenericArray<Event?> pre_insert_events (
-            GenericArray<Event?> events, BusName sender)
+        public virtual void pre_insert_events (GenericArray<Event?> events,
+            BusName? sender)
         {
-            return events;
         }
 
         /**
          * Hook applied to all events after they are inserted into the log.
          *
-         * @param event: A Event instance
-         * @param sender: The D-Bus bus name of the client
-         * @returns: Nothing
+         * The inserted events will have been updated to include their new
+         * ID.
+         *
+         * @param events: A GenericArray of Event instances
+         * @param sender: The D-Bus bus name of the client or NULL
          */
         public virtual void post_insert_events (GenericArray<Event?> events,
-            BusName sender)
+            BusName? sender)
         {
+        }
+
+        /**
+         * Hook applied to all events before they are returned to a client
+         * (as a result of a GetEvents or FindEvents call).
+         *
+         * The events returned from this method are progressively passed
+         * through all extensions before the final result is returned to
+         * the client.
+         *
+         * To prevent an event from being returned replace it with NULL.
+         * The event may also be changed in place or fully substituted for
+         * another event.
+         *
+         * @param events: A GenericArray of Event instances
+         * @param sender: The D-Bus bus name of the client or NULL
+         */
+         public virtual void post_get_events (GenericArray<Event?> events,
+            BusName? sender)
+         {
+         }
+
+        /**
+         * Hook applied before events are deleted from the log.
+         *
+         * @param ids: A list with the IDs of the events whose deletion
+         *     is being requested
+         * @param sender: The unique DBus name for the client triggering
+         *     the delete, or NULL
+         * @return: The filtered list of event IDs which should be deleted,
+         *     or NULL to specify no change
+         */
+        public virtual uint32[]? pre_delete_events (uint32[] ids,
+            BusName? sender)
+        {
+            return null;
         }
 
         /**
          * Hook applied after events have been deleted from the log.
          *
-         * @param ids: A list of event ids for the events that has been deleted
+         * @param ids: A list with the IDs of the events that have been deleted
          * @param sender: The unique DBus name for the client triggering the delete
-         * @returns: Nothing
          */
-        public virtual void post_delete_events (uint32[] ids, BusName sender)
+        public virtual void post_delete_events (uint32[] ids, BusName? sender)
         {
-        }
-
-        /**
-         * Hook applied before events are deleted from the log.
-         *
-         * @param ids: A list of event ids for the events requested to be deleted
-         * @param sender: The unique DBus name for the client triggering the delete
-         * @returns: The filtered list of event ids which should be deleted or
-         *           null to specify no change.
-         */
-        public virtual uint32[]? pre_delete_events (uint32[] ids,
-            BusName sender)
-        {
-            return null;
         }
     }
 

@@ -104,6 +104,61 @@ namespace Zeitgeist
 
             return result;
         }
+
+        public void call_pre_insert_events (GenericArray<Event?> events,
+            BusName? sender)
+        {
+            int num_events = events.length;
+            for (int i = 0; i < extensions.length; ++i)
+            {
+                extensions[i].pre_insert_events (events, sender);
+            }
+            assert (num_events == events.length);
+        }
+
+        public void call_post_insert_events (GenericArray<Event?> events,
+            BusName? sender)
+        {
+            int num_events = events.length;
+            for (int i = 0; i < extensions.length; ++i)
+            {
+                extensions[i].post_insert_events (events, sender);
+            }
+            assert (num_events == events.length);
+        }
+
+        public void call_post_get_events (GenericArray<Event?> events,
+            BusName? sender)
+        {
+            int num_events = events.length;
+            for (int i = 0; i < extensions.length; ++i)
+            {
+                extensions[i].post_get_events (events, sender);
+            }
+            assert (num_events == events.length);
+        }
+
+        public unowned uint32[] call_pre_delete_events (uint32[] event_ids,
+            BusName? sender)
+        {
+            for (int i = 0; i < extensions.length; ++i)
+            {
+                uint32[]? filtered_ids = extensions[i].pre_delete_events (
+                    event_ids, sender);
+                if (filtered_ids != null)
+                    event_ids = filtered_ids;
+            }
+            return event_ids;
+        }
+
+        public void call_post_delete_events (uint32[] event_ids,
+            BusName? sender)
+        {
+            for (int i = 0; i < extensions.length; ++i)
+            {
+                extensions[i].post_delete_events (event_ids, sender);
+            }
+        }
     }
 
 #if BUILTIN_EXTENSIONS

@@ -17,14 +17,15 @@ TESTS = \
 SRC_FILES = \
 	$(top_srcdir)/src/engine.vala \
 	$(top_srcdir)/src/utils.vala \
+	$(top_srcdir)/src/errors.vala \
 	$(top_srcdir)/src/notify.vala \
 	$(top_srcdir)/src/table-lookup.vala \
 	$(top_srcdir)/src/datamodel.vala  \
 	$(top_srcdir)/src/where-clause.vala \
 	$(top_srcdir)/src/remote.vala \
-	$(top_srcdir)/src/errors.vala \
 	$(top_srcdir)/src/sql-schema.vala \
 	$(top_srcdir)/src/extension.vala \
+	$(top_srcdir)/src/extension-collection.vala \
 	$(top_srcdir)/src/sql.vala \
 	$(top_srcdir)/src/ontology.vala \
 	$(top_srcdir)/src/ontology-uris.vala \

@@ -137,6 +137,9 @@ public class Engine : Object
         {
             results.set(i++, events.lookup (id));
         }
+
+        extension_collection.call_post_get_events (results, sender);
+
         return results;
     }
 
@@ -532,13 +535,16 @@ public class Engine : Object
     public uint32[] insert_events (GenericArray<Event> events,
         BusName? sender=null) throws EngineError
     {
+        extension_collection.call_pre_insert_events (events, sender);
         uint32[] event_ids = new uint32[events.length];
         database.begin_transaction ();
         for (int i = 0; i < events.length; ++i)
         {
-            event_ids[i] = insert_event (events[i], sender);
+            if (events[i] != null)
+                event_ids[i] = insert_event (events[i], sender);
         }
         database.end_transaction ();
+        extension_collection.call_post_insert_events (events, sender);
         return event_ids;
     }
 
@@ -550,9 +556,6 @@ public class Engine : Object
         // FIXME: make sure event timestamp is sane
 
         event.id = ++last_id;
-
-        // FIXME: call pre_insert extension hooks
-        //        if afterwards event == null, return and ignore the event
 
         // FIXME: store the payload
         // payload_id = store_payload (event);
@@ -695,9 +698,10 @@ public class Engine : Object
         return event.id;
     }
 
-    public TimeRange? delete_events (uint32[] event_ids, BusName sender)
+    public TimeRange? delete_events (uint32[] event_ids, BusName? sender)
     {
-        // FIXME: extensions pre_delete
+        event_ids = extension_collection.call_pre_delete_events (
+            event_ids, sender);
 
         TimeRange? time_range = database.get_time_range_for_event_ids (
             event_ids);
@@ -717,6 +721,8 @@ public class Engine : Object
         database.assert_query_success (rc, "SQL Error");
         message ("Deleted %d (out of %d) events.".printf (
             db.changes(), event_ids.length));
+
+        extension_collection.call_post_delete_events (event_ids, sender);
 
         return time_range;
     }
