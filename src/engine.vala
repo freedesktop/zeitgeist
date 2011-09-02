@@ -54,8 +54,6 @@ public class Engine : Object
         manifestations_table = new TableLookup(database, "manifestation");
         mimetypes_table = new TableLookup(database, "mimetype");
         actors_table = new TableLookup(database, "actor");
-
-        // FIXME: load extensions
     }
 
     public GenericArray<Event?> get_events(uint32[] event_ids,
