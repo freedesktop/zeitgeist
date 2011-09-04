@@ -30,7 +30,7 @@ namespace Zeitgeist
         public abstract Variant get_data_sources () throws Error;
         public abstract bool register_data_source (string unique_id,
             string name, string description,
-            [DBus (signature = "a(asaasay)")] Variant event_templates)
+            [DBus (signature = "a(asaasay)")] Variant event_templates, BusName? sender)
             throws Error;
         public abstract void set_data_source_enabled (string unique_id,
             bool enabled) throws Error;
@@ -119,7 +119,9 @@ namespace Zeitgeist
     class DataSourceRegistry: Extension, RemoteRegistry
     {
         private HashTable<string, DataSource> sources;
+        private HashTable<string, GenericArray<BusName?>> running;
         private uint registration_id;
+        private bool dirty;
 
         DataSourceRegistry ()
         {
@@ -136,6 +138,9 @@ namespace Zeitgeist
             var connection = Bus.get_sync (BusType.SESSION, null);
             registration_id = connection.register_object<RemoteRegistry> (
                 "/org/gnome/zeitgeist/data_source_registry", this);
+            dirty = true;
+            // FIXME: set up gobject timer like ->
+            // gobject.timeout_add(DISK_WRITE_TIMEOUT, self._write_to_disk)
         }
 
         public override void unload ()
@@ -168,10 +173,33 @@ namespace Zeitgeist
             return array.end ();
         }
 
+        private bool is_sender_known(BusName? sender, 
+            GenericArray<BusName?> sender_array)
+        {
+            for (int i=0; i<sender_array.length; i++)
+            {
+                if (sender == sender_array[i])
+                    return true;
+            }
+            return false;
+        }
+
         public bool register_data_source (string unique_id, string name,
-            string description, Variant event_templates)
+            string description, Variant event_templates, BusName? sender)
         {
             debug ("%s: %s, %s, %s", Log.METHOD, unique_id, name, description);
+            
+            var sender_array = running.lookup(unique_id);
+            if (sender_array == null)
+            {
+                running.insert(unique_id, new GenericArray<BusName?>());
+                running.lookup(unique_id).add(sender);
+            }
+            else if (is_sender_known(sender, sender_array))
+            {
+                running.lookup(unique_id).add(sender);
+            }
+            
             unowned DataSource? ds = sources.lookup (unique_id);
             if (ds != null)
             {
@@ -180,9 +208,8 @@ namespace Zeitgeist
                 ds.description = description;
                 ds.event_templates = templates;
                 // FIXME: update the timestamp?
-                //ds.timestamp = Timestamp.now ();
+                ds.timestamp = Timestamp.now ();
                 ds.running = true;
-
                 return ds.enabled;
             }
             else
@@ -194,7 +221,6 @@ namespace Zeitgeist
                 new_ds.running = true;
                 new_ds.timestamp = Timestamp.now ();
                 sources.insert (unique_id, new_ds);
-
                 data_source_registered (new_ds.to_variant ());
 
                 return new_ds.enabled;
@@ -228,6 +254,32 @@ namespace Zeitgeist
 
             throw new EngineError.INVALID_KEY (
                 "Datasource with unique ID: %s not found".printf (unique_id));
+        }
+        
+        public void pre_insert_events(GenericArray<Event?> events,
+            BusName? sender)
+        {
+            foreach (string unique_id in running.get_keys())
+            {
+                GenericArray<BusName?> bus_names = running.lookup(unique_id);
+                if (is_sender_known(sender, bus_names))
+                {
+                    var data_source = sources.lookup(unique_id);
+                    data_source.timestamp =  Timestamp.now ();
+                    dirty = false;
+                    if (!data_source.enabled)
+                        for (int i=0; i < events.length; i++)
+                        {
+                            events[i] = null;
+                        }
+                }
+            }
+        }
+        
+        private bool write_to_disk()
+        {
+            //FIXME: Write to disk needs to be implemented
+            return true;
         }
     }
 
