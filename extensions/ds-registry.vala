@@ -131,7 +131,7 @@ namespace Zeitgeist
         construct
         {
             sources = new HashTable<string, DataSource> (str_hash, str_equal);
-
+            running = new HashTable<string, GenericArray<BusName?>>(str_hash, str_equal);
             // FIXME: load data sources
 
             // this will be called after bus is acquired, so it shouldn't block
@@ -256,7 +256,7 @@ namespace Zeitgeist
                 "Datasource with unique ID: %s not found".printf (unique_id));
         }
         
-        public void pre_insert_events(GenericArray<Event?> events,
+        public override void pre_insert_events(GenericArray<Event?> events,
             BusName? sender)
         {
             foreach (string unique_id in running.get_keys())

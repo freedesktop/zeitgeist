@@ -184,6 +184,11 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
 		ds = list(self.client._registry.GetDataSources())[0]
 		self.assertEquals(ds[DataSource.Enabled], True)
+		
+		ids = self.insertEventsAndWait([Event.new_for_values(
+			subject_manifestation = "!stfu:File")])
+			
+		self.assertEquals(ids[0], 1)
 
 
 	def testGetDataSourceFromId(self):
