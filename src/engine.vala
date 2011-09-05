@@ -76,6 +76,8 @@ public class Engine : Object
         Sqlite.Statement stmt;
         int rc;
 
+        if (event_ids.length == 0)
+            return new GenericArray<Event?> ();
         var sql_event_ids = database.get_sql_string_from_event_ids (event_ids);
         string sql = """
             SELECT * FROM event_view
@@ -699,6 +701,7 @@ public class Engine : Object
     }
 
     public TimeRange? delete_events (uint32[] event_ids, BusName? sender)
+        requires (event_ids.length > 0)
     {
         event_ids = extension_collection.call_pre_delete_events (
             event_ids, sender);
