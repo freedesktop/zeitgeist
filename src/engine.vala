@@ -701,6 +701,7 @@ public class Engine : Object
     }
 
     public TimeRange? delete_events (uint32[] event_ids, BusName? sender)
+        throws EngineError
         requires (event_ids.length > 0)
     {
         event_ids = extension_collection.call_pre_delete_events (
@@ -1029,7 +1030,7 @@ public class Engine : Object
     }
 
     protected WhereClause get_where_clause_for_symbol (string table_name,
-        string symbol, TableLookup lookup_table)
+        string symbol, TableLookup lookup_table) throws EngineError
     {
         string _symbol = symbol;
         bool negated = parse_negation (ref _symbol);
