@@ -140,6 +140,50 @@ namespace Zeitgeist
                 var connection = Bus.get_sync (BusType.SESSION, null);
                 registration_id = connection.register_object<RemoteRegistry> (
                     "/org/gnome/zeitgeist/data_source_registry", this);
+                
+                connection.signal_subscribe ("org.freedesktop.DBus",
+                    "org.freedesktop.DBus", "NameOwnerChanged",
+                    "/org/freedesktop/DBus", null, 0,
+                    (conn, sender, path, ifc_name, sig_name, parameters) =>
+                    {
+                        // name, old_owner, new_owner
+                        var name = parameters.get_child_value (0).dup_string ();
+                        var old_owner = parameters.get_child_value (1).dup_string ();
+                        var new_owner = parameters.get_child_value (2).dup_string ();
+
+                        var uids = new GenericArray<string>();
+                        foreach (var uid in running.get_keys())
+                        {
+                            var temp_uids = running.lookup(uid);
+                            for (int i = 0; i < temp_uids.length; i++)
+                            {
+                                var temp_name = temp_uids[i];
+                                if (temp_name == name)
+                                {
+                                    uids.add(uid);
+                                }
+                            }
+                        }
+                        if (uids.length == 0)
+                            return;
+                        var uid = uids[0];
+                        var data_source = sources.lookup(uid);
+                        data_source.timestamp = Timestamp.now();
+                        var strid = uid +"("+ data_source.name +")";
+                        debug("Client disconnected: %s", strid);
+                        
+                        if (running.lookup(uid).length == 1)
+                        {
+                            debug("No remaining client running: %s", strid);
+                            running.remove(uid);
+                            data_source.running = false;
+                            data_source_disconnected (data_source.to_variant());
+                        }
+                        else
+                        {
+                            running.lookup(uid).remove((BusName)name);
+                        }
+                    });
             }
             catch (Error err)
             {
@@ -223,9 +267,10 @@ namespace Zeitgeist
                 ds.name = name;
                 ds.description = description;
                 ds.event_templates = templates;
-                // FIXME: update the timestamp?
                 ds.timestamp = Timestamp.now ();
                 ds.running = true;
+                // FIXME: Wrtie to disk here
+                data_source_registered (ds.to_variant ());
                 return ds.enabled;
             }
             else
@@ -237,10 +282,11 @@ namespace Zeitgeist
                 new_ds.running = true;
                 new_ds.timestamp = Timestamp.now ();
                 sources.insert (unique_id, new_ds);
+                // FIXME: Wrtie to disk here
                 data_source_registered (new_ds.to_variant ());
-
                 return new_ds.enabled;
             }
+
         }
 
         public void set_data_source_enabled (string unique_id, bool enabled)
