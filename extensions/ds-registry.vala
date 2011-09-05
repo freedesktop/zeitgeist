@@ -189,7 +189,7 @@ namespace Zeitgeist
             return array.end ();
         }
 
-        private bool is_sender_known(BusName? sender, 
+        private bool is_sender_known(BusName? sender,
             GenericArray<BusName?> sender_array)
         {
             for (int i=0; i<sender_array.length; i++)
@@ -204,7 +204,7 @@ namespace Zeitgeist
             string description, Variant event_templates, BusName? sender)
         {
             debug ("%s: %s, %s, %s", Log.METHOD, unique_id, name, description);
-            
+
             var sender_array = running.lookup(unique_id);
             if (sender_array == null)
             {
@@ -215,7 +215,7 @@ namespace Zeitgeist
             {
                 running.lookup(unique_id).add(sender);
             }
-            
+
             unowned DataSource? ds = sources.lookup (unique_id);
             if (ds != null)
             {
@@ -259,7 +259,7 @@ namespace Zeitgeist
                 warning ("DataSource \"%s\" wasn't registered!", unique_id);
             }
         }
-        
+
         public Variant get_data_source_from_id (string unique_id) throws Error
         {
             unowned DataSource? ds = sources.lookup (unique_id);
@@ -271,7 +271,7 @@ namespace Zeitgeist
             throw new EngineError.INVALID_KEY (
                 "Datasource with unique ID: %s not found".printf (unique_id));
         }
-        
+
         public override void pre_insert_events(GenericArray<Event?> events,
             BusName? sender)
         {
@@ -293,7 +293,7 @@ namespace Zeitgeist
                 }
             }
         }
-        
+
         private bool write_to_disk()
         {
             //FIXME: Write to disk needs to be implemented
