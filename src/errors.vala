@@ -37,7 +37,14 @@ namespace Zeitgeist
         }
         catch (Error err)
         {
+            i_know_its_unused ();
         }
+    }
+
+    // also screw your warnings vala
+    private static void i_know_its_unused ()
+    {
+        vala_bug_workaround ();
     }
 }
 
