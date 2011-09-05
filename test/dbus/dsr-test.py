@@ -199,8 +199,8 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		
 		# Retrieve a data-source from an id that has not been registered
 		self.assertRaises(DBusException,
-				  self.client._registry.GetDataSourceFromId,
-				  self._ds2[0])
+			self.client._registry.GetDataSourceFromId,
+			self._ds2[0])
 
 	def testDataSourceSignals(self):
 		mainloop = self.create_mainloop()

@@ -346,8 +346,8 @@ class RemoteTestCase (unittest.TestCase):
 		return popo
 	
 	def assertEventsEqual(self, ev1, ev2):
-		ev1 = self.get_plain_event(ev1)
-		ev2 = self.get_plain_event(ev2)
+		ev1 = self.get_plain_event(Event(ev1))
+		ev2 = self.get_plain_event(Event(ev2))
 		if ev1 is not NULL_EVENT and ev2 is not NULL_EVENT:
 			if (ev1[0][0] and not ev2[0][0]) or (ev2[0][0] and not ev1[0][0]):
 				ev1[0][0] = ev2[0][0] = "" # delete IDs

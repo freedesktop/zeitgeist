@@ -28,17 +28,17 @@ namespace Zeitgeist
     [DBus (name = "org.gnome.zeitgeist.Blacklist")]
     public interface RemoteBlacklist: Object
     {
-        public abstract void add_template (string blacklist_id,
+        public abstract void add_template (string template_id,
             [DBus (signature = "(asaasay)")] Variant event_template)
             throws Error;
         [DBus (signature = "a{s(asaasay)}")]
         public abstract Variant get_templates () throws Error;
-        public abstract void remove_template (string blacklist_id)
+        public abstract void remove_template (string template_id)
             throws Error;
 
-        public signal void template_added (string blacklist_id,
+        public signal void template_added (string template_id,
             [DBus (signature = "s(asaasay)")] Variant event_template);
-        public signal void template_removed (string blacklist_id,
+        public signal void template_removed (string template_id,
             [DBus (signature = "s(asassay)")] Variant event_template);
     }
 
@@ -95,33 +95,52 @@ namespace Zeitgeist
             // FIXME: write to file.
         }
 
-        public GenericArray<Event?> pre_insert_events (
-            GenericArray<Event?> events, BusName sender)
+        public override void pre_insert_events (GenericArray<Event?> events,
+            BusName? sender)
         {
             // FIXME: do template matching...
             // for event in events:
             //     for tmpl in blacklist:
             //         if event.matches_template(tmpl): event = null
-            return events;
         }
 
-        public void add_template (string blacklist_id, Variant event_template)
+        public void add_template (string template_id, Variant event_template)
+            throws EngineError
         {
             Event template = new Event.from_variant (event_template);
-            blacklist.insert (blacklist_id, template);
+            blacklist.insert (template_id, template);
+            debug ("Added blacklist template: %s", template_id);
+            template_added (template_id, event_template);
             flush ();
         }
 
-        public void remove_template (string blacklist_id)
+        public void remove_template (string template_id)
         {
-            Event template = blacklist.lookup (blacklist_id);
-            blacklist.remove (blacklist_id);
+            Event event_template = blacklist.lookup (template_id);
+            if (blacklist.remove (template_id))
+                debug ("Removed blacklist template: %s", template_id);
+            else
+                debug ("Blacklist template \"%s\" not found.", template_id);
+            template_removed (template_id, event_template.to_variant ());
             flush ();
         }
 
         public Variant get_templates ()
         {
-            return null; //blacklist;
+            var vb = new VariantBuilder (new VariantType ("a{s(asaasay)}"));
+            {
+                var iter = HashTableIter<string, Event> (blacklist);
+                string template_id;
+                Event event_template;
+                while (iter.next (out template_id, out event_template))
+                {
+                    vb.open (new VariantType ("{s(asaasay)}"));
+                    vb.add ("s", template_id);
+                    vb.add_value (event_template.to_variant ());
+                    vb.close ();
+                }
+            }
+            return vb.end ();
         }
 
     }
