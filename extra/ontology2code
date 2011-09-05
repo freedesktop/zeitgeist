@@ -340,7 +340,7 @@ class ValaSerializer(GenericSerializer):
 				dest.write('parents = { %s };\n' % parent_uris)
 				dest.write('children = { %s };\n' % children_uris)
 				dest.write('all_children = { %s };\n' % all_children_uris)
-				dest.write('Symbol.register (uri, display_name, description, ' \
+				dest.write('Symbol.Info.register (uri, display_name, description, ' \
 					'parents, children, all_children);\n\n')
 
 class OntologyCodeGenerator:

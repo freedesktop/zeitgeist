@@ -55,8 +55,8 @@ bluebird_LDFLAGS = -export-dynamic -no-undefined
 
 BUILT_SOURCES = zeitgeist-engine_vala.stamp extensions_vala.stamp
 
-zeitgeist-engine_vala.stamp zeitgeist-engine.vapi: $(bluebird_VALASOURCES)
-	$(VALAC) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
+zeitgeist-engine_vala.stamp: $(bluebird_VALASOURCES)
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
 	touch "$@"
 
 extensions_vala.stamp: zeitgeist-engine.vapi $(extensions_VALASOURCES)
@@ -90,3 +90,8 @@ DISTCLEANFILES = \
 
 distclean-local:
 	rm -f *.c *.o *.stamp *.~[0-9]~
+
+VALA_V = $(VALA_V_$(V))
+VALA_V_ = $(VALA_V_$(AM_DEFAULT_VERBOSITY))
+VALA_V_0 = @echo "  VALAC " $^;
+

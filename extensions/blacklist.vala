@@ -26,7 +26,7 @@
 namespace Zeitgeist
 {
     [DBus (name = "org.gnome.zeitgeist.Blacklist")]
-    interface RemoteBlacklist: Object
+    public interface RemoteBlacklist: Object
     {
         public abstract void add_template (string blacklist_id,
             [DBus (signature = "(asaasay)")] Variant event_template)
@@ -59,18 +59,32 @@ namespace Zeitgeist
             // FIXME: load blacklist from file
 
             // This will be called after bus is acquired, so it shouldn't block
-            var connection = Bus.get_sync (BusType.SESSION, null);
-            registration_id = connection.register_object<RemoteBlacklist> (
-                "/org/gnome/zeitgeist/blacklist", this);
+            try
+            {
+                var connection = Bus.get_sync (BusType.SESSION, null);
+                registration_id = connection.register_object<RemoteBlacklist> (
+                    "/org/gnome/zeitgeist/blacklist", this);
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
+            }
         }
 
         public override void unload ()
         {
-            var connection = Bus.get_sync (BusType.SESSION, null);
-            if (registration_id != 0)
+            try
             {
-                connection.unregister_object (registration_id);
-                registration_id = 0;
+                var connection = Bus.get_sync (BusType.SESSION, null);
+                if (registration_id != 0)
+                {
+                    connection.unregister_object (registration_id);
+                    registration_id = 0;
+                }
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
             }
 
             debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
@@ -114,10 +128,10 @@ namespace Zeitgeist
 
     [ModuleInit]
 #if BUILTIN_EXTENSIONS
-    Type blacklist_init (TypeModule module)
+    public static Type blacklist_init (TypeModule module)
     {
 #else
-    Type extension_register (TypeModule module)
+    public static Type extension_register (TypeModule module)
     {
 #endif
         return typeof (Blacklist);

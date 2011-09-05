@@ -33,7 +33,7 @@ namespace Zeitgeist
     {
         try
         {
-            var bus = Bus.get_sync (BusType.SESSION, null);
+            Bus.get_sync (BusType.SESSION, null);
         }
         catch (Error err)
         {

@@ -228,7 +228,7 @@ namespace Zeitgeist
             notifications.remove_monitor (owner, monitor_path);
         }
 
-        public void register_dbus_object (DBusConnection conn) throws Error
+        public void register_dbus_object (DBusConnection conn) throws IOError
         {
             connection = conn;
             log_register_id = conn.register_object<RemoteLog> (

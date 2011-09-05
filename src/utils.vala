@@ -29,8 +29,8 @@ namespace Zeitgeist
         private static string DATA_PATH;
         private static string DATABASE_FILE_PATH;
         private static string DATABASE_FILE_BACKUP_PATH;
-        private static string DEFAULT_LOG_PATH;
         private static string LOCAL_EXTENSIONS_PATH;
+        //private static string DEFAULT_LOG_PATH; FIXME: remove?
 
         public const string ZEITGEIST_DATA_FOLDER = "bluebird";
         public const string USER_EXTENSION_PATH = "";

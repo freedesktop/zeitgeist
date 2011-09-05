@@ -24,7 +24,7 @@
 namespace Zeitgeist
 {
     [DBus (name = "org.gnome.zeitgeist.DataSourceRegistry")]
-    interface RemoteRegistry: Object
+    public interface RemoteRegistry: Object
     {
         [DBus (signature = "a(sssa(asaasay)bxb)")]
         public abstract Variant get_data_sources () throws Error;
@@ -135,9 +135,18 @@ namespace Zeitgeist
             // FIXME: load data sources
 
             // this will be called after bus is acquired, so it shouldn't block
-            var connection = Bus.get_sync (BusType.SESSION, null);
-            registration_id = connection.register_object<RemoteRegistry> (
-                "/org/gnome/zeitgeist/data_source_registry", this);
+            try
+            {
+                var connection = Bus.get_sync (BusType.SESSION, null);
+                registration_id = connection.register_object<RemoteRegistry> (
+                    "/org/gnome/zeitgeist/data_source_registry", this);
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
+            }
+
+            // FIXME: nothing changed, why is this here?
             dirty = true;
             // FIXME: set up gobject timer like ->
             // gobject.timeout_add(DISK_WRITE_TIMEOUT, self._write_to_disk)
@@ -145,11 +154,18 @@ namespace Zeitgeist
 
         public override void unload ()
         {
-            var connection = Bus.get_sync (BusType.SESSION, null);
-            if (registration_id != 0)
+            try
             {
-                connection.unregister_object (registration_id);
-                registration_id = 0;
+                var connection = Bus.get_sync (BusType.SESSION, null);
+                if (registration_id != 0)
+                {
+                    connection.unregister_object (registration_id);
+                    registration_id = 0;
+                }
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
             }
 
             debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
@@ -287,10 +303,10 @@ namespace Zeitgeist
 
     [ModuleInit]
 #if BUILTIN_EXTENSIONS
-    Type data_source_registry_init (TypeModule module)
+    public static Type data_source_registry_init (TypeModule module)
     {
 #else
-    Type extension_register (TypeModule module)
+    public static Type extension_register (TypeModule module)
     {
 #endif
         return typeof (DataSourceRegistry);

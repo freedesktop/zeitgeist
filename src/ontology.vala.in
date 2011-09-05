@@ -3,6 +3,7 @@
  * Copyright © 2011 Collabora Ltd.
  *             By Seif Lotfy <seif@lotfy.com>
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,19 +23,121 @@
 namespace Zeitgeist
 {
 
-    private class Symbol
+    namespace Symbol
     {
-        private static HashTable<string, Symbol> all_symbols = null;
+        private static HashTable<string, Info> all_symbols = null;
         private static bool initialized = false;
 
-        private List<string> parents;
-        private List<string> children;
-        private List<string> all_children;
-        private string uri;
-        private string display_name;
-        private string description;
+        public static unowned string get_display_name (string symbol_uri)
+        {
+            initialize_symbols ();
 
-        private Symbol (string uri, string display_name, string description,
+            var symbol = all_symbols.lookup (symbol_uri);
+            if (symbol == null) return symbol_uri;
+
+            return symbol.display_name;
+        }
+
+        public static unowned string get_description(string symbol_uri)
+        {
+            initialize_symbols ();
+
+            var symbol = all_symbols.lookup (symbol_uri);
+            if (symbol == null) return "";
+
+            return symbol.description;
+        }
+
+        public static List<unowned string> get_all_parents(string symbol_uri)
+        {
+            initialize_symbols ();
+
+            var results = new List<string> ();
+            var symbol = all_symbols.lookup (symbol_uri);
+            if (symbol == null) return results;
+
+            foreach (unowned string uri in symbol.parents)
+            {
+                results.append (uri);
+                // Recursively get the other parents
+                foreach (string parent_uri in get_all_parents (uri))
+                    if (results.index (parent_uri) > -1)
+                        results.append (parent_uri);
+            }
+
+            return results;
+        }
+
+        public static List<unowned string> get_all_children (string symbol_uri)
+        {
+            initialize_symbols ();
+
+            var results = new List<string> ();
+            var symbol = all_symbols.lookup (symbol_uri);
+            if (symbol == null) return results;
+
+            foreach (unowned string uri in symbol.all_children)
+                results.append (uri);
+
+            return results;
+        }
+
+        public static List<unowned string> get_children (string symbol_uri)
+        {
+            initialize_symbols ();
+            var results = new List<string> ();
+            var symbol = all_symbols.lookup (symbol_uri);
+            if (symbol == null) return results;
+
+            foreach (unowned string uri in symbol.children)
+                results.append(uri);
+
+            return results;
+        }
+
+        public static List<unowned string> get_parents (string symbol_uri)
+        {
+            initialize_symbols ();
+
+            var results = new List<string>();
+            var symbol = all_symbols.lookup (symbol_uri);
+            if (symbol == null) return results;
+
+            foreach (unowned string uri in symbol.parents)
+                results.append (uri);
+
+            return results;
+        }
+
+        public static bool is_a (string symbol_uri, string parent_uri)
+        {
+            initialize_symbols ();
+
+            foreach (unowned string uri in get_all_parents (symbol_uri))
+                if (parent_uri == uri)
+                    return true;
+            return false;
+        }
+
+        private static void initialize_symbols ()
+        {
+            if (initialized) return;
+            initialized = true;
+            // *insert-auto-generated-code*
+        }
+
+    }
+
+    private class Symbol.Info
+    {
+        public List<string> parents;
+        public List<string> children;
+        public List<string> all_children;
+        public string uri;
+        public string display_name;
+        public string description;
+
+        private Info (string uri, string display_name, string description,
             string[] parents, string[] children, string[] all_children)
         {
             this.uri = uri;
@@ -51,104 +154,15 @@ namespace Zeitgeist
                 this.all_children.append (all_children[i]);
         }
 
-        public static string get_display_name (string symbol_uri)
-        {
-            initialize_symbols ();
-            var symbol = all_symbols.lookup (symbol_uri);
-            if (symbol == null)
-                return symbol_uri;
-            return symbol.display_name;
-        }
-
-        public static string get_description(string symbol_uri)
-        {
-            initialize_symbols ();
-            var symbol = all_symbols.lookup (symbol_uri);
-             if (symbol == null)
-                return "Unknown symbol: %s".printf (symbol_uri);
-            return symbol.description;
-        }
-
-        public static List<string> get_all_parents(string symbol_uri)
-        {
-            initialize_symbols ();
-            var results = new List<string> ();
-            var symbol = all_symbols.lookup (symbol_uri);
-            if (symbol == null)
-                return results;
-            foreach (string uri in symbol.parents)
-            {
-                results.append (uri);
-                // Recursively get the other parents
-                foreach (string parent_uri in get_all_parents (uri))
-                    if (results.index (parent_uri) > -1)
-                        results.append (parent_uri);
-            }
-            return results;
-        }
-
-        public static List<string> get_all_children (string symbol_uri)
-        {
-            initialize_symbols ();
-            var results = new List<string> ();
-            var symbol = all_symbols.lookup (symbol_uri);
-            if (symbol == null)
-                return results;
-            foreach (string uri in symbol.all_children)
-                results.append (uri);
-            return results;
-        }
-
-        public static List<string> get_children (string symbol_uri)
-        {
-            initialize_symbols ();
-            var results = new List<string> ();
-            var symbol = all_symbols.lookup (symbol_uri);
-            if (symbol == null)
-                return results;
-            foreach (string uri in symbol.children)
-                results.append(uri);
-            return results;
-        }
-
-        public static List<string> get_parents (string symbol_uri)
-        {
-            initialize_symbols ();
-            var results = new List<string>();
-            var symbol = all_symbols.lookup (symbol_uri);
-            if (symbol == null)
-                return results;
-            foreach (string uri in symbol.parents)
-                results.append (uri);
-            return results;
-        }
-
-        public static bool is_a (string symbol_uri, string parent_uri)
-        {
-            initialize_symbols ();
-            foreach (string uri in get_all_parents (symbol_uri))
-                if (parent_uri == uri)
-                    return true;
-            return false;
-        }
-
         internal static void register (string uri, string display_name,
             string description, string[] parents, string[] children,
             string[] all_children)
         {
             if (all_symbols == null)
-                all_symbols = new HashTable<string, Symbol> (str_hash, str_equal);
-            Symbol symbol = new Symbol (uri, display_name, description,
+                all_symbols = new HashTable<string, Info> (str_hash, str_equal);
+            Info symbol = new Info (uri, display_name, description,
                 parents, children, all_children);
             all_symbols.insert (uri, symbol);
-        }
-
-        private static void initialize_symbols ()
-        {
-            if (initialized)
-                return;
-            initialized = true;
-            // *insert-auto-generated-code*
         }
 
     }

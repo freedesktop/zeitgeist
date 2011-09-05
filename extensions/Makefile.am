@@ -6,7 +6,8 @@ noinst_LTLIBRARIES = ds-registry.la blacklist.la
 AM_CPPFLAGS = \
 	$(BLUEBIRD_CFLAGS) \
 	-include $(CONFIG_HEADER) \
-	-I $(top_srcdir)/src
+	-I $(top_srcdir)/src \
+	-w \
 	$(NULL)
 
 VALAFLAGS = \
