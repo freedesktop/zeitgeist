@@ -303,11 +303,9 @@ class NMNetworkMonitor:
 	NM_IFACE = "org.freedesktop.NetworkManager"
 	NM_OBJECT_PATH = "/org/freedesktop/NetworkManager"
 	
-	NM_STATE_UNKNOWN = 0
-	NM_STATE_ASLEEP = 1
-	NM_STATE_CONNECTING = 2
-	NM_STATE_CONNECTED = 3
-	NM_STATE_DISCONNECTED = 4
+	# NM 0.9 broke API so we have to check for two possible values for the state
+	NM_STATE_CONNECTED_PRE_09 = 3
+	NM_STATE_CONNECTED_POST_09 = 70
 	
 	def __init__ (self, on_network_up, on_network_down):
 		log.debug("Creating NetworkManager network monitor")
@@ -335,7 +333,7 @@ class NMNetworkMonitor:
 		
 	def _on_state_changed(self, state):
 		log.debug("NetworkManager network state: %s" % state)
-		if state == NMNetworkMonitor.NM_STATE_CONNECTED:
+		if state == NMNetworkMonitor.NM_STATE_CONNECTED_PRE_09 or state == NMNetworkMonitor.NM_STATE_CONNECTED_POST_09:
 			self._up ()
 		else:
 			self._down()
