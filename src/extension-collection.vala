@@ -45,7 +45,8 @@ namespace Zeitgeist
             RegisterExtensionFunc[] builtins =
             {
                 data_source_registry_init,
-                blacklist_init
+                blacklist_init,
+                histogram_init
             };
 
             foreach (var func in builtins)
@@ -166,6 +167,7 @@ namespace Zeitgeist
 #if BUILTIN_EXTENSIONS
     private extern static Type data_source_registry_init (TypeModule mod);
     private extern static Type blacklist_init (TypeModule mod);
+    private extern static Type histogram_init (TypeModule mod);
 #endif
 
 }

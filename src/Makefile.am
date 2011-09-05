@@ -21,6 +21,7 @@ VALAFLAGS = \
 extensions_VALASOURCES = \
 	ext-data-source-registry.vala \
 	ext-blacklist.vala \
+	ext-histogram.vala \
 	$(NULL)
 
 bluebird_VALASOURCES = \
@@ -59,7 +60,7 @@ zeitgeist-engine_vala.stamp: $(bluebird_VALASOURCES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
 	touch "$@"
 
-extensions_vala.stamp: zeitgeist-engine.vapi $(extensions_VALASOURCES)
+extensions_vala.stamp: zeitgeist-engine_vala.stamp $(extensions_VALASOURCES)
 	$(foreach ext_src,$(filter %.vala,$^),\
 		$(VALAC) $(VALAFLAGS) $(EXT_FLAGS) -C zeitgeist-engine.vapi $(ext_src) || exit 1;)
 	touch "$@"
