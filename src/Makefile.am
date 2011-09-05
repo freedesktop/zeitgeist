@@ -58,17 +58,17 @@ BUILT_SOURCES = zeitgeist-engine_vala.stamp extensions_vala.stamp
 
 zeitgeist-engine_vala.stamp: $(bluebird_VALASOURCES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
-	touch "$@"
+	@touch "$@"
 
 extensions_vala.stamp: zeitgeist-engine_vala.stamp $(extensions_VALASOURCES)
-	$(foreach ext_src,$(filter %.vala,$^),\
+	$(AM_V_GEN)$(foreach ext_src,$(filter %.vala,$^),\
 		$(VALAC) $(VALAFLAGS) $(EXT_FLAGS) -C zeitgeist-engine.vapi $(ext_src) || exit 1;)
-	touch "$@"
+	@touch "$@"
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
 ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
-	$(top_srcdir)/extra/ontology2code --vala
-	touch "$@"
+	$(AM_V_GEN)$(top_srcdir)/extra/ontology2code --vala
+	@touch "$@"
 
 ontology.vala ontology-uris.vala: ontology_vala.stamp
 
