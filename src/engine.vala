@@ -34,7 +34,7 @@ namespace Zeitgeist
 public class Engine : Object
 {
 
-    private Zeitgeist.SQLite.ZeitgeistDatabase database;
+    public Zeitgeist.SQLite.ZeitgeistDatabase database { get; private set; }
     private ExtensionCollection extension_collection;
     private unowned Sqlite.Database db;
 
@@ -47,16 +47,16 @@ public class Engine : Object
 
     public Engine () throws EngineError
     {
-        database = new Zeitgeist.SQLite.ZeitgeistDatabase();
+        database = new Zeitgeist.SQLite.ZeitgeistDatabase ();
         db = database.database;
-        last_id = database.get_last_id();
+        last_id = database.get_last_id ();
 
-        interpretations_table = new TableLookup(database, "interpretation");
-        manifestations_table = new TableLookup(database, "manifestation");
-        mimetypes_table = new TableLookup(database, "mimetype");
-        actors_table = new TableLookup(database, "actor");
+        interpretations_table = new TableLookup (database, "interpretation");
+        manifestations_table = new TableLookup (database, "manifestation");
+        mimetypes_table = new TableLookup (database, "mimetype");
+        actors_table = new TableLookup (database, "actor");
 
-        extension_collection = new ExtensionCollection ();
+        extension_collection = new ExtensionCollection (this);
     }
 
     public string[] get_extension_names ()

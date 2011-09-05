@@ -37,6 +37,8 @@ namespace Zeitgeist
      */
     public abstract class Extension : Object
     {
+        public unowned Engine engine { get; construct set; }
+
         /**
          * This method gets called before Zeitgeist stops.
          *
@@ -132,12 +134,13 @@ namespace Zeitgeist
     {
         public Type extension_type { get; protected set; }
 
-        public virtual Extension? create_instance ()
+        public virtual Extension? create_instance (Engine engine)
         {
             if (this.use ())
             {
                 if (extension_type == Type.INVALID) return null;
-                Extension? instance = Object.@new (extension_type) as Extension;
+                Extension? instance = Object.@new (extension_type,
+                    "engine", engine) as Extension;
                 debug ("Loaded extension: %s", extension_type.name ());
                 this.unuse ();
                 return instance;

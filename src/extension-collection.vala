@@ -23,9 +23,11 @@ namespace Zeitgeist
     {
         private GenericArray<Extension> extensions;
 
-        public ExtensionCollection ()
+        public unowned Engine engine { get; construct; }
+
+        public ExtensionCollection (Engine engine)
         {
-            Object ();
+            Object (engine: engine);
         }
 
         ~ExtensionCollection ()
@@ -49,7 +51,7 @@ namespace Zeitgeist
             foreach (var func in builtins)
             {
                 ExtensionLoader builtin = new BuiltinExtension (func);
-                extension = builtin.create_instance ();
+                extension = builtin.create_instance (engine);
                 if (extension != null) extensions.add (extension);
             }
 #endif
@@ -78,7 +80,7 @@ namespace Zeitgeist
                         debug ("Loading extension: \"%s\"", path);
                         var loader = new ModuleLoader (path);
                         // FIXME: check if enabled
-                        extension = loader.create_instance ();
+                        extension = loader.create_instance (engine);
                         if (extension != null) extensions.add (extension);
                     }
                     else
