@@ -164,6 +164,28 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		ds = list(self.client._registry.GetDataSources())[0]
 		self.assertEquals(ds[DataSource.Enabled], True)
 
+	def testSetDataSourceDisabled(self):
+		# Insert a data-source -- it should be enabled by default
+		self.client._registry.RegisterDataSource(*self._ds1)
+		ds = list(self.client._registry.GetDataSources())[0]
+		self.assertEquals(ds[DataSource.Enabled], True)
+		
+		# Now we can choose to disable it...
+		self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
+		ds = list(self.client._registry.GetDataSources())[0]
+		self.assertEquals(ds[DataSource.Enabled], False)
+		
+		ids = self.insertEventsAndWait([Event.new_for_values(
+			subject_manifestation = "!stfu:File")])
+			
+		self.assertEquals(ids[0], 0)
+		
+		# And enable it again!
+		self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
+		ds = list(self.client._registry.GetDataSources())[0]
+		self.assertEquals(ds[DataSource.Enabled], True)
+
+
 	def testGetDataSourceFromId(self):
 		# Insert a data-source -- and then retrieve it by id
 		self.client._registry.RegisterDataSource(*self._ds1)

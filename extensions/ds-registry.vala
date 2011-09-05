@@ -268,10 +268,12 @@ namespace Zeitgeist
                     data_source.timestamp =  Timestamp.now ();
                     dirty = false;
                     if (!data_source.enabled)
+                    {
                         for (int i=0; i < events.length; i++)
                         {
                             events[i] = null;
                         }
+                    }
                 }
             }
         }
