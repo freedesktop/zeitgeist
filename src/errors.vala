@@ -26,6 +26,7 @@ namespace Zeitgeist
         DATABASE_ERROR,
         INVALID_ARGUMENT,
         INVALID_KEY,
+        INVALID_SIGNATURE, // FIXME: change from EngineError to sth. + public
     }
 
     // vala doesn't include proper headers, this fixes it

@@ -22,6 +22,13 @@
 
 namespace Zeitgeist
 {
+    private void assert_sig (bool condition, string error_message)
+        throws EngineError
+    {
+        if (!condition)
+            throw new EngineError.INVALID_SIGNATURE (error_message);
+    }
+
     namespace Timestamp
     {
         public static int64 now ()
@@ -280,18 +287,17 @@ namespace Zeitgeist
             subjects.add (subject);
         }
 
-        public Event.from_variant (Variant event_variant) { // (asaasay)
+        public Event.from_variant (Variant event_variant) throws EngineError {
             assert (event_variant.get_type_string () == "(asaasay)");
 
             VariantIter iter = event_variant.iterator();
 
-            assert (iter.n_children() == 3);
             VariantIter event_array = iter.next_value().iterator();
             VariantIter subjects_array = iter.next_value().iterator();
             Variant payload_variant = iter.next_value ();
 
             var event_props = event_array.n_children ();
-            assert (event_props >= 5);
+            warn_if_fail (event_props >= 5);
             id = (uint32) uint64.parse (event_array.next_value().get_string ());
             var str_timestamp = event_array.next_value().get_string ();
             if (str_timestamp == "")
@@ -528,11 +534,12 @@ namespace Zeitgeist
         public string current_uri { get; set; }
 
         public Subject.from_variant (Variant subject_variant)
+            throws EngineError
         {
             VariantIter iter = subject_variant.iterator();
 
             var subject_props = iter.n_children ();
-            assert (subject_props >= 7);
+            warn_if_fail (subject_props >= 7);
             uri = iter.next_value().get_string ();
             interpretation = iter.next_value().get_string ();
             manifestation = iter.next_value().get_string ();
