@@ -688,10 +688,6 @@ public class Engine : Object
             }
         }
 
-        stdout.printf ("============ Inserted event: ============\n");
-        event.debug_print ();
-        stdout.printf ("\n");
-
         if (event.interpretation == ZG.MOVE_EVENT)
         {
             handle_move_event (event);
