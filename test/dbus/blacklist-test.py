@@ -32,7 +32,7 @@ import gobject
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface
 from zeitgeist.datamodel import *
-from testutils import RemoteTestCase
+from testutils import RemoteTestCase, asyncTestMethod
 
 class BlacklistTest(RemoteTestCase):
 
@@ -121,6 +121,7 @@ class BlacklistTest(RemoteTestCase):
 		global hit
 		hit = 0
 
+		@asyncTestMethod(mainloop)
 		def cb_added(template_id, event_template):
 			global hit
 			print "*** cb_added with hit", hit
@@ -129,6 +130,7 @@ class BlacklistTest(RemoteTestCase):
 			self.assertEquals(template_id, "TestTemplate")
 			self.assertEventsEqual(template1, event_template)
 
+		@asyncTestMethod(mainloop)
 		def cb_removed(template_id, event_template):
 			global hit
 			self.assertEquals(hit, 1)

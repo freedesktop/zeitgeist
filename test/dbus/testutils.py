@@ -85,6 +85,22 @@ def import_events(path, engine):
 	events = parse_events(path)
 	return engine.insertEventsAndWait(events)
 
+def asyncTestMethod(mainloop):
+	"""
+	Any callbacks happening in a MainLoopWithFailure must use
+	this decorator for exceptions raised inside them to be visible.
+	"""
+	def wrap(f):
+		def new_f(*args, **kwargs):
+			try:
+				f(*args, **kwargs)
+			except AssertionError, e:
+				mainloop.fail("Assertion failed: %s" % e)
+			except Exception, e:
+				mainloop.fail("Unexpected exception: %s" % e)
+		return new_f
+	return wrap
+
 class RemoteTestCase (unittest.TestCase):
 	"""
 	Helper class to implement unit tests against a
@@ -295,6 +311,9 @@ class RemoteTestCase (unittest.TestCase):
 	def create_mainloop(timeout=5):
 		
 		class MainLoopWithFailure(object):
+			"""
+			Remember to wrap callbacks using the asyncTestMethod decorator.
+			"""
 			
 			def __init__(self):
 				self._mainloop = gobject.MainLoop()

@@ -45,7 +45,7 @@ from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState, DataSource, NULL_EVENT, ResultType)
 
 import testutils
-from testutils import parse_events, import_events
+from testutils import parse_events, import_events, asyncTestMethod
 
 
 class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
@@ -208,11 +208,13 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		global hit
 		hit = 0
 		
+		@asyncTestMethod(mainloop)
 		def cb_registered(datasource):
 			global hit
 			self.assertEquals(hit, 0)
 			hit = 1
 		
+		@asyncTestMethod(mainloop)
 		def cb_enabled(unique_id, enabled):
 			global hit
 			if hit == 1:
@@ -228,6 +230,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 			else:
 				self.fail("Unexpected number of signals: %d." % hit)
 		
+		#@asyncTestMethod(mainloop)
 		#def cb_disconnect(datasource):
 		#	self.assertEquals(hit, 3)
 		#	mainloop.quit()
@@ -245,6 +248,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 	def testRegisterDataSourceEnabledCallbackOnRegister(self):
 		mainloop = self.create_mainloop()
 		
+		@asyncTestMethod(mainloop)
 		def callback(enabled):
 			mainloop.quit()
 		self.client.register_data_source(*self._ds1, enabled_callback=callback)
@@ -257,6 +261,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		hit = 0
 		
 		# Register a callback
+		@asyncTestMethod(mainloop)
 		def callback(enabled):
 			global hit
 			if hit == 0:

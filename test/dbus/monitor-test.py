@@ -45,7 +45,7 @@ from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState, DataSource, NULL_EVENT, ResultType)
 
 import testutils
-from testutils import parse_events, import_events
+from testutils import parse_events, import_events, asyncTestMethod
 
 
 class ZeitgeistMonitorTest(testutils.RemoteTestCase):
@@ -56,10 +56,12 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		events = parse_events("test/data/five_events.js")
 		
+		@asyncTestMethod(mainloop)
 		def notify_insert_handler(time_range, events):
 			result.extend(events)
 			mainloop.quit()
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			self.fail("Unexpected delete notification")
@@ -78,10 +80,12 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 			subjects=[Subject.new_for_values(uri="file:///tmp/bar.txt")])
 		events = parse_events("test/data/five_events.js")
 		
+		@asyncTestMethod(mainloop)
 		def notify_insert_handler(time_range, events):
 			result.extend(events)
 			mainloop.quit()
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			self.fail("Unexpected delete notification")
@@ -100,10 +104,12 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 			subjects=[Subject.new_for_values(uri="file:///tmp/*")])
 		events = parse_events("test/data/five_events.js")
 		
+		@asyncTestMethod(mainloop)
 		def notify_insert_handler(time_range, events):
 			result.extend(events)
 			mainloop.quit()
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			self.fail("Unexpected delete notification")
@@ -122,10 +128,12 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 			subjects=[Subject.new_for_values(uri="!file:///tmp/*")])
 		events = parse_events("test/data/five_events.js")
 		
+		@asyncTestMethod(mainloop)
 		def notify_insert_handler(time_range, events):
 			result.extend(events)
 			mainloop.quit()
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			self.fail("Unexpected delete notification")
@@ -144,10 +152,12 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 			subjects=[Subject.new_for_values(uri="!file:///tmp/bar.txt")])
 		events = parse_events("test/data/five_events.js")
 		
+		@asyncTestMethod(mainloop)
 		def notify_insert_handler(time_range, events):
 			result.extend(events)
 			mainloop.quit()
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			self.fail("Unexpected delete notification")
@@ -164,14 +174,15 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		mainloop = self.create_mainloop()
 		events = parse_events("test/data/five_events.js")
 		
+		@asyncTestMethod(mainloop)
 		def notify_insert_handler(time_range, events):
 			event_ids = map(lambda ev : ev.id, events)
 			self.client.delete_events(event_ids)
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			result.extend(event_ids)
-			
 			
 		self.client.install_monitor(TimeRange(125, 145), [],
 			notify_insert_handler, notify_delete_handler)
@@ -186,16 +197,19 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		mainloop = self.create_mainloop(None)
 		events = parse_events("test/data/five_events.js")
 		
+		@asyncTestMethod(mainloop)
 		def timeout():
 			# We want this timeout - we should not get informed
 			# about deletions of non-existing events
 			mainloop.quit()
 			return False
 
+		@asyncTestMethod(mainloop)
 		def notify_insert_handler(time_range, events):
 			event_ids = map(lambda ev : ev.id, events)
 			self.client.delete_events([9999999])
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			self.fail("Notified about deletion of non-existing events %s", events)
@@ -213,18 +227,22 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		mainloop = self.create_mainloop()
 		events = parse_events("test/data/five_events.js")
 		
+		@asyncTestMethod(mainloop)
 		def check_ok():
 			if len(result1) == 2 and len(result2) == 2:
 				mainloop.quit()
 
+		@asyncTestMethod(mainloop)
 		def notify_insert_handler1(time_range, events):
 			event_ids = map(lambda ev : ev.id, events)
 			self.client.delete_events(event_ids)
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler1(time_range, event_ids):
 			result1.extend(event_ids)
 			check_ok()
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler2(time_range, event_ids):
 			result2.extend(event_ids)
 			check_ok()
@@ -246,9 +264,11 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		mainloop = self.create_mainloop()
 		tmpl = Event.new_for_values(interpretation="stfu:OpenEvent")
 		
+		@asyncTestMethod(mainloop)
 		def notify_insert_handler(notification_type, events):
 			pass
 		
+		@asyncTestMethod(mainloop)
 		def notify_delete_handler(time_range, event_ids):
 			mainloop.quit()
 			self.fail("Unexpected delete notification")
@@ -256,6 +276,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		mon = self.client.install_monitor(TimeRange.always(), [tmpl],
 			notify_insert_handler, notify_delete_handler)
 		
+		@asyncTestMethod(mainloop)
 		def removed_handler(result_state):
 			result.append(result_state)
 			mainloop.quit()
