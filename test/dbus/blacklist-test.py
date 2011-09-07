@@ -123,6 +123,7 @@ class BlacklistTest(RemoteTestCase):
 
 		def cb_added(template_id, event_template):
 			global hit
+			print "*** cb_added with hit", hit
 			self.assertEquals(hit, 0)
 			hit = 1
 			self.assertEquals(template_id, "TestTemplate")
