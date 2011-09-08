@@ -1049,11 +1049,27 @@ public class Engine : Object
 
         WhereClause subwhere = new WhereClause(
             WhereClause.Type.OR, negated);
-        foreach (string uri in symbols)
+
+        /*foreach (string uri in symbols)
         {
             subwhere.add_match_condition (table_name,
                 lookup_table.get_id (uri));
+        }*/
+
+        string sql = "%s %s IN (%s)";
+        string in_sql = "";
+        int l = 0;
+        foreach (string uri in symbols)
+        {
+            int id = lookup_table.get_id (uri);
+            in_sql += "%i".printf(id);
+            l++;
+            if (l < symbols.length())
+                in_sql += ",";
         }
+        sql = sql.printf(table_name, (negated) ? "NOT": "", in_sql);
+        stdout.printf("\n%s\n", sql);
+        subwhere.add(sql);
         return subwhere;
     }
 
