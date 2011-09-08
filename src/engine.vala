@@ -189,7 +189,7 @@ public class Engine : Object
         // FIXME: IDs: SELECT DISTINCT / events: SELECT
         // Is the former faster or can we just do the unique'ing on our side?
 
-        string sql = "SELECT DISTINCT id FROM event_view ";
+        string sql = "SELECT id FROM event_view ";
         string where_sql = "";
         if (!where.is_empty ())
         {
@@ -303,9 +303,6 @@ public class Engine : Object
                 throw new EngineError.INVALID_ARGUMENT (error_message);
         }
 
-        if (max_events > 0)
-            sql += " LIMIT %u".printf (max_events);
-
         int rc;
         Sqlite.Statement stmt;
 
@@ -320,10 +317,14 @@ public class Engine : Object
 
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
-            event_ids += (uint32) uint64.parse(
+            uint32 event_id = (uint32) uint64.parse(
                 stmt.column_text (EventViewRows.ID));
+            if (!(event_id in event_ids)) {
+                event_ids += event_id;
+                if (event_ids.length == max_events) break;
+            }
         }
-        if (rc != Sqlite.DONE)
+        if (rc != Sqlite.DONE && rc != Sqlite.ROW)
         {
             string error_message = "Error in find_event_ids: %d, %s".printf (
                 rc, db.errmsg ());
