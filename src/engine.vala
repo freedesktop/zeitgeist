@@ -303,6 +303,9 @@ public class Engine : Object
                 throw new EngineError.INVALID_ARGUMENT (error_message);
         }
 
+        if (max_events > 0)
+            sql += " LIMIT %u".printf (max_events);
+
         int rc;
         Sqlite.Statement stmt;
 
