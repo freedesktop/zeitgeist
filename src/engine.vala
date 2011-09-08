@@ -147,8 +147,17 @@ public class Engine : Object
 
     public uint32[] find_event_ids (TimeRange time_range,
         GenericArray<Event> event_templates,
-        uint storage_state, uint max_events, uint result_type,
+        uint storage_state, uint max_events, uint result_type, 
         BusName? sender=null) throws EngineError
+    {
+        return find_event_ids_logic(time_range, event_templates, storage_state,
+            max_events, result_type);
+    }
+
+    private uint32[] find_event_ids_logic (TimeRange time_range,
+        GenericArray<Event> event_templates,
+        uint storage_state, uint max_events, uint result_type,
+        bool distinct = true, BusName? sender=null) throws EngineError
     {
 
         WhereClause where = new WhereClause (WhereClause.Type.AND);
@@ -188,8 +197,11 @@ public class Engine : Object
 
         // FIXME: IDs: SELECT DISTINCT / events: SELECT
         // Is the former faster or can we just do the unique'ing on our side?
-
-        string sql = "SELECT DISTINCT id FROM event_view ";
+        string sql;
+        if (distinct)
+            sql = "SELECT DISTINCT id FROM event_view ";
+        else
+            sql = "SELECT id FROM event_view ";
         string where_sql = "";
         if (!where.is_empty ())
         {
@@ -320,8 +332,10 @@ public class Engine : Object
 
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
-            event_ids += (uint32) uint64.parse(
+            var id = (uint32) uint64.parse(
                 stmt.column_text (EventViewRows.ID));
+            //if (!(id in event_ids))
+            event_ids += id;
         }
         if (rc != Sqlite.DONE)
         {
@@ -339,8 +353,8 @@ public class Engine : Object
         uint storage_state, uint max_events, uint result_type,
         BusName? sender=null) throws EngineError
     {
-        return get_events (find_event_ids (time_range, event_templates,
-            storage_state, max_events, result_type));
+        return get_events (find_event_ids_logic (time_range, event_templates,
+            storage_state, max_events, result_type, false));
     }
 
     private struct RelatedUri {
