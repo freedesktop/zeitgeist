@@ -252,6 +252,68 @@ namespace Zeitgeist
                              // must be immediately available to the user
         ANY             = 2  // The event subjects may or may not be available
     }
+    
+    // Used by get_where_clause_from_event_templates
+    /**
+     * Check if the value starts with the negation operator. If it does,
+     * remove the operator from the value and return true. Otherwise,
+     * return false.
+     */
+    public bool parse_negation (ref string val)
+    {
+        if (!val.has_prefix ("!"))
+            return false;
+        val = val.substring (1); // FIXME: fix for unicode
+        return true;
+    }
+    
+    // Used by get_where_clause_from_event_templates
+    /**
+     * Check if the value ends with the wildcard character. If it does,
+     * remove the wildcard character from the value and return true.
+     * Otherwise, return false.
+     */
+    public bool parse_wildcard (ref string val)
+    {
+        if (!val.has_suffix ("*"))
+            return false;
+        unowned uint8[] val_data = val.data;
+        val_data[val_data.length-1] = '\0';
+        return true;
+    }
+    
+    public bool check_field_match (string property,
+            string template_property, bool is_symbol = false,
+            bool can_wildcard = false)
+    {
+        var matches = false;
+        var temp_string = template_property;
+        var is_negated = parse_negation(ref temp_string);
+        var temp_property = template_property;
+        if (is_negated)
+            temp_property  = temp_property[1:template_property.length];
+
+        if (temp_property  == "") {
+            return true;
+        }
+        else if (temp_property  == property)
+        {
+            matches = true;
+        }
+        else if (is_symbol &&
+            Symbol.get_all_parents (property).index (temp_property ) > -1)
+        {
+            matches = true;
+        }
+        else if (can_wildcard && parse_wildcard(ref temp_string))
+        {
+            if (property.index_of (
+                    temp_property [0:temp_property.length-1]) > -1)
+                matches = true;
+        }
+        debug ("Checking matches for %s", temp_property);
+        return (is_negated) ? !matches : matches;
+    }
 
     public class Event : Object
     {
@@ -384,42 +446,14 @@ namespace Zeitgeist
             }
        }
 
-        private bool check_field_match (string event_property,
-            string event_template_property, bool is_symbol = false,
-            bool can_wildcard = false)
-        {
-            var matches = false;
-
-            // FIXME: use common code!
-            var is_negated = (event_template_property[0] == '!');
-            var template_property = event_template_property;
-            if (is_negated)
-                template_property = template_property[1:template_property.length];
-
-            if (template_property == "") {
-                return true;
-            }
-            else if (template_property == event_property)
-            {
-                matches = true;
-            }
-            else if (is_symbol &&
-                Symbol.get_all_parents (event_property).index (template_property) > -1)
-            {
-                matches = true;
-            }
-            else if (can_wildcard && template_property.has_suffix("*")) // FIXME: use common code?
-            {
-                if (event_property.index_of (
-                        template_property[0:template_property.length-1]) > -1)
-                    matches = true;
-            }
-            debug ("Checking matches for %s", event_template_property);
-            return (is_negated) ? !matches : matches;
-        }
+        
 
         public bool matches_event (Event event)
         {
+            /**
+            Interpret *this* as the template an match *event* against it.
+            This method is the dual method of :meth:`matches_template`
+            */
             return event.matches_template (this);
         }
 
@@ -451,7 +485,6 @@ namespace Zeitgeist
             if (!check_field_match (this.origin, template_event.origin, false, true))
                 return false;
 
-            //FIXME: Check for subject matching
             if (template_event.subjects.length == 0)
                 return true;
 
@@ -544,7 +577,7 @@ namespace Zeitgeist
             if (subject_props >= 8)
                 current_uri = iter.next_value().get_string ();
             else
-                current_uri = ""; // FIXME: uri?
+                current_uri = uri;
         }
 
         public Variant to_variant ()
@@ -562,37 +595,12 @@ namespace Zeitgeist
             return vb.end ();
         }
 
-        // FIXME: Why is this duplicated??? delete, delete, delete.
-        private bool check_field_match (string subj_property, string subj_template_property,
-             bool is_symbol = false, bool can_wildcard = false)
-        {
-            var matches = false;
-            var is_negated = (subj_template_property[0] == '!');
-
-            var template_property = subj_template_property;
-            if (is_negated)
-                template_property = template_property[1:template_property.length];
-
-            if (template_property == "")
-                return true;
-            else if (template_property == subj_property)
-                matches = true;
-            else if (is_symbol &&
-                Symbol.get_all_parents (subj_property).index (template_property) > -1)
-                matches = true;
-            else if (can_wildcard && template_property.has_suffix("*"))
-                if (subj_property.index_of(template_property[0:template_property.length-1]) > -1)
-                    matches = true;
-            if (is_negated){
-                matches = !matches;
-            }
-            debug("Checking matches for %s", subj_template_property);
-            return matches;
-        }
-
-        // FIXME: what's the point of this function?
         public bool matches_subject (Subject subject)
         {
+            /**
+            Interpret *this* as the template an match *subject* against it.
+            This method is the dual method of :meth:`matches_template`
+            */
             return subject.matches_template (this);
         }
 
