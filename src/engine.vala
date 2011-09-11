@@ -128,7 +128,7 @@ public class Engine : Object
         }
         if (rc != Sqlite.DONE)
         {
-            throw new EngineError.DATABASE_ERROR("Error: %d, %s\n", 
+            throw new EngineError.DATABASE_ERROR ("Error: %d, %s\n", 
                 rc, db.errmsg ());
         }
 
@@ -422,6 +422,7 @@ public class Engine : Object
 
             database.assert_query_success(rc, "SQL error");
 
+            // FIXME: fix this ugly code
             var temp_related_uris = new GenericArray<RelatedUri?>();
 
             while ((rc = stmt.step()) == Sqlite.ROW)
