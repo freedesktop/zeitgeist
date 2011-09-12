@@ -259,7 +259,7 @@ namespace Zeitgeist
      * remove the operator from the value and return true. Otherwise,
      * return false.
      */
-    public bool parse_negation (ref string val)
+    private bool parse_negation (ref string val)
     {
         if (!val.has_prefix ("!"))
             return false;
@@ -273,7 +273,7 @@ namespace Zeitgeist
      * remove the wildcard character from the value and return true.
      * Otherwise, return false.
      */
-    public bool parse_wildcard (ref string val)
+    private bool parse_wildcard (ref string val)
     {
         if (!val.has_suffix ("*"))
             return false;
@@ -282,7 +282,7 @@ namespace Zeitgeist
         return true;
     }
     
-    public bool check_field_match (string property,
+    private bool check_field_match (string property,
             string template_property, bool is_symbol = false,
             bool can_wildcard = false)
     {

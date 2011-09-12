@@ -750,7 +750,6 @@ public class Engine : Object
      */
     public void close ()
     {
-        // FIXME: unload extensions
         database.close();
     }
 
