@@ -387,7 +387,7 @@ public class Engine : Object
 
             if (event_templates.length > 0 && ids.length == 0)
             {
-                throw new EngineError.INVALID_ARGUMENT(
+                throw new EngineError.INVALID_ARGUMENT (
                     "No results found for the event_templates");
                 return new string[0];
             }
@@ -591,7 +591,7 @@ public class Engine : Object
                 if (event.interpretation == ZG.MOVE_EVENT
                     && subject.uri == subject.current_uri)
                 {
-                    throw new EngineError.INVALID_ARGUMENT("Illegal event: unless
+                    throw new EngineError.INVALID_ARGUMENT ("Illegal event: unless
                         event.interpretation is 'MOVE_EVENT' then subject.uri
                         and subject.current_uri have to be the same");
                     return 0;
@@ -599,7 +599,7 @@ public class Engine : Object
                 else if (event.interpretation != ZG.MOVE_EVENT
                     && subject.uri != subject.current_uri)
                 {
-                    throw new EngineError.INVALID_ARGUMENT("Redundant event: 
+                    throw new EngineError.INVALID_ARGUMENT ("Redundant event: 
                         event.interpretation indicates the uri has been moved 
                         yet the subject.uri and subject.current_uri are 
                         identical");
@@ -634,7 +634,7 @@ public class Engine : Object
 
         // FIXME: Should we add something just like TableLookup but with LRU
         //        for those? Or is embedding the query faster? Needs testing!
-
+        
         int rc;
         unowned Sqlite.Statement insert_stmt = database.event_insertion_stmt;
 
