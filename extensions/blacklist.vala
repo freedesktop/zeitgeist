@@ -98,10 +98,9 @@ namespace Zeitgeist
         public override void pre_insert_events (GenericArray<Event?> events,
             BusName? sender)
         {
-            // FIXME: do template matching...
-            // for event in events:
-            //     for tmpl in blacklist:
-            //         if event.matches_template(tmpl): event = null
+            for (int i=0; i < events.length; i++)
+                foreach (var tmpl in blacklist.get_values())
+                    if (events[i].matches_template(tmpl)) events[i] = null;
         }
 
         public void add_template (string template_id, Variant event_template)
