@@ -30,7 +30,6 @@ namespace Zeitgeist
         private static string DATABASE_FILE_PATH;
         private static string DATABASE_FILE_BACKUP_PATH;
         private static string LOCAL_EXTENSIONS_PATH;
-        //private static string DEFAULT_LOG_PATH; FIXME: remove?
 
         public const string ZEITGEIST_DATA_FOLDER = "bluebird";
         public const string USER_EXTENSION_PATH = "";
@@ -99,16 +98,8 @@ namespace Zeitgeist
             LOCAL_EXTENSIONS_PATH = Path.build_filename (get_data_path (),
                 "extensions");
 
-            /*
-            if (!FileUtils.test (LOCAL_EXTENSIONS_PATH, FileTest.IS_DIR))
-            {
-                // FIXME: Why? There's no need to create it. --RainCT
-                DirUtils.create (LOCAL_EXTENSIONS_PATH, 0755);
-            }
-            */
-
             debug ("LOCAL_EXTENSIONS_PATH = %s", LOCAL_EXTENSIONS_PATH);
-            
+
             return LOCAL_EXTENSIONS_PATH;
         }
     }

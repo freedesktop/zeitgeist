@@ -84,9 +84,9 @@ namespace Zeitgeist
 
             if (iter.n_children () > 4)
             {
-                enabled = iter.next_value ().get_boolean ();
-                timestamp = iter.next_value ().get_int64 ();
                 running = iter.next_value ().get_boolean ();
+                timestamp = iter.next_value ().get_int64 ();
+                enabled = iter.next_value ().get_boolean ();
             }
         }
 
@@ -150,38 +150,43 @@ namespace Zeitgeist
                         var name = parameters.get_child_value (0).dup_string ();
                         var old_owner = parameters.get_child_value (1).dup_string ();
                         var new_owner = parameters.get_child_value (2).dup_string ();
+                        if (new_owner != "") return;
 
-                        var uids = new GenericArray<string>();
-                        foreach (var uid in running.get_keys())
+                        // are there DataSources with this BusName?
+                        var disconnected_ds = new GenericArray<DataSource> ();
+                        var iter = HashTableIter<string, GenericArray<BusName?>> (running);
+                        unowned string uid;
+                        unowned GenericArray<BusName> name_arr;
+                        while (iter.next (out uid, out name_arr))
                         {
-                            var temp_uids = running.lookup(uid);
-                            for (int i = 0; i < temp_uids.length; i++)
+                            for (int i = 0; i < name_arr.length; i++)
                             {
-                                var temp_name = temp_uids[i];
-                                if (temp_name == name)
+                                if (name_arr[i] == name)
                                 {
-                                    uids.add(uid);
+                                    disconnected_ds.add (sources.lookup (uid));
+                                    name_arr.remove_index_fast (i--);
                                 }
                             }
                         }
-                        if (uids.length == 0)
-                            return;
-                        var uid = uids[0];
-                        var data_source = sources.lookup(uid);
-                        data_source.timestamp = Timestamp.now();
-                        var strid = uid +"("+ data_source.name +")";
-                        debug("Client disconnected: %s", strid);
-                        
-                        if (running.lookup(uid).length == 1)
+
+                        if (disconnected_ds.length == 0) return;
+
+                        for (int i = 0; i < disconnected_ds.length; i++)
                         {
-                            debug("No remaining client running: %s", strid);
-                            running.remove(uid);
-                            data_source.running = false;
-                            data_source_disconnected (data_source.to_variant());
-                        }
-                        else
-                        {
-                            running.lookup(uid).remove((BusName)name);
+                            var ds = disconnected_ds[i];
+                            uid = ds.unique_id;
+                            ds.timestamp = Timestamp.now ();
+                            var strid = "%s [%s]".printf (ds.name, uid);
+                            debug ("Client disconnected: %s", strid);
+
+                            if (running.lookup (uid).length == 0)
+                            {
+                                debug ("No remaining client running: %s", strid);
+                                running.remove (uid);
+                                ds.running = false;
+
+                                data_source_disconnected (ds.to_variant ());
+                            }
                         }
                     });
             }
@@ -249,15 +254,15 @@ namespace Zeitgeist
         {
             debug ("%s: %s, %s, %s", Log.METHOD, unique_id, name, description);
 
-            var sender_array = running.lookup(unique_id);
+            var sender_array = running.lookup (unique_id);
             if (sender_array == null)
             {
-                running.insert(unique_id, new GenericArray<BusName?>());
-                running.lookup(unique_id).add(sender);
+                running.insert (unique_id, new GenericArray<BusName?>());
+                running.lookup (unique_id).add (sender);
             }
-            else if (is_sender_known(sender, sender_array))
+            else if (is_sender_known (sender, sender_array))
             {
-                running.lookup(unique_id).add(sender);
+                running.lookup (unique_id).add (sender);
             }
 
             unowned DataSource? ds = sources.lookup (unique_id);
@@ -269,8 +274,10 @@ namespace Zeitgeist
                 ds.event_templates = templates;
                 ds.timestamp = Timestamp.now ();
                 ds.running = true;
-                // FIXME: Wrtie to disk here
+                // FIXME: Write to disk here
+                
                 data_source_registered (ds.to_variant ());
+
                 return ds.enabled;
             }
             else
@@ -282,8 +289,10 @@ namespace Zeitgeist
                 new_ds.running = true;
                 new_ds.timestamp = Timestamp.now ();
                 sources.insert (unique_id, new_ds);
-                // FIXME: Wrtie to disk here
+                // FIXME: Write to disk here
+                
                 data_source_registered (new_ds.to_variant ());
+                
                 return new_ds.enabled;
             }
 
@@ -318,7 +327,7 @@ namespace Zeitgeist
                 "Datasource with unique ID: %s not found".printf (unique_id));
         }
 
-        public override void pre_insert_events(GenericArray<Event?> events,
+        public override void pre_insert_events (GenericArray<Event?> events,
             BusName? sender)
         {
             foreach (string unique_id in running.get_keys())
@@ -340,7 +349,7 @@ namespace Zeitgeist
             }
         }
 
-        private bool write_to_disk()
+        private bool write_to_disk ()
         {
             //FIXME: Write to disk needs to be implemented
             return true;
