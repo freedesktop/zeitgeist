@@ -252,6 +252,37 @@ namespace Zeitgeist
                              // must be immediately available to the user
         ANY             = 2  // The event subjects may or may not be available
     }
+    
+    private bool check_field_match (string property,
+            string template_property, bool is_symbol = false,
+            bool can_wildcard = false)
+    {
+        var matches = false;
+        var parsed = template_property;
+        var is_negated = Engine.parse_negation (ref parsed);
+
+        if (parsed == "")
+        {
+            return true;
+        }
+        else if (parsed == property)
+        {
+            matches = true;
+        }
+        // FIXME: this won't work!
+        else if (is_symbol &&
+            Symbol.get_all_parents (property).index (parsed) > -1)
+        {
+            matches = true;
+        }
+        else if (can_wildcard && Engine.parse_wildcard (ref parsed))
+        {
+            if (property.has_prefix (parsed)) matches = true;
+        }
+
+        debug ("Checking matches for %s", parsed);
+        return (is_negated) ? !matches : matches;
+    }
 
     public class Event : Object
     {
@@ -384,44 +415,7 @@ namespace Zeitgeist
             }
        }
 
-        private bool check_field_match (string event_property,
-            string event_template_property, bool is_symbol = false,
-            bool can_wildcard = false)
-        {
-            var matches = false;
-
-            // FIXME: use common code!
-            var is_negated = (event_template_property[0] == '!');
-            var template_property = event_template_property;
-            if (is_negated)
-                template_property = template_property[1:template_property.length];
-
-            if (template_property == "") {
-                return true;
-            }
-            else if (template_property == event_property)
-            {
-                matches = true;
-            }
-            else if (is_symbol &&
-                Symbol.get_all_parents (event_property).index (template_property) > -1)
-            {
-                matches = true;
-            }
-            else if (can_wildcard && template_property.has_suffix("*")) // FIXME: use common code?
-            {
-                if (event_property.index_of (
-                        template_property[0:template_property.length-1]) > -1)
-                    matches = true;
-            }
-            debug ("Checking matches for %s", event_template_property);
-            return (is_negated) ? !matches : matches;
-        }
-
-        public bool matches_event (Event event)
-        {
-            return event.matches_template (this);
-        }
+        
 
         public bool matches_template (Event template_event)
         {
@@ -451,7 +445,6 @@ namespace Zeitgeist
             if (!check_field_match (this.origin, template_event.origin, false, true))
                 return false;
 
-            //FIXME: Check for subject matching
             if (template_event.subjects.length == 0)
                 return true;
 
@@ -544,7 +537,7 @@ namespace Zeitgeist
             if (subject_props >= 8)
                 current_uri = iter.next_value().get_string ();
             else
-                current_uri = ""; // FIXME: uri?
+                current_uri = uri;
         }
 
         public Variant to_variant ()
@@ -560,40 +553,6 @@ namespace Zeitgeist
             vb.add ("s", current_uri ?? "");
 
             return vb.end ();
-        }
-
-        // FIXME: Why is this duplicated??? delete, delete, delete.
-        private bool check_field_match (string subj_property, string subj_template_property,
-             bool is_symbol = false, bool can_wildcard = false)
-        {
-            var matches = false;
-            var is_negated = (subj_template_property[0] == '!');
-
-            var template_property = subj_template_property;
-            if (is_negated)
-                template_property = template_property[1:template_property.length];
-
-            if (template_property == "")
-                return true;
-            else if (template_property == subj_property)
-                matches = true;
-            else if (is_symbol &&
-                Symbol.get_all_parents (subj_property).index (template_property) > -1)
-                matches = true;
-            else if (can_wildcard && template_property.has_suffix("*"))
-                if (subj_property.index_of(template_property[0:template_property.length-1]) > -1)
-                    matches = true;
-            if (is_negated){
-                matches = !matches;
-            }
-            debug("Checking matches for %s", subj_template_property);
-            return matches;
-        }
-
-        // FIXME: what's the point of this function?
-        public bool matches_subject (Subject subject)
-        {
-            return subject.matches_template (this);
         }
 
         public bool matches_template (Subject template_subject)

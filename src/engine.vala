@@ -128,8 +128,8 @@ public class Engine : Object
         }
         if (rc != Sqlite.DONE)
         {
-            warning ("Error: %d, %s\n", rc, db.errmsg ());
-            // FIXME: throw some error??
+            throw new EngineError.DATABASE_ERROR ("Error: %d, %s\n", 
+                rc, db.errmsg ());
         }
 
         var results = new GenericArray<Event?> ();
@@ -195,8 +195,6 @@ public class Engine : Object
         //if (!where.may_have_results ())
         //    return new uint32[0];
 
-        // FIXME: IDs: SELECT DISTINCT / events: SELECT
-        // Is the former faster or can we just do the unique'ing on our side?
         string sql;
         if (distinct)
             sql = "SELECT DISTINCT id FROM event_view ";
@@ -377,7 +375,6 @@ public class Engine : Object
         * Only URIs for subjects matching the indicated `result_event_templates`
         * and `result_storage_state` are returned.
         */
-        //FIXME: implement calculation
         if (result_type == ResultType.MOST_RECENT_EVENTS ||
             result_type == ResultType.LEAST_RECENT_EVENTS)
         {
@@ -388,12 +385,10 @@ public class Engine : Object
             uint32[] ids = find_event_ids (time_range, event_templates,
                 storage_state, 0, ResultType.LEAST_RECENT_EVENTS);
 
-            // FIXME: If no results for the event_templates is found raise error
             if (event_templates.length > 0 && ids.length == 0)
             {
-                //throw new EngineError.INVALID_ARGUMENT(
-                //    "No results found for the event_templates");
-                return new string[0];
+                throw new EngineError.INVALID_ARGUMENT (
+                    "No results found for the event_templates");
             }
 
             // Pick out the result_ids for the filtered results we would like to
@@ -406,7 +401,6 @@ public class Engine : Object
 
             // From here we create several graphs with the maximum depth of 2
             // and push all the nodes and vertices (events) in one pot together
-            // FIXME: the depth should be adaptable
 
             uint32[] pot = new uint32[ids.length + result_ids.length];
 
@@ -545,7 +539,9 @@ public class Engine : Object
             return results;
         }
         else
+        {
             throw new EngineError.DATABASE_ERROR ("Unsupported ResultType.");
+        }
     }
 
     public uint32[] insert_events (GenericArray<Event> events,
@@ -565,7 +561,7 @@ public class Engine : Object
     }
 
     public uint32 insert_event (Event event,
-        BusName? sender=null)
+        BusName? sender=null) throws EngineError
         requires (event.id == 0)
         requires (event.num_subjects () > 0)
     {
@@ -596,14 +592,18 @@ public class Engine : Object
                 if (event.interpretation == ZG.MOVE_EVENT
                     && subject.uri == subject.current_uri)
                 {
-                    //FIXME: throw Error here
-                    return 0;
+                    throw new EngineError.INVALID_ARGUMENT (
+                        "Illegal event: unless event.interpretation is " +
+                        "'MOVE_EVENT' then subject.uri and " +
+                        "subject.current_uri have to be the same");
                 }
                 else if (event.interpretation != ZG.MOVE_EVENT
                     && subject.uri != subject.current_uri)
                 {
-                    //FIXME: throw Error here
-                    return 0;
+                    throw new EngineError.INVALID_ARGUMENT (
+                        "Redundant event: event.interpretation indicates " +
+                        "the uri has been moved yet the subject.uri and " +
+                        "subject.current_uri are identical");
                 }
 
                 uris.add (subject.current_uri);
@@ -970,18 +970,13 @@ public class Engine : Object
             return where;
     }
 
-    // FIXME: remove this
-    private static string[] NEGATION_SUPPORTED = {
-        "actor", "current_uri", "interpretation", "manifestation",
-        "mimetype", "origin", "uri" };
-
     // Used by get_where_clause_from_event_templates
     /**
      * Check if the value starts with the negation operator. If it does,
      * remove the operator from the value and return true. Otherwise,
      * return false.
      */
-    protected bool parse_negation (ref string val)
+    public static bool parse_negation (ref string val)
     {
         if (!val.has_prefix ("!"))
             return false;
@@ -1005,17 +1000,13 @@ public class Engine : Object
         throw new EngineError.INVALID_ARGUMENT (error_message);
     }
 
-    // FIXME: remove this
-    private static string[] WILDCARDS_SUPPORTED = {
-        "actor", "current_uri", "mimetype", "origin", "uri" };
-
     // Used by get_where_clause_from_event_templates
     /**
      * Check if the value ends with the wildcard character. If it does,
      * remove the wildcard character from the value and return true.
      * Otherwise, return false.
      */
-    protected bool parse_wildcard (ref string val)
+    public static bool parse_wildcard (ref string val)
     {
         if (!val.has_suffix ("*"))
             return false;
@@ -1044,16 +1035,38 @@ public class Engine : Object
     {
         string _symbol = symbol;
         bool negated = parse_negation (ref _symbol);
-        List<string> symbols = Symbol.get_all_children (symbol);
-        symbols.append (_symbol);
+        List<unowned string> symbols = Symbol.get_all_children (symbol);
+        symbols.prepend (_symbol);
 
         WhereClause subwhere = new WhereClause(
             WhereClause.Type.OR, negated);
-        foreach (string uri in symbols)
+
+        /*
+        foreach (unowned string uri in symbols)
         {
             subwhere.add_match_condition (table_name,
                 lookup_table.get_id (uri));
         }
+        */
+        if (symbols.length () == 1)
+        {
+            subwhere.add_match_condition (table_name,
+                lookup_table.get_id (_symbol));
+        }
+        else
+        {
+            var sb = new StringBuilder ();
+            foreach (string uri in symbols)
+            {
+                sb.append_printf ("%d,", lookup_table.get_id (uri));
+            }
+            sb.truncate (sb.len - 1);
+
+            string sql = "%s %s IN (%s)".printf(table_name,
+                (negated) ? "NOT": "", sb.str);
+            subwhere.add(sql);
+        }
+
         return subwhere;
     }
 
