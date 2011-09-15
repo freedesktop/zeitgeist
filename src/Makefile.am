@@ -15,6 +15,7 @@ VALAFLAGS = \
 	--pkg sqlite3 \
 	--pkg posix \
 	--pkg gmodule-2.0 \
+	$(top_srcdir)/config.vapi \
 	$(NULL)
 
 # Make sure every extension has only one vala file!

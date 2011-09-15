@@ -1,4 +1,4 @@
-AC_INIT([bluebird], [0.1.0], [dev@lists.zeitgeist-project.com], [bluebird])
+AC_INIT([bluebird], [0.8.99], [dev@lists.zeitgeist-project.com], [bluebird])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])

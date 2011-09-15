@@ -93,9 +93,20 @@ namespace Zeitgeist
             owned get
             {
                 var vb = new VariantBuilder (new VariantType ("(iii)"));
-                vb.add ("i", 0);
-                vb.add ("i", 8);
-                vb.add ("i", 99);
+                string[] ver = Config.VERSION.split (".");
+                if (ver.length >= 3)
+                {
+                    vb.add ("i", int.parse (ver[0]));
+                    vb.add ("i", int.parse (ver[1]));
+                    vb.add ("i", int.parse (ver[2]));
+                }
+                else
+                {
+                    warning ("Unable to parse version info!");
+                    vb.add ("i", 0);
+                    vb.add ("i", 8);
+                    vb.add ("i", 99);
+                }
                 return vb.end ();
             }
         }
@@ -295,7 +306,7 @@ namespace Zeitgeist
 
                 if (show_version_info)
                 {
-                    stdout.printf ("0.8.99\n"); // FIXME!
+                    stdout.printf (Config.VERSION + "\n");
                     return 0;
                 }
                 if (show_options)
