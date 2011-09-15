@@ -121,7 +121,6 @@ namespace Zeitgeist
             }
             catch (EngineError e)
             {
-                // FIXME
                 safe_exit ();
             }
 
@@ -197,11 +196,9 @@ namespace Zeitgeist
             return event_ids;
         }
 
-        // FIXME
         public Variant delete_events (uint32[] event_ids, BusName sender)
             throws Error
         {
-            //FIXME: Why is this not called?
             TimeRange? time_range = engine.delete_events (event_ids, sender);
             if (time_range != null)
             {

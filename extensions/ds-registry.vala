@@ -195,8 +195,6 @@ namespace Zeitgeist
                 warning ("%s", err.message);
             }
 
-            // FIXME: nothing changed, why is this here?
-            dirty = true;
             // FIXME: set up gobject timer like ->
             // gobject.timeout_add(DISK_WRITE_TIMEOUT, self._write_to_disk)
         }
@@ -217,6 +215,7 @@ namespace Zeitgeist
                 warning ("%s", err.message);
             }
 
+            write_to_disk();
             debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
         }
 
@@ -274,7 +273,7 @@ namespace Zeitgeist
                 ds.event_templates = templates;
                 ds.timestamp = Timestamp.now ();
                 ds.running = true;
-                // FIXME: Write to disk here
+                write_to_disk();
                 
                 data_source_registered (ds.to_variant ());
 
@@ -289,7 +288,7 @@ namespace Zeitgeist
                 new_ds.running = true;
                 new_ds.timestamp = Timestamp.now ();
                 sources.insert (unique_id, new_ds);
-                // FIXME: Write to disk here
+                write_to_disk();
                 
                 data_source_registered (new_ds.to_variant ());
                 
@@ -349,10 +348,12 @@ namespace Zeitgeist
             }
         }
 
-        private bool write_to_disk ()
+        private void write_to_disk ()
         {
-            //FIXME: Write to disk needs to be implemented
-            return true;
+            if (dirty)
+            {
+                //FIXME: Write to disk needs to be implemented
+            }
         }
     }
 

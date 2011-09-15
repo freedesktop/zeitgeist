@@ -106,7 +106,7 @@ public class Engine : Object
                     stmt.column_int (EventViewRows.ACTOR));
                 event.origin = stmt.column_text (
                     EventViewRows.EVENT_ORIGIN_URI);
-                // FIXME: payload
+                // FIXME: load payload
                 events.insert (event_id, event);
             }
 
@@ -750,7 +750,6 @@ public class Engine : Object
      */
     public void close ()
     {
-        // FIXME: unload extensions
         database.close();
     }
 

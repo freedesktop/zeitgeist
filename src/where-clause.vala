@@ -174,7 +174,7 @@ namespace Zeitgeist
             string conditions_string = string.joinv (relation_sign,
                 generic_array_to_unowned_array<string> (conditions));
             return "%s(%s)".printf (negation_sign, conditions_string);
-		}
+        }
 
         public unowned GenericArray<string> get_bind_arguments ()
         {

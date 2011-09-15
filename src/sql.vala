@@ -56,9 +56,8 @@ namespace Zeitgeist.SQLite
         public Sqlite.Statement id_retrieval_stmt;
         public Sqlite.Statement move_handling_stmt;
 
-        // FIXME: Should this be accessible from engine.vala or not?
-        //  Probably it should, since otherwise there won't be much
-        //  functionallity left for engine.vala.
+        // The DB should be accessible from engine for statement preperations
+        //  as well as allowing extensions to add tables to it.
         public Sqlite.Database database;
 
         public ZeitgeistDatabase () throws EngineError
