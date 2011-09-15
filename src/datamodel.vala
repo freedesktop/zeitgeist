@@ -269,9 +269,8 @@ namespace Zeitgeist
         {
             matches = true;
         }
-        // FIXME: this won't work!
         else if (is_symbol &&
-            Symbol.get_all_parents (property).index (parsed) > -1)
+            Symbol.get_all_parents (property).find_custom (parsed, strcmp) != null)
         {
             matches = true;
         }
