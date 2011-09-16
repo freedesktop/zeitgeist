@@ -380,6 +380,11 @@ namespace Zeitgeist
                     new VariantType ("ay"), payload.data, false, payload);
                 vb.add_value (payload_variant);
             }
+            else
+            {
+                vb.open (new VariantType ("ay"));
+                vb.close ();
+            }
 
             return vb.end ();
         }
