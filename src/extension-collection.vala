@@ -80,7 +80,6 @@ namespace Zeitgeist
                         string path = Path.build_filename (ext_dir1, file_name);
                         debug ("Loading extension: \"%s\"", path);
                         var loader = new ModuleLoader (path);
-                        // FIXME: check if enabled
                         extension = loader.create_instance (engine);
                         if (extension != null) extensions.add (extension);
                     }
