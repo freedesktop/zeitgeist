@@ -565,8 +565,6 @@ public class Engine : Object
         requires (event.id == 0)
         requires (event.num_subjects () > 0)
     {
-        // FIXME: make sure event timestamp is sane
-
         event.id = ++last_id;
 
         // FIXME: store the payload
