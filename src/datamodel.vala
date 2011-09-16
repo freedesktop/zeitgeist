@@ -310,8 +310,9 @@ namespace Zeitgeist
             subjects.add (subject);
         }
 
-        public Event.from_variant (Variant event_variant) { // (asaasay)
-            assert (event_variant.get_type_string () == "(asaasay)");
+        public Event.from_variant (Variant event_variant) {
+            assert (event_variant.get_type_string () == "(" + 
+                Utils.SIG_EVENT + ")");
 
             VariantIter iter = event_variant.iterator();
 
@@ -356,7 +357,7 @@ namespace Zeitgeist
 
         public Variant to_variant ()
         {
-            var vb = new VariantBuilder (new VariantType ("(asaasay)"));
+            var vb = new VariantBuilder (new VariantType ("("+Utils.SIG_EVENT+")"));
 
             vb.open (new VariantType ("as"));
             vb.add ("s", id.to_string ());
@@ -464,7 +465,7 @@ namespace Zeitgeist
         {
             GenericArray<Event> events = new GenericArray<Event> ();
 
-            assert (vevents.get_type_string () == "a(asaasay)");
+            assert (vevents.get_type_string () == "a("+Utils.SIG_EVENT+")");
 
             foreach (Variant event in vevents)
             {
@@ -476,7 +477,7 @@ namespace Zeitgeist
 
         public static Variant to_variant (GenericArray<Event?> events)
         {
-            var vb = new VariantBuilder(new VariantType("a(asaasay)"));
+            var vb = new VariantBuilder(new VariantType("a("+Utils.SIG_EVENT+")"));
 
             for (int i = 0; i < events.length; ++i)
             {
@@ -495,7 +496,7 @@ namespace Zeitgeist
 
         private static Variant get_null_event_variant ()
         {
-            var vb = new VariantBuilder (new VariantType ("(asaasay)"));
+            var vb = new VariantBuilder (new VariantType ("("+Utils.SIG_EVENT+")"));
             vb.open (new VariantType ("as"));
             vb.close ();
             vb.open (new VariantType ("aas"));

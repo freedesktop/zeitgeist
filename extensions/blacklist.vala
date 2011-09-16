@@ -126,14 +126,14 @@ namespace Zeitgeist
 
         public Variant get_templates ()
         {
-            var vb = new VariantBuilder (new VariantType ("a{s(asaasay)}"));
+            var vb = new VariantBuilder (new VariantType ("a{s("+Utils.SIG_EVENT+")}"));
             {
                 var iter = HashTableIter<string, Event> (blacklist);
                 string template_id;
                 Event event_template;
                 while (iter.next (out template_id, out event_template))
                 {
-                    vb.open (new VariantType ("{s(asaasay)}"));
+                    vb.open (new VariantType ("{s("+Utils.SIG_EVENT+")}"));
                     vb.add ("s", template_id);
                     vb.add_value (event_template.to_variant ());
                     vb.close ();

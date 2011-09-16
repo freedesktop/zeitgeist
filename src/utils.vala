@@ -36,6 +36,7 @@ namespace Zeitgeist
 
         // D-Bus
         public const string DBUS_INTERFACE = "";
+        public const string SIG_EVENT = "asaasay";
 
         // Required version of DB schema
         public const string CORE_SCHEMA = "core";

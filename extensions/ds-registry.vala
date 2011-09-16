@@ -71,8 +71,8 @@ namespace Zeitgeist
         public DataSource.from_variant (Variant variant)
         {
             // we expect (sssa(asaasay)bxb)
-            warn_if_fail (variant.get_type_string () == "(sssa(asaasay)bxb)"
-                || variant.get_type_string () == "sssa(asaasay)");
+            warn_if_fail (variant.get_type_string () == "(sssa("+Utils.SIG_EVENT+")bxb)"
+                || variant.get_type_string () == "sssa("+Utils.SIG_EVENT+")");
             var iter = variant.iterator ();
 
             assert (iter.n_children () >= 4);
@@ -93,7 +93,7 @@ namespace Zeitgeist
         public Variant to_variant ()
         {
             var vb = new VariantBuilder (new VariantType (
-                "(sssa(asaasay)bxb)"));
+                "(sssa("+Utils.SIG_EVENT+")bxb)"));
 
             vb.add ("s", unique_id);
             vb.add ("s", name);
@@ -104,7 +104,7 @@ namespace Zeitgeist
             }
             else
             {
-                vb.open (new VariantType ("a(asaasay)"));
+                vb.open (new VariantType ("a("+Utils.SIG_EVENT+")"));
                 vb.close ();
             }
 
@@ -222,7 +222,7 @@ namespace Zeitgeist
         public Variant get_data_sources ()
         {
             var array = new VariantBuilder (new VariantType (
-                "a(sssa(asaasay)bxb)"));
+                "a(sssa("+Utils.SIG_EVENT+")bxb)"));
             List<unowned DataSource> data_sources = sources.get_values ();
             data_sources.sort ((a, b) =>
             {
