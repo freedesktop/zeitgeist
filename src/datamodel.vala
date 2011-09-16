@@ -374,14 +374,12 @@ namespace Zeitgeist
             }
             vb.close ();
 
-            vb.open (new VariantType ("ay"));
             if (payload != null)
             {
                 Variant payload_variant = Variant.new_from_data<ByteArray> (
                     new VariantType ("ay"), payload.data, false, payload);
                 vb.add_value (payload_variant);
             }
-            vb.close ();
 
             return vb.end ();
         }
