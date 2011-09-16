@@ -1109,12 +1109,10 @@ public class Engine : Object
         if (event.payload != null)
         {
             int rc;
-            //unowned string foo = (string) event.payload.data;
-            //stdout.printf("%s\n", foo);
             unowned Sqlite.Statement payload_insertion_stmt =
                 database.payload_insertion_stmt;
             payload_insertion_stmt.reset();
-            payload_insertion_stmt.bind_blob(1, event.payload, 
+            payload_insertion_stmt.bind_blob(1, event.payload.data, 
                 event.payload.data.length);
             if ((rc = payload_insertion_stmt.step()) != Sqlite.DONE)
                 if (rc != Sqlite.CONSTRAINT)

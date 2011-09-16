@@ -486,9 +486,11 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		ev.payload = sampleString.encode("UTF-8")
 		ids = self.insertEventsAndWait([ev])
 		_ev = self.getEventsAndWait(ids)[0]
-		self.assertEquals(ev.payload, _ev.payload) #FIXME: Are we missing payloads?
+		_ev.payload = "".join(map(str, _ev.payload)).decode('utf-8')
+		self.assertEquals(ev.payload, _ev.payload)
 		
 		# Note: engine.insert_events() sets the id of the Event objects
+		ev[0][0] = _ev.id
 		self.assertEquals(ev, _ev)
 		
 	def testQueryByParent (self):
