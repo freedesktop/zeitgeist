@@ -381,6 +381,11 @@ namespace Zeitgeist
                 // FIXME: somehow adding the payload_variant is not working
                 vb.add_value (payload_variant);
             }
+            else
+            {
+                vb.open (new VariantType ("ay"));
+                vb.close ();
+            }
 
             return vb.end ();
         }
