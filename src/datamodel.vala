@@ -378,6 +378,7 @@ namespace Zeitgeist
             {
                 Variant payload_variant = Variant.new_from_data<ByteArray> (
                     new VariantType ("ay"), payload.data, false, payload);
+                // FIXME: somehow adding the payload_variant is not working
                 vb.add_value (payload_variant);
             }
 

@@ -55,6 +55,7 @@ namespace Zeitgeist.SQLite
         public Sqlite.Statement event_insertion_stmt;
         public Sqlite.Statement id_retrieval_stmt;
         public Sqlite.Statement move_handling_stmt;
+        public Sqlite.Statement payload_insertion_stmt;
 
         // The DB should be accessible from engine for statement preperations
         //  as well as allowing extensions to add tables to it.
@@ -249,6 +250,13 @@ namespace Zeitgeist.SQLite
             """;
             rc = database.prepare_v2 (sql, -1, out move_handling_stmt);
             assert_query_success (rc, "Move handling error");
+            
+            // Payload insertion statment
+            sql = """
+                INSERT INTO payload (value) VALUES (?)
+            """;
+            rc = database.prepare_v2 (sql, -1, out payload_insertion_stmt);
+            assert_query_success (rc, "Payload insertion query error");
         }
 
         protected static void update_callback (Sqlite.Action action,
