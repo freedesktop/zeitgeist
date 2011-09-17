@@ -187,7 +187,16 @@ namespace Zeitgeist
                 warning ("There's no monitor installed for %s", hash);
             
             if (connections.lookup (peer) != null)
-                connections.lookup (peer).remove (object_path);
+            {
+                for (int i = 0; i < connections.lookup (peer).length; i++)
+                {
+                    if (connections.lookup (peer)[i] == object_path)
+                    {
+                        connections.lookup (peer).remove_index (i);
+                        break;
+                    }
+                }
+            }
             
         }
 
