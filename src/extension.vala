@@ -23,17 +23,14 @@ namespace Zeitgeist
     /**
      * Base class for all extensions
      *
-     * FIXME: figure out what to do with this. I don't really see
-     *        what the point for it is, since D-Bus accessible stuff is
-     *        usually exported on a new interface. --RainCT
-     * Every extension has to define a list of accessible methods as
-     * 'PUBLIC_METHODS'. The constructor of an Extension object takes the
-     * engine object it extends as the only argument.
-     * ---
+     * The constructor of an Extension object takes the Engine object
+     * it extends as the only argument.
      *
-     * In addition each extension has a set of hooks to control how events are
-     * inserted and retrieved from the log. These hooks can either block the
-     * event completely, modify it, or add additional metadata to it.
+     * Extensions have a set of hooks with which they can control how
+     * events are inserted and retrieved from the log.
+     *
+     * Additionally, extensions may create their own D-Bus interface
+     * over which they can expose their own methods.
      */
     public abstract class Extension : Object
     {
