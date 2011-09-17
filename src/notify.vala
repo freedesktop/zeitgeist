@@ -187,7 +187,7 @@ namespace Zeitgeist
             
             if (connections.lookup (peer) != null)
             {
-                var paths = connections.lookup (peer)
+                var paths = connections.lookup (peer);
                 for (int i = 0; i < paths.length; i++)
                 {
                     if (paths[i] == object_path)
