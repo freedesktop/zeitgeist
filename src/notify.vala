@@ -117,7 +117,7 @@ namespace Zeitgeist
                 requires (proxy_object != null)
             {
                 var intersection_timerange = time_range.intersect(this.time_range);
-                if (intersection_timerange.start <= intersection_timerange.end)
+                if (intersection_timerange != null)
                 {
                     var matching_events = new GenericArray<Event>();
                     for (int i=0; i<events.length; i++)
