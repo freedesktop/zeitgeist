@@ -27,11 +27,14 @@ namespace Zeitgeist
     {
 
         private HashTable<string, Monitor> monitors;
-        private string[] peers;
+        private HashTable<string, GenericArray<string>> connections;
+        string[] peers;
 
         construct
         {
             monitors = new HashTable<string, Monitor> (str_hash, str_equal);
+            connections = new HashTable<string, GenericArray<string>> 
+                (str_hash, str_equal);
 
             // FIXME: it'd be nice if this supported arg2
             try
@@ -49,17 +52,16 @@ namespace Zeitgeist
 
                         if (arg2 != "") return;
 
-                        if (arg1 in peers)
+                        foreach (var owner in connections.get_keys())
                         {
-                            string[] hashes;
-                            string prefix = "%s#".printf (arg1);
-                            foreach (unowned string mon_hash in monitors.get_keys ())
-                                if (mon_hash.has_prefix (prefix))
-                                    hashes += mon_hash;
-
-                            foreach (unowned string hash in hashes)
-                                do_remove_monitor (hash);
-                            // FIXME: remove from peers
+                            if (arg0 == owner)
+                            {
+                                var paths = connections.lookup (arg0);
+                                debug("Client disconnected %s", owner);
+                                for (int i = 0; i < paths.length; i++)
+                                    remove_monitor ((BusName)arg0, paths[i]);
+                                connections.remove(arg0);
+                            }
                         }
                     });
             }
@@ -162,7 +164,9 @@ namespace Zeitgeist
                 var monitor = new Monitor (peer, object_path, time_range,
                     templates);
                 monitors.insert (hash, monitor);
-                if (!(peer in peers)) peers += peer;
+                if (connections.lookup (peer) == null)
+                    connections.insert (peer, new GenericArray<string> ());
+                connections.lookup (peer).add (object_path);
 
                 debug ("Installed new monitor for %s", peer);
             }
@@ -174,22 +178,17 @@ namespace Zeitgeist
 
         public void remove_monitor (BusName peer, string object_path)
         {
+            debug("Removing monitor %s%s", peer, object_path);
             var hash = "%s#%s".printf (peer, object_path);
-            do_remove_monitor (hash);
-        }
-
-        private void do_remove_monitor (string hash)
-        {
+            
             if (monitors.lookup (hash) != null)
-            {
                 monitors.remove (hash);
-                // FIXME: remove from peers (needs check to be sure though)
-                debug ("Removed monitor for %s", hash);
-            }
             else
-            {
                 warning ("There's no monitor installed for %s", hash);
-            }
+            
+            if (connections.lookup (peer) != null)
+                connections.lookup (peer).remove (object_path);
+            
         }
 
         public void notify_insert (TimeRange time_range,
