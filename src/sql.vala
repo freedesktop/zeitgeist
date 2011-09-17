@@ -176,10 +176,7 @@ namespace Zeitgeist.SQLite
         }
 
         public void close ()
-            {
-            // FIXME: make sure symbol tables are consistent (ie.
-            //        _fix_cache is empty)
-            
+        {
             // SQLite connection is implicitly closed upon destruction
             database = null;
         }
