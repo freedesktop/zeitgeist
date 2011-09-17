@@ -187,12 +187,12 @@ namespace Zeitgeist
             
             if (connections.lookup (peer) != null)
             {
-                var peers = connections.lookup (peer)
-                for (int i = 0; i < peers.length; i++)
+                var paths = connections.lookup (peer)
+                for (int i = 0; i < paths.length; i++)
                 {
-                    if (peers[i] == object_path)
+                    if (paths[i] == object_path)
                     {
-                        peers.remove_index (i);
+                        paths.remove_index_fast (i);
                         break;
                     }
                 }
