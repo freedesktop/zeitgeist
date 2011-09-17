@@ -656,9 +656,7 @@ public class Engine : Object
             manifestations_table.get_id (event.manifestation));
         insert_stmt.bind_int64 (5, actors_table.get_id (event.actor));
         insert_stmt.bind_text (6, event.origin);
-        if (payload_id == null)
-            payload_id = 0;
-        insert_stmt.bind_int64 (7, payload_id);
+        insert_stmt.bind_int64 (7, payload_id ?? 0);
 
         for (int i = 0; i < event.num_subjects(); ++i)
         {
