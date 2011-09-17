@@ -38,16 +38,17 @@ public class Engine : Object
     private ExtensionCollection extension_collection;
     private unowned Sqlite.Database db;
 
-    private TableLookup interpretations_table;
-    private TableLookup manifestations_table;
-    private TableLookup mimetypes_table;
-    private TableLookup actors_table;
+    protected TableLookup interpretations_table;
+    protected TableLookup manifestations_table;
+    protected TableLookup mimetypes_table;
+    protected TableLookup actors_table;
 
     private uint32 last_id;
 
     public Engine () throws EngineError
     {
         database = new Zeitgeist.SQLite.ZeitgeistDatabase ();
+        database.set_deletion_callback (delete_from_cache);
         db = database.database;
         last_id = database.get_last_id ();
 
@@ -106,9 +107,9 @@ public class Engine : Object
                     stmt.column_int (EventViewRows.ACTOR));
                 event.origin = stmt.column_text (
                     EventViewRows.EVENT_ORIGIN_URI);
-                
+
                 // Load payload
-                unowned uint8[] data = (uint8[]) 
+                unowned uint8[] data = (uint8[])
                     stmt.column_blob(EventViewRows.PAYLOAD);
                 data.length = stmt.column_bytes(EventViewRows.PAYLOAD);
                 if (data != null)
@@ -1094,11 +1095,11 @@ public class Engine : Object
                 }
             }
         }
-     }
+    }
 
-     private int64 store_payload (Event event)
-     {
-        /** 
+    private int64 store_payload (Event event)
+    {
+        /**
         * TODO: Right now payloads are not unique and every event has its
         * own one. We could optimize this to store those which are repeated
         * for different events only once, especially considering that
@@ -1110,7 +1111,7 @@ public class Engine : Object
             unowned Sqlite.Statement payload_insertion_stmt =
                 database.payload_insertion_stmt;
             payload_insertion_stmt.reset ();
-            payload_insertion_stmt.bind_blob (1, event.payload.data, 
+            payload_insertion_stmt.bind_blob (1, event.payload.data,
                 event.payload.data.length);
             if ((rc = payload_insertion_stmt.step ()) != Sqlite.DONE)
                 if (rc != Sqlite.CONSTRAINT)
@@ -1119,7 +1120,25 @@ public class Engine : Object
             return database.database.last_insert_rowid ();
         }
         return 0;
-     }
+    }
+
+    private void delete_from_cache (string table, int64 rowid)
+    {
+        TableLookup table_lookup;
+
+        if (table == "interpretation")
+            table_lookup = interpretations_table;
+        else if (table == "manifestation")
+            table_lookup = manifestations_table;
+        else if (table == "mimetype")
+            table_lookup = mimetypes_table;
+        else if (table == "actor")
+            table_lookup = actors_table;
+        else
+            return;
+
+        table_lookup.remove((int) rowid);
+    }
 
 }
 

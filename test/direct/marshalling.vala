@@ -24,7 +24,7 @@ Event create_event ()
   e.manifestation = "manifestation_uri";
   e.actor = "test.desktop";
   e.origin = "source";
-  
+
   return e;
 }
 

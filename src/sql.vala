@@ -1,7 +1,7 @@
 /* sql.vala
  *
  * Copyright © 2011 Collabora Ltd.
- *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com> 
+ *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *             By Seif Lotfy <seif@lotfy.com>
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
  *
@@ -49,6 +49,8 @@ namespace Zeitgeist.SQLite
         SUBJECT_ID_CURRENT
     }
 
+    public delegate void DeletionCallback (string table, int64 rowid);
+
     public class ZeitgeistDatabase : Object
     {
 
@@ -60,6 +62,8 @@ namespace Zeitgeist.SQLite
         // The DB should be accessible from engine for statement preperations
         //  as well as allowing extensions to add tables to it.
         public Sqlite.Database database;
+
+        private DeletionCallback? deletion_callback = null;
 
         public ZeitgeistDatabase () throws EngineError
         {
@@ -75,7 +79,6 @@ namespace Zeitgeist.SQLite
             // Register a data change notification callback to look for
             // deletions, so we can keep the TableLookups up to date.
             database.update_hook (update_callback);
-            //database.exec ("DELETE FROM event WHERE 1", null, null);
         }
 
         public uint32 get_last_id () throws EngineError
@@ -93,6 +96,11 @@ namespace Zeitgeist.SQLite
             assert_query_success (rc, "Can't query database");
             assert (last_id != -1);
             return last_id;
+        }
+
+        public void set_deletion_callback (DeletionCallback? callback)
+        {
+            deletion_callback = callback;
         }
 
         /**
@@ -237,7 +245,7 @@ namespace Zeitgeist.SQLite
                 """;
             rc = database.prepare_v2 (sql, -1, out id_retrieval_stmt);
             assert_query_success (rc, "Event ID retrieval query error");
-            
+
             // Move handling statment
             sql = """
             UPDATE event
@@ -247,7 +255,7 @@ namespace Zeitgeist.SQLite
             """;
             rc = database.prepare_v2 (sql, -1, out move_handling_stmt);
             assert_query_success (rc, "Move handling error");
-            
+
             // Payload insertion statment
             sql = """
                 INSERT INTO payload (value) VALUES (?)
@@ -256,11 +264,18 @@ namespace Zeitgeist.SQLite
             assert_query_success (rc, "Payload insertion query error");
         }
 
-        protected static void update_callback (Sqlite.Action action,
+
+        protected void update_callback (Sqlite.Action action,
             string dbname, string table, int64 rowid)
         {
             if (action != Sqlite.Action.DELETE)
                 return;
+            if (deletion_callback != null)
+                deletion_callback (table, rowid);
+            //interpretations_table
+            // manifestations_
+            //mimetypes_table - mimetype table
+            // actors_  . actor table
             // FIXME!
             /*
             stdout.printf ("%s", dbname); // = main

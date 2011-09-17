@@ -12,6 +12,7 @@ TESTS = \
 	marshalling \
 	query-operators-test \
 	where-clause-test \
+	table-lookup-test \
 	$(NULL)
 
 SRC_FILES = \
@@ -40,6 +41,9 @@ query-operators-test: query-operators-test.vala $(SRC_FILES)
 where-clause-test: where-clause-test.vala $(SRC_FILES)
 	$(VALAC) $(VALAFLAGS) -o $@ $^
 
+table-lookup-test: table-lookup-test.vala $(SRC_FILES)
+	$(VALAC) $(VALAFLAGS) -o $@ $^
+
 clean-local:
 	rm -f *.~[0-9]~
 
@@ -47,12 +51,14 @@ DISTCLEANFILES = \
 	marshalling \
 	query-operators-test \
 	where-clause-test \
+	table-lookup-test \
 	$(NULL)
 
 EXTRA_DIST = \
 	marshalling.vala \
 	query-operators-test.vala \
 	where-clause-test.vala \
+	table-lookup-test.vala \
 	assertions.vapi \
 	$(NULL)
 

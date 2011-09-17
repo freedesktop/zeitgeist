@@ -29,10 +29,10 @@ namespace Zeitgeist.SQLite
 
         unowned Sqlite.Database db;
 
-        string table;
+        private string table;
         private HashTable<int, string> id_to_value;
         private HashTable<string, int> value_to_id;
-        Sqlite.Statement insertion_stmt;
+        private Sqlite.Statement insertion_stmt;
 
         public TableLookup (ZeitgeistDatabase database, string table_name)
         {
@@ -76,9 +76,9 @@ namespace Zeitgeist.SQLite
                 {
                     critical ("SQL error: %d, %s\n", rc, db.errmsg ());
                 }
-                
+
                 id = (int) db.last_insert_rowid ();
-                
+
                 id_to_value.insert (id, name);
                 value_to_id.insert (name, id);
             }

@@ -113,11 +113,9 @@ namespace Zeitgeist
 
         public Daemon ()
         {
-            stdout.printf("Hi!\n");
-
             try
             {
-                engine = new Engine();
+                engine = new Engine ();
             }
             catch (EngineError e)
             {
@@ -129,7 +127,6 @@ namespace Zeitgeist
 
         ~Daemon ()
         {
-            stdout.printf ("BYE\n");
             engine.close ();
         }
 

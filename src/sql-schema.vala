@@ -36,13 +36,10 @@ namespace Zeitgeist.SQLite
         {
             // TODO: PRAGMA: WAL
 
-            // TODO: use http://www.sqlite.org/c3ref/update_hook.html instead
-            // of fix_cache tmp table
-
             //if (Constants.DATABASE_FILE_PATH != ":memory:" && !new_db)
             // assume temporary memory backed DBs are good
             // check_core_schema_upgrade
-            
+
             create_schema (database);
         }
 

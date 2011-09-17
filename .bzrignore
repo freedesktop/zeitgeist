@@ -45,3 +45,4 @@ extensions/*.la
 extensions/*.lo
 test/direct/marshalling
 test/dbus/__pycache__
+test/direct/table-lookup-test
