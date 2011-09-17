@@ -28,7 +28,6 @@ namespace Zeitgeist
 
         private HashTable<string, Monitor> monitors;
         private HashTable<string, GenericArray<string>> connections;
-        string[] peers;
 
         construct
         {
@@ -188,11 +187,12 @@ namespace Zeitgeist
             
             if (connections.lookup (peer) != null)
             {
-                for (int i = 0; i < connections.lookup (peer).length; i++)
+                var peers = connections.lookup (peer)
+                for (int i = 0; i < peers.length; i++)
                 {
-                    if (connections.lookup (peer)[i] == object_path)
+                    if (peers[i] == object_path)
                     {
-                        connections.lookup (peer).remove_index (i);
+                        peers.remove_index (i);
                         break;
                     }
                 }
