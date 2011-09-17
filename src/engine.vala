@@ -646,7 +646,7 @@ public class Engine : Object
 
         // We need to call reset here (even if we do so again in the subjects
         // loop) since calling .bind_* after a .step() invocation is illegal.
-        insert_stmt.reset();
+        insert_stmt.reset ();
 
         insert_stmt.bind_int64 (1, event.id);
         insert_stmt.bind_int64 (2, event.timestamp);
@@ -656,7 +656,7 @@ public class Engine : Object
             manifestations_table.get_id (event.manifestation));
         insert_stmt.bind_int64 (5, actors_table.get_id (event.actor));
         insert_stmt.bind_text (6, event.origin);
-        insert_stmt.bind_int64 (7, payload_id ?? 0);
+        insert_stmt.bind_int64 (7, payload_id);
 
         for (int i = 0; i < event.num_subjects(); ++i)
         {
@@ -1096,7 +1096,7 @@ public class Engine : Object
         }
      }
 
-     private int64? store_payload (Event event)
+     private int64 store_payload (Event event)
      {
         /** 
         * TODO: Right now payloads are not unique and every event has its
@@ -1109,16 +1109,16 @@ public class Engine : Object
             int rc;
             unowned Sqlite.Statement payload_insertion_stmt =
                 database.payload_insertion_stmt;
-            payload_insertion_stmt.reset();
-            payload_insertion_stmt.bind_blob(1, event.payload.data, 
+            payload_insertion_stmt.reset ();
+            payload_insertion_stmt.bind_blob (1, event.payload.data, 
                 event.payload.data.length);
-            if ((rc = payload_insertion_stmt.step()) != Sqlite.DONE)
+            if ((rc = payload_insertion_stmt.step ()) != Sqlite.DONE)
                 if (rc != Sqlite.CONSTRAINT)
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
-            return database.database.last_insert_rowid();
+
+            return database.database.last_insert_rowid ();
         }
-        else
-            return null;
+        return 0;
      }
 
 }
