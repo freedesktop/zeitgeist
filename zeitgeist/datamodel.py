@@ -413,7 +413,7 @@ class Subject(list):
 				# Old versions of zeitgeist don't know anything about
 				# currentUri of a subject, their datastructure has only
 				# seven fields, in this it's safe to use Uri as CurrentUri
-				data.append(data[Subject.Uri])
+				data.append("")
 			if len(data) != len(Subject.Fields):
 				raise ValueError(
 					"Invalid subject data length %s, expected %s" \
