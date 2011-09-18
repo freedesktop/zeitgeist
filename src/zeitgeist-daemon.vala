@@ -270,7 +270,7 @@ namespace Zeitgeist
             if (!replace_mode)
             {
                 stderr.printf ("Could not aquire name\n");
-                exit (10);
+                Posix.exit (10);
             }
 
             // FIXME: implement --replace and --quit
