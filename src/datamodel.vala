@@ -541,7 +541,7 @@ namespace Zeitgeist
             if (subject_props >= 8)
                 current_uri = iter.next_value().get_string ();
             else
-                current_uri = uri;
+                current_uri = "";
         }
 
         public Variant to_variant ()
