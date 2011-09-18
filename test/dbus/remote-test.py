@@ -149,6 +149,27 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 						num_events=10)
 		self.assertEquals(1, len(ids))
 
+	def testFindEventsWithMultipleSubjects(self):
+		events = parse_events("test/data/three_events.js")
+		ids = self.insertEventsAndWait(events)
+
+		results = self.findEventsForTemplatesAndWait([], num_events=5)
+		self.assertEquals(3, len(results))
+
+		self.assertEquals(len(results[0].get_subjects()), 2)
+		self.assertEquals(len(results[1].get_subjects()), 1)
+		self.assertEquals(len(results[1].get_subjects()), 1)
+
+	def testFindEventsLimitWhenDuplicates(self):
+		events = parse_events("test/data/three_events.js")
+		ids = self.insertEventsAndWait(events)
+
+		# This test makes sure that we get the requested number of events
+		# when some of them have multiple subjects (so more than one row
+		# with the same event id).
+		results = self.findEventsForTemplatesAndWait([], num_events=3)
+		self.assertEquals(3, len(results))
+
 class ZeitgeistRemoteFindEventIdsTest(testutils.RemoteTestCase):
 	"""
 	Test cases with basic tests for FindEventIds.

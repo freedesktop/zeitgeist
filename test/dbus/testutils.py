@@ -252,6 +252,22 @@ class RemoteTestCase (unittest.TestCase):
 		mainloop.run()
 		return result
 	
+	def findEventsForTemplatesAndWait(self, event_templates, **kwargs):
+		"""
+		Execute ZeitgeistClient.find_events_for_templates in a blocking manner.
+		"""
+		mainloop = self.create_mainloop()
+		result = []
+		
+		def collect_events_and_quit(events):
+			result.extend(events)
+			mainloop.quit()
+		
+		self.client.find_events_for_templates(
+			event_templates, collect_events_and_quit, **kwargs)
+		mainloop.run()
+		return result
+
 	def findEventsForValuesAndWait(self, *args, **kwargs):
 		"""
 		Execute ZeitgeistClient.find_events_for_value in a blocking manner.

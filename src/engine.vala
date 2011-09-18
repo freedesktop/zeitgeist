@@ -206,6 +206,8 @@ public class Engine : Object
         //    return new uint32[0];
 
         string sql;
+        // FIXME: this doesn't make sense (and doesn't help for
+        // FindEventIds). find another fix
         if (distinct)
             sql = "SELECT DISTINCT id FROM event_view ";
         else
@@ -342,7 +344,6 @@ public class Engine : Object
         {
             var id = (uint32) uint64.parse(
                 stmt.column_text (EventViewRows.ID));
-            //if (!(id in event_ids))
             event_ids += id;
         }
         if (rc != Sqlite.DONE)
