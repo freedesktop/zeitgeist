@@ -281,6 +281,20 @@ namespace Zeitgeist.SQLite
                 """);
             */
 
+            // Extensions
+            exec_query (database, """
+                CREATE TABLE IF NOT EXISTS extensions_conf (
+                    extension VARCHAR,
+                    key VARCHAR,
+                    value BLOB, 
+                    CONSTRAINT unique_extension UNIQUE (extension, key)
+                )
+                """);
+            exec_query (database, """
+                CREATE UNIQUE INDEX IF NOT EXISTS extensions_conf_key
+                    ON extensions_conf (extension, key)
+                """);
+
             exec_query (database, "DROP VIEW IF EXISTS event_view");
             exec_query (database, """
                 CREATE VIEW IF NOT EXISTS event_view AS
