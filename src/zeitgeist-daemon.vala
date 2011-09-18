@@ -302,6 +302,7 @@ namespace Zeitgeist
         static int main (string[] args)
         {
             Posix.signal (Posix.SIGHUP, safe_exit);
+            Posix.signal (Posix.SIGINT, safe_exit);
             Posix.signal (Posix.SIGTERM, safe_exit);
 
             var opt_context = new OptionContext (" - Zeitgeist daemon");
