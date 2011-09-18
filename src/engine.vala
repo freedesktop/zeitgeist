@@ -989,7 +989,7 @@ public class Engine : Object
     {
         if (!val.has_prefix ("!"))
             return false;
-        val = val.substring (1); // FIXME: fix for unicode
+        val = val.substring (1);
         return true;
     }
 
