@@ -157,7 +157,7 @@ public class Engine : Object
 
     public uint32[] find_event_ids (TimeRange time_range,
         GenericArray<Event> event_templates,
-        uint storage_state, uint max_events, uint result_type, 
+        uint storage_state, uint max_events, uint result_type,
         BusName? sender=null) throws EngineError
     {
         return find_event_ids_logic(time_range, event_templates, storage_state,

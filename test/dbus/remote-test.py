@@ -123,34 +123,8 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 
 	def testFindTwoOfThreeEvents(self):
-        # FIXME: use json instead of hardcoding stuff here...
-		ev1 = Event.new_for_values(timestamp=400,
-					interpretation=Interpretation.ACCESS_EVENT,
-					manifestation=Manifestation.USER_ACTIVITY,
-					actor="Boogaloo")	
-		ev2 = Event.new_for_values(timestamp=500,
-					interpretation=Interpretation.ACCESS_EVENT,
-					manifestation=Manifestation.USER_ACTIVITY,
-					actor="Boogaloo")
-		ev3 = Event.new_for_values(timestamp=600,
-					interpretation=Interpretation.SEND_EVENT,
-					manifestation=Manifestation.USER_ACTIVITY,
-					actor="Boogaloo")
-		subj1 = Subject.new_for_values(uri="foo://bar",
-					interpretation=Interpretation.DOCUMENT,
-					manifestation=Manifestation.FILE_DATA_OBJECT)
-		subj2 = Subject.new_for_values(uri="foo://baz",
-					interpretation=Interpretation.IMAGE,
-					manifestation=Manifestation.FILE_DATA_OBJECT)
-		subj3 = Subject.new_for_values(uri="foo://quiz",
-					interpretation=Interpretation.AUDIO,
-					manifestation=Manifestation.FILE_DATA_OBJECT)
-		ev1.append_subject(subj1)
-		ev2.append_subject(subj1)
-		ev2.append_subject(subj2)
-		ev3.append_subject(subj2)
-		ev3.append_subject(subj3)
-		ids = self.insertEventsAndWait([ev1, ev2, ev3])
+		events = parse_events("test/data/three_events.js")
+		ids = self.insertEventsAndWait(events)
 		self.assertEquals(3, len(ids))
 		
 		events = self.getEventsAndWait(ids)
@@ -158,7 +132,7 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 		for event in events:
 			self.assertTrue(isinstance(event, Event))
 			self.assertEquals(Manifestation.USER_ACTIVITY, event.manifestation)
-			self.assertEquals("Boogaloo", event.actor)
+			self.assertTrue(event.actor.startswith("Boogaloo"))
 		
 		# Search for everything
 		ids = self.findEventIdsAndWait([], num_events=3)
@@ -168,9 +142,9 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 		subj_templ1 = Subject.new_for_values(manifestation=Manifestation.FILE_DATA_OBJECT)
 		subj_templ2 = Subject.new_for_values(interpretation=Interpretation.IMAGE)
 		event_template = Event.new_for_values(
-					actor="Boogaloo",
+					actor="Boogaloo*",
 					interpretation=Interpretation.ACCESS_EVENT,
-					subjects=[subj_templ1,subj_templ2])
+					subjects=[subj_templ1, subj_templ2])
 		ids = self.findEventIdsAndWait([event_template],
 						num_events=10)
 		self.assertEquals(1, len(ids))

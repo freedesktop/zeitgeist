@@ -49,6 +49,7 @@ from testutils import parse_events, import_events
 
 TEST_ACTOR = "/usr/share/applications/gnome-about.desktop"
 
+# FIXME: move this to a .js file
 test_event_1 = None
 def create_test_event_1():
 	ev = Event()
