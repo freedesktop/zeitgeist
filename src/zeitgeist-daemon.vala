@@ -265,6 +265,19 @@ namespace Zeitgeist
             }
         }
 
+        private static void handle_existing_instance ()
+        {
+            if (!replace_mode)
+            {
+                stderr.printf ("Could not aquire name\n");
+                exit (10);
+            }
+
+            // FIXME: implement --replace and --quit
+            // running_interface = ...
+            // running_interface.quit ();
+        }
+
         static void run ()
         {
             // TODO: look at zeitgeist/singleton.py
@@ -272,7 +285,7 @@ namespace Zeitgeist
                 BusNameOwnerFlags.NONE,
                 on_bus_aquired,
                 () => {},
-                () => stderr.printf ("Could not aquire name\n"));
+                handle_existing_instance);
 
             mainloop = new MainLoop ();
             mainloop.run ();
