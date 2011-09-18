@@ -867,6 +867,8 @@ public class Engine : Object
                     where.add_text_condition ("event_origin_uri", val, negated);
             }
 
+            // Subject templates within the same event template are AND'd
+            // See LP bug #592599.
             for (int i = 0; i < template.num_subjects(); ++i)
             {
                 Subject subject_template = template.subjects[i];
