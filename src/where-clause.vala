@@ -79,17 +79,57 @@ namespace Zeitgeist
                 arguments.add (args[i]);
         }
 
+        private static string get_search_table_for_column (string column)
+        {
+            string search_table;
+            switch (column)
+            {
+                // For use in add_text_condition_subquery and
+                // add_wildcard_condition:
+                case "origin":
+                case "subj_origin":
+                case "subj_id":
+                case "subj_id_current":
+                    search_table = "uri";
+                    break;
+                case "subj_mimetype":
+                    search_table = "mimetype";
+                    break;
+
+                // For use only in add_text_condition_subquery:
+                case "subj_text_id":
+                    search_table = "text";
+                    break;
+                case "subj_storage_id":
+                    search_table = "storage";
+                    break;
+
+                // --
+                default:
+                    search_table = column;
+                    break;
+            }
+            return search_table;
+        }
+
         public void add_match_condition (string column, int val,
             bool negation=false)
-            throws EngineError.INVALID_ARGUMENT
         {
             string sql = "%s %s= %d".printf (column, (negation) ? "!" : "", val);
             add (sql);
         }
 
+        public void add_text_condition_subquery (string column, string val,
+            bool negation=false)
+        {
+            string search_table = get_search_table_for_column (column);
+            string sql = "%s IN (SELECT id FROM %s WHERE value %s= ?)".printf (
+                column, search_table, (negation) ? "!" : "");
+            add (sql, val);
+        }
+
         public void add_text_condition (string column, string val,
             bool negation=false)
-            throws EngineError.INVALID_ARGUMENT
         {
             string sql = "%s %s= ?".printf (column, (negation) ? "!" : "");
             add (sql, val);
@@ -98,27 +138,12 @@ namespace Zeitgeist
         public void add_wildcard_condition (string column, string needle,
             bool negation=false)
         {
-            string search_column;
-            switch (column)
-            {
-                case "origin":
-                case "subj_origin":
-                case "subj_id":
-                case "subj_id_current":
-                    search_column = "uri";
-                    break;
-                case "subj_mimetype":
-                    search_column = "mimetype";
-                    break;
-                default:
-                    search_column = column;
-                    break;
-            }
+            string search_table = get_search_table_for_column (column);
 
             var values = new GenericArray<string> ();
             values.add(needle);
             string optimized_glob = optimize_glob (
-                "id", search_column, ref values);
+                "id", search_table, ref values);
 
             string sql;
             if (!negation)

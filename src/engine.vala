@@ -865,7 +865,7 @@ public class Engine : Object
                 if (like)
                     where.add_wildcard_condition ("origin", val, negated);
                 else
-                    where.add_text_condition ("event_origin_uri", val, negated);
+                    where.add_text_condition_subquery ("origin", val, negated);
             }
 
             // Subject templates within the same event template are AND'd
@@ -923,7 +923,7 @@ public class Engine : Object
                     if (like)
                         where.add_wildcard_condition ("subj_id", val, negated);
                     else
-                        where.add_text_condition ("subj_uri", val, negated);
+                        where.add_text_condition_subquery ("subj_id", val, negated);
                 }
 
                 // Origin
@@ -937,8 +937,8 @@ public class Engine : Object
                         where.add_wildcard_condition (
                             "subj_origin", val, negated);
                     else
-                        where.add_text_condition (
-                            "subj_origin_uri", val, negated);
+                        where.add_text_condition_subquery (
+                            "subj_origin", val, negated);
                 }
 
                 // Text
@@ -947,7 +947,7 @@ public class Engine : Object
                     // Negation and prefix search isn't supported for
                     // subject texts, but "!" and "*" are valid as
                     // plain text characters.
-                    where.add_text_condition ("subj_text",
+                    where.add_text_condition_subquery ("subj_text_id",
                         subject_template.text, false);
                 }
 
@@ -962,8 +962,8 @@ public class Engine : Object
                         where.add_wildcard_condition (
                             "subj_id_current", val, negated);
                     else
-                        where.add_text_condition (
-                            "subj_current_uri", val, negated);
+                        where.add_text_condition_subquery (
+                            "subj_id_current", val, negated);
                 }
 
                 // Subject storage
@@ -972,7 +972,7 @@ public class Engine : Object
                     string val = subject_template.storage;
                     assert_no_negation ("subject storage", val);
                     assert_no_wildcard ("subject storage", val);
-                    where.add_text_condition ("subj_storage", val);
+                    where.add_text_condition_subquery ("subj_storage_id", val);
                 }
             }
 

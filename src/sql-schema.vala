@@ -286,7 +286,7 @@ namespace Zeitgeist.SQLite
                 CREATE TABLE IF NOT EXISTS extensions_conf (
                     extension VARCHAR,
                     key VARCHAR,
-                    value BLOB, 
+                    value BLOB,
                     CONSTRAINT unique_extension UNIQUE (extension, key)
                 )
                 """);
@@ -295,6 +295,9 @@ namespace Zeitgeist.SQLite
                     ON extensions_conf (extension, key)
                 """);
 
+            // Performance note: the subqueries here are provided for lookup
+            // only. For querying, use explicit "WHERE x IN (SELECT id ...)"
+            // subqueries.
             exec_query (database, "DROP VIEW IF EXISTS event_view");
             exec_query (database, """
                 CREATE VIEW IF NOT EXISTS event_view AS
@@ -333,7 +336,9 @@ namespace Zeitgeist.SQLite
                         (SELECT value FROM uri
                             WHERE uri.id=event.subj_id_current)
                             AS subj_current_uri,
-                        event.subj_id_current
+                        event.subj_id_current,
+                        event.subj_text AS subj_text_id,
+                        event.subj_storage AS subj_storage_id
                     FROM event
                 """);
         }
@@ -354,6 +359,8 @@ namespace Zeitgeist.SQLite
                 string error_message = "Can't create database: %d, %s".printf(
                     rc, database.errmsg ());
                 critical ("%s\n", error_message);
+                // FIXME: Propagate exceptions so the engine will stop if
+                // this happens
             }
         }
 
