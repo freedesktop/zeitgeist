@@ -1,3 +1,20 @@
+2011-09-21: Zeitgeist 0.8.2 ""
+------------------------------
+
+Engine:
+
+ - Storage Monitor: Add support for Network Manager 0.9.
+ - The text field in subject templates is now allowed to end with an
+   asterisk (*) characters (which is treated as plain text).
+ - Correctly handle current_uri in subject templates from old clients
+   (instead of forcing it to the same value as the subject's uri).
+
+Python API:
+
+ - Correctly specify the D-Bus interface when using introspection.
+ - Fix possible exception when the available method list hasn't been loaded.
+ - The Event constructor now supports creating independent copies of events.
+
 2011-07-22: Zeitgeist 0.8.1.1 "Grass Frog"
 ------------------------------------------
 
@@ -10,7 +27,7 @@ Engine:
 
 Python API:
 
- - Fix regression that broke properties (get_version and get_extensions).
+ - Fixed a regression that broke properties (get_version and get_extensions).
 
 2011-07-07: Zeitgeist 0.8.1 "The Snake and the Holy Grail"
 ---------------------------------------------------------
