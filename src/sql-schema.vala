@@ -338,7 +338,10 @@ namespace Zeitgeist.SQLite
                             AS subj_current_uri,
                         event.subj_id_current,
                         event.subj_text AS subj_text_id,
-                        event.subj_storage AS subj_storage_id
+                        event.subj_storage AS subj_storage_id,
+                        (SELECT value FROM actor
+                            WHERE actor.id=event.actor)
+                            AS actor_uri
                     FROM event
                 """);
         }
