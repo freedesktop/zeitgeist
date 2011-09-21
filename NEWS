@@ -8,6 +8,8 @@ Engine:
    asterisk (*) character (which is treated as plain text).
  - Correctly handle current_uri in subject templates from old clients
    (instead of forcing it to the same value as the subject's uri).
+ - Substantially increase the amount of events that can be deleted in
+   a single DeleteEvents call.
 
 Python API:
 

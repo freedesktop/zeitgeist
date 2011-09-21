@@ -831,7 +831,7 @@ class ZeitgeistEngine:
 		# We can't do all(timestamps) here because the timestamps may be 0
 		if timestamps and timestamps[0] is not None and timestamps[1] is not None:
 			self._cursor.execute("DELETE FROM event WHERE id IN (%s)"
-				% ",".join(["?"] * len(ids)), ids)
+				% ",".join(str(int(_id)) for _id in ids))
 			self._cursor.connection.commit()
 			log.debug("Deleted %s" % map(int, ids))
 			# thekorn: this is the keypart of the workaround for (LP: #598666)
