@@ -326,6 +326,13 @@ class ZeitgeistEngineTest(_engineTestClass):
 			StorageState.Any,
 			0,
 			0)
+		self.assertEquals(0, len(result)) # wildcards are not supported
+		result = self.engine.find_eventids(
+			(1, 10000000),
+			[Event.new_for_values(subject_text='this item *')],
+			StorageState.Any,
+			0,
+			0)
 		self.assertEquals(1, len(result))
 
 	def testSortFindByTimeAsc(self):

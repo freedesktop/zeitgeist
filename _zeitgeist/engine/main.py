@@ -84,17 +84,11 @@ def parse_operators(kind, field, value):
 	on query values, and handles the special case of Subject.Text correctly.
 	returns a (value_without_negation_and_wildcard, negation, wildcard)-tuple
 	"""
-	try:
-		value, negation = parse_negation(kind, field, value)
-	except ValueError:
-		if kind is Subject and field == Subject.Text:
-			# we do not support negation of the text field,
-			# the text field starts with the NEGATION_OPERATOR
-			# so we handle this string as the content instead
-			# of an operator
-			negation = False
-		else:
-			raise
+	if kind is Subject and field == Subject.Text:
+		# Negation and wildcard characters in the subject text are
+		# handled as plain text.
+		return value, False, False
+	value, negation = parse_negation(kind, field, value)
 	value, wildcard = parse_wildcard(kind, field, value)
 	return value, negation, wildcard
 

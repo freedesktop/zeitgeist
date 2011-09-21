@@ -389,7 +389,7 @@ class SubjectTest(unittest.TestCase):
 		subject_data = ["Uri", "Interpretation", "Manifestation", "Origin",
 			"Mimetype", "Text", "Storage"]
 		subject = Subject(subject_data)
-		self.assertEqual(subject.uri, subject.current_uri)
+		self.assertEqual(subject.current_uri, "")
 		
 	def testWrongNumberOfArguments(self):
 		self.assertRaises(ValueError, Subject, ["Uri", "Interpretation"])
