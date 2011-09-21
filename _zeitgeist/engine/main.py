@@ -373,9 +373,6 @@ class ZeitgeistEngine:
 						if su_manif_where:
 							subwhere.extend(su_manif_where)
 						
-						# FIXME: Expand mime children as well.
-						# Right now we only do exact matching for mimetypes
-						# thekorn: this will be fixed when wildcards are supported
 						value, negation, wildcard = parse_operators(Subject, Subject.Mimetype, subject_template.mimetype)
 						if value:
 							subwhere.add_text_condition("subj_mimetype",

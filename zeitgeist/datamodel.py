@@ -410,9 +410,7 @@ class Subject(list):
 	def __init__(self, data=None):
 		if data:
 			if len(data) == len(Subject.Fields) - 1:
-				# Old versions of zeitgeist don't know anything about
-				# currentUri of a subject, their datastructure has only
-				# seven fields, in this it's safe to use Uri as CurrentUri
+				# current_uri has been added in Zeitgeist 0.8.0
 				data.append("")
 			if len(data) != len(Subject.Fields):
 				raise ValueError(
