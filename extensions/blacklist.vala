@@ -117,11 +117,15 @@ namespace Zeitgeist
         {
             Event event_template = blacklist.lookup (template_id);
             if (blacklist.remove (template_id))
+            {
                 debug ("Removed blacklist template: %s", template_id);
+                template_removed (template_id, event_template.to_variant ());
+                flush ();
+            }
             else
+            {
                 debug ("Blacklist template \"%s\" not found.", template_id);
-            template_removed (template_id, event_template.to_variant ());
-            flush ();
+            }
         }
 
         public Variant get_templates ()
