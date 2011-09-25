@@ -200,11 +200,6 @@ namespace Zeitgeist
         }
 
 
-        public override string get_name ()
-        {
-            return "data-source-registry";
-        }
-
         public override void unload ()
         {
             try

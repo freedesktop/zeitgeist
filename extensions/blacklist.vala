@@ -116,10 +116,6 @@ namespace Zeitgeist
             }
         }
 
-        public override string get_name () {
-            return "blacklist";
-        }
-
         public override void unload ()
         {
             try

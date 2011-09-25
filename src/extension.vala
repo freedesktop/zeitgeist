@@ -38,8 +38,6 @@ namespace Zeitgeist
     {
         public unowned Engine engine { get; construct set; }
 
-        public abstract string get_name();
-
         /**
          * This method gets called before Zeitgeist stops.
          *
@@ -127,15 +125,27 @@ namespace Zeitgeist
         {
         }
 
+        /**
+         * Store `data' under the given (extension unique) key, overwriting any
+         * previous value.
+         */
         protected void store_config (string key, Variant data)
         {
-            engine.extension_store.store (get_name (), key, data);
+            engine.extension_store.store (get_type ().name (), key, data);
         }
 
+        /**
+         * Retrieve data this extension previously stored under the given key,
+         * or null if there is no such data.
+         *
+         * @param key: key under which the data is stored
+         * @param format: type string for the resulting Variant
+         */
         protected Variant? retrieve_config (string key, string format)
         {
             VariantType type = new VariantType(format);
-            return engine.extension_store.retrieve (get_name (), key, type);
+            return engine.extension_store.retrieve (
+                get_type ().name (), key, type);
         }
     }
 
