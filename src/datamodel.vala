@@ -311,36 +311,36 @@ namespace Zeitgeist
         }
 
         public Event.from_variant (Variant event_variant) {
-            assert (event_variant.get_type_string () == "(" + 
+            assert (event_variant.get_type_string () == "(" +
                 Utils.SIG_EVENT + ")");
 
-            VariantIter iter = event_variant.iterator();
+            VariantIter iter = event_variant.iterator ();
 
-            assert (iter.n_children() == 3);
-            VariantIter event_array = iter.next_value().iterator();
-            VariantIter subjects_array = iter.next_value().iterator();
+            assert (iter.n_children () == 3);
+            VariantIter event_array = iter.next_value ().iterator ();
+            VariantIter subjects_array = iter.next_value ().iterator ();
             Variant payload_variant = iter.next_value ();
 
             var event_props = event_array.n_children ();
             assert (event_props >= 5);
-            id = (uint32) uint64.parse (event_array.next_value().get_string ());
-            var str_timestamp = event_array.next_value().get_string ();
+            id = (uint32) uint64.parse (event_array.next_value ().get_string ());
+            var str_timestamp = event_array.next_value ().get_string ();
             if (str_timestamp == "")
                 timestamp = Timestamp.now ();
             else
                 timestamp = int64.parse (str_timestamp);
-            interpretation = event_array.next_value().get_string ();
-            manifestation = event_array.next_value().get_string ();
-            actor = event_array.next_value().get_string ();
+            interpretation = event_array.next_value ().get_string ();
+            manifestation = event_array.next_value ().get_string ();
+            actor = event_array.next_value ().get_string ();
             // let's keep this compatible with older clients
             if (event_props >= 6)
-                origin = event_array.next_value().get_string ();
+                origin = event_array.next_value ().get_string ();
             else
                 origin = "";
 
-            for (int i = 0; i < subjects_array.n_children(); ++i) {
-                Variant subject_variant = subjects_array.next_value();
-                subjects.add(new Subject.from_variant(subject_variant));
+            for (int i = 0; i < subjects_array.n_children (); ++i) {
+                Variant subject_variant = subjects_array.next_value ();
+                subjects.add (new Subject.from_variant (subject_variant));
             }
 
             // Parse payload...
