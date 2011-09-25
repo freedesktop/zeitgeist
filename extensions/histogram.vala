@@ -49,6 +49,11 @@ namespace Zeitgeist
             }
         }
 
+        public override string get_name ()
+        {
+            return "histogram";
+        }
+
         public override void unload ()
         {
             try

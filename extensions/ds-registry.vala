@@ -140,7 +140,7 @@ namespace Zeitgeist
                 var connection = Bus.get_sync (BusType.SESSION, null);
                 registration_id = connection.register_object<RemoteRegistry> (
                     "/org/gnome/zeitgeist/data_source_registry", this);
-                
+
                 connection.signal_subscribe ("org.freedesktop.DBus",
                     "org.freedesktop.DBus", "NameOwnerChanged",
                     "/org/freedesktop/DBus", null, 0,
@@ -197,6 +197,12 @@ namespace Zeitgeist
 
             // FIXME: set up gobject timer like ->
             // gobject.timeout_add(DISK_WRITE_TIMEOUT, self._write_to_disk)
+        }
+
+
+        public override string get_name ()
+        {
+            return "data-source-registry";
         }
 
         public override void unload ()

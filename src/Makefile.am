@@ -32,6 +32,7 @@ bluebird_VALASOURCES = \
 	remote.vala \
 	extension.vala \
 	extension-collection.vala \
+	extension-store.vala \
 	notify.vala \
 	sql.vala \
 	utils.vala \

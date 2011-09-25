@@ -2,6 +2,8 @@
  *
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
  * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
+ * Copyright © 2011 Collabora Ltd.
+ *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,6 +37,8 @@ namespace Zeitgeist
     public abstract class Extension : Object
     {
         public unowned Engine engine { get; construct set; }
+
+        public abstract string get_name();
 
         /**
          * This method gets called before Zeitgeist stops.
@@ -121,6 +125,17 @@ namespace Zeitgeist
          */
         public virtual void post_delete_events (uint32[] ids, BusName? sender)
         {
+        }
+
+        protected void store_config (string key, Variant data)
+        {
+            engine.extension_store.store (get_name (), key, data);
+        }
+
+        protected Variant? retrieve_config (string key, string format)
+        {
+            VariantType type = new VariantType(format);
+            return engine.extension_store.retrieve (get_name (), key, type);
         }
     }
 

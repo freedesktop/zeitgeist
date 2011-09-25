@@ -42,6 +42,47 @@ namespace Zeitgeist
             [DBus (signature = "s(asassay)")] Variant event_template);
     }
 
+    namespace BlacklistTemplates
+    {
+        private const string SIG_BLACKLIST = "a{s("+Utils.SIG_EVENT+")}";
+
+        private static HashTable<string, Event> from_variant (
+            Variant templates_variant)
+        {
+            var blacklist = new HashTable<string, Event> (str_hash, str_equal);
+
+            assert (templates_variant.get_type_string () == SIG_BLACKLIST);
+            foreach (Variant template_variant in templates_variant)
+            {
+                VariantIter iter = template_variant.iterator ();
+                string template_id = iter.next_value ().get_string ();
+                // FIXME: throw exception upon error instead of aborting
+                Event template = new Event.from_variant (iter.next_value ());
+                blacklist.insert (template_id, template);
+            }
+
+            return blacklist;
+        }
+
+        public static Variant to_variant (HashTable<string, Event> blacklist)
+        {
+            var vb = new VariantBuilder (new VariantType (SIG_BLACKLIST));
+            {
+                var iter = HashTableIter<string, Event> (blacklist);
+                string template_id;
+                Event event_template;
+                while (iter.next (out template_id, out event_template))
+                {
+                    vb.open (new VariantType ("{s("+Utils.SIG_EVENT+")}"));
+                    vb.add ("s", template_id);
+                    vb.add_value (event_template.to_variant ());
+                    vb.close ();
+                }
+            }
+            return vb.end ();
+        }
+    }
+
     class Blacklist: Extension, RemoteBlacklist
     {
         private HashTable<string, Event> blacklist;
@@ -54,9 +95,13 @@ namespace Zeitgeist
 
         construct
         {
-            blacklist = new HashTable<string, Event> (str_hash, str_equal);
-
-            // FIXME: load blacklist from file
+            // Restore previous blacklist from database, or create an empty one
+            Variant? templates = retrieve_config ("blacklist",
+                BlacklistTemplates.SIG_BLACKLIST);
+            if (templates != null)
+                blacklist = BlacklistTemplates.from_variant (templates);
+            else
+                blacklist = new HashTable<string, Event> (str_hash, str_equal);
 
             // This will be called after bus is acquired, so it shouldn't block
             try
@@ -69,6 +114,10 @@ namespace Zeitgeist
             {
                 warning ("%s", err.message);
             }
+        }
+
+        public override string get_name () {
+            return "blacklist";
         }
 
         public override void unload ()
@@ -92,7 +141,8 @@ namespace Zeitgeist
 
         private void flush ()
         {
-            // FIXME: write to file.
+            Variant v = BlacklistTemplates.to_variant (blacklist);
+            store_config ("blacklist", v);
         }
 
         public override void pre_insert_events (GenericArray<Event?> events,
@@ -130,20 +180,7 @@ namespace Zeitgeist
 
         public Variant get_templates ()
         {
-            var vb = new VariantBuilder (new VariantType ("a{s("+Utils.SIG_EVENT+")}"));
-            {
-                var iter = HashTableIter<string, Event> (blacklist);
-                string template_id;
-                Event event_template;
-                while (iter.next (out template_id, out event_template))
-                {
-                    vb.open (new VariantType ("{s("+Utils.SIG_EVENT+")}"));
-                    vb.add ("s", template_id);
-                    vb.add_value (event_template.to_variant ());
-                    vb.close ();
-                }
-            }
-            return vb.end ();
+            return BlacklistTemplates.to_variant (blacklist);
         }
 
     }

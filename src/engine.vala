@@ -35,6 +35,7 @@ public class Engine : Object
 {
 
     public Zeitgeist.SQLite.ZeitgeistDatabase database { get; private set; }
+    public ExtensionStore extension_store;
     private ExtensionCollection extension_collection;
     private unowned Sqlite.Database db;
 
@@ -57,6 +58,7 @@ public class Engine : Object
         mimetypes_table = new TableLookup (database, "mimetype");
         actors_table = new TableLookup (database, "actor");
 
+        extension_store = new ExtensionStore (this);
         extension_collection = new ExtensionCollection (this);
     }
 
@@ -701,7 +703,7 @@ public class Engine : Object
                     manifestations_table.get_id (event.manifestation));
                 retrieval_stmt.bind_int64 (4, actors_table.get_id (event.actor));
 
-                if ((rc = retrieval_stmt.step()) != Sqlite.ROW) {
+                if ((rc = retrieval_stmt.step ()) != Sqlite.ROW) {
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
                     return 0;
                 }
