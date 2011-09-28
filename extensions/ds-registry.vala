@@ -1,6 +1,8 @@
 /* ds-registry.vala
  *
  * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
+ * Copyright © 2011 Collabora Ltd.
+ *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
  * Based upon a Python implementation (2009-2010) by:
  *  Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
@@ -47,10 +49,11 @@ namespace Zeitgeist
 
     class DataSource: Object
     {
-        public GenericArray<Event>? event_templates { get; set; }
         public string unique_id { get; set; }
         public string name { get; set; }
         public string description { get; set; }
+
+        public GenericArray<Event>? event_templates { get; set; }
 
         public bool enabled { get; set; }
         public bool running { get; set; }
@@ -68,15 +71,15 @@ namespace Zeitgeist
                 event_templates: templates);
         }
 
-        public DataSource.from_variant (Variant variant)
+        public DataSource.from_variant (Variant variant,
+            bool reset_running=false)
         {
-            // we expect (sssa(asaasay)bxb)
-            warn_if_fail (variant.get_type_string () == "(sssa("+Utils.SIG_EVENT+")bxb)"
+            warn_if_fail (
+                variant.get_type_string () == "(sssa("+Utils.SIG_EVENT+")bxb)"
                 || variant.get_type_string () == "sssa("+Utils.SIG_EVENT+")");
             var iter = variant.iterator ();
 
             assert (iter.n_children () >= 4);
-
             unique_id = iter.next_value ().get_string ();
             name = iter.next_value ().get_string ();
             description = iter.next_value ().get_string ();
@@ -85,6 +88,8 @@ namespace Zeitgeist
             if (iter.n_children () > 4)
             {
                 running = iter.next_value ().get_boolean ();
+                if (reset_running)
+                    running = false;
                 timestamp = iter.next_value ().get_int64 ();
                 enabled = iter.next_value ().get_boolean ();
             }
@@ -116,12 +121,57 @@ namespace Zeitgeist
         }
     }
 
+    namespace DataSources
+    {
+        private const string SIG_DATASOURCES =
+            "a(sssa("+Utils.SIG_EVENT+")bxb)";
+
+        private static HashTable<string, DataSource> from_variant (
+            Variant sources_variant, bool reset_running=false)
+        {
+            var registry = new HashTable<string, DataSource> (
+                str_hash, str_equal);
+
+            warn_if_fail (
+                sources_variant.get_type_string() == SIG_DATASOURCES);
+            foreach (Variant ds_variant in sources_variant)
+            {
+                DataSource ds = new DataSource.from_variant (ds_variant,
+                    reset_running);
+                registry.insert (ds.unique_id, ds);
+            }
+
+            return registry;
+        }
+
+        public static Variant to_variant (
+            HashTable<string, DataSource> sources)
+        {
+            var vb = new VariantBuilder (new VariantType (SIG_DATASOURCES));
+
+            List<unowned DataSource> data_sources = sources.get_values ();
+            data_sources.sort ((a, b) =>
+            {
+                return strcmp (a.unique_id, b.unique_id);
+            });
+
+            foreach (unowned DataSource ds in data_sources)
+            {
+                vb.add_value (ds.to_variant ());
+            }
+
+            return vb.end ();
+        }
+    }
+
     class DataSourceRegistry: Extension, RemoteRegistry
     {
         private HashTable<string, DataSource> sources;
-        private HashTable<string, GenericArray<BusName?>> running;
+        private HashTable<string, GenericArray<BusName>> running;
         private uint registration_id;
         private bool dirty;
+
+        private static const uint DISK_WRITE_TIMEOUT = 5 * 60; // 5 minutes
 
         DataSourceRegistry ()
         {
@@ -130,9 +180,16 @@ namespace Zeitgeist
 
         construct
         {
-            sources = new HashTable<string, DataSource> (str_hash, str_equal);
-            running = new HashTable<string, GenericArray<BusName?>>(str_hash, str_equal);
-            // FIXME: load data sources
+            running = new HashTable<string, GenericArray<BusName?>>(
+                str_hash, str_equal);
+
+            Variant? registry = retrieve_config ("registry",
+                DataSources.SIG_DATASOURCES);
+            if (registry != null)
+                sources = DataSources.from_variant (registry, true);
+            else
+                sources = new HashTable<string, DataSource> (
+                    str_hash, str_equal);
 
             // this will be called after bus is acquired, so it shouldn't block
             try
@@ -144,61 +201,16 @@ namespace Zeitgeist
                 connection.signal_subscribe ("org.freedesktop.DBus",
                     "org.freedesktop.DBus", "NameOwnerChanged",
                     "/org/freedesktop/DBus", null, 0,
-                    (conn, sender, path, ifc_name, sig_name, parameters) =>
-                    {
-                        // name, old_owner, new_owner
-                        var name = parameters.get_child_value (0).dup_string ();
-                        var old_owner = parameters.get_child_value (1).dup_string ();
-                        var new_owner = parameters.get_child_value (2).dup_string ();
-                        if (new_owner != "") return;
-
-                        // are there DataSources with this BusName?
-                        var disconnected_ds = new GenericArray<DataSource> ();
-                        var iter = HashTableIter<string, GenericArray<BusName?>> (running);
-                        unowned string uid;
-                        unowned GenericArray<BusName> name_arr;
-                        while (iter.next (out uid, out name_arr))
-                        {
-                            for (int i = 0; i < name_arr.length; i++)
-                            {
-                                if (name_arr[i] == name)
-                                {
-                                    disconnected_ds.add (sources.lookup (uid));
-                                    name_arr.remove_index_fast (i--);
-                                }
-                            }
-                        }
-
-                        if (disconnected_ds.length == 0) return;
-
-                        for (int i = 0; i < disconnected_ds.length; i++)
-                        {
-                            var ds = disconnected_ds[i];
-                            uid = ds.unique_id;
-                            ds.timestamp = Timestamp.now ();
-                            var strid = "%s [%s]".printf (ds.name, uid);
-                            debug ("Client disconnected: %s", strid);
-
-                            if (running.lookup (uid).length == 0)
-                            {
-                                debug ("No remaining client running: %s", strid);
-                                running.remove (uid);
-                                ds.running = false;
-
-                                data_source_disconnected (ds.to_variant ());
-                            }
-                        }
-                    });
+                    name_owner_changed);
             }
             catch (Error err)
             {
                 warning ("%s", err.message);
             }
 
-            // FIXME: set up gobject timer like ->
-            // gobject.timeout_add(DISK_WRITE_TIMEOUT, self._write_to_disk)
+            // Changes are saved to the DB every few seconds and at unload.
+            Timeout.add_seconds (DISK_WRITE_TIMEOUT, flush, Priority.LOW);
         }
-
 
         public override void unload ()
         {
@@ -216,32 +228,19 @@ namespace Zeitgeist
                 warning ("%s", err.message);
             }
 
-            write_to_disk();
+            flush ();
             debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
         }
 
         public Variant get_data_sources ()
         {
-            var array = new VariantBuilder (new VariantType (
-                "a(sssa("+Utils.SIG_EVENT+")bxb)"));
-            List<unowned DataSource> data_sources = sources.get_values ();
-            data_sources.sort ((a, b) =>
-            {
-                return strcmp (a.unique_id, b.unique_id);
-            });
-
-            foreach (unowned DataSource ds in data_sources)
-            {
-                array.add_value (ds.to_variant ());
-            }
-
-            return array.end ();
+            return DataSources.to_variant (sources);
         }
 
-        private bool is_sender_known(BusName? sender,
-            GenericArray<BusName?> sender_array)
+        private bool is_sender_known (BusName sender,
+            GenericArray<BusName> sender_array)
         {
-            for (int i=0; i<sender_array.length; i++)
+            for (int i = 0; i < sender_array.length; i++)
             {
                 if (sender == sender_array[i])
                     return true;
@@ -253,6 +252,12 @@ namespace Zeitgeist
             string description, Variant event_templates, BusName? sender)
         {
             debug ("%s: %s, %s, %s", Log.METHOD, unique_id, name, description);
+            if (sender == null)
+            {
+                warning ("%s: sender == null, ignoring request", Log.METHOD);
+                return false;
+            }
+
 
             var sender_array = running.lookup (unique_id);
             if (sender_array == null)
@@ -274,8 +279,8 @@ namespace Zeitgeist
                 ds.event_templates = templates;
                 ds.timestamp = Timestamp.now ();
                 ds.running = true;
-                write_to_disk();
-                
+                dirty = true;
+
                 data_source_registered (ds.to_variant ());
 
                 return ds.enabled;
@@ -289,10 +294,10 @@ namespace Zeitgeist
                 new_ds.running = true;
                 new_ds.timestamp = Timestamp.now ();
                 sources.insert (unique_id, new_ds);
-                write_to_disk();
-                
+                dirty = true;
+
                 data_source_registered (new_ds.to_variant ());
-                
+
                 return new_ds.enabled;
             }
 
@@ -304,14 +309,16 @@ namespace Zeitgeist
             unowned DataSource? ds = sources.lookup (unique_id);
             if (ds != null)
             {
-                bool changed = ds.enabled != enabled;
-                ds.enabled = enabled;
-
-                if (changed) data_source_enabled (unique_id, enabled);
+                if (ds.enabled != enabled)
+                {
+                    ds.enabled = enabled;
+                    dirty = true;
+                    data_source_enabled (unique_id, enabled);
+                }
             }
             else
             {
-                warning ("DataSource \"%s\" wasn't registered!", unique_id);
+                warning ("DataSource \"%s\" isn't registered!", unique_id);
             }
         }
 
@@ -332,29 +339,89 @@ namespace Zeitgeist
         {
             foreach (string unique_id in running.get_keys())
             {
-                GenericArray<BusName?> bus_names = running.lookup(unique_id);
-                if (is_sender_known(sender, bus_names))
+                GenericArray<BusName?> bus_names = running.lookup (unique_id);
+                if (is_sender_known (sender, bus_names))
                 {
-                    var data_source = sources.lookup(unique_id);
+                    var data_source = sources.lookup (unique_id);
+
                     data_source.timestamp =  Timestamp.now ();
-                    dirty = false;
+                    dirty = true;
+
                     if (!data_source.enabled)
                     {
-                        for (int i=0; i < events.length; i++)
-                        {
+                        for (int i = 0; i < events.length; i++)
                             events[i] = null;
-                        }
                     }
                 }
             }
         }
 
-        private void write_to_disk ()
+        /*
+         * Cleanup disconnected clients and mark data-sources as not running
+         * when no client remains.
+         **/
+        private void name_owner_changed (DBusConnection conn, string sender,
+            string path, string interface_name, string signal_name,
+            Variant parameters)
+        {
+            var name = parameters.get_child_value (0).dup_string ();
+            //var old_owner = parameters.get_child_value (1).dup_string ();
+            var new_owner = parameters.get_child_value (2).dup_string ();
+            if (new_owner != "") return;
+
+            // Are there data-sources with this bus name?
+            var disconnected_ds = new GenericArray<DataSource> ();
+            {
+                var iter = HashTableIter<string, GenericArray<BusName?>> (
+                    running);
+                unowned string uid;
+                unowned GenericArray<BusName> name_arr;
+                while (iter.next (out uid, out name_arr))
+                {
+                    for (int i = 0; i < name_arr.length; i++)
+                    {
+                        if (name_arr[i] == name)
+                        {
+                            disconnected_ds.add (sources.lookup (uid));
+                            name_arr.remove_index_fast (i--);
+                        }
+                    }
+                }
+            }
+
+            if (disconnected_ds.length == 0) return;
+
+            for (int i = 0; i < disconnected_ds.length; i++)
+            {
+                var ds = disconnected_ds[i];
+                unowned string uid = ds.unique_id;
+                debug ("Client disconnected: %s [%s]", ds.name, uid);
+
+                // FIXME: Update here or change semantics to "last insert"?
+                ds.timestamp = Timestamp.now ();
+                dirty = true;
+
+                if (running.lookup (uid).length == 0)
+                {
+                    debug ("No remaining client running: %s [%s]",
+                        ds.name, uid);
+                    running.remove (uid);
+                    ds.running = false;
+
+                    data_source_disconnected (ds.to_variant ());
+                }
+            }
+        }
+
+        private bool flush ()
         {
             if (dirty)
             {
-                //FIXME: Write to disk needs to be implemented
+                Variant v = DataSources.to_variant (sources);
+                store_config ("registry", v);
+                dirty = false;
             }
+            return true;
         }
     }
 

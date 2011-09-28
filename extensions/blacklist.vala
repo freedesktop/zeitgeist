@@ -51,7 +51,8 @@ namespace Zeitgeist
         {
             var blacklist = new HashTable<string, Event> (str_hash, str_equal);
 
-            assert (templates_variant.get_type_string () == SIG_BLACKLIST);
+            warn_if_fail (
+                templates_variant.get_type_string () == SIG_BLACKLIST);
             foreach (Variant template_variant in templates_variant)
             {
                 VariantIter iter = template_variant.iterator ();

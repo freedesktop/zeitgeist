@@ -125,11 +125,6 @@ namespace Zeitgeist
             notifications = new MonitorManager ();
         }
 
-        ~Daemon ()
-        {
-            engine.close ();
-        }
-
         public Variant get_events (uint32[] event_ids, BusName sender)
             throws Error
         {
@@ -183,10 +178,10 @@ namespace Zeitgeist
             uint32[] event_ids = engine.insert_events (events, sender);
             var min_timestamp = events[0].timestamp;
             var max_timestamp = min_timestamp;
-            for(int i=0; i<events.length; i++)
+            for (int i = 0; i < events.length; i++)
             {
-                min_timestamp = int64.min(min_timestamp, events[i].timestamp);
-                max_timestamp = int64.max(max_timestamp, events[i].timestamp);
+                min_timestamp = int64.min (min_timestamp, events[i].timestamp);
+                max_timestamp = int64.max (max_timestamp, events[i].timestamp);
             }
             notifications.notify_insert (new TimeRange (min_timestamp, max_timestamp), events);
 
@@ -199,7 +194,7 @@ namespace Zeitgeist
             TimeRange? time_range = engine.delete_events (event_ids, sender);
             if (time_range != null)
             {
-                notifications.notify_delete(time_range, event_ids);
+                notifications.notify_delete (time_range, event_ids);
             }
             else
             {
@@ -217,6 +212,7 @@ namespace Zeitgeist
 
         private void do_quit ()
         {
+            engine.close ();
             mainloop.quit ();
         }
 
@@ -286,6 +282,8 @@ namespace Zeitgeist
                 on_bus_aquired,
                 () => {},
                 handle_existing_instance);
+
+            // FIXME: start the datahub
 
             mainloop = new MainLoop ();
             mainloop.run ();

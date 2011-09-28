@@ -760,7 +760,11 @@ public class Engine : Object
      */
     public void close ()
     {
-        database.close();
+        // We delete the ExtensionCollection here so that it unloads
+        // all extensions and they get a chance to access the database
+        // (including through ExtensionStore) before it's closed.
+        extension_collection = null;
+        database.close ();
     }
 
     // Used by find_event_ids
@@ -1053,6 +1057,7 @@ public class Engine : Object
             WhereClause.Type.OR, negated);
 
         /*
+        FIXME: what is this?
         foreach (unowned string uri in symbols)
         {
             subwhere.add_match_condition (table_name,
