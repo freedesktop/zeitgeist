@@ -1,3 +1,11 @@
+2011-??-??: Zeitgeist 0.8.3 "..."
+---------------------------------
+
+Engine:
+
+ - DataSourceRegistry: Make sure changes to the data-source enabled
+   property (presumably by the user) are always saved.
+
 2011-09-21: Zeitgeist 0.8.2 "Not Quite Blue"
 --------------------------------------------
 

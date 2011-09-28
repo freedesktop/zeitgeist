@@ -135,6 +135,8 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			datasource.update_from_data_source(source)
 		else:
 			datasource = self._registry[unique_id] = source
+		# Comment: Bluebird just uses dirty=True here, but let's keep it like it
+		# is here for now.
 		self._write_to_disk()
 		self.DataSourceRegistered(datasource)
 		return datasource.enabled
@@ -150,6 +152,7 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 			return False
 		if datasource.enabled != enabled:
 			datasource.enabled = enabled
+			self._dirty = True
 			self.DataSourceEnabled(datasource.unique_id, enabled)
 		return True
 
@@ -280,7 +283,9 @@ class DataSourceRegistry(Extension, dbus.service.Object):
 		datasource = self._registry[uid]
 		
 		# Update LastSeen time
+		# FIXME: should we better change the semantics to "last insert time"?
 		datasource.last_seen = get_timestamp_for_now()
+		self._dirty = True
 		
 		strid = "%s (%s)" % (uid, datasource.name)
 		log.debug("Client disconnected: %s" % strid)
