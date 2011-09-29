@@ -46,3 +46,5 @@ extensions/*.lo
 test/direct/marshalling
 test/dbus/__pycache__
 test/direct/table-lookup-test
+src/zeitgeist-engine.vapi
+src/zeitgeist-engine.h

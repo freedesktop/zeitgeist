@@ -23,6 +23,7 @@ extensions_VALASOURCES = \
 	ext-data-source-registry.vala \
 	ext-blacklist.vala \
 	ext-histogram.vala \
+	ext-storage-monitor.vala \
 	$(NULL)
 
 bluebird_VALASOURCES = \

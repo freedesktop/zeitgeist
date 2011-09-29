@@ -36,8 +36,7 @@ namespace Zeitgeist
             prepare_queries ();
         }
 
-        private void prepare_queries ()
-            throws EngineError
+        private void prepare_queries () throws EngineError
         {
             int rc;
             string sql;

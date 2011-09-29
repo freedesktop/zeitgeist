@@ -1,7 +1,7 @@
 NULL =
 
 #extensionsdir = $(libdir)/zeitgeist/extensions
-noinst_LTLIBRARIES = ds-registry.la blacklist.la
+noinst_LTLIBRARIES = ds-registry.la blacklist.la storage-monitor.la
 
 AM_CPPFLAGS = \
 	$(BLUEBIRD_CFLAGS) \
@@ -35,5 +35,15 @@ blacklist_la_SOURCES = \
 blacklist_la_LDFLAGS = -module -avoid-version
 
 blacklist_la_LIBADD = \
+	$(BLUEBIRD_LIBS) \
+	$(NULL)
+
+storage_monitor_la_SOURCES = \
+	storage-monitor.la \
+	$(NULL)
+
+storage_monitor_la_LDFLAGS = -module -avoid-version
+
+storage_monitor_la_LIBADD = \
 	$(BLUEBIRD_LIBS) \
 	$(NULL)
