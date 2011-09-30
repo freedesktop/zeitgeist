@@ -299,7 +299,7 @@ namespace Zeitgeist
                 update_medium_state_stmt.reset ();
                 update_medium_state_stmt.bind_int (1, 0);
                 update_medium_state_stmt.bind_text (2, medium_name);
-                int rc = update_medium_state_stmt.step ()
+                int rc = update_medium_state_stmt.step ();
                 database.assert_query_success (rc, "remove_storage_medium",
                     Sqlite.DONE);
             }
