@@ -108,7 +108,7 @@ namespace Zeitgeist
     }
 
     /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */
-    [DBus (name = "org.gnome.zeitgeist.SimpleIndexer")]
+    [DBus (name = "org.gnome.zeitgeist.Index")]
     public interface RemoteSimpleIndexer : Object
     {
         [DBus (signature = "a(asaasay)u")]
