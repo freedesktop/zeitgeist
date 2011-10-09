@@ -31,7 +31,7 @@ namespace Zeitgeist
     }
 
     [DBus (name = "org.gnome.zeitgeist.SimpleIndexer")]
-    public interface Siin : Object 
+    public interface RemoteSimpleIndexer : Object
     {
         [DBus (signature = "a(asaasay)u")]
         public abstract Variant search (
@@ -43,33 +43,35 @@ namespace Zeitgeist
 
     class SearchEngine: Extension, RemoteSearchEngine
     {
-        
-        private Siin siin;
+
+        private RemoteSimpleIndexer siin;
         private uint registration_id;
-        
+
         SearchEngine ()
         {
             Object ();
         }
-        
+
         construct
         {
             try
             {
-                siin = Bus.get_proxy_sync (BusType.SESSION, "org.gnome.zeitgeist.Index",
-                                                    "/org/gnome/zeitgeist/index/activity");
-                warning ("=============================================");
                 var connection = Bus.get_sync (BusType.SESSION, null);
                 registration_id = connection.register_object<RemoteSearchEngine> (
                     "/org/gnome/zeitgeist/index/activity", this);
+
+                // Get SimpleIndexer
+                siin = Bus.get_proxy_sync (BusType.SESSION,
+                    "org.gnome.zeitgeist.Index",
+                    "/org/gnome/zeitgeist/index/activity");
             }
             catch (Error err)
             {
                 warning ("%s", err.message);
             }
         }
-        
-        public Variant search (string query_string, Variant time_range, 
+
+        public Variant search (string query_string, Variant time_range,
             Variant filter_templates, uint offset, uint count, uint result_type)
         {
             return siin.search (query_string, time_range, filter_templates,

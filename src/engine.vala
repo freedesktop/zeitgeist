@@ -570,7 +570,6 @@ public class Engine : Object
         }
         database.end_transaction ();
         extension_collection.call_post_insert_events (events, sender);
-        debug("Inserted %lld events", events.length);
         return event_ids;
     }
 
