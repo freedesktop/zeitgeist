@@ -23,23 +23,27 @@ namespace Zeitgeist
     public interface RemoteSearchEngine: Object
     {
         [DBus (signature = "a(asaasay)u")]
-        public abstract Variant search (
+        public abstract async Variant search (
             string query_string,
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
             uint offset, uint count, uint result_type) throws Error;
     }
 
+    /* Because of a Vala bug we have to define the proxy interface outside of
+     * [ModuleInit] source */
+    /*
     [DBus (name = "org.gnome.zeitgeist.SimpleIndexer")]
     public interface RemoteSimpleIndexer : Object
     {
         [DBus (signature = "a(asaasay)u")]
-        public abstract Variant search (
+        public abstract async Variant search (
             string query_string,
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
             uint offset, uint count, uint result_type) throws Error;
     }
+    */
 
     class SearchEngine: Extension, RemoteSearchEngine
     {
@@ -61,7 +65,7 @@ namespace Zeitgeist
                     "/org/gnome/zeitgeist/index/activity", this);
 
                 // Get SimpleIndexer
-                siin = Bus.get_proxy_sync (BusType.SESSION,
+                siin = Bus.get_proxy_sync<RemoteSimpleIndexer> (BusType.SESSION,
                     "org.gnome.zeitgeist.Index",
                     "/org/gnome/zeitgeist/index/activity");
             }
@@ -71,11 +75,13 @@ namespace Zeitgeist
             }
         }
 
-        public Variant search (string query_string, Variant time_range,
+        public async Variant search (string query_string, Variant time_range,
             Variant filter_templates, uint offset, uint count, uint result_type)
+            throws Error
         {
-            return siin.search (query_string, time_range, filter_templates,
-                offset, count, result_type);
+            var result = yield siin.search (query_string, time_range,
+                filter_templates, offset, count, result_type);
+            return result;
         }
 
     }
