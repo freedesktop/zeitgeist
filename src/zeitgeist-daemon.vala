@@ -128,7 +128,9 @@ namespace Zeitgeist
         public Variant get_events (uint32[] event_ids, BusName sender)
             throws Error
         {
+            var timer = new Timer ();
             GenericArray<Event> events = engine.get_events (event_ids);
+            debug ("%s executed in %f seconds", Log.METHOD, timer.elapsed ());
             return Events.to_variant (events);
         }
 
