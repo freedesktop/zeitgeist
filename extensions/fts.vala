@@ -79,6 +79,7 @@ namespace Zeitgeist
             Variant filter_templates, uint offset, uint count, uint result_type)
             throws Error
         {
+            debug ("Searching for '%s'", query_string);
             var result = yield siin.search (query_string, time_range,
                 filter_templates, offset, count, result_type);
             return result;
