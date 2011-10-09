@@ -66,7 +66,7 @@ namespace Zeitgeist
 
                 // Get SimpleIndexer
                 siin = Bus.get_proxy_sync<RemoteSimpleIndexer> (BusType.SESSION,
-                    "org.gnome.zeitgeist.Index",
+                    "org.gnome.zeitgeist.SimpleIndexer",
                     "/org/gnome/zeitgeist/index/activity");
             }
             catch (Error err)
