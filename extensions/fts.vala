@@ -31,21 +31,21 @@ namespace Zeitgeist
     }
 
     [DBus (name = "org.gnome.zeitgeist.SimpleIndexer")]
-    public interface Siin : Object {
+    public interface Siin : Object 
+    {
         [DBus (signature = "a(asaasay)u")]
-        public signal Variant search (
+        public abstract Variant search (
             string query_string,
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
             uint offset, uint count, uint result_type) throws Error;
     }
 
-    public static string FTS_DATABASE_PATH;
-
     class SearchEngine: Extension, RemoteSearchEngine
     {
         
-        private Siin siin = null; 
+        private Siin siin;
+        private uint registration_id;
         
         SearchEngine ()
         {
@@ -58,7 +58,7 @@ namespace Zeitgeist
             {
                 siin = Bus.get_proxy_sync (BusType.SESSION, "org.gnome.zeitgeist.Index",
                                                     "/org/gnome/zeitgeist/index/activity");
-                                                    
+                warning ("=============================================");
                 var connection = Bus.get_sync (BusType.SESSION, null);
                 registration_id = connection.register_object<RemoteSearchEngine> (
                     "/org/gnome/zeitgeist/index/activity", this);
@@ -67,21 +67,20 @@ namespace Zeitgeist
             {
                 warning ("%s", err.message);
             }
-
-            // Changes are saved to the DB every few seconds and at unload.
-            Timeout.add_seconds (DISK_WRITE_TIMEOUT, flush, Priority.LOW);
         }
         
         public Variant search (string query_string, Variant time_range, 
             Variant filter_templates, uint offset, uint count, uint result_type)
         {
+            return siin.search (query_string, time_range, filter_templates,
+                offset, count, result_type);
         }
 
     }
 
     [ModuleInit]
 #if BUILTIN_EXTENSIONS
-    public static Type search_engine_init (TypeModule module)
+    public static Type fts_init (TypeModule module)
     {
 #else
     public static Type extension_register (TypeModule module)
