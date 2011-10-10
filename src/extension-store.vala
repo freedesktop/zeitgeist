@@ -33,7 +33,14 @@ namespace Zeitgeist
         public ExtensionStore (Zeitgeist.Engine engine) {
             database = engine.database;
             db = database.database;
-            prepare_queries ();
+            try
+            {
+                prepare_queries ();
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
+            }
         }
 
         private void prepare_queries () throws EngineError
