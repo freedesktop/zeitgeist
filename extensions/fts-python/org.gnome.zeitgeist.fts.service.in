@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.gnome.zeitgeist.SimpleIndexer
+Exec=@pkgdatadir@/fts-python/fts.py
