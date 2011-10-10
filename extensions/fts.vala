@@ -82,6 +82,13 @@ namespace Zeitgeist
             Variant filter_templates, uint offset, uint count, uint result_type,
             out Variant events) throws Error
         {
+            debug ("Performing search for %s", query_string);
+            if (siin == null || !(siin is DBusProxy))
+            {
+                throw new EngineError.DATABASE_ERROR (
+                    "Not connected to SimpleIndexer");
+            }
+            var timer = new Timer ();
             DBusProxy proxy = (DBusProxy) siin;
             var b = new VariantBuilder (new VariantType ("(s(xx)a(asaasay)uuu)"));
             b.add ("s", query_string);
@@ -91,7 +98,6 @@ namespace Zeitgeist
             b.add ("u", count);
             b.add ("u", result_type);
             var result = yield proxy.call ("Search", b.end (), 0, -1, null);
-            debug ("%s: %s", Log.METHOD, result.get_type_string ());
             events = result.get_child_value (0);
             /* FIXME: this somehow doesn't work :(
              *   but it's fixable in a similar way as this method's signature
@@ -100,6 +106,7 @@ namespace Zeitgeist
             var result = yield siin.search (query_string, time_range,
                 filter_templates, offset, count, result_type);
             */
+            debug ("Got %u results from indexer (in %f seconds)", (uint) events.n_children (), timer.elapsed ());
             return result.get_child_value (1);
         }
 
