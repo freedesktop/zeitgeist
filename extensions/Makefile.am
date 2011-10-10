@@ -1,3 +1,5 @@
+SUBDIRS = fts-python
+
 NULL =
 
 #extensionsdir = $(libdir)/zeitgeist/extensions

@@ -35,10 +35,28 @@ PKG_CHECK_MODULES(BLUEBIRD, [$BLUEBIRD_REQUIRED])
 AC_SUBST(BLUEBIRD_CFLAGS)
 AC_SUBST(BLUEBIRD_LIBS)
 
+#################################################
+# DBus service
+#################################################
+
+AC_ARG_WITH([session_bus_services_dir],
+            AC_HELP_STRING([--with-session-bus-services-dir], [Path to DBus services directory]))
+
+if test "x$with_session_bus_services_dir" = "x" ; then
+	PKG_CHECK_MODULES(DBUS_MODULE, "dbus-1")
+	services_dir="`$PKG_CONFIG --variable session_bus_services_dir dbus-1`"
+else
+	services_dir="$with_session_bus_services_dir"
+fi
+
+DBUS_SERVICES_DIR="$services_dir"
+AC_SUBST(DBUS_SERVICES_DIR)
+
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 	extensions/Makefile
+	extensions/fts-python/Makefile
 	extra/Makefile
 	extra/ontology/Makefile
 	test/Makefile
