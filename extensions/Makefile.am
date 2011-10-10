@@ -39,7 +39,7 @@ blacklist_la_LIBADD = \
 	$(NULL)
 
 storage_monitor_la_SOURCES = \
-	storage-monitor.la \
+	storage-monitor.vala \
 	$(NULL)
 
 storage_monitor_la_LDFLAGS = -module -avoid-version
@@ -50,7 +50,7 @@ storage_monitor_la_LIBADD = \
 	
 
 fts_la_SOURCES = \
-	storage-monitor.la \
+	fts.vala \
 	$(NULL)
 
 fts_la_LDFLAGS = -module -avoid-version
