@@ -1,6 +1,6 @@
 SUBDIRS = ontology
 
-servicedir = $(DBUS_SERVICE_DIR)
+servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.gnome.zeitgeist.service
 
 org.gnome.zeitgeist.service: org.gnome.zeitgeist.service.in

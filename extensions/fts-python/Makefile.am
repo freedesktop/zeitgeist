@@ -9,7 +9,7 @@ dist_fts_SCRIPTS = \
 	sql.py \
 	$(NULL)
 
-servicedir = $(DBUS_SERVICE_DIR)
+servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.gnome.zeitgeist.fts.service
 
 org.gnome.zeitgeist.fts.service: org.gnome.zeitgeist.fts.service.in
