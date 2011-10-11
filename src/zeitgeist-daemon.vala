@@ -72,6 +72,7 @@ namespace Zeitgeist
 
         private static Daemon? instance;
         private static MainLoop mainloop;
+        private static bool name_acquired = false;
 
         private Engine engine;
         private MonitorManager notifications;
@@ -263,35 +264,109 @@ namespace Zeitgeist
             }
         }
 
-        private static void handle_existing_instance ()
+        private static bool quit_running_instance (DBusConnection conn)
         {
-            if (!replace_mode)
+            try
             {
-                stderr.printf ("Could not aquire name\n");
-                Posix.exit (10);
+                var running_instance = conn.get_proxy_sync<RemoteLog> (
+                    "org.gnome.zeitgeist.Engine",
+                    "/org/gnome/zeitgeist/log/activity");
+                running_instance.quit ();
+                return true;
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
             }
 
-            // FIXME: implement --replace and --quit
-            // running_interface = ...
-            // running_interface.quit ();
+            return false;
+        }
+
+        private static void name_acquired_callback (DBusConnection conn)
+        {
+            name_acquired = true;
+
+            // only run datahub when we acquire bus name
+            if (!no_datahub)
+            {
+                try
+                {
+                    Process.spawn_command_line_async ("zeitgeist-datahub");
+                }
+                catch (SpawnError err)
+                {
+                    warning ("%s", err.message);
+                }
+            }
+        }
+
+        private static void name_lost_callback (DBusConnection? conn)
+        {
+            if (instance != null && !name_acquired)
+            {
+                // we acquired bus connection, but couldn't own the name
+                if (!replace_mode)
+                {
+                    stderr.printf ("Could not aquire name\n");
+                    Posix.exit (10);
+                }
+
+                quit_running_instance (conn);
+                // wait a while for the running instance to quit, bail out
+                // if it doesn't
+                Timeout.add (10000, () =>
+                {
+                    if (!name_acquired)
+                    {
+                        warning ("Timeout reached, unable to acquire name!");
+                        mainloop.quit ();
+                    }
+                    return false;
+                });
+            }
+            else if (instance != null && name_acquired)
+            {
+                // we owned the name and we lost it... what to do?
+                mainloop.quit ();
+            }
+            else if (conn == null)
+            {
+                // we couldn't even acquire the bus connection
+                mainloop.quit ();
+            }
         }
 
         static void run ()
         {
             // TODO: look at zeitgeist/singleton.py
-            Bus.own_name (BusType.SESSION, "org.gnome.zeitgeist.Engine",
+            uint owner_id;
+            owner_id = Bus.own_name (BusType.SESSION,
+                "org.gnome.zeitgeist.Engine",
                 BusNameOwnerFlags.NONE,
                 on_bus_aquired,
-                () => {},
-                handle_existing_instance);
-
-            // FIXME: start the datahub
+                name_acquired_callback,
+                name_lost_callback);
 
             mainloop = new MainLoop ();
             mainloop.run ();
 
-            instance.unregister_dbus_object ();
-            instance = null;
+            if (instance != null)
+            {
+                Bus.unown_name (owner_id);
+                instance.unregister_dbus_object ();
+                instance = null;
+
+                // make sure we send quit reply
+                try
+                {
+                    var connection = Bus.get_sync (BusType.SESSION);
+                    connection.flush_sync ();
+                }
+                catch (Error err)
+                {
+                    warning ("%s", err.message);
+                }
+            }
         }
 
         static void safe_exit ()
@@ -328,6 +403,12 @@ namespace Zeitgeist
                     }
                     stdout.printf ("--help\n");
 
+                    return 0;
+                }
+                if (quit_daemon)
+                {
+                    var conn = Bus.get_sync (BusType.SESSION);
+                    quit_running_instance (conn);
                     return 0;
                 }
                 run ();
