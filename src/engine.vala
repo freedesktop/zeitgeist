@@ -834,19 +834,6 @@ public class Engine : Object
                     interpretations_table);
                 if (!subwhere.is_empty ())
                     where.extend (subwhere);
-                    
-                var temp_interpretation = template.interpretation;
-                var is_negated = parse_negation(ref temp_interpretation);
-                foreach (var interp in Symbol.get_all_children(temp_interpretation)) {
-                    string child = null;
-                    if (is_negated)
-                        child = "!"+ interp;
-                    subwhere = get_where_clause_for_symbol (
-                        "subj_interpretation", child,
-                        interpretations_table);
-                    if (!subwhere.is_empty ())
-                        where.extend (subwhere);
-                }
             }
 
             // Manifestation
@@ -903,19 +890,6 @@ public class Engine : Object
                         interpretations_table);
                     if (!subwhere.is_empty ())
                         where.extend (subwhere);
-                        
-                    var temp_interpretation = subject_template.interpretation;
-                    var is_negated = parse_negation(ref temp_interpretation);
-                    foreach (var interp in Symbol.get_all_children(temp_interpretation)) {
-                        string child = null;
-                        if (is_negated)
-                            child = "!"+ interp;
-                        subwhere = get_where_clause_for_symbol (
-                            "subj_interpretation", child,
-                            interpretations_table);
-                        if (!subwhere.is_empty ())
-                            where.extend (subwhere);
-                    }
                 }
 
                 // Subject manifestation
@@ -1076,7 +1050,7 @@ public class Engine : Object
     {
         string _symbol = symbol;
         bool negated = parse_negation (ref _symbol);
-        List<unowned string> symbols = Symbol.get_all_children (symbol);
+        List<unowned string> symbols = Symbol.get_all_children (_symbol);
         symbols.prepend (_symbol);
 
         WhereClause subwhere = new WhereClause(
