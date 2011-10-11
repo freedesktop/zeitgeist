@@ -88,26 +88,26 @@ namespace Zeitgeist
             }
         }
 
-        public Variant version
+        public VersionStruct version
         {
             owned get
             {
-                var vb = new VariantBuilder (new VariantType ("(iii)"));
+                var s = VersionStruct ();
                 string[] ver = Config.VERSION.split (".");
                 if (ver.length >= 3)
                 {
-                    vb.add ("i", int.parse (ver[0]));
-                    vb.add ("i", int.parse (ver[1]));
-                    vb.add ("i", int.parse (ver[2]));
+                    s.major = int.parse (ver[0]);
+                    s.minor = int.parse (ver[1]);
+                    s.micro = int.parse (ver[2]);
                 }
                 else
                 {
                     warning ("Unable to parse version info!");
-                    vb.add ("i", 0);
-                    vb.add ("i", 8);
-                    vb.add ("i", 99);
+                    s.major = 0;
+                    s.minor = 8;
+                    s.micro = 99;
                 }
-                return vb.end ();
+                return s;
             }
         }
 

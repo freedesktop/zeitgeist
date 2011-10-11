@@ -21,6 +21,12 @@
 
 namespace Zeitgeist
 {
+    public struct VersionStruct
+    {
+        int major;
+        int minor;
+        int micro;
+    }
 
     [DBus (name = "org.gnome.zeitgeist.Log")]
     public interface RemoteLog : Object
@@ -86,8 +92,8 @@ namespace Zeitgeist
         [DBus (name = "extensions")]
         public abstract string[] extensions { owned get; }
 
-        [DBus (signature = "iii", name = "version")]
-        public abstract Variant version { owned get; }
+        [DBus (name = "version")]
+        public abstract VersionStruct version { owned get; }
 
     }
 
