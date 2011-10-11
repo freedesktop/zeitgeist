@@ -33,6 +33,7 @@ namespace Zeitgeist.SQLite
     {
 
         public static void ensure_schema (Sqlite.Database database)
+            throws EngineError
         {
             // TODO: PRAGMA: WAL
 
@@ -44,6 +45,7 @@ namespace Zeitgeist.SQLite
         }
 
         public static void create_schema (Sqlite.Database database)
+            throws EngineError
         {
             // URI
             exec_query (database, """
@@ -354,16 +356,15 @@ namespace Zeitgeist.SQLite
          * @param sql the SQL query to run
          */
         private static void exec_query (Sqlite.Database database,
-            string sql)
+            string sql) throws EngineError
         {
             int rc = database.exec (sql);
             if (rc != Sqlite.OK)
             {
-                string error_message = "Can't create database: %d, %s".printf(
-                    rc, database.errmsg ());
-                critical ("%s\n", error_message);
-                // FIXME: Propagate exceptions so the engine will stop if
-                // this happens
+                const string fmt_str = "Can't create database: %d, %s\n\n" +
+                    "Unable to execute SQL:\n%s";
+                var err_msg = fmt_str.printf (rc, database.errmsg (), sql);
+                throw new EngineError.DATABASE_ERROR (err_msg);
             }
         }
 

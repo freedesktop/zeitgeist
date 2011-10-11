@@ -112,17 +112,9 @@ namespace Zeitgeist
             }
         }
 
-        public Daemon ()
+        public Daemon () throws EngineError
         {
-            try
-            {
-                engine = new Engine ();
-            }
-            catch (EngineError e)
-            {
-                safe_exit ();
-            }
-
+            engine = new Engine ();
             notifications = new MonitorManager ();
         }
 
@@ -251,16 +243,21 @@ namespace Zeitgeist
             }
         }
 
-        static void on_bus_aquired (DBusConnection conn)
+        static void on_bus_acquired (DBusConnection conn)
         {
-            instance = new Daemon ();
             try
             {
+                instance = new Daemon ();
                 instance.register_dbus_object (conn);
+            }
+            catch (EngineError err)
+            {
+                critical ("%s", err.message);
+                mainloop.quit ();
             }
             catch (IOError e)
             {
-                stderr.printf ("Could not register service\n");
+                critical ("Could not register service");
             }
         }
 
@@ -343,7 +340,7 @@ namespace Zeitgeist
             owner_id = Bus.own_name (BusType.SESSION,
                 "org.gnome.zeitgeist.Engine",
                 BusNameOwnerFlags.NONE,
-                on_bus_aquired,
+                on_bus_acquired,
                 name_acquired_callback,
                 name_lost_callback);
 
