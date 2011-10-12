@@ -362,9 +362,9 @@ namespace Zeitgeist
             vb.open (new VariantType ("as"));
             vb.add ("s", id.to_string ());
             vb.add ("s", timestamp.to_string ());
-            vb.add ("s", interpretation ?? "");
-            vb.add ("s", manifestation ?? "");
-            vb.add ("s", actor ?? "");
+            vb.add ("s", interpretation != null ? interpretation : "");
+            vb.add ("s", manifestation != null ? manifestation : "");
+            vb.add ("s", actor != null ? actor : "");
             vb.add ("s", origin ?? "");
             vb.close ();
 
@@ -546,6 +546,19 @@ namespace Zeitgeist
 
         public Variant to_variant ()
         {
+            /* The FAST version */
+            char* ptr_arr[8];
+            ptr_arr[0] = uri != null ? uri : "";
+            ptr_arr[1] = interpretation != null ? interpretation : "";
+            ptr_arr[2] = manifestation != null ? manifestation : "";
+            ptr_arr[3] = origin != null ? origin : "";
+            ptr_arr[4] = mimetype != null ? mimetype : "";
+            ptr_arr[5] = text != null ? text : "";
+            ptr_arr[6] = storage != null ? storage : "";
+            ptr_arr[7] = current_uri != null ? current_uri : "";
+            return new Variant.strv ((string[]) ptr_arr);
+            /* The NICE version */
+            /*
             var vb = new VariantBuilder (new VariantType ("as"));
             vb.add ("s", uri ?? "");
             vb.add ("s", interpretation ?? "");
@@ -557,6 +570,7 @@ namespace Zeitgeist
             vb.add ("s", current_uri ?? "");
 
             return vb.end ();
+            */
         }
 
         public bool matches_template (Subject template_subject)
