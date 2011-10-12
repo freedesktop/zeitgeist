@@ -38,9 +38,6 @@ namespace Zeitgeist
             BusName sender
         ) throws Error;
 
-        // This is stupid. We don't need it.
-        //public void DeleteLog ();
-
         public abstract uint32[] find_event_ids (
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,

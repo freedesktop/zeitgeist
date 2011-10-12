@@ -19,6 +19,7 @@ SRC_FILES = \
 	$(top_srcdir)/src/engine.vala \
 	$(top_srcdir)/src/utils.vala \
 	$(top_srcdir)/src/errors.vala \
+	$(top_srcdir)/src/extension-store.vala \
 	$(top_srcdir)/src/notify.vala \
 	$(top_srcdir)/src/table-lookup.vala \
 	$(top_srcdir)/src/datamodel.vala  \
