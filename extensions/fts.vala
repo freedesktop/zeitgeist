@@ -65,12 +65,35 @@ namespace Zeitgeist
                 registration_id = connection.register_object<RemoteSearchEngine> (
                     "/org/gnome/zeitgeist/index/activity", this);
 
+                // FIXME: shouldn't we delay this to next idle callback?
                 // Get SimpleIndexer
-                siin = Bus.get_proxy_sync<RemoteSimpleIndexer> (BusType.SESSION,
+                Bus.watch_name_on_connection (connection,
                     "org.gnome.zeitgeist.SimpleIndexer",
-                    "/org/gnome/zeitgeist/index/activity");
+                    BusNameWatcherFlags.AUTO_START,
+                    (conn) =>
+                    {
+                        if (siin != null) return;
+                        conn.get_proxy.begin<RemoteSimpleIndexer> (
+                            "org.gnome.zeitgeist.SimpleIndexer",
+                            "/org/gnome/zeitgeist/index/activity",
+                            0, null, this.proxy_acquired);
+                    },
+                    () => {});
             }
             catch (Error err)
+            {
+                warning ("%s", err.message);
+            }
+        }
+
+        private void proxy_acquired (Object? obj, AsyncResult res)
+        {
+            var conn = obj as DBusConnection;
+            try
+            {
+                siin = conn.get_proxy.end<RemoteSimpleIndexer> (res);
+            }
+            catch (IOError err)
             {
                 warning ("%s", err.message);
             }
@@ -85,6 +108,7 @@ namespace Zeitgeist
             debug ("Performing search for %s", query_string);
             if (siin == null || !(siin is DBusProxy))
             {
+                // FIXME: queue until we have the proxy
                 throw new EngineError.DATABASE_ERROR (
                     "Not connected to SimpleIndexer");
             }
