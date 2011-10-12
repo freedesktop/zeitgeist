@@ -149,6 +149,36 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 						num_events=10)
 		self.assertEquals(1, len(ids))
 
+	def testFindOneOfThreeEvents(self):
+		events = parse_events("test/data/three_events.js")
+		ids = self.insertEventsAndWait(events)
+		self.assertEquals(3, len(ids))
+		
+		events = self.getEventsAndWait(ids)
+		self.assertEquals(3, len(events))
+		for event in events:
+			self.assertTrue(isinstance(event, Event))
+			self.assertEquals(Manifestation.USER_ACTIVITY, event.manifestation)
+			self.assertTrue(event.actor.startswith("Boogaloo"))
+		
+		# Search for everything
+		ids = self.findEventIdsAndWait([], num_events=3)
+		self.assertEquals(3, len(ids))
+		
+		# Search for some specific templates
+		subj_templ1 = Subject.new_for_values(interpretation="!"+Interpretation.AUDIO)
+		subj_templ2 = Subject.new_for_values(interpretation="!"+Interpretation.IMAGE)
+		event_template = Event.new_for_values(
+					actor="Boogaloo*",
+					interpretation=Interpretation.ACCESS_EVENT,
+					subjects=[subj_templ1, subj_templ2])
+		ids = self.findEventIdsAndWait([event_template],
+						num_events=10)
+		self.assertEquals(1, len(ids))
+		events = self.getEventsAndWait(ids)
+		event = events[0]
+		self.assertEquals(event.subjects[0].interpretation, Interpretation.DOCUMENT)
+
 	def testFindEventsWithMultipleSubjects(self):
 		events = parse_events("test/data/three_events.js")
 		ids = self.insertEventsAndWait(events)
