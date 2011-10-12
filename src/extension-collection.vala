@@ -62,6 +62,8 @@ namespace Zeitgeist
             // TODO: load extensions from system & user directories, and make
             // sure the order is correct
             unowned string ext_dir1 = Utils.get_local_extensions_path ();
+            if (!FileUtils.test (ext_dir1, FileTest.IS_DIR | FileTest.EXISTS))
+                return;
             Dir? user_ext_dir;
             try
             {
