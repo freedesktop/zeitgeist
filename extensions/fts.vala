@@ -2,6 +2,7 @@
  *
  * Copyright © 2011 Seif Lotfy <seif@lotfy.com>
  * Copyright © 2011 Canonical Ltd.
+ *             By Michal Hruby <michal.hruby@canonical.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,8 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authored by Seif Lotfy <seif@lotfy.com>
- *             Michal Hruby <michal.hruby@canonical.com>
  */
 
 namespace Zeitgeist
@@ -102,7 +101,7 @@ namespace Zeitgeist
             }
         }
 
-        /* This whole method is one huge workaround for an issue with Vala 
+        /* This whole method is one huge workaround for an issue with Vala
          * enclosing all out/return parameters in a TUPLE variant */
         public async Variant search (string query_string, Variant time_range,
             Variant filter_templates, uint offset, uint count, uint result_type,
@@ -133,7 +132,8 @@ namespace Zeitgeist
             var result = yield siin.search (query_string, time_range,
                 filter_templates, offset, count, result_type);
             */
-            debug ("Got %u results from indexer (in %f seconds)", (uint) events.n_children (), timer.elapsed ());
+            debug ("Got %u results from indexer (in %f seconds)",
+                (uint) events.n_children (), timer.elapsed ());
             return result.get_child_value (1);
         }
 
