@@ -24,8 +24,15 @@
 namespace Zeitgeist
 {
 
+    [DBus (name = "org.freedesktop.DBus")]
+    public interface RemoteDBus : Object
+    {
+        public abstract bool name_has_owner (string name) throws IOError;
+    }
+
     public class Daemon : Object, RemoteLog
     {
+        const string DBUS_NAME = "org.gnome.zeitgeist.Engine";
         private static bool show_version_info = false;
         private static bool show_options = false;
         private static bool no_datahub = false;
@@ -133,9 +140,10 @@ namespace Zeitgeist
                 uint storage_state, uint num_events, uint result_type,
                 BusName sender) throws Error
         {
-            return engine.find_related_uris(new TimeRange.from_variant (time_range),
-                Events.from_variant(event_templates),
-                Events.from_variant(result_event_templates),
+            return engine.find_related_uris (
+                new TimeRange.from_variant (time_range),
+                Events.from_variant (event_templates),
+                Events.from_variant (result_event_templates),
                 storage_state, num_events, result_type);
         }
 
@@ -266,8 +274,7 @@ namespace Zeitgeist
             try
             {
                 var running_instance = conn.get_proxy_sync<RemoteLog> (
-                    "org.gnome.zeitgeist.Engine",
-                    "/org/gnome/zeitgeist/log/activity");
+                    DBUS_NAME, "/org/gnome/zeitgeist/log/activity");
                 running_instance.quit ();
                 return true;
             }
@@ -304,12 +311,11 @@ namespace Zeitgeist
                 // we acquired bus connection, but couldn't own the name
                 if (!replace_mode)
                 {
-                    stderr.printf ("Could not aquire name\n");
-                    Posix.exit (10);
                 }
 
-                quit_running_instance (conn);
-                // wait a while for the running instance to quit, bail out
+                debug ("Waiting 10 seconds to acquire name...");
+                // we already called Quit, let's wait a while
+                // for the running instance to quit, bail out
                 // if it doesn't
                 Timeout.add (10000, () =>
                 {
@@ -335,12 +341,38 @@ namespace Zeitgeist
 
         static void run ()
         {
-            // TODO: look at zeitgeist/singleton.py
-            uint owner_id;
-            owner_id = Bus.own_name (BusType.SESSION,
-                "org.gnome.zeitgeist.Engine",
+            DBusConnection connection;
+            bool name_owned;
+            try
+            {
+                connection = Bus.get_sync (BusType.SESSION);
+                var proxy = connection.get_proxy_sync<RemoteDBus> (
+                    "org.freedesktop.DBus", "/org/freedesktop/DBus",
+                    DBusProxyFlags.DO_NOT_LOAD_PROPERTIES);
+                name_owned = proxy.name_has_owner (DBUS_NAME);
+            }
+            catch (IOError err)
+            {
+                critical ("%s", err.message);
+                return;
+            }
+            if (name_owned)
+            {
+                if (replace_mode)
+                {
+                    quit_running_instance (connection);
+                }
+                else
+                {
+                    critical ("Could not aquire name");
+                    Posix.exit (10);
+                }
+            }
+            on_bus_acquired (connection);
+            if (instance == null) return;
+            uint owner_id = Bus.own_name_on_connection (connection,
+                DBUS_NAME,
                 BusNameOwnerFlags.NONE,
-                on_bus_acquired,
                 name_acquired_callback,
                 name_lost_callback);
 
@@ -356,12 +388,11 @@ namespace Zeitgeist
                 // make sure we send quit reply
                 try
                 {
-                    var connection = Bus.get_sync (BusType.SESSION);
                     connection.flush_sync ();
                 }
-                catch (Error err)
+                catch (Error e)
                 {
-                    warning ("%s", err.message);
+                    warning ("%s", e.message);
                 }
             }
         }
