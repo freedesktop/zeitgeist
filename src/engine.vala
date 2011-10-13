@@ -1078,8 +1078,7 @@ public class Engine : Object
             }
             sb.truncate (sb.len - 1);
 
-            string sql = "%s %s IN (%s)".printf(table_name,
-                (negated) ? "NOT": "", sb.str);
+            string sql = "%s IN (%s)".printf(table_name, sb.str);
             subwhere.add(sql);
         }
 
