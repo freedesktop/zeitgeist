@@ -186,9 +186,9 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 		results = self.findEventsForTemplatesAndWait([], num_events=5)
 		self.assertEquals(3, len(results))
 
-		self.assertEquals(len(results[0].get_subjects()), 2)
+		self.assertEquals(len(results[2].get_subjects()), 2)
 		self.assertEquals(len(results[1].get_subjects()), 1)
-		self.assertEquals(len(results[1].get_subjects()), 1)
+		self.assertEquals(len(results[0].get_subjects()), 1)
 
 	def testFindEventsLimitWhenDuplicates(self):
 		events = parse_events("test/data/three_events.js")
