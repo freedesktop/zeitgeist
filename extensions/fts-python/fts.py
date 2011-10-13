@@ -1268,5 +1268,6 @@ class Indexer:
 if __name__ == "__main__":
     mainloop = gobject.MainLoop(is_running=True)
     search_engine = SearchEngineExtension()
+    ZG_CLIENT._iface.connect_exit(lambda: mainloop.quit ())
     mainloop.run()
 
