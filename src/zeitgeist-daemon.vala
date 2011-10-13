@@ -251,24 +251,6 @@ namespace Zeitgeist
             }
         }
 
-        static void on_bus_acquired (DBusConnection conn)
-        {
-            try
-            {
-                instance = new Daemon ();
-                instance.register_dbus_object (conn);
-            }
-            catch (EngineError err)
-            {
-                critical ("%s", err.message);
-                mainloop.quit ();
-            }
-            catch (IOError e)
-            {
-                critical ("Could not register service");
-            }
-        }
-
         private static bool quit_running_instance (DBusConnection conn)
         {
             try
@@ -306,7 +288,12 @@ namespace Zeitgeist
 
         private static void name_lost_callback (DBusConnection? conn)
         {
-            if (instance != null && !name_acquired)
+            if (conn == null)
+            {
+                // something happened to our bus connection
+                mainloop.quit ();
+            }
+            else if (instance != null && !name_acquired)
             {
                 // we acquired bus connection, but couldn't own the name
                 if (!replace_mode)
@@ -332,11 +319,6 @@ namespace Zeitgeist
                 // we owned the name and we lost it... what to do?
                 mainloop.quit ();
             }
-            else if (conn == null)
-            {
-                // we couldn't even acquire the bus connection
-                mainloop.quit ();
-            }
         }
 
         static void run ()
@@ -358,7 +340,7 @@ namespace Zeitgeist
             }
             if (name_owned)
             {
-                if (replace_mode)
+                if (replace_mode || quit_daemon)
                 {
                     quit_running_instance (connection);
                 }
@@ -368,8 +350,22 @@ namespace Zeitgeist
                     Posix.exit (10);
                 }
             }
-            on_bus_acquired (connection);
-            if (instance == null) return;
+
+            /* don't do anything else if we were called with --quit param */
+            if (quit_daemon) return;
+
+            /* setup Engine instance and register objects on dbus */
+            try
+            {
+                instance = new Daemon ();
+                instance.register_dbus_object (connection);
+            }
+            catch (Error err)
+            {
+                critical ("%s", err.message);
+                return;
+            }
+
             uint owner_id = Bus.own_name_on_connection (connection,
                 DBUS_NAME,
                 BusNameOwnerFlags.NONE,
@@ -431,12 +427,6 @@ namespace Zeitgeist
                     }
                     stdout.printf ("--help\n");
 
-                    return 0;
-                }
-                if (quit_daemon)
-                {
-                    var conn = Bus.get_sync (BusType.SESSION);
-                    quit_running_instance (conn);
                     return 0;
                 }
                 run ();
