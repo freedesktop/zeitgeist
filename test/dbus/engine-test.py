@@ -492,7 +492,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		
 		# Note: engine.insert_events() sets the id of the Event objects
 		ev[0][0] = _ev.id
-		self.assertEquals(ev, _ev)
+		self.assertEquals(ev.payload, _ev.payload)
 		
 	def testQueryByParent (self):
 		ev = Event.new_for_values(subject_interpretation=Interpretation.AUDIO)

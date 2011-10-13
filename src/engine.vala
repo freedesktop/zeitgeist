@@ -162,15 +162,6 @@ public class Engine : Object
         uint storage_state, uint max_events, uint result_type,
         BusName? sender=null) throws EngineError
     {
-        return find_event_ids_logic(time_range, event_templates, storage_state,
-            max_events, result_type);
-    }
-
-    private uint32[] find_event_ids_logic (TimeRange time_range,
-        GenericArray<Event> event_templates,
-        uint storage_state, uint max_events, uint result_type,
-        bool distinct = true, BusName? sender=null) throws EngineError
-    {
 
         WhereClause where = new WhereClause (WhereClause.Type.AND);
 
@@ -207,13 +198,7 @@ public class Engine : Object
         //if (!where.may_have_results ())
         //    return new uint32[0];
 
-        string sql;
-        // FIXME: this doesn't make sense (and doesn't help for
-        // FindEventIds). find another fix
-        if (distinct)
-            sql = "SELECT DISTINCT id FROM event_view ";
-        else
-            sql = "SELECT id FROM event_view ";
+        string sql = "SELECT DISTINCT id FROM event_view ";
         string where_sql = "";
         if (!where.is_empty ())
         {
@@ -364,8 +349,8 @@ public class Engine : Object
         uint storage_state, uint max_events, uint result_type,
         BusName? sender=null) throws EngineError
     {
-        return get_events (find_event_ids_logic (time_range, event_templates,
-            storage_state, max_events, result_type, false));
+        return get_events (find_event_ids (time_range, event_templates,
+            storage_state, max_events, result_type));
     }
 
     private struct RelatedUri {
