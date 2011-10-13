@@ -364,7 +364,8 @@ namespace Zeitgeist
                 }
                 else
                 {
-                    critical ("Could not aquire name");
+                    critical ("An existing instance was found. Please use " +
+                        "--replace to stop it and start a new instance.");
                     Posix.exit (10);
                 }
             }
