@@ -37,6 +37,8 @@ namespace Zeitgeist.SQLite
         {
             // TODO: PRAGMA: WAL
 
+            exec_query (database, "PRAGMA journal_mode = WAL;");
+
             //if (Constants.DATABASE_FILE_PATH != ":memory:" && !new_db)
             // assume temporary memory backed DBs are good
             // check_core_schema_upgrade
