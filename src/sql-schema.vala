@@ -35,10 +35,6 @@ namespace Zeitgeist.SQLite
         public static void ensure_schema (Sqlite.Database database)
             throws EngineError
         {
-            // TODO: PRAGMA: WAL
-
-            exec_query (database, "PRAGMA journal_mode = WAL;");
-
             //if (Constants.DATABASE_FILE_PATH != ":memory:" && !new_db)
             // assume temporary memory backed DBs are good
             // check_core_schema_upgrade
@@ -49,6 +45,8 @@ namespace Zeitgeist.SQLite
         public static void create_schema (Sqlite.Database database)
             throws EngineError
         {
+            exec_query (database, "PRAGMA journal_mode = WAL");
+
             // URI
             exec_query (database, """
                 CREATE TABLE IF NOT EXISTS uri (
