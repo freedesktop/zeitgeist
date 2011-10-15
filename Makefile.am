@@ -18,6 +18,8 @@ bluebirddoc_DATA = \
 	NEWS \
 	$(NULL)
 
+DISTCHECK_CONFIGURE_FLAGS = --with-session-bus-services-dir="\$(datadir)"/dbus-1/services
+
 EXTRA_DIST = \
 	$(bluebirddoc_DATA) \
 	intltool-extract.in \
