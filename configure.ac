@@ -25,11 +25,12 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
 GLIB_REQUIRED=2.26.0
+SQLITE_REQUIRED=3.7
 
 BLUEBIRD_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
                    gobject-2.0 >= $GLIB_REQUIRED
                    gio-unix-2.0 >= $GLIB_REQUIRED
-                   sqlite3"
+                   sqlite3 >= $SQLITE_REQUIRED"
 
 PKG_CHECK_MODULES(BLUEBIRD, [$BLUEBIRD_REQUIRED])
 AC_SUBST(BLUEBIRD_CFLAGS)

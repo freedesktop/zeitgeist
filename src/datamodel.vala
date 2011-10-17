@@ -316,7 +316,7 @@ namespace Zeitgeist
 
             VariantIter iter = event_variant.iterator ();
 
-            assert (iter.n_children () == 3);
+            assert (iter.n_children () >= 3);
             VariantIter event_array = iter.next_value ().iterator ();
             VariantIter subjects_array = iter.next_value ().iterator ();
             Variant payload_variant = iter.next_value ();
@@ -360,7 +360,7 @@ namespace Zeitgeist
             var vb = new VariantBuilder (new VariantType ("("+Utils.SIG_EVENT+")"));
 
             vb.open (new VariantType ("as"));
-            vb.add ("s", id.to_string ());
+            vb.add ("s", id == 0 ? "" : id.to_string ());
             vb.add ("s", timestamp.to_string ());
             vb.add ("s", interpretation != null ? interpretation : "");
             vb.add ("s", manifestation != null ? manifestation : "");

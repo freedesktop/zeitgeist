@@ -209,7 +209,7 @@ def create_db(file_path):
 	# gains us a big speedup, for more information see http://www.sqlite.org/wal.html
 	# FIXME: Set journal_mode to WAL when teamdecision has been take.
 	# cursor.execute("PRAGMA journal_mode = WAL")
-	cursor.execute("PRAGMA journal_mode = DELETE")
+	# cursor.execute("PRAGMA journal_mode = DELETE")
 	# Seif: another result of the performance tweaks discussed in (LP: #639737)
 	# we decided to set locking_mode to EXCLUSIVE, from now on only
 	# one connection to the database is allowed to revert this setting set locking_mode to NORMAL.
