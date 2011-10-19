@@ -85,7 +85,7 @@ namespace Zeitgeist.SQLite
             return id;
         }
 
-        public string get_value (int id)
+        public unowned string get_value (int id)
         {
             // When we fetch an event, it either was already in the database
             // at the time Zeitgeist started or it was inserted later -using
