@@ -38,10 +38,6 @@ namespace Zeitgeist
         public const string DBUS_INTERFACE = "";
         public const string SIG_EVENT = "asaasay";
 
-        // Required version of DB schema
-        public const string CORE_SCHEMA = "core";
-        public const int CORE_SCHEMA_VERSION = 4;
-
         // configure runtime cache for events
         // default size is 2000
         public const uint CACHE_SIZE = 0;
@@ -101,6 +97,21 @@ namespace Zeitgeist
             debug ("LOCAL_EXTENSIONS_PATH = %s", LOCAL_EXTENSIONS_PATH);
 
             return LOCAL_EXTENSIONS_PATH;
+        }
+
+        public bool using_in_memory_database ()
+        {
+            return get_database_file_path () == ":memory:";
+        }
+
+        public void backup_database () throws Error
+        {
+            File original;
+            File destination;
+            original = File.new_for_path (get_database_file_path ());
+            destination = File.new_for_path (get_database_file_backup_path ());
+
+            original.copy (destination, FileCopyFlags.OVERWRITE, null, null);
         }
     }
 }

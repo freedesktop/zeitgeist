@@ -26,6 +26,7 @@ namespace Zeitgeist
         DATABASE_ERROR,
         INVALID_ARGUMENT,
         INVALID_KEY,
+        BACKUP_FAILED,
     }
 
     // vala doesn't include proper headers, this fixes it
