@@ -179,14 +179,21 @@ namespace Zeitgeist
             var events = Events.from_variant (vevents);
 
             uint32[] event_ids = engine.insert_events (events, sender);
-            var min_timestamp = events[0].timestamp;
-            var max_timestamp = min_timestamp;
+            var min_timestamp = int64.MAX;
+            var max_timestamp = int64.MIN;
             for (int i = 0; i < events.length; i++)
             {
+                if (events[i] == null) continue;
                 min_timestamp = int64.min (min_timestamp, events[i].timestamp);
                 max_timestamp = int64.max (max_timestamp, events[i].timestamp);
             }
-            notifications.notify_insert (new TimeRange (min_timestamp, max_timestamp), events);
+
+            if (min_timestamp < int64.MAX)
+            {
+                notifications.notify_insert (
+                    new TimeRange (min_timestamp, max_timestamp), events);
+            }
+            /* else { there's not even one valid event } */
 
             return event_ids;
         }

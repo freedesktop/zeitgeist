@@ -117,17 +117,17 @@ namespace Zeitgeist
             public void notify_insert (TimeRange time_range, GenericArray<Event> events)
                 requires (proxy_object != null)
             {
-                var intersection_timerange = time_range.intersect(this.time_range);
-                if (intersection_timerange != null)
+                var intersect_tr = time_range.intersect (this.time_range);
+                if (intersect_tr != null)
                 {
-                    var matching_events = new GenericArray<Event>();
+                    var matching_events = new GenericArray<Event> ();
                     for (int i=0; i<events.length; i++)
                     {
-                        if (matches(events[i]) 
-                            && events[i].timestamp >= intersection_timerange.start
-                            && events[i].timestamp <= intersection_timerange.end)
+                        if (events[i] != null && matches (events[i])
+                            && events[i].timestamp >= intersect_tr.start
+                            && events[i].timestamp <= intersect_tr.end)
                         {
-                            matching_events.add(events[i]);
+                            matching_events.add (events[i]);
                         }
                     }
                     if (matching_events.length > 0)
@@ -136,7 +136,7 @@ namespace Zeitgeist
                         debug ("Notifying %s about %d insertions",
                             p.get_name (), matching_events.length);
 
-                        proxy_object.notify_insert (intersection_timerange.to_variant (), 
+                        proxy_object.notify_insert (intersect_tr.to_variant (),
                             Events.to_variant (matching_events));
                     }
                 }
@@ -145,10 +145,10 @@ namespace Zeitgeist
             public void notify_delete (TimeRange time_range, uint32[] event_ids)
                 requires (proxy_object != null)
             {
-                var intersection_timerange = time_range.intersect(this.time_range);
-                if (intersection_timerange != null)
+                var intersect_tr = time_range.intersect (this.time_range);
+                if (intersect_tr != null)
                 {
-                    proxy_object.notify_delete (intersection_timerange.to_variant (),
+                    proxy_object.notify_delete (intersect_tr.to_variant (),
                         event_ids);
                 }
             }
@@ -177,7 +177,7 @@ namespace Zeitgeist
 
         public void remove_monitor (BusName peer, string object_path)
         {
-            debug("Removing monitor %s%s", peer, object_path);
+            debug ("Removing monitor %s%s", peer, object_path);
             var hash = "%s#%s".printf (peer, object_path);
             
             if (monitors.lookup (hash) != null)
@@ -197,20 +197,20 @@ namespace Zeitgeist
                     }
                 }
             }
-            
+
         }
 
         public void notify_insert (TimeRange time_range,
             GenericArray<Event> events)
         {
             foreach (unowned Monitor mon in monitors.get_values ())
-                mon.notify_insert(time_range, events);
+                mon.notify_insert (time_range, events);
         }
 
         public void notify_delete (TimeRange time_range, uint32[] event_ids)
         {
             foreach (unowned Monitor mon in monitors.get_values ())
-                mon.notify_delete(time_range, event_ids);
+                mon.notify_delete (time_range, event_ids);
         }
     }
 

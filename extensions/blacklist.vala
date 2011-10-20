@@ -147,6 +147,7 @@ namespace Zeitgeist
         {
             for (int i = 0; i < events.length; i++)
             {
+                if (events[i] == null) continue;
                 foreach (var tmpl in blacklist.get_values ())
                 {
                     if (events[i].matches_template (tmpl))
