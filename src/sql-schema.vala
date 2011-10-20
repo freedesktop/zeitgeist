@@ -2,7 +2,7 @@
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
- *           © 2011 Canonical Ltd.
+ * Copyright © 2011 Canonical Ltd.
  *             By Michal Hruby <michal.hruby@canonical.com>
  *
  * Based upon a Python implementation (2009-2011) by:
@@ -51,7 +51,15 @@ namespace Zeitgeist.SQLite
             else if (schema_version == 4)
             {
                 // DB from latest python Zeitgeist, which we can "upgrade"
-                Utils.backup_database ();
+                try
+                {
+                  Utils.backup_database ();
+                }
+                catch (Error backup_error)
+                {
+                    var msg = "Database backup failed: " + backup_error.message;
+                    throw new EngineError.BACKUP_FAILED (msg);
+                }
                 create_schema (database);
             }
             else if (schema_version < CORE_SCHEMA_VERSION)
@@ -60,14 +68,14 @@ namespace Zeitgeist.SQLite
             }
         }
 
-        public static int get_schema_version (Sqlite.Database database)
+        private static int get_schema_version (Sqlite.Database database)
         {
           var sql = "SELECT version FROM schema_version WHERE schema='core'";
           int schema_version = -1;
           database.exec (sql,
               (n_cols, values, column_names) =>
               {
-                  if (values != null && values[0] != null)
+                  if (values[0] != null)
                   {
                       schema_version = int.parse (values[0]);
                   }
@@ -393,6 +401,9 @@ namespace Zeitgeist.SQLite
                     version INT
                 )
                 """);
+
+            /* The 'ON CONFLICT REPLACE' on the PK converts INSERT to UPDATE
+             * when appriopriate */
             var schema_sql = "INSERT INTO schema_version VALUES ('%s', %d)"
                 .printf (CORE_SCHEMA, CORE_SCHEMA_VERSION);
             exec_query (database, schema_sql);

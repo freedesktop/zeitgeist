@@ -104,22 +104,14 @@ namespace Zeitgeist
             return get_database_file_path () == ":memory:";
         }
 
-        public void backup_database ()
+        public void backup_database () throws Error
         {
             File original;
             File destination;
             original = File.new_for_path (get_database_file_path ());
             destination = File.new_for_path (get_database_file_backup_path ());
 
-            try
-            {
-                original.copy (destination, FileCopyFlags.OVERWRITE, null,
-                    null);
-            }
-            catch (Error err)
-            {
-                warning ("Unable to backup database: %s", err.message);
-            }
+            original.copy (destination, FileCopyFlags.OVERWRITE, null, null);
         }
     }
 }
