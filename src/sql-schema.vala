@@ -64,7 +64,9 @@ namespace Zeitgeist.SQLite
             }
             else if (schema_version < CORE_SCHEMA_VERSION)
             {
-                throw new EngineError.DATABASE_ERROR ("Unable to upgrade from schema version %d".printf (schema_version));
+                throw new EngineError.DATABASE_ERROR (
+                    "Unable to upgrade from schema version %d".printf (
+                        schema_version));
             }
         }
 
