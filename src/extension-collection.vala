@@ -134,17 +134,6 @@ namespace Zeitgeist
             assert (num_events == events.length);
         }
 
-        public void call_post_get_events (GenericArray<Event?> events,
-            BusName? sender)
-        {
-            int num_events = events.length;
-            for (int i = 0; i < extensions.length; ++i)
-            {
-                extensions[i].post_get_events (events, sender);
-            }
-            assert (num_events == events.length);
-        }
-
         public unowned uint32[] call_pre_delete_events (uint32[] event_ids,
             BusName? sender)
         {

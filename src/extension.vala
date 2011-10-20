@@ -80,26 +80,6 @@ namespace Zeitgeist
         }
 
         /**
-         * Hook applied to all events before they are returned to a client
-         * (as a result of a GetEvents or FindEvents call).
-         *
-         * The events returned from this method are progressively passed
-         * through all extensions before the final result is returned to
-         * the client.
-         *
-         * To prevent an event from being returned replace it with NULL.
-         * The event may also be changed in place or fully substituted for
-         * another event.
-         *
-         * @param events: A GenericArray of Event instances
-         * @param sender: The D-Bus bus name of the client or NULL
-         */
-         public virtual void post_get_events (GenericArray<Event?> events,
-            BusName? sender)
-         {
-         }
-
-        /**
          * Hook applied before events are deleted from the log.
          *
          * @param ids: A list with the IDs of the events whose deletion

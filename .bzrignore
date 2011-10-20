@@ -48,3 +48,4 @@ test/dbus/__pycache__
 test/direct/table-lookup-test
 src/zeitgeist-engine.vapi
 src/zeitgeist-engine.h
+extensions/fts-python/org.gnome.zeitgeist.fts.service

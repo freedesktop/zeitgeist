@@ -140,7 +140,7 @@ public class Engine : Object
         }
         if (rc != Sqlite.DONE)
         {
-            throw new EngineError.DATABASE_ERROR ("Error: %d, %s\n", 
+            throw new EngineError.DATABASE_ERROR ("Error: %d, %s\n",
                 rc, db.errmsg ());
         }
 
@@ -151,8 +151,6 @@ public class Engine : Object
         {
             results.set(i++, events.lookup (id));
         }
-
-        extension_collection.call_post_get_events (results, sender);
 
         return results;
     }

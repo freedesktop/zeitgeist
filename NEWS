@@ -1,0 +1,571 @@
+2011-??-??: ...
+---------------
+
+This version is a complete rewrite of the engine using Vala. External
+changes with regards to the 0.8.3 Python implementation are:
+
+Engine:
+
+ - The language for extensions has changes from Python to Vala.
+ - The post_get_events hook is no longer supported.
+
+Python API:
+ - ...
+
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+
+2011-??-??: Zeitgeist 0.8.3 "..."
+---------------------------------
+
+Engine:
+
+ - DataSourceRegistry: Make sure changes to the data-source enabled
+   property (presumably by the user) are always saved.
+
+2011-09-21: Zeitgeist 0.8.2 "Not Quite Blue"
+--------------------------------------------
+
+Engine:
+
+ - Storage Monitor: Add support for Network Manager 0.9.
+ - The text field in subject templates is now allowed to end with an
+   asterisk (*) character (which is treated as plain text).
+ - Correctly handle current_uri in subject templates from old clients
+   (instead of forcing it to the same value as the subject's uri).
+ - Substantially increase the amount of events that can be deleted in
+   a single DeleteEvents call.
+
+Python API:
+
+ - Correctly specify the D-Bus interface when using introspection.
+ - Fix possible exception when the available method list hasn't been loaded.
+ - The Event constructor now supports creating independent copies of events.
+
+2011-07-22: Zeitgeist 0.8.1.1 "Grass Frog"
+------------------------------------------
+
+Engine:
+
+ - Load extensions after the internal database lookup/cache tables have
+   been initialized.
+ - Fix problem when replacing an existing Zeitgeist instance (LP: #809569).
+ - Fix possible crash when zeitgeist-datahub isn't available (LP: #791392).
+
+Python API:
+
+ - Fixed a regression that broke properties (get_version and get_extensions).
+
+2011-07-07: Zeitgeist 0.8.1 "The Snake and the Holy Grail"
+---------------------------------------------------------
+
+Engine:
+
+ - Added a GetDataSourceFromId D-Bus method to the data-source registry
+   extension (LP: #691690).
+ - A backup of the database is created before attempting schema upgrades. If
+   something goes wrong, the backup is automatically restored (LP: #660307).
+ - Fixed the "extensions" D-Bus property when it's an empty list (LP: #787691).
+ - Add PID to the output being logged in ~/.cache/ (LP: #806030).
+ - Ensure the engine doesn't attempt to close twice in a row (LP: #793714).
+ - Minor memory usage improvements.
+
+Python API:
+
+ - Changed _DBusInterface to update introspected data after reconnections.
+ - Added support for registering custom Event and Subject subclasses with
+   ZeitgeistClient (LP: #799199).
+ - Fixed reconnection after a Zeitgeist restart so that the method call trig-
+   gering the reconnection also works -and not only later calls- (LP: #736176).
+ - Added signal reconnection on engine restart for extensions (LP: #806967).
+ - Added an "iteritems()" method to all enumerations (RelevantResultType,
+   StorageState and ResultType).
+ - Added a "from_timestamp(timestamp)" method to TimeRange.
+
+2011-04-07: Zeitgeist 0.8.0 "I only got a donkey"
+-------------------------------------------------
+
+Engine:
+
+ - Fixed secondary sorting by timestamp for most ResultTypes (LP: #772041).
+ - Enabled filtering by availability in FindEvents.
+ - Added an origin property to events, matching that for subjects (LP: #425258).
+ - Added a current_uri property to subjects, which unlike all other properties
+   is mutable.
+ - Add new sorting types for origin and current_uri.
+ - Added support for "move" events, which automatically update the current_uri
+   property where appropriate (LP: #602211).
+ - Fixed inconsistencies caused by the internal cache not being updated when
+   events were deleted (LP: #598666).
+ - Added a Storage Monitor extension which tracks network connectivity and
+   removable devices (LP: #489194).
+ - Fixed datahub launching to avoid zombie processes (LP: #739780).
+ - Replaced the Blacklist extension giving it a more capable API (LP: #612344).
+ - Do not print a traceback when Zeitgeist fails to start because another
+   instance is already running, just show a plain error message (LP: #744818).
+ - Simplified log output format when printing to stderr.
+
+Python API:
+
+ - Fixed a bug in the connection (to Zeitgeist) recovery code (LP: #771970).
+ - Added new ResultTypes: {Most,Least}{Recent,Popular}{CurrentUri,EventOrigin}.
+ - Created *SubjectOrigin alias for all {Most,Least}{Recent,Popular}Origin
+   ResultTypes.
+ - Minor documentation improvements (fixed typos, etc).
+
+2011-03-20: Zeitgeist 0.7.1 "Made in Aarhus"
+-----------------------------------------------
+
+Engine:
+
+ - Expose property information in the D-Bus introspection output.
+ - Mention column names explicitly when inserting events, for compatibility
+   with the upcoming 0.8 release.
+
+Python API:
+
+ - Expose DataSourceRegistry's enabled status in a callback.
+ - Automatically reconnect to Zeitgeist if the connection is lost when using
+   methods asynchronously (so far this only happened for synchronous calls).
+ - Reinstall all active monitors upon reconnection (LP: #673008, #727226).
+ - Fix a (harmless) race condition requesting the bus name (LP: #732015).
+
+Overall:
+
+ - Added new event interpretation types: AcceptEvent, DenyEvent and ExpireEvent.
+ - Include NCO in the generated ontologies.
+ - Better ./configure check for python-rdflib.
+ - Update the manpage to document exit codes.
+
+
+2011-01-18: Zeitgeist 0.7.0 "All I have is this woodchuck."
+-----------------------------------------------------------
+
+Engine:
+
+ - Added some new mimetype mappings
+ - Speed up the GetEvents method by caching events (LP: #686732)
+ - Allow extension without public method (LP: #691660)
+ - Added a read-only DBus property "extensions" to org.gnome.zeitgeist.Log 
+   (LP: #693861)
+ - Added helper function to get an extension's name
+ - Fixed bug in RemoteInterface.Quit(): make sure to close connection to the
+   used bus if this method gets called, this is needed if RemoteInterface
+   does not know anything about the loop it is running in.
+ - Fix sending payload from engine to client (LP: #692645)
+ - Improve performance of DataSourceRegistry (LP: #695311)
+ - Improve performance of find_event queries with timerange other than 
+   TimeRange.always() (LP: #672965)
+ - Add an auto-filter for broken database entries (LP: #598666 workaround)
+ - Introduce new DB schema (version 3) that bundles a few performance related 
+   fixes (LP: #673452, #673394)
+ - Added a (LRU-type) event cache to speed up similar requests.
+
+Python API:
+
+ - Fix find_event_for_template to stop ignoring the template (LP: #690377)
+ - Add get_extensions method to ZeitgeistClient
+
+Overall:
+
+ - Using logging output for debugging purposes (LP: #660440)
+ - Stop building man page for zeitgeist-datahub (LP: #680360)
+ - Allow easy building for KDE (LP: #683280)
+ - Logging output now displays how many events were actually inserted from 
+   the batch of requested inserts (LP: #660440)
+ - Changed License to LGPL 2.1+
+
+2010-11-01: Zeitgeist 0.6 "Buzzer Beater"
+-----------------------------------------
+
+Engine:
+
+ - Added 'zeitgeist-integrity-checker.py' tool to check the integrity
+   of an activity log.
+ - optimization of ZeitgeistEngine.find_related_uris() by using a different
+   algorithm.
+ - Improved database updates (LP: #643303, #665607)
+   The updates scripts can now handle versions jumps (e.g from core_n
+   to core_n+4). Database downgrades are also possible if schema version
+   are backward-compatible.
+ - If FindEvents-queries are run over the complete TimeRange intervall don't
+   add timestamp conditions to the SQL statement (LP: #650930)
+ - Improved speed of prefix-search queries by always using the index (LP: #641198)
+   
+Python API:
+
+ - Added a bunch of new result types: MostPopularSubjectInterpretation,
+   MostRecentSubjectInterpretation, LeastPopularSubjectInterpretation,
+   LeastRecentSubjectInterpretation, MostPopularMimetype, LeastPopularMimetype,
+   MostRecentMimetype and LeastRecentMimetype. Please see the API
+   documentation for further details (LP: #655164)
+   
+Daemon:
+
+ - Code-Improvements to zeitgeist-daemon (LP: #660415).
+ - fixed `--log-level` option of zeitgeist-daemon, library code does
+   not set the log level anymore, the application using the python
+   library has to take care of it.
+
+Overall:
+ - 'zeitgeist-datahub' is not part of the zeitgeist project anymore, please
+   use the new datahub implementation written my Michal Hruby as a
+   replacement [0] (LP: #630593).
+ - Updates to the test suite.
+ - Translation updates (added Asturian and Slovenian, various updates).
+ - Added `make run` target to the rootlevel Makefile (LP: #660423)
+ 
+[0] https://launchpad.net/zeitgeist-datahub
+
+2010-09-26: Zeitgeist 0.5.2 "Snowball Effect"
+---------------------------------------------
+
+Engine:
+
+ - Extensions and the database connection are now shutdown gracefully when
+   the Zeitgeist daemon is asked to stop over D-Bus.
+ - Receiving a SIGHUP indicates a request for a clean shutdown; this
+   can be used to signal a system-wide restart request after an update.
+ - Fixed a bug in TableLookup because of which the internal cache wasn't
+   being used.
+ - Added a new option, activated by the ZEITGEIST_DEBUG_QUERY_PLANS, which
+   prints detailed information about each query being executed.
+ - Removed superfluous database commits; now they are called after all
+   InsertEvent actions have been completed, not once for every event.
+ - Speed up the initial query retrieving the last event ID by fixing it to
+   make use of the database's indexes.
+ - Catch any exceptions trying to notify a monitor of changes and redirect
+   them to the error log.
+ - Fixed LeastRecentActor sorting not working in combination with event
+   template filtering (LP: #641968).
+ - Renamed the LeastRecentActor sorting type to OldestActor and implemented
+   a new LeastRecentActor which does what it was supposed to do (LP: #646124).
+
+Datahub:
+
+ - Added a workaround so that events concerning OpenOffice.org are logged
+   correctly (LP: #646724).
+
+Overall:
+
+ - Fix an error in the ontology; it's "rdf:Property", not "rdfs:Property".
+ - Improved documentation; particularly, the ontology is now presented
+   in a separate section with a more readable format.
+ - Translation updates (Brazilian Portuguese, Catalan and Indonesian).
+
+2010-09-09: Zeitgeist 0.5.1 "Spongebob is not funny"
+----------------------------------------------------
+
+Engine:
+
+ - Don't use the return value of Extension.post_insert_event() when
+   dispatching the post insert hooks. The post_insert_event() method
+   has no return value.
+ - Initialize ZeitgeistEngine after RemoteInterface, so that --replace
+   does its job before the main engine and extensions start (LP: #614315).
+ - Added support for queries on the Subject.Storage field of an Event
+   (LP: #580364).
+ - Some optimizations in the find_events() method. Also the profiling
+   data is much more useful.
+
+Python API:
+
+ - Check arguments of Event.new_for_values() and Subject.new_for_values()
+   (LP: #580372).
+ - Redefined the result of TimeRange.always(), UNIX timestamp "0" is now
+   the left corner of the interval (LP: #614295).
+ - Added a new helper module called zeitgeist.mimetypes which basically
+   provides two functions (LP: #586524):
+    * get_interpretation_for_mimetype(), which tries to get a suitable
+      interpretation for a given mime-type.
+    * get_manifestation_for_uri(), which tries to lookup a manifestation
+      for the given URI.
+ - The DataSource model now provides easy access to the information it
+   holds through properties.
+
+Overall:
+
+ - The tool to build our ontology now supports rdflib2 and rdflib3
+   (LP: #626224).
+ - Added "make check" and "make doc" commands to the rootlevel Makefile
+   (LP: #628661)
+ - Translation updates.
+ - Updated test suite.
+ - Documentation updates.
+
+
+2010-08-04: Zeitgeist 0.5.0 "Atomic Flounder"
+---------------------------------------------
+
+Engine:
+
+ - FindEvent*: Event subjects are now joined by a logical AND instead of OR
+   (LP: #592599).
+ - Extensions found in the extensions directory are now automatically loaded.
+ - Install a .pc file so out of tree extensions can figure out the install path.
+ - Load extensions found in ~/.local/share/zeitgeist/extensions.
+ - Fix return value of the SetDataSourceEnabled D-Bus method.
+ - Extensions: Hooks have been renamed and most of them now have pre and post
+   variants (LP: #592599, #604747).
+ - Add new ResultTypes for sorting by subject origin
+
+Datahub:
+
+ - Let the GtkRecentlyUsed data-source ignore any exceptions while trying to
+   parse .desktop files (LP: #523761).
+
+Python API:
+ - ZeitgeistDBusInterface.get_extension is no longer a classmethod (in fact,
+   it never really was).
+ - ZeitgeistDBusInterface.get_extension now has a third optional parameter to
+   change the bus name.
+ - attributes of zeitgeist.datamodel.DataSource are now directly accessible
+   as properties (LP: #513295)
+
+Overall:
+
+ - Build system fixes (LP: #595577).
+ - Manpage updates.
+ - Translation updates.
+
+2010-06-10: Zeitgeist 0.4.0 "Wumbo"
+-----------------------------------
+
+Engine:
+ 
+ - Compile the shared-desktop-ontolgies (aka Nepomuk (aka OSCAF)) into Python
+   code at build time, and use them for out subject classification system
+ - You can now negate the fields uri, interpretation, manifestation, origin,
+   and mimetype, in event templates by prepending the field value with an
+   exclamation mark '!'.
+ - You can truncate (aka wildcard) the subject fields uri, origin, and mimetype
+   in event templates by appending an asterisk '*' to the string.
+ - Event templates now match on all child types of the specified interpretations
+   and manifestations. Ie. Interpretation.IMAGE also matches RASTER_IMAGE and
+   VECTOR_IMAGE.
+ - The core database schema is now versioned, meaning that we can migrate data
+   if the DB ever needs to change in layout. It also brings slightly faster
+   startup of the daemon when we detect that the schema version is what we
+   expect
+ - Two new environment variables ZEITGEIST_DEFAULT_EXTENSIONS and
+   ZEITGEIST_EXTRA_EXTENSIONS controlling which extensions are loaded
+ - Man pages updated with --no-datahub and environment variables to control
+   the data paths and loaded extensions
+ - Auto upgrades of schemas
+ - Some Nepomuk type URIs where wrong and will be fixed automatically in the
+   schema upgrade of the DB
+ - Fix DeleteEvents to work with arbitrarily huge amounts of IDs.
+ - Set event.id before passing events to the extension hooks so extensions
+   can make use of the event ids
+ 
+Python API:
+
+ - TimeRange sprouted a few new useful methods.
+
+Ontology:
+
+ - Removed {Interpretation,Manifestation}.UNKNOWN. If you really really (like
+   really!) can not come up with a good interpretation or manifestation don't
+   log it - or insert an empty string instead.
+ - What was subject's Manifestation.WEB_HISTORY is now represented by a
+   combination of Interpretation.WEBSITE and Manifestation.REMOTE_DATA_OBJECT.
+ - Manifestation.FILE has been renamed to Manifestation.FILE_DATA_OBJECT.
+ - Event interpretations OPEN_EVENT and VISIT_EVENT has been coalesced into
+   a new interpretation type called ACCESS_EVENT.
+ - Event interpretation SAVE_EVENT has been coalesced into MODIFY_EVENT.
+ - The following interpretations has been removed because we need a suitable
+   alternative defined in the Nepomuk/OSCAF scope: BROADCAST_MESSAGE,
+   FEED_MESSAGE, SYSTEM_RESOURCE, NOTE.
+ - Interpretation.MUSIC is now Interpretation.AUDIO.
+ - The following event interpretations has been removed because they had
+   unclear meanings or limited general usefulness: FOCUS_EVENT, WARN_EVENT,
+   ERROR_EVENT.
+
+Overall:
+
+ - Other fixes and code enhancements.
+ - Manpage updates.
+ - Translation updates.  
+
+2010-04-22: Zeitgeist 0.3.3.1
+-----------------------------
+
+Engine:
+
+ - Added a LastSeen property to data-sources.
+ - Fixed a bug in the DataSourceRegistry extension where it failed to handle
+   the disconnection signal from data-sources with several running instances.
+
+Overall:
+
+ - This fixes a bug where zeitgeist-datahub would fail to start.
+
+2010-04-20: Zeitgeist 0.3.3
+---------------------------
+
+Engine:
+
+ - Added MostPopularActor, LeastPopularActor, MostRecentActor and
+   LeastRecentActor as possible ReturnTypes for FindEvents and
+   FindEventsId (LP: #493903).
+ - Let {Find,Get,Insert}* hooks know the bus name of the caller, when
+   executed over D-Bus.
+ - Add an extension implementing a data-source registry (allowing to disable
+   data-sources from a centralized place and see their description).
+ - Overhauled FindRelatedUris for better results and improved performance.
+ - Changed FindEvents, FindEventIds and FindRelatedUris to not treat zeros in
+   the given TimeRange specially; "(0, 0)" can no longer be used (LP: #490242).
+ - Renamed --no-passive-loggers option to --no-datahub. Output printed by
+   zeitgeist-datahub is no longer visible in zeitgeist-daemon's output.
+ - Added --log-level option to change the output verbosity.
+ - DeleteEvents now correctly removes any unreferenced values (URIs, actors,
+   etc.) and not only the events themselves (LP: #491646).
+ - Fixed insertion of events with a payload (LP: #557708).
+ - Fixed an exception in DeleteEvents.
+ - Fixed event deletions not always getting committed (LP: #566184).
+ - Ignore deletion requests for non-existant events.
+
+Datahub:
+
+ - Fixed a crash in the GtkRecentlyUsed data-source parsing malfored .desktop
+   files (LP: #526357), and added support for more file mimetypes (LP: #510761).
+ - Fixed a crash in the GtkRecentlyUsed data-source trying to read broken
+   symlinks disguised as .desktop files (LP: #523761).
+ - Fixed a crash in the GtkRecentlyUsed data-source which happened when there
+   was no display friendly version of a URI (LP: #531793).
+
+Python API:
+
+ - Made the Interpretation and Manifestation classes iterable.
+ - Added symbol lookup by URI, in the form of dictionary access.
+ - Fixed the display name for Interpretation.SOURCECODE.
+ - Fixed find_events_for_values and find_event_ids_for_values (LP: #510804).
+ - Added a get_extension() method to ZeitgeistDBusInterface, to get convenient
+   access to D-Bus interfaces provided by engine extensions.
+
+Overall:
+
+ - More fixes and code enhancements.
+ - Manpage updates.
+ - Translation updates.
+
+2010-01-19: Zeitgeist 0.3.2 "Shadowy Rumble"
+--------------------------------------------
+
+This release brings some nice little stuff and is used to power the first
+release of the GNOME Activity Journal.
+
+Engine:
+
+ - Added FindEvents, optimized shorthand for GetEvents(FindEventIds(...)).
+ - Fixed DeleteEvents and made it ignore bad requests.
+ - Fixed GetEvents not to raise an exception when called with an empty list.
+
+Python API:
+
+ - ZeitgeistClient.get_version() now returns a Python list.
+
+Overall:
+
+ - Some code refactoring, documentation changes and other little fixes.
+
+2010-01-10: Zeitgeist 0.3.1 "Mystical Tremor"
+---------------------------------------------
+
+Second development release leading up to the stable 0.4 series.
+
+Engine:
+
+ - Added a FindRelatedUris() method, to find URIs that often occur in relation
+   to a given set of events. [Experimental]
+ - Added a Blacklist API for block events from entering the log.
+ - Added a fine-grained monitoring system for listening for updates to the log.
+ - InsertEvents() now return an event id of 0 for events that are blocked
+   or otherwise fail insertion.
+ - Extensions can now provide hooks to block or change events before they
+   are inserted into the log.
+ - Removed support for more than one backend. What was known as the
+   "Resonance backend" is now just "the engine".
+ - Removed the GetLastTimestampForActor method.
+ - Bugfix: You may now request more than 999 events in one go from GetEvents()
+ - Bugfix: In find_eventids where using more than one event template resulted
+   in all but the first one ignoring the timestamp restriction
+
+Python API:
+
+ - Bugfix: Fix URL of Interpretation.APPLICATION to correct Nepomuk URI.
+
+Overall:
+
+ - Added many new unit tests.
+ - Overhauled and restructured the Sphinx-based API-documentation system. Now
+   enumerations and the Manifestation and Interpreation classes are documented
+   automatically.
+ - Added bash-completion for zeitgeist-daemon.
+ - More bugfixes and code style cleanups.
+
+2009-12-01: Zeitgeist 0.3.0 "Voodoo Resonance"
+----------------------------------------------
+
+First development release leading up to the stable 0.4 series. This release
+is a complete rework of Zeitgeist and applications written for 0.2 won't work
+without changes.
+
+Engine:
+
+ - Completely reworked the engine and DBus API.
+ - Removed the Storm backend (obsoleted in 0.2.1) and the Querymancer backend.
+ - Added support for extensions written in Python, with direct access to the
+   database.
+
+Python API:
+
+ - Added a public Python client API split into two modules, zeitgeist.datamodel
+   and zeitgeist.client.
+ - Changed ontologies from XESAM to Nepomuk.
+
+There are a few DISCLAIMERS that needs to be attached to this:
+
+ - The event notifications/signals are not yet ready in the new DBus API.
+   We expect to have that ready for 0.3.1.
+ - We plan to support querying only for available items (eg. filtering out
+   deleted files, not listing files on detached USB storage, etc.). However this
+   feature is not fully supported yet, even though it is exposed in the API.
+ - While we are pretty satisfied with the database layout, there may still be
+   changes in the ontologies or concrete data extraction methods. This might
+   require that users delete their log databases in order to rebuild them
+   with the new definitions. Of course this will no longer happen when we
+   go stable.
+ - Much related to the point above our event ontologies are not yet set in
+   stone, and minor changes are expected.
+ - We have only one data-source enabled for now. Namely the one monitoring your
+   recent files. In coming releases, application specific plugins will provide
+   enhaced logging.
+ - And finally, please note that this is a *development release*. We can not
+   guarantee stability of services nor APIs, although we strive hard to keep
+   things stable.
+
+2009-08-17: Version 0.2.1 "Hangover"
+------------------------------------
+
+This version's D-Bus API and database is completely backwards-compatible with
+version 0.2, and it focuses on compatibility and performance enhancements.
+
+ - Added compatibility with Python version 2.5.
+ - Removed the Storm dependency, obtaining general performance improvements.
+ - Removed the need for a patched PyGTK.
+ - Made the GtkRecentlyUser data-source more robust (fixes an infinit loop
+   on some systems).
+ - Improved performance of DeleteItems and UpdateItems.
+ - Fixed a problem with the contents of the EventsChanged signal.
+ - Fixed InsertEvents to enforce "mimetype" as a required value.
+ - Fixed a bug where the sorting_asc=True in FindEvents would be ignored if
+   used together with mode="mostused" (LP: #404947).
+ - Highly improved caching.
+ - Added a "--quit" option to zeitgeist-daemon to stop any running daemon.
+ - General code improvements, new test cases and other minor fixes.
+
+2009-07-15: Version 0.2 "Okidoki"
+---------------------------------
+
+Initial release, because we are that cool :).
