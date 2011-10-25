@@ -2,7 +2,7 @@ AC_INIT([bluebird], [0.8.99], [dev@lists.zeitgeist-project.com], [bluebird])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
-AM_MAINTAINER_MODE
+AM_MAINTAINER_MODE([enable])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
