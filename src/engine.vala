@@ -67,10 +67,10 @@ public class Engine : Object
         return extension_collection.get_extension_names ();
     }
 
-    private Event get_event_from_row (Sqlite.Statement stmt)
+    private Event get_event_from_row (Sqlite.Statement stmt, uint32 event_id)
     {
         Event? event = new Event ();
-        event.id = (uint32) stmt.column_int64(EventViewRows.ID);
+        event.id = event_id;
         event.timestamp = stmt.column_int64 (EventViewRows.TIMESTAMP);
         event.interpretation = interpretations_table.get_value (
             stmt.column_int (EventViewRows.INTERPRETATION));
@@ -119,11 +119,15 @@ public class Engine : Object
         //  to enhance the performance of SQLite now, and event processing
         //  will be faster now being C.
 
+        if (event_ids.length == 0)
+            return new GenericArray<Event?> ();
+
+        var events = new HashTable<uint32, Event?> (direct_hash, direct_equal);
+
+        // Set up SQL statement
         Sqlite.Statement stmt;
         int rc;
 
-        if (event_ids.length == 0)
-            return new GenericArray<Event?> ();
         var sql_event_ids = database.get_sql_string_from_event_ids (event_ids);
         string sql = """
             SELECT * FROM event_view
@@ -133,15 +137,14 @@ public class Engine : Object
         rc = db.prepare_v2 (sql, -1, out stmt);
         database.assert_query_success (rc, "SQL error");
 
-        var events = new HashTable<uint32, Event?> (direct_hash, direct_equal);
-
+        // Create Events and Subjects from rows
         while ((rc = stmt.step ()) == Sqlite.ROW)
         {
             uint32 event_id = (uint32) stmt.column_int64 (EventViewRows.ID);
             Event? event = events.lookup (event_id);
             if (event == null)
             {
-                event = get_event_from_row(stmt);
+                event = get_event_from_row(stmt, event_id);
                 events.insert (event_id, event);
             }
             Subject subject = get_subject_from_row(stmt);
@@ -153,6 +156,7 @@ public class Engine : Object
                 rc, db.errmsg ());
         }
 
+        // Sort events according to the sequence of event_ids
         var results = new GenericArray<Event?> ();
         results.length = event_ids.length;
         int i = 0;
