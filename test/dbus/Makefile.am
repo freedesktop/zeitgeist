@@ -7,6 +7,7 @@ EXTRA_DIST = \
 	monitor-test.py \
 	remote-test.py \
 	testutils.py \
+	run-all-tests.py \
 	$(NULL)
 
 DISTCLEANFILES = \
