@@ -4,6 +4,8 @@ AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
 AM_MAINTAINER_MODE([enable])
 
+AM_PATH_PYTHON
+
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_DISABLE_STATIC
@@ -60,6 +62,7 @@ AC_CONFIG_FILES([
 	extensions/fts-python/Makefile
 	extra/Makefile
 	extra/ontology/Makefile
+    extra/python/Makefile
 	test/Makefile
 	test/dbus/Makefile
 	test/direct/Makefile

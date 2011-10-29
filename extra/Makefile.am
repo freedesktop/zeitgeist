@@ -1,10 +1,15 @@
-SUBDIRS = ontology
+NULL=
+
+SUBDIRS = \
+	ontology \
+	python \
+	$(NULL)
 
 servicedir = $(DBUS_SERVICES_DIR)
 service_DATA = org.gnome.zeitgeist.service
 
 org.gnome.zeitgeist.service: org.gnome.zeitgeist.service.in
-	$(AM_V_GEN)sed	-e s!\@prefix\@!$(prefix)! < $< > $@
+	$(AM_V_GEN)sed -e s!\@prefix\@!$(prefix)! < $< > $@
 org.gnome.zeitgeist.service: Makefile
 
 CLEANFILES = \
