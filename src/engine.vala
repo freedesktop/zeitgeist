@@ -67,6 +67,50 @@ public class Engine : Object
         return extension_collection.get_extension_names ();
     }
 
+    private Event get_event_from_row (Sqlite.Statement stmt, uint32 event_id)
+    {
+        Event event = new Event ();
+        event.id = event_id;
+        event.timestamp = stmt.column_int64 (EventViewRows.TIMESTAMP);
+        event.interpretation = interpretations_table.get_value (
+            stmt.column_int (EventViewRows.INTERPRETATION));
+        event.manifestation = manifestations_table.get_value (
+            stmt.column_int (EventViewRows.MANIFESTATION));
+        event.actor = actors_table.get_value (
+            stmt.column_int (EventViewRows.ACTOR));
+        event.origin = stmt.column_text (
+            EventViewRows.EVENT_ORIGIN_URI);
+
+        // Load payload
+        unowned uint8[] data = (uint8[]) stmt.column_blob(
+            EventViewRows.PAYLOAD);
+        data.length = stmt.column_bytes(EventViewRows.PAYLOAD);
+        if (data != null)
+        {
+            event.payload = new ByteArray();
+            event.payload.append(data);
+        }
+        return event;
+    }
+
+    private Subject get_subject_from_row (Sqlite.Statement stmt)
+    {
+        Subject subject = new Subject ();
+        subject.uri = stmt.column_text (EventViewRows.SUBJECT_URI);
+        subject.text = stmt.column_text (EventViewRows.SUBJECT_TEXT);
+        subject.storage = stmt.column_text (EventViewRows.SUBJECT_STORAGE);
+        subject.origin = stmt.column_text (EventViewRows.SUBJECT_ORIGIN_URI);
+        subject.current_uri = stmt.column_text (
+            EventViewRows.SUBJECT_CURRENT_URI);
+        subject.interpretation = interpretations_table.get_value (
+            stmt.column_int (EventViewRows.SUBJECT_INTERPRETATION));
+        subject.manifestation = manifestations_table.get_value (
+            stmt.column_int (EventViewRows.SUBJECT_MANIFESTATION));
+        subject.mimetype = mimetypes_table.get_value (
+            stmt.column_int (EventViewRows.SUBJECT_MIMETYPE));
+        return subject;
+    }
+
     public GenericArray<Event?> get_events(uint32[] event_ids,
             BusName? sender=null) throws EngineError
     {
@@ -76,66 +120,32 @@ public class Engine : Object
         //  to enhance the performance of SQLite now, and event processing
         //  will be faster now being C.
 
-        Sqlite.Statement stmt;
-        int rc;
-
         if (event_ids.length == 0)
             return new GenericArray<Event?> ();
+
         var sql_event_ids = database.get_sql_string_from_event_ids (event_ids);
         string sql = """
             SELECT * FROM event_view
             WHERE id IN (%s)
             """.printf (sql_event_ids);
 
-        rc = db.prepare_v2 (sql, -1, out stmt);
+        Sqlite.Statement stmt;
+        int rc = db.prepare_v2 (sql, -1, out stmt);
         database.assert_query_success (rc, "SQL error");
 
         var events = new HashTable<uint32, Event?> (direct_hash, direct_equal);
 
+        // Create Events and Subjects from rows
         while ((rc = stmt.step ()) == Sqlite.ROW)
         {
             uint32 event_id = (uint32) stmt.column_int64 (EventViewRows.ID);
             Event? event = events.lookup (event_id);
             if (event == null)
             {
-                event = new Event ();
-                event.id = event_id;
-                event.timestamp = stmt.column_int64 (EventViewRows.TIMESTAMP);
-                event.interpretation = interpretations_table.get_value (
-                    stmt.column_int (EventViewRows.INTERPRETATION));
-                event.manifestation = manifestations_table.get_value (
-                    stmt.column_int (EventViewRows.MANIFESTATION));
-                event.actor = actors_table.get_value (
-                    stmt.column_int (EventViewRows.ACTOR));
-                event.origin = stmt.column_text (
-                    EventViewRows.EVENT_ORIGIN_URI);
-
-                // Load payload
-                unowned uint8[] data = (uint8[])
-                    stmt.column_blob(EventViewRows.PAYLOAD);
-                data.length = stmt.column_bytes(EventViewRows.PAYLOAD);
-                if (data != null)
-                {
-                    event.payload = new ByteArray();
-                    event.payload.append(data);
-                }
+                event = get_event_from_row(stmt, event_id);
                 events.insert (event_id, event);
             }
-
-            Subject subject = new Subject ();
-            subject.uri = stmt.column_text (EventViewRows.SUBJECT_URI);
-            subject.text = stmt.column_text (EventViewRows.SUBJECT_TEXT);
-            subject.storage = stmt.column_text (EventViewRows.SUBJECT_STORAGE);
-            subject.origin = stmt.column_text (EventViewRows.SUBJECT_ORIGIN_URI);
-            subject.current_uri = stmt.column_text (
-                EventViewRows.SUBJECT_CURRENT_URI);
-            subject.interpretation = interpretations_table.get_value (
-                stmt.column_int (EventViewRows.SUBJECT_INTERPRETATION));
-            subject.manifestation = manifestations_table.get_value (
-                stmt.column_int (EventViewRows.SUBJECT_MANIFESTATION));
-            subject.mimetype = mimetypes_table.get_value (
-                stmt.column_int (EventViewRows.SUBJECT_MIMETYPE));
-
+            Subject subject = get_subject_from_row(stmt);
             event.add_subject(subject);
         }
         if (rc != Sqlite.DONE)
@@ -144,6 +154,7 @@ public class Engine : Object
                 rc, db.errmsg ());
         }
 
+        // Sort events according to the sequence of event_ids
         var results = new GenericArray<Event?> ();
         results.length = event_ids.length;
         int i = 0;
