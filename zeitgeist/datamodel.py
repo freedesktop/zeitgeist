@@ -52,20 +52,6 @@ def STARTSWITH(x, y):
 	"""checks if 'x' startswith 'y'"""
 	return x.startswith(y)
 
-# next() function is python >= 2.6
-try:
-	next = next
-except NameError:
-	# workaround this for older python versions
-	_default_next = object()
-	def next(iterator, default=_default_next):
-		try:
-			return iterator.next()
-		except StopIteration:
-			if default is not _default_next:
-				return default
-			raise
-
 runpath = os.path.dirname(__file__)
 
 NEEDS_CHILD_RESOLUTION = set()
