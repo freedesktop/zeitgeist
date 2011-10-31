@@ -51,3 +51,4 @@ src/zeitgeist-engine.h
 extensions/fts-python/org.gnome.zeitgeist.fts.service
 py-compile
 extra/python/_ontology.py
+test/direct/*.c

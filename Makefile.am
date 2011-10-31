@@ -10,11 +10,7 @@ SUBDIRS = \
 
 bluebirddocdir = ${prefix}/doc/bluebird
 bluebirddoc_DATA = \
-	ChangeLog \
-	README \
-	COPYING \
 	AUTHORS \
-	INSTALL \
 	NEWS \
 	$(NULL)
 
@@ -22,6 +18,10 @@ DISTCHECK_CONFIGURE_FLAGS = --with-session-bus-services-dir="\$(datadir)"/dbus-1
 
 EXTRA_DIST = \
 	$(bluebirddoc_DATA) \
+	INSTALL \
+	COPYING \
+	COPYING.GPL \
+	ChangeLog \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in \
@@ -41,7 +41,7 @@ run: all
 debug: all
 	gdb ./src/bluebird
 
-test: all
+test-dbus: all
 	./test/dbus/run-all-tests.py
 
 test-direct: all
