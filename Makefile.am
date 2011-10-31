@@ -8,8 +8,8 @@ SUBDIRS = \
 	po \
 	$(NULL)
 
-bluebirddocdir = ${prefix}/doc/bluebird
-bluebirddoc_DATA = \
+zeitgeistdocdir = ${prefix}/doc/zeitgeist
+zeitgeistdoc_DATA = \
 	AUTHORS \
 	NEWS \
 	$(NULL)
@@ -17,7 +17,7 @@ bluebirddoc_DATA = \
 DISTCHECK_CONFIGURE_FLAGS = --with-session-bus-services-dir="\$(datadir)"/dbus-1/services
 
 EXTRA_DIST = \
-	$(bluebirddoc_DATA) \
+	$(zeitgeistdoc_DATA) \
 	INSTALL \
 	COPYING \
 	COPYING.GPL \
@@ -36,10 +36,10 @@ DISTCLEANFILES = \
 	$(NULL)
 
 run: all
-	./src/bluebird
+	./src/zeitgeist
 
 debug: all
-	gdb ./src/bluebird
+	gdb ./src/zeitgeist
 
 test-dbus: all
 	./test/dbus/run-all-tests.py

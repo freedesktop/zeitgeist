@@ -1,4 +1,4 @@
-AC_INIT([bluebird], [0.8.99~alpha1], [dev@lists.zeitgeist-project.com], [bluebird])
+AC_INIT([zeitgeist], [0.8.99~alpha1], [dev@lists.zeitgeist-project.com], [zeitgeist])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -16,7 +16,7 @@ AM_PROG_VALAC([0.14.0])
 AM_SILENT_RULES([yes])
 
 AH_TEMPLATE([GETTEXT_PACKAGE], [Package name for gettext])
-GETTEXT_PACKAGE=bluebird
+GETTEXT_PACKAGE=zeitgeist
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE")
 AC_SUBST(GETTEXT_PACKAGE)
 AM_GLIB_GNU_GETTEXT
@@ -29,14 +29,14 @@ AC_SUBST(LDFLAGS)
 GLIB_REQUIRED=2.26.0
 SQLITE_REQUIRED=3.7
 
-BLUEBIRD_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
-                   gobject-2.0 >= $GLIB_REQUIRED
-                   gio-unix-2.0 >= $GLIB_REQUIRED
-                   sqlite3 >= $SQLITE_REQUIRED"
+ZEITGEIST_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
+                    gobject-2.0 >= $GLIB_REQUIRED
+                    gio-unix-2.0 >= $GLIB_REQUIRED
+                    sqlite3 >= $SQLITE_REQUIRED"
 
-PKG_CHECK_MODULES(BLUEBIRD, [$BLUEBIRD_REQUIRED])
-AC_SUBST(BLUEBIRD_CFLAGS)
-AC_SUBST(BLUEBIRD_LIBS)
+PKG_CHECK_MODULES(ZEITGEIST, [$ZEITGEIST_REQUIRED])
+AC_SUBST(ZEITGEIST_CFLAGS)
+AC_SUBST(ZEITGEIST_LIBS)
 
 #################################################
 # DBus service

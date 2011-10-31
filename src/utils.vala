@@ -31,7 +31,7 @@ namespace Zeitgeist
         private static string DATABASE_FILE_BACKUP_PATH;
         private static string LOCAL_EXTENSIONS_PATH;
 
-        public const string ZEITGEIST_DATA_FOLDER = "bluebird";
+        public const string ZEITGEIST_DATA_FOLDER = "zeitgeist";
         public const string USER_EXTENSION_PATH = "";
 
         // D-Bus

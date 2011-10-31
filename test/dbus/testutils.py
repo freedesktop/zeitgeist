@@ -141,12 +141,12 @@ class RemoteTestCase (unittest.TestCase):
 		def error_callback(stdout, stderr):
 			if "--replace" in stderr:
 				return "%r | %s" %(stderr, RemoteTestCase._get_pid(
-					"./src/bluebird").replace("\n", "|"))
+					"./src/zeitgeist").replace("\n", "|"))
 			else:
 				return stderr
 			
 		return RemoteTestCase._safe_start_subprocess(
-			("./src/bluebird", "--no-datahub"), env, timeout, error_callback
+			("./src/zeitgeist", "--no-datahub"), env, timeout, error_callback
 		)
 	
 	def __init__(self, methodName):

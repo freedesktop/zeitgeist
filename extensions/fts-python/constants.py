@@ -45,7 +45,7 @@ def get_engine():
 class _Constants:
 	# Directories
 	DATA_PATH = os.environ.get("ZEITGEIST_DATA_PATH",
-		BaseDirectory.save_data_path("bluebird"))
+		BaseDirectory.save_data_path("zeitgeist"))
 	DATABASE_FILE = os.environ.get("ZEITGEIST_DATABASE_PATH",
 		os.path.join(DATA_PATH, "activity.sqlite"))
 	DATABASE_FILE_BACKUP = os.environ.get("ZEITGEIST_DATABASE_BACKUP_PATH",

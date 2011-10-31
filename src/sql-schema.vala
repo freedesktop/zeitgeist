@@ -50,7 +50,7 @@ namespace Zeitgeist.SQLite
             }
             else if (schema_version == 4)
             {
-                // DB from latest python Zeitgeist, which we can "upgrade"
+                // DB from latest Python Zeitgeist, which we can "upgrade"
                 try
                 {
                   Utils.backup_database ();

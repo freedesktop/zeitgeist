@@ -6,7 +6,7 @@ NULL =
 noinst_LTLIBRARIES = ds-registry.la blacklist.la storage-monitor.la fts.la
 
 AM_CPPFLAGS = \
-	$(BLUEBIRD_CFLAGS) \
+	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	-I $(top_srcdir)/src \
 	-w \
@@ -27,7 +27,7 @@ ds_registry_la_SOURCES = \
 ds_registry_la_LDFLAGS = -module -avoid-version
 
 ds_registry_la_LIBADD = \
-	$(BLUEBIRD_LIBS) \
+	$(ZEITGEIST_LIBS) \
 	$(NULL)
 
 blacklist_la_SOURCES = \
@@ -37,7 +37,7 @@ blacklist_la_SOURCES = \
 blacklist_la_LDFLAGS = -module -avoid-version
 
 blacklist_la_LIBADD = \
-	$(BLUEBIRD_LIBS) \
+	$(ZEITGEIST_LIBS) \
 	$(NULL)
 
 storage_monitor_la_SOURCES = \
@@ -47,7 +47,7 @@ storage_monitor_la_SOURCES = \
 storage_monitor_la_LDFLAGS = -module -avoid-version
 
 storage_monitor_la_LIBADD = \
-	$(BLUEBIRD_LIBS) \
+	$(ZEITGEIST_LIBS) \
 	$(NULL)
 	
 
@@ -58,5 +58,5 @@ fts_la_SOURCES = \
 fts_la_LDFLAGS = -module -avoid-version
 
 fts_la_LIBADD = \
-	$(BLUEBIRD_LIBS) \
+	$(ZEITGEIST_LIBS) \
 	$(NULL)

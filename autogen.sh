@@ -4,6 +4,6 @@
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
-PKG_NAME="bluebird"
+PKG_NAME="zeitgeist"
 
 . gnome-autogen.sh

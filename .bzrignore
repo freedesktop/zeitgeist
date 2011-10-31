@@ -30,6 +30,7 @@ po/Makefile.in.in
 src/.libs
 src/*.c
 src/*.stamp
+src/zeitgeist
 src/bluebird
 test/direct/where-clause-test
 extra/ontology/*.py

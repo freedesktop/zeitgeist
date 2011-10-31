@@ -1,9 +1,9 @@
 NULL = 
 
-bin_PROGRAMS = bluebird
+bin_PROGRAMS = zeitgeist
 
 AM_CPPFLAGS = \
-	$(BLUEBIRD_CFLAGS) \
+	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	-w \
 	$(NULL)
@@ -27,7 +27,7 @@ extensions_VALASOURCES = \
 	ext-fts.vala \
 	$(NULL)
 
-bluebird_VALASOURCES = \
+zeitgeist_VALASOURCES = \
 	zeitgeist-daemon.vala \
 	datamodel.vala \
 	engine.vala \
@@ -46,21 +46,21 @@ bluebird_VALASOURCES = \
 	ontology-uris.vala \
 	$(NULL)
 
-bluebird_SOURCES = \
+zeitgeist_SOURCES = \
 	zeitgeist-engine_vala.stamp \
-	$(bluebird_VALASOURCES:.vala=.c) \
+	$(zeitgeist_VALASOURCES:.vala=.c) \
 	$(extensions_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-bluebird_LDADD = \
-	$(BLUEBIRD_LIBS) \
+zeitgeist_LDADD = \
+	$(ZEITGEIST_LIBS) \
 	$(NULL)
 
-bluebird_LDFLAGS = -export-dynamic -no-undefined
+zeitgeist_LDFLAGS = -export-dynamic -no-undefined
 
 BUILT_SOURCES = zeitgeist-engine_vala.stamp extensions_vala.stamp
 
-zeitgeist-engine_vala.stamp: $(bluebird_VALASOURCES)
+zeitgeist-engine_vala.stamp: $(zeitgeist_VALASOURCES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
 	@touch "$@"
 
@@ -77,7 +77,7 @@ ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
 ontology.vala ontology-uris.vala: ontology_vala.stamp
 
 EXTRA_DIST = \
-	$(bluebird_VALASOURCES) \
+	$(zeitgeist_VALASOURCES) \
 	$(extensions_VALASOURCES) \
 	ontology_vala.stamp \
 	ontology.vala.in \
