@@ -60,7 +60,7 @@ zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
 
 BUILT_SOURCES = zeitgeist-engine_vala.stamp extensions_vala.stamp
 
-zeitgeist-engine_vala.stamp: $(zeitgeist_VALASOURCES)
+zeitgeist-engine_vala.stamp: $(zeitgeist_daemon_VALASOURCES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
 	@touch "$@"
 
