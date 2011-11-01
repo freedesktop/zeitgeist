@@ -1,0 +1,4 @@
+ - Figure out why "make check" isn't using a :memory: database.
+ - Fix outstanding problems revealed D-Bus test cases.
+ - Remove useless copies from fts-python/.
+ - Figure out why D-Bus test cases time out most of the time.
