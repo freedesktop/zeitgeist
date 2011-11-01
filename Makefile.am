@@ -36,10 +36,10 @@ DISTCLEANFILES = \
 	$(NULL)
 
 run: all
-	./src/zeitgeist
+	./src/zeitgeist-daemon
 
 debug: all
-	gdb ./src/zeitgeist
+	gdb ./src/zeitgeist-daemon
 
 test-dbus: all
 	./test/dbus/run-all-tests.py

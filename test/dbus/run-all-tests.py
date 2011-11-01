@@ -89,6 +89,7 @@ if __name__ == "__main__":
 	err = bus.run(ignore_errors=True)
 	if err:
 		print >> sys.stderr, "*** Failed to setup private bus, error was: %s" %err
+		raise SystemExit
 	else:
 		print >> sys.stderr, "*** Testsuite is running using a private dbus bus"
 		config = bus.dbus_config.copy()

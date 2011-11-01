@@ -1,6 +1,6 @@
 NULL = 
 
-bin_PROGRAMS = zeitgeist
+bin_PROGRAMS = zeitgeist-daemon
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
@@ -27,7 +27,7 @@ extensions_VALASOURCES = \
 	ext-fts.vala \
 	$(NULL)
 
-zeitgeist_VALASOURCES = \
+zeitgeist_daemon_VALASOURCES = \
 	zeitgeist-daemon.vala \
 	datamodel.vala \
 	engine.vala \
@@ -46,17 +46,17 @@ zeitgeist_VALASOURCES = \
 	ontology-uris.vala \
 	$(NULL)
 
-zeitgeist_SOURCES = \
+zeitgeist_daemon_SOURCES = \
 	zeitgeist-engine_vala.stamp \
-	$(zeitgeist_VALASOURCES:.vala=.c) \
+	$(zeitgeist_daemon_VALASOURCES:.vala=.c) \
 	$(extensions_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-zeitgeist_LDADD = \
+zeitgeist_daemon_LDADD = \
 	$(ZEITGEIST_LIBS) \
 	$(NULL)
 
-zeitgeist_LDFLAGS = -export-dynamic -no-undefined
+zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
 
 BUILT_SOURCES = zeitgeist-engine_vala.stamp extensions_vala.stamp
 
@@ -77,7 +77,7 @@ ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
 ontology.vala ontology-uris.vala: ontology_vala.stamp
 
 EXTRA_DIST = \
-	$(zeitgeist_VALASOURCES) \
+	$(zeitgeist_daemon_VALASOURCES) \
 	$(extensions_VALASOURCES) \
 	ontology_vala.stamp \
 	ontology.vala.in \
