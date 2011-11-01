@@ -2,9 +2,12 @@ NULL =
 
 ftsdir = $(pkgdatadir)/fts-python
 dist_fts_SCRIPTS = \
+	fts.py \
+	$(NULL)
+
+dist_fts_DATA = \
 	datamodel.py \
 	constants.py \
-	fts.py \
 	lrucache.py \
 	sql.py \
 	$(NULL)
