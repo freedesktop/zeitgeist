@@ -6,6 +6,7 @@ SUBDIRS = \
 	extra \
 	test \
 	po \
+	doc \
 	$(NULL)
 
 zeitgeistdocdir = ${prefix}/doc/zeitgeist
