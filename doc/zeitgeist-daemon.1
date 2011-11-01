@@ -1,4 +1,4 @@
-.TH ZEITGEIST\-DAEMON 1 "May 20, 2009" "Zeitgeist"
+.TH ZEITGEIST\-DAEMON 1 "November 1, 2011" "Zeitgeist"
 
 .SH NAME
 zeitgeist\-daemon \- D\-Bus interface providing a log of activities
@@ -7,17 +7,18 @@ zeitgeist\-daemon \- D\-Bus interface providing a log of activities
 \fBzeitgeist\-daemon\fP \fI[OPTION]\fP
 
 .SH DESCRIPTION
-\fBzeitgeist\-daemon\fP is a daemon which keeps track of activities
-on your system (file usage, browser history, calendar events, etc.)
-and logs them into a central database. It does not only create a
-chronologic register, but also supports tagging and can establish
-relationships between activities.
+\fBzeitgeist\-daemon\fP is daemon providing an activity log. That is,
+it consists of a central database for events such as file usage, browser
+history, calendar entries, etc.
 .PP
-All this information is provided by external applications which
+All this information is made available to external applications which
 communicate with \fBzeitgeist\-daemon\fP over D-Bus. Interested
-programs can connect with it and request information, insert new
-items or modify existing information (delete items, add tags,
-bookmark items and so on).
+applications can request information, insert new events or delete
+existing events. 
+.PP
+Zeitgeist is also capable of establishing relationships between
+activities. Its purpose is enabling an activity-aware desktop with
+adaptive user interfaces.
 .PP
 By default, \fBzeitgeist\-daemon\fP will also start the bundled
 logging application \fBzeitgeist\-datahub\fP.
