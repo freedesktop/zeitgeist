@@ -49,7 +49,7 @@ from cStringIO import StringIO
 from collections import defaultdict
 from array import array
 from zeitgeist.datamodel import Event as OrigEvent, StorageState, TimeRange, \
-    ResultType, get_timestamp_for_now, Interpretation, Symbol, NEGATION_OPERATOR, WILDCARD
+    ResultType, get_timestamp_for_now, Interpretation, Symbol, NEGATION_OPERATOR, WILDCARD, NULL_EVENT
 from datamodel import Event, Subject
 from constants import constants
 from zeitgeist.client import ZeitgeistClient, ZeitgeistDBusInterface
