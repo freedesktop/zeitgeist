@@ -2,6 +2,7 @@
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ * Copyright © 2011 Stefano Candori <stefano.candori@gmail.com>
  *
  * Based upon a Python implementation:
  *  Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
@@ -35,6 +36,14 @@ namespace Zeitgeist
         public signal void storage_available (string storage_id,
             [DBus (signature = "a{sv}")] Variant storage_description);
         public signal void storage_unavailable (string storage_id);
+    }
+    
+    public interface NetworkMonitor: Object
+    {
+        public abstract void setup ();
+        
+        public signal void on_network_up ();
+        public signal void on_network_down ();
     }
 
     namespace StorageMedia
@@ -97,6 +106,10 @@ namespace Zeitgeist
         private Sqlite.Statement store_storage_medium_stmt;
         private Sqlite.Statement insert_unavailable_medium_stmt;
         private Sqlite.Statement update_medium_state_stmt;
+        
+        private NetworkMonitor network;
+        private uint watch_connman;
+        private uint watch_nm;
 
         StorageMonitor ()
         {
@@ -136,7 +149,48 @@ namespace Zeitgeist
                     volume.get_icon ().to_string (), volume.get_name ());
             }
 
-            // FIXME: ConnMan / NetworkManager D-Bus stuff...
+            //Write connectivity to the DB. Dynamically decide whether to use
+            // Connman or NetworkManager
+            watch_connman = Bus.watch_name (BusType.SYSTEM, 
+                                      "net.connman", 
+                                      BusNameWatcherFlags.NONE,
+                                      name_appeared_handler,
+                                      null);
+            watch_nm = Bus.watch_name (BusType.SYSTEM, 
+                                      "org.freedesktop.NetworkManager", 
+                                      BusNameWatcherFlags.NONE,
+                                      name_appeared_handler,
+                                      null);
+
+        }
+        
+        private void name_appeared_handler(DBusConnection connection, string name, string name_owner)
+        {
+            if (this.network != null)
+            {
+                if (name == "net.connman")
+                    Bus.unwatch_name (watch_connman);
+                else if (name == "org.freedesktop.NetworkManager")
+                    Bus.unwatch_name (watch_nm);
+            }
+            else
+            {               
+                if (name == "net.connman")
+                    this.network = new ConnmanNetworkMonitor ();
+                else if (name == "org.freedesktop.NetworkManager")
+                    this.network = new NMNetworkMonitor ();
+                    
+                this.network.on_network_up.connect (() => 
+                    this.add_storage_medium ("net", "stock_internet", "Internet"));
+                this.network.on_network_down.connect (() => 
+                    this.remove_storage_medium ("net"));
+                    
+                this.network.setup ();
+                
+                Bus.unwatch_name (watch_connman);
+                Bus.unwatch_name (watch_nm);
+            }
+                
         }
 
         public override void unload ()
@@ -327,6 +381,106 @@ namespace Zeitgeist
             return vb.end ();
         }
 
+    }
+
+    /*
+     * Checks whether there is a funtioning network interface via
+     * NetworkManager (requires NM >= 0.8).
+     * See http://projects.gnome.org/NetworkManager/developers/spec-08.html
+     */
+    class NMNetworkMonitor : Object, NetworkMonitor
+    {
+        private const string NM_BUS_NAME = "org.freedesktop.NetworkManager";
+        private const string NM_IFACE = "org.freedesktop.NetworkManager";
+        private const string NM_OBJECT_PATH = "/org/freedesktop/NetworkManager";
+
+        //NM 0.9 broke API so we have to check for two possible values for the state
+        private const int NM_STATE_CONNECTED_PRE_09 = 3;
+        private const int NM_STATE_CONNECTED_POST_09 = 70;
+        
+        private NetworkManagerDBus proxy;
+        
+        public NMNetworkMonitor ()
+        {
+            Object ();
+        }
+        
+        public void setup ()
+        {
+            debug ("Creating NetworkManager network monitor");
+            try
+            {
+                proxy = Bus.get_proxy_sync<NetworkManagerDBus> (BusType.SYSTEM,
+                                            NM_BUS_NAME,
+                                            NM_OBJECT_PATH);
+                proxy.state_changed.connect(this.on_state_changed);
+            
+                uint32 state = proxy.state ();
+                this.on_state_changed (state);
+            }
+            catch (IOError e )
+            {
+                warning ("%s", e.message);
+            }
+        }
+        
+        private void on_state_changed(uint32 state)
+        {
+            debug ("NetworkManager network state: %u", state);
+            if (state == NMNetworkMonitor.NM_STATE_CONNECTED_PRE_09 || 
+                state == NMNetworkMonitor.NM_STATE_CONNECTED_POST_09)
+                on_network_up ();
+            else
+                on_network_down ();
+        }
+    }
+    
+    class ConnmanNetworkMonitor : Object, NetworkMonitor
+    {
+        private const string CM_BUS_NAME = "net.connman";
+        private const string CM_IFACE = "net.connman.Manager";
+        private const string CM_OBJECT_PATH = "/";
+        
+        private ConnmanManagerDBus proxy;
+        
+        public ConnmanNetworkMonitor ()
+        {
+            Object ();
+        }
+        
+        public void setup ()
+        {
+            debug ("Creating ConnmanNetworkManager network monitor");
+
+            try
+            {
+                proxy = Bus.get_proxy_sync<ConnmanManagerDBus> (BusType.SYSTEM,
+                                            CM_BUS_NAME,
+                                            CM_OBJECT_PATH);
+                proxy.state_changed.connect(this.on_state_changed);
+
+                //
+                // ^^ There is a bug in some Connman versions causing it to not emit the
+                //net.connman.Manager.StateChanged signal. We take our chances this
+                //instance is working properly :-)
+                //
+                string state = proxy.get_state ();
+                this.on_state_changed(state);
+            }
+            catch (IOError e )
+            {
+                warning ("%s", e.message);
+            }
+        }
+        
+        private void on_state_changed(string state)
+        {
+            debug("ConnmanNetworkMonitor network state: %s", state);
+            if (state == "online")
+                on_network_up ();
+            else
+                on_network_down ();
+        }
     }
 
     [ModuleInit]

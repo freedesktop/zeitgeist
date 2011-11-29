@@ -121,6 +121,23 @@ namespace Zeitgeist
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
             uint offset, uint count, uint result_type) throws Error;
     }
+    
+    /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */
+    [DBus (name = "org.freedesktop.NetworkManager")]
+    public interface NetworkManagerDBus : Object
+    {
+        [DBus (name = "state")]
+        public abstract uint32 state () throws IOError;
+        public signal void state_changed (uint32 state);
+    }
+    
+    /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */
+    [DBus (name = "net.connman.Manager")]
+    public interface ConnmanManagerDBus : GLib.Object
+    {
+        public abstract string get_state () throws IOError;
+        public signal void state_changed (string state);
+    }
 
 }
 
