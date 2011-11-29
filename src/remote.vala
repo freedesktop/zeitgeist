@@ -133,7 +133,7 @@ namespace Zeitgeist
     
     /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */
     [DBus (name = "net.connman.Manager")]
-    public interface ConnmanManagerDBus : GLib.Object
+    public interface ConnmanManagerDBus : Object
     {
         public abstract string get_state () throws IOError;
         public signal void state_changed (string state);

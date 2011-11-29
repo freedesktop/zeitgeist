@@ -413,7 +413,7 @@ namespace Zeitgeist
                 proxy = Bus.get_proxy_sync<NetworkManagerDBus> (BusType.SYSTEM,
                                             NM_BUS_NAME,
                                             NM_OBJECT_PATH);
-                proxy.state_changed.connect(this.on_state_changed);
+                proxy.state_changed.connect (this.on_state_changed);
             
                 uint32 state = proxy.state ();
                 this.on_state_changed (state);
@@ -457,7 +457,7 @@ namespace Zeitgeist
                 proxy = Bus.get_proxy_sync<ConnmanManagerDBus> (BusType.SYSTEM,
                                             CM_BUS_NAME,
                                             CM_OBJECT_PATH);
-                proxy.state_changed.connect(this.on_state_changed);
+                proxy.state_changed.connect (this.on_state_changed);
 
                 //
                 // ^^ There is a bug in some Connman versions causing it to not emit the
@@ -465,7 +465,7 @@ namespace Zeitgeist
                 //instance is working properly :-)
                 //
                 string state = proxy.get_state ();
-                this.on_state_changed(state);
+                this.on_state_changed (state);
             }
             catch (IOError e )
             {
@@ -475,7 +475,7 @@ namespace Zeitgeist
         
         private void on_state_changed(string state)
         {
-            debug("ConnmanNetworkMonitor network state: %s", state);
+            debug ("ConnmanNetworkMonitor network state: %s", state);
             if (state == "online")
                 on_network_up ();
             else
