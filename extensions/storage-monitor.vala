@@ -38,8 +38,10 @@ namespace Zeitgeist
         public signal void storage_unavailable (string storage_id);
     }
     
-    public interface NetworkMonitor: Object
-    {
+    private interface NetworkMonitor: Object
+    { 
+        // This method emits the on_network_up/on_network_up signals
+        // basing on the initial state of the network.
         public abstract void setup ();
         
         public signal void on_network_up ();
@@ -149,8 +151,7 @@ namespace Zeitgeist
                     volume.get_icon ().to_string (), volume.get_name ());
             }
 
-            //Write connectivity to the DB. Dynamically decide whether to use
-            // Connman or NetworkManager
+            // Dynamically decide whether to use Connman or NetworkManager
             watch_connman = Bus.watch_name (BusType.SYSTEM, 
                                       "net.connman", 
                                       BusNameWatcherFlags.NONE,
@@ -164,35 +165,27 @@ namespace Zeitgeist
 
         }
         
-        private void name_appeared_handler(DBusConnection connection, string name, string name_owner)
+        private void name_appeared_handler (DBusConnection connection, string name, string name_owner)
         {
             if (this.network != null)
-            {
-                if (name == "net.connman")
-                    Bus.unwatch_name (watch_connman);
-                else if (name == "org.freedesktop.NetworkManager")
-                    Bus.unwatch_name (watch_nm);
-            }
-            else
-            {               
-                if (name == "net.connman")
-                    this.network = new ConnmanNetworkMonitor ();
-                else if (name == "org.freedesktop.NetworkManager")
-                    this.network = new NMNetworkMonitor ();
-                    
-                this.network.on_network_up.connect (() => 
-                    this.add_storage_medium ("net", "stock_internet", "Internet"));
-                this.network.on_network_down.connect (() => 
-                    this.remove_storage_medium ("net"));
-                    
-                this.network.setup ();
+                return;
+              
+            if (name == "net.connman")
+                this.network = new ConnmanNetworkMonitor ();
+            else if (name == "org.freedesktop.NetworkManager")
+                this.network = new NMNetworkMonitor ();
                 
-                Bus.unwatch_name (watch_connman);
-                Bus.unwatch_name (watch_nm);
-            }
+            this.network.on_network_up.connect (() => 
+                this.add_storage_medium ("net", "stock_internet", "Internet"));
+            this.network.on_network_down.connect (() => 
+                this.remove_storage_medium ("net"));
                 
+            this.network.setup ();
+                
+            Bus.unwatch_name (watch_connman);
+            Bus.unwatch_name (watch_nm);            
         }
-
+        
         public override void unload ()
         {
             // FIXME: move all this D-Bus stuff to some shared
@@ -282,7 +275,7 @@ namespace Zeitgeist
             return "unknown";
         }
 
-        private void on_volume_added (VolumeMonitor monitor, Volume volume)
+        private void on_volume_added (Volume volume)
         {
             debug ("volume added");
             Icon icon = volume.get_icon ();
@@ -294,7 +287,7 @@ namespace Zeitgeist
                 volume.get_name ());
         }
 
-        private void on_volume_removed (VolumeMonitor monitor, Volume volume)
+        private void on_volume_removed (Volume volume)
         {
             debug ("Volume removed");
             remove_storage_medium (get_volume_id (volume));
@@ -384,8 +377,8 @@ namespace Zeitgeist
     }
 
     /*
-     * Checks whether there is a funtioning network interface via
-     * NetworkManager (requires NM >= 0.8).
+     * Monitor the availability of working network connections using Network Manager 
+     * (requires 0.8 or later).	
      * See http://projects.gnome.org/NetworkManager/developers/spec-08.html
      */
     class NMNetworkMonitor : Object, NetworkMonitor
@@ -457,13 +450,12 @@ namespace Zeitgeist
                 proxy = Bus.get_proxy_sync<ConnmanManagerDBus> (BusType.SYSTEM,
                                             CM_BUS_NAME,
                                             CM_OBJECT_PATH);
+                
+                // There is a bug in some Connman versions causing it to not emit the
+                // net.connman.Manager.StateChanged signal. We take our chances this
+                // instance is working properly :-)     
                 proxy.state_changed.connect (this.on_state_changed);
-
-                //
-                // ^^ There is a bug in some Connman versions causing it to not emit the
-                //net.connman.Manager.StateChanged signal. We take our chances this
-                //instance is working properly :-)
-                //
+                
                 string state = proxy.get_state ();
                 this.on_state_changed (state);
             }
