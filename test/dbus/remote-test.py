@@ -190,6 +190,30 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 		self.assertEquals(len(results[1].get_subjects()), 1)
 		self.assertEquals(len(results[0].get_subjects()), 1)
 
+	def testFindEventsWithNoexpandOperator(self):
+		events = parse_events("test/data/three_events.js")
+		ids = self.insertEventsAndWait(events)
+
+		template = Event.new_for_values(
+			subject_interpretation=Interpretation.MEDIA)
+		results = self.findEventsForTemplatesAndWait([template],
+			num_events=5)
+		self.assertEquals(3, len(results))
+
+		template = Event.new_for_values(
+			subject_interpretation='+%s' % Interpretation.MEDIA)
+		results = self.findEventsForTemplatesAndWait([template],
+			num_events=5)
+		self.assertEquals(0, len(results))
+
+		template = Event.new_for_values(
+			subject_interpretation='+%s' % Interpretation.AUDIO)
+		results = self.findEventsForTemplatesAndWait([template],
+			num_events=5)
+		self.assertEquals(1, len(results))
+		self.assertEquals(results[0].get_subjects()[0].interpretation,
+			Interpretation.AUDIO)
+
 	def testFindEventsLimitWhenDuplicates(self):
 		events = parse_events("test/data/three_events.js")
 		ids = self.insertEventsAndWait(events)

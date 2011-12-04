@@ -28,6 +28,8 @@ void main (string[] args)
 
     Test.add_func ("/ParseNegation/main", parse_negation_test);
     Test.add_func ("/ParseNegation/assert", assert_no_negation_test);
+    Test.add_func ("/ParseNoexpand/main", parse_noexpand_test);
+    Test.add_func ("/ParseNoexpand/assert", assert_no_noexpand_test);
     Test.add_func ("/ParseWildcard/main", parse_wildcard_test);
 	Test.add_func ("/ParseWildlcard/assert", assert_no_wildcard_test);
 
@@ -45,6 +47,17 @@ private class PublicEngine : Zeitgeist.Engine
 		throws Zeitgeist.EngineError
 	{
 		assert_no_negation (field, val);
+	}
+
+    public bool PUBLIC_parse_noexpand (ref string val)
+    {
+        return parse_noexpand (ref val);
+    }
+
+	public void PUBLIC_assert_no_noexpand (string field, string val)
+		throws Zeitgeist.EngineError
+	{
+		assert_no_noexpand (field, val);
 	}
 
     public bool PUBLIC_parse_wildcard (ref string val)
@@ -92,6 +105,45 @@ public void assert_no_negation_test ()
 	try
 	{
 		engine.PUBLIC_assert_no_negation ("field name", "!bad");
+		assert_not_reached ();
+	}
+	catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)
+	{
+	}
+}
+
+public void parse_noexpand_test ()
+{
+    PublicEngine engine = new PublicEngine ();
+    string val;
+
+    // Test string without a negation
+    val = "no expand";
+    assert (engine.PUBLIC_parse_noexpand (ref val) == false);
+    assert (val == "no expand");
+
+    // Test string with a valid noexpand
+    val = "+noexpand";
+    assert (engine.PUBLIC_parse_noexpand (ref val) == true);
+    assert (val == "noexpand");
+
+    // Test negation character in a meaningless position
+    val = "some + chars++";
+    assert (engine.PUBLIC_parse_noexpand (ref val) == false);
+    assert (val == "some + chars++");
+}
+
+public void assert_no_noexpand_test ()
+{
+	PublicEngine engine = new PublicEngine ();
+
+	engine.PUBLIC_assert_no_noexpand ("field name", "good");
+	engine.PUBLIC_assert_no_noexpand ("field name", "good+");
+	engine.PUBLIC_assert_no_noexpand ("field name", "go+od");
+
+	try
+	{
+		engine.PUBLIC_assert_no_noexpand ("field name", "+bad");
 		assert_not_reached ();
 	}
 	catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)

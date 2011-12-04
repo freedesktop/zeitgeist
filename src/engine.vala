@@ -861,6 +861,7 @@ public class Engine : Object
                 string val = template.origin;
                 bool like = parse_wildcard (ref val);
                 bool negated = parse_negation (ref val);
+                assert_no_noexpand (val, "origin");
 
                 if (like)
                     where.add_wildcard_condition ("origin", val, negated);
@@ -904,6 +905,7 @@ public class Engine : Object
                     string val = subject_template.mimetype;
                     bool like = parse_wildcard (ref val);
                     bool negated = parse_negation (ref val);
+                    assert_no_noexpand (val, "mime-type");
 
                     if (like)
                         where.add_wildcard_condition (
@@ -919,6 +921,7 @@ public class Engine : Object
                     string val = subject_template.uri;
                     bool like = parse_wildcard (ref val);
                     bool negated = parse_negation (ref val);
+                    assert_no_noexpand (val, "uri");
 
                     if (like)
                         where.add_wildcard_condition ("subj_id", val, negated);
@@ -932,6 +935,7 @@ public class Engine : Object
                     string val = subject_template.origin;
                     bool like = parse_wildcard (ref val);
                     bool negated = parse_negation (ref val);
+                    assert_no_noexpand (val, "subject origin");
 
                     if (like)
                         where.add_wildcard_condition (
@@ -944,8 +948,8 @@ public class Engine : Object
                 // Text
                 if (subject_template.text != "")
                 {
-                    // Negation and prefix search isn't supported for
-                    // subject texts, but "!" and "*" are valid as
+                    // Negation, noexpand and prefix search aren't supported
+                    // for subject texts, but "!", "+" and "*" are valid as
                     // plain text characters.
                     where.add_text_condition_subquery ("subj_text_id",
                         subject_template.text, false);
@@ -957,6 +961,7 @@ public class Engine : Object
                     string val = subject_template.current_uri;
                     bool like = parse_wildcard (ref val);
                     bool negated = parse_negation (ref val);
+                    assert_no_noexpand (val, "current_uri");
 
                     if (like)
                         where.add_wildcard_condition (
@@ -972,6 +977,7 @@ public class Engine : Object
                     string val = subject_template.storage;
                     assert_no_negation ("subject storage", val);
                     assert_no_wildcard ("subject storage", val);
+                    assert_no_noexpand (val, "subject storage");
                     where.add_text_condition_subquery ("subj_storage_id", val);
                 }
             }
@@ -1011,6 +1017,38 @@ public class Engine : Object
 
     // Used by get_where_clause_from_event_templates
     /**
+     * Check if the value starts with the noexpand operator. If it does,
+     * remove the operator from the value and return true. Otherwise,
+     * return false.
+     *
+     * Check for the negation operator before calling this function.
+     */
+    public static bool parse_noexpand (ref string val)
+    {
+        if (!val.has_prefix ("+"))
+            return false;
+        val = val.substring (1);
+        return true;
+    }
+
+    // Used by get_where_clause_from_event_templates
+    /**
+     * If the value starts with the negation operator, throw an
+     * error.
+     */
+    protected void assert_no_noexpand (string field, string val)
+        throws EngineError
+    {
+        if (!val.has_prefix ("+"))
+            return;
+        string error_message =
+            "Field '%s' doesn't support the no-expand operator".printf (field);
+        warning (error_message);
+        throw new EngineError.INVALID_ARGUMENT (error_message);
+    }
+
+    // Used by get_where_clause_from_event_templates
+    /**
      * Check if the value ends with the wildcard character. If it does,
      * remove the wildcard character from the value and return true.
      * Otherwise, return false.
@@ -1044,7 +1082,12 @@ public class Engine : Object
     {
         string _symbol = symbol;
         bool negated = parse_negation (ref _symbol);
-        List<unowned string> symbols = Symbol.get_all_children (_symbol);
+        bool noexpand = parse_noexpand (ref _symbol);
+        List<unowned string> symbols;
+        if (noexpand)
+            symbols = new List<unowned string> ();
+        else
+            symbols = Symbol.get_all_children (_symbol);
         symbols.prepend (_symbol);
 
         WhereClause subwhere = new WhereClause(
