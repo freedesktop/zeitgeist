@@ -1050,14 +1050,6 @@ public class Engine : Object
         WhereClause subwhere = new WhereClause(
             WhereClause.Type.OR, negated);
 
-        /*
-        FIXME: what is this?
-        foreach (unowned string uri in symbols)
-        {
-            subwhere.add_match_condition (table_name,
-                lookup_table.get_id (uri));
-        }
-        */
         if (symbols.length () == 1)
         {
             subwhere.add_match_condition (table_name,
@@ -1066,7 +1058,7 @@ public class Engine : Object
         else
         {
             var sb = new StringBuilder ();
-            foreach (string uri in symbols)
+            foreach (unowned string uri in symbols)
             {
                 sb.append_printf ("%d,", lookup_table.get_id (uri));
             }
