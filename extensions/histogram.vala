@@ -1,6 +1,7 @@
 /* histogram.vala
  *
  * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
+ * Copyright © 2011 Stefano Candori <stefano.candori@gmail.com>
  *
  * Based upon a Python implementation (2010-2011) by:
  *  Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
@@ -73,8 +74,8 @@ namespace Zeitgeist
             var builder = new VariantBuilder (new VariantType ("a(xu)"));
 
             string sql = """
-                SELECT strftime('%s', datetime(timestamp/1000, 'unixepoch'),
-                'start of day') AS daystamp,
+                SELECT strftime('%s', datetime(timestamp/1000, 'unixepoch',
+                'localtime'), 'start of day') AS daystamp,
                 COUNT(*)
                 FROM event
                 GROUP BY daystamp

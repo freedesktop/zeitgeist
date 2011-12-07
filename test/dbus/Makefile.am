@@ -4,6 +4,7 @@ EXTRA_DIST = \
 	blacklist-test.py \
 	dsr-test.py \
 	engine-test.py \
+	histogram-test.py \
 	monitor-test.py \
 	remote-test.py \
 	testutils.py \
