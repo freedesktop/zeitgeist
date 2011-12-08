@@ -4,4 +4,3 @@
  - Figure out why D-Bus test cases time out most of the time.
  - Finish storage-monitor extension.
  - Make histogram extension more generic.
- - Fix time zone problems with histogram extension.
