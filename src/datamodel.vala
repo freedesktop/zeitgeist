@@ -285,15 +285,39 @@ namespace Zeitgeist
 
     public class Event : Object
     {
+        private static StringChunk url_store;
+
         public uint32    id { get; set; }
         public int64     timestamp { get; set; }
-        public string    interpretation { get; set; }
-        public string    manifestation { get; set; }
-        public string    actor { get; set; }
         public string    origin { get; set; }
+
+        public string actor
+        {
+            get { return _actor; }
+            set { _actor = url_store.insert_const (value); }
+        }
+        public string interpretation
+        {
+            get { return _interpretation; }
+            set { _interpretation = url_store.insert_const (value); }
+        }
+        public string manifestation
+        {
+            get { return _manifestation; }
+            set { _manifestation = url_store.insert_const (value); }
+        }
+
+        private unowned string _actor;
+        private unowned string _interpretation;
+        private unowned string _manifestation;
 
         public GenericArray<Subject> subjects { get; set; }
         public ByteArray? payload { get; set; }
+
+        static construct
+        {
+            url_store = new StringChunk (4096);
+        }
 
         construct
         {
@@ -514,15 +538,40 @@ namespace Zeitgeist
 
     public class Subject : Object
     {
+        private static StringChunk url_store;
 
         public string uri { get; set; }
-        public string interpretation { get; set; }
-        public string manifestation { get; set; }
-        public string mimetype { get; set; }
         public string origin { get; set; }
         public string text { get; set; }
         public string storage { get; set; }
+        // FIXME: current_uri is often the same as uri, we don't need to waste
+        // memory for it
         public string current_uri { get; set; }
+
+        public string mimetype
+        {
+            get { return _mimetype; }
+            set { _mimetype = url_store.insert_const (value); }
+        }
+        public string interpretation
+        {
+            get { return _interpretation; }
+            set { _interpretation = url_store.insert_const (value); }
+        }
+        public string manifestation
+        {
+            get { return _manifestation; }
+            set { _manifestation = url_store.insert_const (value); }
+        }
+
+        private unowned string _mimetype;
+        private unowned string _interpretation;
+        private unowned string _manifestation;
+
+        static construct
+        {
+            url_store = new StringChunk (4096);
+        }
 
         public Subject.from_variant (Variant subject_variant)
         {
