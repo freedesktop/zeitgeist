@@ -389,7 +389,7 @@ namespace Zeitgeist
             vb.add ("s", interpretation != null ? interpretation : "");
             vb.add ("s", manifestation != null ? manifestation : "");
             vb.add ("s", actor != null ? actor : "");
-            vb.add ("s", origin ?? "");
+            vb.add ("s", origin != null ? origin : "");
             vb.close ();
 
             vb.open (new VariantType ("aas"));
