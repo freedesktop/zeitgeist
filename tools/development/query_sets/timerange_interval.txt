@@ -1,0 +1,9 @@
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentEvents
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentSubjects
+(1, 60000), [], StorageState.Any, 6, ResultType.MostPopularSubjects
+(1, 60000), [], StorageState.Any, 6, ResultType.MostPopularActor
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentActor
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentSubjectInterpretation
+(1, 60000), [], StorageState.Any, 6, ResultType.MostPopularSubjectInterpretation
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentMimeType
+(1, 60000), [], StorageState.Any, 6, ResultType.MostPopularMimeType

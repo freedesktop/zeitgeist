@@ -3,7 +3,7 @@ SUBDIRS = fts-python
 NULL =
 
 #extensionsdir = $(libdir)/zeitgeist/extensions
-noinst_LTLIBRARIES = ds-registry.la blacklist.la storage-monitor.la fts.la
+noinst_LTLIBRARIES = ds-registry.la blacklist.la storage-monitor.la fts.la benchmark.la
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
@@ -58,5 +58,15 @@ fts_la_SOURCES = \
 fts_la_LDFLAGS = -module -avoid-version
 
 fts_la_LIBADD = \
+	$(ZEITGEIST_LIBS) \
+	$(NULL)
+	
+benchmark_la_SOURCES = \
+	benchmark.vala \
+	$(NULL)
+
+benchmark_la_LDFLAGS = -module -avoid-version
+
+benchmark_la_LIBADD = \
 	$(ZEITGEIST_LIBS) \
 	$(NULL)

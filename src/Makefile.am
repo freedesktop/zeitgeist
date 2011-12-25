@@ -25,6 +25,7 @@ extensions_VALASOURCES = \
 	ext-histogram.vala \
 	ext-storage-monitor.vala \
 	ext-fts.vala \
+	ext-benchmark.vala \
 	$(NULL)
 
 zeitgeist_daemon_VALASOURCES = \

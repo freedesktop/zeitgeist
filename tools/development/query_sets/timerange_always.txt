@@ -1,0 +1,9 @@
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentEvents
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentSubjects
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostPopularSubjects
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostPopularActor
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentActor
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentSubjectInterpretation
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostPopularSubjectInterpretation
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentMimeType
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostPopularMimeType
