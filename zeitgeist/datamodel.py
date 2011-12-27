@@ -664,7 +664,7 @@ class Event(list):
 		
 		 
 		:param timestamp: Event timestamp in milliseconds since the Unix Epoch 
-		:param interpretaion: The Interpretation type of the event
+		:param interpretation: The Interpretation type of the event
 		:param manifestation: Manifestation type of the event
 		:param actor: The actor (application) that triggered the event		
 		:param origin: The origin (domain) where the event was triggered
