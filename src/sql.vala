@@ -98,9 +98,9 @@ namespace Zeitgeist.SQLite
             return last_id;
         }
 
-        public void set_deletion_callback (DeletionCallback? callback)
+        public void set_deletion_callback (owned DeletionCallback? callback)
         {
-            deletion_callback = callback;
+            deletion_callback = (owned) callback;
         }
 
         /**
