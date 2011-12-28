@@ -1,7 +1,7 @@
 # USAGE
 #
-# To run the benchmarks on a certain branch of zeitgeist make sure you are
-# running and instance of the branch. Make sure the branch includes the benchmark
+# To run the benchmarks on a certain branch of Zeitgeist make sure you are
+# running an instance of the branch. Make sure the branch includes the benchmark
 # extension.
 # 
 # To benchmark and output timing to 'output.json' run
@@ -9,12 +9,11 @@
 # If you already have data in the output file and want to merge both
 # data sets (build avg.) run
 #  ./query_timings.py -m -o output.json
-# To plot the data use the '--plot' argument, multible '--plot' arguments
-# When plotting one needs to choose between several types of plots such using 
-# --type with arguments marsh_time, get_events_time, find_ids_time, find_events, overall)
+# To plot the data use the '--plot' argument, multiple '--plot' arguments
+# will define multiple series.
+# When plotting one needs to choose between several types of plots using 
+# --type with arguments marsh_time, get_events_time, find_ids_time, find_events and overall
 #
-# will define multible series.
-#  ./query_timings.py --plot output.json --plot output1.json -o plot.svg
 # In short, a run always looks like:
 #  tools/development/query_timings.py --name "lp:zeitgeist" -o trunk.json \
 #       --queries tools/development/query_sets/timerange_always.txt

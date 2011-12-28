@@ -12,6 +12,3 @@ benchmark_interface = dbus.Interface(benchmark_obj,
 def find_events(time_frame, templates, storage_type, num_events, result_type):
     return benchmark_interface.FindEvents(time_frame, templates, storage_type, 
         num_events, result_type)
-        
-if __name__ == "__main__":
-    print find_events([0,9999999999990], [], 2, 20, 2).keys()

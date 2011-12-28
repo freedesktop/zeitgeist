@@ -59,7 +59,7 @@ namespace Zeitgeist
             uint result_type)
             throws Error
         {
-            var extra_data = new HashTable<string, Variant> (str_hash, str_equal);
+            var data = new HashTable<string, Variant> (str_hash, str_equal);
          
             var find_event_ids_timer = new Timer ();
             var ids = engine.find_event_ids (
@@ -78,17 +78,36 @@ namespace Zeitgeist
             
             var find_events_elapsed = get_events_elapsed + find_event_ids_elapsed + marsh_events_elapsed;
             
-            extra_data.insert("find_event_ids", 
+            data.insert("find_event_ids", 
                 new Variant.double(find_event_ids_elapsed));
-            extra_data.insert("get_events", 
+            data.insert("get_events", 
                 new Variant.double(get_events_elapsed));
-            extra_data.insert("find_events", 
+            data.insert("find_events", 
                 new Variant.double(find_events_elapsed));
-            extra_data.insert("marsh_events", 
+            data.insert("marsh_events", 
                 new Variant.double(marsh_events_elapsed));
-            extra_data.insert("events", marsh_events);
+            data.insert("events", marsh_events);
             
-            return extra_data;
+            return data;
+        }
+        
+        public override void unload ()
+        {
+            try
+            {
+                var connection = Bus.get_sync (BusType.SESSION, null);
+                if (registration_id != 0)
+                {
+                    connection.unregister_object (registration_id);
+                    registration_id = 0;
+                }
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
+            }
+
+            debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
         }
 
     }
