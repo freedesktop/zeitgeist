@@ -662,6 +662,25 @@ public class Engine : Object
 
             unowned Subject subject = event.subjects[i];
 
+            // If subject manifestation and interpretation are not set,
+            // we try to automatically determine them from the other data.
+
+            if (subject.manifestation == "")
+            {
+                unowned string? manifestation = manifestation_for_uri (
+                    subject.uri);
+                if (manifestation != null)
+                    subject.manifestation = manifestation;
+            }
+
+            if (subject.interpretation == "")
+            {
+                unowned string? interpretation = interpretation_for_mimetype (
+                    subject.mimetype);
+                if (interpretation != null)
+                    subject.interpretation = interpretation;
+            }
+
             insert_stmt.bind_text (8, subject.uri);
             insert_stmt.bind_text (9, subject.current_uri);
             insert_stmt.bind_int64 (10,

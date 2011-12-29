@@ -224,6 +224,29 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 		results = self.findEventsForTemplatesAndWait([], num_events=3)
 		self.assertEquals(3, len(results))
 
+	def testInsertWithEmptySubjectInterpretationManifestation(self):
+		events = parse_events("test/data/incomplete_events.js")
+		ids = self.insertEventsAndWait(events)
+		self.assertEquals(3, len(ids))
+		
+		event = self.getEventsAndWait([ids[0]])[0]
+		self.assertEquals("Hi", event.subjects[0].manifestation)
+		self.assertEquals("", event.subjects[0].interpretation)
+		self.assertEquals("Something", event.subjects[1].manifestation)
+		self.assertEquals("", event.subjects[1].interpretation)
+
+		event = self.getEventsAndWait([ids[1]])[0]
+		self.assertEquals(Manifestation.FILE_DATA_OBJECT, event.subjects[0].manifestation)
+		self.assertEquals(Interpretation.SOURCE_CODE, event.subjects[0].interpretation)
+		self.assertEquals(Manifestation.FILE_DATA_OBJECT, event.subjects[1].manifestation)
+		self.assertEquals("a", event.subjects[1].interpretation)
+		self.assertEquals("b", event.subjects[2].manifestation)
+		self.assertEquals(Interpretation.SOURCE_CODE, event.subjects[2].interpretation)
+		
+		event = self.getEventsAndWait([ids[2]])[0]
+		self.assertEquals("something else", event.subjects[0].manifestation)
+		self.assertEquals("#Audio", event.subjects[0].interpretation)
+
 	def testInsertWithDuplicateSubject(self):
 		events = parse_events("test/data/three_events.js")
 		events[0].subjects.append(list(events[0].subjects[0]))
