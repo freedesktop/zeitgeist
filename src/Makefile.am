@@ -44,6 +44,7 @@ zeitgeist_daemon_VALASOURCES = \
 	where-clause.vala \
 	ontology.vala \
 	ontology-uris.vala \
+	mimetype.vala \
 	$(NULL)
 
 zeitgeist_daemon_SOURCES = \

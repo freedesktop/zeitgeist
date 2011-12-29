@@ -13,6 +13,7 @@ TESTS = \
 	query-operators-test \
 	where-clause-test \
 	table-lookup-test \
+	mimetype-test \
 	$(NULL)
 
 SRC_FILES = \
@@ -31,6 +32,7 @@ SRC_FILES = \
 	$(top_srcdir)/src/sql.vala \
 	$(top_srcdir)/src/ontology.vala \
 	$(top_srcdir)/src/ontology-uris.vala \
+	$(top_srcdir)/src/mimetype.vala \
 	$(NULL)
 
 marshalling: marshalling.vala $(SRC_FILES)
@@ -45,6 +47,9 @@ where-clause-test: where-clause-test.vala $(SRC_FILES)
 table-lookup-test: table-lookup-test.vala $(SRC_FILES)
 	$(VALAC) $(VALAFLAGS) -o $@ $^
 
+mimetype-test: mimetype-test.vala $(SRC_FILES)
+	$(VALAC) $(VALAFLAGS) -o $@ $^
+
 clean-local:
 	rm -f *.~[0-9]~
 
@@ -53,6 +58,7 @@ DISTCLEANFILES = \
 	query-operators-test \
 	where-clause-test \
 	table-lookup-test \
+	mimetype-test \
 	$(NULL)
 
 EXTRA_DIST = \
@@ -60,6 +66,7 @@ EXTRA_DIST = \
 	query-operators-test.vala \
 	where-clause-test.vala \
 	table-lookup-test.vala \
+	mimetype-test.vala \
 	assertions.vapi \
 	$(NULL)
 

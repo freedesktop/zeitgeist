@@ -54,3 +54,4 @@ py-compile
 extra/python/_ontology.py
 test/direct/*.c
 src/zeitgeist-daemon
+mimetype-test
