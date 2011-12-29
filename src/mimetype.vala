@@ -32,7 +32,8 @@ namespace Zeitgeist
     private static SList<MimeRegex?> mimetypes_regexs;
     private static SList<UriScheme?> schemes;
 
-    private struct MimeRegex
+    [Compact]
+    private class MimeRegex
     {
         public Regex regex;
         public string interpretation_uri;
@@ -45,10 +46,17 @@ namespace Zeitgeist
         }
     }
 
-    private struct UriScheme
+    [Compact]
+    private class UriScheme
     {
         public string uri_scheme;
         public string manifestation_uri;
+
+        public UriScheme (string uri_scheme, string manifestation_uri)
+        {
+            this.uri_scheme = uri_scheme;
+            this.manifestation_uri = manifestation_uri;
+        }
     }
 
     /**
@@ -107,8 +115,8 @@ namespace Zeitgeist
     public void register_mimetype_regex (string mimetype_regex,
         string interpretation_uri) throws RegexError
     {
-        var entry = MimeRegex (mimetype_regex, interpretation_uri);
-        mimetypes_regexs.append (entry);
+        var entry = new MimeRegex (mimetype_regex, interpretation_uri);
+        mimetypes_regexs.append ((owned) entry);
     }
 
     /**
@@ -121,11 +129,11 @@ namespace Zeitgeist
      * Returns: A URI defining the subject interpretation type associated with
      *     @mimetype or %NULL in case @mimetype is unknown.
      */
-    public string? interpretation_for_mimetype (string mimetype)
+    public unowned string? interpretation_for_mimetype (string mimetype)
     {
         ensure_mimetypes_loaded ();
 
-        string? interpretation = mimetypes.lookup (mimetype);
+        unowned string? interpretation = mimetypes.lookup (mimetype);
         if (interpretation != null)
             return interpretation;
 
@@ -157,8 +165,8 @@ namespace Zeitgeist
     public void register_uri_scheme (string uri_scheme,
         string manifestation_type)
     {
-        UriScheme scheme = { uri_scheme, manifestation_type };
-        schemes.append (scheme);
+        var scheme = new UriScheme (uri_scheme, manifestation_type);
+        schemes.append ((owned) scheme);
     }
 
     /**
@@ -174,7 +182,7 @@ namespace Zeitgeist
      * Returns: A subject manifestation type for @uri or %NULL in case no
      *     suitable manifestation type is known
      */
-    public string? manifestation_for_uri (string uri) {
+    public unowned string? manifestation_for_uri (string uri) {
         ensure_schemes_loaded ();
 
         foreach (unowned UriScheme scheme in schemes)
@@ -192,102 +200,103 @@ namespace Zeitgeist
             return;
 
         try {
-            register_mimetype ("text/x-patch", NFO.SOURCE_CODE);
-            register_mimetype ("application/postscript", NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype ("image/png", NFO.RASTER_IMAGE);
-            register_mimetype ("application/x-m4", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-deb", NFO.SOFTWARE);
-            register_mimetype ("text/x-tex", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-shellscript", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-ocaml", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-gnumeric", NFO.SPREADSHEET);
-            register_mimetype ("application/x-executable", NFO.SOFTWARE);
-            register_mimetype ("application/rtf", NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype ("application/x-fluid", NFO.SOURCE_CODE);
-            register_mimetype ("text/html", NFO.HTML_DOCUMENT);
-            register_mimetype ("text/x-python", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-applix-spreadsheet", NFO.SPREADSHEET);
-            register_mimetype ("application/x-sql", NFO.SOURCE_CODE);
-            register_mimetype ("application/ogg", NFO.AUDIO);
-            register_mimetype ("application/x-perl", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-bzip", NFO.ARCHIVE);
-            register_mimetype ("application/x-7z-compressed", NFO.ARCHIVE);
-            register_mimetype ("text/x-gettext-translation-template", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-lzma", NFO.ARCHIVE);
-            register_mimetype ("application/ps", NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype ("application/x-compressed-tar", NFO.ARCHIVE);
-            register_mimetype ("application/msexcel", NFO.SPREADSHEET);
-            register_mimetype ("application/xml", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-lisp", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-archive", NFO.ARCHIVE);
-            register_mimetype ("application/vnd.corel-draw", NFO.VECTOR_IMAGE);
-            register_mimetype ("text/x-troff", NFO.SOURCE_CODE);
-            register_mimetype ("application/ms-excel", NFO.SPREADSHEET);
-            register_mimetype ("text/x-c++", NFO.SOURCE_CODE);
-            register_mimetype ("text/plain", NFO.TEXT_DOCUMENT);
-            register_mimetype ("text/x-latex", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-bzip-compressed-tar", NFO.ARCHIVE);
-            register_mimetype ("audio/x-scpls", NFO.MEDIA_LIST);
-            register_mimetype ("text/x-pascal", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-cd-image", NFO.FILESYSTEM_IMAGE);
-            register_mimetype ("application/zip", NFO.ARCHIVE);
-            register_mimetype ("text/x-sql", NFO.SOURCE_CODE);
-            register_mimetype ("image/svg+xml", NFO.VECTOR_IMAGE);
-            register_mimetype ("application/x-ms-dos-executable", NFO.SOFTWARE);
-            register_mimetype ("application/x-lzma-compressed-tar", NFO.ARCHIVE);
-            register_mimetype ("application/ms-powerpoint", NFO.PRESENTATION);
-            register_mimetype ("text/x-eiffel", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-java-archive", NFO.SOURCE_CODE);
-            register_mimetype ("application/pdf", NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype ("text/x-csrc", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-vala", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-java", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-gettext-translation", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-killustrator", NFO.VECTOR_IMAGE);
-            register_mimetype ("text/x-credits", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-glade", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-php", NFO.SOURCE_CODE);
-            register_mimetype ("image/gif", NFO.RASTER_IMAGE);
+            register_mimetype ("application/ecmascript", NFO.SOURCE_CODE);
             register_mimetype ("application/javascript", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-c++src", NFO.SOURCE_CODE);
+            register_mimetype ("application/ms-excel", NFO.SPREADSHEET);
+            register_mimetype ("application/ms-powerpoint", NFO.PRESENTATION);
+            register_mimetype ("application/msexcel", NFO.SPREADSHEET);
+            register_mimetype ("application/msword", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("application/ogg", NFO.AUDIO);
+            register_mimetype ("application/pdf", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("application/postscript", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("application/ps", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("application/rtf", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("application/vnd.corel-draw", NFO.VECTOR_IMAGE);
+            register_mimetype ("application/vnd.ms-excel", NFO.SPREADSHEET);
+            register_mimetype ("application/vnd.ms-powerpoint", NFO.PRESENTATION);
+            register_mimetype ("application/x-7z-compressed", NFO.ARCHIVE);
+            register_mimetype ("application/x-abiword", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("application/x-applix-presents", NFO.PRESENTATION);
+            register_mimetype ("application/x-applix-spreadsheet", NFO.SPREADSHEET);
+            register_mimetype ("application/x-applix-word", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("application/x-archive", NFO.ARCHIVE);
+            register_mimetype ("application/x-bzip", NFO.ARCHIVE);
+            register_mimetype ("application/x-bzip-compressed-tar", NFO.ARCHIVE);
+            register_mimetype ("application/x-cd-image", NFO.FILESYSTEM_IMAGE);
+            register_mimetype ("application/x-compressed-tar", NFO.ARCHIVE);
+            register_mimetype ("application/x-csh", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-deb", NFO.SOFTWARE);
+            register_mimetype ("application/x-designer", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-desktop", NFO.SOFTWARE);
+            register_mimetype ("application/x-dia-diagram", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-executable", NFO.SOFTWARE);
+            register_mimetype ("application/x-fluid", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-glade", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-gnucash", NFO.SPREADSHEET);
+            register_mimetype ("application/x-gnumeric", NFO.SPREADSHEET);
+            register_mimetype ("application/x-gzip", NFO.ARCHIVE);
+            register_mimetype ("application/x-java-archive", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-killustrator", NFO.VECTOR_IMAGE);
+            register_mimetype ("application/x-kpresenter", NFO.PRESENTATION);
+            register_mimetype ("application/x-kspread", NFO.SPREADSHEET);
+            register_mimetype ("application/x-kword", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("application/x-lzma", NFO.ARCHIVE);
+            register_mimetype ("application/x-lzma-compressed-tar", NFO.ARCHIVE);
+            register_mimetype ("application/x-m4", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-ms-dos-executable", NFO.SOFTWARE);
+            register_mimetype ("application/x-object", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-perl", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-php", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-rpm", NFO.SOFTWARE);
+            register_mimetype ("application/x-ruby", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-shellscript", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-sql", NFO.SOURCE_CODE);
+            register_mimetype ("application/xhtml+xml", NFO.SOURCE_CODE);
+            register_mimetype ("application/xml", NFO.SOURCE_CODE);
+            register_mimetype ("application/zip", NFO.ARCHIVE);
+            register_mimetype ("audio/x-scpls", NFO.MEDIA_LIST);
+            register_mimetype ("image/gif", NFO.RASTER_IMAGE);
+            register_mimetype ("image/jpeg", NFO.RASTER_IMAGE);
+            register_mimetype ("image/png", NFO.RASTER_IMAGE);
+            register_mimetype ("image/svg+xml", NFO.VECTOR_IMAGE);
             register_mimetype ("image/tiff", NFO.RASTER_IMAGE);
+            register_mimetype ("image/x-xcf", NFO.RASTER_IMAGE);
+            register_mimetype ("text/css", NFO.SOURCE_CODE);
+            register_mimetype ("text/html", NFO.HTML_DOCUMENT);
+            register_mimetype ("text/plain", NFO.TEXT_DOCUMENT);
+            register_mimetype ("text/x-c", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-c++", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-c++src", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-chdr", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-copying", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-credits", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-csharp", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-csrc", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-dsrc", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-eiffel", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-gettext-translation", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-gettext-translation-template", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-haskell", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-idl", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-java", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-latex", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-lisp", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-lua", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-m4", NFO.SOURCE_CODE);
             register_mimetype ("text/x-makefile", NFO.SOURCE_CODE);
             register_mimetype ("text/x-objcsrc", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-idl", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-applix-presents", NFO.PRESENTATION);
-            register_mimetype ("application/x-kpresenter", NFO.PRESENTATION);
-            register_mimetype ("application/x-rpm", NFO.SOFTWARE);
-            register_mimetype ("application/xhtml+xml", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-chdr", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-gzip", NFO.ARCHIVE);
-            register_mimetype ("application/x-dia-diagram", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-csh", NFO.SOURCE_CODE);
-            register_mimetype ("text/css", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-csharp", NFO.SOURCE_CODE);
-            register_mimetype ("image/jpeg", NFO.RASTER_IMAGE);
-            register_mimetype ("application/x-kspread", NFO.SPREADSHEET);
-            register_mimetype ("application/x-designer", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-gnucash", NFO.SPREADSHEET);
-            register_mimetype ("image/x-xcf", NFO.RASTER_IMAGE);
-            register_mimetype ("text/x-lua", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-desktop", NFO.SOFTWARE);
-            register_mimetype ("application/x-abiword", NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype ("text/x-vhdl", NFO.SOURCE_CODE);
-            register_mimetype ("application/vnd.ms-excel", NFO.SPREADSHEET);
-            register_mimetype ("text/x-dsrc", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-haskell", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-object", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-c", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-ruby", NFO.SOURCE_CODE);
-            register_mimetype ("text/x-copying", NFO.SOURCE_CODE);
-            register_mimetype ("application/x-kword", NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype ("application/x-applix-word", NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype ("application/vnd.ms-powerpoint", NFO.PRESENTATION);
-            register_mimetype ("text/x-m4", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-ocaml", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-pascal", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-patch", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-python", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-sql", NFO.SOURCE_CODE);
             register_mimetype ("text/x-tcl", NFO.SOURCE_CODE);
-            register_mimetype ("application/ecmascript", NFO.SOURCE_CODE);
-            register_mimetype ("application/msword", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("text/x-tex", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-troff", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-vala", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-vhdl", NFO.SOURCE_CODE);
 
+            register_mimetype_regex (".*/x-dvi", NFO.PAGINATED_TEXT_DOCUMENT);
             register_mimetype_regex (
                 "application/vnd.oasis.opendocument.text.*",
                 NFO.PAGINATED_TEXT_DOCUMENT);
@@ -302,15 +311,12 @@ namespace Zeitgeist
                 NFO.VECTOR_IMAGE);
             register_mimetype_regex ("application/vnd\\..*", NFO.DOCUMENT);
             register_mimetype_regex ("application/x-applix-.*", NFO.DOCUMENT);
-            register_mimetype_regex (
-                "application/vnd.ms-excel.*",
+            register_mimetype_regex ("application/vnd.ms-excel.*",
                 NFO.SPREADSHEET);
-            register_mimetype_regex (
-                "application/vnd.ms-powerpoint.*",
+            register_mimetype_regex ("application/vnd.ms-powerpoint.*",
                 NFO.PRESENTATION);
-            register_mimetype_regex (".*/x-dvi", NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype_regex ("image/.*", NFO.IMAGE);
             register_mimetype_regex ("audio/.*", NFO.AUDIO);
+            register_mimetype_regex ("image/.*", NFO.IMAGE);
             register_mimetype_regex ("video/.*", NFO.VIDEO);
         } catch (RegexError e) {
             // This won't happen.
