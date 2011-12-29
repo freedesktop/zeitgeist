@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2009-2010 Evgeny Egorochkin <phreedom.stdin@gmail.com>
-# Copyright (c) 2010 Sebastian Trueg <trueg@kde.org>
+# Copyright (c) 2010-2011 Sebastian Trueg <trueg@kde.org>
 # Copyright (c) 2010 Andrew Lake <jamboarder@yahoo.com>
 # All rights reserved, licensed under either CC-BY or BSD.
 #
@@ -49,7 +49,7 @@ nmm: {
 
     nmm:MusicPiece
     a rdfs:Class ;
-    rdfs:subClassOf nfo:Media ;
+    rdfs:subClassOf nfo:Audio ;
     rdfs:label "music" ;
     rdfs:comment "Used to assign music-specific properties such a BPM to video and audio" .
 
@@ -98,7 +98,8 @@ nmm: {
     rdfs:label "track number" ;
     rdfs:comment "Track number of the music in its album" ;
     rdfs:domain nmm:MusicPiece ;
-    rdfs:range xsd:integer .
+    rdfs:range xsd:integer ;
+    nrl:maxCardinality 1 .
 
     nmm:musicBrainzTrackID
     a rdf:Property ;
@@ -106,19 +107,24 @@ nmm: {
     rdfs:label "musicbrainz track ID" ;
     rdfs:comment "MusicBrainz track ID" ;
     rdfs:domain nmm:MusicPiece ;
-    rdfs:range xsd:integer .
+    rdfs:range xsd:integer ;
+    nrl:maxCardinality 1 .
 
     nmm:trackGain
     a rdf:Property ;
     rdfs:label "track gain" ;
     rdfs:comment "ReplayGain track gain" ;
-    rdfs:domain nmm:MusicPiece .
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range xsd:float ;
+    nrl:maxCardinality 1 .
 
     nmm:trackPeakGain
     a rdf:Property ;
     rdfs:label "track peak gain" ;
     rdfs:comment "ReplayGain track peak gain" ;
-    rdfs:domain nmm:MusicPiece .
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range xsd:float ;
+    nrl:maxCardinality 1 .
 
 
     nmm:MusicAlbum
@@ -141,7 +147,8 @@ nmm: {
     rdfs:label "international standard recording code" ;
     rdfs:comment "ISRC ID. Format: 'CC-XXX-YY-NNNNN'" ;
     rdfs:domain nmm:MusicAlbum ;
-    rdfs:range xsd:string .
+    rdfs:range xsd:string ;
+    nrl:maxCardinality 1 .
 
     nmm:musicBrainzAlbumID
     a rdf:Property ;
@@ -149,19 +156,24 @@ nmm: {
     rdfs:label "musicbrainz album ID" ;
     rdfs:comment "MusicBrainz album ID" ;
     rdfs:domain nmm:MusicAlbum ;
-    rdfs:range xsd:string .
+    rdfs:range xsd:string ;
+    nrl:maxCardinality 1 .
 
     nmm:albumGain
     a rdf:Property ;
     rdfs:label "album gain" ;
     rdfs:comment "ReplayGain album(audiophile) gain" ;
-    rdfs:domain nmm:MusicAlbum .
+    rdfs:domain nmm:MusicAlbum ;
+    rdfs:range xsd:float ;
+    nrl:maxCardinality 1 .
 
     nmm:albumPeakGain
     a rdf:Property ;
     rdfs:label "album peak gain" ;
     rdfs:comment "ReplayGain album(audiophile) peak gain" ;
-    rdfs:domain nmm:MusicAlbum .
+    rdfs:domain nmm:MusicAlbum ;
+    rdfs:range xsd:float ;
+    nrl:maxCardinality 1 .
     
     nmm:genre 
     a rdf:Property ;
@@ -293,7 +305,32 @@ nmm: {
     rdfs:label "release date" ;
     rdfs:comment "The date the media was released." ;
     rdfs:domain nfo:Media ;
-    rdfs:range xsd:dateTime .
+    rdfs:range xsd:dateTime ;
+    nrl:maxCardinality 1 .
+
+    nmm:albumTrackCount
+    a rdf:Property ;
+    rdfs:label "album track count" ;
+    rdfs:comment "The number of tracks in a music album." ;
+    rdfs:domain nmm:MusicAlbum ;
+    rdfs:range xsd:integer ;
+    nrl:maxCardinality 1 .
+
+    nmm:setNumber
+    a rdf:Property ;
+    rdfs:label "set number" ;
+    rdfs:comment "The part of a set the audio came from." ;
+    rdfs:domain nmm:MusicPiece ;
+    rdfs:range xsd:integer ;
+    nrl:maxCardinality 1 .
+
+    nmm:setSize
+    a rdf:Property ;
+    rdfs:label "set size" ;
+    rdfs:comment "The number of parts in the set." ;
+    rdfs:domain nmm:MusicAlbum ;
+    rdfs:range xsd:integer ;
+    nrl:maxCardinality 1 .
 }
 
 <http://www.semanticdesktop.org/ontologies/2009/02/19/nmm/metadata>
@@ -302,11 +339,13 @@ nmm: {
           a       nrl:DocumentGraph , nrl:Ontology ;
           nao:hasDefaultNamespace "http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#" ;
           nao:hasDefaultNamespaceAbbreviation "nmm" ;
-          nao:lastModified "2010-02-15T08:34:29" ;
+          nao:lastModified "2011-11-25T15:05:29" ;
           nao:serializationLanguage "TriG" ;
           nao:status "Testing" ;
           nrl:updatable "0" ;
-          nao:version "2" .
+          nao:version "0.8.1" ;
+          nao:prefLabel "Nepomuk Multimedia Ontology" ;
+          nao:description "The Nepomuk Multimedia Ontology defines metadata properties and classes for multimedia files." .
 
     <http://www.semanticdesktop.org/ontologies/2009/02/19/nmm/metadata>
           a       nrl:GraphMetadata , nrl:DocumentGraph ;

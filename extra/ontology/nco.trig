@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2007 NEPOMUK Consortium
-# Copyright (c) 2009 Sebastian Trueg <trueg@kde.org>
+# Copyright (c) 2009-2011 Sebastian Trueg <trueg@kde.org>
+#
 # All rights reserved, licensed under either CC-BY or BSD.
 #
 # You are free:
@@ -95,7 +96,8 @@ nco: {nco:region
           rdfs:comment "The family name of an Object represented by this Contact. These applies to people that have more than one given name. The 'first' one is considered 'the' given name (see nameGiven) property. All additional ones are considered 'additional' names. The name inherited from parents is the 'family name'. e.g. For Dr. John Phil Paul Stevenson Jr. M.D. A.C.P. we have contact with: honorificPrefix: 'Dr.', nameGiven: 'John', nameAdditional: 'Phil', nameAdditional: 'Paul', nameFamily: 'Stevenson', honorificSuffix: 'Jr.', honorificSuffix: 'M.D.', honorificSuffix: 'A.C.P.'. These properties form an equivalent of the compound 'N' property as defined in RFC 2426 Sec. 3.1.2" ;
           rdfs:domain nco:PersonContact ;
           rdfs:label "nameFamily" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nco:VideoTelephoneNumber
           a       rdfs:Class ;
@@ -109,7 +111,8 @@ nco: {nco:region
           rdfs:domain nco:Contact ;
           rdfs:label "contactUID" ;
           rdfs:range xsd:string ;
-          rdfs:subPropertyOf nie:identifier .
+          rdfs:subPropertyOf nie:identifier ;
+          nrl:maxCardinality "1" .
 
     nco:publisher
           a       rdf:Property ;
@@ -139,7 +142,8 @@ nco: {nco:region
           rdfs:comment "An extended part of an address. This field might be used to express parts of an address that aren't include in the name of the Contact but also aren't part of the actual location. Usually the streed address and following fields are enough for a postal letter to arrive. Examples may include ('University of California Campus building 45', 'Sears Tower 34th floor' etc.) Inspired by the second part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
           rdfs:domain nco:PostalAddress ;
           rdfs:label "extendedAddress" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nco:IMAccount
           a       rdfs:Class ;
@@ -163,7 +167,7 @@ nco: {nco:region
 
     nco:creator
           a       rdf:Property ;
-          rdfs:comment "Creator of a data object, an entity primarily responsible for the creation of the content of the data object." ;
+          rdfs:comment "Creator of an information element, an entity primarily responsible for the creation of the content of the data object." ;
           rdfs:domain nie:InformationElement ;
           rdfs:label "creator" ;
           rdfs:range nco:Contact ;
@@ -174,28 +178,71 @@ nco: {nco:region
           rdfs:comment "Geographical location of the contact. Inspired by the 'GEO' property specified in RFC 2426 Sec. 3.4.2" ;
           rdfs:domain nco:Contact ;
           rdfs:label "hasLocation" ;
-          rdfs:range geo:Point .
+          rdfs:range geo:Point ;
+          nrl:maxCardinality "1" .
 
     nco:phoneNumber
           a       rdf:Property ;
           rdfs:domain nco:PhoneNumber ;
           rdfs:label "phoneNumber" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nco:nickname
           a       rdf:Property ;
-          rdfs:comment "A nickname of the Object represented by this Contact. This is an equivalen of the 'NICKNAME' property as defined in RFC 2426 Sec. 3.1.3." ;
+          rdfs:comment "A nickname of the Object represented by this Contact. This is an equivalent of the 'NICKNAME' property as defined in RFC 2426 Sec. 3.1.3." ;
           rdfs:domain nco:Contact ;
           rdfs:label "nickname" ;
           rdfs:range xsd:string .
 
     nco:imStatus
           a       rdf:Property ;
-          rdfs:comment "Current status of the given IM account. Values for this property may include 'Online', 'Offline', 'Do not disturb' etc. The exact choice of them is unspecified." ;
+          rdfs:comment "Current status of the given IM account. When this property is set, the nco:imStatusType should also always be set. Applications should attempt to parse this property to determine the presence, only falling back to the nco:imStatusType property in the case that this property's value is unrecognised. Values for this property may include 'available', 'offline', 'busy' etc. The exact choice of them is unspecified, although it is recommended to follow the guidance of the Telepathy project when choosing a string identifier http://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#description" ;
           rdfs:domain nco:IMAccount ;
           rdfs:label "imStatus" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
+
+    nco:imStatusType
+          a       rdf:Property ;
+          rdfs:comment "Current status type of the given IM account. When this property is set, the nco:imStatus property should also always be set. Applications should attempt to parse the nco:imStatus property to determine the presence, only falling back to this property in the case that the nco:imStatus property's value is unrecognised." ;
+          rdfs:domain nco:IMAccount ;
+          rdfs:label "instant messaging status type" ;
+          rdfs:range nco:IMStatusType ;
+          nrl:maxCardinality 1 .
+
+    nco:IMStatusType a rdfs:Class ;
+          rdfs:label "instant messaging status type" ;
+          rdfs:comment "The status type of an IMAccount. Based on the Connection_Presence_Type enumeration of the Telepathy project: http://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#Enum:Connection_Presence_Type" ;
+          rdfs:subClassOf rdfs:Resource .
+
+    nco:IMStatusTypeOffline
+          a nco:IMStatusType ;
+          rdfs:label "offline" .
+
+    nco:IMStatusTypeAvailable
+          a nco:IMStatusType ;
+          rdfs:label "available" .
+
+    nco:IMStatusTypeAway
+          a nco:IMStatusType ;
+          rdfs:label "away" .
+
+    nco:IMStatusTypeExtendedAway
+          a nco:IMStatusType ;
+          rdfs:label "extended away".
+
+    nco:IMStatusTypeHidden
+          a nco:IMStatusType ;
+          rdfs:label "hidden" .
+
+    nco:IMStatusTypeBusy
+          a nco:IMStatusType ;
+          rdfs:label "busy" .
+
+    nco:IMStatusTypeUnknown
+          a nco:IMStatusType ;
+          rdfs:label "unknown" .
 
     nco:containsContact
           a       rdf:Property ;
@@ -227,7 +274,8 @@ nco: {nco:region
           rdfs:comment "The geographical location of a postal address." ;
           rdfs:domain nco:PostalAddress ;
           rdfs:label "addressLocation" ;
-          rdfs:range geo:Point .
+          rdfs:range geo:Point ;
+          nrl:maxCardinality "1" .
 
     nco:note
           a       rdf:Property ;
@@ -256,7 +304,8 @@ nco: {nco:region
           rdfs:comment "The given name for the object represented by this Contact. See documentation for 'nameFamily' property for details." ;
           rdfs:domain nco:PersonContact ;
           rdfs:label "nameGiven" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nco:PcsNumber
           a       rdfs:Class ;
@@ -302,7 +351,8 @@ nco: {nco:region
           rdfs:comment "The streed address. Inspired by the third part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
           rdfs:domain nco:PostalAddress ;
           rdfs:label "streetAddress" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nco:OrganizationContact
           a       rdfs:Class ;
@@ -350,7 +400,7 @@ nco: {nco:region
 
     nco:photo
           a       rdf:Property ;
-          rdfs:comment "Photograph attached to a Contact. The DataObject refered to by this property is usually interpreted as an nfo:Image. Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4" ;
+          rdfs:comment "Photograph attached to a Contact. The DataObject referred to by this property is usually interpreted as an nfo:Image. Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4" ;
           rdfs:domain nco:Contact ;
           rdfs:label "photo" ;
           rdfs:range nie:DataObject ;
@@ -433,7 +483,8 @@ nco: {nco:region
           rdfs:comment "Name of an organization or a unit within an organization the object represented by a Contact is associated with. An equivalent of the 'ORG' property defined in RFC 2426 Sec. 3.5.5" ;
           rdfs:domain nco:Affiliation ;
           rdfs:label "org" ;
-          rdfs:range nco:OrganizationContact .
+          rdfs:range nco:OrganizationContact ;
+          nrl:maxCardinality "1" .
 
     nco:PersonContact
           a       rdfs:Class ;
@@ -452,11 +503,13 @@ nco: {nco:region
           rdfs:comment "The official title  the object represented by this contact in an organization. E.g. 'CEO', 'Director, Research and Development', 'Junior Software Developer/Analyst' etc. An equivalent of the 'TITLE' property defined in RFC 2426 Sec. 3.5.1" ;
           rdfs:domain nco:Affiliation ;
           rdfs:label "title" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nco:AudioIMAccount
           a       rdfs:Class ;
-          rdfs:comment "An account in an InstantMessaging system capable of real-time audio conversations." ;
+          nao:deprecated true ;
+          rdfs:comment "Deprecated in favour of nco:imCapabilityAudio." ;
           rdfs:label "AudioIMAccount" ;
           rdfs:subClassOf nco:IMAccount .
 
@@ -465,7 +518,8 @@ nco: {nco:region
           rdfs:comment "Indicates if the given number accepts voice mail. (e.g. there is an answering machine). Inspired by TYPE=msg parameter of the TEL property defined in RFC 2426 sec. 3.3.1" ;
           rdfs:domain nco:VoicePhoneNumber ;
           rdfs:label "voiceMail" ;
-          rdfs:range xsd:boolean .
+          rdfs:range xsd:boolean ;
+          nrl:maxCardinality "1" .
 
     nco:PostalAddress
           a       rdfs:Class ;
@@ -506,10 +560,11 @@ nco: {nco:region
 
     nco:contactMediumComment
           a       rdf:Property ;
-          rdfs:comment "A comment about the contact medium." ;
+          rdfs:comment "A comment about the contact medium. (Deprecated in favor of nie:comment or nao:description - based on the context)" ;
           rdfs:domain nco:ContactMedium ;
           rdfs:label "contactMediumComment" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nao:deprecated true.
 
     nco:foafUrl
           a       rdf:Property ;
@@ -554,13 +609,14 @@ nco: {nco:region
 
     nco:VideoIMAccount
           a       rdfs:Class ;
-          rdfs:comment "An account in an instant messaging system capable of video conversations." ;
+          nao:deprecated true ;
+          rdfs:comment "Deprecated in favour of nco:imCapabilityVideo." ;
           rdfs:label "VideoIMAccount" ;
           rdfs:subClassOf nco:AudioIMAccount .
 
     nco:sound
           a       rdf:Property ;
-          rdfs:comment "Sound clip attached to a Contact. The DataObject refered to by this property is usually interpreted as an nfo:Audio. Inspired by the SOUND property defined in RFC 2425 sec. 3.6.6." ;
+          rdfs:comment "Sound clip attached to a Contact. The DataObject referred to by this property is usually interpreted as an nfo:Audio. Inspired by the SOUND property defined in RFC 2425 sec. 3.6.6." ;
           rdfs:domain nco:Contact ;
           rdfs:label "sound" ;
           rdfs:range nie:DataObject ;
@@ -631,14 +687,16 @@ nco: {nco:region
           rdfs:comment "Type of the IM account. This may be the name of the service that provides the IM functionality. Examples might include Jabber, ICQ, MSN etc" ;
           rdfs:domain nco:IMAccount ;
           rdfs:label "imAccountType" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nco:pobox
           a       rdf:Property ;
           rdfs:comment "Post office box. This is the first part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
           rdfs:domain nco:PostalAddress ;
           rdfs:label "pobox" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string  ;
+          nrl:maxCardinality "1".
 
     nco:hasAffiliation
           a       rdf:Property ;
@@ -660,7 +718,69 @@ nco: {nco:region
           rdfs:comment "A feature common in most IM systems. A message left by the user for all his/her contacts to see." ;
           rdfs:domain nco:IMAccount ;
           rdfs:label "imStatusMessage" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
+ 
+    nco:start
+          a rdf:Property ;
+          rdfs:comment "Start datetime for the role, such as: the datetime of joining a project or organization, datetime of starting employment, datetime of marriage" ;
+          rdfs:label "start" ;
+          rdfs:domain nco:Role ;
+          rdfs:range  xsd:dateTime ;
+          nrl:maxCardinality 1 .
+
+    nco:end
+          a rdf:Property;
+          rdfs:comment "End datetime for the role, such as: the datetime of leaving a project or organization, datetime of ending employment, datetime of divorce. If absent or set to a date in the future, the role is currently active." ;
+          rdfs:label "end" ;
+          rdfs:domain nco:Role ;
+          rdfs:range  xsd:dateTime ;
+          nrl:maxCardinality 1 .
+
+    nco:IMCapability a rdfs:Class ;
+          rdfs:label "imCapability" ;
+          rdfs:comment "Capabilities of a cetain IMAccount." ;
+          rdfs:subClassOf rdfs:Resource .
+
+    nco:imCapabilityText a nco:IMCapability .
+    nco:imCapabilityAudio a nco:IMCapability .
+    nco:imCapabilityVideo a nco:IMCapability .
+
+    nco:hasIMCapability
+          a rdf:Property ;
+          rdfs:comment "Indicates that an IMAccount has a certain capability." ;
+          rdfs:domain nco:IMAccount ;
+          rdfs:label "hasIMCapability" ;
+          rdfs:range nco:IMCapability .
+
+    nco:isAccessedBy
+        a rdf:Property ;
+        rdfs:comment "Indicates the local IMAccount by which this IMAccount is accessed. This does not imply membership of a contact list." ;
+        rdfs:label "isKnownBy" ;
+        rdfs:domain nco:IMAccount ;
+        rdfs:range nco:IMAccount .
+
+    nco:publishesPresenceTo
+          a rdf:Property ;
+          rdfs:comment "Indicates that this IMAccount publishes its presence information to the other IMAccount." ;
+          rdfs:label "publishesPresenceTo" ;
+          rdfs:domain nco:IMAccount ;
+          rdfs:range nco:IMAccount .
+
+    nco:requestedPresenceSubscriptionTo
+          a rdf:Property ;
+          rdfs:comment "Indicates that this IMAccount has requested a subscription to the presence information of the other IMAccount." ;
+          rdfs:label "requestedPresenceSubscriptionTo" ;
+          rdfs:domain nco:IMAccount ;
+          rdfs:range nco:IMAccount .
+
+    nco:isBlocked
+          a rdf:Property ;
+          rdfs:comment "Indicates that this IMAccount has been blocked." ;
+          rdfs:domain nco:IMAccount ;
+          rdfs:label "isBlocked" ;
+          rdfs:range xsd:boolean ;
+          nrl:maxCardinality "1" .
 }
 
 <http://www.semanticdesktop.org/ontologies/2007/03/22/nco_metadata#> {nco:  a       nrl:Ontology ;
@@ -669,14 +789,15 @@ nco: {nco:region
                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nco#" ;
           nao:hasDefaultNamespaceAbbreviation
                   "nco" ;
-          nao:lastModified "2009-11-27T11:45:58Z" ;
+          nao:lastModified "2011-07-15T09:00:58Z" ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
-          nao:version "Revision-9" .
+          nao:version "0.8.1" ;
+          nao:prefLabel "Nepomuk Contact Ontology" ;
+          nao:description "The Nepomuk Contact Ontology describes contact information, common in many places on the desktop. It evolved from the VCARD specification (RFC 2426) and has been inspired by the Vcard Ontology by Renato Ianella. The scope of NCO is much broader though." .
 
     <http://www.semanticdesktop.org/ontologies/2007/03/22/nco_metadata#>
           a       nrl:GraphMetadata ;
           nrl:coreGraphMetadataFor
                   nco: .
 }
-

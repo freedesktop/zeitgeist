@@ -1,5 +1,7 @@
 #
 # Copyright (c) 2007 NEPOMUK Consortium
+# Copyright (c) 2011 Sebastian Trueg <trueg@kde.org>
+#
 # All rights reserved, licensed under either CC-BY or BSD.
 #
 # You are free:
@@ -41,7 +43,7 @@
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix dcterms:  <http://purl.org/dc/terms/> .
 
-<http://www.semanticdesktop.org/ontologies/2007/08/15/nao> {
+<http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> {
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasDefaultNamespaceAbbreviation>
           a       rdf:Property ;
           rdfs:comment "Defines the default static namespace abbreviation for a graph" ;
@@ -53,13 +55,13 @@
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Symbol>
           a       rdfs:Class ;
-          rdfs:comment "Represents a symbol" ;
+          rdfs:comment "Represents a symbol, a visual representation of a resource. Typically a local or remote file would be double-typed to be used as a symbol. An alternative is nao:FreeDesktopIcon." ;
           rdfs:label "symbol" ;
           rdfs:subClassOf rdfs:Resource .
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#FreeDesktopIcon>
           a       rdfs:Class ;
-          rdfs:comment "Represents a desktop icon as defined in the FreeDesktop Icon Naming Standard" ;
+          rdfs:comment "Represents a desktop icon as defined in the FreeDesktop Icon Naming Standard (http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html)." ;
           rdfs:label "freedesktopicon" ;
           rdfs:subClassOf nao:Symbol .
 
@@ -78,7 +80,8 @@
           rdfs:domain rdfs:Resource ;
           rdfs:label "score" ;
           rdfs:range xsd:float ;
-          rdfs:subPropertyOf <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#annotation> .
+          rdfs:subPropertyOf <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#annotation> ;
+          nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#scoreParameter>
           a       rdf:Property ;
@@ -98,15 +101,15 @@
           nrl:inverseProperty nao:hasTopic .
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource>
-          a       rdf:Property, nrl:SymmetricProperty ;
-          rdfs:comment "Defines a relationship between a resource and one or more sub resources" ;
+          a       rdf:Property ;
+          rdfs:comment "Defines a relationship between a resource and one or more sub resources. Descriptions of sub-resources are only interpretable when the super-resource exists. Deleting a super-resource should then also delete all sub-resources, and transferring a super-resource (for example, sending it to another user) must also include the sub-resource." ;
           rdfs:label "has Subresource" ;
           rdfs:range rdfs:Resource ;
           rdfs:subPropertyOf <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated> ;
           nrl:inverseProperty nao:hasSuperResource .
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource>
-          a       rdf:Property, nrl:SymmetricProperty ;
+          a       rdf:Property ;
           rdfs:comment "Defines a relationship between a resource and one or more super resources" ;
           rdfs:label "has Superresource" ;
           rdfs:range rdfs:Resource ;
@@ -121,6 +124,13 @@
           rdfs:range rdfs:Resource ;
           rdfs:subPropertyOf <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#annotation> ;
           nrl:inverseProperty nao:hasTag .
+
+    <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isDataGraphFor>
+          a       rdf:Property ;
+          rdfs:label "is data graph for" ;
+          rdfs:comment "Links a named graph to the resource for which it contains metadata. Its typical usage would be to link the graph containing extracted file metadata to the file resource. This allows for easy maintenance later on." ;
+          rdfs:domain nrl:InstanceBase ;
+          rdfs:range rdfs:Resource .
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#version>
           a       rdf:Property ;
@@ -140,7 +150,7 @@
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol>
           a       rdf:Property ;
-          rdfs:comment "Annotation for a resource in the form of a symbol representation" ;
+          rdfs:comment "Annotation for a resource in the form of a visual representation. Typically the symbol is a double-typed image file or a nao:FreeDesktopIcon." ;
           rdfs:domain rdfs:Resource ;
           rdfs:label "has symbol" ;
           rdfs:range <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Symbol> .
@@ -151,7 +161,8 @@
           rdfs:domain rdfs:Resource ;
           rdfs:label "preferred symbol" ;
           rdfs:subPropertyOf <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol> ;
-          rdfs:range <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Symbol> .
+          rdfs:range <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Symbol> ;
+          nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol>
           a       rdf:Property ;
@@ -183,7 +194,8 @@
           rdfs:domain rdfs:Resource ;
           rdfs:label "creator" ;
           rdfs:range <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Party> ;
-          rdfs:subPropertyOf <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#annotation> , dc:creator .
+          rdfs:subPropertyOf <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#annotation> , dc:creator ;
+          nrl:maxCardinality "1"^^xsd:nonNegativeInteger.
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#annotation>
           a       rdf:Property ;
@@ -206,7 +218,7 @@
           rdfs:domain rdfs:Resource ;
           rdfs:label "numeric rating" ;
           rdfs:range xsd:integer ;
-	    nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
+	      nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag>
           a       rdfs:Class ;
@@ -285,14 +297,16 @@
           rdfs:comment "A preferred label for a resource" ;
           rdfs:label "preferred label" ;
           rdfs:range rdfs:Literal ;
-          rdfs:subPropertyOf rdfs:label .
+          rdfs:subPropertyOf rdfs:label ;
+          nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel>
           a       rdf:Property ;
           rdfs:comment "The plural form of the preferred label for a resource" ;
           rdfs:label "preferred label plural form" ;
           rdfs:range rdfs:Literal ;
-          rdfs:subPropertyOf rdfs:label .
+          rdfs:subPropertyOf rdfs:label ;
+          nrl:maxCardinality "1"^^xsd:nonNegativeInteger .
 
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#engineeringTool>
           a       rdf:Property ;
@@ -336,23 +350,48 @@
 	  rdfs:comment	"If this property is assigned, the subject class, property, or resource, is deprecated and should not be used in production systems any longer. It may be removed without further notice." ;
 	  rdfs:label	"deprecated" ;
 	  rdfs:domain	rdfs:Resource ;
-	  rdfs:range	rdfs:Resource .
+	  rdfs:range	rdfs:Resource ;
+          nrl:maxCardinality "1"^^xsd:nonNegativeInteger.
+
+    nao:userVisible
+          a rdf:Property ;
+          rdfs:domain rdfs:Resource ;
+          rdfs:range xsd:boolean ;
+          rdfs:label "user visible" ;
+          rdfs:comment "Mark a property, class, or even resource as user visible or not. Non-user-visible entities should never be presented to the user. By default everything is user-visible." ;
+          nao:userVisible false ;
+          nrl:maxCardinality 1 .
+
+    nao:Agent
+          a rdfs:Class ;
+          rdfs:label "agent" ;
+          rdfs:comment "An agent is the artificial counterpart to nao:Party. It can be a software component or some service." ;
+          rdfs:subClassOf rdfs:Resource .
+
+    nao:maintainedBy
+          a rdf:Property ;
+          rdfs:label "maintained by" ;
+          rdfs:comment "The agent that maintains this resource, ie. created it and knows what to do with it." ;
+          rdfs:domain rdfs:Resource ;
+          rdfs:range nao:Agent ;
+          rdfs:subPropertyOf nao:annotation .
 }
 
 <http://www.semanticdesktop.org/ontologies/2007/08/15/nao/metadata> {
     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao/metadata>
           a       nrl:GraphMetadata ;
-          nrl:coreGraphMetadataFor <http://www.semanticdesktop.org/ontologies/2007/08/15/nao> .
+          nrl:coreGraphMetadataFor <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
 
 
-    <http://www.semanticdesktop.org/ontologies/2007/08/15/nao>
+    <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#>
           a       nrl:Ontology , nrl:DocumentGraph ;
           nao:hasDefaultNamespace "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#" ;
           nao:hasDefaultNamespaceAbbreviation "nao" ;
-          nao:lastModified "2009-07-20T14:59:09.500Z" ;
+          nao:lastModified "2011-07-13T15:38:43Z" ;
           nao:serializationLanguage "TriG" ;
           nao:status "Unstable" ;
           nrl:updatable "0" ;
-          nao:version "3" .
+          nao:version "0.8.1" ;
+          nao:prefLabel "Nepomuk Annotation Ontology" ;
+          nao:description "The annotation ontology provides vocabulary that enables users to attach custom descriptions, identifiers, tags and ratings to resources on their desktop. Via other properties, the user is also able to make generic relationships between related resources explicit. Some relationships between resources are too general to be included at the domain ontology level. Instead, these properties are also defined in the annotation ontology. Given the high-level status of this ontology, these propreties can be used to link any related resources on the user's desktop, as well as provide custom human-readable textual annotations." .
 }
-

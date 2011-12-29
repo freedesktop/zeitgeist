@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2007 NEPOMUK Consortium
+# Copyright (c) 2010-2011 Sebastian Trueg <trueg@kde.org>
 # All rights reserved, licensed under either CC-BY or BSD.
 #
 # You are free:
@@ -58,7 +59,8 @@ nie: {nie:characterSet
           rdfs:comment "Characterset in which the content of the InformationElement was created. Example: ISO-8859-1, UTF-8. One of the registered character sets at http://www.iana.org/assignments/character-sets. This characterSet is used to interpret any textual parts of the content. If more than one characterSet is used within one data object, use more specific properties." ;
           rdfs:domain nie:InformationElement ;
           rdfs:label "characterSet" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nie:rootElementOf
           a       rdf:Property ;
@@ -97,7 +99,8 @@ nie: {nie:characterSet
           rdfs:domain nie:InformationElement ;
           rdfs:label "language" ;
           rdfs:range xsd:string ;
-          rdfs:subPropertyOf dc:language .
+          rdfs:subPropertyOf dc:language ;
+          nrl:maxCardinality "1" .
 
     nie:copyright
           a       rdf:Property ;
@@ -106,13 +109,21 @@ nie: {nie:characterSet
           rdfs:range xsd:string ;
           rdfs:subPropertyOf nie:legal , dcterms:accessRights .
 
+    nie:modified
+          a       rdf:Property ;
+          rdfs:comment "Date the DataObject was changed in any way.  Note that this date refers to the modification of the DataObject itself (i.e. the physical representation). Compare with nie:contentModified." ;
+          rdfs:domain nie:DataObject ;
+          rdfs:label "modified" ;
+          rdfs:range xsd:dateTime .
+
     nie:created
           a       rdf:Property ;
           rdfs:comment "Date of creation of the DataObject. Note that this date refers to the creation of the DataObject itself (i.e. the physical representation). Compare with nie:contentCreated." ;
           rdfs:domain nie:DataObject ;
           rdfs:label "created" ;
           rdfs:range xsd:dateTime ;
-          rdfs:subPropertyOf dcterms:created, nao:created .
+          rdfs:subPropertyOf dcterms:created, nao:created, nie:modified ;
+          nrl:maxCardinality "1" .
 
     nie:lastModified
           a       rdf:Property ;
@@ -120,14 +131,16 @@ nie: {nie:characterSet
           rdfs:domain nie:DataObject ;
           rdfs:label "lastModified" ;
           rdfs:range xsd:dateTime ;
-          rdfs:subPropertyOf dc:date, nao:lastModified .
+          rdfs:subPropertyOf dc:date, nao:lastModified, nie:modified ;
+          nrl:maxCardinality "1" .
 
     nie:mimeType
           a       rdf:Property ;
           rdfs:comment "The mime type of the resource, if available. Example: \"text/plain\". See http://www.iana.org/assignments/media-types/. This property applies to data objects that can be described with one mime type. In cases where the object as a whole has one mime type, while it's parts have other mime types, or there is no mime type that can be applied to the object as a whole, but some parts of the content have mime types - use more specific properties." ;
           rdfs:domain nie:InformationElement ;
           rdfs:label "mimeType" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nie:version
           a       rdf:Property ;
@@ -173,7 +186,7 @@ nie: {nie:characterSet
           rdfs:range xsd:string .
 
     nie:isPartOf
-          a       rdf:Property ;
+          a       rdf:Property, nrl:FunctionalProperty ;
           rdfs:comment "Generic property used to express containment relationships between DataObjects. NIE extensions are encouraged to provide more specific subproperties of this one. It is advisable for actual instances of DataObjects to use those specific subproperties. Note to the developers: Please be aware of the distinction between containment relation and provenance. The isPartOf relation models physical containment, a nie:DataObject (e.g. an nfo:Attachment) is a 'physical' part of an nie:InformationElement (a nmo:Message). Also, please note the difference between physical containment (isPartOf) and logical containment (isLogicalPartOf) the former has more strict meaning. They may occur independently of each other." ;
           rdfs:domain nie:DataObject ;
           rdfs:label "isPartOf" ;
@@ -208,7 +221,7 @@ nie: {nie:characterSet
           rdfs:domain nie:InformationElement ;
           rdfs:label "contentCreated" ;
           rdfs:range xsd:dateTime ;
-          rdfs:subPropertyOf nie:informationElementDate, nao:created ;
+          rdfs:subPropertyOf nie:informationElementDate, nao:created, nie:contentModified ;
           nrl:maxCardinality "1" .
 
     nie:title
@@ -217,7 +230,8 @@ nie: {nie:characterSet
           rdfs:domain nie:InformationElement ;
           rdfs:label "title" ;
           rdfs:range xsd:string ;
-          rdfs:subPropertyOf dc:title, nao:prefLabel .
+          rdfs:subPropertyOf dc:title, nao:prefLabel ;
+          nrl:maxCardinality "1" .
 
     nie:lastRefreshed
           a       rdf:Property ;
@@ -250,13 +264,20 @@ nie: {nie:characterSet
           rdfs:range nie:DataObject ;
           rdfs:subPropertyOf nie:relatedTo .
 
+    nie:contentModified
+          a       rdf:Property ;
+          rdfs:comment "The date of a modification of the original content (not its corresponding DataObject or local copy). Compare with nie:modified." ;
+          rdfs:domain nie:InformationElement ;
+          rdfs:label "modified" ;
+          rdfs:range xsd:dateTime .
+
     nie:contentLastModified
           a       rdf:Property ;
           rdfs:comment "The date of the last modification of the original content (not its corresponding DataObject or local copy). Compare with nie:lastModified." ;
           rdfs:domain nie:InformationElement ;
           rdfs:label "contentLastModified" ;
           rdfs:range xsd:dateTime ;
-          rdfs:subPropertyOf nie:informationElementDate, nao:lastModified ;
+          rdfs:subPropertyOf nie:informationElementDate, nao:lastModified, nie:contentModified ;
           nrl:maxCardinality "1" .
 
     nie:keyword
@@ -288,7 +309,16 @@ nie: {nie:characterSet
           rdfs:comment "Plain-text representation of the content of a InformationElement with all markup removed. The main purpose of this property is full-text indexing and search. Its exact content is considered application-specific. The user can make no assumptions about what is and what is not contained within. Applications should use more specific properties wherever possible." ;
           rdfs:domain nie:InformationElement ;
           rdfs:label "plainTextContent" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
+
+    nie:htmlContent
+          a       rdf:Property ;
+          rdfs:comment "The HTML content of an information element. This property can be used to store text including formatting in a generic fashion." ;
+          rdfs:domain nie:InformationElement ;
+          rdfs:label "html content" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality "1" .
 
     nie:comment
           a       rdf:Property ;
@@ -310,7 +340,8 @@ nie: {nie:characterSet
           rdfs:comment "The size of the content. This property can be used whenever the size of the content of an InformationElement differs from the size of the DataObject. (e.g. because of compression, encoding, encryption or any other representation issues). The contentSize in expressed in bytes." ;
           rdfs:domain nie:InformationElement ;
           rdfs:label "contentSize" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality "1" .
 
     nie:license
           a       rdf:Property ;
@@ -329,13 +360,14 @@ nie: {nie:characterSet
 
     nie:coreGraph
           a       rdf:Property ;
-          rdfs:comment "Connects the data object with the graph that contains information about it." ;
+          nao:deprecated true ;
+          rdfs:comment "Connects the data object with the graph that contains information about it. Deprecated in favor of a more generic nao:isDataGraphFor." ;
           rdfs:domain nie:DataObject ;
           rdfs:label "coreGraph" ;
           rdfs:range nrl:InstanceBase .
 
     nie:hasPart
-          a       rdf:Property ;
+          a       rdf:Property, nrl:InverseFunctionalProperty ;
           rdfs:comment "Generic property used to express 'physical' containment relationships between DataObjects. NIE extensions are encouraged to provide more specific subproperties of this one. It is advisable for actual instances of DataObjects to use those specific subproperties. Note to the developers: Please be aware of the distinction between containment relation and provenance. The hasPart relation models physical containment, an InformationElement (a nmo:Message) can have a 'physical' part (an nfo:Attachment).  Also, please note the difference between physical containment (hasPart) and logical containment (hasLogicalPart) the former has more strict meaning. They may occur independently of each other." ;
           rdfs:domain nie:InformationElement ;
           rdfs:label "hasPart" ;
@@ -372,7 +404,8 @@ nie: {nie:characterSet
           rdfs:comment "URL of a DataObject. It points to the location of the object. A typial usage is FileDataObject. In cases where creating a simple file:// or http:// URL for a file is difficult (e.g. for files inside compressed archives) the applications are encouraged to use conventions defined by Apache Commons VFS Project at http://jakarta.apache.org/  commons/ vfs/ filesystems.html." ;
           rdfs:domain nie:DataObject ;
           rdfs:label "url" ;
-          rdfs:range rdfs:Resource .
+          rdfs:range rdfs:Resource ;
+          nrl:maxCardinality "1" .
 }
 
 <http://www.semanticdesktop.org/ontologies/2007/01/19/nie_metadata#> {nie:  a       nrl:Ontology ;
@@ -381,14 +414,15 @@ nie: {nie:characterSet
                   "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#" ;
           nao:hasDefaultNamespaceAbbreviation
                   "nie" ;
-          nao:lastModified "2009-11-12T07:45:58Z" ;
+          nao:lastModified "2011-06-05T10:36:58Z" ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
-          nao:version "Revision-9" .
+          nao:version "0.8.1" ;
+          nao:prefLabel "Nepomuk Information Element Ontology" ;
+          nao:description "The Nepomuk Information Element Framework provides unified vocabulary for describing native resources available on the desktop. NIE itself contains of classes and properties that comprise the core part of the framework." .
 
     <http://www.semanticdesktop.org/ontologies/2007/01/19/nie_metadata#>
           a       nrl:GraphMetadata ;
           nrl:coreGraphMetadataFor
                   nie: .
 }
-

@@ -1,5 +1,7 @@
 #
 # Copyright (c) 2007 NEPOMUK Consortium
+# Copyright (c) 2011 Sebastian Trueg <trueg@kde.org>
+#
 # All rights reserved, licensed under either CC-BY or BSD.
 #
 # You are free:
@@ -61,7 +63,8 @@ ncal: {ncal:sunday
           rdfs:comment "The timezone instance that should be used to interpret an NcalDateTime. The purpose of this property is similar to the TZID parameter specified in RFC 2445 sec. 4.2.19" ;
           rdfs:domain ncal:NcalDateTime ;
           rdfs:label "ncalTimezone" ;
-          rdfs:range ncal:Timezone .
+          rdfs:range ncal:Timezone ;
+          nrl:maxCardinality 1 .
 
     ncal:delegatedFrom
           a       rdf:Property ;
@@ -98,14 +101,16 @@ ncal: {ncal:sunday
           rdfs:domain ncal:UnionOfEventJournalTodo ;
           rdfs:label "created" ;
           rdfs:range xsd:dateTime ;
-          rdfs:subPropertyOf nie:created .
+          rdfs:subPropertyOf nie:created ;
+          nrl:maxCardinality 1 .
 
     ncal:comment
           a       rdf:Property ;
           rdfs:comment "Non-processing information intended to provide a comment to the calendar user. Inspired by RFC 2445 sec. 4.8.1.4 with the following reservations:  the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language. For the ALTREP parameter use the commentAltRep property." ;
           rdfs:domain ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo ;
           rdfs:label "comment" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          rdfs:subPropertyOf nie:comment .
 
     ncal:summaryAltRep
           a       rdf:Property ;
@@ -150,7 +155,8 @@ documentation of ncal:summary for details.""" ;
           rdfs:comment "The day that's counted as the start of the week. It is used to disambiguate the byweekno rule. Defined in RFC 2445 sec. 4.3.10" ;
           rdfs:domain ncal:RecurrenceRule ;
           rdfs:label "wkst" ;
-          rdfs:range ncal:Weekday .
+          rdfs:range ncal:Weekday ;
+          nrl:maxCardinality 1 .
 
     ncal:tzurl
           a       rdf:Property ;
@@ -182,14 +188,16 @@ documentation of ncal:summary for details.""" ;
           rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
           rdfs:label "uid" ;
           rdfs:range xsd:string ;
-          rdfs:subPropertyOf nie:identifier .
+          rdfs:subPropertyOf nie:identifier ;
+          nrl:maxCardinality 1 .
 
     ncal:standard
           a       rdf:Property ;
           rdfs:comment "Links the timezone with the standard timezone observance. This property has no direct equivalent in the RFC 2445. It has been inspired by the structure of the Vtimezone component defined in sec.4.6.5" ;
           rdfs:domain ncal:Timezone ;
           rdfs:label "standard" ;
-          rdfs:range ncal:TimezoneObservance .
+          rdfs:range ncal:TimezoneObservance ;
+          nrl:maxCardinality 1 .
 
     ncal:resourceUserType
           a       ncal:CalendarUserType ;
@@ -222,7 +230,8 @@ See documentation of ncal:transp for details.""" ;
           rdfs:comment "The uri of the attachment. Created to express the actual value of the ATTACH property defined in RFC 2445 sec. 4.8.1.1. This property expresses the default URI datatype of that property. see ncal:attachmentContents for the BINARY datatype." ;
           rdfs:domain ncal:Attachment ;
           rdfs:label "attachmentUri" ;
-          rdfs:range rdfs:Resource .
+          rdfs:range rdfs:Resource ;
+          nrl:maxCardinality 1 .
 
     ncal:CalendarScale
           a       rdfs:Class ;
@@ -250,14 +259,16 @@ See documentation of ncal:transp for details.""" ;
           rdfs:comment "Duration of a period of time. Inspired by the second part of a structured value of the PERIOD datatype specified in RFC 2445 sec. 4.3.9. Note that a single NcalPeriod instance shouldn't have the periodEnd and periodDuration properties specified simultaneously." ;
           rdfs:domain ncal:NcalPeriod ;
           rdfs:label "periodDuration" ;
-          rdfs:range xsd:duration .
+          rdfs:range xsd:duration ;
+          nrl:maxCardinality 1 .
 
     ncal:dtstamp
           a       rdf:Property ;
           rdfs:comment "The property indicates the date/time that the instance of the iCalendar object was created. Inspired by RFC 2445 sec. 4.8.7.1. Note that the RFC allows ONLY UTC values for this property." ;
           rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
           rdfs:label "dtstamp" ;
-          rdfs:range xsd:dateTime .
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:UnionOfAlarmEventJournalTodo
           a       rdfs:Class ;
@@ -285,7 +296,8 @@ See documentation of ncal:transp for details.""" ;
           rdfs:comment "Defines the access classification for a calendar component. Inspired by RFC 2445 sec. 4.8.1.3 with the following reservations:  this property has limited vocabulary. Possible values are:  PUBLIC, PRIVATE and CONFIDENTIAL. The default is PUBLIC. Those values are expressed as instances of the AccessClassification class. The user may create his/her own if necessary." ;
           rdfs:domain ncal:UnionOfEventJournalTodo ;
           rdfs:label "class" ;
-          rdfs:range ncal:AccessClassification .
+          rdfs:range ncal:AccessClassification ;
+          nrl:maxCardinality 1 .
 
     ncal:_8bitEncoding
           a       ncal:AttachmentEncoding ;
@@ -300,14 +312,16 @@ See documentation of ncal:transp for details.""" ;
           rdfs:comment "Defines whether an event is transparent or not  to busy time searches. Inspired by RFC 2445 sec.4.8.2.7. Values for this property can be chosen from a limited vocabulary. To express this a TimeTransparency class has been introduced." ;
           rdfs:domain ncal:Event ;
           rdfs:label "transp" ;
-          rdfs:range ncal:TimeTransparency .
+          rdfs:range ncal:TimeTransparency ;
+          nrl:maxCardinality 1 .
 
     ncal:date
           a       rdf:Property ;
           rdfs:comment "Date an instance of NcalDateTime refers to. It was conceived to express values in DATE datatype specified in RFC 2445 4.3.4" ;
           rdfs:domain ncal:NcalDateTime ;
           rdfs:label "date" ;
-          rdfs:range xsd:date .
+          rdfs:range xsd:date ;
+          nrl:maxCardinality 1 .
 
     ncal:busyTentativeFreebusyType
           a       ncal:FreebusyType ;
@@ -326,7 +340,8 @@ See documentation of ncal:transp for details.""" ;
           rdfs:comment "This property specifies the date and time that a calendar component ends. Inspired by RFC 2445 sec. 4.8.2.2" ;
           rdfs:domain ncal:UnionOfEventFreebusy ;
           rdfs:label "dtend" ;
-          rdfs:range ncal:NcalDateTime .
+          rdfs:range ncal:NcalDateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:privateClassification
           a       ncal:AccessClassification ;
@@ -337,7 +352,8 @@ See documentation of ncal:transp for details.""" ;
           rdfs:comment "Representation of a date an instance of NcalDateTime actually refers to. It's purpose is to express values in DATE-TIME datatype, as defined in RFC 2445 sec. 4.3.5" ;
           rdfs:domain ncal:NcalDateTime ;
           rdfs:label "dateTime" ;
-          rdfs:range xsd:dateTime .
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:prodid
           a       rdf:Property ;
@@ -395,7 +411,8 @@ See the documentation for ncal:eventStatus for details.""" ;
           rdfs:comment "To specify the free or busy time type. Inspired by RFC 2445 sec. 4.2.9. The RFC specified a limited vocabulary for the values of this property. The terms of this vocabulary have been expressed as instances of the FreebusyType class. The user can use instances provided with this ontology or create his own." ;
           rdfs:domain ncal:FreebusyPeriod ;
           rdfs:label "fbtype" ;
-          rdfs:range ncal:FreebusyType .
+          rdfs:range ncal:FreebusyType ;
+          nrl:maxCardinality 1 .
 
     ncal:Attachment
           a       rdfs:Class ;
@@ -463,14 +480,16 @@ documentation of ncal:comment for details.""" ;
           rdfs:comment "This property defines the revision sequence number of the calendar component within a sequence of revisions. Inspired by RFC 2445 sec. 4.8.7.4" ;
           rdfs:domain ncal:UnionOfEventJournalTodo ;
           rdfs:label "sequence" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     ncal:repeat
           a       rdf:Property ;
           rdfs:comment "This property defines the number of time the alarm should be repeated, after the initial trigger. Inspired by RFC 2445 sec. 4.8.6.2" ;
           rdfs:domain ncal:Alarm ;
           rdfs:label "repeat" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     ncal:freeFreebusyType
           a       ncal:FreebusyType ;
@@ -525,7 +544,8 @@ documentation of ncal:comment for details.""" ;
           rdfs:comment "To specify whether there is an expectation of a favor of a reply from the calendar user specified by the property value. Inspired by RFC 2445 sec. 4.2.17" ;
           rdfs:domain ncal:Attendee ;
           rdfs:label "rsvp" ;
-          rdfs:range xsd:boolean .
+          rdfs:range xsd:boolean ;
+          nrl:maxCardinality 1 .
 
     ncal:RecurrenceRule
           a       rdfs:Class ;
@@ -555,7 +575,8 @@ See the documentation for ncal:todoStatus for details.""" ;
           rdfs:comment "This property specifies information related to the global position for the activity specified by a calendar component. Inspired by RFC 2445 sec. 4.8.1.6" ;
           rdfs:domain ncal:UnionOfEventTodo ;
           rdfs:label "geo" ;
-          rdfs:range geo:Point .
+          rdfs:range geo:Point ;
+          nrl:maxCardinality 1 .
 
     ncal:UnionOfAlarmEventFreebusyTodo
           a       rdfs:Class ;
@@ -571,7 +592,8 @@ See the documentation for ncal:todoStatus for details.""" ;
           rdfs:comment "To specify the content type of a referenced object. Inspired by RFC 2445 sec. 4.2.8. The value of this property should be an IANA-registered content type (e.g. application/binary)" ;
           rdfs:domain ncal:Attachment ;
           rdfs:label "fmttype" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     ncal:byyearday
           a       rdf:Property ;
@@ -585,7 +607,8 @@ See the documentation for ncal:todoStatus for details.""" ;
           rdfs:comment "This property specifies when the calendar component begins. Inspired by RFC 2445 sec. 4.8.2.4" ;
           rdfs:domain ncal:UnionOfTimezoneObservanceEventFreebusyTimezoneTodo ;
           rdfs:label "dtstart" ;
-          rdfs:range ncal:NcalDateTime .
+          rdfs:range ncal:NcalDateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:description
           a       rdf:Property ;
@@ -629,14 +652,16 @@ See the documentation for ncal:todoStatus for details.""" ;
           rdfs:comment "How many times should an event be repeated. Defined in RFC 2445 sec. 4.3.10" ;
           rdfs:domain ncal:RecurrenceRule ;
           rdfs:label "count" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     ncal:duration
           a       rdf:Property ;
           rdfs:comment "The property specifies a positive duration of time. Inspired by RFC 2445 sec. 4.8.2.5" ;
           rdfs:domain ncal:UnionOfAlarmEventFreebusyTodo ;
           rdfs:label "duration" ;
-          rdfs:range xsd:duration .
+          rdfs:range xsd:duration ;
+          nrl:maxCardinality 1 .
 
     ncal:bymonth
           a       rdf:Property ;
@@ -717,7 +742,8 @@ See the documentation for ncal:todoStatus for details.""" ;
           rdfs:comment "The property specifies the date and time that the information associated with the calendar component was last revised in the calendar store. Note: This is analogous to the modification date and time for a file in the file system. Inspired by RFC 2445 sec. 4.8.7.3. Note that the RFC allows ONLY UTC time values for this property." ;
           rdfs:domain ncal:UnionOfEventJournalTimezoneTodo ;
           rdfs:label "lastModified" ;
-          rdfs:range xsd:dateTime .
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:trigger
           a       rdf:Property ;
@@ -746,7 +772,8 @@ See the documentation for ncal:todoStatus for details.""" ;
           rdfs:comment "This property defines a Uniform Resource Locator (URL) associated with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. Original range had been specified as URI." ;
           rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
           rdfs:label "url" ;
-          rdfs:range rdfs:Resource .
+          rdfs:range rdfs:Resource ;
+          nrl:maxCardinality 1 .
 
     ncal:AccessClassification
           a       rdfs:Class ;
@@ -768,7 +795,8 @@ See the documentation of ncal:class for details.""" ;
           rdfs:comment "This property defines the date and time that a to-do was actually completed. Inspired by RFC 2445 sec. 4.8.2.1. Note that the RFC allows ONLY UTC time values for this property." ;
           rdfs:domain ncal:Todo ;
           rdfs:label "completed" ;
-          rdfs:range xsd:dateTime .
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:JournalStatus
           a       rdfs:Class ;
@@ -789,7 +817,8 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "The property defines the relative priority for a calendar component. Inspired by RFC 2445 sec. 4.8.1.9" ;
           rdfs:domain ncal:UnionOfEventTodo ;
           rdfs:label "priority" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     ncal:relatedToParent
           a       rdf:Property ;
@@ -834,7 +863,8 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "Longer return status description. Inspired by the second part of the structured value of the REQUEST-STATUS property defined in RFC 2445 sec. 4.8.8.2" ;
           rdfs:domain ncal:RequestStatus ;
           rdfs:label "statusDescription" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     ncal:tentativeStatus
           a       ncal:EventStatus ;
@@ -845,14 +875,16 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "Defines the intended venue for the activity defined by a calendar component. Inspired by RFC 2445 sec 4.8.1.7 with the following reservations:  the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language.  For the ALTREP parameter use the locationAltRep property." ;
           rdfs:domain ncal:UnionOfEventTodo ;
           rdfs:label "location" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     ncal:eventStatus
           a       rdf:Property ;
           rdfs:comment "Defines the overall status or confirmation for an Event. Based on the STATUS property defined in RFC 2445 sec. 4.8.1.11." ;
           rdfs:domain ncal:Event ;
           rdfs:label "status" ;
-          rdfs:range ncal:EventStatus .
+          rdfs:range ncal:EventStatus ;
+          nrl:maxCardinality 1 .
 
     ncal:AttendeeOrOrganizer
           a       rdfs:Class ;
@@ -868,10 +900,11 @@ See the documentation for ncal:journalStatus for details.""" ;
 
     ncal:bydayModifier
           a       rdf:Property ;
-          rdfs:comment "A n integer modifier for the BYDAY rule part.    Each BYDAY value can also be preceded by a positive (+n) or negative  (-n) integer. If present, this indicates the nth occurrence of the specific day within the MONTHLY or YEARLY RRULE. For example, within a MONTHLY rule, +1MO (or simply 1MO) represents the first Monday within the month, whereas -1MO represents the last Monday of the month. If an integer modifier is not present, it means all days of this type within the specified frequency. For example, within a MONTHLY rule, MO represents all Mondays within the month. Inspired by RFC 2445 sec. 4.3.10" ;
+          rdfs:comment "An integer modifier for the BYDAY rule part.    Each BYDAY value can also be preceded by a positive (+n) or negative  (-n) integer. If present, this indicates the nth occurrence of the specific day within the MONTHLY or YEARLY RRULE. For example, within a MONTHLY rule, +1MO (or simply 1MO) represents the first Monday within the month, whereas -1MO represents the last Monday of the month. If an integer modifier is not present, it means all days of this type within the specified frequency. For example, within a MONTHLY rule, MO represents all Mondays within the month. Inspired by RFC 2445 sec. 4.3.10" ;
           rdfs:domain ncal:BydayRulePart ;
           rdfs:label "bydayModifier" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     ncal:UnionOfAlarmEventFreebusyJournalTodo
           a       rdfs:Class ;
@@ -887,7 +920,8 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "This property defines the iCalendar object method associated with the calendar object. Defined in RFC 2445 sec. 4.7.2" ;
           rdfs:domain ncal:Calendar ;
           rdfs:label "method" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     ncal:tuesday
           a       ncal:Weekday ;
@@ -903,7 +937,8 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "The exact date and time of the trigger. This property has been created to express the VALUE=DATE, and VALUE=DATE-TIME parameters of the TRIGGER property. See the documentation for ncal:trigger for more details" ;
           rdfs:domain ncal:Trigger ;
           rdfs:label "triggerDateTime" ;
-          rdfs:range xsd:dateTime .
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:endTriggerRelation
           a       ncal:TriggerRelation ;
@@ -921,14 +956,16 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "The INTERVAL rule part contains a positive integer representing how often the recurrence rule repeats. The default value is \"1\", meaning every second for a SECONDLY rule, or every minute for a MINUTELY rule, every hour for an HOURLY rule, every day for a DAILY rule, every week for a WEEKLY rule, every month for a MONTHLY rule andevery year for a YEARLY rule. Defined in RFC 2445 sec. 4.3.10" ;
           rdfs:domain ncal:RecurrenceRule ;
           rdfs:label "interval" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     ncal:requestStatus
           a       rdf:Property ;
           rdfs:comment "This property defines the status code returned for a scheduling request. Inspired by RFC 2445 sec. 4.8.8.2. Original value of this property was a four-element structure. The RequestStatus class has been introduced to express it. In RFC 2445 this property could have the LANGUAGE parameter. This has been discarded in this ontology. Use xml:lang literals to express it if necessary." ;
           rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
           rdfs:label "requestStatus" ;
-          rdfs:range ncal:RequestStatus .
+          rdfs:range ncal:RequestStatus ;
+          nrl:maxCardinality 1 .
 
     ncal:byday
           a       rdf:Property ;
@@ -946,7 +983,8 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "This property is used in conjunction with the \"UID\" and \"SEQUENCE\" property to identify a specific instance of a recurring \"VEVENT\", \"VTODO\" or \"VJOURNAL\" calendar component. The property value is the effective value of the \"DTSTART\" property of the recurrence instance. Inspired by the RFC 2445 sec. 4.8.4.4" ;
           rdfs:domain ncal:UnionOfEventJournalTimezoneTodo ;
           rdfs:label "recurrenceId" ;
-          rdfs:range ncal:RecurrenceIdentifier .
+          rdfs:range ncal:RecurrenceIdentifier ;
+          nrl:maxCardinality 1 .
 
     ncal:thisAndPriorRange
           a       ncal:RecurrenceIdentifierRange ;
@@ -957,7 +995,8 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "Beginng of a period. Inspired by the first part of a structured value of the PERIOD datatype specified in RFC 2445 sec. 4.3.9" ;
           rdfs:domain ncal:NcalPeriod ;
           rdfs:label "periodBegin" ;
-          rdfs:range xsd:dateTime .
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:byweekno
           a       rdf:Property ;
@@ -971,14 +1010,16 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "This property specifies the offset which is in use prior to this time zone observance. Inspired by RFC 2445 sec. 4.8.3.3. The original domain was underspecified. It said that this property must appear within a Timezone component. In this ontology a TimezoneObservance class has been introduced to clarify this specification. The original range was UTC-OFFSET. There is no equivalent among the XSD datatypes so plain string was chosen." ;
           rdfs:domain ncal:TimezoneObservance ;
           rdfs:label "tzoffsetfrom" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     ncal:triggerDuration
           a       rdf:Property ;
           rdfs:comment "The duration of a trigger. This property has been created to express the VALUE=DURATION parameter of the TRIGGER property. See documentation for ncal:trigger for more details." ;
           rdfs:domain ncal:Trigger ;
           rdfs:label "triggerDuration" ;
-          rdfs:range xsd:duration .
+          rdfs:range xsd:duration ;
+          nrl:maxCardinality 1 .
 
     ncal:FreebusyType
           a       rdfs:Class ;
@@ -1003,14 +1044,16 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "This property defines the calendar scale used for the calendar information specified in the iCalendar object. Defined in RFC 2445 sec. 4.7.1" ;
           rdfs:domain ncal:Calendar ;
           rdfs:label "calscale" ;
-          rdfs:range ncal:CalendarScale .
+          rdfs:range ncal:CalendarScale ;
+          nrl:maxCardinality 1 .
 
     ncal:periodEnd
           a       rdf:Property ;
           rdfs:comment "End of a period of time. Inspired by the second part of a structured value of a PERIOD datatype specified in RFC 2445 sec. 4.3.9. Note that a single NcalPeriod instance shouldn't have the periodEnd and periodDuration properties specified simultaneously." ;
           rdfs:domain ncal:NcalPeriod ;
           rdfs:label "periodEnd" ;
-          rdfs:range xsd:dateTime .
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:ParticipationStatus
           a       rdfs:Class ;
@@ -1054,7 +1097,8 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "This property specifies the offset which is in use in this time zone observance. nspired by RFC 2445 sec. 4.8.3.4. The original domain was underspecified. It said that this property must appear within a Timezone component. In this ontology a TimezoneObservance class has been introduced to clarify this specification. The original range was UTC-OFFSET. There is no equivalent among the XSD datatypes so plain string was chosen." ;
           rdfs:domain ncal:TimezoneObservance ;
           rdfs:label "tzoffsetto" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     ncal:exdate
           a       rdf:Property ;
@@ -1121,7 +1165,8 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "To specify the effective range of recurrence instances from the instance specified by the recurrence identifier specified by the property. It is intended to express the RANGE parameter specified in RFC 2445 sec. 4.2.13. The set of possible values for this property is limited. See also the documentation for ncal:recurrenceId for more details." ;
           rdfs:domain ncal:RecurrenceIdentifier ;
           rdfs:label "range" ;
-          rdfs:range ncal:RecurrenceIdentifierRange .
+          rdfs:range ncal:RecurrenceIdentifierRange ;
+          nrl:maxCardinality 1 .
 
     ncal:monthly
           a       ncal:RecurrenceFrequency ;
@@ -1154,14 +1199,16 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "Defines the overall status or confirmation for a todo. Based on the STATUS property defined in RFC 2445 sec. 4.8.1.11." ;
           rdfs:domain ncal:Todo ;
           rdfs:label "status" ;
-          rdfs:range ncal:TodoStatus .
+          rdfs:range ncal:TodoStatus ;
+          nrl:maxCardinality 1 .
 
     ncal:journalStatus
           a       rdf:Property ;
           rdfs:comment "Defines the overall status or confirmation for a journal entry. Based on the STATUS property defined in RFC 2445 sec. 4.8.1.11." ;
           rdfs:domain ncal:Journal ;
           rdfs:label "status" ;
-          rdfs:range ncal:JournalStatus .
+          rdfs:range ncal:JournalStatus ;
+          nrl:maxCardinality 1 .
 
     ncal:publicClassification
           a       ncal:AccessClassification ;
@@ -1179,7 +1226,8 @@ See the documentation for ncal:journalStatus for details.""" ;
           rdfs:comment "This property defines the date and time that a to-do is expected to be completed. Inspired by RFC 2445 sec. 4.8.2.3" ;
           rdfs:domain ncal:Todo ;
           rdfs:label "due" ;
-          rdfs:range ncal:NcalDateTime .
+          rdfs:range ncal:NcalDateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:contactAltRep
           a       rdf:Property ;
@@ -1211,7 +1259,8 @@ documentation of ncal:contact for details.""" ;
           rdfs:comment "The date and time of a recurrence identifier. Provided to express the actual value of the ncal:recurrenceId property. See documentation for ncal:recurrenceId for details." ;
           rdfs:domain ncal:RecurrenceIdentifier ;
           rdfs:label "recurrenceIdDateTime" ;
-          rdfs:range ncal:NcalDateTime .
+          rdfs:range ncal:NcalDateTime ;
+          nrl:maxCardinality 1 .
 
     ncal:reqParticipantRole
           a       ncal:AttendeeRole ;
@@ -1234,14 +1283,16 @@ The following are initial classes for the return status code. Individual iCalend
 4.xx - Scheduling Error. This class of status code indicates that the request was not successful. Some sort of error occurred within the  calendaring and scheduling service, not directly related to the request itself.""" ;
           rdfs:domain ncal:RequestStatus ;
           rdfs:label "returnStatus" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     ncal:daylight
           a       rdf:Property ;
           rdfs:comment "Links a timezone with it's daylight observance. This property has no direct equivalent in the RFC 2445. It has been inspired by the structure of the Vtimezone component defined in sec.4.6.5" ;
           rdfs:domain ncal:Timezone ;
           rdfs:label "daylight" ;
-          rdfs:range ncal:TimezoneObservance .
+          rdfs:range ncal:TimezoneObservance ;
+          nrl:maxCardinality 1 .
 
     ncal:locationAltRep
           a       rdf:Property ;
@@ -1322,7 +1373,8 @@ property. See documentation of ncal:location for details.""" ;
           rdfs:comment "To specify an alternate inline encoding for the property value. Inspired by RFC 2445 sec. 4.2.7. Originally this property had a limited vocabulary. ('8BIT' and 'BASE64'). The terms of this vocabulary have been expressed as instances of the AttachmentEncoding class" ;
           rdfs:domain ncal:Attachment ;
           rdfs:label "encoding" ;
-          rdfs:range ncal:AttachmentEncoding .
+          rdfs:range ncal:AttachmentEncoding ;
+          nrl:maxCardinality 1 .
 
     ncal:requestStatusData
           a       rdf:Property ;
@@ -1351,7 +1403,8 @@ property. See documentation of ncal:location for details.""" ;
           rdfs:comment "This property specifies the text value that uniquely identifies the \"VTIMEZONE\" calendar component. Inspired by RFC 2445 sec 4.8.3.1" ;
           rdfs:domain ncal:Timezone ;
           rdfs:label "tzid" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     ncal:thisAndFutureRange
           a       ncal:RecurrenceIdentifierRange ;
@@ -1377,7 +1430,8 @@ property. See documentation of ncal:location for details.""" ;
           rdfs:comment "Frequency of a recurrence rule. Defined in RFC 2445 sec. 4.3.10" ;
           rdfs:domain ncal:RecurrenceRule ;
           rdfs:label "freq" ;
-          rdfs:range ncal:RecurrenceFrequency .
+          rdfs:range ncal:RecurrenceFrequency ;
+          nrl:maxCardinality 1 .
 }
 
 <http://www.semanticdesktop.org/ontologies/2007/04/02/ncal_metadata#> {<http://www.semanticdesktop.org/ontologies/2007/04/02/ncal_metadata#>
@@ -1392,9 +1446,10 @@ property. See documentation of ncal:location for details.""" ;
                   "http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#" ;
           nao:hasDefaultNamespaceAbbreviation
                   "ncal" ;
-          nao:lastModified "2008-10-05T19:45:48.109Z" ;
+          nao:lastModified "2011-06-27T07:50:48.109Z" ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
-          nao:version "Revision-8" .
+          nao:version "0.8.1" ;
+          nao:prefLabel "Nepomuk Calendar Ontology" ;
+          nao:description "The NEPOMUK Calendaring Ontology intends to provide vocabulary for describing calendaring data (events, tasks, journal entries) which is an important part of the body of information usually stored on a desktop. It is an adaptation of the ICALTZD ontology created by the W3C." .
 }
-

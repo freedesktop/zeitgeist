@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2007 NEPOMUK Consortium
-# Copyright (c) 2009 Sebastian Trueg <trueg@kde.org>
+# Copyright (c) 2009-2011 Sebastian Trueg <trueg@kde.org>
 # All rights reserved, licensed under either CC-BY or BSD.
 #
 # You are free:
@@ -90,33 +90,61 @@ nmo: {nmo:IMMessage
 
     nmo:to
           a       rdf:Property ;
-          rdfs:comment "The primary intended recipient of an email." ;
+          nao:deprecated true ;
+          rdfs:comment "deprecated in favor of nmo:emailTo" ;
           rdfs:domain nmo:Email ;
           rdfs:label "to" ;
           rdfs:range nco:Contact ;
           rdfs:subPropertyOf nmo:primaryRecipient .
 
+    nmo:emailTo
+          a       rdf:Property ;
+          rdfs:comment "The primary intended recipient of an email." ;
+          rdfs:domain nmo:Email ;
+          rdfs:label "to" ;
+          rdfs:range nco:ContactMedium ;
+          rdfs:subPropertyOf nmo:primaryMessageRecipient .
+
     nmo:cc
           a       rdf:Property ;
-          rdfs:comment "A Contact that is to receive a cc of the email. A cc (carbon copy) is a copy of an email message whose recipient appears on the recipient list, so that all other recipients are aware of it." ;
+          nao:deprecated true ;
+          rdfs:comment "deprecated in favor of nmo:emailCc" ;
           rdfs:domain nmo:Email ;
           rdfs:label "cc" ;
           rdfs:range nco:Contact ;
           rdfs:subPropertyOf nmo:secondaryRecipient .
 
+    nmo:emailCc
+          a       rdf:Property ;
+          rdfs:comment "A Contact that is to receive a cc of the email. A cc (carbon copy) is a copy of an email message whose recipient appears on the recipient list, so that all other recipients are aware of it." ;
+          rdfs:domain nmo:Email ;
+          rdfs:label "cc" ;
+          rdfs:range nco:ContactMedium ;
+          rdfs:subPropertyOf nmo:secondaryMessageRecipient .
+
     nmo:from
           a       rdf:Property ;
-          rdfs:comment "The sender of the message" ;
+          nao:deprecated true ;
+          rdfs:comment "deprecated in favor of nmo:messageFrom" ;
           rdfs:domain nmo:Message ;
           rdfs:label "from" ;
           rdfs:range nco:Contact .
 
+    nmo:messageFrom
+          a       rdf:Property ;
+          rdfs:comment "The sender of the message" ;
+          rdfs:domain nmo:Message ;
+          rdfs:label "from" ;
+          rdfs:range nco:ContactMedium ;
+          nrl:maxCardinality 1 .
+
     nmo:isRead
           a       rdf:Property ;
           rdfs:comment "A flag that states the fact that a MailboxDataObject has been read." ;
-          rdfs:domain nmo:MailboxDataObject ;
+          rdfs:domain nmo:Message ;
           rdfs:label "isRead" ;
-          rdfs:range xsd:boolean .
+          rdfs:range xsd:boolean ;
+          nrl:maxCardinality 1 .
 
     nmo:Mailbox
           a       rdfs:Class ;
@@ -140,11 +168,20 @@ nmo: {nmo:IMMessage
 
     nmo:primaryRecipient
           a       rdf:Property ;
-          rdfs:comment "The primary intended recipient of a message." ;
+          nao:deprecated true ;
+          rdfs:comment "deprecated in favor of primaryMessageRecipient" ;
           rdfs:domain nmo:Message ;
           rdfs:label "primaryRecipient" ;
           rdfs:range nco:Contact ;
           rdfs:subPropertyOf nmo:recipient .
+
+    nmo:primaryMessageRecipient
+          a       rdf:Property ;
+          rdfs:comment "The primary intended recipient of a message." ;
+          rdfs:domain nmo:Message ;
+          rdfs:label "primaryRecipient" ;
+          rdfs:range nco:ContactMedium ;
+          rdfs:subPropertyOf nmo:messageRecipient .
 
     nmo:inReplyTo
           a       rdf:Property ;
@@ -152,7 +189,8 @@ nmo: {nmo:IMMessage
           rdfs:domain nmo:Message ;
           rdfs:label "inReplyTo" ;
           rdfs:range nmo:Message ;
-          rdfs:subPropertyOf nmo:references .
+          rdfs:subPropertyOf nmo:references ;
+          nrl:maxCardinality 1 .
 
     nmo:messageId
           a       rdf:Property ;
@@ -179,33 +217,68 @@ nmo: {nmo:IMMessage
 
     nmo:replyTo
           a       rdf:Property ;
-          rdfs:comment "An address where the reply should be sent." ;
+          nao:deprecated true ;
+          rdfs:comment "deprecated in favor of nmo:messageReplyTo" ;
           rdfs:domain nmo:Message ;
           rdfs:label "replyTo" ;
           rdfs:range nco:Contact .
 
+    nmo:messageReplyTo
+          a       rdf:Property ;
+          rdfs:comment "An address where the reply should be sent." ;
+          rdfs:domain nmo:Message ;
+          rdfs:label "replyTo" ;
+          rdfs:range nco:ContactMedium ;
+          nrl:maxCardinality 1 .
+
     nmo:recipient
           a       rdf:Property ;
-          rdfs:comment "A common superproperty for all properties that link a message with its recipients. Please don't use this property directly." ;
+          nao:deprecated true ;
+          rdfs:comment "deprecated in favor of nmo:messageRecipient" ;
           rdfs:domain nmo:Message ;
           rdfs:label "recipient" ;
           rdfs:range nco:Contact .
 
+    nmo:messageRecipient
+          a       rdf:Property ;
+          rdfs:comment "A common superproperty for all properties that link a message with its recipients. Please don't use this property directly." ;
+          rdfs:domain nmo:Message ;
+          rdfs:label "recipient" ;
+          rdfs:range nco:ContactMedium .
+
     nmo:bcc
           a       rdf:Property ;
-          rdfs:comment "A Contact that is to receive a bcc of the email. A Bcc (blind carbon copy) is a copy of an email message sent to a recipient whose email address does not appear in the message." ;
+          nao:deprecated true ;
+          rdfs:comment "deprecated in favor of nmo:emailBcc" ;
           rdfs:domain nmo:Email ;
           rdfs:label "bcc" ;
           rdfs:range nco:Contact ;
           rdfs:subPropertyOf nmo:secondaryRecipient .
 
+    nmo:emailBcc
+          a       rdf:Property ;
+          rdfs:comment "A Contact that is to receive a bcc of the email. A Bcc (blind carbon copy) is a copy of an email message sent to a recipient whose email address does not appear in the message." ;
+          rdfs:domain nmo:Email ;
+          rdfs:label "bcc" ;
+          rdfs:range nco:ContactMedium ;
+          rdfs:subPropertyOf nmo:secondaryMessageRecipient .
+
     nmo:secondaryRecipient
           a       rdf:Property ;
-          rdfs:comment "A superproperty for all \"additional\" recipients of a message." ;
+          nao:deprecated true ;
+          rdfs:comment "deprecated in favor of nmo:secondaryMessageRecipient" ;
           rdfs:domain nmo:Message ;
           rdfs:label "secondaryRecipient" ;
           rdfs:range nco:Contact ;
           rdfs:subPropertyOf nmo:recipient .
+
+    nmo:secondaryMessageRecipient
+          a       rdf:Property ;
+          rdfs:comment "A superproperty for all \"additional\" recipients of a message." ;
+          rdfs:domain nmo:Message ;
+          rdfs:label "secondaryRecipient" ;
+          rdfs:range nco:ContactMedium ;
+          rdfs:subPropertyOf nmo:messageRecipient .
 
     nmo:contentMimeType
           a       rdf:Property ;
@@ -214,7 +287,8 @@ content defaults to the value specified by the 'mimeType' property.""" ;
           rdfs:domain nmo:Email ;
           rdfs:label "contentMimeType" ;
           rdfs:range xsd:string ;
-          rdfs:subPropertyOf nie:mimeType .
+          rdfs:subPropertyOf nie:mimeType ;
+          nrl:maxCardinality 1 .
 
     nmo:plainTextMessageContent
           a       rdf:Property ;
@@ -235,7 +309,8 @@ content defaults to the value specified by the 'mimeType' property.""" ;
           rdfs:comment "HTML representation of the body of the message. For multipart messages, all parts are concatenated into the value of this property. Attachments, whose mimeTypes are different from text/plain or message/rfc822 are considered separate DataObjects and are therefore not included in the value of this property." ;
           rdfs:domain nmo:Message ;
           rdfs:label "htmlMessageContent" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          rdfs:subPropertyOf nie:htmlContent .
 
     nmo:sentDate
           a       rdf:Property ;
@@ -248,11 +323,21 @@ content defaults to the value specified by the 'mimeType' property.""" ;
 
     nmo:sender
           a       rdf:Property ;
-          rdfs:comment "The person or agent submitting the message to the network, if other from the one given with the nmo:from property. Defined in RFC 822 sec. 4.4.2" ;
+          nao:deprecated true ;
+          rdfs:comment "deprecated in favor of nmo:messageSender" ;
           rdfs:domain nmo:Message ;
           rdfs:label "sender" ;
           rdfs:range nco:Contact ;
           rdfs:subPropertyOf nmo:recipient .
+
+    nmo:messageSender
+          a       rdf:Property ;
+          rdfs:comment "The person or agent submitting the message to the network, if other from the one given with the nmo:from property. Defined in RFC 822 sec. 4.4.2" ;
+          rdfs:domain nmo:Message ;
+          rdfs:label "sender" ;
+          rdfs:range nco:ContactMedium ;
+          rdfs:subPropertyOf nmo:messageRecipient ;
+          nrl:maxCardinality 1 .
 
     nmo:headerName
           a       rdf:Property ;
@@ -290,9 +375,11 @@ content defaults to the value specified by the 'mimeType' property.""" ;
                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#" ;
           nao:hasDefaultNamespaceAbbreviation
                   "nmo" ;
-          nao:lastModified "2008-11-27T11:45:56.656Z" ;
+          nao:lastModified "2011-05-11T18:08:45.656Z" ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
-          nao:version "Revision-9" .
+          nao:version "0.8.1" ;
+          nao:prefLabel "Nepomuk Message Ontology" ;
+          nao:description "The Nepomuk Message Ontology extends the Nepomuk Information Element framework into the domain of messages. Kinds of messages covered by NMO include Emails and instant messages." .
 }
 

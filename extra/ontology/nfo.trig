@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2007 NEPOMUK Consortium
+# Copyright (c) 2011 Sebastian Trueg <trueg@kde.org>
 # All rights reserved, licensed under either CC-BY or BSD.
 #
 # You are free:
@@ -58,7 +59,8 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "Horizontal resolution of an image (if printed). Expressed in DPI." ;
           rdfs:domain nfo:Image ;
           rdfs:label "horizontalResolution" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:sampleRate
           a       rdf:Property ;
@@ -66,7 +68,8 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:Audio ;
           rdfs:label "sampleRate" ;
           rdfs:range xsd:float ;
-          rdfs:subPropertyOf nfo:rate .
+          rdfs:subPropertyOf nfo:rate ;
+          nrl:maxCardinality 1 .
 
     nfo:HardDiskPartition
           a       rdfs:Class ;
@@ -76,6 +79,7 @@ nfo: {nfo:horizontalResolution
 
     nfo:fileName
           a       rdf:Property ;
+          rdfs:subPropertyOf nao:prefLabel ;
           rdfs:comment "Name of the file, together with the extension" ;
           rdfs:domain nfo:FileDataObject ;
           rdfs:label "fileName" ;
@@ -105,14 +109,16 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "Name of the algorithm used to compute the hash value. Examples might include CRC32, MD5, SHA, TTH etc." ;
           rdfs:domain nfo:FileHash ;
           rdfs:label "hashAlgorithm" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nfo:commentCharacterCount
           a       rdf:Property ;
           rdfs:comment "The amount of character in comments i.e. characters ignored by the compiler/interpreter." ;
           rdfs:domain nfo:SourceCode ;
           rdfs:label "commentCharacterCount" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:PlainTextDocument
           a       rdfs:Class ;
@@ -126,7 +132,8 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:Font ;
           rdfs:label "foundry" ;
           rdfs:range nco:Contact ;
-          rdfs:subPropertyOf nco:creator .
+          rdfs:subPropertyOf nco:creator ;
+          nrl:maxCardinality 1 .
 
     nfo:losslessCompressionType
           a       nfo:CompressionType ;
@@ -137,21 +144,24 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "Number of side channels" ;
           rdfs:label "sideChannels" ;
           rdfs:range xsd:integer ;
-          rdfs:subPropertyOf nfo:channels .
+          rdfs:subPropertyOf nfo:channels ;
+          nrl:maxCardinality 1 .
 
     nfo:interlaceMode
           a       rdf:Property ;
           rdfs:comment "True if the image is interlaced, false if not." ;
           rdfs:domain nfo:Visual ;
           rdfs:label "interlaceMode" ;
-          rdfs:range xsd:boolean .
+          rdfs:range xsd:boolean ;
+          nrl:maxCardinality 1 .
 
     nfo:width
           a       rdf:Property ;
           rdfs:comment "Visual content width in pixels." ;
           rdfs:domain nfo:Visual ;
           rdfs:label "width" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:frameCount
           a       rdf:Property ;
@@ -159,7 +169,8 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:Video ;
           rdfs:label "frameCount" ;
           rdfs:range xsd:integer ;
-          rdfs:subPropertyOf nfo:count .
+          rdfs:subPropertyOf nfo:count ;
+          nrl:maxCardinality 1 .
 
     nfo:MediaFileListEntry
           a       rdfs:Class ;
@@ -169,9 +180,49 @@ nfo: {nfo:horizontalResolution
 
     nfo:Filesystem
           a       rdfs:Class ;
-          rdfs:comment "A filesystem. Examples of filesystems include hard disk partitions, removable media, but also images thereof stored in files." ;
+          rdfs:comment "A filesystem. Examples of filesystems include hard disk partitions, removable media, but also images thereof stored in files such as ISO." ;
           rdfs:label "Filesystem" ;
           rdfs:subClassOf nfo:DataContainer .
+
+    nfo:filesystemType
+          a       rdf:Property ;
+          rdfs:comment "Type of filesystem such as ext3 and ntfs." ;
+          rdfs:domain nfo:Filesystem ;
+          rdfs:range xsd:string ;
+          rdfs:label "filesystemType" ;
+          nrl:maxCardinality 1 .
+
+    nfo:totalSpace
+          a       rdf:Property ;
+          rdfs:comment "Total storage space of the filesystem, which can be different from nie:contentSize because the latter includes filesystem format overhead." ;
+          rdfs:domain nfo:Filesystem ;
+          rdfs:range xsd:integer ;
+          rdfs:label "totalSpace" ;
+          nrl:maxCardinality 1 .
+
+    nfo:freeSpace
+          a       rdf:Property ;
+          rdfs:comment "Unoccupied storage space of the filesystem." ;
+          rdfs:domain nfo:Filesystem ;
+          rdfs:range xsd:integer ;
+          rdfs:label "freeSpace" ;
+          nrl:maxCardinality 1 .
+
+    nfo:occupiedSpace
+          a       rdf:Property ;
+          rdfs:comment "Occupied storage space of the filesystem." ;
+          rdfs:domain nfo:Filesystem ;
+          rdfs:range xsd:integer ;
+          rdfs:label "occupiedSpace" ;
+          nrl:maxCardinality 1 .
+
+    nfo:uuid
+          a       rdf:Property ;
+          rdfs:subPropertyOf nie:identifier ;
+          rdfs:comment "Universally unique identifier of the filesystem. In the future, this property may have its parent changed to a more generic class." ;
+          rdfs:domain nfo:Filesystem ;
+          rdfs:range xsd:string ;
+          rdfs:label "uuid" .
 
     nfo:definesFunction
           a       rdf:Property ;
@@ -191,14 +242,16 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "A string containing the permissions of a file. A feature common in many UNIX-like operating systems." ;
           rdfs:domain nfo:FileDataObject ;
           rdfs:label "permissions" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nfo:lineCount
           a       rdf:Property ;
           rdfs:comment "The amount of lines in a text document" ;
           rdfs:domain nfo:TextDocument ;
           rdfs:label "lineCount" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:SoftwareItem
           a       rdfs:Class ;
@@ -217,7 +270,8 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "The amount of words in a text document." ;
           rdfs:domain nfo:TextDocument ;
           rdfs:label "wordCount" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:bookmarks
           a       rdf:Property ;
@@ -225,7 +279,32 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:Bookmark ;
           rdfs:label "link" ;
           rdfs:range nie:DataObject ;
-          rdfs:subPropertyOf nie:links .
+          rdfs:subPropertyOf nie:links ;
+          nrl:cardinality 1 .
+
+    nfo:characterPosition
+          a       rdf:Property ;
+          rdfs:comment "Character position of the bookmark." ;
+          rdfs:domain nfo:Bookmark ;
+          rdfs:label "characterPosition" ;
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
+
+    nfo:pageNumber
+          a       rdf:Property ;
+          rdfs:comment "Page linked by the bookmark." ;
+          rdfs:domain nfo:Bookmark ;
+          rdfs:label "pageNumber" ;
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
+
+    nfo:streamPosition
+          a       rdf:Property ;
+          rdfs:comment "Stream position of the bookmark, suitable for e.g. audio books. Expressed in milliseconds" ;
+          rdfs:domain nfo:Bookmark ;
+          rdfs:label "streamPosition" ;
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:RemotePortAddress
           a       rdfs:Class ;
@@ -256,7 +335,8 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "The amount of characters in the document." ;
           rdfs:domain nfo:TextDocument ;
           rdfs:label "characterCount" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:fileLastAccessed
           a       rdf:Property ;
@@ -264,7 +344,8 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:FileDataObject ;
           rdfs:label "fileLastAccessed" ;
           rdfs:range xsd:dateTime ;
-          rdfs:subPropertyOf dc:date .
+          rdfs:subPropertyOf dc:date ;
+          nrl:maxCardinality 1 .
 
     nfo:supercedes
           a       rdf:Property ;
@@ -298,7 +379,8 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:Audio ;
           rdfs:label "sampleCount" ;
           rdfs:range xsd:integer ;
-          rdfs:subPropertyOf nfo:count .
+          rdfs:subPropertyOf nfo:count ;
+          nrl:maxCardinality 1 .
 
     nfo:Image
           a       rdfs:Class ;
@@ -311,18 +393,21 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "Visual content height in pixels." ;
           rdfs:domain nfo:Visual ;
           rdfs:label "height" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:frontChannels
           a       rdf:Property ;
           rdfs:comment "Number of front channels." ;
           rdfs:label "frontChannels" ;
           rdfs:range xsd:integer ;
-          rdfs:subPropertyOf nfo:channels .
+          rdfs:subPropertyOf nfo:channels ;
+          nrl:maxCardinality 1 .
 
     nfo:FilesystemImage
           a       rdfs:Class ;
-          rdfs:comment "An image of a filesystem. Instances of this class may include CD images, DVD images or hard disk partition images created by various pieces of software (e.g. Norton Ghost)" ;
+          nao:deprecated true ;
+          rdfs:comment "An image of a filesystem. Instances of this class may include CD images, DVD images or hard disk partition images created by various pieces of software (e.g. Norton Ghost). Deprecated in favor of nfo:Filesystem." ;
           rdfs:label "FilesystemImage" ;
           rdfs:subClassOf nfo:Filesystem .
 
@@ -343,7 +428,8 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "Number of rear channels." ;
           rdfs:label "rearChannels" ;
           rdfs:range xsd:integer ;
-          rdfs:subPropertyOf nfo:channels .
+          rdfs:subPropertyOf nfo:channels ;
+          nrl:maxCardinality 1 .
 
     nfo:bitsPerSample
           a       rdf:Property ;
@@ -351,7 +437,8 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:Audio ;
           rdfs:label "bitsPerSample" ;
           rdfs:range xsd:integer ;
-          rdfs:subPropertyOf nfo:bitDepth .
+          rdfs:subPropertyOf nfo:bitDepth ;
+          nrl:maxCardinality 1 .
 
     nfo:HtmlDocument
           a       rdfs:Class ;
@@ -376,14 +463,16 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "Duration of a media piece." ;
           rdfs:domain nfo:Media ;
           rdfs:label "duration" ;
-          rdfs:range xsd:duration .
+          rdfs:range xsd:duration ;
+          nrl:maxCardinality 1 .
 
     nfo:lfeChannels
           a       rdf:Property ;
           rdfs:comment "Number of Low Frequency Expansion (subwoofer) channels." ;
           rdfs:label "lfeChannels" ;
           rdfs:range xsd:integer ;
-          rdfs:subPropertyOf nfo:channels .
+          rdfs:subPropertyOf nfo:channels ;
+          nrl:maxCardinality 1 .
 
     nfo:Video
           a       rdfs:Class ;
@@ -410,14 +499,16 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "States if a given resource is password-protected." ;
           rdfs:domain nfo:ArchiveItem ;
           rdfs:label "isPasswordProtected" ;
-          rdfs:range xsd:boolean .
+          rdfs:range xsd:boolean ;
+          nrl:maxCardinality 1 .
 
     nfo:hashValue
           a       rdf:Property ;
           rdfs:comment "The actual value of the hash." ;
           rdfs:domain nfo:FileHash ;
           rdfs:label "hashValue" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:cardinality 1 .
 
     nfo:Document
           a       rdfs:Class ;
@@ -428,7 +519,7 @@ nfo: {nfo:horizontalResolution
     nfo:FileDataObject
           a       rdfs:Class ;
           rdfs:comment "A resource containing a finite sequence of bytes with arbitrary information, that is available to a computer program and is usually based on some kind of durable storage. A file is durable in the sense that it remains available for programs to use after the current program has finished." ;
-          rdfs:label "File" ;
+          rdfs:label "file" ;
           rdfs:subClassOf nie:DataObject .
 
     nfo:encryptedStatus
@@ -446,14 +537,16 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "Uncompressed size of the content of a compressed file." ;
           rdfs:domain nfo:Archive ;
           rdfs:label "uncompressedSize" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:deletionDate
           a       rdf:Property ;
           rdfs:comment "The date and time of the deletion." ;
           rdfs:domain nfo:DeletedResource ;
           rdfs:label "deletionDate" ;
-          rdfs:range xsd:dateTime .
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
 
     nfo:MindMap
           a       rdfs:Class ;
@@ -463,7 +556,7 @@ nfo: {nfo:horizontalResolution
 
     nfo:SoftwareService
           a       rdfs:Class ;
-          rdfs:comment "A service published by a piece of software, either by an operating system or an application. Examples of such services may include calendar, addresbook and mailbox managed by a PIM application. This category is introduced to distinguish between data available directly from the applications (Via some Interprocess Communication Mechanisms) and data available from files on a disk. In either case both DataObjects would receive a similar interpretation (e.g. a Mailbox) and wouldn't differ on the content level." ;
+          rdfs:comment "A service published by a piece of software, either by an operating system or an application. Examples of such services may include calendar, addressbook and mailbox managed by a PIM application. This category is introduced to distinguish between data available directly from the applications (Via some Interprocess Communication Mechanisms) and data available from files on a disk. In either case both DataObjects would receive a similar interpretation (e.g. a Mailbox) and wouldn't differ on the content level." ;
           rdfs:label "SoftwareService" ;
           rdfs:subClassOf nie:DataObject .
 
@@ -476,7 +569,8 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "The original location of the deleted resource." ;
           rdfs:domain nfo:DeletedResource ;
           rdfs:label "originalLocation" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nfo:Website
           a       rdfs:Class ;
@@ -519,7 +613,8 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "Number of channels. This property is to be used directly if no detailed information is necessary. Otherwise use more detailed subproperties." ;
           rdfs:domain nfo:Audio ;
           rdfs:label "channels" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:colorDepth
           a       rdf:Property ;
@@ -527,7 +622,8 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:Visual ;
           rdfs:label "colorDepth" ;
           rdfs:range xsd:integer ;
-          rdfs:subPropertyOf nfo:bitDepth .
+          rdfs:subPropertyOf nfo:bitDepth ;
+          nrl:maxCardinality 1 .
 
     nfo:Font
           a       rdfs:Class ;
@@ -541,7 +637,8 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:Media ;
           rdfs:label "averageBitrate" ;
           rdfs:range xsd:float ;
-          rdfs:subPropertyOf nfo:rate .
+          rdfs:subPropertyOf nfo:rate ;
+          nrl:maxCardinality 1 .
 
     nfo:Icon
           a       rdfs:Class ;
@@ -554,21 +651,24 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "The owner of the file as defined by the file system access rights feature." ;
           rdfs:domain nfo:FileDataObject ;
           rdfs:label "fileOwner" ;
-          rdfs:range nco:Contact .
+          rdfs:range nco:Contact ;
+          nrl:maxCardinality 1 .
 
     nfo:aspectRatio
           a       rdf:Property ;
           rdfs:comment "Visual content aspect ratio. (Width divided by Height)" ;
           rdfs:domain nfo:Visual ;
           rdfs:label "aspectRatio" ;
-          rdfs:range xsd:float .
+          rdfs:range xsd:float ;
+          nrl:maxCardinality 1 .
 
     nfo:bitDepth
           a       rdf:Property ;
           rdfs:comment "A common superproperty for all properties signifying the amount of bits for an atomic unit of data. Examples of subproperties may include bitsPerSample and bitsPerPixel" ;
           rdfs:domain nfo:Media ;
           rdfs:label "bitDepth" ;
-          rdfs:range rdfs:Literal .
+          rdfs:range rdfs:Literal ;
+          nrl:maxCardinality 1 .
 
     nfo:containsBookmarkFolder
           a       rdf:Property ;
@@ -591,7 +691,8 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "Vertical resolution of an Image (if printed). Expressed in DPI" ;
           rdfs:domain nfo:Image ;
           rdfs:label "verticalResolution" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:fileUrl
           a       rdf:Property ;
@@ -615,14 +716,16 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:Video ;
           rdfs:label "frameRate" ;
           rdfs:range xsd:float ;
-          rdfs:subPropertyOf nfo:rate .
+          rdfs:subPropertyOf nfo:rate ;
+          nrl:maxCardinality 1 .
 
     nfo:fontFamily
           a       rdf:Property ;
           rdfs:comment "The name of the font family." ;
           rdfs:domain nfo:Font ;
           rdfs:label "fontFamily" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nfo:EmbeddedFileDataObject
           a       rdfs:Class ;
@@ -636,21 +739,24 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:FileDataObject ;
           rdfs:label "fileCreated" ;
           rdfs:range xsd:dateTime ;
-          rdfs:subPropertyOf nie:created .
+          rdfs:subPropertyOf nie:created ;
+          nrl:maxCardinality 1 .
 
     nfo:bitrateType
           a       rdf:Property ;
           rdfs:comment "The type of the bitrate. Examples may include CBR and VBR." ;
           rdfs:domain nfo:Media ;
           rdfs:label "bitrateType" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nfo:encoding
           a       rdf:Property ;
           rdfs:comment "The encoding used for the Embedded File. Examples might include BASE64 or UUEncode" ;
           rdfs:domain nfo:EmbeddedFileDataObject ;
           rdfs:label "encoding" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nfo:Folder
           a       rdfs:Class ;
@@ -674,7 +780,7 @@ nfo: {nfo:horizontalResolution
 
     nfo:fileLastModified
           a       rdf:Property ;
-	  nao:deprecated true;
+	  nao:deprecated true ;
           rdfs:comment "last modification date" ;
           rdfs:domain nfo:FileDataObject ;
           rdfs:label "fileLastModified" ;
@@ -686,14 +792,16 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "The type of the compression. Values include, 'lossy' and 'lossless'." ;
           rdfs:domain nfo:Media ;
           rdfs:label "compressionType" ;
-          rdfs:range nfo:CompressionType .
+          rdfs:range nfo:CompressionType ;
+          nrl:maxCardinality 1 .
 
     nfo:pageCount
           a       rdf:Property ;
           rdfs:comment "Number of pages." ;
           rdfs:domain nfo:PaginatedTextDocument ;
           rdfs:label "pageCount" ;
-          rdfs:range xsd:integer .
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
 
     nfo:RasterImage
           a       rdfs:Class ;
@@ -732,7 +840,8 @@ nfo: {nfo:horizontalResolution
           rdfs:comment "The status of the encryption of the InformationElement." ;
           rdfs:domain nie:InformationElement ;
           rdfs:label "encryptionStatus" ;
-          rdfs:range nfo:EncryptionStatus .
+          rdfs:range nfo:EncryptionStatus ;
+          nrl:maxCardinality 1 .
 
     nfo:containsBookmark
           a       rdf:Property ;
@@ -759,7 +868,8 @@ nfo: {nfo:horizontalResolution
           a       rdfs:Class ;
           rdfs:comment "A piece of software. Examples may include applications and the operating system. This interpretation most commonly applies to SoftwareItems." ;
           rdfs:label "Software" ;
-          rdfs:subClassOf nie:InformationElement .
+          rdfs:subClassOf nie:InformationElement ;
+          rdfs:subClassOf nao:Agent .
 
     nfo:lossyCompressionType
           a       nfo:CompressionType ;
@@ -795,13 +905,35 @@ nfo: {nfo:horizontalResolution
           rdfs:domain nfo:FileDataObject ;
           rdfs:label "fileSize" ;
           rdfs:range xsd:integer ;
-          rdfs:subPropertyOf nie:byteSize .
+          rdfs:subPropertyOf nie:byteSize ;
+          nrl:maxCardinality 1 .
 
     nfo:RemoteDataObject
           a       rdfs:Class ;
           rdfs:comment "A file data object stored at a remote location. Don't confuse this class with a RemotePortAddress. This one applies to a particular resource, RemotePortAddress applies to an address, that can have various interpretations." ;
           rdfs:label "RemoteDataObject" ;
           rdfs:subClassOf nfo:FileDataObject .
+
+    nfo:colorCount
+          a rdf:Property ;
+          rdfs:label "color count" ;
+          rdfs:comment "The number of colors used/available in a raster image." ;
+          rdfs:domain nfo:RasterImage ;
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
+
+    nfo:paletteSize
+          a rdf:Property ;
+          rdfs:label "palette size" ;
+          rdfs:comment "The number of colors defined in palette of the raster image." ;
+          rdfs:domain nfo:RasterImage ;
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
+
+    nfo:WebDataObject a rdfs:Class ;
+          rdfs:subClassOf nie:DataObject ;
+          rdfs:label "web data object" ;
+          rdfs:comment "An information resources of which representations (files, streams) can be retrieved through a web server. They may be generated at retrieval time. Typical examples are pages served by PHP or AJAX or mp3 streams." .
 }
 
 <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo_metadata#> {nfo:  a       nrl:Ontology ;
@@ -810,10 +942,12 @@ nfo: {nfo:horizontalResolution
                   "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#" ;
           nao:hasDefaultNamespaceAbbreviation
                   "nfo" ;
-          nao:lastModified "2009-07-20T14:59:09.500Z" ;
+          nao:lastModified "2011-08-22T12:26:40.500Z" ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
-          nao:version "Revision-9" .
+          nao:version "0.8.1" ;
+          nao:prefLabel "Nepomuk File Ontology" ;
+          nao:description "The Nepomuk File Ontology provides vocabulary to express information extracted from various sources. They include files, pieces of software and remote hosts." .
 
     <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo_metadata#>
           a       nrl:GraphMetadata ;

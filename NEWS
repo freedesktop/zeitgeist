@@ -12,6 +12,10 @@ Engine:
 Python API:
  - ...
 
+Overall:
+ - Updated to shared-desktop-ontologies version 0.8.1. This introduces
+   WebDataObject and makes MusicPiece a child of Audio.
+
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 
