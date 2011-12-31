@@ -31,7 +31,8 @@ namespace Zeitgeist
         private static string DATABASE_FILE_BACKUP_PATH;
         private static string LOCAL_EXTENSIONS_PATH;
 
-        public const string ZEITGEIST_DATA_FOLDER = "zeitgeist";
+        public const string DATA_FOLDER = "zeitgeist";
+        public const string DATABASE_BASENAME = "activity.sqlite";
         public const string USER_EXTENSION_PATH = "";
 
         // D-Bus
@@ -48,7 +49,7 @@ namespace Zeitgeist
 
             DATA_PATH = Environment.get_variable ("ZEITGEIST_DATA_PATH") ??
                 Path.build_filename (Environment.get_user_data_dir (),
-                    ZEITGEIST_DATA_FOLDER);
+                    DATA_FOLDER);
 
             if (!FileUtils.test (DATA_PATH, FileTest.IS_DIR))
             {
@@ -66,7 +67,7 @@ namespace Zeitgeist
 
             DATABASE_FILE_PATH =
                 Environment.get_variable ("ZEITGEIST_DATABASE_PATH") ??
-                Path.build_filename (get_data_path (), "activity.sqlite");
+                Path.build_filename (get_data_path (), DATABASE_BASENAME);
 
             debug ("DATABASE_FILE_PATH = %s", DATABASE_FILE_PATH);
 
@@ -80,11 +81,18 @@ namespace Zeitgeist
 
             DATABASE_FILE_BACKUP_PATH =
                 Environment.get_variable ("ZEITGEIST_DATABASE_BACKUP_PATH") ??
-                Path.build_filename (get_data_path (), "activity.sqlite.bck");
+                Path.build_filename (get_data_path (),
+                    DATABASE_BASENAME + ".bck");
 
             debug ("DATABASE_FILE_BACKUP_PATH = %s", DATABASE_FILE_BACKUP_PATH);
 
             return DATABASE_FILE_BACKUP_PATH;
+        }
+
+        public string get_database_file_retire_name ()
+        {
+            return DATABASE_BASENAME + ".%s.bck".printf (
+                new DateTime.now_local ().format ("%Y%m%d-%H%M%S"));
         }
 
         public unowned string get_local_extensions_path ()
@@ -112,6 +120,12 @@ namespace Zeitgeist
             destination = File.new_for_path (get_database_file_backup_path ());
 
             original.copy (destination, FileCopyFlags.OVERWRITE, null, null);
+        }
+
+        public void retire_database () throws Error
+        {
+            File dbfile = File.new_for_path (get_database_file_path ());
+            dbfile.set_display_name (get_database_file_retire_name ());
         }
     }
 }

@@ -370,8 +370,25 @@ namespace Zeitgeist
             }
             catch (Error err)
             {
-                critical ("%s", err.message);
-                return;
+                if (err is EngineError.DATABASE_CANTOPEN)
+                {
+                    warning ("Could not access the database file.\n" +
+                        "Please check the permissions of file %s.",
+                        Utils.get_database_file_path ());
+                    Posix.exit(21);
+                }
+                else if (err is EngineError.DATABASE_BUSY)
+                {
+                    warning ("It looks like another Zeitgeist instance " +
+                        "is already running (the database is locked). " +
+                        "If you want to start a new instance, use --replace.");
+                    Posix.exit(22);
+                }
+                else
+                {
+                    critical ("%s", err.message);
+                    return;
+                }
             }
 
             uint owner_id = Bus.own_name_on_connection (connection,
@@ -442,6 +459,7 @@ namespace Zeitgeist
             catch (Error err)
             {
                 warning ("%s", err.message);
+                return 1;
             }
 
             return 0;
