@@ -18,13 +18,20 @@
  *
  */
 
-void main (string[] args)
+int main (string[] args)
 {
 
     Test.init (ref args);
 
     // Do not abort on warning()s.
     Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
+
+	// This test will connect to the database, make sure it won't mess up
+    // anything.
+    assert (Environment.set_variable(
+        "ZEITGEIST_DATA_PATH", "/tmp/zeitgeist-tests", true));
+    assert (Environment.set_variable(
+        "ZEITGEIST_DATABASE_PATH", ":memory:", true));
 
     Test.add_func ("/ParseNegation/main", parse_negation_test);
     Test.add_func ("/ParseNegation/assert", assert_no_negation_test);
@@ -33,7 +40,7 @@ void main (string[] args)
     Test.add_func ("/ParseWildcard/main", parse_wildcard_test);
 	Test.add_func ("/ParseWildlcard/assert", assert_no_wildcard_test);
 
-    Test.run ();
+    return Test.run ();
 }
 
 private class PublicEngine : Zeitgeist.Engine

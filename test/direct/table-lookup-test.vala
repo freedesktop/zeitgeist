@@ -22,7 +22,7 @@ using Zeitgeist;
 using Zeitgeist.SQLite;
 using Assertions;
 
-void main (string[] args)
+int main (string[] args)
 {
     Test.init (ref args);
 
@@ -38,7 +38,8 @@ void main (string[] args)
 
     Test.add_func ("/WhereClause/basic", basic_test);
     Test.add_func ("/WhereClause/delete_hook", engine_test);
-    Test.run ();
+
+    return Test.run ();
 }
 
 private class PublicEngine : Zeitgeist.Engine

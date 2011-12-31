@@ -9,7 +9,7 @@ VALAFLAGS = \
 	$(NULL)
 
 TESTS = \
-	marshalling \
+	marshalling-test \
 	query-operators-test \
 	where-clause-test \
 	table-lookup-test \
@@ -35,7 +35,7 @@ SRC_FILES = \
 	$(top_srcdir)/src/mimetype.vala \
 	$(NULL)
 
-marshalling: marshalling.vala $(SRC_FILES)
+marshalling-test: marshalling-test.vala $(SRC_FILES)
 	$(VALAC) $(VALAFLAGS) -o $@ $^
 
 query-operators-test: query-operators-test.vala $(SRC_FILES)
@@ -54,7 +54,7 @@ clean-local:
 	rm -f *.~[0-9]~
 
 DISTCLEANFILES = \
-	marshalling \
+	marshalling-test \
 	query-operators-test \
 	where-clause-test \
 	table-lookup-test \
@@ -62,7 +62,7 @@ DISTCLEANFILES = \
 	$(NULL)
 
 EXTRA_DIST = \
-	marshalling.vala \
+	marshalling-test.vala \
 	query-operators-test.vala \
 	where-clause-test.vala \
 	table-lookup-test.vala \

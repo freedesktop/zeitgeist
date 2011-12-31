@@ -21,7 +21,7 @@
 using Zeitgeist;
 using Assertions;
 
-void main (string[] args)
+int main (string[] args)
 {
     Test.init (ref args);
 
@@ -33,7 +33,8 @@ void main (string[] args)
     Test.add_func ("/WhereClause/nested_negation", nested_negation_test);
     Test.add_func ("/WhereClause/match_condition", match_condition_test);
     Test.add_func ("/WhereClause/glob/right_boundary", right_boundary_test);
-    Test.run ();
+
+    return Test.run ();
 }
 
 private class PublicWhereClause : WhereClause

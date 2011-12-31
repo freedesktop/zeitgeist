@@ -23,7 +23,7 @@
 using Zeitgeist;
 using Assertions;
 
-void main (string[] args)
+int main (string[] args)
 {
     Test.init (ref args);
 
@@ -36,7 +36,7 @@ void main (string[] args)
     Test.add_func ("/UriScheme/none", uri_scheme_none_test);
     Test.add_func ("/UriScheme/register", uri_scheme_registration_test);
 
-    Test.run ();
+    return Test.run ();
 }
 
 public void mime_type_basic_test ()
