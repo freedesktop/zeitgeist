@@ -60,13 +60,13 @@ AC_CONFIG_FILES([
 	src/Makefile
 	extensions/Makefile
 	extensions/fts-python/Makefile
-	extra/Makefile
-	extra/ontology/Makefile
-    extra/python/Makefile
+	data/Makefile
+	data/ontology/Makefile
+	python/Makefile
 	test/Makefile
 	test/dbus/Makefile
 	test/direct/Makefile
-    doc/Makefile
+	doc/Makefile
 	po/Makefile.in
 ])
 

@@ -73,7 +73,7 @@ extensions_vala.stamp: zeitgeist-engine_vala.stamp $(extensions_VALASOURCES)
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
 ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
-	$(AM_V_GEN)$(top_srcdir)/extra/ontology2code --vala
+	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala
 	@touch "$@"
 
 ontology.vala ontology-uris.vala: ontology_vala.stamp

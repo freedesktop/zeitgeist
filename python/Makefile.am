@@ -13,7 +13,7 @@ app_PYTHON = \
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
 _ontology.py:
 	@echo -e "#\n# Auto-generated from .trig files. Do not edit.\n#" > $@
-	$(AM_V_GEN)$(top_srcdir)/extra/ontology2code --dump-python >> $@
+	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --dump-python >> $@
 
 CLEANFILES = \
 	_ontology.py \

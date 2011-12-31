@@ -3,7 +3,8 @@ NULL =
 SUBDIRS = \
 	src \
 	extensions \
-	extra \
+	data \
+	python \
 	test \
 	po \
 	doc \

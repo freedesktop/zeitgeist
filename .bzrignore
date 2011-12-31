@@ -33,11 +33,11 @@ src/*.stamp
 src/zeitgeist
 src/bluebird
 test/direct/where-clause-test
-extra/ontology/*.py
+data/ontology/*.py
 query-operators-test
 src/ontology.vala
 src/ontology-uris.vala
-extra/org.gnome.zeitgeist.service
+data/org.gnome.zeitgeist.service
 extensions/.deps
 extensions/.libs
 extensions/*.c
@@ -51,7 +51,7 @@ src/zeitgeist-engine.vapi
 src/zeitgeist-engine.h
 extensions/fts-python/org.gnome.zeitgeist.fts.service
 py-compile
-extra/python/_ontology.py
+python/_ontology.py
 test/direct/*.c
 src/zeitgeist-daemon
 mimetype-test

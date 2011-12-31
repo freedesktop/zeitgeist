@@ -2,7 +2,6 @@ NULL=
 
 SUBDIRS = \
 	ontology \
-	python \
 	$(NULL)
 
 servicedir = $(DBUS_SERVICES_DIR)
