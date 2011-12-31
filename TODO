@@ -3,3 +3,6 @@
  - Remove useless copies from fts-python/.
  - Figure out why D-Bus test cases time out most of the time.
  - Make histogram extension more generic.
+ - Write log output to a file.
+ - Disable the benchmark extension by default.
+ - Port the benchmarking tool from the bundled plot stuff to a standard module.
