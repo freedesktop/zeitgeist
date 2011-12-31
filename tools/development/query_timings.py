@@ -32,7 +32,7 @@ from logging import handlers
 from collections import defaultdict
 
 from zeitgeist.datamodel import TimeRange, StorageState, ResultType
-from zeitgeist.datamodel import Event
+from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation
 import benchmark as engine
 
 from cairoplot import vertical_bar_plot
@@ -82,6 +82,7 @@ def get_cmdline():
     parser.add_option("--plot", dest="plot_files", metavar="DATA_FILE",
         action="append", type="str")
     parser.add_option("--type", dest="type", help="type of plot")
+    parser.add_option("--count", dest="count", help="number of execution of each query", type="int")
     (options, args) = parser.parse_args()
     assert not args
     return options
@@ -153,6 +154,7 @@ if __name__ == "__main__":
             existing_data = json.load(open(options.output))
         else:
             existing_data = {}
+        num_queries = 50 if not options.count else options.count
         logging.basicConfig(level=logging.DEBUG)
         for query in get_query_set(options.queryset):
             args = eval(query)
@@ -161,7 +163,7 @@ if __name__ == "__main__":
             handler = QueryPlanHandler()
             logging.getLogger("").addHandler(handler)
             results = {}
-            for i in xrange (50):
+            for i in xrange (num_queries):
                 t1 = time.time()
                 temp = engine.find_events(*args)
                 temp["overall"] = time.time() - t1
@@ -177,7 +179,7 @@ if __name__ == "__main__":
             
             for key in temp.keys():
                 if key != "events":
-                    results[key] = results[key]/50
+                    results[key] = results[key]/num_queries
             
             print (results.keys())
             

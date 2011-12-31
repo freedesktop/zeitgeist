@@ -1,0 +1,9 @@
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation="!"+Interpretation.SOFTWARE), Subject.new_for_values(interpretation="!"+Interpretation.FOLDER)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.SOFTWARE)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.AUDIO)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.VIDEO)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.IMAGE)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.DOCUMENT)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.WEBSITE)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation="!"+Interpretation.WEBSITE)])], StorageState.Any, 96, ResultType.MostRecentOrigin
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation="!"+Interpretation.WEBSITE),Subject.new_for_values(interpretation="!"+Interpretation.SOFTWARE),Subject.new_for_values(interpretation="!"+Interpretation.AUDIO),Subject.new_for_values(interpretation="!"+Interpretation.VIDEO),Subject.new_for_values(interpretation="!"+Interpretation.IMAGE),Subject.new_for_values(interpretation="!"+Interpretation.DOCUMENT)])], StorageState.Any, 96, ResultType.MostRecentSubjects
