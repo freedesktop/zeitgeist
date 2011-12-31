@@ -334,6 +334,10 @@ public class Engine : Object
         for (int i = 0; i < arguments.length; ++i)
             stmt.bind_text (i + 1, arguments[i]);
 
+#if EXPLAIN_QUERIES
+        database.explain_query (stmt);
+#endif
+
         uint32[] event_ids = {};
 
         while ((rc = stmt.step()) == Sqlite.ROW)

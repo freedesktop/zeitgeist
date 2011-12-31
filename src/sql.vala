@@ -189,6 +189,30 @@ namespace Zeitgeist.SQLite
             database = null;
         }
 
+#if EXPLAIN_QUERIES
+        public void explain_query (Sqlite.Statement prepared_stmt)
+            throws EngineError
+        {
+            int rc;
+            Sqlite.Statement stmt;
+
+            var explain_sql = "EXPLAIN QUERY PLAN %s".printf (prepared_stmt.sql ());
+
+            rc = prepared_stmt.db_handle ().prepare_v2 (explain_sql, -1, out stmt);
+            assert_query_success(rc, "SQL error");
+
+            while ((rc = stmt.step()) == Sqlite.ROW)
+            {
+                int select_id = stmt.column_int (0);
+                int order = stmt.column_int (1);
+                int from = stmt.column_int (2);
+                unowned string detail = stmt.column_text (3);
+
+                print ("%d %d %d %s\n", select_id, order, from, detail);
+            }
+        }
+#endif
+
         /**
          * Ensure `rc' is SQLITE_OK. If it isn't, print an error message
          * and throw an error.

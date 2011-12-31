@@ -8,7 +8,7 @@ AM_CPPFLAGS = \
 	-w \
 	$(NULL)
 
-VALAFLAGS = \
+AM_VALAFLAGS = \
 	--target-glib=2.26 \
 	-D BUILTIN_EXTENSIONS \
 	--pkg gio-2.0 \
@@ -63,12 +63,12 @@ zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
 BUILT_SOURCES = zeitgeist-engine_vala.stamp extensions_vala.stamp
 
 zeitgeist-engine_vala.stamp: $(zeitgeist_daemon_VALASOURCES)
-	$(VALA_V)$(VALAC) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
+	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
 	@touch "$@"
 
 extensions_vala.stamp: zeitgeist-engine_vala.stamp $(extensions_VALASOURCES)
 	$(AM_V_GEN)$(foreach ext_src,$(filter %.vala,$^),\
-		$(VALAC) $(VALAFLAGS) $(EXT_FLAGS) -C zeitgeist-engine.vapi $(ext_src) || exit 1;)
+		$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) $(EXT_FLAGS) -C zeitgeist-engine.vapi $(ext_src) || exit 1;)
 	@touch "$@"
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
