@@ -95,6 +95,7 @@ namespace Zeitgeist.SQLite
             throws EngineError
         {
             exec_query (database, "PRAGMA journal_mode = WAL");
+            exec_query (database, "PRAGMA locking_mode = EXCLUSIVE");
 
             // URI
             exec_query (database, """
