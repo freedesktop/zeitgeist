@@ -207,7 +207,7 @@ public class Engine : Object
         //if (!where.may_have_results ())
         //    return new uint32[0];
 
-        string sql = "SELECT DISTINCT id FROM event_view ";
+        string sql = "SELECT id FROM event_view ";
         string where_sql = "";
         if (!where.is_empty ())
         {
@@ -321,9 +321,6 @@ public class Engine : Object
                 throw new EngineError.INVALID_ARGUMENT (error_message);
         }
 
-        if (max_events > 0)
-            sql += " LIMIT %u".printf (max_events);
-
         int rc;
         Sqlite.Statement stmt;
 
@@ -338,11 +335,15 @@ public class Engine : Object
 
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
-            var id = (uint32) uint64.parse(
+            var event_id = (uint32) uint64.parse(
                 stmt.column_text (EventViewRows.ID));
-            event_ids += id;
+            // Events are supposed to be contiguous in the database
+            if (event_ids[event_ids.length] != event_id) {
+                event_ids += event_id;
+                if (event_ids.length == max_events) break;
+            }
         }
-        if (rc != Sqlite.DONE)
+        if (rc != Sqlite.DONE && rc != Sqlite.ROW)
         {
             string error_message = "Error in find_event_ids: %d, %s".printf (
                 rc, db.errmsg ());
