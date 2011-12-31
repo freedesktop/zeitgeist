@@ -23,5 +23,5 @@
 #       --queries tools/development/query_sets/timerange_always.txt
 #  tools/development/query_timings.py --name "lp:some-branch" -o somebranch.json \
 #       --queries tools/development/query_sets/timerange_always.txt
-#  tools/development/query_timings.py --plot --type marsh_time somebranch.json \
-#       --plot trunk.json -o benchmark.svg
+#  tools/development/query_timings.py --plot trunk.json --type marsh_time \
+#       -o benchmark.svg

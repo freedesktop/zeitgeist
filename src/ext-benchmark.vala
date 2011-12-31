@@ -1,1 +1,1 @@
-/home/seif/Projects/zeitgeist/extensions/benchmark.vala
+../extensions/benchmark.vala
