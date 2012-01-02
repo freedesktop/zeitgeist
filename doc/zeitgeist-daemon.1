@@ -63,6 +63,12 @@ database. The default value is $ZEITGEIST_DATA_PATH/activity.sqlite.
 .B ZEITGEIST_DATABASE_BACKUP_PATH
 This variable lets you specify an override for the filename of a possible
 database backup. The default value is $ZEITGEIST_DATA_PATH/activity.sqlite.bck.
+.TP
+.B ZEITGEIST_DISABLED_EXTENSIONS
+This variable lets you specify comma separated list of extension names which
+shouldn't be loaded. The names are extracted from type names of the extensions,
+so to disable extension with type name ZeitgeistDataSourceRegistry, value
+of the variable should be DataSourceRegistry.
 
 .SH SIGNALS
 \fISIGHUP\f1: zeitgeist\-daemon will shut itself down in a clean way. 

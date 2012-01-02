@@ -163,6 +163,11 @@ namespace Zeitgeist
             Object (module_path: module_path);
         }
 
+        construct
+        {
+            set_name (module_path);
+        }
+
         protected override bool load ()
         {
             module = Module.open (module_path, ModuleFlags.BIND_LOCAL);
@@ -215,6 +220,11 @@ namespace Zeitgeist
             reg_func = func;
         }
 
+        construct
+        {
+            set_name ("builtin");
+        }
+
         protected override bool load ()
         {
             if (extension_type == Type.INVALID)
@@ -233,6 +243,11 @@ namespace Zeitgeist
                 // according to docs initialized TypeModule is not supposed
                 // to be unreferenced, so we do this
                 this.ref ();
+            }
+            else
+            {
+                // this is still needed
+                extension_type = reg_func (this);
             }
 
             return true;

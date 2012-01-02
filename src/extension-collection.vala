@@ -22,6 +22,7 @@ namespace Zeitgeist
     public class ExtensionCollection : Object
     {
         private GenericArray<Extension> extensions;
+        private string[] disabled_extensions = {};
 
         public unowned Engine engine { get; construct; }
 
@@ -40,6 +41,13 @@ namespace Zeitgeist
             Extension? extension;
             extensions = new GenericArray<Extension> ();
 
+            unowned string? disabled =
+                Environment.get_variable ("ZEITGEIST_DISABLED_EXTENSIONS");
+            if (disabled != null)
+            {
+                disabled_extensions = disabled.split_set (",:;");
+            }
+
             // load the builtin extensions first
 #if BUILTIN_EXTENSIONS
             RegisterExtensionFunc[] builtins =
@@ -55,7 +63,7 @@ namespace Zeitgeist
             foreach (var func in builtins)
             {
                 ExtensionLoader builtin = new BuiltinExtension (func);
-                extension = builtin.create_instance (engine);
+                extension = instantiate_extension (builtin);
                 if (extension != null) extensions.add (extension);
             }
 #endif
@@ -85,8 +93,7 @@ namespace Zeitgeist
                         string path = Path.build_filename (ext_dir1, file_name);
                         debug ("Loading extension: \"%s\"", path);
                         var loader = new ModuleLoader (path);
-                        // FIXME: check if disabled
-                        extension = loader.create_instance (engine);
+                        extension = instantiate_extension (loader);
                         if (extension != null) extensions.add (extension);
                     }
                     else
@@ -96,6 +103,29 @@ namespace Zeitgeist
                     file_name = user_ext_dir.read_name ();
                 }
             }
+        }
+
+        private Extension? instantiate_extension (ExtensionLoader loader)
+        {
+            if (loader.use ())
+            {
+                unowned string type_name = loader.extension_type.name ();
+                if (type_name == null) return null;
+
+                if (type_name.has_prefix ("Zeitgeist"))
+                {
+                    type_name = (string) ((char*) type_name + 9);
+                }
+
+                bool enabled = !(type_name in disabled_extensions);
+                if (!enabled) message ("Skipping %s (disabled)", type_name);
+
+                Extension? e = enabled ? loader.create_instance (engine) : null;
+                loader.unuse ();
+
+                return e;
+            }
+            return null;
         }
 
         public string[] get_extension_names ()
