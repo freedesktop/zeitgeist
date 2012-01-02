@@ -126,6 +126,18 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		self.assertEquals(1, len(result))
 		self.assertEquals(1, result[0]) # The single event must have id 1
 	
+	def testEventInsertionWithTwoIdenticalSubjectUri(self):
+		event = Event()
+		subject = Subject()
+		subject.uri = "file:///tmp/file.txt"
+		event.append_subject(subject)
+		event.append_subject(subject)
+		
+		# Insert item and event
+		ids = self.insertEventsAndWait([event,])
+		self.assertEquals(len(ids), 1)
+		self.assertEquals(ids[0], 0)
+	
 	def testDeleteSingle(self):
 		self.testSingleInsertGet()
 		self.deleteEventsAndWait([1])
