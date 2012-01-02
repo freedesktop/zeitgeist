@@ -60,7 +60,7 @@ namespace Zeitgeist
                 null
             },
             {
-                "quit", 0, 0, OptionArg.NONE, out quit_daemon,
+                "quit", 'q', 0, OptionArg.NONE, out quit_daemon,
                 "Quit running Zeitgeist daemon instance", null
             },
             {
@@ -437,6 +437,39 @@ namespace Zeitgeist
 
                     return 0;
                 }
+                
+                LogLevelFlags discarded = LogLevelFlags.LEVEL_DEBUG;
+                if (log_level != null)
+                {
+                    var ld = LogLevelFlags.LEVEL_DEBUG;
+                    var li = LogLevelFlags.LEVEL_INFO;
+                    var lm = LogLevelFlags.LEVEL_MESSAGE;
+                    var lw = LogLevelFlags.LEVEL_WARNING;
+                    var lc = LogLevelFlags.LEVEL_CRITICAL;
+                    switch (log_level)
+                    {
+                        case "DEBUG":
+                            discarded = 0;
+                            break;
+                        case "INFO":
+                            discarded = ld;
+                            break;
+                        case "WARNING":
+                            discarded = ld | li | lm;
+                            break;
+                        case "CRITICAL":
+                            discarded = ld | li | lm | lw;
+                            break;
+                        case "ERROR":
+                            discarded = ld | li | lm | lw | lc;
+                            break;
+                    }
+                }
+                if (discarded != 0)
+                {
+                    Log.set_handler ("", discarded, () => {});
+                }
+
                 run ();
             }
             catch (Error err)

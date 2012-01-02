@@ -67,6 +67,7 @@ namespace Zeitgeist.SQLite
 
         public ZeitgeistDatabase () throws EngineError
         {
+            message ("Opening DB from %s", Utils.get_database_file_path ());
             int rc = Sqlite.Database.open_v2 (
                 Utils.get_database_file_path (),
                 out database);
