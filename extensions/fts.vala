@@ -61,6 +61,8 @@ namespace Zeitgeist
 
         construct
         {
+            if (Utils.using_in_memory_database ()) return;
+
             try
             {
                 var connection = Bus.get_sync (BusType.SESSION, null);
@@ -107,7 +109,6 @@ namespace Zeitgeist
             Variant filter_templates, uint offset, uint count, uint result_type,
             out Variant events) throws Error
         {
-            debug ("Performing search for %s", query_string);
             if (siin == null || !(siin is DBusProxy))
             {
                 // FIXME: queue until we have the proxy
