@@ -252,6 +252,7 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 		events[0].subjects.append(list(events[0].subjects[0]))
 		ids = self.insertEventsAndWait(events)
 		self.assertEquals(3, len(set(ids)))
+		self.assertEquals(0, ids[0])
 
 class ZeitgeistRemoteFindEventIdsTest(testutils.RemoteTestCase):
 	"""

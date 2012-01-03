@@ -584,13 +584,23 @@ public class Engine : Object
             var uris = new GenericArray<string> ();
             var texts = new GenericArray<string> ();
             var storages = new GenericArray<string> ();
+            var subj_uris = new SList<string> ();
 
             if (event.origin != "")
                 uris.add (event.origin);
 
+            // Iterate through subjects and check for validity
             for (int i = 0; i < event.num_subjects(); ++i)
             {
                 unowned Subject subject = event.subjects[i];
+                if (subj_uris.find_custom(subject.uri, strcmp) != null)
+                {
+                    // Events with two subjects with the same URI are not supported.
+                    warning ("Events with two subjects with the same URI are not supported");
+                    return 0;
+                }
+                subj_uris.append (subject.uri);
+
                 uris.add (subject.uri);
 
                 if (subject.current_uri == "" || subject.current_uri == null)
