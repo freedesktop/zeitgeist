@@ -142,6 +142,11 @@ namespace Zeitgeist
                 warning ("%s", err.message);
             }
 
+            /*
+             * This is disabled because it causes races on some hardware
+             * (zg will be using 100% cpu, maybe eat up lots of memory etc.)
+             */
+            /*
             VolumeMonitor monitor = VolumeMonitor.get ();
             monitor.volume_added.connect (on_volume_added);
             monitor.volume_removed.connect (on_volume_removed);
@@ -150,6 +155,7 @@ namespace Zeitgeist
                 add_storage_medium (get_volume_id (volume),
                     volume.get_icon ().to_string (), volume.get_name ());
             }
+            */
 
             // Dynamically decide whether to use Connman or NetworkManager
             watch_connman = Bus.watch_name (BusType.SYSTEM,
