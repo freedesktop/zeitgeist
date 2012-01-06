@@ -235,7 +235,7 @@ class SearchEngineExtension (dbus.service.Object):
         considered blessed public API.
         """
         log.debug ("Received ForceReindex request over DBus.")
-        self._indexer._queue.put (Reindex (self.engine))
+        self._indexer._queue.put (Reindex (self._indexer))
     
     def _make_events_sendable(self, events):
         return [NULL_EVENT if event is None else Event._make_dbus_sendable(event) for event in events]
