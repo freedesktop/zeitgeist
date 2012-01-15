@@ -411,7 +411,16 @@ namespace Zeitgeist
                 vb.close ();
             }
 
-            return vb.end ();
+            Variant event_variant = vb.end ().get_normal_form ();
+            // FIXME: this uses g_new0, we dont need the mem to be zero-filled
+            uchar[] data = new uchar[event_variant.get_size ()];
+            event_variant.store (data);
+            unowned uchar[] data_copy = data;
+ 
+            Variant ret = Variant.new_from_data (
+                new VariantType ("("+Utils.SIG_EVENT+")"),
+                data_copy, true, (owned) data);
+            return ret;
         }
 
         public void debug_print ()
