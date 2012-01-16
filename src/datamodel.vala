@@ -412,6 +412,11 @@ namespace Zeitgeist
             }
 
             Variant event_variant = vb.end ().get_normal_form ();
+            Variant ret = optimize_variant_allocation (event_variant);
+            return ret;
+        }
+
+        private Variant optimize_variant_allocation (Variant event_variant) {
             // FIXME: this uses g_new0, we dont need the mem to be zero-filled
             uchar[] data = new uchar[event_variant.get_size ()];
             event_variant.store (data);
