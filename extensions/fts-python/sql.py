@@ -114,6 +114,13 @@ def get_default_cursor():
 		log.info("Using database: %s" % dbfile)
 		new_database = not os.path.exists(dbfile)
 		_cursor = _connect_to_db(dbfile)
+		core_schema_version = _get_schema_version(_cursor, constants.CORE_SCHEMA)
+		if core_schema_version < constants.CORE_SCHEMA_VERSION:
+			log.exception(
+				"Database '%s' is on version %s, but %s is required" % \
+				(constants.CORE_SCHEMA, core_schema_version,
+				constants.CORE_SCHEMA_VERSION))
+			raise SystemExit(27)
 	return _cursor
 def unset_cursor():
 	global _cursor
