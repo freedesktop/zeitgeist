@@ -8,6 +8,7 @@ Engine:
 
  - The language for extensions has changes from Python to Vala.
  - The post_get_events hook is no longer supported.
+ - The database file is now only readable by the user.
 
 Python API:
  - ...
@@ -108,6 +109,8 @@ Engine:
  - Do not print a traceback when Zeitgeist fails to start because another
    instance is already running, just show a plain error message (LP: #744818).
  - Simplified log output format when printing to stderr.
+ - Introduce new DB schema (version 4), adding storage, current_uri and event
+   origin.
 
 Python API:
 

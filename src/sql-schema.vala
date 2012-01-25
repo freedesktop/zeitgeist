@@ -94,6 +94,9 @@ namespace Zeitgeist.SQLite
         public static void create_schema (Sqlite.Database database)
             throws EngineError
         {
+            if (!Utils.using_in_memory_database ())
+                FileUtils.chmod (Utils.get_database_file_path (), 0600);
+
             exec_query (database, "PRAGMA journal_mode = WAL");
             exec_query (database, "PRAGMA locking_mode = EXCLUSIVE");
 
