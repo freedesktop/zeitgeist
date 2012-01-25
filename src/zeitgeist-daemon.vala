@@ -376,19 +376,14 @@ namespace Zeitgeist
                     warning ("Could not access the database file.\n" +
                         "Please check the permissions of file %s.",
                         Utils.get_database_file_path ());
-                    throw err;
                 }
                 else if (err is EngineError.DATABASE_BUSY)
                 {
                     warning ("It looks like another Zeitgeist instance " +
                         "is already running (the database is locked). " +
                         "If you want to start a new instance, use --replace.");
-                    throw err;
                 }
-                else
-                {
-                    throw err;
-                }
+                throw err;
             }
 
             uint owner_id = Bus.own_name_on_connection (connection,
