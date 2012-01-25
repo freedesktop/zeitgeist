@@ -25,7 +25,7 @@ namespace Zeitgeist
     private void assert_sig (bool condition, string error_message)
         throws EngineError
     {
-        if (!condition)
+        if (unlikely (!condition))
             throw new EngineError.INVALID_SIGNATURE (error_message);
     }
 
@@ -297,7 +297,7 @@ namespace Zeitgeist
             Variant payload_variant = iter.next_value ();
 
             var event_props = event_array.n_children ();
-            warn_if_fail (event_props >= 5);
+            assert_sig (event_props >= 5, "Missing event information.");
             id = (uint32) uint64.parse (event_array.next_value().get_string ());
             var str_timestamp = event_array.next_value().get_string ();
             if (str_timestamp == "")
@@ -539,7 +539,7 @@ namespace Zeitgeist
             VariantIter iter = subject_variant.iterator();
 
             var subject_props = iter.n_children ();
-            warn_if_fail (subject_props >= 7);
+            assert_sig (subject_props >= 7, "Missing subject information");
             uri = iter.next_value().get_string ();
             interpretation = iter.next_value().get_string ();
             manifestation = iter.next_value().get_string ();
@@ -551,7 +551,7 @@ namespace Zeitgeist
             if (subject_props >= 8)
                 current_uri = iter.next_value().get_string ();
             else
-                current_uri = ""; // FIXME: uri?
+                current_uri = "";
         }
 
         public Variant to_variant ()

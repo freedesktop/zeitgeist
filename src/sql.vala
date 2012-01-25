@@ -176,10 +176,7 @@ namespace Zeitgeist.SQLite
         }
 
         public void close ()
-            {
-            // FIXME: make sure symbol tables are consistent (ie.
-            //        _fix_cache is empty)
-            
+        {
             // SQLite connection is implicitly closed upon destruction
             database = null;
         }
@@ -195,7 +192,7 @@ namespace Zeitgeist.SQLite
         public void assert_query_success (int rc, string msg,
             int success_code=Sqlite.OK) throws EngineError
         {
-            if (rc != success_code)
+            if (unlikely (rc != success_code))
             {
                 string error_message = "%s: %d, %s".printf(
                     msg, rc, database.errmsg ());

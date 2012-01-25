@@ -699,6 +699,7 @@ public class Engine : Object
     }
 
     public TimeRange? delete_events (uint32[] event_ids, BusName? sender)
+        throws EngineError
     {
         event_ids = extension_collection.call_pre_delete_events (
             event_ids, sender);
