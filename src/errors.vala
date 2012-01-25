@@ -31,6 +31,7 @@ namespace Zeitgeist
         DATABASE_RETIRE_FAILED,
         INVALID_ARGUMENT,
         INVALID_KEY,
+        EXISTING_INSTANCE,
     }
 
     // vala doesn't include proper headers, this fixes it
