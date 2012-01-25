@@ -261,6 +261,7 @@ namespace Zeitgeist
             register_mimetype ("image/svg+xml", NFO.VECTOR_IMAGE);
             register_mimetype ("image/tiff", NFO.RASTER_IMAGE);
             register_mimetype ("image/x-xcf", NFO.RASTER_IMAGE);
+            register_mimetype ("inode/directory", NFO.FOLDER);
             register_mimetype ("text/css", NFO.SOURCE_CODE);
             register_mimetype ("text/html", NFO.HTML_DOCUMENT);
             register_mimetype ("text/plain", NFO.TEXT_DOCUMENT);
