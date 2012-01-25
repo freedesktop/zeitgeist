@@ -23,10 +23,15 @@ namespace Zeitgeist
     [DBus (name = "org.gnome.zeitgeist.EngineError")]
     public errordomain EngineError
     {
+        BACKUP_FAILED,
+        DATABASE_BUSY,
+        DATABASE_CANTOPEN,
+        DATABASE_CORRUPT,
         DATABASE_ERROR,
+        DATABASE_RETIRE_FAILED,
         INVALID_ARGUMENT,
         INVALID_KEY,
-        BACKUP_FAILED,
+        EXISTING_INSTANCE,
     }
 
     // vala doesn't include proper headers, this fixes it

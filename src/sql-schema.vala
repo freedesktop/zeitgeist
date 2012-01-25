@@ -417,8 +417,8 @@ namespace Zeitgeist.SQLite
         }
 
         /**
-         * Execute the given SQL. If the query doesn't succeed, log a
-         * critical warning (potentially aborting the program).
+         * Execute the given SQL. If the query doesn't succeed, throw
+         * an error.
          *
          * @param database the database on which to run the query
          * @param sql the SQL query to run
@@ -429,10 +429,17 @@ namespace Zeitgeist.SQLite
             int rc = database.exec (sql);
             if (rc != Sqlite.OK)
             {
-                const string fmt_str = "Can't create database: %d, %s\n\n" +
-                    "Unable to execute SQL:\n%s";
-                var err_msg = fmt_str.printf (rc, database.errmsg (), sql);
-                throw new EngineError.DATABASE_ERROR (err_msg);
+                if (rc == Sqlite.CORRUPT)
+                {
+                    throw new EngineError.DATABASE_CORRUPT (database.errmsg ());
+                }
+                else
+                {
+                    const string fmt_str = "Can't create database: %d, %s\n\n" +
+                        "Unable to execute SQL:\n%s";
+                    var err_msg = fmt_str.printf (rc, database.errmsg (), sql);
+                    throw new EngineError.DATABASE_ERROR (err_msg);
+                }
             }
         }
 

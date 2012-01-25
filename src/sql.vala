@@ -67,19 +67,81 @@ namespace Zeitgeist.SQLite
 
         public ZeitgeistDatabase () throws EngineError
         {
-            message ("Opening DB from %s", Utils.get_database_file_path ());
-            int rc = Sqlite.Database.open_v2 (
-                Utils.get_database_file_path (),
-                out database);
-            assert_query_success (rc, "Can't open database");
-
-            DatabaseSchema.ensure_schema (database);
+            open_database (true);
 
             prepare_queries ();
 
             // Register a data change notification callback to look for
             // deletions, so we can keep the TableLookups up to date.
             database.update_hook (update_callback);
+        }
+
+        private void open_database (bool retry)
+            throws EngineError
+        {
+            int rc = Sqlite.Database.open_v2 (
+                Utils.get_database_file_path (),
+                out database);
+            
+            if (rc == Sqlite.OK)
+            {
+                try
+                {
+                    // Error (like a malformed database) may not be exposed
+                    // until we try to operate on the database.
+                    DatabaseSchema.ensure_schema (database);
+                }
+                catch (EngineError err)
+                {
+                    if (err is EngineError.DATABASE_CORRUPT && retry)
+                        rc = Sqlite.CORRUPT;
+                    else if (err is EngineError.DATABASE_CANTOPEN)
+                        rc = Sqlite.CANTOPEN;
+                    else if (err is EngineError.DATABASE_BUSY)
+                        rc = Sqlite.BUSY;
+                    else
+                        throw err;
+                }
+            }
+            
+            if (rc != Sqlite.OK)
+            {
+                if (rc == Sqlite.CORRUPT && retry)
+                {
+                    // The database disk image is malformed
+                    warning ("It looks like your database is corrupt. " +
+                        "It will be renamed and a new one will be created.");
+                    try
+                    {
+                        Utils.retire_database ();
+                    }
+                    catch (Error err)
+                    {
+                        string message =
+                            "Could not rename database: %s".printf (
+                                err.message);
+                        throw new EngineError.DATABASE_RETIRE_FAILED (message);
+                    }
+                    open_database (false);
+                }
+                else if (rc == Sqlite.PERM || rc == Sqlite.CANTOPEN)
+                {
+                    // Access permission denied / Unable to open database file
+                    throw new EngineError.DATABASE_CANTOPEN (
+                        database.errmsg ());
+                }
+                else if (rc == Sqlite.BUSY)
+                {
+                    // The database file is locked
+                    throw new EngineError.DATABASE_BUSY (database.errmsg ());
+                }
+                else
+                {
+                    string message = "Can't open database: %d, %s".printf(rc,
+                        database.errmsg ());
+                    throw new EngineError.DATABASE_ERROR (message);
+                }
+            }
         }
 
         public uint32 get_last_id () throws EngineError

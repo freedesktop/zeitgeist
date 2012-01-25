@@ -329,6 +329,7 @@ namespace Zeitgeist
         }
 
         static void run ()
+            throws Error
         {
             DBusConnection connection;
             bool name_owned;
@@ -342,8 +343,7 @@ namespace Zeitgeist
             }
             catch (IOError err)
             {
-                critical ("%s", err.message);
-                return;
+                throw err;
             }
             if (name_owned)
             {
@@ -353,9 +353,10 @@ namespace Zeitgeist
                 }
                 else
                 {
-                    critical ("An existing instance was found. Please use " +
+                    warning ("An existing instance was found. Please use " +
                         "--replace to stop it and start a new instance.");
-                    Posix.exit (10);
+                    throw new EngineError.EXISTING_INSTANCE (
+                        "Zeitgeist is running already.");
                 }
             }
 
@@ -370,8 +371,19 @@ namespace Zeitgeist
             }
             catch (Error err)
             {
-                critical ("%s", err.message);
-                return;
+                if (err is EngineError.DATABASE_CANTOPEN)
+                {
+                    warning ("Could not access the database file.\n" +
+                        "Please check the permissions of file %s.",
+                        Utils.get_database_file_path ());
+                }
+                else if (err is EngineError.DATABASE_BUSY)
+                {
+                    warning ("It looks like another Zeitgeist instance " +
+                        "is already running (the database is locked). " +
+                        "If you want to start a new instance, use --replace.");
+                }
+                throw err;
             }
 
             uint owner_id = Bus.own_name_on_connection (connection,
@@ -474,7 +486,15 @@ namespace Zeitgeist
             }
             catch (Error err)
             {
+                if (err is EngineError.EXISTING_INSTANCE)
+                    return 10;
+                if (err is EngineError.DATABASE_CANTOPEN)
+                    return 21;
+                if (err is EngineError.DATABASE_BUSY)
+                    return 22;
+
                 warning ("%s", err.message);
+                return 1;
             }
 
             return 0;
