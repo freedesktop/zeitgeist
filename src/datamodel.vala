@@ -22,6 +22,13 @@
 
 namespace Zeitgeist
 {
+    private void assert_sig (bool condition, string error_message)
+        throws EngineError
+    {
+        if (unlikely (!condition))
+            throw new EngineError.INVALID_SIGNATURE (error_message);
+    }
+
     namespace Timestamp
     {
         public static int64 now ()
@@ -67,8 +74,10 @@ namespace Zeitgeist
         }
 
         public TimeRange.from_variant (Variant variant)
+            throws EngineError.INVALID_SIGNATURE
         {
-            assert (variant.get_type_string () == "(xx)");
+            assert_sig (variant.get_type_string () == "(xx)",
+                "Invalid D-Bus signature.");
 
             int64 start_msec = 0;
             int64 end_msec = 0;
@@ -252,7 +261,7 @@ namespace Zeitgeist
                              // must be immediately available to the user
         ANY             = 2  // The event subjects may or may not be available
     }
-    
+
     private bool check_field_match (string property,
             string template_property, bool is_symbol = false,
             bool can_wildcard = false)
@@ -334,21 +343,21 @@ namespace Zeitgeist
             subjects.add (subject);
         }
 
-        public Event.from_variant (Variant event_variant) {
-            assert (event_variant.get_type_string () == "(" +
-                Utils.SIG_EVENT + ")");
+        public Event.from_variant (Variant event_variant) throws EngineError {
+            assert_sig (event_variant.get_type_string () == "(" +
+                Utils.SIG_EVENT + ")", "Invalid D-Bus signature.");
 
             VariantIter iter = event_variant.iterator ();
 
-            assert (iter.n_children () >= 3);
+            assert_sig (iter.n_children () >= 3, "Incomplete event struct.");
             VariantIter event_array = iter.next_value ().iterator ();
             VariantIter subjects_array = iter.next_value ().iterator ();
             Variant payload_variant = iter.next_value ();
 
             var event_props = event_array.n_children ();
-            assert (event_props >= 5);
-            id = (uint32) uint64.parse (event_array.next_value ().get_string ());
-            var str_timestamp = event_array.next_value ().get_string ();
+            assert_sig (event_props >= 5, "Missing event information.");
+            id = (uint32) uint64.parse (event_array.next_value().get_string ());
+            var str_timestamp = event_array.next_value().get_string ();
             if (str_timestamp == "")
                 timestamp = Timestamp.now ();
             else
@@ -421,7 +430,7 @@ namespace Zeitgeist
             uchar[] data = new uchar[event_variant.get_size ()];
             event_variant.store (data);
             unowned uchar[] data_copy = data;
- 
+
             Variant ret = Variant.new_from_data (
                 new VariantType ("("+Utils.SIG_EVENT+")"),
                 data_copy, true, (owned) data);
@@ -455,9 +464,8 @@ namespace Zeitgeist
                                s.mimetype, s.origin, s.text, s.current_uri,
                                s.storage);
             }
-       }
+        }
 
-        
 
         public bool matches_template (Event template_event)
         {
@@ -588,11 +596,12 @@ namespace Zeitgeist
         }
 
         public Subject.from_variant (Variant subject_variant)
+            throws EngineError
         {
             VariantIter iter = subject_variant.iterator();
 
             var subject_props = iter.n_children ();
-            assert (subject_props >= 7);
+            assert_sig (subject_props >= 7, "Missing subject information");
             uri = iter.next_value().get_string ();
             interpretation = iter.next_value().get_string ();
             manifestation = iter.next_value().get_string ();
