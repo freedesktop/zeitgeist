@@ -186,3 +186,5 @@ void corrupt_timerange_test ()
         error_thrown = true;
     }
 }
+
+// vim:expandtab:ts=4:sw=4

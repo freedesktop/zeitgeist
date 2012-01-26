@@ -197,3 +197,5 @@ public void assert_no_wildcard_test ()
 	{
 	}
 }
+
+// vim:expandtab:ts=4:sw=4

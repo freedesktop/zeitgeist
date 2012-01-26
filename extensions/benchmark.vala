@@ -55,42 +55,42 @@ namespace Zeitgeist
         }
 
         public async HashTable<string, Variant> find_events (Variant time_range,
-            Variant filter_templates, uint storage_state, uint num_events, 
+            Variant filter_templates, uint storage_state, uint num_events,
             uint result_type)
             throws Error
         {
             var data = new HashTable<string, Variant> (str_hash, str_equal);
-         
+
             var find_event_ids_timer = new Timer ();
             var ids = engine.find_event_ids (
                 new TimeRange.from_variant (time_range),
                 Events.from_variant (filter_templates),
-                storage_state, num_events, result_type); 
+                storage_state, num_events, result_type);
             var find_event_ids_elapsed = find_event_ids_timer.elapsed();
-            
+
             var get_events_timer = new Timer ();
             var events = engine.get_events (ids);
             var get_events_elapsed = get_events_timer.elapsed();
-            
+
             var marsh_events_timer = new Timer ();
             var marsh_events = Events.to_variant(events);
             var marsh_events_elapsed = marsh_events_timer.elapsed();
-            
+
             var find_events_elapsed = get_events_elapsed + find_event_ids_elapsed + marsh_events_elapsed;
-            
-            data.insert("find_event_ids", 
+
+            data.insert("find_event_ids",
                 new Variant.double(find_event_ids_elapsed));
-            data.insert("get_events", 
+            data.insert("get_events",
                 new Variant.double(get_events_elapsed));
-            data.insert("find_events", 
+            data.insert("find_events",
                 new Variant.double(find_events_elapsed));
-            data.insert("marsh_events", 
+            data.insert("marsh_events",
                 new Variant.double(marsh_events_elapsed));
             data.insert("events", marsh_events);
-            
+
             return data;
         }
-        
+
         public override void unload ()
         {
             try
