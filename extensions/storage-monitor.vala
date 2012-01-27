@@ -283,11 +283,12 @@ namespace Zeitgeist
          */
         private string find_storage_for_uri (string uri)
         {
-            string uri_scheme = uri.substring (0, uri.index_of ("://"));
-            debug ("URI Scheme is: %s for %s", uri_scheme, uri);
+            File file = File.new_for_uri (uri);
+            string uri_scheme = file.get_uri_scheme ();
+            /*
+            // FIXME: uncomment this once gvfs is our friend again
             if (uri_scheme == "file")
             {
-                File file = File.new_for_uri (uri);
                 try
                 {
                     Mount mount = file.find_enclosing_mount ();
@@ -298,7 +299,7 @@ namespace Zeitgeist
                     return "local";
                 }
             }
-            else if (uri_scheme in network_uri_schemes)
+            else*/ if (uri_scheme in network_uri_schemes)
             {
                 return "net";
             }
