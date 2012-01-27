@@ -3,6 +3,8 @@
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  * Copyright © 2011 Stefano Candori <stefano.candori@gmail.com>
+ * Copyright © 2012 Canonical Ltd.
+ *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
  *
  * Based upon a Python implementation:
  *  Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
@@ -91,7 +93,7 @@ namespace Zeitgeist
      *    they reside in;
      *  - otherwise, the fixed identifier `unknown`.
      *
-     * Subjects with storage `local` or `unwknown` are always considered as
+     * Subjects with storage `local` or `unknown` are always considered as
      * available; for network resources, the monitor will use either ConnMan
      * or NetworkManager (whichever is available).
      *
@@ -100,6 +102,10 @@ namespace Zeitgeist
      */
     class StorageMonitor: Extension, RemoteStorageMonitor
     {
+        private const string[] network_uri_schemes = {
+            "dav", "davs", "ftp", "http", "https", "mailto",
+            "sftp", "smb", "ssh" };
+
         private Zeitgeist.SQLite.ZeitgeistDatabase database;
         private unowned Sqlite.Database db;
         private uint registration_id;
@@ -277,7 +283,28 @@ namespace Zeitgeist
          */
         private string find_storage_for_uri (string uri)
         {
-            // FIXME
+            File file = File.new_for_uri (uri);
+            string uri_scheme = file.get_uri_scheme ();
+            /*
+            // FIXME: uncomment this once gvfs is our friend again
+            if (uri_scheme == "file")
+            {
+                try
+                {
+                    Mount mount = file.find_enclosing_mount ();
+                    return get_volume_id (mount.get_volume ());
+                }
+                catch (Error err)
+                {
+                    return "local";
+                }
+            }
+            else*/
+            if (uri_scheme in network_uri_schemes)
+            {
+                return "net";
+            }
+
             return "unknown";
         }
 
