@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [0.8.99~alpha1], [dev@lists.zeitgeist-project.com], [zeitgeist])
+AC_INIT([zeitgeist], [0.8.99~alpha2], [dev@lists.zeitgeist-project.com], [zeitgeist])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip])
