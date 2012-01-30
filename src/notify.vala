@@ -32,7 +32,7 @@ namespace Zeitgeist
         construct
         {
             monitors = new HashTable<string, Monitor> (str_hash, str_equal);
-            connections = new HashTable<string, GenericArray<string>> 
+            connections = new HashTable<string, GenericArray<string>>
                 (str_hash, str_equal);
 
             // FIXME: it'd be nice if this supported arg2
@@ -78,9 +78,38 @@ namespace Zeitgeist
             private TimeRange time_range;
             private RemoteMonitor? proxy_object = null;
 
+            private class NotificationData {
+                public Variant time_range;
+            }
+            private SList<NotificationData> queued_notifications;
+
+            [Compact]
+            private class InsertionData : NotificationData
+            {
+                public Variant events;
+
+                public InsertionData (Variant time_range, Variant events)
+                {
+                    this.time_range = time_range;
+                    this.events = events;
+                }
+            }
+            [Compact]
+            private class DeletionData : NotificationData
+            {
+                public uint32[] event_ids;
+
+                public DeletionData (Variant time_range, uint32[] event_ids)
+                {
+                    this.time_range = time_range;
+                    this.event_ids = event_ids;
+                }
+            }
+
             public Monitor (BusName peer, string object_path,
                 TimeRange tr, GenericArray<Event> templates)
             {
+                queued_notifications = new SList<NotificationData> ();
                 Bus.get_proxy<RemoteMonitor> (BusType.SESSION, peer,
                     object_path, DBusProxyFlags.DO_NOT_LOAD_PROPERTIES |
                     DBusProxyFlags.DO_NOT_CONNECT_SIGNALS,
@@ -94,6 +123,24 @@ namespace Zeitgeist
                         {
                             warning ("%s", err.message);
                         }
+
+                        // Process queued notifications...
+                        foreach (unowned NotificationData data in queued_notifications)
+                        {
+                            if (data is InsertionData)
+                            {
+                                proxy_object.notify_insert (data.time_range,
+                                    ((InsertionData) data).events);
+                            }
+                            else if (data is DeletionData)
+                            {
+                                proxy_object.notify_delete (data.time_range,
+                                    ((DeletionData) data).event_ids);
+                            }
+                            else
+                                assert_not_reached ();
+                        }
+                        queued_notifications = null;
                     });
                 time_range = tr;
                 event_templates = templates;
@@ -113,15 +160,13 @@ namespace Zeitgeist
                 return false;
             }
 
-            // FIXME: we need to queue the notification if proxy_object == null
             public void notify_insert (TimeRange time_range, GenericArray<Event> events)
-                requires (proxy_object != null)
             {
                 var intersect_tr = time_range.intersect (this.time_range);
                 if (intersect_tr != null)
                 {
                     var matching_events = new GenericArray<Event> ();
-                    for (int i=0; i<events.length; i++)
+                    for (int i = 0; i < events.length; i++)
                     {
                         if (events[i] != null && matches (events[i])
                             && events[i].timestamp >= intersect_tr.start
@@ -132,24 +177,46 @@ namespace Zeitgeist
                     }
                     if (matching_events.length > 0)
                     {
-                        DBusProxy p = (DBusProxy) proxy_object;
-                        debug ("Notifying %s about %d insertions",
-                            p.get_name (), matching_events.length);
+                        Variant time_v = intersect_tr.to_variant ();
+                        // FIXME: do we want to "cache" this for sharing
+                        // between monitors?
+                        Variant events_v = Events.to_variant (matching_events);
 
-                        proxy_object.notify_insert (intersect_tr.to_variant (),
-                            Events.to_variant (matching_events));
+                        if (proxy_object != null)
+                        {
+                            DBusProxy p = (DBusProxy) proxy_object;
+                            debug ("Notifying %s about %d insertions",
+                                p.get_name (), matching_events.length);
+
+                            proxy_object.notify_insert (time_v, events_v);
+                        }
+                        else
+                        {
+                            debug ("Queueing notification about %d insertions",
+                                matching_events.length);
+                            queued_notifications.append (
+                                new InsertionData (time_v, events_v));
+                        }
                     }
                 }
             }
 
             public void notify_delete (TimeRange time_range, uint32[] event_ids)
-                requires (proxy_object != null)
             {
                 var intersect_tr = time_range.intersect (this.time_range);
                 if (intersect_tr != null)
                 {
-                    proxy_object.notify_delete (intersect_tr.to_variant (),
-                        event_ids);
+                    Variant time_v = intersect_tr.to_variant ();
+
+                    if (proxy_object != null)
+                    {
+                        proxy_object.notify_delete (time_v, event_ids);
+                    }
+                    else
+                    {
+                        queued_notifications.append (
+                            new DeletionData (time_v, event_ids));
+                    }
                 }
             }
         }
@@ -179,12 +246,12 @@ namespace Zeitgeist
         {
             debug ("Removing monitor %s%s", peer, object_path);
             var hash = "%s#%s".printf (peer, object_path);
-            
+
             if (monitors.lookup (hash) != null)
                 monitors.remove (hash);
             else
                 warning ("There's no monitor installed for %s", hash);
-            
+
             if (connections.lookup (peer) != null)
             {
                 var paths = connections.lookup (peer);
