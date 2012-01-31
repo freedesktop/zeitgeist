@@ -78,38 +78,47 @@ namespace Zeitgeist
             private TimeRange time_range;
             private RemoteMonitor? proxy_object = null;
 
-            private class NotificationData {
-                public Variant time_range;
-            }
-            private SList<NotificationData> queued_notifications;
-
-            [Compact]
-            private class InsertionData : NotificationData
+            private enum NotificationType
             {
-                public Variant events;
+                INSERTION,
+                DELETION
+            }
+            [Compact]
+            private class QueuedNotification {
+                // (Compact classes don't support private fields)
+                public NotificationType type;
+                public Variant time_range;
+                public Variant events; // for insertions
+                public uint32[] event_ids; // for deletions
 
-                public InsertionData (Variant time_range, Variant events)
+                public QueuedNotification.insertion (Variant time_range, Variant events)
                 {
+                    type = NotificationType.INSERTION;
                     this.time_range = time_range;
                     this.events = events;
                 }
-            }
-            [Compact]
-            private class DeletionData : NotificationData
-            {
-                public uint32[] event_ids;
 
-                public DeletionData (Variant time_range, uint32[] event_ids)
+                public QueuedNotification.deletion (Variant time_range, uint32[] event_ids)
                 {
+                    type = NotificationType.DELETION;
                     this.time_range = time_range;
                     this.event_ids = event_ids;
                 }
+
+                public void send (RemoteMonitor proxy_object)
+                {
+                    if (type == NotificationType.INSERTION)
+                        proxy_object.notify_insert (time_range, events);
+                    else
+                        proxy_object.notify_delete (time_range, event_ids);
+                }
             }
+            private SList<QueuedNotification> queued_notifications;
 
             public Monitor (BusName peer, string object_path,
                 TimeRange tr, GenericArray<Event> templates)
             {
-                queued_notifications = new SList<NotificationData> ();
+                queued_notifications = new SList<QueuedNotification> ();
                 Bus.get_proxy<RemoteMonitor> (BusType.SESSION, peer,
                     object_path, DBusProxyFlags.DO_NOT_LOAD_PROPERTIES |
                     DBusProxyFlags.DO_NOT_CONNECT_SIGNALS,
@@ -125,20 +134,11 @@ namespace Zeitgeist
                         }
 
                         // Process queued notifications...
-                        foreach (unowned NotificationData data in queued_notifications)
+                        queued_notifications.reverse ();
+                        foreach (unowned QueuedNotification notification
+                            in queued_notifications)
                         {
-                            if (data is InsertionData)
-                            {
-                                proxy_object.notify_insert (data.time_range,
-                                    ((InsertionData) data).events);
-                            }
-                            else if (data is DeletionData)
-                            {
-                                proxy_object.notify_delete (data.time_range,
-                                    ((DeletionData) data).event_ids);
-                            }
-                            else
-                                assert_not_reached ();
+                            notification.send (proxy_object);
                         }
                         queued_notifications = null;
                     });
@@ -194,8 +194,8 @@ namespace Zeitgeist
                         {
                             debug ("Queueing notification about %d insertions",
                                 matching_events.length);
-                            queued_notifications.append (
-                                new InsertionData (time_v, events_v));
+                            queued_notifications.prepend (
+                                new QueuedNotification.insertion (time_v, events_v));
                         }
                     }
                 }
@@ -214,8 +214,8 @@ namespace Zeitgeist
                     }
                     else
                     {
-                        queued_notifications.append (
-                            new DeletionData (time_v, event_ids));
+                        queued_notifications.prepend (
+                            new QueuedNotification.deletion (time_v, event_ids));
                     }
                 }
             }
