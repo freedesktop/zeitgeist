@@ -47,7 +47,7 @@ public class DbReader : Object
 
     public DbReader () throws EngineError
     {
-        Object (database: new Zeitgeist.SQLite.Database ());
+        Object (database: new Zeitgeist.SQLite.Database.read_only ());
     }
 
     construct

@@ -42,15 +42,15 @@ public class Engine : DbReader
     public Engine () throws EngineError
     {
         Object (database: new Zeitgeist.SQLite.Database ());
+
+        // TODO: take care of this if we decide to subclass Engine
+        last_id = database.get_last_id ();
+        extension_collection = new ExtensionCollection (this);
     }
 
     construct
     {
-        database.set_deletion_callback (delete_from_cache);
-        last_id = database.get_last_id ();
-
         extension_store = new ExtensionStore (this);
-        extension_collection = new ExtensionCollection (this);
     }
 
     public string[] get_extension_names ()
@@ -342,24 +342,6 @@ public class Engine : DbReader
             return database.database.last_insert_rowid ();
         }
         return 0;
-    }
-
-    private void delete_from_cache (string table, int64 rowid)
-    {
-        TableLookup table_lookup;
-
-        if (table == "interpretation")
-            table_lookup = interpretations_table;
-        else if (table == "manifestation")
-            table_lookup = manifestations_table;
-        else if (table == "mimetype")
-            table_lookup = mimetypes_table;
-        else if (table == "actor")
-            table_lookup = actors_table;
-        else
-            return;
-
-        table_lookup.remove((int) rowid);
     }
 
 }
