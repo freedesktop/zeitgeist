@@ -36,19 +36,19 @@ SRC_FILES = \
 	$(NULL)
 
 marshalling-test: marshalling-test.vala $(SRC_FILES)
-	$(VALAC) $(VALAFLAGS) -o $@ $^
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
 query-operators-test: query-operators-test.vala $(SRC_FILES)
-	$(VALAC) $(VALAFLAGS) -o $@ $^
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
 where-clause-test: where-clause-test.vala $(SRC_FILES)
-	$(VALAC) $(VALAFLAGS) -o $@ $^
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
 table-lookup-test: table-lookup-test.vala $(SRC_FILES)
-	$(VALAC) $(VALAFLAGS) -o $@ $^
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
 mimetype-test: mimetype-test.vala $(SRC_FILES)
-	$(VALAC) $(VALAFLAGS) -o $@ $^
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
 clean-local:
 	rm -f *.~[0-9]~
@@ -69,4 +69,8 @@ EXTRA_DIST = \
 	mimetype-test.vala \
 	assertions.vapi \
 	$(NULL)
+
+VALA_V = $(VALA_V_$(V))
+VALA_V_ = $(VALA_V_$(AM_DEFAULT_VERBOSITY))
+VALA_V_0 = @echo "  VALAC " $@;
 
