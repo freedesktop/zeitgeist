@@ -106,7 +106,7 @@ namespace Zeitgeist
             "dav", "davs", "ftp", "http", "https", "mailto",
             "sftp", "smb", "ssh" };
 
-        private Zeitgeist.SQLite.ZeitgeistDatabase database;
+        private Zeitgeist.SQLite.Database database;
         private unowned Sqlite.Database db;
         private uint registration_id;
 

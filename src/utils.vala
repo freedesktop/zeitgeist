@@ -127,6 +127,50 @@ namespace Zeitgeist
             File dbfile = File.new_for_path (get_database_file_path ());
             dbfile.set_display_name (get_database_file_retire_name ());
         }
+
+        /**
+         * Check if the value starts with the negation operator. If it does,
+         * remove the operator from the value and return true. Otherwise,
+         * return false.
+         */
+        public static bool parse_negation (ref string val)
+        {
+            if (!val.has_prefix ("!"))
+                return false;
+            val = val.substring (1);
+            return true;
+        }
+
+        /**
+         * Check if the value starts with the noexpand operator. If it does,
+         * remove the operator from the value and return true. Otherwise,
+         * return false.
+         *
+         * Check for the negation operator before calling this function.
+         */
+        public static bool parse_noexpand (ref string val)
+        {
+            if (!val.has_prefix ("+"))
+                return false;
+            val = val.substring (1);
+            return true;
+        }
+
+
+        /**
+         * Check if the value ends with the wildcard character. If it does,
+         * remove the wildcard character from the value and return true.
+         * Otherwise, return false.
+         */
+        public static bool parse_wildcard (ref string val)
+        {
+            if (!val.has_suffix ("*"))
+                return false;
+            unowned uint8[] val_data = val.data;
+            val_data[val_data.length-1] = '\0';
+            return true;
+        }
+
     }
 }
 

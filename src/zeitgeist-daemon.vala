@@ -458,7 +458,7 @@ namespace Zeitgeist
                     var lm = LogLevelFlags.LEVEL_MESSAGE;
                     var lw = LogLevelFlags.LEVEL_WARNING;
                     var lc = LogLevelFlags.LEVEL_CRITICAL;
-                    switch (log_level)
+                    switch (log_level.up ())
                     {
                         case "DEBUG":
                             discarded = 0;

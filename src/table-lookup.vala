@@ -34,7 +34,7 @@ namespace Zeitgeist.SQLite
         private HashTable<string, int> value_to_id;
         private Sqlite.Statement insertion_stmt;
 
-        public TableLookup (ZeitgeistDatabase database, string table_name)
+        public TableLookup (Database database, string table_name)
         {
             db = database.database;
             table = table_name;
