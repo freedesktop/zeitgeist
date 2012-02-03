@@ -63,6 +63,7 @@ BUILT_SOURCES = \
 
 zeitgeist-internal.stamp: $(libzeitgeist_internal_la_VALASOURCES)
 	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) -C -H zeitgeist-internal.h --library zeitgeist-internal $^
+	@touch "$@"
 
 zeitgeist-fts_vala.stamp: $(zeitgeist_fts_VALASOURCES)
 	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) \
