@@ -1,4 +1,4 @@
-SUBDIRS = fts-python
+SUBDIRS = fts-python fts++
 
 NULL =
 

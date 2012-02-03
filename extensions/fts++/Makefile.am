@@ -1,0 +1,87 @@
+NULL = 
+
+noinst_LTLIBRARIES = libzeitgeist-internal.la
+bin_PROGRAMS = zeitgeist-fts
+
+AM_CPPFLAGS = \
+	$(ZEITGEIST_CFLAGS) \
+	-include $(CONFIG_HEADER) \
+	-w \
+	$(NULL)
+
+AM_VALAFLAGS = \
+	--target-glib=2.26 \
+	--pkg gio-2.0 \
+	--pkg sqlite3 \
+	--pkg posix \
+	--pkg gmodule-2.0 \
+	$(top_srcdir)/config.vapi \
+	$(NULL)
+
+libzeitgeist_internal_la_VALASOURCES = \
+	datamodel.vala \
+	db-reader.vala \
+	sql.vala \
+	utils.vala \
+	errors.vala \
+	table-lookup.vala \
+	sql-schema.vala \
+	where-clause.vala \
+	ontology.vala \
+	ontology-uris.vala \
+	mimetype.vala \
+	$(NULL)
+
+libzeitgeist_internal_la_SOURCES = \
+	zeitgeist-internal.stamp \
+	$(libzeitgeist_internal_la_VALASOURCES:.vala=.c) \
+	$(NULL)
+
+libzeitgeist_internal_la_LIBADD = \
+	$(ZEITGEIST_LIBS) \
+	$(NULL)
+
+zeitgeist_fts_VALASOURCES = \
+	zeitgeist-fts.vala \
+	$(NULL)
+
+zeitgeist_fts_SOURCES = \
+	zeitgeist-fts_vala.stamp \
+	$(zeitgeist_fts_VALASOURCES:.vala=.c) \
+	indexer.cpp \
+	$(NULL)
+
+zeitgeist_fts_LDADD = \
+	$(builddir)/libzeitgeist-internal.la \
+	-lxapian \
+	$(NULL)
+
+BUILT_SOURCES = \
+	zeitgeist-internal.stamp \
+	zeitgeist-fts_vala.stamp \
+	$(NULL)
+
+zeitgeist-internal.stamp: $(libzeitgeist_internal_la_VALASOURCES)
+	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) -C -H zeitgeist-internal.h --library zeitgeist-internal $^
+
+zeitgeist-fts_vala.stamp: $(zeitgeist_fts_VALASOURCES)
+	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) \
+	$(srcdir)/zeitgeist-internal.vapi $(srcdir)/indexer.vapi -C $^
+	@touch "$@"
+
+EXTRA_DIST = \
+	$(libzeitgeist_internal_la_VALASOURCES) \
+	$(zeitgeist_fts_VALASOURCES) \
+	zeitgeist-fts_vala.stamp \
+	$(NULL)
+
+DISTCLEANFILES = \
+	$(NULL)
+
+distclean-local:
+	rm -f *.c *.o *.stamp *.~[0-9]~
+
+VALA_V = $(VALA_V_$(V))
+VALA_V_ = $(VALA_V_$(AM_DEFAULT_VERBOSITY))
+VALA_V_0 = @echo "  VALAC " $^;
+

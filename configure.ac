@@ -8,6 +8,7 @@ AM_PATH_PYTHON
 
 AC_PROG_CC
 AM_PROG_CC_C_O
+AC_PROG_CXX
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
@@ -60,6 +61,7 @@ AC_CONFIG_FILES([
 	src/Makefile
 	extensions/Makefile
 	extensions/fts-python/Makefile
+	extensions/fts++/Makefile
 	data/Makefile
 	data/ontology/Makefile
 	python/Makefile
