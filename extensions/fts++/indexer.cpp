@@ -20,6 +20,7 @@
 #include "indexer.h"
 #include <xapian.h>
 #include <queue>
+#include <vector>
 
 #define FILTER_PREFIX_EVENT_INTERPRETATION "ZGEI"
 #define FILTER_PREFIX_EVENT_MANIFESTATION "ZGEM"
@@ -35,7 +36,12 @@
 #define VALUE_EVENT_ID 0
 #define VALUE_TIMESTAMP 1
 
-#define FTS_MAIN_DIR "ftspp.index"
+#define QUERY_PARSER_FLAGS \
+  Xapian::QueryParser::FLAG_PHRASE | Xapian::QueryParser::FLAG_BOOLEAN | \
+  Xapian::QueryParser::FLAG_PURE_NOT | Xapian::QueryParser::FLAG_LOVEHATE | \
+  Xapian::QueryParser::FLAG_WILDCARD
+
+#define FTS_MAIN_DIR "fts.index"
 #define INDEX_VERSION "1"
 
 #define MAX_TERM_LENGTH 245
@@ -103,6 +109,14 @@ struct _ZeitgeistIndexer
 
   void IndexEvent (ZeitgeistEvent *event);
   void DeleteEvent (guint32 event_id);
+
+  GPtrArray* Search (const gchar *search_string,
+                     ZeitgeistTimeRange *time_range,
+                     GPtrArray *templates,
+                     guint offset,
+                     guint count,
+                     ZeitgeistResultType result_type,
+                     GError **error);
 };
 
 void ZeitgeistIndexer::Initialize (GError **error)
@@ -290,6 +304,99 @@ void ZeitgeistIndexer::Reindex ()
   g_ptr_array_unref (templates);
 }
 
+GPtrArray* ZeitgeistIndexer::Search (const gchar *search_string,
+                                     ZeitgeistTimeRange *time_range,
+                                     GPtrArray *templates,
+                                     guint offset,
+                                     guint count,
+                                     ZeitgeistResultType result_type,
+                                     GError **error)
+{
+  GPtrArray *results = NULL;
+  std::string query_string(search_string);
+
+  if (templates && templates->len > 0)
+  {
+    // FIXME: query_string = CompileEventFilterQuery (templates);
+  }
+
+  // FIXME: time_range value query
+
+  // FIXME: which result types coalesce?
+  guint maxhits = count * 3;
+
+  if (result_type == 100)
+  {
+    enquire->set_sort_by_relevance ();
+  }
+  else
+  {
+    enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
+  }
+
+  Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
+  enquire->set_query (q);
+  Xapian::MSet hits (enquire->get_mset (offset, maxhits));
+  Xapian::doccount hitcount = hits.get_matches_estimated ();
+
+  if (result_type == 100)
+  {
+    std::vector<unsigned> event_ids;
+    for (Xapian::MSetIterator iter = hits.begin (); iter != hits.end (); ++iter)
+    {
+      Xapian::Document doc(iter.get_document ());
+      double unserialized =
+        Xapian::sortable_unserialise(doc.get_value (VALUE_EVENT_ID));
+      event_ids.push_back (static_cast<unsigned>(unserialized));
+
+      results = zeitgeist_db_reader_get_events (zg_reader,
+                                                &event_ids[0],
+                                                event_ids.size (),
+                                                NULL,
+                                                error);
+    }
+  }
+  else
+  {
+    GPtrArray *event_templates;
+    event_templates = g_ptr_array_new_with_free_func (g_object_unref);
+    for (Xapian::MSetIterator iter = hits.begin (); iter != hits.end (); ++iter)
+    {
+      Xapian::Document doc(iter.get_document ());
+      double unserialized =
+        Xapian::sortable_unserialise(doc.get_value (VALUE_EVENT_ID));
+      // this doesn't need ref sinking, does it?
+      ZeitgeistEvent *event = zeitgeist_event_new ();
+      zeitgeist_event_set_id (event, static_cast<unsigned>(unserialized));
+      g_ptr_array_add (event_templates, event);
+      g_message ("got id: %u", static_cast<unsigned>(unserialized));
+    }
+
+    if (event_templates->len > 0)
+    {
+      ZeitgeistTimeRange *time_range = zeitgeist_time_range_new_anytime ();
+      results = zeitgeist_db_reader_find_events (zg_reader,
+                                                 time_range,
+                                                 event_templates,
+                                                 ZEITGEIST_STORAGE_STATE_ANY,
+                                                 0,
+                                                 result_type,
+                                                 NULL,
+                                                 error);
+
+      g_object_unref (time_range);
+    }
+    else
+    {
+      results = g_ptr_array_new ();
+    }
+
+    g_ptr_array_unref (event_templates);
+  }
+
+  return results;
+}
+
 void ZeitgeistIndexer::IndexEvent (ZeitgeistEvent *event)
 {
   g_message ("Indexing event with ID: %u", zeitgeist_event_get_id (event));
@@ -336,5 +443,24 @@ zeitgeist_indexer_free (ZeitgeistIndexer* indexer)
   g_return_if_fail (indexer != NULL);
 
   delete indexer;
+}
+
+GPtrArray* zeitgeist_indexer_search (ZeitgeistIndexer *indexer,
+                                     const gchar *search_string,
+                                     ZeitgeistTimeRange *time_range,
+                                     GPtrArray *templates,
+                                     guint offset,
+                                     guint count,
+                                     ZeitgeistResultType result_type,
+                                     GError **error)
+{
+  GPtrArray *results;
+  g_return_val_if_fail (indexer != NULL, NULL);
+  g_return_val_if_fail (search_string != NULL, NULL);
+
+  results = indexer->Search (search_string, time_range, 
+                             templates, offset, count, result_type, error);
+
+  return results;
 }
 

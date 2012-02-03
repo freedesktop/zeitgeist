@@ -128,6 +128,14 @@ namespace Zeitgeist
             {
                 instance = new FtsDaemon ();
                 instance.register_dbus_object (connection);
+
+                var r = instance.indexer.search ("gedit",
+                                         new TimeRange.anytime (),
+                                         new GenericArray<Event> (),
+                                         0,
+                                         10,
+                                         ResultType.MOST_RECENT_EVENTS);
+                message ("found %d events", r.length);
             }
             catch (Error err)
             {

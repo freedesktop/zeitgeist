@@ -29,4 +29,13 @@ ZeitgeistIndexer*     zeitgeist_indexer_new        (ZeitgeistDbReader* reader,
 
 void                  zeitgeist_indexer_free       (ZeitgeistIndexer* indexer);
 
+GPtrArray*            zeitgeist_indexer_search     (ZeitgeistIndexer *indexer,
+                                                    const gchar *search_string,
+                                                    ZeitgeistTimeRange *time_range,
+                                                    GPtrArray *templates,
+                                                    guint offset,
+                                                    guint count,
+                                                    ZeitgeistResultType result_type,
+                                                    GError **error);
+
 G_END_DECLS
