@@ -61,8 +61,13 @@ void Controller::RebuildIndex ()
   {
     g_debug ("reader returned %u events", events->len);
 
-    // FIXME: Break down index tasks into suitable chunks
-    PushTask (new IndexEventsTask (events));
+    // Break down index tasks into suitable chunks
+    for (unsigned i = 0; i < events->len; i += 32)
+    {
+      PushTask (new IndexEventsTask (g_ptr_array_ref (events), i, 32));
+    }
+
+    g_ptr_array_unref (events);
   }
 
   g_object_unref (time_range);
@@ -91,9 +96,13 @@ gboolean Controller::ProcessTask ()
   delete task;
 
   bool all_done = queued_tasks.empty ();
-  if (all_done) processing_source_id = 0;
+  if (all_done)
+  {
+    processing_source_id = 0;
+    return FALSE;
+  }
 
-  return all_done ? FALSE : TRUE;
+  return TRUE;
 }
 
 }

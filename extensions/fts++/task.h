@@ -35,6 +35,7 @@ namespace ZeitgeistFTS {
 class Task
 {
 public:
+  virtual ~Task () {}
   virtual void Process (Indexer *indexer) = 0;
 };
 
@@ -44,7 +45,10 @@ public:
   void Process (Indexer *indexer);
 
   IndexEventsTask (GPtrArray *event_arr)
-    : events (event_arr) {}
+    : events (event_arr), start_index (0), event_count (event_arr->len) {}
+
+  IndexEventsTask (GPtrArray *event_arr, unsigned index, unsigned count)
+    : events (event_arr), start_index (index), event_count (count) {}
 
   virtual ~IndexEventsTask ()
   {
@@ -53,6 +57,8 @@ public:
 
 private:
   GPtrArray *events;
+  unsigned start_index;
+  unsigned event_count;
 };
 
 }
