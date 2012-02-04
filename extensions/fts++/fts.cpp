@@ -71,6 +71,7 @@ GPtrArray* zeitgeist_indexer_search (ZeitgeistIndexer *indexer,
 
   g_return_val_if_fail (indexer != NULL, NULL);
   g_return_val_if_fail (search_string != NULL, NULL);
+  g_return_val_if_fail (ZEITGEIST_IS_TIME_RANGE (time_range), NULL);
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
   _indexer = (ZeitgeistFTS::Controller*) indexer;

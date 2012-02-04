@@ -151,6 +151,7 @@ void Indexer::DropIndex ()
                                       FTS_MAIN_DIR.c_str (), NULL);
       this->db = new Xapian::WritableDatabase (path,
                                                Xapian::DB_CREATE_OR_OVERWRITE);
+      // FIXME: leaks on error
       g_free (path);
     }
 
@@ -162,6 +163,120 @@ void Indexer::DropIndex ()
     g_error ("Error ocurred during database reindex: %s",
              xp_error.get_msg ().c_str ());
   }
+}
+
+std::string Indexer::ExpandType (std::string const& prefix,
+                                 const gchar* unparsed_uri)
+{
+  gchar* uri = g_strdup (unparsed_uri);
+  gboolean is_negation = zeitgeist_utils_parse_negation (&uri);
+  gboolean noexpand = zeitgeist_utils_parse_noexpand (&uri);
+
+  std::string result;
+  GList *symbols = NULL;
+  symbols = g_list_append (symbols, uri);
+  if (!noexpand)
+  {
+    GList *children = zeitgeist_symbol_get_all_children (uri);
+    symbols = g_list_concat (symbols, children);
+  }
+
+  for (GList *iter = symbols; iter != NULL; iter = iter->next)
+  {
+    result += prefix + std::string((gchar*) iter->data);
+    if (iter->next != NULL) result += " OR ";
+  }
+
+  g_list_free (symbols);
+  g_free (uri);
+
+  if (is_negation) result = "NOT (" + result + ")";
+
+  return result;
+}
+
+std::string Indexer::CompileEventFilterQuery (GPtrArray *templates)
+{
+  std::vector<std::string> query;
+
+  for (unsigned i = 0; i < templates->len; i++)
+  {
+    const gchar* val;
+    std::vector<std::string> tmpl;
+    ZeitgeistEvent *event = (ZeitgeistEvent*) g_ptr_array_index (templates, i);
+
+    val = zeitgeist_event_get_interpretation (event);
+    if (val && g_strcmp0 (val, "") != 0)
+      tmpl.push_back (ExpandType ("zgei:", val));
+
+    val = zeitgeist_event_get_manifestation (event);
+    if (val && g_strcmp0 (val, "") != 0)
+      tmpl.push_back (ExpandType ("zgem:", val));
+
+    val = zeitgeist_event_get_actor (event);
+    if (val && g_strcmp0 (val, "") != 0)
+      tmpl.push_back (""); // FIXME: mangle_uri
+
+    GPtrArray *subjects = zeitgeist_event_get_subjects (event);
+    for (unsigned j = 0; j < subjects->len; j++)
+    {
+      ZeitgeistSubject *subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, j);
+      val = zeitgeist_subject_get_uri (subject);
+      if (val && g_strcmp0 (val, "") != 0)
+        tmpl.push_back (""); // FIXME: mangle_uri
+
+      val = zeitgeist_subject_get_interpretation (subject);
+      if (val && g_strcmp0 (val, "") != 0)
+        tmpl.push_back (ExpandType ("zgsi:", val));
+
+      val = zeitgeist_subject_get_manifestation (subject);
+      if (val && g_strcmp0 (val, "") != 0)
+        tmpl.push_back (ExpandType ("zgsm:", val));
+
+      val = zeitgeist_subject_get_origin (subject);
+      if (val && g_strcmp0 (val, "") != 0)
+        tmpl.push_back (""); // FIXME: mangle
+
+      val = zeitgeist_subject_get_mimetype (subject);
+      if (val && g_strcmp0 (val, "") != 0)
+        tmpl.push_back (std::string ("zgst:") + val);
+
+      val = zeitgeist_subject_get_storage (subject);
+      if (val && g_strcmp0 (val, "") != 0)
+        tmpl.push_back (std::string ("zgss:") + val);
+    }
+
+    if (tmpl.size () == 0) continue;
+
+    std::string event_query ("(");
+    for (int i = 0; i < tmpl.size (); i++)
+    {
+      event_query += tmpl[i];
+      if (i < tmpl.size () - 1) event_query += ") AND (";
+    }
+    query.push_back (event_query + ")");
+  }
+
+  if (query.size () == 0) return std::string ("");
+
+  std::string result;
+  for (int i = 0; i < query.size (); i++)
+  {
+    result += query[i];
+    if (i < query.size () - 1) result += " OR ";
+  }
+  return result;
+}
+
+std::string Indexer::CompileTimeRangeFilterQuery (gint64 start, gint64 end)
+{
+  // let's use gprinting to be safe
+  gchar *q = g_strdup_printf ("%" G_GINT64_FORMAT "..%" G_GINT64_FORMAT "ms",
+                              start, end);
+  std::string query (q);
+  g_free (q);
+
+  return query;
 }
 
 GPtrArray* Indexer::Search (const gchar *search_string,
@@ -177,10 +292,21 @@ GPtrArray* Indexer::Search (const gchar *search_string,
 
   if (templates && templates->len > 0)
   {
-    // FIXME: query_string = CompileEventFilterQuery (templates);
+    std::string filters (CompileEventFilterQuery (templates));
+    query_string = "(" + query_string + ") AND (" + filters + ")";
   }
 
-  // FIXME: time_range value query
+  if (time_range)
+  {
+    gint64 start_time = zeitgeist_time_range_get_start (time_range);
+    gint64 end_time = zeitgeist_time_range_get_end (time_range);
+
+    if (start_time > 0 || end_time < G_MAXINT64)
+    {
+      std::string time_filter (CompileTimeRangeFilterQuery (start_time, end_time));
+      query_string = "(" + query_string + ") AND (" + time_filter + ")";
+    }
+  }
 
   // FIXME: which result types coalesce?
   guint maxhits = count * 3;
@@ -194,6 +320,7 @@ GPtrArray* Indexer::Search (const gchar *search_string,
     enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
   }
 
+  g_message ("query: %s", query_string.c_str ());
   Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
   enquire->set_query (q);
   Xapian::MSet hits (enquire->get_mset (offset, maxhits));
@@ -208,13 +335,13 @@ GPtrArray* Indexer::Search (const gchar *search_string,
       double unserialized =
         Xapian::sortable_unserialise(doc.get_value (VALUE_EVENT_ID));
       event_ids.push_back (static_cast<unsigned>(unserialized));
-
-      results = zeitgeist_db_reader_get_events (zg_reader,
-                                                &event_ids[0],
-                                                event_ids.size (),
-                                                NULL,
-                                                error);
     }
+
+    results = zeitgeist_db_reader_get_events (zg_reader,
+                                              &event_ids[0],
+                                              event_ids.size (),
+                                              NULL,
+                                              error);
   }
   else
   {

@@ -50,6 +50,10 @@ public:
   bool CheckIndex ();
   void DropIndex ();
 
+  std::string ExpandType (std::string const& prefix, const gchar* unparsed_uri);
+  std::string CompileEventFilterQuery (GPtrArray *templates);
+  std::string CompileTimeRangeFilterQuery (gint64 start, gint64 end);
+
   void IndexEvent (ZeitgeistEvent *event);
   void DeleteEvent (guint32 event_id);
 

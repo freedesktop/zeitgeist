@@ -129,9 +129,18 @@ namespace Zeitgeist
                 instance = new FtsDaemon ();
                 instance.register_dbus_object (connection);
 
+                // FIXME: just a test, remove!
+                var event = new Event ();
+                var subject = new Subject ();
+                subject.interpretation = NFO.DOCUMENT;
+                event.add_subject (subject);
+                var arr = new GenericArray<Event> ();
+                arr.add (event);
+                var tr = new TimeRange.to_now ();
+
                 var r = instance.indexer.search ("gedit",
-                                         new TimeRange.anytime (),
-                                         new GenericArray<Event> (),
+                                         tr,
+                                         arr,
                                          0,
                                          10,
                                          ResultType.MOST_RECENT_EVENTS);
