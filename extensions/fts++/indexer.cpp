@@ -24,29 +24,29 @@
 
 namespace ZeitgeistFTS {
 
-#define FILTER_PREFIX_EVENT_INTERPRETATION "ZGEI"
-#define FILTER_PREFIX_EVENT_MANIFESTATION "ZGEM"
-#define FILTER_PREFIX_ACTOR "ZGA"
-#define FILTER_PREFIX_SUBJECT_URI "ZGSU"
-#define FILTER_PREFIX_SUBJECT_INTERPRETATION "ZGSI"
-#define FILTER_PREFIX_SUBJECT_MANIFESTATION "ZGSM"
-#define FILTER_PREFIX_SUBJECT_ORIGIN "ZGSO"
-#define FILTER_PREFIX_SUBJECT_MIMETYPE "ZGST"
-#define FILTER_PREFIX_SUBJECT_STORAGE "ZGSS"
-#define FILTER_PREFIX_XDG_CATEGORY "AC"
+const std::string FILTER_PREFIX_EVENT_INTERPRETATION = "ZGEI";
+const std::string FILTER_PREFIX_EVENT_MANIFESTATION = "ZGEM";
+const std::string FILTER_PREFIX_ACTOR = "ZGA";
+const std::string FILTER_PREFIX_SUBJECT_URI = "ZGSU";
+const std::string FILTER_PREFIX_SUBJECT_INTERPRETATION = "ZGSI";
+const std::string FILTER_PREFIX_SUBJECT_MANIFESTATION = "ZGSM";
+const std::string FILTER_PREFIX_SUBJECT_ORIGIN = "ZGSO";
+const std::string FILTER_PREFIX_SUBJECT_MIMETYPE = "ZGST";
+const std::string FILTER_PREFIX_SUBJECT_STORAGE = "ZGSS";
+const std::string FILTER_PREFIX_XDG_CATEGORY = "AC";
 
-#define VALUE_EVENT_ID 0
-#define VALUE_TIMESTAMP 1
+const Xapian::valueno VALUE_EVENT_ID = 0;
+const Xapian::valueno VALUE_TIMESTAMP = 1;
 
 #define QUERY_PARSER_FLAGS \
   Xapian::QueryParser::FLAG_PHRASE | Xapian::QueryParser::FLAG_BOOLEAN | \
   Xapian::QueryParser::FLAG_PURE_NOT | Xapian::QueryParser::FLAG_LOVEHATE | \
   Xapian::QueryParser::FLAG_WILDCARD
 
-#define FTS_MAIN_DIR "fts.index"
-#define INDEX_VERSION "1"
+const std::string FTS_MAIN_DIR = "fts.index";
+const std::string INDEX_VERSION = "1";
 
-#define MAX_TERM_LENGTH 245
+const int MAX_TERM_LENGTH = 245;
 
 void Indexer::Initialize (GError **error)
 {
@@ -60,7 +60,7 @@ void Indexer::Initialize (GError **error)
     else
     {
       gchar *path = g_build_filename (zeitgeist_utils_get_data_path (),
-                                      FTS_MAIN_DIR, NULL);
+                                      FTS_MAIN_DIR.c_str (), NULL);
       this->db = new Xapian::WritableDatabase (path,
                                                Xapian::DB_CREATE_OR_OPEN);
       g_free (path);
@@ -150,7 +150,7 @@ void Indexer::DropIndex ()
     else
     {
       gchar *path = g_build_filename (zeitgeist_utils_get_data_path (),
-                                      FTS_MAIN_DIR, NULL);
+                                      FTS_MAIN_DIR.c_str (), NULL);
       this->db = new Xapian::WritableDatabase (path,
                                                Xapian::DB_CREATE_OR_OVERWRITE);
       g_free (path);
