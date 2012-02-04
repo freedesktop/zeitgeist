@@ -46,8 +46,6 @@ const Xapian::valueno VALUE_TIMESTAMP = 1;
 const std::string FTS_MAIN_DIR = "fts.index";
 const std::string INDEX_VERSION = "1";
 
-const int MAX_TERM_LENGTH = 245;
-
 void Indexer::Initialize (GError **error)
 {
   try

@@ -1,3 +1,4 @@
+SUBDIRS = test
 NULL = 
 
 noinst_LTLIBRARIES = libzeitgeist-internal.la
@@ -56,6 +57,8 @@ zeitgeist_fts_SOURCES = \
 	indexer.h \
 	task.cpp \
 	task.h \
+	stringutils.cpp \
+	stringutils.h \
 	$(NULL)
 
 zeitgeist_fts_LDADD = \

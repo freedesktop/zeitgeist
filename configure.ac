@@ -62,6 +62,7 @@ AC_CONFIG_FILES([
 	extensions/Makefile
 	extensions/fts-python/Makefile
 	extensions/fts++/Makefile
+	extensions/fts++/test/Makefile
 	data/Makefile
 	data/ontology/Makefile
 	python/Makefile
