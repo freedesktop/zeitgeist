@@ -620,7 +620,7 @@ public class DbReader : Object
                 where.add ("id=?", template.id.to_string());
 
             // Interpretation
-            if (template.interpretation != "")
+            if (template.interpretation != null && template.interpretation != "")
             {
                 assert_no_wildcard ("interpretation", template.interpretation);
                 WhereClause subwhere = get_where_clause_for_symbol (
@@ -631,7 +631,7 @@ public class DbReader : Object
             }
 
             // Manifestation
-            if (template.manifestation != "")
+            if (template.manifestation != null && template.manifestation != "")
             {
                 assert_no_wildcard ("manifestation", template.interpretation);
                 WhereClause subwhere = get_where_clause_for_symbol (
@@ -642,7 +642,7 @@ public class DbReader : Object
             }
 
             // Actor
-            if (template.actor != "")
+            if (template.actor != null && template.actor != "")
             {
                 string val = template.actor;
                 bool like = parse_wildcard (ref val);
@@ -656,7 +656,7 @@ public class DbReader : Object
             }
 
             // Origin
-            if (template.origin != "")
+            if (template.origin != null && template.origin != "")
             {
                 string val = template.origin;
                 bool like = parse_wildcard (ref val);
@@ -676,7 +676,8 @@ public class DbReader : Object
                 Subject subject_template = template.subjects[i];
 
                 // Subject interpretation
-                if (subject_template.interpretation != "")
+                if (subject_template.interpretation != null &&
+                    subject_template.interpretation != "")
                 {
                     assert_no_wildcard ("subject interpretation",
                         template.interpretation);
@@ -688,7 +689,8 @@ public class DbReader : Object
                 }
 
                 // Subject manifestation
-                if (subject_template.manifestation != "")
+                if (subject_template.manifestation != null &&
+                    subject_template.manifestation != "")
                 {
                     assert_no_wildcard ("subject manifestation",
                         subject_template.manifestation);
@@ -700,7 +702,8 @@ public class DbReader : Object
                 }
 
                 // Mime-Type
-                if (subject_template.mimetype != "")
+                if (subject_template.mimetype != null &&
+                    subject_template.mimetype != "")
                 {
                     string val = subject_template.mimetype;
                     bool like = parse_wildcard (ref val);
@@ -716,7 +719,8 @@ public class DbReader : Object
                 }
 
                 // URI
-                if (subject_template.uri != "")
+                if (subject_template.uri != null &&
+                    subject_template.uri != "")
                 {
                     string val = subject_template.uri;
                     bool like = parse_wildcard (ref val);
@@ -730,7 +734,8 @@ public class DbReader : Object
                 }
 
                 // Origin
-                if (subject_template.origin != "")
+                if (subject_template.origin != null &&
+                    subject_template.origin != "")
                 {
                     string val = subject_template.origin;
                     bool like = parse_wildcard (ref val);
@@ -746,7 +751,8 @@ public class DbReader : Object
                 }
 
                 // Text
-                if (subject_template.text != "")
+                if (subject_template.text != null &&
+                    subject_template.text != "")
                 {
                     // Negation, noexpand and prefix search aren't supported
                     // for subject texts, but "!", "+" and "*" are valid as
@@ -756,7 +762,8 @@ public class DbReader : Object
                 }
 
                 // Current URI
-                if (subject_template.current_uri != "")
+                if (subject_template.current_uri != null &&
+                    subject_template.current_uri != "")
                 {
                     string val = subject_template.current_uri;
                     bool like = parse_wildcard (ref val);
@@ -772,7 +779,8 @@ public class DbReader : Object
                 }
 
                 // Subject storage
-                if (subject_template.storage != "")
+                if (subject_template.storage != null &&
+                    subject_template.storage != "")
                 {
                     string val = subject_template.storage;
                     assert_no_negation ("subject storage", val);
