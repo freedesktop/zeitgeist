@@ -17,25 +17,58 @@
  *
  */
 
-#include <glib.h>
+#ifndef _ZGFTS_INDEXER_H_
+#define _ZGFTS_INDEXER_H_
+
+#include <glib-object.h>
+#include <xapian.h>
+
 #include "zeitgeist-internal.h"
 
-typedef struct _ZeitgeistIndexer ZeitgeistIndexer;
+namespace ZeitgeistFTS {
 
-G_BEGIN_DECLS
+class Indexer
+{
+public:
+  Indexer (ZeitgeistDbReader *reader)
+    : zg_reader (reader)
+    , db (NULL)
+    , query_parser (NULL)
+    , enquire (NULL)
+    , tokenizer (NULL)
+  { }
 
-ZeitgeistIndexer*     zeitgeist_indexer_new        (ZeitgeistDbReader* reader,
-                                                    GError **error);
+  ~Indexer ()
+  {
+    if (tokenizer) delete tokenizer;
+    if (enquire) delete enquire;
+    if (query_parser) delete query_parser;
+    if (db) delete db;
+  }
 
-void                  zeitgeist_indexer_free       (ZeitgeistIndexer* indexer);
+  void Initialize (GError **error);
+  bool CheckIndex ();
+  void DropIndex ();
 
-GPtrArray*            zeitgeist_indexer_search     (ZeitgeistIndexer *indexer,
-                                                    const gchar *search_string,
-                                                    ZeitgeistTimeRange *time_range,
-                                                    GPtrArray *templates,
-                                                    guint offset,
-                                                    guint count,
-                                                    ZeitgeistResultType result_type,
-                                                    GError **error);
+  void IndexEvent (ZeitgeistEvent *event);
+  void DeleteEvent (guint32 event_id);
 
-G_END_DECLS
+  GPtrArray* Search (const gchar *search_string,
+                     ZeitgeistTimeRange *time_range,
+                     GPtrArray *templates,
+                     guint offset,
+                     guint count,
+                     ZeitgeistResultType result_type,
+                     GError **error);
+
+private:
+  ZeitgeistDbReader       *zg_reader;
+  Xapian::Database        *db;
+  Xapian::QueryParser     *query_parser;
+  Xapian::Enquire         *enquire;
+  Xapian::TermGenerator   *tokenizer;
+};
+
+}
+
+#endif /* _ZGFTS_INDEXER_H_ */

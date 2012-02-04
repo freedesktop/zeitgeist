@@ -2,7 +2,7 @@
 
 namespace Zeitgeist {
   [Compact]
-  [CCode (free_function = "zeitgeist_indexer_free", cheader_filename = "indexer.h")]
+  [CCode (free_function = "zeitgeist_indexer_free", cheader_filename = "fts.h")]
   public class Indexer {
     public Indexer (DbReader reader) throws EngineError;
 

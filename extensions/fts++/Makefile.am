@@ -48,7 +48,14 @@ zeitgeist_fts_VALASOURCES = \
 zeitgeist_fts_SOURCES = \
 	zeitgeist-fts_vala.stamp \
 	$(zeitgeist_fts_VALASOURCES:.vala=.c) \
+	controller.cpp \
+	controller.h \
+	fts.cpp \
+	fts.h \
 	indexer.cpp \
+	indexer.h \
+	task.cpp \
+	task.h \
 	$(NULL)
 
 zeitgeist_fts_LDADD = \
@@ -67,7 +74,7 @@ zeitgeist-internal.stamp: $(libzeitgeist_internal_la_VALASOURCES)
 
 zeitgeist-fts_vala.stamp: $(zeitgeist_fts_VALASOURCES)
 	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) \
-	$(srcdir)/zeitgeist-internal.vapi $(srcdir)/indexer.vapi -C $^
+	$(srcdir)/zeitgeist-internal.vapi $(srcdir)/fts.vapi -C $^
 	@touch "$@"
 
 EXTRA_DIST = \
