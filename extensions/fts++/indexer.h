@@ -50,10 +50,6 @@ public:
   bool CheckIndex ();
   void DropIndex ();
 
-  std::string ExpandType (std::string const& prefix, const gchar* unparsed_uri);
-  std::string CompileEventFilterQuery (GPtrArray *templates);
-  std::string CompileTimeRangeFilterQuery (gint64 start, gint64 end);
-
   void IndexEvent (ZeitgeistEvent *event);
   void DeleteEvent (guint32 event_id);
 
@@ -67,6 +63,10 @@ public:
                      GError **error);
 
 private:
+  std::string ExpandType (std::string const& prefix, const gchar* unparsed_uri);
+  std::string CompileEventFilterQuery (GPtrArray *templates);
+  std::string CompileTimeRangeFilterQuery (gint64 start, gint64 end);
+
   ZeitgeistDbReader       *zg_reader;
   Xapian::Database        *db;
   Xapian::QueryParser     *query_parser;
