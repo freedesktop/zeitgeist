@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 Canonical Ltd
+ *               2012 Mikkel Kamstrup Erlandsen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by Michal Hruby <michal.hruby@canonical.com>
+ *             Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
  *
  */
 
