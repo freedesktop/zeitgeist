@@ -23,7 +23,7 @@ namespace ZeitgeistFTS {
 
 void IndexEventsTask::Process (Indexer *indexer)
 {
-  unsigned end_index = start_index + event_count;
+  unsigned end_index = MIN (start_index + event_count, events->len);
   for (unsigned i = start_index; i < end_index; i++)
   {
     indexer->IndexEvent ((ZeitgeistEvent*) g_ptr_array_index (events, i));
