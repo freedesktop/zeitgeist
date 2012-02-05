@@ -18,6 +18,7 @@
  */
 
 #include "indexer.h"
+#include "stringutils.h"
 #include <xapian.h>
 #include <queue>
 #include <vector>
@@ -215,7 +216,7 @@ std::string Indexer::CompileEventFilterQuery (GPtrArray *templates)
 
     val = zeitgeist_event_get_actor (event);
     if (val && g_strcmp0 (val, "") != 0)
-      tmpl.push_back (""); // FIXME: mangle_uri
+      tmpl.push_back ("zga:" + StringUtils::MangleUri (val));
 
     GPtrArray *subjects = zeitgeist_event_get_subjects (event);
     for (unsigned j = 0; j < subjects->len; j++)
@@ -223,7 +224,7 @@ std::string Indexer::CompileEventFilterQuery (GPtrArray *templates)
       ZeitgeistSubject *subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, j);
       val = zeitgeist_subject_get_uri (subject);
       if (val && g_strcmp0 (val, "") != 0)
-        tmpl.push_back (""); // FIXME: mangle_uri
+        tmpl.push_back ("zgsu:" + StringUtils::MangleUri (val));
 
       val = zeitgeist_subject_get_interpretation (subject);
       if (val && g_strcmp0 (val, "") != 0)
@@ -235,7 +236,7 @@ std::string Indexer::CompileEventFilterQuery (GPtrArray *templates)
 
       val = zeitgeist_subject_get_origin (subject);
       if (val && g_strcmp0 (val, "") != 0)
-        tmpl.push_back (""); // FIXME: mangle
+        tmpl.push_back ("zgso:" + StringUtils::MangleUri (val));
 
       val = zeitgeist_subject_get_mimetype (subject);
       if (val && g_strcmp0 (val, "") != 0)
