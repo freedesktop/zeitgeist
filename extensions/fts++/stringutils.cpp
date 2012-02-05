@@ -32,6 +32,10 @@ namespace StringUtils {
  *
  * NOTE: It is assumed the input string is valid UTF-8. Untrusted text
  * should be validated with g_utf8_validate().
+ *
+ * This function useful for working with Xapian terms because Xapian has
+ * a max term length of 245 (which is not very well documented, but see
+ * http://xapian.org/docs/omega/termprefixes.html).
  */
 string Truncate (string const& s, unsigned int nbytes)
 {
