@@ -67,11 +67,11 @@ private:
   std::string CompileEventFilterQuery (GPtrArray *templates);
   std::string CompileTimeRangeFilterQuery (gint64 start, gint64 end);
 
-  ZeitgeistDbReader       *zg_reader;
-  Xapian::Database        *db;
-  Xapian::QueryParser     *query_parser;
-  Xapian::Enquire         *enquire;
-  Xapian::TermGenerator   *tokenizer;
+  ZeitgeistDbReader        *zg_reader;
+  Xapian::WritableDatabase *db;
+  Xapian::QueryParser      *query_parser;
+  Xapian::Enquire          *enquire;
+  Xapian::TermGenerator    *tokenizer;
 };
 
 }

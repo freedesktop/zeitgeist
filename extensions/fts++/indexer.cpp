@@ -396,4 +396,38 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
   g_message ("Indexing event with ID: %u", zeitgeist_event_get_id (event));
 }
 
+void Indexer::DeleteEvent (guint32 event_id)
+{
+  g_message ("Deleting event with ID: %u", event_id);
+
+  try
+  {
+    std::string id = Xapian::sortable_serialise(event_id);
+    Xapian::Query query (Xapian::Query::OP_VALUE_RANGE, VALUE_EVENT_ID, id, id);
+
+    enquire->set_query(query);
+    Xapian::MSet mset = enquire->get_mset(0, 10);
+
+    Xapian::doccount total = mset.get_matches_estimated();
+    if (total > 1)
+      g_warning ("More than one event found with id '%s", id.c_str ());
+    else if (total == 0)
+    {
+      g_warning ("No event for id '%s'", id.c_str ());
+      return;
+    }
+
+    Xapian::MSetIterator i, end;
+    for (i= mset.begin(), end = mset.end(); i != end; i++)
+    {
+      db->delete_document (*i);
+    }
+  }
+  catch (Xapian::Error const& e)
+  {
+    g_warning ("Failed to delete event '%u': %s",
+               event_id, e.get_msg().c_str ());
+  }
+}
+
 } /* namespace */
