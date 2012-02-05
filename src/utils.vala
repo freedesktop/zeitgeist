@@ -171,6 +171,15 @@ namespace Zeitgeist
             return true;
         }
 
+        /**
+         * Return true if a string is empty (null or containing just a null
+         * byte).
+         */
+        public static bool is_empty_string (string? s)
+        {
+            return s == null || s == "";
+        }
+
     }
 }
 
