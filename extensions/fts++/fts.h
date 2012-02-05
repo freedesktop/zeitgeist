@@ -39,6 +39,7 @@ GPtrArray*            zeitgeist_indexer_search     (ZeitgeistIndexer *indexer,
                                                     guint offset,
                                                     guint count,
                                                     ZeitgeistResultType result_type,
+                                                    guint *matches,
                                                     GError **error);
 
 G_END_DECLS

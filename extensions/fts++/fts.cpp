@@ -64,6 +64,7 @@ GPtrArray* zeitgeist_indexer_search (ZeitgeistIndexer *indexer,
                                      guint offset,
                                      guint count,
                                      ZeitgeistResultType result_type,
+                                     guint *matches,
                                      GError **error)
 {
   GPtrArray *results;
@@ -78,7 +79,7 @@ GPtrArray* zeitgeist_indexer_search (ZeitgeistIndexer *indexer,
 
   results = _indexer->indexer->Search (search_string, time_range,
                                        templates, offset, count, result_type,
-                                       error);
+                                       matches, error);
 
   return results;
 }

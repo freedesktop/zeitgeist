@@ -285,6 +285,7 @@ GPtrArray* Indexer::Search (const gchar *search_string,
                             guint offset,
                             guint count,
                             ZeitgeistResultType result_type,
+                            guint *matches,
                             GError **error)
 {
   GPtrArray *results = NULL;
@@ -379,6 +380,11 @@ GPtrArray* Indexer::Search (const gchar *search_string,
     }
 
     g_ptr_array_unref (event_templates);
+  }
+
+  if (matches)
+  {
+    *matches = hitcount;
   }
 
   return results;

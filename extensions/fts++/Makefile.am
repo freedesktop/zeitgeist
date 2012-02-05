@@ -23,6 +23,7 @@ libzeitgeist_internal_la_VALASOURCES = \
 	datamodel.vala \
 	db-reader.vala \
 	sql.vala \
+	remote.vala \
 	utils.vala \
 	errors.vala \
 	table-lookup.vala \

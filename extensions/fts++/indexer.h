@@ -63,6 +63,7 @@ public:
                      guint offset,
                      guint count,
                      ZeitgeistResultType result_type,
+                     guint *matches,
                      GError **error);
 
 private:

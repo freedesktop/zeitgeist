@@ -27,7 +27,7 @@ namespace Zeitgeist
         public abstract bool name_has_owner (string name) throws IOError;
     }
 
-    public class FtsDaemon : Object
+    public class FtsDaemon : Object, RemoteSimpleIndexer, RemoteMonitor
     {
         const string DBUS_NAME = "org.gnome.zeitgeist.Fts";
         const string ZEITGEIST_DBUS_NAME = "org.gnome.zeitgeist.Engine";
@@ -57,7 +57,8 @@ namespace Zeitgeist
         private DbReader engine;
         private Indexer indexer;
 
-        private uint log_register_id;
+        private uint indexer_register_id;
+        private uint monitor_register_id;
         private unowned DBusConnection connection;
 
         public FtsDaemon () throws EngineError
@@ -75,17 +76,54 @@ namespace Zeitgeist
         public void register_dbus_object (DBusConnection conn) throws IOError
         {
             connection = conn;
-            //log_register_id = conn.register_object<RemoteSearcher> (
-            //        "/org/gnome/zeitgeist/index/activity", this);
+            indexer_register_id = conn.register_object<RemoteSimpleIndexer> (
+                    "/org/gnome/zeitgeist/index/activity", this);
+            monitor_register_id = conn.register_object<RemoteMonitor> (
+                    "/org/gnome/zeitgeist/monitor/1", this);
         }
 
         public void unregister_dbus_object ()
         {
-            if (log_register_id != 0)
+            if (indexer_register_id != 0)
             {
-                connection.unregister_object (log_register_id);
-                log_register_id = 0;
+                connection.unregister_object (indexer_register_id);
+                indexer_register_id = 0;
             }
+
+            if (monitor_register_id != 0)
+            {
+                connection.unregister_object (monitor_register_id);
+                monitor_register_id = 0;
+            }
+        }
+
+        public async void notify_insert (Variant time_range, Variant events)
+            throws IOError
+        {
+        }
+
+        public async void notify_delete (Variant time_range, uint32[] event_ids)
+            throws IOError
+        {
+        }
+
+        public async void search (string query_string, Variant time_range,
+                                  Variant filter_templates,
+                                  uint offset, uint count, uint result_type,
+                                  out Variant events, out uint matches)
+            throws Error
+        {
+            var tr = new TimeRange.from_variant (time_range);
+            var templates = Events.from_variant (filter_templates);
+            var results = instance.indexer.search (query_string,
+                                                   tr,
+                                                   templates,
+                                                   offset,
+                                                   count,
+                                                   (ResultType) result_type,
+                                                   out matches);
+
+            events = Events.to_variant (results);
         }
 
         private static void name_acquired_callback (DBusConnection conn)
@@ -143,7 +181,8 @@ namespace Zeitgeist
                                          arr,
                                          0,
                                          10,
-                                         ResultType.MOST_RECENT_EVENTS);
+                                         ResultType.MOST_RECENT_EVENTS,
+                                         null);
                 message ("found %d events", r.length);
             }
             catch (Error err)

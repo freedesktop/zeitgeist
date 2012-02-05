@@ -11,6 +11,7 @@ namespace Zeitgeist {
                                             GLib.GenericArray<Event> templates,
                                             uint offset,
                                             uint count,
-                                            ResultType result_type) throws GLib.Error;
+                                            ResultType result_type,
+                                            out uint matches) throws GLib.Error;
   }
 }
