@@ -70,12 +70,28 @@ test_truncate (Fixture *fix, gconstpointer data)
   g_assert_cmpstr ("åå", ==, StringUtils::Truncate("åå").c_str ());
 }
 
+static void
+test_mangle (Fixture *fix, gconstpointer data)
+{
+  g_assert_cmpstr ("", ==, StringUtils::MangleUri("").c_str ());
+
+  g_assert_cmpstr ("file", ==, StringUtils::MangleUri("file").c_str ());
+  g_assert_cmpstr ("file___", ==, StringUtils::MangleUri("file://").c_str ());
+  g_assert_cmpstr ("http___www.zeitgeist-project.com", ==,
+      StringUtils::MangleUri("http://www.zeitgeist-project.com").c_str ());
+
+  g_assert_cmpstr ("scheme_no_spaces_in_uris", ==,
+      StringUtils::MangleUri("scheme:no spaces in uris").c_str ());
+}
+
 G_BEGIN_DECLS
 
 void test_stringutils_create_suite (void)
 {
   g_test_add ("/Zeitgeist/FTS/StringUtils/Truncate", Fixture, 0,
               setup, test_truncate, teardown);
+  g_test_add ("/Zeitgeist/FTS/StringUtils/MangleUri", Fixture, 0,
+              setup, test_mangle, teardown);
 }
 
 G_END_DECLS

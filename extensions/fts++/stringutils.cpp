@@ -51,6 +51,26 @@ string Truncate (string const& s, unsigned int nbytes)
   return s.substr(0, iter - str);
 }
 
+/**
+ * Converts a URI into an index- and query friendly string. The problem
+ * is that Xapian doesn't handle CAPITAL letters or most non-alphanumeric
+ * symbols in a boolean term when it does prefix matching. The mangled
+ * URIs returned from this function are suitable for boolean prefix searches.
+ *                 
+ * IMPORTANT: This is a 1-way function! You can not convert back.
+ */
+string MangleUri (string const& orig)
+{
+  string s(orig);
+  size_t pos = 0;
+  while ((pos = s.find_first_of (": /", pos)) != string::npos)
+  {
+    s.replace (pos, 1, 1, '_');
+  }
+
+  return s;
+}
+
 } /* namespace StringUtils */
 
 } /* namespace ZeitgeistFTS */

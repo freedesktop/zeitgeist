@@ -1,5 +1,6 @@
 NULL = 
-noinst_PROGRAMS = test-fts
+check_PROGRAMS = test-fts
+TESTS = test-fts
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \

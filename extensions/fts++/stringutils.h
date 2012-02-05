@@ -29,6 +29,8 @@ const unsigned int MAX_TERM_LENGTH = 245;
 std::string Truncate (std::string const& s,
                       unsigned int nbytes = MAX_TERM_LENGTH);
 
+std::string MangleUri (std::string const& orig);
+
 } /* namespace StringUtils */
 
 } /* namespace ZeitgeistFTS */
