@@ -209,15 +209,15 @@ std::string Indexer::CompileEventFilterQuery (GPtrArray *templates)
     ZeitgeistEvent *event = (ZeitgeistEvent*) g_ptr_array_index (templates, i);
 
     val = zeitgeist_event_get_interpretation (event);
-    if (val && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
       tmpl.push_back (ExpandType ("zgei:", val));
 
     val = zeitgeist_event_get_manifestation (event);
-    if (val && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
       tmpl.push_back (ExpandType ("zgem:", val));
 
     val = zeitgeist_event_get_actor (event);
-    if (val && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
       tmpl.push_back ("zga:" + StringUtils::MangleUri (val));
 
     GPtrArray *subjects = zeitgeist_event_get_subjects (event);
@@ -225,27 +225,27 @@ std::string Indexer::CompileEventFilterQuery (GPtrArray *templates)
     {
       ZeitgeistSubject *subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, j);
       val = zeitgeist_subject_get_uri (subject);
-      if (val && g_strcmp0 (val, "") != 0)
+      if (val && val[0] != '\0')
         tmpl.push_back ("zgsu:" + StringUtils::MangleUri (val));
 
       val = zeitgeist_subject_get_interpretation (subject);
-      if (val && g_strcmp0 (val, "") != 0)
+      if (val && val[0] != '\0')
         tmpl.push_back (ExpandType ("zgsi:", val));
 
       val = zeitgeist_subject_get_manifestation (subject);
-      if (val && g_strcmp0 (val, "") != 0)
+      if (val && val[0] != '\0')
         tmpl.push_back (ExpandType ("zgsm:", val));
 
       val = zeitgeist_subject_get_origin (subject);
-      if (val && g_strcmp0 (val, "") != 0)
+      if (val && val[0] != '\0')
         tmpl.push_back ("zgso:" + StringUtils::MangleUri (val));
 
       val = zeitgeist_subject_get_mimetype (subject);
-      if (val && g_strcmp0 (val, "") != 0)
+      if (val && val[0] != '\0')
         tmpl.push_back (std::string ("zgst:") + val);
 
       val = zeitgeist_subject_get_storage (subject);
-      if (val && g_strcmp0 (val, "") != 0)
+      if (val && val[0] != '\0')
         tmpl.push_back (std::string ("zgss:") + val);
     }
 
@@ -291,15 +291,15 @@ void Indexer::AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc)
   const gchar* val;
 
   val = zeitgeist_event_get_interpretation (event);
-  if (val && g_strcmp0 (val, "") != 0)
+  if (val && val[0] != '\0')
     doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_EVENT_INTERPRETATION + val));
 
   val = zeitgeist_event_get_manifestation (event);
-  if (val && g_strcmp0 (val, "") != 0)
+  if (val && val[0] != '\0')
     doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_EVENT_MANIFESTATION + val));
 
   val = zeitgeist_event_get_actor (event);
-  if (val && g_strcmp0 (val, "") != 0)
+  if (val && val[0] != '\0')
     doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_ACTOR + StringUtils::MangleUri (val)));
 
   GPtrArray *subjects = zeitgeist_event_get_subjects (event);
@@ -307,27 +307,27 @@ void Indexer::AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc)
   {
     ZeitgeistSubject *subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, j);
     val = zeitgeist_subject_get_uri (subject);
-    if (val && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
       doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_URI + StringUtils::MangleUri (val)));
 
     val = zeitgeist_subject_get_interpretation (subject);
-    if (val && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
       doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_INTERPRETATION + val));
 
     val = zeitgeist_subject_get_manifestation (subject);
-    if (val && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
       doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_MANIFESTATION + val));
 
     val = zeitgeist_subject_get_origin (subject);
-    if (val && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
       doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_ORIGIN + StringUtils::MangleUri (val)));
 
     val = zeitgeist_subject_get_mimetype (subject);
-    if (val && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
       doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_MIMETYPE + val));
 
     val = zeitgeist_subject_get_storage (subject);
-    if (val && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
       doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_STORAGE + val));
   }
 }
@@ -475,7 +475,7 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
   tokenizer->set_document (doc);
 
   val = zeitgeist_event_get_actor (event);
-  if (val && g_strcmp0 (val, "") != 0)
+  if (val && val[0] != '\0')
   {
     IndexActor (val);
   }
@@ -487,7 +487,7 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
     subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, i);
 
     val = zeitgeist_subject_get_uri (subject);
-    if (val == NULL || g_strcmp0 (val, "") == 0) continue;
+    if (val == NULL || val[0] == '\0') continue;
 
     std::string uri(val);
 
@@ -499,7 +499,7 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
     }
 
     val = zeitgeist_subject_get_text (subject);
-    if (val != NULL && g_strcmp0 (val, "") != 0)
+    if (val && val[0] != '\0')
     {
       IndexText (val);
     }
