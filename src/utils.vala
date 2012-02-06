@@ -60,7 +60,7 @@ namespace Zeitgeist
             return DATA_PATH;
         }
 
-        public unowned string get_default_data_path ()
+        public string get_default_data_path ()
         {
             return Path.build_filename (Environment.get_user_data_dir (),
                 DATA_FOLDER);
