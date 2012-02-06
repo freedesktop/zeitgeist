@@ -48,8 +48,7 @@ namespace Zeitgeist
             if (DATA_PATH != null) return DATA_PATH;
 
             DATA_PATH = Environment.get_variable ("ZEITGEIST_DATA_PATH") ??
-                Path.build_filename (Environment.get_user_data_dir (),
-                    DATA_FOLDER);
+                get_default_data_path ();
 
             if (!FileUtils.test (DATA_PATH, FileTest.IS_DIR))
             {
@@ -59,6 +58,12 @@ namespace Zeitgeist
             debug ("DATA_PATH = %s", DATA_PATH);
 
             return DATA_PATH;
+        }
+
+        public unowned string get_default_data_path ()
+        {
+            return Path.build_filename (Environment.get_user_data_dir (),
+                DATA_FOLDER);
         }
 
         public unowned string get_database_file_path ()

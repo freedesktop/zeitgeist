@@ -96,6 +96,8 @@ namespace Zeitgeist.SQLite
         {
             if (!Utils.using_in_memory_database ())
                 FileUtils.chmod (Utils.get_database_file_path (), 0600);
+            if (Utils.get_data_path () == Utils.get_default_data_path ())
+                FileUtils.chmod (Utils.get_data_path (), 0700);
 
             exec_query (database, "PRAGMA journal_mode = WAL");
             exec_query (database, "PRAGMA locking_mode = NORMAL");
