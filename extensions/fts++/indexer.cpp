@@ -405,6 +405,7 @@ void Indexer::IndexUri (std::string const& uri)
 
 bool Indexer::IndexActor (std::string const& actor)
 {
+  // FIXME: add appinfo caching, we're reading and parsing every time
   GDesktopAppInfo *dai = NULL;
   if (g_path_is_absolute (actor.c_str ()))
   {
