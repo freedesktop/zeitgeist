@@ -109,4 +109,9 @@ gboolean Controller::ProcessTask ()
   return TRUE;
 }
 
+bool Controller::HasPendingTasks ()
+{
+  return !queued_tasks.empty ();
+}
+
 }

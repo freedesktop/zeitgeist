@@ -49,6 +49,7 @@ public:
   void Run ();
   void RebuildIndex ();
   void PushTask (Task* task);
+  bool HasPendingTasks ();
   gboolean ProcessTask ();
 
   Indexer                 *indexer;

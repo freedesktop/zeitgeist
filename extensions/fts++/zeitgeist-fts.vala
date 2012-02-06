@@ -29,7 +29,8 @@ namespace Zeitgeist
 
     public class FtsDaemon : Object, RemoteSimpleIndexer, RemoteMonitor
     {
-        const string DBUS_NAME = "org.gnome.zeitgeist.Fts";
+        //const string DBUS_NAME = "org.gnome.zeitgeist.Fts";
+        const string DBUS_NAME = "org.gnome.zeitgeist.SimpleIndexer";
         const string ZEITGEIST_DBUS_NAME = "org.gnome.zeitgeist.Engine";
         private static bool show_version_info = false;
         private static string log_level = "";
@@ -166,24 +167,6 @@ namespace Zeitgeist
             {
                 instance = new FtsDaemon ();
                 instance.register_dbus_object (connection);
-
-                // FIXME: just a test, remove!
-                var event = new Event ();
-                var subject = new Subject ();
-                subject.interpretation = NFO.DOCUMENT;
-                event.add_subject (subject);
-                var arr = new GenericArray<Event> ();
-                arr.add (event);
-                var tr = new TimeRange.to_now ();
-
-                var r = instance.indexer.search ("gedit",
-                                         tr,
-                                         arr,
-                                         0,
-                                         10,
-                                         ResultType.MOST_RECENT_EVENTS,
-                                         null);
-                message ("found %d events", r.length);
             }
             catch (Error err)
             {
@@ -235,6 +218,8 @@ namespace Zeitgeist
 
         static int main (string[] args)
         {
+            // FIXME: the cat process xapian spawns won't like this and we
+            // can freeze if it dies
             Posix.signal (Posix.SIGHUP, safe_exit);
             Posix.signal (Posix.SIGINT, safe_exit);
             Posix.signal (Posix.SIGTERM, safe_exit);
