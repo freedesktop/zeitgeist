@@ -282,6 +282,71 @@ std::string Indexer::CompileTimeRangeFilterQuery (gint64 start, gint64 end)
   return query;
 }
 
+/**
+ * Adds the filtering rules to the doc. Filtering rules will
+ * not affect the relevancy ranking of the event/doc
+ */
+void Indexer::AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc)
+{
+  const gchar* val;
+
+  val = zeitgeist_event_get_interpretation (event);
+  if (val && g_strcmp0 (val, "") != 0)
+    doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_EVENT_INTERPRETATION + val));
+
+  val = zeitgeist_event_get_manifestation (event);
+  if (val && g_strcmp0 (val, "") != 0)
+    doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_EVENT_MANIFESTATION + val));
+
+  val = zeitgeist_event_get_actor (event);
+  if (val && g_strcmp0 (val, "") != 0)
+    doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_ACTOR + StringUtils::MangleUri (val)));
+
+  GPtrArray *subjects = zeitgeist_event_get_subjects (event);
+  for (unsigned j = 0; j < subjects->len; j++)
+  {
+    ZeitgeistSubject *subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, j);
+    val = zeitgeist_subject_get_uri (subject);
+    if (val && g_strcmp0 (val, "") != 0)
+      doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_URI + StringUtils::MangleUri (val)));
+
+    val = zeitgeist_subject_get_interpretation (subject);
+    if (val && g_strcmp0 (val, "") != 0)
+      doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_INTERPRETATION + val));
+
+    val = zeitgeist_subject_get_manifestation (subject);
+    if (val && g_strcmp0 (val, "") != 0)
+      doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_MANIFESTATION + val));
+
+    val = zeitgeist_subject_get_origin (subject);
+    if (val && g_strcmp0 (val, "") != 0)
+      doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_ORIGIN + StringUtils::MangleUri (val)));
+
+    val = zeitgeist_subject_get_mimetype (subject);
+    if (val && g_strcmp0 (val, "") != 0)
+      doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_MIMETYPE + val));
+
+    val = zeitgeist_subject_get_storage (subject);
+    if (val && g_strcmp0 (val, "") != 0)
+      doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_STORAGE + val));
+  }
+}
+
+void Indexer::IndexText (std::string const& text)
+{
+  tokenizer->index_text (text, 5);
+}
+
+void Indexer::IndexUri (std::string const& uri)
+{
+  // FIXME!
+}
+
+bool Indexer::IndexActor (std::string const& actor)
+{
+  // FIXME!
+}
+
 GPtrArray* Indexer::Search (const gchar *search_string,
                             ZeitgeistTimeRange *time_range,
                             GPtrArray *templates,
@@ -395,7 +460,92 @@ GPtrArray* Indexer::Search (const gchar *search_string,
 
 void Indexer::IndexEvent (ZeitgeistEvent *event)
 {
-  g_message ("Indexing event with ID: %u", zeitgeist_event_get_id (event));
+  const gchar *val;
+  guint event_id = zeitgeist_event_get_id (event);
+  g_return_if_fail (event_id > 0);
+
+  g_debug ("Indexing event with ID: %u", event_id);
+
+  Xapian::Document doc;
+  doc.add_value (VALUE_EVENT_ID,
+                 Xapian::sortable_serialise (static_cast<double>(event_id)));
+  doc.add_value (VALUE_TIMESTAMP,
+                 Xapian::sortable_serialise (static_cast<double>(zeitgeist_event_get_timestamp (event))));
+
+  tokenizer->set_document (doc);
+
+  val = zeitgeist_event_get_actor (event);
+  if (val && g_strcmp0 (val, "") != 0)
+  {
+    IndexActor (val);
+  }
+
+  GPtrArray *subjects = zeitgeist_event_get_subjects (event);
+  for (unsigned i = 0; i < subjects->len; i++)
+  {
+    ZeitgeistSubject *subject;
+    subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, i);
+
+    val = zeitgeist_subject_get_uri (subject);
+    if (val == NULL || g_strcmp0 (val, "") == 0) continue;
+
+    std::string uri(val);
+
+    if (uri.length () > 512)
+    {
+      g_warning ("URI too long (%lu). Discarding:\n%s",
+                 uri.length (), uri.substr (0, 32).c_str ());
+      return; // FIXME: ignore this event completely.. really?
+    }
+
+    val = zeitgeist_subject_get_text (subject);
+    if (val != NULL && g_strcmp0 (val, "") != 0)
+    {
+      IndexText (val);
+    }
+
+    if (uri.compare (0, 14, "application://") == 0)
+    {
+      if (!IndexActor (uri))
+        IndexUri (uri);
+    }
+    else
+    {
+      IndexUri (uri);
+    }
+  }
+
+  AddDocFilters (event, doc);
+
+  this->db->add_document (doc);
+}
+
+void Indexer::DeleteEvent (guint32 event_id)
+{
+  std::string id(Xapian::sortable_serialise (static_cast<double>(event_id)));
+
+  Xapian::Query query (Xapian::Query::OP_VALUE_RANGE, VALUE_EVENT_ID, id, id);
+  enquire->set_query (query);
+  Xapian::MSet hits (enquire->get_mset (0, 10));
+
+  Xapian::doccount hitcount = hits.get_matches_estimated ();
+
+  if (hitcount > 1)
+  {
+    g_warning ("More than one event found with id %u", event_id);
+  }
+  else if (hitcount <= 0)
+  {
+    g_debug ("No event for id %u", event_id);
+  }
+
+  for (Xapian::MSetIterator iter = hits.begin (); iter != hits.end (); ++iter)
+  {
+    Xapian::Document doc (iter.get_document ());
+    Xapian::docid doc_id (doc.get_docid ());
+    g_debug ("Deleting event '%u' with docid '%u'", event_id, doc_id);
+    this->db->delete_document (doc_id);
+  }
 }
 
 void Indexer::DeleteEvent (guint32 event_id)

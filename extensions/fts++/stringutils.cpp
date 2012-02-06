@@ -70,6 +70,7 @@ string MangleUri (string const& orig)
   while ((pos = s.find_first_of (": /", pos)) != string::npos)
   {
     s.replace (pos, 1, 1, '_');
+    pos++;
   }
 
   return s;

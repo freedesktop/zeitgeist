@@ -67,6 +67,11 @@ private:
   std::string CompileEventFilterQuery (GPtrArray *templates);
   std::string CompileTimeRangeFilterQuery (gint64 start, gint64 end);
 
+  void AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc);
+  void IndexText (std::string const& text);
+  void IndexUri (std::string const& uri);
+  bool IndexActor (std::string const& actor);
+
   ZeitgeistDbReader        *zg_reader;
   Xapian::WritableDatabase *db;
   Xapian::QueryParser      *query_parser;
