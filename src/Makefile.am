@@ -31,6 +31,7 @@ extensions_VALASOURCES = \
 zeitgeist_daemon_VALASOURCES = \
 	zeitgeist-daemon.vala \
 	datamodel.vala \
+	db-reader.vala \
 	engine.vala \
 	remote.vala \
 	extension.vala \

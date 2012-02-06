@@ -114,12 +114,13 @@ namespace Zeitgeist
     [DBus (name = "org.gnome.zeitgeist.Index")]
     public interface RemoteSimpleIndexer : Object
     {
-        [DBus (signature = "a(asaasay)u")]
-        public abstract async Variant search (
+        public abstract async void search (
             string query_string,
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
-            uint offset, uint count, uint result_type) throws Error;
+            uint offset, uint count, uint result_type,
+            [DBus (signature = "a(asaasay)")] out Variant events,
+            out uint matches) throws Error;
     }
     
     /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */

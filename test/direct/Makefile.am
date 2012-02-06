@@ -17,6 +17,7 @@ TESTS = \
 	$(NULL)
 
 SRC_FILES = \
+	$(top_srcdir)/src/db-reader.vala \
 	$(top_srcdir)/src/engine.vala \
 	$(top_srcdir)/src/utils.vala \
 	$(top_srcdir)/src/errors.vala \

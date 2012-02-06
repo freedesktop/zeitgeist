@@ -52,7 +52,7 @@ private class PublicEngine : Zeitgeist.Engine
 
 public void basic_test ()
 {
-    ZeitgeistDatabase database = new Zeitgeist.SQLite.ZeitgeistDatabase ();
+    Database database = new Zeitgeist.SQLite.Database ();
     unowned Sqlite.Database db = database.database;
     TableLookup table_lookup = new TableLookup (database, "actor");
 
@@ -71,7 +71,7 @@ public void basic_test ()
 public void engine_test ()
 {
     PublicEngine engine = new PublicEngine ();
-    ZeitgeistDatabase database = engine.database;
+    Database database = engine.database;
     unowned Sqlite.Database db = database.database;
     TableLookup table_lookup = engine.get_actors_table_lookup();
 

@@ -24,13 +24,13 @@ namespace Zeitgeist
     [DBus (name = "org.gnome.zeitgeist.Index")]
     public interface RemoteSearchEngine: Object
     {
-        [DBus (signature = "a(asaasay)u")]
-        public abstract async Variant search (
+        public abstract async void search (
             string query_string,
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
             uint offset, uint count, uint result_type,
-            [DBus (signature = "a(asaasay)")] out Variant events) throws Error;
+            [DBus (signature = "a(asaasay)")] out Variant events,
+            out uint matches) throws Error;
     }
 
     /* Because of a Vala bug we have to define the proxy interface outside of
@@ -39,12 +39,13 @@ namespace Zeitgeist
     [DBus (name = "org.gnome.zeitgeist.SimpleIndexer")]
     public interface RemoteSimpleIndexer : Object
     {
-        [DBus (signature = "a(asaasay)u")]
-        public abstract async Variant search (
+        public abstract async void search (
             string query_string,
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
-            uint offset, uint count, uint result_type) throws Error;
+            uint offset, uint count, uint result_type,
+            [DBus (signature = "a(asaasay)")] out Variant events,
+            out uint matches) throws Error;
     }
     */
 
@@ -103,11 +104,9 @@ namespace Zeitgeist
             }
         }
 
-        /* This whole method is one huge workaround for an issue with Vala
-         * enclosing all out/return parameters in a TUPLE variant */
-        public async Variant search (string query_string, Variant time_range,
+        public async void search (string query_string, Variant time_range,
             Variant filter_templates, uint offset, uint count, uint result_type,
-            out Variant events) throws Error
+            out Variant events, out uint matches) throws Error
         {
             if (siin == null || !(siin is DBusProxy))
             {
@@ -116,26 +115,11 @@ namespace Zeitgeist
                     "Not connected to SimpleIndexer");
             }
             var timer = new Timer ();
-            DBusProxy proxy = (DBusProxy) siin;
-            var b = new VariantBuilder (new VariantType ("(s(xx)a(asaasay)uuu)"));
-            b.add ("s", query_string);
-            b.add_value (time_range);
-            b.add_value (filter_templates);
-            b.add ("u", offset);
-            b.add ("u", count);
-            b.add ("u", result_type);
-            var result = yield proxy.call ("Search", b.end (), 0, -1, null);
-            events = result.get_child_value (0);
-            /* FIXME: this somehow doesn't work :(
-             *   but it's fixable in a similar way as this method's signature
-             *   is done */
-            /*
-            var result = yield siin.search (query_string, time_range,
-                filter_templates, offset, count, result_type);
-            */
-            debug ("Got %u results from indexer (in %f seconds)",
-                (uint) events.n_children (), timer.elapsed ());
-            return result.get_child_value (1);
+            yield siin.search (query_string, time_range, filter_templates,
+                               offset, count, result_type,
+                               out events, out matches);
+            debug ("Got %u[/%u] results from indexer (in %f seconds)",
+                (uint) events.n_children (), matches, timer.elapsed ());
         }
 
     }

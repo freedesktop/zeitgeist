@@ -18,6 +18,8 @@
  *
  */
 
+using Zeitgeist;
+
 int main (string[] args)
 {
 
@@ -45,32 +47,17 @@ int main (string[] args)
 
 private class PublicEngine : Zeitgeist.Engine
 {
-    public bool PUBLIC_parse_negation (ref string val)
-    {
-        return parse_negation (ref val);
-    }
-
 	public void PUBLIC_assert_no_negation (string field, string val)
 		throws Zeitgeist.EngineError
 	{
 		assert_no_negation (field, val);
 	}
 
-    public bool PUBLIC_parse_noexpand (ref string val)
-    {
-        return parse_noexpand (ref val);
-    }
-
 	public void PUBLIC_assert_no_noexpand (string field, string val)
 		throws Zeitgeist.EngineError
 	{
 		assert_no_noexpand (field, val);
 	}
-
-    public bool PUBLIC_parse_wildcard (ref string val)
-    {
-        return parse_wildcard (ref val);
-    }
 
 	public void PUBLIC_assert_no_wildcard (string field, string val)
 		throws Zeitgeist.EngineError
@@ -82,22 +69,21 @@ private class PublicEngine : Zeitgeist.Engine
 
 public void parse_negation_test ()
 {
-    PublicEngine engine = new PublicEngine ();
     string val;
 
     // Test string without a negation
     val = "no negation";
-    assert (engine.PUBLIC_parse_negation (ref val) == false);
+    assert (Utils.parse_negation (ref val) == false);
     assert (val == "no negation");
 
     // Test string with a valid negation
     val = "!negation";
-    assert (engine.PUBLIC_parse_negation (ref val) == true);
+    assert (Utils.parse_negation (ref val) == true);
     assert (val == "negation");
 
     // Test negation character in a meaningless position
     val = "some ! chars";
-    assert (engine.PUBLIC_parse_negation (ref val) == false);
+    assert (Utils.parse_negation (ref val) == false);
     assert (val == "some ! chars");
 }
 
@@ -121,22 +107,21 @@ public void assert_no_negation_test ()
 
 public void parse_noexpand_test ()
 {
-    PublicEngine engine = new PublicEngine ();
     string val;
 
     // Test string without a negation
     val = "no expand";
-    assert (engine.PUBLIC_parse_noexpand (ref val) == false);
+    assert (Utils.parse_noexpand (ref val) == false);
     assert (val == "no expand");
 
     // Test string with a valid noexpand
     val = "+noexpand";
-    assert (engine.PUBLIC_parse_noexpand (ref val) == true);
+    assert (Utils.parse_noexpand (ref val) == true);
     assert (val == "noexpand");
 
     // Test negation character in a meaningless position
     val = "some + chars++";
-    assert (engine.PUBLIC_parse_noexpand (ref val) == false);
+    assert (Utils.parse_noexpand (ref val) == false);
     assert (val == "some + chars++");
 }
 
@@ -160,22 +145,21 @@ public void assert_no_noexpand_test ()
 
 public void parse_wildcard_test ()
 {
-    PublicEngine engine = new PublicEngine ();
     string val;
 
     // Test string without a wildcard
     val = "no wildcard";
-    assert (engine.PUBLIC_parse_wildcard (ref val) == false);
+    assert (Utils.parse_wildcard (ref val) == false);
     assert (val == "no wildcard");
 
     // Test string with a valid wildcard
     val = "yes wildcar*";
-    assert (engine.PUBLIC_parse_wildcard (ref val) == true);
+    assert (Utils.parse_wildcard (ref val) == true);
     assert (val == "yes wildcar");
 
     // Test wildcard character in a meaningless position
     val = "some * chars";
-    assert (engine.PUBLIC_parse_wildcard ( ref val) == false);
+    assert (Utils.parse_wildcard ( ref val) == false);
     assert (val == "some * chars");
 }
 

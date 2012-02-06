@@ -51,8 +51,10 @@ namespace Zeitgeist.SQLite
 
     public delegate void DeletionCallback (string table, int64 rowid);
 
-    public class ZeitgeistDatabase : Object
+    public class Database : Object
     {
+        private const int DEFAULT_OPEN_FLAGS =
+            Sqlite.OPEN_READWRITE | Sqlite.OPEN_CREATE;
 
         public Sqlite.Statement event_insertion_stmt;
         public Sqlite.Statement id_retrieval_stmt;
@@ -64,12 +66,28 @@ namespace Zeitgeist.SQLite
         public Sqlite.Database database;
 
         private DeletionCallback? deletion_callback = null;
+        private bool is_read_only = false;
 
-        public ZeitgeistDatabase () throws EngineError
+        public Database () throws EngineError
         {
             open_database (true);
 
-            prepare_queries ();
+            prepare_read_queries ();
+            prepare_modification_queries ();
+
+            // Register a data change notification callback to look for
+            // deletions, so we can keep the TableLookups up to date.
+            database.update_hook (update_callback);
+        }
+
+        public Database.read_only () throws EngineError
+        {
+            is_read_only = true;
+            open_database (false);
+
+            prepare_read_queries ();
+            // not initializing the modification queries will let us find
+            // issues more easily
 
             // Register a data change notification callback to look for
             // deletions, so we can keep the TableLookups up to date.
@@ -79,9 +97,10 @@ namespace Zeitgeist.SQLite
         private void open_database (bool retry)
             throws EngineError
         {
+            int flags = is_read_only ? Sqlite.OPEN_READONLY : DEFAULT_OPEN_FLAGS;
             int rc = Sqlite.Database.open_v2 (
                 Utils.get_database_file_path (),
-                out database);
+                out database, flags);
             
             if (rc == Sqlite.OK)
             {
@@ -89,7 +108,19 @@ namespace Zeitgeist.SQLite
                 {
                     // Error (like a malformed database) may not be exposed
                     // until we try to operate on the database.
-                    DatabaseSchema.ensure_schema (database);
+                    if (is_read_only)
+                    {
+                        int ver = DatabaseSchema.get_schema_version (database);
+                        if (ver != DatabaseSchema.CORE_SCHEMA_VERSION)
+                        {
+                            throw new EngineError.DATABASE_CANTOPEN (
+                                "Unable to open database");
+                        }
+                    }
+                    else
+                    {
+                        DatabaseSchema.ensure_schema (database);
+                    }
                 }
                 catch (EngineError err)
                 {
@@ -296,7 +327,22 @@ namespace Zeitgeist.SQLite
             }
         }
 
-        private void prepare_queries () throws EngineError
+        private void prepare_read_queries () throws EngineError
+        {
+            int rc;
+            string sql;
+
+            // Event ID retrieval statement
+            sql = """
+                SELECT id FROM event
+                WHERE timestamp=? AND interpretation=? AND
+                    manifestation=? AND actor=?
+                """;
+            rc = database.prepare_v2 (sql, -1, out id_retrieval_stmt);
+            assert_query_success (rc, "Event ID retrieval query error");
+        }
+
+        private void prepare_modification_queries () throws EngineError
         {
             int rc;
             string sql;
@@ -323,15 +369,6 @@ namespace Zeitgeist.SQLite
 
             rc = database.prepare_v2 (sql, -1, out event_insertion_stmt);
             assert_query_success (rc, "Insertion query error");
-
-            // Event ID retrieval statement
-            sql = """
-                SELECT id FROM event
-                WHERE timestamp=? AND interpretation=? AND
-                    manifestation=? AND actor=?
-                """;
-            rc = database.prepare_v2 (sql, -1, out id_retrieval_stmt);
-            assert_query_success (rc, "Event ID retrieval query error");
 
             // Move handling statment
             sql = """

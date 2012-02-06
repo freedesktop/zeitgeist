@@ -268,7 +268,7 @@ namespace Zeitgeist
     {
         var matches = false;
         var parsed = template_property;
-        var is_negated = Engine.parse_negation (ref parsed);
+        var is_negated = Utils.parse_negation (ref parsed);
 
         if (parsed == "")
         {
@@ -283,7 +283,7 @@ namespace Zeitgeist
         {
             matches = true;
         }
-        else if (can_wildcard && Engine.parse_wildcard (ref parsed))
+        else if (can_wildcard && Utils.parse_wildcard (ref parsed))
         {
             if (property.has_prefix (parsed)) matches = true;
         }

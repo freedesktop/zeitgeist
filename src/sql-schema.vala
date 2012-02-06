@@ -70,7 +70,7 @@ namespace Zeitgeist.SQLite
             }
         }
 
-        private static int get_schema_version (Sqlite.Database database)
+        public static int get_schema_version (Sqlite.Database database)
         {
           var sql = "SELECT version FROM schema_version WHERE schema='core'";
           int schema_version = -1;

@@ -25,7 +25,7 @@ namespace Zeitgeist
     public class ExtensionStore : Object
     {
 
-        private Zeitgeist.SQLite.ZeitgeistDatabase database;
+        private Zeitgeist.SQLite.Database database;
         private unowned Sqlite.Database db;
         private Sqlite.Statement storage_stmt;
         private Sqlite.Statement retrieval_stmt;
