@@ -92,7 +92,7 @@ MIMES = {
     "application/rtf": Interpretation.PAGINATED_TEXT_DOCUMENT,
     "image/vnd.djvu": Interpretation.PAGINATED_TEXT_DOCUMENT,
 
-    # Gnome office
+    # GNOME office
     "application/x-abiword": Interpretation.PAGINATED_TEXT_DOCUMENT,
     "application/x-gnucash": Interpretation.SPREADSHEET,
     "application/x-gnumeric": Interpretation.SPREADSHEET,
@@ -190,6 +190,7 @@ MIMES = {
     
     # File systems
     "application/x-cd-image": Interpretation.FILESYSTEM_IMAGE,
+    "inode/directory": Interpretation.FOLDER,
     
 }
 
@@ -222,4 +223,7 @@ SCHEMES = tuple((
     ("ssh://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
     ("sftp://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
     ("ftp://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
+    ("dav://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
+    ("davs://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
+    ("smb://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
 ))
