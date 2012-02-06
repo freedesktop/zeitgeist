@@ -61,6 +61,22 @@ private:
   unsigned event_count;
 };
 
+class MetadataTask : public Task
+{
+public:
+  void Process (Indexer *indexer);
+
+  MetadataTask (std::string const& name, std::string const& val)
+    : key_name (name), value (val) {}
+
+  virtual ~MetadataTask ()
+  {}
+
+private:
+  std::string key_name;
+  std::string value;
+};
+
 }
 
 #endif /* _ZGFTS_TASK_H_ */

@@ -27,6 +27,8 @@
 
 namespace ZeitgeistFTS {
 
+const std::string INDEX_VERSION = "1";
+
 class Indexer
 {
 public:
@@ -49,9 +51,11 @@ public:
   void Initialize (GError **error);
   bool CheckIndex ();
   void DropIndex ();
+  void Flush ();
 
   void IndexEvent (ZeitgeistEvent *event);
   void DeleteEvent (guint32 event_id);
+  void SetDbMetadata (std::string const& key, std::string const& value);
 
   GPtrArray* Search (const gchar *search_string,
                      ZeitgeistTimeRange *time_range,

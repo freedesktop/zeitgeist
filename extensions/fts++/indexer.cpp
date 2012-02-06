@@ -49,8 +49,7 @@ const Xapian::valueno VALUE_TIMESTAMP = 1;
   Xapian::QueryParser::FLAG_PURE_NOT | Xapian::QueryParser::FLAG_LOVEHATE | \
   Xapian::QueryParser::FLAG_WILDCARD
 
-const std::string FTS_MAIN_DIR = "fts.index";
-const std::string INDEX_VERSION = "1";
+const std::string FTS_MAIN_DIR = "ftspp.index";
 
 void Indexer::Initialize (GError **error)
 {
@@ -169,6 +168,11 @@ void Indexer::DropIndex ()
     g_error ("Error ocurred during database reindex: %s",
              xp_error.get_msg ().c_str ());
   }
+}
+
+void Indexer::Flush ()
+{
+  db->flush ();
 }
 
 std::string Indexer::ExpandType (std::string const& prefix,
@@ -343,8 +347,60 @@ void Indexer::IndexText (std::string const& text)
 
 void Indexer::IndexUri (std::string const& uri)
 {
-  // FIXME!
-  
+  GFile *f = g_file_new_for_uri (uri.c_str ());
+
+  gchar *scheme = g_file_get_uri_scheme (f);
+  g_return_if_fail (scheme != NULL);
+
+  std::string scheme_str(scheme);
+  g_free (scheme);
+
+  if (scheme_str == "file")
+  {
+    gchar *pn = g_file_get_parse_name (f);
+    gchar *basename = g_path_get_basename (pn);
+
+    // FIXME: remove unscores, CamelCase and process digits
+    tokenizer->index_text (basename, 5);
+    tokenizer->index_text (basename, 5, "N");
+
+    double weight = 5.0;
+    gchar *dir = g_path_get_dirname (pn);
+    std::string path_component (dir);
+    g_free (dir);
+
+    while (path_component.length () > 2)
+    {
+      gchar *name = g_path_get_basename (path_component.c_str ());
+
+      weight /= 1.5;
+      tokenizer->index_text (name, static_cast<unsigned> (weight));
+
+      dir = g_path_get_dirname (path_component.c_str ());
+      path_component = dir;
+      g_free (dir);
+      g_free (name);
+    }
+
+    g_free (basename);
+    g_free (pn);
+  }
+  else if (scheme_str == "mailto")
+  {
+    // mailto:username@server.com
+    size_t scheme_len = scheme_str.length () + 1;
+    size_t at_pos = uri.find ('@', scheme_len);
+    if (at_pos == std::string::npos) return;
+
+    tokenizer->index_text (uri.substr (scheme_len, at_pos - scheme_len), 5);
+    tokenizer->index_text (uri.substr (at_pos + 1), 1);
+  }
+  else
+  {
+    // FIXME!
+  }
+
+  g_object_unref (f);
 }
 
 bool Indexer::IndexActor (std::string const& actor)
@@ -623,6 +679,11 @@ void Indexer::DeleteEvent (guint32 event_id)
     g_warning ("Failed to delete event '%u': %s",
                event_id, e.get_msg().c_str ());
   }
+}
+
+void Indexer::SetDbMetadata (std::string const& key, std::string const& value)
+{
+  db->set_metadata (key, value);
 }
 
 } /* namespace */

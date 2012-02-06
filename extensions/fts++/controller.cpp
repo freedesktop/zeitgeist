@@ -68,6 +68,9 @@ void Controller::RebuildIndex ()
     }
 
     g_ptr_array_unref (events);
+
+    // Set the db metadata key only once we're done
+    PushTask (new MetadataTask ("fts_index_version", INDEX_VERSION));
   }
 
   g_object_unref (time_range);
@@ -98,6 +101,7 @@ gboolean Controller::ProcessTask ()
   bool all_done = queued_tasks.empty ();
   if (all_done)
   {
+    indexer->Flush ();
     processing_source_id = 0;
     return FALSE;
   }

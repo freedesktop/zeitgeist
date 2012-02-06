@@ -30,4 +30,9 @@ void IndexEventsTask::Process (Indexer *indexer)
   }
 }
 
+void MetadataTask::Process (Indexer *indexer)
+{
+  indexer->SetDbMetadata (key_name, value);
+}
+
 }
