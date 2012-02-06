@@ -44,6 +44,16 @@ extensions/*.c
 extensions/*.stamp
 extensions/*.la
 extensions/*.lo
+extensions/fts++/.deps
+extensions/fts++/.libs
+extensions/fts++/*.c
+extensions/fts++/*.stamp
+extensions/fts++/*.la
+extensions/fts++/*.lo
+extensions/fts++/zeitgeist-internal.*
+extensions/fts++/test/.deps
+extensions/fts++/test/.libs
+extensions/fts++/test/test-fts
 test/direct/marshalling
 test/dbus/__pycache__
 test/direct/table-lookup-test
