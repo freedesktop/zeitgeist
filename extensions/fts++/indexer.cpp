@@ -522,39 +522,11 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
 
 void Indexer::DeleteEvent (guint32 event_id)
 {
-  std::string id(Xapian::sortable_serialise (static_cast<double>(event_id)));
-
-  Xapian::Query query (Xapian::Query::OP_VALUE_RANGE, VALUE_EVENT_ID, id, id);
-  enquire->set_query (query);
-  Xapian::MSet hits (enquire->get_mset (0, 10));
-
-  Xapian::doccount hitcount = hits.get_matches_estimated ();
-
-  if (hitcount > 1)
-  {
-    g_warning ("More than one event found with id %u", event_id);
-  }
-  else if (hitcount <= 0)
-  {
-    g_debug ("No event for id %u", event_id);
-  }
-
-  for (Xapian::MSetIterator iter = hits.begin (); iter != hits.end (); ++iter)
-  {
-    Xapian::Document doc (iter.get_document ());
-    Xapian::docid doc_id (doc.get_docid ());
-    g_debug ("Deleting event '%u' with docid '%u'", event_id, doc_id);
-    this->db->delete_document (doc_id);
-  }
-}
-
-void Indexer::DeleteEvent (guint32 event_id)
-{
   g_message ("Deleting event with ID: %u", event_id);
 
   try
   {
-    std::string id = Xapian::sortable_serialise(event_id);
+    std::string id(Xapian::sortable_serialise (static_cast<double>(event_id)));
     Xapian::Query query (Xapian::Query::OP_VALUE_RANGE, VALUE_EVENT_ID, id, id);
 
     enquire->set_query(query);
@@ -562,7 +534,9 @@ void Indexer::DeleteEvent (guint32 event_id)
 
     Xapian::doccount total = mset.get_matches_estimated();
     if (total > 1)
+    {
       g_warning ("More than one event found with id '%s", id.c_str ());
+    }
     else if (total == 0)
     {
       g_warning ("No event for id '%s'", id.c_str ());
