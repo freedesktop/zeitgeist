@@ -66,7 +66,7 @@ namespace Zeitgeist.SQLite
         public Sqlite.Database database;
 
         private DeletionCallback? deletion_callback = null;
-        private bool is_read_only;
+        private bool is_read_only = false;
 
         public Database () throws EngineError
         {
