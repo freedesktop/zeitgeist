@@ -25,6 +25,9 @@
 #include <queue>
 #include <vector>
 
+#include <gio/gio.h>
+#include <gio/gdesktopappinfo.h>
+
 namespace ZeitgeistFTS {
 
 const std::string FILTER_PREFIX_EVENT_INTERPRETATION = "ZGEI";
@@ -334,17 +337,83 @@ void Indexer::AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc)
 
 void Indexer::IndexText (std::string const& text)
 {
+  // FIXME: ascii folding!
   tokenizer->index_text (text, 5);
 }
 
 void Indexer::IndexUri (std::string const& uri)
 {
   // FIXME!
+  
 }
 
 bool Indexer::IndexActor (std::string const& actor)
 {
-  // FIXME!
+  GDesktopAppInfo *dai = NULL;
+  if (g_path_is_absolute (actor.c_str ()))
+  {
+    dai = g_desktop_app_info_new_from_filename (actor.c_str ());
+  }
+  else if (g_str_has_prefix (actor.c_str (), "application://"))
+  {
+    // FIXME: do we need to preprocess the actor uri?
+    dai = g_desktop_app_info_new (actor.substr (14).c_str ());
+  }
+
+  if (dai == NULL)
+  {
+    g_warning ("Unable to get info on %s", actor.c_str ());
+    return false;
+  }
+
+  GAppInfo *ai = (GAppInfo*) dai;
+  const gchar *val;
+  unsigned name_weight = 5;
+  unsigned comment_weight = 2;
+
+  // FIXME: ascii folding somewhere
+
+  val = g_app_info_get_display_name (ai);
+  if (val && val[0] != '\0')
+  {
+    std::string display_name (val);
+    tokenizer->index_text (display_name, name_weight);
+    tokenizer->index_text (display_name, name_weight, "A");
+  }
+
+  val = g_desktop_app_info_get_generic_name (dai);
+  if (val && val[0] != '\0')
+  {
+    std::string generic_name (val);
+    tokenizer->index_text (generic_name, name_weight);
+    tokenizer->index_text (generic_name, name_weight, "A");
+  }
+
+  val = g_app_info_get_description (ai);
+  if (val && val[0] != '\0')
+  {
+    std::string comment (val);
+    tokenizer->index_text (comment, comment_weight);
+    tokenizer->index_text (comment, comment_weight, "A");
+  }
+
+  val = g_desktop_app_info_get_categories (dai);
+  if (val && val[0] != '\0')
+  {
+    gchar **categories = g_strsplit (val, ";", 0);
+    Xapian::Document doc(tokenizer->get_document ());
+    for (gchar **iter = categories; *iter != NULL; ++iter)
+    {
+      // FIXME: what if this isn't ascii? but it should, that's what
+      // the fdo menu spec says
+      gchar *category = g_ascii_strdown (*iter, -1);
+      doc.add_boolean_term (FILTER_PREFIX_XDG_CATEGORY + category);
+      g_free (category);
+    }
+    g_strfreev (categories);
+  }
+
+  return true;
 }
 
 GPtrArray* Indexer::Search (const gchar *search_string,
