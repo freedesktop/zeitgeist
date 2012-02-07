@@ -28,6 +28,7 @@ import sys
 import signal
 import tempfile
 import shutil
+import random
 from subprocess import Popen, PIPE
 
 # DBus setup
@@ -398,7 +399,9 @@ class RemoteTestCase (unittest.TestCase):
 		self.assertEqual(ev1, ev2)
 
 class DBusPrivateMessageBus(object):
-	DISPLAY = ":27"
+	# Choose a random number so it's possible to have more than
+	# one test running at once.
+	DISPLAY = ":%d" % random.randint(20, 100)
 
 	def _run(self):
 		os.environ.update({"DISPLAY": self.DISPLAY})
