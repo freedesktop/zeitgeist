@@ -453,6 +453,9 @@ class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 		engine in a clean way.
 		"""
 		self.client._iface.Quit()
+		self.daemon.wait()
+		self.assertRaises(OSError, self.kill_daemon)
+		self.spawn_daemon()
 
 	def testSIGHUP(self):
 		"""
