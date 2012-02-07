@@ -273,6 +273,10 @@ namespace Zeitgeist
                 {
                     Log.set_handler ("", discarded, () => {});
                 }
+                else
+                {
+                    Environment.set_variable ("G_MESSAGES_DEBUG", "all", true);
+                }
 
                 run ();
             }
