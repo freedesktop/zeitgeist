@@ -40,10 +40,14 @@ SIG_EVENT = "asaasay"
 
 log = logging.getLogger("zeitgeist.client")
 
-# This is here so testutils.py can override it with a private bus connection
+# This is here so testutils.py can override it with a private bus connection.
+# Init needs to be lazy so tests will use the private D-Bus instance.
 global session_bus
-session_bus = dbus.SessionBus()
+session_bus = None
 def get_bus():
+	global session_bus
+	if session_bus is None:
+		session_bus = dbus.SessionBus()
 	return session_bus
 def _set_bus(bus):
 	global session_bus
