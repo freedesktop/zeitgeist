@@ -73,8 +73,8 @@ private:
 
   void AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc);
   void IndexText (std::string const& text);
-  void IndexUri (std::string const& uri);
-  bool IndexActor (std::string const& actor);
+  void IndexUri (std::string const& uri, std::string const& origin);
+  bool IndexActor (std::string const& actor, bool is_subject);
 
   ZeitgeistDbReader        *zg_reader;
   Xapian::WritableDatabase *db;

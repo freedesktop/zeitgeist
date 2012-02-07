@@ -345,7 +345,7 @@ void Indexer::IndexText (std::string const& text)
   tokenizer->index_text (text, 5);
 }
 
-void Indexer::IndexUri (std::string const& uri)
+void Indexer::IndexUri (std::string const& uri, std::string const& origin)
 {
   GFile *f = g_file_new_for_uri (uri.c_str ());
 
@@ -357,6 +357,8 @@ void Indexer::IndexUri (std::string const& uri)
 
   if (scheme_str == "file")
   {
+    // get_parse_name will convert escaped characters to UTF-8, but only for
+    // the "file" scheme, so using it elsewhere won't be of much help
     gchar *pn = g_file_get_parse_name (f);
     gchar *basename = g_path_get_basename (pn);
 
@@ -365,11 +367,13 @@ void Indexer::IndexUri (std::string const& uri)
     tokenizer->index_text (basename, 5, "N");
 
     double weight = 5.0;
+    // this should be equal to origin, but we already got a nice utf-8 display
+    // name, so we'll use that
     gchar *dir = g_path_get_dirname (pn);
     std::string path_component (dir);
     g_free (dir);
 
-    while (path_component.length () > 2)
+    while (path_component.length () > 2) // FIXME: add a limit?
     {
       gchar *name = g_path_get_basename (path_component.c_str ());
 
@@ -395,6 +399,52 @@ void Indexer::IndexUri (std::string const& uri)
     tokenizer->index_text (uri.substr (scheme_len, at_pos - scheme_len), 5);
     tokenizer->index_text (uri.substr (at_pos + 1), 1);
   }
+  else if (scheme_str.compare (0, 4, "http") == 0)
+  {
+    // http / https - we'll index just the basename of the uri (minus query
+    // part) and the hostname/domain
+
+    // step 1) strip query part
+    gchar *basename;
+    size_t question_mark = uri.find ('?');
+    if (question_mark != std::string::npos)
+    {
+      std::string stripped (uri, 0, question_mark - 1);
+      basename = g_path_get_basename (stripped.c_str ());
+    }
+    else
+    {
+      basename = g_file_get_basename (f);
+    }
+
+    // step 2) unescape and check that it's valid utf8
+    gchar *unescaped_basename = g_uri_unescape_string (basename, "");
+    
+    if (g_utf8_validate (unescaped_basename, -1, NULL))
+    {
+      // FIXME: remove unscores, CamelCase and process digits
+      tokenizer->index_text (unescaped_basename, 5);
+      tokenizer->index_text (unescaped_basename, 5, "N");
+    }
+
+    if (!origin.empty ())
+    {
+      size_t hostname_start = origin.find ("://");
+      if (hostname_start != std::string::npos)
+      {
+        std::string hostname (origin, hostname_start + 3);
+        size_t slash_pos = hostname.find ("/");
+        if (slash_pos != std::string::npos) hostname.resize (slash_pos);
+
+        tokenizer->index_text (hostname, 2);
+        tokenizer->index_text (hostname, 2, "N");
+        tokenizer->index_text (hostname, 2, "S");
+      }
+    }
+
+    g_free (unescaped_basename);
+    g_free (basename);
+  }
   else
   {
     // FIXME!
@@ -403,7 +453,7 @@ void Indexer::IndexUri (std::string const& uri)
   g_object_unref (f);
 }
 
-bool Indexer::IndexActor (std::string const& actor)
+bool Indexer::IndexActor (std::string const& actor, bool is_subject)
 {
   // FIXME: add appinfo caching, we're reading and parsing every time
   GDesktopAppInfo *dai = NULL;
@@ -603,7 +653,7 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
   val = zeitgeist_event_get_actor (event);
   if (val && val[0] != '\0')
   {
-    IndexActor (val);
+    IndexActor (val, false);
   }
 
   GPtrArray *subjects = zeitgeist_event_get_subjects (event);
@@ -630,14 +680,17 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
       IndexText (val);
     }
 
+    val = zeitgeist_subject_get_origin (subject);
+    std::string origin (val != NULL ? val : "");
+
     if (uri.compare (0, 14, "application://") == 0)
     {
-      if (!IndexActor (uri))
-        IndexUri (uri);
+      if (!IndexActor (uri, true))
+        IndexUri (uri, origin);
     }
     else
     {
-      IndexUri (uri);
+      IndexUri (uri, origin);
     }
   }
 
