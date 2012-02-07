@@ -512,20 +512,24 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
     tokenizer->index_text (comment, comment_weight, "A");
   }
 
-  val = g_desktop_app_info_get_categories (dai);
-  if (val && val[0] != '\0')
+  // only add category terms for events with application subject uri
+  if (is_subject)
   {
-    gchar **categories = g_strsplit (val, ";", 0);
-    Xapian::Document doc(tokenizer->get_document ());
-    for (gchar **iter = categories; *iter != NULL; ++iter)
+    val = g_desktop_app_info_get_categories (dai);
+    if (val && val[0] != '\0')
     {
-      // FIXME: what if this isn't ascii? but it should, that's what
-      // the fdo menu spec says
-      gchar *category = g_ascii_strdown (*iter, -1);
-      doc.add_boolean_term (FILTER_PREFIX_XDG_CATEGORY + category);
-      g_free (category);
+      gchar **categories = g_strsplit (val, ";", 0);
+      Xapian::Document doc(tokenizer->get_document ());
+      for (gchar **iter = categories; *iter != NULL; ++iter)
+      {
+        // FIXME: what if this isn't ascii? but it should, that's what
+        // the fdo menu spec says
+        gchar *category = g_ascii_strdown (*iter, -1);
+        doc.add_boolean_term (FILTER_PREFIX_XDG_CATEGORY + category);
+        g_free (category);
+      }
+      g_strfreev (categories);
     }
-    g_strfreev (categories);
   }
 
   return true;
