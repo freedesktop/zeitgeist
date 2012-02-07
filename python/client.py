@@ -40,6 +40,15 @@ SIG_EVENT = "asaasay"
 
 log = logging.getLogger("zeitgeist.client")
 
+# This is here so testutils.py can override it with a private bus connection
+global session_bus
+session_bus = dbus.SessionBus()
+def get_bus():
+	return session_bus
+def _set_bus(bus):
+	global session_bus
+	session_bus = bus
+
 class _DBusInterface(object):
 	"""Wrapper around dbus.Interface adding convenience methods."""
 
@@ -68,7 +77,7 @@ class _DBusInterface(object):
 	def reconnect(self):
 		if not self._reconnect_when_needed:
 			return
-		self.__proxy = dbus.SessionBus().get_object(
+		self.__proxy = get_bus().get_object(
 			self.__iface.requested_bus_name, self.__object_path,
 			follow_name_owner_changes=True)
 		self.__iface = dbus.Interface(self.__proxy, self.__interface_name)
@@ -181,7 +190,7 @@ class _DBusInterface(object):
 				callbacks = self._reconnect_callbacks
 			for callback in callbacks:
 				callback()
-		dbus.SessionBus().watch_name_owner(self.__iface.requested_bus_name,
+		get_bus().watch_name_owner(self.__iface.requested_bus_name,
 			name_owner_changed)
 
 class ZeitgeistDBusInterface(object):
@@ -225,7 +234,7 @@ class ZeitgeistDBusInterface(object):
 		if not name in cls.__shared_state["extension_interfaces"]:
 			interface_name = "org.gnome.zeitgeist.%s" % name
 			object_path = "/org/gnome/zeitgeist/%s" % path
-			proxy = dbus.SessionBus().get_object(busname, object_path,
+			proxy = get_bus().get_object(busname, object_path,
 				follow_name_owner_changes=True)
 			iface = _DBusInterface(proxy, interface_name, object_path)
 			iface.BUS_NAME = busname
@@ -237,7 +246,7 @@ class ZeitgeistDBusInterface(object):
 	def __init__(self, reconnect=True):
 		if not "dbus_interface" in self.__shared_state:
 			try:
-				proxy = dbus.SessionBus().get_object(self.BUS_NAME,
+				proxy = get_bus().get_object(self.BUS_NAME,
 					self.OBJECT_PATH, follow_name_owner_changes=True)
 			except dbus.exceptions.DBusException, e:
 				if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
@@ -285,7 +294,7 @@ class Monitor(dbus.service.Object):
 		self._path = monitor_path
 		self._insert_callback = insert_callback
 		self._delete_callback = delete_callback
-		dbus.service.Object.__init__(self, dbus.SessionBus(), monitor_path)
+		dbus.service.Object.__init__(self, get_bus(), monitor_path)
 	
 	def get_path (self): return self._path
 	path = property(get_path,

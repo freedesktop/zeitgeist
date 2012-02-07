@@ -51,15 +51,6 @@ class BlacklistTest(RemoteTestCase):
 			"/org/gnome/zeitgeist/blacklist")
 		self.blacklist = dbus.Interface(obj, "org.gnome.zeitgeist.Blacklist")
 
-		self.dbus_signals = set()
-	
-	def tearDown(self):
-		# Cleanup D-Bus signals
-		for signal in self.dbus_signals:
-			signal.remove()
-
-		super(BlacklistTest, self).tearDown()
-
 	def testClear(self):
 		# Insert a blacklist template
 		self.blacklist.AddTemplate("unicorns",
@@ -151,10 +142,8 @@ class BlacklistTest(RemoteTestCase):
 
 		# Connect to signals
 		if connect_signals:
-			self.dbus_signals.add(
-				self.blacklist.connect('TemplateAdded', cb_added))
-			self.dbus_signals.add(
-				self.blacklist.connect('TemplateRemoved', cb_removed))
+			self.blacklist.connect('TemplateAdded', cb_added)
+			self.blacklist.connect('TemplateRemoved', cb_removed)
 
 		def launch_tests():
 			self.blacklist.AddTemplate("TestTemplate", template1)
