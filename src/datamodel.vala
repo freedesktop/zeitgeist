@@ -288,7 +288,6 @@ namespace Zeitgeist
             if (property.has_prefix (parsed)) matches = true;
         }
 
-        debug ("Checking matches for %s", parsed);
         return (is_negated) ? !matches : matches;
     }
 
@@ -481,8 +480,6 @@ namespace Zeitgeist
             */
 
             //Check if interpretation is child of template_event or same
-            debug("Checking if event %u matches template_event %u\n",
-                this.id, template_event.id);
             if (!check_field_match (this.interpretation, template_event.interpretation, true))
                 return false;
             //Check if manifestation is child of template_event or same
