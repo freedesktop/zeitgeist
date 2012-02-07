@@ -26,11 +26,32 @@ namespace Zeitgeist
     public class MonitorManager : Object
     {
 
+        private static unowned MonitorManager? instance;
+
         private HashTable<string, Monitor> monitors;
         private HashTable<string, GenericArray<string>> connections;
 
+        // ref-counted singleton - it can get destroyed easily, but has
+        // singleton semantics as long as some top-level instance keeps
+        // a reference to it
+        public static MonitorManager get_default ()
+        {
+            return instance ?? new MonitorManager ();
+        }
+
+        private MonitorManager ()
+        {
+        }
+
+        ~MonitorManager ()
+        {
+            instance = null;
+        }
+
         construct
         {
+            instance = this;
+
             monitors = new HashTable<string, Monitor> (str_hash, str_equal);
             connections = new HashTable<string, GenericArray<string>>
                 (str_hash, str_equal);
@@ -53,7 +74,8 @@ namespace Zeitgeist
 
                         foreach (var owner in connections.get_keys())
                         {
-                            if (arg0 == owner)
+                            // Don't disconnect monitors using service names
+                            if (arg0 == owner && g_dbus_is_unique_name (arg0))
                             {
                                 var paths = connections.lookup (arg0);
                                 debug("Client disconnected %s", owner);
@@ -120,30 +142,47 @@ namespace Zeitgeist
             {
                 queued_notifications = new SList<QueuedNotification> ();
                 Bus.get_proxy<RemoteMonitor> (BusType.SESSION, peer,
-                    object_path, DBusProxyFlags.DO_NOT_LOAD_PROPERTIES |
-                    DBusProxyFlags.DO_NOT_CONNECT_SIGNALS,
+                    object_path,
+                    DBusProxyFlags.DO_NOT_LOAD_PROPERTIES
+                    | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS
+                    | DBusProxyFlags.DO_NOT_AUTO_START,
                     null, (obj, res) =>
                     {
                         try
                         {
                             proxy_object = Bus.get_proxy.end (res);
+                            // Process queued notifications...
+                            flush_notifications ();
+
+                            proxy_object.notify["g-name-owner"].connect (name_owner_changed);
                         }
                         catch (IOError err)
                         {
                             warning ("%s", err.message);
                         }
-
-                        // Process queued notifications...
-                        queued_notifications.reverse ();
-                        foreach (unowned QueuedNotification notification
-                            in queued_notifications)
-                        {
-                            notification.send (proxy_object);
-                        }
-                        queued_notifications = null;
                     });
                 time_range = tr;
                 event_templates = templates;
+            }
+
+            private void name_owner_changed ()
+                requires (proxy_object != null)
+            {
+                // FIXME: can we use this to actually remove the monitor?
+                //  (instead of using NameOwnerChanged signal)
+                DBusProxy p = proxy_object as DBusProxy;
+                if (p.g_name_owner != null) flush_notifications ();
+            }
+
+            private void flush_notifications ()
+            {
+                queued_notifications.reverse ();
+                foreach (unowned QueuedNotification notification
+                    in queued_notifications)
+                {
+                    notification.send (proxy_object);
+                }
+                queued_notifications = null;
             }
 
             private bool matches (Event event)
@@ -182,7 +221,14 @@ namespace Zeitgeist
                         // between monitors?
                         Variant events_v = Events.to_variant (matching_events);
 
+                        string? name_owner = null;
                         if (proxy_object != null)
+                        {
+                            DBusProxy p = proxy_object as DBusProxy;
+                            if (p != null) name_owner = p.g_name_owner;
+                        }
+
+                        if (proxy_object != null && name_owner != null)
                         {
                             DBusProxy p = (DBusProxy) proxy_object;
                             debug ("Notifying %s about %d insertions",
@@ -208,7 +254,14 @@ namespace Zeitgeist
                 {
                     Variant time_v = intersect_tr.to_variant ();
 
+                    string? name_owner = null;
                     if (proxy_object != null)
+                    {
+                        DBusProxy p = proxy_object as DBusProxy;
+                        if (p != null) name_owner = p.g_name_owner;
+                    }
+
+                    if (proxy_object != null && name_owner != null)
                     {
                         proxy_object.notify_delete (time_v, event_ids);
                     }

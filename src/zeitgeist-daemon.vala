@@ -122,7 +122,7 @@ namespace Zeitgeist
         public Daemon () throws EngineError
         {
             engine = new Engine ();
-            notifications = new MonitorManager ();
+            notifications = MonitorManager.get_default ();
         }
 
         public Variant get_events (uint32[] event_ids, BusName sender)
