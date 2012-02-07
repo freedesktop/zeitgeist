@@ -61,6 +61,22 @@ private:
   unsigned event_count;
 };
 
+class DeleteEventsTask : public Task
+{
+public:
+  void Process (Indexer *indexer);
+
+  DeleteEventsTask (unsigned *event_ids_arr, int event_ids_arr_size)
+    : event_ids (event_ids_arr, event_ids_arr + event_ids_arr_size) {}
+
+  virtual ~DeleteEventsTask ()
+  {
+  }
+
+private:
+  std::vector<unsigned> event_ids;
+};
+
 class MetadataTask : public Task
 {
 public:

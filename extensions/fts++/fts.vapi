@@ -13,5 +13,11 @@ namespace Zeitgeist {
                                             uint count,
                                             ResultType result_type,
                                             out uint matches) throws GLib.Error;
+
+    public void index_events (GLib.GenericArray<Event> events);
+
+    public void delete_events (uint[] event_ids);
+
+    public bool has_pending_tasks ();
   }
 }

@@ -27,12 +27,12 @@ typedef struct _ZeitgeistIndexer ZeitgeistIndexer;
 
 G_BEGIN_DECLS
 
-ZeitgeistIndexer*     zeitgeist_indexer_new        (ZeitgeistDbReader* reader,
+ZeitgeistIndexer*  zeitgeist_indexer_new           (ZeitgeistDbReader* reader,
                                                     GError **error);
 
-void                  zeitgeist_indexer_free       (ZeitgeistIndexer* indexer);
+void               zeitgeist_indexer_free          (ZeitgeistIndexer* indexer);
 
-GPtrArray*            zeitgeist_indexer_search     (ZeitgeistIndexer *indexer,
+GPtrArray*         zeitgeist_indexer_search        (ZeitgeistIndexer *indexer,
                                                     const gchar *search_string,
                                                     ZeitgeistTimeRange *time_range,
                                                     GPtrArray *templates,
@@ -41,6 +41,15 @@ GPtrArray*            zeitgeist_indexer_search     (ZeitgeistIndexer *indexer,
                                                     ZeitgeistResultType result_type,
                                                     guint *matches,
                                                     GError **error);
+
+void               zeitgeist_indexer_index_events  (ZeitgeistIndexer *indexer,
+                                                    GPtrArray *events);
+
+void               zeitgeist_indexer_delete_events (ZeitgeistIndexer *indexer,
+                                                    guint *event_ids,
+                                                    int event_ids_size);
+
+gboolean           zeitgeist_indexer_has_pending_tasks (ZeitgeistIndexer *indexer);
 
 G_END_DECLS
 

@@ -61,12 +61,7 @@ void Controller::RebuildIndex ()
   {
     g_debug ("reader returned %u events", events->len);
 
-    // Break down index tasks into suitable chunks
-    for (unsigned i = 0; i < events->len; i += 32)
-    {
-      PushTask (new IndexEventsTask (g_ptr_array_ref (events), i, 32));
-    }
-
+    IndexEvents (events);
     g_ptr_array_unref (events);
 
     // Set the db metadata key only once we're done
@@ -75,6 +70,22 @@ void Controller::RebuildIndex ()
 
   g_object_unref (time_range);
   g_ptr_array_unref (templates);
+}
+
+void Controller::IndexEvents (GPtrArray *events)
+{
+  const int CHUNK_SIZE = 32;
+  // Break down index tasks into suitable chunks
+  for (unsigned i = 0; i < events->len; i += CHUNK_SIZE)
+  {
+    PushTask (new IndexEventsTask (g_ptr_array_ref (events), i, CHUNK_SIZE));
+  }
+}
+
+void Controller::DeleteEvents (guint *event_ids, int event_ids_size)
+{
+  // FIXME: Should we break the task here as well?
+  PushTask (new DeleteEventsTask (event_ids, event_ids_size));
 }
 
 void Controller::PushTask (Task* task)
@@ -90,19 +101,26 @@ void Controller::PushTask (Task* task)
 
 gboolean Controller::ProcessTask ()
 {
-  Task *task;
+  if (!queued_tasks.empty ())
+  {
+    Task *task;
 
-  task = queued_tasks.front ();
-  queued_tasks.pop ();
+    task = queued_tasks.front ();
+    queued_tasks.pop ();
 
-  task->Process (indexer);
-  delete task;
+    task->Process (indexer);
+    delete task;
+  }
 
   bool all_done = queued_tasks.empty ();
   if (all_done)
   {
     indexer->Flush ();
-    processing_source_id = 0;
+    if (processing_source_id != 0)
+    {
+      g_source_remove (processing_source_id);
+      processing_source_id = 0;
+    }
     return FALSE;
   }
 

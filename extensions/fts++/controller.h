@@ -48,6 +48,10 @@ public:
   void Initialize (GError **error);
   void Run ();
   void RebuildIndex ();
+
+  void IndexEvents (GPtrArray *events);
+  void DeleteEvents (guint *event_ids, int event_ids_size);
+
   void PushTask (Task* task);
   bool HasPendingTasks ();
   gboolean ProcessTask ();

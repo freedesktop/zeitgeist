@@ -101,13 +101,16 @@ namespace Zeitgeist
         public async void notify_insert (Variant time_range, Variant events)
             throws IOError
         {
-            message ("got insertion notification");
+            debug ("got insertion notification");
+            var events_arr = Events.from_variant (events);
+            indexer.index_events (events_arr);
         }
 
         public async void notify_delete (Variant time_range, uint32[] event_ids)
             throws IOError
         {
-            message ("got deletion notification");
+            debug ("got deletion notification");
+            indexer.delete_events (event_ids);
         }
 
         public async void search (string query_string, Variant time_range,

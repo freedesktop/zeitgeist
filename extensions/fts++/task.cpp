@@ -30,6 +30,14 @@ void IndexEventsTask::Process (Indexer *indexer)
   }
 }
 
+void DeleteEventsTask::Process (Indexer *indexer)
+{
+  for (unsigned i = 0; i < event_ids.size (); i++)
+  {
+    indexer->DeleteEvent (event_ids[i]);
+  }
+}
+
 void MetadataTask::Process (Indexer *indexer)
 {
   indexer->SetDbMetadata (key_name, value);

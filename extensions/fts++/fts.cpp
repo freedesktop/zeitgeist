@@ -84,3 +84,42 @@ GPtrArray* zeitgeist_indexer_search (ZeitgeistIndexer *indexer,
   return results;
 }
 
+void zeitgeist_indexer_index_events (ZeitgeistIndexer *indexer,
+                                     GPtrArray *events)
+{
+  ZeitgeistFTS::Controller *_indexer;
+
+  g_return_if_fail (indexer != NULL);
+  g_return_if_fail (events != NULL);
+
+  _indexer = (ZeitgeistFTS::Controller*) indexer;
+
+  _indexer->IndexEvents (events);
+}
+
+void zeitgeist_indexer_delete_events (ZeitgeistIndexer *indexer,
+                                      guint *event_ids,
+                                      int event_ids_size)
+{
+  ZeitgeistFTS::Controller *_indexer;
+
+  g_return_if_fail (indexer != NULL);
+
+  if (event_ids_size <= 0) return;
+
+  _indexer = (ZeitgeistFTS::Controller*) indexer;
+
+  _indexer->DeleteEvents (event_ids, event_ids_size);
+}
+
+gboolean zeitgeist_indexer_has_pending_tasks (ZeitgeistIndexer *indexer)
+{
+  ZeitgeistFTS::Controller *_indexer;
+
+  g_return_val_if_fail (indexer != NULL, FALSE);
+
+  _indexer = (ZeitgeistFTS::Controller*) indexer;
+
+  return _indexer->HasPendingTasks () ? TRUE : FALSE;
+}
+
