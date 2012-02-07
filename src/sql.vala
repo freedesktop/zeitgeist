@@ -111,7 +111,7 @@ namespace Zeitgeist.SQLite
                     if (is_read_only)
                     {
                         int ver = DatabaseSchema.get_schema_version (database);
-                        if (ver != DatabaseSchema.CORE_SCHEMA_VERSION)
+                        if (ver < DatabaseSchema.CORE_SCHEMA_VERSION)
                         {
                             throw new EngineError.DATABASE_CANTOPEN (
                                 "Unable to open database");
