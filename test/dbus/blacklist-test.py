@@ -110,11 +110,13 @@ class BlacklistTest(RemoteTestCase):
 		newAllTemplates = blacklist.GetTemplates()
 		self.assertEquals(len(newAllTemplates), 0)
 
-	def testBlacklistSignals(self):
+	def testBlacklistSignals(self, mainloop=None, connect_signals=True):
 		self.blacklist = self._get_blacklist_iface()
-		mainloop = self.create_mainloop()
+		if mainloop is None:
+			mainloop = self.create_mainloop()
 
 		template1 = Event.new_for_values(
+			timestamp=0,
 			interpretation=Interpretation.ACCESS_EVENT,
 			subject_uri="http://nothingtoseehere.gov")
 
@@ -124,7 +126,6 @@ class BlacklistTest(RemoteTestCase):
 		@asyncTestMethod(mainloop)
 		def cb_added(template_id, event_template):
 			global hit
-			print "*** cb_added with hit", hit
 			self.assertEquals(hit, 0)
 			hit = 1
 			self.assertEquals(template_id, "TestTemplate")
@@ -140,8 +141,9 @@ class BlacklistTest(RemoteTestCase):
 			mainloop.quit()
 
 		# Connect to signals
-		self.blacklist.connect('TemplateAdded', cb_added)
-		self.blacklist.connect('TemplateRemoved', cb_removed)
+		if connect_signals:
+			self.blacklist.connect('TemplateAdded', cb_added)
+			self.blacklist.connect('TemplateRemoved', cb_removed)
 
 		def launch_tests():
 			self.blacklist.AddTemplate("TestTemplate", template1)
@@ -149,6 +151,17 @@ class BlacklistTest(RemoteTestCase):
 		gobject.idle_add(launch_tests)
 
 		mainloop.run()
+
+	def testBlacklistSignalWithReconnection(self):
+		mainloop = self.create_mainloop()
+		self.testBlacklistSignals(mainloop)
+
+		# Restart the Zeitgeist daemon...
+		self.kill_daemon()
+		self.spawn_daemon()
+
+		# ... and try again without re-connecting to the signals
+		self.testBlacklistSignals(mainloop, connect_signals=False)
 
 if __name__ == "__main__":
 	unittest.main()

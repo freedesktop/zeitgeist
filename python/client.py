@@ -40,6 +40,19 @@ SIG_EVENT = "asaasay"
 
 log = logging.getLogger("zeitgeist.client")
 
+# This is here so testutils.py can override it with a private bus connection.
+# Init needs to be lazy so tests will use the private D-Bus instance.
+global session_bus
+session_bus = None
+def get_bus():
+	global session_bus
+	if session_bus is None:
+		session_bus = dbus.SessionBus()
+	return session_bus
+def _set_bus(bus):
+	global session_bus
+	session_bus = bus
+
 class _DBusInterface(object):
 	"""Wrapper around dbus.Interface adding convenience methods."""
 
@@ -47,7 +60,6 @@ class _DBusInterface(object):
 	# that here because otherwise all instances would share their state.
 	_disconnect_callbacks = None
 	_reconnect_callbacks = None
-	_generic_callbacks = None
 
 	@staticmethod
 	def get_members(introspection_xml):
@@ -69,8 +81,9 @@ class _DBusInterface(object):
 	def reconnect(self):
 		if not self._reconnect_when_needed:
 			return
-		self.__proxy = dbus.SessionBus().get_object(
-			self.__iface.requested_bus_name, self.__object_path)
+		self.__proxy = get_bus().get_object(
+			self.__iface.requested_bus_name, self.__object_path,
+			follow_name_owner_changes=True)
 		self.__iface = dbus.Interface(self.__proxy, self.__interface_name)
 		self._load_introspection_data()
 
@@ -131,8 +144,7 @@ class _DBusInterface(object):
 			self.reconnect()
 		if signal not in self.__signals:
 			raise TypeError("Unknown signal name: %s" % signal)
-		self._generic_callbacks.add((signal, callback))
-		self.__proxy.connect_to_signal(
+		return self.__proxy.connect_to_signal(
 			signal,
 			callback,
 			dbus_interface=self.__interface_name,
@@ -167,29 +179,28 @@ class _DBusInterface(object):
 		self._reconnect_when_needed = reconnect
 		self._load_introspection_data()
 		
+		self._first_connection = True
 		self._disconnect_callbacks = set()
 		self._reconnect_callbacks = set()
-		self._generic_callbacks = set()
 		
 		# Listen to (dis)connection notifications, for connect_exit and connect_join
 		def name_owner_changed(connection_name):
 			if connection_name == "":
-				callbacks = self._disconnect_callbacks
 				self.__methods = self.__signals = None
+				for callback in self._disconnect_callbacks:
+					callback()
+			elif self._first_connection:
+				# python-dbus guarantees that it'll call NameOwnerChanged at startup
+				# (even if the service was already running). When that happens, we
+				# don't want to connect the signals a second time.
+				self._first_connection = False
 			else:
 				if not self._reconnect_when_needed:
 					return
 				self.reconnect()
-				callbacks = self._reconnect_callbacks
-				for signal, callback in self._generic_callbacks:
-					try:
-						self.connect(signal, callback)
-					except TypeError:
-						log.exception("Failed to reconnect to signal \"%s\" "
-							"after engine disconnection." % signal)
-			for callback in callbacks:
-				callback()
-		dbus.SessionBus().watch_name_owner(self.__iface.requested_bus_name,
+				for callback in self._reconnect_callbacks:
+					callback()
+		get_bus().watch_name_owner(self.__iface.requested_bus_name,
 			name_owner_changed)
 
 class ZeitgeistDBusInterface(object):
@@ -233,7 +244,8 @@ class ZeitgeistDBusInterface(object):
 		if not name in cls.__shared_state["extension_interfaces"]:
 			interface_name = "org.gnome.zeitgeist.%s" % name
 			object_path = "/org/gnome/zeitgeist/%s" % path
-			proxy = dbus.SessionBus().get_object(busname, object_path)
+			proxy = get_bus().get_object(busname, object_path,
+				follow_name_owner_changes=True)
 			iface = _DBusInterface(proxy, interface_name, object_path)
 			iface.BUS_NAME = busname
 			iface.INTERFACE_NAME = interface_name
@@ -244,8 +256,8 @@ class ZeitgeistDBusInterface(object):
 	def __init__(self, reconnect=True):
 		if not "dbus_interface" in self.__shared_state:
 			try:
-				proxy = dbus.SessionBus().get_object(self.BUS_NAME,
-					self.OBJECT_PATH)
+				proxy = get_bus().get_object(self.BUS_NAME,
+					self.OBJECT_PATH, follow_name_owner_changes=True)
 			except dbus.exceptions.DBusException, e:
 				if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
 					raise RuntimeError(
@@ -292,7 +304,7 @@ class Monitor(dbus.service.Object):
 		self._path = monitor_path
 		self._insert_callback = insert_callback
 		self._delete_callback = delete_callback
-		dbus.service.Object.__init__(self, dbus.SessionBus(), monitor_path)
+		dbus.service.Object.__init__(self, get_bus(), monitor_path)
 	
 	def get_path (self): return self._path
 	path = property(get_path,

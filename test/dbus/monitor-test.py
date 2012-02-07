@@ -286,5 +286,34 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.assertEquals(1, len(result))
 		self.assertEquals(1, result.pop())
 
+	def testMonitorReconnection(self):
+		result = []
+		mainloop = self.create_mainloop()
+		events = parse_events("test/data/three_events.js")
+		
+		@asyncTestMethod(mainloop)
+		def notify_insert_handler(time_range, events):
+			result.extend(events)
+			mainloop.quit()
+		
+		@asyncTestMethod(mainloop)
+		def notify_delete_handler(time_range, event_ids):
+			mainloop.quit()
+			self.fail("Unexpected delete notification")
+			
+		self.client.install_monitor(TimeRange.always(), [],
+			notify_insert_handler, notify_delete_handler)
+
+		# Restart the Zeitgeist daemon to test automagic monitor re-connection
+		self.kill_daemon()
+		self.spawn_daemon()
+
+		# Insert events in idle loop to give the reconnection logic enough time
+		gobject.idle_add(lambda *args: self.client.insert_events(events))
+
+		mainloop.run()
+		
+		self.assertEquals(3, len(result))
+
 if __name__ == "__main__":
 	unittest.main()

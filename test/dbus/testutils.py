@@ -21,12 +21,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+import dbus
 import os
 import time
 import sys
 import signal
 import tempfile
 import shutil
+import random
 from subprocess import Popen, PIPE
 
 # DBus setup
@@ -36,7 +38,8 @@ DBusGMainLoop(set_as_default=True)
 
 # Import local Zeitgeist modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient
+from zeitgeist.client import ZeitgeistDBusInterface, ZeitgeistClient, \
+	get_bus, _set_bus
 from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, \
 	TimeRange, NULL_EVENT
 
@@ -175,11 +178,18 @@ class RemoteTestCase (unittest.TestCase):
 		
 		# hack to clear the state of the interface
 		ZeitgeistDBusInterface._ZeitgeistDBusInterface__shared_state = {}
+		
+		# Replace the bus connection with a private one for each test case,
+		# so that they don't share signals or other state
+		_set_bus(dbus.SessionBus(private=True))
+		get_bus().set_exit_on_disconnect(False)
+		
 		self.client = ZeitgeistClient()
 	
 	def tearDown(self):
 		assert self.daemon is not None
 		assert self.client is not None
+		get_bus().close()
 		self.kill_daemon()
 		if 'ZEITGEIST_TESTS_KEEP_TMP' in os.environ:
 			print '\n\nAll temporary files have been preserved in %s\n' \
@@ -389,7 +399,9 @@ class RemoteTestCase (unittest.TestCase):
 		self.assertEqual(ev1, ev2)
 
 class DBusPrivateMessageBus(object):
-	DISPLAY = ":27"
+	# Choose a random number so it's possible to have more than
+	# one test running at once.
+	DISPLAY = ":%d" % random.randint(20, 100)
 
 	def _run(self):
 		os.environ.update({"DISPLAY": self.DISPLAY})
