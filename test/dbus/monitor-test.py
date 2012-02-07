@@ -308,7 +308,9 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.kill_daemon()
 		self.spawn_daemon()
 
-		self.client.insert_events(events)
+		# Insert events in idle loop to give the reconnection logic enough time
+		gobject.idle_add(lambda *args: self.client.insert_events(events))
+
 		mainloop.run()
 		
 		self.assertEquals(3, len(result))

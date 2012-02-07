@@ -179,6 +179,7 @@ class _DBusInterface(object):
 		self._reconnect_when_needed = reconnect
 		self._load_introspection_data()
 		
+		self._first_connection = True
 		self._disconnect_callbacks = set()
 		self._reconnect_callbacks = set()
 		
@@ -188,6 +189,11 @@ class _DBusInterface(object):
 				self.__methods = self.__signals = None
 				for callback in self._disconnect_callbacks:
 					callback()
+			elif self._first_connection:
+				# python-dbus guarantees that it'll call NameOwnerChanged at startup
+				# (even if the service was already running). When that happens, we
+				# don't want to connect the signals a second time.
+				self._first_connection = False
 			else:
 				if not self._reconnect_when_needed:
 					return
