@@ -181,15 +181,15 @@ class _DBusInterface(object):
 		# Listen to (dis)connection notifications, for connect_exit and connect_join
 		def name_owner_changed(connection_name):
 			if connection_name == "":
-				callbacks = self._disconnect_callbacks
 				self.__methods = self.__signals = None
+				for callback in self._disconnect_callbacks:
+					callback()
 			else:
 				if not self._reconnect_when_needed:
 					return
 				self.reconnect()
-				callbacks = self._reconnect_callbacks
-			for callback in callbacks:
-				callback()
+				for callback in self._reconnect_callbacks:
+					callback()
 		get_bus().watch_name_owner(self.__iface.requested_bus_name,
 			name_owner_changed)
 
