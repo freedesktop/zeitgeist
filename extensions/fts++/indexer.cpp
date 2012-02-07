@@ -545,102 +545,112 @@ GPtrArray* Indexer::Search (const gchar *search_string,
                             GError **error)
 {
   GPtrArray *results = NULL;
-  std::string query_string(search_string);
-
-  if (templates && templates->len > 0)
+  try
   {
-    std::string filters (CompileEventFilterQuery (templates));
-    query_string = "(" + query_string + ") AND (" + filters + ")";
-  }
+    std::string query_string(search_string);
 
-  if (time_range)
-  {
-    gint64 start_time = zeitgeist_time_range_get_start (time_range);
-    gint64 end_time = zeitgeist_time_range_get_end (time_range);
-
-    if (start_time > 0 || end_time < G_MAXINT64)
+    if (templates && templates->len > 0)
     {
-      std::string time_filter (CompileTimeRangeFilterQuery (start_time, end_time));
-      query_string = "(" + query_string + ") AND (" + time_filter + ")";
-    }
-  }
-
-  // FIXME: which result types coalesce?
-  guint maxhits = count * 3;
-
-  if (result_type == 100)
-  {
-    enquire->set_sort_by_relevance ();
-  }
-  else
-  {
-    enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
-  }
-
-  g_message ("query: %s", query_string.c_str ());
-  Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
-  enquire->set_query (q);
-  Xapian::MSet hits (enquire->get_mset (offset, maxhits));
-  Xapian::doccount hitcount = hits.get_matches_estimated ();
-
-  if (result_type == 100)
-  {
-    std::vector<unsigned> event_ids;
-    for (Xapian::MSetIterator iter = hits.begin (); iter != hits.end (); ++iter)
-    {
-      Xapian::Document doc(iter.get_document ());
-      double unserialized =
-        Xapian::sortable_unserialise(doc.get_value (VALUE_EVENT_ID));
-      event_ids.push_back (static_cast<unsigned>(unserialized));
+      std::string filters (CompileEventFilterQuery (templates));
+      query_string = "(" + query_string + ") AND (" + filters + ")";
     }
 
-    results = zeitgeist_db_reader_get_events (zg_reader,
-                                              &event_ids[0],
-                                              event_ids.size (),
-                                              NULL,
-                                              error);
-  }
-  else
-  {
-    GPtrArray *event_templates;
-    event_templates = g_ptr_array_new_with_free_func (g_object_unref);
-    for (Xapian::MSetIterator iter = hits.begin (); iter != hits.end (); ++iter)
+    if (time_range)
     {
-      Xapian::Document doc(iter.get_document ());
-      double unserialized =
-        Xapian::sortable_unserialise(doc.get_value (VALUE_EVENT_ID));
-      // this doesn't need ref sinking, does it?
-      ZeitgeistEvent *event = zeitgeist_event_new ();
-      zeitgeist_event_set_id (event, static_cast<unsigned>(unserialized));
-      g_ptr_array_add (event_templates, event);
-      g_message ("got id: %u", static_cast<unsigned>(unserialized));
+      gint64 start_time = zeitgeist_time_range_get_start (time_range);
+      gint64 end_time = zeitgeist_time_range_get_end (time_range);
+
+      if (start_time > 0 || end_time < G_MAXINT64)
+      {
+        std::string time_filter (CompileTimeRangeFilterQuery (start_time, end_time));
+        query_string = "(" + query_string + ") AND (" + time_filter + ")";
+      }
     }
 
-    if (event_templates->len > 0)
-    {
-      ZeitgeistTimeRange *time_range = zeitgeist_time_range_new_anytime ();
-      results = zeitgeist_db_reader_find_events (zg_reader,
-                                                 time_range,
-                                                 event_templates,
-                                                 ZEITGEIST_STORAGE_STATE_ANY,
-                                                 0,
-                                                 result_type,
-                                                 NULL,
-                                                 error);
+    // FIXME: which result types coalesce?
+    guint maxhits = count * 3;
 
-      g_object_unref (time_range);
+    if (result_type == 100)
+    {
+      enquire->set_sort_by_relevance ();
     }
     else
     {
-      results = g_ptr_array_new ();
+      enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
     }
 
-    g_ptr_array_unref (event_templates);
-  }
+    g_message ("query: %s", query_string.c_str ());
+    Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
+    enquire->set_query (q);
+    Xapian::MSet hits (enquire->get_mset (offset, maxhits));
+    Xapian::doccount hitcount = hits.get_matches_estimated ();
 
-  if (matches)
+    if (result_type == 100)
+    {
+      std::vector<unsigned> event_ids;
+      for (Xapian::MSetIterator iter = hits.begin (); iter != hits.end (); ++iter)
+      {
+        Xapian::Document doc(iter.get_document ());
+        double unserialized =
+          Xapian::sortable_unserialise(doc.get_value (VALUE_EVENT_ID));
+        event_ids.push_back (static_cast<unsigned>(unserialized));
+      }
+
+      results = zeitgeist_db_reader_get_events (zg_reader,
+                                                &event_ids[0],
+                                                event_ids.size (),
+                                                NULL,
+                                                error);
+    }
+    else
+    {
+      GPtrArray *event_templates;
+      event_templates = g_ptr_array_new_with_free_func (g_object_unref);
+      for (Xapian::MSetIterator iter = hits.begin (); iter != hits.end (); ++iter)
+      {
+        Xapian::Document doc(iter.get_document ());
+        double unserialized =
+          Xapian::sortable_unserialise(doc.get_value (VALUE_EVENT_ID));
+        // this doesn't need ref sinking, does it?
+        ZeitgeistEvent *event = zeitgeist_event_new ();
+        zeitgeist_event_set_id (event, static_cast<unsigned>(unserialized));
+        g_ptr_array_add (event_templates, event);
+      }
+
+      if (event_templates->len > 0)
+      {
+        ZeitgeistTimeRange *time_range = zeitgeist_time_range_new_anytime ();
+        results = zeitgeist_db_reader_find_events (zg_reader,
+                                                   time_range,
+                                                   event_templates,
+                                                   ZEITGEIST_STORAGE_STATE_ANY,
+                                                   0,
+                                                   result_type,
+                                                   NULL,
+                                                   error);
+
+        g_object_unref (time_range);
+      }
+      else
+      {
+        results = g_ptr_array_new ();
+      }
+
+      g_ptr_array_unref (event_templates);
+    }
+
+    if (matches)
+    {
+      *matches = hitcount;
+    }
+  }
+  catch (Xapian::Error const& e)
   {
-    *matches = hitcount;
+    g_warning ("Failed to index event: %s", e.get_msg ().c_str ());
+    g_set_error_literal (error,
+                         ZEITGEIST_ENGINE_ERROR,
+                         ZEITGEIST_ENGINE_ERROR_DATABASE_ERROR,
+                         e.get_msg ().c_str ());
   }
 
   return results;
@@ -648,72 +658,79 @@ GPtrArray* Indexer::Search (const gchar *search_string,
 
 void Indexer::IndexEvent (ZeitgeistEvent *event)
 {
-  const gchar *val;
-  guint event_id = zeitgeist_event_get_id (event);
-  g_return_if_fail (event_id > 0);
-
-  g_debug ("Indexing event with ID: %u", event_id);
-
-  Xapian::Document doc;
-  doc.add_value (VALUE_EVENT_ID,
-                 Xapian::sortable_serialise (static_cast<double>(event_id)));
-  doc.add_value (VALUE_TIMESTAMP,
-                 Xapian::sortable_serialise (static_cast<double>(zeitgeist_event_get_timestamp (event))));
-
-  tokenizer->set_document (doc);
-
-  val = zeitgeist_event_get_actor (event);
-  if (val && val[0] != '\0')
+  try
   {
-    IndexActor (val, false);
-  }
+    const gchar *val;
+    guint event_id = zeitgeist_event_get_id (event);
+    g_return_if_fail (event_id > 0);
 
-  GPtrArray *subjects = zeitgeist_event_get_subjects (event);
-  for (unsigned i = 0; i < subjects->len; i++)
-  {
-    ZeitgeistSubject *subject;
-    subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, i);
+    g_debug ("Indexing event with ID: %u", event_id);
 
-    val = zeitgeist_subject_get_uri (subject);
-    if (val == NULL || val[0] == '\0') continue;
+    Xapian::Document doc;
+    doc.add_value (VALUE_EVENT_ID,
+                   Xapian::sortable_serialise (static_cast<double>(event_id)));
+    doc.add_value (VALUE_TIMESTAMP,
+                   Xapian::sortable_serialise (static_cast<double>(zeitgeist_event_get_timestamp (event))));
 
-    std::string uri(val);
+    tokenizer->set_document (doc);
 
-    if (uri.length () > 512)
-    {
-      g_warning ("URI too long (%lu). Discarding:\n%s",
-                 uri.length (), uri.substr (0, 32).c_str ());
-      return; // FIXME: ignore this event completely.. really?
-    }
-
-    val = zeitgeist_subject_get_text (subject);
+    val = zeitgeist_event_get_actor (event);
     if (val && val[0] != '\0')
     {
-      IndexText (val);
+      IndexActor (val, false);
     }
 
-    val = zeitgeist_subject_get_origin (subject);
-    std::string origin (val != NULL ? val : "");
-
-    if (uri.compare (0, 14, "application://") == 0)
+    GPtrArray *subjects = zeitgeist_event_get_subjects (event);
+    for (unsigned i = 0; i < subjects->len; i++)
     {
-      if (!IndexActor (uri, true))
+      ZeitgeistSubject *subject;
+      subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, i);
+
+      val = zeitgeist_subject_get_uri (subject);
+      if (val == NULL || val[0] == '\0') continue;
+
+      std::string uri(val);
+
+      if (uri.length () > 512)
+      {
+        g_warning ("URI too long (%lu). Discarding:\n%s",
+                   uri.length (), uri.substr (0, 32).c_str ());
+        return; // FIXME: ignore this event completely.. really?
+      }
+
+      val = zeitgeist_subject_get_text (subject);
+      if (val && val[0] != '\0')
+      {
+        IndexText (val);
+      }
+
+      val = zeitgeist_subject_get_origin (subject);
+      std::string origin (val != NULL ? val : "");
+
+      if (uri.compare (0, 14, "application://") == 0)
+      {
+        if (!IndexActor (uri, true))
+          IndexUri (uri, origin);
+      }
+      else
+      {
         IndexUri (uri, origin);
+      }
     }
-    else
-    {
-      IndexUri (uri, origin);
-    }
+
+    AddDocFilters (event, doc);
+
+    this->db->add_document (doc);
   }
-
-  AddDocFilters (event, doc);
-
-  this->db->add_document (doc);
+  catch (Xapian::Error const& e)
+  {
+    g_warning ("Failed to index event: %s", e.get_msg ().c_str ());
+  }
 }
 
 void Indexer::DeleteEvent (guint32 event_id)
 {
-  g_message ("Deleting event with ID: %u", event_id);
+  g_debug ("Deleting event with ID: %u", event_id);
 
   try
   {
