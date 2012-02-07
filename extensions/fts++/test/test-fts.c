@@ -20,6 +20,7 @@
 #include <glib-object.h>
 
 void test_stringutils_create_suite (void);
+void test_indexer_create_suite (void);
 
 gint
 main (gint argc, gchar *argv[])
@@ -29,6 +30,7 @@ main (gint argc, gchar *argv[])
   g_test_init (&argc, &argv, NULL);
 
   test_stringutils_create_suite ();
+  test_indexer_create_suite ();
 
   return g_test_run ();
 }

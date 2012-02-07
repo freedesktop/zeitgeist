@@ -11,12 +11,17 @@ AM_CPPFLAGS = \
 
 test_fts_SOURCES = \
   test-stringutils.cpp \
+  test-indexer.cpp \
   test-fts.c \
   ../stringutils.cpp \
-  ../stringutils.h \
+  ../controller.cpp \
+  ../indexer.cpp \
+  ../task.cpp \
+  ../fts.cpp \
   $(NULL)
 
 test_fts_LDADD = \
   $(builddir)/../libzeitgeist-internal.la \
   -lxapian \
   $(NULL)
+

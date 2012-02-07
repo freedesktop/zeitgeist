@@ -579,7 +579,7 @@ GPtrArray* Indexer::Search (const gchar *search_string,
       enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
     }
 
-    g_message ("query: %s", query_string.c_str ());
+    g_debug ("query: %s", query_string.c_str ());
     Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
     enquire->set_query (q);
     Xapian::MSet hits (enquire->get_mset (offset, maxhits));

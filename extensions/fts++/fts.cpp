@@ -30,7 +30,6 @@ zeitgeist_indexer_new (ZeitgeistDbReader *reader, GError **error)
   g_return_val_if_fail (ZEITGEIST_IS_DB_READER (reader), NULL);
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
-  g_message ("Initializing Indexer...");
   g_setenv ("XAPIAN_CJK_NGRAM", "1", TRUE);
   ctrl = new ZeitgeistFTS::Controller (reader);
 
@@ -121,5 +120,16 @@ gboolean zeitgeist_indexer_has_pending_tasks (ZeitgeistIndexer *indexer)
   _indexer = (ZeitgeistFTS::Controller*) indexer;
 
   return _indexer->HasPendingTasks () ? TRUE : FALSE;
+}
+
+void zeitgeist_indexer_process_task (ZeitgeistIndexer *indexer)
+{
+  ZeitgeistFTS::Controller *_indexer;
+
+  g_return_if_fail (indexer != NULL);
+
+  _indexer = (ZeitgeistFTS::Controller*) indexer;
+
+  _indexer->ProcessTask ();
 }
 

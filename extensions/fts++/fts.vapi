@@ -19,5 +19,7 @@ namespace Zeitgeist {
     public void delete_events (uint[] event_ids);
 
     public bool has_pending_tasks ();
+
+    public void process_task ();
   }
 }

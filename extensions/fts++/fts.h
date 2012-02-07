@@ -51,6 +51,8 @@ void               zeitgeist_indexer_delete_events (ZeitgeistIndexer *indexer,
 
 gboolean           zeitgeist_indexer_has_pending_tasks (ZeitgeistIndexer *indexer);
 
+void               zeitgeist_indexer_process_task  (ZeitgeistIndexer *indexer);
+
 G_END_DECLS
 
 #endif /* _ZGFTS_H_ */
