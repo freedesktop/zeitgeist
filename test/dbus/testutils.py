@@ -146,8 +146,8 @@ class RemoteTestCase (unittest.TestCase):
 				return stderr
 			
 		return RemoteTestCase._safe_start_subprocess(
-			("./src/zeitgeist-daemon", "--no-datahub"), env, timeout, error_callback
-		)
+			("./src/zeitgeist-daemon", "--no-datahub", "--log-level=DEBUG"),
+			env, timeout, error_callback)
 	
 	def __init__(self, methodName):
 		super(RemoteTestCase, self).__init__(methodName)
