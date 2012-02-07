@@ -52,8 +52,11 @@ namespace Zeitgeist
     class SearchEngine: Extension, RemoteSearchEngine
     {
 
+        private const string INDEXER_NAME = "org.gnome.zeitgeist.SimpleIndexer";
+
         private RemoteSimpleIndexer siin;
         private uint registration_id;
+        private MonitorManager? notifier;
 
         SearchEngine ()
         {
@@ -64,6 +67,15 @@ namespace Zeitgeist
         {
             if (Utils.using_in_memory_database ()) return;
 
+            // installing a monitor from the daemon will ensure that we don't
+            // miss any notifications that would be emitted in between
+            // zeitgeist start and fts daemon start
+            notifier = MonitorManager.get_default ();
+            notifier.install_monitor (new BusName (INDEXER_NAME),
+                                      "/org/gnome/zeitgeist/monitor/special",
+                                      new TimeRange.anytime (),
+                                      new GenericArray<Event> ());
+
             try
             {
                 var connection = Bus.get_sync (BusType.SESSION, null);
@@ -73,7 +85,7 @@ namespace Zeitgeist
                 // FIXME: shouldn't we delay this to next idle callback?
                 // Get SimpleIndexer
                 Bus.watch_name_on_connection (connection,
-                    "org.gnome.zeitgeist.SimpleIndexer",
+                    INDEXER_NAME,
                     BusNameWatcherFlags.AUTO_START,
                     (conn) =>
                     {

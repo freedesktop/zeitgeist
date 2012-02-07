@@ -80,7 +80,7 @@ namespace Zeitgeist
             indexer_register_id = conn.register_object<RemoteSimpleIndexer> (
                     "/org/gnome/zeitgeist/index/activity", this);
             monitor_register_id = conn.register_object<RemoteMonitor> (
-                    "/org/gnome/zeitgeist/monitor/1", this);
+                    "/org/gnome/zeitgeist/monitor/special", this);
         }
 
         public void unregister_dbus_object ()
@@ -101,11 +101,13 @@ namespace Zeitgeist
         public async void notify_insert (Variant time_range, Variant events)
             throws IOError
         {
+            message ("got insertion notification");
         }
 
         public async void notify_delete (Variant time_range, uint32[] event_ids)
             throws IOError
         {
+            message ("got deletion notification");
         }
 
         public async void search (string query_string, Variant time_range,
