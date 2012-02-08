@@ -490,7 +490,6 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
   }
   else
   {
-    g_warning ("weird url: %s", uri.c_str ());
     std::string authority, path, query;
     StringUtils::SplitUri (uri, authority, path, query);
 
