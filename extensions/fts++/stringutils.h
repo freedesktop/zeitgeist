@@ -31,6 +31,11 @@ std::string Truncate (std::string const& s,
 
 std::string MangleUri (std::string const& orig);
 
+void SplitUri (std::string const& uri,
+               std::string &host,
+               std::string &path,
+               std::string &basename);
+
 } /* namespace StringUtils */
 
 } /* namespace ZeitgeistFTS */

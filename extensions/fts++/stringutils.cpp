@@ -76,6 +76,52 @@ string MangleUri (string const& orig)
   return s;
 }
 
+/**
+ * This method expects a valid uri and tries to split it into authority,
+ * path and query.
+ *
+ * Note that any and all parts may be left untouched.
+ */
+void SplitUri (string const& uri, string &authority,
+               string &path, string &query)
+{
+  size_t colon_pos = uri.find (':');
+  if (colon_pos == string::npos) return; // not an uri?
+  bool has_double_slash = uri.length () > colon_pos + 2 && 
+    uri.compare (colon_pos + 1, 2, "//") == 0;
+
+  size_t start_pos = has_double_slash ? colon_pos + 3 : colon_pos + 1;
+
+  size_t first_slash = uri.find ('/', start_pos);
+  size_t question_mark_pos = uri.find ('?', first_slash == string::npos ?
+      start_pos : first_slash + 1);
+
+  authority = uri.substr (start_pos);
+  if (first_slash != string::npos)
+  {
+    authority.resize (first_slash - start_pos);
+  }
+  else if (question_mark_pos != string::npos)
+  {
+    authority.resize (question_mark_pos - start_pos);
+  }
+
+  if (first_slash == string::npos)
+  {
+    first_slash = start_pos + authority.length ();
+  }
+
+  if (question_mark_pos != string::npos)
+  {
+    path = uri.substr (first_slash, question_mark_pos - first_slash);
+    query = uri.substr (question_mark_pos + 1);
+  }
+  else
+  {
+    path = uri.substr (first_slash);
+  }
+}
+
 } /* namespace StringUtils */
 
 } /* namespace ZeitgeistFTS */

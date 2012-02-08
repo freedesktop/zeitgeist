@@ -484,9 +484,41 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
     g_free (unescaped_basename);
     g_free (basename);
   }
+  else if (scheme_str == "data")
+  {
+    // we *really* don't want to index anything with this scheme
+  }
   else
   {
-    // FIXME!
+    g_warning ("weird url: %s", uri.c_str ());
+    std::string authority, path, query;
+    StringUtils::SplitUri (uri, authority, path, query);
+
+    if (!path.empty ())
+    {
+      gchar *basename = g_path_get_basename (path.c_str ());
+      gchar *unescaped_basename = g_uri_unescape_string (basename, "");
+
+      if (g_utf8_validate (unescaped_basename, -1, NULL))
+      {
+        std::string capped (StringUtils::Truncate (unescaped_basename, 30));
+        tokenizer->index_text (capped, 5);
+        tokenizer->index_text (capped, 5, "N");
+      }
+
+      // FIXME: rest of the path?
+      g_free (unescaped_basename);
+      g_free (basename);
+    }
+
+    if (!authority.empty ())
+    {
+      std::string capped (StringUtils::Truncate (authority, 30));
+
+      tokenizer->index_text (capped, 2);
+      tokenizer->index_text (capped, 2, "N");
+      tokenizer->index_text (capped, 2, "S");
+    }
   }
 
   g_object_unref (f);
@@ -719,6 +751,7 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
 {
   try
   {
+    // FIXME: we need to special case MOVE_EVENTs
     const gchar *val;
     guint event_id = zeitgeist_event_get_id (event);
     g_return_if_fail (event_id > 0);
@@ -756,7 +789,7 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
       {
         g_warning ("URI too long (%lu). Discarding:\n%s",
                    uri.length (), uri.substr (0, 32).c_str ());
-        return; // FIXME: ignore this event completely.. really?
+        return; // ignore this event completely...
       }
 
       val = zeitgeist_subject_get_text (subject);

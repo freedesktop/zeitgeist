@@ -84,6 +84,84 @@ test_mangle (Fixture *fix, gconstpointer data)
       StringUtils::MangleUri("scheme:no spaces in uris").c_str ());
 }
 
+static void
+test_split (Fixture *fix, gconstpointer data)
+{
+  std::string authority, path, query;
+
+  authority = path = query = "";
+  StringUtils::SplitUri ("", authority, path, query); // doesn't crash
+
+  g_assert_cmpstr ("", ==, authority.c_str ());
+  g_assert_cmpstr ("", ==, path.c_str ());
+  g_assert_cmpstr ("", ==, query.c_str ());
+
+  authority = path = query = "";
+  StringUtils::SplitUri ("scheme:", authority, path, query); // doesn't crash
+
+  g_assert_cmpstr ("", ==, authority.c_str ());
+  g_assert_cmpstr ("", ==, path.c_str ());
+  g_assert_cmpstr ("", ==, query.c_str ());
+
+  authority = path = query = "";
+  StringUtils::SplitUri ("ldap://ldap1.example.net:6666/o=University%20"
+                         "of%20Michigan,c=US??sub?(cn=Babs%20Jensen)",
+                         authority, path, query);
+
+  g_assert_cmpstr ("ldap1.example.net:6666", ==, authority.c_str ());
+  g_assert_cmpstr ("/o=University%20of%20Michigan,c=US", ==, path.c_str ());
+  g_assert_cmpstr ("?sub?(cn=Babs%20Jensen)", ==, query.c_str ());
+
+
+  authority = path = query = "";
+  StringUtils::SplitUri ("mailto:jsmith@example.com",
+                         authority, path, query);
+
+  g_assert_cmpstr ("jsmith@example.com", ==, authority.c_str ());
+  g_assert_cmpstr ("", ==, path.c_str ());
+  g_assert_cmpstr ("", ==, query.c_str ());
+
+  authority = path = query = "";
+  StringUtils::SplitUri ("mailto:jsmith@example.com?subject=A%20Test&body="
+                         "My%20idea%20is%3A%20%0A", authority, path, query);
+
+  g_assert_cmpstr ("jsmith@example.com", ==, authority.c_str ());
+  g_assert_cmpstr ("", ==, path.c_str ());
+  g_assert_cmpstr ("subject=A%20Test&body=My%20idea%20is%3A%20%0A", ==, query.c_str ());
+
+  authority = path = query = "";
+  StringUtils::SplitUri ("sip:alice@atlanta.com?subject=project%20x",
+                         authority, path, query);
+
+  g_assert_cmpstr ("alice@atlanta.com", ==, authority.c_str ());
+  g_assert_cmpstr ("", ==, path.c_str ());
+  g_assert_cmpstr ("subject=project%20x", ==, query.c_str ());
+
+  authority = path = query = "";
+  StringUtils::SplitUri ("file:///",
+                         authority, path, query);
+
+  g_assert_cmpstr ("", ==, authority.c_str ());
+  g_assert_cmpstr ("/", ==, path.c_str ());
+  g_assert_cmpstr ("", ==, query.c_str ());
+
+  authority = path = query = "";
+  StringUtils::SplitUri ("file:///home/username/file.ext",
+                         authority, path, query);
+
+  g_assert_cmpstr ("", ==, authority.c_str ());
+  g_assert_cmpstr ("/home/username/file.ext", ==, path.c_str ());
+  g_assert_cmpstr ("", ==, query.c_str ());
+
+  authority = path = query = "";
+  StringUtils::SplitUri ("dns://192.168.1.1/ftp.example.org?type=A",
+                         authority, path, query);
+
+  g_assert_cmpstr ("192.168.1.1", ==, authority.c_str ());
+  g_assert_cmpstr ("/ftp.example.org", ==, path.c_str ());
+  g_assert_cmpstr ("type=A", ==, query.c_str ());
+}
+
 G_BEGIN_DECLS
 
 void test_stringutils_create_suite (void)
@@ -92,6 +170,8 @@ void test_stringutils_create_suite (void)
               setup, test_truncate, teardown);
   g_test_add ("/Zeitgeist/FTS/StringUtils/MangleUri", Fixture, 0,
               setup, test_mangle, teardown);
+  g_test_add ("/Zeitgeist/FTS/StringUtils/SplitUri", Fixture, 0,
+              setup, test_split, teardown);
 }
 
 G_END_DECLS
