@@ -350,15 +350,39 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
   GFile *f = g_file_new_for_uri (uri.c_str ());
 
   gchar *scheme = g_file_get_uri_scheme (f);
-  g_return_if_fail (scheme != NULL);
+  if (scheme == NULL)
+  {
+    g_warning ("Invalid URI: %s", uri.c_str ());
+    return;
+  }
 
   std::string scheme_str(scheme);
   g_free (scheme);
 
   if (scheme_str == "file")
   {
+    // FIXME: special case some typical filenames (like photos)
+    // examples of typical filenames from cameras:
+    //    P07-08-08_16.25.JPG
+    //    P070608_18.54.JPG
+    //    P180308_22.27[1].jpg
+    //    P6220111.JPG
+    //    PC220006.JPG
+    //    DSCN0149.JPG
+    //    DSC01166.JPG
+    //    SDC12583.JPG
+    //    IMGP3199.JPG
+    //    IMGP1251-4.jpg
+    //    IMG_101_8987.JPG
+    //    10052010152.jpg
+    //    4867_93080512835_623012835_1949065_8351752_n.jpg
+    //    2011-05-29 10.49.37.jpg
+    //    V100908_11.24.AVI
+    //    video-2011-05-29-15-14-58.mp4
+
     // get_parse_name will convert escaped characters to UTF-8, but only for
     // the "file" scheme, so using it elsewhere won't be of much help
+
     gchar *pn = g_file_get_parse_name (f);
     gchar *basename = g_path_get_basename (pn);
 
@@ -366,28 +390,36 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
     tokenizer->index_text (basename, 5);
     tokenizer->index_text (basename, 5, "N");
 
-    double weight = 5.0;
+    g_free (basename);
+    // limit the directory indexing to just a few levels
+    //  (the original formula was weight = 5.0 / (1.5^n)
+    unsigned path_weights[] = { 3, 2, 1, 0 };
+    unsigned weight_index = 0;
+
     // this should be equal to origin, but we already got a nice utf-8 display
     // name, so we'll use that
     gchar *dir = g_path_get_dirname (pn);
     std::string path_component (dir);
     g_free (dir);
+    g_free (pn);
 
-    while (path_component.length () > 2) // FIXME: add a limit?
+    while (path_component.length () > 2 && 
+        weight_index < G_N_ELEMENTS (path_weights))
     {
+      // if this is already home directory we don't want it
+      if (path_component.length () == home_dir_path.length () &&
+          path_component == home_dir_path) return;
+
       gchar *name = g_path_get_basename (path_component.c_str ());
 
-      weight /= 1.5;
-      tokenizer->index_text (name, static_cast<unsigned> (weight));
+      // FIXME: un-underscore, uncamelcase, ascii fold
+      tokenizer->index_text (name, path_weights[weight_index++]);
 
       dir = g_path_get_dirname (path_component.c_str ());
       path_component = dir;
       g_free (dir);
       g_free (name);
     }
-
-    g_free (basename);
-    g_free (pn);
   }
   else if (scheme_str == "mailto")
   {

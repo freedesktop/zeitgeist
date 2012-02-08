@@ -124,6 +124,26 @@ static ZeitgeistEvent* create_test_event3 (void)
   return event;
 }
 
+static ZeitgeistEvent* create_test_event4 (void)
+{
+  ZeitgeistEvent *event = zeitgeist_event_new ();
+  ZeitgeistSubject *subject = zeitgeist_subject_new ();
+  
+  zeitgeist_subject_set_interpretation (subject, ZEITGEIST_NFO_PRESENTATION);
+  zeitgeist_subject_set_manifestation (subject, ZEITGEIST_NFO_FILE_DATA_OBJECT);
+  zeitgeist_subject_set_uri (subject, "file:///home/username/Documents/my_fabulous_presentation.pdf");
+  zeitgeist_subject_set_text (subject, NULL);
+  zeitgeist_subject_set_mimetype (subject, "application/pdf");
+
+  zeitgeist_event_set_interpretation (event, ZEITGEIST_ZG_MODIFY_EVENT);
+  zeitgeist_event_set_manifestation (event, ZEITGEIST_ZG_USER_ACTIVITY);
+  zeitgeist_event_set_actor (event, "application://libreoffice-impress.desktop");
+  zeitgeist_event_add_subject (event, subject);
+
+  g_object_unref (subject);
+  return event;
+}
+
 // Steals the event, ref it if you want to keep it
 static guint
 index_event (Fixture *fix, ZeitgeistEvent *event)
@@ -157,6 +177,8 @@ test_simple_query (Fixture *fix, gconstpointer data)
   // add test events to DBs
   event_id = index_event (fix, create_test_event1 ());
   index_event (fix, create_test_event2 ());
+  index_event (fix, create_test_event3 ());
+  index_event (fix, create_test_event4 ());
 
   GPtrArray *results =
     zeitgeist_indexer_search (fix->indexer,

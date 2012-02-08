@@ -43,7 +43,10 @@ public:
     , enquire (NULL)
     , tokenizer (NULL)
     , clear_failed_id (0)
-  { }
+  {
+    const gchar *home_dir = g_get_home_dir ();
+    home_dir_path = home_dir != NULL ? home_dir : "/home";
+  }
 
   ~Indexer ()
   {
@@ -103,6 +106,7 @@ private:
   ApplicationSet            failed_lookups;
 
   guint                     clear_failed_id;
+  std::string               home_dir_path;
 };
 
 }
