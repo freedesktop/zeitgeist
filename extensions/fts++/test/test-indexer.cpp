@@ -103,6 +103,27 @@ static ZeitgeistEvent* create_test_event2 (void)
   return event;
 }
 
+static ZeitgeistEvent* create_test_event3 (void)
+{
+  ZeitgeistEvent *event = zeitgeist_event_new ();
+  ZeitgeistSubject *subject = zeitgeist_subject_new ();
+  
+  zeitgeist_subject_set_interpretation (subject, ZEITGEIST_NFO_WEBSITE);
+  zeitgeist_subject_set_manifestation (subject, ZEITGEIST_NFO_REMOTE_DATA_OBJECT);
+  // Greek IDN - stands for http://παράδειγμα.δοκιμή
+  zeitgeist_subject_set_uri (subject, "http://xn--hxajbheg2az3al.xn--jxalpdlp/");
+  zeitgeist_subject_set_text (subject, "IDNwiki");
+  zeitgeist_subject_set_mimetype (subject, "text/html");
+
+  zeitgeist_event_set_interpretation (event, ZEITGEIST_ZG_ACCESS_EVENT);
+  zeitgeist_event_set_manifestation (event, ZEITGEIST_ZG_USER_ACTIVITY);
+  zeitgeist_event_set_actor (event, "application://firefox.desktop");
+  zeitgeist_event_add_subject (event, subject);
+
+  g_object_unref (subject);
+  return event;
+}
+
 // Steals the event, ref it if you want to keep it
 static guint
 index_event (Fixture *fix, ZeitgeistEvent *event)
@@ -415,6 +436,41 @@ test_simple_cjk (Fixture *fix, gconstpointer data)
   g_assert_cmpstr (zeitgeist_subject_get_text (subject), ==, "Example.com Wiki Page. Kanji is awesome 漢字");
 }
 
+static void
+test_simple_idn_support (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id;
+  ZeitgeistEvent* event;
+  ZeitgeistSubject *subject;
+
+  // add test events to DBs
+  index_event (fix, create_test_event1 ());
+  index_event (fix, create_test_event2 ());
+  event_id = index_event (fix, create_test_event3 ());
+
+  GPtrArray *results =
+    zeitgeist_indexer_search (fix->indexer,
+                              "παράδειγμα",
+                              zeitgeist_time_range_new_anytime (),
+                              g_ptr_array_new (),
+                              0,
+                              10,
+                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+                              &matches,
+                              NULL);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+
+  event = (ZeitgeistEvent*) results->pdata[0];
+  g_assert_cmpuint (zeitgeist_event_get_id (event), ==, event_id);
+
+  subject = (ZeitgeistSubject*)
+    g_ptr_array_index (zeitgeist_event_get_subjects (event), 0);
+  g_assert_cmpstr (zeitgeist_subject_get_text (subject), ==, "IDNwiki");
+}
+
 G_BEGIN_DECLS
 
 static void discard_message (const gchar *domain,
@@ -440,6 +496,8 @@ void test_indexer_create_suite (void)
               setup, test_simple_noexpand_valid, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/URLUnescape", Fixture, 0,
               setup, test_simple_url_unescape, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/IDNSupport", Fixture, 0,
+              setup, test_simple_idn_support, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/CJK", Fixture, 0,
               setup, test_simple_cjk, teardown);
 

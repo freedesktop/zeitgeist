@@ -427,27 +427,26 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
       tokenizer->index_text (unescaped_basename, 5, "N");
     }
 
-    if (!origin.empty ())
+    // and also index hostname (taken from origin field if possible)
+    std::string host_str (origin.empty () ? uri : origin);
+    size_t hostname_start = host_str.find ("://");
+    if (hostname_start != std::string::npos)
     {
-      size_t hostname_start = origin.find ("://");
-      if (hostname_start != std::string::npos)
+      std::string hostname (host_str, hostname_start + 3);
+      size_t slash_pos = hostname.find ("/");
+      if (slash_pos != std::string::npos) hostname.resize (slash_pos);
+
+      // support IDN
+      if (g_hostname_is_ascii_encoded (hostname.c_str ()))
       {
-        std::string hostname (origin, hostname_start + 3);
-        size_t slash_pos = hostname.find ("/");
-        if (slash_pos != std::string::npos) hostname.resize (slash_pos);
-
-        // support IDN
-        if (g_hostname_is_ascii_encoded (hostname.c_str ()))
-        {
-          gchar *printable_hostname = g_hostname_to_unicode (hostname.c_str ());
-          if (printable_hostname != NULL) hostname = printable_hostname;
-          g_free (printable_hostname);
-        }
-
-        tokenizer->index_text (hostname, 2);
-        tokenizer->index_text (hostname, 2, "N");
-        tokenizer->index_text (hostname, 2, "S");
+        gchar *printable_hostname = g_hostname_to_unicode (hostname.c_str ());
+        if (printable_hostname != NULL) hostname = printable_hostname;
+        g_free (printable_hostname);
       }
+
+      tokenizer->index_text (hostname, 2);
+      tokenizer->index_text (hostname, 2, "N");
+      tokenizer->index_text (hostname, 2, "S");
     }
 
     g_free (unescaped_basename);
