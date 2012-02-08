@@ -462,16 +462,31 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
 
 bool Indexer::IndexActor (std::string const& actor, bool is_subject)
 {
-  // FIXME: add appinfo caching, we're reading and parsing every time
   GDesktopAppInfo *dai = NULL;
-  if (g_path_is_absolute (actor.c_str ()))
+  // check the cache first
+  GAppInfo *ai = app_info_cache[actor];
+
+  if (ai == NULL)
   {
-    dai = g_desktop_app_info_new_from_filename (actor.c_str ());
+    if (g_path_is_absolute (actor.c_str ()))
+    {
+      dai = g_desktop_app_info_new_from_filename (actor.c_str ());
+    }
+    else if (g_str_has_prefix (actor.c_str (), "application://"))
+    {
+      // FIXME: do we need to preprocess the actor uri?
+      dai = g_desktop_app_info_new (actor.substr (14).c_str ());
+    }
+
+    if (dai != NULL)
+    {
+      ai = G_APP_INFO (dai);
+      app_info_cache[actor] = ai;
+    }
   }
-  else if (g_str_has_prefix (actor.c_str (), "application://"))
+  else
   {
-    // FIXME: do we need to preprocess the actor uri?
-    dai = g_desktop_app_info_new (actor.substr (14).c_str ());
+    dai = G_DESKTOP_APP_INFO (ai);
   }
 
   if (dai == NULL)
@@ -480,7 +495,6 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
     return false;
   }
 
-  GAppInfo *ai = (GAppInfo*) dai;
   const gchar *val;
   unsigned name_weight = 5;
   unsigned comment_weight = 2;

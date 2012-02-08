@@ -21,6 +21,7 @@
 #define _ZGFTS_INDEXER_H_
 
 #include <glib-object.h>
+#include <gio/gio.h>
 #include <xapian.h>
 
 #include "zeitgeist-internal.h"
@@ -32,6 +33,8 @@ const std::string INDEX_VERSION = "1";
 class Indexer
 {
 public:
+  typedef std::map<std::string, GAppInfo*> AppInfoMap;
+
   Indexer (ZeitgeistDbReader *reader)
     : zg_reader (reader)
     , db (NULL)
@@ -46,6 +49,12 @@ public:
     if (enquire) delete enquire;
     if (query_parser) delete query_parser;
     if (db) delete db;
+
+    for (AppInfoMap::iterator it = app_info_cache.begin ();
+         it != app_info_cache.end (); ++it)
+    {
+      g_object_unref (it->second);
+    }
   }
 
   void Initialize (GError **error);
@@ -81,6 +90,7 @@ private:
   Xapian::QueryParser      *query_parser;
   Xapian::Enquire          *enquire;
   Xapian::TermGenerator    *tokenizer;
+  AppInfoMap                app_info_cache;
 };
 
 }
