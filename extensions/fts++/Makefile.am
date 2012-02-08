@@ -2,7 +2,14 @@ SUBDIRS = test
 NULL = 
 
 noinst_LTLIBRARIES = libzeitgeist-internal.la
-bin_PROGRAMS = zeitgeist-fts
+libexec_PROGRAMS = zeitgeist-fts
+
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.gnome.zeitgeist.fts.service
+
+org.gnome.zeitgeist.fts.service: org.gnome.zeitgeist.fts.service.in
+	$(AM_V_GEN)sed  -e s!\@libexecdir\@!$(libexecdir)! < $< > $@
+org.gnome.zeitgeist.fts.service: Makefile
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
@@ -87,7 +94,12 @@ EXTRA_DIST = \
 	$(libzeitgeist_internal_la_VALASOURCES) \
 	$(zeitgeist_fts_VALASOURCES) \
 	zeitgeist-fts_vala.stamp \
+	zeitgeist-internal.h \
+	zeitgeist-internal.vapi \
+	org.gnome.zeitgeist.fts.service.in \
 	$(NULL)
+
+CLEANFILES = org.gnome.zeitgeist.fts.service
 
 DISTCLEANFILES = \
 	$(NULL)

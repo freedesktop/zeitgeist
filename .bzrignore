@@ -54,12 +54,13 @@ extensions/fts++/zeitgeist-internal.*
 extensions/fts++/test/.deps
 extensions/fts++/test/.libs
 extensions/fts++/test/test-fts
+extensions/fts++/org.gnome.zeitgeist.fts.service
+extensions/fts++/zeitgeist-fts
 test/direct/marshalling
 test/dbus/__pycache__
 test/direct/table-lookup-test
 src/zeitgeist-engine.vapi
 src/zeitgeist-engine.h
-extensions/fts-python/org.gnome.zeitgeist.fts.service
 py-compile
 python/_ontology.py
 test/direct/*.c

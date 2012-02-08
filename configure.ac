@@ -60,7 +60,6 @@ AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 	extensions/Makefile
-	extensions/fts-python/Makefile
 	extensions/fts++/Makefile
 	extensions/fts++/test/Makefile
 	data/Makefile
