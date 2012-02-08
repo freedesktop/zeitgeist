@@ -1,0 +1,11 @@
+This directory contains little utilities related to Zeitgeist.
+
+Distributors
+-------------------
+
+Be aware that those utilities may have a different license than the main
+Zeitgeist engine (for example, GPLv3+ instead of LGPLv3+).
+
+Also, note that they are optional utilities. In case you package them,
+don't put them in the same package as the Zeitgeist engine if that adds
+unnecessary dependencies.
