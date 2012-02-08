@@ -468,13 +468,16 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
 
   if (ai == NULL)
   {
+    // check also the failed cache
+    if (failed_lookups.count (actor) != 0) return false;
+
+    // and now try to load from the disk
     if (g_path_is_absolute (actor.c_str ()))
     {
       dai = g_desktop_app_info_new_from_filename (actor.c_str ());
     }
     else if (g_str_has_prefix (actor.c_str (), "application://"))
     {
-      // FIXME: do we need to preprocess the actor uri?
       dai = g_desktop_app_info_new (actor.substr (14).c_str ());
     }
 
@@ -482,6 +485,17 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
     {
       ai = G_APP_INFO (dai);
       app_info_cache[actor] = ai;
+    }
+    else
+    {
+      // cache failed lookup
+      failed_lookups.insert (actor);
+      if (clear_failed_id == 0)
+      {
+        // but clear the failed cache in 30 seconds
+        clear_failed_id = g_timeout_add_seconds (30,
+            (GSourceFunc) &Indexer::ClearFailedLookupsCb, this);
+      }
     }
   }
   else
@@ -496,7 +510,7 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
   }
 
   const gchar *val;
-  unsigned name_weight = 5;
+  unsigned name_weight = is_subject ? 5 : 2;
   unsigned comment_weight = 2;
 
   // FIXME: ascii folding somewhere
@@ -517,6 +531,10 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
     tokenizer->index_text (generic_name, name_weight, "A");
   }
 
+  if (!is_subject) return true;
+  // the rest of the code only applies to events with application subject uris:
+  // index the comment field, add category terms, index keywords
+
   val = g_app_info_get_description (ai);
   if (val && val[0] != '\0')
   {
@@ -525,24 +543,20 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
     tokenizer->index_text (comment, comment_weight, "A");
   }
 
-  // only add category terms for events with application subject uri
-  if (is_subject)
+  val = g_desktop_app_info_get_categories (dai);
+  if (val && val[0] != '\0')
   {
-    val = g_desktop_app_info_get_categories (dai);
-    if (val && val[0] != '\0')
+    gchar **categories = g_strsplit (val, ";", 0);
+    Xapian::Document doc(tokenizer->get_document ());
+    for (gchar **iter = categories; *iter != NULL; ++iter)
     {
-      gchar **categories = g_strsplit (val, ";", 0);
-      Xapian::Document doc(tokenizer->get_document ());
-      for (gchar **iter = categories; *iter != NULL; ++iter)
-      {
-        // FIXME: what if this isn't ascii? but it should, that's what
-        // the fdo menu spec says
-        gchar *category = g_ascii_strdown (*iter, -1);
-        doc.add_boolean_term (FILTER_PREFIX_XDG_CATEGORY + category);
-        g_free (category);
-      }
-      g_strfreev (categories);
+      // FIXME: what if this isn't ascii? but it should, that's what
+      // the fdo menu spec says
+      gchar *category = g_ascii_strdown (*iter, -1);
+      doc.add_boolean_term (FILTER_PREFIX_XDG_CATEGORY + category);
+      g_free (category);
     }
+    g_strfreev (categories);
   }
 
   return true;
@@ -690,6 +704,8 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
     val = zeitgeist_event_get_actor (event);
     if (val && val[0] != '\0')
     {
+      // it's nice that searching for "gedit" will find all files you worked
+      // with in gedit, but the relevancy has to be low
       IndexActor (val, false);
     }
 
@@ -780,6 +796,14 @@ void Indexer::DeleteEvent (guint32 event_id)
 void Indexer::SetDbMetadata (std::string const& key, std::string const& value)
 {
   db->set_metadata (key, value);
+}
+
+gboolean Indexer::ClearFailedLookupsCb ()
+{
+  failed_lookups.clear ();
+
+  clear_failed_id = 0;
+  return FALSE;
 }
 
 } /* namespace */

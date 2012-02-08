@@ -34,6 +34,7 @@ class Indexer
 {
 public:
   typedef std::map<std::string, GAppInfo*> AppInfoMap;
+  typedef std::set<std::string> ApplicationSet;
 
   Indexer (ZeitgeistDbReader *reader)
     : zg_reader (reader)
@@ -41,6 +42,7 @@ public:
     , query_parser (NULL)
     , enquire (NULL)
     , tokenizer (NULL)
+    , clear_failed_id (0)
   { }
 
   ~Indexer ()
@@ -54,6 +56,11 @@ public:
          it != app_info_cache.end (); ++it)
     {
       g_object_unref (it->second);
+    }
+
+    if (clear_failed_id != 0)
+    {
+      g_source_remove (clear_failed_id);
     }
   }
 
@@ -85,12 +92,17 @@ private:
   void IndexUri (std::string const& uri, std::string const& origin);
   bool IndexActor (std::string const& actor, bool is_subject);
 
+  gboolean ClearFailedLookupsCb ();
+
   ZeitgeistDbReader        *zg_reader;
   Xapian::WritableDatabase *db;
   Xapian::QueryParser      *query_parser;
   Xapian::Enquire          *enquire;
   Xapian::TermGenerator    *tokenizer;
   AppInfoMap                app_info_cache;
+  ApplicationSet            failed_lookups;
+
+  guint                     clear_failed_id;
 };
 
 }
