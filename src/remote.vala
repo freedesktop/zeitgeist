@@ -121,6 +121,13 @@ namespace Zeitgeist
             uint offset, uint count, uint result_type,
             [DBus (signature = "a(asaasay)")] out Variant events,
             out uint matches) throws Error;
+        public abstract async void search_with_relevancies (
+            string query_string,
+            [DBus (signature = "(xx)")] Variant time_range,
+            [DBus (signature = "a(asaasay)")] Variant filter_templates,
+            uint offset, uint count, uint result_type,
+            [DBus (signature = "a(asaasay)")] out Variant events,
+            out double[] relevancies, out uint matches) throws Error;
     }
     
     /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */

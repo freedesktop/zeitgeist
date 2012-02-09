@@ -424,8 +424,7 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
         weight_index < G_N_ELEMENTS (path_weights))
     {
       // if this is already home directory we don't want it
-      if (path_component.length () == home_dir_path.length () &&
-          path_component == home_dir_path) return;
+      if (path_component == home_dir_path) return;
 
       gchar *name = g_path_get_basename (path_component.c_str ());
 
@@ -648,7 +647,35 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
   return true;
 }
 
-GPtrArray* Indexer::Search (const gchar *search_string,
+std::string Indexer::CompileQueryString (const gchar *search_string,
+                                         ZeitgeistTimeRange *time_range,
+                                         GPtrArray *templates)
+{
+  std::string query_string (search_string);
+
+  if (templates && templates->len > 0)
+  {
+    std::string filters (CompileEventFilterQuery (templates));
+    query_string = "(" + query_string + ") AND (" + filters + ")";
+  }
+
+  if (time_range)
+  {
+    gint64 start_time = zeitgeist_time_range_get_start (time_range);
+    gint64 end_time = zeitgeist_time_range_get_end (time_range);
+
+    if (start_time > 0 || end_time < G_MAXINT64)
+    {
+      std::string time_filter (CompileTimeRangeFilterQuery (start_time, end_time));
+      query_string = "(" + query_string + ") AND (" + time_filter + ")";
+    }
+  }
+
+  g_debug ("query: %s", query_string.c_str ());
+  return query_string;
+}
+
+GPtrArray* Indexer::Search (const gchar *search,
                             ZeitgeistTimeRange *time_range,
                             GPtrArray *templates,
                             guint offset,
@@ -660,28 +687,22 @@ GPtrArray* Indexer::Search (const gchar *search_string,
   GPtrArray *results = NULL;
   try
   {
-    std::string query_string(search_string);
+    std::string query_string (CompileQueryString (search, time_range, templates));
 
-    if (templates && templates->len > 0)
+    // When sorting by some result types, we need to fetch some extra events
+    // from the Xapian index because the final result set will be coalesced
+    // on some property of the event
+    guint maxhits;
+    if (result_type == 100 ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS)
     {
-      std::string filters (CompileEventFilterQuery (templates));
-      query_string = "(" + query_string + ") AND (" + filters + ")";
+      maxhits = count;
     }
-
-    if (time_range)
+    else
     {
-      gint64 start_time = zeitgeist_time_range_get_start (time_range);
-      gint64 end_time = zeitgeist_time_range_get_end (time_range);
-
-      if (start_time > 0 || end_time < G_MAXINT64)
-      {
-        std::string time_filter (CompileTimeRangeFilterQuery (start_time, end_time));
-        query_string = "(" + query_string + ") AND (" + time_filter + ")";
-      }
+      maxhits = count * 3;
     }
-
-    // FIXME: which result types coalesce?
-    guint maxhits = count * 3;
 
     if (result_type == 100)
     {
@@ -692,7 +713,6 @@ GPtrArray* Indexer::Search (const gchar *search_string,
       enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
     }
 
-    g_debug ("query: %s", query_string.c_str ());
     Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
     enquire->set_query (q);
     Xapian::MSet hits (enquire->get_mset (offset, maxhits));
@@ -759,7 +779,119 @@ GPtrArray* Indexer::Search (const gchar *search_string,
   }
   catch (Xapian::Error const& e)
   {
-    g_warning ("Failed to index event: %s", e.get_msg ().c_str ());
+    g_warning ("Failed to search index: %s", e.get_msg ().c_str ());
+    g_set_error_literal (error,
+                         ZEITGEIST_ENGINE_ERROR,
+                         ZEITGEIST_ENGINE_ERROR_DATABASE_ERROR,
+                         e.get_msg ().c_str ());
+  }
+
+  return results;
+}
+
+GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
+                                           ZeitgeistTimeRange *time_range,
+                                           GPtrArray *templates,
+                                           guint offset,
+                                           guint count,
+                                           ZeitgeistResultType result_type,
+                                           gdouble **relevancies,
+                                           gint *relevancies_size,
+                                           guint *matches,
+                                           GError **error)
+{
+  GPtrArray *results = NULL;
+  try
+  {
+    std::string query_string (CompileQueryString (search, time_range, templates));
+
+    guint maxhits = count;
+
+    if (result_type == 100)
+    {
+      enquire->set_sort_by_relevance ();
+    }
+    else
+    {
+      enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
+    }
+
+    Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
+    enquire->set_query (q);
+    Xapian::MSet hits (enquire->get_mset (offset, maxhits));
+    Xapian::doccount hitcount = hits.get_matches_estimated ();
+
+    if (result_type == 100)
+    {
+      std::vector<unsigned> event_ids;
+      std::vector<gdouble> relevancy_arr;
+      Xapian::MSetIterator iter, end;
+      for (iter = hits.begin (), end = hits.end (); iter != end; ++iter)
+      {
+        Xapian::Document doc(iter.get_document ());
+        double unserialized =
+          Xapian::sortable_unserialise (doc.get_value (VALUE_EVENT_ID));
+        unsigned event_id = static_cast<unsigned>(unserialized);
+        event_ids.push_back (event_id);
+
+        double rank = iter.get_percent () / 100.;
+        relevancy_arr.push_back (rank);
+      }
+
+      results = zeitgeist_db_reader_get_events (zg_reader,
+                                                &event_ids[0],
+                                                event_ids.size (),
+                                                NULL,
+                                                error);
+
+      if (results->len != relevancy_arr.size ())
+      {
+        g_warning ("Results don't match relevancies!");
+        g_set_error_literal (error,
+                             ZEITGEIST_ENGINE_ERROR,
+                             ZEITGEIST_ENGINE_ERROR_DATABASE_ERROR,
+                             "Internal database error");
+        return NULL;
+      }
+
+      if (relevancies)
+      {
+        *relevancies = (gdouble*) g_memdup (&relevancy_arr[0],
+                                            sizeof (gdouble) * results->len);
+      }
+      if (relevancies_size)
+      {
+        *relevancies_size = relevancy_arr.size ();
+      }
+    }
+    else
+    {
+      g_set_error_literal (error,
+                           ZEITGEIST_ENGINE_ERROR,
+                           ZEITGEIST_ENGINE_ERROR_INVALID_ARGUMENT,
+                           "Only RELEVANCY result type is supported");
+      /*
+       * perhaps something like this could be used here?
+      std::map<unsigned, gdouble> relevancy_map;
+      foreach (...)
+      {
+        double rank = iter.get_percent () / 100.;
+        if (rank > relevancy_map[event_id])
+        {
+          relevancy_map[event_id] = rank;
+        }
+      }
+      */
+    }
+
+    if (matches)
+    {
+      *matches = hitcount;
+    }
+  }
+  catch (Xapian::Error const& e)
+  {
+    g_warning ("Failed to search index: %s", e.get_msg ().c_str ());
     g_set_error_literal (error,
                          ZEITGEIST_ENGINE_ERROR,
                          ZEITGEIST_ENGINE_ERROR_DATABASE_ERROR,

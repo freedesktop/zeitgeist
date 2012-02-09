@@ -43,6 +43,19 @@ GPtrArray*         zeitgeist_indexer_search        (ZeitgeistIndexer *indexer,
                                                     guint *matches,
                                                     GError **error);
 
+GPtrArray*         zeitgeist_indexer_search_with_relevancies
+                                                   (ZeitgeistIndexer *indexer,
+                                                    const gchar *search_string,
+                                                    ZeitgeistTimeRange *time_range,
+                                                    GPtrArray *templates,
+                                                    guint offset,
+                                                    guint count,
+                                                    ZeitgeistResultType result_type,
+                                                    gdouble **relevancies,
+                                                    gint *relevancies_size,
+                                                    guint *matches,
+                                                    GError **error);
+
 void               zeitgeist_indexer_index_events  (ZeitgeistIndexer *indexer,
                                                     GPtrArray *events);
 

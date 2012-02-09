@@ -14,6 +14,16 @@ namespace Zeitgeist {
                                             ResultType result_type,
                                             out uint matches) throws GLib.Error;
 
+    public GLib.GenericArray<Event> search_with_relevancies (
+                                            string search_string,
+                                            TimeRange time_range,
+                                            GLib.GenericArray<Event> templates,
+                                            uint offset,
+                                            uint count,
+                                            ResultType result_type,
+                                            out double[] relevancies,
+                                            out uint matches) throws GLib.Error;
+
     public void index_events (GLib.GenericArray<Event> events);
 
     public void delete_events (uint[] event_ids);
