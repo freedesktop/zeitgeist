@@ -90,6 +90,26 @@ namespace Zeitgeist.SQLite
             // When we fetch an event, it either was already in the database
             // at the time Zeitgeist started or it was inserted later -using
             // Zeitgeist-, so here we always have the data in memory already.
+            unowned string val = id_to_value.lookup (id);
+            if (val != null) return val;
+
+            // The above statement isn't exactly true, if this is a standalone
+            // reader in a separate process, the values won't be kept updated
+            // so we need to query the db if we don't find it.
+            int rc;
+
+            rc = db.exec ("SELECT value FROM %s WHERE id=%d".printf (table, id),
+                (n_columns, values, column_names) =>
+                {
+                    id_to_value.insert (id, values[0]);
+                    value_to_id.insert (values[0], id);
+                    return 0;
+                }, null);
+            if (rc != Sqlite.OK)
+            {
+                critical ("Can't get data from table %s: %d, %s\n", table,
+                    rc, db.errmsg ());
+            }
             return id_to_value.lookup (id);
         }
 
