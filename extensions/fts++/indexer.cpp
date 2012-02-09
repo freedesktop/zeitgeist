@@ -358,8 +358,8 @@ void Indexer::AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc)
 
 void Indexer::IndexText (std::string const& text)
 {
-  // FIXME: ascii folding!
   tokenizer->index_text (text, 5);
+  tokenizer->index_text (StringUtils::AsciiFold (text), 5);
 }
 
 void Indexer::IndexUri (std::string const& uri, std::string const& origin)
@@ -593,22 +593,28 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
   unsigned name_weight = is_subject ? 5 : 2;
   unsigned comment_weight = 2;
 
-  // FIXME: ascii folding somewhere
-
   val = g_app_info_get_display_name (ai);
   if (val && val[0] != '\0')
   {
     std::string display_name (val);
+    std::string display_name_folded (StringUtils::AsciiFold (display_name));
+
     tokenizer->index_text (display_name, name_weight);
     tokenizer->index_text (display_name, name_weight, "A");
+    tokenizer->index_text (display_name_folded, name_weight);
+    tokenizer->index_text (display_name_folded, name_weight, "A");
   }
 
   val = g_desktop_app_info_get_generic_name (dai);
   if (val && val[0] != '\0')
   {
     std::string generic_name (val);
+    std::string generic_name_folded (StringUtils::AsciiFold (generic_name));
+
     tokenizer->index_text (generic_name, name_weight);
     tokenizer->index_text (generic_name, name_weight, "A");
+    tokenizer->index_text (generic_name_folded, name_weight);
+    tokenizer->index_text (generic_name_folded, name_weight, "A");
   }
 
   if (!is_subject) return true;

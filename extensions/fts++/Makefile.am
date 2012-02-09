@@ -76,6 +76,11 @@ zeitgeist_fts_LDADD = \
 	-lxapian \
 	$(NULL)
 
+if HAVE_DEE_ICU
+AM_CPPFLAGS += $(DEE_ICU_CFLAGS)
+zeitgeist_fts_LDADD += $(DEE_ICU_LIBS)
+endif
+
 BUILT_SOURCES = \
 	zeitgeist-internal.stamp \
 	zeitgeist-fts_vala.stamp \

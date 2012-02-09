@@ -163,6 +163,31 @@ test_split (Fixture *fix, gconstpointer data)
   g_assert_cmpstr ("type=A", ==, query.c_str ());
 }
 
+static void
+test_ascii_fold (Fixture *fix, gconstpointer data)
+{
+  std::string folded;
+
+  folded = StringUtils::AsciiFold ("");
+  g_assert_cmpstr ("", ==, folded.c_str ());
+
+  // if the original matches the folded version, AsciiFold returns ""
+  folded = StringUtils::AsciiFold ("a");
+  g_assert_cmpstr ("", ==, folded.c_str ());
+
+  folded = StringUtils::AsciiFold ("abcdef");
+  g_assert_cmpstr ("", ==, folded.c_str ());
+
+  folded = StringUtils::AsciiFold ("å");
+  g_assert_cmpstr ("a", ==, folded.c_str ());
+
+  folded = StringUtils::AsciiFold ("åå");
+  g_assert_cmpstr ("aa", ==, folded.c_str ());
+
+  folded = StringUtils::AsciiFold ("aåaåa");
+  g_assert_cmpstr ("aaaaa", ==, folded.c_str ());
+}
+
 G_BEGIN_DECLS
 
 void test_stringutils_create_suite (void)
@@ -173,6 +198,10 @@ void test_stringutils_create_suite (void)
               setup, test_mangle, teardown);
   g_test_add ("/Zeitgeist/FTS/StringUtils/SplitUri", Fixture, 0,
               setup, test_split, teardown);
+#ifdef HAVE_DEE_ICU
+  g_test_add ("/Zeitgeist/FTS/StringUtils/AsciiFold", Fixture, 0,
+              setup, test_ascii_fold, teardown);
+#endif
 }
 
 G_END_DECLS

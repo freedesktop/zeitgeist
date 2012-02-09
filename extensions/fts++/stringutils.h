@@ -37,6 +37,8 @@ void SplitUri (std::string const& uri,
                std::string &path,
                std::string &basename);
 
+std::string AsciiFold (std::string const& input);
+
 } /* namespace StringUtils */
 
 } /* namespace ZeitgeistFTS */

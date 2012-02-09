@@ -21,6 +21,10 @@
 
 #include "stringutils.h"
 
+#ifdef HAVE_DEE_ICU
+#include <dee-icu.h>
+#endif
+
 using namespace std;
 
 namespace ZeitgeistFTS {
@@ -122,6 +126,39 @@ void SplitUri (string const& uri, string &authority,
     path = uri.substr (first_slash);
   }
 }
+
+#ifdef HAVE_DEE_ICU
+static DeeICUTermFilter *icu_filter = NULL;
+
+/**
+ * Use ascii folding filter on the input text and return folded version
+ * of the original string.
+ *
+ * Note that if the folded version is exactly the same as the original
+ * empty string will be returned.
+ */
+string AsciiFold (string const& input)
+{
+  if (icu_filter == NULL)
+  {
+    icu_filter = dee_icu_term_filter_new_ascii_folder ();
+    if (icu_filter == NULL) return "";
+  }
+
+  // FIXME: check first if the input contains any non-ascii chars?
+
+  gchar *folded = dee_icu_term_filter_apply (icu_filter, input.c_str ());
+  string result (folded);
+  g_free (folded);
+
+  return result == input ? "" : result;
+}
+#else
+string AsciiFold (string const& input)
+{
+  return "";
+}
+#endif
 
 } /* namespace StringUtils */
 

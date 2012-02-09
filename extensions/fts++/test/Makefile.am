@@ -25,3 +25,8 @@ test_fts_LDADD = \
   -lxapian \
   $(NULL)
 
+if HAVE_DEE_ICU
+AM_CPPFLAGS += $(DEE_ICU_CFLAGS)
+test_fts_LDADD += $(DEE_ICU_LIBS)
+endif
+
