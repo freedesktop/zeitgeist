@@ -116,7 +116,7 @@ gboolean Controller::ProcessTask ()
   bool all_done = queued_tasks.empty ();
   if (all_done)
   {
-    indexer->Flush ();
+    indexer->Commit ();
     if (processing_source_id != 0)
     {
       g_source_remove (processing_source_id);

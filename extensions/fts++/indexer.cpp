@@ -140,12 +140,21 @@ bool Indexer::CheckIndex ()
  */
 void Indexer::DropIndex ()
 {
-  this->db->close ();
-  delete this->db;
-  this->db = NULL;
-
   try
   {
+    if (this->db != NULL)
+    {
+      this->db->close ();
+      delete this->db;
+      this->db = NULL;
+    }
+
+    if (this->enquire != NULL)
+    {
+      delete this->enquire;
+      this->enquire = NULL;
+    }
+
     if (zeitgeist_utils_using_in_memory_database ())
     {
       this->db = new Xapian::WritableDatabase;
@@ -171,9 +180,16 @@ void Indexer::DropIndex ()
   }
 }
 
-void Indexer::Flush ()
+void Indexer::Commit ()
 {
-  db->flush ();
+  try
+  {
+    db->commit ();
+  }
+  catch (Xapian::Error const& e)
+  {
+    g_warning ("Failed to commit changes: %s", e.get_msg ().c_str ());
+  }
 }
 
 std::string Indexer::ExpandType (std::string const& prefix,
@@ -860,7 +876,14 @@ void Indexer::DeleteEvent (guint32 event_id)
 
 void Indexer::SetDbMetadata (std::string const& key, std::string const& value)
 {
-  db->set_metadata (key, value);
+  try
+  {
+    db->set_metadata (key, value);
+  }
+  catch (Xapian::Error const& e)
+  {
+    g_warning ("Failed to set metadata: %s", e.get_msg ().c_str ());
+  }
 }
 
 gboolean Indexer::ClearFailedLookupsCb ()

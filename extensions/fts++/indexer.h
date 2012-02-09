@@ -71,7 +71,7 @@ public:
   void Initialize (GError **error);
   bool CheckIndex ();
   void DropIndex ();
-  void Flush ();
+  void Commit ();
 
   void IndexEvent (ZeitgeistEvent *event);
   void DeleteEvent (guint32 event_id);
