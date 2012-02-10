@@ -27,6 +27,7 @@
 
 using Zeitgeist;
 using Zeitgeist.SQLite;
+using Zeitgeist.Utils;
 
 namespace Zeitgeist
 {
@@ -62,21 +63,74 @@ public class Engine : DbReader
     public uint32[] insert_events (GenericArray<Event> events,
         BusName? sender=null) throws EngineError
     {
+        // Any changes to events need to be done here so they'll
+        // be taken into consideration by the extensions (LP: #928804).
+        for (int i = 0; i < events.length; ++i)
+        {
+            preprocess_event (events[i]);
+        }
+
         extension_collection.call_pre_insert_events (events, sender);
         uint32[] event_ids = new uint32[events.length];
         database.begin_transaction ();
         for (int i = 0; i < events.length; ++i)
         {
             if (events[i] != null)
-                event_ids[i] = insert_event (events[i], sender);
+                event_ids[i] = insert_event (events[i]);
         }
         database.end_transaction ();
         extension_collection.call_post_insert_events (events, sender);
         return event_ids;
     }
 
-    public uint32 insert_event (Event event,
-        BusName? sender=null) throws EngineError
+    private void preprocess_event (Event event) throws EngineError
+    {
+        // Iterate through subjects and check for validity
+        for (int i = 0; i < event.num_subjects(); ++i)
+        {
+            unowned Subject subject = event.subjects[i];
+
+            // If current_uri is unset, give it the same value as URI
+            if (is_empty_string (subject.current_uri))
+                subject.current_uri = subject.uri;
+
+            if (event.interpretation == ZG.MOVE_EVENT
+                && subject.uri == subject.current_uri)
+            {
+                throw new EngineError.INVALID_ARGUMENT (
+                    "Redundant event: event.interpretation indicates " +
+                    "the uri has been moved yet the subject.uri and " +
+                    "subject.current_uri are identical");
+            }
+            else if (event.interpretation != ZG.MOVE_EVENT
+                && subject.uri != subject.current_uri)
+            {
+                throw new EngineError.INVALID_ARGUMENT (
+                    "Illegal event: unless event.interpretation is " +
+                    "'MOVE_EVENT' then subject.uri and " +
+                    "subject.current_uri have to be the same");
+            }
+
+            // If subject manifestation and interpretation are not set,
+            // we try to automatically determine them from the other data.
+            if (is_empty_string (subject.manifestation))
+            {
+                unowned string? manifestation = manifestation_for_uri (
+                    subject.uri);
+                if (manifestation != null)
+                    subject.manifestation = manifestation;
+            }
+            if (is_empty_string (subject.interpretation))
+            {
+                unowned string? interpretation = interpretation_for_mimetype (
+                    subject.mimetype);
+                if (interpretation != null)
+                    subject.interpretation = interpretation;
+            }
+        }
+    }
+
+    private uint32 insert_event (Event event) throws EngineError
         requires (event.id == 0)
         requires (event.num_subjects () > 0)
     {
@@ -89,7 +143,7 @@ public class Engine : DbReader
             var storages = new GenericArray<string> ();
             var subj_uris = new SList<string> ();
 
-            if (event.origin != "")
+            if (!is_empty_string (event.origin))
                 uris.add (event.origin);
 
             // Iterate through subjects and check for validity
@@ -105,34 +159,14 @@ public class Engine : DbReader
                 subj_uris.append (subject.uri);
 
                 uris.add (subject.uri);
+                if (subject.uri != subject.current_uri)
+                    uris.add (subject.current_uri);
 
-                if (subject.current_uri == "" || subject.current_uri == null)
-                    subject.current_uri = subject.uri;
-
-                if (event.interpretation == ZG.MOVE_EVENT
-                    && subject.uri == subject.current_uri)
-                {
-                    throw new EngineError.INVALID_ARGUMENT (
-                        "Illegal event: unless event.interpretation is " +
-                        "'MOVE_EVENT' then subject.uri and " +
-                        "subject.current_uri have to be the same");
-                }
-                else if (event.interpretation != ZG.MOVE_EVENT
-                    && subject.uri != subject.current_uri)
-                {
-                    throw new EngineError.INVALID_ARGUMENT (
-                        "Redundant event: event.interpretation indicates " +
-                        "the uri has been moved yet the subject.uri and " +
-                        "subject.current_uri are identical");
-                }
-
-                uris.add (subject.current_uri);
-
-                if (subject.origin != "")
+                if (!is_empty_string (subject.origin))
                     uris.add (subject.origin);
-                if (subject.text != "")
+                if (!is_empty_string (subject.text))
                     texts.add (subject.text);
-                if (subject.storage != "")
+                if (!is_empty_string(subject.storage))
                     storages.add (subject.storage);
             }
 
@@ -179,25 +213,6 @@ public class Engine : DbReader
             insert_stmt.reset();
 
             unowned Subject subject = event.subjects[i];
-
-            // If subject manifestation and interpretation are not set,
-            // we try to automatically determine them from the other data.
-
-            if (subject.manifestation == "")
-            {
-                unowned string? manifestation = manifestation_for_uri (
-                    subject.uri);
-                if (manifestation != null)
-                    subject.manifestation = manifestation;
-            }
-
-            if (subject.interpretation == "")
-            {
-                unowned string? interpretation = interpretation_for_mimetype (
-                    subject.mimetype);
-                if (interpretation != null)
-                    subject.interpretation = interpretation;
-            }
 
             insert_stmt.bind_text (8, subject.uri);
             insert_stmt.bind_text (9, subject.current_uri);

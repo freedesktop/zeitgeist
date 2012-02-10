@@ -269,10 +269,11 @@ namespace Zeitgeist
         {
             for (int i = 0; i < events.length; ++i)
             {
+                if (events[i] == null) continue;
                 for (int j = 0; j < events[i].subjects.length; ++j)
                 {
                     Subject subject = events[i].subjects[j];
-                    if (subject.storage == "")
+                    if (Utils.is_empty_string (subject.storage))
                         subject.storage = find_storage_for_uri (subject.uri);
                 }
             }

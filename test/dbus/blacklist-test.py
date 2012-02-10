@@ -203,7 +203,9 @@ class BlacklistTest(RemoteTestCase):
 		self._assert_template_count(1)
 
 		# Blocking the current_uri works
-		self._assert_insert_blocked(Event.new_for_values(subject_current_uri="t"))
+		self._assert_insert_blocked(Event.new_for_values(
+			interpretation=Interpretation.MOVE_EVENT,
+			subject_current_uri="t"))
 
 		# But if we only set uri (and leave it up to Zeitgeist to set current_uri
 		# to the same value?

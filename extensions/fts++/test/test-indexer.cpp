@@ -169,13 +169,22 @@ static ZeitgeistEvent* create_test_event5 (void)
 static guint
 index_event (Fixture *fix, ZeitgeistEvent *event)
 {
+  GPtrArray *events;
   guint event_id = 0;
+  guint *event_ids;
+  int num_events_inserted;
 
   // add event to DBs
-  event_id = zeitgeist_engine_insert_event (ZEITGEIST_ENGINE (fix->db),
-                                            event, NULL, NULL);
+  events = g_ptr_array_new ();
+  g_ptr_array_add (events, event);
+  event_ids = zeitgeist_engine_insert_events (ZEITGEIST_ENGINE (fix->db),
+                                              events, NULL,
+                                              &num_events_inserted, NULL);
+  g_assert_cmpint (1, ==, num_events_inserted);
+  event_id = *event_ids;
+  g_ptr_array_unref (events);
 
-  GPtrArray *events = g_ptr_array_new_with_free_func (g_object_unref);
+  events = g_ptr_array_new_with_free_func (g_object_unref);
   g_ptr_array_add (events, event); // steal event ref
   zeitgeist_indexer_index_events (fix->indexer, events);
   g_ptr_array_unref (events);
