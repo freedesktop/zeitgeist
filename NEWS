@@ -1,3 +1,16 @@
+2012-02-10: Zeitgeist Bluebird Beta 1
+
+Engine:
+ - Revert use of EXCLUSIVE locking mode, it breaks FTS.
+ - Notifications are queued until the target monitor objects are ready.
+ - The FTS module in Python has been replaced with a C/C++ implementation.
+ - Pre-process events *before* they are send to extensions (LP: #628804).
+ - Minor fixes.
+
+Python API:
+ - Fixed signal/monitor reconnection to avoid duplicated notifications.
+ - Updated the list of recognized MIME-types and schemas.
+
 2012-01-27: Zeitgeist Bluebird Alpha 2
 --------------------------------------
 
