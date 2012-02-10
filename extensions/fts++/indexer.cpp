@@ -50,7 +50,7 @@ const Xapian::valueno VALUE_TIMESTAMP = 1;
   Xapian::QueryParser::FLAG_PURE_NOT | Xapian::QueryParser::FLAG_LOVEHATE | \
   Xapian::QueryParser::FLAG_WILDCARD
 
-const std::string FTS_MAIN_DIR = "ftspp.index";
+const std::string FTS_MAIN_DIR = "fts.index";
 
 void Indexer::Initialize (GError **error)
 {
@@ -363,8 +363,9 @@ std::string Indexer::PreprocessString (std::string const& input)
   std::string result (StringUtils::RemoveUnderscores (input));
   // a simple heuristic for the uncamelcaser
   size_t num_digits = StringUtils::CountDigits (result);
-  if (result.length () > 3 && num_digits < result.length () / 2)
+  if (result.length () > 5 && num_digits < result.length () / 2)
   {
+    // FIXME: handle non-digit ids somehow as well (like rNsGg / yJuSB)
     // FIXME: process digits?, atm they stay attached to the text
     result = StringUtils::UnCamelcase (result);
   }
