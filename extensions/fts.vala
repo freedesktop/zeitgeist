@@ -134,7 +134,8 @@ namespace Zeitgeist
             int i = 0;
             while (this.siin == null && i < 6 && !siin_connection_failed)
             {
-                Timeout.add (250, wait_for_proxy.callback);
+                Timeout.add_full (Priority.DEFAULT_IDLE, 250,
+                                  wait_for_proxy.callback);
                 i++;
                 yield;
             }
