@@ -17,9 +17,14 @@
  * Authored by Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
  *
  */
-#include <string>
 
 #include "stringutils.h"
+#include <string>
+#include <algorithm>
+
+#ifdef HAVE_DEE_ICU
+#include <dee-icu.h>
+#endif
 
 using namespace std;
 
@@ -122,6 +127,87 @@ void SplitUri (string const& uri, string &authority,
     path = uri.substr (first_slash);
   }
 }
+
+string RemoveUnderscores (string const &input)
+{
+  string result (input);
+  std::replace (result.begin (), result.end (), '_', ' ');
+
+  return result;
+}
+
+static bool is_digit (char c) { return c >= '0' && c <= '9'; }
+
+size_t CountDigits (string const &input)
+{
+  return std::count_if (input.begin (), input.end (), is_digit);
+}
+
+static GRegex *camelcase_matcher = NULL;
+
+static gboolean
+matcher_cb (const GMatchInfo *match_info, GString *result, gpointer user_data)
+{
+  gint start_pos;
+  g_match_info_fetch_pos (match_info, 0, &start_pos, NULL);
+  if (start_pos != 0) g_string_append_c (result, ' ');
+  gchar *word = g_match_info_fetch (match_info, 0);
+  g_string_append (result, word);
+  g_free (word);
+
+  return FALSE;
+}
+
+string UnCamelcase (string const &input)
+{
+  if (camelcase_matcher == NULL)
+  {
+    camelcase_matcher = g_regex_new ("(?<=^|[[:lower:]])[[:upper:]]+[^[:upper:]]+", G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
+    if (camelcase_matcher == NULL) g_critical ("Unable to create matcher!");
+  }
+
+  gchar *result = g_regex_replace_eval (camelcase_matcher, input.c_str (),
+                                        input.length (), 0,
+                                        (GRegexMatchFlags) 0,
+                                        matcher_cb, NULL, NULL);
+
+  string ret (result);
+  g_free (result);
+  return ret;
+}
+
+#ifdef HAVE_DEE_ICU
+static DeeICUTermFilter *icu_filter = NULL;
+
+/**
+ * Use ascii folding filter on the input text and return folded version
+ * of the original string.
+ *
+ * Note that if the folded version is exactly the same as the original
+ * empty string will be returned.
+ */
+string AsciiFold (string const& input)
+{
+  if (icu_filter == NULL)
+  {
+    icu_filter = dee_icu_term_filter_new_ascii_folder ();
+    if (icu_filter == NULL) return "";
+  }
+
+  // FIXME: check first if the input contains any non-ascii chars?
+
+  gchar *folded = dee_icu_term_filter_apply (icu_filter, input.c_str ());
+  string result (folded);
+  g_free (folded);
+
+  return result == input ? "" : result;
+}
+#else
+string AsciiFold (string const& input)
+{
+  return "";
+}
+#endif
 
 } /* namespace StringUtils */
 

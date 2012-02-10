@@ -40,6 +40,30 @@ AC_SUBST(ZEITGEIST_CFLAGS)
 AC_SUBST(ZEITGEIST_LIBS)
 
 #################################################
+# Dee-ICU check
+#################################################
+DEE_ICU_REQUIRED=1.0.2
+
+AC_ARG_WITH([dee-icu],
+	AS_HELP_STRING([--with-dee-icu[=@<:@no/auto/yes@:>@]],
+		[Build the FTS extension with dee-icu]),
+	[with_dee_icu=$withval],
+	[with_dee_icu="auto"])
+
+if test "x$with_dee_icu" = "xauto" ; then
+	PKG_CHECK_EXISTS([dee-icu-1.0 >= $DEE_ICU_REQUIRED],
+		with_dee_icu="yes",
+		with_dee_icu="no")
+fi
+
+if test "x$with_dee_icu" = "xyes" ; then
+	PKG_CHECK_MODULES(DEE_ICU, dee-icu-1.0 >= $DEE_ICU_REQUIRED)
+	AC_DEFINE(HAVE_DEE_ICU, 1, [Have dee-icu])
+fi
+
+AM_CONDITIONAL(HAVE_DEE_ICU, test "x$with_dee_icu" = "xyes")
+
+#################################################
 # DBus service
 #################################################
 
@@ -88,3 +112,16 @@ else
 fi
 
 AC_OUTPUT
+
+cat <<EOF
+
+${PACKAGE}-${VERSION}
+
+  Build Environment
+    Install Prefix:     ${prefix}
+
+  Optional dependencies
+    dee-icu:            ${with_dee_icu}
+
+EOF
+

@@ -37,6 +37,14 @@ void SplitUri (std::string const& uri,
                std::string &path,
                std::string &basename);
 
+std::string RemoveUnderscores (std::string const &input);
+
+size_t CountDigits (std::string const &input);
+
+std::string UnCamelcase (std::string const &input);
+
+std::string AsciiFold (std::string const& input);
+
 } /* namespace StringUtils */
 
 } /* namespace ZeitgeistFTS */

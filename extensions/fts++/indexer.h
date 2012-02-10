@@ -77,7 +77,7 @@ public:
   void DeleteEvent (guint32 event_id);
   void SetDbMetadata (std::string const& key, std::string const& value);
 
-  GPtrArray* Search (const gchar *search_string,
+  GPtrArray* Search (const gchar *search,
                      ZeitgeistTimeRange *time_range,
                      GPtrArray *templates,
                      guint offset,
@@ -85,11 +85,26 @@ public:
                      ZeitgeistResultType result_type,
                      guint *matches,
                      GError **error);
+  GPtrArray* SearchWithRelevancies (const gchar *search,
+                                    ZeitgeistTimeRange *time_range,
+                                    GPtrArray *templates,
+                                    guint offset,
+                                    guint count,
+                                    ZeitgeistResultType result_type,
+                                    gdouble **relevancies,
+                                    gint *relevancies_size,
+                                    guint *matches,
+                                    GError **error);
 
 private:
   std::string ExpandType (std::string const& prefix, const gchar* unparsed_uri);
   std::string CompileEventFilterQuery (GPtrArray *templates);
   std::string CompileTimeRangeFilterQuery (gint64 start, gint64 end);
+  std::string CompileQueryString (const gchar *search,
+                                  ZeitgeistTimeRange *time_range,
+                                  GPtrArray *templates);
+
+  std::string PreprocessString (std::string const& input);
 
   void AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc);
   void IndexText (std::string const& text);

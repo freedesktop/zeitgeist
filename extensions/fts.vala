@@ -31,6 +31,14 @@ namespace Zeitgeist
             uint offset, uint count, uint result_type,
             [DBus (signature = "a(asaasay)")] out Variant events,
             out uint matches) throws Error;
+        public abstract async void search_with_relevancies (
+            string query_string,
+            [DBus (signature = "(xx)")] Variant time_range,
+            [DBus (signature = "a(asaasay)")] Variant filter_templates,
+            uint offset, uint count, uint result_type,
+            [DBus (signature = "a(asaasay)")] out Variant events,
+            out double[] relevancies,
+            out uint matches) throws Error;
     }
 
     /* Because of a Vala bug we have to define the proxy interface outside of
@@ -55,6 +63,7 @@ namespace Zeitgeist
         private const string INDEXER_NAME = "org.gnome.zeitgeist.SimpleIndexer";
 
         private RemoteSimpleIndexer siin;
+        private bool siin_connection_failed = false;
         private uint registration_id;
         private MonitorManager? notifier;
 
@@ -66,6 +75,8 @@ namespace Zeitgeist
         construct
         {
             if (Utils.using_in_memory_database ()) return;
+
+            // FIXME: check dbus and see if fts is installed?
 
             // installing a monitor from the daemon will ensure that we don't
             // miss any notifications that would be emitted in between
@@ -109,10 +120,31 @@ namespace Zeitgeist
             try
             {
                 siin = conn.get_proxy.end<RemoteSimpleIndexer> (res);
+                siin_connection_failed = false;
             }
             catch (IOError err)
             {
+                siin_connection_failed = true;
                 warning ("%s", err.message);
+            }
+        }
+
+        public async void wait_for_proxy () throws Error
+        {
+            int i = 0;
+            while (this.siin == null && i < 6 && !siin_connection_failed)
+            {
+                Timeout.add_full (Priority.DEFAULT_IDLE, 250,
+                                  wait_for_proxy.callback);
+                i++;
+                yield;
+            }
+
+            if (siin == null || !(siin is DBusProxy))
+            {
+                // FIXME: queue until we have the proxy
+                throw new EngineError.DATABASE_ERROR (
+                    "Not connected to SimpleIndexer");
             }
         }
 
@@ -120,16 +152,30 @@ namespace Zeitgeist
             Variant filter_templates, uint offset, uint count, uint result_type,
             out Variant events, out uint matches) throws Error
         {
-            if (siin == null || !(siin is DBusProxy))
-            {
-                // FIXME: queue until we have the proxy
-                throw new EngineError.DATABASE_ERROR (
-                    "Not connected to SimpleIndexer");
-            }
+            if (siin == null) yield wait_for_proxy ();
+
             var timer = new Timer ();
             yield siin.search (query_string, time_range, filter_templates,
                                offset, count, result_type,
                                out events, out matches);
+            debug ("Got %u[/%u] results from indexer (in %f seconds)",
+                (uint) events.n_children (), matches, timer.elapsed ());
+        }
+
+        public async void search_with_relevancies (
+            string query_string, Variant time_range,
+            Variant filter_templates, uint offset, uint count, uint result_type,
+            out Variant events, out double[] relevancies, out uint matches)
+            throws Error
+        {
+            if (siin == null) yield wait_for_proxy ();
+
+            var timer = new Timer ();
+            yield siin.search_with_relevancies (
+                query_string, time_range, filter_templates,
+                offset, count, result_type,
+                out events, out relevancies, out matches);
+
             debug ("Got %u[/%u] results from indexer (in %f seconds)",
                 (uint) events.n_children (), matches, timer.elapsed ());
         }

@@ -84,6 +84,36 @@ GPtrArray* zeitgeist_indexer_search (ZeitgeistIndexer *indexer,
   return results;
 }
 
+GPtrArray*
+zeitgeist_indexer_search_with_relevancies (ZeitgeistIndexer *indexer,
+                                           const gchar *search_string,
+                                           ZeitgeistTimeRange *time_range,
+                                           GPtrArray *templates,
+                                           guint offset,
+                                           guint count,
+                                           ZeitgeistResultType result_type,
+                                           gdouble **relevancies,
+                                           gint *relevancies_size,
+                                           guint *matches,
+                                           GError **error)
+{
+  GPtrArray *results;
+  ZeitgeistFTS::Controller *_indexer;
+
+  g_return_val_if_fail (indexer != NULL, NULL);
+  g_return_val_if_fail (search_string != NULL, NULL);
+  g_return_val_if_fail (ZEITGEIST_IS_TIME_RANGE (time_range), NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+  _indexer = (ZeitgeistFTS::Controller*) indexer;
+
+  results = _indexer->indexer->SearchWithRelevancies (
+      search_string, time_range, templates, offset, count, result_type,
+      relevancies, relevancies_size, matches, error);
+
+  return results;
+}
+
 void zeitgeist_indexer_index_events (ZeitgeistIndexer *indexer,
                                      GPtrArray *events)
 {
