@@ -333,8 +333,8 @@ namespace Zeitgeist
             return;
 
         register_uri_scheme ("file://", NFO.FILE_DATA_OBJECT);
-        register_uri_scheme ("http://", NFO.REMOTE_DATA_OBJECT);
-        register_uri_scheme ("https://", NFO.REMOTE_DATA_OBJECT);
+        register_uri_scheme ("http://", NFO.WEB_DATA_OBJECT);
+        register_uri_scheme ("https://", NFO.WEB_DATA_OBJECT);
         register_uri_scheme ("ssh://", NFO.REMOTE_DATA_OBJECT);
         register_uri_scheme ("sftp://", NFO.REMOTE_DATA_OBJECT);
         register_uri_scheme ("ftp://", NFO.REMOTE_DATA_OBJECT);
