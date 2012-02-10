@@ -219,6 +219,12 @@ test_uncamelcase (Fixture *fix, gconstpointer data)
 
   g_assert_cmpstr ("Abcd Ef", ==, StringUtils::UnCamelcase ("AbcdEf").c_str ());
 
+  g_assert_cmpstr ("Text Editor", ==, StringUtils::UnCamelcase ("Text Editor").c_str ());
+
+  g_assert_cmpstr ("py Karaoke", ==, StringUtils::UnCamelcase ("pyKaraoke").c_str ());
+
+  g_assert_cmpstr ("Zeitgeist Project", ==, StringUtils::UnCamelcase ("ZeitgeistProject").c_str ());
+
   g_assert_cmpstr ("Very Nice Camel Case Text", ==, StringUtils::UnCamelcase ("VeryNiceCamelCaseText").c_str ());
 
   g_assert_cmpstr ("Ňeedš Ťo Wórk Óń Útf Čhářacters As WelL", ==,

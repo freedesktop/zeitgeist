@@ -363,7 +363,7 @@ std::string Indexer::PreprocessString (std::string const& input)
   std::string result (StringUtils::RemoveUnderscores (input));
   // a simple heuristic for the uncamelcaser
   size_t num_digits = StringUtils::CountDigits (result);
-  if (result.length () > 3 && num_digits >= result.length () / 2)
+  if (result.length () > 3 && num_digits < result.length () / 2)
   {
     // FIXME: process digits?, atm they stay attached to the text
     result = StringUtils::UnCamelcase (result);
@@ -375,6 +375,11 @@ std::string Indexer::PreprocessString (std::string const& input)
     result += ' ';
     result += folded;
   }
+
+#ifdef DEBUG_PREPROCESSING
+  if (input != result)
+    g_debug ("processed: %s\n-> %s", input.c_str (), result.c_str ());
+#endif
 
   return result;
 }

@@ -162,7 +162,7 @@ string UnCamelcase (string const &input)
 {
   if (camelcase_matcher == NULL)
   {
-    camelcase_matcher = g_regex_new ("(?<=^|[^[:upper:]])[[:upper:]]+[^[:upper:]]+", G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
+    camelcase_matcher = g_regex_new ("(?<=^|[[:lower:]])[[:upper:]]+[^[:upper:]]+", G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
     if (camelcase_matcher == NULL) g_critical ("Unable to create matcher!");
   }
 
