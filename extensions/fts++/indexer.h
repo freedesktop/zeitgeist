@@ -104,6 +104,8 @@ private:
                                   ZeitgeistTimeRange *time_range,
                                   GPtrArray *templates);
 
+  std::string PreprocessString (std::string const& input);
+
   void AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc);
   void IndexText (std::string const& text);
   void IndexUri (std::string const& uri, std::string const& origin);

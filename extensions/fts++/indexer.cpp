@@ -356,9 +356,34 @@ void Indexer::AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc)
   }
 }
 
+std::string Indexer::PreprocessString (std::string const& input)
+{
+  if (input.empty ()) return input;
+
+  std::string result (StringUtils::RemoveUnderscores (input));
+  // a simple heuristic for the uncamelcaser
+  size_t num_digits = StringUtils::CountDigits (result);
+  if (result.length () > 3 && num_digits >= result.length () / 2)
+  {
+    // FIXME: process digits?, atm they stay attached to the text
+    result = StringUtils::UnCamelcase (result);
+  }
+
+  std::string folded (StringUtils::AsciiFold (result));
+  if (!folded.empty ())
+  {
+    result += ' ';
+    result += folded;
+  }
+
+  return result;
+}
+
 void Indexer::IndexText (std::string const& text)
 {
   tokenizer->index_text (text, 5);
+  // this is by definition already a human readable display string,
+  // so it shouldn't need removal of underscores and uncamelcase
   tokenizer->index_text (StringUtils::AsciiFold (text), 5);
 }
 
@@ -403,9 +428,10 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
     gchar *pn = g_file_get_parse_name (f);
     gchar *basename = g_path_get_basename (pn);
 
-    // FIXME: remove unscores, CamelCase and process digits
-    tokenizer->index_text (basename, 5);
-    tokenizer->index_text (basename, 5, "N");
+    // remove unscores, CamelCase and process digits
+    std::string processed (PreprocessString (basename));
+    tokenizer->index_text (processed, 5);
+    tokenizer->index_text (processed, 5, "N");
 
     g_free (basename);
     // limit the directory indexing to just a few levels
@@ -420,7 +446,7 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
     g_free (dir);
     g_free (pn);
 
-    while (path_component.length () > 2 && 
+    while (path_component.length () > 2 &&
         weight_index < G_N_ELEMENTS (path_weights))
     {
       // if this is already home directory we don't want it
@@ -428,8 +454,9 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
 
       gchar *name = g_path_get_basename (path_component.c_str ());
 
-      // FIXME: un-underscore, uncamelcase, ascii fold
-      tokenizer->index_text (name, path_weights[weight_index++]);
+      // un-underscore, uncamelcase, ascii fold
+      processed = PreprocessString (name);
+      tokenizer->index_text (processed, path_weights[weight_index++]);
 
       dir = g_path_get_dirname (path_component.c_str ());
       path_component = dir;
@@ -470,9 +497,10 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
     
     if (g_utf8_validate (unescaped_basename, -1, NULL))
     {
-      // FIXME: remove unscores, CamelCase and process digits
-      tokenizer->index_text (unescaped_basename, 5);
-      tokenizer->index_text (unescaped_basename, 5, "N");
+      // remove unscores, CamelCase and process digits
+      std::string processed (PreprocessString (unescaped_basename));
+      tokenizer->index_text (processed, 5);
+      tokenizer->index_text (processed, 5, "N");
     }
 
     // and also index hostname (taken from origin field if possible)
@@ -504,6 +532,7 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
   {
     // we *really* don't want to index anything with this scheme
   }
+  // how about special casing (s)ftp and ssh?
   else
   {
     std::string authority, path, query;
@@ -595,18 +624,16 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
   val = g_app_info_get_display_name (ai);
   if (val && val[0] != '\0')
   {
-    std::string display_name (val);
-    std::string display_name_folded (StringUtils::AsciiFold (display_name));
+    std::string display_name (PreprocessString (val));
 
     tokenizer->index_text (display_name, name_weight);
     tokenizer->index_text (display_name, name_weight, "A");
-    tokenizer->index_text (display_name_folded, name_weight);
-    tokenizer->index_text (display_name_folded, name_weight, "A");
   }
 
   val = g_desktop_app_info_get_generic_name (dai);
   if (val && val[0] != '\0')
   {
+    // this shouldn't need uncamelcasing
     std::string generic_name (val);
     std::string generic_name_folded (StringUtils::AsciiFold (generic_name));
 
