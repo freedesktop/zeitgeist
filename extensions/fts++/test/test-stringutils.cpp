@@ -188,6 +188,60 @@ test_ascii_fold (Fixture *fix, gconstpointer data)
   g_assert_cmpstr ("aaaaa", ==, folded.c_str ());
 }
 
+static void
+test_underscores (Fixture *fix, gconstpointer data)
+{
+  g_assert_cmpstr ("", ==, StringUtils::RemoveUnderscores ("").c_str ());
+
+  g_assert_cmpstr (" ", ==, StringUtils::RemoveUnderscores ("_").c_str ());
+
+  g_assert_cmpstr ("   ", ==, StringUtils::RemoveUnderscores ("___").c_str ());
+
+  g_assert_cmpstr ("abcd", ==, StringUtils::RemoveUnderscores ("abcd").c_str ());
+
+  g_assert_cmpstr (" abcd ", ==, StringUtils::RemoveUnderscores ("_abcd_").c_str ());
+
+  g_assert_cmpstr ("a b c d", ==, StringUtils::RemoveUnderscores ("a_b_c_d").c_str ());
+}
+
+static void
+test_uncamelcase (Fixture *fix, gconstpointer data)
+{
+  g_assert_cmpstr ("", ==, StringUtils::UnCamelcase ("").c_str ());
+
+  g_assert_cmpstr ("abcd", ==, StringUtils::UnCamelcase ("abcd").c_str ());
+
+  g_assert_cmpstr ("Abcd", ==, StringUtils::UnCamelcase ("Abcd").c_str ());
+
+  g_assert_cmpstr ("ABCD", ==, StringUtils::UnCamelcase ("ABCD").c_str ());
+
+  g_assert_cmpstr ("ABcd", ==, StringUtils::UnCamelcase ("ABcd").c_str ());
+
+  g_assert_cmpstr ("Abcd Ef", ==, StringUtils::UnCamelcase ("AbcdEf").c_str ());
+
+  g_assert_cmpstr ("Very Nice Camel Case Text", ==, StringUtils::UnCamelcase ("VeryNiceCamelCaseText").c_str ());
+
+  g_assert_cmpstr ("Ňeedš Ťo Wórk Óń Útf Čhářacters As WelL", ==,
+      StringUtils::UnCamelcase ("ŇeedšŤoWórkÓńÚtfČhářactersAsWelL").c_str ());
+}
+
+static void
+test_count_digits (Fixture *fix, gconstpointer data)
+{
+  g_assert_cmpuint (0, ==, StringUtils::CountDigits (""));
+
+  g_assert_cmpuint (0, ==, StringUtils::CountDigits ("abcdefghijklmnopqrstuvwxyz"));
+
+  g_assert_cmpuint (10, ==, StringUtils::CountDigits ("0123456789"));
+
+  g_assert_cmpuint (1, ==, StringUtils::CountDigits ("abc3"));
+
+  g_assert_cmpuint (3, ==, StringUtils::CountDigits ("::123__poa//weee"));
+
+  g_assert_cmpuint (5, ==, StringUtils::CountDigits ("PCN30129.JPG"));
+
+}
+
 G_BEGIN_DECLS
 
 void test_stringutils_create_suite (void)
@@ -198,6 +252,12 @@ void test_stringutils_create_suite (void)
               setup, test_mangle, teardown);
   g_test_add ("/Zeitgeist/FTS/StringUtils/SplitUri", Fixture, 0,
               setup, test_split, teardown);
+  g_test_add ("/Zeitgeist/FTS/StringUtils/RemoveUnderscores", Fixture, 0,
+              setup, test_underscores, teardown);
+  g_test_add ("/Zeitgeist/FTS/StringUtils/UnCamelcase", Fixture, 0,
+              setup, test_uncamelcase, teardown);
+  g_test_add ("/Zeitgeist/FTS/StringUtils/CountDigits", Fixture, 0,
+              setup, test_count_digits, teardown);
 #ifdef HAVE_DEE_ICU
   g_test_add ("/Zeitgeist/FTS/StringUtils/AsciiFold", Fixture, 0,
               setup, test_ascii_fold, teardown);
