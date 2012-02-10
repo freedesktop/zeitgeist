@@ -44,6 +44,7 @@ public class Engine : DbReader
         Object (database: new Zeitgeist.SQLite.Database ());
 
         // TODO: take care of this if we decide to subclass Engine
+        // (we need to propagate the error, so it can't go to construct {})
         last_id = database.get_last_id ();
         extension_collection = new ExtensionCollection (this);
     }
