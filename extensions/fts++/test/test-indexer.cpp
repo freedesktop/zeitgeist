@@ -145,6 +145,26 @@ static ZeitgeistEvent* create_test_event4 (void)
   return event;
 }
 
+static ZeitgeistEvent* create_test_event5 (void)
+{
+  ZeitgeistEvent *event = zeitgeist_event_new ();
+  ZeitgeistSubject *subject = zeitgeist_subject_new ();
+  
+  zeitgeist_subject_set_interpretation (subject, ZEITGEIST_NFO_SOURCE_CODE);
+  zeitgeist_subject_set_manifestation (subject, ZEITGEIST_NFO_FILE_DATA_OBJECT);
+  zeitgeist_subject_set_uri (subject, "file:///home/username/projects/GLibSignalImplementation.cpp");
+  zeitgeist_subject_set_text (subject, "Because c++ is awesome");
+  zeitgeist_subject_set_mimetype (subject, "text/x-c++src");
+
+  zeitgeist_event_set_interpretation (event, ZEITGEIST_ZG_CREATE_EVENT);
+  zeitgeist_event_set_manifestation (event, ZEITGEIST_ZG_USER_ACTIVITY);
+  zeitgeist_event_set_actor (event, "application://gedit.desktop");
+  zeitgeist_event_add_subject (event, subject);
+
+  g_object_unref (subject);
+  return event;
+}
+
 // Steals the event, ref it if you want to keep it
 static guint
 index_event (Fixture *fix, ZeitgeistEvent *event)
@@ -426,6 +446,71 @@ test_simple_url_unescape (Fixture *fix, gconstpointer data)
 }
 
 static void
+test_simple_underscores (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id;
+  ZeitgeistEvent* event;
+  ZeitgeistSubject *subject;
+
+  // add test events to DBs
+  index_event (fix, create_test_event1 ());
+  index_event (fix, create_test_event2 ());
+  index_event (fix, create_test_event3 ());
+  event_id = index_event (fix, create_test_event4 ());
+
+  GPtrArray *results =
+    zeitgeist_indexer_search (fix->indexer,
+                              "fabulo*",
+                              zeitgeist_time_range_new_anytime (),
+                              g_ptr_array_new (),
+                              0,
+                              10,
+                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+                              &matches,
+                              NULL);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+
+  event = (ZeitgeistEvent*) results->pdata[0];
+  g_assert_cmpuint (zeitgeist_event_get_id (event), ==, event_id);
+}
+
+static void
+test_simple_camelcase (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id;
+  ZeitgeistEvent* event;
+  ZeitgeistSubject *subject;
+
+  // add test events to DBs
+  index_event (fix, create_test_event1 ());
+  index_event (fix, create_test_event2 ());
+  index_event (fix, create_test_event3 ());
+  index_event (fix, create_test_event4 ());
+  event_id = index_event (fix, create_test_event5 ());
+
+  GPtrArray *results =
+    zeitgeist_indexer_search (fix->indexer,
+                              "signal",
+                              zeitgeist_time_range_new_anytime (),
+                              g_ptr_array_new (),
+                              0,
+                              10,
+                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+                              &matches,
+                              NULL);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+
+  event = (ZeitgeistEvent*) results->pdata[0];
+  g_assert_cmpuint (zeitgeist_event_get_id (event), ==, event_id);
+}
+
+static void
 test_simple_cjk (Fixture *fix, gconstpointer data)
 {
   guint matches;
@@ -517,6 +602,10 @@ void test_indexer_create_suite (void)
               setup, test_simple_noexpand, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/SimpleNoexpandValid", Fixture, 0,
               setup, test_simple_noexpand_valid, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleUnderscores", Fixture, 0,
+              setup, test_simple_underscores, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleCamelcase", Fixture, 0,
+              setup, test_simple_camelcase, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/URLUnescape", Fixture, 0,
               setup, test_simple_url_unescape, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/IDNSupport", Fixture, 0,
