@@ -124,6 +124,8 @@ namespace Zeitgeist
             original = File.new_for_path (get_database_file_path ());
             destination = File.new_for_path (get_database_file_backup_path ());
 
+            message ("Backing up database to \"%s\" for schema upgrade...",
+                get_database_file_backup_path ());
             original.copy (destination, FileCopyFlags.OVERWRITE, null, null);
         }
 
