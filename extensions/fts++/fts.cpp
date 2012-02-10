@@ -89,6 +89,7 @@ zeitgeist_indexer_search_with_relevancies (ZeitgeistIndexer *indexer,
                                            const gchar *search_string,
                                            ZeitgeistTimeRange *time_range,
                                            GPtrArray *templates,
+                                           ZeitgeistStorageState storage_state,
                                            guint offset,
                                            guint count,
                                            ZeitgeistResultType result_type,
@@ -108,8 +109,8 @@ zeitgeist_indexer_search_with_relevancies (ZeitgeistIndexer *indexer,
   _indexer = (ZeitgeistFTS::Controller*) indexer;
 
   results = _indexer->indexer->SearchWithRelevancies (
-      search_string, time_range, templates, offset, count, result_type,
-      relevancies, relevancies_size, matches, error);
+      search_string, time_range, templates, storage_state, offset, count,
+      result_type, relevancies, relevancies_size, matches, error);
 
   return results;
 }

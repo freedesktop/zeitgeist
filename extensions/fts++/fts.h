@@ -48,6 +48,7 @@ GPtrArray*         zeitgeist_indexer_search_with_relevancies
                                                     const gchar *search_string,
                                                     ZeitgeistTimeRange *time_range,
                                                     GPtrArray *templates,
+                                                    ZeitgeistStorageState storage_state,
                                                     guint offset,
                                                     guint count,
                                                     ZeitgeistResultType result_type,

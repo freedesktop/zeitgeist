@@ -825,6 +825,7 @@ GPtrArray* Indexer::Search (const gchar *search,
 GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
                                            ZeitgeistTimeRange *time_range,
                                            GPtrArray *templates,
+                                           ZeitgeistStorageState storage_state,
                                            guint offset,
                                            guint count,
                                            ZeitgeistResultType result_type,
@@ -847,6 +848,15 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
     else
     {
       enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
+    }
+
+    if (storage_state != ZEITGEIST_STORAGE_STATE_ANY)
+    {
+      g_set_error_literal (error,
+                           ZEITGEIST_ENGINE_ERROR,
+                           ZEITGEIST_ENGINE_ERROR_INVALID_ARGUMENT,
+                           "Only ANY stogate state is supported");
+      return NULL;
     }
 
     Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));

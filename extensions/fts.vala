@@ -35,7 +35,7 @@ namespace Zeitgeist
             string query_string,
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
-            uint offset, uint count, uint result_type,
+            uint storage_state, uint offset, uint count, uint result_type,
             [DBus (signature = "a(asaasay)")] out Variant events,
             out double[] relevancies,
             out uint matches) throws Error;
@@ -164,7 +164,8 @@ namespace Zeitgeist
 
         public async void search_with_relevancies (
             string query_string, Variant time_range,
-            Variant filter_templates, uint offset, uint count, uint result_type,
+            Variant filter_templates, uint storage_state,
+            uint offset, uint count, uint result_type,
             out Variant events, out double[] relevancies, out uint matches)
             throws Error
         {
@@ -173,7 +174,7 @@ namespace Zeitgeist
             var timer = new Timer ();
             yield siin.search_with_relevancies (
                 query_string, time_range, filter_templates,
-                offset, count, result_type,
+                storage_state, offset, count, result_type,
                 out events, out relevancies, out matches);
 
             debug ("Got %u[/%u] results from indexer (in %f seconds)",

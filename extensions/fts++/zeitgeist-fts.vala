@@ -135,7 +135,8 @@ namespace Zeitgeist
         public async void search_with_relevancies (
                                   string query_string, Variant time_range,
                                   Variant filter_templates,
-                                  uint offset, uint count, uint result_type,
+                                  uint storage_state, uint offset,
+                                  uint count, uint result_type,
                                   out Variant events, out double[] relevancies,
                                   out uint matches)
             throws Error
@@ -143,8 +144,9 @@ namespace Zeitgeist
             var tr = new TimeRange.from_variant (time_range);
             var templates = Events.from_variant (filter_templates);
             var results = instance.indexer.search_with_relevancies (
-                    query_string, tr, templates, offset, count,
-                    (ResultType) result_type, out relevancies, out matches);
+                    query_string, tr, templates, (StorageState) storage_state,
+                    offset, count, (ResultType) result_type,
+                    out relevancies, out matches);
 
             events = Events.to_variant (results);
         }

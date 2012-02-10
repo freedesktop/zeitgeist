@@ -18,6 +18,7 @@ namespace Zeitgeist {
                                             string search_string,
                                             TimeRange time_range,
                                             GLib.GenericArray<Event> templates,
+                                            StorageState storage_state,
                                             uint offset,
                                             uint count,
                                             ResultType result_type,

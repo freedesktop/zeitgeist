@@ -88,6 +88,7 @@ public:
   GPtrArray* SearchWithRelevancies (const gchar *search,
                                     ZeitgeistTimeRange *time_range,
                                     GPtrArray *templates,
+                                    ZeitgeistStorageState storage_state,
                                     guint offset,
                                     guint count,
                                     ZeitgeistResultType result_type,
