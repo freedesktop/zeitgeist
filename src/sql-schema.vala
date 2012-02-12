@@ -35,7 +35,7 @@ namespace Zeitgeist.SQLite
     {
 
         public const string CORE_SCHEMA = "core";
-        public const int CORE_SCHEMA_VERSION = 5;
+        public const int CORE_SCHEMA_VERSION = 6;
 
         public static void ensure_schema (Sqlite.Database database)
             throws EngineError
@@ -48,25 +48,74 @@ namespace Zeitgeist.SQLite
                 // most likely a new DB
                 create_schema (database);
             }
-            else if (schema_version == 4)
+            else if (schema_version == 4 || schema_version == 5)
             {
-                // DB from latest Python Zeitgeist, which we can "upgrade"
-                try
+                backup_database ();
+
+                string[] tables = { "interpretation", "manifestation",
+                    "mimetype", "actor" };
+
+                // Rename old tables that need to be replaced
+                foreach (unowned string table in tables)
                 {
-                  Utils.backup_database ();
+                    exec_query (database,
+                        "ALTER TABLE %s RENAME TO %s_old".printf (table, table));
                 }
-                catch (Error backup_error)
-                {
-                    var msg = "Database backup failed: " + backup_error.message;
-                    throw new EngineError.BACKUP_FAILED (msg);
-                }
+
+                // Create any missing tables and indices
                 create_schema (database);
+
+                // Migrate data to the new tables and delete the old ones
+                foreach (unowned string table in tables)
+                {
+                    exec_query (database,
+                        "INSERT INTO %s SELECT id, value FROM %s_old".printf (
+                        table, table));
+
+                    exec_query (database, "DROP TABLE %s_old".printf (table));
+                }
+
+                // Ontology update
+                exec_query (database,
+                    "INSERT OR IGNORE INTO manifestation (value) VALUES ('%s')"
+                    .printf (NFO.WEB_DATA_OBJECT));
+                exec_query (database, """
+                    UPDATE event
+                    SET subj_manifestation=(
+                        SELECT id FROM manifestation WHERE value='""" +
+                            NFO.WEB_DATA_OBJECT + """')
+                    WHERE
+                        subj_manifestation=(
+                            SELECT id FROM manifestation WHERE value='""" +
+                                NFO.WEB_DATA_OBJECT + """')
+                        AND subj_id IN (
+                            SELECT id FROM uri
+                            WHERE
+                                value LIKE "http://%"
+                                OR value LIKE "https://%"
+                        )
+                    """);
+
+                message ("Upgraded database to schema version 6.");
             }
             else if (schema_version < CORE_SCHEMA_VERSION)
             {
                 throw new EngineError.DATABASE_ERROR (
                     "Unable to upgrade from schema version %d".printf (
                         schema_version));
+            }
+        }
+
+        private static void backup_database () throws EngineError
+        {
+            try
+            {
+              Utils.backup_database ();
+            }
+            catch (Error backup_error)
+            {
+                var msg = "Database backup failed: " + backup_error.message;
+                throw new EngineError.BACKUP_FAILED (msg);
             }
         }
 
@@ -116,7 +165,7 @@ namespace Zeitgeist.SQLite
             // Interpretation
             exec_query (database, """
                 CREATE TABLE IF NOT EXISTS interpretation (
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     value VARCHAR UNIQUE
                 )
                 """);
@@ -128,7 +177,7 @@ namespace Zeitgeist.SQLite
             // Manifestation
             exec_query (database, """
                 CREATE TABLE IF NOT EXISTS manifestation (
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     value VARCHAR UNIQUE
                 )
                 """);
@@ -140,7 +189,7 @@ namespace Zeitgeist.SQLite
             // Mime-Type
             exec_query (database, """
                 CREATE TABLE IF NOT EXISTS mimetype (
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     value VARCHAR UNIQUE
                 )
                 """);
@@ -152,7 +201,7 @@ namespace Zeitgeist.SQLite
             // Actor
             exec_query (database, """
                 CREATE TABLE IF NOT EXISTS actor (
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     value VARCHAR UNIQUE
                 )
                 """);

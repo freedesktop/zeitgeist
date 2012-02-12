@@ -6,6 +6,8 @@ Engine:
  - The FTS module in Python has been replaced with a C/C++ implementation.
  - Pre-process events *before* they are send to extensions (LP: #628804).
  - Minor fixes.
+ - Introduced new DB schema (version 6); cached tables may no longer
+   re-use row IDs.
 
 Python API:
  - Fixed signal/monitor reconnection to avoid duplicated notifications.
