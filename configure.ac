@@ -96,6 +96,16 @@ AC_CONFIG_FILES([
 	po/Makefile.in
 ])
 
+# check for Xapian
+AC_CHECK_PROG(HAVE_XAPIAN, xapian-config, yes, no)
+if test "x$HAVE_XAPIAN" = "xno"; then
+  AC_MSG_ERROR("You need the Xapian development files in order to compile Zeitgeist")
+fi
+XAPIAN_LIBS=`xapian-config --libs`
+XAPIAN_CXXFLAGS=`xapian-config --cxxflags`
+AC_SUBST(XAPIAN_LIBS)
+AC_SUBST(XAPIAN_CXXFLAGS)
+
 # check for rapper
 AC_CHECK_PROG(HAVE_RAPPER, rapper, yes, no)
 if test "x$HAVE_RAPPER" = "xno"; then

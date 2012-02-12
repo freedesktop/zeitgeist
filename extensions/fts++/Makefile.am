@@ -13,6 +13,7 @@ org.gnome.zeitgeist.fts.service: Makefile
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
+	$(XAPIAN_CXXFLAGS) \
 	-include $(CONFIG_HEADER) \
 	-w \
 	$(NULL)
@@ -73,7 +74,7 @@ zeitgeist_fts_SOURCES = \
 
 zeitgeist_fts_LDADD = \
 	$(builddir)/libzeitgeist-internal.la \
-	-lxapian \
+	$(XAPIAN_LIBS) \
 	$(NULL)
 
 if HAVE_DEE_ICU
