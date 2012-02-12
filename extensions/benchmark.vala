@@ -1,4 +1,4 @@
-/* fts.vala
+/* benchmark.vala
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Seif Lotfy <seif@lotfy.com>

@@ -42,9 +42,10 @@ changes with regards to the 0.8.3 Python implementation are:
 
 Engine:
 
- - The language for extensions has changes from Python to Vala.
+ - Changed the language for extensions from Python to Vala.
  - The post_get_events hook is no longer supported.
  - The FTS and Histogram extensions are now shipped together with Zeitgeist.
+ - Introduced new DB schema (version 5).
 
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------

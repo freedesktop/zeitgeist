@@ -218,12 +218,12 @@ MIMES_REGEX = make_regex_tuple(
 
 SCHEMES = tuple((
     ("file://", Manifestation.FILE_DATA_OBJECT),
-    ("http://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
-    ("https://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
-    ("ssh://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
-    ("sftp://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
-    ("ftp://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
-    ("dav://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
-    ("davs://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
-    ("smb://", Manifestation.FILE_DATA_OBJECT.REMOTE_DATA_OBJECT),
+    ("http://", Manifestation.REMOTE_DATA_OBJECT),
+    ("https://", Manifestation.REMOTE_DATA_OBJECT),
+    ("ssh://", Manifestation.REMOTE_DATA_OBJECT),
+    ("sftp://", Manifestation.REMOTE_DATA_OBJECT),
+    ("ftp://", Manifestation.REMOTE_DATA_OBJECT),
+    ("dav://", Manifestation.REMOTE_DATA_OBJECT),
+    ("davs://", Manifestation.REMOTE_DATA_OBJECT),
+    ("smb://", Manifestation.REMOTE_DATA_OBJECT),
 ))
