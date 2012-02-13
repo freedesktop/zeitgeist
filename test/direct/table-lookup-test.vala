@@ -38,6 +38,7 @@ int main (string[] args)
 
     Test.add_func ("/WhereClause/basic", basic_test);
     Test.add_func ("/WhereClause/delete_hook", engine_test);
+    Test.add_func ("/WhereClause/get_value_query", get_value_with_query_test);
 
     return Test.run ();
 }
@@ -66,6 +67,18 @@ public void basic_test ()
     table_lookup.remove (1);
     assert_cmpint (table_lookup.get_id ("2nd-actor"), OperatorType.EQUAL, id+1);
     assert_cmpint (table_lookup.get_id ("1st-actor"), OperatorType.EQUAL, id+2);
+}
+
+public void get_value_with_query_test ()
+{
+    Database database = new Zeitgeist.SQLite.Database ();
+    unowned Sqlite.Database db = database.database;
+    TableLookup table_lookup = new TableLookup (database, "actor");
+
+    int rc = db.exec ("INSERT INTO actor (id, value) VALUES (100, 'new-actor')");
+    assert (rc == Sqlite.OK);
+
+    assert_cmpstr (table_lookup.get_value (100), OperatorType.EQUAL, "new-actor");
 }
 
 public void engine_test ()

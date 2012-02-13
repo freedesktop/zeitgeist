@@ -33,6 +33,7 @@ namespace Zeitgeist.SQLite
         private HashTable<int, string> id_to_value;
         private HashTable<string, int> value_to_id;
         private Sqlite.Statement insertion_stmt;
+        private Sqlite.Statement retrieval_stmt;
 
         public TableLookup (Database database, string table_name)
         {
@@ -42,6 +43,7 @@ namespace Zeitgeist.SQLite
             value_to_id = new HashTable<string, int>(str_hash, str_equal);
 
             int rc;
+            string sql;
 
             rc = db.exec ("SELECT id, value FROM " + table,
                 (n_columns, values, column_names) =>
@@ -56,8 +58,17 @@ namespace Zeitgeist.SQLite
                     rc, db.errmsg ());
             }
 
-            string sql = "INSERT INTO " + table + " (value) VALUES (?)";
+            sql = "INSERT INTO " + table + " (value) VALUES (?)";
             rc = db.prepare_v2 (sql, -1, out insertion_stmt);
+            if (rc != Sqlite.OK)
+            {
+                // FIXME: throw exception and propagate it up to
+                //        zeitgeist-daemon to abort with DB error?
+                critical ("SQL error: %d, %s\n", rc, db.errmsg ());
+            }
+
+            sql = "SELECT value FROM " + table + " WHERE id=?";
+            rc = db.prepare_v2 (sql, -1, out retrieval_stmt);
             if (rc != Sqlite.OK)
             {
                 critical ("SQL error: %d, %s\n", rc, db.errmsg ());
@@ -93,23 +104,27 @@ namespace Zeitgeist.SQLite
             unowned string val = id_to_value.lookup (id);
             if (val != null) return val;
 
-            // The above statement isn't exactly true. If this is a standalone
-            // reader in a separate process, the values won't be kept updated
-            // so we need to query the DB if we don't find it.
+            // Unless this is a standalone reader in a separate process, in
+            // which case the values won't be kept updated, so we need to
+            // query the DB if we don't find it.
             int rc;
+            string? text = null;
 
-            rc = db.exec ("SELECT value FROM %s WHERE id=%d".printf (table, id),
-                (n_columns, values, column_names) =>
-                {
-                    id_to_value.insert (id, values[0]);
-                    value_to_id.insert (values[0], id);
-                    return 0;
-                }, null);
-            if (rc != Sqlite.OK)
+            retrieval_stmt.reset ();
+            retrieval_stmt.bind_int64 (1, id);
+            if ((rc = retrieval_stmt.step()) == Sqlite.ROW)
             {
-                critical ("Can't get data from table %s: %d, %s\n", table,
+                text = retrieval_stmt.column_text (0);
+                id_to_value.insert (id, text);
+                value_to_id.insert (text, id);
+                rc = retrieval_stmt.step ();
+            }
+            if (rc != Sqlite.DONE || text == null)
+            {
+                critical ("Error getting data from table: %d, %s\n",
                     rc, db.errmsg ());
             }
+
             return id_to_value.lookup (id);
         }
 
