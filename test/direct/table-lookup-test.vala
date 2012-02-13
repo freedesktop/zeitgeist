@@ -56,16 +56,16 @@ public void basic_test ()
     unowned Sqlite.Database db = database.database;
     TableLookup table_lookup = new TableLookup (database, "actor");
 
-    assert_cmpint (table_lookup.get_id ("1st-actor"), OperatorType.EQUAL, 1);
-    assert_cmpint (table_lookup.get_id ("2nd-actor"), OperatorType.EQUAL, 2);
-    assert_cmpint (table_lookup.get_id ("1st-actor"), OperatorType.EQUAL, 1);
+    int id = table_lookup.get_id ("1st-actor");
+    assert_cmpint (table_lookup.get_id ("2nd-actor"), OperatorType.EQUAL, id+1);
+    assert_cmpint (table_lookup.get_id ("1st-actor"), OperatorType.EQUAL, id);
 
     int rc = db.exec ("DELETE FROM actor WHERE value='1st-actor'");
     assert (rc == Sqlite.OK);
 
     table_lookup.remove (1);
-    assert_cmpint (table_lookup.get_id ("2nd-actor"), OperatorType.EQUAL, 2);
-    assert_cmpint (table_lookup.get_id ("1st-actor"), OperatorType.EQUAL, 3);
+    assert_cmpint (table_lookup.get_id ("2nd-actor"), OperatorType.EQUAL, id+1);
+    assert_cmpint (table_lookup.get_id ("1st-actor"), OperatorType.EQUAL, id+2);
 }
 
 public void engine_test ()
@@ -82,8 +82,6 @@ public void engine_test ()
     int rc = db.exec ("DELETE FROM actor WHERE value='something'");
     assert (rc == Sqlite.OK);
 
-    assert_cmpint (
-        table_lookup.get_id ("sqlite-reuses-the-id"), OperatorType.EQUAL, 1);
     assert_cmpint (table_lookup.get_id ("something"), OperatorType.EQUAL, 2);
 }
 

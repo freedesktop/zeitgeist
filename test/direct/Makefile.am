@@ -10,10 +10,10 @@ VALAFLAGS = \
 
 TESTS = \
 	marshalling-test \
-	query-operators-test \
-	where-clause-test \
-	table-lookup-test \
 	mimetype-test \
+	query-operators-test \
+	table-lookup-test \
+	where-clause-test \
 	$(NULL)
 
 SRC_FILES = \
@@ -56,19 +56,19 @@ clean-local:
 
 DISTCLEANFILES = \
 	marshalling-test \
-	query-operators-test \
-	where-clause-test \
-	table-lookup-test \
 	mimetype-test \
+	query-operators-test \
+	table-lookup-test \
+	where-clause-test \
 	$(NULL)
 
 EXTRA_DIST = \
-	marshalling-test.vala \
-	query-operators-test.vala \
-	where-clause-test.vala \
-	table-lookup-test.vala \
-	mimetype-test.vala \
 	assertions.vapi \
+	marshalling-test.vala \
+	mimetype-test.vala \
+	query-operators-test.vala \
+	table-lookup-test.vala \
+	where-clause-test.vala \
 	$(NULL)
 
 VALA_V = $(VALA_V_$(V))
