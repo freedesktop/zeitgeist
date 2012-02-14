@@ -1,13 +1,14 @@
-2012-02-10: Zeitgeist Bluebird Beta 1
+2012-02-14: Zeitgeist Bluebird Alpha 3
+--------------------------------------
 
 Engine:
  - Revert use of EXCLUSIVE locking mode, it breaks FTS.
  - Notifications are queued until the target monitor objects are ready.
  - The FTS module in Python has been replaced with a C/C++ implementation.
  - Pre-process events *before* they are send to extensions (LP: #628804).
- - Minor fixes.
  - Introduced new DB schema (version 6); cached tables may no longer
    re-use row IDs.
+ - Minor fixes.
 
 Python API:
  - Fixed signal/monitor reconnection to avoid duplicated notifications.
