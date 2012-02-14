@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2012 Canonical Ltd
- *               2012 Mikkel Kamstrup Erlandsen
+ * Copyright © 2012 Canonical Ltd.
+ *             By Michal Hruby <michal.hruby@canonical.com>
+ * Copyright © 2012 Mikkel Kamstrup Erlandsen
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,9 +15,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Authored by Michal Hruby <michal.hruby@canonical.com>
- *             Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
  *
  */
 
