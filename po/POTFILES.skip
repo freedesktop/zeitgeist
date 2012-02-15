@@ -1,1 +1,2 @@
 src/main.c
+tools/gtk/zeitgeist-data-sources-gtk.py

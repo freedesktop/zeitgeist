@@ -70,3 +70,6 @@ benchmark_la_LDFLAGS = -module -avoid-version
 benchmark_la_LIBADD = \
 	$(ZEITGEIST_LIBS) \
 	$(NULL)
+
+distclean-local:
+	rm -f *.c *.o *.stamp *.~[0-9]~

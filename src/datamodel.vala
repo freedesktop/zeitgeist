@@ -509,6 +509,7 @@ namespace Zeitgeist
     {
 
         public static GenericArray<Event> from_variant (Variant vevents)
+            throws EngineError
         {
             GenericArray<Event> events = new GenericArray<Event> ();
 
