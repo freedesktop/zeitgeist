@@ -6,9 +6,11 @@ VALAFLAGS = \
 	--pkg gmodule-2.0 \
 	$(srcdir)/assertions.vapi \
 	--Xcc=-w \
+	-g \
 	$(NULL)
 
 TESTS = \
+	datamodel-test \
 	marshalling-test \
 	mimetype-test \
 	query-operators-test \
@@ -36,6 +38,9 @@ SRC_FILES = \
 	$(top_srcdir)/src/mimetype.vala \
 	$(NULL)
 
+datamodel-test: datamodel-test.vala $(SRC_FILES)
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
+
 marshalling-test: marshalling-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
@@ -54,7 +59,8 @@ mimetype-test: mimetype-test.vala $(SRC_FILES)
 clean-local:
 	rm -f *.~[0-9]~
 
-DISTCLEANFILES = \
+CLEANFILES = \
+	datamodel-test \
 	marshalling-test \
 	mimetype-test \
 	query-operators-test \
@@ -64,6 +70,7 @@ DISTCLEANFILES = \
 
 EXTRA_DIST = \
 	assertions.vapi \
+	datamodel-test.vala \
 	marshalling-test.vala \
 	mimetype-test.vala \
 	query-operators-test.vala \

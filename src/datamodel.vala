@@ -4,6 +4,8 @@
  *             By Seif Lotfy <seif@lotfy.com>
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
+ * Copyright © 2012 Canonical Ltd.
+ *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -262,15 +264,18 @@ namespace Zeitgeist
         ANY             = 2  // The event subjects may or may not be available
     }
 
-    private bool check_field_match (string property,
-            string template_property, bool is_symbol = false,
+    private bool check_field_match (string? property,
+            string? template_property, bool is_symbol = false,
             bool can_wildcard = false)
     {
         var matches = false;
+        var is_negated = false;
         var parsed = template_property;
-        var is_negated = Utils.parse_negation (ref parsed);
 
-        if (parsed == "")
+        if (parsed != null)
+            is_negated = Utils.parse_negation (ref parsed);
+
+        if (Utils.is_empty_string (parsed))
         {
             return true;
         }
@@ -278,14 +283,15 @@ namespace Zeitgeist
         {
             matches = true;
         }
-        else if (is_symbol &&
+        else if (is_symbol && property != null &&
             Symbol.get_all_parents (property).find_custom (parsed, strcmp) != null)
         {
             matches = true;
         }
         else if (can_wildcard && Utils.parse_wildcard (ref parsed))
         {
-            if (property.has_prefix (parsed)) matches = true;
+            if (property != null && property.has_prefix (parsed))
+                matches = true;
         }
 
         return (is_negated) ? !matches : matches;
@@ -297,27 +303,27 @@ namespace Zeitgeist
 
         public uint32    id { get; set; }
         public int64     timestamp { get; set; }
-        public string    origin { get; set; }
+        public string?   origin { get; set; }
 
-        public string actor
+        public string? actor
         {
             get { return _actor; }
-            set { _actor = url_store.insert_const (value); }
+            set { _actor = (value != null) ? url_store.insert_const (value) : null; }
         }
-        public string interpretation
+        public string? interpretation
         {
             get { return _interpretation; }
-            set { _interpretation = url_store.insert_const (value); }
+            set { _interpretation = (value != null) ? url_store.insert_const (value) : null; }
         }
-        public string manifestation
+        public string? manifestation
         {
             get { return _manifestation; }
-            set { _manifestation = url_store.insert_const (value); }
+            set { _manifestation = (value != null) ? url_store.insert_const (value) : null; }
         }
 
-        private unowned string _actor;
-        private unowned string _interpretation;
-        private unowned string _manifestation;
+        private unowned string? _actor;
+        private unowned string? _interpretation;
+        private unowned string? _manifestation;
 
         public GenericArray<Subject> subjects { get; set; }
         public ByteArray? payload { get; set; }
@@ -340,6 +346,29 @@ namespace Zeitgeist
         public void add_subject (Subject subject)
         {
             subjects.add (subject);
+        }
+
+        // FIXME: change this to va_list once Vala bug #647097 is fixed
+        public Event.full (string? interpretation=null,
+            string? manifestation=null, string? actor=null,
+            string? origin=null, GenericArray<Subject>? subjects=null)
+        {
+            this.interpretation = interpretation;
+            this.manifestation = manifestation;
+            this.actor = actor;
+            this.origin = origin;
+
+            if (subjects != null)
+                this.subjects = subjects;
+            else
+                this.subjects = new GenericArray<Subject> ();
+
+            /*
+            var subjects = va_list ();
+            unowned Subject subject;
+            while ((subject = subjects.arg ()) != null)
+                add_subject (subject);
+            */
         }
 
         public Event.from_variant (Variant event_variant) throws EngineError {
@@ -560,37 +589,51 @@ namespace Zeitgeist
     {
         private static StringChunk url_store;
 
-        public string uri { get; set; }
-        public string origin { get; set; }
-        public string text { get; set; }
-        public string storage { get; set; }
+        public string? uri { get; set; }
+        public string? origin { get; set; }
+        public string? text { get; set; }
+        public string? storage { get; set; }
         // FIXME: current_uri is often the same as uri, we don't need to waste
         // memory for it
-        public string current_uri { get; set; }
+        public string? current_uri { get; set; }
 
-        public string mimetype
+        public string? mimetype
         {
             get { return _mimetype; }
-            set { _mimetype = url_store.insert_const (value); }
+            set { _mimetype = (value != null) ? url_store.insert_const (value) : null; }
         }
-        public string interpretation
+        public string? interpretation
         {
             get { return _interpretation; }
-            set { _interpretation = url_store.insert_const (value); }
+            set { _interpretation = (value != null) ? url_store.insert_const (value) : null; }
         }
-        public string manifestation
+        public string? manifestation
         {
             get { return _manifestation; }
-            set { _manifestation = url_store.insert_const (value); }
+            set { _manifestation = (value != null) ? url_store.insert_const (value) : null; }
         }
 
-        private unowned string _mimetype;
-        private unowned string _interpretation;
-        private unowned string _manifestation;
+        private unowned string? _mimetype;
+        private unowned string? _interpretation;
+        private unowned string? _manifestation;
 
         static construct
         {
             url_store = new StringChunk (4096);
+        }
+
+        public Subject.full (string? uri=null,
+            string? interpretation=null, string? manifestation=null,
+            string? mimetype=null, string? origin=null, string? text=null,
+            string? storage=null, string? current_uri=null)
+        {
+            this.interpretation = interpretation;
+            this.manifestation = manifestation;
+            this.mimetype = mimetype;
+            this.origin = origin;
+            this.text = text;
+            this.storage = storage;
+            this.current_uri = current_uri;
         }
 
         public Subject.from_variant (Variant subject_variant)
