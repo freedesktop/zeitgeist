@@ -348,21 +348,16 @@ namespace Zeitgeist
             subjects.add (subject);
         }
 
-        // FIXME: change this to va_list once Vala bug #647097 is fixed
         public Event.full (string? interpretation=null,
             string? manifestation=null, string? actor=null,
-            string? origin=null, GenericArray<Subject>? subjects=null)
+            string? origin=null, ...)
         {
             this.interpretation = interpretation;
             this.manifestation = manifestation;
             this.actor = actor;
             this.origin = origin;
 
-            if (subjects != null)
-                this.subjects = subjects;
-            else
-                this.subjects = new GenericArray<Subject> ();
-
+            // FIXME: We can't use this until Vala bug #647097 is fixed
             /*
             var subjects = va_list ();
             unowned Subject subject;
