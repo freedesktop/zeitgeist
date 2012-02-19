@@ -37,6 +37,7 @@ zeitgeist_daemon_VALASOURCES = \
 	extension.vala \
 	extension-collection.vala \
 	extension-store.vala \
+	logging.vala \
 	notify.vala \
 	sql.vala \
 	utils.vala \
