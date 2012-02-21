@@ -277,6 +277,12 @@ namespace Zeitgeist.SQLite
             assert_query_success (rc, "Can't commit transaction");
         }
 
+        public void abort_transaction () throws EngineError
+        {
+            int rc = database.exec ("ROLLBACK");
+            assert_query_success (rc, "Can't rollback transaction");
+        }
+
         public void close ()
         {
             // SQLite connection is implicitly closed upon destruction

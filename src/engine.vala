@@ -72,13 +72,24 @@ public class Engine : DbReader
 
         extension_collection.call_pre_insert_events (events, sender);
         uint32[] event_ids = new uint32[events.length];
+        EngineError? err = null;
         database.begin_transaction ();
-        for (int i = 0; i < events.length; ++i)
+        try
         {
-            if (events[i] != null)
-                event_ids[i] = insert_event (events[i]);
+            for (int i = 0; i < events.length; ++i)
+            {
+                if (events[i] != null)
+                    event_ids[i] = insert_event (events[i]);
+            }
+            database.end_transaction ();
         }
-        database.end_transaction ();
+        catch (EngineError e)
+        {
+            err = e;
+            database.abort_transaction ();
+        }
+        if (err != null) throw err;
+
         extension_collection.call_post_insert_events (events, sender);
         return event_ids;
     }
