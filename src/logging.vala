@@ -20,7 +20,7 @@
 
 namespace Zeitgeist
 {
-    class Logging
+    namespace Logging
     {
 
         private static FileStream? log_file = null;
