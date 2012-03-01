@@ -20,8 +20,10 @@
 
 namespace Zeitgeist
 {
-    namespace Logging
+    class Logging
     {
+
+        private static FileStream? log_file = null;
 
         private const string BLUE = "\x1b[34m";
         private const string GREEN = "\x1b[32m";
@@ -29,7 +31,7 @@ namespace Zeitgeist
         private const string YELLOW = "\x1b[33m";
         private const string RESET = "\x1b[0m";
 
-        private string get_log_level_string (LogLevelFlags log_levels,
+        private static string get_log_level_string (LogLevelFlags log_levels,
             out string color)
         {
             string log_level;
@@ -73,15 +75,18 @@ namespace Zeitgeist
             return log_level;
         }
 
-        private void log_handler (string? log_domain, LogLevelFlags log_levels,
-            string message)
+        private static void log_handler (string? log_domain,
+            LogLevelFlags log_levels, string message)
         {
             string color;
             string log_level = get_log_level_string (log_levels, out color);
             string timestamp = TimeVal ().to_iso8601 ().substring (11, 15);
-            //string datestamp = new DateTime.now_local ().format (
-            //    "%Y-%m-%d %H:%M:%S");
-            // FIXME: get PID
+
+            DateTime datetime = new DateTime.now_local ();
+            string date_string = "%s,%.3d".printf (
+                datetime.format ("%Y-%m-%d %H:%M:%S"),
+                (int) ((datetime.get_microsecond () / 1000.0)));
+            int pid = Posix.getpid ();
 
             unowned FileStream output;
             if (log_levels >= LogLevelFlags.LEVEL_MESSAGE)
@@ -94,11 +99,15 @@ namespace Zeitgeist
                 log_level, RESET, message);
 
             // Log to file
-            // FIXME:
-            //printf ("[%s] - %s - %s\n", datestamp, log_level, message);
+            if (Logging.log_file != null)
+            {
+                Logging.log_file.printf ("%d [%s] - %s - %s\n",
+                    pid, date_string, log_level, message);
+            }
         }
 
-        public void setup_logging (string? log_level)
+        public static void setup_logging (string name, string? log_level,
+            string? log_file=null)
         {
             LogLevelFlags discarded = LogLevelFlags.LEVEL_DEBUG;
             if (log_level != null)
@@ -130,9 +139,54 @@ namespace Zeitgeist
             if (discarded != 0)
                 Log.set_handler (null, discarded, () => {});
 
+            /*
+            try
+            {
+                string filename = rotate_and_get_log_file (name);
+                log_file = FileStream.open (filename, "a");
+            }
+            catch (Error e)
+            {
+                warning ("Couldn't setup file logging: %s", e.message);
+                log_file = null;
+            }
+            */
+
+            if (log_file != null)
+                Logging.log_file = FileStream.open (log_file, "a");
+
             LogLevelFlags logged = ~discarded & ~LogLevelFlags.FLAG_RECURSION;
             Log.set_handler (null, logged, log_handler);
         }
+
+        /*
+        private static string rotate_and_get_log_file (string name) throws Error
+        {
+            string log_path = Utils.get_logging_path ();
+            string filename = Path.build_path (Path.DIR_SEPARATOR_S,
+                log_path, "%s.log".printf (name));
+
+            File log_file = File.new_for_path (filename);
+            try
+            {
+                FileInfo info = log_file.query_info (
+                    FILE_ATTRIBUTE_TIME_MODIFIED, FileQueryInfoFlags.NONE);
+
+                TimeVal last_log_time_val;
+                info.get_modification_time (out last_log_time_val);
+
+                Date last_log_date = Date();
+                last_log_date.set_time_val (last_log_time_val);
+            }
+            catch (Error e)
+            {
+                if (!(e is IOError.NOT_FOUND))
+                    throw e;
+            }
+
+            return filename;
+        }
+        */
 
     }
 }

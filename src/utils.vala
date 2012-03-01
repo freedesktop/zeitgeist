@@ -66,6 +66,14 @@ namespace Zeitgeist
                 DATA_FOLDER);
         }
 
+/*
+        public string get_logging_path ()
+        {
+            return Path.build_filename (Environment.get_user_cache_dir (),
+                DATA_FOLDER);
+        }
+*/
+
         public unowned string get_database_file_path ()
         {
             if (DATABASE_FILE_PATH != null) return DATABASE_FILE_PATH;

@@ -41,6 +41,7 @@ namespace Zeitgeist
         private static bool replace_mode = false;
         private static bool quit_daemon = false;
         private static string log_level = "";
+        private static string? log_file = null;
 
         const OptionEntry[] options =
         {
@@ -69,6 +70,10 @@ namespace Zeitgeist
                 "log-level", 0, 0, OptionArg.STRING, out log_level,
                 "How much information should be printed; possible values: " +
                 "DEBUG, INFO, WARNING, ERROR, CRITICAL", "LEVEL"
+            },
+            {
+                "log-file", 0, 0, OptionArg.STRING, out log_file,
+                "File to which the log output will be appended", null
             },
             {
                 "shell-completion", 0, OptionFlags.HIDDEN, OptionArg.NONE,
@@ -452,7 +457,7 @@ namespace Zeitgeist
                     return 0;
                 }
 
-                Logging.setup_logging (log_level);
+                Logging.setup_logging ("daemon", log_level, log_file);
 
                 run ();
             }

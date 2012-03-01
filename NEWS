@@ -1,3 +1,11 @@
+2012-03-01: Zeitgeist Bluebird Beta 1
+-------------------------------------
+
+Engine:
+ - Fixed crash when events had NULL fields (LP: #941530).
+ - Made sure no aborted SQLite transactions are left open.
+ - Enhanced logging and added --log-file option.
+
 2012-02-14: Zeitgeist Bluebird Alpha 3
 --------------------------------------
 
