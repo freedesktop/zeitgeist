@@ -457,7 +457,7 @@ namespace Zeitgeist
                     return 0;
                 }
 
-                Logging.setup_logging ("daemon", log_level, log_file);
+                Logging.setup_logging (log_level, log_file);
 
                 run ();
             }

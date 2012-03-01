@@ -82,12 +82,6 @@ namespace Zeitgeist
             string log_level = get_log_level_string (log_levels, out color);
             string timestamp = TimeVal ().to_iso8601 ().substring (11, 15);
 
-            DateTime datetime = new DateTime.now_local ();
-            string date_string = "%s,%.3d".printf (
-                datetime.format ("%Y-%m-%d %H:%M:%S"),
-                (int) ((datetime.get_microsecond () / 1000.0)));
-            int pid = Posix.getpid ();
-
             unowned FileStream output;
             if (log_levels >= LogLevelFlags.LEVEL_MESSAGE)
                 output = stdout; // MESSAGE, INFO or DEBUG
@@ -101,12 +95,18 @@ namespace Zeitgeist
             // Log to file
             if (Logging.log_file != null)
             {
+                DateTime datetime = new DateTime.now_local ();
+                string date_string = "%s,%.3d".printf (
+                    datetime.format ("%Y-%m-%d %H:%M:%S"),
+                    (int) ((datetime.get_microsecond () / 1000.0)));
+                int pid = Posix.getpid ();
+
                 Logging.log_file.printf ("%d [%s] - %s - %s\n",
                     pid, date_string, log_level, message);
             }
         }
 
-        public static void setup_logging (string name, string? log_level,
+        public static void setup_logging (string? log_level,
             string? log_file=null)
         {
             LogLevelFlags discarded = LogLevelFlags.LEVEL_DEBUG;
@@ -139,54 +139,12 @@ namespace Zeitgeist
             if (discarded != 0)
                 Log.set_handler (null, discarded, () => {});
 
-            /*
-            try
-            {
-                string filename = rotate_and_get_log_file (name);
-                log_file = FileStream.open (filename, "a");
-            }
-            catch (Error e)
-            {
-                warning ("Couldn't setup file logging: %s", e.message);
-                log_file = null;
-            }
-            */
-
             if (log_file != null)
                 Logging.log_file = FileStream.open (log_file, "a");
 
             LogLevelFlags logged = ~discarded & ~LogLevelFlags.FLAG_RECURSION;
             Log.set_handler (null, logged, log_handler);
         }
-
-        /*
-        private static string rotate_and_get_log_file (string name) throws Error
-        {
-            string log_path = Utils.get_logging_path ();
-            string filename = Path.build_path (Path.DIR_SEPARATOR_S,
-                log_path, "%s.log".printf (name));
-
-            File log_file = File.new_for_path (filename);
-            try
-            {
-                FileInfo info = log_file.query_info (
-                    FILE_ATTRIBUTE_TIME_MODIFIED, FileQueryInfoFlags.NONE);
-
-                TimeVal last_log_time_val;
-                info.get_modification_time (out last_log_time_val);
-
-                Date last_log_date = Date();
-                last_log_date.set_time_val (last_log_time_val);
-            }
-            catch (Error e)
-            {
-                if (!(e is IOError.NOT_FOUND))
-                    throw e;
-            }
-
-            return filename;
-        }
-        */
 
     }
 }
