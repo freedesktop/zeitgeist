@@ -164,7 +164,7 @@ namespace Zeitgeist
         {
             Event template = new Event.from_variant (event_template);
             blacklist.insert (template_id, template);
-            debug ("Added blacklist template: %s", template_id);
+            debug ("Added blacklist template: [#%u]", template_id.hash ());
             template_added (template_id, event_template);
             flush ();
         }
@@ -174,13 +174,13 @@ namespace Zeitgeist
             Event event_template = blacklist.lookup (template_id);
             if (blacklist.remove (template_id))
             {
-                debug ("Removed blacklist template: %s", template_id);
+                debug ("Removed blacklist template: [#%u]", template_id.hash ());
                 template_removed (template_id, event_template.to_variant ());
                 flush ();
             }
             else
             {
-                debug ("Blacklist template \"%s\" not found.", template_id);
+                debug ("Blacklist template [#%u] not found.", template_id.hash ());
             }
         }
 
