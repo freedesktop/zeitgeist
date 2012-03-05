@@ -23,6 +23,7 @@
 #include <xapian.h>
 #include <queue>
 #include <vector>
+#include <cassert>
 
 #include <gio/gio.h>
 #include <gio/gdesktopappinfo.h>
@@ -42,6 +43,7 @@ const std::string FILTER_PREFIX_XDG_CATEGORY = "AC";
 
 const Xapian::valueno VALUE_EVENT_ID = 0;
 const Xapian::valueno VALUE_TIMESTAMP = 1;
+const Xapian::valueno VALUE_URI_HASH = 2;
 
 #define QUERY_PARSER_FLAGS \
   Xapian::QueryParser::FLAG_PHRASE | Xapian::QueryParser::FLAG_BOOLEAN | \
@@ -101,6 +103,11 @@ void Indexer::Initialize (GError **error)
     this->query_parser->set_database (*this->db);
 
     this->enquire = new Xapian::Enquire (*this->db);
+    
+    assert (g_checksum_type_get_length (G_CHECKSUM_MD5) == 16);
+    this->checksum = g_checksum_new (G_CHECKSUM_MD5);
+    if (!this->checksum)
+        g_critical ("GChecksum initialization failed.");
 
   }
   catch (const Xapian::Error &xp_error)
@@ -728,7 +735,11 @@ GPtrArray* Indexer::Search (const gchar *search,
     guint maxhits;
     if (result_type == RELEVANCY_RESULT_TYPE ||
         result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
-        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS)
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS)
     {
       maxhits = count;
     }
@@ -744,6 +755,14 @@ GPtrArray* Indexer::Search (const gchar *search,
     else
     {
       enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
+    }
+
+    if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS)
+    {
+        enquire->set_collapse_key (VALUE_URI_HASH);
     }
 
     Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
@@ -988,6 +1007,19 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
                    uri.length (), uri.substr (0, 32).c_str ());
         return; // ignore this event completely...
       }
+
+      // We need the subject URI so we can use Xapian's collapse key feature
+      // for *_SUBJECT grouping. However, to save space, we'll just save a hash.
+      // A better option would be using URI's id, but for that we'd need a SQL
+      // query that'd be subject to races.
+      // FIXME(?): This doesn't work for events with multiple subjects.
+      g_checksum_update (checksum, (guchar *) uri.c_str (), -1);
+      guint8 uri_hash[17];
+      gsize hash_size = 16;
+      g_checksum_get_digest (checksum, uri_hash, &hash_size);
+      assert (hash_size == 16);
+      doc.add_value (VALUE_URI_HASH, std::string((char *) uri_hash, 16));
+      g_checksum_reset (checksum);
 
       val = zeitgeist_subject_get_text (subject);
       if (val && val[0] != '\0')

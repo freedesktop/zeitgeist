@@ -21,6 +21,7 @@
 #define _ZGFTS_INDEXER_H_
 
 #include <glib-object.h>
+#include <glib/gchecksum.h>
 #include <gio/gio.h>
 #include <xapian.h>
 
@@ -42,6 +43,7 @@ public:
     , query_parser (NULL)
     , enquire (NULL)
     , tokenizer (NULL)
+    , checksum (NULL)
     , clear_failed_id (0)
   {
     const gchar *home_dir = g_get_home_dir ();
@@ -54,6 +56,7 @@ public:
     if (enquire) delete enquire;
     if (query_parser) delete query_parser;
     if (db) delete db;
+    if (checksum) { g_checksum_free (checksum); checksum = NULL; }
 
     for (AppInfoMap::iterator it = app_info_cache.begin ();
          it != app_info_cache.end (); ++it)
@@ -120,6 +123,7 @@ private:
   Xapian::TermGenerator    *tokenizer;
   AppInfoMap                app_info_cache;
   ApplicationSet            failed_lookups;
+  GChecksum                 *checksum;
 
   guint                     clear_failed_id;
   std::string               home_dir_path;
