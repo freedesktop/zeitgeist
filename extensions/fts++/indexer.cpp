@@ -1002,6 +1002,11 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
         if (!IndexActor (uri, true))
           IndexUri (uri, origin);
       }
+      else if (uri.compare (0, 10, "ubuntuone:") == 0)
+      {
+        // U1 logs its uids, we don't want to index those
+        return;
+      }
       else
       {
         IndexUri (uri, origin);
