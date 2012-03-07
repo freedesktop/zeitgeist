@@ -23,7 +23,6 @@
 #include <xapian.h>
 #include <queue>
 #include <vector>
-#include <cassert>
 
 #include <gio/gio.h>
 #include <gio/gdesktopappinfo.h>
@@ -52,6 +51,7 @@ const Xapian::valueno VALUE_URI_HASH = 2;
 
 const std::string FTS_MAIN_DIR = "fts.index";
 const int RELEVANCY_RESULT_TYPE = 100;
+const int HASH_LENGTH = 16;
 
 void Indexer::Initialize (GError **error)
 {
@@ -104,7 +104,7 @@ void Indexer::Initialize (GError **error)
 
     this->enquire = new Xapian::Enquire (*this->db);
     
-    assert (g_checksum_type_get_length (G_CHECKSUM_MD5) == 16);
+    g_assert (g_checksum_type_get_length (G_CHECKSUM_MD5) == HASH_LENGTH);
     this->checksum = g_checksum_new (G_CHECKSUM_MD5);
     if (!this->checksum)
         g_critical ("GChecksum initialization failed.");
@@ -1014,12 +1014,12 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
       // query that'd be subject to races.
       // FIXME(?): This doesn't work for events with multiple subjects.
       g_checksum_update (checksum, (guchar *) uri.c_str (), -1);
-      guint8 uri_hash[17];
-      gsize hash_size = 16;
+      guint8 uri_hash[HASH_LENGTH + 1];
+      gsize hash_size = HASH_LENGTH;
       g_checksum_get_digest (checksum, uri_hash, &hash_size);
-      assert (hash_size == 16);
-      doc.add_value (VALUE_URI_HASH, std::string((char *) uri_hash, 16));
       g_checksum_reset (checksum);
+      g_assert (hash_size == HASH_LENGTH);
+      doc.add_value (VALUE_URI_HASH, std::string((char *) uri_hash, hash_size));
 
       val = zeitgeist_subject_get_text (subject);
       if (val && val[0] != '\0')

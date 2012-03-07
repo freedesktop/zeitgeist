@@ -20,8 +20,8 @@
 #ifndef _ZGFTS_INDEXER_H_
 #define _ZGFTS_INDEXER_H_
 
+#include <glib.h>
 #include <glib-object.h>
-#include <glib/gchecksum.h>
 #include <gio/gio.h>
 #include <xapian.h>
 
@@ -56,7 +56,7 @@ public:
     if (enquire) delete enquire;
     if (query_parser) delete query_parser;
     if (db) delete db;
-    if (checksum) { g_checksum_free (checksum); checksum = NULL; }
+    if (checksum) g_checksum_free (checksum);
 
     for (AppInfoMap::iterator it = app_info_cache.begin ();
          it != app_info_cache.end (); ++it)
