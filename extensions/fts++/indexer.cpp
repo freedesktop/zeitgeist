@@ -49,6 +49,7 @@ const Xapian::valueno VALUE_TIMESTAMP = 1;
   Xapian::QueryParser::FLAG_WILDCARD
 
 const std::string FTS_MAIN_DIR = "fts.index";
+const int RELEVANCY_RESULT_TYPE = 100;
 
 void Indexer::Initialize (GError **error)
 {
@@ -725,7 +726,7 @@ GPtrArray* Indexer::Search (const gchar *search,
     // from the Xapian index because the final result set will be coalesced
     // on some property of the event
     guint maxhits;
-    if (result_type == 100 ||
+    if (result_type == RELEVANCY_RESULT_TYPE ||
         result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
         result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS)
     {
@@ -736,7 +737,7 @@ GPtrArray* Indexer::Search (const gchar *search,
       maxhits = count * 3;
     }
 
-    if (result_type == 100)
+    if (result_type == RELEVANCY_RESULT_TYPE)
     {
       enquire->set_sort_by_relevance ();
     }
@@ -750,7 +751,7 @@ GPtrArray* Indexer::Search (const gchar *search,
     Xapian::MSet hits (enquire->get_mset (offset, maxhits));
     Xapian::doccount hitcount = hits.get_matches_estimated ();
 
-    if (result_type == 100)
+    if (result_type == RELEVANCY_RESULT_TYPE)
     {
       std::vector<unsigned> event_ids;
       for (Xapian::MSetIterator iter = hits.begin (); iter != hits.end (); ++iter)
@@ -840,7 +841,7 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
 
     guint maxhits = count;
 
-    if (result_type == 100)
+    if (result_type == RELEVANCY_RESULT_TYPE)
     {
       enquire->set_sort_by_relevance ();
     }
@@ -863,7 +864,7 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
     Xapian::MSet hits (enquire->get_mset (offset, maxhits));
     Xapian::doccount hitcount = hits.get_matches_estimated ();
 
-    if (result_type == 100)
+    if (result_type == RELEVANCY_RESULT_TYPE)
     {
       std::vector<unsigned> event_ids;
       std::vector<gdouble> relevancy_arr;
