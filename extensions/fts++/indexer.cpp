@@ -23,6 +23,7 @@
 #include <xapian.h>
 #include <queue>
 #include <vector>
+#include <cmath>
 
 #include <gio/gio.h>
 #include <gio/gdesktopappinfo.h>
@@ -804,7 +805,6 @@ GPtrArray* Indexer::Search (const gchar *search,
 
       if (event_templates->len > 0)
       {
-        ZeitgeistTimeRange *time_range = zeitgeist_time_range_new_anytime ();
         results = zeitgeist_db_reader_find_events (zg_reader,
                                                    time_range,
                                                    event_templates,
@@ -813,8 +813,6 @@ GPtrArray* Indexer::Search (const gchar *search,
                                                    result_type,
                                                    NULL,
                                                    error);
-
-        g_object_unref (time_range);
       }
       else
       {
@@ -841,6 +839,34 @@ GPtrArray* Indexer::Search (const gchar *search,
   return results;
 }
 
+static gint
+sort_events_by_relevance (gconstpointer a, gconstpointer b, gpointer user_data)
+{
+  gdouble rel1 = 0.0;
+  gdouble rel2 = 0.0;
+  std::map<unsigned, gdouble>::const_iterator it;
+  ZeitgeistEvent **e1 = (ZeitgeistEvent**) a;
+  ZeitgeistEvent **e2 = (ZeitgeistEvent**) b;
+  std::map<unsigned, gdouble> const& relevancy_map =
+    *(static_cast<std::map<unsigned, gdouble>*> (user_data));
+
+  it = relevancy_map.find (zeitgeist_event_get_id (*e1));
+  if (it != relevancy_map.end ()) rel1 = it->second;
+
+  it = relevancy_map.find (zeitgeist_event_get_id (*e2));
+  if (it != relevancy_map.end ()) rel2 = it->second;
+
+  gdouble delta = rel1 - rel2;
+  if (fabs (delta) < 0.00001)
+  {
+    // relevancy of both items is the same, let's make use of stable sort
+    return e1 > e2 ? 1 : -1;
+  }
+
+  // we want the higher ranked events first
+  return (delta < 0) ? 1 : -1;
+}
+
 GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
                                            ZeitgeistTimeRange *time_range,
                                            GPtrArray *templates,
@@ -860,22 +886,49 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
 
     guint maxhits = count;
 
-    if (result_type == RELEVANCY_RESULT_TYPE)
-    {
-      enquire->set_sort_by_relevance ();
-    }
-    else
-    {
-      enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
-    }
-
     if (storage_state != ZEITGEIST_STORAGE_STATE_ANY)
     {
       g_set_error_literal (error,
                            ZEITGEIST_ENGINE_ERROR,
                            ZEITGEIST_ENGINE_ERROR_INVALID_ARGUMENT,
-                           "Only ANY stogate state is supported");
+                           "Only ANY storage state is supported");
       return NULL;
+    }
+
+    if (result_type == RELEVANCY_RESULT_TYPE)
+    {
+      enquire->set_sort_by_relevance ();
+    }
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS)
+    {
+      enquire->set_sort_by_relevance_then_value (VALUE_TIMESTAMP, true);
+      enquire->set_collapse_key (VALUE_EVENT_ID);
+    }
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS)
+    {
+      enquire->set_sort_by_relevance_then_value (VALUE_TIMESTAMP, true);
+      enquire->set_collapse_key (VALUE_URI_HASH);
+    }
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_ORIGIN)
+    {
+      // FIXME: not really correct but close :)
+      enquire->set_sort_by_relevance_then_value (VALUE_TIMESTAMP, true);
+      enquire->set_collapse_key (VALUE_URI_HASH);
+      maxhits *= 3;
+    }
+    else
+    {
+      // throw an error for these?
+      enquire->set_sort_by_relevance_then_value (VALUE_TIMESTAMP, true);
+      enquire->set_collapse_key (VALUE_EVENT_ID);
+      maxhits *= 3;
     }
 
     Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
@@ -906,6 +959,8 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
                                                 NULL,
                                                 error);
 
+      if (error && *error) return NULL;
+
       if (results->len != relevancy_arr.size ())
       {
         g_warning ("Results don't match relevancies!");
@@ -928,22 +983,70 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
     }
     else
     {
-      g_set_error_literal (error,
-                           ZEITGEIST_ENGINE_ERROR,
-                           ZEITGEIST_ENGINE_ERROR_INVALID_ARGUMENT,
-                           "Only RELEVANCY result type is supported");
-      /*
-       * perhaps something like this could be used here?
+      // we'll use the result type only for secondary sorting, relevancy
+      // is still primary!
+      GPtrArray *event_templates;
+      event_templates = g_ptr_array_new_with_free_func (g_object_unref);
       std::map<unsigned, gdouble> relevancy_map;
-      foreach (...)
+      Xapian::MSetIterator iter, end;
+      for (iter = hits.begin (), end = hits.end (); iter != end; ++iter)
       {
+        Xapian::Document doc(iter.get_document ());
+        double unserialized =
+          Xapian::sortable_unserialise (doc.get_value (VALUE_EVENT_ID));
+        unsigned event_id = static_cast<unsigned>(unserialized);
+
+        ZeitgeistEvent *event = zeitgeist_event_new ();
+        zeitgeist_event_set_id (event, event_id);
+        g_ptr_array_add (event_templates, event);
+
         double rank = iter.get_percent () / 100.;
         if (rank > relevancy_map[event_id])
         {
           relevancy_map[event_id] = rank;
         }
       }
-      */
+
+      if (event_templates->len > 0)
+      {
+        // let's ask zeitgeist for sorting based on result type
+        results = zeitgeist_db_reader_find_events (zg_reader,
+                                                   time_range,
+                                                   event_templates,
+                                                   ZEITGEIST_STORAGE_STATE_ANY,
+                                                   0,
+                                                   result_type,
+                                                   NULL,
+                                                   error);
+
+        if (error && *error) return NULL;
+
+        g_ptr_array_sort_with_data (results, sort_events_by_relevance,
+                                    &relevancy_map);
+
+        if (relevancies)
+        {
+          *relevancies = g_new (gdouble, results->len);
+          for (unsigned i = 0; i < results->len; i++)
+          {
+            ZeitgeistEvent *event = (ZeitgeistEvent*) g_ptr_array_index (results, i);
+            (*relevancies)[i] = relevancy_map[zeitgeist_event_get_id (event)];
+          }
+        }
+
+        if (relevancies_size)
+        {
+          *relevancies_size = results->len;
+        }
+      }
+      else
+      {
+        results = g_ptr_array_new ();
+        if (relevancies) *relevancies = NULL;
+        if (relevancies_size) *relevancies_size = 0;
+      }
+
+      g_ptr_array_unref (event_templates);
     }
 
     if (matches)
