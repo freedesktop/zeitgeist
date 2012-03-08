@@ -23,7 +23,6 @@
 #include <xapian.h>
 #include <queue>
 #include <vector>
-#include <cmath>
 
 #include <gio/gio.h>
 #include <gio/gdesktopappinfo.h>
@@ -839,34 +838,6 @@ GPtrArray* Indexer::Search (const gchar *search,
   return results;
 }
 
-static gint
-sort_events_by_relevance (gconstpointer a, gconstpointer b, gpointer user_data)
-{
-  gdouble rel1 = 0.0;
-  gdouble rel2 = 0.0;
-  std::map<unsigned, gdouble>::const_iterator it;
-  ZeitgeistEvent **e1 = (ZeitgeistEvent**) a;
-  ZeitgeistEvent **e2 = (ZeitgeistEvent**) b;
-  std::map<unsigned, gdouble> const& relevancy_map =
-    *(static_cast<std::map<unsigned, gdouble>*> (user_data));
-
-  it = relevancy_map.find (zeitgeist_event_get_id (*e1));
-  if (it != relevancy_map.end ()) rel1 = it->second;
-
-  it = relevancy_map.find (zeitgeist_event_get_id (*e2));
-  if (it != relevancy_map.end ()) rel2 = it->second;
-
-  gdouble delta = rel1 - rel2;
-  if (fabs (delta) < 0.00001)
-  {
-    // relevancy of both items is the same, let's make use of stable sort
-    return e1 > e2 ? 1 : -1;
-  }
-
-  // we want the higher ranked events first
-  return (delta < 0) ? 1 : -1;
-}
-
 GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
                                            ZeitgeistTimeRange *time_range,
                                            GPtrArray *templates,
@@ -1020,9 +991,6 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
                                                    error);
 
         if (error && *error) return NULL;
-
-        g_ptr_array_sort_with_data (results, sort_events_by_relevance,
-                                    &relevancy_map);
 
         if (relevancies)
         {
