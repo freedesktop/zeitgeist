@@ -10,9 +10,10 @@ USAGE:
 	talis [options] <enter search terms here>
 
 OPTIONS:
-	--mode=, -m=   MODE
-	--offset=, -o= Offset into result set
-	--hits=, -h=   Max number of hits to return
+	--mode=, -m=		MODE
+	--offset=, -o=		Offset into result set
+	--hits=, -h=		Max number of hits to return
+	--relevancies, -r	With relevancies
 
 MODES:
 	LeastPopularActor
@@ -66,7 +67,8 @@ if len(results) == 0:
     print "No hits for '%s'" % query
     raise SystemExit(0)
 
-print "%s-%s of %s hits for '%s'. Sorted by '%s':" % (offset+1, len(results)+offset, count, query, "Relevancy+" + mode_string if relevancy_mode else mode_string)
+print "%s-%s of %s hits for '%s'. Sorted by '%s':" % (offset+1,
+        len(results)+offset, count, query, mode_string)
 
 i = offset+1
 events = map(Event, results)
