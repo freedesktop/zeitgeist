@@ -661,7 +661,9 @@ test_simple_relevancies_subject_query (Fixture *fix, gconstpointer data)
   index_event (fix, create_test_event2 ());
   index_event (fix, create_test_event3 ());
   event_id4 = index_event (fix, create_test_event4 ());
+  usleep (50000);
   event_id5 = index_event (fix, create_test_event5 ());
+  usleep (50000);
   event_id6 = index_event (fix, create_test_event6 ());
 
   GPtrArray *results =

@@ -841,6 +841,9 @@ GPtrArray* Indexer::Search (const gchar *search,
 static GPtrArray*
 find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
                                      ZeitgeistTimeRange *time_range,
+                                     GPtrArray *templates,
+                                     ZeitgeistStorageState storage_state,
+                                     unsigned count,
                                      ZeitgeistResultType result_type,
                                      std::vector<unsigned> const& event_ids,
                                      std::map<unsigned, gdouble> &relevancy_map,
@@ -890,17 +893,35 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
 
     g_ptr_array_unref (results);
 
-    results = zeitgeist_db_reader_find_events (zg_reader,
-                                               time_range,
-                                               event_templates,
-                                               ZEITGEIST_STORAGE_STATE_ANY,
-                                               0,
-                                               result_type,
-                                               NULL,
-                                               error);
-
+    ZeitgeistWhereClause *where;
+    where = zeitgeist_db_reader_get_where_clause_for_query (zg_reader,
+        time_range, templates, storage_state, NULL, error);
+    ZeitgeistWhereClause *uri_where;
+    uri_where = zeitgeist_db_reader_get_where_clause_from_event_templates (
+        zg_reader, event_templates, error);
     g_ptr_array_unref (event_templates);
+
+    zeitgeist_where_clause_extend (where, uri_where);
+    g_object_unref (G_OBJECT (uri_where));
+
+    guint32 *real_event_ids;
+    gint real_event_ids_length;
+    real_event_ids = zeitgeist_db_reader_find_event_ids_for_clause (zg_reader,
+        where, count, result_type, NULL, &real_event_ids_length, error);
+
+    g_object_unref (G_OBJECT (where));
     if (error && *error) return NULL;
+
+    results = zeitgeist_db_reader_get_events (zg_reader,
+                                              real_event_ids,
+                                              real_event_ids_length,
+                                              NULL,
+                                              error);
+
+    if (error && *error) return NULL;
+
+    g_free (real_event_ids);
+    real_event_ids = NULL;
 
     // the event ids might have changed, we need to update the relevancy_map
     for (unsigned i = 0; i < results->len; i++)
@@ -1127,7 +1148,9 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
       }
 
       results = find_events_for_result_type_and_ids (zg_reader, time_range,
-                                                     result_type, event_ids,
+                                                     templates, storage_state,
+                                                     count, result_type,
+                                                     event_ids,
                                                      relevancy_map, error);
 
       if (error && *error) return NULL;
