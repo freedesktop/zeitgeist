@@ -57,6 +57,7 @@ public:
     if (query_parser) delete query_parser;
     if (db) delete db;
     if (checksum) g_checksum_free (checksum);
+    if (uri_schemes_regex) g_regex_unref (uri_schemes_regex);
 
     for (AppInfoMap::iterator it = app_info_cache.begin ();
          it != app_info_cache.end (); ++it)
@@ -111,7 +112,7 @@ private:
 
   void AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc);
   void IndexText (std::string const& text);
-  void IndexUri (std::string const& uri, std::string const& origin);
+  bool IndexUri (std::string const& uri, std::string const& origin);
   bool IndexActor (std::string const& actor, bool is_subject);
 
   gboolean ClearFailedLookupsCb ();
@@ -123,7 +124,8 @@ private:
   Xapian::TermGenerator    *tokenizer;
   AppInfoMap                app_info_cache;
   ApplicationSet            failed_lookups;
-  GChecksum                 *checksum;
+  GChecksum                *checksum;
+  GRegex                   *uri_schemes_regex; 
 
   guint                     clear_failed_id;
   std::string               home_dir_path;
