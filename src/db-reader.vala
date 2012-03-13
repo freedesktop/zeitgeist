@@ -160,47 +160,10 @@ public class DbReader : Object
         return results;
     }
 
-    public uint32[] find_event_ids (TimeRange time_range,
-        GenericArray<Event> event_templates,
-        uint storage_state, uint max_events, uint result_type,
+    public uint32[] find_event_ids_for_clause (WhereClause where,
+        uint max_events, uint result_type,
         BusName? sender=null) throws EngineError
     {
-
-        WhereClause where = new WhereClause (WhereClause.Type.AND);
-
-        /**
-         * We are using the unary operator here to tell SQLite to not use
-         * the index on the timestamp column at the first place. This is a
-         * "fix" for (LP: #672965) based on some benchmarks, which suggest
-         * a performance win, but we might not oversee all implications.
-         * (See http://www.sqlite.org/optoverview.html, section 6.0).
-         *    -- Markus Korn, 29/11/2010
-         */
-        if (time_range.start != 0)
-            where.add (("+timestamp >= %" + int64.FORMAT).printf(
-                time_range.start));
-        if (time_range.end != 0)
-            where.add (("+timestamp <= %" + int64.FORMAT).printf(
-                time_range.end));
-
-        if (storage_state == StorageState.AVAILABLE ||
-            storage_state == StorageState.NOT_AVAILABLE)
-        {
-            where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
-                storage_state.to_string ());
-        }
-        else if (storage_state != StorageState.ANY)
-        {
-            throw new EngineError.INVALID_ARGUMENT(
-                "Unknown storage state '%u'".printf(storage_state));
-        }
-
-        WhereClause tpl_conditions = get_where_clause_from_event_templates (
-            event_templates);
-        where.extend (tpl_conditions);
-        //if (!where.may_have_results ())
-        //    return new uint32[0];
-
         string sql = "SELECT id FROM event_view ";
         string where_sql = "";
         if (!where.is_empty ())
@@ -352,6 +315,20 @@ public class DbReader : Object
         return event_ids;
     }
 
+    public uint32[] find_event_ids (TimeRange time_range,
+        GenericArray<Event> event_templates,
+        uint storage_state, uint max_events, uint result_type,
+        BusName? sender=null) throws EngineError
+    {
+        WhereClause where = get_where_clause_for_query (time_range,
+            event_templates, storage_state);
+
+        //if (!where.may_have_results ())
+        //    return new uint32[0];
+
+        return find_event_ids_for_clause (where, max_events, result_type);
+    }
+
     public GenericArray<Event?> find_events (TimeRange time_range,
         GenericArray<Event> event_templates,
         uint storage_state, uint max_events, uint result_type,
@@ -359,6 +336,46 @@ public class DbReader : Object
     {
         return get_events (find_event_ids (time_range, event_templates,
             storage_state, max_events, result_type));
+    }
+
+    public WhereClause get_where_clause_for_query (TimeRange time_range,
+        GenericArray<Event> event_templates, uint storage_state,
+        BusName? sender=null) throws EngineError
+    {
+        WhereClause where = new WhereClause (WhereClause.Type.AND);
+
+        /**
+         * We are using the unary operator here to tell SQLite to not use
+         * the index on the timestamp column at the first place. This is a
+         * "fix" for (LP: #672965) based on some benchmarks, which suggest
+         * a performance win, but we might not oversee all implications.
+         * (See http://www.sqlite.org/optoverview.html, section 6.0).
+         *    -- Markus Korn, 29/11/2010
+         */
+        if (time_range.start != 0)
+            where.add (("+timestamp >= %" + int64.FORMAT).printf(
+                time_range.start));
+        if (time_range.end != 0)
+            where.add (("+timestamp <= %" + int64.FORMAT).printf(
+                time_range.end));
+
+        if (storage_state == StorageState.AVAILABLE ||
+            storage_state == StorageState.NOT_AVAILABLE)
+        {
+            where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
+                storage_state.to_string ());
+        }
+        else if (storage_state != StorageState.ANY)
+        {
+            throw new EngineError.INVALID_ARGUMENT(
+                "Unknown storage state '%u'".printf(storage_state));
+        }
+
+        WhereClause tpl_conditions = get_where_clause_from_event_templates (
+            event_templates);
+        where.extend (tpl_conditions);
+
+        return where;
     }
 
     private struct RelatedUri {
@@ -596,7 +613,7 @@ public class DbReader : Object
     }
 
     // Used by find_event_ids
-    protected WhereClause get_where_clause_from_event_templates (
+    public WhereClause get_where_clause_from_event_templates (
         GenericArray<Event> templates) throws EngineError
     {
         WhereClause where = new WhereClause (WhereClause.Type.OR);
