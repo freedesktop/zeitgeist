@@ -149,7 +149,7 @@ namespace Zeitgeist
             if (!negation)
                 sql = "%s IN (%s)".printf (column, optimized_glob);
             else
-                sql = "%s NOT IN (%s) OR %s is NULL".printf (column,
+                sql = "(%s NOT IN (%s) OR %s is NULL)".printf (column,
                     optimized_glob, column);
             add_with_array (sql, values);
         }
