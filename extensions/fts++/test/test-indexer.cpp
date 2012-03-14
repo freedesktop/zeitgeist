@@ -190,7 +190,7 @@ static ZeitgeistEvent* create_test_event7 (void)
   
   zeitgeist_subject_set_interpretation (subject, ZEITGEIST_NFO_PRESENTATION);
   zeitgeist_subject_set_manifestation (subject, ZEITGEIST_NFO_FILE_DATA_OBJECT);
-  zeitgeist_subject_set_uri (subject, "file:///home/username/directory-with-dashes/and.dot/CamelCasePresentation.pdf");
+  zeitgeist_subject_set_uri (subject, "file:///home/username/directory-with-dashes/and.dot/%C4%8C%20some-intl/CamelCasePresentation.pdf");
   zeitgeist_subject_set_text (subject, NULL);
   zeitgeist_subject_set_mimetype (subject, "application/pdf");
 
@@ -645,6 +645,49 @@ test_simple_dots_prefix (Fixture *fix, gconstpointer data)
 }
 
 static void
+test_simple_intl_prefix (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id;
+  ZeitgeistEvent* event;
+  ZeitgeistSubject *subject;
+
+  // add test events to DBs
+  index_event (fix, create_test_event1 ());
+  index_event (fix, create_test_event2 ());
+  index_event (fix, create_test_event3 ());
+  index_event (fix, create_test_event4 ());
+  index_event (fix, create_test_event5 ());
+  index_event (fix, create_test_event6 ());
+  event_id = index_event (fix, create_test_event7 ());
+
+  GPtrArray *event_template = g_ptr_array_new ();
+  event = zeitgeist_event_new ();
+  subject = zeitgeist_subject_new ();
+  zeitgeist_subject_set_uri (subject,
+      "file:///home/username/directory-with-dashes/and.dot/%C4%8C*");
+  zeitgeist_event_add_subject (event, subject);
+  g_ptr_array_add (event_template, event);
+
+  GPtrArray *results =
+    zeitgeist_indexer_search (fix->indexer,
+                              "pdf",
+                              zeitgeist_time_range_new_anytime (),
+                              event_template,
+                              0,
+                              10,
+                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+                              &matches,
+                              NULL);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+
+  event = (ZeitgeistEvent*) results->pdata[0];
+  g_assert_cmpuint (zeitgeist_event_get_id (event), ==, event_id);
+}
+
+static void
 test_simple_cjk (Fixture *fix, gconstpointer data)
 {
   guint matches;
@@ -826,6 +869,8 @@ void test_indexer_create_suite (void)
               setup, test_simple_dashes_prefix, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/PrefixWithDots", Fixture, 0,
               setup, test_simple_dots_prefix, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/PrefixWithIntlChars", Fixture, 0,
+              setup, test_simple_intl_prefix, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/URLUnescape", Fixture, 0,
               setup, test_simple_url_unescape, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/IDNSupport", Fixture, 0,
