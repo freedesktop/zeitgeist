@@ -144,7 +144,7 @@ namespace Zeitgeist
             return registry;
         }
 
-        public static Variant to_variant (
+        private static Variant to_variant (
             HashTable<string, DataSource> sources)
         {
             var vb = new VariantBuilder (new VariantType (SIG_DATASOURCES));

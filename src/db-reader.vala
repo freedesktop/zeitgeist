@@ -161,8 +161,7 @@ public class DbReader : Object
     }
 
     public uint32[] find_event_ids_for_clause (WhereClause where,
-        uint max_events, uint result_type,
-        BusName? sender=null) throws EngineError
+        uint max_events, uint result_type) throws EngineError
     {
         string sql = "SELECT id FROM event_view ";
         string where_sql = "";
@@ -339,8 +338,7 @@ public class DbReader : Object
     }
 
     public WhereClause get_where_clause_for_query (TimeRange time_range,
-        GenericArray<Event> event_templates, uint storage_state,
-        BusName? sender=null) throws EngineError
+        GenericArray<Event> event_templates, uint storage_state) throws EngineError
     {
         WhereClause where = new WhereClause (WhereClause.Type.AND);
 

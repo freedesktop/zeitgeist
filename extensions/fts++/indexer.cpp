@@ -106,9 +106,17 @@ void Indexer::Initialize (GError **error)
     
     g_assert (g_checksum_type_get_length (G_CHECKSUM_MD5) == HASH_LENGTH);
     this->checksum = g_checksum_new (G_CHECKSUM_MD5);
-    if (!this->checksum)
-        g_critical ("GChecksum initialization failed.");
+    if (!this->checksum) g_critical ("GChecksum initialization failed.");
 
+    GError *error = NULL;
+    /* we need to be careful with what we log, for example ubuntuone logs its
+     * weird uids and that screws up the index */
+    this->uri_schemes_regex = g_regex_new (
+        "(file|http[s]?|[s]?ftp|ssh|smb|dav[s]?|application)$", G_REGEX_OPTIMIZE,
+        (GRegexMatchFlags) 0, &error);
+
+    if (error)
+      g_critical ("Unable to initialize uri scheme regex: %s", error->message);
   }
   catch (const Xapian::Error &xp_error)
   {
@@ -399,7 +407,7 @@ void Indexer::IndexText (std::string const& text)
   tokenizer->index_text (StringUtils::AsciiFold (text), 5);
 }
 
-void Indexer::IndexUri (std::string const& uri, std::string const& origin)
+bool Indexer::IndexUri (std::string const& uri, std::string const& origin)
 {
   GFile *f = g_file_new_for_uri (uri.c_str ());
 
@@ -407,11 +415,20 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
   if (scheme == NULL)
   {
     g_warning ("Invalid URI: %s", uri.c_str ());
-    return;
+    g_object_unref (f);
+    return false;
   }
 
   std::string scheme_str(scheme);
   g_free (scheme);
+
+  // do we support this scheme?
+  if (!g_regex_match (uri_schemes_regex, scheme_str.c_str (),
+        (GRegexMatchFlags) 0, NULL))
+  {
+    g_object_unref (f);
+    return false;
+  }
 
   if (scheme_str == "file")
   {
@@ -462,7 +479,7 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
         weight_index < G_N_ELEMENTS (path_weights))
     {
       // if this is already home directory we don't want it
-      if (path_component == home_dir_path) return;
+      if (path_component == home_dir_path) break;
 
       gchar *name = g_path_get_basename (path_component.c_str ());
 
@@ -481,10 +498,11 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
     // mailto:username@server.com
     size_t scheme_len = scheme_str.length () + 1;
     size_t at_pos = uri.find ('@', scheme_len);
-    if (at_pos == std::string::npos) return;
-
-    tokenizer->index_text (uri.substr (scheme_len, at_pos - scheme_len), 5);
-    tokenizer->index_text (uri.substr (at_pos + 1), 1);
+    if (at_pos != std::string::npos)
+    {
+      tokenizer->index_text (uri.substr (scheme_len, at_pos - scheme_len), 5);
+      tokenizer->index_text (uri.substr (at_pos + 1), 1);
+    }
   }
   else if (scheme_str.compare (0, 4, "http") == 0)
   {
@@ -578,6 +596,8 @@ void Indexer::IndexUri (std::string const& uri, std::string const& origin)
   }
 
   g_object_unref (f);
+
+  return true;
 }
 
 bool Indexer::IndexActor (std::string const& actor, bool is_subject)
@@ -859,7 +879,7 @@ find_event_ids_for_combined_template (ZeitgeistDbReader *zg_reader,
 
   guint32 *event_ids;
   event_ids = zeitgeist_db_reader_find_event_ids_for_clause (zg_reader,
-      query_clause, count, result_type, NULL, event_ids_length, error);
+      query_clause, count, result_type, event_ids_length, error);
 
   g_object_unref (query_clause);
 
@@ -925,7 +945,7 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
     // with the uris we found
     ZeitgeistWhereClause *where;
     where = zeitgeist_db_reader_get_where_clause_for_query (zg_reader,
-        time_range, templates, storage_state, NULL, error);
+        time_range, templates, storage_state, error);
 
     guint32 *real_event_ids;
     gint real_event_ids_length;
@@ -998,7 +1018,7 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
     // with the uris we found
     ZeitgeistWhereClause *where;
     where = zeitgeist_db_reader_get_where_clause_for_query (zg_reader,
-        time_range, templates, storage_state, NULL, error);
+        time_range, templates, storage_state, error);
 
     guint32 *real_event_ids;
     gint real_event_ids_length;
@@ -1307,14 +1327,10 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
         if (!IndexActor (uri, true))
           IndexUri (uri, origin);
       }
-      else if (uri.compare (0, 10, "ubuntuone:") == 0)
+      else if (!IndexUri (uri, origin))
       {
-        // U1 logs its uids, we don't want to index those
+        // unsupported uri scheme
         return;
-      }
-      else
-      {
-        IndexUri (uri, origin);
       }
     }
 
