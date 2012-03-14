@@ -71,7 +71,7 @@ string MangleUri (string const& orig)
 {
   string s(orig);
   size_t pos = 0;
-  while ((pos = s.find_first_of (": /-", pos)) != string::npos)
+  while ((pos = s.find_first_of (": /-.", pos)) != string::npos)
   {
     s.replace (pos, 1, 1, '_');
     pos++;
