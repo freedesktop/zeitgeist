@@ -838,6 +838,34 @@ GPtrArray* Indexer::Search (const gchar *search,
   return results;
 }
 
+static guint32*
+find_event_ids_for_combined_template (ZeitgeistDbReader *zg_reader,
+                                      ZeitgeistWhereClause *query_clause, // steals
+                                      GPtrArray *event_templates, // steals
+                                      guint count,
+                                      ZeitgeistResultType result_type,
+                                      gint *event_ids_length,
+                                      GError **error)
+{
+  g_return_val_if_fail (error == NULL || (error && *error == NULL), NULL);
+
+  ZeitgeistWhereClause *uri_where;
+  uri_where = zeitgeist_db_reader_get_where_clause_from_event_templates (
+      zg_reader, event_templates, error);
+  g_ptr_array_unref (event_templates);
+
+  zeitgeist_where_clause_extend (query_clause, uri_where);
+  g_object_unref (G_OBJECT (uri_where));
+
+  guint32 *event_ids;
+  event_ids = zeitgeist_db_reader_find_event_ids_for_clause (zg_reader,
+      query_clause, count, result_type, NULL, event_ids_length, error);
+
+  g_object_unref (query_clause);
+
+  return event_ids;
+}
+
 static GPtrArray*
 find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
                                      ZeitgeistTimeRange *time_range,
@@ -893,23 +921,19 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
 
     g_ptr_array_unref (results);
 
+    // construct custom where clause which combines the original template
+    // with the uris we found
     ZeitgeistWhereClause *where;
     where = zeitgeist_db_reader_get_where_clause_for_query (zg_reader,
         time_range, templates, storage_state, NULL, error);
-    ZeitgeistWhereClause *uri_where;
-    uri_where = zeitgeist_db_reader_get_where_clause_from_event_templates (
-        zg_reader, event_templates, error);
-    g_ptr_array_unref (event_templates);
-
-    zeitgeist_where_clause_extend (where, uri_where);
-    g_object_unref (G_OBJECT (uri_where));
 
     guint32 *real_event_ids;
     gint real_event_ids_length;
-    real_event_ids = zeitgeist_db_reader_find_event_ids_for_clause (zg_reader,
-        where, count, result_type, NULL, &real_event_ids_length, error);
 
-    g_object_unref (G_OBJECT (where));
+    real_event_ids = find_event_ids_for_combined_template (zg_reader,
+        where, event_templates, count, result_type, &real_event_ids_length,
+        error);
+
     if (error && *error) return NULL;
 
     results = zeitgeist_db_reader_get_events (zg_reader,
@@ -918,10 +942,10 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
                                               NULL,
                                               error);
 
-    if (error && *error) return NULL;
-
     g_free (real_event_ids);
     real_event_ids = NULL;
+
+    if (error && *error) return NULL;
 
     // the event ids might have changed, we need to update the relevancy_map
     for (unsigned i = 0; i < results->len; i++)
@@ -970,17 +994,31 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
 
     g_ptr_array_unref (results);
 
-    results = zeitgeist_db_reader_find_events (zg_reader,
-                                               time_range,
-                                               event_templates,
-                                               ZEITGEIST_STORAGE_STATE_ANY,
-                                               0,
-                                               result_type,
-                                               NULL,
-                                               error);
+    // construct custom where clause which combines the original template
+    // with the uris we found
+    ZeitgeistWhereClause *where;
+    where = zeitgeist_db_reader_get_where_clause_for_query (zg_reader,
+        time_range, templates, storage_state, NULL, error);
 
-    g_ptr_array_unref (event_templates);
+    guint32 *real_event_ids;
+    gint real_event_ids_length;
+
+    real_event_ids = find_event_ids_for_combined_template (zg_reader,
+        where, event_templates, count, result_type, &real_event_ids_length,
+        error);
+
     if (error && *error) return NULL;
+
+    results = zeitgeist_db_reader_get_events (zg_reader,
+                                              real_event_ids,
+                                              real_event_ids_length,
+                                              NULL,
+                                              error);
+
+    if (error && *error) return NULL;
+
+    g_free (real_event_ids);
+    real_event_ids = NULL;
 
     // the event ids might have changed, we need to update the relevancy_map
     for (unsigned i = 0; i < results->len; i++)
