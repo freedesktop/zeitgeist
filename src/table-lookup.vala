@@ -78,9 +78,9 @@ namespace Zeitgeist.SQLite
         /**
          * Searches the table for the given ID, returns -1 if not found.
          *
-         * @see get_id
+         * @see id_for_string
          */
-        public int find_id (string name)
+        public int id_try_string (string name)
         {
             int id = value_to_id.lookup (name);
             if (id == 0)
@@ -91,10 +91,10 @@ namespace Zeitgeist.SQLite
         /**
          * Searches the table for the given ID, inserts a new one if not found.
          *
-         * @see find_id
+         * @see id_for_string
          *
          */
-        public int get_id (string name)
+        public int id_for_string (string name)
         {
             int id = value_to_id.lookup (name);
             if (id == 0)

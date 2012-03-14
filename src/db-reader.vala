@@ -652,7 +652,7 @@ public class DbReader : Object
                     where.add_wildcard_condition ("actor", val, negated);
                 else
                     where.add_match_condition ("actor",
-                        actors_table.find_id (val), negated);
+                        actors_table.id_try_string (val), negated);
             }
 
             // Origin
@@ -712,7 +712,7 @@ public class DbReader : Object
                             "subj_mimetype", val, negated);
                     else
                         where.add_match_condition ("subj_mimetype",
-                            mimetypes_table.find_id (val), negated);
+                            mimetypes_table.id_try_string (val), negated);
                 }
 
                 // URI
@@ -851,14 +851,14 @@ public class DbReader : Object
         if (symbols.length () == 1)
         {
             subwhere.add_match_condition (table_name,
-                lookup_table.find_id (_symbol));
+                lookup_table.id_try_string (_symbol));
         }
         else
         {
             var sb = new StringBuilder ();
             foreach (unowned string uri in symbols)
             {
-                sb.append_printf ("%d,", lookup_table.find_id (uri));
+                sb.append_printf ("%d,", lookup_table.id_try_string (uri));
             }
             sb.truncate (sb.len - 1);
 
