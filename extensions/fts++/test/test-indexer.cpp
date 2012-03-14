@@ -183,6 +183,26 @@ static ZeitgeistEvent* create_test_event6 (void)
   return event;
 }
 
+static ZeitgeistEvent* create_test_event7 (void)
+{
+  ZeitgeistEvent *event = zeitgeist_event_new ();
+  ZeitgeistSubject *subject = zeitgeist_subject_new ();
+  
+  zeitgeist_subject_set_interpretation (subject, ZEITGEIST_NFO_PRESENTATION);
+  zeitgeist_subject_set_manifestation (subject, ZEITGEIST_NFO_FILE_DATA_OBJECT);
+  zeitgeist_subject_set_uri (subject, "file:///home/username/directory-with-dashes/CamelCasePresentation.pdf");
+  zeitgeist_subject_set_text (subject, NULL);
+  zeitgeist_subject_set_mimetype (subject, "application/pdf");
+
+  zeitgeist_event_set_interpretation (event, ZEITGEIST_ZG_MODIFY_EVENT);
+  zeitgeist_event_set_manifestation (event, ZEITGEIST_ZG_USER_ACTIVITY);
+  zeitgeist_event_set_actor (event, "application://libreoffice-impress.desktop");
+  zeitgeist_event_add_subject (event, subject);
+
+  g_object_unref (subject);
+  return event;
+}
+
 // Steals the event, ref it if you want to keep it
 static guint
 index_event (Fixture *fix, ZeitgeistEvent *event)
@@ -539,6 +559,49 @@ test_simple_camelcase (Fixture *fix, gconstpointer data)
 }
 
 static void
+test_simple_dashes_prefix (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id;
+  ZeitgeistEvent* event;
+  ZeitgeistSubject *subject;
+
+  // add test events to DBs
+  index_event (fix, create_test_event1 ());
+  index_event (fix, create_test_event2 ());
+  index_event (fix, create_test_event3 ());
+  index_event (fix, create_test_event4 ());
+  index_event (fix, create_test_event5 ());
+  index_event (fix, create_test_event6 ());
+  event_id = index_event (fix, create_test_event7 ());
+
+  GPtrArray *event_template = g_ptr_array_new ();
+  event = zeitgeist_event_new ();
+  subject = zeitgeist_subject_new ();
+  zeitgeist_subject_set_uri (subject,
+      "file:///home/username/directory-with-dashes/*");
+  zeitgeist_event_add_subject (event, subject);
+  g_ptr_array_add (event_template, event);
+
+  GPtrArray *results =
+    zeitgeist_indexer_search (fix->indexer,
+                              "pdf",
+                              zeitgeist_time_range_new_anytime (),
+                              event_template,
+                              0,
+                              10,
+                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+                              &matches,
+                              NULL);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+
+  event = (ZeitgeistEvent*) results->pdata[0];
+  g_assert_cmpuint (zeitgeist_event_get_id (event), ==, event_id);
+}
+
+static void
 test_simple_cjk (Fixture *fix, gconstpointer data)
 {
   guint matches;
@@ -716,6 +779,8 @@ void test_indexer_create_suite (void)
               setup, test_simple_underscores, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/SimpleCamelcase", Fixture, 0,
               setup, test_simple_camelcase, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/PrefixWithDashes", Fixture, 0,
+              setup, test_simple_dashes_prefix, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/URLUnescape", Fixture, 0,
               setup, test_simple_url_unescape, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/IDNSupport", Fixture, 0,
