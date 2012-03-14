@@ -48,6 +48,7 @@ zeitgeist_daemon_VALASOURCES = \
 	ontology.vala \
 	ontology-uris.vala \
 	mimetype.vala \
+	event-cache.vala \
 	$(NULL)
 
 zeitgeist_daemon_SOURCES = \

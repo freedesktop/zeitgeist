@@ -45,6 +45,8 @@ public class DbReader : Object
     protected TableLookup mimetypes_table;
     protected TableLookup actors_table;
 
+    protected EventCache cache;
+
     public DbReader () throws EngineError
     {
         Object (database: new Zeitgeist.SQLite.Database.read_only ());
@@ -59,6 +61,8 @@ public class DbReader : Object
         manifestations_table = new TableLookup (database, "manifestation");
         mimetypes_table = new TableLookup (database, "mimetype");
         actors_table = new TableLookup (database, "actor");
+
+        cache = new EventCache();
     }
 
     protected Event get_event_from_row (Sqlite.Statement stmt, uint32 event_id)
@@ -117,7 +121,20 @@ public class DbReader : Object
         if (event_ids.length == 0)
             return new GenericArray<Event?> ();
 
-        var sql_event_ids = database.get_sql_string_from_event_ids (event_ids);
+        var results = new GenericArray<Event?> ();
+        uint32[] uncached_ids = new uint32[0];
+        for(int i = 0; i < event_ids.length; i++)
+        {
+            Event? e = cache.get_event (event_ids[i]);
+            if (e == null) {
+                results.set(i, e);
+            } else {
+                uncached_ids.resize(uncached_ids.length+1);
+                uncached_ids[uncached_ids.length-1] = event_ids[i];
+            }
+        }
+
+        var sql_event_ids = database.get_sql_string_from_event_ids (uncached_ids);
         string sql = """
             SELECT * FROM event_view
             WHERE id IN (%s)
@@ -149,12 +166,13 @@ public class DbReader : Object
         }
 
         // Sort events according to the sequence of event_ids
-        var results = new GenericArray<Event?> ();
         results.length = event_ids.length;
         int i = 0;
         foreach (var id in event_ids)
         {
-            results.set(i++, events.lookup (id));
+            Event e = events.lookup (id);
+            cache.cache_event (e);
+            results.set(i++, e);
         }
 
         return results;

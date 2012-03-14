@@ -42,6 +42,7 @@ libzeitgeist_internal_la_VALASOURCES = \
 	ontology-uris.vala \
 	mimetype.vala \
 	ext-dummies.vala \
+	event-cache.vala \
 	$(NULL)
 
 libzeitgeist_internal_la_SOURCES = \

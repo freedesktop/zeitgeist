@@ -11,6 +11,7 @@ VALAFLAGS = \
 
 TESTS = \
 	datamodel-test \
+	event-cache-test \
 	marshalling-test \
 	mimetype-test \
 	query-operators-test \
@@ -36,7 +37,11 @@ SRC_FILES = \
 	$(top_srcdir)/src/ontology.vala \
 	$(top_srcdir)/src/ontology-uris.vala \
 	$(top_srcdir)/src/mimetype.vala \
+	$(top_srcdir)/src/event-cache.vala \
 	$(NULL)
+
+event-cache-test: event-cache-test.vala $(SRC_FILES)
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
 datamodel-test: datamodel-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
@@ -66,11 +71,13 @@ CLEANFILES = \
 	query-operators-test \
 	table-lookup-test \
 	where-clause-test \
+	event-cache-test \
 	$(NULL)
 
 EXTRA_DIST = \
 	assertions.vapi \
 	datamodel-test.vala \
+	event-cache-test.vala \
 	marshalling-test.vala \
 	mimetype-test.vala \
 	query-operators-test.vala \
