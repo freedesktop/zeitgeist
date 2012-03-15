@@ -68,3 +68,4 @@ src/zeitgeist-daemon
 mimetype-test
 marshalling-test
 test/direct/datamodel-test
+test/direct/event-cache-test
