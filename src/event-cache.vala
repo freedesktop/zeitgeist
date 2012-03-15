@@ -1,6 +1,6 @@
 /* event-cache.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2012 Collabora Ltd.
  *             By Trever Fischer <trever.fischer@collabora.co.uk>
  *
  * This program is free software: you can redistribute it and/or modify

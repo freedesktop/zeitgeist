@@ -118,21 +118,25 @@ public class DbReader : Object
         //  to enhance the performance of SQLite now, and event processing
         //  will be faster now being C.
 
-        if (event_ids.length == 0)
-            return new GenericArray<Event?> ();
-
         var results = new GenericArray<Event?> ();
+        results.length = event_ids.length;
+        if (event_ids.length == 0)
+            return results;
+
         uint32[] uncached_ids = new uint32[0];
         for(int i = 0; i < event_ids.length; i++)
         {
             Event? e = cache.get_event (event_ids[i]);
-            if (e == null) {
+            if (e != null) {
                 results.set(i, e);
             } else {
                 uncached_ids.resize(uncached_ids.length+1);
                 uncached_ids[uncached_ids.length-1] = event_ids[i];
             }
         }
+
+        if (uncached_ids.length == 0)
+            return results;
 
         var sql_event_ids = database.get_sql_string_from_event_ids (uncached_ids);
         string sql = """
@@ -171,7 +175,8 @@ public class DbReader : Object
         foreach (var id in event_ids)
         {
             Event e = events.lookup (id);
-            cache.cache_event (e);
+            if (e != null)
+                cache.cache_event (e);
             results.set(i++, e);
         }
 
