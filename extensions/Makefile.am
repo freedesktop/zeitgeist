@@ -1,4 +1,6 @@
+if HAVE_FTS
 SUBDIRS = fts++
+endif
 
 NULL =
 

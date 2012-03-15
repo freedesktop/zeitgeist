@@ -80,6 +80,13 @@ fi
 DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
+# Configure options: --enable-fts[=no].
+AC_ARG_ENABLE([fts],
+            [AS_HELP_STRING([--enable-fts],
+                [Build with FTS++ extension])],
+            [fts="$withval"], [fts=no])
+AM_CONDITIONAL(HAVE_FTS, test "x$fts" = "xyes")
+
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
@@ -131,6 +138,7 @@ ${PACKAGE}-${VERSION}
     Install Prefix:     ${prefix}
 
   Optional dependencies
+    fts++:              ${fts}
     dee-icu:            ${with_dee_icu}
 
 EOF
