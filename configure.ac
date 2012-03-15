@@ -82,18 +82,15 @@ AC_SUBST(DBUS_SERVICES_DIR)
 
 
 #################################################
-# Configure options: --enable-fts[=no].
+# Configure options: --disable-fts.
 #################################################
-AC_ARG_ENABLE([fts++],
-            [AS_HELP_STRING([--enable-fts++],
-                [Build with FTS++ extension])],
-            [ftspp="$withval"], [ftspp=no])
-AM_CONDITIONAL(HAVE_FTSPP, test "x$fts" = "xyes")
+AC_ARG_ENABLE([fts],
+            AS_HELP_STRING([--disable-fts], [Build without FTS++ extension]))
 
-# 1. enable-fts++ ok, or should it be called disable-fts?
-# 2. in AC_CONFIG_FILES (below) the Makefiles for fts++ will still be added,
-# since I don't know how to make a condition for AC_CONFIG_FILES.
-# 3. dee-icu is an option only for fts++, isn't it? so what should be done if I call ./autogen.sh --with-dee-icu?
+if test "x$enable_fts" = "x" ; then
+    enable_fts=yes
+fi
+AM_CONDITIONAL(HAVE_FTS, test "x$enable_fts" != "xno")
 
 AC_CONFIG_FILES([
 	Makefile
@@ -146,7 +143,7 @@ ${PACKAGE}-${VERSION}
     Install Prefix:     ${prefix}
 
   Optional dependencies
-    fts++:              ${ftspp}
+    fts++:              ${enable_fts}
     dee-icu:            ${with_dee_icu}
 
 EOF

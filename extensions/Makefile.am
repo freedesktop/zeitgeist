@@ -1,4 +1,4 @@
-if HAVE_FTSPP
+if HAVE_FTS
 SUBDIRS = fts++
 endif
 
