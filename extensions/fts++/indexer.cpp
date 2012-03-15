@@ -1259,7 +1259,6 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
 {
   try
   {
-    // FIXME: we need to special case MOVE_EVENTs
     const gchar *val;
     guint event_id = zeitgeist_event_get_id (event);
     g_return_if_fail (event_id > 0);
@@ -1288,7 +1287,13 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
       ZeitgeistSubject *subject;
       subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, i);
 
-      val = zeitgeist_subject_get_uri (subject);
+      // We use current_uri (vs. uri) where since we care about real stuff,
+      // not whatever happened some time ago.
+      //
+      // This will most likely still be the same as URI (unless something
+      // triggers a reindexation of the DB), but at least MOVE_EVENTS
+      // will have the updated URI.
+      val = zeitgeist_subject_get_current_uri (subject);
       if (val == NULL || val[0] == '\0') continue;
 
       std::string uri(val);

@@ -203,6 +203,27 @@ static ZeitgeistEvent* create_test_event7 (void)
   return event;
 }
 
+static ZeitgeistEvent* create_test_event8 (void)
+{
+  ZeitgeistEvent *event = zeitgeist_event_new ();
+  ZeitgeistSubject *subject = zeitgeist_subject_new ();
+  
+  zeitgeist_subject_set_interpretation (subject, ZEITGEIST_NFO_PRESENTATION);
+  zeitgeist_subject_set_manifestation (subject, ZEITGEIST_NFO_FILE_DATA_OBJECT);
+  zeitgeist_subject_set_uri (subject, "file:///home/username/Documents/my_fabulous_presentation.pdf");
+  zeitgeist_subject_set_current_uri (subject, "file:///home/username/Awesome.pdf");
+  zeitgeist_subject_set_text (subject, NULL);
+  zeitgeist_subject_set_mimetype (subject, "application/pdf");
+
+  zeitgeist_event_set_interpretation (event, ZEITGEIST_ZG_MOVE_EVENT);
+  zeitgeist_event_set_manifestation (event, ZEITGEIST_ZG_USER_ACTIVITY);
+  zeitgeist_event_set_actor (event, "application://nautilus.desktop");
+  zeitgeist_event_add_subject (event, subject);
+
+  g_object_unref (subject);
+  return event;
+}
+
 // Steals the event, ref it if you want to keep it
 static guint
 index_event (Fixture *fix, ZeitgeistEvent *event)
@@ -838,6 +859,36 @@ test_simple_relevancies_subject_query (Fixture *fix, gconstpointer data)
       zeitgeist_event_get_id ((ZeitgeistEvent*) results->pdata[0]));
 }
 
+static void
+test_simple_move_event (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id;
+  ZeitgeistEvent* event;
+ 
+  // add test events to DBs
+  index_event (fix, create_test_event1 ());
+  index_event (fix, create_test_event4 ());
+  event_id = index_event (fix, create_test_event8 ());
+
+  GPtrArray *results =
+    zeitgeist_indexer_search (fix->indexer,
+                              "awesome",
+                              zeitgeist_time_range_new_anytime (),
+                              g_ptr_array_new (),
+                              0,
+                              10,
+                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+                              &matches,
+                              NULL);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+
+  event = (ZeitgeistEvent*) results->pdata[0];
+  g_assert_cmpuint (zeitgeist_event_get_id (event), ==, event_id);
+}
+
 G_BEGIN_DECLS
 
 static void discard_message (const gchar *domain,
@@ -881,6 +932,8 @@ void test_indexer_create_suite (void)
               setup, test_simple_relevancies_query, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/RelevanciesSubject", Fixture, 0,
               setup, test_simple_relevancies_subject_query, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/MoveEvent", Fixture, 0,
+              setup, test_simple_move_event, teardown);
 
   // get rid of the "rebuilding index..." messages
   g_log_set_handler (NULL, G_LOG_LEVEL_MESSAGE, discard_message, NULL);
