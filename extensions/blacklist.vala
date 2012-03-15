@@ -37,9 +37,9 @@ namespace Zeitgeist
             throws Error;
 
         public signal void template_added (string template_id,
-            [DBus (signature = "s(asaasay)")] Variant event_template);
+            [DBus (signature = "(asaasay)")] Variant event_template);
         public signal void template_removed (string template_id,
-            [DBus (signature = "s(asassay)")] Variant event_template);
+            [DBus (signature = "(asassay)")] Variant event_template);
     }
 
     namespace BlacklistTemplates
