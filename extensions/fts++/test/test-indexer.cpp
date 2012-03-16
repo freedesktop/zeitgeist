@@ -248,6 +248,26 @@ static ZeitgeistEvent* create_test_event8 (void)
   return event;
 }
 
+static ZeitgeistEvent* create_test_event_simple (const char *uri, const char *text)
+{
+  ZeitgeistEvent *event = zeitgeist_event_new ();
+  ZeitgeistSubject *subject = zeitgeist_subject_new ();
+  
+  zeitgeist_subject_set_interpretation (subject, ZEITGEIST_NFO_DOCUMENT);
+  zeitgeist_subject_set_manifestation (subject, ZEITGEIST_NFO_FILE_DATA_OBJECT);
+  zeitgeist_subject_set_uri (subject, uri);
+  zeitgeist_subject_set_text (subject, text);
+  zeitgeist_subject_set_mimetype (subject, "text/plain");
+
+  zeitgeist_event_set_interpretation (event, ZEITGEIST_ZG_ACCESS_EVENT);
+  zeitgeist_event_set_manifestation (event, ZEITGEIST_ZG_USER_ACTIVITY);
+  zeitgeist_event_set_actor (event, "application://random.desktop");
+  zeitgeist_event_add_subject (event, subject);
+
+  g_object_unref (subject);
+  return event;
+}
+
 // Steals the event, ref it if you want to keep it
 static guint
 index_event (Fixture *fix, ZeitgeistEvent *event)
@@ -278,6 +298,10 @@ index_event (Fixture *fix, ZeitgeistEvent *event)
     zeitgeist_indexer_process_task (fix->indexer);
   }
 
+  // sleep for 1 msec to make sure the next event will have a
+  // different timestamp
+  g_usleep (1000);
+
   return event_id;
 }
 
@@ -292,6 +316,23 @@ search_simple (Fixture *fix, const char *text, GPtrArray *templates,
                             templates,
                             0, // offset
                             10, // count
+                            result_type,
+                            matches,
+                            NULL);
+}
+
+static GPtrArray*
+search_with_count (Fixture *fix, const char *text, GPtrArray *templates,
+        ZeitgeistResultType result_type, guint offset, guint count,
+        guint *matches)
+{
+  if (!templates) templates = g_ptr_array_new ();
+  return zeitgeist_indexer_search (fix->indexer,
+                            text,
+                            zeitgeist_time_range_new_anytime (),
+                            templates,
+                            offset,
+                            count,
                             result_type,
                             matches,
                             NULL);
@@ -322,7 +363,6 @@ test_simple_query (Fixture *fix, gconstpointer data)
 {
   guint matches;
   guint event_id;
-  ZeitgeistEvent* event;
  
   // add test events to DBs
   event_id = index_event (fix, create_test_event1 ());
@@ -362,6 +402,23 @@ test_simple_query_no_results (Fixture *fix, gconstpointer data)
   index_event (fix, create_test_event4 ());
 
   test_simple_query_empty_database (fix, data);
+}
+
+static void
+test_simple_recognize_schemas (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+
+  // add test events to DBs
+  index_event (fix, create_test_event_simple ("file://a.ok", "getme1"));
+  index_event (fix, create_test_event_simple ("ubuntuone://a.bad", "getme2"));
+
+  GPtrArray *results = search_simple (fix, "getme*", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+  assert_nth_result_has_text (results, 0, "getme1");
 }
 
 static void
@@ -788,7 +845,7 @@ test_simple_move_event (Fixture *fix, gconstpointer data)
 }
 
 static void
-test_simple_most_recent (Fixture *fix, gconstpointer data)
+test_query_most_recent (Fixture *fix, gconstpointer data)
 {
   guint matches;
   guint event_id1, event_id2, event_id3, event_id4;
@@ -840,7 +897,7 @@ test_simple_most_recent (Fixture *fix, gconstpointer data)
 }
 
 static void
-test_simple_least_recent (Fixture *fix, gconstpointer data)
+test_query_least_recent (Fixture *fix, gconstpointer data)
 {
   guint matches;
   guint event_id1, event_id2, event_id3, event_id4;
@@ -891,6 +948,95 @@ test_simple_least_recent (Fixture *fix, gconstpointer data)
   }
 }
 
+static void
+test_query_sort_order (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id1, event_id2, event_id3, event_id4;
+  ZeitgeistEvent* event;
+  GPtrArray* results;
+ 
+  // add test events to DBs
+  event_id1 = index_event (fix, create_test_event_simple ("file://uri1", "!sort"));
+  event_id2 = index_event (fix, create_test_event_simple ("file://uri2", "+sort"));
+  event_id3 = index_event (fix, create_test_event_simple ("file://uri3", "-sort"));
+
+  // Get the single most recent event
+  results = search_with_count (fix, "sort!", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, 0, 1, &matches);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+  assert_nth_result_has_id (results, 0, event_id3);
+  assert_nth_result_has_text (results, 0, "-sort");
+
+  // Get the single least recent event
+  results = search_with_count (fix, "sort!", NULL,
+          ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS, 0, 1, &matches);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+  assert_nth_result_has_id (results, 0, event_id1);
+  assert_nth_result_has_text (results, 0, "!sort");
+}
+
+static void
+test_query_with_duplicates (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id1, event_id2, event_id3, event_id4;
+  ZeitgeistEvent* event;
+  GPtrArray* results;
+  //gdouble *relevancies;
+  //gint relevancies_size;
+ 
+  // add test events to DBs
+  const char uri1[] = "file:///home/fibonacci/test.py";
+  const char uri2[] = "file:///home/fibonacci/win.txt";
+  event_id1 = index_event (fix, create_test_event_simple (uri1, "test"));
+  event_id2 = index_event (fix, create_test_event_simple (uri1, "test"));
+  event_id3 = index_event (fix, create_test_event_simple (uri2, "test"));
+  event_id4 = index_event (fix, create_test_event_simple (uri1, "test"));
+
+  // Search for MostRecentEvents
+  results = search_simple (fix, "test", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 4);
+  assert_nth_result_has_id (results, 0, event_id4);
+  assert_nth_result_has_id (results, 1, event_id3);
+  assert_nth_result_has_id (results, 2, event_id2);
+  assert_nth_result_has_id (results, 3, event_id1);
+
+  // Search for MostRecentSubjects
+  results = search_simple (fix, "test", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS, &matches);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 2);
+  assert_nth_result_has_id (results, 0, event_id4);
+  assert_nth_result_has_id (results, 1, event_id3);
+
+  // Search for MostPopularSubjects
+  results = search_simple (fix, "test", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS, &matches);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 2);
+  assert_nth_result_has_id (results, 0, event_id4);
+  assert_nth_result_has_id (results, 1, event_id3);
+
+  // Search for LeastPopularSubjects
+  results = search_simple (fix, "test", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS, &matches);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 2);
+  assert_nth_result_has_id (results, 0, event_id3);
+  assert_nth_result_has_id (results, 1, event_id4);
+}
+
 G_BEGIN_DECLS
 
 static void discard_message (const gchar *domain,
@@ -902,51 +1048,60 @@ static void discard_message (const gchar *domain,
 
 void test_indexer_create_suite (void)
 {
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleQuery", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/Query", Fixture, 0,
               setup, test_simple_query, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleQueryEmptyDatabase", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/QueryEmptyDatabase", Fixture, 0,
               setup, test_simple_query_empty_database, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleQueryNoResults", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/QueryNoResults", Fixture, 0,
               setup, test_simple_query_no_results, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleWithFilter", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/RecognizeSchemas", Fixture, 0,
+              setup, test_simple_recognize_schemas, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/WithFilter", Fixture, 0,
               setup, test_simple_with_filter, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleWithValidFilter", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/WithValidFilter", Fixture, 0,
               setup, test_simple_with_valid_filter, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleNegation", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/Negation", Fixture, 0,
               setup, test_simple_negation, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleNoexpand", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/Noexpand", Fixture, 0,
               setup, test_simple_noexpand, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleNoexpandValid", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/NoexpandValid", Fixture, 0,
               setup, test_simple_noexpand_valid, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleUnderscores", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/Underscores", Fixture, 0,
               setup, test_simple_underscores, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleCamelcase", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/Camelcase", Fixture, 0,
               setup, test_simple_camelcase, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/PrefixWithDashes", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/PrefixWithDashes", Fixture, 0,
               setup, test_simple_dashes_prefix, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/PrefixWithDots", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/PrefixWithDots", Fixture, 0,
               setup, test_simple_dots_prefix, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/PrefixWithIntlChars", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/PrefixWithIntlChars", Fixture, 0,
               setup, test_simple_intl_prefix, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/URLUnescape", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/URLUnescape", Fixture, 0,
               setup, test_simple_url_unescape, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/IDNSupport", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/IDNSupport", Fixture, 0,
               setup, test_simple_idn_support, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/CJK", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/CJK", Fixture, 0,
               setup, test_simple_cjk, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/Relevancies", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/Relevancies", Fixture, 0,
               setup, test_simple_relevancies_query, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/RelevanciesSubject", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/RelevanciesSubject", Fixture, 0,
               setup, test_simple_relevancies_subject_query, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/MoveEvent", Fixture, 0,
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/MoveEvent", Fixture, 0,
               setup, test_simple_move_event, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/MostRecent", Fixture, 0,
-              setup, test_simple_most_recent, teardown);
-  g_test_add ("/Zeitgeist/FTS/Indexer/LeastRecent", Fixture, 0,
-              setup, test_simple_least_recent, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/Query/MostRecent", Fixture, 0,
+              setup, test_query_most_recent, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/Query/LeastRecent", Fixture, 0,
+              setup, test_query_least_recent, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/Query/SortOrder", Fixture, 0,
+              setup, test_query_sort_order, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/Query/Duplicates", Fixture, 0,
+              setup, test_query_with_duplicates, teardown);
 
   // get rid of the "rebuilding index..." messages
   g_log_set_handler (NULL, G_LOG_LEVEL_MESSAGE, discard_message, NULL);
+
+  // do not abort on warning()s, eg. when not finding actor information
+  g_log_set_always_fatal (G_LOG_LEVEL_CRITICAL);
 }
 
 G_END_DECLS

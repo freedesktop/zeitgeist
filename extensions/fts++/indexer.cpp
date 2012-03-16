@@ -738,6 +738,7 @@ std::string Indexer::CompileQueryString (const gchar *search_string,
   return query_string;
 }
 
+// FIXME: this is missing the Storage State parameter
 GPtrArray* Indexer::Search (const gchar *search,
                             ZeitgeistTimeRange *time_range,
                             GPtrArray *templates,
