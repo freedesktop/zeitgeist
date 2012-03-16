@@ -63,9 +63,11 @@ teardown (Fixture *fix, gconstpointer data)
 }
 
 static void
-assert_nth_result_has_id (GPtrArray* results, int n, guint32 event_id)
+assert_nth_result_has_id (GPtrArray* results, guint n, guint32 event_id)
 {
+  g_assert_cmpuint (n, <, results->len);
   ZeitgeistEvent *event = (ZeitgeistEvent*) results->pdata[n];
+  g_assert (event);
   g_assert_cmpuint (zeitgeist_event_get_id (event), ==, event_id);
 }
 
@@ -74,9 +76,13 @@ assert_nth_result_has_id (GPtrArray* results, int n, guint32 event_id)
 static void
 assert_nth_result_has_text (GPtrArray* results, int n, const char *text)
 {
+  g_assert_cmpuint (n, <, results->len);
   ZeitgeistEvent *event = (ZeitgeistEvent*) results->pdata[n];
+  g_assert (event);
+  g_assert_cmpint (zeitgeist_event_num_subjects (event), ==, 1);
   ZeitgeistSubject *subject = (ZeitgeistSubject*)
     g_ptr_array_index (zeitgeist_event_get_subjects (event), 0);
+  g_assert (subject);
   g_assert_cmpstr (zeitgeist_subject_get_text (subject), ==, text);
 }
 
@@ -275,6 +281,42 @@ index_event (Fixture *fix, ZeitgeistEvent *event)
   return event_id;
 }
 
+static GPtrArray*
+search_simple (Fixture *fix, const char *text, GPtrArray *templates,
+        ZeitgeistResultType result_type, guint *matches)
+{
+  if (!templates) templates = g_ptr_array_new ();
+  return zeitgeist_indexer_search (fix->indexer,
+                            text,
+                            zeitgeist_time_range_new_anytime (),
+                            templates,
+                            0, // offset
+                            10, // count
+                            result_type,
+                            matches,
+                            NULL);
+}
+
+static GPtrArray*
+search_with_relevancies_simple (Fixture *fix, const char *text,
+        GPtrArray *templates, ZeitgeistResultType result_type,
+        gdouble **relevancies, gint *relevancies_size, guint *matches)
+{
+  if (!templates) templates = g_ptr_array_new ();
+  return zeitgeist_indexer_search_with_relevancies (fix->indexer,
+                            text,
+                            zeitgeist_time_range_new_anytime (),
+                            templates,
+                            ZEITGEIST_STORAGE_STATE_ANY,
+                            0, // offset
+                            10, // count
+                            result_type,
+                            relevancies,
+                            relevancies_size,
+                            matches,
+                            NULL);
+}
+
 static void
 test_simple_query (Fixture *fix, gconstpointer data)
 {
@@ -288,16 +330,8 @@ test_simple_query (Fixture *fix, gconstpointer data)
   index_event (fix, create_test_event3 ());
   index_event (fix, create_test_event4 ());
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "text",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "text", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -310,16 +344,9 @@ test_simple_query_empty_database (Fixture *fix, gconstpointer data)
 {
   guint matches;
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "NothingWillEverMatchThisMwhahahaha",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix,
+          "NothingWillEverMatchThisMwhahahaha", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, ==, 0);
   g_assert_cmpuint (results->len, ==, 0);
@@ -352,16 +379,8 @@ test_simple_with_filter (Fixture *fix, gconstpointer data)
   zeitgeist_event_set_interpretation (event, ZEITGEIST_NFO_DOCUMENT);
   g_ptr_array_add (filters, event); // steals ref
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "text",
-                              zeitgeist_time_range_new_anytime (),
-                              filters,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "text", filters,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (results->len, ==, 0);
   g_assert_cmpuint (matches, ==, 0);
@@ -386,16 +405,8 @@ test_simple_with_valid_filter (Fixture *fix, gconstpointer data)
   zeitgeist_event_add_subject (event, subject);
   g_ptr_array_add (filters, event); // steals ref
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "text",
-                              zeitgeist_time_range_new_anytime (),
-                              filters,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "text", filters,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -421,16 +432,8 @@ test_simple_negation (Fixture *fix, gconstpointer data)
   zeitgeist_event_add_subject (event, subject);
   g_ptr_array_add (filters, event); // steals ref
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "text",
-                              zeitgeist_time_range_new_anytime (),
-                              filters,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "text", filters,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, ==, 0);
   g_assert_cmpuint (results->len, ==, 0);
@@ -454,16 +457,8 @@ test_simple_noexpand (Fixture *fix, gconstpointer data)
   zeitgeist_event_add_subject (event, subject);
   g_ptr_array_add (filters, event); // steals ref
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "text",
-                              zeitgeist_time_range_new_anytime (),
-                              filters,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "text", filters,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, ==, 0);
   g_assert_cmpuint (results->len, ==, 0);
@@ -488,16 +483,8 @@ test_simple_noexpand_valid (Fixture *fix, gconstpointer data)
   zeitgeist_event_add_subject (event, subject);
   g_ptr_array_add (filters, event); // steals ref
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "text",
-                              zeitgeist_time_range_new_anytime (),
-                              filters,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "text", filters,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -524,16 +511,8 @@ test_simple_url_unescape (Fixture *fix, gconstpointer data)
   zeitgeist_event_add_subject (event, subject);
   g_ptr_array_add (filters, event); // steals ref
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "love",
-                              zeitgeist_time_range_new_anytime (),
-                              filters,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "love", filters,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -556,16 +535,8 @@ test_simple_underscores (Fixture *fix, gconstpointer data)
   index_event (fix, create_test_event3 ());
   event_id = index_event (fix, create_test_event4 ());
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "fabulo*",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "fabulo*", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -587,16 +558,8 @@ test_simple_camelcase (Fixture *fix, gconstpointer data)
   index_event (fix, create_test_event4 ());
   event_id = index_event (fix, create_test_event5 ());
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "signal",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "signal", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -628,16 +591,8 @@ test_simple_dashes_prefix (Fixture *fix, gconstpointer data)
   zeitgeist_event_add_subject (event, subject);
   g_ptr_array_add (event_template, event);
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "pdf",
-                              zeitgeist_time_range_new_anytime (),
-                              event_template,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "pdf", event_template,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -669,16 +624,8 @@ test_simple_dots_prefix (Fixture *fix, gconstpointer data)
   zeitgeist_event_add_subject (event, subject);
   g_ptr_array_add (event_template, event);
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "pdf",
-                              zeitgeist_time_range_new_anytime (),
-                              event_template,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "pdf", event_template,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -710,16 +657,8 @@ test_simple_intl_prefix (Fixture *fix, gconstpointer data)
   zeitgeist_event_add_subject (event, subject);
   g_ptr_array_add (event_template, event);
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "pdf",
-                              zeitgeist_time_range_new_anytime (),
-                              event_template,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "pdf", event_template,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -738,16 +677,8 @@ test_simple_cjk (Fixture *fix, gconstpointer data)
   index_event (fix, create_test_event1 ());
   event_id = index_event (fix, create_test_event2 ());
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "漢*",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "漢*", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -769,16 +700,8 @@ test_simple_idn_support (Fixture *fix, gconstpointer data)
   index_event (fix, create_test_event2 ());
   event_id = index_event (fix, create_test_event3 ());
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "παράδειγμα",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "παράδειγμα", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -801,18 +724,9 @@ test_simple_relevancies_query (Fixture *fix, gconstpointer data)
   index_event (fix, create_test_event3 ());
   index_event (fix, create_test_event4 ());
 
-  GPtrArray *results =
-    zeitgeist_indexer_search_with_relevancies (fix->indexer,
-                              "text",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              ZEITGEIST_STORAGE_STATE_ANY,
-                              0,
-                              10,
-                              (ZeitgeistResultType) 100,
-                              &relevancies, &relevancies_size,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_with_relevancies_simple (fix, "text", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS,
+          &relevancies, &relevancies_size, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -840,18 +754,9 @@ test_simple_relevancies_subject_query (Fixture *fix, gconstpointer data)
   usleep (50000);
   event_id6 = index_event (fix, create_test_event6 ());
 
-  GPtrArray *results =
-    zeitgeist_indexer_search_with_relevancies (fix->indexer,
-                              "user*",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              ZEITGEIST_STORAGE_STATE_ANY,
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS,
-                              &relevancies, &relevancies_size,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_with_relevancies_simple (fix, "user*", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS,
+          &relevancies, &relevancies_size, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 3);
@@ -874,16 +779,8 @@ test_simple_move_event (Fixture *fix, gconstpointer data)
   index_event (fix, create_test_event4 ());
   event_id = index_event (fix, create_test_event8 ());
 
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "awesome",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  GPtrArray *results = search_simple (fix, "awesome", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
@@ -896,6 +793,9 @@ test_simple_most_recent (Fixture *fix, gconstpointer data)
   guint matches;
   guint event_id1, event_id2, event_id3, event_id4;
   ZeitgeistEvent* event;
+  GPtrArray* results;
+  gdouble *relevancies;
+  gint relevancies_size;
  
   // add test events to DBs
   event_id1 = index_event (fix, create_test_event1 ());
@@ -903,39 +803,40 @@ test_simple_most_recent (Fixture *fix, gconstpointer data)
   event_id3 = index_event (fix, create_test_event3 ());
   event_id4 = index_event (fix, create_test_event4 ());
 
-  // test MostRecentEvents
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "*text*",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  for (int i = 0; i < 4; ++i)
+  {
+    if (i == 0)
+    {
+      // Search for MostRecentEvents
+      results = search_simple (fix, "*text*", NULL,
+              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
+    }
+    else if (i == 1)
+    {
+      // Search for MostRecentSubjects
+      results = search_simple (fix, "*text*", NULL,
+              ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS, &matches);
+    }
+    else if (i == 2)
+    {
+      // SearchWithRelevancies for MostRecentEvents
+      GPtrArray *results = search_with_relevancies_simple (fix, "*text*", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+          &relevancies, &relevancies_size, &matches);
+    }
+    else
+    {
+      // SearchWithRelevancies for MostRecentSubjects
+      GPtrArray *results = search_with_relevancies_simple (fix, "*text*", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS,
+          &relevancies, &relevancies_size, &matches);
+    }
 
-  g_assert_cmpuint (matches, >, 0);
-  g_assert_cmpuint (results->len, ==, 2);
-  assert_nth_result_has_id (results, 0, event_id4);
-  assert_nth_result_has_id (results, 1, event_id1);
-
-  // test MostRecentSubjects
-  results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "*text*",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS,
-                              &matches,
-                              NULL);
-
-  g_assert_cmpuint (matches, >, 0);
-  g_assert_cmpuint (results->len, ==, 2);
-  assert_nth_result_has_id (results, 0, event_id4);
-  assert_nth_result_has_id (results, 1, event_id1);
+    g_assert_cmpuint (matches, >, 0);
+    g_assert_cmpuint (results->len, ==, 2);
+    assert_nth_result_has_id (results, 0, event_id4);
+    assert_nth_result_has_id (results, 1, event_id1);
+  }
 }
 
 static void
@@ -944,6 +845,9 @@ test_simple_least_recent (Fixture *fix, gconstpointer data)
   guint matches;
   guint event_id1, event_id2, event_id3, event_id4;
   ZeitgeistEvent* event;
+  GPtrArray* results;
+  gdouble *relevancies;
+  gint relevancies_size;
  
   // add test events to DBs
   event_id1 = index_event (fix, create_test_event1 ());
@@ -951,39 +855,40 @@ test_simple_least_recent (Fixture *fix, gconstpointer data)
   event_id3 = index_event (fix, create_test_event3 ());
   event_id4 = index_event (fix, create_test_event4 ());
 
-  // test LeastRecentEvents
-  GPtrArray *results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "*text*",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS,
-                              &matches,
-                              NULL);
+  for (int i = 0; i < 4; ++i)
+  {
+    if (i == 0)
+    {
+      // Search for LeastRecentEvents
+      results = search_simple (fix, "*text*", NULL,
+              ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS, &matches);
+    }
+    else if (i == 1)
+    {
+      // Search for LeastRecentSubjects
+      results = search_simple (fix, "*text*", NULL,
+              ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS, &matches);
+    }
+    else if (i == 2)
+    {
+      // SearchWithRelevancies for LeastRecentEvents
+      GPtrArray *results = search_with_relevancies_simple (fix, "*text*", NULL,
+          ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS,
+          &relevancies, &relevancies_size, &matches);
+    }
+    else
+    {
+      // SearchWithRelevancies for LeastRecentSubjects
+      GPtrArray *results = search_with_relevancies_simple (fix, "*text*", NULL,
+          ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS,
+          &relevancies, &relevancies_size, &matches);
+    }
 
-  g_assert_cmpuint (matches, >, 0);
-  g_assert_cmpuint (results->len, ==, 2);
-  assert_nth_result_has_id (results, 0, event_id1);
-  assert_nth_result_has_id (results, 1, event_id4);
-
-  // test LeastRecentSubjects
-  results =
-    zeitgeist_indexer_search (fix->indexer,
-                              "*text*",
-                              zeitgeist_time_range_new_anytime (),
-                              g_ptr_array_new (),
-                              0,
-                              10,
-                              ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS,
-                              &matches,
-                              NULL);
-
-  g_assert_cmpuint (matches, >, 0);
-  g_assert_cmpuint (results->len, ==, 2);
-  assert_nth_result_has_id (results, 0, event_id1);
-  assert_nth_result_has_id (results, 1, event_id4);
+    g_assert_cmpuint (matches, >, 0);
+    g_assert_cmpuint (results->len, ==, 2);
+    assert_nth_result_has_id (results, 0, event_id1);
+    assert_nth_result_has_id (results, 1, event_id4);
+  }
 }
 
 G_BEGIN_DECLS
