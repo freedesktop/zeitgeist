@@ -293,6 +293,38 @@ test_simple_query (Fixture *fix, gconstpointer data)
 }
 
 static void
+test_simple_query_empty_database (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+
+  GPtrArray *results =
+    zeitgeist_indexer_search (fix->indexer,
+                              "NothingWillEverMatchThisMwhahahaha",
+                              zeitgeist_time_range_new_anytime (),
+                              g_ptr_array_new (),
+                              0,
+                              10,
+                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+                              &matches,
+                              NULL);
+
+  g_assert_cmpuint (matches, ==, 0);
+  g_assert_cmpuint (results->len, ==, 0);
+}
+
+static void
+test_simple_query_no_results (Fixture *fix, gconstpointer data)
+{
+  // add test events to DBs
+  index_event (fix, create_test_event1 ());
+  index_event (fix, create_test_event2 ());
+  index_event (fix, create_test_event3 ());
+  index_event (fix, create_test_event4 ());
+
+  test_simple_query_empty_database (fix, data);
+}
+
+static void
 test_simple_with_filter (Fixture *fix, gconstpointer data)
 {
   guint matches;
@@ -889,6 +921,37 @@ test_simple_move_event (Fixture *fix, gconstpointer data)
   g_assert_cmpuint (zeitgeist_event_get_id (event), ==, event_id);
 }
 
+static void
+test_simple_least_recent (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id1, event_id2, event_id3, event_id4;
+  ZeitgeistEvent* event;
+ 
+  // add test events to DBs
+  event_id1 = index_event (fix, create_test_event1 ());
+  event_id2 = index_event (fix, create_test_event2 ());
+  event_id3 = index_event (fix, create_test_event3 ());
+  event_id4 = index_event (fix, create_test_event4 ());
+
+  GPtrArray *results =
+    zeitgeist_indexer_search (fix->indexer,
+                              "",
+                              zeitgeist_time_range_new_anytime (),
+                              g_ptr_array_new (),
+                              0,
+                              10,
+                              ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+                              &matches,
+                              NULL);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 4);
+
+  //event = (ZeitgeistEvent*) results->pdata[0];
+  //g_assert_cmpuint (zeitgeist_event_get_id (event), ==, event_id);
+}
+
 G_BEGIN_DECLS
 
 static void discard_message (const gchar *domain,
@@ -902,6 +965,10 @@ void test_indexer_create_suite (void)
 {
   g_test_add ("/Zeitgeist/FTS/Indexer/SimpleQuery", Fixture, 0,
               setup, test_simple_query, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleQueryEmptyDatabase", Fixture, 0,
+              setup, test_simple_query_empty_database, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/SimpleQueryNoResults", Fixture, 0,
+              setup, test_simple_query_no_results, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/SimpleWithFilter", Fixture, 0,
               setup, test_simple_with_filter, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/SimpleWithValidFilter", Fixture, 0,

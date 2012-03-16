@@ -134,7 +134,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 
 	def testIllegalPredefinedEventId(self):
 		event = Event()
-		event[0][0] = str(23) # This is illegal, we assert the erro later
+		event[0][0] = str(23) # This is illegal, we assert the error later
 		event.timestamp = 0
 		event.interpretation = Manifestation.USER_ACTIVITY
 		event.manifestation = Interpretation.CREATE_EVENT

@@ -262,7 +262,10 @@ std::string Indexer::CompileEventFilterQuery (GPtrArray *templates)
     for (unsigned j = 0; j < subjects->len; j++)
     {
       ZeitgeistSubject *subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, j);
+      // For backwards compatibility, we still check URI
       val = zeitgeist_subject_get_uri (subject);
+      if (!val || val[0] == '\0')
+          val = zeitgeist_subject_get_current_uri (subject);
       if (val && val[0] != '\0')
         tmpl.push_back ("zgsu:" + StringUtils::MangleUri (val));
 
@@ -344,7 +347,7 @@ void Indexer::AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc)
   for (unsigned j = 0; j < subjects->len; j++)
   {
     ZeitgeistSubject *subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, j);
-    val = zeitgeist_subject_get_uri (subject);
+    val = zeitgeist_subject_get_current_uri (subject);
     if (val && val[0] != '\0')
       doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_URI + StringUtils::MangleUri (val)));
 
@@ -928,12 +931,13 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
       if (subjects == NULL) continue;
       for (unsigned j = 0; j < subjects->len; j++)
       {
-        const gchar *subj_uri = zeitgeist_subject_get_uri ((ZeitgeistSubject*) subjects->pdata[j]);
+        const gchar *subj_uri = zeitgeist_subject_get_current_uri (
+                (ZeitgeistSubject*) subjects->pdata[j]);
         if (subj_uri == NULL) continue;
         remapper[subj_uri] = event_id;
         ZeitgeistEvent *event = zeitgeist_event_new ();
         ZeitgeistSubject *subject = zeitgeist_subject_new ();
-        zeitgeist_subject_set_uri (subject, subj_uri);
+        zeitgeist_subject_set_current_uri (subject, subj_uri);
         zeitgeist_event_add_subject (event, subject); // FIXME: leaks?
         g_ptr_array_add (event_templates, event);
       }
@@ -976,7 +980,8 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
       if (subjects == NULL) continue;
       for (unsigned j = 0; j < subjects->len; j++)
       {
-        const gchar *subj_uri = zeitgeist_subject_get_uri ((ZeitgeistSubject*) subjects->pdata[j]);
+        const gchar *subj_uri = zeitgeist_subject_get_current_uri (
+                (ZeitgeistSubject*) subjects->pdata[j]);
         if (subj_uri == NULL) continue;
         relevancy_map[event_id] = relevancy_map[remapper[subj_uri]];
       }
