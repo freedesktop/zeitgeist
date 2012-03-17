@@ -106,12 +106,21 @@ namespace Zeitgeist
                             "/org/gnome/zeitgeist/index/activity",
                             0, null, this.proxy_acquired);
                     },
-                    () => {});
+                    () =>
+                    {
+                        if (siin != null) return;
+                        this.proxy_not_present();
+                    });
             }
             catch (Error err)
             {
                 warning ("%s", err.message);
             }
+        }
+        
+        private void proxy_not_present()
+        {
+            notifier.remove_monitor (new BusName (INDEXER_NAME),"/org/gnome/zeitgeist/monitor/special");
         }
 
         private void proxy_acquired (Object? obj, AsyncResult res)
