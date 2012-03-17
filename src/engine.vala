@@ -212,10 +212,10 @@ public class Engine : DbReader
         insert_stmt.bind_int64 (1, event.id);
         insert_stmt.bind_int64 (2, event.timestamp);
         insert_stmt.bind_int64 (3,
-            interpretations_table.get_id (event.interpretation));
+            interpretations_table.id_for_string (event.interpretation));
         insert_stmt.bind_int64 (4,
-            manifestations_table.get_id (event.manifestation));
-        insert_stmt.bind_int64 (5, actors_table.get_id (event.actor));
+            manifestations_table.id_for_string (event.manifestation));
+        insert_stmt.bind_int64 (5, actors_table.id_for_string (event.actor));
         insert_stmt.bind_text (6, event.origin);
         insert_stmt.bind_int64 (7, payload_id);
 
@@ -228,12 +228,12 @@ public class Engine : DbReader
             insert_stmt.bind_text (8, subject.uri);
             insert_stmt.bind_text (9, subject.current_uri);
             insert_stmt.bind_int64 (10,
-                interpretations_table.get_id (subject.interpretation));
+                interpretations_table.id_for_string (subject.interpretation));
             insert_stmt.bind_int64 (11,
-                manifestations_table.get_id (subject.manifestation));
+                manifestations_table.id_for_string (subject.manifestation));
             insert_stmt.bind_text (12, subject.origin);
             insert_stmt.bind_int64 (13,
-                mimetypes_table.get_id (subject.mimetype));
+                mimetypes_table.id_for_string (subject.mimetype));
             insert_stmt.bind_text (14, subject.text);
             // FIXME: Consider a storages_table table. Too dangerous?
             insert_stmt.bind_text (15, subject.storage);
@@ -255,10 +255,10 @@ public class Engine : DbReader
 
                 retrieval_stmt.bind_int64 (1, event.timestamp);
                 retrieval_stmt.bind_int64 (2,
-                    interpretations_table.get_id (event.interpretation));
+                    interpretations_table.id_for_string (event.interpretation));
                 retrieval_stmt.bind_int64 (3,
-                    manifestations_table.get_id (event.manifestation));
-                retrieval_stmt.bind_int64 (4, actors_table.get_id (event.actor));
+                    manifestations_table.id_for_string (event.manifestation));
+                retrieval_stmt.bind_int64 (4, actors_table.id_for_string (event.actor));
 
                 if ((rc = retrieval_stmt.step ()) != Sqlite.ROW) {
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
