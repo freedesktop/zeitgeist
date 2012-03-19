@@ -1033,8 +1033,8 @@ test_query_with_duplicates (Fixture *fix, gconstpointer data)
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 2);
-  assert_nth_result_has_id (results, 0, event_id3);
-  assert_nth_result_has_id (results, 1, event_id4);
+  assert_nth_result_has_id (results, 0, event_id1);
+  assert_nth_result_has_id (results, 1, event_id3);
 }
 
 static void
@@ -1066,8 +1066,8 @@ test_query_most_popular_subjects (Fixture *fix, gconstpointer data)
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 3);
-  assert_nth_result_has_id (results, 0, event_id7);
-  assert_nth_result_has_id (results, 1, event_id9);
+  assert_nth_result_has_id (results, 0, event_id9);
+  assert_nth_result_has_id (results, 1, event_id7);
   assert_nth_result_has_id (results, 2, event_id6);
 }
 
