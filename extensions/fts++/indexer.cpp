@@ -778,7 +778,9 @@ GPtrArray* Indexer::Search (const gchar *search,
     }
     else
     {
-      enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
+      bool reversed_sort = not
+          zeitgeist_result_type_is_sort_order_asc (result_type);
+      enquire->set_sort_by_value (VALUE_TIMESTAMP, reversed_sort);
     }
 
     if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
@@ -786,7 +788,20 @@ GPtrArray* Indexer::Search (const gchar *search,
         result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
         result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS)
     {
-        enquire->set_collapse_key (VALUE_URI_HASH);
+      enquire->set_collapse_key (VALUE_URI_HASH);
+    }
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_ORIGIN)
+    {
+      // FIXME: not really correct but close :)
+      enquire->set_collapse_key (VALUE_URI_HASH);
+    }
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS)
+    {
+      enquire->set_collapse_key (VALUE_EVENT_ID);
     }
 
     Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
@@ -1096,12 +1111,8 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
       return NULL;
     }
 
-    bool reversed_sort =
-      result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
-      result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
-      result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
-      result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_ORIGIN ||
-      result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN;
+    bool reversed_sort = not
+        zeitgeist_result_type_is_sort_order_asc (result_type);
 
     if (result_type == RELEVANCY_RESULT_TYPE)
     {

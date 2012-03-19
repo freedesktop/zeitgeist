@@ -230,10 +230,60 @@ namespace Zeitgeist
                                                    // different origin ordered
                                                    // by the popularity of the
                                                    // origins
-        LEAST_POPULAR_EVENT_ORIGIN           = 30, //   The last event of each
+        LEAST_POPULAR_EVENT_ORIGIN           = 30; //   The last event of each
                                                    // different origin, ordered
                                                    // ascendingly by the
                                                    // popularity of the origin
+
+        /*
+         * Returns true if the results for the given result_type will be sorted
+         * ascendantly by date, false if they'll be sorted descendingly.
+         **/
+        public static bool is_sort_order_asc (ResultType result_type)
+        {
+            switch (result_type)
+            {
+                // FIXME: Why are LEAST_POPULAR_* using ASC?
+                case ResultType.LEAST_RECENT_EVENTS:
+                case ResultType.LEAST_RECENT_EVENT_ORIGIN:
+                case ResultType.LEAST_POPULAR_EVENT_ORIGIN:
+                case ResultType.LEAST_RECENT_SUBJECTS:
+                case ResultType.LEAST_POPULAR_SUBJECTS:
+                case ResultType.LEAST_RECENT_CURRENT_URI:
+                case ResultType.LEAST_POPULAR_CURRENT_URI:
+                case ResultType.LEAST_RECENT_ACTOR:
+                case ResultType.LEAST_POPULAR_ACTOR:
+                case ResultType.OLDEST_ACTOR:
+                case ResultType.LEAST_RECENT_ORIGIN:
+                case ResultType.LEAST_POPULAR_ORIGIN:
+                case ResultType.LEAST_RECENT_SUBJECT_INTERPRETATION:
+                case ResultType.LEAST_POPULAR_SUBJECT_INTERPRETATION:
+                case ResultType.LEAST_RECENT_MIMETYPE:
+                case ResultType.LEAST_POPULAR_MIMETYPE:
+                    return true;
+
+                case ResultType.MOST_RECENT_EVENTS:
+                case ResultType.MOST_RECENT_EVENT_ORIGIN:
+                case ResultType.MOST_POPULAR_EVENT_ORIGIN:
+                case ResultType.MOST_RECENT_SUBJECTS:
+                case ResultType.MOST_POPULAR_SUBJECTS:
+                case ResultType.MOST_RECENT_CURRENT_URI:
+                case ResultType.MOST_POPULAR_CURRENT_URI:
+                case ResultType.MOST_RECENT_ACTOR:
+                case ResultType.MOST_POPULAR_ACTOR:
+                case ResultType.MOST_RECENT_ORIGIN:
+                case ResultType.MOST_POPULAR_ORIGIN:
+                case ResultType.MOST_RECENT_SUBJECT_INTERPRETATION:
+                case ResultType.MOST_POPULAR_SUBJECT_INTERPRETATION:
+                case ResultType.MOST_RECENT_MIMETYPE:
+                case ResultType.MOST_POPULAR_MIMETYPE:
+                    return false;
+
+                default:
+                    warning ("Unrecognized ResultType: %u", (uint) result_type);
+                    return true;
+            }
+        }
     }
 
     /*
