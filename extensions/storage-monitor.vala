@@ -115,7 +115,6 @@ namespace Zeitgeist
         private Sqlite.Statement update_storage_medium_stmt;
         private Sqlite.Statement insert_unavailable_medium_stmt;
         private Sqlite.Statement update_medium_state_stmt;
-        private Sqlite.Statement get_storage_medium_id_stmt;
 
         private NetworkMonitor network;
         private uint watch_connman;
@@ -272,13 +271,6 @@ namespace Zeitgeist
             rc = db.prepare_v2 (sql, -1, out update_medium_state_stmt);
             database.assert_query_success (rc,
                 "update_medium_state_stmt error");
-
-            sql = """
-                SELECT id FROM storage WHERE value=?
-                """;
-            rc = db.prepare_v2 (sql, -1, out get_storage_medium_id_stmt);
-            database.assert_query_success (rc,
-                "get_storage_medium_id_stmt error");
         }
 
         public override void pre_insert_events (GenericArray<Event?> events,
@@ -372,10 +364,12 @@ namespace Zeitgeist
             string display_name)
         {
             debug ("VOLUME ADDED: %s".printf(medium_name));
-
-            get_storage_medium_id_stmt.reset ();
-            get_storage_medium_id_stmt.bind_text (1, medium_name);
-            if (get_storage_medium_id_stmt.step () == Sqlite.ROW)
+            store_storage_medium_stmt.reset ();
+            store_storage_medium_stmt.bind_text (1, medium_name);
+            store_storage_medium_stmt.bind_int (2, 1);
+            store_storage_medium_stmt.bind_text (3, icon);
+            store_storage_medium_stmt.bind_text (4, display_name);
+            if (store_storage_medium_stmt.step () != Sqlite.DONE)
             {
                 update_storage_medium_stmt.reset ();
                 update_storage_medium_stmt.bind_int (1, 1);
@@ -383,21 +377,8 @@ namespace Zeitgeist
                 update_storage_medium_stmt.bind_text (3, display_name);
                 update_storage_medium_stmt.bind_text (4, medium_name);
                 int rc = update_storage_medium_stmt.step ();
-                database.assert_query_success (rc, "update_storage_medium",
-                    Sqlite.DONE);
+                database.assert_query_success (rc, "add_storage_medium", Sqlite.DONE);
             }
-            else
-            {
-                store_storage_medium_stmt.reset ();
-                store_storage_medium_stmt.bind_text (1, medium_name);
-                store_storage_medium_stmt.bind_int (2, 1);
-                store_storage_medium_stmt.bind_text (3, icon);
-                store_storage_medium_stmt.bind_text (4, display_name);
-                int rc = store_storage_medium_stmt.step ();
-                database.assert_query_success (rc, "add_storage_medium",
-                    Sqlite.DONE);
-            }
-
             storage_available (medium_name, StorageMedia.to_variant (
                 medium_name, true, icon, display_name));
         }
