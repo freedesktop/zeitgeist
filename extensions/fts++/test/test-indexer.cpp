@@ -1,5 +1,7 @@
 /*
  * Copyright © 2012 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+ * Copyright © 2012 Canonical Ltd.
+ *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -987,8 +989,6 @@ test_query_with_duplicates (Fixture *fix, gconstpointer data)
   guint event_id1, event_id2, event_id3, event_id4;
   ZeitgeistEvent* event;
   GPtrArray* results;
-  //gdouble *relevancies;
-  //gint relevancies_size;
  
   // add test events to DBs
   const char uri1[] = "file:///home/fibonacci/test.py";
@@ -1029,12 +1029,46 @@ test_query_with_duplicates (Fixture *fix, gconstpointer data)
 
   // Search for LeastPopularSubjects
   results = search_simple (fix, "test", NULL,
-          ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS, &matches);
+          ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 2);
   assert_nth_result_has_id (results, 0, event_id3);
   assert_nth_result_has_id (results, 1, event_id4);
+}
+
+static void
+test_query_most_popular_subjects (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+  guint event_id1, event_id2, event_id3, event_id4, event_id5,
+        event_id6, event_id7, event_id8, event_id9;
+  ZeitgeistEvent* event;
+  GPtrArray* results;
+ 
+  // add test events to DBs
+  const char uri1[] = "file:///file1.txt";
+  const char uri2[] = "file:///file2.txt";
+  const char uri3[] = "file:///file3.txt";
+  event_id1 = index_event (fix, create_test_event_simple (uri1, "test"));
+  event_id2 = index_event (fix, create_test_event_simple (uri1, "test"));
+  event_id3 = index_event (fix, create_test_event_simple (uri2, "test"));
+  event_id4 = index_event (fix, create_test_event_simple (uri1, "test"));
+  event_id5 = index_event (fix, create_test_event_simple (uri3, "test"));
+  event_id6 = index_event (fix, create_test_event_simple (uri2, "test"));
+  event_id7 = index_event (fix, create_test_event_simple (uri1, "test"));
+  event_id8 = index_event (fix, create_test_event_simple (uri3, "test"));
+  event_id9 = index_event (fix, create_test_event_simple (uri3, "test"));
+
+  // Search for MostPopularSubjects
+  results = search_simple (fix, "test", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS, &matches);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 3);
+  assert_nth_result_has_id (results, 0, event_id7);
+  assert_nth_result_has_id (results, 1, event_id9);
+  assert_nth_result_has_id (results, 2, event_id6);
 }
 
 G_BEGIN_DECLS
@@ -1096,6 +1130,8 @@ void test_indexer_create_suite (void)
               setup, test_query_sort_order, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/Query/Duplicates", Fixture, 0,
               setup, test_query_with_duplicates, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/Query/MostPopularSubjects", Fixture, 0,
+              setup, test_query_most_popular_subjects, teardown);
 
   // get rid of the "rebuilding index..." messages
   g_log_set_handler (NULL, G_LOG_LEVEL_MESSAGE, discard_message, NULL);
