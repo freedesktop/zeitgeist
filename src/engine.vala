@@ -277,6 +277,46 @@ public class Engine : DbReader
         return event.id;
     }
 
+    public uint32[] delete_events_in_time_range (TimeRange range,
+        GenericArray<Event> event_templates,
+        uint storage_state, uint max_events, uint result_type,
+        BusName? sender=null) throws EngineError
+    {
+        uint32[] event_ids = find_event_ids (range, event_templates,
+            storage_state, max_events, result_type);
+
+        WhereClause where = get_where_clause_for_query (range, event_temlpates,
+            storage_state, sender);
+
+        string sql = "DELETE FROM event_view ";
+        string where_sql = "";
+        if (!where.is_empty ())
+        {
+            where_sql = "WHERE " + where.get_sql_conditions ();
+        }
+
+        sql += group_clause (result_type, where_sql);
+
+        if (max_events > 0)
+            sql += " LIMIT %u".printf(max_events);
+
+        int rc;
+        Sqlite.Statement stmt;
+
+        rc = db.prepare_v2 (sql, -1, out stmt);
+        database.assert_query_success(rc, "SQL error");
+
+        var arguments = where.get_bind_arguments ();
+        for (int i = 0; i < arguments.length; ++i)
+            stmt.bind_text (i + 1, arguments[i]);
+
+#if EXPLAIN_QUERIES
+        database.explain_query (stmt);
+#endif
+
+        return event_ids;
+    }
+
     public TimeRange? delete_events (uint32[] event_ids, BusName? sender)
         throws EngineError
         requires (event_ids.length > 0)

@@ -38,6 +38,13 @@ namespace Zeitgeist
             BusName sender
         ) throws Error;
 
+        public abstract uint32[] delete_events_in_time_range (
+            [DBus (signature = "(xx)")] Variant time_range,
+            [DBus (signature = "a(asaasay)")] Variant event_templates,
+            uint storage_state, uint num_events, uint result_type,
+            BusName sender
+        ) throws Error;
+
         public abstract uint32[] find_event_ids (
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,

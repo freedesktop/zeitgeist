@@ -205,6 +205,17 @@ namespace Zeitgeist
             return event_ids;
         }
 
+        public uint32[] delete_events_in_time_range (Variant range,
+                Variant event_templates,
+                uint storage_state, uint num_events, uint result_type,
+                BusName sender) throws Error
+        {
+            uint32[] event_ids = engine.delete_events_in_time_range (new TimeRange.from_variant(range),
+                Events.from_variant (event_templates),
+                storage_state, num_events, result_type, sender);
+            return event_ids;
+        }
+
         public Variant delete_events (uint32[] event_ids, BusName sender)
             throws Error
         {
