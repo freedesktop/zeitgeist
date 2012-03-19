@@ -285,7 +285,7 @@ public class Engine : DbReader
         uint32[] event_ids = find_event_ids (range, event_templates,
             storage_state, max_events, result_type);
 
-        WhereClause where = get_where_clause_for_query (range, event_temlpates,
+        WhereClause where = get_where_clause_for_query (range, event_templates,
             storage_state, sender);
 
         string sql = "DELETE FROM event_view ";
