@@ -1281,6 +1281,7 @@ get_digest_for_uri (GChecksum *checksum, const gchar *uri,
   g_checksum_update (checksum, (guchar *) uri, -1);
   g_checksum_get_digest (checksum, digest, digest_size);
   g_checksum_reset (checksum);
+  g_assert (digest_size == NULL || *digest_size == HASH_LENGTH);
 }
 
 void Indexer::IndexEvent (ZeitgeistEvent *event)
@@ -1333,16 +1334,15 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
         return; // ignore this event completely...
       }
 
+      guint8 uri_hash[HASH_LENGTH + 1];
+      gsize hash_size = HASH_LENGTH;
+
       // We need the subject URI so we can use Xapian's collapse key feature
       // for *_SUBJECT grouping. However, to save space, we'll just save a hash.
       // A better option would be using URI's id, but for that we'd need a SQL
       // query that'd be subject to races.
       // FIXME(?): This doesn't work for events with multiple subjects.
-      guint8 uri_hash[HASH_LENGTH + 1];
-      gsize hash_size = HASH_LENGTH;
-
       get_digest_for_uri (checksum, uri.c_str (), uri_hash, &hash_size);
-      g_assert (hash_size == HASH_LENGTH);
       doc.add_value (VALUE_URI_HASH, std::string((char *) uri_hash, hash_size));
 
       size_t colon_pos = uri.find (':');
@@ -1353,7 +1353,6 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
       {
         hash_size = HASH_LENGTH;
         get_digest_for_uri (checksum, val, uri_hash, &hash_size);
-        g_assert (hash_size == HASH_LENGTH);
         doc.add_value (VALUE_ORIGIN_HASH, std::string((char *) uri_hash, hash_size));
       }
 
