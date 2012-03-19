@@ -1029,12 +1029,12 @@ test_query_with_duplicates (Fixture *fix, gconstpointer data)
 
   // Search for LeastPopularSubjects
   results = search_simple (fix, "test", NULL,
-          ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS, &matches);
+          ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 2);
-  assert_nth_result_has_id (results, 0, event_id1);
-  assert_nth_result_has_id (results, 1, event_id3);
+  assert_nth_result_has_id (results, 0, event_id3);
+  assert_nth_result_has_id (results, 1, event_id4); // or event_id1 until stuff gets fixed
 }
 
 static void
@@ -1062,12 +1062,12 @@ test_query_most_popular_subjects (Fixture *fix, gconstpointer data)
 
   // Search for MostPopularSubjects
   results = search_simple (fix, "test", NULL,
-          ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS, &matches);
+          ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS, &matches);
 
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 3);
-  assert_nth_result_has_id (results, 0, event_id9);
-  assert_nth_result_has_id (results, 1, event_id7);
+  assert_nth_result_has_id (results, 0, event_id7);
+  assert_nth_result_has_id (results, 1, event_id9);
   assert_nth_result_has_id (results, 2, event_id6);
 }
 
