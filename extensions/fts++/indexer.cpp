@@ -43,6 +43,7 @@ const std::string FILTER_PREFIX_XDG_CATEGORY = "AC";
 const Xapian::valueno VALUE_EVENT_ID = 0;
 const Xapian::valueno VALUE_TIMESTAMP = 1;
 const Xapian::valueno VALUE_URI_HASH = 2;
+const Xapian::valueno VALUE_ORIGIN_HASH = 3;
 
 #define QUERY_PARSER_FLAGS \
   Xapian::QueryParser::FLAG_PHRASE | Xapian::QueryParser::FLAG_BOOLEAN | \
@@ -763,7 +764,11 @@ GPtrArray* Indexer::Search (const gchar *search,
         result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
         result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS ||
         result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
-        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS)
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_ORIGIN)
     {
       maxhits = count;
     }
@@ -795,8 +800,7 @@ GPtrArray* Indexer::Search (const gchar *search,
         result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN ||
         result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_ORIGIN)
     {
-      // FIXME: not really correct but close :)
-      enquire->set_collapse_key (VALUE_URI_HASH);
+      enquire->set_collapse_key (VALUE_ORIGIN_HASH);
     }
     else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
         result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS)
@@ -1137,10 +1141,8 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
         result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN ||
         result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_ORIGIN)
     {
-      // FIXME: not really correct but close :)
       enquire->set_sort_by_relevance_then_value (VALUE_TIMESTAMP, reversed_sort);
-      enquire->set_collapse_key (VALUE_URI_HASH);
-      maxhits *= 3;
+      enquire->set_collapse_key (VALUE_ORIGIN_HASH);
     }
     else
     {
@@ -1272,6 +1274,15 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
   return results;
 }
 
+static void
+get_digest_for_uri (GChecksum *checksum, const gchar *uri,
+                    guint8 *digest, gsize *digest_size)
+{
+  g_checksum_update (checksum, (guchar *) uri, -1);
+  g_checksum_get_digest (checksum, digest, digest_size);
+  g_checksum_reset (checksum);
+}
+
 void Indexer::IndexEvent (ZeitgeistEvent *event)
 {
   try
@@ -1327,13 +1338,24 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
       // A better option would be using URI's id, but for that we'd need a SQL
       // query that'd be subject to races.
       // FIXME(?): This doesn't work for events with multiple subjects.
-      g_checksum_update (checksum, (guchar *) uri.c_str (), -1);
       guint8 uri_hash[HASH_LENGTH + 1];
       gsize hash_size = HASH_LENGTH;
-      g_checksum_get_digest (checksum, uri_hash, &hash_size);
-      g_checksum_reset (checksum);
+
+      get_digest_for_uri (checksum, uri.c_str (), uri_hash, &hash_size);
       g_assert (hash_size == HASH_LENGTH);
       doc.add_value (VALUE_URI_HASH, std::string((char *) uri_hash, hash_size));
+
+      size_t colon_pos = uri.find (':');
+      // FIXME: current_origin once we have that
+      val = zeitgeist_subject_get_origin (subject);
+      // make sure the schemas of the URI and origin are the same
+      if (val && colon_pos != std::string::npos && strncmp (uri.c_str (), val, colon_pos+1) == 0)
+      {
+        hash_size = HASH_LENGTH;
+        get_digest_for_uri (checksum, val, uri_hash, &hash_size);
+        g_assert (hash_size == HASH_LENGTH);
+        doc.add_value (VALUE_ORIGIN_HASH, std::string((char *) uri_hash, hash_size));
+      }
 
       val = zeitgeist_subject_get_text (subject);
       if (val && val[0] != '\0')
