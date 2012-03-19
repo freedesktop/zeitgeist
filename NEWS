@@ -3,8 +3,17 @@
 
 Engine:
  - Fixed crash when events had NULL fields (LP: #941530).
- - Made sure no aborted SQLite transactions are left open.
+ - Made sure no aborted SQLite transactions are left open (LP: #937991).
  - Enhanced logging and added --log-file option.
+ - Fixed bug Storage Monitor corrupting storage IDs in DB (LP: #950983).
+ - Fixed bug inserting previously non-existant values when searching for
+   them (LP: #953041).
+
+FTS:
+ - Filter indexing of unrecognized values (eg. non-standard URIs).
+ - Enhanced grouping by URI and origin (LP: #947835).
+ - Use current_uri instead of URI; index MOVE_EVENTs (LP: #948794).
+ - Added SearchWithRelevancies D-Bus function.
 
 2012-02-14: Zeitgeist Bluebird Alpha 3
 --------------------------------------
