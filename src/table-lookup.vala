@@ -91,7 +91,7 @@ namespace Zeitgeist.SQLite
         /**
          * Searches the table for the given ID, inserts a new one if not found.
          *
-         * @see id_for_string
+         * @see id_try_string
          *
          */
         public int id_for_string (string name)
