@@ -398,6 +398,11 @@ namespace Zeitgeist
             subjects.add (subject);
         }
 
+        public void take_subject (owned Subject subject)
+        {
+            subjects.add ((owned) subject);
+        }
+
         public Event.full (string? interpretation=null,
             string? manifestation=null, string? actor=null,
             string? origin=null, ...)

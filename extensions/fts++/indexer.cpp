@@ -958,7 +958,7 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
         ZeitgeistEvent *event = zeitgeist_event_new ();
         ZeitgeistSubject *subject = zeitgeist_subject_new ();
         zeitgeist_subject_set_current_uri (subject, subj_uri);
-        zeitgeist_event_add_subject (event, subject); // FIXME: leaks?
+        zeitgeist_event_take_subject (event, subject);
         g_ptr_array_add (event_templates, event);
       }
     }
@@ -1032,7 +1032,7 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
         ZeitgeistEvent *event = zeitgeist_event_new ();
         ZeitgeistSubject *subject = zeitgeist_subject_new ();
         zeitgeist_subject_set_origin (subject, subj_origin);
-        zeitgeist_event_add_subject (event, subject); // FIXME: leaks?
+        zeitgeist_event_take_subject (event, subject);
         g_ptr_array_add (event_templates, event);
       }
     }
@@ -1040,7 +1040,7 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
     g_ptr_array_unref (results);
 
     // construct custom where clause which combines the original template
-    // with the uris we found
+    // with the origins we found
     ZeitgeistWhereClause *where;
     where = zeitgeist_db_reader_get_where_clause_for_query (zg_reader,
         time_range, templates, storage_state, error);
