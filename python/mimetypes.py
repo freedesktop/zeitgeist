@@ -103,6 +103,7 @@ MIMES = {
 
     # Plain text
     "text/plain": Interpretation.TEXT_DOCUMENT,
+    "text/csv": Interpretation.TEXT_DOCUMENT,
   
     # HTML files on disk are always HTML_DOCUMENTS while online we should
     # assume them to be WEBSITEs. By default we anticipate local files...
@@ -111,11 +112,13 @@ MIMES = {
     # Image types
     "application/vnd.corel-draw": Interpretation.VECTOR_IMAGE,
     "image/jpeg": Interpretation.RASTER_IMAGE,
+    "image/pjpeg": Interpretation.RASTER_IMAGE,
     "image/png": Interpretation.RASTER_IMAGE,
     "image/tiff": Interpretation.RASTER_IMAGE,
     "image/gif": Interpretation.RASTER_IMAGE,
     "image/x-xcf": Interpretation.RASTER_IMAGE,
     "image/svg+xml": Interpretation.VECTOR_IMAGE,
+    "image/vnd.microsoft.icon": Interpretation.ICON,
     
     # Audio
     "application/ogg": Interpretation.AUDIO,
@@ -124,6 +127,9 @@ MIMES = {
     # Development files
     "application/ecmascript": Interpretation.SOURCE_CODE,
     "application/javascript": Interpretation.SOURCE_CODE,
+    "application/json": Interpretation.SOURCE_CODE,
+    "application/soap+xml": Interpretation.SOURCE_CODE,
+    "application/xml-dtd": Interpretation.SOURCE_CODE,
     "application/x-csh": Interpretation.SOURCE_CODE,
     "application/x-designer": Interpretation.SOURCE_CODE,
     "application/x-dia-diagram": Interpretation.SOURCE_CODE,
@@ -131,15 +137,17 @@ MIMES = {
     "application/x-glade": Interpretation.SOURCE_CODE,
     "application/xhtml+xml": Interpretation.SOURCE_CODE,
     "application/x-java-archive": Interpretation.SOURCE_CODE,
+    "application/x-javascript": Interpretation.SOURCE_CODE,
     "application/x-m4": Interpretation.SOURCE_CODE,
     "application/xml": Interpretation.SOURCE_CODE,
-    "application/x-object": Interpretation.SOURCE_CODE,
     "application/x-perl": Interpretation.SOURCE_CODE,
     "application/x-php": Interpretation.SOURCE_CODE,
     "application/x-ruby": Interpretation.SOURCE_CODE,
     "application/x-shellscript": Interpretation.SOURCE_CODE,
     "application/x-sql": Interpretation.SOURCE_CODE,
     "text/css": Interpretation.SOURCE_CODE,
+    "text/javascript": Interpretation.SOURCE_CODE,
+    "text/xml": Interpretation.SOURCE_CODE,
     "text/x-c": Interpretation.SOURCE_CODE,
     "text/x-c++": Interpretation.SOURCE_CODE,
     "text/x-chdr": Interpretation.SOURCE_CODE,
@@ -169,6 +177,15 @@ MIMES = {
     "text/x-vala": Interpretation.SOURCE_CODE,
     "text/x-vhdl": Interpretation.SOURCE_CODE,
     "text/x-m4": Interpretation.SOURCE_CODE,
+    "text/x-jquery-tmpl": Interpretation.SOURCE_CODE,
+    
+    # Email
+    "message/alternative": Interpretation.EMAIL,
+    "message/partial": Interpretation.EMAIL,
+    "message/related": Interpretation.EMAIL,
+    
+    # People
+    "text/vcard": Interpretation.CONTACT,
     
     # Archives
     "application/zip": Interpretation.ARCHIVE,
@@ -180,6 +197,7 @@ MIMES = {
     "application/x-bzip-compressed-tar": Interpretation.ARCHIVE,
     "application/x-lzma-compressed-tar": Interpretation.ARCHIVE,
     "application/x-compressed-tar": Interpretation.ARCHIVE,
+    "application/x-stuffit": Interpretation.ARCHIVE,
     
     # Software and packages
     "application/x-deb": Interpretation.SOFTWARE,
@@ -187,6 +205,7 @@ MIMES = {
     "application/x-ms-dos-executable": Interpretation.SOFTWARE,
     "application/x-executable": Interpretation.SOFTWARE,
     "application/x-desktop": Interpretation.SOFTWARE,
+    "application/x-shockwave-flash": Interpretation.EXECUTABLE,
     
     # File systems
     "application/x-cd-image": Interpretation.FILESYSTEM_IMAGE,
@@ -206,6 +225,9 @@ MIMES_REGEX = make_regex_tuple(
     # MS
     ("application/vnd.ms-excel.*", Interpretation.SPREADSHEET),
     ("application/vnd.ms-powerpoint.*", Interpretation.PRESENTATION),
+    ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.*", Interpretation.SPREADSHEET),
+    ("application/vnd.openxmlformats-officedocument.presentationml.presentation.*", Interpretation.PRESENTATION),
+    ("application/vnd.openxmlformats-officedocument.wordprocessingml.document.*", Interpretation.PAGINATED_TEXT_DOCUMENT),
     # TeX stuff
     (".*/x-dvi", Interpretation.PAGINATED_TEXT_DOCUMENT),
     # Image types
