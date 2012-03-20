@@ -263,7 +263,7 @@ static ZeitgeistEvent* create_test_event_simple (const char *uri, const char *te
 
   zeitgeist_event_set_interpretation (event, ZEITGEIST_ZG_ACCESS_EVENT);
   zeitgeist_event_set_manifestation (event, ZEITGEIST_ZG_USER_ACTIVITY);
-  zeitgeist_event_set_actor (event, "application://random.desktop");
+  zeitgeist_event_set_actor (event, "application://gedit.desktop");
   zeitgeist_event_add_subject (event, subject);
 
   g_object_unref (subject);
