@@ -110,6 +110,7 @@ namespace Zeitgeist
         private void proxy_not_present()
         {
             notifier.remove_monitor (new BusName (INDEXER_NAME),"/org/gnome/zeitgeist/monitor/special");
+            this.unload();
         }
 
         private void proxy_acquired (Object? obj, AsyncResult res)
@@ -152,6 +153,25 @@ namespace Zeitgeist
                 throw new EngineError.DATABASE_ERROR (
                     "Not connected to SimpleIndexer");
             }
+        }
+        
+        public override void unload ()
+        {
+            try
+            {
+                var connection = Bus.get_sync (BusType.SESSION, null);
+                if (registration_id != 0)
+                {
+                    connection.unregister_object (registration_id);
+                    registration_id = 0;
+                }
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
+            }
+
+            debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
         }
 
         public async void search (string query_string, Variant time_range,
