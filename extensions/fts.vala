@@ -95,22 +95,11 @@ namespace Zeitgeist
 
                 // FIXME: shouldn't we delay this to next idle callback?
                 // Get SimpleIndexer
-                Bus.watch_name_on_connection (connection,
-                    INDEXER_NAME,
-                    BusNameWatcherFlags.AUTO_START,
-                    (conn) =>
-                    {
-                        if (siin != null) return;
-                        conn.get_proxy.begin<RemoteSimpleIndexer> (
-                            "org.gnome.zeitgeist.SimpleIndexer",
-                            "/org/gnome/zeitgeist/index/activity",
-                            0, null, this.proxy_acquired);
-                    },
-                    () =>
-                    {
-                        if (siin != null) return;
-                        this.proxy_not_present();
-                    });
+                if (siin != null) return;
+                connection.get_proxy.begin<RemoteSimpleIndexer> (
+                    "org.gnome.zeitgeist.SimpleIndexer",
+                    "/org/gnome/zeitgeist/index/activity",
+                    0, null, this.proxy_acquired);
             }
             catch (Error err)
             {
@@ -129,7 +118,15 @@ namespace Zeitgeist
             try
             {
                 siin = conn.get_proxy.end<RemoteSimpleIndexer> (res);
-                siin_connection_failed = false;
+                if((siin as DBusProxy).g_name_owner == null)
+                {
+                    this.proxy_not_present();
+                    siin_connection_failed = true; //TODO: Is this needed?
+                }
+                else
+                {
+                    siin_connection_failed = false;
+                }
             }
             catch (IOError err)
             {
