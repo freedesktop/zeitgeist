@@ -99,14 +99,20 @@ namespace Zeitgeist
             // Restore previous blacklist from database, or create an empty one
             Variant? templates = retrieve_config ("blacklist",
                 BlacklistTemplates.SIG_BLACKLIST);
-            if (templates != null) {
-                try {
+            if (templates != null)
+            {
+                try
+                {
                     blacklist = BlacklistTemplates.from_variant (templates);
-                } catch (EngineError e) {
+                }
+                catch (EngineError e)
+                {
                     warning ("Could not load blacklist from variant: %s", e.message);
                     blacklist = new HashTable<string, Event> (str_hash, str_equal);
                 }
-            } else {
+            }
+            else
+            {
                 blacklist = new HashTable<string, Event> (str_hash, str_equal);
             }
 

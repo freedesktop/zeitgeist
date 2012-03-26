@@ -185,13 +185,21 @@ namespace Zeitgeist
 
             Variant? registry = retrieve_config ("registry",
                 DataSources.SIG_DATASOURCES);
-            if (registry != null) {
-                try {
+            if (registry != null)
+            {
+                try
+                {
                     sources = DataSources.from_variant (registry, true);
-                } catch (EngineError e) {
-                    warning ("Error while loading datasource registry: %s", e.message);
                 }
-            } else {
+                catch (EngineError e)
+                {
+                    warning ("Error while loading datasource registry: %s", e.message);
+                    sources = new HashTable<string, DataSource> (
+                        str_hash, str_equal);
+                }
+            }
+            else
+            {
                 sources = new HashTable<string, DataSource> (
                     str_hash, str_equal);
             }

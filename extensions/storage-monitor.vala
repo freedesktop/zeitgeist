@@ -377,9 +377,12 @@ namespace Zeitgeist
                 update_storage_medium_stmt.bind_text (3, display_name);
                 update_storage_medium_stmt.bind_text (4, medium_name);
                 int rc = update_storage_medium_stmt.step ();
-                try {
+                try
+                {
                     database.assert_query_success (rc, "add_storage_medium", Sqlite.DONE);
-                } catch (EngineError e) {
+                }
+                catch (EngineError e)
+                {
                     warning ("Could not add storage medium: %s", e.message);
                 }
             }
@@ -399,10 +402,13 @@ namespace Zeitgeist
                 update_medium_state_stmt.bind_int (1, 0);
                 update_medium_state_stmt.bind_text (2, medium_name);
                 int rc = update_medium_state_stmt.step ();
-                try {
+                try
+                {
                     database.assert_query_success (rc, "remove_storage_medium",
                         Sqlite.DONE);
-                } catch (EngineError e) {
+                }
+                catch (EngineError e)
+                {
                     warning ("Could not remove storage medium: %s", e.message);
                 }
             }
