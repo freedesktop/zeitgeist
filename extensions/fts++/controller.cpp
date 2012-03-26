@@ -37,19 +37,21 @@ void Controller::Run ()
 void Controller::RebuildIndex ()
 {
   GError *error = NULL;
-  GPtrArray *events;
+  guint32 *event_ids;
+  gint event_ids_size;
   GPtrArray *templates = g_ptr_array_new ();
   ZeitgeistTimeRange *time_range = zeitgeist_time_range_new_anytime ();
 
   g_debug ("asking reader for all events");
-  events = zeitgeist_db_reader_find_events (zg_reader,
-                                            time_range,
-                                            templates,
-                                            ZEITGEIST_STORAGE_STATE_ANY,
-                                            0,
-                                            ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
-                                            NULL,
-                                            &error);
+  event_ids = zeitgeist_db_reader_find_event_ids (zg_reader,
+                                                  time_range,
+                                                  templates,
+                                                  ZEITGEIST_STORAGE_STATE_ANY,
+                                                  0,
+                                                  ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS,
+                                                  NULL,
+                                                  &event_ids_size,
+                                                  &error);
 
   if (error)
   {
@@ -58,10 +60,10 @@ void Controller::RebuildIndex ()
   }
   else
   {
-    g_debug ("reader returned %u events", events->len);
+    g_debug ("reader returned %d events", event_ids_size);
 
-    IndexEvents (events);
-    g_ptr_array_unref (events);
+    IndexEvents (event_ids, event_ids_size);
+    g_free (event_ids);
 
     // Set the db metadata key only once we're done
     PushTask (new MetadataTask ("fts_index_version", INDEX_VERSION));
@@ -78,6 +80,19 @@ void Controller::IndexEvents (GPtrArray *events)
   for (unsigned i = 0; i < events->len; i += CHUNK_SIZE)
   {
     PushTask (new IndexEventsTask (g_ptr_array_ref (events), i, CHUNK_SIZE));
+  }
+}
+
+void Controller::IndexEvents (guint *event_ids, int event_ids_size)
+{
+  const int CHUNK_SIZE = 64;
+  // Break down index tasks into suitable chunks
+  for (int i = 0; i < event_ids_size; i += CHUNK_SIZE)
+  {
+    int num_ids = i + CHUNK_SIZE > event_ids_size ? 
+      event_ids_size - i : CHUNK_SIZE;
+    PushTask (new IndexEventsTask (zg_reader,
+        std::vector<guint> (&event_ids[i], &event_ids[i + num_ids])));
   }
 }
 

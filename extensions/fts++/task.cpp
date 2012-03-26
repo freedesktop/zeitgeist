@@ -23,10 +23,36 @@ namespace ZeitgeistFTS {
 
 void IndexEventsTask::Process (Indexer *indexer)
 {
-  unsigned end_index = MIN (start_index + event_count, events->len);
-  for (unsigned i = start_index; i < end_index; i++)
+  if (events)
   {
-    indexer->IndexEvent ((ZeitgeistEvent*) g_ptr_array_index (events, i));
+    unsigned end_index = MIN (start_index + event_count, events->len);
+    for (unsigned i = start_index; i < end_index; i++)
+    {
+      indexer->IndexEvent ((ZeitgeistEvent*) g_ptr_array_index (events, i));
+    }
+  }
+  else if (!event_ids.empty ())
+  {
+    GError *error = NULL;
+    GPtrArray *results = zeitgeist_db_reader_get_events (zg_reader,
+                                                         &event_ids[0],
+                                                         event_ids.size (),
+                                                         NULL,
+                                                         &error);
+    if (error)
+    {
+      g_warning ("Unable to get events: %s", error->message);
+      return;
+    }
+    else
+    {
+      for (unsigned i = 0; i < results->len; i++)
+      {
+        indexer->IndexEvent ((ZeitgeistEvent*) g_ptr_array_index (results, i));
+      }
+    }
+
+    g_ptr_array_unref (results);
   }
 }
 
