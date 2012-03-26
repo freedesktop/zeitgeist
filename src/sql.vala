@@ -168,7 +168,7 @@ namespace Zeitgeist.SQLite
                 }
                 else
                 {
-                    string message = "Can't open database: %d, %s".printf(rc,
+                    string message = "Can't open database: %d, %s".printf (rc,
                         database.errmsg ());
                     throw new EngineError.DATABASE_ERROR (message);
                 }
@@ -326,7 +326,7 @@ namespace Zeitgeist.SQLite
         {
             if (unlikely (rc != success_code))
             {
-                string error_message = "%s: %d, %s".printf(
+                string error_message = "%s: %d, %s".printf (
                     msg, rc, database.errmsg ());
                 warning ("%s\n", error_message);
                 throw new EngineError.DATABASE_ERROR (error_message);
