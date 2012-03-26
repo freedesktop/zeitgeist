@@ -38,6 +38,7 @@ namespace Zeitgeist
         // D-Bus
         public const string DBUS_INTERFACE = "";
         public const string SIG_EVENT = "asaasay";
+        public const size_t MAX_DBUS_RESULT_SIZE = 4 * 1024 * 1024; // 4MiB
 
         // configure runtime cache for events
         // default size is 2000

@@ -29,10 +29,11 @@ namespace Zeitgeist
         DATABASE_CORRUPT,
         DATABASE_ERROR,
         DATABASE_RETIRE_FAILED,
+        EXISTING_INSTANCE,
         INVALID_ARGUMENT,
         INVALID_KEY,
-        EXISTING_INSTANCE,
         INVALID_SIGNATURE, // FIXME: change from EngineError to sth. + public
+        TOO_MANY_RESULTS,
     }
 
     // vala doesn't include proper headers, this fixes it
