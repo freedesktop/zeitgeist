@@ -621,6 +621,46 @@ namespace Zeitgeist
             return vb.end ();
         }
 
+        /* Same as to_variant but raises an exception if the variant size
+         * exceeds `limit' bytes.
+         * */
+        public static Variant to_variant_with_limit (GenericArray<Event?> events,
+            size_t limit=Utils.MAX_DBUS_RESULT_SIZE) throws EngineError
+        {
+            var vb = new VariantBuilder(new VariantType("a("+Utils.SIG_EVENT+")"));
+
+            size_t variant_size = 0;
+
+            for (int i = 0; i < events.length; ++i)
+            {
+                Variant event_variant;
+
+                if (events[i] != null)
+                {
+                    event_variant = events[i].to_variant ();
+                }
+                else
+                {
+                    event_variant = get_null_event_variant ();
+                }
+
+                variant_size += event_variant.get_size();
+                if (variant_size > limit)
+                {
+                    size_t avg_event_size = variant_size / (i+1);
+                    string error_message = ("Query exceeded size limit of % " +
+                        size_t.FORMAT + "MiB (roughly ~%d events).").printf (
+                            limit / 1024 / 1024, limit / avg_event_size);
+                    warning (error_message);
+                    throw new EngineError.TOO_MANY_RESULTS (error_message);
+                }
+
+                vb.add_value (event_variant);
+            }
+
+            return vb.end ();
+        }
+
         private static Variant get_null_event_variant ()
         {
             var vb = new VariantBuilder (new VariantType ("("+Utils.SIG_EVENT+")"));
