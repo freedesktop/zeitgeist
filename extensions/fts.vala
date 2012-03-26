@@ -95,9 +95,8 @@ namespace Zeitgeist
 
                 // FIXME: shouldn't we delay this to next idle callback?
                 // Get SimpleIndexer
-                if (siin != null) return;
                 connection.get_proxy.begin<RemoteSimpleIndexer> (
-                    "org.gnome.zeitgeist.SimpleIndexer",
+                    INDEXER_NAME,
                     "/org/gnome/zeitgeist/index/activity",
                     0, null, this.proxy_acquired);
             }
@@ -122,7 +121,7 @@ namespace Zeitgeist
                 if((siin as DBusProxy).g_name_owner == null)
                 {
                     this.proxy_not_present();
-                    siin_connection_failed = true; //TODO: Is this needed?
+                    siin_connection_failed = true;
                 }
                 else
                 {
