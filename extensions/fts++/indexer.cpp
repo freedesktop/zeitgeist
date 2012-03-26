@@ -67,8 +67,25 @@ void Indexer::Initialize (GError **error)
     {
       gchar *path = g_build_filename (zeitgeist_utils_get_data_path (),
                                       FTS_MAIN_DIR.c_str (), NULL);
-      this->db = new Xapian::WritableDatabase (path,
-                                               Xapian::DB_CREATE_OR_OPEN);
+      try
+      {
+        this->db = new Xapian::WritableDatabase (path,
+                                                 Xapian::DB_CREATE_OR_OPEN);
+      }
+      catch (const Xapian::DatabaseCorruptError &xp_error)
+      {
+        g_message ("Database is corrupt (%s). Overwriting...",
+            xp_error.get_msg ().c_str ());
+        this->db = new Xapian::WritableDatabase (path,
+                                                 Xapian::DB_CREATE_OR_OVERWRITE);
+      }
+      catch (const Xapian::DatabaseOpeningError &xp_error)
+      {
+        g_message ("Database is corrupt (%s). Overwriting...",
+            xp_error.get_msg ().c_str ());
+        this->db = new Xapian::WritableDatabase (path,
+                                                 Xapian::DB_CREATE_OR_OVERWRITE);
+      }
       g_free (path);
     }
 
