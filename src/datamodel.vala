@@ -76,7 +76,7 @@ namespace Zeitgeist
         }
 
         public TimeRange.from_variant (Variant variant)
-            throws EngineError.INVALID_SIGNATURE
+            throws EngineError
         {
             assert_sig (variant.get_type_string () == "(xx)",
                 "Invalid D-Bus signature.");

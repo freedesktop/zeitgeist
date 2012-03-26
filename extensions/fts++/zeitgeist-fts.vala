@@ -99,7 +99,7 @@ namespace Zeitgeist
         }
 
         public async void notify_insert (Variant time_range, Variant events)
-            throws IOError
+            throws IOError, EngineError
         {
             debug ("got insertion notification");
             var events_arr = Events.from_variant (events);
@@ -177,7 +177,7 @@ namespace Zeitgeist
             var proxy = connection.get_proxy_sync<RemoteDBus> (
                 "org.freedesktop.DBus", "/org/freedesktop/DBus",
                 DBusProxyFlags.DO_NOT_LOAD_PROPERTIES);
-            bool zeitgeist_up = proxy.name_has_owner (ZEITGEIST_DBUS_NAME);
+            // bool zeitgeist_up = proxy.name_has_owner (ZEITGEIST_DBUS_NAME);
             // FIXME: throw an error that zeitgeist isn't up? or just start it?
             bool name_owned = proxy.name_has_owner (DBUS_NAME);
             if (name_owned)

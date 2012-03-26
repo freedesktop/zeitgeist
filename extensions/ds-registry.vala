@@ -72,7 +72,7 @@ namespace Zeitgeist
         }
 
         public DataSource.from_variant (Variant variant,
-            bool reset_running=false)
+            bool reset_running=false) throws EngineError
         {
             warn_if_fail (
                 variant.get_type_string () == "(sssa("+Utils.SIG_EVENT+")bxb)"
@@ -127,7 +127,7 @@ namespace Zeitgeist
             "a(sssa("+Utils.SIG_EVENT+")bxb)";
 
         private static HashTable<string, DataSource> from_variant (
-            Variant sources_variant, bool reset_running=false)
+            Variant sources_variant, bool reset_running=false) throws EngineError
         {
             var registry = new HashTable<string, DataSource> (
                 str_hash, str_equal);
@@ -185,11 +185,16 @@ namespace Zeitgeist
 
             Variant? registry = retrieve_config ("registry",
                 DataSources.SIG_DATASOURCES);
-            if (registry != null)
-                sources = DataSources.from_variant (registry, true);
-            else
+            if (registry != null) {
+                try {
+                    sources = DataSources.from_variant (registry, true);
+                } catch (EngineError e) {
+                    warning ("Error while loading datasource registry: %s", e.message);
+                }
+            } else {
                 sources = new HashTable<string, DataSource> (
                     str_hash, str_equal);
+            }
 
             // this will be called after bus is acquired, so it shouldn't block
             try
@@ -249,7 +254,7 @@ namespace Zeitgeist
         }
 
         public bool register_data_source (string unique_id, string name,
-            string description, Variant event_templates, BusName? sender)
+            string description, Variant event_templates, BusName? sender) throws EngineError
         {
             debug ("%s: %s, %s, %s", Log.METHOD, unique_id, name, description);
             if (sender == null)
