@@ -49,6 +49,7 @@ public:
   void RebuildIndex ();
 
   void IndexEvents (GPtrArray *events);
+  void IndexEvents (guint *event_ids, int event_ids_size);
   void DeleteEvents (guint *event_ids, int event_ids_size);
 
   void PushTask (Task* task);

@@ -49,16 +49,21 @@ public:
 
   IndexEventsTask (GPtrArray *event_arr, unsigned index, unsigned count)
     : events (event_arr), start_index (index), event_count (count) {}
+  
+  IndexEventsTask (ZeitgeistDbReader *reader, std::vector<unsigned> const &ids)
+    : events (NULL), zg_reader (reader), event_ids (ids) {}
 
   virtual ~IndexEventsTask ()
   {
-    g_ptr_array_unref (events);
+    if (events) g_ptr_array_unref (events);
   }
 
 private:
   GPtrArray *events;
   unsigned start_index;
   unsigned event_count;
+  ZeitgeistDbReader *zg_reader;
+  std::vector<unsigned> event_ids;
 };
 
 class DeleteEventsTask : public Task

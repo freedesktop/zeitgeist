@@ -54,6 +54,7 @@ namespace Zeitgeist
         private static FtsDaemon? instance;
         private static MainLoop mainloop;
         private static bool name_acquired = false;
+        private static bool zeitgeist_up = false;
 
         private DbReader engine;
         private Indexer indexer;
@@ -170,6 +171,16 @@ namespace Zeitgeist
             }
         }
 
+        private static void zeitgeist_vanished ()
+        {
+            if (zeitgeist_up)
+            {
+                // client APIs query us via zeitgeist, so quit if ZG goes away
+                mainloop.quit ();
+            }
+            zeitgeist_up = false;
+        }
+
         static void run ()
             throws Error
         {
@@ -177,10 +188,7 @@ namespace Zeitgeist
             var proxy = connection.get_proxy_sync<RemoteDBus> (
                 "org.freedesktop.DBus", "/org/freedesktop/DBus",
                 DBusProxyFlags.DO_NOT_LOAD_PROPERTIES);
-            bool zeitgeist_up = proxy.name_has_owner (ZEITGEIST_DBUS_NAME);
-            // FIXME: throw an error that zeitgeist isn't up? or just start it?
-            bool name_owned = proxy.name_has_owner (DBUS_NAME);
-            if (name_owned)
+            if (proxy.name_has_owner (DBUS_NAME))
             {
                 throw new EngineError.EXISTING_INSTANCE (
                     "The FTS daemon is running already.");
@@ -213,6 +221,10 @@ namespace Zeitgeist
                 BusNameOwnerFlags.NONE,
                 name_acquired_callback,
                 name_lost_callback);
+
+            Bus.watch_name (BusType.SESSION, ZEITGEIST_DBUS_NAME, 0,
+                () => { zeitgeist_up = true; },
+                zeitgeist_vanished);
 
             mainloop = new MainLoop ();
             mainloop.run ();
