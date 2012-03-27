@@ -318,6 +318,8 @@ namespace Zeitgeist
             return "unknown";
         }
 
+        /*
+        // It is not being used since gvfs is not being friendly
         private void on_volume_added (Volume volume)
         {
             debug ("volume added");
@@ -329,19 +331,21 @@ namespace Zeitgeist
             add_storage_medium (get_volume_id (volume), icon_name,
                 volume.get_name ());
         }
-
+        
         private void on_volume_removed (Volume volume)
         {
             debug ("Volume removed");
             remove_storage_medium (get_volume_id (volume));
         }
+        */
 
         /*
          * Return a string identifier for a GIO Volume. This id is constructed
          * as a `best effort` since we can not always uniquely identify
          * volumes, especially audio- and data CDs are problematic.
          */
-        private string get_volume_id (Volume volume)
+        
+        /*private string get_volume_id (Volume volume)
         {
             string volume_id;
 
@@ -358,7 +362,7 @@ namespace Zeitgeist
                 return volume_id;
 
             return "unknown";
-        }
+        }*/
 
         public void add_storage_medium (string medium_name, string icon,
             string display_name)
