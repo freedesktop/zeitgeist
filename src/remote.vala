@@ -101,7 +101,7 @@ namespace Zeitgeist
         public async abstract void notify_insert (
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant events
-        ) throws IOError;
+        ) throws IOError, EngineError;
 
         public async abstract void notify_delete (
             [DBus (signature = "(xx)")] Variant time_range,

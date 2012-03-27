@@ -100,7 +100,7 @@ namespace Zeitgeist
         }
 
         public async void notify_insert (Variant time_range, Variant events)
-            throws IOError
+            throws IOError, EngineError
         {
             debug ("got insertion notification");
             var events_arr = Events.from_variant (events);
