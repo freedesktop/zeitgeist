@@ -1074,6 +1074,23 @@ test_query_most_popular_subjects (Fixture *fix, gconstpointer data)
   assert_nth_result_has_id (results, 2, event_id6);
 }
 
+static void
+test_index_ignore_ubuntu_one (Fixture *fix, gconstpointer data)
+{
+  guint matches;
+
+  // add test events to DBs
+  index_event (fix, create_test_event_simple ("ubuntuone:uuid", "failme"));
+  ZeitgeistEvent *event = create_test_event_simple ("file:///nice%20uri", "failme");
+  zeitgeist_event_set_actor (event, "dbus://com.ubuntuone.SyncDaemon.service");
+  index_event (fix, event);
+
+  GPtrArray *results = search_simple (fix, "failme", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
+
+  g_assert_cmpuint (results->len, ==, 0);
+}
+
 G_BEGIN_DECLS
 
 static void discard_message (const gchar *domain,
@@ -1138,6 +1155,8 @@ void test_indexer_create_suite (void)
   g_test_add ("/Zeitgeist/FTS/Indexer/Query/MostPopularSubjects", Fixture, 0,
               setup, test_query_most_popular_subjects, teardown);
   */
+  g_test_add ("/Zeitgeist/FTS/Indexer/Index/IgnoreUbuntuOne", Fixture, 0,
+              setup, test_index_ignore_ubuntu_one, teardown);
 
   // get rid of the "rebuilding index..." messages
   g_log_set_handler (NULL, G_LOG_LEVEL_MESSAGE, discard_message, NULL);

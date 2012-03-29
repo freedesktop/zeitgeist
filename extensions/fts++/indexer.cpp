@@ -1303,6 +1303,14 @@ get_digest_for_uri (GChecksum *checksum, const gchar *uri,
 
 void Indexer::IndexEvent (ZeitgeistEvent *event)
 {
+  // Blacklist Ubuntu One events...
+  const gchar *actor;
+  actor = zeitgeist_event_get_actor (event);
+  if (strcmp(actor, "dbus://com.ubuntuone.SyncDaemon.service") == 0)
+    return;
+  if (strcmp(actor, "dbus://org.desktopcouch.CouchDB.service") == 0)
+    return;
+
   try
   {
     const gchar *val;
