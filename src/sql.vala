@@ -101,7 +101,7 @@ namespace Zeitgeist.SQLite
             int rc = Sqlite.Database.open_v2 (
                 Utils.get_database_file_path (),
                 out database, flags);
-            
+
             if (rc == Sqlite.OK)
             {
                 try
@@ -134,7 +134,7 @@ namespace Zeitgeist.SQLite
                         throw err;
                 }
             }
-            
+
             if (rc != Sqlite.OK)
             {
                 if (rc == Sqlite.CORRUPT && retry)
