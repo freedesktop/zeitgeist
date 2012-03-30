@@ -31,9 +31,9 @@ public class EventCache : Object
 
     construct
     {
-        cache_table = new HashTable<uint32?, Event>(int_hash, int_equal);
+        cache_table = new HashTable<uint32?, Event> (int_hash, int_equal);
         lru_queue = new Queue<uint32>();
-        max_cache_size = 1024;
+        max_cache_size = Utils.CACHE_SIZE;
     }
 
     public Event? get_event(uint32 id)

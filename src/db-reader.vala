@@ -62,7 +62,7 @@ public class DbReader : Object
         mimetypes_table = new TableLookup (database, "mimetype");
         actors_table = new TableLookup (database, "actor");
 
-        cache = new EventCache();
+        cache = new EventCache ();
     }
 
     protected Event get_event_from_row (Sqlite.Statement stmt, uint32 event_id)
@@ -124,14 +124,13 @@ public class DbReader : Object
             return results;
 
         uint32[] uncached_ids = new uint32[0];
-        for(int i = 0; i < event_ids.length; i++)
+        for (int i = 0; i < event_ids.length; i++)
         {
             Event? e = cache.get_event (event_ids[i]);
             if (e != null) {
                 results.set(i, e);
             } else {
-                uncached_ids.resize(uncached_ids.length+1);
-                uncached_ids[uncached_ids.length-1] = event_ids[i];
+                uncached_ids += event_ids[i];
             }
         }
 
