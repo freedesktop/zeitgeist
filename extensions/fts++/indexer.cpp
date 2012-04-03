@@ -1301,14 +1301,23 @@ get_digest_for_uri (GChecksum *checksum, const gchar *uri,
   g_assert (digest_size == NULL || *digest_size == HASH_LENGTH);
 }
 
-void Indexer::IndexEvent (ZeitgeistEvent *event)
+static bool
+CheckEventBlacklisted (ZeitgeistEvent *event)
 {
   // Blacklist Ubuntu One events...
   const gchar *actor;
   actor = zeitgeist_event_get_actor (event);
-  if (strcmp(actor, "dbus://com.ubuntuone.SyncDaemon.service") == 0)
-    return;
-  if (strcmp(actor, "dbus://org.desktopcouch.CouchDB.service") == 0)
+  if (g_strcmp0(actor, "dbus://com.ubuntuone.SyncDaemon.service") == 0)
+    return true;
+  if (g_strcmp0(actor, "dbus://org.desktopcouch.CouchDB.service") == 0)
+    return true;
+
+  return false;
+}
+
+void Indexer::IndexEvent (ZeitgeistEvent *event)
+{
+  if (blacklisting_enabled and CheckEventBlacklisted (event))
     return;
 
   try

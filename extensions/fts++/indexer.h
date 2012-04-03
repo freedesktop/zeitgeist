@@ -48,6 +48,7 @@ public:
   {
     const gchar *home_dir = g_get_home_dir ();
     home_dir_path = home_dir != NULL ? home_dir : "/home";
+    blacklisting_enabled = g_getenv ("ZEITGEIST_FTS_DISABLE_EVENT_BLACKLIST") == NULL;
   }
 
   ~Indexer ()
@@ -129,6 +130,7 @@ private:
 
   guint                     clear_failed_id;
   std::string               home_dir_path;
+  bool                      blacklisting_enabled;
 };
 
 }

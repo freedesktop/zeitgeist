@@ -270,6 +270,15 @@ static ZeitgeistEvent* create_test_event_simple (const char *uri, const char *te
   return event;
 }
 
+static void
+process_pending (Fixture *fix)
+{
+  while (zeitgeist_indexer_has_pending_tasks (fix->indexer))
+  {
+    zeitgeist_indexer_process_task (fix->indexer);
+  }
+}
+
 // Steals the event, ref it if you want to keep it
 static guint
 index_event (Fixture *fix, ZeitgeistEvent *event)
@@ -295,10 +304,7 @@ index_event (Fixture *fix, ZeitgeistEvent *event)
   zeitgeist_indexer_index_events (fix->indexer, events);
   g_ptr_array_unref (events);
 
-  while (zeitgeist_indexer_has_pending_tasks (fix->indexer))
-  {
-    zeitgeist_indexer_process_task (fix->indexer);
-  }
+  process_pending (fix);
 
   // sleep for 1 msec to make sure the next event will have a
   // different timestamp
@@ -1078,17 +1084,36 @@ static void
 test_index_ignore_ubuntu_one (Fixture *fix, gconstpointer data)
 {
   guint matches;
+  ZeitgeistEvent *event;
+  GPtrArray *results;
 
   // add test events to DBs
   index_event (fix, create_test_event_simple ("ubuntuone:uuid", "failme"));
-  ZeitgeistEvent *event = create_test_event_simple ("file:///nice%20uri", "failme");
+  event = create_test_event_simple ("file:///nice%20uri", "failme");
   zeitgeist_event_set_actor (event, "dbus://com.ubuntuone.SyncDaemon.service");
   index_event (fix, event);
 
-  GPtrArray *results = search_simple (fix, "failme", NULL,
+  results = search_simple (fix, "failme", NULL,
           ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
 
   g_assert_cmpuint (results->len, ==, 0);
+
+  // disabling blacklisting
+  g_setenv ("ZEITGEIST_FTS_DISABLE_EVENT_BLACKLIST", "1", true);
+
+  // create a new FTS instance
+  zeitgeist_indexer_free (fix->indexer);
+  GError *error = NULL;
+  fix->indexer = zeitgeist_indexer_new (fix->db, &error);
+  g_assert (error == NULL);
+
+  // wait for it to rebuild the index
+  process_pending (fix);
+
+  results = search_simple (fix, "failme", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS, &matches);
+
+  g_assert_cmpuint (results->len, ==, 1); // we still don't want ubuntuone:uuid
 }
 
 G_BEGIN_DECLS

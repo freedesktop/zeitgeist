@@ -39,8 +39,22 @@ void Controller::RebuildIndex ()
   GError *error = NULL;
   guint32 *event_ids;
   gint event_ids_size;
-  GPtrArray *templates = g_ptr_array_new ();
+  GPtrArray *templates = g_ptr_array_new_with_free_func (g_object_unref);
+  ZeitgeistEvent *event;
   ZeitgeistTimeRange *time_range = zeitgeist_time_range_new_anytime ();
+
+  if (g_getenv ("ZEITGEIST_FTS_DISABLE_EVENT_BLACKLIST") == NULL)
+  {
+    // Blacklist Ubuntu One events...
+
+    event = zeitgeist_event_new ();
+    zeitgeist_event_set_actor (event, "!dbus://com.ubuntuone.SyncDaemon.service");
+    g_ptr_array_add (templates, event);
+
+    event = zeitgeist_event_new ();
+    zeitgeist_event_set_actor (event, "!dbus://org.desktopcouch.CouchDB.service");
+    g_ptr_array_add (templates, event);
+  }
 
   g_debug ("asking reader for all events");
   event_ids = zeitgeist_db_reader_find_event_ids (zg_reader,
