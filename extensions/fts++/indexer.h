@@ -29,7 +29,7 @@
 
 namespace ZeitgeistFTS {
 
-const std::string INDEX_VERSION = "3";
+const std::string INDEX_VERSION = "4";
 
 class Indexer
 {
