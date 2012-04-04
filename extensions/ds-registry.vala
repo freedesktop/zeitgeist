@@ -166,8 +166,10 @@ namespace Zeitgeist
 
     class DataSourceRegistry: Extension, RemoteRegistry
     {
+        private const string MULTIPLE_MARKER = "<multiple>";
         private HashTable<string, DataSource> sources;
-        private HashTable<string, GenericArray<BusName>> running;
+        private HashTable<string, GenericArray<BusName>> running_ds;
+        private HashTable<string, string> bus_name_2_ds;
         private uint registration_id;
         private bool dirty;
 
@@ -180,7 +182,8 @@ namespace Zeitgeist
 
         construct
         {
-            running = new HashTable<string, GenericArray<BusName?>>(
+            bus_name_2_ds = new HashTable<string, string> (str_hash, str_equal);
+            running_ds = new HashTable<string, GenericArray<BusName?>>(
                 str_hash, str_equal);
 
             Variant? registry = retrieve_config ("registry",
@@ -272,15 +275,26 @@ namespace Zeitgeist
             }
 
 
-            var sender_array = running.lookup (unique_id);
+            var sender_array = running_ds.lookup (unique_id);
             if (sender_array == null)
             {
-                running.insert (unique_id, new GenericArray<BusName?>());
-                running.lookup (unique_id).add (sender);
+                sender_array = new GenericArray<BusName?>();
+                sender_array.add (sender);
+                running_ds.insert (unique_id, sender_array);
             }
-            else if (is_sender_known (sender, sender_array))
+            else if (!is_sender_known (sender, sender_array))
             {
-                running.lookup (unique_id).add (sender);
+                sender_array.add (sender);
+            }
+
+            unowned string ds_id = bus_name_2_ds.lookup (sender);
+            if (ds_id == null)
+            {
+                bus_name_2_ds.insert (sender, unique_id);
+            }
+            else if (ds_id != unique_id && ds_id != MULTIPLE_MARKER)
+            {
+                bus_name_2_ds.insert (sender, MULTIPLE_MARKER);
             }
 
             unowned DataSource? ds = sources.lookup (unique_id);
@@ -350,17 +364,21 @@ namespace Zeitgeist
         public override void pre_insert_events (GenericArray<Event?> events,
             BusName? sender)
         {
-            foreach (string unique_id in running.get_keys())
+            foreach (unowned string unique_id in running_ds.get_keys())
             {
-                GenericArray<BusName?> bus_names = running.lookup (unique_id);
+                GenericArray<BusName?> bus_names = running_ds.lookup (unique_id);
                 if (is_sender_known (sender, bus_names))
                 {
                     var data_source = sources.lookup (unique_id);
 
-                    data_source.timestamp =  Timestamp.now ();
+                    data_source.timestamp = Timestamp.now ();
                     dirty = true;
 
-                    if (!data_source.enabled)
+                    // if one sender registers multiple unique data sources,
+                    // we have to rely that it's the correct thing, otherwise
+                    // we can just ignore the events
+                    unowned string ds_id = bus_name_2_ds.lookup (sender);
+                    if (!data_source.enabled && ds_id != MULTIPLE_MARKER)
                     {
                         for (int i = 0; i < events.length; i++)
                             events[i] = null;
@@ -386,7 +404,7 @@ namespace Zeitgeist
             var disconnected_ds = new GenericArray<DataSource> ();
             {
                 var iter = HashTableIter<string, GenericArray<BusName?>> (
-                    running);
+                    running_ds);
                 unowned string uid;
                 unowned GenericArray<BusName> name_arr;
                 while (iter.next (out uid, out name_arr))
@@ -414,11 +432,11 @@ namespace Zeitgeist
                 ds.timestamp = Timestamp.now ();
                 dirty = true;
 
-                if (running.lookup (uid).length == 0)
+                if (running_ds.lookup (uid).length == 0)
                 {
                     debug ("No remaining client running: %s [%s]",
                         ds.name, uid);
-                    running.remove (uid);
+                    running_ds.remove (uid);
                     ds.running = false;
 
                     data_source_disconnected (ds.to_variant ());
