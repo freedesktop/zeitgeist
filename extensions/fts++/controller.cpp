@@ -17,6 +17,8 @@
  */
 
 #include "controller.h"
+#include <string>
+#include <sstream>
 
 namespace ZeitgeistFTS {
 
@@ -81,6 +83,12 @@ void Controller::RebuildIndex ()
 
     // Set the db metadata key only once we're done
     PushTask (new MetadataTask ("fts_index_version", INDEX_VERSION));
+    gint64 zg_creation_date = indexer->GetZeitgeistCreationDate ();
+    std::stringstream tmpstream;
+    std::string zg_creation_date_str;
+    tmpstream << zg_creation_date;
+    tmpstream >> zg_creation_date_str;
+    PushTask (new MetadataTask ("zg_db_creation_date", zg_creation_date_str));
   }
 
   g_object_unref (time_range);
