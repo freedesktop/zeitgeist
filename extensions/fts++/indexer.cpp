@@ -190,7 +190,7 @@ bool Indexer::CheckIndex ()
   // This may happen if the Zeitgeist DB gets corrupt and is re-created
   // from scratch.
   gint64 database_creation_date = GetZeitgeistCreationDate ();
-  if (database_creation_date > metadata_date)
+  if (database_creation_date != metadata_date)
   {
     g_message ("Zeitgeist database has been replaced. Doing full rebuild");
     return false;

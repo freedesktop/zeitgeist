@@ -52,8 +52,9 @@ namespace Zeitgeist.SQLite
                 create_schema (database);
 
                 // set database creation date
-                var schema_sql = "INSERT INTO schema_version VALUES ('%s', %l64d)"
-                    .printf (DATABASE_CREATION, Timestamp.now ());
+                var schema_sql = ("INSERT INTO schema_version VALUES ('%s', %" +
+                    int64.FORMAT + ")").printf (DATABASE_CREATION,
+                    Timestamp.now ());
                 exec_query (database, schema_sql);
             }
             else if (schema_version == 4 || schema_version == 5)
