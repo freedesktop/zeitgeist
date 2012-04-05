@@ -94,7 +94,8 @@ namespace Zeitgeist.SQLite
                 insertion_stmt.reset ();
                 insertion_stmt.bind_text (1, name);
                 rc = insertion_stmt.step ();
-                database.assert_query_success (rc, "Error in id_for_string");
+                database.assert_query_success (rc, "Error in id_for_string",
+                    Sqlite.DONE);
 
                 id = (int) db.last_insert_rowid ();
 
@@ -127,7 +128,8 @@ namespace Zeitgeist.SQLite
                 value_to_id.insert (text, id);
                 rc = retrieval_stmt.step ();
             }
-            database.assert_query_success (rc, "Error in get_value");
+            database.assert_query_success (rc, "Error in get_value",
+                Sqlite.DONE);
             if (text == null)
             {
                 critical ("Error getting data from table: %d, %s\n",

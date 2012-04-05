@@ -465,7 +465,8 @@ public class DbReader : Object
             // for (int i=0; i<related_uris.length; i++)
             //    related_uris[i] = temp_related_uris[i];
 
-            database.assert_query_success (rc, "Error in find_related_uris");
+            database.assert_query_success (rc, "Error in find_related_uris",
+                Sqlite.DONE);
 
             var uri_counter = new HashTable<string, RelatedUri?>(
                 str_hash, str_equal);
