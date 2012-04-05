@@ -109,7 +109,7 @@ namespace Zeitgeist
                     {
                         database.assert_not_corrupt (rc);
                     }
-                    catch (EngineError) { }
+                    catch (EngineError err) { }
                     warning ("SQL error: %d, %s", rc, db.errmsg ());
                 }
                 return null;
