@@ -313,6 +313,7 @@ namespace Zeitgeist.SQLite
          * @param msg message to print if `rc' indicates an error
          * @throws EngineError
          */
+        [Diagnostics]
         public void assert_query_success (int rc, string msg,
             int success_code=Sqlite.OK) throws EngineError
         {
