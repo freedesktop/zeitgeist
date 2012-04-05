@@ -4,6 +4,8 @@
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *             By Seif Lotfy <seif@lotfy.com>
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
+ * Copyright © 2012 Canonical Ltd.
+ *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -106,7 +108,7 @@ namespace Zeitgeist.SQLite
             {
                 try
                 {
-                    // Error (like a malformed database) may not be exposed
+                    // Errors (like a malformed database) may not be exposed
                     // until we try to operate on the database.
                     if (is_read_only)
                     {
@@ -142,17 +144,7 @@ namespace Zeitgeist.SQLite
                     // The database disk image is malformed
                     warning ("It looks like your database is corrupt. " +
                         "It will be renamed and a new one will be created.");
-                    try
-                    {
-                        Utils.retire_database ();
-                    }
-                    catch (Error err)
-                    {
-                        string message =
-                            "Could not rename database: %s".printf (
-                                err.message);
-                        throw new EngineError.DATABASE_RETIRE_FAILED (message);
-                    }
+                    Utils.retire_database ();
                     open_database (false);
                 }
                 else if (rc == Sqlite.PERM || rc == Sqlite.CANTOPEN)
@@ -329,7 +321,37 @@ namespace Zeitgeist.SQLite
                 string error_message = "%s: %d, %s".printf (
                     msg, rc, database.errmsg ());
                 warning ("%s\n", error_message);
+                assert_not_corrupt (rc);
                 throw new EngineError.DATABASE_ERROR (error_message);
+            }
+        }
+
+        /**
+         * Ensure `rc' isn't SQLITE_CORRUPT. If it is, schedule a database
+         * retire and Zeitgeist restart so a new database can be created,
+         * unless in read-only mode, in which case EngineError.DATABASE_ERROR
+         * will be thrown.
+         *
+         * This function should be called whenever assert_query_success isn't
+         * used.
+         *
+         * @param rc error code returned by a SQLite call
+         */
+        public void assert_not_corrupt (int rc)
+            throws EngineError
+        {
+            if (unlikely (rc == Sqlite.CORRUPT))
+            {
+                warning ("It looks like your database is corrupt: %s".printf (
+                    database.errmsg ()));
+                if (!is_read_only)
+                {
+                    // Sets a flag in the database indicating that it is
+                    // corrupt. This will trigger a database retire and
+                    // re-creation on the next startup.
+                    DatabaseSchema.set_corruption_flag (database);
+                }
+                throw new EngineError.DATABASE_CORRUPT (database.errmsg ());
             }
         }
 

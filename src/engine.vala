@@ -241,6 +241,7 @@ public class Engine : DbReader
             if ((rc = insert_stmt.step()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)
                 {
+                    database.assert_not_corrupt (rc);
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
                     return 0;
                 }
@@ -261,6 +262,7 @@ public class Engine : DbReader
                 retrieval_stmt.bind_int64 (4, actors_table.id_for_string (event.actor));
 
                 if ((rc = retrieval_stmt.step ()) != Sqlite.ROW) {
+                    database.assert_not_corrupt (rc);
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
                     return 0;
                 }
@@ -340,6 +342,11 @@ public class Engine : DbReader
             if ((rc = move_stmt.step()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)
                 {
+                    try
+                    {
+                        database.assert_not_corrupt (rc);
+                    }
+                    catch (EngineError err) {}
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
                 }
             }
@@ -364,7 +371,14 @@ public class Engine : DbReader
                 event.payload.data.length);
             if ((rc = payload_insertion_stmt.step ()) != Sqlite.DONE)
                 if (rc != Sqlite.CONSTRAINT)
+                {
                     warning ("SQL error: %d, %s\n", rc, db.errmsg ());
+                    try
+                    {
+                        database.assert_not_corrupt (rc);
+                    }
+                    catch (EngineError err) { }
+                }
 
             return database.database.last_insert_rowid ();
         }

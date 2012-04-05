@@ -55,13 +55,22 @@ public class DbReader : Object
         database.set_deletion_callback (delete_from_cache);
         db = database.database;
 
-        interpretations_table = new TableLookup (database, "interpretation");
-        manifestations_table = new TableLookup (database, "manifestation");
-        mimetypes_table = new TableLookup (database, "mimetype");
-        actors_table = new TableLookup (database, "actor");
+        try
+        {
+            interpretations_table = new TableLookup (database, "interpretation");
+            manifestations_table = new TableLookup (database, "manifestation");
+            mimetypes_table = new TableLookup (database, "mimetype");
+            actors_table = new TableLookup (database, "actor");
+        }
+        catch (EngineError err)
+        {
+            // FIXME: propagate this properly?
+            critical ("TableLookup initialization failed: %s", err.message);
+        }
     }
 
     protected Event get_event_from_row (Sqlite.Statement stmt, uint32 event_id)
+        throws EngineError
     {
         Event event = new Event ();
         event.id = event_id;
@@ -88,6 +97,7 @@ public class DbReader : Object
     }
 
     protected Subject get_subject_from_row (Sqlite.Statement stmt)
+        throws EngineError
     {
         Subject subject = new Subject ();
         subject.uri = stmt.column_text (EventViewRows.SUBJECT_URI);
@@ -142,11 +152,7 @@ public class DbReader : Object
             Subject subject = get_subject_from_row(stmt);
             event.add_subject(subject);
         }
-        if (rc != Sqlite.DONE)
-        {
-            throw new EngineError.DATABASE_ERROR ("Error: %d, %s\n",
-                rc, db.errmsg ());
-        }
+        database.assert_query_success (rc, "Error", Sqlite.DONE);
 
         // Sort events according to the sequence of event_ids
         var results = new GenericArray<Event?> ();
@@ -270,7 +276,7 @@ public class DbReader : Object
                 warning (error_message);
                 throw new EngineError.INVALID_ARGUMENT (error_message);
         }
-        
+
         // complete the sort rule
         bool time_asc = ResultType.is_sort_order_asc ((ResultType) result_type);
         sql += " timestamp %s".printf ((time_asc) ? "ASC" : "DESC");
@@ -306,6 +312,7 @@ public class DbReader : Object
             string error_message = "Error in find_event_ids: %d, %s".printf (
                 rc, db.errmsg ());
             warning (error_message);
+            database.assert_not_corrupt (rc);
             throw new EngineError.DATABASE_ERROR (error_message);
         }
 
@@ -458,14 +465,7 @@ public class DbReader : Object
             // for (int i=0; i<related_uris.length; i++)
             //    related_uris[i] = temp_related_uris[i];
 
-            if (rc != Sqlite.DONE)
-            {
-                string error_message =
-                    "Error in find_related_uris: %d, %s".printf (
-                    rc, db.errmsg ());
-                warning (error_message);
-                throw new EngineError.DATABASE_ERROR (error_message);
-            }
+            database.assert_query_success (rc, "Error in find_related_uris");
 
             var uri_counter = new HashTable<string, RelatedUri?>(
                 str_hash, str_equal);

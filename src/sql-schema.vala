@@ -2,8 +2,9 @@
  *
  * Copyright © 2011 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
- * Copyright © 2011 Canonical Ltd.
+ * Copyright © 2011-2012 Canonical Ltd.
  *             By Michal Hruby <michal.hruby@canonical.com>
+ *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
  *
  * Based upon a Python implementation (2009-2011) by:
  *  Markus Korn <thekorn@gmx.net>
@@ -120,6 +121,7 @@ namespace Zeitgeist.SQLite
         }
 
         public static int get_schema_version (Sqlite.Database database)
+            throws EngineError
         {
           var sql = "SELECT version FROM schema_version WHERE schema='core'";
           int schema_version = -1;
@@ -137,7 +139,33 @@ namespace Zeitgeist.SQLite
           // will be -1 if something went wrong anyway
           debug ("schema_version is %d", schema_version);
 
+          if (schema_version < -1)
+          {
+              throw new EngineError.DATABASE_CORRUPT (
+                  "Database corruption flag is set.");
+          }
           return schema_version;
+        }
+
+        public static void set_corruption_flag (Sqlite.Database database)
+            throws EngineError
+        {
+            // A schema_version value smaller than -1 indicates that
+            // database corruption has been detected.
+            int version = get_schema_version (database);
+            if (version > 0)
+                version = -version;
+            set_schema_version (database, version);
+        }
+
+        private static void set_schema_version (Sqlite.Database database,
+            int schema_version) throws EngineError
+        {
+            /* The 'ON CONFLICT REPLACE' on the PK converts INSERT to UPDATE
+             * when appriopriate */
+            var schema_sql = "INSERT INTO schema_version VALUES ('%s', %d)"
+                .printf (CORE_SCHEMA, schema_version);
+            exec_query (database, schema_sql);
         }
 
         public static void create_schema (Sqlite.Database database)
@@ -458,13 +486,7 @@ namespace Zeitgeist.SQLite
                     version INT
                 )
                 """);
-
-            /* The 'ON CONFLICT REPLACE' on the PK converts INSERT to UPDATE
-             * when appriopriate */
-            var schema_sql = "INSERT INTO schema_version VALUES ('%s', %d)"
-                .printf (CORE_SCHEMA, CORE_SCHEMA_VERSION);
-            exec_query (database, schema_sql);
-
+            set_schema_version (database, CORE_SCHEMA_VERSION);
         }
 
         /**
