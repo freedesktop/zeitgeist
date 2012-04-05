@@ -23,8 +23,6 @@
 #include <xapian.h>
 #include <queue>
 #include <vector>
-#include <string>
-#include <sstream>
 
 #include <gio/gio.h>
 #include <gio/gdesktopappinfo.h>
@@ -177,14 +175,10 @@ bool Indexer::CheckIndex ()
   // Get stored Zeitgeist DB creation date
   gint64 metadata_date;
   std::string metadata_date_str (db->get_metadata ("zg_db_creation_date"));
-  if (metadata_date_str == "")
+  if (metadata_date_str.empty ())
     metadata_date = -1;
   else
-  {
-    std::stringstream tmpstream;
-    tmpstream << metadata_date_str;
-    tmpstream >> metadata_date;
-  }
+    metadata_date = g_ascii_strtoll (metadata_date_str.c_str (), NULL, 0);
 
   // In case the Zeitgeist DB is newer than Xapian, we need to re-build.
   // This may happen if the Zeitgeist DB gets corrupt and is re-created
