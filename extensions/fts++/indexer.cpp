@@ -146,6 +146,14 @@ void Indexer::Initialize (GError **error)
   }
 }
 
+gint64 Indexer::GetZeitgeistCreationDate ()
+{
+  ZeitgeistSQLiteDatabase *database = zeitgeist_db_reader_get_database (
+      zg_reader);
+  return zeitgeist_sq_lite_database_schema_get_creation_date (
+      database->database);
+}
+
 /**
  * Returns true if and only if the index is good.
  * Otherwise the index should be rebuild.
@@ -161,6 +169,24 @@ bool Indexer::CheckIndex ()
   else if (db->get_doccount () == 0)
   {
     g_message ("Empty index detected. Doing full rebuild");
+    return false;
+  }
+
+  // Get stored Zeitgeist DB creation date
+  gint64 metadata_date;
+  std::string metadata_date_str (db->get_metadata ("zg_db_creation_date"));
+  if (metadata_date_str.empty ())
+    metadata_date = -1;
+  else
+    metadata_date = g_ascii_strtoll (metadata_date_str.c_str (), NULL, 0);
+
+  // In case the Zeitgeist DB is newer than Xapian, we need to re-build.
+  // This may happen if the Zeitgeist DB gets corrupt and is re-created
+  // from scratch.
+  gint64 database_creation_date = GetZeitgeistCreationDate ();
+  if (database_creation_date != metadata_date)
+  {
+    g_message ("Zeitgeist database has been replaced. Doing full rebuild");
     return false;
   }
 

@@ -38,6 +38,8 @@ namespace Zeitgeist.SQLite
         public const string CORE_SCHEMA = "core";
         public const int CORE_SCHEMA_VERSION = 6;
 
+        private const string DATABASE_CREATION = "database_creation";
+
         public static void ensure_schema (Sqlite.Database database)
             throws EngineError
         {
@@ -48,6 +50,12 @@ namespace Zeitgeist.SQLite
             {
                 // most likely a new DB
                 create_schema (database);
+
+                // set database creation date
+                var schema_sql = ("INSERT INTO schema_version VALUES ('%s', %" +
+                    int64.FORMAT + ")").printf (DATABASE_CREATION,
+                    Timestamp.now ());
+                exec_query (database, schema_sql);
             }
             else if (schema_version == 4 || schema_version == 5)
             {
@@ -123,28 +131,44 @@ namespace Zeitgeist.SQLite
         public static int get_schema_version (Sqlite.Database database)
             throws EngineError
         {
-          var sql = "SELECT version FROM schema_version WHERE schema='core'";
-          int schema_version = -1;
-          database.exec (sql,
-              (n_cols, values, column_names) =>
-              {
-                  if (values[0] != null)
-                  {
-                      schema_version = int.parse (values[0]);
-                  }
-                  return 0;
-              }, null);
+            int schema_version = (int) get_schema_metadata (database, CORE_SCHEMA);
+            debug ("schema_version is %d", schema_version);
 
-          // we don't really care about the return value of exec, the result
-          // will be -1 if something went wrong anyway
-          debug ("schema_version is %d", schema_version);
+            if (schema_version < -1)
+            {
+                throw new EngineError.DATABASE_CORRUPT (
+                    "Database corruption flag is set.");
+            }
+            return schema_version;
+        }
 
-          if (schema_version < -1)
-          {
-              throw new EngineError.DATABASE_CORRUPT (
-                  "Database corruption flag is set.");
-          }
-          return schema_version;
+        public static int64 get_creation_date (Sqlite.Database database)
+        {
+            return get_schema_metadata (database, DATABASE_CREATION);
+        }
+
+        private static int64 get_schema_metadata (Sqlite.Database database,
+            string key)
+        {
+            var sql = "SELECT version FROM schema_version " +
+                "WHERE schema='%s'".printf (key);
+
+            int64 schema_version = -1;
+
+            database.exec (sql,
+                (n_cols, values, column_names) =>
+                {
+                    if (values[0] != null)
+                    {
+                        schema_version = int64.parse (values[0]);
+                    }
+                    return 0;
+                }, null);
+
+            // we don't really care about the return value of exec, the result
+            // will be -1 if something went wrong anyway
+
+            return schema_version;
         }
 
         public static void set_corruption_flag (Sqlite.Database database)

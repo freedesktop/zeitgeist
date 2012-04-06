@@ -81,6 +81,11 @@ void Controller::RebuildIndex ()
 
     // Set the db metadata key only once we're done
     PushTask (new MetadataTask ("fts_index_version", INDEX_VERSION));
+    gint64 zg_creation_date = indexer->GetZeitgeistCreationDate ();
+    gchar *creation = g_strdup_printf ("%" G_GINT64_FORMAT, zg_creation_date);
+    std::string zg_creation_date_str (creation);
+    PushTask (new MetadataTask ("zg_db_creation_date", zg_creation_date_str));
+    g_free (creation);
   }
 
   g_object_unref (time_range);

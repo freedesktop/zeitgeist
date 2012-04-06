@@ -80,6 +80,7 @@ public:
   void IndexEvent (ZeitgeistEvent *event);
   void DeleteEvent (guint32 event_id);
   void SetDbMetadata (std::string const& key, std::string const& value);
+  gint64 GetZeitgeistCreationDate ();
 
   GPtrArray* Search (const gchar *search,
                      ZeitgeistTimeRange *time_range,
