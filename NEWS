@@ -1,8 +1,22 @@
-2012-XX-XX: Zeitgeist Bluebird Beta 2
+2012-04-07: Zeitgeist 0.9
 -------------------------------------
 
 Engine:
  - Updated the list of recognized MIME-types.
+ - Set a size limit (4MiB) on the results returned by individual FindEvents and
+   GetEvents calls. Too big queries will result in an exception.
+ - Improved handling of FTS not being present (Beta 1 would leak memory).
+ - Enhanced database corruption detection and recovery.
+ - DataSourceRegistry: don't ignore bus addresses that registered more than
+   one data-source if one of them is disabled.
+
+FTS:
+ - Added a build-time option to disable FTS.
+ - The index is now automatically re-build if it gets corrupted.
+ - The index is now automatically re-build if the Zeitgeist DB is re-created.
+ - Split the reindex query into several smaller ones, for enhanced performance.
+ - Quit when Zeitgeist leaves the bus.
+ - Ignore events from Ubuntu One.
 
 Python API:
  - Updated the list of recognized MIME-types.
