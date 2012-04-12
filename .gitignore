@@ -68,3 +68,8 @@ src/zeitgeist-daemon
 mimetype-test
 marshalling-test
 test/direct/datamodel-test
+libzeitgeist/*.c
+*.o
+*.la
+*.stamp
+*.lo
