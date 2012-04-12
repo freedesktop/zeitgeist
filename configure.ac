@@ -93,6 +93,7 @@ AM_CONDITIONAL(HAVE_FTS, test "x$enable_fts" != "xno")
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
+	libzeitgeist/Makefile
 	extensions/Makefile
 	extensions/fts++/Makefile
 	extensions/fts++/test/Makefile
