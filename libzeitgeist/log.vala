@@ -1,5 +1,4 @@
 /*
- *
  * Copyright © 2011 Collabora Ltd.
  *             By Trever Fischer <trever.fischer@collabora.co.uk>
  *
