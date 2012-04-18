@@ -37,9 +37,9 @@ namespace Zeitgeist
             throws Error;
 
         public signal void template_added (string template_id,
-            [DBus (signature = "s(asaasay)")] Variant event_template);
+            [DBus (signature = "(asaasay)")] Variant event_template);
         public signal void template_removed (string template_id,
-            [DBus (signature = "s(asassay)")] Variant event_template);
+            [DBus (signature = "(asassay)")] Variant event_template);
     }
 
     namespace BlacklistTemplates
@@ -47,7 +47,7 @@ namespace Zeitgeist
         private const string SIG_BLACKLIST = "a{s("+Utils.SIG_EVENT+")}";
 
         private static HashTable<string, Event> from_variant (
-            Variant templates_variant)
+            Variant templates_variant) throws EngineError
         {
             var blacklist = new HashTable<string, Event> (str_hash, str_equal);
 
@@ -100,9 +100,21 @@ namespace Zeitgeist
             Variant? templates = retrieve_config ("blacklist",
                 BlacklistTemplates.SIG_BLACKLIST);
             if (templates != null)
-                blacklist = BlacklistTemplates.from_variant (templates);
+            {
+                try
+                {
+                    blacklist = BlacklistTemplates.from_variant (templates);
+                }
+                catch (EngineError e)
+                {
+                    warning ("Could not load blacklist from variant: %s", e.message);
+                    blacklist = new HashTable<string, Event> (str_hash, str_equal);
+                }
+            }
             else
+            {
                 blacklist = new HashTable<string, Event> (str_hash, str_equal);
+            }
 
             // This will be called after bus is acquired, so it shouldn't block
             try

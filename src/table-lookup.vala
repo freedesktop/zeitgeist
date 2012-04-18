@@ -26,7 +26,7 @@ namespace Zeitgeist.SQLite
 
     public class TableLookup : Object
     {
-
+        unowned Zeitgeist.SQLite.Database database;
         unowned Sqlite.Database db;
 
         private string table;
@@ -36,7 +36,9 @@ namespace Zeitgeist.SQLite
         private Sqlite.Statement retrieval_stmt;
 
         public TableLookup (Database database, string table_name)
+            throws EngineError
         {
+            this.database = database;
             db = database.database;
             table = table_name;
             id_to_value = new HashTable<int, string>(direct_hash, direct_equal);
@@ -52,30 +54,38 @@ namespace Zeitgeist.SQLite
                     value_to_id.insert (values[1], int.parse(values[0]));
                     return 0;
                 }, null);
-            if (rc != Sqlite.OK)
-            {
-                critical ("Can't init %s table: %d, %s\n", table,
-                    rc, db.errmsg ());
-            }
+            database.assert_query_success (rc,
+                "Can't init %s table".printf (table));
 
             sql = "INSERT INTO " + table + " (value) VALUES (?)";
             rc = db.prepare_v2 (sql, -1, out insertion_stmt);
-            if (rc != Sqlite.OK)
-            {
-                // FIXME: throw exception and propagate it up to
-                //        zeitgeist-daemon to abort with DB error?
-                critical ("SQL error: %d, %s\n", rc, db.errmsg ());
-            }
+            database.assert_query_success (rc, "Error creating insertion_stmt");
 
             sql = "SELECT value FROM " + table + " WHERE id=?";
             rc = db.prepare_v2 (sql, -1, out retrieval_stmt);
-            if (rc != Sqlite.OK)
-            {
-                critical ("SQL error: %d, %s\n", rc, db.errmsg ());
-            }
+            database.assert_query_success (rc, "Error creating retrieval_stmt");
         }
 
-        public int get_id (string name)
+        /**
+         * Searches the table for the given ID, returns -1 if not found.
+         *
+         * @see id_for_string
+         */
+        public int id_try_string (string name)
+        {
+            int id = value_to_id.lookup (name);
+            if (id == 0)
+                return -1;
+            return id;
+        }
+
+        /**
+         * Searches the table for the given ID, inserts a new one if not found.
+         *
+         * @see id_try_string
+         *
+         */
+        public int id_for_string (string name) throws EngineError
         {
             int id = value_to_id.lookup (name);
             if (id == 0)
@@ -83,10 +93,9 @@ namespace Zeitgeist.SQLite
                 int rc;
                 insertion_stmt.reset ();
                 insertion_stmt.bind_text (1, name);
-                if ((rc = insertion_stmt.step ()) != Sqlite.DONE)
-                {
-                    critical ("SQL error: %d, %s\n", rc, db.errmsg ());
-                }
+                rc = insertion_stmt.step ();
+                database.assert_query_success (rc, "Error in id_for_string",
+                    Sqlite.DONE);
 
                 id = (int) db.last_insert_rowid ();
 
@@ -96,7 +105,7 @@ namespace Zeitgeist.SQLite
             return id;
         }
 
-        public unowned string get_value (int id)
+        public unowned string get_value (int id) throws EngineError
         {
             // When we fetch an event, it either was already in the database
             // at the time Zeitgeist started or it was inserted later -using
@@ -119,7 +128,9 @@ namespace Zeitgeist.SQLite
                 value_to_id.insert (text, id);
                 rc = retrieval_stmt.step ();
             }
-            if (rc != Sqlite.DONE || text == null)
+            database.assert_query_success (rc, "Error in get_value",
+                Sqlite.DONE);
+            if (text == null)
             {
                 critical ("Error getting data from table: %d, %s\n",
                     rc, db.errmsg ());

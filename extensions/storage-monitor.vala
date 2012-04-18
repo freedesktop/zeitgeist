@@ -112,6 +112,7 @@ namespace Zeitgeist
 
         private Sqlite.Statement get_storages_stmt;
         private Sqlite.Statement store_storage_medium_stmt;
+        private Sqlite.Statement update_storage_medium_stmt;
         private Sqlite.Statement insert_unavailable_medium_stmt;
         private Sqlite.Statement update_medium_state_stmt;
 
@@ -236,13 +237,21 @@ namespace Zeitgeist
             database.assert_query_success (rc, "Storage retrieval query error");
 
             sql = """
-                INSERT OR REPLACE INTO storage (
+                INSERT INTO storage (
                     value, state, icon, display_name
                 ) VALUES (
                     ?, ?, ?, ?
                 )""";
             rc = db.prepare_v2 (sql, -1, out store_storage_medium_stmt);
             database.assert_query_success (rc, "Storage insertion query error");
+
+            sql = """
+                UPDATE storage SET 
+                state=?, icon=?, display_name=? 
+                WHERE value=?
+                """;
+            rc = db.prepare_v2 (sql, -1, out update_storage_medium_stmt);
+            database.assert_query_success (rc, "Storage update query error");
 
             sql = """
                 INSERT INTO storage (
@@ -309,6 +318,8 @@ namespace Zeitgeist
             return "unknown";
         }
 
+        /*
+        // It is not being used since gvfs is not being friendly
         private void on_volume_added (Volume volume)
         {
             debug ("volume added");
@@ -320,19 +331,21 @@ namespace Zeitgeist
             add_storage_medium (get_volume_id (volume), icon_name,
                 volume.get_name ());
         }
-
+        
         private void on_volume_removed (Volume volume)
         {
             debug ("Volume removed");
             remove_storage_medium (get_volume_id (volume));
         }
+        */
 
         /*
          * Return a string identifier for a GIO Volume. This id is constructed
          * as a `best effort` since we can not always uniquely identify
          * volumes, especially audio- and data CDs are problematic.
          */
-        private string get_volume_id (Volume volume)
+        
+        /*private string get_volume_id (Volume volume)
         {
             string volume_id;
 
@@ -349,7 +362,7 @@ namespace Zeitgeist
                 return volume_id;
 
             return "unknown";
-        }
+        }*/
 
         public void add_storage_medium (string medium_name, string icon,
             string display_name)
@@ -360,11 +373,23 @@ namespace Zeitgeist
             store_storage_medium_stmt.bind_int (2, 1);
             store_storage_medium_stmt.bind_text (3, icon);
             store_storage_medium_stmt.bind_text (4, display_name);
-
-            int rc = store_storage_medium_stmt.step ();
-            database.assert_query_success (rc, "add_storage_medium",
-                Sqlite.DONE);
-
+            if (store_storage_medium_stmt.step () != Sqlite.DONE)
+            {
+                update_storage_medium_stmt.reset ();
+                update_storage_medium_stmt.bind_int (1, 1);
+                update_storage_medium_stmt.bind_text (2, icon);
+                update_storage_medium_stmt.bind_text (3, display_name);
+                update_storage_medium_stmt.bind_text (4, medium_name);
+                int rc = update_storage_medium_stmt.step ();
+                try
+                {
+                    database.assert_query_success (rc, "add_storage_medium", Sqlite.DONE);
+                }
+                catch (EngineError e)
+                {
+                    warning ("Could not add storage medium: %s", e.message);
+                }
+            }
             storage_available (medium_name, StorageMedia.to_variant (
                 medium_name, true, icon, display_name));
         }
@@ -381,8 +406,15 @@ namespace Zeitgeist
                 update_medium_state_stmt.bind_int (1, 0);
                 update_medium_state_stmt.bind_text (2, medium_name);
                 int rc = update_medium_state_stmt.step ();
-                database.assert_query_success (rc, "remove_storage_medium",
-                    Sqlite.DONE);
+                try
+                {
+                    database.assert_query_success (rc, "remove_storage_medium",
+                        Sqlite.DONE);
+                }
+                catch (EngineError e)
+                {
+                    warning ("Could not remove storage medium: %s", e.message);
+                }
             }
             storage_unavailable (medium_name);
         }

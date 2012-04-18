@@ -57,16 +57,16 @@ public void basic_test ()
     unowned Sqlite.Database db = database.database;
     TableLookup table_lookup = new TableLookup (database, "actor");
 
-    int id = table_lookup.get_id ("1st-actor");
-    assert_cmpint (table_lookup.get_id ("2nd-actor"), OperatorType.EQUAL, id+1);
-    assert_cmpint (table_lookup.get_id ("1st-actor"), OperatorType.EQUAL, id);
+    int id = table_lookup.id_for_string ("1st-actor");
+    assert_cmpint (table_lookup.id_for_string ("2nd-actor"), OperatorType.EQUAL, id+1);
+    assert_cmpint (table_lookup.id_for_string ("1st-actor"), OperatorType.EQUAL, id);
 
     int rc = db.exec ("DELETE FROM actor WHERE value='1st-actor'");
     assert (rc == Sqlite.OK);
 
     table_lookup.remove (1);
-    assert_cmpint (table_lookup.get_id ("2nd-actor"), OperatorType.EQUAL, id+1);
-    assert_cmpint (table_lookup.get_id ("1st-actor"), OperatorType.EQUAL, id+2);
+    assert_cmpint (table_lookup.id_for_string ("2nd-actor"), OperatorType.EQUAL, id+1);
+    assert_cmpint (table_lookup.id_for_string ("1st-actor"), OperatorType.EQUAL, id+2);
 }
 
 public void get_value_with_query_test ()
@@ -88,14 +88,14 @@ public void engine_test ()
     unowned Sqlite.Database db = database.database;
     TableLookup table_lookup = engine.get_actors_table_lookup();
 
-    assert_cmpint (table_lookup.get_id ("something"), OperatorType.EQUAL, 1);
+    assert_cmpint (table_lookup.id_for_string ("something"), OperatorType.EQUAL, 1);
 
     // Since we're running with Engine, this should trigger the deletion
     // callback, which in turn should fix the cache (LP: #598666).
     int rc = db.exec ("DELETE FROM actor WHERE value='something'");
     assert (rc == Sqlite.OK);
 
-    assert_cmpint (table_lookup.get_id ("something"), OperatorType.EQUAL, 2);
+    assert_cmpint (table_lookup.id_for_string ("something"), OperatorType.EQUAL, 2);
 }
 
 // vim:expandtab:ts=4:sw=4

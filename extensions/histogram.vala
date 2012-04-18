@@ -96,14 +96,8 @@ namespace Zeitgeist
 
                 builder.add ("(xu)", t, count);
             }
-
-            if (rc != Sqlite.DONE)
-            {
-                string error_message = "Error in get_histogram_data: " +
-                    "%d, %s".printf (rc, db.errmsg ());
-                warning ("%s", error_message);
-                throw new EngineError.DATABASE_ERROR (error_message);
-            }
+            database.assert_query_success (rc, "Error in get_histogram_data",
+                Sqlite.DONE);
 
             return builder.end ();
         }

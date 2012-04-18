@@ -95,23 +95,21 @@ namespace Zeitgeist
 
                 // FIXME: shouldn't we delay this to next idle callback?
                 // Get SimpleIndexer
-                Bus.watch_name_on_connection (connection,
+                connection.get_proxy.begin<RemoteSimpleIndexer> (
                     INDEXER_NAME,
-                    BusNameWatcherFlags.AUTO_START,
-                    (conn) =>
-                    {
-                        if (siin != null) return;
-                        conn.get_proxy.begin<RemoteSimpleIndexer> (
-                            "org.gnome.zeitgeist.SimpleIndexer",
-                            "/org/gnome/zeitgeist/index/activity",
-                            0, null, this.proxy_acquired);
-                    },
-                    () => {});
+                    "/org/gnome/zeitgeist/index/activity",
+                    0, null, this.proxy_acquired);
             }
             catch (Error err)
             {
                 warning ("%s", err.message);
             }
+        }
+        
+        private void proxy_not_present()
+        {
+            notifier.remove_monitor (new BusName (INDEXER_NAME),"/org/gnome/zeitgeist/monitor/special");
+            this.unload();
         }
 
         private void proxy_acquired (Object? obj, AsyncResult res)
@@ -120,7 +118,15 @@ namespace Zeitgeist
             try
             {
                 siin = conn.get_proxy.end<RemoteSimpleIndexer> (res);
-                siin_connection_failed = false;
+                if((siin as DBusProxy).g_name_owner == null)
+                {
+                    this.proxy_not_present();
+                    siin_connection_failed = true;
+                }
+                else
+                {
+                    siin_connection_failed = false;
+                }
             }
             catch (IOError err)
             {
@@ -146,6 +152,25 @@ namespace Zeitgeist
                 throw new EngineError.DATABASE_ERROR (
                     "Not connected to SimpleIndexer");
             }
+        }
+        
+        public override void unload ()
+        {
+            try
+            {
+                var connection = Bus.get_sync (BusType.SESSION, null);
+                if (registration_id != 0)
+                {
+                    connection.unregister_object (registration_id);
+                    registration_id = 0;
+                }
+            }
+            catch (Error err)
+            {
+                warning ("%s", err.message);
+            }
+
+            debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
         }
 
         public async void search (string query_string, Variant time_range,

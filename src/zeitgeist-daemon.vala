@@ -138,7 +138,7 @@ namespace Zeitgeist
             var timer = new Timer ();
             GenericArray<Event> events = engine.get_events (event_ids);
             debug ("%s executed in %f seconds", Log.METHOD, timer.elapsed ());
-            return Events.to_variant (events);
+            return Events.to_variant_with_limit (events);
         }
 
         public string[] find_related_uris (Variant time_range,
@@ -176,7 +176,7 @@ namespace Zeitgeist
                 Events.from_variant (event_templates),
                 storage_state, num_events, result_type, sender);
             debug ("%s executed in %f seconds", Log.METHOD, timer.elapsed ());
-            return Events.to_variant (events);
+            return Events.to_variant_with_limit (events);
         }
 
         public uint32[] insert_events (

@@ -69,3 +69,8 @@ mimetype-test
 marshalling-test
 test/direct/datamodel-test
 test/direct/event-cache-test
+libzeitgeist/*.c
+*.o
+*.la
+*.stamp
+*.lo

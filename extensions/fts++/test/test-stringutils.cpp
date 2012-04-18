@@ -76,7 +76,7 @@ test_mangle (Fixture *fix, gconstpointer data)
 
   g_assert_cmpstr ("file", ==, StringUtils::MangleUri("file").c_str ());
   g_assert_cmpstr ("file___", ==, StringUtils::MangleUri("file://").c_str ());
-  g_assert_cmpstr ("http___www.zeitgeist-project.com", ==,
+  g_assert_cmpstr ("http___www_zeitgeist_project_com", ==,
       StringUtils::MangleUri("http://www.zeitgeist-project.com").c_str ());
 
   g_assert_cmpstr ("scheme_no_spaces_in_uris", ==,

@@ -76,7 +76,7 @@ namespace Zeitgeist
         }
 
         public TimeRange.from_variant (Variant variant)
-            throws EngineError.INVALID_SIGNATURE
+            throws EngineError
         {
             assert_sig (variant.get_type_string () == "(xx)",
                 "Invalid D-Bus signature.");
@@ -230,10 +230,60 @@ namespace Zeitgeist
                                                    // different origin ordered
                                                    // by the popularity of the
                                                    // origins
-        LEAST_POPULAR_EVENT_ORIGIN           = 30, //   The last event of each
+        LEAST_POPULAR_EVENT_ORIGIN           = 30; //   The last event of each
                                                    // different origin, ordered
                                                    // ascendingly by the
                                                    // popularity of the origin
+
+        /*
+         * Returns true if the results for the given result_type will be sorted
+         * ascendantly by date, false if they'll be sorted descendingly.
+         **/
+        public static bool is_sort_order_asc (ResultType result_type)
+        {
+            switch (result_type)
+            {
+                // FIXME: Why are LEAST_POPULAR_* using ASC?
+                case ResultType.LEAST_RECENT_EVENTS:
+                case ResultType.LEAST_RECENT_EVENT_ORIGIN:
+                case ResultType.LEAST_POPULAR_EVENT_ORIGIN:
+                case ResultType.LEAST_RECENT_SUBJECTS:
+                case ResultType.LEAST_POPULAR_SUBJECTS:
+                case ResultType.LEAST_RECENT_CURRENT_URI:
+                case ResultType.LEAST_POPULAR_CURRENT_URI:
+                case ResultType.LEAST_RECENT_ACTOR:
+                case ResultType.LEAST_POPULAR_ACTOR:
+                case ResultType.OLDEST_ACTOR:
+                case ResultType.LEAST_RECENT_ORIGIN:
+                case ResultType.LEAST_POPULAR_ORIGIN:
+                case ResultType.LEAST_RECENT_SUBJECT_INTERPRETATION:
+                case ResultType.LEAST_POPULAR_SUBJECT_INTERPRETATION:
+                case ResultType.LEAST_RECENT_MIMETYPE:
+                case ResultType.LEAST_POPULAR_MIMETYPE:
+                    return true;
+
+                case ResultType.MOST_RECENT_EVENTS:
+                case ResultType.MOST_RECENT_EVENT_ORIGIN:
+                case ResultType.MOST_POPULAR_EVENT_ORIGIN:
+                case ResultType.MOST_RECENT_SUBJECTS:
+                case ResultType.MOST_POPULAR_SUBJECTS:
+                case ResultType.MOST_RECENT_CURRENT_URI:
+                case ResultType.MOST_POPULAR_CURRENT_URI:
+                case ResultType.MOST_RECENT_ACTOR:
+                case ResultType.MOST_POPULAR_ACTOR:
+                case ResultType.MOST_RECENT_ORIGIN:
+                case ResultType.MOST_POPULAR_ORIGIN:
+                case ResultType.MOST_RECENT_SUBJECT_INTERPRETATION:
+                case ResultType.MOST_POPULAR_SUBJECT_INTERPRETATION:
+                case ResultType.MOST_RECENT_MIMETYPE:
+                case ResultType.MOST_POPULAR_MIMETYPE:
+                    return false;
+
+                default:
+                    warning ("Unrecognized ResultType: %u", (uint) result_type);
+                    return true;
+            }
+        }
     }
 
     /*
@@ -346,6 +396,11 @@ namespace Zeitgeist
         public void add_subject (Subject subject)
         {
             subjects.add (subject);
+        }
+
+        public void take_subject (owned Subject subject)
+        {
+            subjects.add ((owned) subject);
         }
 
         public Event.full (string? interpretation=null,
@@ -561,6 +616,46 @@ namespace Zeitgeist
                 {
                     vb.add_value (get_null_event_variant ());
                 }
+            }
+
+            return vb.end ();
+        }
+
+        /* Same as to_variant but raises an exception if the variant size
+         * exceeds `limit' bytes.
+         * */
+        public static Variant to_variant_with_limit (GenericArray<Event?> events,
+            size_t limit=Utils.MAX_DBUS_RESULT_SIZE) throws EngineError
+        {
+            var vb = new VariantBuilder(new VariantType("a("+Utils.SIG_EVENT+")"));
+
+            size_t variant_size = 0;
+
+            for (int i = 0; i < events.length; ++i)
+            {
+                Variant event_variant;
+
+                if (events[i] != null)
+                {
+                    event_variant = events[i].to_variant ();
+                }
+                else
+                {
+                    event_variant = get_null_event_variant ();
+                }
+
+                variant_size += event_variant.get_size();
+                if (variant_size > limit)
+                {
+                    size_t avg_event_size = variant_size / (i+1);
+                    string error_message = ("Query exceeded size limit of % " +
+                        size_t.FORMAT + "MiB (roughly ~%d events).").printf (
+                            limit / 1024 / 1024, limit / avg_event_size);
+                    warning (error_message);
+                    throw new EngineError.TOO_MANY_RESULTS (error_message);
+                }
+
+                vb.add_value (event_variant);
             }
 
             return vb.end ();

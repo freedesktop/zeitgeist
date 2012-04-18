@@ -202,6 +202,7 @@ namespace Zeitgeist
         try {
             register_mimetype ("application/ecmascript", NFO.SOURCE_CODE);
             register_mimetype ("application/javascript", NFO.SOURCE_CODE);
+            register_mimetype ("application/json", NFO.SOURCE_CODE);
             register_mimetype ("application/ms-excel", NFO.SPREADSHEET);
             register_mimetype ("application/ms-powerpoint", NFO.PRESENTATION);
             register_mimetype ("application/msexcel", NFO.SPREADSHEET);
@@ -211,6 +212,7 @@ namespace Zeitgeist
             register_mimetype ("application/postscript", NFO.PAGINATED_TEXT_DOCUMENT);
             register_mimetype ("application/ps", NFO.PAGINATED_TEXT_DOCUMENT);
             register_mimetype ("application/rtf", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype ("application/soap+xml", NFO.SOURCE_CODE);
             register_mimetype ("application/vnd.corel-draw", NFO.VECTOR_IMAGE);
             register_mimetype ("application/vnd.ms-excel", NFO.SPREADSHEET);
             register_mimetype ("application/vnd.ms-powerpoint", NFO.PRESENTATION);
@@ -236,6 +238,7 @@ namespace Zeitgeist
             register_mimetype ("application/x-gnumeric", NFO.SPREADSHEET);
             register_mimetype ("application/x-gzip", NFO.ARCHIVE);
             register_mimetype ("application/x-java-archive", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-javascript", NFO.SOURCE_CODE);
             register_mimetype ("application/x-killustrator", NFO.VECTOR_IMAGE);
             register_mimetype ("application/x-kpresenter", NFO.PRESENTATION);
             register_mimetype ("application/x-kspread", NFO.SPREADSHEET);
@@ -244,27 +247,37 @@ namespace Zeitgeist
             register_mimetype ("application/x-lzma-compressed-tar", NFO.ARCHIVE);
             register_mimetype ("application/x-m4", NFO.SOURCE_CODE);
             register_mimetype ("application/x-ms-dos-executable", NFO.SOFTWARE);
-            register_mimetype ("application/x-object", NFO.SOURCE_CODE);
             register_mimetype ("application/x-perl", NFO.SOURCE_CODE);
             register_mimetype ("application/x-php", NFO.SOURCE_CODE);
             register_mimetype ("application/x-rpm", NFO.SOFTWARE);
             register_mimetype ("application/x-ruby", NFO.SOURCE_CODE);
             register_mimetype ("application/x-shellscript", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-shockwave-flash", NFO.EXECUTABLE);
             register_mimetype ("application/x-sql", NFO.SOURCE_CODE);
+            register_mimetype ("application/x-stuffit", NFO.ARCHIVE);
             register_mimetype ("application/xhtml+xml", NFO.SOURCE_CODE);
             register_mimetype ("application/xml", NFO.SOURCE_CODE);
+            register_mimetype ("application/xml-dtd", NFO.SOURCE_CODE);
             register_mimetype ("application/zip", NFO.ARCHIVE);
             register_mimetype ("audio/x-scpls", NFO.MEDIA_LIST);
             register_mimetype ("image/gif", NFO.RASTER_IMAGE);
             register_mimetype ("image/jpeg", NFO.RASTER_IMAGE);
+            register_mimetype ("image/pjpeg", NFO.RASTER_IMAGE);
             register_mimetype ("image/png", NFO.RASTER_IMAGE);
             register_mimetype ("image/svg+xml", NFO.VECTOR_IMAGE);
             register_mimetype ("image/tiff", NFO.RASTER_IMAGE);
+            register_mimetype ("image/vnd.microsoft.icon", NFO.ICON);
             register_mimetype ("image/x-xcf", NFO.RASTER_IMAGE);
             register_mimetype ("inode/directory", NFO.FOLDER);
+            register_mimetype ("message/alternative", NMO.EMAIL);
+            register_mimetype ("message/partial", NMO.EMAIL);
+            register_mimetype ("message/related", NMO.EMAIL);
             register_mimetype ("text/css", NFO.SOURCE_CODE);
+            register_mimetype ("text/csv", NFO.TEXT_DOCUMENT);
             register_mimetype ("text/html", NFO.HTML_DOCUMENT);
+            register_mimetype ("text/javascript", NFO.SOURCE_CODE);
             register_mimetype ("text/plain", NFO.TEXT_DOCUMENT);
+            register_mimetype ("text/vcard", NCO.CONTACT);
             register_mimetype ("text/x-c", NFO.SOURCE_CODE);
             register_mimetype ("text/x-c++", NFO.SOURCE_CODE);
             register_mimetype ("text/x-c++src", NFO.SOURCE_CODE);
@@ -280,6 +293,7 @@ namespace Zeitgeist
             register_mimetype ("text/x-haskell", NFO.SOURCE_CODE);
             register_mimetype ("text/x-idl", NFO.SOURCE_CODE);
             register_mimetype ("text/x-java", NFO.SOURCE_CODE);
+            register_mimetype ("text/x-jquery-tmpl", NFO.SOURCE_CODE);
             register_mimetype ("text/x-latex", NFO.SOURCE_CODE);
             register_mimetype ("text/x-lisp", NFO.SOURCE_CODE);
             register_mimetype ("text/x-lua", NFO.SOURCE_CODE);
@@ -296,26 +310,20 @@ namespace Zeitgeist
             register_mimetype ("text/x-troff", NFO.SOURCE_CODE);
             register_mimetype ("text/x-vala", NFO.SOURCE_CODE);
             register_mimetype ("text/x-vhdl", NFO.SOURCE_CODE);
+            register_mimetype ("text/xml", NFO.SOURCE_CODE);
 
             register_mimetype_regex (".*/x-dvi", NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype_regex (
-                "application/vnd.oasis.opendocument.text.*",
-                NFO.PAGINATED_TEXT_DOCUMENT);
-            register_mimetype_regex (
-                "application/vnd.oasis.opendocument.presentation.*",
-                NFO.PRESENTATION);
-            register_mimetype_regex (
-                "application/vnd.oasis.opendocument.spreadsheet.*",
-                NFO.SPREADSHEET);
-            register_mimetype_regex (
-                "application/vnd.oasis.opendocument.graphics.*",
-                NFO.VECTOR_IMAGE);
+            register_mimetype_regex ("application/vnd.ms-excel.*", NFO.SPREADSHEET);
+            register_mimetype_regex ("application/vnd.ms-powerpoint.*", NFO.PRESENTATION);
+            register_mimetype_regex ("application/vnd.oasis.opendocument.graphics.*", NFO.VECTOR_IMAGE);
+            register_mimetype_regex ("application/vnd.oasis.opendocument.presentation.*", NFO.PRESENTATION);
+            register_mimetype_regex ("application/vnd.oasis.opendocument.spreadsheet.*", NFO.SPREADSHEET);
+            register_mimetype_regex ("application/vnd.oasis.opendocument.text.*", NFO.PAGINATED_TEXT_DOCUMENT);
+            register_mimetype_regex ("application/vnd.openxmlformats-officedocument.presentationml.presentation.*", NFO.PRESENTATION);
+            register_mimetype_regex ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.*", NFO.SPREADSHEET);
+            register_mimetype_regex ("application/vnd.openxmlformats-officedocument.wordprocessingml.document.*", NFO.PAGINATED_TEXT_DOCUMENT);
             register_mimetype_regex ("application/vnd\\..*", NFO.DOCUMENT);
             register_mimetype_regex ("application/x-applix-.*", NFO.DOCUMENT);
-            register_mimetype_regex ("application/vnd.ms-excel.*",
-                NFO.SPREADSHEET);
-            register_mimetype_regex ("application/vnd.ms-powerpoint.*",
-                NFO.PRESENTATION);
             register_mimetype_regex ("audio/.*", NFO.AUDIO);
             register_mimetype_regex ("image/.*", NFO.IMAGE);
             register_mimetype_regex ("video/.*", NFO.VIDEO);

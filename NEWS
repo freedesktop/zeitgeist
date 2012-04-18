@@ -1,10 +1,42 @@
-2012-03-01: Zeitgeist Bluebird Beta 1
+2012-04-10: Zeitgeist 0.9
+-------------------------------------
+
+Engine:
+ - Updated the list of recognized MIME-types.
+ - Set a size limit (4MiB) on the results returned by individual FindEvents and
+   GetEvents calls. Too big queries will result in an exception.
+ - Improved handling of FTS not being present (Beta 1 would leak memory).
+ - Enhanced database corruption detection and recovery.
+ - DataSourceRegistry: don't ignore bus addresses that registered more than
+   one data-source if one of them is disabled.
+
+FTS:
+ - Added a build-time option to disable FTS.
+ - The index is now automatically re-build if it gets corrupted.
+ - The index is now automatically re-build if the Zeitgeist DB is re-created.
+ - Split the reindex query into several smaller ones, for enhanced performance.
+ - Quit when Zeitgeist leaves the bus.
+ - Ignore events from Ubuntu One.
+
+Python API:
+ - Updated the list of recognized MIME-types.
+
+2012-03-20: Zeitgeist Bluebird Beta 1
 -------------------------------------
 
 Engine:
  - Fixed crash when events had NULL fields (LP: #941530).
- - Made sure no aborted SQLite transactions are left open.
+ - Made sure no aborted SQLite transactions are left open (LP: #937991).
  - Enhanced logging and added --log-file option.
+ - Fixed bug Storage Monitor corrupting storage IDs in DB (LP: #950983).
+ - Fixed bug inserting previously non-existant values when searching for
+   them (LP: #953041).
+
+FTS:
+ - Filter indexing of unrecognized values (eg. non-standard URIs).
+ - Enhanced grouping by URI and origin (LP: #947835).
+ - Use current_uri instead of URI; index MOVE_EVENTs (LP: #948794).
+ - Added SearchWithRelevancies D-Bus function.
 
 2012-02-14: Zeitgeist Bluebird Alpha 3
 --------------------------------------
@@ -195,37 +227,37 @@ Overall:
 
 Engine:
 
- - Added some new mimetype mappings
- - Speed up the GetEvents method by caching events (LP: #686732)
- - Allow extension without public method (LP: #691660)
+ - Added some new mimetype mappings.
+ - Speed up the GetEvents method by caching events (LP: #686732).
+ - Allow extension without public method (LP: #691660).
  - Added a read-only DBus property "extensions" to org.gnome.zeitgeist.Log 
-   (LP: #693861)
- - Added helper function to get an extension's name
+   (LP: #693861).
+ - Added helper function to get an extension's name.
  - Fixed bug in RemoteInterface.Quit(): make sure to close connection to the
    used bus if this method gets called, this is needed if RemoteInterface
    does not know anything about the loop it is running in.
- - Fix sending payload from engine to client (LP: #692645)
- - Improve performance of DataSourceRegistry (LP: #695311)
+ - Fix sending payload from engine to client (LP: #692645).
+ - Improve performance of DataSourceRegistry (LP: #695311).
  - Improve performance of find_event queries with timerange other than 
-   TimeRange.always() (LP: #672965)
- - Add an auto-filter for broken database entries (LP: #598666 workaround)
+   TimeRange.always() (LP: #672965).
+ - Add an auto-filter for broken database entries (LP: #598666 workaround).
  - Introduce new DB schema (version 3) that bundles a few performance related 
-   fixes (LP: #673452, #673394)
+   fixes (LP: #673452, #673394).
  - Added a (LRU-type) event cache to speed up similar requests.
 
 Python API:
 
- - Fix find_event_for_template to stop ignoring the template (LP: #690377)
- - Add get_extensions method to ZeitgeistClient
+ - Fix find_event_for_template to stop ignoring the template (LP: #690377).
+ - Add get_extensions method to ZeitgeistClient.
 
 Overall:
 
- - Using logging output for debugging purposes (LP: #660440)
- - Stop building man page for zeitgeist-datahub (LP: #680360)
- - Allow easy building for KDE (LP: #683280)
+ - Using logging output for debugging purposes (LP: #660440).
+ - Stop building man page for zeitgeist-datahub (LP: #680360).
+ - Allow easy building for KDE (LP: #683280).
  - Logging output now displays how many events were actually inserted from 
-   the batch of requested inserts (LP: #660440)
- - Changed License to LGPL 2.1+
+   the batch of requested inserts (LP: #660440).
+ - Changed License to LGPL 2.1+.
 
 2010-11-01: Zeitgeist 0.6 "Buzzer Beater"
 -----------------------------------------

@@ -38,6 +38,7 @@ namespace Zeitgeist
         // D-Bus
         public const string DBUS_INTERFACE = "";
         public const string SIG_EVENT = "asaasay";
+        public const size_t MAX_DBUS_RESULT_SIZE = 4 * 1024 * 1024; // 4MiB
 
         // configure runtime cache for events
         // default size is 2000
@@ -129,10 +130,19 @@ namespace Zeitgeist
             original.copy (destination, FileCopyFlags.OVERWRITE, null, null);
         }
 
-        public void retire_database () throws Error
+        public void retire_database () throws EngineError
         {
-            File dbfile = File.new_for_path (get_database_file_path ());
-            dbfile.set_display_name (get_database_file_retire_name ());
+            try
+            {
+                File dbfile = File.new_for_path (get_database_file_path ());
+                dbfile.set_display_name (get_database_file_retire_name ());
+            }
+            catch (Error err)
+            {
+                string message = "Could not rename database: %s".printf (
+                    err.message);
+                throw new EngineError.DATABASE_RETIRE_FAILED (message);
+            }
         }
 
         /**

@@ -69,9 +69,13 @@ string Truncate (string const& s, unsigned int nbytes)
  */
 string MangleUri (string const& orig)
 {
-  string s(orig);
+  // the input is supposed to be a uri, so no utf8 characters
+  gchar *casefolded = g_ascii_strdown (orig.c_str (), orig.size ());
+
+  string s(casefolded);
+  g_free (casefolded);
   size_t pos = 0;
-  while ((pos = s.find_first_of (": /", pos)) != string::npos)
+  while ((pos = s.find_first_of (": /-.%", pos)) != string::npos)
   {
     s.replace (pos, 1, 1, '_');
     pos++;

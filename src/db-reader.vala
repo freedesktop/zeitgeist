@@ -57,15 +57,23 @@ public class DbReader : Object
         database.set_deletion_callback (delete_from_cache);
         db = database.database;
 
-        interpretations_table = new TableLookup (database, "interpretation");
-        manifestations_table = new TableLookup (database, "manifestation");
-        mimetypes_table = new TableLookup (database, "mimetype");
-        actors_table = new TableLookup (database, "actor");
-
         cache = new EventCache ();
+        try
+        {
+            interpretations_table = new TableLookup (database, "interpretation");
+            manifestations_table = new TableLookup (database, "manifestation");
+            mimetypes_table = new TableLookup (database, "mimetype");
+            actors_table = new TableLookup (database, "actor");
+        }
+        catch (EngineError err)
+        {
+            // FIXME: propagate this properly?
+            critical ("TableLookup initialization failed: %s", err.message);
+        }
     }
 
     protected Event get_event_from_row (Sqlite.Statement stmt, uint32 event_id)
+        throws EngineError
     {
         Event event = new Event ();
         event.id = event_id;
@@ -92,6 +100,7 @@ public class DbReader : Object
     }
 
     protected Subject get_subject_from_row (Sqlite.Statement stmt)
+        throws EngineError
     {
         Subject subject = new Subject ();
         subject.uri = stmt.column_text (EventViewRows.SUBJECT_URI);
@@ -162,11 +171,7 @@ public class DbReader : Object
             Subject subject = get_subject_from_row(stmt);
             event.add_subject(subject);
         }
-        if (rc != Sqlite.DONE)
-        {
-            throw new EngineError.DATABASE_ERROR ("Error: %d, %s\n",
-                rc, db.errmsg ());
-        }
+        database.assert_query_success (rc, "Error", Sqlite.DONE);
 
         // Sort events according to the sequence of event_ids
         results.length = event_ids.length;
@@ -182,47 +187,9 @@ public class DbReader : Object
         return results;
     }
 
-    public uint32[] find_event_ids (TimeRange time_range,
-        GenericArray<Event> event_templates,
-        uint storage_state, uint max_events, uint result_type,
-        BusName? sender=null) throws EngineError
+    public uint32[] find_event_ids_for_clause (WhereClause where,
+        uint max_events, uint result_type) throws EngineError
     {
-
-        WhereClause where = new WhereClause (WhereClause.Type.AND);
-
-        /**
-         * We are using the unary operator here to tell SQLite to not use
-         * the index on the timestamp column at the first place. This is a
-         * "fix" for (LP: #672965) based on some benchmarks, which suggest
-         * a performance win, but we might not oversee all implications.
-         * (See http://www.sqlite.org/optoverview.html, section 6.0).
-         *    -- Markus Korn, 29/11/2010
-         */
-        if (time_range.start != 0)
-            where.add (("+timestamp >= %" + int64.FORMAT).printf(
-                time_range.start));
-        if (time_range.end != 0)
-            where.add (("+timestamp <= %" + int64.FORMAT).printf(
-                time_range.end));
-
-        if (storage_state == StorageState.AVAILABLE ||
-            storage_state == StorageState.NOT_AVAILABLE)
-        {
-            where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
-                storage_state.to_string ());
-        }
-        else if (storage_state != StorageState.ANY)
-        {
-            throw new EngineError.INVALID_ARGUMENT(
-                "Unknown storage state '%u'".printf(storage_state));
-        }
-
-        WhereClause tpl_conditions = get_where_clause_from_event_templates (
-            event_templates);
-        where.extend (tpl_conditions);
-        //if (!where.may_have_results ())
-        //    return new uint32[0];
-
         string sql = "SELECT id FROM event_view ";
         string where_sql = "";
         if (!where.is_empty ())
@@ -233,109 +200,107 @@ public class DbReader : Object
         switch (result_type)
         {
             case ResultType.MOST_RECENT_EVENTS:
-                sql += where_sql + " ORDER BY timestamp DESC";
+                sql += where_sql + " ORDER BY ";
                 break;
             case ResultType.LEAST_RECENT_EVENTS:
-                sql += where_sql + " ORDER BY timestamp ASC";
+                sql += where_sql + " ORDER BY ";
                 break;
             case ResultType.MOST_RECENT_EVENT_ORIGIN:
-                sql += group_and_sort ("origin", where_sql, false);
+                sql += group_and_sort ("origin", where_sql);
                 break;
             case ResultType.LEAST_RECENT_EVENT_ORIGIN:
-                sql += group_and_sort ("origin", where_sql, true);
+                sql += group_and_sort ("origin", where_sql);
                 break;
             case ResultType.MOST_POPULAR_EVENT_ORIGIN:
-                sql += group_and_sort ("origin", where_sql, false, false);
+                sql += group_and_sort ("origin", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_EVENT_ORIGIN:
-                sql += group_and_sort ("origin", where_sql, true, true);
+                sql += group_and_sort ("origin", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_SUBJECTS:
-                sql += group_and_sort ("subj_id", where_sql, false);
+                sql += group_and_sort ("subj_id", where_sql);
                 break;
             case ResultType.LEAST_RECENT_SUBJECTS:
-                sql += group_and_sort ("subj_id", where_sql, true);
+                sql += group_and_sort ("subj_id", where_sql);
                 break;
             case ResultType.MOST_POPULAR_SUBJECTS:
-                sql += group_and_sort ("subj_id", where_sql, false, false);
+                sql += group_and_sort ("subj_id", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_SUBJECTS:
-                sql += group_and_sort ("subj_id", where_sql, true, true);
+                sql += group_and_sort ("subj_id", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_CURRENT_URI:
-                sql += group_and_sort ("subj_id_current", where_sql, false);
+                sql += group_and_sort ("subj_id_current", where_sql);
                 break;
             case ResultType.LEAST_RECENT_CURRENT_URI:
-                sql += group_and_sort ("subj_id_current", where_sql, true);
+                sql += group_and_sort ("subj_id_current", where_sql);
                 break;
             case ResultType.MOST_POPULAR_CURRENT_URI:
-                sql += group_and_sort ("subj_id_current", where_sql,
-                    false, false);
+                sql += group_and_sort ("subj_id_current", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_CURRENT_URI:
-                sql += group_and_sort ("subj_id_current", where_sql,
-                    true, true);
+                sql += group_and_sort ("subj_id_current", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_ACTOR:
-                sql += group_and_sort ("actor", where_sql, false);
+                sql += group_and_sort ("actor", where_sql);
                 break;
             case ResultType.LEAST_RECENT_ACTOR:
-                sql += group_and_sort ("actor", where_sql, true);
+                sql += group_and_sort ("actor", where_sql);
                 break;
             case ResultType.MOST_POPULAR_ACTOR:
-                sql += group_and_sort ("actor", where_sql, false, false);
+                sql += group_and_sort ("actor", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_ACTOR:
-                sql += group_and_sort ("actor", where_sql, true, true);
+                sql += group_and_sort ("actor", where_sql, true);
                 break;
             case ResultType.OLDEST_ACTOR:
-                sql += group_and_sort ("actor", where_sql, true, null, "min");
+                sql += group_and_sort ("actor", where_sql, null, "min");
                 break;
             case ResultType.MOST_RECENT_ORIGIN:
-                sql += group_and_sort ("subj_origin", where_sql, false);
+                sql += group_and_sort ("subj_origin", where_sql);
                 break;
             case ResultType.LEAST_RECENT_ORIGIN:
-                sql += group_and_sort ("subj_origin", where_sql, true);
+                sql += group_and_sort ("subj_origin", where_sql);
                 break;
             case ResultType.MOST_POPULAR_ORIGIN:
-                sql += group_and_sort ("subj_origin", where_sql, false, false);
+                sql += group_and_sort ("subj_origin", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_ORIGIN:
-                sql += group_and_sort ("subj_origin", where_sql, true, true);
+                sql += group_and_sort ("subj_origin", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_SUBJECT_INTERPRETATION:
-                sql += group_and_sort ("subj_interpretation", where_sql, false);
+                sql += group_and_sort ("subj_interpretation", where_sql);
                 break;
             case ResultType.LEAST_RECENT_SUBJECT_INTERPRETATION:
-                sql += group_and_sort ("subj_interpretation", where_sql, true);
+                sql += group_and_sort ("subj_interpretation", where_sql);
                 break;
             case ResultType.MOST_POPULAR_SUBJECT_INTERPRETATION:
-                sql += group_and_sort ("subj_interpretation", where_sql,
-                    false, false);
+                sql += group_and_sort ("subj_interpretation", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_SUBJECT_INTERPRETATION:
-                sql += group_and_sort ("subj_interpretation", where_sql,
-                    true, true);
+                sql += group_and_sort ("subj_interpretation", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_MIMETYPE:
-                sql += group_and_sort ("subj_mimetype", where_sql, false);
+                sql += group_and_sort ("subj_mimetype", where_sql);
                 break;
             case ResultType.LEAST_RECENT_MIMETYPE:
-                sql += group_and_sort ("subj_mimetype", where_sql, true);
+                sql += group_and_sort ("subj_mimetype", where_sql);
                 break;
             case ResultType.MOST_POPULAR_MIMETYPE:
-                sql += group_and_sort ("subj_mimetype", where_sql,
-                    false, false);
+                sql += group_and_sort ("subj_mimetype", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_MIMETYPE:
-                sql += group_and_sort ("subj_mimetype", where_sql,
-                    true, true);
+                sql += group_and_sort ("subj_mimetype", where_sql, true);
                 break;
             default:
                 string error_message = "Invalid ResultType.";
                 warning (error_message);
                 throw new EngineError.INVALID_ARGUMENT (error_message);
         }
+
+        // complete the sort rule
+        bool time_asc = ResultType.is_sort_order_asc ((ResultType) result_type);
+        sql += " timestamp %s".printf ((time_asc) ? "ASC" : "DESC");
 
         int rc;
         Sqlite.Statement stmt;
@@ -368,10 +333,25 @@ public class DbReader : Object
             string error_message = "Error in find_event_ids: %d, %s".printf (
                 rc, db.errmsg ());
             warning (error_message);
+            database.assert_not_corrupt (rc);
             throw new EngineError.DATABASE_ERROR (error_message);
         }
 
         return event_ids;
+    }
+
+    public uint32[] find_event_ids (TimeRange time_range,
+        GenericArray<Event> event_templates,
+        uint storage_state, uint max_events, uint result_type,
+        BusName? sender=null) throws EngineError
+    {
+        WhereClause where = get_where_clause_for_query (time_range,
+            event_templates, storage_state);
+
+        //if (!where.may_have_results ())
+        //    return new uint32[0];
+
+        return find_event_ids_for_clause (where, max_events, result_type);
     }
 
     public GenericArray<Event?> find_events (TimeRange time_range,
@@ -381,6 +361,45 @@ public class DbReader : Object
     {
         return get_events (find_event_ids (time_range, event_templates,
             storage_state, max_events, result_type));
+    }
+
+    public WhereClause get_where_clause_for_query (TimeRange time_range,
+        GenericArray<Event> event_templates, uint storage_state) throws EngineError
+    {
+        WhereClause where = new WhereClause (WhereClause.Type.AND);
+
+        /**
+         * We are using the unary operator here to tell SQLite to not use
+         * the index on the timestamp column at the first place. This is a
+         * "fix" for (LP: #672965) based on some benchmarks, which suggest
+         * a performance win, but we might not oversee all implications.
+         * (See http://www.sqlite.org/optoverview.html, section 6.0).
+         *    -- Markus Korn, 29/11/2010
+         */
+        if (time_range.start != 0)
+            where.add (("+timestamp >= %" + int64.FORMAT).printf(
+                time_range.start));
+        if (time_range.end != 0)
+            where.add (("+timestamp <= %" + int64.FORMAT).printf(
+                time_range.end));
+
+        if (storage_state == StorageState.AVAILABLE ||
+            storage_state == StorageState.NOT_AVAILABLE)
+        {
+            where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
+                storage_state.to_string ());
+        }
+        else if (storage_state != StorageState.ANY)
+        {
+            throw new EngineError.INVALID_ARGUMENT(
+                "Unknown storage state '%u'".printf(storage_state));
+        }
+
+        WhereClause tpl_conditions = get_where_clause_from_event_templates (
+            event_templates);
+        where.extend (tpl_conditions);
+
+        return where;
     }
 
     private struct RelatedUri {
@@ -467,14 +486,8 @@ public class DbReader : Object
             // for (int i=0; i<related_uris.length; i++)
             //    related_uris[i] = temp_related_uris[i];
 
-            if (rc != Sqlite.DONE)
-            {
-                string error_message =
-                    "Error in find_related_uris: %d, %s".printf (
-                    rc, db.errmsg ());
-                warning (error_message);
-                throw new EngineError.DATABASE_ERROR (error_message);
-            }
+            database.assert_query_success (rc, "Error in find_related_uris",
+                Sqlite.DONE);
 
             var uri_counter = new HashTable<string, RelatedUri?>(
                 str_hash, str_equal);
@@ -585,10 +598,8 @@ public class DbReader : Object
 
     // Used by find_event_ids
     private string group_and_sort (string field, string where_sql,
-        bool time_asc=false, bool? count_asc=null,
-        string aggregation_type="max")
+        bool? count_asc=null, string aggregation_type="max")
     {
-        string time_sorting = (time_asc) ? "ASC" : "DESC";
         string aggregation_sql = "";
         string order_sql = "";
 
@@ -606,7 +617,7 @@ public class DbReader : Object
                 FROM event_view %s
                 GROUP BY %s)
             GROUP BY %s
-            ORDER BY %s timestamp %s
+            ORDER BY %s 
             """.printf (
                 field,
                 aggregation_type,
@@ -614,11 +625,11 @@ public class DbReader : Object
                 where_sql,
                 field,
                 field,
-                order_sql, time_sorting);
+                order_sql);
     }
 
     // Used by find_event_ids
-    protected WhereClause get_where_clause_from_event_templates (
+    public WhereClause get_where_clause_from_event_templates (
         GenericArray<Event> templates) throws EngineError
     {
         WhereClause where = new WhereClause (WhereClause.Type.OR);
@@ -674,7 +685,7 @@ public class DbReader : Object
                     where.add_wildcard_condition ("actor", val, negated);
                 else
                     where.add_match_condition ("actor",
-                        actors_table.get_id (val), negated);
+                        actors_table.id_try_string (val), negated);
             }
 
             // Origin
@@ -734,7 +745,7 @@ public class DbReader : Object
                             "subj_mimetype", val, negated);
                     else
                         where.add_match_condition ("subj_mimetype",
-                            mimetypes_table.get_id (val), negated);
+                            mimetypes_table.id_try_string (val), negated);
                 }
 
                 // URI
@@ -873,14 +884,14 @@ public class DbReader : Object
         if (symbols.length () == 1)
         {
             subwhere.add_match_condition (table_name,
-                lookup_table.get_id (_symbol));
+                lookup_table.id_try_string (_symbol));
         }
         else
         {
             var sb = new StringBuilder ();
             foreach (unowned string uri in symbols)
             {
-                sb.append_printf ("%d,", lookup_table.get_id (uri));
+                sb.append_printf ("%d,", lookup_table.id_try_string (uri));
             }
             sb.truncate (sb.len - 1);
 

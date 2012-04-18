@@ -43,6 +43,7 @@ const std::string FILTER_PREFIX_XDG_CATEGORY = "AC";
 const Xapian::valueno VALUE_EVENT_ID = 0;
 const Xapian::valueno VALUE_TIMESTAMP = 1;
 const Xapian::valueno VALUE_URI_HASH = 2;
+const Xapian::valueno VALUE_ORIGIN_HASH = 3;
 
 #define QUERY_PARSER_FLAGS \
   Xapian::QueryParser::FLAG_PHRASE | Xapian::QueryParser::FLAG_BOOLEAN | \
@@ -66,8 +67,25 @@ void Indexer::Initialize (GError **error)
     {
       gchar *path = g_build_filename (zeitgeist_utils_get_data_path (),
                                       FTS_MAIN_DIR.c_str (), NULL);
-      this->db = new Xapian::WritableDatabase (path,
-                                               Xapian::DB_CREATE_OR_OPEN);
+      try
+      {
+        this->db = new Xapian::WritableDatabase (path,
+                                                 Xapian::DB_CREATE_OR_OPEN);
+      }
+      catch (const Xapian::DatabaseCorruptError &xp_error)
+      {
+        g_message ("Database is corrupt (%s). Overwriting...",
+            xp_error.get_msg ().c_str ());
+        this->db = new Xapian::WritableDatabase (path,
+                                                 Xapian::DB_CREATE_OR_OVERWRITE);
+      }
+      catch (const Xapian::DatabaseOpeningError &xp_error)
+      {
+        g_message ("Database is corrupt (%s). Overwriting...",
+            xp_error.get_msg ().c_str ());
+        this->db = new Xapian::WritableDatabase (path,
+                                                 Xapian::DB_CREATE_OR_OVERWRITE);
+      }
       g_free (path);
     }
 
@@ -128,6 +146,14 @@ void Indexer::Initialize (GError **error)
   }
 }
 
+gint64 Indexer::GetZeitgeistCreationDate ()
+{
+  ZeitgeistSQLiteDatabase *database = zeitgeist_db_reader_get_database (
+      zg_reader);
+  return zeitgeist_sq_lite_database_schema_get_creation_date (
+      database->database);
+}
+
 /**
  * Returns true if and only if the index is good.
  * Otherwise the index should be rebuild.
@@ -143,6 +169,24 @@ bool Indexer::CheckIndex ()
   else if (db->get_doccount () == 0)
   {
     g_message ("Empty index detected. Doing full rebuild");
+    return false;
+  }
+
+  // Get stored Zeitgeist DB creation date
+  gint64 metadata_date;
+  std::string metadata_date_str (db->get_metadata ("zg_db_creation_date"));
+  if (metadata_date_str.empty ())
+    metadata_date = -1;
+  else
+    metadata_date = g_ascii_strtoll (metadata_date_str.c_str (), NULL, 0);
+
+  // In case the Zeitgeist DB is newer than Xapian, we need to re-build.
+  // This may happen if the Zeitgeist DB gets corrupt and is re-created
+  // from scratch.
+  gint64 database_creation_date = GetZeitgeistCreationDate ();
+  if (database_creation_date != metadata_date)
+  {
+    g_message ("Zeitgeist database has been replaced. Doing full rebuild");
     return false;
   }
 
@@ -262,7 +306,10 @@ std::string Indexer::CompileEventFilterQuery (GPtrArray *templates)
     for (unsigned j = 0; j < subjects->len; j++)
     {
       ZeitgeistSubject *subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, j);
+      // For backwards compatibility, we still check URI
       val = zeitgeist_subject_get_uri (subject);
+      if (!val || val[0] == '\0')
+          val = zeitgeist_subject_get_current_uri (subject);
       if (val && val[0] != '\0')
         tmpl.push_back ("zgsu:" + StringUtils::MangleUri (val));
 
@@ -344,7 +391,7 @@ void Indexer::AddDocFilters (ZeitgeistEvent *event, Xapian::Document &doc)
   for (unsigned j = 0; j < subjects->len; j++)
   {
     ZeitgeistSubject *subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, j);
-    val = zeitgeist_subject_get_uri (subject);
+    val = zeitgeist_subject_get_current_uri (subject);
     if (val && val[0] != '\0')
       doc.add_boolean_term (StringUtils::Truncate (FILTER_PREFIX_SUBJECT_URI + StringUtils::MangleUri (val)));
 
@@ -735,6 +782,7 @@ std::string Indexer::CompileQueryString (const gchar *search_string,
   return query_string;
 }
 
+// FIXME: this is missing the Storage State parameter
 GPtrArray* Indexer::Search (const gchar *search,
                             ZeitgeistTimeRange *time_range,
                             GPtrArray *templates,
@@ -759,7 +807,11 @@ GPtrArray* Indexer::Search (const gchar *search,
         result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
         result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS ||
         result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
-        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS)
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_ORIGIN)
     {
       maxhits = count;
     }
@@ -774,7 +826,9 @@ GPtrArray* Indexer::Search (const gchar *search,
     }
     else
     {
-      enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
+      bool reversed_sort = not
+          zeitgeist_result_type_is_sort_order_asc (result_type);
+      enquire->set_sort_by_value (VALUE_TIMESTAMP, reversed_sort);
     }
 
     if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
@@ -782,7 +836,19 @@ GPtrArray* Indexer::Search (const gchar *search,
         result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
         result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS)
     {
-        enquire->set_collapse_key (VALUE_URI_HASH);
+      enquire->set_collapse_key (VALUE_URI_HASH);
+    }
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_ORIGIN)
+    {
+      enquire->set_collapse_key (VALUE_ORIGIN_HASH);
+    }
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS)
+    {
+      enquire->set_collapse_key (VALUE_EVENT_ID);
     }
 
     Xapian::Query q(query_parser->parse_query (query_string, QUERY_PARSER_FLAGS));
@@ -824,7 +890,6 @@ GPtrArray* Indexer::Search (const gchar *search,
 
       if (event_templates->len > 0)
       {
-        ZeitgeistTimeRange *time_range = zeitgeist_time_range_new_anytime ();
         results = zeitgeist_db_reader_find_events (zg_reader,
                                                    time_range,
                                                    event_templates,
@@ -833,8 +898,6 @@ GPtrArray* Indexer::Search (const gchar *search,
                                                    result_type,
                                                    NULL,
                                                    error);
-
-        g_object_unref (time_range);
       }
       else
       {
@@ -861,6 +924,210 @@ GPtrArray* Indexer::Search (const gchar *search,
   return results;
 }
 
+static guint32*
+find_event_ids_for_combined_template (ZeitgeistDbReader *zg_reader,
+                                      ZeitgeistWhereClause *query_clause, // steals
+                                      GPtrArray *event_templates, // steals
+                                      guint count,
+                                      ZeitgeistResultType result_type,
+                                      gint *event_ids_length,
+                                      GError **error)
+{
+  g_return_val_if_fail (error == NULL || (error && *error == NULL), NULL);
+
+  ZeitgeistWhereClause *uri_where;
+  uri_where = zeitgeist_db_reader_get_where_clause_from_event_templates (
+      zg_reader, event_templates, error);
+  g_ptr_array_unref (event_templates);
+
+  zeitgeist_where_clause_extend (query_clause, uri_where);
+  g_object_unref (G_OBJECT (uri_where));
+
+  guint32 *event_ids;
+  event_ids = zeitgeist_db_reader_find_event_ids_for_clause (zg_reader,
+      query_clause, count, result_type, event_ids_length, error);
+
+  g_object_unref (query_clause);
+
+  return event_ids;
+}
+
+static GPtrArray*
+find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
+                                     ZeitgeistTimeRange *time_range,
+                                     GPtrArray *templates,
+                                     ZeitgeistStorageState storage_state,
+                                     unsigned count,
+                                     ZeitgeistResultType result_type,
+                                     std::vector<unsigned> const& event_ids,
+                                     std::map<unsigned, gdouble> &relevancy_map,
+                                     GError **error)
+{
+  GPtrArray *results = NULL;
+  results = zeitgeist_db_reader_get_events (zg_reader,
+                                            const_cast<unsigned*>(&event_ids[0]),
+                                            event_ids.size (),
+                                            NULL,
+                                            error);
+
+  if (error && *error) return NULL;
+
+  if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
+      result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS)
+    return results;
+
+  if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
+      result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS ||
+      result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
+      result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS)
+  {
+    // need to get the uris from the events and do another find_events call
+    GPtrArray *event_templates;
+    event_templates = g_ptr_array_new_with_free_func (g_object_unref);
+    std::map<std::string, unsigned> remapper;
+
+    for (unsigned i = 0; i < results->len; i++)
+    {
+      ZeitgeistEvent* original_event = (ZeitgeistEvent*) results->pdata[i];
+      unsigned event_id = zeitgeist_event_get_id (original_event);
+      GPtrArray *subjects = zeitgeist_event_get_subjects (original_event);
+      if (subjects == NULL) continue;
+      for (unsigned j = 0; j < subjects->len; j++)
+      {
+        const gchar *subj_uri = zeitgeist_subject_get_current_uri (
+                (ZeitgeistSubject*) subjects->pdata[j]);
+        if (subj_uri == NULL) continue;
+        remapper[subj_uri] = event_id;
+        ZeitgeistEvent *event = zeitgeist_event_new ();
+        ZeitgeistSubject *subject = zeitgeist_subject_new ();
+        zeitgeist_subject_set_current_uri (subject, subj_uri);
+        zeitgeist_event_take_subject (event, subject);
+        g_ptr_array_add (event_templates, event);
+      }
+    }
+
+    g_ptr_array_unref (results);
+
+    // construct custom where clause which combines the original template
+    // with the uris we found
+    ZeitgeistWhereClause *where;
+    where = zeitgeist_db_reader_get_where_clause_for_query (zg_reader,
+        time_range, templates, storage_state, error);
+
+    guint32 *real_event_ids;
+    gint real_event_ids_length;
+
+    real_event_ids = find_event_ids_for_combined_template (zg_reader,
+        where, event_templates, count, result_type, &real_event_ids_length,
+        error);
+
+    if (error && *error) return NULL;
+
+    results = zeitgeist_db_reader_get_events (zg_reader,
+                                              real_event_ids,
+                                              real_event_ids_length,
+                                              NULL,
+                                              error);
+
+    g_free (real_event_ids);
+    real_event_ids = NULL;
+
+    if (error && *error) return NULL;
+
+    // the event ids might have changed, we need to update the relevancy_map
+    for (unsigned i = 0; i < results->len; i++)
+    {
+      ZeitgeistEvent* original_event = (ZeitgeistEvent*) results->pdata[i];
+      unsigned event_id = zeitgeist_event_get_id (original_event);
+      GPtrArray *subjects = zeitgeist_event_get_subjects (original_event);
+      if (subjects == NULL) continue;
+      for (unsigned j = 0; j < subjects->len; j++)
+      {
+        const gchar *subj_uri = zeitgeist_subject_get_current_uri (
+                (ZeitgeistSubject*) subjects->pdata[j]);
+        if (subj_uri == NULL) continue;
+        relevancy_map[event_id] = relevancy_map[remapper[subj_uri]];
+      }
+    }
+
+  }
+  else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_ORIGIN ||
+      result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_ORIGIN ||
+      result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN ||
+      result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_ORIGIN)
+  {
+    // need to get the origins from the events and do another find_events call
+    GPtrArray *event_templates;
+    event_templates = g_ptr_array_new_with_free_func (g_object_unref);
+    std::map<std::string, unsigned> remapper;
+
+    for (unsigned i = 0; i < results->len; i++)
+    {
+      ZeitgeistEvent* original_event = (ZeitgeistEvent*) results->pdata[i];
+      unsigned event_id = zeitgeist_event_get_id (original_event);
+      GPtrArray *subjects = zeitgeist_event_get_subjects (original_event);
+      if (subjects == NULL) continue;
+      for (unsigned j = 0; j < subjects->len; j++)
+      {
+        const gchar *subj_origin = zeitgeist_subject_get_origin ((ZeitgeistSubject*) subjects->pdata[j]);
+        if (subj_origin == NULL) continue;
+        remapper[subj_origin] = event_id;
+        ZeitgeistEvent *event = zeitgeist_event_new ();
+        ZeitgeistSubject *subject = zeitgeist_subject_new ();
+        zeitgeist_subject_set_origin (subject, subj_origin);
+        zeitgeist_event_take_subject (event, subject);
+        g_ptr_array_add (event_templates, event);
+      }
+    }
+
+    g_ptr_array_unref (results);
+
+    // construct custom where clause which combines the original template
+    // with the origins we found
+    ZeitgeistWhereClause *where;
+    where = zeitgeist_db_reader_get_where_clause_for_query (zg_reader,
+        time_range, templates, storage_state, error);
+
+    guint32 *real_event_ids;
+    gint real_event_ids_length;
+
+    real_event_ids = find_event_ids_for_combined_template (zg_reader,
+        where, event_templates, count, result_type, &real_event_ids_length,
+        error);
+
+    if (error && *error) return NULL;
+
+    results = zeitgeist_db_reader_get_events (zg_reader,
+                                              real_event_ids,
+                                              real_event_ids_length,
+                                              NULL,
+                                              error);
+
+    if (error && *error) return NULL;
+
+    g_free (real_event_ids);
+    real_event_ids = NULL;
+
+    // the event ids might have changed, we need to update the relevancy_map
+    for (unsigned i = 0; i < results->len; i++)
+    {
+      ZeitgeistEvent* original_event = (ZeitgeistEvent*) results->pdata[i];
+      unsigned event_id = zeitgeist_event_get_id (original_event);
+      GPtrArray *subjects = zeitgeist_event_get_subjects (original_event);
+      if (subjects == NULL) continue;
+      for (unsigned j = 0; j < subjects->len; j++)
+      {
+        const gchar *subj_origin = zeitgeist_subject_get_origin ((ZeitgeistSubject*) subjects->pdata[j]);
+        if (subj_origin == NULL) continue;
+        relevancy_map[event_id] = relevancy_map[remapper[subj_origin]];
+      }
+    }
+
+  }
+
+  return results;
+}
+
 GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
                                            ZeitgeistTimeRange *time_range,
                                            GPtrArray *templates,
@@ -880,21 +1147,52 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
 
     guint maxhits = count;
 
+    if (storage_state != ZEITGEIST_STORAGE_STATE_ANY)
+    {
+      // FIXME: add support for this by grabing (un)available storages
+      // from the storage table and appending them to the query
+      g_set_error_literal (error,
+                           ZEITGEIST_ENGINE_ERROR,
+                           ZEITGEIST_ENGINE_ERROR_INVALID_ARGUMENT,
+                           "Only ANY storage state is supported");
+      return NULL;
+    }
+
+    bool reversed_sort = not
+        zeitgeist_result_type_is_sort_order_asc (result_type);
+
     if (result_type == RELEVANCY_RESULT_TYPE)
     {
       enquire->set_sort_by_relevance ();
     }
-    else
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_EVENTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_EVENTS)
     {
-      enquire->set_sort_by_value (VALUE_TIMESTAMP, true);
+      enquire->set_sort_by_relevance_then_value (VALUE_TIMESTAMP, reversed_sort);
+      enquire->set_collapse_key (VALUE_EVENT_ID);
     }
-
-    if (storage_state != ZEITGEIST_STORAGE_STATE_ANY)
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_SUBJECTS)
+    {
+      enquire->set_sort_by_relevance_then_value (VALUE_TIMESTAMP, reversed_sort);
+      enquire->set_collapse_key (VALUE_URI_HASH);
+    }
+    else if (result_type == ZEITGEIST_RESULT_TYPE_MOST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_RECENT_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_MOST_POPULAR_ORIGIN ||
+        result_type == ZEITGEIST_RESULT_TYPE_LEAST_POPULAR_ORIGIN)
+    {
+      enquire->set_sort_by_relevance_then_value (VALUE_TIMESTAMP, reversed_sort);
+      enquire->set_collapse_key (VALUE_ORIGIN_HASH);
+    }
+    else
     {
       g_set_error_literal (error,
                            ZEITGEIST_ENGINE_ERROR,
                            ZEITGEIST_ENGINE_ERROR_INVALID_ARGUMENT,
-                           "Only ANY stogate state is supported");
+                           "Requested result type is not supported");
       return NULL;
     }
 
@@ -926,6 +1224,8 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
                                                 NULL,
                                                 error);
 
+      if (error && *error) return NULL;
+
       if (results->len != relevancy_arr.size ())
       {
         g_warning ("Results don't match relevancies!");
@@ -948,22 +1248,56 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
     }
     else
     {
-      g_set_error_literal (error,
-                           ZEITGEIST_ENGINE_ERROR,
-                           ZEITGEIST_ENGINE_ERROR_INVALID_ARGUMENT,
-                           "Only RELEVANCY result type is supported");
-      /*
-       * perhaps something like this could be used here?
+      std::vector<unsigned> event_ids;
       std::map<unsigned, gdouble> relevancy_map;
-      foreach (...)
+      Xapian::MSetIterator iter, end;
+      for (iter = hits.begin (), end = hits.end (); iter != end; ++iter)
       {
+        Xapian::Document doc(iter.get_document ());
+        double unserialized =
+          Xapian::sortable_unserialise (doc.get_value (VALUE_EVENT_ID));
+        unsigned event_id = static_cast<unsigned>(unserialized);
+
+        event_ids.push_back (event_id);
+
         double rank = iter.get_percent () / 100.;
         if (rank > relevancy_map[event_id])
         {
           relevancy_map[event_id] = rank;
         }
       }
-      */
+
+      results = find_events_for_result_type_and_ids (zg_reader, time_range,
+                                                     templates, storage_state,
+                                                     count, result_type,
+                                                     event_ids,
+                                                     relevancy_map, error);
+
+      if (error && *error) return NULL;
+
+      if (results == NULL)
+      {
+        results = g_ptr_array_new ();
+        if (relevancies) *relevancies = NULL;
+        if (relevancies_size) *relevancies_size = 0;
+      }
+      else
+      {
+        if (relevancies)
+        {
+          *relevancies = g_new (gdouble, results->len);
+          for (unsigned i = 0; i < results->len; i++)
+          {
+            ZeitgeistEvent *event = (ZeitgeistEvent*) g_ptr_array_index (results, i);
+            (*relevancies)[i] = relevancy_map[zeitgeist_event_get_id (event)];
+          }
+        }
+
+        if (relevancies_size)
+        {
+          *relevancies_size = results->len;
+        }
+      }
     }
 
     if (matches)
@@ -983,11 +1317,37 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
   return results;
 }
 
+static void
+get_digest_for_uri (GChecksum *checksum, const gchar *uri,
+                    guint8 *digest, gsize *digest_size)
+{
+  g_checksum_update (checksum, (guchar *) uri, -1);
+  g_checksum_get_digest (checksum, digest, digest_size);
+  g_checksum_reset (checksum);
+  g_assert (digest_size == NULL || *digest_size == HASH_LENGTH);
+}
+
+static bool
+CheckEventBlacklisted (ZeitgeistEvent *event)
+{
+  // Blacklist Ubuntu One events...
+  const gchar *actor;
+  actor = zeitgeist_event_get_actor (event);
+  if (g_strcmp0(actor, "dbus://com.ubuntuone.SyncDaemon.service") == 0)
+    return true;
+  if (g_strcmp0(actor, "dbus://org.desktopcouch.CouchDB.service") == 0)
+    return true;
+
+  return false;
+}
+
 void Indexer::IndexEvent (ZeitgeistEvent *event)
 {
+  if (blacklisting_enabled and CheckEventBlacklisted (event))
+    return;
+
   try
   {
-    // FIXME: we need to special case MOVE_EVENTs
     const gchar *val;
     guint event_id = zeitgeist_event_get_id (event);
     g_return_if_fail (event_id > 0);
@@ -1016,7 +1376,13 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
       ZeitgeistSubject *subject;
       subject = (ZeitgeistSubject*) g_ptr_array_index (subjects, i);
 
-      val = zeitgeist_subject_get_uri (subject);
+      // We use current_uri (vs. uri) where since we care about real stuff,
+      // not whatever happened some time ago.
+      //
+      // This will most likely still be the same as URI (unless something
+      // triggers a reindexation of the DB), but at least MOVE_EVENTS
+      // will have the updated URI.
+      val = zeitgeist_subject_get_current_uri (subject);
       if (val == NULL || val[0] == '\0') continue;
 
       std::string uri(val);
@@ -1028,18 +1394,27 @@ void Indexer::IndexEvent (ZeitgeistEvent *event)
         return; // ignore this event completely...
       }
 
+      guint8 uri_hash[HASH_LENGTH + 1];
+      gsize hash_size = HASH_LENGTH;
+
       // We need the subject URI so we can use Xapian's collapse key feature
       // for *_SUBJECT grouping. However, to save space, we'll just save a hash.
       // A better option would be using URI's id, but for that we'd need a SQL
       // query that'd be subject to races.
       // FIXME(?): This doesn't work for events with multiple subjects.
-      g_checksum_update (checksum, (guchar *) uri.c_str (), -1);
-      guint8 uri_hash[HASH_LENGTH + 1];
-      gsize hash_size = HASH_LENGTH;
-      g_checksum_get_digest (checksum, uri_hash, &hash_size);
-      g_checksum_reset (checksum);
-      g_assert (hash_size == HASH_LENGTH);
+      get_digest_for_uri (checksum, uri.c_str (), uri_hash, &hash_size);
       doc.add_value (VALUE_URI_HASH, std::string((char *) uri_hash, hash_size));
+
+      size_t colon_pos = uri.find (':');
+      // FIXME: current_origin once we have that
+      val = zeitgeist_subject_get_origin (subject);
+      // make sure the schemas of the URI and origin are the same
+      if (val && colon_pos != std::string::npos && strncmp (uri.c_str (), val, colon_pos+1) == 0)
+      {
+        hash_size = HASH_LENGTH;
+        get_digest_for_uri (checksum, val, uri_hash, &hash_size);
+        doc.add_value (VALUE_ORIGIN_HASH, std::string((char *) uri_hash, hash_size));
+      }
 
       val = zeitgeist_subject_get_text (subject);
       if (val && val[0] != '\0')

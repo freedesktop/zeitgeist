@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [0.8.99~alpha3], [dev@lists.zeitgeist-project.com], [zeitgeist])
+AC_INIT([zeitgeist], [0.9.0], [dev@lists.zeitgeist-project.com], [zeitgeist])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip])
@@ -80,6 +80,16 @@ fi
 DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
+
+#################################################
+# Configure options: --disable-fts.
+#################################################
+AC_ARG_ENABLE([fts],
+            AS_HELP_STRING([--disable-fts], [Build without FTS++ extension]),
+            [enable_fts=$enableval],[enable_fts="yes"])
+
+AM_CONDITIONAL(HAVE_FTS, test "x$enable_fts" != "xno")
+
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
@@ -131,6 +141,7 @@ ${PACKAGE}-${VERSION}
     Install Prefix:     ${prefix}
 
   Optional dependencies
+    fts++:              ${enable_fts}
     dee-icu:            ${with_dee_icu}
 
 EOF

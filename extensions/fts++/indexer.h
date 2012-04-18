@@ -29,7 +29,7 @@
 
 namespace ZeitgeistFTS {
 
-const std::string INDEX_VERSION = "2";
+const std::string INDEX_VERSION = "4";
 
 class Indexer
 {
@@ -48,6 +48,7 @@ public:
   {
     const gchar *home_dir = g_get_home_dir ();
     home_dir_path = home_dir != NULL ? home_dir : "/home";
+    blacklisting_enabled = g_getenv ("ZEITGEIST_FTS_DISABLE_EVENT_BLACKLIST") == NULL;
   }
 
   ~Indexer ()
@@ -79,6 +80,7 @@ public:
   void IndexEvent (ZeitgeistEvent *event);
   void DeleteEvent (guint32 event_id);
   void SetDbMetadata (std::string const& key, std::string const& value);
+  gint64 GetZeitgeistCreationDate ();
 
   GPtrArray* Search (const gchar *search,
                      ZeitgeistTimeRange *time_range,
@@ -129,6 +131,7 @@ private:
 
   guint                     clear_failed_id;
   std::string               home_dir_path;
+  bool                      blacklisting_enabled;
 };
 
 }

@@ -81,13 +81,20 @@ namespace Zeitgeist
             storage_stmt.bind_blob (3, data.get_data (), (int) data.get_size ());
 
             if ((rc = storage_stmt.step ()) != Sqlite.DONE)
+            {
+                try
+                {
+                    database.assert_not_corrupt (rc);
+                }
+                catch (EngineError err) { }
                 warning ("SQL error: %d, %s", rc, db.errmsg ());
+            }
         }
 
         /**
          * Retrieve a previously stored value.
          */
-        public Variant? retrieve(string extension, string key, VariantType format)
+        public Variant? retrieve (string extension, string key, VariantType format)
         {
             retrieval_stmt.reset ();
             retrieval_stmt.bind_text (1, extension);
@@ -97,7 +104,14 @@ namespace Zeitgeist
             if (rc != Sqlite.ROW)
             {
                 if (rc != Sqlite.DONE)
+                {
+                    try
+                    {
+                        database.assert_not_corrupt (rc);
+                    }
+                    catch (EngineError err) { }
                     warning ("SQL error: %d, %s", rc, db.errmsg ());
+                }
                 return null;
             }
 
