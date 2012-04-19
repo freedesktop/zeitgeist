@@ -17,4 +17,22 @@ AM_VALAFLAGS = \
 
 libzeitgeist_la_SOURCES = \
 	log.vala \
+	datamodel.vala \
+	ontology.vala \
+	ontology-uris.vala \
 	$(NULL)
+
+EXTRA_DIST = \
+	ontology.vala.in \
+	ontology-uris.vala.in \
+	$(NULL)
+
+DISTCLEANFILES = \
+	ontology.vala \
+	ontology-uris.vala \
+	$(NULL)
+
+ontology.vala ontology-uris.vala: ontology_vala.stamp
+
+ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
+	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala

@@ -28,7 +28,7 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 libzeitgeist_internal_la_VALASOURCES = \
-	datamodel.vala \
+	../../libzeitgeist/datamodel.vala \
 	db-reader.vala \
 	engine.vala \
 	sql.vala \

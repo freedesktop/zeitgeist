@@ -24,11 +24,16 @@
 
 namespace Zeitgeist
 {
+    public errordomain DataModelError {
+        INVALID_SIGNATURE,
+        TOO_MANY_RESULTS
+    }
+
     private void assert_sig (bool condition, string error_message)
-        throws EngineError
+        throws DataModelError
     {
         if (unlikely (!condition))
-            throw new EngineError.INVALID_SIGNATURE (error_message);
+            throw new DataModelError.INVALID_SIGNATURE (error_message);
     }
 
     namespace Timestamp
@@ -76,7 +81,7 @@ namespace Zeitgeist
         }
 
         public TimeRange.from_variant (Variant variant)
-            throws EngineError
+            throws DataModelError
         {
             assert_sig (variant.get_type_string () == "(xx)",
                 "Invalid D-Bus signature.");
@@ -314,6 +319,23 @@ namespace Zeitgeist
         ANY             = 2  // The event subjects may or may not be available
     }
 
+    private static bool parse_negation (ref string val)
+    {
+        if (!val.has_prefix ("!"))
+            return false;
+        val = val.substring (1);
+        return true;
+    }
+
+    private static bool parse_wildcard (ref string val)
+    {
+        if (!val.has_suffix ("*"))
+            return false;
+        unowned uint8[] val_data = val.data;
+        val_data[val_data.length-1] = '\0';
+        return true;
+    }
+
     private bool check_field_match (string? property,
             string? template_property, bool is_symbol = false,
             bool can_wildcard = false)
@@ -323,9 +345,9 @@ namespace Zeitgeist
         var parsed = template_property;
 
         if (parsed != null)
-            is_negated = Utils.parse_negation (ref parsed);
+            is_negated = parse_negation (ref parsed);
 
-        if (Utils.is_empty_string (parsed))
+        if (parsed == null || parsed == "")
         {
             return true;
         }
@@ -338,7 +360,7 @@ namespace Zeitgeist
         {
             matches = true;
         }
-        else if (can_wildcard && Utils.parse_wildcard (ref parsed))
+        else if (can_wildcard && parse_wildcard (ref parsed))
         {
             if (property != null && property.has_prefix (parsed))
                 matches = true;
@@ -350,6 +372,8 @@ namespace Zeitgeist
     public class Event : Object
     {
         private static StringChunk url_store;
+        public const string SIGNATURE = "asaasay";
+        public const size_t MAX_DBUS_RESULT_SIZE = 4 * 1024 * 1024; // 4MiB
 
         public uint32    id { get; set; }
         public int64     timestamp { get; set; }
@@ -421,9 +445,9 @@ namespace Zeitgeist
             */
         }
 
-        public Event.from_variant (Variant event_variant) throws EngineError {
+        public Event.from_variant (Variant event_variant) throws DataModelError {
             assert_sig (event_variant.get_type_string () == "(" +
-                Utils.SIG_EVENT + ")", "Invalid D-Bus signature.");
+                Event.SIGNATURE + ")", "Invalid D-Bus signature.");
 
             VariantIter iter = event_variant.iterator ();
 
@@ -468,7 +492,7 @@ namespace Zeitgeist
 
         public Variant to_variant ()
         {
-            var vb = new VariantBuilder (new VariantType ("("+Utils.SIG_EVENT+")"));
+            var vb = new VariantBuilder (new VariantType ("("+Event.SIGNATURE+")"));
 
             vb.open (new VariantType ("as"));
             vb.add ("s", id == 0 ? "" : id.to_string ());
@@ -510,7 +534,7 @@ namespace Zeitgeist
             unowned uchar[] data_copy = data;
 
             Variant ret = Variant.new_from_data (
-                new VariantType ("("+Utils.SIG_EVENT+")"),
+                new VariantType ("("+Event.SIGNATURE+")"),
                 data_copy, true, (owned) data);
             return ret;
         }
@@ -588,11 +612,11 @@ namespace Zeitgeist
     {
 
         public static GenericArray<Event> from_variant (Variant vevents)
-            throws EngineError
+            throws DataModelError
         {
             GenericArray<Event> events = new GenericArray<Event> ();
 
-            assert (vevents.get_type_string () == "a("+Utils.SIG_EVENT+")");
+            assert (vevents.get_type_string () == "a("+Event.SIGNATURE+")");
 
             foreach (Variant event in vevents)
             {
@@ -604,7 +628,7 @@ namespace Zeitgeist
 
         public static Variant to_variant (GenericArray<Event?> events)
         {
-            var vb = new VariantBuilder(new VariantType("a("+Utils.SIG_EVENT+")"));
+            var vb = new VariantBuilder(new VariantType("a("+Event.SIGNATURE+")"));
 
             for (int i = 0; i < events.length; ++i)
             {
@@ -625,9 +649,9 @@ namespace Zeitgeist
          * exceeds `limit' bytes.
          * */
         public static Variant to_variant_with_limit (GenericArray<Event?> events,
-            size_t limit=Utils.MAX_DBUS_RESULT_SIZE) throws EngineError
+            size_t limit=Event.MAX_DBUS_RESULT_SIZE) throws DataModelError
         {
-            var vb = new VariantBuilder(new VariantType("a("+Utils.SIG_EVENT+")"));
+            var vb = new VariantBuilder(new VariantType("a("+Event.SIGNATURE+")"));
 
             size_t variant_size = 0;
 
@@ -652,7 +676,7 @@ namespace Zeitgeist
                         size_t.FORMAT + "MiB (roughly ~%d events).").printf (
                             limit / 1024 / 1024, limit / avg_event_size);
                     warning (error_message);
-                    throw new EngineError.TOO_MANY_RESULTS (error_message);
+                    throw new DataModelError.TOO_MANY_RESULTS (error_message);
                 }
 
                 vb.add_value (event_variant);
@@ -663,7 +687,7 @@ namespace Zeitgeist
 
         private static Variant get_null_event_variant ()
         {
-            var vb = new VariantBuilder (new VariantType ("("+Utils.SIG_EVENT+")"));
+            var vb = new VariantBuilder (new VariantType ("("+Event.SIGNATURE+")"));
             vb.open (new VariantType ("as"));
             vb.close ();
             vb.open (new VariantType ("aas"));
@@ -727,7 +751,7 @@ namespace Zeitgeist
         }
 
         public Subject.from_variant (Variant subject_variant)
-            throws EngineError
+            throws DataModelError
         {
             VariantIter iter = subject_variant.iterator();
 

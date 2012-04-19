@@ -30,7 +30,7 @@ extensions_VALASOURCES = \
 
 zeitgeist_daemon_VALASOURCES = \
 	zeitgeist-daemon.vala \
-	datamodel.vala \
+	../libzeitgeist/datamodel.vala \
 	db-reader.vala \
 	engine.vala \
 	remote.vala \
@@ -45,8 +45,8 @@ zeitgeist_daemon_VALASOURCES = \
 	table-lookup.vala \
 	sql-schema.vala \
 	where-clause.vala \
-	ontology.vala \
-	ontology-uris.vala \
+	../libzeitgeist/ontology.vala \
+	../libzeitgeist/ontology-uris.vala \
 	mimetype.vala \
 	$(NULL)
 
@@ -73,19 +73,9 @@ extensions_vala.stamp: zeitgeist-engine_vala.stamp $(extensions_VALASOURCES)
 		$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) $(EXT_FLAGS) -C zeitgeist-engine.vapi $(ext_src) || exit 1;)
 	@touch "$@"
 
-# FIXME: can we make this depend on $(ontology_trig_DATA)?
-ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
-	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala
-	@touch "$@"
-
-ontology.vala ontology-uris.vala: ontology_vala.stamp
-
 EXTRA_DIST = \
 	$(zeitgeist_daemon_VALASOURCES) \
 	$(extensions_VALASOURCES) \
-	ontology_vala.stamp \
-	ontology.vala.in \
-	ontology-uris.vala.in \
 	zeitgeist-engine.h \
 	zeitgeist-engine.vapi \
 	zeitgeist-engine_vala.stamp \
@@ -93,8 +83,6 @@ EXTRA_DIST = \
 	$(NULL)
 
 DISTCLEANFILES = \
-	ontology.vala \
-	ontology-uris.vala \
 	$(NULL)
 
 distclean-local:

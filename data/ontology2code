@@ -364,9 +364,9 @@ class OntologyCodeGenerator:
 		self._python_serializer.dump()
 
 	def generate_vala(self):
-		self._write_file('src/ontology-uris.vala.in', 'src/ontology-uris.vala',
+		self._write_file('libzeitgeist/ontology-uris.vala.in', 'libzeitgeist/ontology-uris.vala',
 			self._vala_serializer.dump_uris, 'vala')
-		self._write_file('src/ontology.vala.in', 'src/ontology.vala',
+		self._write_file('libzeitgeist/ontology.vala.in', 'libzeitgeist/ontology.vala',
 			self._vala_serializer.dump_symbols, 'vala')
 
 	def _write_file(self, tplfilename, outfilename, content_generator, _type):
