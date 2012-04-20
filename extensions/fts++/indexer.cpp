@@ -561,7 +561,7 @@ bool Indexer::IndexUri (std::string const& uri, std::string const& origin)
     size_t question_mark = uri.find ('?');
     if (question_mark != std::string::npos)
     {
-      std::string stripped (uri, 0, question_mark - 1);
+      std::string stripped (uri, 0, question_mark);
       basename = g_path_get_basename (stripped.c_str ());
     }
     else
