@@ -381,56 +381,59 @@ namespace Zeitgeist.SQLite
                     ON event(id)
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_timestamp
-                    ON event(timestamp)
+                DROP INDEX IF EXISTS event_timestamp
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_interpretation
-                    ON event(interpretation)
+                DROP INDEX IF EXISTS event_interpretation
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_manifestation
-                    ON event(manifestation)
+                DROP INDEX IF EXISTS event_manifestation
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_actor
-                    ON event(actor)
+                DROP INDEX IF EXISTS event_actor
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_origin
-                    ON event(origin)
+                DROP INDEX IF EXISTS event_origin
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_id
-                    ON event(subj_id)
+                DROP INDEX IF EXISTS event_subj_id
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_id_current
-                    ON event(subj_id_current)
+                DROP INDEX IF EXISTS event_subj_id_current
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_interpretation
-                    ON event(subj_interpretation)
+                DROP INDEX IF EXISTS event_subj_interpretation
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_manifestation
-                    ON event(subj_manifestation)
+                DROP INDEX IF EXISTS event_subj_manifestation
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_origin
-                    ON event(subj_origin)
+                DROP INDEX IF EXISTS event_subj_origin
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_mimetype
-                    ON event(subj_mimetype)
+                DROP INDEX IF EXISTS event_subj_mimetype
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_text
-                    ON event(subj_text)
+                DROP INDEX IF EXISTS event_subj_text
                 """);
             exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_storage
-                    ON event(subj_storage)
+                DROP INDEX IF EXISTS event_subj_storage
+                """);
+            exec_query (database, """
+                CREATE INDEX event_subj_interp_id 
+                    ON event(subj_interpretation, id);
+                """);
+            exec_query (database, """
+                CREATE INDEX event_timestamp_id
+                    ON event(timestamp, id)
+                """);
+            exec_query (database, """
+                CREATE INDEX event_timestamp_subj_interp_id
+                    ON event(timestamp, subj_interpretation, id)
+                """);
+            exec_query (database, """
+                CREATE INDEX event_timestamp_subj_interp_subj_id_id
+                    ON event(timestamp, subj_interpretation, subj_id, id)
                 """);
 
             // TODO: create deletion triggers

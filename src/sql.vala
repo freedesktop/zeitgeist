@@ -293,6 +293,8 @@ namespace Zeitgeist.SQLite
             rc = prepared_stmt.db_handle ().prepare_v2 (explain_sql, -1, out stmt);
             assert_query_success(rc, "SQL error");
 
+            print ("%s\n", explain_sql);
+
             while ((rc = stmt.step()) == Sqlite.ROW)
             {
                 int select_id = stmt.column_int (0);
