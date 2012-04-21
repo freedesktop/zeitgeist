@@ -566,7 +566,8 @@ bool Indexer::IndexUri (std::string const& uri, std::string const& origin)
     }
     else
     {
-      basename = g_file_get_basename (f);
+      // g_file_get_basename would unescape the uri, we don't want that here
+      basename = g_path_get_basename (uri.c_str ());
     }
 
     // step 2) unescape and check that it's valid utf8
