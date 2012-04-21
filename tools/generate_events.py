@@ -211,7 +211,7 @@ class EventGenerator:
 
 class EventInserter():
 
-    BUFFER_SIZE = 100
+    BUFFER_SIZE = 1000
 
     _log = None
     _buffer = None
