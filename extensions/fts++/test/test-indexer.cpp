@@ -88,6 +88,21 @@ assert_nth_result_has_text (GPtrArray* results, int n, const char *text)
   g_assert_cmpstr (zeitgeist_subject_get_text (subject), ==, text);
 }
 
+// This function only supports events with a single subject,
+// since that's enough for the tests in this file.
+static void
+assert_nth_result_has_uri (GPtrArray* results, int n, const char *text)
+{
+  g_assert_cmpuint (n, <, results->len);
+  ZeitgeistEvent *event = (ZeitgeistEvent*) results->pdata[n];
+  g_assert (event);
+  g_assert_cmpint (zeitgeist_event_num_subjects (event), ==, 1);
+  ZeitgeistSubject *subject = (ZeitgeistSubject*)
+    g_ptr_array_index (zeitgeist_event_get_subjects (event), 0);
+  g_assert (subject);
+  g_assert_cmpstr (zeitgeist_subject_get_uri (subject), ==, text);
+}
+
 static ZeitgeistEvent* create_test_event1 (void)
 {
   ZeitgeistEvent *event = zeitgeist_event_new ();
@@ -606,6 +621,30 @@ test_simple_underscores (Fixture *fix, gconstpointer data)
   g_assert_cmpuint (matches, >, 0);
   g_assert_cmpuint (results->len, ==, 1);
   assert_nth_result_has_id (results, 0, event_id);
+}
+
+static void
+test_simple_escaped_string (Fixture *fix, gconstpointer data) // (LP: #594171)
+{
+  guint matches;
+  guint event_id;
+  ZeitgeistEvent* event;
+  GPtrArray* results;
+
+  // add test events to DBs
+  const char uri[] = "http://encodings.com/percentage-%25-is-fun";
+  const char text[] = "%25 is the encoding for a percentage";
+  event_id = index_event (fix, create_test_event_simple (uri, text));
+
+  // Search for MostPopularSubjects
+  results = search_simple (fix, "percentage", NULL,
+          ZEITGEIST_RESULT_TYPE_MOST_POPULAR_SUBJECTS, &matches);
+
+  g_assert_cmpuint (matches, >, 0);
+  g_assert_cmpuint (results->len, ==, 1);
+  assert_nth_result_has_id (results, 0, event_id);
+  assert_nth_result_has_uri (results, 0, uri);
+  assert_nth_result_has_text (results, 0, text);
 }
 
 static void
@@ -1147,6 +1186,8 @@ void test_indexer_create_suite (void)
               setup, test_simple_noexpand_valid, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/Simple/Underscores", Fixture, 0,
               setup, test_simple_underscores, teardown);
+  g_test_add ("/Zeitgeist/FTS/Indexer/Simple/EscapedString", Fixture, 0,
+              setup, test_simple_escaped_string, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/Simple/Camelcase", Fixture, 0,
               setup, test_simple_camelcase, teardown);
   g_test_add ("/Zeitgeist/FTS/Indexer/Simple/PrefixWithDashes", Fixture, 0,
