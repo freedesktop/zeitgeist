@@ -57,9 +57,36 @@ namespace Zeitgeist.SQLite
                     Timestamp.now ());
                 exec_query (database, schema_sql);
             }
-            else if (schema_version == 4 || schema_version == 5)
+            else if (schema_version >= 3 && schema_version <= 5)
             {
                 backup_database ();
+
+                if (schema_version == 3)
+                {
+                    // Add missing columns to storage table
+                    exec_query (database,
+                        "ALTER TABLE storage ADD COLUMN icon VARCHAR");
+                    exec_query (database,
+                        "ALTER TABLE storage ADD COLUMN display_name VARCHAR");
+
+                    // Set subjects that don't have a storage to "unknown", so
+                    // they'll always be marked as available.
+                    // FIXME: Do we want to separate unknown/local/online?
+                    exec_query (database, """
+                        INSERT OR IGNORE INTO storage (value, state)
+                            VALUES ('unknown', 1)
+                        """);
+                    exec_query (database, """
+                        UPDATE event SET subj_storage =
+                            (SELECT id FROM storage WHERE value='unknown')
+                        WHERE subj_storage IS NULL
+                        """);
+
+                    // The events table is missing two columns, (event) origin
+                    // and subj_current_id. It needs to be replaced.
+                    exec_query (database,
+                        "ALTER TABLE event RENAME TO event_old");
+                }
 
                 string[] tables = { "interpretation", "manifestation",
                     "mimetype", "actor" };
@@ -82,6 +109,24 @@ namespace Zeitgeist.SQLite
                         table, table));
 
                     exec_query (database, "DROP TABLE %s_old".printf (table));
+                }
+
+                if (schema_version == 3)
+                {
+                    // Migrate events from the old table
+                    exec_query (database, """
+                        INSERT INTO event
+                        SELECT
+                            id, timestamp, interpretation, manifestation,
+                            actor, payload, subj_id, subj_interpretation,
+                            subj_manifestation, subj_origin, subj_mimetype,
+                            subj_text, subj_storage, NULL as origin,
+                            subj_id AS subj_id_current
+                         FROM event_old
+                         """);
+
+                    // This will also drop any triggers the `events' table had
+                    exec_query (database, "DROP TABLE event_old");
                 }
 
                 // Ontology update
