@@ -36,7 +36,7 @@ namespace Zeitgeist.SQLite
     {
 
         public const string CORE_SCHEMA = "core";
-        public const int CORE_SCHEMA_VERSION = 6;
+        public const int CORE_SCHEMA_VERSION = 7;
 
         private const string DATABASE_CREATION = "database_creation";
 
@@ -106,6 +106,69 @@ namespace Zeitgeist.SQLite
                     """);
 
                 message ("Upgraded database to schema version 6.");
+            }
+            else if (schema_version == 6)
+            {
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_timestamp
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_interpretation
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_manifestation
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_actor
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_origin
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_subj_id
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_subj_id_current
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_subj_interpretation
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_subj_manifestation
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_subj_origin
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_subj_mimetype
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_subj_text
+                  """);
+              exec_query (database, """
+                  DROP INDEX IF EXISTS event_subj_storage
+                  """);
+              exec_query (database, """
+                  CREATE INDEX IF NOT EXISTS event_id
+                      ON event(id)
+                  """);
+              exec_query (database, """
+                  CREATE INDEX event_subj_interp_id 
+                      ON event(subj_interpretation, id);
+                  """);
+              exec_query (database, """
+                  CREATE INDEX event_timestamp_id
+                      ON event(timestamp, id)
+                  """);
+              exec_query (database, """
+                  CREATE INDEX event_timestamp_subj_interp_id
+                      ON event(timestamp, subj_interpretation, id)
+                  """);
+              exec_query (database, """
+                  CREATE INDEX event_timestamp_subj_interp_subj_id_id
+                      ON event(timestamp, subj_interpretation, subj_id, id)
+                  """);
+              message ("Upgraded database to schema version 7.");
             }
             else if (schema_version < CORE_SCHEMA_VERSION)
             {
@@ -381,45 +444,6 @@ namespace Zeitgeist.SQLite
                     ON event(id)
                 """);
             exec_query (database, """
-                DROP INDEX IF EXISTS event_timestamp
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_interpretation
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_manifestation
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_actor
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_origin
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_subj_id
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_subj_id_current
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_subj_interpretation
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_subj_manifestation
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_subj_origin
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_subj_mimetype
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_subj_text
-                """);
-            exec_query (database, """
-                DROP INDEX IF EXISTS event_subj_storage
-                """);
-            exec_query (database, """
                 CREATE INDEX event_subj_interp_id 
                     ON event(subj_interpretation, id);
                 """);
@@ -435,7 +459,6 @@ namespace Zeitgeist.SQLite
                 CREATE INDEX event_timestamp_subj_interp_subj_id_id
                     ON event(timestamp, subj_interpretation, subj_id, id)
                 """);
-
             // TODO: create deletion triggers
             /*
             exec_query (database, """
