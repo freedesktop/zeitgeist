@@ -445,6 +445,22 @@ class ZeitgeistRemoteFindEventIdsTest(testutils.RemoteTestCase):
 			storage_state=StorageState.NotAvailable)
 		self.assertEquals(ids, [5, 4, 2, 3, 1])
 
+	def testFindEventIdsWithUnknownStorageState(self):
+		"""
+		Events with storage state "unknown" should always be considered
+		as being available.
+		"""
+
+		event = parse_events("test/data/single_event.js")[0]
+		event.subjects[0].uri = 'file:///i-am-unknown'
+		event.subjects[0].storage = 'unknown'
+
+		self.insertEventsAndWait([event])
+
+		tmpl = Event.new_for_values(subject_uri='file:///i-am-unknown')
+		ids = self.findEventIdsAndWait([tmpl], storage_state=StorageState.Available)
+		self.assertEquals(ids, [6])
+
 class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 
 	def testQuit(self):
