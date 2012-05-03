@@ -18,6 +18,12 @@ AM_VALAFLAGS = \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
+if EXPLAIN_QUERIES
+AM_VALAFLAGS = $(AM_VALAFLAGS) \
+	-D EXPLAIN_QUERIES \
+	$(NULL)
+endif
+
 # Make sure every extension has only one vala file!
 extensions_VALASOURCES = \
 	ext-data-source-registry.vala \

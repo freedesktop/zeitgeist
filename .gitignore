@@ -73,3 +73,5 @@ libzeitgeist/*.c
 *.la
 *.stamp
 *.lo
+*.pyc
+*.swp

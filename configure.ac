@@ -90,6 +90,12 @@ AC_ARG_ENABLE([fts],
 
 AM_CONDITIONAL(HAVE_FTS, test "x$enable_fts" != "xno")
 
+AC_ARG_ENABLE([explain-queries],
+            AS_HELP_STRING([--enable-explain-queries], [Enable SQL debugging]),
+            [explain_queries=$enableval],[enable_queries="no"])
+
+AM_CONDITIONAL(EXPLAIN_QUERIES, test "x$explain_queries" = "xyes")
+
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile

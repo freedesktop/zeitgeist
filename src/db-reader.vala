@@ -401,10 +401,9 @@ public class DbReader : Object
         * Only URIs for subjects matching the indicated `result_event_templates`
         * and `result_storage_state` are returned.
         */
-        if (result_type == ResultType.MOST_RECENT_EVENTS ||
-            result_type == ResultType.LEAST_RECENT_EVENTS)
+        if (result_type == RelevantResultType.RECENT ||
+            result_type == RelevantResultType.RELATED)
         {
-
             // We pick out the ids for relational event so we can set them as
             // roots the ids are taken from the events that match the
             // events_templates
@@ -482,35 +481,40 @@ public class DbReader : Object
                 {
                     window.add(temp_related_uris[j]);
                     if (temp_related_uris[j].id in ids)
+                    {
                         count_in_window = true;
+                        break;
+                    }
                 }
 
                 if (count_in_window)
                 {
                     for (int j = 0; j < window.length; j++)
                     {
-                        if (uri_counter.lookup (window[j].uri) == null)
+                        if (window[j].id in result_ids)
                         {
-                            RelatedUri ruri = RelatedUri ()
+                            if (uri_counter.lookup (window[j].uri) == null)
                             {
-                                id = window[j].id,
-                                timestamp = window[j].timestamp,
-                                uri = window[j].uri,
-                                counter = 0
-                            };
-                            uri_counter.insert (window[j].uri, ruri);
-                        }
-                        uri_counter.lookup (window[j].uri).counter++;
-                        if (uri_counter.lookup (window[j].uri).timestamp
-                                < window[j].timestamp)
-                        {
-                            uri_counter.lookup (window[j].uri).timestamp =
-                                window[j].timestamp;
+                                RelatedUri ruri = RelatedUri ()
+                                {
+                                    id = window[j].id,
+                                    timestamp = window[j].timestamp,
+                                    uri = window[j].uri,
+                                    counter = 0
+                                };
+                                uri_counter.insert (window[j].uri, ruri);
+                            }
+                            uri_counter.lookup (window[j].uri).counter++;
+                            if (uri_counter.lookup (window[j].uri).timestamp
+                                    < window[j].timestamp)
+                            {
+                                uri_counter.lookup (window[j].uri).timestamp =
+                                    window[j].timestamp;
+                            }
                         }
                     }
                 }
             }
-
 
             // We have the big hashtable with the structs, now we sort them by
             // most used and limit the result then sort again
@@ -537,7 +541,7 @@ public class DbReader : Object
             }
 
             // Sort by recency
-            if (result_type == 1)
+            if (result_type == RelevantResultType.RECENT)
                 temp_ruris.sort ((a, b) => {
                     int64 delta = a.timestamp - b.timestamp;
                     if (delta < 0) return 1;
@@ -560,7 +564,7 @@ public class DbReader : Object
         }
         else
         {
-            throw new EngineError.DATABASE_ERROR ("Unsupported ResultType.");
+            throw new EngineError.DATABASE_ERROR ("Unsupported RelevantResultType");
         }
     }
 

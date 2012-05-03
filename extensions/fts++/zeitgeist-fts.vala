@@ -69,10 +69,10 @@ namespace Zeitgeist
             indexer = new Indexer (engine);
         }
 
-        private void do_quit ()
+        private void close ()
         {
             engine.close ();
-            mainloop.quit ();
+            indexer = null; // close the index
         }
 
         public void register_dbus_object (DBusConnection conn) throws IOError
@@ -231,6 +231,10 @@ namespace Zeitgeist
 
             if (instance != null)
             {
+                // Close any database connections
+                instance.close ();
+
+                // Release the bus name
                 Bus.unown_name (owner_id);
                 instance.unregister_dbus_object ();
                 instance = null;
@@ -249,7 +253,7 @@ namespace Zeitgeist
 
         static void safe_exit ()
         {
-            instance.do_quit ();
+            mainloop.quit ();
         }
 
         static int main (string[] args)
