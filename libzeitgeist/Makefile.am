@@ -1,6 +1,5 @@
 NULL = 
 
-
 lib_LTLIBRARIES = libzeitgeist.la
 
 AM_CPPFLAGS = \
@@ -32,8 +31,12 @@ DISTCLEANFILES = \
 	ontology-uris.vala \
 	$(NULL)
 
-ontology.vala ontology-uris.vala: ontology_vala.stamp
-
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
 ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
 	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala
+	@touch "$@"
+
+ontology.vala ontology-uris.vala: ontology_vala.stamp
+
+distclean-local:
+	rm -f *.c *.o *.stamp *.~[0-9]~

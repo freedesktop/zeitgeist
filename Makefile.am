@@ -1,8 +1,8 @@
 NULL = 
 
 SUBDIRS = \
-	src \
 	libzeitgeist \
+	src \
 	extensions \
 	data \
 	python \

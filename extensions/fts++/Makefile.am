@@ -29,6 +29,8 @@ AM_VALAFLAGS = \
 
 libzeitgeist_internal_la_VALASOURCES = \
 	../../libzeitgeist/datamodel.vala \
+	../../libzeitgeist/ontology.vala \
+	../../libzeitgeist/ontology-uris.vala \
 	db-reader.vala \
 	engine.vala \
 	sql.vala \
@@ -38,8 +40,6 @@ libzeitgeist_internal_la_VALASOURCES = \
 	table-lookup.vala \
 	sql-schema.vala \
 	where-clause.vala \
-	ontology.vala \
-	ontology-uris.vala \
 	mimetype.vala \
 	ext-dummies.vala \
 	$(NULL)
