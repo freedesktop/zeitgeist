@@ -36,7 +36,8 @@ namespace Zeitgeist
         public const string USER_EXTENSION_PATH = "";
 
         // D-Bus
-        public const string DBUS_INTERFACE = "";
+        public const string ENGINE_DBUS_NAME = "org.gnome.zeitgeist.Engine";
+        public const string ENGINE_DBUS_PATH = "/org/gnome/zeitgeist/log/activity";
         public const string SIG_EVENT = "asaasay";
         public const size_t MAX_DBUS_RESULT_SIZE = 4 * 1024 * 1024; // 4MiB
 

@@ -34,7 +34,6 @@ namespace Zeitgeist
 
     public class Daemon : Object, RemoteLog
     {
-        const string DBUS_NAME = "org.gnome.zeitgeist.Engine";
         private static bool show_version_info = false;
         private static bool show_options = false;
         private static bool no_datahub = false;
@@ -132,7 +131,7 @@ namespace Zeitgeist
             notifications = MonitorManager.get_default ();
         }
 
-        public Variant get_events (uint32[] event_ids, BusName sender)
+        public Variant get_events (uint32[] event_ids, BusName? sender=null)
             throws Error
         {
             var timer = new Timer ();
@@ -145,7 +144,7 @@ namespace Zeitgeist
                 Variant event_templates,
                 Variant result_event_templates,
                 uint storage_state, uint num_events, uint result_type,
-                BusName sender) throws Error
+                BusName? sender=null) throws Error
         {
             return engine.find_related_uris (
                 new TimeRange.from_variant (time_range),
@@ -157,7 +156,7 @@ namespace Zeitgeist
         public uint32[] find_event_ids (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
-                BusName sender) throws Error
+                BusName? sender=null) throws Error
         {
             return engine.find_event_ids (
                 new TimeRange.from_variant (time_range),
@@ -168,7 +167,7 @@ namespace Zeitgeist
         public Variant find_events (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
-                BusName sender) throws Error
+                BusName? sender=null) throws Error
         {
             var timer = new Timer ();
             var events = engine.find_events (
@@ -181,7 +180,7 @@ namespace Zeitgeist
 
         public uint32[] insert_events (
                 Variant vevents,
-                BusName sender) throws Error
+                BusName? sender=null) throws Error
         {
             var events = Events.from_variant (vevents);
 
@@ -205,7 +204,7 @@ namespace Zeitgeist
             return event_ids;
         }
 
-        public Variant delete_events (uint32[] event_ids, BusName sender)
+        public Variant delete_events (uint32[] event_ids, BusName? sender=null)
             throws Error
         {
             TimeRange? time_range = engine.delete_events (event_ids, sender);
@@ -236,16 +235,18 @@ namespace Zeitgeist
         public void install_monitor (ObjectPath monitor_path,
                 Variant time_range,
                 Variant event_templates,
-                BusName owner) throws Error
+                BusName? owner=null) throws Error
         {
+            assert (owner != null);
             notifications.install_monitor (owner, monitor_path,
                 new TimeRange.from_variant (time_range),
                 Events.from_variant (event_templates));
         }
 
-        public void remove_monitor (ObjectPath monitor_path, BusName owner)
+        public void remove_monitor (ObjectPath monitor_path, BusName? owner=null)
             throws Error
         {
+            assert (owner != null);
             notifications.remove_monitor (owner, monitor_path);
         }
 
@@ -253,7 +254,7 @@ namespace Zeitgeist
         {
             connection = conn;
             log_register_id = conn.register_object<RemoteLog> (
-                    "/org/gnome/zeitgeist/log/activity", this);
+                Utils.ENGINE_DBUS_PATH, this);
         }
 
         public void unregister_dbus_object ()
@@ -270,7 +271,8 @@ namespace Zeitgeist
             try
             {
                 var running_instance = conn.get_proxy_sync<RemoteLog> (
-                    DBUS_NAME, "/org/gnome/zeitgeist/log/activity");
+                    Utils.ENGINE_DBUS_NAME, Utils.ENGINE_DBUS_PATH);
+
                 running_instance.quit ();
                 return true;
             }
@@ -346,7 +348,7 @@ namespace Zeitgeist
                 var proxy = connection.get_proxy_sync<RemoteDBus> (
                     "org.freedesktop.DBus", "/org/freedesktop/DBus",
                     DBusProxyFlags.DO_NOT_LOAD_PROPERTIES);
-                name_owned = proxy.name_has_owner (DBUS_NAME);
+                name_owned = proxy.name_has_owner (Utils.ENGINE_DBUS_NAME);
             }
             catch (IOError err)
             {
@@ -394,7 +396,7 @@ namespace Zeitgeist
             }
 
             uint owner_id = Bus.own_name_on_connection (connection,
-                DBUS_NAME,
+                Utils.ENGINE_DBUS_NAME,
                 BusNameOwnerFlags.NONE,
                 name_acquired_callback,
                 name_lost_callback);

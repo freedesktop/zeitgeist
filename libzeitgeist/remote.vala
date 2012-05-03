@@ -35,14 +35,14 @@ namespace Zeitgeist
         [DBus (signature = "(xx)")]
         public abstract Variant delete_events (
             uint32[] event_ids,
-            BusName sender
+            BusName? sender=null
         ) throws Error;
 
         public abstract uint32[] find_event_ids (
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
-            BusName sender
+            BusName? sender=null
         ) throws Error;
 
         [DBus (signature = "a(asaasay)")]
@@ -50,7 +50,7 @@ namespace Zeitgeist
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
-            BusName sender
+            BusName? sender=null
         ) throws Error;
 
         public abstract string[] find_related_uris (
@@ -58,30 +58,30 @@ namespace Zeitgeist
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             [DBus (signature = "a(asaasay)")] Variant result_event_templates,
             uint storage_state, uint num_events, uint result_type,
-            BusName sender
+            BusName? sender=null
         ) throws Error;
 
         [DBus (signature = "a(asaasay)")]
         public abstract Variant get_events (
             uint32[] event_ids,
-            BusName sender
+            BusName? sender=null
         ) throws Error;
 
         public abstract uint32[] insert_events (
             [DBus (signature = "a(asaasay)")] Variant events,
-            BusName sender
+            BusName? sender=null
         ) throws Error;
 
         public abstract void install_monitor (
             ObjectPath monitor_path,
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
-            BusName owner
+            BusName? owner=null
         ) throws Error;
 
         public abstract void remove_monitor (
             ObjectPath monitor_path,
-            BusName owner
+            BusName? owner=null
         ) throws Error;
 
         public abstract void quit () throws Error;

@@ -24,6 +24,8 @@
 
 namespace Zeitgeist
 {
+    // FIXME: move errors.vala to libzeitgeist/ and put this in there...
+    //[DBus (name = "org.gnome.zeitgeist.DataModelError")]
     public errordomain DataModelError {
         INVALID_SIGNATURE,
         TOO_MANY_RESULTS
