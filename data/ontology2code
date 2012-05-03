@@ -301,7 +301,7 @@ class ValaSerializer(GenericSerializer):
 	
 		# Convert docstring to gtk-doc style C comment
 		doc = doc.replace('\n', '\n *')
-		doc = '/**\n * %s:\n *\n * %s%s\n * \n * %s\n */' % (
+		doc = '/**\n * %s:\n *\n * %s%s\n *\n * %s\n */' % (
 			symbol.name, doc_prefix, uri_link, doc)
 		return doc
 

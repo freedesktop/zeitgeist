@@ -34,5 +34,6 @@ DISTCLEANFILES = \
 
 ontology.vala ontology-uris.vala: ontology_vala.stamp
 
+# FIXME: can we make this depend on $(ontology_trig_DATA)?
 ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
 	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala
