@@ -1,1 +1,0 @@
-../../src/ontology-uris.vala

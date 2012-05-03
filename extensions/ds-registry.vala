@@ -72,7 +72,7 @@ namespace Zeitgeist
         }
 
         public DataSource.from_variant (Variant variant,
-            bool reset_running=false) throws EngineError
+            bool reset_running=false) throws DataModelError
         {
             warn_if_fail (
                 variant.get_type_string () == "(sssa("+Utils.SIG_EVENT+")bxb)"
@@ -127,7 +127,7 @@ namespace Zeitgeist
             "a(sssa("+Utils.SIG_EVENT+")bxb)";
 
         private static HashTable<string, DataSource> from_variant (
-            Variant sources_variant, bool reset_running=false) throws EngineError
+            Variant sources_variant, bool reset_running=false) throws DataModelError
         {
             var registry = new HashTable<string, DataSource> (
                 str_hash, str_equal);
@@ -194,7 +194,7 @@ namespace Zeitgeist
                 {
                     sources = DataSources.from_variant (registry, true);
                 }
-                catch (EngineError e)
+                catch (DataModelError e)
                 {
                     warning ("Error while loading datasource registry: %s", e.message);
                     sources = new HashTable<string, DataSource> (
@@ -265,7 +265,7 @@ namespace Zeitgeist
         }
 
         public bool register_data_source (string unique_id, string name,
-            string description, Variant event_templates, BusName? sender) throws EngineError
+            string description, Variant event_templates, BusName? sender) throws  DataModelError
         {
             debug ("%s: %s, %s, %s", Log.METHOD, unique_id, name, description);
             if (sender == null)

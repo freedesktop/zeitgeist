@@ -46,7 +46,7 @@ zeitgeist_daemon_VALASOURCES = \
 	logging.vala \
 	notify.vala \
 	sql.vala \
-	utils.vala \
+	../libzeitgeist/utils.vala \
 	errors.vala \
 	table-lookup.vala \
 	sql-schema.vala \

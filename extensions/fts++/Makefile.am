@@ -29,13 +29,13 @@ AM_VALAFLAGS = \
 
 libzeitgeist_internal_la_VALASOURCES = \
 	../../libzeitgeist/datamodel.vala \
-	../../libzeitgeist/ontology.vala \
 	../../libzeitgeist/ontology-uris.vala \
+	../../libzeitgeist/ontology.vala \
+	../../libzeitgeist/utils.vala \
 	db-reader.vala \
 	engine.vala \
 	sql.vala \
 	remote.vala \
-	utils.vala \
 	errors.vala \
 	table-lookup.vala \
 	sql-schema.vala \

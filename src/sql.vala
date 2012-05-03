@@ -144,7 +144,7 @@ namespace Zeitgeist.SQLite
                     // The database disk image is malformed
                     warning ("It looks like your database is corrupt. " +
                         "It will be renamed and a new one will be created.");
-                    Utils.retire_database ();
+                    retire_database ();
                     open_database (false);
                 }
                 else if (rc == Sqlite.PERM || rc == Sqlite.CANTOPEN)
@@ -164,6 +164,23 @@ namespace Zeitgeist.SQLite
                         database.errmsg ());
                     throw new EngineError.DATABASE_ERROR (message);
                 }
+            }
+        }
+
+        private static void retire_database () throws EngineError
+        {
+            try
+            {
+                File dbfile = File.new_for_path (
+                    Utils.get_database_file_path ());
+                dbfile.set_display_name (
+                    Utils.get_database_file_retire_name ());
+            }
+            catch (Error err)
+            {
+                string message = "Could not rename database: %s".printf (
+                    err.message);
+                throw new EngineError.DATABASE_RETIRE_FAILED (message);
             }
         }
 

@@ -10,7 +10,8 @@ AM_CPPFLAGS = \
 
 AM_VALAFLAGS = \
 	--target-glib=2.26 \
-	-D BUILTIN_EXTENSIONS \
+	--pkg gio-2.0 \
+	--pkg sqlite3 \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
@@ -19,6 +20,7 @@ libzeitgeist_la_SOURCES = \
 	datamodel.vala \
 	ontology.vala \
 	ontology-uris.vala \
+	utils.vala \
 	$(NULL)
 
 EXTRA_DIST = \

@@ -47,7 +47,7 @@ namespace Zeitgeist
         private const string SIG_BLACKLIST = "a{s("+Utils.SIG_EVENT+")}";
 
         private static HashTable<string, Event> from_variant (
-            Variant templates_variant) throws EngineError
+            Variant templates_variant) throws DataModelError
         {
             var blacklist = new HashTable<string, Event> (str_hash, str_equal);
 
@@ -105,7 +105,7 @@ namespace Zeitgeist
                 {
                     blacklist = BlacklistTemplates.from_variant (templates);
                 }
-                catch (EngineError e)
+                catch (DataModelError e)
                 {
                     warning ("Could not load blacklist from variant: %s", e.message);
                     blacklist = new HashTable<string, Event> (str_hash, str_equal);
@@ -172,7 +172,7 @@ namespace Zeitgeist
         }
 
         public void add_template (string template_id, Variant event_template)
-            throws EngineError
+            throws DataModelError
         {
             Event template = new Event.from_variant (event_template);
             blacklist.insert (template_id, template);

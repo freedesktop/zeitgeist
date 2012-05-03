@@ -130,21 +130,6 @@ namespace Zeitgeist
             original.copy (destination, FileCopyFlags.OVERWRITE, null, null);
         }
 
-        public void retire_database () throws EngineError
-        {
-            try
-            {
-                File dbfile = File.new_for_path (get_database_file_path ());
-                dbfile.set_display_name (get_database_file_retire_name ());
-            }
-            catch (Error err)
-            {
-                string message = "Could not rename database: %s".printf (
-                    err.message);
-                throw new EngineError.DATABASE_RETIRE_FAILED (message);
-            }
-        }
-
         /**
          * Check if the value starts with the negation operator. If it does,
          * remove the operator from the value and return true. Otherwise,

@@ -35,8 +35,8 @@ src/bluebird
 test/direct/where-clause-test
 data/ontology/*.py
 query-operators-test
-src/ontology.vala
-src/ontology-uris.vala
+ontology.vala
+ontology-uris.vala
 data/org.gnome.zeitgeist.service
 extensions/.deps
 extensions/.libs
