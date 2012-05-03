@@ -35,12 +35,12 @@ libzeitgeist_internal_la_VALASOURCES = \
 	db-reader.vala \
 	engine.vala \
 	sql.vala \
-	remote.vala \
+	../../libzeitgeist/remote.vala \
 	errors.vala \
 	table-lookup.vala \
 	sql-schema.vala \
 	where-clause.vala \
-	mimetype.vala \
+	../../libzeitgeist/mimetype.vala \
 	ext-dummies.vala \
 	$(NULL)
 

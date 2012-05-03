@@ -39,7 +39,7 @@ zeitgeist_daemon_VALASOURCES = \
 	../libzeitgeist/datamodel.vala \
 	db-reader.vala \
 	engine.vala \
-	remote.vala \
+	../libzeitgeist/remote.vala \
 	extension.vala \
 	extension-collection.vala \
 	extension-store.vala \
@@ -53,7 +53,7 @@ zeitgeist_daemon_VALASOURCES = \
 	where-clause.vala \
 	../libzeitgeist/ontology.vala \
 	../libzeitgeist/ontology-uris.vala \
-	mimetype.vala \
+	../libzeitgeist/mimetype.vala \
 	$(NULL)
 
 zeitgeist_daemon_SOURCES = \

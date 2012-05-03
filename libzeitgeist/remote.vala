@@ -101,7 +101,7 @@ namespace Zeitgeist
         public async abstract void notify_insert (
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant events
-        ) throws IOError, EngineError;
+        ) throws Error;
 
         public async abstract void notify_delete (
             [DBus (signature = "(xx)")] Variant time_range,
@@ -129,7 +129,7 @@ namespace Zeitgeist
             [DBus (signature = "a(asaasay)")] out Variant events,
             out double[] relevancies, out uint matches) throws Error;
     }
-    
+
     /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */
     [DBus (name = "org.freedesktop.NetworkManager")]
     public interface NetworkManagerDBus : Object
@@ -138,7 +138,7 @@ namespace Zeitgeist
         public abstract uint32 state () throws IOError;
         public signal void state_changed (uint32 state);
     }
-    
+
     /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */
     [DBus (name = "net.connman.Manager")]
     public interface ConnmanManagerDBus : Object

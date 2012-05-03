@@ -16,10 +16,12 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 libzeitgeist_la_SOURCES = \
-	log.vala \
 	datamodel.vala \
-	ontology.vala \
+	log.vala \
+	mimetype.vala \
 	ontology-uris.vala \
+	ontology.vala \
+	remote.vala \
 	utils.vala \
 	$(NULL)
 

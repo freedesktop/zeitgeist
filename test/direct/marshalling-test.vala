@@ -120,7 +120,7 @@ void corrupt_events_test ()
     {
         new Event.from_variant (v);
     }
-    catch (EngineError.INVALID_SIGNATURE err) {
+    catch (DataModelError.INVALID_SIGNATURE err) {
         error_thrown = true;
     }
     assert (error_thrown);
@@ -153,7 +153,7 @@ void corrupt_subjects_test ()
     {
         new Subject.from_variant (v);
     }
-    catch (EngineError.INVALID_SIGNATURE err)
+    catch (DataModelError.INVALID_SIGNATURE err)
     {
         error_thrown = true;
     }
@@ -166,7 +166,7 @@ void corrupt_subjects_test ()
     {
         new Subject.from_variant (v);
     }
-    catch (EngineError.INVALID_SIGNATURE err)
+    catch (DataModelError.INVALID_SIGNATURE err)
     {
         error_thrown = true;
     }
@@ -181,7 +181,7 @@ void corrupt_timerange_test ()
     {
         new TimeRange.from_variant (v);
     }
-    catch (EngineError.INVALID_SIGNATURE err)
+    catch (DataModelError.INVALID_SIGNATURE err)
     {
         error_thrown = true;
     }
