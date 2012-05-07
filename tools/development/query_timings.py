@@ -205,6 +205,7 @@ if __name__ == "__main__":
                     "get_events_time": get_events_time,
                     "find_events": find_events_time,
                     "marsh_time": marsh_time,
+                    "event_count": len(events),
                 }
             else:
                 result[query] = {
@@ -213,6 +214,7 @@ if __name__ == "__main__":
                     "get_events_time": get_events_time,
                     "find_events": find_events_time,
                     "marsh_time": marsh_time,
+                    "event_count": len(events),
                 }
         if options.output:
             f = open(options.output, "w")
