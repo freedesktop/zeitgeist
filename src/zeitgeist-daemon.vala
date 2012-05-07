@@ -131,8 +131,8 @@ namespace Zeitgeist
             notifications = MonitorManager.get_default ();
         }
 
-        public Variant get_events (uint32[] event_ids, BusName? sender=null)
-            throws Error
+        public async Variant get_events (uint32[] event_ids, Cancellable? cancellable,
+            BusName? sender=null) throws Error
         {
             var timer = new Timer ();
             GenericArray<Event> events = engine.get_events (event_ids);

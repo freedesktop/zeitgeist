@@ -1,30 +1,20 @@
 int main ()
 {
-    try
-    {
-        uint32[] ids = { 31575, 31569 };
-
-        //Zeitgeist.RemoteLog zg = Bus.get_proxy_sync<Zeitgeist.RemoteLog> (
-        //    BusType.SESSION, "org.gnome.zeitgeist.Engine",
-        //    "/org/gnome/zeitgeist/log/activity");
-
-        Zeitgeist.Log zg = new Zeitgeist.Log ();
-        zg.get_events (ids, null, (obj, res) => { debug("hi!"); });
-        /*
-        var events = zg.get_events (ids);
-        foreach (Variant event in events)
-        {
-            stdout.printf ("got one event!\n");
-        }
-        */
-    }
-    catch (Error e)
-    {
-        stderr.printf ("%s\n", e.message);
-        return 1;
-    }
+    uint32[] ids = { 31575, 31569 };
 
     var loop = new MainLoop();
+
+    Zeitgeist.Log zg = new Zeitgeist.Log ();
+    zg.get_events (ids, null, (obj, res) => {
+        var events = zg.get_events.end (res);
+        for (int i = 0; i < events.length; ++i)
+        {
+            Zeitgeist.Event event = events[i];
+            stdout.printf ("Subject: %s\n", event.subjects[0].uri);
+        }
+        loop.quit();
+    });
+
     loop.run ();
 
     return 0;

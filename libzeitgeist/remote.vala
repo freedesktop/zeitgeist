@@ -62,8 +62,9 @@ namespace Zeitgeist
         ) throws Error;
 
         [DBus (signature = "a(asaasay)")]
-        public abstract Variant get_events (
+        public async abstract Variant get_events (
             uint32[] event_ids,
+            Cancellable? cancellable,
             BusName? sender=null
         ) throws Error;
 

@@ -30,6 +30,18 @@ public class Log : Object
 
     private RemoteLog proxy;
     private Variant engine_version;
+    private SList<QueuedMethod> method_dispatch_queue;
+
+    private class QueuedMethod
+    {
+
+        public SourceFunc queued_method { public /*owned*/ get; private /*owned*/ set; }
+
+        public QueuedMethod (SourceFunc callback)
+        {
+            queued_method = callback;
+        }
+    }
 
     public Log ()
     {
@@ -39,9 +51,10 @@ public class Log : Object
                 try
                 {
                     proxy = Bus.get_proxy.end (res);
-                    // process queued..
 
-                    //proxy.notify["g-name-owner"].connect (name_owner_changed);
+                    process_queued_methods ();
+
+                    proxy.notify["g-name-owner"].connect (name_owner_changed);
                 }
                 catch (IOError err)
                 {
@@ -57,10 +70,42 @@ public class Log : Object
         return default_instance;
     }
 
-    public void get_events (uint32[] event_ids, Cancellable? cancellable,
-        AsyncReadyCallback callback) throws Error // user_data?
+    private void process_queued_methods ()
     {
-        proxy.get_events (event_ids); // cancellable and stuff
+        warning ("Processing queued methods...");
+        method_dispatch_queue.reverse ();
+        foreach (QueuedMethod m in method_dispatch_queue)
+            m.queued_method ();
+        method_dispatch_queue = null;
+    }
+
+    private void name_owner_changed (ParamSpec pspec)
+    {
+        string? name_owner = null; // .get_name_owner ();
+
+        if (name_owner != null)
+        {
+            // Reinstate all active monitors
+
+            // Update our cached version property
+        }
+    }
+
+    private async void wait_for_proxy (SourceFunc callback) {
+        if (likely (proxy != null))
+            return;
+        if (method_dispatch_queue == null)
+            method_dispatch_queue = new SList<QueuedMethod> ();
+        method_dispatch_queue.append (new QueuedMethod (callback));
+        yield;
+    }
+
+    public async GenericArray<Event> get_events (uint32[] event_ids,
+            Cancellable? cancellable=null) throws Error
+    {
+        yield wait_for_proxy (get_events.callback);
+        var result = yield proxy.get_events (event_ids, cancellable);
+        return Events.from_variant (result);
     }
 
 }
