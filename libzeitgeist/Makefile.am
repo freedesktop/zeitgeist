@@ -19,6 +19,7 @@ libzeitgeist_la_SOURCES = \
 	datamodel.vala \
 	log.vala \
 	mimetype.vala \
+	monitor.vala \
 	ontology-uris.vala \
 	ontology.vala \
 	remote.vala \

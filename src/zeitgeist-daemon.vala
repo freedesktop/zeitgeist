@@ -140,7 +140,7 @@ namespace Zeitgeist
             return Events.to_variant_with_limit (events);
         }
 
-        public string[] find_related_uris (Variant time_range,
+        public async string[] find_related_uris (Variant time_range,
                 Variant event_templates,
                 Variant result_event_templates,
                 uint storage_state, uint num_events, uint result_type,
@@ -153,7 +153,7 @@ namespace Zeitgeist
                 storage_state, num_events, result_type);
         }
 
-        public uint32[] find_event_ids (Variant time_range,
+        public async uint32[] find_event_ids (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
                 BusName? sender=null) throws Error
@@ -164,7 +164,7 @@ namespace Zeitgeist
                 storage_state, num_events, result_type, sender);
         }
 
-        public Variant find_events (Variant time_range,
+        public async Variant find_events (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
                 BusName? sender=null) throws Error
@@ -178,8 +178,9 @@ namespace Zeitgeist
             return Events.to_variant_with_limit (events);
         }
 
-        public uint32[] insert_events (
+        public async uint32[] insert_events (
                 Variant vevents,
+                Cancellable? cancellable=null,
                 BusName? sender=null) throws Error
         {
             var events = Events.from_variant (vevents);
@@ -204,8 +205,8 @@ namespace Zeitgeist
             return event_ids;
         }
 
-        public Variant delete_events (uint32[] event_ids, BusName? sender=null)
-            throws Error
+        public async Variant delete_events (uint32[] event_ids,
+            Cancellable? cancellable=null, BusName? sender=null) throws Error
         {
             TimeRange? time_range = engine.delete_events (event_ids, sender);
             if (time_range != null)
@@ -221,7 +222,7 @@ namespace Zeitgeist
             return time_range.to_variant ();
         }
 
-        public void quit () throws Error
+        public async void quit (Cancellable? cancellable=null) throws Error
         {
             do_quit ();
         }
@@ -232,7 +233,7 @@ namespace Zeitgeist
             mainloop.quit ();
         }
 
-        public void install_monitor (ObjectPath monitor_path,
+        public async void install_monitor (ObjectPath monitor_path,
                 Variant time_range,
                 Variant event_templates,
                 BusName? owner=null) throws Error
@@ -243,7 +244,7 @@ namespace Zeitgeist
                 Events.from_variant (event_templates));
         }
 
-        public void remove_monitor (ObjectPath monitor_path, BusName? owner=null)
+        public async void remove_monitor (ObjectPath monitor_path, BusName? owner=null)
             throws Error
         {
             assert (owner != null);

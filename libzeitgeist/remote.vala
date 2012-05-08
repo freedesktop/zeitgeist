@@ -33,12 +33,13 @@ namespace Zeitgeist
     {
 
         [DBus (signature = "(xx)")]
-        public abstract Variant delete_events (
+        public async abstract Variant delete_events (
             uint32[] event_ids,
+            Cancellable? cancellable=null,
             BusName? sender=null
         ) throws Error;
 
-        public abstract uint32[] find_event_ids (
+        public async abstract uint32[] find_event_ids (
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
@@ -46,14 +47,14 @@ namespace Zeitgeist
         ) throws Error;
 
         [DBus (signature = "a(asaasay)")]
-        public abstract Variant find_events (
+        public async abstract Variant find_events (
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
             BusName? sender=null
         ) throws Error;
 
-        public abstract string[] find_related_uris (
+        public async abstract string[] find_related_uris (
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             [DBus (signature = "a(asaasay)")] Variant result_event_templates,
@@ -68,24 +69,27 @@ namespace Zeitgeist
             BusName? sender=null
         ) throws Error;
 
-        public abstract uint32[] insert_events (
+        public async abstract uint32[] insert_events (
             [DBus (signature = "a(asaasay)")] Variant events,
+            Cancellable? cancellable=null,
             BusName? sender=null
         ) throws Error;
 
-        public abstract void install_monitor (
+        public async abstract void install_monitor (
             ObjectPath monitor_path,
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             BusName? owner=null
         ) throws Error;
 
-        public abstract void remove_monitor (
+        public async abstract void remove_monitor (
             ObjectPath monitor_path,
             BusName? owner=null
         ) throws Error;
 
-        public abstract void quit () throws Error;
+        public async abstract void quit (
+            Cancellable? cancellable=null
+        ) throws Error;
 
         [DBus (name = "extensions")]
         public abstract string[] extensions { owned get; }
