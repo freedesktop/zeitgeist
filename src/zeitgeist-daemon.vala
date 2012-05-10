@@ -159,10 +159,13 @@ namespace Zeitgeist
                 uint storage_state, uint num_events, uint result_type,
                 BusName sender) throws Error
         {
-            return engine.find_event_ids (
+            var timer = new Timer ();
+            var ids = engine.find_event_ids (
                 new TimeRange.from_variant (time_range),
                 Events.from_variant(event_templates),
                 storage_state, num_events, result_type, sender);
+            debug ("%s executed in %f seconds", Log.METHOD, timer.elapsed ());
+            return ids;
         }
 
         public Variant find_events (Variant time_range,
