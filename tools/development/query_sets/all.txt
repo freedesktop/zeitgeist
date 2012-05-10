@@ -1,0 +1,40 @@
+TimeRange.always(), [Event.new_for_values(subjects=[Subject.new_for_values(mimetype="text/plain")])], StorageState.Any, 0, ResultType.MostRecentSubjects
+TimeRange.always(), [Event.new_for_values(actor="application://gedit.desktop",subjects=[Subject.new_for_values()])], StorageState.Any, 0, ResultType.MostRecentSubjects
+TimeRange.always(), [Event.new_for_values(subjects=[Subject.new_for_values(manifestation=Manifestation.FILE_DATA_OBJECT)])], StorageState.Any, 0, ResultType.MostRecentSubjects
+TimeRange.always(), [Event.new_for_values(actor="application://google-chrome.desktop",subjects=[Subject.new_for_values()])], StorageState.Any, 0, ResultType.MostRecentSubjects
+TimeRange.from_timestamp(time.time()*1000-604800000*24), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation="!"+Interpretation.SOFTWARE), Subject.new_for_values(interpretation="!"+Interpretation.FOLDER)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.from_timestamp(time.time()*1000-604800000*24), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.SOFTWARE)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.from_timestamp(time.time()*1000-604800000*24), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.AUDIO)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.from_timestamp(time.time()*1000-604800000*24), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.VIDEO)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.from_timestamp(time.time()*1000-604800000*24), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.IMAGE)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.from_timestamp(time.time()*1000-604800000*24), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.DOCUMENT)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.from_timestamp(time.time()*1000-604800000*24), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.WEBSITE)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.from_timestamp(time.time()*1000-604800000*24), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation="!"+Interpretation.WEBSITE)])], StorageState.Any, 96, ResultType.MostRecentOrigin
+TimeRange.from_timestamp(time.time()*1000-604800000*24), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation="!"+Interpretation.WEBSITE),Subject.new_for_values(interpretation="!"+Interpretation.SOFTWARE),Subject.new_for_values(interpretation="!"+Interpretation.AUDIO),Subject.new_for_values(interpretation="!"+Interpretation.VIDEO),Subject.new_for_values(interpretation="!"+Interpretation.IMAGE),Subject.new_for_values(interpretation="!"+Interpretation.DOCUMENT)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation="!"+Interpretation.SOFTWARE), Subject.new_for_values(interpretation="!"+Interpretation.FOLDER)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.SOFTWARE)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.AUDIO)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.VIDEO)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.IMAGE)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.DOCUMENT)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation=Interpretation.WEBSITE)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation="!"+Interpretation.WEBSITE)])], StorageState.Any, 96, ResultType.MostRecentOrigin
+TimeRange.until_now(), [Event.new_for_values(subjects=[Subject.new_for_values(interpretation="!"+Interpretation.WEBSITE),Subject.new_for_values(interpretation="!"+Interpretation.SOFTWARE),Subject.new_for_values(interpretation="!"+Interpretation.AUDIO),Subject.new_for_values(interpretation="!"+Interpretation.VIDEO),Subject.new_for_values(interpretation="!"+Interpretation.IMAGE),Subject.new_for_values(interpretation="!"+Interpretation.DOCUMENT)])], StorageState.Any, 96, ResultType.MostRecentSubjects
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentEvents
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentSubjects
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostPopularSubjects
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostPopularActor
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentActor
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentSubjectInterpretation
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostPopularSubjectInterpretation
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostRecentMimeType
+TimeRange.always(), [], StorageState.Any, 100, ResultType.MostPopularMimeType
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentEvents
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentSubjects
+(1, 60000), [], StorageState.Any, 6, ResultType.MostPopularSubjects
+(1, 60000), [], StorageState.Any, 6, ResultType.MostPopularActor
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentActor
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentSubjectInterpretation
+(1, 60000), [], StorageState.Any, 6, ResultType.MostPopularSubjectInterpretation
+(1, 60000), [], StorageState.Any, 6, ResultType.MostRecentMimeType
+(1, 60000), [], StorageState.Any, 6, ResultType.MostPopularMimeType
