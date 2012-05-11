@@ -165,7 +165,7 @@ namespace Zeitgeist
                 self.clear()
             self.register_no_result()
             */
-	    }
+        }
 
         public bool is_empty ()
         {
