@@ -115,7 +115,7 @@ namespace Zeitgeist
         public void add_match_condition (string column, int val,
             bool negation=false)
         {
-            string sql = "%s %s = %d".printf (column, (negation) ? "!" : "", val);
+            string sql = "%s %s= %d".printf (column, (negation) ? "!" : "", val);
             add (sql);
         }
 
@@ -131,7 +131,7 @@ namespace Zeitgeist
         public void add_text_condition (string column, string val,
             bool negation=false)
         {
-            string sql = "%s %s = ?".printf (column, (negation) ? "!" : "");
+            string sql = "%s %s= ?".printf (column, (negation) ? "!" : "");
             add (sql, val);
         }
 
