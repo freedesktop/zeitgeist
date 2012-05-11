@@ -123,8 +123,8 @@ namespace Zeitgeist
             bool negation=false)
         {
             string search_table = get_search_table_for_column (column);
-            string sql = "%s = (SELECT id FROM %s WHERE value %s= ?)".printf (
-                column, search_table, (negation) ? "!" : "");
+            string sql = "%s %s= (SELECT id FROM %s WHERE value = ?)".printf (
+                column, (negation) ? "!" : "", search_table);
             add (sql, val);
         }
 
