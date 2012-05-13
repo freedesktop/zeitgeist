@@ -586,6 +586,18 @@ public class DbReader : Object
         string aggregation_sql = "";
         string order_sql = "";
 
+        // Single out cases where the WHERE-CLAUSE is empty to fix the issue
+        // brought up in the commit 1 of bug #48834
+        if (where_sql == "")
+        {
+            return """
+                GROUP BY %s
+                ORDER BY %s
+                """.printf (
+                    field,
+                    order_sql);
+        }
+
         if (count_asc != null)
         {
             aggregation_sql = ", COUNT(%s) AS num_events".printf (field);
