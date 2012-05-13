@@ -46,6 +46,7 @@ public class Log : Object
     private RemoteLog proxy;
     private Variant? engine_version;
     private SList<QueuedMethod> method_dispatch_queue;
+    private HashTable<Monitor, uint> monitors;
 
     public bool is_connected { get; private set; default = false; }
 
@@ -64,6 +65,7 @@ public class Log : Object
     public Log ()
     {
         warning ("hi! requesting proxy...");
+        monitors = new HashTable<Monitor, int>(direct_hash, direct_equal);
         Bus.get_proxy<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
             Utils.ENGINE_DBUS_PATH, 0, null, (obj, res) =>
             {
@@ -71,19 +73,17 @@ public class Log : Object
                 try
                 {
                     proxy = Bus.get_proxy.end (res);
-
-                    engine_version = proxy.version;
-                    warn_if_fail (engine_version.get_type_string () == "(iii)");
-
-                    process_queued_methods ();
-
-                    proxy.notify["g-name-owner"].connect (name_owner_changed);
-
                     is_connected = true;
+                    on_connection_established ();
+                    proxy.notify["g-name-owner"].connect (name_owner_changed);
+                    process_queued_methods ();
                 }
                 catch (IOError err)
                 {
-                    warning ("%s", err.message);
+                    critical (
+                        "Failed to create proxy for Zeitgeist daemon: %s",
+                        err.message);
+                    // FIXME: process_queued_methods() with manual error callbacks
                 }
             });
     }
@@ -106,12 +106,21 @@ public class Log : Object
 
     private void name_owner_changed (ParamSpec pspec)
     {
-        string? name_owner = null; // .get_name_owner ();
+        string? name_owner = null; // FIXME: .get_name_owner ();
         this.is_connected = name_owner != null;
 
+        on_connection_established ();
+    }
+
+    private void on_connection_established ()
+    {
         if (is_connected)
         {
             // Reinstate all active monitors
+            foreach (unowned Monitor monitor in monitors.get_keys ())
+            {
+                reinstall_monitor (monitor);
+            }
 
             // Update our cached version property
             engine_version = proxy.version;
@@ -216,11 +225,42 @@ public class Log : Object
 
     public async void install_monitor (Monitor monitor) throws Error
     {
+        // FIXME
+        //monitor.destroy.connect (() => {});
+
+        // Save the monitor's registration id (0 = not registered)
+        monitors.insert(monitor, 0);
+
+        if (is_connected)
+            install_monitor (monitor);
+    }
+
+    private void reinstall_monitor (Monitor monitor)
+        requires (is_connected)
+    {
+        if (monitors.lookup (monitor) == 0)
+        {
+            // FIXME: make async!
+            DBusConnection conn = Bus.get_sync (BusType.SESSION);
+
+            uint registration_id = conn.register_object<RemoteMonitor> (
+                monitor.get_path (), monitor);
+            monitors.insert (monitor, registration_id);
+        }
+
+        proxy.install_monitor (
+            monitor.get_path (),
+            monitor.get_time_range ().to_variant (),
+            Events.to_variant (monitor.get_templates ()));
     }
 
     public async void remove_monitor (Monitor monitor) throws Error
     {
     }
+
+    // FIXME:
+    // monitor_removed_cb:
+    // unregister_object()
 
    /**
     * zeitgeist_log_get_version:

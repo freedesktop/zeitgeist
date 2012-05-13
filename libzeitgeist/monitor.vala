@@ -24,7 +24,7 @@
 namespace Zeitgeist
 {
 
-public class Monitor : Object
+public class Monitor : Object, RemoteMonitor
 {
 
     private static int monitor_counter = 0;
@@ -36,9 +36,9 @@ public class Monitor : Object
     private string monitor_path;
 
     public signal void events_inserted (TimeRange time_range,
-        GenericArray<Event> events);
+        ResultSet events);
     public signal void events_deleted (TimeRange time_range,
-        GenericArray<uint32> event_ids);
+        uint32[] event_ids);
 
     public Monitor (TimeRange time_range, GenericArray<Event> event_templates)
     {
@@ -58,9 +58,26 @@ public class Monitor : Object
         return templates;
     }
 
-    public string get_path ()
+    public ObjectPath get_path ()
     {
-        return "FIXME";
+        return new ObjectPath (monitor_path);
+    }
+
+    public async void notify_insert (
+        Variant time_range,
+        Variant events)
+    {
+        warning ("HII! INSERTION!");
+        // FIXME
+        events_inserted (new TimeRange.from_variant (time_range), null);
+    }
+
+    public async void notify_delete (
+        Variant time_range,
+        uint32[] event_ids)
+    {
+        warning ("HII! DELETION!");
+        events_deleted (new TimeRange.from_variant (time_range), event_ids);
     }
 
 }
