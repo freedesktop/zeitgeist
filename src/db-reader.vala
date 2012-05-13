@@ -871,14 +871,17 @@ public class DbReader : Object
         }
         else
         {
-            var sb = new StringBuilder ();
+            string sql = "(%s)";
+            string sub_sql = "";
+            bool first = true;
             foreach (unowned string uri in symbols)
             {
-                sb.append_printf ("%d,", lookup_table.id_try_string (uri));
+                if (!first)
+                    sub_sql = sub_sql + " OR ";
+                sub_sql = sub_sql + "%s = %i ".printf (table_name, lookup_table.id_try_string (uri));
+                first = false;
             }
-            sb.truncate (sb.len - 1);
-
-            string sql = "%s IN (%s)".printf(table_name, sb.str);
+            sql = sql.printf (sub_sql);
             subwhere.add(sql);
         }
 
