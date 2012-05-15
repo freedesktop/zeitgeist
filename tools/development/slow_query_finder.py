@@ -63,7 +63,8 @@ def eval_func(chromosome):
 
   start = time.time()
   results = engine.find_events(*query)
-  return (time.time() - start)*1000
+  overall = (time.time() - start)
+  return (results["find_events"]*2+results["find_event_ids"]*4+results["get_events"])*1000
 
 genome = G1DList.G1DList(6)
 genome.evaluator.set(eval_func)
