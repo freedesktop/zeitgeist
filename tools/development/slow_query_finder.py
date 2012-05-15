@@ -36,26 +36,20 @@ import time
 def buildQuery(chromosome):
   storage = StorageState.Any
   numResults = 10
-  if chromosome[0] == 0 and chromosome[1] == 0:
+  if chromosome[0] == 0 or chromosome[1] == 0:
     timerange = TimeRange.always()
   else:
-    timerange = (chromosome[0], chromosome[1])
-  searchType = chromosome[2]
-  if searchType > 30:
-    return None
-  for c in chromosome[3:5]:
-    if c > 1:
-      #return 0
-      pass
+    timerange = (chromosome[0]*60*60*24, chromosome[1]*60*60*24)
+  searchType = chromosome[2]%30
 
   eventTemplate = {}
   subjectTemplate = {}
 
-  if chromosome[3] == 1:
+  if chromosome[3]%2 == 1:
     subjectTemplate['interpretation'] = Interpretation.VIDEO
-  if chromosome[4] == 1:
+  if chromosome[4]%2 == 1:
     subjectTemplate['manifestation'] = Manifestation.FILE_DATA_OBJECT
-  if chromosome[5] == 1:
+  if chromosome[5]%2 == 1:
     eventTemplate['actor'] = "application://google-chrome.desktop"
 
   templates = [Event.new_for_values(subjects=[Subject.new_for_values(**subjectTemplate)], **eventTemplate)]
