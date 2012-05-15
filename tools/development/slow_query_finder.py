@@ -76,4 +76,5 @@ genome.evaluator.set(eval_func)
 ga = GSimpleGA.GSimpleGA(genome)
 ga.evolve(freq_stats = 1)
 query = buildQuery(ga.bestIndividual())
-print query, len(engine.find_vents(*query))
+assert query is not None
+print query, len(engine.find_events(*query))
