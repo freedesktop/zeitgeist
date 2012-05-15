@@ -66,14 +66,14 @@ def eval_func(chromosome):
   query = buildQuery(chromosome)
   if query is None:
     return 0
-  print "Testing with %r"%(query,)
 
   start = time.time()
   results = engine.find_events(*query)
-  return time.time() - start
+  return (time.time() - start)*1000
 
 genome = G1DList.G1DList(6)
 genome.evaluator.set(eval_func)
 ga = GSimpleGA.GSimpleGA(genome)
 ga.evolve(freq_stats = 1)
-print buildQuery(ga.bestIndividual())
+query = buildQuery(ga.bestIndividual())
+print query, len(engine.find_vents(*query))
