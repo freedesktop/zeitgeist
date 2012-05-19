@@ -24,6 +24,7 @@ libzeitgeist_la_SOURCES = \
 	ontology.vala \
 	remote.vala \
 	result-set.vala \
+	simple-result-set.vala \
 	utils.vala \
 	$(NULL)
 

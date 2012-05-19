@@ -1,0 +1,2 @@
+ - removed reference stealing
+ - "connected" property renamed to "is-connected"

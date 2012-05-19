@@ -1,0 +1,12 @@
+valac --target-glib=2.26 most-recent-events.vala ../libzeitgeist/*.vala --pkg gio-2.0 && ./most-recent-events
+
+valac --target-glib=2.26 get-events-with-id.vala ../libzeitgeist/*.vala --pkg gio-2.0 && ./get-events-with-id
+
+valac --target-glib=2.26 monitor-events.vala ../libzeitgeist/*.vala --pkg gio-2.0 && ./monitor-events
+
+valac --target-glib=2.26 datamodel-example.vala ../libzeitgeist/ontology-uris.vala && ./datamodel-example
+
+gcc --target-glib=2.26 datamodel-example.c `pkg-config --cflags gtk+-2.0` -I../../libzeitgeist/
+
+$ gcc get-events.c -lzeitgeist -L../../libzeitgeist/.libs/ `pkg-config --cflags --libs glib-2.0 gobject-2.0 gio-2.0 gio-unix-2.0` -I../../libzeitgeist/
+$ LD_LIBRARY_PATH=../../libzeitgeist/.libs/ ./a.out

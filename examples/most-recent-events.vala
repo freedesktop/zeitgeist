@@ -1,19 +1,27 @@
+using Zeitgeist;
+
 int main ()
 {
-    uint32[] ids = { 31575, 31569 };
-
     var loop = new MainLoop();
+    var log  = new Zeitgeist.Log ();
 
-    Zeitgeist.Log zg = new Zeitgeist.Log ();
-    zg.get_events (ids, null, (obj, res) => {
-        var events = zg.get_events.end (res);
-        for (int i = 0; i < events.length; ++i)
+    var time_range = new TimeRange.anytime ();
+    var templates  = new GenericArray<Event> ();
+    int num_events = 20;
+
+    log.find_events (time_range, templates, StorageState.ANY, num_events,
+        ResultType.MOST_RECENT_SUBJECTS, null, (obj, res) =>
         {
-            Zeitgeist.Event event = events[i];
-            stdout.printf ("Subject: %s\n", event.subjects[0].uri);
+            ResultSet events = log.find_events.end (res);
+            stdout.printf ("%u most recent subjects:", events.size ());
+            while (events.has_next ())
+            {
+                Event event = events.next ();
+                stdout.printf (" - %s\n", event.subjects[0].uri);
+            }
+            loop.quit();
         }
-        loop.quit();
-    });
+    );
 
     loop.run ();
 

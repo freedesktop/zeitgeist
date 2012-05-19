@@ -171,7 +171,7 @@ public class Log : Object
         yield proxy.insert_events (Events.to_variant (events), cancellable);
     }
 
-    public async void find_events (
+    public async ResultSet find_events (
         TimeRange time_range,
         GenericArray<Event> event_templates,
         StorageState storage_state,
@@ -179,9 +179,14 @@ public class Log : Object
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        yield wait_for_proxy (find_events.callback);
+        var result = yield proxy.find_events (time_range.to_variant (),
+            Events.to_variant (event_templates), storage_state,
+            num_events, result_type, cancellable);
+        return new SimpleResultSet (Events.from_variant (result));
     }
 
-    public async void find_event_ids (
+    public async uint32[] find_event_ids (
         TimeRange time_range,
         GenericArray<Event> event_templates,
         StorageState storage_state,
@@ -189,14 +194,18 @@ public class Log : Object
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        yield wait_for_proxy (find_event_ids.callback);
+        return yield proxy.find_event_ids (time_range.to_variant (),
+            Events.to_variant (event_templates), storage_state,
+            num_events, result_type, cancellable);
     }
 
-    public async GenericArray<Event> get_events (uint32[] event_ids,
+    public async ResultSet get_events (uint32[] event_ids,
             Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy (get_events.callback);
         var result = yield proxy.get_events (event_ids, cancellable);
-        return Events.from_variant (result);
+        return new SimpleResultSet (Events.from_variant (result));
     }
 
     public async void find_related_uris (
@@ -287,3 +296,5 @@ public class Log : Object
 }
 
 }
+
+// vim:expandtab:ts=4:sw=4

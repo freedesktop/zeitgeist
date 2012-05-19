@@ -156,6 +156,7 @@ namespace Zeitgeist
         public async uint32[] find_event_ids (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
+                Cancellable? cancellable=null,
                 BusName? sender=null) throws Error
         {
             var timer = new Timer ();
@@ -170,6 +171,7 @@ namespace Zeitgeist
         public async Variant find_events (Variant time_range,
                 Variant event_templates,
                 uint storage_state, uint num_events, uint result_type,
+                Cancellable? cancellable=null,
                 BusName? sender=null) throws Error
         {
             var timer = new Timer ();

@@ -7,6 +7,7 @@ SUBDIRS = \
 	data \
 	python \
 	test \
+	examples \
 	po \
 	doc \
 	$(NULL)

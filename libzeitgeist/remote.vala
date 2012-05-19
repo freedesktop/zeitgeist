@@ -1,6 +1,6 @@
 /* remote.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
  *
@@ -43,7 +43,7 @@ namespace Zeitgeist
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
-            BusName? sender=null
+            Cancellable? cancellable=null, BusName? sender=null
         ) throws Error;
 
         [DBus (signature = "a(asaasay)")]
@@ -51,7 +51,7 @@ namespace Zeitgeist
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             uint storage_state, uint num_events, uint result_type,
-            BusName? sender=null
+            Cancellable? cancellable=null, BusName? sender=null
         ) throws Error;
 
         public async abstract string[] find_related_uris (
@@ -65,7 +65,7 @@ namespace Zeitgeist
         [DBus (signature = "a(asaasay)")]
         public async abstract Variant get_events (
             uint32[] event_ids,
-            Cancellable? cancellable,
+            Cancellable? cancellable=null,
             BusName? sender=null
         ) throws Error;
 

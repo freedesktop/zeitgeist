@@ -30,6 +30,8 @@ po/Makefile.in.in
 src/.libs
 src/*.c
 src/*.stamp
+examples/*.c
+examples/*.stamp
 src/zeitgeist
 src/bluebird
 test/direct/where-clause-test
@@ -59,7 +61,6 @@ extensions/fts++/zeitgeist-fts
 test/direct/marshalling
 test/dbus/__pycache__
 test/direct/table-lookup-test
-src/zeitgeist-engine.vapi
 src/zeitgeist-engine.h
 py-compile
 python/_ontology.py
@@ -75,3 +76,5 @@ libzeitgeist/*.c
 *.lo
 *.pyc
 *.swp
+*.h
+*.vapi
