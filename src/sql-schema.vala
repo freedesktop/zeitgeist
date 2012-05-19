@@ -36,7 +36,7 @@ namespace Zeitgeist.SQLite
     {
 
         public const string CORE_SCHEMA = "core";
-        public const int CORE_SCHEMA_VERSION = 6;
+        public const int CORE_SCHEMA_VERSION = 7;
 
         private const string DATABASE_CREATION = "database_creation";
 
@@ -57,7 +57,7 @@ namespace Zeitgeist.SQLite
                     Timestamp.now ());
                 exec_query (database, schema_sql);
             }
-            else if (schema_version >= 3 && schema_version <= 5)
+            else if (schema_version >= 3 && schema_version <= 6)
             {
                 backup_database ();
 
@@ -421,61 +421,75 @@ namespace Zeitgeist.SQLite
                         manifestation, actor, subj_id)
                 )
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_id""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_id
-                    ON event(id)
+                    ON event(id, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_timestamp""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_timestamp
-                    ON event(timestamp)
+                    ON event(timestamp, id)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_interpretation""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_interpretation
-                    ON event(interpretation)
+                    ON event(interpretation, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_manifestation""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_manifestation
-                    ON event(manifestation)
+                    ON event(manifestation, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_actor""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_actor
-                    ON event(actor)
+                    ON event(actor, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_origin""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_origin
-                    ON event(origin)
+                    ON event(origin, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_subj_id""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_id
-                    ON event(subj_id)
+                    ON event(subj_id, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_subj_id_current""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_id_current
-                    ON event(subj_id_current)
+                    ON event(subj_id_current, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_subj_interpretation""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_interpretation
-                    ON event(subj_interpretation)
+                    ON event(subj_interpretation,timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_subj_manifestation""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_manifestation
-                    ON event(subj_manifestation)
+                    ON event(subj_manifestation, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_subj_origin""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_origin
-                    ON event(subj_origin)
+                    ON event(subj_origin, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_subj_mimetype""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_mimetype
-                    ON event(subj_mimetype)
+                    ON event(subj_mimetype, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_subj_text""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_text
-                    ON event(subj_text)
+                    ON event(subj_text, timestamp)
                 """);
+            exec_query (database, """DROP INDEX IF EXISTS event_subj_storage""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_storage
-                    ON event(subj_storage)
+                    ON event(subj_storage, timestamp)
                 """);
 
             // TODO: create deletion triggers
