@@ -1,4 +1,5 @@
-/*
+/* simple-result-set.vala
+ *
  * Copyright © 2012 Canonical Ltd.
  *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
  *

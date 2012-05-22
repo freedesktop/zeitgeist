@@ -80,8 +80,7 @@ public class Log : Object
                 }
                 catch (IOError err)
                 {
-                    critical (
-                        "Failed to create proxy for Zeitgeist daemon: %s",
+                    critical ("Unable to connect to Zeitgeist: %s",
                         err.message);
                     // FIXME: process_queued_methods() with manual error callbacks
                 }

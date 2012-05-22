@@ -16,6 +16,8 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 libzeitgeist_la_SOURCES = \
+	data-source.vala \
+	data-source-registry.vala \
 	datamodel.vala \
 	log.vala \
 	mimetype.vala \

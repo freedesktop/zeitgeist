@@ -53,6 +53,7 @@ zeitgeist_daemon_VALASOURCES = \
 	where-clause.vala \
 	../libzeitgeist/ontology.vala \
 	../libzeitgeist/ontology-uris.vala \
+	../libzeitgeist/data-source.vala \
 	../libzeitgeist/mimetype.vala \
 	$(NULL)
 
@@ -97,4 +98,3 @@ distclean-local:
 VALA_V = $(VALA_V_$(V))
 VALA_V_ = $(VALA_V_$(AM_DEFAULT_VERBOSITY))
 VALA_V_0 = @echo "  VALAC " $^;
-

@@ -23,117 +23,21 @@
  *
  */
 
+using Zeitgeist;
+
 namespace Zeitgeist
 {
-    [DBus (name = "org.gnome.zeitgeist.DataSourceRegistry")]
-    public interface RemoteRegistry: Object
-    {
-        [DBus (signature = "a(sssa(asaasay)bxb)")]
-        public abstract Variant get_data_sources () throws Error;
-        public abstract bool register_data_source (string unique_id,
-            string name, string description,
-            [DBus (signature = "a(asaasay)")] Variant event_templates, BusName? sender)
-            throws Error;
-        public abstract void set_data_source_enabled (string unique_id,
-            bool enabled) throws Error;
-        [DBus (signature = "(sssa(asaasay)bxb)")]
-        public abstract Variant get_data_source_from_id (string id) throws Error;
-
-        public signal void data_source_disconnected (
-            [DBus (signature = "(sssa(asaasay)bxb)")] Variant data_source);
-        public signal void data_source_enabled (string unique_id,
-            bool enabled);
-        public signal void data_source_registered (
-            [DBus (signature = "(sssa(asaasay)bxb)")] Variant data_source);
-    }
-
-    class DataSource: Object
-    {
-        public string unique_id { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
-
-        public GenericArray<Event>? event_templates { get; set; }
-
-        public bool enabled { get; set; }
-        public bool running { get; set; }
-        public int64 timestamp { get; set; }
-
-        public DataSource ()
-        {
-            Object ();
-        }
-
-        public DataSource.full (string unique_id, string name,
-            string description, GenericArray<Event> templates)
-        {
-            Object (unique_id: unique_id, name: name, description: description,
-                event_templates: templates);
-        }
-
-        public DataSource.from_variant (Variant variant,
-            bool reset_running=false) throws DataModelError
-        {
-            warn_if_fail (
-                variant.get_type_string () == "(sssa("+Utils.SIG_EVENT+")bxb)"
-                || variant.get_type_string () == "sssa("+Utils.SIG_EVENT+")");
-            var iter = variant.iterator ();
-
-            assert (iter.n_children () >= 4);
-            unique_id = iter.next_value ().get_string ();
-            name = iter.next_value ().get_string ();
-            description = iter.next_value ().get_string ();
-            event_templates = Events.from_variant (iter.next_value ());
-
-            if (iter.n_children () > 4)
-            {
-                running = iter.next_value ().get_boolean ();
-                if (reset_running)
-                    running = false;
-                timestamp = iter.next_value ().get_int64 ();
-                enabled = iter.next_value ().get_boolean ();
-            }
-        }
-
-        public Variant to_variant ()
-        {
-            var vb = new VariantBuilder (new VariantType (
-                "(sssa("+Utils.SIG_EVENT+")bxb)"));
-
-            vb.add ("s", unique_id);
-            vb.add ("s", name);
-            vb.add ("s", description);
-            if (event_templates != null && event_templates.length > 0)
-            {
-                vb.add_value (Events.to_variant (event_templates));
-            }
-            else
-            {
-                vb.open (new VariantType ("a("+Utils.SIG_EVENT+")"));
-                vb.close ();
-            }
-
-            vb.add ("b", running);
-            vb.add ("x", timestamp);
-            vb.add ("b", enabled);
-
-            return vb.end ();
-        }
-    }
 
     namespace DataSources
     {
-        private const string SIG_DATASOURCES =
-            "a(sssa("+Utils.SIG_EVENT+")bxb)";
-
-        private static HashTable<string, DataSource> from_variant (
+        private static HashTable<string, DataSource> registry_from_variant (
             Variant sources_variant, bool reset_running=false) throws DataModelError
         {
             var registry = new HashTable<string, DataSource> (
                 str_hash, str_equal);
 
             warn_if_fail (
-                sources_variant.get_type_string() == SIG_DATASOURCES);
+                sources_variant.get_type_string() == DataSources.SIG_DATASOURCES);
             foreach (Variant ds_variant in sources_variant)
             {
                 DataSource ds = new DataSource.from_variant (ds_variant,
@@ -143,28 +47,9 @@ namespace Zeitgeist
 
             return registry;
         }
-
-        private static Variant to_variant (
-            HashTable<string, DataSource> sources)
-        {
-            var vb = new VariantBuilder (new VariantType (SIG_DATASOURCES));
-
-            List<unowned DataSource> data_sources = sources.get_values ();
-            data_sources.sort ((a, b) =>
-            {
-                return strcmp (a.unique_id, b.unique_id);
-            });
-
-            foreach (unowned DataSource ds in data_sources)
-            {
-                vb.add_value (ds.to_variant ());
-            }
-
-            return vb.end ();
-        }
     }
 
-    class DataSourceRegistry: Extension, RemoteRegistry
+    class DataSourceRegistryExtension: Extension, RemoteRegistry
     {
         private const string MULTIPLE_MARKER = "<multiple>";
         private HashTable<string, DataSource> sources;
@@ -175,7 +60,7 @@ namespace Zeitgeist
 
         private static const uint DISK_WRITE_TIMEOUT = 5 * 60; // 5 minutes
 
-        DataSourceRegistry ()
+        DataSourceRegistryExtension ()
         {
             Object ();
         }
@@ -192,7 +77,7 @@ namespace Zeitgeist
             {
                 try
                 {
-                    sources = DataSources.from_variant (registry, true);
+                    sources = DataSources.registry_from_variant (registry, true);
                 }
                 catch (DataModelError e)
                 {
@@ -458,13 +343,13 @@ namespace Zeitgeist
 
     [ModuleInit]
 #if BUILTIN_EXTENSIONS
-    public static Type data_source_registry_init (TypeModule module)
+    public static Type data_source_registry_extension_init (TypeModule module)
     {
 #else
     public static Type extension_register (TypeModule module)
     {
 #endif
-        return typeof (DataSourceRegistry);
+        return typeof (DataSourceRegistryExtension);
     }
 }
 

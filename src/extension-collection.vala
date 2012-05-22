@@ -52,7 +52,7 @@ namespace Zeitgeist
 #if BUILTIN_EXTENSIONS
             RegisterExtensionFunc[] builtins =
             {
-                data_source_registry_init,
+//                data_source_registry_extension_init,
                 blacklist_init,
                 histogram_init,
                 storage_monitor_init,
@@ -115,6 +115,11 @@ namespace Zeitgeist
                 if (type_name.has_prefix ("Zeitgeist"))
                 {
                     type_name = (string) ((char*) type_name + 9);
+                }
+                if (type_name.has_suffix ("Extension"))
+                {
+                    string type_no_suffix = (string) type_name.slice(0, type_name.length - 9);
+                    type_name = type_no_suffix;
                 }
 
                 bool enabled = !(type_name in disabled_extensions);
@@ -189,7 +194,7 @@ namespace Zeitgeist
     }
 
 #if BUILTIN_EXTENSIONS
-    private extern static Type data_source_registry_init (TypeModule mod);
+    private extern static Type data_source_registry_extension_init (TypeModule mod);
     private extern static Type blacklist_init (TypeModule mod);
     private extern static Type histogram_init (TypeModule mod);
     private extern static Type storage_monitor_init (TypeModule mod);
