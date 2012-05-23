@@ -13,6 +13,9 @@ AM_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	$(top_srcdir)/config.vapi \
+	--vapi zeitgeist.vapi \
+	-H zeitgeist.h \
+	--library=zeitgeist \
 	$(NULL)
 
 libzeitgeist_la_SOURCES = \
@@ -30,6 +33,16 @@ libzeitgeist_la_SOURCES = \
 	utils.vala \
 	$(NULL)
 
+libzeitgeist_includedir=$(includedir)/libzeitgeist-2.0/zeitgeist/
+libzeitgeist_include_HEADERS = \
+	zeitgeist.h \
+	$(NULL)
+
+libzeitgeist_vapidir = $(datadir)/share/vala/vapi/
+libzeitgeist_vapi_DATA = \
+	zeitgeist.vapi
+	$(NULL)
+
 EXTRA_DIST = \
 	ontology.vala.in \
 	ontology-uris.vala.in \
@@ -38,6 +51,7 @@ EXTRA_DIST = \
 DISTCLEANFILES = \
 	ontology.vala \
 	ontology-uris.vala \
+	zeitgeist.vapi \
 	$(NULL)
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?
