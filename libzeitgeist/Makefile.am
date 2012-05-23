@@ -1,6 +1,6 @@
 NULL = 
 
-lib_LTLIBRARIES = libzeitgeist.la
+lib_LTLIBRARIES = libzeitgeist-2.0.la
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
@@ -18,7 +18,7 @@ AM_VALAFLAGS = \
 	--library=zeitgeist \
 	$(NULL)
 
-libzeitgeist_la_SOURCES = \
+libzeitgeist_2_0_la_SOURCES = \
 	data-source.vala \
 	data-source-registry.vala \
 	datamodel.vala \
@@ -35,7 +35,7 @@ libzeitgeist_la_SOURCES = \
 
 LIBZEITGEIST_VERSION=@LIBZEITGEIST_VERSION_MAJOR@:0:0
 
-libzeitgeist_la_LDFLAGS = -version-info $(LIBZEITGEIST_VERSION)
+libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_VERSION)
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libzeitgeist-2.0.pc
