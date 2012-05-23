@@ -33,6 +33,13 @@ libzeitgeist_la_SOURCES = \
 	utils.vala \
 	$(NULL)
 
+LIBZEITGEIST_VERSION=@LIBZEITGEIST_VERSION_MAJOR@:0:0
+
+libzeitgeist_la_LDFLAGS = -version-info $(LIBZEITGEIST_VERSION)
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libzeitgeist-2.0.pc
+
 libzeitgeist_includedir=$(includedir)/libzeitgeist-2.0/zeitgeist/
 libzeitgeist_include_HEADERS = \
 	zeitgeist.h \

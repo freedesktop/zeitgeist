@@ -96,10 +96,17 @@ AC_ARG_ENABLE([explain-queries],
 
 AM_CONDITIONAL(EXPLAIN_QUERIES, test "x$explain_queries" = "xyes")
 
+LIBZEITGEIST_VERSION_MAJOR="2"
+LIBZEITGEIST_VERSION_MINOR="0"
+LIBZEITGEIST_VERSION_PATCH="0"
+LIBZEITGEIST_VERSION="$(LIBZEITGEIST_VERSION_MAJOR).$(LIBZEITGEIST_VERSION_MINOR).$(LIBZEITGEIST_VERSION_PATCH)"
+AC_SUBST(LIBZEITGEIST_VERSION)
+
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 	libzeitgeist/Makefile
+  libzeitgeist/libzeitgeist-2.0.pc
 	extensions/Makefile
 	extensions/fts++/Makefile
 	extensions/fts++/test/Makefile
