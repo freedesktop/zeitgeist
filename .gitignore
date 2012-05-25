@@ -32,6 +32,8 @@ src/*.c
 src/*.stamp
 examples/*.c
 examples/*.stamp
+examples/*.deps
+examples/*.libs
 src/zeitgeist
 src/bluebird
 test/direct/where-clause-test
@@ -70,6 +72,9 @@ mimetype-test
 marshalling-test
 test/direct/datamodel-test
 libzeitgeist/*.c
+examples/get-events-with-id
+examples/monitor-events
+examples/most-recent-events
 *.o
 *.la
 *.stamp
@@ -78,3 +83,4 @@ libzeitgeist/*.c
 *.swp
 *.h
 *.vapi
+libzeitgeist/libzeitgeist-2.0.pc
