@@ -5,6 +5,7 @@ bin_PROGRAMS = zeitgeist-daemon
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
+	-I $(top_srcdir)/libzeitgeist \
 	-w \
 	$(NULL)
 
@@ -15,6 +16,7 @@ AM_VALAFLAGS = \
 	--pkg sqlite3 \
 	--pkg posix \
 	--pkg gmodule-2.0 \
+	$(top_srcdir)/libzeitgeist/zeitgeist-private.vapi \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
@@ -36,25 +38,18 @@ extensions_VALASOURCES = \
 
 zeitgeist_daemon_VALASOURCES = \
 	zeitgeist-daemon.vala \
-	../libzeitgeist/datamodel.vala \
 	db-reader.vala \
 	engine.vala \
-	../libzeitgeist/remote.vala \
 	extension.vala \
 	extension-collection.vala \
 	extension-store.vala \
 	logging.vala \
 	notify.vala \
 	sql.vala \
-	../libzeitgeist/utils.vala \
 	errors.vala \
 	table-lookup.vala \
 	sql-schema.vala \
 	where-clause.vala \
-	../libzeitgeist/ontology.vala \
-	../libzeitgeist/ontology-uris.vala \
-	../libzeitgeist/data-source.vala \
-	../libzeitgeist/mimetype.vala \
 	$(NULL)
 
 zeitgeist_daemon_SOURCES = \
@@ -65,6 +60,7 @@ zeitgeist_daemon_SOURCES = \
 
 zeitgeist_daemon_LDADD = \
 	$(ZEITGEIST_LIBS) \
+	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(NULL)
 
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined

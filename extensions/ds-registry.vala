@@ -130,10 +130,10 @@ namespace Zeitgeist
             }
 
             flush ();
-            debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
+            debug ("%s, this.ref_count = %u", GLib.Log.METHOD, this.ref_count);
         }
 
-        public Variant get_data_sources ()
+        public async Variant get_data_sources (Cancellable? cancellable=null)
         {
             return DataSources.to_variant (sources);
         }
@@ -149,13 +149,16 @@ namespace Zeitgeist
             return false;
         }
 
-        public bool register_data_source (string unique_id, string name,
-            string description, Variant event_templates, BusName? sender) throws  DataModelError
+        public async bool register_data_source (string unique_id,
+            string name, string description, Variant event_templates,
+            Cancellable? cancellable=null, BusName? sender)
+            throws DataModelError
         {
-            debug ("%s: %s, %s, %s", Log.METHOD, unique_id, name, description);
+            debug ("%s: %s, %s, %s", GLib.Log.METHOD, unique_id,
+                name, description);
             if (sender == null)
             {
-                warning ("%s: sender == null, ignoring request", Log.METHOD);
+                warning ("%s: sender == null, ignoring request", GLib.Log.METHOD);
                 return false;
             }
 
@@ -182,10 +185,11 @@ namespace Zeitgeist
                 bus_name_2_ds.insert (sender, MULTIPLE_MARKER);
             }
 
+            GenericArray<Event> templates; // Vala: block scopes in async buggy
             unowned DataSource? ds = sources.lookup (unique_id);
             if (ds != null)
             {
-                var templates = Events.from_variant (event_templates);
+                templates = Events.from_variant (event_templates);
                 ds.name = name;
                 ds.description = description;
                 ds.event_templates = templates;
@@ -199,7 +203,7 @@ namespace Zeitgeist
             }
             else
             {
-                var templates = Events.from_variant (event_templates);
+                templates = Events.from_variant (event_templates);
                 DataSource new_ds = new DataSource.full (unique_id, name,
                     description, templates);
                 new_ds.enabled = true;
@@ -215,9 +219,10 @@ namespace Zeitgeist
 
         }
 
-        public void set_data_source_enabled (string unique_id, bool enabled)
+        public async void set_data_source_enabled (string unique_id, bool enabled,
+            Cancellable? cancellable=null)
         {
-            debug ("%s: %s, %d", Log.METHOD, unique_id, (int) enabled);
+            debug ("%s: %s, %d", GLib.Log.METHOD, unique_id, (int) enabled);
             unowned DataSource? ds = sources.lookup (unique_id);
             if (ds != null)
             {
@@ -234,7 +239,8 @@ namespace Zeitgeist
             }
         }
 
-        public Variant get_data_source_from_id (string unique_id) throws Error
+        public async Variant get_data_source_from_id (string unique_id,
+            Cancellable? cancellable=null) throws Error
         {
             unowned DataSource? ds = sources.lookup (unique_id);
             if (ds != null)

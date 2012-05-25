@@ -107,7 +107,7 @@ namespace Zeitgeist
                 warning ("%s", err.message);
             }
 
-            debug ("%s, this.ref_count = %u", Log.METHOD, this.ref_count);
+            debug ("%s, this.ref_count = %u", GLib.Log.METHOD, this.ref_count);
         }
 
     }

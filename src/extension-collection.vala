@@ -52,7 +52,7 @@ namespace Zeitgeist
 #if BUILTIN_EXTENSIONS
             RegisterExtensionFunc[] builtins =
             {
-//                data_source_registry_extension_init,
+                data_source_registry_extension_init,
                 blacklist_init,
                 histogram_init,
                 storage_monitor_init,

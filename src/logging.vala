@@ -137,13 +137,13 @@ namespace Zeitgeist
                 }
             }
             if (discarded != 0)
-                Log.set_handler (null, discarded, () => {});
+                GLib.Log.set_handler (null, discarded, () => {});
 
             if (log_file != null)
                 Logging.log_file = FileStream.open (log_file, "a");
 
             LogLevelFlags logged = ~discarded & ~LogLevelFlags.FLAG_RECURSION;
-            Log.set_handler (null, logged, log_handler);
+            GLib.Log.set_handler (null, logged, log_handler);
         }
 
     }
