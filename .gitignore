@@ -75,3 +75,4 @@ libzeitgeist/*.c
 *.lo
 *.pyc
 *.swp
+build/
