@@ -1,0 +1,6 @@
+namespace Config
+{
+  public const string GETTEXT_PACKAGE = "zeitgeist";
+  public const string VERSION = "@ZEITGEIST_VERSION@";
+  public const string DATADIR = "share";
+}
