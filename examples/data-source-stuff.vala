@@ -37,10 +37,20 @@ void on_source_registered (DataSource source)
     stdout.printf("%s registered!\n", source.name);
 }
 
-void on_source_enabled (string unique_id, bool enabled)
+async void on_source_enabled (string unique_id, bool enabled)
 {
-    stdout.printf("%s has been %s!\n", unique_id,
-        (enabled) ? "enabled" : "disabled");
+    var registry = new Zeitgeist.DataSourceRegistry ();
+    DataSource source;
+    try
+    {
+        source = yield registry.get_data_source_from_id (unique_id);
+        stdout.printf("%s has been %s!\n", source.name,
+            (enabled) ? "enabled" : "disabled");
+    }
+    catch (Error e)
+    {
+        critical ("Error retrieving data-source information: %s", e.message);
+    }
 }
 
 async void print_data_sources (DataSourceRegistry registry) throws Error

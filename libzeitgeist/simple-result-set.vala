@@ -31,10 +31,10 @@ internal class SimpleResultSet : Object, ResultSet
     private uint num_estimated_matches;
     private uint cursor;
 
-    internal SimpleResultSet (GenericArray<Event> events)
+    internal SimpleResultSet (GenericArray<Event> events, uint matches=-1)
     {
         this.events = events;
-        num_estimated_matches = events.length;
+        num_estimated_matches = (matches >= 0) ? matches : events.length;
         cursor = 0;
     }
 

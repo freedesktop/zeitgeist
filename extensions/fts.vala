@@ -41,22 +41,6 @@ namespace Zeitgeist
             out uint matches) throws Error;
     }
 
-    /* Because of a Vala bug we have to define the proxy interface outside of
-     * [ModuleInit] source */
-    /*
-    [DBus (name = "org.gnome.zeitgeist.SimpleIndexer")]
-    public interface RemoteSimpleIndexer : Object
-    {
-        public abstract async void search (
-            string query_string,
-            [DBus (signature = "(xx)")] Variant time_range,
-            [DBus (signature = "a(asaasay)")] Variant filter_templates,
-            uint offset, uint count, uint result_type,
-            [DBus (signature = "a(asaasay)")] out Variant events,
-            out uint matches) throws Error;
-    }
-    */
-
     class SearchEngine: Extension, RemoteSearchEngine
     {
 
@@ -105,7 +89,7 @@ namespace Zeitgeist
                 warning ("%s", err.message);
             }
         }
-        
+
         private void proxy_not_present()
         {
             notifier.remove_monitor (new BusName (INDEXER_NAME),"/org/gnome/zeitgeist/monitor/special");
@@ -153,7 +137,7 @@ namespace Zeitgeist
                     "Not connected to SimpleIndexer");
             }
         }
-        
+
         public override void unload ()
         {
             try

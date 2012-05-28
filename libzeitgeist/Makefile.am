@@ -24,6 +24,7 @@ libzeitgeist_2_0_la_SOURCES = \
 	data-source.vala \
 	data-source-registry.vala \
 	datamodel.vala \
+	index.vala \
 	log.vala \
 	mimetype.vala \
 	monitor.vala \
