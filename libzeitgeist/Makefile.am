@@ -29,6 +29,7 @@ libzeitgeist_2_0_la_SOURCES = \
 	monitor.vala \
 	ontology-uris.vala \
 	ontology.vala \
+	queued-proxy-wrapper.vala \
 	remote.vala \
 	result-set.vala \
 	simple-result-set.vala \

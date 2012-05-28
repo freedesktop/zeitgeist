@@ -1,2 +1,3 @@
  - removed reference stealing
  - "connected" property renamed to "is-connected"
+ - DataSource.is_enabled renamed to get_enabled (?)

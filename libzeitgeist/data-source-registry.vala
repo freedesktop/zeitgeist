@@ -21,9 +21,8 @@
 namespace Zeitgeist
 {
 
-    // FIXME: sucks, why can't we make this internal and DataSourceRegistry be public?
     [DBus (name = "org.gnome.zeitgeist.DataSourceRegistry")]
-    public interface RemoteRegistry: Object
+    internal interface RemoteRegistry: Object
     {
         [DBus (signature = "a(sssa(asaasay)bxb)")]
         public abstract async Variant get_data_sources (
@@ -46,14 +45,14 @@ namespace Zeitgeist
             [DBus (signature = "(sssa(asaasay)bxb)")] Variant data_source);
     }
 
-    public class DataSourceRegistry : Object
+    public class DataSourceRegistry : QueuedProxyWrapper
     {
 
         private RemoteRegistry proxy;
-        //FIXME: refactor code out from log.vala
-        //private SList<QueuedMethod> method_dispatch_queue;
 
-        // FIXME: signals
+        public signal void source_disconnected (DataSource data_source);
+        public signal void source_enabled (string unique_id, bool enabled);
+        public signal void source_registered (DataSource data_source);
 
         public DataSourceRegistry ()
         {
@@ -65,29 +64,52 @@ namespace Zeitgeist
                     try
                     {
                         proxy = Bus.get_proxy.end (res);
-                        // FIXME
+                        proxy_acquired (proxy);
+
+                        // FIXME: here or each time in _connection_established?
+                        proxy.data_source_disconnected.connect ((data_source) => {
+                            var source = new DataSource.from_variant (data_source);
+                            source_disconnected (source);
+                        });
+                        proxy.data_source_enabled.connect ((unique_id, enabled) => {
+                            // FIXME: why don't we return DataSource here too? :(
+                            source_enabled (unique_id, enabled);
+                        });
+                        proxy.data_source_registered.connect ((data_source) => {
+                            var source = new DataSource.from_variant (data_source);
+                            source_registered (source);
+                        });
                     }
                     catch (IOError err)
                     {
                         critical (
                             "Unable to connect to Zeitgeist's " +
-                            "DataSourceRegistry: %s");
+                            "DataSourceRegistry: %s", err.message);
+                        proxy_unavailable();
                     }
                 });
         }
 
-        public async GenericArray<DataSource> get_data_sources (
-            Cancellable? cancellable) throws Error
+        protected override void on_connection_established ()
         {
-            // yield wait_for_proxy (get_data_sources.callback);
+        }
+
+        protected override void on_connection_lost ()
+        {
+        }
+
+        public async GenericArray<DataSource> get_data_sources (
+            Cancellable? cancellable=null) throws Error
+        {
+            yield wait_for_proxy (get_data_sources.callback);
             var result = yield proxy.get_data_sources (cancellable);
             return DataSources.from_variant (result);
         }
 
         public async DataSource get_data_source_from_id (
-            string unique_id, Cancellable? cancellable) throws Error
+            string unique_id, Cancellable? cancellable=null) throws Error
         {
-            // yield wait_for_proxy (get_data_source_from_id.callback);
+            yield wait_for_proxy (get_data_source_from_id.callback);
             var result = yield proxy.get_data_source_from_id (unique_id,
                 cancellable);
 
@@ -95,9 +117,9 @@ namespace Zeitgeist
         }
 
         public async bool register_data_source (
-            DataSource data_source, Cancellable? cancellable) throws Error
+            DataSource data_source, Cancellable? cancellable=null) throws Error
         {
-            // yield wait_for_proxy (register_data_source.callback);
+            yield wait_for_proxy (register_data_source.callback);
             return yield proxy.register_data_source (
                 data_source.unique_id, data_source.name,
                 data_source.description,
@@ -107,10 +129,10 @@ namespace Zeitgeist
 
         // FIXME: return bool with false if error? (+ rethrow error)
         public async void set_data_source_enabled (
-            string unique_id, bool enabled, Cancellable? cancellable)
+            string unique_id, bool enabled, Cancellable? cancellable=null)
             throws Error
         {
-            // yield wait_for_proxy (set_data_source_enabled.callback);
+            yield wait_for_proxy (set_data_source_enabled.callback);
             yield proxy.set_data_source_enabled (unique_id, enabled,
                 cancellable);
         }

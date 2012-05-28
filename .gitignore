@@ -75,6 +75,7 @@ libzeitgeist/*.c
 examples/get-events-with-id
 examples/monitor-events
 examples/most-recent-events
+examples/data-source-stuff
 *.o
 *.la
 *.stamp

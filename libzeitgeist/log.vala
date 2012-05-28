@@ -39,28 +39,13 @@ namespace Zeitgeist
  * variants that are "fire and forget" ignoring the normal return value, so
  * that callbacks does not have to be set up.
  */
-public class Log : Object
+public class Log : QueuedProxyWrapper
 {
     private static Log default_instance;
 
     private RemoteLog proxy;
     private Variant? engine_version;
-    private SList<QueuedMethod> method_dispatch_queue;
     private HashTable<Monitor, uint> monitors;
-
-    public bool is_connected { get; private set; default = false; }
-
-    private class QueuedMethod
-    {
-
-        public SourceFunc queued_method { public /*owned*/ get; private /*owned*/ set; }
-
-        public QueuedMethod (SourceFunc callback)
-        {
-            queued_method = callback;
-        }
-
-    }
 
     public Log ()
     {
@@ -73,16 +58,13 @@ public class Log : Object
                 try
                 {
                     proxy = Bus.get_proxy.end (res);
-                    is_connected = true;
-                    on_connection_established ();
-                    proxy.notify["g-name-owner"].connect (name_owner_changed);
-                    process_queued_methods ();
+                    proxy_acquired (proxy);
                 }
                 catch (IOError err)
                 {
                     critical ("Unable to connect to Zeitgeist: %s",
                         err.message);
-                    // FIXME: process_queued_methods() with manual error callbacks
+                    proxy_unavailable();
                 }
             });
     }
@@ -94,46 +76,20 @@ public class Log : Object
         return default_instance;
     }
 
-    private void process_queued_methods ()
+    protected override void on_connection_established ()
     {
-        warning ("Processing queued methods...");
-        method_dispatch_queue.reverse ();
-        foreach (QueuedMethod m in method_dispatch_queue)
-            m.queued_method ();
-        method_dispatch_queue = null;
-    }
-
-    private void name_owner_changed (ParamSpec pspec)
-    {
-        string? name_owner = null; // FIXME: .get_name_owner ();
-        this.is_connected = name_owner != null;
-
-        on_connection_established ();
-    }
-
-    private void on_connection_established ()
-    {
-        if (is_connected)
+        // Reinstate all active monitors
+        foreach (unowned Monitor monitor in monitors.get_keys ())
         {
-            // Reinstate all active monitors
-            foreach (unowned Monitor monitor in monitors.get_keys ())
-            {
-                reinstall_monitor (monitor);
-            }
-
-            // Update our cached version property
-            engine_version = proxy.version;
-            warn_if_fail (engine_version.get_type_string () == "(iii)");
+            reinstall_monitor (monitor);
         }
+
+        // Update our cached version property
+        engine_version = proxy.version;
+        warn_if_fail (engine_version.get_type_string () == "(iii)");
     }
 
-    private async void wait_for_proxy (SourceFunc callback) {
-        if (likely (proxy != null))
-            return;
-        if (method_dispatch_queue == null)
-            method_dispatch_queue = new SList<QueuedMethod> ();
-        method_dispatch_queue.prepend (new QueuedMethod (callback));
-        yield;
+    protected override void on_connection_lost () {
     }
 
     /*

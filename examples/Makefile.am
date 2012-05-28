@@ -19,10 +19,14 @@ zeitgeist_libs = \
 	$(ZEITGEIST_LIBS)
 
 noinst_PROGRAMS = \
+	data-source-stuff \
 	get-events-with-id \
 	monitor-events \
 	most-recent-events \
 	$(NULL)
+
+data_source_stuff_SOURCES	= data-source-stuff.vala
+data_source_stuff_LDADD		= $(zeitgeist_libs)
 
 get_events_with_id_SOURCES	= get-events-with-id.vala
 get_events_with_id_LDADD	= $(zeitgeist_libs)
