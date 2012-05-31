@@ -76,6 +76,11 @@ examples/get-events-with-id
 examples/monitor-events
 examples/most-recent-events
 examples/data-source-stuff
+libzeitgeist/libzeitgeist-2.0.pc
+gtk-doc.make
+doc/libzeitgeist/zeitgeist-2.0-*.txt
+doc/libzeitgeist/zeitgeist-2.0.types
+doc/libzeitgeist/zeitgeist-2.0-scan.c
 *.o
 *.la
 *.stamp
@@ -84,4 +89,3 @@ examples/data-source-stuff
 *.swp
 *.h
 *.vapi
-libzeitgeist/libzeitgeist-2.0.pc

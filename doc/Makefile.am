@@ -1,3 +1,9 @@
+NULL =
+
+SUBDIRS = \
+	libzeitgeist \
+	$(NULL)
+
 man_MANS = \
 	zeitgeist-daemon.1
 

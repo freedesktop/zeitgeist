@@ -39,6 +39,8 @@ PKG_CHECK_MODULES(ZEITGEIST, [$ZEITGEIST_REQUIRED])
 AC_SUBST(ZEITGEIST_CFLAGS)
 AC_SUBST(ZEITGEIST_LIBS)
 
+GTK_DOC_CHECK(1.0)
+
 #################################################
 # Dee-ICU check
 #################################################
@@ -121,6 +123,7 @@ AC_CONFIG_FILES([
 	test/direct/Makefile
 	examples/Makefile
 	doc/Makefile
+	doc/libzeitgeist/Makefile
 	po/Makefile.in
 ])
 

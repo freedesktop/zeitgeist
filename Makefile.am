@@ -18,7 +18,9 @@ zeitgeistdoc_DATA = \
 	NEWS \
 	$(NULL)
 
-DISTCHECK_CONFIGURE_FLAGS = --with-session-bus-services-dir="\$(datadir)"/dbus-1/services
+DISTCHECK_CONFIGURE_FLAGS = \
+	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
+	--enable-gtk-doc
 
 EXTRA_DIST = \
 	$(zeitgeistdoc_DATA) \
