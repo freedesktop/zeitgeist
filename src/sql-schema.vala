@@ -454,27 +454,27 @@ namespace Zeitgeist.SQLite
             exec_query (database, """DROP INDEX IF EXISTS event_subj_id""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_id
-                    ON event(subj_id, timestamp)
+                    ON event(subj_id, timestamp, subj_interpretation)
                 """);
             exec_query (database, """DROP INDEX IF EXISTS event_subj_id_current""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_id_current
-                    ON event(subj_id_current, timestamp)
+                    ON event(subj_id_current, timestamp, subj_interpretation)
                 """);
             exec_query (database, """DROP INDEX IF EXISTS event_subj_interpretation""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_interpretation
-                    ON event(subj_interpretation,timestamp)
+                    ON event(subj_interpretation, timestamp, subj_id)
                 """);
             exec_query (database, """DROP INDEX IF EXISTS event_subj_manifestation""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_manifestation
-                    ON event(subj_manifestation, timestamp)
+                    ON event(subj_manifestation, timestamp, subj_id)
                 """);
             exec_query (database, """DROP INDEX IF EXISTS event_subj_origin""");
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_origin
-                    ON event(subj_origin, timestamp)
+                    ON event(subj_origin, timestamp, subj_interpretation, subj_id)
                 """);
             exec_query (database, """DROP INDEX IF EXISTS event_subj_mimetype""");
             exec_query (database, """
