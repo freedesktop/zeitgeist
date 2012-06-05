@@ -12,7 +12,7 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-AM_PROG_VALAC([0.14.0])
+AM_PROG_VALAC([0.16.0])
 
 AM_SILENT_RULES([yes])
 
@@ -32,6 +32,7 @@ SQLITE_REQUIRED=3.7
 
 ZEITGEIST_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
                     gobject-2.0 >= $GLIB_REQUIRED
+                    gmodule-2.0 >= $GLIB_REQUIRED
                     gio-unix-2.0 >= $GLIB_REQUIRED
                     sqlite3 >= $SQLITE_REQUIRED"
 
@@ -40,6 +41,25 @@ AC_SUBST(ZEITGEIST_CFLAGS)
 AC_SUBST(ZEITGEIST_LIBS)
 
 GTK_DOC_CHECK(1.0)
+
+AC_CONFIG_FILES([
+	Makefile
+	src/Makefile
+	libzeitgeist/Makefile
+	extensions/Makefile
+	extensions/fts++/Makefile
+	extensions/fts++/test/Makefile
+	data/Makefile
+	data/ontology/Makefile
+	python/Makefile
+	test/Makefile
+	test/dbus/Makefile
+	test/direct/Makefile
+	examples/Makefile
+	doc/Makefile
+	doc/libzeitgeist/Makefile
+	po/Makefile.in
+])
 
 #################################################
 # Dee-ICU check
@@ -126,35 +146,6 @@ AC_SUBST(LIBZEITGEIST_VERSION_MAJOR)
 AC_SUBST(LIBZEITGEIST_VERSION_MINOR)
 AC_SUBST(LIBZEITGEIST_VERSION_PATCH)
 AC_SUBST(LIBZEITGEIST_VERSION)
-
-LIBZEITGEIST_VERSION_MAJOR="2"
-LIBZEITGEIST_VERSION_MINOR="0"
-LIBZEITGEIST_VERSION_PATCH="0"
-LIBZEITGEIST_VERSION="$(LIBZEITGEIST_VERSION_MAJOR).$(LIBZEITGEIST_VERSION_MINOR).$(LIBZEITGEIST_VERSION_PATCH)"
-AC_SUBST(LIBZEITGEIST_VERSION_MAJOR)
-AC_SUBST(LIBZEITGEIST_VERSION_MINOR)
-AC_SUBST(LIBZEITGEIST_VERSION_PATCH)
-AC_SUBST(LIBZEITGEIST_VERSION)
-
-AC_CONFIG_FILES([
-	Makefile
-	src/Makefile
-	libzeitgeist/Makefile
-  libzeitgeist/libzeitgeist-2.0.pc
-	extensions/Makefile
-	extensions/fts++/Makefile
-	extensions/fts++/test/Makefile
-	data/Makefile
-	data/ontology/Makefile
-	python/Makefile
-	test/Makefile
-	test/dbus/Makefile
-	test/direct/Makefile
-	examples/Makefile
-	doc/Makefile
-	doc/libzeitgeist/Makefile
-	po/Makefile.in
-])
 
 #################################################
 # Ontology parsing dependencies
