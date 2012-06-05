@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [0.9.0], [dev@lists.zeitgeist-project.com], [zeitgeist])
+AC_INIT([zeitgeist], [0.9.0.1], [dev@lists.zeitgeist-project.com], [zeitgeist])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip])
@@ -82,21 +82,50 @@ fi
 DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
+#################################################
+# Configure option: --enable-explain-queries
+#################################################
+
+AC_ARG_ENABLE([explain-queries],
+            AS_HELP_STRING([--enable-explain-queries], [Enable SQL debugging]),
+            [explain_queries=$enableval],[explain_queries="no"])
+
+AM_CONDITIONAL(EXPLAIN_QUERIES, test "x$explain_queries" = "xyes")
 
 #################################################
-# Configure options: --disable-fts.
+# Configure option: --disable-fts
 #################################################
+
 AC_ARG_ENABLE([fts],
             AS_HELP_STRING([--disable-fts], [Build without FTS++ extension]),
             [enable_fts=$enableval],[enable_fts="yes"])
 
 AM_CONDITIONAL(HAVE_FTS, test "x$enable_fts" != "xno")
 
-AC_ARG_ENABLE([explain-queries],
-            AS_HELP_STRING([--enable-explain-queries], [Enable SQL debugging]),
-            [explain_queries=$enableval],[enable_queries="no"])
+if test "x$enable_fts" != "xno"; then
+    # check for Xapian
+    AC_CHECK_PROG(HAVE_XAPIAN, xapian-config, yes, no)
+    if test "x$HAVE_XAPIAN" = "xno"; then
+      AC_MSG_ERROR("You need the Xapian development files in order to compile Zeitgeist")
+    fi
+    XAPIAN_LIBS=`xapian-config --libs`
+    XAPIAN_CXXFLAGS=`xapian-config --cxxflags`
+    AC_SUBST(XAPIAN_LIBS)
+    AC_SUBST(XAPIAN_CXXFLAGS)
+fi
 
-AM_CONDITIONAL(EXPLAIN_QUERIES, test "x$explain_queries" = "xyes")
+#################################################
+# Libzeitgeist 2.0
+#################################################
+
+LIBZEITGEIST_VERSION_MAJOR="2"
+LIBZEITGEIST_VERSION_MINOR="0"
+LIBZEITGEIST_VERSION_PATCH="0"
+LIBZEITGEIST_VERSION="$(LIBZEITGEIST_VERSION_MAJOR).$(LIBZEITGEIST_VERSION_MINOR).$(LIBZEITGEIST_VERSION_PATCH)"
+AC_SUBST(LIBZEITGEIST_VERSION_MAJOR)
+AC_SUBST(LIBZEITGEIST_VERSION_MINOR)
+AC_SUBST(LIBZEITGEIST_VERSION_PATCH)
+AC_SUBST(LIBZEITGEIST_VERSION)
 
 LIBZEITGEIST_VERSION_MAJOR="2"
 LIBZEITGEIST_VERSION_MINOR="0"
@@ -127,15 +156,9 @@ AC_CONFIG_FILES([
 	po/Makefile.in
 ])
 
-# check for Xapian
-AC_CHECK_PROG(HAVE_XAPIAN, xapian-config, yes, no)
-if test "x$HAVE_XAPIAN" = "xno"; then
-  AC_MSG_ERROR("You need the Xapian development files in order to compile Zeitgeist")
-fi
-XAPIAN_LIBS=`xapian-config --libs`
-XAPIAN_CXXFLAGS=`xapian-config --cxxflags`
-AC_SUBST(XAPIAN_LIBS)
-AC_SUBST(XAPIAN_CXXFLAGS)
+#################################################
+# Ontology parsing dependencies
+#################################################
 
 # check for rapper
 AC_CHECK_PROG(HAVE_RAPPER, rapper, yes, no)
@@ -152,18 +175,25 @@ else
   AC_MSG_RESULT([yes])
 fi
 
+#################################################
+# Summary
+#################################################
+
 AC_OUTPUT
 
 cat <<EOF
 
 ${PACKAGE}-${VERSION}
 
-  Build Environment
+  Build environment
     Install Prefix:     ${prefix}
 
   Optional dependencies
     fts++:              ${enable_fts}
     dee-icu:            ${with_dee_icu}
+
+  Other build options:
+    SQL debugging:      ${explain_queries}
 
 EOF
 
