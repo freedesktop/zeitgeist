@@ -32,6 +32,7 @@ SQLITE_REQUIRED=3.7
 
 ZEITGEIST_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
                     gobject-2.0 >= $GLIB_REQUIRED
+                    gmodule-2.0 >= $GLIB_REQUIRED
                     gio-unix-2.0 >= $GLIB_REQUIRED
                     sqlite3 >= $SQLITE_REQUIRED"
 
