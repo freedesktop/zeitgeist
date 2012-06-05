@@ -40,6 +40,23 @@ PKG_CHECK_MODULES(ZEITGEIST, [$ZEITGEIST_REQUIRED])
 AC_SUBST(ZEITGEIST_CFLAGS)
 AC_SUBST(ZEITGEIST_LIBS)
 
+AC_CONFIG_FILES([
+	Makefile
+	src/Makefile
+	extensions/Makefile
+	extensions/fts++/Makefile
+	extensions/fts++/test/Makefile
+	data/Makefile
+	data/ontology/Makefile
+	python/Makefile
+	test/Makefile
+	test/dbus/Makefile
+	test/direct/Makefile
+	examples/Makefile
+	doc/Makefile
+	po/Makefile.in
+])
+
 #################################################
 # Dee-ICU check
 #################################################
@@ -126,26 +143,6 @@ AC_SUBST(LIBZEITGEIST_VERSION_MINOR)
 AC_SUBST(LIBZEITGEIST_VERSION_PATCH)
 AC_SUBST(LIBZEITGEIST_VERSION)
 
-AC_CONFIG_FILES([
-	Makefile
-	src/Makefile
-	libzeitgeist/Makefile
-  libzeitgeist/libzeitgeist-2.0.pc
-	extensions/Makefile
-	extensions/fts++/Makefile
-	extensions/fts++/test/Makefile
-	data/Makefile
-	data/ontology/Makefile
-	python/Makefile
-	test/Makefile
-	test/dbus/Makefile
-	test/direct/Makefile
-	examples/Makefile
-	doc/Makefile
-	doc/libzeitgeist/Makefile
-	po/Makefile.in
-])
-
 #################################################
 # Ontology parsing dependencies
 #################################################
@@ -186,4 +183,3 @@ ${PACKAGE}-${VERSION}
     SQL debugging:      ${explain_queries}
 
 EOF
-
