@@ -46,6 +46,7 @@ AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 	libzeitgeist/Makefile
+	libzeitgeist/libzeitgeist-2.0.pc
 	extensions/Makefile
 	extensions/fts++/Makefile
 	extensions/fts++/test/Makefile
