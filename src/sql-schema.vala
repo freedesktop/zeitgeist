@@ -246,6 +246,7 @@ namespace Zeitgeist.SQLite
                 FileUtils.chmod (Utils.get_data_path (), 0700);
 
             exec_query (database, "PRAGMA journal_mode = WAL");
+            exec_query (database, "PRAGMA synchronous = NORMAL");
             exec_query (database, "PRAGMA locking_mode = NORMAL");
 
             // URI
