@@ -46,7 +46,7 @@ AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 	libzeitgeist/Makefile
-	libzeitgeist/libzeitgeist-2.0.pc
+	libzeitgeist/zeitgeist-2.0.pc
 	extensions/Makefile
 	extensions/fts++/Makefile
 	extensions/fts++/test/Makefile
@@ -186,6 +186,7 @@ ${PACKAGE}-${VERSION}
 
   Other build options:
     SQL debugging:      ${explain_queries}
+    libzeitgeist docs:  ${enable_gtk_doc}
 
 EOF
 

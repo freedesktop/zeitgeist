@@ -42,7 +42,7 @@ LIBZEITGEIST_VERSION=@LIBZEITGEIST_VERSION_MAJOR@:0:0
 libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_VERSION)
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libzeitgeist-2.0.pc
+pkgconfig_DATA = zeitgeist-2.0.pc
 
 libzeitgeist_includedir=$(includedir)/libzeitgeist-2.0/zeitgeist/
 libzeitgeist_include_HEADERS = \
