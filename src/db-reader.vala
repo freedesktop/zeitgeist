@@ -281,6 +281,9 @@ public class DbReader : Object
         bool time_asc = ResultType.is_sort_order_asc ((ResultType) result_type);
         sql += " timestamp %s".printf ((time_asc) ? "ASC" : "DESC");
 
+        if (where.get_is_simple ())
+            sql = sql.replace ("FROM event_view", "FROM event");
+
         int rc;
         Sqlite.Statement stmt;
 
@@ -367,6 +370,7 @@ public class DbReader : Object
         {
             where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
                 storage_state.to_string ());
+            where.set_is_simple (false);
         }
         else if (storage_state != StorageState.ANY)
         {
