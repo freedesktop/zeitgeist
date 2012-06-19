@@ -359,10 +359,10 @@ public class DbReader : Object
          *    -- Markus Korn, 29/11/2010
          */
         if (time_range.start != 0)
-            where.add (("+timestamp >= %" + int64.FORMAT).printf(
+            where.add (("timestamp >= %" + int64.FORMAT).printf(
                 time_range.start));
         if (time_range.end != 0)
-            where.add (("+timestamp <= %" + int64.FORMAT).printf(
+            where.add (("timestamp <= %" + int64.FORMAT).printf(
                 time_range.end));
 
         if (storage_state == StorageState.AVAILABLE ||
