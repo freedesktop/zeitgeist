@@ -351,12 +351,8 @@ public class DbReader : Object
         WhereClause where = new WhereClause (WhereClause.Type.AND);
 
         /**
-         * We are using the unary operator here to tell SQLite to not use
-         * the index on the timestamp column at the first place. This is a
-         * "fix" for (LP: #672965) based on some benchmarks, which suggest
-         * a performance win, but we might not oversee all implications.
-         * (See http://www.sqlite.org/optoverview.html, section 6.0).
-         *    -- Markus Korn, 29/11/2010
+         * Since we use multi-index columns that already include timestamp
+         * indxes, we can stop skipping the timestamp index.
          */
         if (time_range.start != 0)
             where.add (("timestamp >= %" + int64.FORMAT).printf(
