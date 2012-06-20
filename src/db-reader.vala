@@ -281,6 +281,9 @@ public class DbReader : Object
         bool time_asc = ResultType.is_sort_order_asc ((ResultType) result_type);
         sql += " timestamp %s".printf ((time_asc) ? "ASC" : "DESC");
 
+        if (where.get_is_simple ())
+            sql = sql.replace ("FROM event_view", "FROM event");
+
         int rc;
         Sqlite.Statement stmt;
 
@@ -348,18 +351,14 @@ public class DbReader : Object
         WhereClause where = new WhereClause (WhereClause.Type.AND);
 
         /**
-         * We are using the unary operator here to tell SQLite to not use
-         * the index on the timestamp column at the first place. This is a
-         * "fix" for (LP: #672965) based on some benchmarks, which suggest
-         * a performance win, but we might not oversee all implications.
-         * (See http://www.sqlite.org/optoverview.html, section 6.0).
-         *    -- Markus Korn, 29/11/2010
+         * Since we use multi-index columns that already include timestamp
+         * indxes, we can stop skipping the timestamp index.
          */
         if (time_range.start != 0)
-            where.add (("+timestamp >= %" + int64.FORMAT).printf(
+            where.add (("timestamp >= %" + int64.FORMAT).printf(
                 time_range.start));
         if (time_range.end != 0)
-            where.add (("+timestamp <= %" + int64.FORMAT).printf(
+            where.add (("timestamp <= %" + int64.FORMAT).printf(
                 time_range.end));
 
         if (storage_state == StorageState.AVAILABLE ||
@@ -367,6 +366,7 @@ public class DbReader : Object
         {
             where.add ("(subj_storage_state=? OR subj_storage_state IS NULL)",
                 storage_state.to_string ());
+            where.set_is_simple (false);
         }
         else if (storage_state != StorageState.ANY)
         {

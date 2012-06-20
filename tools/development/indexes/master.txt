@@ -1,0 +1,212 @@
+{
+  "event_subj_mimetype_id": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "subj_mimetype": {
+        "sort": null, 
+        "collation": null
+      }, 
+      "id": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_subj_storage": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "subj_storage": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_subj_id": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "subj_id": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_subj_origin": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "subj_origin": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_id": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "id": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "text_value": {
+    "table": "text", 
+    "unique": true, 
+    "columns": {
+      "value": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_subj_text": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "subj_text": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_interpretation": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "interpretation": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_subj_manifestation": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "subj_manifestation": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_subj_interpretation": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "subj_interpretation": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "extensions_conf_key": {
+    "table": "extensions_conf", 
+    "unique": true, 
+    "columns": {
+      "key": {
+        "sort": null, 
+        "collation": null
+      }, 
+      "extension": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "uri_value": {
+    "table": "uri", 
+    "unique": true, 
+    "columns": {
+      "value": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_subj_id_current": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "subj_id_current": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_subj_mimetype": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "subj_mimetype": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_manifestation": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "manifestation": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_origin": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "origin": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "storage_value": {
+    "table": "storage", 
+    "unique": true, 
+    "columns": {
+      "value": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_timestamp_subj_interp_subj_id_id": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "timestamp": {
+        "sort": null, 
+        "collation": null
+      }, 
+      "subj_interpretation": {
+        "sort": null, 
+        "collation": null
+      }, 
+      "id": {
+        "sort": null, 
+        "collation": null
+      }, 
+      "subj_id": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }, 
+  "event_actor": {
+    "table": "event", 
+    "unique": false, 
+    "columns": {
+      "actor": {
+        "sort": null, 
+        "collation": null
+      }
+    }
+  }
+}

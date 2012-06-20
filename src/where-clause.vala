@@ -55,11 +55,13 @@ namespace Zeitgeist
         private bool negated;
         private GenericArray<string> conditions;
         private GenericArray<string> arguments;
+        private bool is_simple;
 
         public WhereClause (WhereClause.Type type, bool negate=false)
         {
             clause_type = type;
             negated = negate;
+            is_simple = true;
             conditions = new GenericArray<string> ();
             arguments = new GenericArray<string> ();
         }
@@ -126,6 +128,7 @@ namespace Zeitgeist
             string sql = "%s %s= (SELECT id FROM %s WHERE value = ?)".printf (
                 column, (negation) ? "!" : "", search_table);
             add (sql, val);
+            is_simple = false;
         }
 
         public void add_text_condition (string column, string val,
@@ -152,6 +155,7 @@ namespace Zeitgeist
                 sql = "(%s NOT IN (%s) OR %s is NULL)".printf (column,
                     optimized_glob, column);
             add_with_array (sql, values);
+            is_simple = false;
         }
 
         public void extend (WhereClause clause)
@@ -160,6 +164,7 @@ namespace Zeitgeist
                 return;
             string sql = clause.get_sql_conditions ();
             add_with_array (sql, clause.arguments);
+            is_simple = clause.get_is_simple ();
             /*if not where.may_have_results():
             if self._relation == self.AND:
                 self.clear()
@@ -175,6 +180,16 @@ namespace Zeitgeist
         public bool may_have_results ()
         {
             return conditions.length > 0; // or not self._no_result_member
+        }
+
+        public bool get_is_simple ()
+        {
+            return is_simple;
+        }
+
+        public void set_is_simple (bool simple)
+        {
+            is_simple = simple;
         }
 
         /**

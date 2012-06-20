@@ -26,6 +26,8 @@ import time
 import json
 import sys
 import logging
+import csv
+import sqlite3
 
 from optparse import OptionParser
 from logging import handlers
@@ -83,6 +85,7 @@ def get_cmdline():
         action="append", type="str")
     parser.add_option("--type", dest="type", help="type of plot")
     parser.add_option("--count", dest="count", help="number of execution of each query", type="int")
+    parser.add_option("--csv", help="Output using CSV", default=False, action="store_true")
     (options, args) = parser.parse_args()
     assert not args
     return options
@@ -151,11 +154,29 @@ if __name__ == "__main__":
                 "name": options.name,
             }
         if options.output and os.path.exists(options.output):
-            existing_data = json.load(open(options.output))
+            if options.csv:
+                existing_data = {}
+                datafile = csv.reader(open(options.output))
+                for row in datafile:
+                  try:
+                      existing_data[row[1]] = {
+                          "name": row[0],
+                          "query": row[1],
+                          "total_events": int(row[2]),
+                          "overall": float(row[3]),
+                      }
+                  except Exception, e:
+                      pass
+            else:
+                existing_data = json.load(open(options.output))
         else:
             existing_data = {}
         num_queries = 50 if not options.count else options.count
         logging.basicConfig(level=logging.DEBUG)
+
+        db = sqlite3.connect(os.path.expanduser("~/.local/share/zeitgeist/activity.sqlite"))
+        allEvents = db.cursor().execute("SELECT COUNT(id) FROM event_view").fetchone()[0]
+        db.close()
         for query in get_query_set(options.queryset):
             args = eval(query)
             start_time = time.time()
@@ -175,22 +196,16 @@ if __name__ == "__main__":
                     for key in temp.keys():
                         if key != "events":
                             results[key] += temp[key]
-                            print results[key]
-            
-            for key in temp.keys():
-                if key != "events":
-                    results[key] = results[key]/num_queries
-            
-            print (results.keys())
+                            print "%s = %s"%(key, results[key])
             
             events = results["events"]
-            run_time = results["find_events"]
-            find_ids_time = results["overall"]
-            find_events_time = results["find_event_ids"]
+            run_time = results["overall"]
+            find_ids_time = results["find_event_ids"]
+            find_events_time = results["find_events"]
             get_events_time = results["get_events"]
             marsh_time = results["marsh_events"]
             
-            print "===>", find_ids_time
+            print "===>", run_time
             
             if query in existing_data and options.merge:
                 print "=================================="
@@ -199,26 +214,50 @@ if __name__ == "__main__":
                 run_time = (old_time * counter + run_time)/(counter + 1)
                 
                 result[query] = {
+                    "name": options.name,
+                    "query": query,
                     "overall": run_time,
                     "counter": counter + 1,
                     "find_ids_time": find_ids_time,
                     "get_events_time": get_events_time,
                     "find_events": find_events_time,
                     "marsh_time": marsh_time,
+                    "event_count": len(events),
+                    "total_events": allEvents,
                 }
             else:
                 result[query] = {
+                    "name": options.name,
+                    "query": query,
                     "overall": run_time,
                     "find_ids_time": find_ids_time,
                     "get_events_time": get_events_time,
                     "find_events": find_events_time,
                     "marsh_time": marsh_time,
+                    "event_count": len(events),
+                    "total_events": allEvents,
                 }
         if options.output:
             f = open(options.output, "w")
         else:
             f = sys.stdout
         try:
-            json.dump(result, f, indent=4)
+            if options.csv:
+                writer = csv.writer(f)
+                writer.writerow(('name', 'query', 'total events', 'time', 'time/event'))
+                for query in result:
+                    if query.startswith("__"):
+                        continue
+                    d = result[query]
+                    row = (
+                      d['name'],
+                      d['query'],
+                      d['total_events'],
+                      d['overall'],
+                      d['overall']/d['total_events'],
+                    )
+                    writer.writerow(row)
+            else:
+                json.dump(result, f, indent=4)
         finally:
             f.close()

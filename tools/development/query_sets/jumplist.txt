@@ -1,0 +1,4 @@
+TimeRange.always(), [Event.new_for_values(subjects=[Subject.new_for_values(mimetype="text/plain")])], StorageState.Any, 0, ResultType.MostRecentSubjects
+TimeRange.always(), [Event.new_for_values(actor="application://gedit.desktop",subjects=[Subject.new_for_values()])], StorageState.Any, 0, ResultType.MostRecentSubjects
+TimeRange.always(), [Event.new_for_values(subjects=[Subject.new_for_values(manifestation=Manifestation.FILE_DATA_OBJECT)])], StorageState.Any, 0, ResultType.MostRecentSubjects
+TimeRange.always(), [Event.new_for_values(actor="application://google-chrome.desktop",subjects=[Subject.new_for_values()])], StorageState.Any, 0, ResultType.MostRecentSubjects
