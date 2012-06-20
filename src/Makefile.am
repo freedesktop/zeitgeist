@@ -5,6 +5,7 @@ bin_PROGRAMS = zeitgeist-daemon
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
+	-ldb_sql \
 	-w \
 	$(NULL)
 
@@ -12,7 +13,7 @@ AM_VALAFLAGS = \
 	--target-glib=2.26 \
 	-D BUILTIN_EXTENSIONS \
 	--pkg gio-2.0 \
-	--pkg sqlite3 \
+	--pkg dbsql \
 	--pkg posix \
 	--pkg gmodule-2.0 \
 	$(top_srcdir)/config.vapi \
@@ -62,8 +63,9 @@ zeitgeist_daemon_SOURCES = \
 	$(extensions_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-zeitgeist_daemon_LDADD = \
+  zeitgeist_daemon_LDADD = \
 	$(ZEITGEIST_LIBS) \
+	-ldb_sql \
 	$(NULL)
 
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
