@@ -28,9 +28,19 @@ devhelp:
 		$(VALADOC_FLAGS) \
 		$(NULL)
 
-clean-local:
-	rm -rf valadoc devhelp
+gtkdoc:
+	$(VALADOC) \
+		-X $(top_srcdir)/libzeitgeist/zeitgeist.h \
+		-X $(top_srcdir)/config.h \
+		-X -l -X $(top_srcdir)/libzeitgeist/.libs/libzeitgeist-2.0.so \
+		-o gtkdoc \
+		--doclet gtkdoc \
+		$(VALADOC_FLAGS) \
+		$(NULL)
 
-all: valadoc devhelp
+clean-local:
+	rm -rf valadoc devhelp gtkdoc
+
+all: valadoc devhelp gtkdoc
 
 endif
