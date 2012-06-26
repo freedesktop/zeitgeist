@@ -100,7 +100,7 @@ namespace Zeitgeist
         }
 
         public async void notify_insert (Variant time_range, Variant events)
-            throws IOError, EngineError
+            throws Error
         {
             debug ("got insertion notification");
             var events_arr = Events.from_variant (events);
@@ -117,7 +117,8 @@ namespace Zeitgeist
         public async void search (string query_string, Variant time_range,
                                   Variant filter_templates,
                                   uint offset, uint count, uint result_type,
-                                  out Variant events, out uint matches)
+                                  out Variant events, out uint matches,
+                                  Cancellable? cancellable=null)
             throws Error
         {
             var tr = new TimeRange.from_variant (time_range);
@@ -139,7 +140,8 @@ namespace Zeitgeist
                                   uint storage_state, uint offset,
                                   uint count, uint result_type,
                                   out Variant events, out double[] relevancies,
-                                  out uint matches)
+                                  out uint matches,
+                                  Cancellable? cancellable=null)
             throws Error
         {
             var tr = new TimeRange.from_variant (time_range);
