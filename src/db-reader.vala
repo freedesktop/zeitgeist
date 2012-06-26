@@ -350,10 +350,6 @@ public class DbReader : Object
     {
         WhereClause where = new WhereClause (WhereClause.Type.AND);
 
-        /**
-         * Since we use multi-index columns that already include timestamp
-         * indxes, we can stop skipping the timestamp index.
-         */
         if (time_range.start != 0)
             where.add (("timestamp >= %" + int64.FORMAT).printf(
                 time_range.start));
