@@ -61,9 +61,6 @@ namespace Zeitgeist
 
     /**
      * zeitgeist_register_mimetype:
-     * @mimetype: A MIME-type string. Eg. <emphasis>text/plain</emphasis>
-     * @interpretation_uri: A URI defining the subject interpretation type to
-     *     associate with @mimetype
      *
      * Associate a MIME-type with a given interpretation type. Registered
      * MIME-types can be looked up with zeitgeist_interpretation_for_mimetype().
@@ -79,6 +76,10 @@ namespace Zeitgeist
      * this function.
      *
      * FIXME: link to list of interpretations
+     *
+     * @param mimetype  A MIME-type string. Eg. //text/plain//
+     * @param interpretation_uri A URI defining the subject interpretation
+     *     type to associate with "mimetype"
      */
     public void register_mimetype (string mimetype, string interpretation_uri)
     {
@@ -90,11 +91,6 @@ namespace Zeitgeist
 
     /**
      * zeitgeist_register_mimetype_regex:
-     * @mimetype: A regular expression matching a certain range of mimetypes.
-     *     Eg. <emphasis>text/.*</emphasis> to match all
-     *     <emphasis>text</emphasis> subtypes.
-     * @interpretation_uri: A URI defining the subject interpretation type to
-     *     associate with the matched MIME-types
      *
      * Associate a range of MIME-types with a given interpretation type.
      * Registered MIME-types can be looked up with
@@ -111,6 +107,11 @@ namespace Zeitgeist
      * this function.
      *
      * FIXME: link to list of interpretations
+     *
+     * @param mimetype A regular expression matching a certain range of
+     *     mimetypes. Eg. //text/.* // to match all //text// subtypes.
+     * @param interpretation_uri A URI defining the subject interpretation
+     *     type to associate with the matched MIME-types
      */
     public void register_mimetype_regex (string mimetype_regex,
         string interpretation_uri) throws RegexError
@@ -121,13 +122,14 @@ namespace Zeitgeist
 
     /**
      * zeitgeist_interpretation_for_mimetype:
-     * @mimetype: A MIME-type string. Eg. <emphasis>text/plain</emphasis>
      *
      * Look up the subject interpretation type associated with @mimetype.
      * FIXME: link to list of interpretations
      *
-     * Returns: A URI defining the subject interpretation type associated with
-     *     @mimetype or %NULL in case @mimetype is unknown.
+     * @param mimetype A MIME-type string. Eg. //text/plain//
+     *
+     * @return A URI defining the subject interpretation type associated with
+     *     "mimetype" or %NULL in case "mimetype" is unknown
      */
     public unowned string? interpretation_for_mimetype (string mimetype)
     {
@@ -148,9 +150,6 @@ namespace Zeitgeist
 
     /**
      * zeitgeist_register_uri_scheme:
-     * @uri_scheme: A URI scheme such as <emphasis>http://</emphasis>
-     * @manifestation_uri: A URI defining the subject manifestation type
-     *     to associate with @uri_scheme
      *
      * Associate a URI scheme with a given subject manifestation type.
      * You can find the manifestation type of a given URI by passing it to
@@ -161,6 +160,10 @@ namespace Zeitgeist
      * function.
      *
      * FIXME: link to list of manifestations
+     *
+     * @param uri_scheme A URI scheme such as //http:\/\///
+     * @param manifestation_uri A URI defining the subject manifestation type
+     *     to associate with "uri_scheme"
      */
     public void register_uri_scheme (string uri_scheme,
         string manifestation_type)
@@ -170,16 +173,17 @@ namespace Zeitgeist
     }
 
     /**
-     * zeitgeist_manifestation_for_uri:
-     * @uri: An URI
+     * zeitgeist_manifestation_for_uri
      *
      * Look up a subject manifestation type for a given URI. Eg. if you pass in
-     * <emphasis>file:///tmp/foo.txt</emphasis> you will get back
-     * #ZEITGEIST_NFO_FILE_DATA_OBJECT.
+     * //file:\/\/\/tmp/foo.txt// you will get back
+     * ZEITGEIST_NFO_FILE_DATA_OBJECT.
      *
      * FIXME: link to list of manifestations
      *
-     * Returns: A subject manifestation type for @uri or %NULL in case no
+     * @param uri An URI
+     *
+     * @return A subject manifestation type for @uri or %NULL in case no
      *     suitable manifestation type is known
      */
     public unowned string? manifestation_for_uri (string uri) {

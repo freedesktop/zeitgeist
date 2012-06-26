@@ -46,20 +46,20 @@ public interface ResultSet : Object
 
     /**
      * zeitgeist_result_set_size:
-     * @self: The #ZeitgeistResultSet to get the size of
      *
      * Get the number of #ZeitgeistEvent<!-- -->s held in a #ZeitgeistResultSet.
      * Unlike the number obtained from zeitgeist_result_set_estimated_matches() the
      * size of the result set is always equal to the number of times you can call
      * zeitgeist_result_set_next().
      *
-     * Returns: The number of events held in the result set
+     * @param self The #ZeitgeistResultSet to get the size of
+     *
+     * @return The number of events held in the result set
      */
     public abstract uint size ();
 
     /**
      * zeitgeist_result_set_estimated_matches:
-     * @self: The #ZeitgeistResultSet to get the number of estimated matches on
      *
      * FIXME: this is not true for _find_events/_get_events():
      * Get an estimated total number of matches that would have been for the query
@@ -70,13 +70,14 @@ public interface ResultSet : Object
      * zeitgeist_index_search() where you specify a subset of the hits to retrieve
      * the estimated match count will often be bigger than the result set size.
      *
-     * Returns: The number of events that matched the query
+     * @param self The #ZeitgeistResultSet to get the number of estimated
+     *     matches on
+     * @return The number of events that matched the query
      */
     public abstract uint estimated_matches ();
 
     /**
      * zeitgeist_result_set_next:
-     * @self: The #ZeitgeistResultSet to get an event from
      *
      * Get the current event from the result set and advance the cursor.
      * To ensure that calls to this method will succeed you can call
@@ -85,51 +86,57 @@ public interface ResultSet : Object
      * To retrieve the current event without advancing the cursor call
      * zeitgeist_result_set_peek() in stead of this method.
      *
-     * Returns: The #ZeitgeistEvent at the current cursor position
+     * @param self The #ZeitgeistResultSet to get an event from
+     *
+     * @return The #ZeitgeistEvent at the current cursor position
      */
     public abstract Event next ();
 
     /**
      * zeitgeist_result_set_has_next:
-     * @self: The #ZeitgeistResultSet to check
      *
      * Check if a call to zeitgeist_result_set_next() will succeed.
      *
-     * Returns: %TRUE if and only if more events can be retrieved by calling
-     *          zeitgeist_result_set_next()
+     * @param self The #ZeitgeistResultSet to check
+     *
+     * @return %TRUE if and only if more events can be retrieved by calling
+     *     zeitgeist_result_set_next()
      */
     public abstract bool has_next ();
 
     /**
      * zeitgeist_result_set_peek:
-     * @self: The #ZeitgeistResultSet to get an event from
      *
      * Get the event at the current cursor position.
      *
      * To retrieve the current event and advance the cursor position call
      * zeitgeist_result_set_next() in stead of this method.
      *
-     * Returns: The #ZeitgeistEvent at the current cursor position
+     * @param self The #ZeitgeistResultSet to get an event from
+     *
+     * @return The #ZeitgeistEvent at the current cursor position
      */
      public abstract Event peek ();
 
     /**
      * zeitgeist_result_set_seek:
-     * @self: The #ZeitgeistResultSet to seek in
-     * @pos: The position to seek to
      *
      * Set the cursor position. Following calls to zeitgeist_result_set_peek()
      * or zeitgeist_result_set_next() will read the event at position @pos.
+     *
+     * @param self The #ZeitgeistResultSet to seek in
+     * @param pos The position to seek to
      */
      public abstract void seek (uint pos);
 
     /**
      * zeitgeist_result_set_tell:
-     * @self: The #ZeitgeistResultSet to check the cursor position for
      *
      * Get the current position of the cursor.
      *
-     * Returns: The current position of the cursor
+     * @param self The #ZeitgeistResultSet to check the cursor position for
+     *
+     * @return The current position of the cursor
      */
     public abstract uint tell ();
 

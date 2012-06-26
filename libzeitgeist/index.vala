@@ -26,8 +26,10 @@ namespace Zeitgeist
 
 /**
  * SECTION:zeitgeist-index
- * @short_description: Query the Zeitgeist Full Text Search Extension
- * @include: zeitgeist.h
+ *
+ * Query the Zeitgeist Full Text Search Extension
+ *
+ * include: zeitgeist.h
  */
 public class Index : QueuedProxyWrapper
 {
@@ -75,24 +77,6 @@ public class Index : QueuedProxyWrapper
 
     /**
      * zeitgeist_index_search:
-     * @self: The #ZeitgeistIndex you want to query
-     * @query: The search string to send to Zeitgeist
-     * @time_range: Restrict matched events to ones within this time range. If
-     *              you are not interested in restricting the timerange pass
-     *              zeitgeist_time_range_new_anytime() as Zeitgeist will detect
-     *              this and optimize the query accordingly
-     * @event_templates: Restrict matches events to ones matching these
-     *                   templates
-     * @offset: Offset into the result set to read events from
-     * @num_events: Maximal number of events to retrieve
-     * @result_type: The #ZeitgeistResultType determining the sort order.
-     *               You may pass #ZEITGEIST_RESULT_TYPE_RELEVANCY to this
-     *               method to have the results ordered by relevancy calculated
-     *               in relation to @query
-     * @cancellable: A #GCancellable used to cancel the call or %NULL
-     * @callback: A #GAsyncReadyCallback to invoke when the search results are
-                  ready
-     * @user_data: User data to pass back with @callback
      *
      * Perform a full text search possibly restricted to a #ZeitgeistTimeRange
      * and/or set of event templates.
@@ -118,12 +102,31 @@ public class Index : QueuedProxyWrapper
      * <emphasis>AND</emphasis> and <emphasis>OR</emphasis> and you may
      * use brackets, ( and ), to control the operator precedence.
      *
-     * // FIXME: how do we put documentation into _finish?
+     * FIXME: how do we put documentation into _finish?
      * The total hit count of the query will be available via the returned
      * result set by calling zeitgeist_result_set_estimated_matches(). This will
      * often be bigger than the actual number of events held in the result set,
      * which is limited by the @num_events parameter passed to
      * zeitgeist_index_search().
+     *
+     * @param self The #ZeitgeistIndex you want to query
+     * @param query The search string to send to Zeitgeist
+     * @param time_range Restrict matched events to ones within this time
+     *     range. If you are not interested in restricting the timerange pass
+     *     zeitgeist_time_range_new_anytime() as Zeitgeist will detect
+     *     this and optimize the query accordingly
+     * @param event_templates Restrict matches events to ones matching these
+     *     templates
+     * @param offset Offset into the result set to read events from
+     * @param num_events Maximal number of events to retrieve
+     * @param result_type The #ZeitgeistResultType determining the sort order.
+     *     You may pass #ZEITGEIST_RESULT_TYPE_RELEVANCY to this
+     *     method to have the results ordered by relevancy calculated
+     *     in relation to @query
+     * @param cancellable A #GCancellable used to cancel the call or %NULL
+     * @param callback A #GAsyncReadyCallback to invoke when the search results
+     *     are ready
+     * @param user_data User data to pass back with @callback
      */
     public async ResultSet search (
         string query,
@@ -148,25 +151,6 @@ public class Index : QueuedProxyWrapper
 
     /**
      * zeitgeist_index_search_with_relevancies:
-     * @self: The #ZeitgeistIndex you want to query
-     * @query: The search string to send to Zeitgeist
-     * @time_range: Restrict matched events to ones within this time range. If
-     *              you are not interested in restricting the timerange pass
-     *              zeitgeist_time_range_new_anytime() as Zeitgeist will detect
-     *              this and optimize the query accordingly
-     * @event_templates: Restrict matched events to ones matching these
-     *                   templates
-     * @storage_state: Filter the events by availability of the storage medium.
-     * @offset: Offset into the result set to read events from
-     * @num_events: Maximal number of events to retrieve
-     * @result_type: The #ZeitgeistResultType determining the sort order.
-     *               You may pass #ZEITGEIST_RESULT_TYPE_RELEVANCY to this
-     *               method to have the results ordered by relevancy calculated
-     *               in relation to @query
-     * @cancellable: A #GCancellable used to cancel the call or %NULL
-     * @callback: A #GAsyncReadyCallback to invoke when the search results are
-     *            ready
-     * @user_data: User data to pass back with @callback
      *
      * Perform a full text search possibly restricted to a #ZeitgeistTimeRange
      * and/or set of event templates. As opposed to zeitgeist_index_search(),
@@ -175,6 +159,27 @@ public class Index : QueuedProxyWrapper
      *
      * See zeitgeist_index_search() for more details on how to create the
      * query.
+     *
+     * @param self The #ZeitgeistIndex you want to query
+     * @param query The search string to send to Zeitgeist
+     * @param time_range Restrict matched events to ones within this time
+     *     range. If you are not interested in restricting the timerange pass
+     *     zeitgeist_time_range_new_anytime() as Zeitgeist will detect
+     *     this and optimize the query accordingly
+     * @param event_templates Restrict matched events to ones matching these
+     *     templates
+     * @param storage_state Filter the events by availability of the storage
+     *     medium.
+     * @param offset Offset into the result set to read events from
+     * @param num_events Maximal number of events to retrieve
+     * @param result_type The #ZeitgeistResultType determining the sort order
+     *     You may pass #ZEITGEIST_RESULT_TYPE_RELEVANCY to this method to
+     *     have the results ordered by relevancy calculated in relation
+     *     to "query"
+     * @param cancellable A #GCancellable used to cancel the call or %NULL
+     * @param callback A #GAsyncReadyCallback to invoke when the searc
+     *     results are ready
+     * @param user_data User data to pass back with @callback
      */
     public async ResultSet search_with_relevancies (
         string query,

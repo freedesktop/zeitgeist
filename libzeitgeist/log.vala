@@ -26,8 +26,10 @@ namespace Zeitgeist
 
 /**
  * SECTION:zeitgeist-log
- * @short_description: Primary access point for talking to the Zeitgeist daemon
- * @include: zeitgeist.h
+ *
+ * Primary access point for talking to the Zeitgeist daemon
+ *
+ * include: zeitgeist.h
  *
  * #ZeitgeistLog encapsulates the low level access to the Zeitgeist daemon.
  * You can use it to manage the log by inserting and deleting entries as well
@@ -228,10 +230,6 @@ public class Log : QueuedProxyWrapper
 
    /**
     * zeitgeist_log_get_version:
-    * @self: A #ZeitgeistLog instance
-    * @major: (out): Location for the major version
-    * @minor: (out): Location for the minor version
-    * @micro: (out): Location for the micro version
     *
     * Gets version of currently running Zeitgeist daemon.
     *
@@ -241,6 +239,11 @@ public class Log : QueuedProxyWrapper
     * once this instance successfully connected to the Zeitgeist daemon - ie.
     * the value of the "is-connected" property must be TRUE (you can connect
     * to the "notify::is-connected" signal otherwise).
+    *
+    * @param self A #ZeitgeistLog instance
+    * @param major Location for the major version
+    * @param minor Location for the minor version
+    * @param micro: Location for the micro version
     */
     public void get_version (out int major, out int minor, out int micro) {
         major = minor = micro = 0;

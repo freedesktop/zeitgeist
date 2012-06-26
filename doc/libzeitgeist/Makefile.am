@@ -1,55 +1,36 @@
-## Process this file with automake to produce Makefile.in
+NULL =
 
-# automake requirements
-AUTOMAKE_OPTIONS = 1.7
+if ENABLE_DOCS
 
-# The name of the module
-DOC_MODULE=zeitgeist-2.0
+# valadoc in Ubuntu doesn't find it vala-0.16/vapi
+VALADOC_FLAGS = \
+	--force \
+	--vapidir $(top_srcdir)/libzeitgeist \
+	--vapidir /usr/share/vala-0.16/vapi/ \
+	--pkg gio-2.0 \
+	--pkg sqlite3 \
+	--basedir $(top_srcdir)/libzeitgeist \
+	--package-name libzeitgeist2 \
+	--package-version $(PACKAGE_VERSION) \
+	$(wildcard $(top_srcdir)/libzeitgeist/*.vala) \
+	$(NULL)
 
-# The top-level SGML file. You can change this if you want to.
-DOC_MAIN_SGML_FILE = $(DOC_MODULE)-docs.sgml
+valadoc:
+	$(VALADOC) \
+		-o valadoc \
+		$(VALADOC_FLAGS) \
+		$(NULL)
 
-# The directory containing the source code. Relative to $(srcdir).
-DOC_SOURCE_DIR = ../../libzeitgeist
+devhelp:
+	$(VALADOC) \
+		-o devhelp \
+		--doclet devhelp \
+		$(VALADOC_FLAGS) \
+		$(NULL)
 
-# Extra options to pass to gtkdoc-scangobj. Not normally needed.
-SCANGOBJ_OPTIONS =
+clean-local:
+	rm -rf valadoc devhelp
 
-# Extra options to supply to gtkdoc-scan.
-# Fx --rebuild-types --rebuild-sections
-SCAN_OPTIONS =
+all: valadoc devhelp
 
-# Extra options to supply to gtkdoc-mkdb.
-MKDB_OPTIONS = --sgml-mode --output-format=xml --ignore-files=trio
-
-# Extra options to supply to gtkdoc-fixref. Not normally needed.
-FIXXREF_OPTIONS =
-
-# Used for dependencies. The docs will be rebuilt if any of these change.
-HFILE_GLOB = $(top_srcdir)/libzeitgeist/zeitgeist.h
-CFILE_GLOB = $(top_srcdir)/libzeitgeist/*.c
-
-# Header files to ignore when scanning.
-IGNORE_HFILES =
-
-# Images to copy into HTML directory.
-HTML_IMAGES =
-
-# Extra SGML files that are included by $(DOC_MAIN_SGML_FILE).
-content_files =
-
-# CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
-INCLUDES= \
-  -I$(top_srcdir)/libzeitgeist \
-  $(ZEITGEIST_CFLAGS)
-
-GTKDOC_LIBS = \
-  $(ZEITGEIST_LIBS) \
-  $(top_builddir)/libzeitgeist/libzeitgeist-2.0.la
-
-# This includes the standard gtk-doc make rules, copied by gtkdocize.
-include $(top_srcdir)/gtk-doc.make
-
-# Other files to distribute
-# e.g. EXTRA_DIST += version.xml.in
-EXTRA_DIST +=
+endif

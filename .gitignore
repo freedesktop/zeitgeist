@@ -81,6 +81,8 @@ gtk-doc.make
 doc/libzeitgeist/zeitgeist-2.0-*.txt
 doc/libzeitgeist/zeitgeist-2.0.types
 doc/libzeitgeist/zeitgeist-2.0-scan.c
+doc/libzeitgeist/devhelp
+doc/libzeitgeist/valadoc
 *.o
 *.la
 *.stamp

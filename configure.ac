@@ -29,6 +29,7 @@ AC_SUBST(LDFLAGS)
 
 GLIB_REQUIRED=2.26.0
 SQLITE_REQUIRED=3.7
+VALADOC_REQUIRED=0.2
 
 ZEITGEIST_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
                     gobject-2.0 >= $GLIB_REQUIRED
@@ -39,8 +40,6 @@ ZEITGEIST_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
 PKG_CHECK_MODULES(ZEITGEIST, [$ZEITGEIST_REQUIRED])
 AC_SUBST(ZEITGEIST_CFLAGS)
 AC_SUBST(ZEITGEIST_LIBS)
-
-GTK_DOC_CHECK(1.0)
 
 AC_CONFIG_FILES([
 	Makefile
@@ -149,6 +148,27 @@ AC_SUBST(LIBZEITGEIST_VERSION_PATCH)
 AC_SUBST(LIBZEITGEIST_VERSION)
 
 #################################################
+# Docs
+#################################################
+
+AC_ARG_ENABLE([docs],
+    AS_HELP_STRING([--enable-docs], [Enable documentation generation]),
+    [enable_docs=$enableval], [enable_docs="yes"]) # FIXME: change to no
+
+found_valadoc=no
+AS_IF([test "x$enable_docs" != "xno"], [
+    AC_PATH_PROG(VALADOC, valadoc, :)
+    AS_IF([test -x "$VALADOC"], [
+        found_valadoc=yes
+        AC_SUBST(VALADOC)
+    ], [
+        AS_IF([test "x$enable_docs" == "xyes"], AC_MSG_ERROR([Unable to find valadoc]))
+    ])
+])
+
+AM_CONDITIONAL(ENABLE_DOCS, test "x$found_valadoc" = "xyes")
+
+#################################################
 # Ontology parsing dependencies
 #################################################
 
@@ -186,7 +206,7 @@ ${PACKAGE}-${VERSION}
 
   Other build options:
     SQL debugging:      ${explain_queries}
-    libzeitgeist docs:  ${enable_gtk_doc}
+    libzeitgeist docs:  ${enable_docs}
 
 EOF
 
