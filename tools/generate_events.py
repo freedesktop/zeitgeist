@@ -39,13 +39,13 @@ class EventGenerator:
 
     NUM_WORDS = 1000
     NUM_SIMULTANEOUS_URIS = 1000
-    MAX_EVENT_AGE = 366*24*3600*1000
 
     _words = None
     _mimetypes = None
     _desktop_files = None
     _schemas = None
     _uri_table = None
+    _timestamp_generator = None
 
     def __init__(self):
         # Initialize a pool of random words for use in URIs, etc.
@@ -53,6 +53,9 @@ class EventGenerator:
             open('/usr/share/dict/words').readlines())
         dictionary_words = filter(lambda x: '\'s' not in x, dictionary_words)
         self._words = random.sample(dictionary_words, self.NUM_WORDS)
+
+        # Initialize timestamp generator
+        self._timestamp_generator = TimestampGenerator()
 
         # Initialize a pool of MIME-Types
         self._mimetypes = mimetypes.MIMES.keys()
@@ -146,8 +149,7 @@ class EventGenerator:
         return 'application://%s' % random.choice(self._desktop_files)
 
     def get_timestamp(self):
-        current_time = int(time.time() * 1000)
-        return random.randint(current_time - self.MAX_EVENT_AGE, current_time)
+        return self._timestamp_generator.next()
 
     def get_event_interpretation(self):
         interpretations = Interpretation.EVENT_INTERPRETATION.get_children()
@@ -208,6 +210,31 @@ class EventGenerator:
                 event.append_subject(subject)
 
         return event
+
+class TimestampGenerator():
+
+    MAX_EVENT_AGE = 366*24*3600*1000
+
+    _start_time = None
+    _lowest_limit = None
+
+    _next_time = None
+
+    def __init__(self):
+        self._start_time = self.current_time() - (7*24*3600*1000)
+        self._lowest_time = self._start_time - self.MAX_EVENT_AGE
+        self._next_time = self._start_time
+
+    def next(self):
+        if random.random() < 0.005:
+            return random.randint(self._lowest_time, self.current_time())
+        return_time = self._next_time
+        self._next_time += abs(int(random.gauss(1000, 5000)))
+        return return_time
+
+    @staticmethod
+    def current_time():
+        return int(time.time() * 1000)
 
 class EventInserter():
 
