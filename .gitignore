@@ -77,12 +77,14 @@ examples/monitor-events
 examples/most-recent-events
 examples/data-source-stuff
 libzeitgeist/libzeitgeist-2.0.pc
+libzeitgeist/zeitgeist-2.0.pc
 gtk-doc.make
 doc/libzeitgeist/zeitgeist-2.0-*.txt
 doc/libzeitgeist/zeitgeist-2.0.types
 doc/libzeitgeist/zeitgeist-2.0-scan.c
 doc/libzeitgeist/devhelp
 doc/libzeitgeist/valadoc
+doc/libzeitgeist/gtkdoc
 *.o
 *.la
 *.stamp
