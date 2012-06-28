@@ -50,6 +50,8 @@ namespace Zeitgeist.SQLite
             {
                 // most likely a new DB
                 create_schema (database);
+                create_basic_indices (database);
+                create_event_indices (database);
 
                 // set database creation date
                 var schema_sql = ("INSERT INTO schema_version VALUES ('%s', %" +
@@ -100,6 +102,9 @@ namespace Zeitgeist.SQLite
 
                 // Create any missing tables and indices
                 create_schema (database);
+                drop_event_indices (database);
+                create_basic_indices (database);
+                create_event_indices (database);
 
                 // Migrate data to the new tables and delete the old ones
                 foreach (unowned string table in tables)
@@ -256,9 +261,6 @@ namespace Zeitgeist.SQLite
                     value VARCHAR UNIQUE
                 )
                 """);
-            exec_query (database, """
-                CREATE UNIQUE INDEX IF NOT EXISTS uri_value ON uri(value)
-                """);
 
             // Interpretation
             exec_query (database, """
@@ -266,10 +268,6 @@ namespace Zeitgeist.SQLite
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     value VARCHAR UNIQUE
                 )
-                """);
-            exec_query (database, """
-                CREATE UNIQUE INDEX IF NOT EXISTS interpretation_value
-                    ON interpretation(value)
                 """);
 
             // Manifestation
@@ -279,10 +277,6 @@ namespace Zeitgeist.SQLite
                     value VARCHAR UNIQUE
                 )
                 """);
-            exec_query (database, """
-                CREATE UNIQUE INDEX IF NOT EXISTS manifestation_value
-                    ON manifestation(value)
-                """);
 
             // Mime-Type
             exec_query (database, """
@@ -290,10 +284,6 @@ namespace Zeitgeist.SQLite
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     value VARCHAR UNIQUE
                 )
-                """);
-            exec_query (database, """
-                CREATE UNIQUE INDEX IF NOT EXISTS mimetype_value
-                    ON mimetype(value)
                 """);
 
             // Actor
@@ -303,10 +293,6 @@ namespace Zeitgeist.SQLite
                     value VARCHAR UNIQUE
                 )
                 """);
-            exec_query (database, """
-                CREATE UNIQUE INDEX IF NOT EXISTS actor_value
-                    ON actor(value)
-                """);
 
             // Text
             exec_query (database, """
@@ -314,10 +300,6 @@ namespace Zeitgeist.SQLite
                     id INTEGER PRIMARY KEY,
                     value VARCHAR UNIQUE
                 )
-                """);
-            exec_query (database, """
-                CREATE UNIQUE INDEX IF NOT EXISTS text_value
-                    ON text(value)
                 """);
 
             // Payload
@@ -337,10 +319,6 @@ namespace Zeitgeist.SQLite
                     icon VARCHAR,
                     display_name VARCHAR
                 )
-                """);
-            exec_query (database, """
-                CREATE UNIQUE INDEX IF NOT EXISTS storage_value
-                    ON storage(value)
                 """);
 
             // Event
@@ -422,82 +400,6 @@ namespace Zeitgeist.SQLite
                         manifestation, actor, subj_id)
                 )
                 """);
-            exec_query (database, """DROP INDEX IF EXISTS event_id""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_id
-                    ON event(id, timestamp)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_timestamp""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_timestamp
-                    ON event(timestamp, id)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_interpretation""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_interpretation
-                    ON event(interpretation, timestamp)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_manifestation""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_manifestation
-                    ON event(manifestation, timestamp)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_actor""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_actor
-                    ON event(actor, timestamp)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_origin""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_origin
-                    ON event(origin, timestamp)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_subj_id""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_id
-                    ON event(subj_id, timestamp, subj_interpretation)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_subj_id_current""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_id_current
-                    ON event(subj_id_current, timestamp, subj_interpretation)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_subj_interpretation""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_interpretation
-                    ON event(subj_interpretation, timestamp, subj_id)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_subj_manifestation""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_manifestation
-                    ON event(subj_manifestation, timestamp, subj_id)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_subj_origin""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_origin
-                    ON event(subj_origin, timestamp, subj_interpretation, subj_id)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_subj_mimetype""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_mimetype
-                    ON event(subj_mimetype, timestamp)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_subj_text""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_text
-                    ON event(subj_text, timestamp)
-                """);
-            exec_query (database, """DROP INDEX IF EXISTS event_subj_storage""");
-            exec_query (database, """
-                CREATE INDEX IF NOT EXISTS event_subj_storage
-                    ON event(subj_storage, timestamp)
-                """);
-
-            // TODO: create deletion triggers
-            /*
-            exec_query (database, """
-                """);
-            */
 
             // Extensions
             exec_query (database, """
@@ -507,10 +409,6 @@ namespace Zeitgeist.SQLite
                     value BLOB,
                     CONSTRAINT unique_extension UNIQUE (extension, key)
                 )
-                """);
-            exec_query (database, """
-                CREATE UNIQUE INDEX IF NOT EXISTS extensions_conf_key
-                    ON extensions_conf (extension, key)
                 """);
 
             // Performance note: the subqueries here are provided for lookup
@@ -571,6 +469,125 @@ namespace Zeitgeist.SQLite
                 )
                 """);
             set_schema_version (database, CORE_SCHEMA_VERSION);
+        }
+
+        /*
+         * Creates indices for all auxiliary tables.
+         */
+        public static void create_basic_indices (Sqlite.Database database)
+            throws EngineError
+        {
+            exec_query (database, """
+                CREATE UNIQUE INDEX IF NOT EXISTS uri_value ON uri(value)
+                """);
+            exec_query (database, """
+                CREATE UNIQUE INDEX IF NOT EXISTS interpretation_value
+                    ON interpretation(value)
+                """);
+            exec_query (database, """
+                CREATE UNIQUE INDEX IF NOT EXISTS manifestation_value
+                    ON manifestation(value)
+                """);
+            exec_query (database, """
+                CREATE UNIQUE INDEX IF NOT EXISTS mimetype_value
+                    ON mimetype(value)
+                """);
+            exec_query (database, """
+                CREATE UNIQUE INDEX IF NOT EXISTS actor_value
+                    ON actor(value)
+                """);
+            exec_query (database, """
+                CREATE UNIQUE INDEX IF NOT EXISTS text_value
+                    ON text(value)
+                """);
+            exec_query (database, """
+                CREATE UNIQUE INDEX IF NOT EXISTS storage_value
+                    ON storage(value)
+                """);
+            exec_query (database, """
+                CREATE UNIQUE INDEX IF NOT EXISTS extensions_conf_key
+                    ON extensions_conf (extension, key)
+                """);
+        }
+
+        public static void create_event_indices (Sqlite.Database database)
+            throws EngineError
+        {
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_id
+                    ON event(id, timestamp)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_timestamp
+                    ON event(timestamp, id)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_interpretation
+                    ON event(interpretation, timestamp)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_manifestation
+                    ON event(manifestation, timestamp)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_actor
+                    ON event(actor, timestamp)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_origin
+                    ON event(origin, timestamp)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_subj_id
+                    ON event(subj_id, timestamp, subj_interpretation)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_subj_id_current
+                    ON event(subj_id_current, timestamp, subj_interpretation)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_subj_interpretation
+                    ON event(subj_interpretation, timestamp, subj_id)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_subj_manifestation
+                    ON event(subj_manifestation, timestamp, subj_id)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_subj_origin
+                    ON event(subj_origin, timestamp, subj_interpretation, subj_id)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_subj_mimetype
+                    ON event(subj_mimetype, timestamp)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_subj_text
+                    ON event(subj_text, timestamp)
+                """);
+            exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_subj_storage
+                    ON event(subj_storage, timestamp)
+                """);
+        }
+
+        public static void drop_event_indices (Sqlite.Database database)
+            throws EngineError
+        {
+            exec_query (database, "DROP INDEX IF EXISTS event_id");
+            exec_query (database, "DROP INDEX IF EXISTS event_timestamp");
+            exec_query (database, "DROP INDEX IF EXISTS event_interpretation");
+            exec_query (database, "DROP INDEX IF EXISTS event_manifestation");
+            exec_query (database, "DROP INDEX IF EXISTS event_actor");
+            exec_query (database, "DROP INDEX IF EXISTS event_origin");
+            exec_query (database, "DROP INDEX IF EXISTS event_subj_id");
+            exec_query (database, "DROP INDEX IF EXISTS event_subj_id_current");
+            exec_query (database, "DROP INDEX IF EXISTS event_subj_interpretation");
+            exec_query (database, "DROP INDEX IF EXISTS event_subj_manifestation");
+            exec_query (database, "DROP INDEX IF EXISTS event_subj_origin");
+            exec_query (database, "DROP INDEX IF EXISTS event_subj_mimetype");
+            exec_query (database, "DROP INDEX IF EXISTS event_subj_text");
+            exec_query (database, "DROP INDEX IF EXISTS event_subj_storage");
         }
 
         /**
