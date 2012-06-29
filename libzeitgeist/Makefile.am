@@ -47,7 +47,7 @@ libzeitgeist_include_HEADERS = \
 	zeitgeist.h \
 	$(NULL)
 
-libzeitgeist_vapidir = $(datadir)/share/vala/vapi/
+libzeitgeist_vapidir = $(datadir)/vala/vapi/
 libzeitgeist_vapi_DATA = \
 	zeitgeist.vapi
 	$(NULL)
