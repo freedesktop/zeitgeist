@@ -42,7 +42,7 @@ libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = zeitgeist-2.0.pc
 
-libzeitgeist_includedir=$(includedir)/libzeitgeist-2.0/zeitgeist/
+libzeitgeist_includedir=$(includedir)/zeitgeist-2.0/
 libzeitgeist_include_HEADERS = \
 	zeitgeist.h \
 	$(NULL)
