@@ -15,6 +15,7 @@ AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	$(XAPIAN_CXXFLAGS) \
 	-include $(CONFIG_HEADER) \
+	-I $(top_srcdir)/libzeitgeist \
 	-w \
 	$(NULL)
 
@@ -28,19 +29,13 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 libzeitgeist_internal_la_VALASOURCES = \
-	../../libzeitgeist/datamodel.vala \
-	../../libzeitgeist/ontology-uris.vala \
-	../../libzeitgeist/ontology.vala \
-	../../libzeitgeist/utils.vala \
 	db-reader.vala \
 	engine.vala \
 	sql.vala \
-	../../libzeitgeist/remote.vala \
 	errors.vala \
 	table-lookup.vala \
 	sql-schema.vala \
 	where-clause.vala \
-	../../libzeitgeist/mimetype.vala \
 	ext-dummies.vala \
 	$(NULL)
 
@@ -74,6 +69,7 @@ zeitgeist_fts_SOURCES = \
 
 zeitgeist_fts_LDADD = \
 	$(builddir)/libzeitgeist-internal.la \
+	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(XAPIAN_LIBS) \
 	$(NULL)
 

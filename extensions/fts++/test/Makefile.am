@@ -22,6 +22,7 @@ test_fts_SOURCES = \
 
 test_fts_LDADD = \
   $(builddir)/../libzeitgeist-internal.la \
+  $(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
   -lxapian \
   $(NULL)
 

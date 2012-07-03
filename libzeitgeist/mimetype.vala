@@ -114,10 +114,15 @@ namespace Zeitgeist
      *     type to associate with the matched MIME-types
      */
     public void register_mimetype_regex (string mimetype_regex,
-        string interpretation_uri) throws RegexError
+        string interpretation_uri)
     {
-        var entry = new MimeRegex (mimetype_regex, interpretation_uri);
-        mimetypes_regexs.append ((owned) entry);
+        try
+        {
+            var entry = new MimeRegex (mimetype_regex, interpretation_uri);
+            mimetypes_regexs.append ((owned) entry);
+        } catch (RegexError e) {
+            warning ("Couldn't register mimetype regex: %s", e.message);
+        }
     }
 
     /**

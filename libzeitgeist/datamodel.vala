@@ -38,23 +38,6 @@ namespace Zeitgeist
             throw new DataModelError.INVALID_SIGNATURE (error_message);
     }
 
-    namespace Timestamp
-    {
-        public static int64 now ()
-        {
-            return from_timeval (TimeVal ());
-        }
-
-        public static int64 from_timeval (TimeVal tv)
-        {
-            int64 result;
-            result = ((int64) tv.tv_sec) * 1000;
-            result += ((int64) tv.tv_usec) / 1000;
-
-            return result;
-        }
-    }
-
     [CCode (type_signature = "(xx)")]
     public class TimeRange: Object
     {

@@ -31,9 +31,9 @@ namespace Zeitgeist
         private static string DATABASE_FILE_BACKUP_PATH;
         private static string LOCAL_EXTENSIONS_PATH;
 
-        public const string DATA_FOLDER = "zeitgeist";
-        public const string DATABASE_BASENAME = "activity.sqlite";
-        public const string USER_EXTENSION_PATH = "";
+        private const string DATA_FOLDER = "zeitgeist";
+        private const string DATABASE_BASENAME = "activity.sqlite";
+        private const string USER_EXTENSION_PATH = "";
 
         // D-Bus
         public const string ENGINE_DBUS_NAME = "org.gnome.zeitgeist.Engine";

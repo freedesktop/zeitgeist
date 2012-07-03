@@ -31,7 +31,6 @@ devhelp:
 gtkdoc:
 	$(VALADOC) \
 		-X $(top_srcdir)/libzeitgeist/zeitgeist.h \
-		-X $(top_srcdir)/config.h \
 		-X -l -X $(top_srcdir)/libzeitgeist/.libs/libzeitgeist-2.0.so \
 		-o gtkdoc \
 		--doclet gtkdoc \

@@ -23,10 +23,11 @@ AM_VALAFLAGS = \
 libzeitgeist_2_0_la_SOURCES = \
 	data-source.vala \
 	data-source-registry.vala \
+	mimetype.vala \
 	datamodel.vala \
 	index.vala \
 	log.vala \
-	mimetype.vala \
+	timestamp.vala \
 	monitor.vala \
 	ontology-uris.vala \
 	ontology.vala \
