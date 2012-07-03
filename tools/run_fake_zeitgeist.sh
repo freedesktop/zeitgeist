@@ -32,6 +32,14 @@ ZEITGEIST_DISABLED_EXTENSIONS=SearchEngine \
     --log-file="$dir/zeitgeist.log" $* &
 pid_zg=$!
 
+# Create setup script
+cat >$dir/setup.sh <<EOF
+export DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS
+export DISPLAY=$DISPLAY
+export PS1="zeitgeist>> "
+EOF
+chmod +x $dir/setup.sh
+
 echo "Spawning shell..."
 
 eval $SHELL

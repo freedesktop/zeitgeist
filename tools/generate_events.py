@@ -20,8 +20,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # #############################################################################
-# WARNING: make sure you launch Zeitgeist with ZEITGEIST_DATA_PATH set if
+# WARNING: Make sure you launch Zeitgeist with ZEITGEIST_DATA_PATH set if
 #          you don't want to fill your real database!
+#
+#          See ./tools/run_fake_zeitgeist.sh for a convenient way of testing
+#          Zeitgeist.
 # #############################################################################
 
 import os
