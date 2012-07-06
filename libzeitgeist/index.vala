@@ -25,8 +25,6 @@ namespace Zeitgeist
 {
 
 /**
- * SECTION:zeitgeist-index
- *
  * Query the Zeitgeist Full Text Search Extension
  *
  * include: zeitgeist.h
@@ -36,7 +34,6 @@ public class Index : QueuedProxyWrapper
     private RemoteSimpleIndexer proxy;
 
     /**
-     * zeitgeist_index_new:
      * Create a new index that interfaces with the default event index of the
      * Zeitgeist daemon.
      *
@@ -76,8 +73,6 @@ public class Index : QueuedProxyWrapper
     }
 
     /**
-     * zeitgeist_index_search:
-     *
      * Perform a full text search possibly restricted to a #ZeitgeistTimeRange
      * and/or set of event templates.
      *
@@ -150,8 +145,6 @@ public class Index : QueuedProxyWrapper
     }
 
     /**
-     * zeitgeist_index_search_with_relevancies:
-     *
      * Perform a full text search possibly restricted to a #ZeitgeistTimeRange
      * and/or set of event templates. As opposed to zeitgeist_index_search(),
      * this call will also return numeric relevancies of the events

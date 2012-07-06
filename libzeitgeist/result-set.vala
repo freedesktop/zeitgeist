@@ -20,10 +20,13 @@
  *
  */
 
+namespace Zeitgeist
+{
+
 /**
- * SECTION:zeitgeist-result-set
- * @short_description: Cursor-like interface for results sets
- * @include: zeitgeist.h
+ * Cursor-like interface for results sets
+ *
+ * include: zeitgeist.h
  *
  * Interface for results returned by zeitgeist_log_find_events(),
  * zeitgeist_log_get_events(), and zeitgeist_index_search().
@@ -37,16 +40,10 @@
  * the cursor by calling zeitgeist_result_set_peek().
  *
  */
-
-namespace Zeitgeist
-{
-
 public interface ResultSet : Object
 {
 
     /**
-     * zeitgeist_result_set_size:
-     *
      * Get the number of #ZeitgeistEvent<!-- -->s held in a #ZeitgeistResultSet.
      * Unlike the number obtained from zeitgeist_result_set_estimated_matches() the
      * size of the result set is always equal to the number of times you can call
@@ -59,8 +56,6 @@ public interface ResultSet : Object
     public abstract uint size ();
 
     /**
-     * zeitgeist_result_set_estimated_matches:
-     *
      * FIXME: this is not true for _find_events/_get_events():
      * Get an estimated total number of matches that would have been for the query
      * that generated the result set had it not been restricted in size.
@@ -77,8 +72,6 @@ public interface ResultSet : Object
     public abstract uint estimated_matches ();
 
     /**
-     * zeitgeist_result_set_next:
-     *
      * Get the current event from the result set and advance the cursor.
      * To ensure that calls to this method will succeed you can call
      * zeitgeist_result_set_has_next().
@@ -93,8 +86,6 @@ public interface ResultSet : Object
     public abstract Event next ();
 
     /**
-     * zeitgeist_result_set_has_next:
-     *
      * Check if a call to zeitgeist_result_set_next() will succeed.
      *
      * @param self The #ZeitgeistResultSet to check
@@ -105,8 +96,6 @@ public interface ResultSet : Object
     public abstract bool has_next ();
 
     /**
-     * zeitgeist_result_set_peek:
-     *
      * Get the event at the current cursor position.
      *
      * To retrieve the current event and advance the cursor position call
@@ -119,8 +108,6 @@ public interface ResultSet : Object
      public abstract Event peek ();
 
     /**
-     * zeitgeist_result_set_seek:
-     *
      * Set the cursor position. Following calls to zeitgeist_result_set_peek()
      * or zeitgeist_result_set_next() will read the event at position @pos.
      *
@@ -130,8 +117,6 @@ public interface ResultSet : Object
      public abstract void seek (uint pos);
 
     /**
-     * zeitgeist_result_set_tell:
-     *
      * Get the current position of the cursor.
      *
      * @param self The #ZeitgeistResultSet to check the cursor position for

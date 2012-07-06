@@ -229,8 +229,6 @@ public class Log : QueuedProxyWrapper
     // unregister_object()
 
    /**
-    * zeitgeist_log_get_version:
-    *
     * Gets version of currently running Zeitgeist daemon.
     *
     * This method will return the version of Zeitgeist daemon this instance is
