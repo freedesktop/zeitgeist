@@ -450,7 +450,6 @@ namespace Zeitgeist
             uint payload_length = (uint) payload_variant.n_children ();
             if (payload_length > 0)
             {
-                debug ("there was payload with length: %u", payload_length);
                 payload = new ByteArray.sized (payload_length);
                 unowned uint8[] data = (uint8[]?) payload_variant.get_data ();
                 data.length = (int) payload_length;

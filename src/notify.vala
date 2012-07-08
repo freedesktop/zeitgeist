@@ -75,7 +75,7 @@ namespace Zeitgeist
                         foreach (var owner in connections.get_keys())
                         {
                             // Don't disconnect monitors using service names
-                            if (arg0 == owner && g_dbus_is_unique_name (arg0))
+                            if (arg0 == owner && DBus.is_unique_name (arg0))
                             {
                                 var paths = connections.lookup (arg0);
                                 debug("Client disconnected %s", owner);

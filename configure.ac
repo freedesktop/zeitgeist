@@ -222,4 +222,3 @@ ${PACKAGE}-${VERSION}
     libzeitgeist docs:  ${enable_docs}
 
 EOF
-

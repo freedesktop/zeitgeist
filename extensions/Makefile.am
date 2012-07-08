@@ -9,7 +9,7 @@ zeitgeist_libs = \
 	$(ZEITGEIST_LIBS)
 
 #extensionsdir = $(libdir)/zeitgeist/extensions
-noinst_LTLIBRARIES = ds-registry.la blacklist.la storage-monitor.la fts.la benchmark.la
+noinst_LTLIBRARIES = ds-registry.la blacklist.la storage-monitor.la fts.la benchmark.la histogram.la
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
@@ -76,6 +76,16 @@ benchmark_la_SOURCES = \
 benchmark_la_LDFLAGS = -module -avoid-version
 
 benchmark_la_LIBADD = \
+	$(ZEITGEIST_LIBS) \
+	$(NULL)
+	
+histogram_la_SOURCES = \
+	histogram.vala \
+	$(NULL)
+
+histogram_la_LDFLAGS = -module -avoid-version
+
+histogram_la_LIBADD = \
 	$(ZEITGEIST_LIBS) \
 	$(NULL)
 
