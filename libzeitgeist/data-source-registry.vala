@@ -65,20 +65,6 @@ namespace Zeitgeist
                     {
                         proxy = Bus.get_proxy.end (res);
                         proxy_acquired (proxy);
-
-                        // FIXME: here or each time in _connection_established?
-                        proxy.data_source_disconnected.connect ((data_source) => {
-                            var source = new DataSource.from_variant (data_source);
-                            source_disconnected (source);
-                        });
-                        proxy.data_source_enabled.connect ((unique_id, enabled) => {
-                            // FIXME: why don't we return DataSource here too? :(
-                            source_enabled (unique_id, enabled);
-                        });
-                        proxy.data_source_registered.connect ((data_source) => {
-                            var source = new DataSource.from_variant (data_source);
-                            source_registered (source);
-                        });
                     }
                     catch (IOError err)
                     {
@@ -92,6 +78,18 @@ namespace Zeitgeist
 
         protected override void on_connection_established ()
         {
+            proxy.data_source_disconnected.connect ((data_source) => {
+                var source = new DataSource.from_variant (data_source);
+                source_disconnected (source);
+            });
+            proxy.data_source_enabled.connect ((unique_id, enabled) => {
+                // FIXME: why don't we return DataSource here too? :(
+                source_enabled (unique_id, enabled);
+            });
+            proxy.data_source_registered.connect ((data_source) => {
+                var source = new DataSource.from_variant (data_source);
+                source_registered (source);
+            });
         }
 
         protected override void on_connection_lost ()
