@@ -174,6 +174,7 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        // FIXME
     }
 
     public async void delete_events (uint32[] event_ids,

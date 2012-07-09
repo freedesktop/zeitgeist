@@ -44,7 +44,8 @@ public abstract class QueuedProxyWrapper : Object
 
     }
 
-    protected void proxy_acquired(Object proxy) {
+    protected void proxy_acquired(Object proxy)
+    {
         is_connected = true;
         proxy_created = true;
         proxy.notify["g-name-owner"].connect (name_owner_changed);
@@ -52,13 +53,19 @@ public abstract class QueuedProxyWrapper : Object
         process_queued_methods ();
     }
 
-    protected void proxy_unavailable() {
+    protected void proxy_unavailable()
+    {
+        // Zeitgeist couldn't be auto-started. We'll run the callbacks
+        // anyway giving them an error.
+        method_dispatch_queue_reverse ();
+        foreach (QueuedMethod m in method_dispatch_queue)
+        {
+        }
         // FIXME: process_queued_methods() with manual error callbacks
     }
 
     protected void process_queued_methods ()
     {
-        warning ("Processing queued methods...");
         method_dispatch_queue.reverse ();
         foreach (QueuedMethod m in method_dispatch_queue)
             m.queued_method ();
@@ -79,7 +86,8 @@ public abstract class QueuedProxyWrapper : Object
     protected abstract void on_connection_established ();
     protected abstract void on_connection_lost ();
 
-    protected async void wait_for_proxy (SourceFunc callback) {
+    protected async void wait_for_proxy (SourceFunc callback)
+    {
         if (likely (proxy_created))
             return;
         if (method_dispatch_queue == null)
