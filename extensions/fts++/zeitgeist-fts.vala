@@ -308,7 +308,7 @@ namespace Zeitgeist
                 }
                 if (discarded != 0)
                 {
-                    Log.set_handler ("", discarded, () => {});
+                    GLib.Log.set_handler ("", discarded, () => {});
                 }
                 else
                 {

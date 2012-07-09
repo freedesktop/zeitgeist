@@ -25,6 +25,7 @@ AM_VALAFLAGS = \
 	--pkg sqlite3 \
 	--pkg posix \
 	--pkg gmodule-2.0 \
+	$(top_srcdir)/libzeitgeist/zeitgeist.vapi \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
