@@ -51,12 +51,10 @@ public class Log : QueuedProxyWrapper
 
     public Log ()
     {
-        warning ("hi! requesting proxy...");
         monitors = new HashTable<Monitor, int>(direct_hash, direct_equal);
         Bus.get_proxy<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
             Utils.ENGINE_DBUS_PATH, 0, null, (obj, res) =>
             {
-                warning ("ok! proxy acquired!");
                 try
                 {
                     proxy = Bus.get_proxy.end (res);
@@ -66,7 +64,7 @@ public class Log : QueuedProxyWrapper
                 {
                     critical ("Unable to connect to Zeitgeist: %s",
                         err.message);
-                    proxy_unavailable();
+                    proxy_unavailable (err);
                 }
             });
     }
@@ -124,7 +122,7 @@ public class Log : QueuedProxyWrapper
     public async void insert_events_from_ptrarray (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy (insert_events_from_ptrarray.callback);
+        yield wait_for_proxy ();
         yield proxy.insert_events (Events.to_variant (events), cancellable);
     }
 
@@ -136,7 +134,7 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy (find_events.callback);
+        yield wait_for_proxy ();
         var result = yield proxy.find_events (time_range.to_variant (),
             Events.to_variant (event_templates), storage_state,
             num_events, result_type, cancellable);
@@ -151,7 +149,7 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy (find_event_ids.callback);
+        yield wait_for_proxy ();
         return yield proxy.find_event_ids (time_range.to_variant (),
             Events.to_variant (event_templates), storage_state,
             num_events, result_type, cancellable);
@@ -160,7 +158,7 @@ public class Log : QueuedProxyWrapper
     public async ResultSet get_events (uint32[] event_ids,
             Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy (get_events.callback);
+        yield wait_for_proxy ();
         var result = yield proxy.get_events (event_ids, cancellable);
         return new SimpleResultSet (Events.from_variant (result));
     }
@@ -180,13 +178,13 @@ public class Log : QueuedProxyWrapper
     public async void delete_events (uint32[] event_ids,
             Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy (delete_events.callback);
+        yield wait_for_proxy ();
         yield proxy.delete_events (event_ids, cancellable);
     }
 
     public async void quit (Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy (quit.callback);
+        yield wait_for_proxy ();
         yield proxy.quit (cancellable);
     }
 

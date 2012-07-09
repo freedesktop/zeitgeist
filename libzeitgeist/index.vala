@@ -60,7 +60,7 @@ public class Index : QueuedProxyWrapper
                 {
                     critical ("Unable to connect to Zeitgeist FTS: %s",
                         err.message);
-                    proxy_unavailable();
+                    proxy_unavailable (err);
                 }
             });
     }
@@ -132,7 +132,7 @@ public class Index : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy (search.callback);
+        yield wait_for_proxy ();
 
         Variant result;
         uint matches;
@@ -185,7 +185,7 @@ public class Index : QueuedProxyWrapper
         Cancellable? cancellable=null,
         out double[] relevancies) throws Error
     {
-        yield wait_for_proxy (search_with_relevancies.callback);
+        yield wait_for_proxy ();
 
         Variant result;
         Variant relevancies_variant;

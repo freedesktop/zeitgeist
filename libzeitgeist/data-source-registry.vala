@@ -85,7 +85,7 @@ namespace Zeitgeist
                         critical (
                             "Unable to connect to Zeitgeist's " +
                             "DataSourceRegistry: %s", err.message);
-                        proxy_unavailable();
+                        proxy_unavailable (err);
                     }
                 });
         }
@@ -101,7 +101,7 @@ namespace Zeitgeist
         public async GenericArray<DataSource> get_data_sources (
             Cancellable? cancellable=null) throws Error
         {
-            yield wait_for_proxy (get_data_sources.callback);
+            yield wait_for_proxy ();
             var result = yield proxy.get_data_sources (cancellable);
             return DataSources.from_variant (result);
         }
@@ -109,7 +109,7 @@ namespace Zeitgeist
         public async DataSource get_data_source_from_id (
             string unique_id, Cancellable? cancellable=null) throws Error
         {
-            yield wait_for_proxy (get_data_source_from_id.callback);
+            yield wait_for_proxy ();
             var result = yield proxy.get_data_source_from_id (unique_id,
                 cancellable);
 
@@ -119,7 +119,7 @@ namespace Zeitgeist
         public async bool register_data_source (
             DataSource data_source, Cancellable? cancellable=null) throws Error
         {
-            yield wait_for_proxy (register_data_source.callback);
+            yield wait_for_proxy ();
             return yield proxy.register_data_source (
                 data_source.unique_id, data_source.name,
                 data_source.description,
@@ -132,7 +132,7 @@ namespace Zeitgeist
             string unique_id, bool enabled, Cancellable? cancellable=null)
             throws Error
         {
-            yield wait_for_proxy (set_data_source_enabled.callback);
+            yield wait_for_proxy ();
             yield proxy.set_data_source_enabled (unique_id, enabled,
                 cancellable);
         }
