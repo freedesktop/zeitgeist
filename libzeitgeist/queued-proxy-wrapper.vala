@@ -32,6 +32,7 @@ public abstract class QueuedProxyWrapper : Object
 
     protected SList<QueuedMethod> method_dispatch_queue;
     protected IOError? log_error;
+    protected DBusProxy dbus_proxy;
 
     protected class QueuedMethod
     {
@@ -49,6 +50,7 @@ public abstract class QueuedProxyWrapper : Object
     {
         is_connected = true;
         proxy_created = true;
+        dbus_proxy = proxy as DBusProxy;
         proxy.notify["g-name-owner"].connect (name_owner_changed);
         on_connection_established ();
         process_queued_methods ();
@@ -72,7 +74,8 @@ public abstract class QueuedProxyWrapper : Object
 
     protected void name_owner_changed (ParamSpec pspec)
     {
-        string? name_owner = null; // FIXME: .get_name_owner ();
+        string? name_owner = dbus_proxy.get_name_owner ();
+        warning ("hi! owner: %s", name_owner);
         this.is_connected = name_owner != null;
 
         if (this.is_connected)
