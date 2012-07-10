@@ -75,7 +75,6 @@ public abstract class QueuedProxyWrapper : Object
     protected void name_owner_changed (ParamSpec pspec)
     {
         string? name_owner = dbus_proxy.get_name_owner ();
-        warning ("hi! owner: %s", name_owner);
         this.is_connected = name_owner != null;
 
         if (this.is_connected)
