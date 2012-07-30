@@ -96,8 +96,8 @@ class ScalabilityBenchmark:
 
         return (insertion_times,) + query_times
 
-def main(events_per_iteration=5000):
-    data = ScalabilityBenchmark().run(50, events_per_iteration, 5)
+def main(iterations=50, events_per_iteration=5000):
+    data = ScalabilityBenchmark().run(iterations, events_per_iteration, 5)
     chart = google_chart_api.LineChart()
     chart.AddLine(data[0], label="Insertion time")
     chart.AddLine(data[1], label="Query time (50 most recent events)")
@@ -111,6 +111,6 @@ def main(events_per_iteration=5000):
 
 if __name__ == '__main__':
     try:
-        main()
+        main(10, 5000)
     except KeyboardInterrupt:
         pass
