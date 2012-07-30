@@ -20,6 +20,7 @@
  */
 
 using Zeitgeist;
+using Assertions;
 
 int main (string[] argv)
 {
@@ -97,7 +98,7 @@ void events_test ()
     Variant vevents = Events.to_variant (events);
 
     var demarshalled = Events.from_variant (vevents);
-    assert (demarshalled.length == 1000);
+    assert_cmpint (demarshalled.length, OperatorType.EQUAL, 1000);
 }
 
 void timerange_test ()
@@ -106,8 +107,8 @@ void timerange_test ()
     {
         Variant v = new Variant("(xx)", i, i+42);
         TimeRange timerange = new TimeRange.from_variant (v);
-        assert (timerange.start == i);
-        assert (timerange.end == i+42);
+        assert_cmpint ((int) timerange.start, OperatorType.EQUAL, i);
+        assert_cmpint ((int) timerange.end, OperatorType.EQUAL, i+42);
     }
 }
 
