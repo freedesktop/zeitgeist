@@ -22,6 +22,8 @@
  *
  */
 
+using Zeitgeist;
+
 namespace Zeitgeist
 {
     //[DBus (name = "org.gnome.zeitgeist.DataModelError")]
@@ -45,12 +47,13 @@ namespace Zeitgeist
 
         public TimeRange (int64 start_msec, int64 end_msec)
         {
-            Object (start: start_msec, end: end_msec);
+            start = start_msec;
+            end = end_msec;
         }
 
         public TimeRange.anytime ()
         {
-            Object (start: 0, end: int64.MAX);
+            this (0, int64.MAX);
         }
 
         public TimeRange.to_now ()
