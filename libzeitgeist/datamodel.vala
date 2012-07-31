@@ -26,7 +26,7 @@ using Zeitgeist;
 
 namespace Zeitgeist
 {
-    //[DBus (name = "org.gnome.zeitgeist.DataModelError")]
+    [DBus (name = "org.gnome.zeitgeist.DataModelError")]
     public errordomain DataModelError {
         INVALID_SIGNATURE,
         TOO_MANY_RESULTS
@@ -794,6 +794,20 @@ namespace Zeitgeist
 
     }
 
+}
+
+// vala doesn't include proper headers, this fixes it
+private static void vala_bug_workaround ()
+{
+    try
+    {
+        Bus.get_sync (BusType.SESSION, null);
+    }
+    catch (Error err)
+    {
+        // kill "unused method" warning
+        vala_bug_workaround ();
+    }
 }
 
 // vim:expandtab:ts=4:sw=4
