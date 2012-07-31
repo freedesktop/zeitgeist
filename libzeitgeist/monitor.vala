@@ -48,7 +48,7 @@ public class Monitor : Object, RemoteMonitor
     private GenericArray<Event> templates;
 
     // Client side D-Bus path the monitor lives under
-    private string monitor_path;
+    private ObjectPath monitor_path;
 
     /**
      * ZeitgeistMonitor::events-inserted:
@@ -98,8 +98,8 @@ public class Monitor : Object, RemoteMonitor
     {
         this.time_range = time_range;
         this.templates = event_templates;
-        this.monitor_path = "/org/gnome/zeitgeist/monitor/%i".printf (
-            monitor_counter++);
+        this.monitor_path = new ObjectPath (
+            "/org/gnome/zeitgeist/monitor/%i".printf (monitor_counter++));
     }
 
     public TimeRange get_time_range ()
@@ -114,7 +114,7 @@ public class Monitor : Object, RemoteMonitor
 
     public ObjectPath get_path ()
     {
-        return new ObjectPath (monitor_path);
+        return monitor_path;
     }
 
     public async void notify_insert (

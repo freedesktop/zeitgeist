@@ -2,6 +2,10 @@ NULL =
 
 if ENABLE_DOCS
 
+FILES = \
+	$(wildcard $(top_srcdir)/libzeitgeist/*.vala) \
+	$(NULL)
+
 # valadoc in Ubuntu doesn't find it vala-0.16/vapi
 VALADOC_FLAGS = \
 	--force \
@@ -12,7 +16,7 @@ VALADOC_FLAGS = \
 	--basedir $(top_srcdir)/libzeitgeist \
 	--package-name libzeitgeist2 \
 	--package-version $(PACKAGE_VERSION) \
-	$(wildcard $(top_srcdir)/libzeitgeist/*.vala) \
+	$(FILES) \
 	$(NULL)
 
 valadoc:

@@ -37,11 +37,11 @@ public abstract class QueuedProxyWrapper : Object
     protected class QueuedMethod
     {
 
-        public SourceFunc queued_method { public /*owned*/ get; private /*owned*/ set; }
+        public SourceFunc queued_method { public get; private owned set; }
 
-        public QueuedMethod (SourceFunc callback)
+        public QueuedMethod (owned SourceFunc callback)
         {
-            queued_method = callback;
+            queued_method = (owned) callback;
         }
 
     }

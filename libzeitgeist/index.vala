@@ -141,7 +141,8 @@ public class Index : QueuedProxyWrapper
             Events.to_variant (event_templates), offset, num_events,
             result_type, out result, out matches, cancellable);
 
-        return new SimpleResultSet (Events.from_variant (result), matches);
+        return new SimpleResultSet.with_num_matches (
+            Events.from_variant (result), matches);
     }
 
     /**
@@ -205,7 +206,8 @@ public class Index : QueuedProxyWrapper
             relevancies[i] = relevancy;
         }
 
-        return new SimpleResultSet (Events.from_variant (result), matches);
+        return new SimpleResultSet.with_num_matches (
+            Events.from_variant (result), matches);
     }
 
 }

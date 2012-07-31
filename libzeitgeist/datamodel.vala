@@ -24,7 +24,6 @@
 
 namespace Zeitgeist
 {
-    // FIXME: move errors.vala to libzeitgeist/ and put this in there...
     //[DBus (name = "org.gnome.zeitgeist.DataModelError")]
     public errordomain DataModelError {
         INVALID_SIGNATURE,
@@ -46,13 +45,12 @@ namespace Zeitgeist
 
         public TimeRange (int64 start_msec, int64 end_msec)
         {
-            start = start_msec;
-            end = end_msec;
+            Object (start: start_msec, end: end_msec);
         }
 
         public TimeRange.anytime ()
         {
-            this (0, int64.MAX);
+            Object (start: 0, end: int64.MAX);
         }
 
         public TimeRange.to_now ()

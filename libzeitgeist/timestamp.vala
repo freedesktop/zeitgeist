@@ -1,4 +1,4 @@
-/* datamodel.vala
+/* timestamp.vala
  *
  * Copyright © 2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
@@ -172,7 +172,7 @@ namespace Zeitgeist.Timestamp
     /**
      * Write a timetsamp to a ''GDate'' structure
      */
-    public void to_date (int64 timestamp, out Date date)
+    public void to_date (int64 timestamp, ref Date date)
     {
         TimeVal timeval = to_timeval (timestamp);
         date.set_time_val (timeval);

@@ -221,6 +221,7 @@ public class Log : QueuedProxyWrapper
 
     public async void remove_monitor (Monitor monitor) throws Error
     {
+        // FIXME
     }
 
     // FIXME:

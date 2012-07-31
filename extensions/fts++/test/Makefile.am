@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-w \
 	-I$(srcdir)/.. \
+	-I $(top_srcdir)/libzeitgeist \
 	$(NULL)
 
 test_fts_SOURCES = \

@@ -135,7 +135,7 @@ namespace Zeitgeist
             Cancellable? cancellable=null) throws Error;
     }
 
-    /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */
+    /* FIXME: Remove this! Only here because of a bug in Vala */
     [DBus (name = "org.freedesktop.NetworkManager")]
     internal interface NetworkManagerDBus : Object
     {
@@ -144,7 +144,7 @@ namespace Zeitgeist
         public signal void state_changed (uint32 state);
     }
 
-    /* FIXME: Remove this! Only here because of a bug in Vala (see ext-fts) */
+    /* FIXME: Remove this! Only here because of a bug in Vala */
     [DBus (name = "net.connman.Manager")]
     internal interface ConnmanManagerDBus : Object
     {
