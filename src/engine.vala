@@ -158,7 +158,7 @@ public class Engine : DbReader
             data = new GenericArray<string> ();
         }
 
-        public ~DataInserter ()
+        ~DataInserter ()
         {
             if (data.length > 0)
                 warning ("DataInserter: destroyed with unflushed data");
