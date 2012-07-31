@@ -30,9 +30,9 @@ public abstract class QueuedProxyWrapper : Object
     public bool proxy_created { get; private set; default = false; }
     public bool is_connected { get; private set; default = false; }
 
-    protected SList<QueuedMethod> method_dispatch_queue;
-    protected IOError? log_error;
-    protected DBusProxy dbus_proxy;
+    private SList<QueuedMethod> method_dispatch_queue;
+    private IOError? log_error;
+    private DBusProxy dbus_proxy;
 
     protected class QueuedMethod
     {

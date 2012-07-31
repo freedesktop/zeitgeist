@@ -164,18 +164,20 @@ namespace Zeitgeist.Timestamp
      */
     public int64 from_dmy (DateDay day, DateMonth month, DateYear year)
     {
-        Date date = Date();
+        Date date = Date ();
         date.set_dmy (day, month, year);
         return from_date (date);
     }
 
     /**
-     * Write a timetsamp to a ''GDate'' structure
+     * Write a timestamp to a ''GDate'' structure
      */
-    public void to_date (int64 timestamp, ref Date date)
+    public Date to_date (int64 timestamp)
     {
+        Date date = Date ();
         TimeVal timeval = to_timeval (timestamp);
         date.set_time_val (timeval);
+        return date;
     }
 
     /**
