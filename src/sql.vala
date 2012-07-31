@@ -253,9 +253,11 @@ namespace Zeitgeist.SQLite
         public void insert_or_ignore_into_table (string table_name,
             GenericArray<string> values) throws EngineError
         {
+            if (values.length == 0)
+                return;
+
             int rc;
 
-            assert (values.length > 0);
             var sql = new StringBuilder ();
             sql.append ("INSERT OR IGNORE INTO ");
             sql.append (table_name);

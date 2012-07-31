@@ -32,6 +32,7 @@ __all__ = [
 	'Interpretation',
 	'Manifestation',
 	'ResultType',
+    'RelevantResultType',
 	'StorageState',
 	'TimeRange',
 	'DataSource',

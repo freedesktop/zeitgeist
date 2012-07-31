@@ -31,6 +31,7 @@ namespace Zeitgeist
         DATABASE_RETIRE_FAILED,
         EXISTING_INSTANCE,
         INVALID_ARGUMENT,
+        INVALID_EVENT,
         INVALID_KEY,
     }
 

@@ -247,13 +247,6 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 		self.assertEquals("something else", event.subjects[0].manifestation)
 		self.assertEquals("#Audio", event.subjects[0].interpretation)
 
-	def testInsertWithDuplicateSubject(self):
-		events = parse_events("test/data/three_events.js")
-		events[0].subjects.append(list(events[0].subjects[0]))
-		ids = self.insertEventsAndWait(events)
-		self.assertEquals(3, len(set(ids)))
-		self.assertEquals(0, ids[0])
-
 class ZeitgeistRemoteFindEventIdsTest(testutils.RemoteTestCase):
 	"""
 	Test cases with basic tests for FindEventIds.

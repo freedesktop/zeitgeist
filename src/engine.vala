@@ -76,6 +76,7 @@ public class Engine : DbReader
         database.begin_transaction ();
         try
         {
+            insert_event_data (events);
             for (int i = 0; i < events.length; ++i)
             {
                 if (events[i] != null)
@@ -141,31 +142,75 @@ public class Engine : DbReader
         }
     }
 
-    private uint32 insert_event (Event event) throws EngineError
-        requires (event.id == 0)
-        requires (event.num_subjects () > 0)
+    private class DataInserter
     {
-        event.id = ++last_id;
+        // This is the maximum number of "unions" SQLite supports
+        private static const int MAX_PARAMETERS = 500;
 
-        // Make sure all the URIs, texts and storage are inserted
+        private Database database;
+        private string type;
+        private GenericArray<string> data;
+
+        public DataInserter (Database db, string data_type)
         {
-            var uris = new GenericArray<string> ();
-            var texts = new GenericArray<string> ();
-            var storages = new GenericArray<string> ();
+            database = db;
+            type = data_type;
+            data = new GenericArray<string> ();
+        }
+
+        public ~DataInserter ()
+        {
+            if (data.length > 0)
+                warning ("DataInserter: destroyed with unflushed data");
+        }
+
+        public void add (string val) throws EngineError
+        {
+            if (data.length == MAX_PARAMETERS)
+                flush ();
+            data.add (val);
+        }
+
+        public void flush () throws EngineError
+        {
+            if (data.length > 0)
+            {
+                database.insert_or_ignore_into_table (type, data);
+                data = new GenericArray<string> ();
+            }
+        }
+    }
+
+    /**
+     * Makes sure all the URIs, texts and storage values used
+     * by the given events are in the database.
+     */
+    private void insert_event_data (GenericArray<Event> events)
+        throws EngineError
+    {
+        var uris = new DataInserter (database, "uri");
+        var texts = new DataInserter (database, "text");
+        var storages = new DataInserter (database, "storage");
+
+        for (int j = 0; j < events.length; ++j)
+        {
+            if (events[j] == null) continue;
+
+            Event event = events[j];
             var subj_uris = new SList<string> ();
 
             if (!is_empty_string (event.origin))
                 uris.add (event.origin);
 
             // Iterate through subjects and check for validity
-            for (int i = 0; i < event.num_subjects(); ++i)
+            for (int i = 0; i < event.num_subjects (); ++i)
             {
                 unowned Subject subject = event.subjects[i];
-                if (subj_uris.find_custom(subject.uri, strcmp) != null)
+                if (subj_uris.find_custom (subject.uri, strcmp) != null)
                 {
                     // Events with two subjects with the same URI are not supported.
-                    warning ("Events with two subjects with the same URI are not supported");
-                    return 0;
+                    throw new EngineError.INVALID_EVENT (
+                        "Events with two subjects with the same URI are not supported");
                 }
                 subj_uris.append (subject.uri);
 
@@ -180,22 +225,18 @@ public class Engine : DbReader
                 if (!is_empty_string(subject.storage))
                     storages.add (subject.storage);
             }
-
-            try
-            {
-                if (uris.length > 0)
-                    database.insert_or_ignore_into_table ("uri", uris);
-                if (texts.length > 0)
-                    database.insert_or_ignore_into_table ("text", texts);
-                if (storages.length > 0)
-                    database.insert_or_ignore_into_table ("storage", storages);
-            }
-            catch (EngineError e)
-            {
-                warning ("Can't insert data for event: " + e.message);
-                return 0;
-            }
         }
+
+        uris.flush ();
+        texts.flush ();
+        storages.flush ();
+    }
+
+    private uint32 insert_event (Event event) throws EngineError
+        requires (event.id == 0)
+        requires (event.num_subjects () > 0)
+    {
+        event.id = ++last_id;
 
         var payload_id = store_payload (event);
 
