@@ -15,7 +15,6 @@ AM_VALAFLAGS = \
 	$(top_srcdir)/config.vapi \
 	--vapi zeitgeist-2.0.vapi \
 	-H zeitgeist.h \
-	--internal-vapi zeitgeist-private.vapi \
 	-h zeitgeist-private.h \
 	--library=zeitgeist \
 	$(NULL)
@@ -62,7 +61,6 @@ DISTCLEANFILES = \
 	ontology.vala \
 	ontology-uris.vala \
 	zeitgeist-2.0.vapi \
-	zeitgeist-private.vapi \
 	$(NULL)
 
 # FIXME: can we make this depend on $(ontology_trig_DATA)?

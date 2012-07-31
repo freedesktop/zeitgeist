@@ -22,7 +22,7 @@ namespace Zeitgeist
 {
 
     [DBus (name = "org.gnome.zeitgeist.DataSourceRegistry")]
-    internal interface RemoteRegistry: Object
+    public interface RemoteRegistry: Object
     {
         [DBus (signature = "a(sssa(asaasay)bxb)")]
         public abstract async Variant get_data_sources (

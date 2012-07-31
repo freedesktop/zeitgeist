@@ -134,24 +134,6 @@ namespace Zeitgeist
             out double[] relevancies, out uint matches,
             Cancellable? cancellable=null) throws Error;
     }
-
-    /* FIXME: Remove this! Only here because of a bug in Vala */
-    [DBus (name = "org.freedesktop.NetworkManager")]
-    internal interface NetworkManagerDBus : Object
-    {
-        [DBus (name = "state")]
-        public abstract uint32 state () throws IOError;
-        public signal void state_changed (uint32 state);
-    }
-
-    /* FIXME: Remove this! Only here because of a bug in Vala */
-    [DBus (name = "net.connman.Manager")]
-    internal interface ConnmanManagerDBus : Object
-    {
-        public abstract string get_state () throws IOError;
-        public signal void state_changed (string state);
-    }
-
 }
 
 // vim:expandtab:ts=4:sw=4

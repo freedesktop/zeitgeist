@@ -541,6 +541,35 @@ namespace Zeitgeist
         }
     }
 
+    [DBus (name = "org.freedesktop.NetworkManager")]
+    internal interface NetworkManagerDBus : Object
+    {
+        [DBus (name = "state")]
+        public abstract uint32 state () throws IOError;
+        public signal void state_changed (uint32 state);
+    }
+
+    [DBus (name = "net.connman.Manager")]
+    internal interface ConnmanManagerDBus : Object
+    {
+        public abstract string get_state () throws IOError;
+        public signal void state_changed (string state);
+    }
+
+    // vala doesn't include proper headers, this fixes it
+    private static void vala_bug_workaround_2 ()
+    {
+        try
+        {
+            Bus.get_sync (BusType.SESSION, null);
+        }
+        catch (Error err)
+        {
+            // kill "unused method" warning
+            vala_bug_workaround_2 ();
+        }
+    }
+
     [ModuleInit]
 #if BUILTIN_EXTENSIONS
     public static Type storage_monitor_init (TypeModule module)

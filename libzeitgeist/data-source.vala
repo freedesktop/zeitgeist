@@ -97,7 +97,7 @@ namespace Zeitgeist
 
     namespace DataSources
     {
-        internal const string SIG_DATASOURCES =
+        public const string SIG_DATASOURCES =
             "a(sssa("+Utils.SIG_EVENT+")bxb)";
 
         public static GenericArray<DataSource> from_variant (

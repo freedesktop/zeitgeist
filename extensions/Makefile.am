@@ -24,7 +24,7 @@ VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	--pkg gmodule-2.0 \
-	$(top_srcdir)/libzeitgeist/zeitgeist-private.vapi \
+	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/src/zeitgeist-engine.vapi \
 	$(NULL)
 
