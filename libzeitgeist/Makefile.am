@@ -13,7 +13,7 @@ AM_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	$(top_srcdir)/config.vapi \
-	--vapi zeitgeist.vapi \
+	--vapi zeitgeist-2.0.vapi \
 	-H zeitgeist.h \
 	--internal-vapi zeitgeist-private.vapi \
 	-h zeitgeist-private.h \
@@ -50,7 +50,7 @@ libzeitgeist_include_HEADERS = \
 
 libzeitgeist_vapidir = $(datadir)/vala/vapi/
 libzeitgeist_vapi_DATA = \
-	zeitgeist.vapi
+	zeitgeist-2.0.vapi
 	$(NULL)
 
 EXTRA_DIST = \
@@ -61,7 +61,7 @@ EXTRA_DIST = \
 DISTCLEANFILES = \
 	ontology.vala \
 	ontology-uris.vala \
-	zeitgeist.vapi \
+	zeitgeist-2.0.vapi \
 	zeitgeist-private.vapi \
 	$(NULL)
 

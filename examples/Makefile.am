@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
 AM_VALAFLAGS = \
 	--target-glib=2.26 \
 	--pkg gio-2.0 \
-	$(top_srcdir)/libzeitgeist/zeitgeist.vapi \
+	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
