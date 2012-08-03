@@ -56,9 +56,9 @@ public interface ResultSet : Object
     public abstract uint size ();
 
     /**
-     * FIXME: this is not true for _find_events/_get_events():
-     * Get an estimated total number of matches that would have been for the query
+     * Get the total number of matches that would have been for the query
      * that generated the result set had it not been restricted in size.
+     * For FTS the number of matches is estimated.
      *
      * For zeitgeist_log_find_events() and zeitgeist_log_get_events() this will
      * always be the same as zeitgeist_result_set_size(). For cases like

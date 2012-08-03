@@ -101,9 +101,9 @@ namespace Zeitgeist.Timestamp
      * @return the timestamp for the current system time, in milliseconds
      *         since the Unix Epoch
      */
-    public int64 now () // FIXME: for_now in C
+    public int64 now ()
     {
-        return from_timeval (TimeVal ());
+        return get_real_time ()/1000;
     }
 
     /**

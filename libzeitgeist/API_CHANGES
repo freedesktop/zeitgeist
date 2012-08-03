@@ -14,6 +14,7 @@ API CHANGES FROM LIBZEITGEIST1:
  - introduced zeitgeist_event_take_subject
  - introduced zeitgeist_time_range_intersect
  - removed time_range_get_{start,end}_iso8601
+ - changed timestamp_for_now to be timestamp_now
 
 Vala:
  - stuff is more valaish (eg. properties vs set/get)
