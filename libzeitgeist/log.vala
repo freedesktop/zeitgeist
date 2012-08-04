@@ -119,6 +119,7 @@ public class Log : QueuedProxyWrapper
     }
     */
 
+    //FIXME: change insert_events_from_ptrarray to insert_events ?
     public async void insert_events_from_ptrarray (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
