@@ -7,5 +7,5 @@ Name: libzeigeist
 Description: C bindings for Zeitgeist
 Requires: glib-2.0
 Version: @LIBZEITGEIST_VERSION@
-Libs: -L${libdir} -lzeitgeist
+Libs: -L${libdir} -lzeitgeist-2.0
 Cflags: -I${includedir}/zeitgeist-2.0
