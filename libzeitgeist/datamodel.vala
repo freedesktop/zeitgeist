@@ -708,6 +708,7 @@ namespace Zeitgeist
             string? mimetype=null, string? origin=null, string? text=null,
             string? storage=null, string? current_uri=null)
         {
+            this.uri = uri;
             this.interpretation = interpretation;
             this.manifestation = manifestation;
             this.mimetype = mimetype;
