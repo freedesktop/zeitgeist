@@ -464,7 +464,7 @@ namespace Zeitgeist
 
             vb.open (new VariantType ("as"));
             vb.add ("s", id == 0 ? "" : id.to_string ());
-            vb.add ("s", timestamp.to_string ());
+            vb.add ("s", timestamp != 0 ? timestamp.to_string () : "");
             vb.add ("s", interpretation != null ? interpretation : "");
             vb.add ("s", manifestation != null ? manifestation : "");
             vb.add ("s", actor != null ? actor : "");
