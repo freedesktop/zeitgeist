@@ -29,6 +29,7 @@ SRC_FILES = \
 	$(top_srcdir)/libzeitgeist/datamodel.vala  \
 	$(top_srcdir)/src/where-clause.vala \
 	$(top_srcdir)/libzeitgeist/remote.vala \
+	$(top_srcdir)/libzeitgeist/timestamp.vala \
 	$(top_srcdir)/src/sql-schema.vala \
 	$(top_srcdir)/src/extension.vala \
 	$(top_srcdir)/src/extension-collection.vala \
