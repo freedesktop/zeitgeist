@@ -39,7 +39,7 @@ namespace Zeitgeist
         }
 
         public DataSource.full (string unique_id, string name,
-            string description, GenericArray<Event> templates)
+            string description, GenericArray<Event>? templates)
         {
             Object (unique_id: unique_id, name: name, description: description,
                 event_templates: templates);

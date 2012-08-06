@@ -11,6 +11,7 @@ VALAFLAGS = \
 
 TESTS = \
 	datamodel-test \
+	datasource-test \
 	marshalling-test \
 	mimetype-test \
 	query-operators-test \
@@ -27,6 +28,7 @@ SRC_FILES = \
 	$(top_srcdir)/src/notify.vala \
 	$(top_srcdir)/src/table-lookup.vala \
 	$(top_srcdir)/libzeitgeist/datamodel.vala  \
+	$(top_srcdir)/libzeitgeist/data-source.vala  \
 	$(top_srcdir)/src/where-clause.vala \
 	$(top_srcdir)/libzeitgeist/remote.vala \
 	$(top_srcdir)/libzeitgeist/timestamp.vala \
@@ -42,6 +44,9 @@ SRC_FILES = \
 	$(NULL)
 
 datamodel-test: datamodel-test.vala $(SRC_FILES)
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
+
+datasource-test: datasource-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
 marshalling-test: marshalling-test.vala $(SRC_FILES)
@@ -64,6 +69,7 @@ clean-local:
 
 CLEANFILES = \
 	datamodel-test \
+	datasource-test \
 	marshalling-test \
 	mimetype-test \
 	query-operators-test \
@@ -74,6 +80,7 @@ CLEANFILES = \
 EXTRA_DIST = \
 	assertions.vapi \
 	datamodel-test.vala \
+	datasource-test.vala \
 	marshalling-test.vala \
 	mimetype-test.vala \
 	query-operators-test.vala \
