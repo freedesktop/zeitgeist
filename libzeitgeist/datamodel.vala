@@ -458,6 +458,12 @@ namespace Zeitgeist
             }
         }
 
+        /* public set_actor_from_info (AppInfo info)
+            requires (info.id != null)
+        {
+            actor = info.id;
+        } */
+
         public Variant to_variant ()
         {
             var vb = new VariantBuilder (new VariantType ("("+Utils.SIG_EVENT+")"));

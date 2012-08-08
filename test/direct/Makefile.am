@@ -12,6 +12,7 @@ VALAFLAGS = \
 TESTS = \
 	datamodel-test \
 	datasource-test \
+	event-test \
 	marshalling-test \
 	mimetype-test \
 	query-operators-test \
@@ -49,6 +50,9 @@ datamodel-test: datamodel-test.vala $(SRC_FILES)
 datasource-test: datasource-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
+event-test: event-test.vala $(SRC_FILES)
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
+
 marshalling-test: marshalling-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
@@ -70,6 +74,7 @@ clean-local:
 CLEANFILES = \
 	datamodel-test \
 	datasource-test \
+	event-test \
 	marshalling-test \
 	mimetype-test \
 	query-operators-test \
@@ -81,6 +86,7 @@ EXTRA_DIST = \
 	assertions.vapi \
 	datamodel-test.vala \
 	datasource-test.vala \
+	event-test.vala \
 	marshalling-test.vala \
 	mimetype-test.vala \
 	query-operators-test.vala \
