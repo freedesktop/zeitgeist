@@ -19,12 +19,14 @@
  */
 
 using Zeitgeist;
+using Assertions;
 
 int main (string[] argv)
 {
     Test.init (ref argv);
 
     Test.add_func ("/Datamodel/MatchesTemplate/anything", matches_template_anything_test);
+    Test.add_func ("/Datamodel/MatchesTemplate/foreach", foreach_test);
 
     return Test.run ();
 }
@@ -65,6 +67,55 @@ void matches_template_anything_test ()
     // Now check something that doesn't match
     templ.manifestation = "No thanks!";
     assert (!event.matches_template (templ));
+}
+
+Subject create_subject ()
+{
+    var s = new Subject ();
+    s.uri = "scheme:///uri";
+    s.interpretation = "subject_interpretation_uri";
+    s.manifestation = "subject_manifestation_uri";
+    s.mimetype = "text/plain";
+    s.origin = "scheme:///";
+    s.text = "Human readable text";
+    s.storage = "";
+    s.current_uri = "scheme:///uri";
+
+    return s;
+}
+
+Event create_event ()
+{
+    var e = new Event ();
+    e.id = 1234;
+    e.timestamp = 1234567890L;
+    e.interpretation = "interpretation_uri";
+    e.manifestation = "manifestation_uri";
+    e.actor = "test.desktop";
+    e.origin = "source";
+
+    return e;
+}
+
+void foreach_test ()
+{
+    GenericArray<Event> events = new GenericArray<Event> ();
+    for (int i = 0; i < 1000; i++)
+    {
+        var e = create_event ();
+        e.id = i;
+        e.add_subject (create_subject ());
+        events.add (e);
+    }
+
+    SimpleResultSet result_set = new SimpleResultSet (events);
+    int i = 0;
+    foreach (Event e in result_set) 
+    {
+        assert_cmpint ((int) e.id, OperatorType.EQUAL, i);
+        i++;
+    }
+
 }
 
 // vim:expandtab:ts=4:sw=4

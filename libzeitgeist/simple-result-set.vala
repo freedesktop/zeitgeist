@@ -56,16 +56,6 @@ internal class SimpleResultSet : Object, ResultSet
         return num_estimated_matches;
     }
 
-    public Event next ()
-    {
-        return events.get (cursor++);
-    }
-
-    public bool has_next ()
-    {
-        return cursor < events.length;
-    }
-
     public Event peek ()
     {
         return events.get (cursor);
@@ -79,6 +69,13 @@ internal class SimpleResultSet : Object, ResultSet
     public uint tell ()
     {
         return cursor;
+    }
+
+    public Event? next_value ()
+    {
+        if (cursor < events.length)
+            return events.get (cursor++);
+        return null;
     }
 
 }

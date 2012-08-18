@@ -37,6 +37,8 @@ SRC_FILES = \
 	$(top_srcdir)/libzeitgeist/ontology.vala \
 	$(top_srcdir)/libzeitgeist/ontology-uris.vala \
 	$(top_srcdir)/libzeitgeist/mimetype.vala \
+	$(top_srcdir)/libzeitgeist/result-set.vala \
+	$(top_srcdir)/libzeitgeist/simple-result-set.vala \
 	$(NULL)
 
 datamodel-test: datamodel-test.vala $(SRC_FILES)

@@ -72,30 +72,6 @@ public interface ResultSet : Object
     public abstract uint estimated_matches ();
 
     /**
-     * Get the current event from the result set and advance the cursor.
-     * To ensure that calls to this method will succeed you can call
-     * zeitgeist_result_set_has_next().
-     *
-     * To retrieve the current event without advancing the cursor call
-     * zeitgeist_result_set_peek() in stead of this method.
-     *
-     * @param self The #ZeitgeistResultSet to get an event from
-     *
-     * @return The #ZeitgeistEvent at the current cursor position
-     */
-    public abstract Event next ();
-
-    /**
-     * Check if a call to zeitgeist_result_set_next() will succeed.
-     *
-     * @param self The #ZeitgeistResultSet to check
-     *
-     * @return %TRUE if and only if more events can be retrieved by calling
-     *     zeitgeist_result_set_next()
-     */
-    public abstract bool has_next ();
-
-    /**
      * Get the event at the current cursor position.
      *
      * To retrieve the current event and advance the cursor position call
@@ -124,6 +100,16 @@ public interface ResultSet : Object
      * @return The current position of the cursor
      */
     public abstract uint tell ();
+
+    /**
+     * Get an iterator object
+     * @param self The #ZeitgeistResultSet to seek in
+     */
+    public ResultSet iterator () {
+        return this;
+    }
+
+    public abstract Event? next_value ();
 
 }
 
