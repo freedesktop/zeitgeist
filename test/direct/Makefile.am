@@ -13,6 +13,7 @@ TESTS = \
 	datamodel-test \
 	datasource-test \
 	event-test \
+	log-test \
 	marshalling-test \
 	mimetype-test \
 	query-operators-test \
@@ -40,6 +41,11 @@ SRC_FILES = \
 	$(top_srcdir)/libzeitgeist/ontology.vala \
 	$(top_srcdir)/libzeitgeist/ontology-uris.vala \
 	$(top_srcdir)/libzeitgeist/mimetype.vala \
+	$(top_srcdir)/libzeitgeist/log.vala \
+	$(top_srcdir)/libzeitgeist/result-set.vala \
+	$(top_srcdir)/libzeitgeist/simple-result-set.vala \
+	$(top_srcdir)/libzeitgeist/monitor.vala \
+	$(top_srcdir)/libzeitgeist/queued-proxy-wrapper.vala \
 	$(top_srcdir)/libzeitgeist/result-set.vala \
 	$(top_srcdir)/libzeitgeist/simple-result-set.vala \
 	$(NULL)
@@ -51,6 +57,9 @@ datasource-test: datasource-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
 event-test: event-test.vala $(SRC_FILES)
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
+
+log-test: log-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
 marshalling-test: marshalling-test.vala $(SRC_FILES)
@@ -75,6 +84,7 @@ CLEANFILES = \
 	datamodel-test \
 	datasource-test \
 	event-test \
+	log-test \
 	marshalling-test \
 	mimetype-test \
 	query-operators-test \
@@ -87,6 +97,7 @@ EXTRA_DIST = \
 	datamodel-test.vala \
 	datasource-test.vala \
 	event-test.vala \
+	log-test.vala \
 	marshalling-test.vala \
 	mimetype-test.vala \
 	query-operators-test.vala \
