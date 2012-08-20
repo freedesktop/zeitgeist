@@ -198,16 +198,15 @@ public class Log : QueuedProxyWrapper
         monitors.insert(monitor, 0);
 
         if (is_connected)
-            install_monitor (monitor);
+            reinstall_monitor (monitor);
     }
 
-    private void reinstall_monitor (Monitor monitor)
+    private async void reinstall_monitor (Monitor monitor)
         requires (is_connected)
     {
         if (monitors.lookup (monitor) == 0)
         {
-            // FIXME: make async!
-            DBusConnection conn = Bus.get_sync (BusType.SESSION);
+            DBusConnection conn = ((DBusProxy) proxy).get_connection ();
 
             uint registration_id = conn.register_object<RemoteMonitor> (
                 monitor.get_path (), monitor);
@@ -222,12 +221,27 @@ public class Log : QueuedProxyWrapper
 
     public async void remove_monitor (Monitor monitor) throws Error
     {
-        // FIXME
-    }
+        yield wait_for_proxy ();
 
-    // FIXME:
-    // monitor_removed_cb:
-    // unregister_object()
+        try
+        {
+            yield proxy.remove_monitor (monitor.get_path ());
+        }
+        catch (IOError err)
+        {
+            warning ("Failed to remove monitor from Zeitgeist. Retracting" +
+                "%s from the bus nonetheless: %s", monitor.get_path (),
+                err.message);
+            return;
+        }
+
+        uint registration_id = monitors.lookup (monitor);
+        if (registration_id != 0)
+        {
+            var connection = ((DBusProxy) proxy).get_connection ();
+            connection.unregister_object (registration_id);
+        }
+    }
 
    /**
     * Gets version of currently running Zeitgeist daemon.
