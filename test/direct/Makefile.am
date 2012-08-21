@@ -16,6 +16,7 @@ TESTS = \
 	log-test \
 	marshalling-test \
 	mimetype-test \
+	monitor-test \
 	query-operators-test \
 	table-lookup-test \
 	where-clause-test \
@@ -77,6 +78,9 @@ table-lookup-test: table-lookup-test.vala $(SRC_FILES)
 mimetype-test: mimetype-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
+monitor-test: monitor-test.vala $(SRC_FILES)
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
+
 clean-local:
 	rm -f *.~[0-9]~
 
@@ -87,6 +91,7 @@ CLEANFILES = \
 	log-test \
 	marshalling-test \
 	mimetype-test \
+	monitor-test \
 	query-operators-test \
 	table-lookup-test \
 	where-clause-test \
@@ -100,6 +105,7 @@ EXTRA_DIST = \
 	log-test.vala \
 	marshalling-test.vala \
 	mimetype-test.vala \
+	monitor-test.vala \
 	query-operators-test.vala \
 	table-lookup-test.vala \
 	where-clause-test.vala \
