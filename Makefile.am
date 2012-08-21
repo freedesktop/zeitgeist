@@ -52,3 +52,6 @@ test-dbus: all
 
 test-direct: all
 	cd ./test/direct/ && make run;
+
+test-c: all
+	cd ./test/c/ && make run;
