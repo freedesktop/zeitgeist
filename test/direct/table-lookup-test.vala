@@ -27,7 +27,7 @@ int main (string[] args)
     Test.init (ref args);
 
     // Do not abort on warning()s.
-    Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
+    GLib.Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
 
     // This test will use the database, make sure it won't mess up
     // the system.

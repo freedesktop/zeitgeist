@@ -26,7 +26,7 @@ int main (string[] args)
     Test.init (ref args);
 
     // Do not abort on warning()s.
-    Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
+    GLib.Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
 
     Test.add_func ("/WhereClause/basic", basic_test);
     Test.add_func ("/WhereClause/nested", nested_test);
