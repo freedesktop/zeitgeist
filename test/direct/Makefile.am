@@ -18,6 +18,7 @@ TESTS = \
 	mimetype-test \
 	monitor-test \
 	query-operators-test \
+	symbol-test \
 	table-lookup-test \
 	where-clause-test \
 	$(NULL)
@@ -69,6 +70,9 @@ marshalling-test: marshalling-test.vala $(SRC_FILES)
 query-operators-test: query-operators-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
+symbol-test: symbol-test.vala $(SRC_FILES)
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
+
 where-clause-test: where-clause-test.vala $(SRC_FILES)
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -o $@ $^
 
@@ -93,6 +97,7 @@ CLEANFILES = \
 	mimetype-test \
 	monitor-test \
 	query-operators-test \
+	symbol-test \
 	table-lookup-test \
 	where-clause-test \
 	$(NULL)
@@ -107,6 +112,7 @@ EXTRA_DIST = \
 	mimetype-test.vala \
 	monitor-test.vala \
 	query-operators-test.vala \
+	symbol-test.vala \
 	table-lookup-test.vala \
 	where-clause-test.vala \
 	$(NULL)
