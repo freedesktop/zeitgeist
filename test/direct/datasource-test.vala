@@ -36,7 +36,6 @@ int main (string[] argv)
 void create_empty_test ()
 {
     var src = new DataSource ();
-
     assert_cmpstr (src.unique_id, OperatorType.EQUAL, null);
     assert_cmpstr (src.name, OperatorType.EQUAL, null);
     assert_cmpstr (src.description, OperatorType.EQUAL, null);
@@ -92,7 +91,7 @@ void to_from_variant_test ()
     assert (src.enabled == true);
 
     event_templates = src.event_templates;
-    assert_cmpint (event_templates.length, OperatorType.EQUAL, 0);
+    assert_cmpint (event_templates.length, OperatorType.EQUAL, 1);
     assert (event_templates.get (0) is Event);
 }
 

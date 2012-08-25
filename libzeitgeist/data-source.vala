@@ -36,6 +36,7 @@ namespace Zeitgeist
         public DataSource ()
         {
             Object ();
+            this.enabled = true;
         }
 
         public DataSource.full (string unique_id, string name,
@@ -43,6 +44,7 @@ namespace Zeitgeist
         {
             Object (unique_id: unique_id, name: name, description: description,
                 event_templates: templates);
+            this.enabled = true;
         }
 
         public DataSource.from_variant (Variant variant,

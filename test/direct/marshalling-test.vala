@@ -103,12 +103,12 @@ void events_test ()
 
 void timerange_test ()
 {
-    for (int i = 0; i < 1000; i++)
+    for (int64 i = 0; i < 1000; i++)
     {
         Variant v = new Variant("(xx)", i, i+42);
         TimeRange timerange = new TimeRange.from_variant (v);
-        assert_cmpint ((int) timerange.start, OperatorType.EQUAL, i);
-        assert_cmpint ((int) timerange.end, OperatorType.EQUAL, i+42);
+        assert_cmpint ((int) timerange.start, OperatorType.EQUAL, (int)i);
+        assert_cmpint ((int) timerange.end, OperatorType.EQUAL, (int)i+42);
     }
 }
 
