@@ -102,7 +102,7 @@ void events_test ()
 
 void timerange_test ()
 {
-    for (int i = 0; i < 1000; i++)
+    for (int64 i = 0; i < 1000; i++)
     {
         Variant v = new Variant("(xx)", i, i+42);
         TimeRange timerange = new TimeRange.from_variant (v);
