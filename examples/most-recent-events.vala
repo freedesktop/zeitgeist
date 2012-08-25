@@ -14,9 +14,8 @@ int main ()
         {
             ResultSet events = log.find_events.end (res);
             stdout.printf ("%u most recent subjects:", events.size ());
-            while (events.has_next ())
+            foreach (Event event in events)
             {
-                Event event = events.next ();
                 stdout.printf (" - %s\n", event.subjects[0].uri);
             }
             loop.quit();

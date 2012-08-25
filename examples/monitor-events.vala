@@ -2,9 +2,8 @@ void on_events_inserted (Zeitgeist.TimeRange tr, Zeitgeist.ResultSet events)
 {
     message ("%u events inserted", events.size ());
 
-    while (events.has_next ())
+    foreach (Zeitgeist.Event event in events)
     {
-        Zeitgeist.Event event = events.next ();
         for (int i = 0; i < event.num_subjects (); ++i )
         {
             Zeitgeist.Subject subject = event.subjects[i];

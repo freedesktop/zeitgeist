@@ -7,9 +7,8 @@ int main ()
     Zeitgeist.Log zg = new Zeitgeist.Log ();
     zg.get_events (ids, null, (obj, res) => {
         Zeitgeist.ResultSet events = zg.get_events.end (res);
-        while (events.has_next ())
+        foreach (Zeitgeist.Event event in events)
         {
-            Zeitgeist.Event event = events.next ();
             stdout.printf ("Subject: %s\n", event.subjects[0].uri);
         }
         loop.quit();
