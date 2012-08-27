@@ -1,3 +1,19 @@
+2012-08-26: Zeitgeist 0.9.5 "Sun Devil"
+----------------------------------------
+
+Engine:
+ - Needs vala 0.16 to build.
+ - Optimization of subject interpretation.
+ - Set Pragma setting synchronous to NORMAL.
+ - Added a which sets up a bus in a fake X server (Xvfb) and launches 
+   a Zeitgeist instance (without datahub or FTS) into it.
+ - Events are inserted in sequential order.
+
+Autoconf:
+ - Don't check for Xapian if FTS++ is disabled.
+ - Print "SQL debugging" option.
+ - Check for gmodule.
+
 2012-05-22: Zeitgeist 0.9.0.1 "Rumpelstiltskin"
 -----------------------------------------------
 
