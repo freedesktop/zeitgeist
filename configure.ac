@@ -52,6 +52,7 @@ AC_CONFIG_FILES([
 	test/Makefile
 	test/dbus/Makefile
 	test/direct/Makefile
+	test/data/Makefile
 	doc/Makefile
 	po/Makefile.in
 ])
