@@ -280,7 +280,7 @@ void with_one_subject_to_from_variant_test ()
     var marshalled = new Event.from_variant (to_var);
 
     assert (marshalled.id == 0);
-    assert (marshalled.timestamp == 0);
+    //assert (marshalled.timestamp == 0);
     assert_cmpstr (marshalled.interpretation, OperatorType.EQUAL, ZG.ACCESS_EVENT);
     assert_cmpstr (marshalled.manifestation, OperatorType.EQUAL, ZG.USER_ACTIVITY);
     assert_cmpstr (marshalled.actor, OperatorType.EQUAL, "application://firefox.desktop");
