@@ -119,7 +119,14 @@ public class Log : QueuedProxyWrapper
     }
     */
 
-    //FIXME: change insert_events_from_ptrarray to insert_events ?
+    public async void insert_events (GenericArray<Event> events,
+        Cancellable? cancellable=null) throws Error
+    {
+        yield wait_for_proxy ();
+        yield proxy.insert_events (Events.to_variant (events), cancellable);
+    }
+
+    //FIXME: This place holder should use ptrarray instead of GeneriyArray
     public async void insert_events_from_ptrarray (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {

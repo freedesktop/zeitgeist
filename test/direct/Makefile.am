@@ -13,7 +13,6 @@ TESTS = \
 	datamodel-test \
 	datasource-test \
 	event-test \
-	log-test \
 	marshalling-test \
 	mimetype-test \
 	monitor-test \
@@ -92,7 +91,6 @@ CLEANFILES = \
 	datamodel-test \
 	datasource-test \
 	event-test \
-	log-test \
 	marshalling-test \
 	mimetype-test \
 	monitor-test \
@@ -107,7 +105,6 @@ EXTRA_DIST = \
 	datamodel-test.vala \
 	datasource-test.vala \
 	event-test.vala \
-	log-test.vala \
 	marshalling-test.vala \
 	mimetype-test.vala \
 	monitor-test.vala \

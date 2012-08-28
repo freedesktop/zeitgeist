@@ -434,13 +434,21 @@ namespace Zeitgeist
             else
                 timestamp = int64.parse (str_timestamp);
             interpretation = event_array.next_value ().get_string ();
+            if (interpretation == "")
+                interpretation = null;
             manifestation = event_array.next_value ().get_string ();
+            if (manifestation == "")
+                manifestation = null;
             actor = event_array.next_value ().get_string ();
+            if (actor == "")
+                actor = null;
             // let's keep this compatible with older clients
             if (event_props >= 6)
                 origin = event_array.next_value ().get_string ();
             else
-                origin = "";
+                origin = null;
+            if (origin == "")
+                origin = null;
 
             for (int i = 0; i < subjects_array.n_children (); ++i) {
                 Variant subject_variant = subjects_array.next_value ();
@@ -732,17 +740,31 @@ namespace Zeitgeist
             var subject_props = iter.n_children ();
             assert_sig (subject_props >= 7, "Missing subject information");
             uri = iter.next_value().get_string ();
+            if (uri == "")
+                uri = null;
             interpretation = iter.next_value().get_string ();
+            if (interpretation == "")
+                interpretation = null;
             manifestation = iter.next_value().get_string ();
+            if (manifestation == "")
+                manifestation = null;
             origin = iter.next_value().get_string ();
+            if (origin == "")
+                origin = null;
             mimetype = iter.next_value().get_string ();
+            if (mimetype == "")
+                mimetype = null;
             text = iter.next_value().get_string ();
+            if (text == "")
+                text = null;
             storage = iter.next_value().get_string ();
+            if (storage == "")
+                storage = null;
             // let's keep this compatible with older clients
             if (subject_props >= 8)
                 current_uri = iter.next_value().get_string ();
             else
-                current_uri = "";
+                current_uri = null;
         }
 
         public Variant to_variant ()

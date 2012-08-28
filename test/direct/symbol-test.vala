@@ -113,9 +113,9 @@ void media_all_children_test ()
 
 void vector_image_parents_test ()
 {
-    var children = Symbol.get_all_children (NFO.VECTOR_IMAGE);
-    assert_cmpuint (children.length (), OperatorType.GREATER_THAN, 0);
-    foreach (string uri in children)
+    var parents = Symbol.get_all_parents (NFO.VECTOR_IMAGE);
+    assert_cmpuint (parents.length (), OperatorType.GREATER_THAN, 0);
+    foreach (string uri in parents)
         is_uri_valid (uri);
 }
 
