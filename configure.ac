@@ -56,6 +56,7 @@ AC_CONFIG_FILES([
 	test/Makefile
 	test/dbus/Makefile
 	test/direct/Makefile
+	test/c/Makefile
 	examples/Makefile
 	doc/Makefile
 	doc/libzeitgeist/Makefile
