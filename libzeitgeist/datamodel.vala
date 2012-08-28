@@ -6,9 +6,9 @@
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
  * Copyright © 2012 Canonical Ltd.
  *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
- * Copyright © 2012 Collabora Ltd.
- *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
- *             By Seif Lotfy <seif.lotfy@collabora.co.uk>
+ * Copyright © 2011 Collabora Ltd.
+ *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+ *             By Seif Lotfy <seif@lotfy.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -494,11 +494,17 @@ namespace Zeitgeist
             }
             vb.close ();
 
-            vb.open (new VariantType ("ay"));
             if (payload != null)
-                for (int i = 0; i < payload.len; i++)
-                        vb.add ("y", payload.data[i]);
-            vb.close ();
+            {
+                Variant payload_variant = Variant.new_from_data<ByteArray> (
+                    new VariantType ("ay"), payload.data, false, payload);
+                vb.add_value (payload_variant);
+            }
+            else
+            {
+                vb.open (new VariantType ("ay"));
+                vb.close ();
+            }
 
             Variant event_variant = vb.end ().get_normal_form ();
             Variant ret = optimize_variant_allocation (event_variant);
