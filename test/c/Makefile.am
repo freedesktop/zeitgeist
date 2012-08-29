@@ -3,7 +3,6 @@ include $(top_srcdir)/Makefile.decl
 INCLUDES = \
   -I$(top_srcdir)/src -I$(top_builddir)/src \
   $(GIO_UNIX_CFLAGS) \
-  $(SQLITE_CFLAGS) \
   $(ZEITGEIST_CFLAGS)
 
 AM_CFLAGS = \
@@ -12,41 +11,49 @@ AM_CFLAGS = \
   -DZEITGEIST_COMPILATION \
   -DTEST_DIR=\"$(top_srcdir)/tests\"
 
-zeitgeist_libs = $(top_builddir)/src/libzeitgeist-2.0.la $(ZEITGEIST_LIBS)
+zeitgeist_libs = $(top_builddir)/src/libzeitgeist-1.0.la $(ZEITGEIST_LIBS)
 
 EXTRA_DIST += \
   test.desktop
 
-SRC_FILES = \
-  $(top_srcdir)/src/mimetype.c \
-  $(top_srcdir)/src/mimetype.h  \
+helper_sources = \
+  $(top_srcdir)/src/zeitgeist-mimetypes.c \
+  $(top_srcdir)/src/zeitgeist-mimetypes.h  \
   test.desktop
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-test-monitor: test-monitor.c $(SRC_FILES)
-	$(CC) $(CFLAGS) -o $@ $^
+TEST_PROGS            += test-timerange
+test_timerange_SOURCES = test-timerange.c $(helper_sources)
+test_timerange_LDADD   = $(zeitgeist_libs)
 
-TESTS = \
-	test-monitor \
-	$(NULL)
+TEST_PROGS            += test-timestamp
+test_timestamp_SOURCES = test-timestamp.c $(helper_sources)
+test_timestamp_LDADD   = $(zeitgeist_libs)
 
+TEST_PROGS            += test-symbols
+test_symbols_SOURCES = test-symbols.c $(helper_sources)
+test_symbols_LDADD   = $(zeitgeist_libs)
 
-clean-local:
-	rm -f *.~[0-9]~
+TEST_PROGS          += test-monitor
+test_monitor_SOURCES = test-monitor.c $(helper_sources)
+test_monitor_LDADD   = $(zeitgeist_libs)
 
-CLEANFILES = \
-	datamodel-test \
-	datasource-test \
-	event-test \
-	log-test \
-	marshalling-test \
-	mimetype-test \
-	query-operators-test \
-	table-lookup-test \
-	where-clause-test \
-	$(NULL)
+TEST_PROGS      += test-log
+test_log_SOURCES = test-log.c $(helper_sources)
+test_log_LDADD   = $(zeitgeist_libs)
 
+TEST_PROGS        += test-event
+test_event_SOURCES = test-event.c $(helper_sources)
+test_event_LDADD   = $(zeitgeist_libs) $(GIO_UNIX_LIBS)
+
+TEST_PROGS        += test-datasource
+test_datasource_SOURCES = test-datasource.c $(helper_sources)
+test_datasource_LDADD   = $(zeitgeist_libs) $(GIO_UNIX_LIBS)
+
+TEST_PROGS            += test-mimetypes
+test_mimetypes_SOURCES = test-mimetypes.c $(helper_sources)
+test_mimetypes_LDADD   = $(zeitgeist_libs)
 
 # HEADLESS CHECKS
 # Start up a new Zeitgeist on a private bus using only a
