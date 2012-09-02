@@ -193,7 +193,7 @@ namespace Zeitgeist
                 ds.name = name;
                 ds.description = description;
                 ds.event_templates = templates;
-                ds.timestamp = Timestamp.now ();
+                ds.timestamp = Timestamp.from_now ();
                 ds.running = true;
                 dirty = true;
 
@@ -208,7 +208,7 @@ namespace Zeitgeist
                     description, templates);
                 new_ds.enabled = true;
                 new_ds.running = true;
-                new_ds.timestamp = Timestamp.now ();
+                new_ds.timestamp = Timestamp.from_now ();
                 sources.insert (unique_id, new_ds);
                 dirty = true;
 
@@ -262,7 +262,7 @@ namespace Zeitgeist
                 {
                     var data_source = sources.lookup (unique_id);
 
-                    data_source.timestamp = Timestamp.now ();
+                    data_source.timestamp = Timestamp.from_now ();
                     dirty = true;
 
                     // if one sender registers multiple unique data sources,
@@ -320,7 +320,7 @@ namespace Zeitgeist
                 debug ("Client disconnected: %s [%s]", ds.name, uid);
 
                 // FIXME: Update here or change semantics to "last insert"?
-                ds.timestamp = Timestamp.now ();
+                ds.timestamp = Timestamp.from_now ();
                 dirty = true;
 
                 if (running_ds.lookup (uid).length == 0)

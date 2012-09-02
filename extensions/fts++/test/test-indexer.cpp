@@ -303,7 +303,7 @@ index_event (Fixture *fix, ZeitgeistEvent *event)
   guint *event_ids;
   int num_events_inserted;
 
-  zeitgeist_event_set_timestamp (event, zeitgeist_timestamp_now ());
+  zeitgeist_event_set_timestamp (event, zeitgeist_timestamp_from_now ());
   // add event to DBs
   events = g_ptr_array_new ();
   g_ptr_array_add (events, event);

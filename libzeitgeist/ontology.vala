@@ -116,6 +116,10 @@ namespace Zeitgeist
         {
             initialize_symbols ();
 
+            var symbol = all_symbols.lookup (symbol_uri);
+            if (symbol == null) return false;
+            if (parent_uri == symbol_uri) return true;
+
             foreach (unowned string uri in get_all_parents (symbol_uri))
                 if (parent_uri == uri)
                     return true;

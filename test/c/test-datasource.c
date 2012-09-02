@@ -83,7 +83,7 @@ test_create_full (Fixture *fix, gconstpointer data)
   g_assert (0 == zeitgeist_data_source_get_timestamp (src));
   g_assert_cmpint (1, ==, zeitgeist_data_source_get_enabled (src));
 
-  now = zeitgeist_timestamp_now ();
+  now = zeitgeist_timestamp_from_now ();
   zeitgeist_data_source_set_running (src, TRUE);
   zeitgeist_data_source_set_timestamp (src, now);
   zeitgeist_data_source_set_enabled (src, FALSE);
@@ -113,7 +113,7 @@ test_to_from_variant (Fixture *fix, gconstpointer data)
   orig = zeitgeist_data_source_new_full ("my-id", "my-name",
                                         "my description", NULL);
 
-  now = zeitgeist_timestamp_now ();
+  now = zeitgeist_timestamp_from_now ();
   zeitgeist_data_source_set_timestamp (orig, now);
 
   event_templates = g_ptr_array_new ();

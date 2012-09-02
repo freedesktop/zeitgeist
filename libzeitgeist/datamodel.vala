@@ -61,12 +61,12 @@ namespace Zeitgeist
 
         public TimeRange.to_now ()
         {
-            this (0, Timestamp.now ());
+            this (0, Timestamp.from_now ());
         }
 
         public TimeRange.from_now ()
         {
-            this (Timestamp.now (), int64.MAX);
+            this (Timestamp.from_now (), int64.MAX);
         }
 
         public TimeRange.from_variant (Variant variant)
@@ -438,7 +438,7 @@ namespace Zeitgeist
             id = (uint32) uint64.parse (event_array.next_value().get_string ());
             var str_timestamp = event_array.next_value().get_string ();
             if (str_timestamp == "")
-                timestamp = Timestamp.now ();
+                timestamp = Timestamp.from_now ();
             else
                 timestamp = int64.parse (str_timestamp);
             interpretation = event_array.next_value ().get_string ();
