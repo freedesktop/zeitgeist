@@ -19,9 +19,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include "zeitgeist-mimetypes.h"
-#include "zeitgeist-ontology-interpretations.h"
-#include "zeitgeist-ontology-manifestations.h"
+#include "zeitgeist.h"
 
 typedef struct
 {

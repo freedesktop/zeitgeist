@@ -78,6 +78,11 @@ internal class SimpleResultSet : Object, ResultSet
         return null;
     }
 
+    public bool has_next()
+    {
+        return (cursor < events.length);
+    }
+
 }
 
 }

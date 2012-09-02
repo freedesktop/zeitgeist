@@ -19,7 +19,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include "zeitgeist-timestamp.h"
+#include "zeitgeist.h"
 
 typedef struct
 {
@@ -82,7 +82,7 @@ test_from_date (Fixture *fix, gconstpointer data)
 static void
 test_now (Fixture *fix, gconstpointer data)
 {
-  g_assert (30*ZEITGEIST_TIMESTAMP_YEAR < zeitgeist_timestamp_for_now ());
+  g_assert (30*ZEITGEIST_TIMESTAMP_YEAR < zeitgeist_timestamp_now ());
 }
 
 /* If a timestamp is divisible by 1000 we should have lossless conversion

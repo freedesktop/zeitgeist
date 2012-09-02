@@ -20,8 +20,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <string.h>
-#include "zeitgeist-symbols.h"
-#include "zeitgeist-ontology-interpretations.h"
+#include "zeitgeist.h"
 
 typedef struct
 {

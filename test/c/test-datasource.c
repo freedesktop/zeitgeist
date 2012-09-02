@@ -20,11 +20,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include "zeitgeist-event.h"
-#include "zeitgeist-data-source.h"
-#include "zeitgeist-ontology-interpretations.h"
-#include "zeitgeist-ontology-manifestations.h"
-#include "zeitgeist-timestamp.h"
+#include "zeitgeist.h"
 
 
 typedef struct
@@ -62,9 +58,9 @@ test_create_empty (Fixture *fix, gconstpointer data)
   g_assert_cmpstr (NULL, ==, zeitgeist_data_source_get_name (src));
   g_assert_cmpstr (NULL, ==, zeitgeist_data_source_get_description (src));
   g_assert (NULL == zeitgeist_data_source_get_event_templates (src));
-  g_assert_cmpint (0, ==, zeitgeist_data_source_is_running (src));
+  g_assert_cmpint (0, ==, zeitgeist_data_source_get_running (src));
   g_assert (0 == zeitgeist_data_source_get_timestamp (src));
-  g_assert_cmpint (1, ==, zeitgeist_data_source_is_enabled (src));
+  g_assert_cmpint (1, ==, zeitgeist_data_source_get_enabled (src));
 
   g_object_unref (src);
 }
@@ -83,18 +79,18 @@ test_create_full (Fixture *fix, gconstpointer data)
   g_assert_cmpstr ("my-name", ==, zeitgeist_data_source_get_name (src));
   g_assert_cmpstr ("my description", ==, zeitgeist_data_source_get_description (src));
   g_assert (NULL == zeitgeist_data_source_get_event_templates (src));
-  g_assert_cmpint (0, ==, zeitgeist_data_source_is_running (src));
+  g_assert_cmpint (0, ==, zeitgeist_data_source_get_running (src));
   g_assert (0 == zeitgeist_data_source_get_timestamp (src));
-  g_assert_cmpint (1, ==, zeitgeist_data_source_is_enabled (src));
+  g_assert_cmpint (1, ==, zeitgeist_data_source_get_enabled (src));
 
-  now = zeitgeist_timestamp_for_now ();
+  now = zeitgeist_timestamp_now ();
   zeitgeist_data_source_set_running (src, TRUE);
   zeitgeist_data_source_set_timestamp (src, now);
   zeitgeist_data_source_set_enabled (src, FALSE);
 
-  g_assert_cmpint (1, ==, zeitgeist_data_source_is_running (src));
+  g_assert_cmpint (1, ==, zeitgeist_data_source_get_running (src));
   g_assert (now == zeitgeist_data_source_get_timestamp (src));
-  g_assert_cmpint (0, ==, zeitgeist_data_source_is_enabled (src));
+  g_assert_cmpint (0, ==, zeitgeist_data_source_get_enabled (src));
 
   event_templates = g_ptr_array_new ();
   g_ptr_array_add (event_templates, zeitgeist_event_new ());
@@ -111,12 +107,13 @@ test_to_from_variant (Fixture *fix, gconstpointer data)
   ZeitgeistDataSource *orig, *src;
   GPtrArray           *event_templates;
   gint64               now;
+  GError**             error;
 
   /* Build the data source to serialize */
   orig = zeitgeist_data_source_new_full ("my-id", "my-name",
                                         "my description", NULL);
 
-  now = zeitgeist_timestamp_for_now ();
+  now = zeitgeist_timestamp_now ();
   zeitgeist_data_source_set_timestamp (orig, now);
 
   event_templates = g_ptr_array_new ();
@@ -125,15 +122,15 @@ test_to_from_variant (Fixture *fix, gconstpointer data)
 
   /* Serialize + unserialize */
   src = zeitgeist_data_source_new_from_variant (
-                        zeitgeist_data_source_to_variant_full (orig) /* own ref */);
+                        zeitgeist_data_source_to_variant (orig), 0, error /* own ref */);
 
   g_assert_cmpstr ("my-id", ==, zeitgeist_data_source_get_unique_id (src));
   g_assert_cmpstr ("my-name", ==, zeitgeist_data_source_get_name (src));
   g_assert_cmpstr ("my description", ==, zeitgeist_data_source_get_description (src));
   g_assert (NULL != zeitgeist_data_source_get_event_templates (src));
-  g_assert_cmpint (0, ==, zeitgeist_data_source_is_running (src));
+  g_assert_cmpint (0, ==, zeitgeist_data_source_get_running (src));
   g_assert (now == zeitgeist_data_source_get_timestamp (src));
-  g_assert_cmpint (1, ==, zeitgeist_data_source_is_enabled (src));
+  g_assert_cmpint (1, ==, zeitgeist_data_source_get_enabled (src));
 
   event_templates = zeitgeist_data_source_get_event_templates (src);
   g_assert_cmpint (1, ==, event_templates->len);

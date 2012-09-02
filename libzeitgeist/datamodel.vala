@@ -384,6 +384,11 @@ namespace Zeitgeist
             subjects = new GenericArray<Subject> ();
         }
 
+        public Subject get_subject(int index)
+        {
+            return subjects[index];
+        }
+
         public int num_subjects ()
         {
             return subjects.length;

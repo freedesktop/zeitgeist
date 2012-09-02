@@ -19,8 +19,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include "zeitgeist-monitor.h"
-#include "zeitgeist-timerange.h"
+#include "zeitgeist.h"
 
 typedef struct
 {
