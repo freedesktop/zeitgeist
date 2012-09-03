@@ -61,7 +61,7 @@ namespace Zeitgeist
                 results.append (uri);
                 // Recursively get the other parents
                 foreach (string parent_uri in get_all_parents (uri))
-                    if (results.index (parent_uri) > -1)
+                    if (results.index (parent_uri) == -1)
                         results.append (parent_uri);
             }
 
@@ -112,6 +112,10 @@ namespace Zeitgeist
         public static bool is_a (string symbol_uri, string parent_uri)
         {
             initialize_symbols ();
+
+            var symbol = all_symbols.lookup (symbol_uri);
+            if (symbol == null) return false;
+            if (parent_uri == symbol_uri) return true;
 
             foreach (unowned string uri in get_all_parents (symbol_uri))
                 if (parent_uri == uri)
