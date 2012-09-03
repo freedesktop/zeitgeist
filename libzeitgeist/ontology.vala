@@ -112,8 +112,9 @@ namespace Zeitgeist
             return results;
         }
 
-        public static bool is_a (string symbol_uri, string parent_uri)
+        public static bool is_a (string? symbol_uri, string? parent_uri)
         {
+            if (parent_uri == null || symbol_uri == null) return false;
             initialize_symbols ();
 
             var symbol = all_symbols.lookup (symbol_uri);

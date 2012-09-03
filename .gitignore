@@ -77,6 +77,7 @@ examples/data-source-stuff
 libzeitgeist/libzeitgeist-2.0.pc
 libzeitgeist/zeitgeist-2.0.pc
 libzeitgeist/ontology.vala
+libzeitgeist/ontology-uris.vala
 gtk-doc.make
 doc/libzeitgeist/zeitgeist-2.0-*.txt
 doc/libzeitgeist/zeitgeist-2.0.types
