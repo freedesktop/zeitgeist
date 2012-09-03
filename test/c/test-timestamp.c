@@ -47,7 +47,7 @@ test_from_iso8601 (Fixture *fix, gconstpointer data)
   const gchar *orig = "2010-06-17T00:00:00Z";
   gint64 from_iso = zeitgeist_timestamp_from_iso8601 (orig);
   gchar *d = zeitgeist_timestamp_to_iso8601 (from_iso);
-  
+
   g_assert_cmpstr (orig, ==, d);
   g_free (d);
 }
