@@ -223,8 +223,8 @@ main (int   argc,
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
   
-  //g_test_add ("/Zeitgeist/Log/InsertGetDelete", Fixture, NULL,
-  //            setup, test_insert_get_delete, teardown);
+  g_test_add ("/Zeitgeist/Log/InsertGetDelete", Fixture, NULL,
+              setup, test_insert_get_delete, teardown);
   g_test_add ("/Zeitgeist/Log/GetDefault", Fixture, NULL,
               NULL, test_get_default, NULL);
   
