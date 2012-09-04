@@ -74,6 +74,8 @@ test_create_full (Fixture *fix, gconstpointer data)
   ZeitgeistSubject *su;
 
   /* Test with two subjects, one of them empty */
+  //FIXME: not like original
+  /*
   ev = zeitgeist_event_new_full (
                    ZEITGEIST_ZG_ACCESS_EVENT,
                    ZEITGEIST_ZG_USER_ACTIVITY,
@@ -88,6 +90,21 @@ test_create_full (Fixture *fix, gconstpointer data)
                                                "net"),
                    zeitgeist_subject_new (),
                    NULL);
+  */
+  ev = zeitgeist_event_new_full (
+                   ZEITGEIST_ZG_ACCESS_EVENT,
+                   ZEITGEIST_ZG_USER_ACTIVITY,
+                   "application://firefox.desktop",
+                   NULL);
+  zeitgeist_event_add_subject (ev, zeitgeist_subject_new_full ("http://example.com",
+                                               ZEITGEIST_NFO_WEBSITE,
+                                               ZEITGEIST_NFO_REMOTE_DATA_OBJECT,
+                                               "text/html",
+                                               "http://example.com",
+                                               "example.com",
+                                               "net",
+                                               "")); 
+  zeitgeist_event_add_subject (ev, zeitgeist_subject_new ());
 
   g_assert_cmpint (0, ==, zeitgeist_event_get_id (ev));
   g_assert_cmpint (0, ==, zeitgeist_event_get_timestamp (ev));
@@ -106,7 +123,7 @@ test_create_full (Fixture *fix, gconstpointer data)
   g_assert_cmpstr ("http://example.com", ==, zeitgeist_subject_get_origin (su));
   g_assert_cmpstr ("example.com", ==, zeitgeist_subject_get_text (su));
   g_assert_cmpstr ("net", ==, zeitgeist_subject_get_storage (su));
-  g_assert (zeitgeist_subject_get_current_uri (su) == NULL);
+  g_assert_cmpstr ("", ==, zeitgeist_subject_get_current_uri (su));
 
   su = zeitgeist_event_get_subject (ev, 1);
   g_assert (zeitgeist_subject_get_uri(su) == NULL);

@@ -163,7 +163,9 @@ public class Log : QueuedProxyWrapper
             num_events, result_type, cancellable);
     }
 
-    public async ResultSet get_events (uint32[] event_ids,
+    public async ResultSet get_events (
+            [CCode (array_length = false)]
+                uint32[] event_ids,
             Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy ();

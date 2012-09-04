@@ -34,10 +34,10 @@ void monitor_create_test ()
 {
     var event_templates = new GenericArray<Event> ();
     var mon = new Monitor (new TimeRange (27, 68), event_templates);
-    assert (27 == mon.get_time_range ().start);
-    assert (68 == mon.get_time_range ().end);
+    assert (27 == mon.time_range.start);
+    assert (68 == mon.time_range.end);
 
-    assert (event_templates == mon.get_templates ());
+    assert (event_templates == mon.get_templates());
 }
 
 // vim:expandtab:ts=4:sw=4
