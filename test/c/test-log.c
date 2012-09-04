@@ -153,9 +153,10 @@ _on_events_inserted (ZeitgeistLog *log,
   g_assert_cmpint (expected_events->len, ==, event_ids->len);
   
   /* This method call now owns event_ids */
-  zeitgeist_log_get_events (log, event_ids, NULL,
+  
+  /*zeitgeist_log_get_events (log, event_ids, NULL,
                             (GAsyncReadyCallback) _on_events_received,
-                            expected_events, NULL);
+                            expected_events, NULL);*/
 }
 
 static void
@@ -164,6 +165,7 @@ test_insert_get_delete (Fixture *fix, gconstpointer data)
   ZeitgeistEvent   *ev;
   ZeitgeistSubject *su;
   GPtrArray        *expected_events;
+
 
   expected_events = g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
   ev = zeitgeist_event_new ();
@@ -187,14 +189,20 @@ test_insert_get_delete (Fixture *fix, gconstpointer data)
   zeitgeist_subject_set_storage (su, "bfb486f6-f5f8-4296-8871-0cc749cf8ef7");
 
   /* This method call now owns all events, subjects, and the events array */
-  zeitgeist_log_insert_events (fix->log, NULL,
+  // FIXME: this should be different:
+  /* zeitgeist_log_insert_events (fix->log, NULL,
                                (GAsyncReadyCallback) _on_events_inserted,
                                expected_events,
+                               ev);
+  */
+  zeitgeist_log_insert_events (fix->log, expected_events, NULL,
+                               (GAsyncReadyCallback) _on_events_inserted,
                                ev);
   g_assert_cmpint (expected_events->len, ==, 1);
                                 
   g_timeout_add_seconds (1, (GSourceFunc) _quit_main_loop, fix->mainloop);
   g_main_loop_run (fix->mainloop);
+  
 }
 
 static void

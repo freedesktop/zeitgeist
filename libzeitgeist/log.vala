@@ -222,7 +222,7 @@ public class Log : QueuedProxyWrapper
 
         proxy.install_monitor (
             monitor.get_path (),
-            monitor.get_time_range ().to_variant (),
+            monitor.time_range.to_variant (),
             Events.to_variant (monitor.get_templates ()));
     }
 
