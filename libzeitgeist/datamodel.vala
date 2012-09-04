@@ -413,13 +413,11 @@ namespace Zeitgeist
             this.actor = actor;
             this.origin = origin;
 
-            // FIXME: We can't use this until Vala bug #647097 is fixed
-            /*
+            // Requires Vala bug #620675 - fixed as of 2012-07-30
             var subjects = va_list ();
             unowned Subject subject;
             while ((subject = subjects.arg ()) != null)
                 add_subject (subject);
-            */
         }
 
         public Event.from_variant (Variant event_variant) throws DataModelError {
