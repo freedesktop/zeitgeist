@@ -166,7 +166,7 @@ namespace Zeitgeist
                 Events.from_variant(event_templates),
                 storage_state, num_events, result_type, sender);
             debug ("%s executed in %f seconds: found %i event ids",
-                GLib.Log.METHOD, timer.elapsed (), events.length);
+                GLib.Log.METHOD, timer.elapsed (), ids.length);
             return ids;
         }
 
