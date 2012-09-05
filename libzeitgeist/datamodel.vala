@@ -604,11 +604,8 @@ namespace Zeitgeist
             GenericArray<Event> events = new GenericArray<Event> ();
 
             assert (vevents.get_type_string () == "a("+Utils.SIG_EVENT+")");
-
             foreach (Variant event in vevents)
-            {
                 events.add (new Event.from_variant (event));
-            }
 
             return events;
         }

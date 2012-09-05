@@ -164,12 +164,14 @@ public class Log : QueuedProxyWrapper
     }
 
     public async ResultSet get_events (
-            [CCode (array_length = false)]
-                uint32[] event_ids,
+                Array<uint32> event_ids,
             Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy ();
-        var result = yield proxy.get_events (event_ids, cancellable);
+        uint32[] simple_event_ids = new uint32[event_ids.length];
+        for (int i=0; i<event_ids.length; i++)
+            simple_event_ids[i] = event_ids.index(i);
+        var result = yield proxy.get_events (simple_event_ids, cancellable);
         return new SimpleResultSet (Events.from_variant (result));
     }
 
