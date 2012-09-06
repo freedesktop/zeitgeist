@@ -127,7 +127,7 @@ _on_events_received (ZeitgeistLog *log,
   /* This method call now owns event_ids */
   zeitgeist_log_delete_events (log, event_ids, NULL,
                                (GAsyncReadyCallback) _on_events_deleted,
-                               expected_events, NULL);
+                               expected_events);
 
   g_object_unref (events);
 }
@@ -141,8 +141,7 @@ _on_events_inserted (ZeitgeistLog *log,
   GError *error;
 
   error = NULL;
-  zeitgeist_log_insert_events_finish (log, res, &error);
-  event_ids = g_async_result_get_user_data (res);
+  event_ids = zeitgeist_log_insert_events_finish (log, res, &error);
   if (error)
     {
       g_critical ("Failed to insert events: %s", error->message);
@@ -151,12 +150,7 @@ _on_events_inserted (ZeitgeistLog *log,
     }
 
   g_assert_cmpint (expected_events->len, ==, event_ids->len);
-  
-  /* This method call now owns event_ids */
-  // FIXME: this should be different:
-  /*zeitgeist_log_get_events (log, event_ids, NULL,
-                            (GAsyncReadyCallback) _on_events_received,
-                            expected_events, NULL);*/
+
   zeitgeist_log_get_events (log, event_ids, NULL, 
                             (GAsyncReadyCallback) _on_events_received,
                             expected_events);
@@ -200,7 +194,7 @@ test_insert_get_delete (Fixture *fix, gconstpointer data)
   */
   zeitgeist_log_insert_events (fix->log, expected_events, NULL,
                                (GAsyncReadyCallback) _on_events_inserted,
-                               ev);
+                               expected_events);
   g_assert_cmpint (expected_events->len, ==, 1);
                                 
   g_timeout_add_seconds (1, (GSourceFunc) _quit_main_loop, fix->mainloop);
