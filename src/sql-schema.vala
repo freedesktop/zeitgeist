@@ -146,7 +146,7 @@ namespace Zeitgeist.SQLite
                     WHERE
                         subj_manifestation=(
                             SELECT id FROM manifestation WHERE value='""" +
-                                NFO.WEB_DATA_OBJECT + """')
+                                NFO.REMOTE_DATA_OBJECT + """')
                         AND subj_id IN (
                             SELECT id FROM uri
                             WHERE

@@ -1,5 +1,11 @@
+2012-XX-XX: Zeitgeist 0.9.X "..."
+---------------------------------------
+
+Engine:
+ - Fixed database migration of WebDataObject, blah blah
+
 2012-08-26: Zeitgeist 0.9.5 "Sun Devil"
-----------------------------------------
+---------------------------------------
 
 Engine:
  - Improved query time, optimizing the usage of SQL indices.
