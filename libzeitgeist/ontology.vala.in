@@ -48,7 +48,7 @@ namespace Zeitgeist
             return symbol.description;
         }
 
-        public static List<unowned string> get_all_parents(string symbol_uri)
+        public static List<unowned string> get_all_parents (string symbol_uri)
         {
             initialize_symbols ();
 
