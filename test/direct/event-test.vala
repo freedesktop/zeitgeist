@@ -1,7 +1,9 @@
-/* datamodel-test.vala
+/* event-test.vala
  *
- * Copyright © 2012 Canonical Ltd.
- *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
+ * Copyright © 2012 Christian Dywan <christian@twotoasts.de>
+ *
+ * Based upon a C implementation (© 2010 Canonical Ltd) by:
+ *  Mikkel Kamstrup Erlandsen <mikkel.kamstrup@canonical.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by

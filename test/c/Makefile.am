@@ -1,5 +1,3 @@
-include $(top_srcdir)/Makefile.decl
-
 INCLUDES = \
   -I$(top_srcdir)/src -I$(top_builddir)/src \
   $(GIO_UNIX_CFLAGS) \
