@@ -1,7 +1,6 @@
-/* datamodel-test.vala
+/* monitor-test.vala
  *
- * Copyright © 2012 Canonical Ltd.
- *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
+ * Copyright © 2012 Christian Dywan <christian@twotoasts.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by

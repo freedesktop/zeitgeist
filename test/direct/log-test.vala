@@ -49,7 +49,6 @@ void events_received (Zeitgeist.Log log, AsyncResult res)
     assert (expected_events.length == events.size);
     assert (expected_events.length == events.estimated_matches);
     // TODO
- 
 }
 
 void events_inserted (Zeitgeist.Log log, AsyncResult res)
