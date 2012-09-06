@@ -1,3 +1,14 @@
+2012-08-26: Zeitgeist 0.9.5 "Sun Devil"
+----------------------------------------
+
+Engine:
+ - Improved query time, optimizing the usage of SQL indices.
+ - Relaxed SQLite's sync to disk requirement (synchronous=NORMAL).
+
+Overall:
+ - Bumped Vala dependency to 0.16.
+ - Fixed build system to not check for Xapian if FTS++ is disabled.
+
 2012-05-22: Zeitgeist 0.9.0.1 "Rumpelstiltskin"
 -----------------------------------------------
 

@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [0.9.0.1], [dev@lists.zeitgeist-project.com], [zeitgeist])
+AC_INIT([zeitgeist], [0.9.5], [dev@lists.zeitgeist-project.com], [zeitgeist])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip])
@@ -58,6 +58,7 @@ AC_CONFIG_FILES([
 	test/dbus/Makefile
 	test/direct/Makefile
 	test/c/Makefile
+	test/data/Makefile
 	examples/Makefile
 	doc/Makefile
 	doc/libzeitgeist/Makefile
