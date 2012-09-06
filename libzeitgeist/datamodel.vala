@@ -58,12 +58,12 @@ namespace Zeitgeist
 
         public TimeRange.to_now ()
         {
-            this (0, Timestamp.now ());
+            this (0, Timestamp.from_now ());
         }
 
         public TimeRange.from_now ()
         {
-            this (Timestamp.now (), int64.MAX);
+            this (Timestamp.from_now (), int64.MAX);
         }
 
         public TimeRange.from_variant (Variant variant)
@@ -381,6 +381,11 @@ namespace Zeitgeist
             subjects = new GenericArray<Subject> ();
         }
 
+        public Subject get_subject(int index)
+        {
+            return subjects[index];
+        }
+
         public int num_subjects ()
         {
             return subjects.length;
@@ -405,13 +410,11 @@ namespace Zeitgeist
             this.actor = actor;
             this.origin = origin;
 
-            // FIXME: We can't use this until Vala bug #647097 is fixed
-            /*
+            // Requires Vala bug #620675 - fixed as of 2012-07-30
             var subjects = va_list ();
             unowned Subject subject;
             while ((subject = subjects.arg ()) != null)
                 add_subject (subject);
-            */
         }
 
         public Event.from_variant (Variant event_variant) throws DataModelError {
@@ -430,7 +433,7 @@ namespace Zeitgeist
             id = (uint32) uint64.parse (event_array.next_value().get_string ());
             var str_timestamp = event_array.next_value().get_string ();
             if (str_timestamp == "")
-                timestamp = Timestamp.now ();
+                timestamp = Timestamp.from_now ();
             else
                 timestamp = int64.parse (str_timestamp);
             interpretation = event_array.next_value ().get_string ();
@@ -598,11 +601,8 @@ namespace Zeitgeist
             GenericArray<Event> events = new GenericArray<Event> ();
 
             assert (vevents.get_type_string () == "a("+Utils.SIG_EVENT+")");
-
             foreach (Variant event in vevents)
-            {
                 events.add (new Event.from_variant (event));
-            }
 
             return events;
         }

@@ -44,8 +44,8 @@ public class Monitor : Object, RemoteMonitor
 
     private static int monitor_counter = 0;
 
-    private TimeRange time_range;
-    private GenericArray<Event> templates;
+    public TimeRange time_range {get; construct set;}
+    public GenericArray<Event> event_templates {get; construct set;}
 
     // Client side D-Bus path the monitor lives under
     private ObjectPath monitor_path;
@@ -97,19 +97,14 @@ public class Monitor : Object, RemoteMonitor
     public Monitor (TimeRange time_range, GenericArray<Event> event_templates)
     {
         this.time_range = time_range;
-        this.templates = event_templates;
+        this.event_templates = event_templates;
         this.monitor_path = new ObjectPath (
             "/org/gnome/zeitgeist/monitor/%i".printf (monitor_counter++));
     }
 
-    public TimeRange get_time_range ()
-    {
-        return time_range;
-    }
-
     public GenericArray<Event> get_templates ()
     {
-        return templates;
+        return event_templates;
     }
 
     public ObjectPath get_path ()

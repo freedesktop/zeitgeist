@@ -18,7 +18,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include "zeitgeist-timestamp.h"
+#include "zeitgeist.h"
 
 typedef struct
 {
@@ -46,7 +46,7 @@ test_from_iso8601 (Fixture *fix, gconstpointer data)
   const gchar *orig = "2010-06-17T00:00:00Z";
   gint64 from_iso = zeitgeist_timestamp_from_iso8601 (orig);
   gchar *d = zeitgeist_timestamp_to_iso8601 (from_iso);
-  
+
   g_assert_cmpstr (orig, ==, d);
   g_free (d);
 }
@@ -81,7 +81,7 @@ test_from_date (Fixture *fix, gconstpointer data)
 static void
 test_now (Fixture *fix, gconstpointer data)
 {
-  g_assert (30*ZEITGEIST_TIMESTAMP_YEAR < zeitgeist_timestamp_for_now ());
+  g_assert (30*ZEITGEIST_TIMESTAMP_YEAR < zeitgeist_timestamp_from_now ());
 }
 
 /* If a timestamp is divisible by 1000 we should have lossless conversion

@@ -57,7 +57,7 @@ void create_full_test ()
     assert (src.timestamp ==  0);
     assert (src.enabled == true);
 
-    var now = Timestamp.now ();
+    var now = Timestamp.from_now ();
     src.running = true;
     src.timestamp = now;
     src.enabled = false;
@@ -74,7 +74,7 @@ void create_full_test ()
 void to_from_variant_test ()
 {
     var orig = new DataSource.full ("my-id", "my-name", "my-desc", null);
-    var now = Timestamp.now ();
+    var now = Timestamp.from_now ();
     orig.timestamp = now;
 
     var event_templates = new GenericArray<Event> ();

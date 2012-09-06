@@ -136,7 +136,8 @@ namespace Zeitgeist
         {
             var timer = new Timer ();
             GenericArray<Event> events = engine.get_events (event_ids);
-            debug ("%s executed in %f seconds", GLib.Log.METHOD, timer.elapsed ());
+            debug ("%s executed in %f seconds: got %i events",
+                GLib.Log.METHOD, timer.elapsed (), events.length);
             return Events.to_variant_with_limit (events);
         }
 
@@ -164,7 +165,8 @@ namespace Zeitgeist
                 new TimeRange.from_variant (time_range),
                 Events.from_variant(event_templates),
                 storage_state, num_events, result_type, sender);
-            debug ("%s executed in %f seconds", GLib.Log.METHOD, timer.elapsed ());
+            debug ("%s executed in %f seconds: found %i event ids",
+                GLib.Log.METHOD, timer.elapsed (), ids.length);
             return ids;
         }
 
@@ -179,7 +181,8 @@ namespace Zeitgeist
                 new TimeRange.from_variant (time_range),
                 Events.from_variant (event_templates),
                 storage_state, num_events, result_type, sender);
-            debug ("%s executed in %f seconds", GLib.Log.METHOD, timer.elapsed ());
+            debug ("%s executed in %f seconds: found %i events",
+                GLib.Log.METHOD, timer.elapsed (), events.length);
             return Events.to_variant_with_limit (events);
         }
 

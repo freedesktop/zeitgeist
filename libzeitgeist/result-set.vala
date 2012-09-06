@@ -111,6 +111,12 @@ public interface ResultSet : Object
 
     public abstract Event? next_value ();
 
+    public abstract bool has_next();
+
+    public Event? next ()
+    {
+        return next_value ();
+    }
 }
 
 }

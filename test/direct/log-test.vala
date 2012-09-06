@@ -34,11 +34,14 @@ int main (string[] argv)
     return Test.run ();
 }
 
-void events_received (Zeitgeist.Log log, AsyncResult res)
+void events_received (Zeitgeist.Log log,
+                      AsyncResult res,
+                      GenericArray<Event> expected_events,
+                      Array<uint32> event_ids, MainLoop mainloop)
 {
     ResultSet events;
     try {
-        events = log.get_events.finish (res);
+        events = log.get_events.end (res);
     }
     catch (Error error) {
         critical ("Failed to get events: %s", error.message);
@@ -46,23 +49,43 @@ void events_received (Zeitgeist.Log log, AsyncResult res)
     }
     /* Assert that we got what we expected, and collect the event ids,
      * so we can delete the events */
-    assert (expected_events.length == events.size);
-    assert (expected_events.length == events.estimated_matches);
-    // TODO
+    assert (expected_events.length == (int)events.size ());
+    assert (expected_events.length == (int)events.estimated_matches ());
+    int i = 0;
+    foreach (Event event in events) {
+        Event exp_event = expected_events[i];
+        assert (event.interpretation == exp_event.interpretation);
+        assert (event.manifestation == exp_event.manifestation);
+        assert (event.actor == exp_event.actor);
+        assert (event.num_subjects () == exp_event.num_subjects ());
+        i++;
+    }
+    assert (expected_events.length == (int)events.size ());
+    assert (expected_events.length == (int)events.estimated_matches ());
+    assert (i == events.tell ());
+    assert (i == events.size ());
+    //TODO: extend this delete test
+    log.delete_events(event_ids, null, () => { mainloop.quit(); });
 }
 
-void events_inserted (Zeitgeist.Log log, AsyncResult res)
+void events_inserted (Zeitgeist.Log log,
+                       AsyncResult res,
+                       GenericArray<Event> expected_events,
+                       MainLoop mainloop)
 {
-    uint32[] event_ids;
+    Array<uint32> event_ids;
     try {
-        event_ids = log.insert_events_from_ptrarray.finish (res);
+        event_ids = log.insert_events.end (res);
     }
     catch (Error error) {
         critical ("Failed to insert events: %s", error.message);
         return;
     }
     assert (expected_events.length == event_ids.length);
-    log.get_events.begin (event_ids, null, events_received);
+
+    log.get_events.begin (event_ids, null, (log, res) => {
+        events_received ((Zeitgeist.Log) log, res, expected_events, event_ids, mainloop);
+    });
 }
 
 bool quit_main_loop ()
@@ -73,6 +96,7 @@ bool quit_main_loop ()
 
 void insert_get_delete_test ()
 {
+    var mainloop = new MainLoop(MainContext.default ());
     var expected_events = new GenericArray<Event> ();
     var ev = new Event ();
     var su = new Subject ();
@@ -91,12 +115,14 @@ void insert_get_delete_test ()
     su.storage = "bfb486f6-f5f8-4296-8871-0cc749cf8ef7";
 
     /* This method call now owns all events, subjects, and the events array */
-    Zeitgeist.Log.get_default ().insert_events_from_ptrarray.begin (
-        expected_events, null, events_inserted);
+    Zeitgeist.Log.get_default ().insert_events.begin (
+        expected_events, null, (log, res) => {
+            events_inserted ((Zeitgeist.Log) log, res, expected_events, mainloop);
+        });
     assert (expected_events.length == 1);
 
     Timeout.add_seconds (1, quit_main_loop);
-    new MainLoop (MainContext.default ()).run ();
+    mainloop.run ();
 }
 
 void get_default_test ()

@@ -18,8 +18,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include "zeitgeist-timerange.h"
-#include "zeitgeist-timestamp.h"
+#include "zeitgeist.h"
 
 typedef struct
 {
@@ -106,11 +105,12 @@ test_from_variant (Fixture *fix, gconstpointer data)
   ZeitgeistTimeRange *tr;
   GVariant           *v;
   gint64              i,j;
+  GError             **error;
 
-  v = g_variant_new (ZEITGEIST_TIME_RANGE_VARIANT_SIGNATURE,
+  v = g_variant_new ("(xx)",
                      G_GINT64_CONSTANT(0), G_MAXINT64);
-  g_variant_get (v, ZEITGEIST_TIME_RANGE_VARIANT_SIGNATURE, &i, &j);
-  tr = zeitgeist_time_range_new_from_variant (v); // v freed
+  g_variant_get (v, "(xx)", &i, &j);
+  tr = zeitgeist_time_range_new_from_variant (v, error); // v freed
 
   g_assert (0 == zeitgeist_time_range_get_start (tr));
   g_assert (G_MAXINT64 == zeitgeist_time_range_get_end (tr));
@@ -127,7 +127,7 @@ test_to_variant (Fixture *fix, gconstpointer data)
 
   tr = zeitgeist_time_range_new (0, G_MAXINT64);
   v = zeitgeist_time_range_to_variant (tr); // tr freed
-  g_variant_get (v, ZEITGEIST_TIME_RANGE_VARIANT_SIGNATURE,
+  g_variant_get (v, "(xx)",
                  &i, &j);
 
   g_assert (0 == i);

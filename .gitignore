@@ -39,8 +39,6 @@ src/bluebird
 test/direct/where-clause-test
 data/ontology/*.py
 query-operators-test
-ontology.vala
-ontology-uris.vala
 data/org.gnome.zeitgeist.service
 extensions/.deps
 extensions/.libs
@@ -78,6 +76,8 @@ examples/most-recent-events
 examples/data-source-stuff
 libzeitgeist/libzeitgeist-2.0.pc
 libzeitgeist/zeitgeist-2.0.pc
+libzeitgeist/ontology.vala
+libzeitgeist/ontology-uris.vala
 gtk-doc.make
 doc/libzeitgeist/zeitgeist-2.0-*.txt
 doc/libzeitgeist/zeitgeist-2.0.types

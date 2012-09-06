@@ -1,6 +1,10 @@
 int main ()
 {
-    uint32[] ids = { 31575, 31569 };
+    var ids = new Array<uint32>();
+    uint32 id1 = 210;
+    uint32 id2 = 222;
+    ids.append_val(id1);
+    ids.append_val(id2);
 
     var loop = new MainLoop();
 

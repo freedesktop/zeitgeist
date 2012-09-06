@@ -90,8 +90,8 @@ namespace Zeitgeist.Timestamp
     public TimeVal to_timeval (int64 timestamp)
     {
         TimeVal timeval = TimeVal();
-        timeval.tv_sec = (long) timestamp / 1000;
-        timeval.tv_usec = (long) (timestamp % 1000) * 1000;
+        timeval.tv_sec = (long) (timestamp/1000);
+        timeval.tv_usec = (long) ((timestamp % 1000) * 1000);
         return timeval;
     }
 
@@ -101,7 +101,7 @@ namespace Zeitgeist.Timestamp
      * @return the timestamp for the current system time, in milliseconds
      *         since the Unix Epoch
      */
-    public int64 now ()
+    public int64 from_now ()
     {
         return get_real_time ()/1000;
     }
