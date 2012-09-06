@@ -77,6 +77,24 @@ namespace Zeitgeist
                 registration_id = connection.register_object<RemoteSearchEngine> (
                     "/org/gnome/zeitgeist/index/activity", this);
 
+                try
+                {
+                    // make sure FTS uses the same environment as us
+                    var env = new HashTable<string, string> (str_hash, str_equal);
+                    env["ZEITGEIST_DATA_PATH"] = Utils.get_data_path ();
+                    connection.call ("org.freedesktop.DBus",
+                                     "/org/freedesktop/DBus",
+                                     "org.freedesktop.DBus",
+                                     "UpdateActivationEnvironment",
+                                     new Variant.tuple ({env}),
+                                     null, 0, -1, null, null);
+                }
+                catch (Error err)
+                {
+                    // isn't that terrible if this fails
+                    warning ("Unable to set environment for FTS daemon!");
+                }
+
                 // FIXME: shouldn't we delay this to next idle callback?
                 // Get SimpleIndexer
                 connection.get_proxy.begin<RemoteSimpleIndexer> (
