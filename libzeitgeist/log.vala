@@ -119,19 +119,22 @@ public class Log : QueuedProxyWrapper
     }
     */
 
-    public async void insert_events (GenericArray<Event> events,
+    public async Array<uint32> insert_events (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy ();
-        yield proxy.insert_events (Events.to_variant (events), cancellable);
+        uint32[] ids = yield proxy.insert_events (Events.to_variant (events), cancellable);
+        Array<uint32> _ids = new Array<uint32> ();
+        for (int i=0; i<ids.length; i++)
+            _ids.append_val (ids[i]);
+        return _ids;
     }
 
     //FIXME: This place holder should use ptrarray instead of GeneriyArray
-    public async void insert_events_from_ptrarray (GenericArray<Event> events,
+    public async Array<uint32> insert_events_from_ptrarray (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy ();
-        yield proxy.insert_events (Events.to_variant (events), cancellable);
+        return yield insert_events (events, cancellable);
     }
 
     public async ResultSet find_events (
@@ -187,11 +190,15 @@ public class Log : QueuedProxyWrapper
         // FIXME
     }
 
-    public async void delete_events (uint32[] event_ids,
+    public async TimeRange delete_events (Array<uint32> event_ids,
             Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy ();
-        yield proxy.delete_events (event_ids, cancellable);
+        uint32[] _ids = new uint32 [event_ids.length];
+        for (int i=0; i<event_ids.length; i++)
+            _ids[i] = event_ids.index(i);
+        Variant time_range = yield proxy.delete_events (_ids, cancellable);
+        return new TimeRange.from_variant(time_range);
     }
 
     public async void quit (Cancellable? cancellable=null) throws Error
