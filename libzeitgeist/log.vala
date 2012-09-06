@@ -113,12 +113,7 @@ public class Log : QueuedProxyWrapper
     }
     */
 
-    /*
-    public async void insert_events_no_reply (...) throws Error
-    {
-    }
-    */
-
+    // FIXME: make variadic
     public async Array<uint32> insert_events (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
@@ -130,12 +125,17 @@ public class Log : QueuedProxyWrapper
         return _ids;
     }
 
-    //FIXME: This place holder should use ptrarray instead of GeneriyArray
     public async Array<uint32> insert_events_from_ptrarray (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
         return yield insert_events (events, cancellable);
     }
+
+    /*
+    public async void insert_events_no_reply (...) throws Error
+    {
+    }
+    */
 
     public async ResultSet find_events (
         TimeRange time_range,

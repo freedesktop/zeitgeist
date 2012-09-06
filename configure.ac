@@ -12,6 +12,7 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
+# FIXME: Bump to 0.17.4 for variadic constructors
 AM_PROG_VALAC([0.16.0])
 AS_IF([test -z "$VALAC"], [AC_MSG_ERROR(["No Vala compiler found."])])
 

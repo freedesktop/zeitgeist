@@ -126,7 +126,7 @@ _on_events_received (ZeitgeistLog *log,
   /* This method call now owns event_ids */
   zeitgeist_log_delete_events (log, event_ids, NULL,
                                (GAsyncReadyCallback) _on_events_deleted,
-                               expected_events, NULL);
+                               expected_events);
 
   g_object_unref (events);
 }
