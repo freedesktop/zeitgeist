@@ -145,7 +145,7 @@ namespace Zeitgeist
                 Variant event_templates,
                 Variant result_event_templates,
                 uint storage_state, uint num_events, uint result_type,
-                BusName? sender=null) throws Error
+                Cancellable? cancellable, BusName? sender=null) throws Error
         {
             return engine.find_related_uris (
                 new TimeRange.from_variant (time_range),

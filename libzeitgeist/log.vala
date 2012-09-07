@@ -93,19 +93,6 @@ public class Log : QueuedProxyWrapper
     }
 
     /*
-    public async void insert_events (Cancellable? cancellable=null, ...)
-        throws Error
-    {
-        var lalala = va_list ();
-        // FIXME: variadic async functions are broken! This generates:
-        // static gboolean zeitgeist_log_insert_events_co (ZeitgeistLogInsertEventsData* _data_) {
-        //     ...
-        //     va_start (_data_->lalala, cancellable);
-        //     ...
-        // }
-        yield insert_events_valist (cancellable, lalala);
-    }
-
     public async void insert_events_valist (Cancellable? cancellable=null,
         va_list events) throws Error
     {
@@ -130,12 +117,6 @@ public class Log : QueuedProxyWrapper
     {
         return yield insert_events (events, cancellable);
     }
-
-    /*
-    public async void insert_events_no_reply (...) throws Error
-    {
-    }
-    */
 
     public async ResultSet find_events (
         TimeRange time_range,
@@ -178,7 +159,7 @@ public class Log : QueuedProxyWrapper
         return new SimpleResultSet (Events.from_variant (result));
     }
 
-    public async void find_related_uris (
+    public async string[] find_related_uris (
         TimeRange time_range,
         GenericArray<Event> event_templates,
         GenericArray<Event> result_event_templates,
@@ -187,7 +168,11 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        // FIXME
+        yield wait_for_proxy ();
+        return yield proxy.find_related_uris (time_range.to_variant (),
+            Events.to_variant (event_templates),
+            Events.to_variant (result_event_templates),
+            storage_state, num_events, result_type, cancellable);
     }
 
     public async TimeRange delete_events (Array<uint32> event_ids,

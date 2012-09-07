@@ -59,7 +59,7 @@ namespace Zeitgeist
             [DBus (signature = "a(asaasay)")] Variant event_templates,
             [DBus (signature = "a(asaasay)")] Variant result_event_templates,
             uint storage_state, uint num_events, uint result_type,
-            BusName? sender=null
+            Cancellable? cancellable=null, BusName? sender=null
         ) throws Error;
 
         [DBus (signature = "a(asaasay)")]
