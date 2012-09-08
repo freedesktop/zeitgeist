@@ -85,7 +85,7 @@ namespace Zeitgeist.SQLite
          * @see id_try_string
          *
          */
-        public int id_for_string (string name) throws EngineError
+        public int id_for_string (string? name) throws EngineError
         {
             int id = value_to_id.lookup (name);
             if (id == 0)
