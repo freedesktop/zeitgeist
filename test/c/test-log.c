@@ -74,6 +74,7 @@ _on_events_received (ZeitgeistLog *log,
                      GAsyncResult *res,
                      GPtrArray    *expected_events)
 {
+  GArray             *events_array;
   ZeitgeistResultSet *events;
   GArray             *event_ids;
   GError             *error;
@@ -82,7 +83,8 @@ _on_events_received (ZeitgeistLog *log,
   guint32             event_id;
 
   error = NULL;
-  events = zeitgeist_log_get_events_finish (log, res, &error);
+  events_array = zeitgeist_log_get_events_finish (log, res, &error);
+  events = zeitgeist_simple_result_set_new (events_array);
   if (error)
     {
       g_critical ("Failed to get events: %s", error->message);
@@ -99,7 +101,7 @@ _on_events_received (ZeitgeistLog *log,
   i = 0;
   while (ev = zeitgeist_result_set_next_value (events))
     {
-      g_assert_cmpint (i + 1, ==, zeitgeist_result_set_tell (events));
+      g_assert_cmpint (i+1, ==, zeitgeist_result_set_tell (events));
       _ev = ZEITGEIST_EVENT (g_ptr_array_index (expected_events, i));
       g_assert_cmpstr (zeitgeist_event_get_interpretation (ev), ==,
                        zeitgeist_event_get_interpretation (_ev));
