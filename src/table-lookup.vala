@@ -87,29 +87,36 @@ namespace Zeitgeist.SQLite
          */
         public int id_for_string (string? name) throws EngineError
         {
-            int id = value_to_id.lookup (name);
-            if (id == 0)
+            int id = -1;
+            if (name != null)
             {
-                int rc;
-                insertion_stmt.reset ();
-                insertion_stmt.bind_text (1, name);
-                rc = insertion_stmt.step ();
-                database.assert_query_success (rc, "Error in id_for_string",
-                    Sqlite.DONE);
+                id = value_to_id.lookup (name);
+                if (id == 0)
+                {
+                    int rc;
+                    insertion_stmt.reset ();
+                    insertion_stmt.bind_text (1, name);
+                    rc = insertion_stmt.step ();
+                    database.assert_query_success (rc, "Error in id_for_string",
+                        Sqlite.DONE);
 
-                id = (int) db.last_insert_rowid ();
+                    id = (int) db.last_insert_rowid ();
 
-                id_to_value.insert (id, name);
-                value_to_id.insert (name, id);
+                    id_to_value.insert (id, name);
+                    value_to_id.insert (name, id);
+                }
             }
             return id;
         }
 
-        public unowned string get_value (int id) throws EngineError
+        public unowned string? get_value (int id) throws EngineError
         {
             // When we fetch an event, it either was already in the database
             // at the time Zeitgeist started or it was inserted later -using
             // Zeitgeist-, so here we always have the data in memory already.
+            if (id == -1)
+                return null;
+
             unowned string val = id_to_value.lookup (id);
             if (val != null) return val;
 
