@@ -74,8 +74,6 @@ namespace Zeitgeist.SQLite
         public int id_try_string (string name)
         {
             int id = value_to_id.lookup (name);
-            if (id == 0)
-                return -1;
             return id;
         }
 
@@ -87,7 +85,7 @@ namespace Zeitgeist.SQLite
          */
         public int id_for_string (string? name) throws EngineError
         {
-            int id = -1;
+            int id = 0;
             if (name != null)
             {
                 id = value_to_id.lookup (name);
@@ -114,7 +112,7 @@ namespace Zeitgeist.SQLite
             // When we fetch an event, it either was already in the database
             // at the time Zeitgeist started or it was inserted later -using
             // Zeitgeist-, so here we always have the data in memory already.
-            if (id == -1)
+            if (id < 1)
                 return null;
 
             unowned string val = id_to_value.lookup (id);
