@@ -154,7 +154,7 @@ public class Log : QueuedProxyWrapper
             num_events, result_type, cancellable);
     }
 
-    public async GenericArray<Event> get_events (
+    public async ResultSet get_events (
         Array<uint32> event_ids,
         Cancellable? cancellable=null) throws Error
     {
@@ -163,7 +163,7 @@ public class Log : QueuedProxyWrapper
         for (int i = 0; i < event_ids.length; i++)
             simple_event_ids[i] = event_ids.index (i);
         var result = yield proxy.get_events (simple_event_ids, cancellable);
-        return Events.from_variant (result);
+        return new SimpleResultSet(Events.from_variant (result));
     }
 
     public async string[] find_related_uris (

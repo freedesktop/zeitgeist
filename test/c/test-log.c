@@ -99,7 +99,7 @@ _on_events_received (ZeitgeistLog *log,
   i = 0;
   while (ev = zeitgeist_result_set_next_value (events))
     {
-      g_assert_cmpint (i, ==, zeitgeist_result_set_tell (events));
+      g_assert_cmpint (i + 1, ==, zeitgeist_result_set_tell (events));
       _ev = ZEITGEIST_EVENT (g_ptr_array_index (expected_events, i));
       g_assert_cmpstr (zeitgeist_event_get_interpretation (ev), ==,
                        zeitgeist_event_get_interpretation (_ev));
