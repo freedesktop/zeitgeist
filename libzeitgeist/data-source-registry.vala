@@ -79,16 +79,30 @@ namespace Zeitgeist
         protected override void on_connection_established ()
         {
             proxy.data_source_disconnected.connect ((data_source) => {
-                var source = new DataSource.from_variant (data_source);
-                source_disconnected (source);
+                try
+                {
+                    var source = new DataSource.from_variant (data_source);
+                    source_disconnected (source);
+                }
+                catch (DataModelError err)
+                {
+                    warning ("Error parsing data-source: %s", err.message);
+                }
             });
             proxy.data_source_enabled.connect ((unique_id, enabled) => {
                 // FIXME: why don't we return DataSource here too? :(
                 source_enabled (unique_id, enabled);
             });
             proxy.data_source_registered.connect ((data_source) => {
-                var source = new DataSource.from_variant (data_source);
-                source_registered (source);
+                try
+                {
+                    var source = new DataSource.from_variant (data_source);
+                    source_registered (source);
+                }
+                catch (DataModelError err)
+                {
+                    warning ("Error parsing data-source: %s", err.message);
+                }
             });
         }
 
