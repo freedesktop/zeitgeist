@@ -154,8 +154,9 @@ void corrupt_subjects_test ()
     {
         new Subject.from_variant (v);
     }
-    catch (DataModelError.INVALID_SIGNATURE err)
+    catch (DataModelError err)
     {
+        assert (err is DataModelError.INVALID_SIGNATURE);
         error_thrown = true;
     }
     assert (error_thrown);
