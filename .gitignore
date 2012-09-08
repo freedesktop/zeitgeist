@@ -85,3 +85,11 @@ doc/libzeitgeist/gtkdoc
 *.swp
 *.h
 *.vapi
+test/c/test-datasource
+test/c/test-event
+test/c/test-log
+test/c/test-mimetypes
+test/c/test-monitor
+test/c/test-symbols
+test/c/test-timerange
+test/c/test-timestamp
