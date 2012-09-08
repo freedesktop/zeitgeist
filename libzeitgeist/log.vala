@@ -100,6 +100,13 @@ public class Log : QueuedProxyWrapper
     }
     */
 
+    public async void insert_events_no_reply (GenericArray<Event> events)
+        throws Error
+    {
+        yield wait_for_proxy ();
+        yield proxy.insert_events (Events.to_variant (events), null);
+    }
+
     // FIXME: make variadic
     public async Array<uint32> insert_events (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error

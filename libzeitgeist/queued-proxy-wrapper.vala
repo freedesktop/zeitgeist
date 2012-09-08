@@ -24,6 +24,7 @@
 namespace Zeitgeist
 {
 
+// FIXME: private or something
 protected abstract class QueuedProxyWrapper : Object
 {
     public bool proxy_created { get; private set; default = false; }
