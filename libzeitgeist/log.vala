@@ -154,16 +154,16 @@ public class Log : QueuedProxyWrapper
             num_events, result_type, cancellable);
     }
 
-    public async ResultSet get_events (
-                Array<uint32> event_ids,
-            Cancellable? cancellable=null) throws Error
+    public async GenericArray<Event> get_events (
+        Array<uint32> event_ids,
+        Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy ();
         uint32[] simple_event_ids = new uint32[event_ids.length];
-        for (int i=0; i<event_ids.length; i++)
-            simple_event_ids[i] = event_ids.index(i);
+        for (int i = 0; i < event_ids.length; i++)
+            simple_event_ids[i] = event_ids.index (i);
         var result = yield proxy.get_events (simple_event_ids, cancellable);
-        return new SimpleResultSet (Events.from_variant (result));
+        return Events.from_variant (result);
     }
 
     public async string[] find_related_uris (
@@ -218,6 +218,7 @@ public class Log : QueuedProxyWrapper
         {
             DBusConnection conn = ((DBusProxy) proxy).get_connection ();
 
+            // FIXME: check exception
             uint registration_id = conn.register_object<RemoteMonitor> (
                 monitor.get_path (), monitor);
             monitors.insert (monitor, registration_id);

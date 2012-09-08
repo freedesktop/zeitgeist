@@ -29,6 +29,7 @@ namespace Zeitgeist
     [DBus (name = "org.gnome.zeitgeist.DataModelError")]
     public errordomain DataModelError {
         INVALID_SIGNATURE,
+        NULL_EVENT,
         TOO_MANY_RESULTS
     }
 
@@ -429,6 +430,12 @@ namespace Zeitgeist
             Variant payload_variant = iter.next_value ();
 
             var event_props = event_array.n_children ();
+
+            if (event_props == 0)
+            {
+                throw new DataModelError.NULL_EVENT ("This is an empty event.");
+            }
+
             assert_sig (event_props >= 5, "Missing event information.");
             id = (uint32) uint64.parse (event_array.next_value().get_string ());
             var str_timestamp = event_array.next_value().get_string ();
@@ -595,14 +602,26 @@ namespace Zeitgeist
     namespace Events
     {
 
-        public static GenericArray<Event> from_variant (Variant vevents)
+        public static GenericArray<Event?> from_variant (Variant vevents)
             throws DataModelError
         {
-            GenericArray<Event> events = new GenericArray<Event> ();
+            GenericArray<Event?> events = new GenericArray<Event> ();
 
             assert (vevents.get_type_string () == "a("+Utils.SIG_EVENT+")");
-            foreach (Variant event in vevents)
-                events.add (new Event.from_variant (event));
+            foreach (Variant vevent in vevents)
+            {
+                Event? event = null;
+                try
+                {
+                    event = new Event.from_variant (vevent);
+                }
+                catch (DataModelError err)
+                {
+                    if (!(err is DataModelError.NULL_EVENT))
+                        throw err;
+                }
+                events.add (event);
+            }
 
             return events;
         }
