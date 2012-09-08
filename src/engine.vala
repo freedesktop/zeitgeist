@@ -1,6 +1,6 @@
 /* engine.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *             By Seif Lotfy <seif@lotfy.com>
  *
@@ -102,9 +102,11 @@ public class Engine : DbReader
         {
             unowned Subject subject = event.subjects[i];
 
-            // If current_uri is unset, give it the same value as URI
+            // If current_{uri,origin} is unset, give it the same value as URI
             if (is_empty_string (subject.current_uri))
                 subject.current_uri = subject.uri;
+            if (is_empty_string (subject.current_origin))
+                subject.current_origin = subject.origin;
 
             if (event.interpretation == ZG.MOVE_EVENT
                 && subject.uri == subject.current_uri)
@@ -273,11 +275,12 @@ public class Engine : DbReader
             insert_stmt.bind_int64 (11,
                 manifestations_table.id_for_string (subject.manifestation));
             insert_stmt.bind_text (12, subject.origin);
-            insert_stmt.bind_int64 (13,
+            insert_stmt.bind_text (13, subject.current_origin);
+            insert_stmt.bind_int64 (14,
                 mimetypes_table.id_for_string (subject.mimetype));
-            insert_stmt.bind_text (14, subject.text);
+            insert_stmt.bind_text (15, subject.text);
             // FIXME: Consider a storages_table table. Too dangerous?
-            insert_stmt.bind_text (15, subject.storage);
+            insert_stmt.bind_text (16, subject.storage);
 
             if ((rc = insert_stmt.step()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)

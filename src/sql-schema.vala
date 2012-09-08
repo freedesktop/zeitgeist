@@ -1,6 +1,6 @@
 /* sql-schema.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  * Copyright © 2011-2012 Canonical Ltd.
  *             By Michal Hruby <michal.hruby@canonical.com>
@@ -36,7 +36,7 @@ namespace Zeitgeist.SQLite
     {
 
         public const string CORE_SCHEMA = "core";
-        public const int CORE_SCHEMA_VERSION = 7;
+        public const int CORE_SCHEMA_VERSION = 8;
 
         private const string DATABASE_CREATION = "database_creation";
 
@@ -59,7 +59,7 @@ namespace Zeitgeist.SQLite
                     Timestamp.from_now ());
                 exec_query (database, schema_sql);
             }
-            else if (schema_version >= 3 && schema_version <= 6)
+            else if (schema_version >= 3 && schema_version <= 7)
             {
                 backup_database ();
 
@@ -83,12 +83,13 @@ namespace Zeitgeist.SQLite
                             (SELECT id FROM storage WHERE value='unknown')
                         WHERE subj_storage IS NULL
                         """);
-
-                    // The events table is missing two columns, (event) origin
-                    // and subj_current_id. It needs to be replaced.
-                    exec_query (database,
-                        "ALTER TABLE event RENAME TO event_old");
                 }
+
+                // The events table is missing several columns:
+                //  - new in version 4: (event) origin and subj_id_current
+                //  - new in version 8: subj_origin_current
+                exec_query (database,
+                    "ALTER TABLE event RENAME TO event_old");
 
                 string[] tables = { "interpretation", "manifestation",
                     "mimetype", "actor" };
@@ -119,6 +120,9 @@ namespace Zeitgeist.SQLite
                 if (schema_version == 3)
                 {
                     // Migrate events from the old table
+                    //  - We initialize subj_origin_current to subj_origin as an
+                    //    approximation.
+                    //    FIXME: consider replaying MOVE_EVENTs to fix this
                     exec_query (database, """
                         INSERT INTO event
                         SELECT
@@ -126,7 +130,8 @@ namespace Zeitgeist.SQLite
                             actor, payload, subj_id, subj_interpretation,
                             subj_manifestation, subj_origin, subj_mimetype,
                             subj_text, subj_storage, NULL as origin,
-                            subj_id AS subj_id_current
+                            subj_id AS subj_id_current,
+                            subj_origin AS subj_origin_current
                          FROM event_old
                          """);
 
@@ -344,6 +349,7 @@ namespace Zeitgeist.SQLite
                     subj_storage INTEGER,
                     origin INTEGER,
                     subj_id_current INTEGER,
+                    subj_origin_current INTEGER,
                     CONSTRAINT interpretation_fk
                         FOREIGN KEY(interpretation)
                         REFERENCES interpretation(id)
@@ -382,6 +388,10 @@ namespace Zeitgeist.SQLite
                         ON DELETE CASCADE,
                     CONSTRAINT subj_origin_fk
                         FOREIGN KEY(subj_origin)
+                        REFERENCES uri(id)
+                        ON DELETE CASCADE,
+                    CONSTRAINT subj_origin_current_fk
+                        FOREIGN KEY(subj_origin_current)
                         REFERENCES uri(id)
                         ON DELETE CASCADE,
                     CONSTRAINT subj_mimetype_fk
@@ -458,6 +468,10 @@ namespace Zeitgeist.SQLite
                         (SELECT value FROM actor
                             WHERE actor.id=event.actor)
                             AS actor_uri
+                        event.subj_origin_current,
+                        (SELECT value FROM uri
+                            WHERE uri.id=event.subj_origin_current)
+                            AS subj_origin_current_uri,
                     FROM event
                 """);
 
@@ -558,6 +572,10 @@ namespace Zeitgeist.SQLite
                     ON event(subj_origin, timestamp, subj_interpretation, subj_id)
                 """);
             exec_query (database, """
+                CREATE INDEX IF NOT EXISTS event_subj_origin_current
+                    ON event(subj_origin_current, timestamp, subj_interpretation, subj_id)
+                """);
+            exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_mimetype
                     ON event(subj_mimetype, timestamp)
                 """);
@@ -585,6 +603,7 @@ namespace Zeitgeist.SQLite
             exec_query (database, "DROP INDEX IF EXISTS event_subj_interpretation");
             exec_query (database, "DROP INDEX IF EXISTS event_subj_manifestation");
             exec_query (database, "DROP INDEX IF EXISTS event_subj_origin");
+            exec_query (database, "DROP INDEX IF EXISTS event_subj_current");
             exec_query (database, "DROP INDEX IF EXISTS event_subj_mimetype");
             exec_query (database, "DROP INDEX IF EXISTS event_subj_text");
             exec_query (database, "DROP INDEX IF EXISTS event_subj_storage");

@@ -85,7 +85,7 @@ test_create_full (Fixture *fix, gconstpointer data)
                                                "http://example.com",
                                                "example.com",
                                                "net",
-                                               ""),
+                                               "", ""),
                    zeitgeist_subject_new (),
                    NULL);
 
@@ -334,7 +334,7 @@ test_with_one_subject_to_from_variant (Fixture *fix, gconstpointer data)
                                                "http://example.com",
                                                "example.com",
                                                "net",
-                                               ""),
+                                               "", ""),
                    NULL);
   //FIXME: this line should be removed. We need to fix the setting the timestamp
   zeitgeist_event_set_timestamp(orig, 123);

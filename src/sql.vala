@@ -1,6 +1,6 @@
 /* sql.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *             By Seif Lotfy <seif@lotfy.com>
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
@@ -48,7 +48,9 @@ namespace Zeitgeist.SQLite
         ORIGIN,
         EVENT_ORIGIN_URI,
         SUBJECT_CURRENT_URI,
-        SUBJECT_ID_CURRENT
+        SUBJECT_ID_CURRENT,
+        SUBJECT_CURRENT_ORIGIN,
+        SUBJECT_CURRENT_ORIGIN_URI
     }
 
     public delegate void DeletionCallback (string table, int64 rowid);
@@ -403,7 +405,7 @@ namespace Zeitgeist.SQLite
                     id, timestamp, interpretation, manifestation, actor,
                     origin, payload, subj_id, subj_id_current,
                     subj_interpretation, subj_manifestation, subj_origin,
-                    subj_mimetype, subj_text, subj_storage
+                    subj_origin_current, subj_mimetype, subj_text, subj_storage
                 ) VALUES (
                     ?, ?, ?, ?, ?,
                     (SELECT id FROM uri WHERE value=?),
@@ -411,6 +413,7 @@ namespace Zeitgeist.SQLite
                     (SELECT id FROM uri WHERE value=?),
                     (SELECT id FROM uri WHERE value=?),
                     ?, ?,
+                    (SELECT id FROM uri WHERE value=?),
                     (SELECT id FROM uri WHERE value=?),
                     ?,
                     (SELECT id FROM text WHERE value=?),

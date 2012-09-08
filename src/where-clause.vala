@@ -1,6 +1,6 @@
 /* where-clause.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
  * Based upon a Python implementation (2009-2011) by:
@@ -90,6 +90,7 @@ namespace Zeitgeist
                 // add_wildcard_condition:
                 case "origin":
                 case "subj_origin":
+                case "subj_origin_current":
                 case "subj_id":
                 case "subj_id_current":
                     search_table = "uri";

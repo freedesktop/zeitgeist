@@ -19,6 +19,7 @@ API CHANGES FROM LIBZEITGEIST1:
    with NULL-events)
  - ResultSet: removed peek() and seek(); introduced reset();
    next() renamed to next_value()
+ - added current_origin to subjects
 
 Vala:
  - stuff is more valaish (eg. properties vs set/get)

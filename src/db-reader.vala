@@ -1,6 +1,6 @@
 /* db-reader.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *             By Seif Lotfy <seif@lotfy.com>
  * Copyright © 2011 Canonical Ltd.
@@ -106,6 +106,8 @@ public class DbReader : Object
         subject.origin = stmt.column_text (EventViewRows.SUBJECT_ORIGIN_URI);
         subject.current_uri = stmt.column_text (
             EventViewRows.SUBJECT_CURRENT_URI);
+        subject.current_origin = stmt.column_text (
+            EventViewRows.SUBJECT_CURRENT_ORIGIN);
         subject.interpretation = interpretations_table.get_value (
             stmt.column_int (EventViewRows.SUBJECT_INTERPRETATION));
         subject.manifestation = manifestations_table.get_value (

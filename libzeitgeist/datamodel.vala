@@ -1,6 +1,6 @@
 /* datamodel.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Seif Lotfy <seif@lotfy.com>
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
@@ -218,14 +218,29 @@ namespace Zeitgeist
                                                    // different origin, ordered
                                                    // by least recently used
                                                    // first
-        MOST_POPULAR_EVENT_ORIGIN           = 29, //   The last event of each
+        MOST_POPULAR_EVENT_ORIGIN            = 29, //   The last event of each
                                                    // different origin ordered
                                                    // by the popularity of the
                                                    // origins
-        LEAST_POPULAR_EVENT_ORIGIN           = 30; //   The last event of each
+        LEAST_POPULAR_EVENT_ORIGIN           = 30, //   The last event of each
                                                    // different origin, ordered
                                                    // ascendingly by the
                                                    // popularity of the origin
+        MOST_RECENT_CURRENT_ORIGIN           = 31, //   The last event of each
+                                                   // different subject origin.
+        LEAST_RECENT_CURRENT_ORIGIN          = 32, //   The last event of each
+                                                   // different subject origin,
+                                                   // ordered by least
+                                                   // recently used first
+        MOST_POPULAR_CURRENT_ORIGIN          = 33, //   The last event of each
+                                                   // different subject origin,
+                                                   // ordered by the
+                                                   // popularity of the origins
+        LEAST_POPULAR_CURRENT_ORIGIN         = 34; //   The last event of each
+                                                   // different subject origin,
+                                                   // ordered ascendingly by
+                                                   // the popularity of the
+                                                   // origin
 
         /*
          * Returns true if the results for the given result_type will be sorted
@@ -248,6 +263,8 @@ namespace Zeitgeist
                 case ResultType.OLDEST_ACTOR:
                 case ResultType.LEAST_RECENT_ORIGIN:
                 case ResultType.LEAST_POPULAR_ORIGIN:
+                case ResultType.LEAST_RECENT_CURRENT_ORIGIN:
+                case ResultType.LEAST_POPULAR_CURRENT_ORIGIN:
                 case ResultType.LEAST_RECENT_SUBJECT_INTERPRETATION:
                 case ResultType.LEAST_POPULAR_SUBJECT_INTERPRETATION:
                 case ResultType.LEAST_RECENT_MIMETYPE:
@@ -265,6 +282,8 @@ namespace Zeitgeist
                 case ResultType.MOST_POPULAR_ACTOR:
                 case ResultType.MOST_RECENT_ORIGIN:
                 case ResultType.MOST_POPULAR_ORIGIN:
+                case ResultType.MOST_RECENT_CURRENT_ORIGIN:
+                case ResultType.MOST_POPULAR_CURRENT_ORIGIN:
                 case ResultType.MOST_RECENT_SUBJECT_INTERPRETATION:
                 case ResultType.MOST_POPULAR_SUBJECT_INTERPRETATION:
                 case ResultType.MOST_RECENT_MIMETYPE:
@@ -454,11 +473,11 @@ namespace Zeitgeist
                 actor = null;
             // let's keep this compatible with older clients
             if (event_props >= 6)
+            {
                 origin = event_array.next_value ().get_string ();
-            else
-                origin = null;
-            if (origin == "")
-                origin = null;
+                if (origin == "")
+                    origin = null;
+            }
 
             for (int i = 0; i < subjects_array.n_children (); ++i) {
                 Variant subject_variant = subjects_array.next_value ();
@@ -552,10 +571,11 @@ namespace Zeitgeist
                                "    origin: %s\n" +
                                "    text: %s\n" +
                                "    current_uri: %s\n" +
+                               "    current_origin: %s\n" +
                                "    storage: %s\n",
                                i, s.uri, s.interpretation, s.manifestation,
                                s.mimetype, s.origin, s.text, s.current_uri,
-                               s.storage);
+                               s.current_origin, s.storage);
             }
         }
 
@@ -707,9 +727,10 @@ namespace Zeitgeist
         public string? origin { get; set; }
         public string? text { get; set; }
         public string? storage { get; set; }
-        // FIXME: current_uri is often the same as uri, we don't need to waste
-        // memory for it
+        // FIXME: current_{uri,origin} is often the same as uri, we don't
+        // need to waste memory for it
         public string? current_uri { get; set; }
+        public string? current_origin { get; set; }
 
         public string? mimetype
         {
@@ -739,7 +760,8 @@ namespace Zeitgeist
         public Subject.full (string? uri=null,
             string? interpretation=null, string? manifestation=null,
             string? mimetype=null, string? origin=null, string? text=null,
-            string? storage=null, string? current_uri=null)
+            string? storage=null, string? current_uri=null,
+            string? current_origin=null)
         {
             this.uri = uri;
             this.interpretation = interpretation;
@@ -749,6 +771,7 @@ namespace Zeitgeist
             this.text = text;
             this.storage = storage;
             this.current_uri = current_uri;
+            this.current_origin = current_origin;
         }
 
         public Subject.from_variant (Variant subject_variant)
@@ -782,8 +805,8 @@ namespace Zeitgeist
             // let's keep this compatible with older clients
             if (subject_props >= 8)
                 current_uri = iter.next_value().get_string ();
-            else
-                current_uri = null;
+            if (subject_props >= 9)
+                current_origin = iter.next_value().get_string ();
         }
 
         public Variant to_variant ()
@@ -798,6 +821,7 @@ namespace Zeitgeist
             ptr_arr[5] = text != null ? text : "";
             ptr_arr[6] = storage != null ? storage : "";
             ptr_arr[7] = current_uri != null ? current_uri : "";
+            ptr_arr[8] = current_origin != null ? current_origin : "";
             return new Variant.strv ((string[]) ptr_arr);
             /* The NICE version */
             /*
@@ -810,6 +834,7 @@ namespace Zeitgeist
             vb.add ("s", text ?? "");
             vb.add ("s", storage ?? "");
             vb.add ("s", current_uri ?? "");
+            vb.add ("s", current_origin ?? "");
 
             return vb.end ();
             */
@@ -832,6 +857,8 @@ namespace Zeitgeist
             if (!check_field_match (this.manifestation, template_subject.manifestation, true))
                 return false;
             if (!check_field_match (this.origin, template_subject.origin, false, true))
+                return false;
+            if (!check_field_match (this.current_uri, template_subject.current_origin, false, true))
                 return false;
             if (!check_field_match (this.mimetype, template_subject.mimetype, false, true))
                 return false;
