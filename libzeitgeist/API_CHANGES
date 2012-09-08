@@ -17,6 +17,8 @@ API CHANGES FROM LIBZEITGEIST1:
  - changed timestamp_for_now to be timestamp_now
  - zeitgeist_log_get_events now returns GPtrArray (and works
    with NULL-events)
+ - ResultSet: removed peek() and seek(); introduced reset();
+   next() renamed to next_value()
 
 Vala:
  - stuff is more valaish (eg. properties vs set/get)

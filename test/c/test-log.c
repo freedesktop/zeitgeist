@@ -97,10 +97,9 @@ _on_events_received (ZeitgeistLog *log,
   event_ids = g_array_sized_new (FALSE, FALSE, sizeof (guint32),
                                  zeitgeist_result_set_size(events));
   i = 0;
-  while (zeitgeist_result_set_has_next (events))
+  while (ev = zeitgeist_result_set_next_value (events))
     {
       g_assert_cmpint (i, ==, zeitgeist_result_set_tell (events));
-      ev = zeitgeist_result_set_next (events);
       _ev = ZEITGEIST_EVENT (g_ptr_array_index (expected_events, i));
       g_assert_cmpstr (zeitgeist_event_get_interpretation (ev), ==,
                        zeitgeist_event_get_interpretation (_ev));

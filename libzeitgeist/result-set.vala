@@ -72,25 +72,26 @@ public interface ResultSet : Object
     public abstract uint estimated_matches ();
 
     /**
-     * Get the event at the current cursor position.
-     *
-     * To retrieve the current event and advance the cursor position call
-     * zeitgeist_result_set_next() in stead of this method.
+     * Get the current event from the result set and advance the cursor. To
+     * ensure that calls to this method will succeed you can call
+     * zeitgeist_result_set_has_next().
      *
      * @param self The #ZeitgeistResultSet to get an event from
      *
-     * @return The #ZeitgeistEvent at the current cursor position
+     * @return The #ZeitgeistEvent at the current cursor position, or NULL
+     *         if there are no events left.
      */
-     public abstract Event peek ();
+     public abstract Event? next_value ();
 
     /**
-     * Set the cursor position. Following calls to zeitgeist_result_set_peek()
-     * or zeitgeist_result_set_next() will read the event at position @pos.
+     * Check if a call to zeitgeist_result_set_next() will succeed.
      *
-     * @param self The #ZeitgeistResultSet to seek in
-     * @param pos The position to seek to
+     * @param self The #ZeitgeistResultSet to check
+     *
+     * @return TRUE if and only if more events can be retrieved
+     *         by calling zeitgeist_result_set_next()
      */
-     public abstract void seek (uint pos);
+    public abstract bool has_next ();
 
     /**
      * Get the current position of the cursor.
@@ -102,20 +103,19 @@ public interface ResultSet : Object
     public abstract uint tell ();
 
     /**
-     * Get an iterator object
-     * @param self The #ZeitgeistResultSet to seek in
+     * Resets the result set to start iterating it again from scratch.
+     *
+     * @param self The #ZeitgeistResultSet to reset
      */
-    public ResultSet iterator () {
-        return this;
-    }
+    public abstract void reset ();
 
-    public abstract Event? next_value ();
-
-    public abstract bool has_next();
-
-    public Event? next ()
+    /**
+     * Do not use this method! It is only for use by Vala.
+     */
+    public ResultSet iterator ()
     {
-        return next_value ();
+        // Damn you Vala. Why is Iterator<> in Gee?
+        return this;
     }
 }
 
