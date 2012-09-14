@@ -8,6 +8,7 @@ EXTRA_DIST = \
 	monitor-test.py \
 	remote-test.py \
 	testutils.py \
+	upgrade-test.py \
 	run-all-tests.py \
 	$(NULL)
 
