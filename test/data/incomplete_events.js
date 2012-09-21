@@ -11,7 +11,7 @@
 				"manifestation" : "Hi"
 			},{
 				"uri" : "http://meh",
-                "mimetype" : "bs",
+				"mimetype" : "bs",
 				"interpretation" : "",
 				"manifestation" : "Something"
 			}
@@ -24,17 +24,17 @@
 		"subjects" : [
 			{
 				"uri" : "file://baz0",
-                "mimetype" : "text/x-python",
+				"mimetype" : "text/x-python",
 				"interpretation" : "",
 				"manifestation" : ""
 			},{
 				"uri" : "file://baz1",
-                "mimetype" : "text/x-python",
+				"mimetype" : "text/x-python",
 				"interpretation" : "a",
 				"manifestation" : ""
 			},{
 				"uri" : "file://baz2",
-                "mimetype" : "text/x-python",
+				"mimetype" : "text/x-python",
 				"interpretation" : "",
 				"manifestation" : "b"
 			}
@@ -47,7 +47,7 @@
 		"subjects" : [
 			{
 				"uri" : "sftp://quiz",
-                "mimetype" : "text/x-sql",
+				"mimetype" : "text/x-sql",
 				"interpretation" : "#Audio",
 				"manifestation" : "something else"
 			}
