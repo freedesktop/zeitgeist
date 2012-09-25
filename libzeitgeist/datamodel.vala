@@ -40,6 +40,14 @@ namespace Zeitgeist
             throw new DataModelError.INVALID_SIGNATURE (error_message);
     }
 
+    private string? next_string_or_null (VariantIter iter)
+    {
+        string text = iter.next_value ().get_string ();
+        if (text != "")
+            return text;
+        return null;
+    }
+
     [CCode (type_signature = "(xx)")]
     public class TimeRange: Object
     {
@@ -443,22 +451,12 @@ namespace Zeitgeist
                 timestamp = Timestamp.from_now ();
             else
                 timestamp = int64.parse (str_timestamp);
-            interpretation = event_array.next_value ().get_string ();
-            if (interpretation == "")
-                interpretation = null;
-            manifestation = event_array.next_value ().get_string ();
-            if (manifestation == "")
-                manifestation = null;
-            actor = event_array.next_value ().get_string ();
-            if (actor == "")
-                actor = null;
+            interpretation = next_string_or_null (event_array);
+            manifestation = next_string_or_null (event_array);
+            actor = next_string_or_null (event_array);
             // let's keep this compatible with older clients
             if (event_props >= 6)
-                origin = event_array.next_value ().get_string ();
-            else
-                origin = null;
-            if (origin == "")
-                origin = null;
+                origin = next_string_or_null (event_array);
 
             for (int i = 0; i < subjects_array.n_children (); ++i) {
                 Variant subject_variant = subjects_array.next_value ();
@@ -758,32 +756,16 @@ namespace Zeitgeist
 
             var subject_props = iter.n_children ();
             assert_sig (subject_props >= 7, "Missing subject information");
-            uri = iter.next_value().get_string ();
-            if (uri == "")
-                uri = null;
-            interpretation = iter.next_value().get_string ();
-            if (interpretation == "")
-                interpretation = null;
-            manifestation = iter.next_value().get_string ();
-            if (manifestation == "")
-                manifestation = null;
-            origin = iter.next_value().get_string ();
-            if (origin == "")
-                origin = null;
-            mimetype = iter.next_value().get_string ();
-            if (mimetype == "")
-                mimetype = null;
-            text = iter.next_value().get_string ();
-            if (text == "")
-                text = null;
-            storage = iter.next_value().get_string ();
-            if (storage == "")
-                storage = null;
+            uri = next_string_or_null (iter);
+            interpretation = next_string_or_null (iter);
+            manifestation = next_string_or_null (iter);
+            origin = next_string_or_null (iter);
+            mimetype = next_string_or_null (iter);
+            text = next_string_or_null (iter);
+            storage = next_string_or_null (iter);
             // let's keep this compatible with older clients
             if (subject_props >= 8)
-                current_uri = iter.next_value().get_string ();
-            else
-                current_uri = null;
+                current_uri = next_string_or_null (iter);
         }
 
         public Variant to_variant ()
