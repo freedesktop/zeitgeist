@@ -97,10 +97,25 @@ public class Engine : DbReader
 
     private void preprocess_event (Event event) throws EngineError
     {
+        if (is_empty_string (event.interpretation)
+            || is_empty_string (event.manifestation)
+            || is_empty_string (event.actor))
+        {
+            throw new EngineError.INVALID_ARGUMENT (
+                "Incomplete event: interpretation, manifestation and actor " +
+                "are required");
+        }
+
         // Iterate through subjects and check for validity
-        for (int i = 0; i < event.num_subjects(); ++i)
+        for (int i = 0; i < event.num_subjects (); ++i)
         {
             unowned Subject subject = event.subjects[i];
+
+            if (is_empty_string (subject.uri))
+            {
+                throw new EngineError.INVALID_ARGUMENT (
+                    "Incomplete event: subject without URI");
+            }
 
             // If current_uri is unset, give it the same value as URI
             if (is_empty_string (subject.current_uri))

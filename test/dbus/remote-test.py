@@ -7,7 +7,7 @@
 # Copyright © 2009-2011 Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 # Copyright © 2009-2011 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2011 Markus Korn <thekorn@gmx.de>
-# Copyright © 2011 Collabora Ltd.
+# Copyright © 2011-2012 Collabora Ltd.
 #             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 #             By Seif Lotfy <seif@lotfy.com>
 #
@@ -67,7 +67,7 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 		self.assertEquals(len(ids), len(events))
 		result_events = self.getEventsAndWait(ids)
 		self.assertEquals(len(ids), len(result_events))
-		
+
 	def testGetEvents(self):
 		events = parse_events("test/data/five_events.js")
 		ids = self.insertEventsAndWait(events) + [1000, 2000]
@@ -226,7 +226,7 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 
 	def testInsertWithEmptySubjectInterpretationManifestation(self):
 		events = parse_events("test/data/incomplete_events.js")
-		ids = self.insertEventsAndWait(events)
+		ids = self.insertEventsAndWait(events[:3])
 		self.assertEquals(3, len(ids))
 		
 		event = self.getEventsAndWait([ids[0]])[0]
@@ -246,6 +246,42 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 		event = self.getEventsAndWait([ids[2]])[0]
 		self.assertEquals("something else", event.subjects[0].manifestation)
 		self.assertEquals("#Audio", event.subjects[0].interpretation)
+
+	def testInsertWithEmptySubjectMimeType(self):
+		events = parse_events("test/data/incomplete_events.js")
+		ids = self.insertEventsAndWait([events[7]])
+		self.assertEquals(1, len(ids))
+		
+		event = self.getEventsAndWait([ids[0]])[0]
+		self.assertEquals(1, len(event.subjects))
+
+		subject = event.subjects[0]
+		self.assertEquals("file:///unknown-mimetype-file", subject.uri)
+		self.assertEquals("", subject.mimetype)
+		self.assertEquals(Manifestation.FILE_DATA_OBJECT, subject.manifestation)  # FIXME
+		self.assertEquals("", subject.interpretation) # FIXME
+
+	def testInsertIncompleteEvent(self):
+		events = parse_events("test/data/incomplete_events.js")
+
+		# Missing interpretation
+		ids = self.insertEventsAndWait([events[3]])
+		self.assertEquals(0, len(ids))
+
+		# Missing manifestation
+		ids = self.insertEventsAndWait([events[4]])
+		self.assertEquals(0, len(ids))
+
+		# Missing actor
+		ids = self.insertEventsAndWait([events[5]])
+		self.assertEquals(0, len(ids))
+
+	def testInsertIncompleteSubject(self):
+		events = parse_events("test/data/incomplete_events.js")
+
+		# Missing one subject URI
+		ids = self.insertEventsAndWait([events[6]])
+		self.assertEquals(0, len(ids))
 
 class ZeitgeistRemoteFindEventIdsTest(testutils.RemoteTestCase):
 	"""
@@ -487,3 +523,5 @@ class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
+# vim:noexpandtab:ts=4:sw=4
