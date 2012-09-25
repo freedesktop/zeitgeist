@@ -3,6 +3,7 @@
 
 Engine:
  - Fixed database migration of WebDataObject, blah blah
+ - Events missing required meta-data are now rejected.
 
 2012-08-26: Zeitgeist 0.9.5 "Sun Devil"
 ---------------------------------------
