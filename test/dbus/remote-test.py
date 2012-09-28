@@ -228,7 +228,7 @@ class ZeitgeistRemoteAPITestAdvanced(testutils.RemoteTestCase):
 		events = parse_events("test/data/incomplete_events.js")
 		ids = self.insertEventsAndWait(events[:3])
 		self.assertEquals(3, len(ids))
-		
+
 		event = self.getEventsAndWait([ids[0]])[0]
 		self.assertEquals("Hi", event.subjects[0].manifestation)
 		self.assertEquals("", event.subjects[0].interpretation)

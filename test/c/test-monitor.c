@@ -22,7 +22,6 @@
 
 typedef struct
 {
-  
 } Fixture;
 
 static void setup    (Fixture *fix, gconstpointer data);
@@ -31,13 +30,11 @@ static void teardown (Fixture *fix, gconstpointer data);
 static void
 setup (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
 teardown (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
@@ -55,7 +52,7 @@ test_create (Fixture *fix, gconstpointer data)
                 "time-range", &tr,
                 "event-templates", &event_templates_,
                 NULL);
-  
+
   g_assert_cmpint (27, ==, zeitgeist_time_range_get_start (tr));
   g_assert_cmpint (68, ==, zeitgeist_time_range_get_end (tr));
 
@@ -72,9 +69,9 @@ main (int   argc,
 {
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
-  
+
   g_test_add ("/Zeitgeist/Monitor/Create", Fixture, NULL,
               setup, test_create, teardown);
-  
+
   return g_test_run();
 }

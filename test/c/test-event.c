@@ -25,7 +25,6 @@
 
 typedef struct
 {
-  
 } Fixture;
 
 static void setup    (Fixture *fix, gconstpointer data);
@@ -44,7 +43,7 @@ setup (Fixture *fix, gconstpointer data)
 static void
 teardown (Fixture *fix, gconstpointer data)
 {
-  g_setenv ("XDG_DATA_DIRS", old_xdg_data_dirs, TRUE);  
+  g_setenv ("XDG_DATA_DIRS", old_xdg_data_dirs, TRUE);
 }
 
 static void
@@ -130,7 +129,7 @@ test_actor_from_app_info (Fixture *fix, gconstpointer data)
 
   appinfo = G_APP_INFO (g_desktop_app_info_new_from_filename (TEST_DIR"/test.desktop"));
   g_assert (G_IS_APP_INFO (appinfo));
-  
+
   ev = zeitgeist_event_new ();
   zeitgeist_event_set_actor_from_app_info (ev, appinfo);
 
@@ -430,7 +429,7 @@ main (int   argc,
 {
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
-  
+
   g_test_add ("/Zeitgeist/Event/CreateEmpty", Fixture, NULL,
               setup, test_create_empty, teardown);
   g_test_add ("/Zeitgeist/Event/CreateFull", Fixture, NULL,
@@ -451,6 +450,6 @@ main (int   argc,
                   setup, test_3_events_to_from_variant, teardown);
   g_test_add ("/Zeitgeist/Event/0EventsToFromVariant", Fixture, NULL,
                   setup, test_0_events_to_from_variant, teardown);
-  
+
   return g_test_run();
 }
