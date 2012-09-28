@@ -51,11 +51,19 @@ class ZeitgeistUpgradeTest(testutils.RemoteTestCase):
 
     def sanity_check(self):
         events = self.findEventsForTemplatesAndWait([])
-        x = ""
-        for event in events:
-            x += " - %s\n" % event.subjects[0].uri
-        raise ValueError, x
         self.assertEquals(len(events), 3)
+
+        # Introduced in Zeitgeist 0.8.0:
+        #  - event.origin
+        #  - subject.current_uri
+        #  - subject.storage
+        for event in events:
+            self.assertEquals(event.origin, "")
+            for subject in event.subjects:
+                self.assertEquals(subject.current_uri, subject.uri)
+
+        # Introduced in Bluebird Alpha 2:
+        #  - WebDataObject
 
     def testUpgradeFrom071(self):
         self.prepare("071")
