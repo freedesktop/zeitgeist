@@ -28,7 +28,7 @@ int main (string[] args)
     // Do not abort on warning()s.
     GLib.Log.set_always_fatal (LogLevelFlags.LEVEL_CRITICAL);
 
-	// This test will connect to the database, make sure it won't mess up
+    // This test will connect to the database, make sure it won't mess up
     // anything.
     assert (Environment.set_variable(
         "ZEITGEIST_DATA_PATH", "/tmp/zeitgeist-tests", true));
@@ -40,30 +40,30 @@ int main (string[] args)
     Test.add_func ("/ParseNoexpand/main", parse_noexpand_test);
     Test.add_func ("/ParseNoexpand/assert", assert_no_noexpand_test);
     Test.add_func ("/ParseWildcard/main", parse_wildcard_test);
-	Test.add_func ("/ParseWildlcard/assert", assert_no_wildcard_test);
+    Test.add_func ("/ParseWildlcard/assert", assert_no_wildcard_test);
 
     return Test.run ();
 }
 
 private class PublicEngine : Zeitgeist.Engine
 {
-	public void PUBLIC_assert_no_negation (string field, string val)
-		throws Zeitgeist.EngineError
-	{
-		assert_no_negation (field, val);
-	}
+    public void PUBLIC_assert_no_negation (string field, string val)
+        throws Zeitgeist.EngineError
+    {
+        assert_no_negation (field, val);
+    }
 
-	public void PUBLIC_assert_no_noexpand (string field, string val)
-		throws Zeitgeist.EngineError
-	{
-		assert_no_noexpand (field, val);
-	}
+    public void PUBLIC_assert_no_noexpand (string field, string val)
+        throws Zeitgeist.EngineError
+    {
+        assert_no_noexpand (field, val);
+    }
 
-	public void PUBLIC_assert_no_wildcard (string field, string val)
-		throws Zeitgeist.EngineError
-	{
-		assert_no_wildcard (field, val);
-	}
+    public void PUBLIC_assert_no_wildcard (string field, string val)
+        throws Zeitgeist.EngineError
+    {
+        assert_no_wildcard (field, val);
+    }
 
 }
 
@@ -89,20 +89,20 @@ public void parse_negation_test ()
 
 public void assert_no_negation_test ()
 {
-	PublicEngine engine = new PublicEngine ();
+    PublicEngine engine = new PublicEngine ();
 
-	engine.PUBLIC_assert_no_negation ("field name", "good");
-	engine.PUBLIC_assert_no_negation ("field name", "good!");
-	engine.PUBLIC_assert_no_negation ("field name", "go!od");
+    engine.PUBLIC_assert_no_negation ("field name", "good");
+    engine.PUBLIC_assert_no_negation ("field name", "good!");
+    engine.PUBLIC_assert_no_negation ("field name", "go!od");
 
-	try
-	{
-		engine.PUBLIC_assert_no_negation ("field name", "!bad");
-		assert_not_reached ();
-	}
-	catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)
-	{
-	}
+    try
+    {
+        engine.PUBLIC_assert_no_negation ("field name", "!bad");
+        assert_not_reached ();
+    }
+    catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)
+    {
+    }
 }
 
 public void parse_noexpand_test ()
@@ -127,20 +127,20 @@ public void parse_noexpand_test ()
 
 public void assert_no_noexpand_test ()
 {
-	PublicEngine engine = new PublicEngine ();
+    PublicEngine engine = new PublicEngine ();
 
-	engine.PUBLIC_assert_no_noexpand ("field name", "good");
-	engine.PUBLIC_assert_no_noexpand ("field name", "good+");
-	engine.PUBLIC_assert_no_noexpand ("field name", "go+od");
+    engine.PUBLIC_assert_no_noexpand ("field name", "good");
+    engine.PUBLIC_assert_no_noexpand ("field name", "good+");
+    engine.PUBLIC_assert_no_noexpand ("field name", "go+od");
 
-	try
-	{
-		engine.PUBLIC_assert_no_noexpand ("field name", "+bad");
-		assert_not_reached ();
-	}
-	catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)
-	{
-	}
+    try
+    {
+        engine.PUBLIC_assert_no_noexpand ("field name", "+bad");
+        assert_not_reached ();
+    }
+    catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)
+    {
+    }
 }
 
 public void parse_wildcard_test ()
@@ -166,20 +166,20 @@ public void parse_wildcard_test ()
 
 public void assert_no_wildcard_test ()
 {
-	PublicEngine engine = new PublicEngine ();
+    PublicEngine engine = new PublicEngine ();
 
-	engine.PUBLIC_assert_no_wildcard ("field name", "good");
-	engine.PUBLIC_assert_no_wildcard ("field name", "*good");
-	engine.PUBLIC_assert_no_wildcard ("field name", "go*od");
+    engine.PUBLIC_assert_no_wildcard ("field name", "good");
+    engine.PUBLIC_assert_no_wildcard ("field name", "*good");
+    engine.PUBLIC_assert_no_wildcard ("field name", "go*od");
 
-	try
-	{
-		engine.PUBLIC_assert_no_wildcard ("field name", "bad*");
-		assert_not_reached ();
-	}
-	catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)
-	{
-	}
+    try
+    {
+        engine.PUBLIC_assert_no_wildcard ("field name", "bad*");
+        assert_not_reached ();
+    }
+    catch (Zeitgeist.EngineError.INVALID_ARGUMENT e)
+    {
+    }
 }
 
 // vim:expandtab:ts=4:sw=4

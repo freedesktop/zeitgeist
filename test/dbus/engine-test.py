@@ -87,6 +87,8 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		test_event_1[0][0] = ids[0]
 		resulting_event[2] = ""
 		
+		test_event_1.timestamp = resulting_event.timestamp
+		
 		self.assertEqual(resulting_event, test_event_1)
 		
 	def testInsertGetWithoutTimestamp(self):
