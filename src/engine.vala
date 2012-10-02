@@ -179,13 +179,11 @@ public class Engine : DbReader
                 warning ("DataInserter: destroyed with unflushed data");
         }
 
-        public void add (string? val) throws EngineError
+        public void add (string val) throws EngineError
         {
-            if (val != null) {
-                if (data.length == MAX_PARAMETERS)
-                    flush ();
-                data.add (val);
-            }
+            if (data.length == MAX_PARAMETERS)
+                flush ();
+            data.add (val);
         }
 
         public void flush () throws EngineError
