@@ -802,22 +802,20 @@ public class DbReader : Object
      * If the value starts with the negation operator, throw an
      * error.
      */
-    protected void assert_no_negation (string field, string? val)
+    protected void assert_no_negation (string field, string val)
         throws EngineError
     {
-        if (val != null) {
-            if (!val.has_prefix ("!"))
-                return;
-            string error_message =
-                "Field '%s' doesn't support negation".printf (field);
-            warning (error_message);
-            throw new EngineError.INVALID_ARGUMENT (error_message);
-        }
+        if (!val.has_prefix ("!"))
+            return;
+        string error_message =
+            "Field '%s' doesn't support negation".printf (field);
+        warning (error_message);
+        throw new EngineError.INVALID_ARGUMENT (error_message);
     }
 
     // Used by get_where_clause_from_event_templates
     /**
-     * If the value starts with the expand operator, throw an
+     * If the value starts with the negation operator, throw an
      * error.
      */
     protected void assert_no_noexpand (string field, string? val)
@@ -841,10 +839,10 @@ public class DbReader : Object
         throws EngineError
     {
         if (val != null) {
-            if (!val.has_suffix ("*"))
+            if (val.has_suffix ("*"))
                 return;
             string error_message =
-                "Field '%s' doesn't support suffix search".printf (field);
+                "Field '%s' doesn't support prefix search".printf (field);
             warning (error_message);
             throw new EngineError.INVALID_ARGUMENT (error_message);
         }
