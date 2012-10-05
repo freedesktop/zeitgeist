@@ -1,5 +1,5 @@
-2012-XX-XX: Zeitgeist 0.9.X "..."
----------------------------------------
+2012-XX-XX: Zeitgeist 1.0 Beta 1
+--------------------------------
 
 This version introduces libzeitgeist2, a Vala port of the previously
 independent libzeitgeist library. Now everything you need to work with
@@ -10,8 +10,11 @@ build Zeitgeist.
 
 Engine:
  - Fixed insertion of large event sets.
- - Fixed database migration of WebDataObject.
+ - Fixed database migration to WebDataObject (from some RemoteDataObjects).
  - Events missing required meta-data are now rejected.
+
+FTS:
+ - Fixed to respect ZEITGEIST_DATA_PATH.
 
 Python API:
  - RelevantResultType is now included in "from datamodel import *".
@@ -19,7 +22,7 @@ Python API:
 If you were using the external libzeitgeist, you need to be aware that
 libzeitgeist2 has some API differences:
  - For Vala developers: getters/setters replaced with properties, etc.
- - For C developers: the use of floating references has been reduced.
+ - For C developers: the use of floating references has been removed.
  - Redesigned ResultSet (removed peek() and seek(); introduced reset();
    renamed next() to next_value()).
  - Changed the return type of zeitgeist_log_get_events to GPtrArray;

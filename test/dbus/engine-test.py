@@ -1,13 +1,13 @@
 #! /usr/bin/python
 # -.- coding: utf-8 -.-
 
-# remote-test.py
+# engine-test.py
 #
 # Copyright © 2009-2011 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009-2011 Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 # Copyright © 2009-2011 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2011 Markus Korn <thekorn@gmx.de>
-# Copyright © 2011 Collabora Ltd.
+# Copyright © 2011-2012 Collabora Ltd.
 #             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 #             By Seif Lotfy <seif@lotfy.com>
 #
@@ -194,7 +194,8 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		# revision rainct@ubuntu.com-20091128164327-j8ez3fsifd1gygkr (1185)
 		# Fix _build_templates so that it works when the Subject is empty.
 		self.testSingleInsertGet()
-		result = self.findEventIdsAndWait([Event.new_for_values(interpretation=Interpretation.LEAVE_EVENT)])
+		result = self.findEventIdsAndWait([Event.new_for_values(
+			interpretation=Interpretation.LEAVE_EVENT)])
 		self.assertEquals(0, len(result))
 
 	def testFindFive(self):
@@ -332,8 +333,12 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 	def testGetWithMultipleSubjects(self):
 		subj1 = Subject.new_for_values(uri="file:///tmp/foo.txt")
 		subj2 = Subject.new_for_values(uri="file:///tmp/loo.txt")
-		event_template = Event.new_for_values(subjects=[subj1, subj2])
-		result = self.insertEventsAndWait([event_template])
+		event = Event.new_for_values(
+			interpretation=Interpretation.ACCESS_EVENT,
+			manifestation=Interpretation.FILE_DATA_OBJECT,
+			actor="application://test.desktop",
+			subjects=[subj1, subj2])
+		result = self.insertEventsAndWait([event])
 		events = self.getEventsAndWait(result)
 		self.assertEquals(2, len(events[0].subjects))
 		self.assertEquals("file:///tmp/foo.txt", events[0].subjects[0].uri)
@@ -342,11 +347,15 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 	def testFindEventIdsWithMultipleSubjects(self):
 		subj1 = Subject.new_for_values(uri="file:///tmp/foo.txt")
 		subj2 = Subject.new_for_values(uri="file:///tmp/loo.txt")
-		event = Event.new_for_values(subjects=[subj1, subj2])
+		event = Event.new_for_values(
+			interpretation=Interpretation.ACCESS_EVENT,
+			manifestation=Interpretation.FILE_DATA_OBJECT,
+			subjects=[subj1, subj2])
 		orig_ids = self.insertEventsAndWait([event])
-		result_ids = self.findEventIdsAndWait([Event()], num_events = 0, result_type = 1)
-		self.assertEquals(orig_ids, list(result_ids)) #FIXME: We need subjects of the same event to be merged
-		
+		result_ids = self.findEventIdsAndWait([Event()], num_events=0,
+			result_type=ResultType.LEAST_RECENT_EVENTS)
+		self.assertEquals(orig_ids, list(result_ids))
+
 	def testFindEventsEventTemplate(self):
 		import_events("test/data/five_events.js", self)
 		subj = Subject.new_for_values(interpretation="stfu:Bee")
@@ -1137,3 +1146,5 @@ class ResultTypeTest(testutils.RemoteTestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
+# vim:noexpandtab:ts=4:sw=4

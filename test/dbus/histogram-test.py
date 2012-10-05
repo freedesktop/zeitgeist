@@ -69,7 +69,10 @@ class HistogramTest(RemoteTestCase):
 		self.histogram = dbus.Interface(obj, "org.gnome.zeitgeist.Histogram")
 		
 	def _createEventOne(self):
-		ev = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT,
+		ev = Event.new_for_values(
+			interpretation=Interpretation.ACCESS_EVENT,
+			manifestation=Manifestation.FILE_DATA_OBJECT,
+			actor="application://test.desktop",
 			subject_uri="file://sisisisisisi")
 		ev.manifestation = Manifestation.USER_ACTIVITY
 		
@@ -104,3 +107,5 @@ class HistogramTest(RemoteTestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
+# vim:noexpandtab:ts=4:sw=4

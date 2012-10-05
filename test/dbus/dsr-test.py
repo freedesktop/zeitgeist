@@ -7,7 +7,7 @@
 # Copyright © 2009-2011 Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 # Copyright © 2009-2011 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2011 Markus Korn <thekorn@gmx.de>
-# Copyright © 2011 Collabora Ltd.
+# Copyright © 2011-2012 Collabora Ltd.
 #             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 #             By Seif Lotfy <seif@lotfy.com>
 #
@@ -169,27 +169,30 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		self.client._registry.RegisterDataSource(*self._ds1)
 		ds = list(self.client._registry.GetDataSources())[0]
 		self.assertEquals(ds[DataSource.Enabled], True)
-		
+
 		# Now we can choose to disable it...
 		self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
 		ds = list(self.client._registry.GetDataSources())[0]
 		self.assertEquals(ds[DataSource.Enabled], False)
-		
-		ids = self.insertEventsAndWait([Event.new_for_values(
-			subject_manifestation = "!stfu:File")])
-			
+
+		event = Event.new_for_values(
+			interpretation="interpretation",
+			manifestation="manifestation",
+			actor="actor",
+			subject_uri="some uri",
+			subject_manifestation="!stfu:File")
+
+		# ... which will block its events from being inserted
+		ids = self.insertEventsAndWait([event])
 		self.assertEquals(ids[0], 0)
-		
+
 		# And enable it again!
 		self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
 		ds = list(self.client._registry.GetDataSources())[0]
 		self.assertEquals(ds[DataSource.Enabled], True)
-		
-		ids = self.insertEventsAndWait([Event.new_for_values(
-			subject_manifestation = "!stfu:File")])
-			
-		self.assertEquals(ids[0], 1)
 
+		ids = self.insertEventsAndWait([event])
+		self.assertEquals(ids[0], 1)
 
 	def testGetDataSourceFromId(self):
 		# Insert a data-source -- and then retrieve it by id
@@ -283,3 +286,5 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
+# vim:noexpandtab:ts=4:sw=4

@@ -445,3 +445,5 @@ class DBusPrivateMessageBus(object):
 			if ignore_errors:
 				return e
 			raise
+
+# vim:noexpandtab:ts=4:sw=4
