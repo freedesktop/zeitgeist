@@ -758,8 +758,7 @@ namespace Zeitgeist
         public Subject.full (string? uri=null,
             string? interpretation=null, string? manifestation=null,
             string? mimetype=null, string? origin=null, string? text=null,
-            string? storage=null, string? current_uri=null,
-            string? current_origin=null)
+            string? storage=null)
         {
             this.uri = uri;
             this.interpretation = interpretation;
@@ -768,8 +767,23 @@ namespace Zeitgeist
             this.origin = origin;
             this.text = text;
             this.storage = storage;
-            this.current_uri = current_uri;
-            this.current_origin = current_origin;
+        }
+
+        public Subject.move_event (
+            string? source_uri=null, string? source_origin=null,
+            string? destination_uri=null, string? destination_origin=null,
+            string? interpretation, string? manifestation=null,
+            string? mimetype=null, string? text=null, string? storage=null)
+        {
+            this.uri = source_uri;
+            this.origin = source_origin;
+            this.current_uri = destination_uri;
+            this.current_origin = destination_origin;
+            this.interpretation = interpretation;
+            this.manifestation = manifestation;
+            this.mimetype = mimetype;
+            this.text = text;
+            this.storage = storage;
         }
 
         public Subject.from_variant (Variant subject_variant)

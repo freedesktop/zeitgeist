@@ -28,7 +28,7 @@ libzeitgeist2 has some API differences:
  - Changed the return type of zeitgeist_log_get_events to GPtrArray;
    now it works correctly when requesting non-existant events.
  - Added an actor parameter to the event_new_full constructor.
- - Added a current_uri parameter to the subject_new_full constructor.
+ - Added a zeitgeist_subject_new_move_event constructor.
  - Added a GError parameter to several functions involving variants.
  - Renamed timestamp_for_now to timestamp_now.
  - Renamed data_source_is_enabled to data_source_get_enabled.

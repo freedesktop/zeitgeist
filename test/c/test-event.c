@@ -83,8 +83,7 @@ test_create_full (Fixture *fix, gconstpointer data)
                                                "text/html",
                                                "http://example.com",
                                                "example.com",
-                                               "net",
-                                               "", ""),
+                                               "net"),
                    zeitgeist_subject_new (),
                    NULL);
 
@@ -147,7 +146,7 @@ test_from_variant (Fixture *fix, gconstpointer data)
   GByteArray *payload;
   GError *error;
 
-  g_variant_builder_init (&b, "(" ZEITGEIST_EVENT_SIGNATURE ")");
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("(" ZEITGEIST_EVENT_SIGNATURE ")"));
 
   /* Build event data */
   g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
@@ -222,7 +221,7 @@ test_from_variant_with_new_fields (Fixture *fix, gconstpointer data)
   GByteArray *payload;
   GError *error;
 
-  g_variant_builder_init (&b, "(" ZEITGEIST_EVENT_SIGNATURE ")");
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("(" ZEITGEIST_EVENT_SIGNATURE ")"));
 
   /* Build event data */
   g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
@@ -325,21 +324,19 @@ test_with_one_subject_to_from_variant (Fixture *fix, gconstpointer data)
                    ZEITGEIST_ZG_ACCESS_EVENT,
                    ZEITGEIST_ZG_USER_ACTIVITY,
                    "application://firefox.desktop",
-                   NULL,
+                   "origin",
                    zeitgeist_subject_new_full ("http://example.com",
                                                ZEITGEIST_NFO_WEBSITE,
                                                ZEITGEIST_NFO_REMOTE_DATA_OBJECT,
                                                "text/html",
                                                "http://example.com",
                                                "example.com",
-                                               "net",
-                                               "", ""),
+                                               "net"),
                    NULL);
-  //FIXME: this line should be removed. We need to fix the setting the timestamp
+  // FIXME: this line should be removed. We need to fix the setting the timestamp
   zeitgeist_event_set_timestamp(orig, 123);
 
-  // Set event origin and current_uri
-  zeitgeist_event_set_origin (orig, "origin");
+  // Set current_uri
   zeitgeist_subject_set_current_uri (
       zeitgeist_event_get_subject (orig, 0), "http://current-example.com");
 
