@@ -88,6 +88,33 @@ def import_events(path, engine):
 	events = parse_events(path)
 	return engine.insertEventsAndWait(events)
 
+def complete_event(event):
+	"""
+	Completes the given event by filling in any required fields that are missing
+	with some default value.
+	"""
+	if not event.interpretation:
+		event.interpretation = Interpretation.ACCESS_EVENT
+	if not event.manifestation:
+		event.manifestation = Manifestation.USER_ACTIVITY
+	if not event.actor:
+		event.actor = "application://zeitgeist-test.desktop"
+
+	for subject in event.subjects:
+		if not subject.uri:
+			subject.uri = "file:///tmp/example file"
+
+	return event
+
+def complete_events(events):
+	return map(complete_event, events)
+
+def new_event(*args, **kwargs):
+	"""
+	Creates a new event, initializing all required fields with default values.
+	"""
+	return complete_event(Event.new_for_values(*args, **kwargs))
+
 def asyncTestMethod(mainloop):
 	"""
 	Any callbacks happening in a MainLoopWithFailure must use
