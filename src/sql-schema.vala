@@ -49,6 +49,7 @@ namespace Zeitgeist.SQLite
             if (schema_version == -1)
             {
                 // most likely a new DB
+                setup_database (database);
                 create_schema (database);
                 create_basic_indices (database);
                 create_event_indices (database);
@@ -62,6 +63,13 @@ namespace Zeitgeist.SQLite
             else if (schema_version >= 3 && schema_version <= 7)
             {
                 backup_database ();
+
+                // Fix file permissions, update PRAGMAs, etc.
+                setup_database (database);
+
+                // SQLite supports transactional DDL. This way we won't leave a
+                // messed up schema if something goes wrong.
+                exec_query (database, "BEGIN");
 
                 if (schema_version == 3)
                 {
@@ -160,7 +168,10 @@ namespace Zeitgeist.SQLite
                         )
                     """);
 
-                message ("Upgraded database to schema version 6.");
+                exec_query (database, "COMMIT");
+
+                message ("Upgraded database to schema version %d.",
+                    CORE_SCHEMA_VERSION);
             }
             else if (schema_version < CORE_SCHEMA_VERSION)
             {
@@ -247,7 +258,7 @@ namespace Zeitgeist.SQLite
             exec_query (database, schema_sql);
         }
 
-        public static void create_schema (Sqlite.Database database)
+        public static void setup_database (Sqlite.Database database)
             throws EngineError
         {
             if (!Utils.using_in_memory_database ())
@@ -258,7 +269,11 @@ namespace Zeitgeist.SQLite
             exec_query (database, "PRAGMA journal_mode = WAL");
             exec_query (database, "PRAGMA synchronous = NORMAL");
             exec_query (database, "PRAGMA locking_mode = NORMAL");
+        }
 
+        public static void create_schema (Sqlite.Database database)
+            throws EngineError
+        {
             // URI
             exec_query (database, """
                 CREATE TABLE IF NOT EXISTS uri (
@@ -334,13 +349,13 @@ namespace Zeitgeist.SQLite
             //    table, for backwards-compatibility reasons.
             exec_query (database, """
                 CREATE TABLE IF NOT EXISTS event (
-                    id INTEGER,
-                    timestamp INTEGER,
-                    interpretation INTEGER,
-                    manifestation INTEGER,
-                    actor INTEGER,
+                    id INTEGER NOT NULL,
+                    timestamp INTEGER NOT NULL,
+                    interpretation INTEGER NOT NULL,
+                    manifestation INTEGER NOT NULL,
+                    actor INTEGER NOT NULL,
                     payload INTEGER,
-                    subj_id INTEGER,
+                    subj_id INTEGER NOT NULL,
                     subj_interpretation INTEGER,
                     subj_manifestation INTEGER,
                     subj_origin INTEGER,
@@ -467,11 +482,11 @@ namespace Zeitgeist.SQLite
                         event.subj_storage AS subj_storage_id,
                         (SELECT value FROM actor
                             WHERE actor.id=event.actor)
-                            AS actor_uri
+                            AS actor_uri,
                         event.subj_origin_current,
                         (SELECT value FROM uri
                             WHERE uri.id=event.subj_origin_current)
-                            AS subj_origin_current_uri,
+                            AS subj_origin_current_uri
                     FROM event
                 """);
 
