@@ -22,7 +22,6 @@
 
 typedef struct
 {
-  
 } Fixture;
 
 static void setup    (Fixture *fix, gconstpointer data);
@@ -31,13 +30,11 @@ static void teardown (Fixture *fix, gconstpointer data);
 static void
 setup (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
 teardown (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
@@ -74,7 +71,7 @@ test_to_now (Fixture *fix, gconstpointer data)
   tr = zeitgeist_time_range_new_to_now ();
 
   g_assert (0 == zeitgeist_time_range_get_start (tr));
-  
+
   /* Since system time is unreliable we simply assert that the end timestamp
    * is after 2000. This assueres that we catch any uint/int32 overflow
    * at least */
@@ -89,7 +86,7 @@ test_from_now (Fixture *fix, gconstpointer data)
   ZeitgeistTimeRange *tr;
 
   tr = zeitgeist_time_range_new_from_now ();  
-  
+
   /* Since system time is unreliable we simply assert that the start timestamp
    * is after 2000. This assueres that we catch any uint/int32 overflow
    * at least */
@@ -142,7 +139,7 @@ main (int   argc,
 {
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
-  
+
   g_test_add ("/Zeitgeist/TimeRange/Create", Fixture, NULL,
               setup, test_create, teardown);
   g_test_add ("/Zeitgeist/TimeRange/Anytime", Fixture, NULL,
@@ -155,6 +152,6 @@ main (int   argc,
                 setup, test_from_variant, teardown);
   g_test_add ("/Zeitgeist/TimeRange/ToVariant", Fixture, NULL,
                   setup, test_to_variant, teardown);
-  
+
   return g_test_run();
 }

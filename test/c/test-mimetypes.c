@@ -22,7 +22,6 @@
 
 typedef struct
 {
-  
 } Fixture;
 
 static void setup    (Fixture *fix, gconstpointer data);
@@ -31,13 +30,11 @@ static void teardown (Fixture *fix, gconstpointer data);
 static void
 setup (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
 teardown (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
@@ -84,7 +81,7 @@ main (int   argc,
 {
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
-  
+
   g_test_add ("/Zeitgeist/Mime/TextPlain", Fixture, NULL,
               setup, test_mime_textplain, teardown);
   g_test_add ("/Zeitgeist/Mime/None", Fixture, NULL,
@@ -95,6 +92,6 @@ main (int   argc,
               setup, test_scheme_file, teardown);
   g_test_add ("/Zeitgeist/UriScheme/None", Fixture, NULL,
               setup, test_scheme_none, teardown);
-  
+
   return g_test_run();
 }

@@ -25,7 +25,6 @@
 
 typedef struct
 {
-  
 } Fixture;
 
 static void setup    (Fixture *fix, gconstpointer data);
@@ -44,7 +43,7 @@ setup (Fixture *fix, gconstpointer data)
 static void
 teardown (Fixture *fix, gconstpointer data)
 {
-  g_setenv ("XDG_DATA_DIRS", old_xdg_data_dirs, TRUE);  
+  g_setenv ("XDG_DATA_DIRS", old_xdg_data_dirs, TRUE);
 }
 
 static void
@@ -145,13 +144,13 @@ main (int   argc,
 {
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
-  
+
   g_test_add ("/Zeitgeist/DataSource/CreateEmpty", Fixture, NULL,
               setup, test_create_empty, teardown);
   g_test_add ("/Zeitgeist/DataSource/CreateFull", Fixture, NULL,
                 setup, test_create_full, teardown);
   g_test_add ("/Zeitgeist/DataSource/ToFromVariant", Fixture, NULL,
                   setup, test_to_from_variant, teardown);
-  
+
   return g_test_run();
 }

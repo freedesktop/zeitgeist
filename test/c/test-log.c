@@ -74,6 +74,7 @@ _on_events_received (ZeitgeistLog *log,
                      GAsyncResult *res,
                      GPtrArray    *expected_events)
 {
+  GArray             *events_array;
   ZeitgeistResultSet *events;
   GArray             *event_ids;
   GError             *error;
@@ -82,7 +83,8 @@ _on_events_received (ZeitgeistLog *log,
   guint32             event_id;
 
   error = NULL;
-  events = zeitgeist_log_get_events_finish (log, res, &error);
+  events_array = zeitgeist_log_get_events_finish (log, res, &error);
+  events = zeitgeist_simple_result_set_new (events_array);
   if (error)
     {
       g_critical ("Failed to get events: %s", error->message);
@@ -99,7 +101,7 @@ _on_events_received (ZeitgeistLog *log,
   i = 0;
   while (ev = zeitgeist_result_set_next_value (events))
     {
-      g_assert_cmpint (i, ==, zeitgeist_result_set_tell (events));
+      g_assert_cmpint (i+1, ==, zeitgeist_result_set_tell (events));
       _ev = ZEITGEIST_EVENT (g_ptr_array_index (expected_events, i));
       g_assert_cmpstr (zeitgeist_event_get_interpretation (ev), ==,
                        zeitgeist_event_get_interpretation (_ev));
@@ -115,13 +117,13 @@ _on_events_received (ZeitgeistLog *log,
       g_array_append_val (event_ids, event_id);
       i++;
     }
-  
+
   /* Assert that the end is still what we expect */
   g_assert_cmpint (expected_events->len, ==, zeitgeist_result_set_size (events));
   g_assert_cmpint (expected_events->len, ==, zeitgeist_result_set_estimated_matches (events));
   g_assert_cmpint (i, ==, zeitgeist_result_set_tell (events));
   g_assert_cmpint (i, ==, zeitgeist_result_set_size (events));
-  
+
   /* This method call now owns event_ids */
   zeitgeist_log_delete_events (log, event_ids, NULL,
                                (GAsyncReadyCallback) _on_events_deleted,
@@ -174,7 +176,7 @@ test_insert_get_delete (Fixture *fix, gconstpointer data)
   zeitgeist_event_set_interpretation (ev, "foo://Interp");
   zeitgeist_event_set_manifestation (ev, "foo://Manif");
   zeitgeist_event_set_actor (ev, "app://firefox.desktop");
-  
+
   zeitgeist_subject_set_uri (su, "file:///tmp/bar.txt");
   zeitgeist_subject_set_interpretation (su, "foo://TextDoc");
   zeitgeist_subject_set_manifestation (su, "foo://File");
@@ -194,10 +196,10 @@ test_insert_get_delete (Fixture *fix, gconstpointer data)
                                (GAsyncReadyCallback) _on_events_inserted,
                                expected_events);
   g_assert_cmpint (expected_events->len, ==, 1);
-                                
+
   g_timeout_add_seconds (1, (GSourceFunc) _quit_main_loop, fix->mainloop);
   g_main_loop_run (fix->mainloop);
-  
+
 }
 
 static void
@@ -214,11 +216,11 @@ main (int   argc,
 {
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
-  
+
   g_test_add ("/Zeitgeist/Log/InsertGetDelete", Fixture, NULL,
               setup, test_insert_get_delete, teardown);
   g_test_add ("/Zeitgeist/Log/GetDefault", Fixture, NULL,
               NULL, test_get_default, NULL);
-  
+
   return g_test_run();
 }

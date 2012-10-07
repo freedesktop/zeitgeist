@@ -22,7 +22,6 @@
 
 typedef struct
 {
-  
 } Fixture;
 
 static void setup    (Fixture *fix, gconstpointer data);
@@ -31,13 +30,11 @@ static void teardown (Fixture *fix, gconstpointer data);
 static void
 setup (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
 teardown (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
@@ -55,7 +52,7 @@ static void
 test_inc_year (Fixture *fix, gconstpointer data)
 {
   gchar *d = zeitgeist_timestamp_to_iso8601 (ZEITGEIST_TIMESTAMP_YEAR);
-  
+
   // Since ZEITGEIST_TIMESTAMP_YEAR accounts for leap years we wont exactly
   // match "1971-01-01T00:00:00Z" on the hour
   g_assert (g_str_has_prefix (d, "1971-01-01T"));
@@ -69,9 +66,9 @@ test_from_date (Fixture *fix, gconstpointer data)
 
   g_date_set_dmy (&date, 25, G_DATE_JUNE, 2000);
   gint64 from_date = zeitgeist_timestamp_from_date (&date);
-  
+
   gchar *d = zeitgeist_timestamp_to_iso8601 (from_date);
-  
+
   /* API guarantees that the timestamp is rounded to midnight */
   g_assert_cmpstr ("2000-06-25T00:00:00Z", ==, d);
 }
@@ -91,25 +88,25 @@ test_timeval_conversion (Fixture *fix, gconstpointer data)
 {
   GTimeVal tv = { 0 };
   gint64 ts, _ts;
-  
+
   /* Check 0 */
   ts = 0;
   zeitgeist_timestamp_to_timeval (ts, &tv);
   _ts = zeitgeist_timestamp_from_timeval (&tv);
   g_assert (ts == _ts);
-  
+
   /* Check a low number */
   ts = 10000;
   zeitgeist_timestamp_to_timeval (ts, &tv);
   _ts = zeitgeist_timestamp_from_timeval (&tv);
   g_assert (ts == _ts);
-  
+
   /* Check 2010-06-18 */
   ts = G_GINT64_CONSTANT (1276849717119);
   zeitgeist_timestamp_to_timeval (ts, &tv);
   _ts = zeitgeist_timestamp_from_timeval (&tv);
   g_assert (ts == _ts);
-  
+
   /* Note : G_MAXINT64 wont work because GTimeVal uses glongs internally
    * to track the numbers */
 }
@@ -119,16 +116,16 @@ test_prev_midnight (Fixture *fix, gconstpointer data)
 {
   gint64 ts, midnight;
   gchar *iso;
-  
+
   /* Check 2010-06-23T11:19:07Z */
   ts = G_GINT64_CONSTANT (1277284743659);
-  
+
   /* Now the actual test */
   midnight = zeitgeist_timestamp_prev_midnight (ts);
   iso = zeitgeist_timestamp_to_iso8601(midnight);
   g_assert(g_str_has_prefix (iso, "2010-06-23T00:00:00"));
   g_free (iso);
-  
+
   /* Pre midnight of 'midnight' should go one day back */
   midnight = zeitgeist_timestamp_prev_midnight (midnight);
   iso = zeitgeist_timestamp_to_iso8601(midnight);
@@ -141,7 +138,7 @@ test_next_midnight (Fixture *fix, gconstpointer data)
 {
   gint64 ts, midnight;
   gchar *iso;
-  
+
   /* Check 2010-06-23T11:19:07Z */
   ts = G_GINT64_CONSTANT (1277284743659);
 
@@ -150,7 +147,7 @@ test_next_midnight (Fixture *fix, gconstpointer data)
   iso = zeitgeist_timestamp_to_iso8601(midnight);
   g_assert(g_str_has_prefix (iso, "2010-06-24T00:00:00"));
   g_free (iso);
-  
+
   /* Pre midnight of 'midnight' should go one day back */
   midnight = zeitgeist_timestamp_next_midnight (midnight);
   iso = zeitgeist_timestamp_to_iso8601(midnight);
@@ -164,7 +161,7 @@ main (int   argc,
 {
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
-  
+
   g_test_add ("/Zeitgeist/Timestamp/FromISO8601", Fixture, NULL,
               setup, test_from_iso8601, teardown);
   g_test_add ("/Zeitgeist/Timestamp/IncrementYear", Fixture, NULL,
@@ -179,6 +176,6 @@ main (int   argc,
               setup, test_prev_midnight, teardown);
   g_test_add ("/Zeitgeist/Timestamp/NextMidnight", Fixture, NULL,
               setup, test_next_midnight, teardown);
-  
+
   return g_test_run();
 }

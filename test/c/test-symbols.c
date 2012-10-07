@@ -23,7 +23,6 @@
 
 typedef struct
 {
-  
 } Fixture;
 
 static void setup    (Fixture *fix, gconstpointer data);
@@ -32,13 +31,11 @@ static void teardown (Fixture *fix, gconstpointer data);
 static void
 setup (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
 teardown (Fixture *fix, gconstpointer data)
 {
-  
 }
 
 static void
@@ -186,7 +183,7 @@ main (int   argc,
 {
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
-  
+
   g_test_add ("/Zeitgeist/Symbols/NullNull", Fixture, NULL,
               setup, test_null_symbols, teardown);
   g_test_add ("/Zeitgeist/Symbols/FirstNull", Fixture, NULL,
@@ -213,6 +210,6 @@ main (int   argc,
               setup, test_vector_image_parents, teardown);
   g_test_add ("/Zeitgeist/Symbols/SymbolInfo", Fixture, NULL,
               setup, test_media_complex, teardown);
-  
+
   return g_test_run();
 }

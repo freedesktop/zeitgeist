@@ -31,7 +31,7 @@ import gobject
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface
 from zeitgeist.datamodel import *
-from testutils import RemoteTestCase, import_events
+from testutils import RemoteTestCase, import_events, new_event
 
 #
 # EXPLANATION OF THE TEST:
@@ -69,7 +69,8 @@ class HistogramTest(RemoteTestCase):
 		self.histogram = dbus.Interface(obj, "org.gnome.zeitgeist.Histogram")
 		
 	def _createEventOne(self):
-		ev = Event.new_for_values(interpretation=Interpretation.ACCESS_EVENT,
+		ev = new_event(
+			interpretation=Interpretation.ACCESS_EVENT,
 			subject_uri="file://sisisisisisi")
 		ev.manifestation = Manifestation.USER_ACTIVITY
 		
@@ -104,3 +105,5 @@ class HistogramTest(RemoteTestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
+# vim:noexpandtab:ts=4:sw=4

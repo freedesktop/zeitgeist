@@ -1,8 +1,45 @@
-2012-XX-XX: Zeitgeist 0.9.X "..."
----------------------------------------
+2012-XX-XX: Zeitgeist 1.0 Beta 1
+--------------------------------
+
+This version introduces libzeitgeist2, a Vala port of the previously
+independent libzeitgeist library. Now everything you need to work with
+Zeitgeist, be it with C, Vala or Python, is included in this tarball.
+
+Please note that starting from this release Vala 0.18 is required to
+build Zeitgeist.
 
 Engine:
- - Fixed database migration of WebDataObject, blah blah
+ - Fixed insertion of large event sets.
+ - Fixed database migration to WebDataObject (from some RemoteDataObjects).
+ - Events missing required meta-data are now rejected.
+
+FTS:
+ - Fixed to respect ZEITGEIST_DATA_PATH.
+
+Python API:
+ - RelevantResultType is now included in "from datamodel import *".
+
+If you were using the external libzeitgeist, you need to be aware that
+libzeitgeist2 has some API differences:
+ - For Vala developers: getters/setters replaced with properties, etc.
+ - For C developers: the use of floating references has been removed.
+ - Redesigned ResultSet (removed peek() and seek(); introduced reset();
+   renamed next() to next_value()).
+ - Changed the return type of zeitgeist_log_get_events to GPtrArray;
+   now it works correctly when requesting non-existant events.
+ - Added an actor parameter to the event_new_full constructor.
+ - Added a current_uri parameter to the subject_new_full constructor.
+ - Added a GError parameter to several functions involving variants.
+ - Renamed timestamp_for_now to timestamp_now.
+ - Renamed data_source_is_enabled to data_source_get_enabled.
+ - Renamed the "connected" property to "is-connected".
+ - Introduced the missing ZeitgeistRelevantResultType enum.
+ - Introduced get_data_source_from_id.
+ - Introduced zeitgeist_{event,subject}_matches_template.
+ - Introduced zeitgeist_event_take_subject.
+ - Introduced zeitgeist_time_range_intersect.
+ - Removed event_new_full_valist and events_from_valist.
+ - Removed time_range_get_{start,end}_iso8601.
 
 2012-08-26: Zeitgeist 0.9.5 "Sun Devil"
 ---------------------------------------

@@ -1,0 +1,12 @@
+LIBZEITGEIST2 TODO:
+ - Review examples: make sure they don't leak!
+ - gtkdoc: document enum values
+ - gtkdoc: make index.html nice
+ - gtkdoc: add object hierarchy page
+ - gtkdoc: split stuff (eg. datamodel.html) into 1 page for class
+ - gtkdoc: fix api index so that eveyrthing isn't under Z
+ - gtkdoc: show properties & signals!!
+ - lots of documentation missing
+ - make zeitgeist_events_to_variant_with_limit internal?
+ - make utils.* internal?
+ - "introduced result_type_is_sort_order_asc" - add to NEWS or hide it

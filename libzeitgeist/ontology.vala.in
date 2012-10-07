@@ -38,7 +38,7 @@ namespace Zeitgeist
             return symbol.display_name;
         }
 
-        public static unowned string get_description(string symbol_uri)
+        public static unowned string get_description (string symbol_uri)
         {
             initialize_symbols ();
 

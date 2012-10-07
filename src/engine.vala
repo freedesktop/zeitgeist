@@ -97,12 +97,27 @@ public class Engine : DbReader
 
     private void preprocess_event (Event event) throws EngineError
     {
+        if (is_empty_string (event.interpretation)
+            || is_empty_string (event.manifestation)
+            || is_empty_string (event.actor))
+        {
+            throw new EngineError.INVALID_ARGUMENT (
+                "Incomplete event: interpretation, manifestation and actor " +
+                "are required");
+        }
+
         // Iterate through subjects and check for validity
-        for (int i = 0; i < event.num_subjects(); ++i)
+        for (int i = 0; i < event.num_subjects (); ++i)
         {
             unowned Subject subject = event.subjects[i];
 
-            // If current_{uri,origin} is unset, give it the same value as URI
+            if (is_empty_string (subject.uri))
+            {
+                throw new EngineError.INVALID_ARGUMENT (
+                    "Incomplete event: subject without URI");
+            }
+
+            // If current_{uri,origin} are unset, set them to the same as URI
             if (is_empty_string (subject.current_uri))
                 subject.current_uri = subject.uri;
             if (is_empty_string (subject.current_origin))
@@ -234,6 +249,15 @@ public class Engine : DbReader
         storages.flush ();
     }
 
+    private void bind_cached_reference (Sqlite.Statement stmt,
+        int position, TableLookup table, string? value_)
+    {
+        if (value_ != null)
+            stmt.bind_int64 (position, table.id_for_string (value_));
+        else
+            stmt.bind_null (position);
+    }
+
     private uint32 insert_event (Event event) throws EngineError
         requires (event.id == 0)
         requires (event.num_subjects () > 0)
@@ -254,11 +278,11 @@ public class Engine : DbReader
 
         insert_stmt.bind_int64 (1, event.id);
         insert_stmt.bind_int64 (2, event.timestamp);
-        insert_stmt.bind_int64 (3,
-            interpretations_table.id_for_string (event.interpretation));
-        insert_stmt.bind_int64 (4,
-            manifestations_table.id_for_string (event.manifestation));
-        insert_stmt.bind_int64 (5, actors_table.id_for_string (event.actor));
+        bind_cached_reference (insert_stmt, 3, interpretations_table,
+            event.interpretation);
+        bind_cached_reference (insert_stmt, 4, manifestations_table,
+            event.manifestation);
+        bind_cached_reference (insert_stmt, 5, actors_table, event.actor);
         insert_stmt.bind_text (6, event.origin);
         insert_stmt.bind_int64 (7, payload_id);
 
@@ -270,14 +294,14 @@ public class Engine : DbReader
 
             insert_stmt.bind_text (8, subject.uri);
             insert_stmt.bind_text (9, subject.current_uri);
-            insert_stmt.bind_int64 (10,
-                interpretations_table.id_for_string (subject.interpretation));
-            insert_stmt.bind_int64 (11,
-                manifestations_table.id_for_string (subject.manifestation));
+            bind_cached_reference (insert_stmt, 10, interpretations_table,
+                subject.interpretation);
+            bind_cached_reference (insert_stmt, 11, manifestations_table,
+                subject.manifestation);
             insert_stmt.bind_text (12, subject.origin);
             insert_stmt.bind_text (13, subject.current_origin);
-            insert_stmt.bind_int64 (14,
-                mimetypes_table.id_for_string (subject.mimetype));
+            bind_cached_reference (insert_stmt, 14, mimetypes_table,
+                subject.mimetype);
             insert_stmt.bind_text (15, subject.text);
             // FIXME: Consider a storages_table table. Too dangerous?
             insert_stmt.bind_text (16, subject.storage);
@@ -299,11 +323,12 @@ public class Engine : DbReader
                 retrieval_stmt.reset ();
 
                 retrieval_stmt.bind_int64 (1, event.timestamp);
-                retrieval_stmt.bind_int64 (2,
-                    interpretations_table.id_for_string (event.interpretation));
-                retrieval_stmt.bind_int64 (3,
-                    manifestations_table.id_for_string (event.manifestation));
-                retrieval_stmt.bind_int64 (4, actors_table.id_for_string (event.actor));
+                bind_cached_reference (retrieval_stmt, 2,
+                    interpretations_table, event.interpretation);
+                bind_cached_reference (retrieval_stmt, 3,
+                    manifestations_table, event.manifestation);
+                bind_cached_reference (retrieval_stmt, 4,
+                    actors_table, event.actor);
 
                 if ((rc = retrieval_stmt.step ()) != Sqlite.ROW) {
                     database.assert_not_corrupt (rc);

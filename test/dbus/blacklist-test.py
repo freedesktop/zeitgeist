@@ -7,7 +7,7 @@
 # Copyright © 2010 Markus Korn <thekorn@gmx.de>
 # Copyright © 2010 Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 # Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
-# Copyright © 2011 Collabora Ltd.
+# Copyright © 2011-2012 Collabora Ltd.
 #             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -110,9 +110,10 @@ class BlacklistTest(RemoteTestCase):
 	def testApplyBlacklistWithTwoTemplates(self):
 		# Setup an event we'll use to test insertions
 		event = Event.new_for_values(
-			timestamp = 1,
+			timestamp = 0,
 			interpretation=Interpretation.ACCESS_EVENT,
 			manifestation=Manifestation.SCHEDULED_ACTIVITY,
+            actor="actor",
 			subject_uri="blarg")
 
 		# With no blacklisted templates we can insert it without problems
@@ -169,13 +170,17 @@ class BlacklistTest(RemoteTestCase):
 
 		# And check that it works
 		self._assert_insert_blocked(Event.new_for_values(
+			interpretation="a",	manifestation="b", actor="c",
 			subject_uri="New York is a city"))
 		self._assert_insert_allowed(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri="New York is a city NOT"))
 		self._assert_insert_allowed(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri="Do you like cheese?"))
 		self._assert_insert_allowed(Event.new_for_values(
 			interpretation=Interpretation.MOVE_EVENT,
+			manifestation="b", actor="c",
 			subject_uri="kung fu",
 			subject_current_uri="New York is a city"))
 
@@ -189,12 +194,16 @@ class BlacklistTest(RemoteTestCase):
 
 		# And check that the blacklisting works
 		self._assert_insert_blocked(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"çàrßá€"))
 		self._assert_insert_blocked(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"hello"))
 		self._assert_insert_allowed(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"hola"))
 		self._assert_insert_allowed(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"çàrßá"))
 
 	def testApplyBlacklistForEventWithEmptyCurrentURI(self):
@@ -205,11 +214,16 @@ class BlacklistTest(RemoteTestCase):
 		# Blocking the current_uri works
 		self._assert_insert_blocked(Event.new_for_values(
 			interpretation=Interpretation.MOVE_EVENT,
+			manifestation="manifestation",
+			actor="actor",
+			subject_uri="unrelated",
 			subject_current_uri="t"))
 
 		# But if we only set uri (and leave it up to Zeitgeist to set current_uri
 		# to the same value?
-		self._assert_insert_blocked(Event.new_for_values(subject_uri="t"))
+		self._assert_insert_blocked(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
+			subject_uri="t"))
 
 	def testApplyBlacklistWithWildcardInURI(self):
 		# We blacklist some particular URIs
@@ -219,16 +233,22 @@ class BlacklistTest(RemoteTestCase):
 
 		# And check that the blacklisting works
 		self._assert_insert_blocked(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"block me"))
 		self._assert_insert_blocked(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"block me*"))
 		self._assert_insert_blocked(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"block me now"))
 		self._assert_insert_blocked(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"block meß :)"))
 		self._assert_insert_allowed(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"block mNOT"))
 		self._assert_insert_allowed(Event.new_for_values(
+			interpretation="a", manifestation="b", actor="c",
 			subject_uri=u"nblock me"))
 
 	def _get_blacklist_iface(self):
@@ -257,7 +277,7 @@ class BlacklistTest(RemoteTestCase):
 			mainloop = self.create_mainloop()
 
 		template1 = Event.new_for_values(
-			timestamp=0,
+			timestamp=1349453012265,
 			interpretation=Interpretation.ACCESS_EVENT,
 			subject_uri="http://nothingtoseehere.gov")
 
@@ -306,3 +326,5 @@ class BlacklistTest(RemoteTestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
+# vim:noexpandtab:ts=4:sw=4

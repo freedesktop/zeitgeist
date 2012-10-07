@@ -317,3 +317,5 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
+# vim:noexpandtab:ts=4:sw=4

@@ -111,7 +111,7 @@ void foreach_test ()
 
     SimpleResultSet result_set = new SimpleResultSet (events);
     int i = 0;
-    foreach (Event e in result_set) 
+    foreach (Event e in result_set)
     {
         assert_cmpint ((int) e.id, OperatorType.EQUAL, i);
         i++;

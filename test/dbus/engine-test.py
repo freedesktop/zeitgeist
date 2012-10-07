@@ -1,13 +1,13 @@
 #! /usr/bin/python
 # -.- coding: utf-8 -.-
 
-# remote-test.py
+# engine-test.py
 #
 # Copyright © 2009-2011 Seif Lotfy <seif@lotfy.com>
 # Copyright © 2009-2011 Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 # Copyright © 2009-2011 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2011 Markus Korn <thekorn@gmx.de>
-# Copyright © 2011 Collabora Ltd.
+# Copyright © 2011-2012 Collabora Ltd.
 #             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 #             By Seif Lotfy <seif@lotfy.com>
 #
@@ -45,36 +45,12 @@ from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState, DataSource, NULL_EVENT, ResultType)
 
 import testutils
-from testutils import parse_events, import_events
-
-TEST_ACTOR = "/usr/share/applications/gnome-about.desktop"
-
-# FIXME: move this to a .js file
-test_event_1 = None
-def create_test_event_1():
-	ev = Event()
-	ev.timestamp = 0
-	ev.interpretation = Manifestation.USER_ACTIVITY
-	ev.manifestation = Interpretation.CREATE_EVENT
-	ev.actor = TEST_ACTOR
-	subj = Subject()
-	subj.uri = u"test://mytest"
-	subj.manifestation = "lala"
-	subj.interpretation = "tinky winky"
-	subj.origin = "test://"
-	subj.mimetype = "YOMAMA"
-	subj.text = "SUCKS"
-	subj.storage = "MyStorage"
-	subj.current_uri = u"test://mytest"
-
-	ev.append_subject(subj)
-	return ev
-
+from testutils import parse_events, import_events, new_event
 
 class ZeitgeistEngineTest(testutils.RemoteTestCase):
 
 	def testSingleInsertGet(self):
-		test_event_1 = create_test_event_1()
+		test_event_1 = parse_events("test/data/one_event.js")[0]
 		# Insert item and event
 		ids = self.insertEventsAndWait([test_event_1])
 		self.assertEquals(1, len(ids))
@@ -175,7 +151,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		self.assertTrue(events[0].id == events[1].id == 1)
 		
 	def testFindEventsId(self):
-		test_event_1 = create_test_event_1()
+		test_event_1 = parse_events("test/data/one_event.js")[0]
 		self.testSingleInsertGet()
 		result = self.findEventIdsAndWait([])
 		self.assertEquals(1, len(result))
@@ -194,7 +170,8 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		# revision rainct@ubuntu.com-20091128164327-j8ez3fsifd1gygkr (1185)
 		# Fix _build_templates so that it works when the Subject is empty.
 		self.testSingleInsertGet()
-		result = self.findEventIdsAndWait([Event.new_for_values(interpretation=Interpretation.LEAVE_EVENT)])
+		result = self.findEventIdsAndWait([Event.new_for_values(
+			interpretation=Interpretation.LEAVE_EVENT)])
 		self.assertEquals(0, len(result))
 
 	def testFindFive(self):
@@ -244,10 +221,12 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		self.assertEquals(True, event1.timestamp > event2.timestamp)
 	
 	def testFindWithActor(self):
-		test_event_1 = create_test_event_1()
+		test_event_1 = parse_events("test/data/one_event.js")[0]
 		self.testSingleInsertGet()
 		subj = Subject()
-		event_template = Event.new_for_values(actor=TEST_ACTOR, subjects=[subj,])
+		event_template = Event.new_for_values(
+			actor="application://gnome-about.desktop",
+			subjects=[subj,])
 		result = self.findEventIdsAndWait([event_template], num_events = 0, result_type = 1)
 		self.assertEquals(1, len(result))
 		test_event_1[0][0] = 1
@@ -332,8 +311,8 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 	def testGetWithMultipleSubjects(self):
 		subj1 = Subject.new_for_values(uri="file:///tmp/foo.txt")
 		subj2 = Subject.new_for_values(uri="file:///tmp/loo.txt")
-		event_template = Event.new_for_values(subjects=[subj1, subj2])
-		result = self.insertEventsAndWait([event_template])
+		event = new_event(subjects=[subj1, subj2])
+		result = self.insertEventsAndWait([event])
 		events = self.getEventsAndWait(result)
 		self.assertEquals(2, len(events[0].subjects))
 		self.assertEquals("file:///tmp/foo.txt", events[0].subjects[0].uri)
@@ -342,11 +321,12 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 	def testFindEventIdsWithMultipleSubjects(self):
 		subj1 = Subject.new_for_values(uri="file:///tmp/foo.txt")
 		subj2 = Subject.new_for_values(uri="file:///tmp/loo.txt")
-		event = Event.new_for_values(subjects=[subj1, subj2])
+		event = new_event(subjects=[subj1, subj2])
 		orig_ids = self.insertEventsAndWait([event])
-		result_ids = self.findEventIdsAndWait([Event()], num_events = 0, result_type = 1)
-		self.assertEquals(orig_ids, list(result_ids)) #FIXME: We need subjects of the same event to be merged
-		
+		result_ids = self.findEventIdsAndWait([Event()], num_events=0,
+			result_type=ResultType.LeastRecentEvents)
+		self.assertEquals(orig_ids, list(result_ids))
+
 	def testFindEventsEventTemplate(self):
 		import_events("test/data/five_events.js", self)
 		subj = Subject.new_for_values(interpretation="stfu:Bee")
@@ -495,7 +475,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		self.assertEquals(ev.payload, _ev.payload)
 		
 	def testQueryByParent (self):
-		ev = Event.new_for_values(subject_interpretation=Interpretation.AUDIO)
+		ev = new_event(subject_interpretation=Interpretation.AUDIO)
 		_ids = self.insertEventsAndWait([ev])
 		
 		tmpl = Event.new_for_values(subject_interpretation=Interpretation.MEDIA)
@@ -627,8 +607,8 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		
 	def testFindStorageNotExistant(self):
 		events = [
-			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
-			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
+			new_event(timestamp=1000, subject_storage="sometext"),
+			new_event(timestamp=2000, subject_storage="anotherplace")
 		]
 		ids_in = self.insertEventsAndWait(events)
 		template = Event.new_for_values(subject_storage="xxx")
@@ -640,8 +620,8 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 				
 	def testFindStorage(self):
 		events = [
-			Event.new_for_values(timestamp=1000, subject_storage="sometext"),
-			Event.new_for_values(timestamp=2000, subject_storage="anotherplace")
+			new_event(timestamp=1000, subject_storage="sometext"),
+			new_event(timestamp=2000, subject_storage="anotherplace")
 		]
 		ids_in = self.insertEventsAndWait(events)
 		template = Event.new_for_values(subject_storage="sometext")
@@ -900,10 +880,10 @@ class ResultTypeTest(testutils.RemoteTestCase):
 	
 	def testResultTypesOldestActorBug641968(self):
 		events = [
-			Event.new_for_values(timestamp=1, actor="boo", subject_uri="tmp/boo"),
-			Event.new_for_values(timestamp=2, actor="boo", subject_uri="home/boo"),
-			Event.new_for_values(timestamp=3, actor="bar", subject_uri="tmp/boo"),
-			Event.new_for_values(timestamp=4, actor="baz", subject_uri="tmp/boo"),
+			new_event(timestamp=1, actor="boo", subject_uri="tmp/boo"),
+			new_event(timestamp=2, actor="boo", subject_uri="home/boo"),
+			new_event(timestamp=3, actor="bar", subject_uri="tmp/boo"),
+			new_event(timestamp=4, actor="baz", subject_uri="tmp/boo"),
 		]
 		self.insertEventsAndWait(events)
 		
@@ -954,10 +934,10 @@ class ResultTypeTest(testutils.RemoteTestCase):
 		# The same test as before, but this time with fewer events so that
 		# it is actually understandable.
 		events = [
-			Event.new_for_values(timestamp=1, actor="gedit", subject_uri="oldFile"),
-			Event.new_for_values(timestamp=2, actor="banshee", subject_uri="oldMusic"),
-			Event.new_for_values(timestamp=3, actor="banshee", subject_uri="newMusic"),
-			Event.new_for_values(timestamp=4, actor="gedit", subject_uri="newFile"),
+			new_event(timestamp=1, actor="gedit", subject_uri="oldFile"),
+			new_event(timestamp=2, actor="banshee", subject_uri="oldMusic"),
+			new_event(timestamp=3, actor="banshee", subject_uri="newMusic"),
+			new_event(timestamp=4, actor="gedit", subject_uri="newFile"),
 		]
 		self.insertEventsAndWait(events)
 		
@@ -1137,3 +1117,5 @@ class ResultTypeTest(testutils.RemoteTestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
+# vim:noexpandtab:ts=4:sw=4
