@@ -384,6 +384,9 @@ class Subject(list):
 	
 	def __init__(self, data=None):
 		if data:
+			if len(data) == len(Subject.Fields) - 2:
+				# current_origin has been added in Zeitgeist 1.0 Beta 1
+				data.append("")
 			if len(data) == len(Subject.Fields) - 1:
 				# current_uri has been added in Zeitgeist 0.8.0
 				data.append("")
@@ -420,13 +423,15 @@ class Subject(list):
 		:param interpretation: The interpretation type of the subject, given either as a string URI or as a :class:`Interpretation` instance
 		:param manifestation: The manifestation type of the subject, given either as a string URI or as a :class:`Manifestation` instance
 		:param origin: The URI of the location where subject resides or can be found
+		:param current_origin: The URI of the location where subject resides or can be found (if it was moved or deleted).
 		:param mimetype: The mimetype of the subject encoded as a string, if applicable. Eg. *text/plain*.
 		:param text: Free form textual annotation of the subject.
 		:param storage: String identifier for the storage medium of the subject. This should be the UUID of the volume or the string "net" for resources requiring a network interface, and the string "deleted" for subjects that are deleted.
 		"""
 		self = Subject()
 		for key, value in values.iteritems():
-			if not key in ("uri", "current_uri", "interpretation", "manifestation", "origin",
+			if not key in ("uri", "current_uri", "interpretation",
+						"manifestation", "origin", "current_origin",
 						"mimetype", "text", "storage"):
 				raise ValueError("Subject parameter '%s' is not supported" %key)
 			setattr(self, key, value)
@@ -477,7 +482,7 @@ class Subject(list):
 
 	def set_current_origin(self, value):
 		self[Subject.CurrentOrigin] = value
-	origin = property(get_origin, set_origin,
+	current_origin = property(get_current_origin, set_current_origin,
 	doc="Read/write property with the URI of the location where the subject can be found. For files this is the parent directory, or for downloaded files it would be the URL of the page where you clicked the download link")
 
 	def get_mimetype(self):

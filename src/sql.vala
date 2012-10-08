@@ -45,10 +45,13 @@ namespace Zeitgeist.SQLite
         SUBJECT_TEXT,
         SUBJECT_STORAGE,
         SUBJECT_STORAGE_STATE,
-        ORIGIN,
+        EVENT_ORIGIN,
         EVENT_ORIGIN_URI,
         SUBJECT_CURRENT_URI,
         SUBJECT_ID_CURRENT,
+        SUBJECT_TEXT_ID,
+        SUBJECT_STORAGE_ID,
+        ACTOR_URI,
         SUBJECT_CURRENT_ORIGIN,
         SUBJECT_CURRENT_ORIGIN_URI
     }

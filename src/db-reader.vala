@@ -107,7 +107,7 @@ public class DbReader : Object
         subject.current_uri = stmt.column_text (
             EventViewRows.SUBJECT_CURRENT_URI);
         subject.current_origin = stmt.column_text (
-            EventViewRows.SUBJECT_CURRENT_ORIGIN);
+            EventViewRows.SUBJECT_CURRENT_ORIGIN_URI);
         subject.interpretation = interpretations_table.get_value (
             stmt.column_int (EventViewRows.SUBJECT_INTERPRETATION));
         subject.manifestation = manifestations_table.get_value (

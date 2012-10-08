@@ -139,6 +139,14 @@ public class Engine : DbReader
                     "'MOVE_EVENT' then subject.uri and " +
                     "subject.current_uri have to be the same");
             }
+            if (event.interpretation != ZG.MOVE_EVENT
+                && subject.origin != subject.current_origin)
+            {
+                throw new EngineError.INVALID_ARGUMENT (
+                    "Illegal event: unless event.interpretation is " +
+                    "'MOVE_EVENT' then subject.origin and " +
+                    "subject.current_origin have to be the same");
+            }
 
             // If subject manifestation and interpretation are not set,
             // we try to automatically determine them from the other data.
@@ -234,6 +242,8 @@ public class Engine : DbReader
                 uris.add (subject.uri);
                 if (subject.uri != subject.current_uri)
                     uris.add (subject.current_uri);
+                if (subject.origin != subject.current_origin)
+                    uris.add (subject.current_origin);
 
                 if (!is_empty_string (subject.origin))
                     uris.add (subject.origin);

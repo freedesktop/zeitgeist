@@ -68,6 +68,7 @@ def dict2event(d):
 		subj.interpretation = str(sd.get("interpretation", "").encode("UTF-8"))
 		subj.manifestation = str(sd.get("manifestation", "").encode("UTF-8"))
 		subj.origin = str(sd.get("origin", "").encode("UTF-8"))
+		subj.current_origin = str(sd.get("current_origin", "")).encode("UTF-8")
 		subj.mimetype = str(sd.get("mimetype", "").encode("UTF-8"))
 		subj.text = str(sd.get("text", "").encode("UTF-8"))
 		subj.storage = str(sd.get("storage", "").encode("UTF-8"))
@@ -409,6 +410,8 @@ class RemoteTestCase (unittest.TestCase):
 		for subject in ev.subjects:
 			if not subject.current_uri:
 				subject.current_uri = subject.uri
+			if not subject.current_origin:
+				subject.current_origin = subject.origin
 		popo = []
 		popo.append(map(unicode, ev[0]))
 		popo.append([map(unicode, subj) for subj in ev[1]])

@@ -857,7 +857,7 @@ namespace Zeitgeist
                 return false;
             if (!check_field_match (this.origin, template_subject.origin, false, true))
                 return false;
-            if (!check_field_match (this.current_uri, template_subject.current_origin, false, true))
+            if (!check_field_match (this.current_origin, template_subject.current_origin, false, true))
                 return false;
             if (!check_field_match (this.mimetype, template_subject.mimetype, false, true))
                 return false;
