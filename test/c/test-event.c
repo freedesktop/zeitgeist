@@ -104,7 +104,7 @@ test_create_full (Fixture *fix, gconstpointer data)
   g_assert_cmpstr ("http://example.com", ==, zeitgeist_subject_get_origin (su));
   g_assert_cmpstr ("example.com", ==, zeitgeist_subject_get_text (su));
   g_assert_cmpstr ("net", ==, zeitgeist_subject_get_storage (su));
-  g_assert_cmpstr ("", ==, zeitgeist_subject_get_current_uri (su));
+  g_assert (NULL == zeitgeist_subject_get_current_uri (su));
 
   su = zeitgeist_event_get_subject (ev, 1);
   g_assert (zeitgeist_subject_get_uri(su) == NULL);

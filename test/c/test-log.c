@@ -117,7 +117,7 @@ _on_events_received (ZeitgeistLog *log,
                                (GAsyncReadyCallback) _on_events_deleted,
                                expected_events);
 
-  g_object_unref (events);
+  g_ptr_array_unref (events);
 }
 
 static void

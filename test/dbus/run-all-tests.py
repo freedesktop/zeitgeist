@@ -5,7 +5,7 @@
 #
 # Copyright © 2009 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
 # Copyright © 2009-2010 Markus Korn <thekorn@gmx.de>
-# Copyright © 2011 Collabora Ltd.
+# Copyright © 2011-2012 Collabora Ltd.
 #             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -27,9 +27,19 @@ import logging
 import sys
 
 from optparse import OptionParser
-from testutils import RemoteTestCase
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+if not os.path.isfile("NEWS"):
+    print >> sys.stderr, "*** Please run from root directory."
+    raise SystemExit
+
+# Load the updated Zeitgeist Python module
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
+
+if not os.path.isdir("zeitgeist"):
+	print >> sys.stderr, "*** If you get unexpected failures, " \
+		"you may want to run: `ln -s python zeitgeist`"
+
+from testutils import RemoteTestCase
 
 # Find the test/ directory
 TESTDIR = os.path.dirname(os.path.abspath(__file__))
@@ -104,3 +114,5 @@ if __name__ == "__main__":
 		unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
 	finally:
 		bus.quit(ignore_errors=True)
+
+# vim:noexpandtab:ts=4:sw=4

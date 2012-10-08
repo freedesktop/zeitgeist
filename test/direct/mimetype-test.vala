@@ -1,6 +1,6 @@
 /* where-clause-test.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  * Copyright © 2010 Canonical, Ltd.
  *             By Mikkel Kamstrup Erlandsen <mikkel.kamstrup@canonical.com>
@@ -30,6 +30,7 @@ int main (string[] args)
     Test.add_func ("/MimeType/basic", mime_type_basic_test);
     Test.add_func ("/MimeType/regex", mime_type_regex_test);
     Test.add_func ("/MimeType/none", mime_type_none_test);
+    Test.add_func ("/MimeType/null", mime_type_null_test);
     Test.add_func ("/MimeType/register", mime_type_registration_test);
 
     Test.add_func ("/UriScheme/basic", uri_scheme_basic_test);
@@ -59,6 +60,11 @@ public void mime_type_regex_test ()
 public void mime_type_none_test ()
 {
     assert (interpretation_for_mimetype ("foo/bar") == null);
+}
+
+public void mime_type_null_test ()
+{
+    assert (interpretation_for_mimetype (null) == null);
 }
 
 public void mime_type_registration_test ()

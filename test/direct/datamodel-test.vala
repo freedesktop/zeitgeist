@@ -49,7 +49,7 @@ void matches_template_anything_test ()
     assert (event.matches_template (templ));
 
     var subject2 = new Subject.full ("uri", "interp", "manif", "mimetype",
-        "origin", "text", "storage", "current_uri");
+        "origin", "text", "storage");
     event.add_subject (subject2);
 
     // Test with two subjects

@@ -249,3 +249,5 @@ SCHEMES = tuple((
     ("davs://", Manifestation.REMOTE_DATA_OBJECT),
     ("smb://", Manifestation.REMOTE_DATA_OBJECT),
 ))
+
+# vim:noexpandtab:ts=4:sw=4

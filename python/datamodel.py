@@ -375,10 +375,12 @@ class Subject(list):
 		Mimetype,
 		Text,
 		Storage,
-		CurrentUri) = range(8)
+		CurrentUri,
+        CurrentOrigin) = range(9)
 		
-	SUPPORTS_NEGATION = (Uri, CurrentUri, Interpretation, Manifestation, Origin, Mimetype)
-	SUPPORTS_WILDCARDS = (Uri, CurrentUri, Origin, Mimetype)
+	SUPPORTS_NEGATION = (Uri, CurrentUri, Interpretation, Manifestation,
+		Origin, CurrentOrigin, Mimetype)
+	SUPPORTS_WILDCARDS = (Uri, CurrentUri, Origin, CurrentOrigin, Mimetype)
 	
 	def __init__(self, data=None):
 		if data:
@@ -400,8 +402,8 @@ class Subject(list):
 	
 	def __eq__(self, other):
 		for field in Subject.Fields:
-			if field is Subject.CurrentUri and not self[field] or \
-			not other[field]:
+			if field in (Subject.CurrentUri, Subject.CurrentOrigin) and \
+			not self[field] or not other[field]:
 				continue
 			if self[field] != other[field]:
 				return False
@@ -469,7 +471,15 @@ class Subject(list):
 		self[Subject.Origin] = value
 	origin = property(get_origin, set_origin,
 	doc="Read/write property with the URI of the location where the subject can be found. For files this is the parent directory, or for downloaded files it would be the URL of the page where you clicked the download link")
-		
+
+	def get_current_origin(self):
+		return self[Subject.CurrentOrigin]
+
+	def set_current_origin(self, value):
+		self[Subject.CurrentOrigin] = value
+	origin = property(get_origin, set_origin,
+	doc="Read/write property with the URI of the location where the subject can be found. For files this is the parent directory, or for downloaded files it would be the URL of the page where you clicked the download link")
+
 	def get_mimetype(self):
 		return self[Subject.Mimetype]
 		
@@ -1083,6 +1093,14 @@ class ResultType(_Enumeration):
 		"different origin, ordered by the popularity of the origins")
 	LeastPopularEventOrigin = EnumValue(30, "The last event of each "
 		"different origin, ordered ascendingly by the popularity of the origin")
+	MostRecentCurrentOrigin = EnumValue(31,
+		"The last event of each different subject origin")
+	LeastRecentCurrentOrigin = EnumValue(32, "The last event of each different "
+		"subject origin, ordered by least recently used first")
+	MostPopularCurrentOrigin = EnumValue(33, "The last event of each different "
+		"subject origin, ordered by the popularity of the origins")
+	LeastPopularCurrentOrigin = EnumValue(34, "The last event of each different "
+		"subject origin, ordered ascendingly by the popularity of the origin")
 
 	# We should eventually migrate over to those names to disambiguate
 	# subject origin and event origin:
@@ -1180,3 +1198,5 @@ if __name__ == "__main__":
 	print "Success"
 	end_symbols = time.time()
 	print >> sys.stderr, "Import time: %s" % (end_symbols - start_symbols)
+
+# vim:noexpandtab:ts=4:sw=4

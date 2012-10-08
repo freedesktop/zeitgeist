@@ -1099,3 +1099,5 @@ class ZeitgeistClient:
 
 _FIND_EVENTS_FOR_TEMPLATES_ARGS = inspect.getargspec(
 	ZeitgeistClient.find_events_for_templates)[0]
+
+# vim:noexpandtab:ts=4:sw=4

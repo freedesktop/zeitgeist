@@ -466,10 +466,7 @@ namespace Zeitgeist
             assert_sig (event_props >= 5, "Missing event information.");
             id = (uint32) uint64.parse (event_array.next_value().get_string ());
             var str_timestamp = event_array.next_value().get_string ();
-            if (str_timestamp == "")
-                timestamp = Timestamp.from_now ();
-            else
-                timestamp = int64.parse (str_timestamp);
+            timestamp = int64.parse (str_timestamp);
             interpretation = next_string_or_null (event_array);
             manifestation = next_string_or_null (event_array);
             actor = next_string_or_null (event_array);
@@ -575,6 +572,10 @@ namespace Zeitgeist
                                s.mimetype, s.origin, s.text, s.current_uri,
                                s.current_origin, s.storage);
             }
+            if (payload != null)
+                stdout.printf ("payload: %u bytes", payload.len);
+            else
+                stdout.printf ("payload: (null)\n");
         }
 
 
@@ -810,7 +811,7 @@ namespace Zeitgeist
         public Variant to_variant ()
         {
             /* The FAST version */
-            char* ptr_arr[8];
+            char* ptr_arr[9];
             ptr_arr[0] = uri != null ? uri : "";
             ptr_arr[1] = interpretation != null ? interpretation : "";
             ptr_arr[2] = manifestation != null ? manifestation : "";

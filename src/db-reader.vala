@@ -785,6 +785,22 @@ public class DbReader : Object
                             "subj_id_current", val, negated);
                 }
 
+                // Current Origin
+                if (!is_empty_string (subject_template.current_origin))
+                {
+                    string val = subject_template.current_origin;
+                    bool like = parse_wildcard (ref val);
+                    bool negated = parse_negation (ref val);
+                    assert_no_noexpand (val, "subject current_origin");
+
+                    if (like)
+                        where.add_wildcard_condition (
+                            "subj_current_origin", val, negated);
+                    else
+                        where.add_text_condition_subquery (
+                            "subj_current_origin", val, negated);
+                }
+
                 // Subject storage
                 if (!is_empty_string (subject_template.storage))
                 {

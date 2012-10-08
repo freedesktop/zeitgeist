@@ -59,7 +59,7 @@ void create_full_test ()
 {
     var ev = new Event.full (
         ZG.ACCESS_EVENT, ZG.USER_ACTIVITY, "application://firefox.desktop", null);
-    ev.add_subject (new Subject.full ("http://example.com",
+    ev.take_subject (new Subject.full ("http://example.com",
             NFO.WEBSITE, NFO.REMOTE_DATA_OBJECT,
             "text/html", "http://example.com", "example.com", "net"));
     ev.add_subject (new Subject ());
@@ -185,11 +185,12 @@ void from_variant_with_new_fields_test ()
         b.add ("s", "file:///tmp/foo.txt");
         b.add ("s", NFO.DOCUMENT);
         b.add ("s", NFO.FILE_DATA_OBJECT);
-        b.add ("s", "file://tmp");
+        b.add ("s", "file:///tmp");
         b.add ("s", "text/plain");
         b.add ("s", "foo.text");
         b.add ("s", "36e5604e-7e1b-4ebd-bb6a-184c6ea99627");
         b.add ("s", "file:///tmp/current.txt");
+        b.add ("s", "file:///tmp1");
         b.close ();
     b.close ();
 
@@ -224,10 +225,11 @@ void from_variant_with_new_fields_test ()
     assert_cmpstr (su.interpretation, OperatorType.EQUAL, NFO.DOCUMENT);
     assert_cmpstr (su.manifestation, OperatorType.EQUAL, NFO.FILE_DATA_OBJECT);
     assert_cmpstr (su.mimetype, OperatorType.EQUAL, "text/plain");
-    assert_cmpstr (su.origin, OperatorType.EQUAL, "file://tmp");
+    assert_cmpstr (su.origin, OperatorType.EQUAL, "file:///tmp");
     assert_cmpstr (su.text, OperatorType.EQUAL, "foo.text");
     assert_cmpstr (su.storage, OperatorType.EQUAL, "36e5604e-7e1b-4ebd-bb6a-184c6ea99627");
     assert_cmpstr (su.current_uri, OperatorType.EQUAL, "file:///tmp/current.txt");
+    assert_cmpstr (su.current_origin, OperatorType.EQUAL, "file:///tmp1");
 
     var payload = ev.payload;
     assert (payload != null);
@@ -252,7 +254,7 @@ void empty_to_from_variant_test ()
     }
 
     assert (marshalled.id == 0);
-    //assert (marshalled.timestamp == orig.timestamp); // FIXME
+    assert (marshalled.timestamp == orig.timestamp);
     assert_cmpstr (marshalled.interpretation, OperatorType.EQUAL, null);
     assert_cmpstr (marshalled.manifestation, OperatorType.EQUAL, null);
     assert_cmpstr (marshalled.actor, OperatorType.EQUAL, null);
@@ -264,13 +266,11 @@ void empty_to_from_variant_test ()
 void with_one_subject_to_from_variant_test ()
 {
     var orig = new Event.full (
-        ZG.ACCESS_EVENT, ZG.USER_ACTIVITY, "application://firefox.desktop", null,
-        null);
-    orig.add_subject (new Subject.full ("http://example.com",
-            NFO.WEBSITE, NFO.REMOTE_DATA_OBJECT,
-            "text/html", "http://example.com", "example.com", "net"));
-    // event origin and current URI
-    orig.origin = "origin";
+        ZG.ACCESS_EVENT, ZG.USER_ACTIVITY,
+        "application://firefox.desktop", "origin");
+    orig.take_subject (new Subject.full ("http://example.com",
+        NFO.WEBSITE, NFO.REMOTE_DATA_OBJECT,
+        "text/html", "http://example.com", "example.com", "net"));
     orig.subjects[0].current_uri = "http://current-example.com";
 
     var payload = new ByteArray ();
@@ -278,11 +278,9 @@ void with_one_subject_to_from_variant_test ()
     payload.append (byte);
     orig.payload = payload;
 
-    Variant to_var = orig.to_variant ();
-    var marshalled = new Event.from_variant (to_var);
+    var marshalled = new Event.from_variant (orig.to_variant ());
 
     assert (marshalled.id == 0);
-    //assert (marshalled.timestamp == 0);
     assert_cmpstr (marshalled.interpretation, OperatorType.EQUAL, ZG.ACCESS_EVENT);
     assert_cmpstr (marshalled.manifestation, OperatorType.EQUAL, ZG.USER_ACTIVITY);
     assert_cmpstr (marshalled.actor, OperatorType.EQUAL, "application://firefox.desktop");

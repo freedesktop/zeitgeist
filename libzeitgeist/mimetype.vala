@@ -136,9 +136,12 @@ namespace Zeitgeist
      * @return A URI defining the subject interpretation type associated with
      *     "mimetype" or %NULL in case "mimetype" is unknown
      */
-    public unowned string? interpretation_for_mimetype (string mimetype)
+    public unowned string? interpretation_for_mimetype (string? mimetype)
     {
         ensure_mimetypes_loaded ();
+
+        if (mimetype == null)
+            return null;
 
         unowned string? interpretation = mimetypes.lookup (mimetype);
         if (interpretation != null)
