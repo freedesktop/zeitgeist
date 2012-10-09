@@ -11,6 +11,7 @@
 				"interpretation" : "stfu:Bar",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
+				"current_origin" : "http://www.google.de",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
@@ -28,6 +29,7 @@
 				"interpretation" : "stfu:Bar",
 				"manifestation" : "stfu:File",
 				"origin" : "file:///tmp",
+				"current_origin" : "file:///home/",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"

@@ -415,9 +415,10 @@ public class Engine : DbReader
             unowned Sqlite.Statement move_stmt = database.move_handling_stmt;
             move_stmt.reset();
             move_stmt.bind_text (1, subject.current_uri);
-            move_stmt.bind_text (2, subject.uri);
-            move_stmt.bind_text (3, event.interpretation);
-            move_stmt.bind_int64 (4, event.timestamp);
+            move_stmt.bind_text (2, subject.current_origin);
+            move_stmt.bind_text (3, subject.uri);
+            move_stmt.bind_text (4, event.interpretation);
+            move_stmt.bind_int64 (5, event.timestamp);
             if ((rc = move_stmt.step()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)
                 {

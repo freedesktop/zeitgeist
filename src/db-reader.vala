@@ -249,6 +249,18 @@ public class DbReader : Object
             case ResultType.LEAST_POPULAR_ORIGIN:
                 sql += group_and_sort ("subj_origin", where_sql, true);
                 break;
+            case ResultType.MOST_RECENT_CURRENT_ORIGIN:
+                sql += group_and_sort ("subj_origin_current", where_sql);
+                break;
+            case ResultType.LEAST_RECENT_CURRENT_ORIGIN:
+                sql += group_and_sort ("subj_origin_current", where_sql);
+                break;
+            case ResultType.MOST_POPULAR_CURRENT_ORIGIN:
+                sql += group_and_sort ("subj_origin_current", where_sql, false);
+                break;
+            case ResultType.LEAST_POPULAR_CURRENT_ORIGIN:
+                sql += group_and_sort ("subj_origin_current", where_sql, true);
+                break;
             case ResultType.MOST_RECENT_SUBJECT_INTERPRETATION:
                 sql += group_and_sort ("subj_interpretation", where_sql);
                 break;

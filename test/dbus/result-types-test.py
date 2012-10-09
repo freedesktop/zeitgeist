@@ -192,8 +192,52 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularCurrentUri)
 		events = self.getEventsAndWait(ids)
 		self.assertEquals([e.timestamp for e in events],
-			["153", "123", "200"]) #Zeitgeist 0.8 does this test wrong.
-				#This is the expected results
+			["153", "123", "200"])
+
+	def testResultTypesMostRecentCurrentOrigin(self):
+		import_events("test/data/five_events.js", self)
+		import_events("test/data/five_events_ext_move.js", self)
+
+		ids = self.findEventIdsAndWait([],
+			num_events=0,
+			result_type=ResultType.MostRecentCurrentOrigin)
+		events = self.getEventsAndWait(ids)
+
+		self.assertEquals([e.timestamp for e in events],
+			["200", "163", "153", "123"])
+
+	def testResultTypesLeastRecentCurrentOrigin(self):
+		import_events("test/data/five_events.js", self)
+		import_events("test/data/five_events_ext_move.js", self)
+
+		ids = self.findEventIdsAndWait([],
+			num_events=0,
+			result_type=ResultType.LeastRecentCurrentOrigin)
+		events = self.getEventsAndWait(ids)
+		self.assertEquals([e.timestamp for e in events],
+			["123", "153", "163", "200"])
+
+	def testResultTypesMostPopularCurrentOrigin(self):
+		import_events("test/data/five_events.js", self)
+		import_events("test/data/five_events_ext_move.js", self)
+
+		ids = self.findEventIdsAndWait([],
+			num_events=0,
+			result_type=ResultType.MostPopularCurrentOrigin)
+		events = self.getEventsAndWait(ids)
+		self.assertEquals([e.timestamp for e in events],
+			["200", "123", "163", "153"])
+
+	def testResultTypesLeastPopularCurrentOrigin(self):
+		import_events("test/data/five_events.js", self)
+		import_events("test/data/five_events_ext_move.js", self)
+
+		ids = self.findEventIdsAndWait([],
+			num_events=0,
+			result_type=ResultType.LeastPopularCurrentOrigin)
+		events = self.getEventsAndWait(ids)
+		self.assertEquals([e.timestamp for e in events],
+			["153", "163", "123", "200"])
 
 	def testResultTypesMostRecentActor(self):
 		import_events("test/data/twenty_events.js", self)

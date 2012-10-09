@@ -430,6 +430,7 @@ namespace Zeitgeist.SQLite
             sql = """
             UPDATE event
                 SET subj_id_current=(SELECT id FROM uri WHERE value=?)
+                ,   subj_origin_current=(SELECT id FROM uri WHERE value=?)
                     WHERE subj_id_current=(SELECT id FROM uri WHERE value=?)
                     AND interpretation!=? AND timestamp<?
             """;

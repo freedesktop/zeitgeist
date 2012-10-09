@@ -9,7 +9,7 @@
 				"uri" : "http://www.google.de",
 				"interpretation" : "stfu:Document",
 				"manifestation" : "stfu:File",
-				"origin" : "file:///tmp",
+				"origin" : "http://www.google.de",
 				"mimetype" : "meat/raw",
 				"text" : "this item has not text... rly!",
 				"storage" : "368c991f-8b59-4018-8130-3ce0ec944157"
