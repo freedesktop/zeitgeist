@@ -864,10 +864,10 @@ public class DbReader : Object
     /**
      * If the value ends with the wildcard character, throw an error.
      */
-    protected void assert_no_wildcard (string field, string val)
+    protected void assert_no_wildcard (string field, string? val)
         throws EngineError
     {
-        if (!val.has_suffix ("*"))
+        if (val == null || !val.has_suffix ("*"))
             return;
         string error_message =
             "Field '%s' doesn't support prefix search".printf (field);
