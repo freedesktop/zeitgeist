@@ -24,29 +24,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
-import os
-import sys
-import logging
 import signal
-import time
-import tempfile
-import shutil
-import pickle
-from subprocess import Popen, PIPE
-
-# DBus setup
-import gobject
-from dbus.mainloop.glib import DBusGMainLoop
-DBusGMainLoop(set_as_default=True)
-from dbus.exceptions import DBusException
 
 from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState, DataSource, NULL_EVENT, ResultType)
 
 import testutils
 from testutils import parse_events, import_events
-
 
 class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 
@@ -522,6 +506,6 @@ class ZeitgeistRemotePropertiesTest(testutils.RemoteTestCase):
 
 
 if __name__ == "__main__":
-	unittest.main()
+	testutils.run()
 
 # vim:noexpandtab:ts=4:sw=4

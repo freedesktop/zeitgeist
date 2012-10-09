@@ -403,7 +403,7 @@ class RemoteTestCase (unittest.TestCase):
 	def get_plain_event(ev):
 		"""
 		Ensure that an Event instance is a Plain Old Python Object (popo),
-		without DBus wrappings etc.
+		without DBus wrappings, etc.
 		"""
 		if not ev:
 			return NULL_EVENT
@@ -475,5 +475,8 @@ class DBusPrivateMessageBus(object):
 			if ignore_errors:
 				return e
 			raise
+
+def run():
+	unittest.main()
 
 # vim:noexpandtab:ts=4:sw=4

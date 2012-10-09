@@ -804,6 +804,7 @@ public class DbReader : Object
                 // Subject storage
                 if (!is_empty_string (subject_template.storage))
                 {
+                    // FIXME: do we want to support negation?
                     string val = subject_template.storage;
                     assert_no_negation ("subject storage", val);
                     assert_no_wildcard ("subject storage", val);

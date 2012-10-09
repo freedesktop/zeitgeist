@@ -93,3 +93,4 @@ test/c/test-monitor
 test/c/test-symbols
 test/c/test-timerange
 test/c/test-timestamp
+test/direct/*-test
