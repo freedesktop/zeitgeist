@@ -110,6 +110,8 @@ namespace Zeitgeist.SQLite
             // When we fetch an event, it either was already in the database
             // at the time Zeitgeist started or it was inserted later -using
             // Zeitgeist-, so here we always have the data in memory already.
+            if (id == 0)
+                return null;
             unowned string val = id_to_value.lookup (id);
             if (val != null) return val;
 

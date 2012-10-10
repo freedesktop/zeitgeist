@@ -125,27 +125,30 @@ namespace Zeitgeist.SQLite
                     exec_query (database, "DROP TABLE %s_old".printf (table));
                 }
 
-                if (schema_version == 3)
-                {
-                    // Migrate events from the old table
-                    //  - We initialize subj_origin_current to subj_origin as an
-                    //    approximation.
-                    //    FIXME: consider replaying MOVE_EVENTs to fix this
-                    exec_query (database, """
-                        INSERT INTO event
-                        SELECT
-                            id, timestamp, interpretation, manifestation,
-                            actor, payload, subj_id, subj_interpretation,
-                            subj_manifestation, subj_origin, subj_mimetype,
-                            subj_text, subj_storage, NULL as origin,
-                            subj_id AS subj_id_current,
-                            subj_origin AS subj_origin_current
-                         FROM event_old
-                         """);
 
-                    // This will also drop any triggers the `events' table had
-                    exec_query (database, "DROP TABLE event_old");
-                }
+                // Migrate events from the old table
+                //  - We initialize subj_origin_current to subj_origin as an
+                //    approximation.
+                //    FIXME: consider replaying MOVE_EVENTs to fix this
+                exec_query (database, """
+                    INSERT INTO event
+                    SELECT
+                        id, timestamp, interpretation, manifestation,
+                        actor, payload, subj_id, subj_interpretation,
+                        subj_manifestation, subj_origin, subj_mimetype,
+                        subj_text, subj_storage, NULL as origin,
+                        subj_id AS subj_id_current,
+                        subj_origin AS subj_origin_current
+                     FROM event_old WHERE id IS NOT NULL
+                        AND timestamp IS NOT NULL
+                        AND interpretation IS NOT NULL
+                        AND manifestation IS NOT NULL
+                        AND actor IS NOT NULL
+                        and subj_id IS NOT NULL
+                     """);
+
+                // This will also drop any triggers the `events' table had
+                exec_query (database, "DROP TABLE event_old");
 
                 // Ontology update
                 exec_query (database,
