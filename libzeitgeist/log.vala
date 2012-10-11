@@ -92,13 +92,14 @@ public class Log : QueuedProxyWrapper
     protected override void on_connection_lost () {
     }
 
-    /*
-    public async void insert_events_valist (Cancellable? cancellable=null,
-        va_list events) throws Error
+    public async void insert_event_no_reply (Event event)
+        throws Error
     {
-        Event event = events.arg ();
+        GenericArray<Event> events = new GenericArray<Event> ();
+        events.add (event);
+        yield wait_for_proxy ();
+        yield proxy.insert_events (Events.to_variant (events), null);
     }
-    */
 
     public async void insert_events_no_reply (GenericArray<Event> events)
         throws Error
@@ -107,7 +108,19 @@ public class Log : QueuedProxyWrapper
         yield proxy.insert_events (Events.to_variant (events), null);
     }
 
-    // FIXME: make variadic
+    public async Array<uint32> insert_event (Event event,
+        Cancellable? cancellable=null) throws Error
+    {
+        GenericArray<Event> events = new GenericArray<Event> ();
+        events.add (event);
+        yield wait_for_proxy ();
+        uint32[] ids = yield proxy.insert_events (Events.to_variant (events), cancellable);
+        Array<uint32> _ids = new Array<uint32> ();
+        for (int i=0; i<ids.length; i++)
+            _ids.append_val (ids[i]);
+        return _ids;
+    }
+
     public async Array<uint32> insert_events (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
@@ -117,12 +130,6 @@ public class Log : QueuedProxyWrapper
         for (int i=0; i<ids.length; i++)
             _ids.append_val (ids[i]);
         return _ids;
-    }
-
-    public async Array<uint32> insert_events_from_ptrarray (GenericArray<Event> events,
-        Cancellable? cancellable=null) throws Error
-    {
-        return yield insert_events (events, cancellable);
     }
 
     public async ResultSet find_events (
