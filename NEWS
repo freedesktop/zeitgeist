@@ -30,6 +30,7 @@ libzeitgeist2 has some API differences:
  - Added an actor parameter to the event_new_full constructor.
  - Added a zeitgeist_subject_new_move_event constructor.
  - Added a GError parameter to several functions involving variants.
+ - Renamed insert_events_from_ptrarray* to insert_events*.
  - Renamed timestamp_for_now to timestamp_now.
  - Renamed data_source_is_enabled to data_source_get_enabled.
  - Renamed the "connected" property to "is-connected".
@@ -38,6 +39,8 @@ libzeitgeist2 has some API differences:
  - Introduced zeitgeist_{event,subject}_matches_template.
  - Introduced zeitgeist_event_take_subject.
  - Introduced zeitgeist_time_range_intersect.
+ - Introduced insert_event and insert_event_no_reply.
+ - Removed insert_events (variadic version) and insert_events_valist.
  - Removed event_new_full_valist and events_from_valist.
  - Removed time_range_get_{start,end}_iso8601.
 

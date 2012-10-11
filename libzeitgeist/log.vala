@@ -95,30 +95,21 @@ public class Log : QueuedProxyWrapper
     public async void insert_event_no_reply (Event event)
         throws Error
     {
-        GenericArray<Event> events = new GenericArray<Event> ();
-        events.add (event);
-        yield wait_for_proxy ();
-        yield proxy.insert_events (Events.to_variant (events), null);
+        yield insert_event (event);
     }
 
     public async void insert_events_no_reply (GenericArray<Event> events)
         throws Error
     {
-        yield wait_for_proxy ();
-        yield proxy.insert_events (Events.to_variant (events), null);
+        yield insert_events (events);
     }
 
     public async Array<uint32> insert_event (Event event,
         Cancellable? cancellable=null) throws Error
     {
-        GenericArray<Event> events = new GenericArray<Event> ();
+        var events = new GenericArray<Event> ();
         events.add (event);
-        yield wait_for_proxy ();
-        uint32[] ids = yield proxy.insert_events (Events.to_variant (events), cancellable);
-        Array<uint32> _ids = new Array<uint32> ();
-        for (int i=0; i<ids.length; i++)
-            _ids.append_val (ids[i]);
-        return _ids;
+        return yield insert_events (events, cancellable);
     }
 
     public async Array<uint32> insert_events (GenericArray<Event> events,
@@ -126,10 +117,12 @@ public class Log : QueuedProxyWrapper
     {
         yield wait_for_proxy ();
         uint32[] ids = yield proxy.insert_events (Events.to_variant (events), cancellable);
-        Array<uint32> _ids = new Array<uint32> ();
-        for (int i=0; i<ids.length; i++)
-            _ids.append_val (ids[i]);
-        return _ids;
+        var result = new Array<uint32> ();
+        // Ideally we'd just place "(owned) ids" into the GArray, but .data isn't
+        // in the Vala bindings...
+        for (int i = 0; i < ids.length; ++i)
+            result.append_val (ids[i]);
+        return result;
     }
 
     public async ResultSet find_events (
