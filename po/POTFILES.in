@@ -1,3 +1,6 @@
 [encoding: UTF-8]
 # List of source files which contain translatable strings.
 src/zeitgeist-daemon.vala
+tools/zeitgeist-explorer/details.py
+tools/zeitgeist-explorer/ontology.py
+
