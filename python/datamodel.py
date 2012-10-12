@@ -385,12 +385,12 @@ class Subject(list):
 	def __init__(self, data=None):
 		if data:
 			if len(data) == len(Subject.Fields) - 2:
-				# current_origin has been added in Zeitgeist 1.0 Beta 1
-				data.append("")
-			if len(data) == len(Subject.Fields) - 1:
 				# current_uri has been added in Zeitgeist 0.8.0
 				data.append("")
-			if len(data) != len(Subject.Fields):
+			if len(data) == len(Subject.Fields) - 1:
+				# current_origin has been added in Zeitgeist 1.0 Beta 1
+				data.append("")
+			if len(data) < len(Subject.Fields):
 				raise ValueError(
 					"Invalid subject data length %s, expected %s" \
 					%(len(data), len(Subject.Fields)))
@@ -634,7 +634,7 @@ class Event(list):
 		if len(event_data) == len(cls.Fields) - 1:
 			# Old versions of Zeitgeist didn't have the event origin field.
 			event_data.append("")
-		if len(event_data) != len(cls.Fields):
+		if len(event_data) < len(cls.Fields):
 			raise ValueError("event_data must have %s members, found %s" % \
 				(len(cls.Fields), len(event_data)))
 		return event_data
