@@ -1,0 +1,186 @@
+#! /usr/bin/env python
+# -.- coding: utf-8 -.-
+#
+# Zeitgeist Explorer
+#
+# Copyright © 2011-2012 Collabora Ltd.
+#             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+# Copyright © 2010 Siegfried Gevatter <siegfried@gevatter.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import gtk
+import gobject
+
+from zeitgeist.datamodel import Event, Subject, Interpretation, Manifestation, \
+	ResultType
+
+import remote
+import details
+from widgets import DateTimeSelector
+
+class MainWindow(gtk.Window):
+
+	_main_box = None
+	_filter_box = None
+	_event_list = None
+	_remote = None
+
+	_start_date = None
+	_end_date = None
+	_result_type = None
+
+	def __init__(self):
+		super(MainWindow, self).__init__()
+		self.connect('destroy', gtk.main_quit)
+		self.set_title(_('Zeitgeist Explorer'))
+		self.set_size_request(700, 400)
+		self._remote = remote.get_interface()
+
+		self._main_box = gtk.VBox()
+		self.add(self._main_box)
+
+		self._filter_box = gtk.Expander(_('Query'))
+		self._filter_box.set_expanded(False)
+		self._main_box.pack_start(self._filter_box, False)
+
+		self._create_filter_box()
+
+		separator = gtk.HSeparator()
+		separator.set_size_request(-1, 15)
+		self._main_box.pack_start(separator, False)
+
+		self._event_list = MainTreeView()
+		sw = gtk.ScrolledWindow()
+		sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		sw.add(self._event_list)
+		self._main_box.pack_start(sw)
+
+		self.show_all()
+		self._refresh()
+
+	def _create_filter_box(self):
+		self._filter_vbox = gtk.VBox()
+		self._filter_box.add(self._filter_vbox)
+
+		def create_label(label):
+			label_widget = gtk.Label(label)
+			label_widget.set_size_request(100, -1)
+			return label_widget
+
+		def add_property(label, other_widget):
+			timestamp_box = gtk.HBox()
+			timestamp_box.pack_start(create_label(label), False)
+			timestamp_box.pack_start(other_widget, False)
+			self._filter_vbox.add(timestamp_box)
+
+		self._start_date = DateTimeSelector()
+		self._end_date = DateTimeSelector()
+		add_property(_('Start date:'), self._start_date)
+		add_property(_('End date:'), self._end_date)
+
+		result_types_model = gtk.ListStore(str, str)
+		self._result_type = gtk.ComboBox(result_types_model)
+		cell_renderer = gtk.CellRendererText()
+		self._result_type.pack_start(cell_renderer, True)
+		self._result_type.add_attribute(cell_renderer, 'text', 0)
+		add_property(_('Result type:'), self._result_type)
+
+		for i, (result_type, number) in enumerate(ResultType.iteritems()):
+			result_types_model.append((result_type, number))
+			if number == ResultType.MostRecentEvents:
+				self._result_type.set_active(i)
+
+		refresh = gtk.Button(stock=gtk.STOCK_REFRESH)
+		refresh.connect('clicked', self._refresh)
+		self._filter_vbox.pack_start(refresh, False)
+
+	def _refresh(self, *discard):
+		self._remote.find_events_for_templates ([], self._populate_list,
+			num_events=100, result_type=ResultType.MostRecentEvents)
+
+	def _populate_list(self, events):
+		self._event_list.set_events(events)
+		return False
+
+class MainTreeView(gtk.TreeView):
+
+	_store = None
+
+	def __init__(self):
+		super(MainTreeView, self).__init__()
+
+		# TODO: It may make sense to use GenericTreeModel here.
+		self._store = gtk.TreeStore(str, str, str, gobject.TYPE_PYOBJECT)
+		self.set_model(self._store)
+		self.set_search_column(0)
+
+		col = self._create_column(_('Event'), 0)
+		col = self._create_column(_('Interpretation'), 1)
+		col = self._create_column(_('Manifestation'), 2)
+
+		self.connect('button-press-event', self._on_click)
+
+	def _get_data_from_event(self, event):
+		x, y = (int(round(event.x)), int(round(event.y)))
+		treepath = self.get_path_at_pos(x, y)[0]
+		treeiter = self._store.get_iter(treepath)
+		return self._store.get_value(treeiter, 3)
+
+	def _on_click(self, widget, event):
+		if event.type == gtk.gdk._2BUTTON_PRESS:
+			data = self._get_data_from_event(event)
+			if isinstance(data, Event):
+				details.EventDetails(data)
+			elif isinstance(data, Subject):
+				details.SubjectDetails(data)
+			else:
+				print 'Unknown row selected.'
+
+	def _create_column(self, name, data_col, cell_renderer=gtk.CellRendererText()):
+		column = gtk.TreeViewColumn(name, cell_renderer)
+		column.set_expand(True)
+		column.set_sort_column_id(data_col)
+		column.add_attribute(cell_renderer, 'text', data_col)
+		self.append_column(column)
+		return (column, cell_renderer)
+
+	def _event_to_text(self, event):
+		return '%s' % (event.date_string)
+
+	def _subject_to_text(self, subject):
+		return '%s' % (subject.text)
+
+	def _add_item(self, event):
+		def _event_row(event):
+			return [self._event_to_text(event), event.interp_string,
+				event.manif_string, event]
+		event_iter = self._store.append(None, _event_row(event))
+		for subject in event.get_subjects():
+			self._store.append(event_iter, [self._subject_to_text(subject),
+				subject.interp_string, subject.manif_string, subject])
+
+	def set_events(self, events):
+		self._store.clear()
+		map(self._add_item, events)
+		self.expand_all()
+
+if __name__ == '__main__':
+	try:
+		main_window = MainWindow()
+		gtk.main()
+	except KeyboardInterrupt:
+		print 'Bye...'
+
+# vim:noexpandtab:ts=4:sw=4
