@@ -191,14 +191,14 @@ class RemoteTestCase (unittest.TestCase):
 	def kill_daemon(self, kill_signal=signal.SIGKILL):
 		os.kill(self.daemon.pid, kill_signal)
 		return self.daemon.wait()
-		
-	def setUp(self, db_path=":memory:"):
+
+	def setUp(self, database_path=None):
 		assert self.daemon is None
 		assert self.client is None
 		self.env = os.environ.copy()
 		self.datapath = tempfile.mkdtemp(prefix="zeitgeist.datapath.")
 		self.env.update({
-			"ZEITGEIST_DATABASE_PATH": db_path,
+			"ZEITGEIST_DATABASE_PATH": database_path or ":memory:",
 			"ZEITGEIST_DATA_PATH": self.datapath,
 			"XDG_CACHE_HOME": os.path.join(self.datapath, "cache"),
 		})

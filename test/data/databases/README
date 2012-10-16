@@ -1,0 +1,14 @@
+These SQL files can be used to reconstruct databases corresponding to
+old Zeitgeist databases, containing the events from upgrade_test.js.
+
+The procedure for creating or updating a SQL file is:
+ - Download the old Zeitgeist version from Launchpad
+ - Run ./configure and make
+ - Copy run_fake_zeitgeist.sh into the directory and adapt it to
+   work with that Zeitgeist version (eg., for Python versions,
+   change "./src/zeitgeist-daemon" to "./zeitgeist-daemon").
+ - Run the modified copy of run_fake_zeitgeist.sh
+ - In the subshell, move into an up-to-date Zeitgeist checkout and run:
+    $ ./tools/development/insert_events_from_json.py test/data/upgrade_test.js
+ - Now move back into the temporary directory, and run:
+    $ sqlite3 activity.sqlite .dump
