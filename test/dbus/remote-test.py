@@ -406,12 +406,12 @@ class ZeitgeistRemoteFindEventIdsTest(testutils.RemoteTestCase):
 		# Retrieve events for a particular origin
 		template = Event.new_for_values(subject_origin='file:///tmp')
 		ids = self.findEventIdsAndWait([template])
-		self.assertEquals(ids, [4, 2, 3, 1])
+		self.assertEquals(ids, [4, 2, 3])
 
 		# Now let's try with wildcard and negation
 		template = Event.new_for_values(subject_origin='!file:*')
 		ids = self.findEventIdsAndWait([template])
-		self.assertEquals(map(int, ids), [5])
+		self.assertEquals(map(int, ids), [5, 1])
 
 	def testFindEventIdsForSubjectText(self):
 		# Retrieve events with a particular text

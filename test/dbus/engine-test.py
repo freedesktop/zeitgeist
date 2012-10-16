@@ -628,7 +628,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(4, len(ids))
+		self.assertEquals(3, len(ids))
 
 if __name__ == "__main__":
 	testutils.run()
