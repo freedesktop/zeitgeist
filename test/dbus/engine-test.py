@@ -448,7 +448,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			result_type=ResultType.MostRecentEvents
 		)
 		self.assertEquals(3, len(ids))
-
+		
 		template = Event.new_for_values(
 			manifestation = "!stfu:YourActivity"
 		)
@@ -457,7 +457,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			result_type=ResultType.MostRecentEvents
 		)
 		self.assertEquals(4, len(ids))
-
+		
 		template = Event.new_for_values(
 			actor = "!firefox"
 		)
@@ -501,7 +501,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(1, len(ids))
+		self.assertEquals(2, len(ids))
 
 		template = Event.new_for_values(
 			subject_mimetype = "!text/plain"
