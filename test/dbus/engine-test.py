@@ -573,6 +573,32 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		)
 		self.assertEquals(1, len(results))
 
+	def testMoving(self):
+		import_events("test/data/five_events.js", self)
+		import_events("test/data/five_events_ext_move.js", self)
+		template = Event.new_for_values(subject_current_uri='file:///*')
+
+		ids = self.findEventIdsAndWait([template],
+			num_events = 0,
+			result_type = ResultType.MostRecentCurrentUri)
+		self.assertEquals(2, len(ids))
+
+		ids = self.findEventIdsAndWait([template],
+			num_events = 0,
+			result_type = ResultType.MostRecentCurrentUri)
+		self.assertEquals(2, len(ids))
+
+		ids = self.findEventIdsAndWait([template],
+			num_events = 0,
+			result_type = ResultType.MostRecentEvents)
+		self.assertEquals(5, len(ids))
+
+		template = Event.new_for_values(subject_current_origin='file:///*')
+		ids = self.findEventIdsAndWait([template],
+			num_events = 0,
+			result_type = ResultType.MostRecentEvents)
+		self.assertEquals(4, len(ids))
+
 	def testWildcard(self):
 		import_events("test/data/five_events.js", self)
 

@@ -376,8 +376,8 @@ class Subject(list):
 		Text,
 		Storage,
 		CurrentUri,
-        CurrentOrigin) = range(9)
-		
+		CurrentOrigin) = range(9)
+
 	SUPPORTS_NEGATION = (Uri, CurrentUri, Interpretation, Manifestation,
 		Origin, CurrentOrigin, Mimetype)
 	SUPPORTS_WILDCARDS = (Uri, CurrentUri, Origin, CurrentOrigin, Mimetype)
@@ -682,6 +682,7 @@ class Event(list):
 		:param subject_interpretation:
 		:param subject_manifestation:
 		:param subject_origin:
+		:param subject_current_origin:
 		:param subject_mimetype:
 		:param subject_text:
 		:param subject_storage:
@@ -691,8 +692,9 @@ class Event(list):
 			if not key in ("timestamp", "interpretation", "manifestation",
 				"actor", "origin", "subjects", "subject_uri",
 				"subject_current_uri", "subject_interpretation",
-				"subject_manifestation", "subject_origin", "subject_mimetype",
-				"subject_text", "subject_storage"):
+				"subject_manifestation", "subject_origin",
+				"subject_current_origin", "subject_mimetype", "subject_text",
+				"subject_storage"):
 				raise ValueError("Event parameter '%s' is not supported" % key)
 			
 		self.timestamp = values.get("timestamp", self.timestamp)
@@ -711,6 +713,7 @@ class Event(list):
 			subj.interpretation = values.get("subject_interpretation", "")
 			subj.manifestation = values.get("subject_manifestation", "")
 			subj.origin = values.get("subject_origin", "")
+			subj.current_origin = values.get("subject_current_origin", "")
 			subj.mimetype = values.get("subject_mimetype", "")
 			subj.text = values.get("subject_text", "")
 			subj.storage = values.get("subject_storage", "")
@@ -722,6 +725,7 @@ class Event(list):
 	def _dict_contains_subject_keys (dikt):
 		if "subject_uri" in dikt: return True
 		elif "subject_current_uri" in dikt: return True
+		elif "subject_current_origin" in dikt: return True
 		elif "subject_interpretation" in dikt: return True
 		elif "subject_manifestation" in dikt: return True
 		elif "subject_origin" in dikt: return True

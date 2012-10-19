@@ -803,14 +803,14 @@ public class DbReader : Object
                     string val = subject_template.current_origin;
                     bool like = parse_wildcard (ref val);
                     bool negated = parse_negation (ref val);
-                    assert_no_noexpand (val, "subject current_origin");
+                    assert_no_noexpand (val, "current_origin");
 
                     if (like)
                         where.add_wildcard_condition (
-                            "subj_current_origin", val, negated);
+                            "subj_origin_current", val, negated);
                     else
                         where.add_text_condition_subquery (
-                            "subj_current_origin", val, negated);
+                            "subj_origin_current", val, negated);
                 }
 
                 // Subject storage

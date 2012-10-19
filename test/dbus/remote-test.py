@@ -430,6 +430,22 @@ class ZeitgeistRemoteFindEventIdsTest(testutils.RemoteTestCase):
 		ids = self.findEventIdsAndWait([template])
 		self.assertEquals(map(int, ids), [5, 4, 2, 3])
 
+	def testFindEventIdsForSubjectCurrentOrigin(self):
+		# Retrieve events for a particular current origin
+		template = Event.new_for_values(subject_current_origin='file:///tmp')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(ids, [4, 2, 3])
+
+		# Now let's try with wildcard and negation
+		template = Event.new_for_values(subject_current_origin='!file:*')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [5, 1])
+
+		# Now let's try with wildcard and negation
+		template = Event.new_for_values(subject_current_origin='!http:*')
+		ids = self.findEventIdsAndWait([template])
+		self.assertEquals(map(int, ids), [4, 2, 3])
+
 	def testFindEventIdsForSubjectStorage(self):
 		# Retrieve events for a particular subject storage
 		template = Event.new_for_values(subject_storage=
