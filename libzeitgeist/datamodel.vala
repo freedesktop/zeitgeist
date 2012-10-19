@@ -466,7 +466,10 @@ namespace Zeitgeist
             assert_sig (event_props >= 5, "Missing event information.");
             id = (uint32) uint64.parse (event_array.next_value().get_string ());
             var str_timestamp = event_array.next_value().get_string ();
-            timestamp = int64.parse (str_timestamp);
+            if (str_timestamp != "")
+                timestamp = int64.parse (str_timestamp);
+            else
+                timestamp = Timestamp.from_now ();
             interpretation = next_string_or_null (event_array);
             manifestation = next_string_or_null (event_array);
             actor = next_string_or_null (event_array);

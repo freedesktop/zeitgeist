@@ -243,6 +243,7 @@ void from_variant_with_new_fields_test ()
 void empty_to_from_variant_test ()
 {
     var orig = new Event ();
+    orig.timestamp = Timestamp.from_now();
     Event marshalled;
     try
     {
