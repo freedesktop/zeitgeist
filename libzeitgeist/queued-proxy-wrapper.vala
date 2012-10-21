@@ -21,6 +21,10 @@
  *
  */
 
+/**
+ * FOR INTERNAL USE ONLY.
+ */
+
 namespace Zeitgeist
 {
 

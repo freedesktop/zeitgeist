@@ -24,6 +24,10 @@
 
 using Zeitgeist;
 
+/**
+ * Data model for Zeitgeist (Event, Subject, TimeRange, ResultType, etc.)
+ */
+
 namespace Zeitgeist
 {
     [DBus (name = "org.gnome.zeitgeist.DataModelError")]

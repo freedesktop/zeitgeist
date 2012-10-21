@@ -1,7 +1,7 @@
 /* data-source.vala
  *
  * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
- * Copyright © 2011, 2012 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,6 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ */
+
+/**
+ * Abstracts data sources used by the Data-Source Registry extension
  */
 
 namespace Zeitgeist

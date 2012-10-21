@@ -22,6 +22,10 @@
 
 using Zeitgeist;
 
+/**
+ * Mime-Type mapping and URI comprehension
+ */
+
 namespace Zeitgeist
 {
 

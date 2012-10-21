@@ -25,8 +25,6 @@ namespace Zeitgeist
 {
 
 /**
- * SECTION:zeitgeist-log
- *
  * Primary access point for talking to the Zeitgeist daemon
  *
  * include: zeitgeist.h

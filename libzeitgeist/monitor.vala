@@ -21,8 +21,6 @@
  */
 
 /**
- * SECTION:zeitgeist-monitor
- *
  * Listens for updates to the Zeitgeist event log
  *
  * include: zeitgeist.h

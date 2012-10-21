@@ -23,8 +23,6 @@
 using Zeitgeist;
 
 /**
- * SECTION:zeitgeist-timestamp
- *
  * Convenience functions for dealing with timestamps and dates
  *
  * include: zeitgeist.h

@@ -21,6 +21,10 @@
  *
  */
 
+/**
+ * Utility functions. FOR INTERNAL USE ONLY
+ */
+
 namespace Zeitgeist
 {
     namespace Utils

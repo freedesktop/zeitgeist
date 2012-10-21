@@ -18,6 +18,10 @@
  *
  */
 
+/**
+ * Query the Zeitgeist Data-Source Registry extension
+ */
+
 namespace Zeitgeist
 {
 

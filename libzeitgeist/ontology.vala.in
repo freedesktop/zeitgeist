@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * Get information about interpretation/manifestation symbols
+ */
+
 namespace Zeitgeist
 {
 
