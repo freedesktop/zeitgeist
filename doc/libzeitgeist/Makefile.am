@@ -12,6 +12,7 @@ VALADOC_FLAGS = \
 	--vapidir $(top_srcdir)/libzeitgeist \
 	--vapidir /usr/share/vala-0.16/vapi/ \
 	--pkg gio-2.0 \
+	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
 	--basedir $(top_srcdir)/libzeitgeist \
 	--package-name libzeitgeist2 \
