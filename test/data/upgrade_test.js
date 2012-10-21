@@ -8,7 +8,7 @@
 			{
 				"uri" : "http://www.google.de",
 				"interpretation" : "stfu:Document",
-				"manifestation" : "stfu:File",
+				"manifestation" : "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject",
 				"origin" : "file:///tmp",
 				"mimetype" : "meat/raw",
 				"text" : "this item has not text... rly!",
@@ -42,7 +42,7 @@
 			{
 				"uri" : "http://www.google.de",
 				"interpretation" : "stfu:Test",
-				"manifestation" : "stfu:File",
+				"manifestation" : "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject",
 				"origin" : "file:///tmp",
 				"mimetype" : "text/plain",
 				"text" : "this item has not text... rly!",

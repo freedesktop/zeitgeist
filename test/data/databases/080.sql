@@ -4,7 +4,9 @@ CREATE TABLE uri
 			(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE);
 INSERT INTO "uri" VALUES(1,'file:///tmp');
 INSERT INTO "uri" VALUES(2,'http://www.google.de');
-INSERT INTO "uri" VALUES(4,'file:///tmp/foo.txt');
+INSERT INTO "uri" VALUES(3,'belly');
+INSERT INTO "uri" VALUES(5,'file:///tmp/foo.txt');
+INSERT INTO "uri" VALUES(6,'big bang');
 CREATE TABLE interpretation
 			(id INTEGER PRIMARY KEY, value VARCHAR UNIQUE);
 INSERT INTO "interpretation" VALUES(1,'stfu:OpenEvent');
@@ -37,14 +39,17 @@ CREATE TABLE payload
 CREATE TABLE storage
 			(id INTEGER PRIMARY KEY,
 			 value VARCHAR UNIQUE,
-			 state INTEGER);
-INSERT INTO "storage" VALUES(1,'368c991f-8b59-4018-8130-3ce0ec944157',NULL);
+			 state INTEGER,
+			 icon VARCHAR,
+			 display_name VARCHAR);
+INSERT INTO "storage" VALUES(1,'net',0,NULL,NULL);
+INSERT INTO "storage" VALUES(2,'368c991f-8b59-4018-8130-3ce0ec944157',NULL,NULL,NULL);
 CREATE TABLE event (
 			id INTEGER,
 			timestamp INTEGER,
 			interpretation INTEGER,
-			manifestation INTEGER,			 
-			actor INTEGER,			 
+			manifestation INTEGER,
+			actor INTEGER,
 			payload INTEGER,
 			subj_id INTEGER,
 			subj_interpretation INTEGER,
@@ -53,15 +58,21 @@ CREATE TABLE event (
 			subj_mimetype INTEGER,
 			subj_text INTEGER,
 			subj_storage INTEGER,
+			origin INTEGER,
+			subj_id_current INTEGER,
 			CONSTRAINT interpretation_fk FOREIGN KEY(interpretation)
 				REFERENCES interpretation(id) ON DELETE CASCADE,
 			CONSTRAINT manifestation_fk FOREIGN KEY(manifestation)
 				REFERENCES manifestation(id) ON DELETE CASCADE,
 			CONSTRAINT actor_fk FOREIGN KEY(actor)
 				REFERENCES actor(id) ON DELETE CASCADE,
+			CONSTRAINT origin_fk FOREIGN KEY(origin)
+				REFERENCES uri(id) ON DELETE CASCADE,
 			CONSTRAINT payload_fk FOREIGN KEY(payload)
 				REFERENCES payload(id) ON DELETE CASCADE,
 			CONSTRAINT subj_id_fk FOREIGN KEY(subj_id)
+				REFERENCES uri(id) ON DELETE CASCADE,
+			CONSTRAINT subj_id_current_fk FOREIGN KEY(subj_id_current)
 				REFERENCES uri(id) ON DELETE CASCADE,
 			CONSTRAINT subj_interpretation_fk FOREIGN KEY(subj_interpretation)
 				REFERENCES interpretation(id) ON DELETE CASCADE,
@@ -77,12 +88,12 @@ CREATE TABLE event (
 				REFERENCES storage(id) ON DELETE CASCADE,
 			CONSTRAINT unique_event UNIQUE (timestamp, interpretation, manifestation, actor, subj_id)
 		);
-INSERT INTO "event" VALUES(1,1347652042579,1,1,1,'',2,2,2,1,1,1,1);
-INSERT INTO "event" VALUES(2,143,3,3,2,'',4,4,4,1,2,1,1);
-INSERT INTO "event" VALUES(3,133,5,5,3,'',2,6,2,1,2,1,1);
+INSERT INTO "event" VALUES(1,1347652042579,1,1,1,'',2,2,2,1,1,1,2,NULL,2);
+INSERT INTO "event" VALUES(2,143,3,3,2,'',5,4,4,1,2,1,2,3,5);
+INSERT INTO "event" VALUES(3,133,5,5,3,'',2,6,2,1,2,1,2,6,2);
 CREATE TABLE schema_version
 			(schema VARCHAR PRIMARY KEY ON CONFLICT REPLACE, version INT);
-INSERT INTO "schema_version" VALUES('core',3);
+INSERT INTO "schema_version" VALUES('core',4);
 CREATE UNIQUE INDEX uri_value ON uri(value);
 CREATE UNIQUE INDEX interpretation_value
 			ON interpretation(value);
@@ -106,8 +117,12 @@ CREATE INDEX event_manifestation
 			ON event(manifestation);
 CREATE INDEX event_actor
 			ON event(actor);
+CREATE INDEX event_origin
+			ON event(origin);
 CREATE INDEX event_subj_id
 			ON event(subj_id);
+CREATE INDEX event_subj_id_current
+			ON event(subj_id_current);
 CREATE INDEX event_subj_interpretation
 			ON event(subj_interpretation);
 CREATE INDEX event_subj_manifestation
@@ -175,17 +190,61 @@ CREATE TRIGGER fkdc_event_subj_storage
 					DELETE FROM storage WHERE id=OLD.subj_storage;
 				END;
 CREATE TRIGGER fkdc_event_uri_1
-		BEFORE DELETE ON event
-		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_id OR subj_origin=OLD.subj_id) < 2)
-		BEGIN
-			DELETE FROM uri WHERE id=OLD.subj_id;
-		END;
+			BEFORE DELETE ON event
+			WHEN ((
+				SELECT COUNT(*)
+				FROM event
+				WHERE
+					origin=OLD.subj_id
+					OR subj_id=OLD.subj_id
+					OR subj_id_current=OLD.subj_id
+					OR subj_origin=OLD.subj_id
+				) < 2)
+			BEGIN
+				DELETE FROM uri WHERE id=OLD.subj_id;
+			END;
 CREATE TRIGGER fkdc_event_uri_2
-		BEFORE DELETE ON event
-		WHEN ((SELECT COUNT(*) FROM event WHERE subj_id=OLD.subj_origin OR subj_origin=OLD.subj_origin) < 2)
-		BEGIN
-			DELETE FROM uri WHERE id=OLD.subj_origin;
-		END;
+			BEFORE DELETE ON event
+			WHEN ((
+				SELECT COUNT(*)
+				FROM event
+				WHERE
+					origin=OLD.subj_origin
+					OR subj_id=OLD.subj_origin
+					OR subj_id_current=OLD.subj_origin
+					OR subj_origin=OLD.subj_origin
+				) < 2)
+			BEGIN
+				DELETE FROM uri WHERE id=OLD.subj_origin;
+			END;
+CREATE TRIGGER fkdc_event_uri_3
+			BEFORE DELETE ON event
+			WHEN ((
+				SELECT COUNT(*)
+				FROM event
+				WHERE
+					origin=OLD.subj_id_current
+					OR subj_id=OLD.subj_id_current
+					OR subj_id_current=OLD.subj_id_current
+					OR subj_origin=OLD.subj_id_current
+				) < 2)
+			BEGIN
+				DELETE FROM uri WHERE id=OLD.subj_id_current;
+			END;
+CREATE TRIGGER fkdc_event_uri_4
+			BEFORE DELETE ON event
+			WHEN ((
+				SELECT COUNT(*)
+				FROM event
+				WHERE
+					origin=OLD.origin
+					OR subj_id=OLD.origin
+					OR subj_id_current=OLD.origin
+					OR subj_origin=OLD.origin
+				) < 2)
+			BEGIN
+				DELETE FROM uri WHERE id=OLD.origin;
+			END;
 CREATE VIEW event_view AS
 			SELECT event.id,
 				event.timestamp,
@@ -208,6 +267,13 @@ CREATE VIEW event_view AS
 				(SELECT value FROM storage
 					WHERE storage.id=event.subj_storage) AS subj_storage,
 				(SELECT state FROM storage
-					WHERE storage.id=event.subj_storage) AS subj_storage_state
-			FROM event;
+					WHERE storage.id=event.subj_storage) AS subj_storage_state,
+				event.origin,
+				(SELECT value FROM uri WHERE uri.id=event.origin)
+					AS event_origin_uri,
+				(SELECT value FROM uri WHERE uri.id=event.subj_id_current)
+					AS subj_current_uri,
+				event.subj_id_current
+			FROM event
+;
 COMMIT;
