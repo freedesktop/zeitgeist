@@ -11,6 +11,7 @@ AM_CPPFLAGS = \
 AM_VALAFLAGS = \
 	--target-glib=2.26 \
 	--pkg gio-2.0 \
+	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
 	$(top_srcdir)/config.vapi \
 	--vapi zeitgeist-2.0.vapi \

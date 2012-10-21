@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=test
+GenericName=Test Desktop File
+Comment=This is just a test file
+Exec=echo %U
+Terminal=false
+Type=Application
+StartupNotify=false
+MimeType=text/plain;
+Icon=accessories-text-editor

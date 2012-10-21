@@ -86,15 +86,12 @@ void create_full_test ()
 
 void actor_from_app_info_test ()
 {
-    /*
-    FIXME: zg2 has no DesktopAppInfo API atm
     var appinfo = new DesktopAppInfo.from_filename (test_dir () + "/test.desktop");
     assert (appinfo is AppInfo);
 
     var ev = new Event ();
     ev.set_actor_from_info (appinfo);
     assert_cmpstr (ev.actor, OperatorType.EQUAL, "application://test.desktop");
-    */
 }
 
 void from_variant_test ()

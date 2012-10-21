@@ -493,11 +493,28 @@ namespace Zeitgeist
             }
         }
 
-        /* public set_actor_from_info (AppInfo info)
-            requires (info.id != null)
+        public void set_actor_from_info (AppInfo info)
         {
-            actor = info.id;
-        } */
+            if (info.get_id () != null)
+            {
+                actor = "application://" + info.get_id ();
+            }
+            else
+            {
+                string? path = null;
+                if (info is DesktopAppInfo)
+                    path = (info as DesktopAppInfo).filename;
+
+                if (path != null)
+                {
+                    actor = "application://" + Path.get_basename (path);
+                }
+                else if (info.get_name () != null)
+                {
+                    actor = "application://" + info.get_name () + ".desktop";
+                }
+            }
+        }
 
         public Variant to_variant ()
         {
