@@ -20,7 +20,6 @@ int main ()
     su.text = "bar.txt";
     su.storage = "bfb486f6-f5f8-4296-8871-0cc749cf8ef7";
 
-    /* This method call now owns all events, subjects, and the events array */
     Zeitgeist.Log.get_default ().insert_events (
         events, null, (log, res) => {
             Array<uint32> event_ids;
