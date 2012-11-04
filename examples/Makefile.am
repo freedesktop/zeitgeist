@@ -23,6 +23,7 @@ noinst_PROGRAMS = \
 	get-events-with-id \
 	monitor-events \
 	most-recent-events \
+	insert-events \
 	$(NULL)
 
 data_source_stuff_SOURCES	= data-source-stuff.vala
@@ -36,6 +37,9 @@ monitor_events_LDADD		= $(zeitgeist_libs)
 
 most_recent_events_SOURCES	= most-recent-events.vala
 most_recent_events_LDADD	= $(zeitgeist_libs)
+
+insert_events_SOURCES	= insert-events.vala
+insert_events_LDADD	= $(zeitgeist_libs)
 
 distclean-local:
 	rm -f *.c *.o *.~[0-9]~

@@ -110,7 +110,7 @@ void insert_get_delete_test ()
     su.storage = "bfb486f6-f5f8-4296-8871-0cc749cf8ef7";
 
     /* This method call now owns all events, subjects, and the events array */
-    Zeitgeist.Log.get_default ().insert_events.begin (
+    Zeitgeist.Log.get_default ().insert_events (
         expected_events, null, (log, res) => {
             events_inserted ((Zeitgeist.Log) log, res, expected_events, mainloop);
         });
