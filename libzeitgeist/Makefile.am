@@ -24,7 +24,10 @@ libzeitgeist_2_0_la_SOURCES = \
 	data-source.vala \
 	data-source-registry.vala \
 	mimetype.vala \
-	datamodel.vala \
+	enumerations.vala \
+	event.vala \
+	subject.vala \
+	timerange.vala \
 	index.vala \
 	log.vala \
 	timestamp.vala \

@@ -146,7 +146,7 @@ namespace Zeitgeist
          *
          * @param val value to check
          */
-        public static bool parse_negation (ref string val)
+        public bool parse_negation (ref string val)
         {
             if (!val.has_prefix ("!"))
                 return false;
@@ -163,7 +163,7 @@ namespace Zeitgeist
          *
          * @param val value to check
          */
-        public static bool parse_noexpand (ref string val)
+        public bool parse_noexpand (ref string val)
         {
             if (!val.has_prefix ("+"))
                 return false;
@@ -179,7 +179,7 @@ namespace Zeitgeist
          *
          * @param val value to check
          */
-        public static bool parse_wildcard (ref string val)
+        public bool parse_wildcard (ref string val)
         {
             if (!val.has_suffix ("*"))
                 return false;
@@ -194,9 +194,16 @@ namespace Zeitgeist
          *
          * @param s string to check
          */
-        public static bool is_empty_string (string? s)
+        internal bool is_empty_string (string? s)
         {
             return s == null || s == "";
+        }
+
+        internal void assert_sig (bool condition, string error_message)
+        throws DataModelError
+        {
+            if (unlikely (!condition))
+                throw new DataModelError.INVALID_SIGNATURE (error_message);
         }
 
     }
