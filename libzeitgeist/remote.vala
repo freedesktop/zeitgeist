@@ -29,7 +29,7 @@ namespace Zeitgeist
     }
 
     [DBus (name = "org.gnome.zeitgeist.Log")]
-    public interface RemoteLog : Object
+    protected interface RemoteLog : Object
     {
 
         [DBus (signature = "(xx)")]
@@ -100,7 +100,7 @@ namespace Zeitgeist
     }
 
     [DBus (name = "org.gnome.zeitgeist.Monitor")]
-    public interface RemoteMonitor : Object
+    protected interface RemoteMonitor : Object
     {
 
         public async abstract void notify_insert (
@@ -116,7 +116,7 @@ namespace Zeitgeist
     }
 
     [DBus (name = "org.gnome.zeitgeist.Index")]
-    public interface RemoteSimpleIndexer : Object
+    protected interface RemoteSimpleIndexer : Object
     {
         public abstract async void search (
             string query_string,
@@ -138,7 +138,7 @@ namespace Zeitgeist
     /* FIXME: Remove this! Only here because of a bug
               in Vala (Vala Bug #661361) */
     [DBus (name = "org.freedesktop.NetworkManager")]
-    public interface NetworkManagerDBus : Object
+    protected interface NetworkManagerDBus : Object
     {
         [DBus (name = "state")]
         public abstract uint32 state () throws IOError;
@@ -148,7 +148,7 @@ namespace Zeitgeist
     /* FIXME: Remove this! Only here because of a bug
               in Vala (Vala Bug #661361) */
     [DBus (name = "net.connman.Manager")]
-    public interface ConnmanManagerDBus : Object
+    protected interface ConnmanManagerDBus : Object
     {
         public abstract string get_state () throws IOError;
         public signal void state_changed (string state);

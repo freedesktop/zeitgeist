@@ -28,6 +28,9 @@ namespace Zeitgeist
 {
 
 /**
+ * Immutable representation of an interval in time, marked by a
+ * beginning and an end
+ *
  * A light, immutable, encapsulation of an interval in time, marked by
  * a beginning and an end.
  */

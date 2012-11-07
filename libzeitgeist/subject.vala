@@ -28,6 +28,13 @@ using Zeitgeist;
 namespace Zeitgeist
 {
 
+/**
+ * Subject objects abstract Zeitgeist subjects
+ *
+ * In Zeitgeist terminology, a //subject// is something (a file, web page,
+ * person, conversation, etc.) that was somehow involved or affected by
+ * a {@link Event}.
+ */
 public class Subject : Object
 {
     private static StringChunk url_store;

@@ -1,0 +1,31 @@
+========================== ZEITGEIST ==========================
+
+Zeitgeist is a service which logs the users's activities and
+events (files opened, websites visites, conversations held with
+other people, etc.) and makes relevant information available to
+other applications.
+
+See AUTHORS for a list of contributors.
+
+For a list of changes between releases, see NEWS; a detailed
+changelog is available in the Git repository at:
+ http://cgit.freedesktop.org/zeitgeist/zeitgeist/
+
+You can also find some additional development and testing tools
+in the Git repository.
+
+---------------------------------------------------------------
+
+CONTRIBUTING
+------------
+
+Feel free to contact us on dev@zeitgeist-project.com or via IRC
+in #zeitgeist on irc.freenode.net.
+
+Coding conventions:
+
+ - Generally following the GNOME / Vala guidelines.
+ - Indentation with 4 spaces.
+ - No indentation for namespaces (except for historic reasons).
+ - In libzeitgeist/, "protected" used for non-public API when
+   "private"/"internal" can't be used.

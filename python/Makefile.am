@@ -10,8 +10,11 @@ app_PYTHON = \
 	_ontology.py \
 	$(NULL)
 
-# FIXME: can we make this depend on $(ontology_trig_DATA)?
-_ontology.py:
+ONTOLOGY = \
+	$(wildcard $(top_srcdir)/data/ontology/*.trig) \
+	$(NULL)
+
+_ontology.py: $(ONTOLOGY) $(top_srcdir)/data/ontology2code
 	@echo -e "#\n# Auto-generated from .trig files. Do not edit.\n#" > $@
 	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --dump-python >> $@
 

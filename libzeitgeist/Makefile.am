@@ -2,6 +2,10 @@ NULL =
 
 lib_LTLIBRARIES = libzeitgeist-2.0.la
 
+ONTOLOGY = \
+	$(wildcard $(top_srcdir)/data/ontology/*.trig) \
+	$(NULL)
+
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
@@ -67,8 +71,8 @@ DISTCLEANFILES = \
 	zeitgeist-2.0.vapi \
 	$(NULL)
 
-# FIXME: can we make this depend on $(ontology_trig_DATA)?
-ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in
+ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in \
+		$(ONTOLOGY) $(top_srcdir)/data/ontology2code
 	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala
 	@touch "$@"
 

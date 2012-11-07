@@ -21,13 +21,28 @@
  *
  */
 
+/**
+ * Zeitgeist is an activity-logging framework to enable the desktop of
+ * the future.
+ *
+ * Its main component is the Zeitgeist engine, a D-Bus service that logs
+ * any events other applications send to it. An event may be anything like:
+ *  - The user opened/created/modified/closed a file, or visited a website.
+ *  - The user received an e-mail, a phone call or an IM notification.
+ *  - Someone modified a remote (eg. Google Drive) document owned by the user.
+ *
+ * This information is then made available to other Zeitgeist-enabled
+ * applications over a powerful querying and monitoring API, and can be used
+ * and analyzed to create intelligent or adaptive interfaces.
+ *
+ * Zeitgeist also comes with a blacklist extension to make sure the user
+ * always stays in control of what information is logged.
+ */
 namespace Zeitgeist
 {
 
 /**
  * Primary access point for talking to the Zeitgeist daemon
- *
- * include: zeitgeist.h
  *
  * #ZeitgeistLog encapsulates the low level access to the Zeitgeist daemon.
  * You can use it to manage the log by inserting and deleting entries as well

@@ -15,36 +15,34 @@ VALADOC_FLAGS = \
 	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
 	--basedir $(top_srcdir)/libzeitgeist \
-	--package-name libzeitgeist2 \
+	--package-name "zeitgeist-2.0" \
 	--package-version $(PACKAGE_VERSION) \
+	--no-protected \
 	$(FILES) \
 	$(NULL)
 
-valadoc:
+docs_vala: $(FILES)
 	$(VALADOC) \
-		-o valadoc \
+		-o $@ \
 		$(VALADOC_FLAGS) \
 		$(NULL)
 
-devhelp:
-	$(VALADOC) \
-		-o devhelp \
-		--doclet devhelp \
-		$(VALADOC_FLAGS) \
-		$(NULL)
-
-gtkdoc:
+# The output directory can't be called "gtkdoc" or it'll conflict
+# with the "--doclet" option (it only works if the directory doesn't
+# exist prior to invocation).
+docs_c: $(FILES) zeitgeist-gtkdoc-index.sgml
+	install -D zeitgeist-gtkdoc-index.sgml $@/zeitgeist-2.0-docs.xml
 	$(VALADOC) \
 		-X $(top_srcdir)/libzeitgeist/zeitgeist.h \
 		-X -l -X $(top_srcdir)/libzeitgeist/.libs/libzeitgeist-2.0.so \
-		-o gtkdoc \
+		-o $@ \
 		--doclet gtkdoc \
 		$(VALADOC_FLAGS) \
 		$(NULL)
 
 clean-local:
-	rm -rf valadoc devhelp gtkdoc
+	rm -rf docs_vala docs_c
 
-all: valadoc devhelp gtkdoc
+all: docs_vala docs_c
 
 endif

@@ -274,15 +274,14 @@ class ValaSerializer(GenericSerializer):
 
 	@staticmethod
 	def symbol_link(symbol):
-		return '%s_%s' % (symbol.namespace, symbol.name)
+		return '%s.%s' % (symbol.namespace, symbol.name)
 
 	@classmethod
 	def build_doc(cls, symbol, doc_prefix=""):
 		"""
 		Build a C-style docstring for gtk-doc processing.
 		"""
-		uri_link = '<ulink url="%s">%s</ulink>' % (symbol.uri,
-			symbol.uri.replace('#', '&num;'))
+		uri_link = '[[%s]]' % (symbol.uri)
 		doc = symbol.doc
 
 		# List children
@@ -293,9 +292,10 @@ class ValaSerializer(GenericSerializer):
 			doc += '\n\n Children: None'
 
 		# List parents
-		parents = ['#' + cls.symbol_link(parent) for parent in symbol.parents]
-		if parents and not parents in (['#INTERPRETATION'], ['#MANIFESTATION']):
-			doc += '\n\n Parents: %s' % ', '.join(parents)
+		parents = [cls.symbol_link(parent) for parent in symbol.parents]
+		if parents:
+			doc += '\n\n Parents: %s' % ', '.join('{@link %s}' % parent
+				for parent in parents)
 		else:
 			doc += '\n\n Parents: None'
 	
@@ -419,3 +419,5 @@ if __name__ == "__main__":
 		generator.generate_vala()
 	elif sys.argv[1] == '--dump-python':
 		generator.generate_python()
+
+# vim:noexpandtab:ts=4:sw=4

@@ -194,7 +194,7 @@ namespace Zeitgeist
          *
          * @param s string to check
          */
-        internal bool is_empty_string (string? s)
+        public bool is_empty_string (string? s)
         {
             return s == null || s == "";
         }

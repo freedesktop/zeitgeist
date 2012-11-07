@@ -72,7 +72,7 @@ private bool check_field_match (string? property,
 }
 
 /**
- * #Event objects abstract Zeitgeist events.
+ * #Event objects abstract Zeitgeist events
  *
  * The #Event class is one of the primary elements for communicating
  * with the Zeitgeist daemon. #Events serve two purposes

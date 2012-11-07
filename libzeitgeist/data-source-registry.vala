@@ -18,15 +18,11 @@
  *
  */
 
-/**
- * Query the Zeitgeist Data-Source Registry extension
- */
-
 namespace Zeitgeist
 {
 
     [DBus (name = "org.gnome.zeitgeist.DataSourceRegistry")]
-    public interface RemoteRegistry: Object
+    protected interface RemoteRegistry: Object
     {
         [DBus (signature = "a(sssa(asaasay)bxb)")]
         public abstract async Variant get_data_sources (
@@ -49,6 +45,9 @@ namespace Zeitgeist
             [DBus (signature = "(sssa(asaasay)bxb)")] Variant data_source);
     }
 
+    /**
+     * Query the Zeitgeist Data-Source Registry extension
+     */
     public class DataSourceRegistry : QueuedProxyWrapper
     {
 

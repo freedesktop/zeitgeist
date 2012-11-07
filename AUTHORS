@@ -1,9 +1,22 @@
-Seif Lotfy <seif@lotfy.com>
-Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
-Michael Hruby <michal.mhr@gmail.com>
-Manish Sinha <manishsinha@ubuntu.com>
-Stefano Candori <stefano.candori@gmail.com>
+Main developers:
+ Michael Hruby <michal.mhr@gmail.com>
+ Seif Lotfy <seif@lotfy.com>
+ Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
+
+Contributors:
+ Christian Dywan <christian@twotoasts.de>
+ Manish Sinha <manishsinha@ubuntu.com>
+ Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+ Moritz Neeb <nt4u@kpvn.de>
+ Stefano Candori <stefano.candori@gmail.com>
+ Trever Fischer <tdfischer@fedoraproject.org>
 
 From the Python implementation:
  Markus Korn <thekorn@gmx.de>
- Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com
+ Mikkel Kamstrup Erlandsen <mikkel.kamstrup@gmail.com>
+
+Zeitgeist development has been sponsored by:
+ - Canonical Ltd.
+ - Collabora Ltd.
+ - GNOME Foundation
+ - Google (Summer of Code)

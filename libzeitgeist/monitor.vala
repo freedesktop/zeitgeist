@@ -20,12 +20,13 @@
  *
  */
 
+namespace Zeitgeist
+{
+
 /**
  * Listens for updates to the Zeitgeist event log
  *
- * include: zeitgeist.h
- *
- * A #ZeitgeistMonitor listens for updates to the Zeitgeist event log
+ * A #Monitor listens for updates to the Zeitgeist event log
  * matching a given set of templates and with timestamps in some predefined
  * time range.
  *
@@ -33,10 +34,6 @@
  * zeitgeist_log_install_monitor(). The monitor will not emit any of the
  * ::events-added or ::events-deleted signals before this.
  */
-
-namespace Zeitgeist
-{
-
 public class Monitor : Object, RemoteMonitor
 {
 
