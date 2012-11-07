@@ -49,8 +49,6 @@ public interface ResultSet : Object
      * size of the result set is always equal to the number of times you can call
      * zeitgeist_result_set_next().
      *
-     * @param self The #ZeitgeistResultSet to get the size of
-     *
      * @return The number of events held in the result set
      */
     public abstract uint size ();
@@ -65,8 +63,6 @@ public interface ResultSet : Object
      * zeitgeist_index_search() where you specify a subset of the hits to retrieve
      * the estimated match count will often be bigger than the result set size.
      *
-     * @param self The #ZeitgeistResultSet to get the number of estimated
-     *     matches on
      * @return The number of events that matched the query
      */
     public abstract uint estimated_matches ();
@@ -76,8 +72,6 @@ public interface ResultSet : Object
      * ensure that calls to this method will succeed you can call
      * zeitgeist_result_set_has_next().
      *
-     * @param self The #ZeitgeistResultSet to get an event from
-     *
      * @return The #ZeitgeistEvent at the current cursor position, or NULL
      *         if there are no events left.
      */
@@ -85,8 +79,6 @@ public interface ResultSet : Object
 
     /**
      * Check if a call to zeitgeist_result_set_next() will succeed.
-     *
-     * @param self The #ZeitgeistResultSet to check
      *
      * @return TRUE if and only if more events can be retrieved
      *         by calling zeitgeist_result_set_next()
@@ -96,8 +88,6 @@ public interface ResultSet : Object
     /**
      * Get the current position of the cursor.
      *
-     * @param self The #ZeitgeistResultSet to check the cursor position for
-     *
      * @return The current position of the cursor
      */
     public abstract uint tell ();
@@ -105,7 +95,6 @@ public interface ResultSet : Object
     /**
      * Resets the result set to start iterating it again from scratch.
      *
-     * @param self The #ZeitgeistResultSet to reset
      */
     public abstract void reset ();
 

@@ -24,12 +24,9 @@
 
 using Zeitgeist;
 
-/**
- * Data model for Zeitgeist (Event, Subject, TimeRange, ResultType, etc.)
- */
-
 namespace Zeitgeist
 {
+
     [DBus (name = "org.gnome.zeitgeist.DataModelError")]
     public errordomain DataModelError {
         INVALID_SIGNATURE,
@@ -52,33 +49,64 @@ namespace Zeitgeist
         return null;
     }
 
+    /**
+     * A light, immutable, encapsulation of an interval in time, marked by
+     * a beginning and an end.
+     */
     [CCode (type_signature = "(xx)")]
     public class TimeRange: Object
     {
         public int64 start { get; private set; }
         public int64 end { get; private set; }
 
+        /**
+         * @param start_msec starting timestamp in number of milliseconds
+         *        since the Unix Epoch
+         * @param end_msec ending timestamp in number of milliseconds
+         *        since the Unix Epoch
+         * @param a newly allocated ZeitgeistTimeRange. Free with
+         *        g_object_unref()
+         */
         public TimeRange (int64 start_msec, int64 end_msec)
         {
             start = start_msec;
             end = end_msec;
         }
 
+        /**
+         * @return a new time range starting from the beginning of the Unix
+         *         Epoch stretching to the end of time
+         */
         public TimeRange.anytime ()
         {
             this (0, int64.MAX);
         }
 
+        /**
+         * @return a new time range starting from the beggining of the
+         *         Unix Epoch ending a the moment of invocation
+         */
         public TimeRange.to_now ()
         {
             this (0, Timestamp.from_now ());
         }
 
+        /**
+         * @return a new time range starting from the moment of invocation
+         *         to the end of time
+         */
         public TimeRange.from_now ()
         {
             this (Timestamp.from_now (), int64.MAX);
         }
 
+        /**
+         * Create a #TimeRange from a variant.
+         *
+         * @param variant a variant representing a #TimeRange
+         * @return a new time range starting from the moment of invocation
+         *         to the end of time
+         */
         public TimeRange.from_variant (Variant variant)
             throws DataModelError
         {
@@ -93,11 +121,21 @@ namespace Zeitgeist
             this (start_msec, end_msec);
         }
 
+        /**
+         * @param a #TimeRange
+         * @return a new variant holding the time range
+         */
         public Variant to_variant ()
         {
             return new Variant ("(xx)", start, end);
         }
 
+        /**
+         * Check whether two time ranges are intersecting.
+         *
+         * @param time_range the second time range to compare with
+         * @return a new time range representing the intersection
+         */
         public TimeRange? intersect (TimeRange time_range)
         {
             var result = new TimeRange(0,0);
@@ -370,15 +408,54 @@ namespace Zeitgeist
         return (is_negated) ? !matches : matches;
     }
 
+    /**
+     * #Event objects abstract Zeitgeist events.
+     *
+     * The #Event class is one of the primary elements for communicating
+     * with the Zeitgeist daemon. #Events serve two purposes
+     * Unsurprisingly, they represent events that have happened, but they
+     * can also act as templates. See also #Subject.
+     *
+     * An event in the Zeitgeist world is characterized by two main
+     * properties. "What happened", also called the interpretation, and
+     * "How did it happen", also called the manifestation. Besides these
+     * properties, an event also has an actor which identifies the party
+     * responsible for triggering the event which in most cases will be
+     * an application. Lastly there is an event timestamp and an event ID.
+     * The timestamp is calculated as the number of milliseconds since the
+     * Unix epoch and the event ID is a number assigned to the event by
+     * the Zeitgeist engine when it's logged. These five properties are
+     * collectively known as the event metadata.
+     *
+     * An event must also describe what it happened to. For this we have
+     * event subjects. Most events have one subject, but they may also
+     * have more. The metadata of the subjects are recorded at the time
+     * of logging, and are encapsulated by the #Subject class. It's
+     * important to understand that it's just the subject metadata at the
+     * time of logging, not necessarily the subject metadata as it exists
+     * right now.
+     *
+     * In addition to the listed properties, events may also carry a free
+     * form binary payload. The usage of this is application specific and
+     * is generally useless unless you have some contextual information to
+     * figure out what's in it.
+     *
+     * A large part of the Zeitgeist query and monitoring API revolves
+     * around a concept of template matching. A query is simply a list of
+     * event templates that you want to look for in the log. An unset
+     * property on an event template indicates that anything is allowed in
+     * that field. If the property is set it indicates that the property
+     * must be an exact match, unless a special operator is used.
+     */
     public class Event : Object
     {
         public const string SIGNATURE = "asaasay";
 
         private static StringChunk url_store;
 
-        public uint32    id { get; set; }
-        public int64     timestamp { get; set; }
-        public string?   origin { get; set; }
+        public uint32  id { get; set; }
+        public int64   timestamp { get; set; }
+        public string? origin { get; set; }
 
         public string? actor
         {

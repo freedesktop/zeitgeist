@@ -112,7 +112,7 @@ namespace Zeitgeist
      *
      * FIXME: link to list of interpretations
      *
-     * @param mimetype A regular expression matching a certain range of
+     * @param mimetype_regex A regular expression matching a certain range of
      *     mimetypes. Eg. //text/.* // to match all //text// subtypes.
      * @param interpretation_uri A URI defining the subject interpretation
      *     type to associate with the matched MIME-types
@@ -174,7 +174,7 @@ namespace Zeitgeist
      * FIXME: link to list of manifestations
      *
      * @param uri_scheme A URI scheme such as //http:\/\///
-     * @param manifestation_uri A URI defining the subject manifestation type
+     * @param manifestation_type A URI defining the subject manifestation type
      *     to associate with "uri_scheme"
      */
     public void register_uri_scheme (string uri_scheme,

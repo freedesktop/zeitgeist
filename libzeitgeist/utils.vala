@@ -118,6 +118,10 @@ namespace Zeitgeist
             return LOCAL_EXTENSIONS_PATH;
         }
 
+        /**
+         * @return Whether a in-memory SQLite database is in use (vs.
+         *         a file-based one).
+         */
         public bool using_in_memory_database ()
         {
             return get_database_file_path () == ":memory:";
@@ -139,6 +143,8 @@ namespace Zeitgeist
          * Check if the value starts with the negation operator. If it does,
          * remove the operator from the value and return true. Otherwise,
          * return false.
+         *
+         * @param val value to check
          */
         public static bool parse_negation (ref string val)
         {
@@ -154,6 +160,8 @@ namespace Zeitgeist
          * return false.
          *
          * Check for the negation operator before calling this function.
+         *
+         * @param val value to check
          */
         public static bool parse_noexpand (ref string val)
         {
@@ -168,6 +176,8 @@ namespace Zeitgeist
          * Check if the value ends with the wildcard character. If it does,
          * remove the wildcard character from the value and return true.
          * Otherwise, return false.
+         *
+         * @param val value to check
          */
         public static bool parse_wildcard (ref string val)
         {
@@ -181,6 +191,8 @@ namespace Zeitgeist
         /**
          * Return true if a string is empty (null or containing just a null
          * byte).
+         *
+         * @param s string to check
          */
         public static bool is_empty_string (string? s)
         {

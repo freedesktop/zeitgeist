@@ -331,7 +331,7 @@ namespace Zeitgeist
             add_storage_medium (get_volume_id (volume), icon_name,
                 volume.get_name ());
         }
-        
+
         private void on_volume_removed (Volume volume)
         {
             debug ("Volume removed");
@@ -344,7 +344,7 @@ namespace Zeitgeist
          * as a `best effort` since we can not always uniquely identify
          * volumes, especially audio- and data CDs are problematic.
          */
-        
+
         /*private string get_volume_id (Volume volume)
         {
             string volume_id;
@@ -447,7 +447,7 @@ namespace Zeitgeist
      *  Network Manager (requires 0.8 or later).
      * See http://projects.gnome.org/NetworkManager/developers/spec-08.html
      */
-    class NMNetworkMonitor : Object, NetworkMonitor
+    private class NMNetworkMonitor : Object, NetworkMonitor
     {
         private const string NM_BUS_NAME = "org.freedesktop.NetworkManager";
         private const string NM_IFACE = "org.freedesktop.NetworkManager";
@@ -494,7 +494,7 @@ namespace Zeitgeist
         }
     }
 
-    class ConnmanNetworkMonitor : Object, NetworkMonitor
+    private class ConnmanNetworkMonitor : Object, NetworkMonitor
     {
         private const string CM_BUS_NAME = "net.connman";
         private const string CM_IFACE = "net.connman.Manager";

@@ -269,10 +269,9 @@ public class Log : QueuedProxyWrapper
     * the value of the "is-connected" property must be TRUE (you can connect
     * to the "notify::is-connected" signal otherwise).
     *
-    * @param self A #ZeitgeistLog instance
     * @param major Location for the major version
     * @param minor Location for the minor version
-    * @param micro: Location for the micro version
+    * @param micro Location for the micro version
     */
     public void get_version (out int major, out int minor, out int micro) {
         major = minor = micro = 0;

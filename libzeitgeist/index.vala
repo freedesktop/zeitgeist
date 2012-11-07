@@ -77,25 +77,22 @@ public class Index : QueuedProxyWrapper
      * and/or set of event templates.
      *
      * The default boolean operator is %AND. Thus the query
-     * <emphasis>foo bar</emphasis> will be interpreted as
-     * <emphasis>foo AND bar</emphasis>. To exclude a term from the result
-     * set prepend it with a minus sign - eg <emphasis>foo -bar</emphasis>.
+     * //foo bar// will be interpreted as //foo AND bar//. To exclude a term
+     * from the result set prepend it with a minus sign - eg. //foo -bar//.
      * Phrase queries can be done by double quoting the string
-     * <emphasis>"foo is a bar"</emphasis>. You can truncate terms by appending
-     * a *.
+     * //"foo is a bar"//. You can truncate terms by appending a *.
      *
      * There are a few keys you can prefix to a term or phrase to search within
-     * a specific set of metadata. They are used like
-     * <emphasis>key:value</emphasis>. The keys <emphasis>name</emphasis> and
-     * <emphasis>title</emphasis> search strictly within the text field of the
-     * event subjects. The key <emphasis>app</emphasis> searches within the
-     * application name or description that is found in the actor attribute of
-     * the events. Lastly you can use the <emphasis>site</emphasis> key to search
-     * within the domain name of the subject URIs.
+     * a specific set of metadata. They are used like //key:value//. The keys
+     * //name// and //title// search strictly within the text field of the
+     * event subjects. The key //app// searches within the application name or
+     * description that is found in the actor attribute of the events. Lastly,
+     * you can use the //site// key to search within the domain name of subject
+     * URIs.
      *
-     * You can also control the results with the boolean operators
-     * <emphasis>AND</emphasis> and <emphasis>OR</emphasis> and you may
-     * use brackets, ( and ), to control the operator precedence.
+     * You can also control the results with the boolean operators //AND// and
+     * //OR// and you may use brackets, ( and ), to control the operator
+     * precedence.
      *
      * FIXME: how do we put documentation into _finish?
      * The total hit count of the query will be available via the returned
@@ -104,7 +101,6 @@ public class Index : QueuedProxyWrapper
      * which is limited by the @num_events parameter passed to
      * zeitgeist_index_search().
      *
-     * @param self The #ZeitgeistIndex you want to query
      * @param query The search string to send to Zeitgeist
      * @param time_range Restrict matched events to ones within this time
      *     range. If you are not interested in restricting the timerange pass
@@ -119,9 +115,6 @@ public class Index : QueuedProxyWrapper
      *     method to have the results ordered by relevancy calculated
      *     in relation to @query
      * @param cancellable A #GCancellable used to cancel the call or %NULL
-     * @param callback A #GAsyncReadyCallback to invoke when the search results
-     *     are ready
-     * @param user_data User data to pass back with @callback
      */
     public async ResultSet search (
         string query,
@@ -154,7 +147,6 @@ public class Index : QueuedProxyWrapper
      * See zeitgeist_index_search() for more details on how to create the
      * query.
      *
-     * @param self The #ZeitgeistIndex you want to query
      * @param query The search string to send to Zeitgeist
      * @param time_range Restrict matched events to ones within this time
      *     range. If you are not interested in restricting the timerange pass
@@ -171,9 +163,6 @@ public class Index : QueuedProxyWrapper
      *     have the results ordered by relevancy calculated in relation
      *     to "query"
      * @param cancellable A #GCancellable used to cancel the call or %NULL
-     * @param callback A #GAsyncReadyCallback to invoke when the searc
-     *     results are ready
-     * @param user_data User data to pass back with @callback
      */
     public async ResultSet search_with_relevancies (
         string query,
