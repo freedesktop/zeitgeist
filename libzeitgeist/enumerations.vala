@@ -157,11 +157,15 @@ public enum ResultType
                                                // different subject origin,
                                                // ordered by the
                                                // popularity of the origins
-    LEAST_POPULAR_CURRENT_ORIGIN         = 34; //   The last event of each
+    LEAST_POPULAR_CURRENT_ORIGIN         = 34, //   The last event of each
                                                // different subject origin,
                                                // ordered ascendingly by
                                                // the popularity of the
                                                // origin
+    RELEVANCY                            = 100;//   Only allowed on
+                                               // zeitgeist_index_search().
+                                               // Events are sorted by query
+                                               // relevancy
 
     /*
      * Returns true if the results for the given result_type will be sorted
@@ -209,6 +213,7 @@ public enum ResultType
             case ResultType.MOST_POPULAR_SUBJECT_INTERPRETATION:
             case ResultType.MOST_RECENT_MIMETYPE:
             case ResultType.MOST_POPULAR_MIMETYPE:
+            case ResultType.RELEVANCY:
                 return false;
 
             default:
