@@ -260,7 +260,7 @@ public class Engine : DbReader
     }
 
     private void bind_cached_reference (Sqlite.Statement stmt,
-        int position, TableLookup table, string? value_)
+        int position, TableLookup table, string? value_) throws EngineError
     {
         if (value_ != null)
             stmt.bind_int64 (position, table.id_for_string (value_));

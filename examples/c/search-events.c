@@ -72,7 +72,6 @@ main (gint   argc,
   gchar             **queryv;
   gchar              *query;
   
-  g_type_init ();
   
   if (argc <= 1)
     {

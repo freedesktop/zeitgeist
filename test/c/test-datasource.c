@@ -108,6 +108,7 @@ test_to_from_variant (Fixture *fix, gconstpointer data)
   gint64               now;
   GError**             error;
 
+  error = NULL;
   /* Build the data source to serialize */
   orig = zeitgeist_data_source_new_full ("my-id", "my-name",
                                         "my description", NULL);
@@ -142,7 +143,6 @@ int
 main (int   argc,
       char *argv[])
 {
-  g_type_init ();
   g_test_init (&argc, &argv, NULL);
 
   g_test_add ("/Zeitgeist/DataSource/CreateEmpty", Fixture, NULL,

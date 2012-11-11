@@ -69,8 +69,6 @@ main (gint   argc,
   ZeitgeistLog       *log;
   GPtrArray          *templates;
   
-  g_type_init ();
-  
   mainloop = g_main_loop_new (NULL, FALSE);
   log = g_object_new (ZEITGEIST_TYPE_LOG, NULL);
   

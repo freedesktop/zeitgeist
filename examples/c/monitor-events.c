@@ -62,9 +62,9 @@ main (gint   argc,
   ZeitgeistLog       *log;
   ZeitgeistMonitor   *monitor;
   GPtrArray          *templates;
+  GError**           error;
   
-  g_type_init ();
-  
+  error = NULL;
   mainloop = g_main_loop_new (NULL, FALSE);
   log = g_object_new (ZEITGEIST_TYPE_LOG, NULL);
 
@@ -75,7 +75,12 @@ main (gint   argc,
   monitor = zeitgeist_monitor_new (zeitgeist_time_range_new_anytime (),
                                    templates);
 
-  zeitgeist_log_install_monitor (log, monitor, G_CALLBACK (on_events_inserted), NULL);
+  g_signal_connect (monitor, "events-inserted",
+                    G_CALLBACK (on_events_inserted), NULL);
+  g_signal_connect (monitor, "events-deleted",
+                    G_CALLBACK (on_events_deleted), NULL);
+
+  zeitgeist_log_install_monitor (log, monitor, error);
   
   g_main_loop_run (mainloop);
   
