@@ -157,13 +157,13 @@ public enum ResultType
                                                // different subject origin,
                                                // ordered by the
                                                // popularity of the origins
-    LEAST_POPULAR_CURRENT_ORIGIN         = 34; //   The last event of each
+    LEAST_POPULAR_CURRENT_ORIGIN         = 34, //   The last event of each
                                                // different subject origin,
                                                // ordered ascendingly by
                                                // the popularity of the
                                                // origin
-
-    /*
+    RELEVANCY                           = 100;
+      /*
      * Returns true if the results for the given result_type will be sorted
      * ascendantly by date, false if they'll be sorted descendingly.
      **/
