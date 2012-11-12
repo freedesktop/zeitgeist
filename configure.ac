@@ -59,6 +59,8 @@ AC_CONFIG_FILES([
 	test/c/Makefile
 	test/data/Makefile
 	examples/Makefile
+	examples/c/Makefile
+	examples/vala/Makefile
 	doc/Makefile
 	doc/libzeitgeist/Makefile
 	po/Makefile.in

@@ -144,8 +144,9 @@ test_from_variant (Fixture *fix, gconstpointer data)
   ZeitgeistEvent *ev;
   ZeitgeistSubject *su;
   GByteArray *payload;
-  GError *error;
+  GError **error;
 
+  error = NULL;
   g_variant_builder_init (&b, G_VARIANT_TYPE ("(" ZEITGEIST_EVENT_SIGNATURE ")"));
 
   /* Build event data */
@@ -424,7 +425,6 @@ int
 main (int   argc,
       char *argv[])
 {
-  g_type_init ();
   g_test_init (&argc, &argv, NULL);
 
   g_test_add ("/Zeitgeist/Event/CreateEmpty", Fixture, NULL,

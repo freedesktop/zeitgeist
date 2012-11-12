@@ -104,6 +104,7 @@ test_from_variant (Fixture *fix, gconstpointer data)
   gint64              i,j;
   GError             **error;
 
+  error = NULL;
   v = g_variant_new ("(xx)",
                      G_GINT64_CONSTANT(0), G_MAXINT64);
   g_variant_get (v, "(xx)", &i, &j);
@@ -137,7 +138,6 @@ int
 main (int   argc,
       char *argv[])
 {
-  g_type_init ();
   g_test_init (&argc, &argv, NULL);
 
   g_test_add ("/Zeitgeist/TimeRange/Create", Fixture, NULL,

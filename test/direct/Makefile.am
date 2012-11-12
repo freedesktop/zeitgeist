@@ -32,8 +32,12 @@ SRC_FILES = \
 	$(top_srcdir)/src/extension-store.vala \
 	$(top_srcdir)/src/notify.vala \
 	$(top_srcdir)/src/table-lookup.vala \
-	$(top_srcdir)/libzeitgeist/datamodel.vala  \
-	$(top_srcdir)/libzeitgeist/data-source.vala  \
+	$(top_srcdir)/libzeitgeist/data-source.vala \
+	$(top_srcdir)/libzeitgeist/enumerations.vala \
+	$(top_srcdir)/libzeitgeist/event.vala \
+	$(top_srcdir)/libzeitgeist/subject.vala \
+	$(top_srcdir)/libzeitgeist/timerange.vala \
+	$(top_srcdir)/libzeitgeist/timestamp.vala \
 	$(top_srcdir)/src/where-clause.vala \
 	$(top_srcdir)/libzeitgeist/remote.vala \
 	$(top_srcdir)/libzeitgeist/timestamp.vala \

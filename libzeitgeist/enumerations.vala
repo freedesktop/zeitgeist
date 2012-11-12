@@ -167,7 +167,7 @@ public enum ResultType
                                                // Events are sorted by query
                                                // relevancy
 
-    /*
+     /*
      * Returns true if the results for the given result_type will be sorted
      * ascendantly by date, false if they'll be sorted descendingly.
      **/

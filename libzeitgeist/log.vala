@@ -212,7 +212,7 @@ public class Log : QueuedProxyWrapper
         yield proxy.quit (cancellable);
     }
 
-    public async void install_monitor (Monitor monitor) throws Error
+    public void install_monitor (Monitor monitor) throws Error
     {
         // FIXME
         //monitor.destroy.connect (() => {});
