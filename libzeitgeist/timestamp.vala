@@ -67,7 +67,8 @@ namespace Zeitgeist.Timestamp
     public const int64 YEAR = 31556952000;
 
     /**
-     * Convert a #GTimeVal to the amount of milliseconds since the Unix Epoch
+     * Convert a {@link GLib.TimeVal} to an amount of milliseconds since
+     * the Unix Epoch
      *
      * @param timeval time to convert
      *
@@ -80,14 +81,14 @@ namespace Zeitgeist.Timestamp
     }
 
     /**
-     * Write a Zeitgeist timestamp to a #GTimeVal instance. Note that Zeitgeist
-     * uses only a millisecond resolution for where #GTimeVal uses a microsecond
-     * resolution, meaning that the lower three digits of @tv.tv_usec will
-     * be 0.
+     * Write a Zeitgeist timestamp to a {@link GLib.TimeVal} instance.
+     * Note that Zeitgeist uses only a millisecond resolution, whereas
+     * {@link GLib.TimeVal} has microsecond resolution. This means that
+     * the lower three digits of @tv.tv_usec will always be 0.
      *
      * @param timestamp to convert
      *
-     * @return the equivalent #GTimeVal instance.
+     * @return the equivalent {@link GLib.TimeVal} instance.
      */
     public TimeVal to_timeval (int64 timestamp)
     {
@@ -173,10 +174,10 @@ namespace Zeitgeist.Timestamp
     }
 
     /**
-     * Write a timestamp to a #GDate structure
+     * Write a timestamp to a {@link GLib.Date} structure
      *
      * @param timestamp to convert
-     * @return #GDate initialized to the given timestamp
+     * @return {@link GLib.Date} initialized to the given timestamp
      */
     public Date to_date (int64 timestamp)
     {

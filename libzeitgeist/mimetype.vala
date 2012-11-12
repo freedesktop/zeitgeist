@@ -22,12 +22,12 @@
 
 using Zeitgeist;
 
-/**
- * Mime-Type mapping and URI comprehension
- */
-
 namespace Zeitgeist
 {
+
+    /**
+     * Mime-Type mapping and URI comprehension
+     */
 
     private static bool mimetypes_loaded = false;
     private static bool schemes_loaded = false;
@@ -79,8 +79,6 @@ namespace Zeitgeist
      * unless you have very specific needs you will normally not have to call
      * this function.
      *
-     * FIXME: link to list of interpretations
-     *
      * @param mimetype  A MIME-type string. Eg. //text/plain//
      * @param interpretation_uri A URI defining the subject interpretation
      *     type to associate with "mimetype"
@@ -110,8 +108,6 @@ namespace Zeitgeist
      * unless you have very specific needs you will normally not have to call
      * this function.
      *
-     * FIXME: link to list of interpretations
-     *
      * @param mimetype_regex A regular expression matching a certain range of
      *     mimetypes. Eg. //text/.* // to match all //text// subtypes.
      * @param interpretation_uri A URI defining the subject interpretation
@@ -133,7 +129,6 @@ namespace Zeitgeist
      * zeitgeist_interpretation_for_mimetype:
      *
      * Look up the subject interpretation type associated with @mimetype.
-     * FIXME: link to list of interpretations
      *
      * @param mimetype A MIME-type string. Eg. //text/plain//
      *
@@ -171,8 +166,6 @@ namespace Zeitgeist
      * you have very specific needs you will normally not have to call this
      * function.
      *
-     * FIXME: link to list of manifestations
-     *
      * @param uri_scheme A URI scheme such as //http:\/\///
      * @param manifestation_type A URI defining the subject manifestation type
      *     to associate with "uri_scheme"
@@ -190,8 +183,6 @@ namespace Zeitgeist
      * Look up a subject manifestation type for a given URI. Eg. if you pass in
      * //file:\/\/\/tmp/foo.txt// you will get back
      * ZEITGEIST_NFO_FILE_DATA_OBJECT.
-     *
-     * FIXME: link to list of manifestations
      *
      * @param uri An URI
      *

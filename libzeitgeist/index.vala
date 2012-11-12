@@ -37,7 +37,7 @@ public class Index : QueuedProxyWrapper
      * Create a new index that interfaces with the default event index of the
      * Zeitgeist daemon.
      *
-     * Create a new #ZeitgeistIndex instance. The index will start to connect
+     * Create a new {@link Index} instance. The index will start to connect
      * to Zeitgeist asynchronously. You can however start calling methods on
      * the returned instance immediately, any method calls issued before the
      * connection has been established will simply be queued and executed once
@@ -73,7 +73,7 @@ public class Index : QueuedProxyWrapper
     }
 
     /**
-     * Perform a full text search possibly restricted to a #ZeitgeistTimeRange
+     * Perform a full text search possibly restricted to a {@link TimeRange}
      * and/or set of event templates.
      *
      * The default boolean operator is %AND. Thus the query
@@ -110,11 +110,12 @@ public class Index : QueuedProxyWrapper
      *     templates
      * @param offset Offset into the result set to read events from
      * @param num_events Maximal number of events to retrieve
-     * @param result_type The #ZeitgeistResultType determining the sort order.
-     *     You may pass #ZEITGEIST_RESULT_TYPE_RELEVANCY to this
+     * @param result_type The {@link ResultType} determining the sort order.
+     *     You may pass {@link ResultType.RELEVANCY} to this
      *     method to have the results ordered by relevancy calculated
      *     in relation to @query
-     * @param cancellable A #GCancellable used to cancel the call or %NULL
+     * @param cancellable A {@link GLib.Cancellable} used to cancel the
+     *     call or %NULL
      */
     public async ResultSet search (
         string query,
@@ -139,10 +140,10 @@ public class Index : QueuedProxyWrapper
     }
 
     /**
-     * Perform a full text search possibly restricted to a #ZeitgeistTimeRange
+     * Perform a full text search possibly restricted to a {@link TimeRange}
      * and/or set of event templates. As opposed to zeitgeist_index_search(),
      * this call will also return numeric relevancies of the events
-     * in the #ZeitgeistResultSet.
+     * in the {@link ResultSet}.
      *
      * See zeitgeist_index_search() for more details on how to create the
      * query.
@@ -158,11 +159,11 @@ public class Index : QueuedProxyWrapper
      *     medium.
      * @param offset Offset into the result set to read events from
      * @param num_events Maximal number of events to retrieve
-     * @param result_type The #ZeitgeistResultType determining the sort order
-     *     You may pass #ZEITGEIST_RESULT_TYPE_RELEVANCY to this method to
+     * @param result_type The {@link ResultType} determining the sort order
+     *     You may pass {@link ResultType.RELEVANCY} to this method to
      *     have the results ordered by relevancy calculated in relation
      *     to "query"
-     * @param cancellable A #GCancellable used to cancel the call or %NULL
+     * @param cancellable A {@link Cancellable} used to cancel the call or %NULL
      */
     public async ResultSet search_with_relevancies (
         string query,

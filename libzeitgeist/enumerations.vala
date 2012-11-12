@@ -162,8 +162,12 @@ public enum ResultType
                                                // ordered ascendingly by
                                                // the popularity of the
                                                // origin
-    RELEVANCY                           = 100;
-      /*
+    RELEVANCY                            = 100;//   Only allowed on
+                                               // zeitgeist_index_search().
+                                               // Events are sorted by query
+                                               // relevancy
+
+     /*
      * Returns true if the results for the given result_type will be sorted
      * ascendantly by date, false if they'll be sorted descendingly.
      **/
@@ -209,6 +213,7 @@ public enum ResultType
             case ResultType.MOST_POPULAR_SUBJECT_INTERPRETATION:
             case ResultType.MOST_RECENT_MIMETYPE:
             case ResultType.MOST_POPULAR_MIMETYPE:
+            case ResultType.RELEVANCY:
                 return false;
 
             default:

@@ -285,9 +285,10 @@ class ValaSerializer(GenericSerializer):
 		doc = symbol.doc
 
 		# List children
-		children = ['#' + cls.symbol_link(child) for child in symbol.children]
+		children = [cls.symbol_link(child) for child in symbol.children]
 		if children:
-			doc += '\n\n Children: %s' % ', '.join(children)
+			doc += '\n\n Children: %s' % ', '.join('{@link %s}' % child
+				for child in children)
 		else:
 			doc += '\n\n Children: None'
 

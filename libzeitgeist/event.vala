@@ -72,12 +72,12 @@ private bool check_field_match (string? property,
 }
 
 /**
- * #Event objects abstract Zeitgeist events
+ * Event objects abstract Zeitgeist events
  *
- * The #Event class is one of the primary elements for communicating
- * with the Zeitgeist daemon. #Events serve two purposes
+ * The Event class is one of the primary elements for communicating
+ * with the Zeitgeist daemon. Events serve two purposes
  * Unsurprisingly, they represent events that have happened, but they
- * can also act as templates. See also #Subject.
+ * can also act as templates. See also {@link Subject}.
  *
  * An event in the Zeitgeist world is characterized by two main
  * properties. "What happened", also called the interpretation, and
