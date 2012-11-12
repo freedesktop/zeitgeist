@@ -182,7 +182,7 @@ test_from_variant (Fixture *fix, gconstpointer data)
 
   var = g_variant_builder_end (&b);
   error = NULL;
-  ev = zeitgeist_event_new_from_variant (var, &error); // var freed
+  ev = zeitgeist_event_new_from_variant (var, error); // var freed
 
   g_assert_cmpint (27, ==, zeitgeist_event_get_id (ev));
   g_assert_cmpint (68, ==, zeitgeist_event_get_timestamp (ev));
