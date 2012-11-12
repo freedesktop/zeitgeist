@@ -22,6 +22,7 @@ AM_VALAFLAGS = \
 	-H zeitgeist.h \
 	-h zeitgeist-private.h \
 	--library=zeitgeist \
+	--gir=Zeitgeist-2.0.gir \
 	$(NULL)
 
 libzeitgeist_2_0_la_SOURCES = \
