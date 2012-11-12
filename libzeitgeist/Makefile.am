@@ -72,6 +72,42 @@ DISTCLEANFILES = \
 	zeitgeist-2.0.vapi \
 	$(NULL)
 
+
+CLEANFILES =
+MAINTAINERCLEANFILES =
+
+
+-include $(INTROSPECTION_MAKEFILE)
+INTROSPECTION_GIRS =
+INTROSPECTION_SCANNER_ARGS =
+INTROSPECTION_COMPILER_ARGS = -l $(libfolks_dlname)
+
+if HAVE_INTROSPECTION
+introspection_sources = $(libzeitgeist_2_0_la_SOURCES)
+
+Zeitgeist-2.0.gir: libzeitgeist-2.0.la
+Zeitgeist_2_0_gir_INCLUDES = GObject-2.0
+Zeitgeist_2_0_gir_CFLAGS = $(INCLUDES)
+Zeitgeist_2_0_gir_LIBS = libzeitgeist-2.0.la
+Zeitgeist_2_0_gir_FILES = $(introspection_sources)
+GIRS = Zeitgeist-2.0.gir
+
+girdir = $(datadir)/gir-1.0
+dist_gir_DATA = $(GIRS)
+
+MAINTAINERCLEANFILES += $(dist_gir_DATA)
+
+typelibdir = $(libdir)/girepository-1.0
+nodist_typelib_DATA = $(GIRS:.gir=.typelib)
+
+CLEANFILES += $(nodist_typelib_DATA)
+endif
+
+MAINTAINERCLEANFILES += \
+	$(BUILT_SOURCES) \
+	$(NULL)
+
+
 ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in \
 		$(ONTOLOGY) $(top_srcdir)/data/ontology2code
 	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala

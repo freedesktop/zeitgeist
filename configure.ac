@@ -186,6 +186,11 @@ AS_IF([test "x$enable_docs" != "xno"], [
 
 AM_CONDITIONAL(ENABLE_DOCS, test "x$found_valadoc" = "xyes")
 
+
+AM_CONDITIONAL([HAVE_INTROSPECTION], [test "x$enable_vala" = "xyes"])
+# this will set HAVE_INTROSPECTION
+GOBJECT_INTROSPECTION_REQUIRE([1.30])
+
 #################################################
 # Ontology parsing dependencies
 #################################################
