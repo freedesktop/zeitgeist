@@ -94,3 +94,5 @@ test/c/test-symbols
 test/c/test-timerange
 test/c/test-timestamp
 test/direct/*-test
+doc/libzeitgeist/docs_c
+doc/libzeitgeist/docs_vala
