@@ -76,11 +76,15 @@ DISTCLEANFILES = \
 CLEANFILES =
 MAINTAINERCLEANFILES =
 
+# We have to extract our own dlname from libzeitgeist-2.0.la; see bgo#658002.
+# This is what g-ir-scanner does.
+libzeitgeist_dlname = \
+	`$(SED) -n "s/^dlname='\([A-Za-z0-9.+-]\+\)'/\1/p" libzeitgeist-2.0.la`
 
 -include $(INTROSPECTION_MAKEFILE)
 INTROSPECTION_GIRS =
 INTROSPECTION_SCANNER_ARGS =
-INTROSPECTION_COMPILER_ARGS = -l $(libfolks_dlname)
+INTROSPECTION_COMPILER_ARGS = -l $(libzeitgeist_dlname)
 
 if HAVE_INTROSPECTION
 introspection_sources = $(libzeitgeist_2_0_la_SOURCES)
