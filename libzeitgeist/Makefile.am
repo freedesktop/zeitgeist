@@ -46,6 +46,7 @@ libzeitgeist_2_0_la_SOURCES = \
 	utils.vala \
 	$(NULL)
 
+libzeitgeist_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
 libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
 
 pkgconfigdir = $(libdir)/pkgconfig
