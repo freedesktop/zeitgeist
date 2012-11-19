@@ -87,13 +87,7 @@ INTROSPECTION_SCANNER_ARGS =
 INTROSPECTION_COMPILER_ARGS = -l $(libzeitgeist_dlname)
 
 if HAVE_INTROSPECTION
-introspection_sources = $(libzeitgeist_2_0_la_SOURCES)
-
 Zeitgeist-2.0.gir: libzeitgeist-2.0.la
-Zeitgeist_2_0_gir_INCLUDES = GObject-2.0
-Zeitgeist_2_0_gir_CFLAGS = $(INCLUDES)
-Zeitgeist_2_0_gir_LIBS = libzeitgeist-2.0.la
-Zeitgeist_2_0_gir_FILES = $(introspection_sources)
 GIRS = Zeitgeist-2.0.gir
 
 girdir = $(datadir)/gir-1.0
