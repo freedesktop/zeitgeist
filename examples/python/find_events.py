@@ -1,3 +1,3 @@
 from gi.repository import Zeitgeist
 log = Zeitgeist.Log.get_default()
-print log
+log.get_events([x for x in xrange(100)], None, callback, None)
