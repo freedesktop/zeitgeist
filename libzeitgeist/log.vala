@@ -276,7 +276,7 @@ public class Log : QueuedProxyWrapper
     * @param cancellable To cancel the operation or NULL
     */
     public async GenericArray<Event> get_events (
-        Array<uint32> event_ids,
+        owned Array<uint32> event_ids,
         Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy ();
