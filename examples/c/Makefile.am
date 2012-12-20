@@ -23,7 +23,8 @@ helper_sources = \
 noinst_PROGRAMS = \
   find-events \
   monitor-events \
-  search-events
+  search-events \
+  get-events
 
 find_events_SOURCES = find-events.c
 find_events_LDADD   = $(zeitgeist_libs)
@@ -33,3 +34,6 @@ monitor_events_LDADD   = $(zeitgeist_libs)
 
 search_events_SOURCES = search-events.c
 search_events_LDADD   = $(zeitgeist_libs)
+
+get_events_SOURCES = get-events.c
+get_events_LDADD   = $(zeitgeist_libs)

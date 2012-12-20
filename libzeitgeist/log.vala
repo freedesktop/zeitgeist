@@ -275,16 +275,16 @@ public class Log : QueuedProxyWrapper
     * @param Array<int> {@link Event} ids
     * @param cancellable To cancel the operation or NULL
     */
-    public async GenericArray<Event> get_events (
-        owned Array<uint32> event_ids,
+    public async ResultSet get_events (
+        Array<uint32> event_ids,
         Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy ();
         uint32[] simple_event_ids = new uint32[event_ids.length];
+        yield wait_for_proxy ();
         for (int i = 0; i < event_ids.length; i++)
             simple_event_ids[i] = event_ids.index (i);
         var result = yield proxy.get_events (simple_event_ids, cancellable);
-        return Events.from_variant (result);
+        return new SimpleResultSet(Events.from_variant (result));
     }
 
     /**

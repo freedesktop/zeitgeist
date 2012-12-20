@@ -70,7 +70,7 @@ main (gint   argc,
   GPtrArray          *templates;
   
   mainloop = g_main_loop_new (NULL, FALSE);
-  log = g_object_new (ZEITGEIST_TYPE_LOG, NULL);
+  log = zeitgeist_log_new();
   
   templates = g_ptr_array_new ();
   g_ptr_array_add (templates, zeitgeist_event_new ());
@@ -84,8 +84,8 @@ main (gint   argc,
                              NULL,
                              (GAsyncReadyCallback)on_events_received,
                              mainloop);
-  
+
   g_main_loop_run (mainloop);
-  
+
   return 0;
 }

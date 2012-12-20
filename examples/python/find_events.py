@@ -3,10 +3,9 @@ log = Zeitgeist.Log.get_default()
 
 def callback (log, result, data):
     events = log.get_events_finish(result)
-    print len(events)
-    for event in events:
-        if event:
-            print event.num_subjects()
+    print events.size()
+    for i in xrange(events.size()):
+        print events.next_value()
     Gtk.main_quit()
 
 log.get_events([x for x in xrange(200, 222)], None, callback, None)
