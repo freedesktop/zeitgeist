@@ -1,12 +1,33 @@
-from gi.repository import Zeitgeist, Gtk
+from gi.repository import Zeitgeist, GObject
 log = Zeitgeist.Log.get_default()
+mainloop = GObject.MainLoop()
 
-def callback (log, result, data):
-    events = log.get_events_finish(result)
+def on_events_received(log, result, data):
+    events = log.find_events_finish(result)
     print events.size()
     for i in xrange(events.size()):
-        print events.next_value()
-    Gtk.main_quit()
+        event = events.next_value()
+        if event:
+            print event.get_property("id")
+            for i in xrange(event.num_subjects()):
+                subj = event.get_subject(i)
+                print subj.get_property("uri")
+    mainloop.quit()
 
-log.get_events([x for x in xrange(200, 222)], None, callback, None)
-Gtk.main()
+subject = Zeitgeist.Subject.full("", Zeitgeist.AUDIO, "", "", "", "", "")
+event = Zeitgeist.Event()
+event.add_subject(subject)
+
+time_range = Zeitgeist.TimeRange.anytime ();
+
+event.add_subject(subject)
+log.find_events(time_range, 
+                        [event],
+                        Zeitgeist.StorageState.ANY,
+                        20,
+                        Zeitgeist.ResultType.MOST_RECENT_SUBJECTS,
+                        None,
+                        on_events_received,
+                        None)
+
+mainloop.run()
