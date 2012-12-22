@@ -210,7 +210,7 @@ public class Log : QueuedProxyWrapper
     */
     public async ResultSet find_events (
         TimeRange time_range,
-        GenericArray<Event> event_templates,
+        owned GenericArray<Event> event_templates,
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
@@ -247,7 +247,7 @@ public class Log : QueuedProxyWrapper
     */
     public async uint32[] find_event_ids (
         TimeRange time_range,
-        GenericArray<Event> event_templates,
+        owned GenericArray<Event> event_templates,
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
@@ -276,7 +276,7 @@ public class Log : QueuedProxyWrapper
     * @param cancellable To cancel the operation or NULL
     */
     public async ResultSet get_events (
-        Array<uint32> event_ids,
+        owned Array<uint32> event_ids,
         Cancellable? cancellable=null) throws Error
     {
         uint32[] simple_event_ids = new uint32[event_ids.length];
@@ -304,8 +304,8 @@ public class Log : QueuedProxyWrapper
     */
     public async string[] find_related_uris (
         TimeRange time_range,
-        GenericArray<Event> event_templates,
-        GenericArray<Event> result_event_templates,
+        owned GenericArray<Event> event_templates,
+        owned GenericArray<Event> result_event_templates,
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
@@ -326,7 +326,7 @@ public class Log : QueuedProxyWrapper
     *
     * @param event_ids Array<uint32>
     */
-    public async TimeRange delete_events (Array<uint32> event_ids,
+    public async TimeRange delete_events (owned Array<uint32> event_ids,
             Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy ();
