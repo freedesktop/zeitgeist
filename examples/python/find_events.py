@@ -4,14 +4,13 @@ mainloop = GObject.MainLoop()
 
 def on_events_received(log, result, data):
     events = log.find_events_finish(result)
-    print events.size()
     for i in xrange(events.size()):
         event = events.next_value()
         if event:
-            print event.get_property("id")
+            print "Event id:", event.get_property("id")
             for i in xrange(event.num_subjects()):
                 subj = event.get_subject(i)
-                print subj.get_property("uri")
+                print "  -", subj.get_property("uri")
     mainloop.quit()
 
 subject = Zeitgeist.Subject.full("", Zeitgeist.AUDIO, "", "", "", "", "")

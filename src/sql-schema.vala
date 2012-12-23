@@ -424,7 +424,7 @@ namespace Zeitgeist.SQLite
                         FOREIGN KEY(subj_storage)
                         REFERENCES storage(id)
                         ON DELETE CASCADE,
-                    CONSTRAINT unique_event UNIQUE (timestamp, interpretation,
+                    PRIMARY KEY (timestamp, interpretation,
                         manifestation, actor, subj_id)
                 )
                 """);

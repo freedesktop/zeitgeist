@@ -39,7 +39,7 @@ void events_received (Zeitgeist.Log log,
                       GenericArray<Event> expected_events,
                       Array<uint32> event_ids, MainLoop mainloop)
 {
-    GenericArray<Zeitgeist.Event?> events;
+    ResultSet events;
     try {
         events = log.get_events.end (res);
     }
@@ -49,11 +49,11 @@ void events_received (Zeitgeist.Log log,
     }
     /* Assert that we got what we expected, and collect the event ids,
      * so we can delete the events */
-    assert (expected_events.length == events.length);
-    for (int i = 0; i < events.length; ++i)
+    assert (expected_events.length == events.size());
+    for (int i = 0; i < events.size(); ++i)
     {
         Event exp_event = expected_events[i];
-        Event? event = events[i];
+        Event? event = events.next_value();
         assert (event.interpretation == exp_event.interpretation);
         assert (event.manifestation == exp_event.manifestation);
         assert (event.actor == exp_event.actor);

@@ -41,7 +41,6 @@ static void
 test_create (Fixture *fix, gconstpointer data)
 {
   ZeitgeistTimeRange *tr;
-
   tr = zeitgeist_time_range_new (0, 1);
 
   g_assert_cmpint (0, ==, zeitgeist_time_range_get_start (tr));
@@ -138,6 +137,7 @@ int
 main (int   argc,
       char *argv[])
 {
+  g_type_init();
   g_test_init (&argc, &argv, NULL);
 
   g_test_add ("/Zeitgeist/TimeRange/Create", Fixture, NULL,

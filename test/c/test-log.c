@@ -74,7 +74,7 @@ _on_events_received (ZeitgeistLog *log,
                      GAsyncResult *res,
                      GPtrArray    *expected_events)
 {
-  GPtrArray          *events;
+  ZeitgeistResultSet *events;
   GArray             *event_ids;
   GError             *error;
   ZeitgeistEvent     *ev, *_ev;
@@ -92,11 +92,12 @@ _on_events_received (ZeitgeistLog *log,
 
   /* Assert that we got what we expected, and collect the event ids,
    * so we can delete the events */
-  g_assert_cmpint (expected_events->len, ==, events->len);
-  event_ids = g_array_sized_new (FALSE, FALSE, sizeof (guint32), events->len);
-  for (i = 0; i < events->len; ++i)
+  g_assert_cmpint (expected_events->len, ==, zeitgeist_result_set_size(events));
+  event_ids = g_array_sized_new (FALSE, FALSE, sizeof (guint32),
+                                    zeitgeist_result_set_size(events));
+  for (i = 0; i < zeitgeist_result_set_size(events); ++i)
     {
-      ev = ZEITGEIST_EVENT (g_ptr_array_index (events, i));
+      ev = zeitgeist_result_set_next_value(events);
       _ev = ZEITGEIST_EVENT (g_ptr_array_index (expected_events, i));
       g_assert_cmpstr (zeitgeist_event_get_interpretation (ev), ==,
                        zeitgeist_event_get_interpretation (_ev));
@@ -202,6 +203,7 @@ int
 main (int   argc,
       char *argv[])
 {
+  g_type_init();
   g_test_init (&argc, &argv, NULL);
 
   g_test_add ("/Zeitgeist/Log/InsertGetDelete", Fixture, NULL,
