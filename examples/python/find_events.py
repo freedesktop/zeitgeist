@@ -16,10 +16,8 @@ def on_events_received(log, result, data):
 subject = Zeitgeist.Subject.full("", Zeitgeist.AUDIO, "", "", "", "", "")
 event = Zeitgeist.Event()
 event.add_subject(subject)
-
 time_range = Zeitgeist.TimeRange.anytime ();
 
-event.add_subject(subject)
 log.find_events(time_range, 
                         [event],
                         Zeitgeist.StorageState.ANY,
