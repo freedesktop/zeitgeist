@@ -137,7 +137,7 @@ public class Log : QueuedProxyWrapper
     * @param events An {@link GenericArray} of {@link Event}
     * @param cancellable To cancel the operation or NULL
     */
-    public async Array<uint32> insert_events (GenericArray<Event> events,
+    public async Array<uint32> insert_events (owned GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy ();
@@ -178,7 +178,7 @@ public class Log : QueuedProxyWrapper
     *
     * @param events An {@link GenericArray} of {@link Event}
     */
-    public async void insert_events_no_reply (GenericArray<Event> events)
+    public async void insert_events_no_reply (owned GenericArray<Event> events)
         throws Error
     {
         yield insert_events (events);
@@ -350,7 +350,7 @@ public class Log : QueuedProxyWrapper
     *
     * @param monitor A {@link Monitor} to report back inserts and deletes
     */
-    public void install_monitor (Monitor monitor) throws Error
+    public void install_monitor (owned Monitor monitor) throws Error
     {
         // FIXME
         //monitor.destroy.connect (() => {});
@@ -393,7 +393,7 @@ public class Log : QueuedProxyWrapper
     *
     * @param monitor A {@link Monitor} to report back inserts and deletes
     */
-    public async void remove_monitor (Monitor monitor) throws Error
+    public async void remove_monitor (owned Monitor monitor) throws Error
     {
         yield wait_for_proxy ();
 

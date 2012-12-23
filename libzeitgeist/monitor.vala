@@ -89,7 +89,7 @@ public class Monitor : Object, RemoteMonitor
      *
      * @return A reference to a newly allocated monitor
      */
-    public Monitor (TimeRange time_range, GenericArray<Event> event_templates)
+    public Monitor (TimeRange time_range, owned GenericArray<Event> event_templates)
     {
         this.time_range = time_range;
         this.event_templates = event_templates;

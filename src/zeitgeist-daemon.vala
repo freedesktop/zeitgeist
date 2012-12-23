@@ -192,7 +192,6 @@ namespace Zeitgeist
                 BusName? sender=null) throws Error
         {
             var events = Events.from_variant (vevents);
-
             uint32[] event_ids = engine.insert_events (events, sender);
             var min_timestamp = int64.MAX;
             var max_timestamp = int64.MIN;
