@@ -5,7 +5,7 @@ log = Zeitgeist.Log.get_default()
 mainloop = GObject.MainLoop()
 
 def on_events_inserted(log, time_range, events):
-    print "==="
+    print events
 
 ev = Zeitgeist.Event();
 ev.set_property("interpretation", "foo://Interp");
