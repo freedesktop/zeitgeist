@@ -555,55 +555,55 @@ namespace Zeitgeist.SQLite
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_interpretation
-                    ON event(interpretation, timestamp)
+                    ON event(interpretation, timestamp, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_manifestation
-                    ON event(manifestation, timestamp)
+                    ON event(manifestation, timestamp, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_actor
-                    ON event(actor, timestamp)
+                    ON event(actor, timestamp, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_origin
-                    ON event(origin, timestamp)
+                    ON event(origin, timestamp, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_id
-                    ON event(subj_id, timestamp, subj_interpretation)
+                    ON event(subj_id, timestamp, subj_interpretation, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_id_current
-                    ON event(subj_id_current, timestamp, subj_interpretation)
+                    ON event(subj_id_current, timestamp, subj_interpretation, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_interpretation
-                    ON event(subj_interpretation, timestamp, subj_id)
+                    ON event(subj_interpretation, timestamp, subj_id, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_manifestation
-                    ON event(subj_manifestation, timestamp, subj_id)
+                    ON event(subj_manifestation, timestamp, subj_id, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_origin
-                    ON event(subj_origin, timestamp, subj_interpretation, subj_id)
+                    ON event(subj_origin, timestamp, subj_interpretation, subj_id, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_origin_current
-                    ON event(subj_origin_current, timestamp, subj_interpretation, subj_id)
+                    ON event(subj_origin_current, timestamp, subj_interpretation, subj_id, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_mimetype
-                    ON event(subj_mimetype, timestamp)
+                    ON event(subj_mimetype, timestamp, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_text
-                    ON event(subj_text, timestamp)
+                    ON event(subj_text, timestamp, id)
                 """);
             exec_query (database, """
                 CREATE INDEX IF NOT EXISTS event_subj_storage
-                    ON event(subj_storage, timestamp)
+                    ON event(subj_storage, timestamp, id)
                 """);
         }
 
