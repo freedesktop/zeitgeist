@@ -137,11 +137,14 @@ public class Log : QueuedProxyWrapper
     * @param events An {@link GenericArray} of {@link Event}
     * @param cancellable To cancel the operation or NULL
     */
-    public async Array<uint32> insert_events (owned GenericArray<Event> events,
+    public async Array<uint32> insert_events (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
+        var events_cp = new GenericArray<Event>();
+        for (int i = 0; i < events.length; i++)
+            events_cp.add(events.get(i));
         yield wait_for_proxy ();
-        uint32[] ids = yield proxy.insert_events (Events.to_variant (events), cancellable);
+        uint32[] ids = yield proxy.insert_events (Events.to_variant (events_cp), cancellable);
         var result = new Array<uint32> ();
         // Ideally we'd just place "(owned) ids" into the GArray, but .data isn't
         // in the Vala bindings...
@@ -178,7 +181,7 @@ public class Log : QueuedProxyWrapper
     *
     * @param events An {@link GenericArray} of {@link Event}
     */
-    public async void insert_events_no_reply (owned GenericArray<Event> events)
+    public async void insert_events_no_reply (GenericArray<Event> events)
         throws Error
     {
         yield insert_events (events);
@@ -210,15 +213,18 @@ public class Log : QueuedProxyWrapper
     */
     public async ResultSet find_events (
         TimeRange time_range,
-        owned GenericArray<Event> event_templates,
+        GenericArray<Event> event_templates,
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        var event_templates_cp = new GenericArray<Event>();
+        for (int i = 0; i < event_templates.length; i++)
+            event_templates_cp.add(event_templates.get(i));
         yield wait_for_proxy ();
         var result = yield proxy.find_events (time_range.to_variant (),
-            Events.to_variant (event_templates), storage_state,
+            Events.to_variant (event_templates_cp), storage_state,
             num_events, result_type, cancellable);
         return new SimpleResultSet (Events.from_variant (result));
     }
@@ -247,15 +253,18 @@ public class Log : QueuedProxyWrapper
     */
     public async uint32[] find_event_ids (
         TimeRange time_range,
-        owned GenericArray<Event> event_templates,
+        GenericArray<Event> event_templates,
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        var event_templates_cp = new GenericArray<Event>();
+        for (int i = 0; i < event_templates.length; i++)
+            event_templates_cp.add(event_templates.get(i));
         yield wait_for_proxy ();
         return yield proxy.find_event_ids (time_range.to_variant (),
-            Events.to_variant (event_templates), storage_state,
+            Events.to_variant (event_templates_cp), storage_state,
             num_events, result_type, cancellable);
     }
 
@@ -276,13 +285,13 @@ public class Log : QueuedProxyWrapper
     * @param cancellable To cancel the operation or NULL
     */
     public async ResultSet get_events (
-        owned Array<uint32> event_ids,
+        Array<uint32> event_ids,
         Cancellable? cancellable=null) throws Error
     {
         uint32[] simple_event_ids = new uint32[event_ids.length];
-        yield wait_for_proxy ();
         for (int i = 0; i < event_ids.length; i++)
             simple_event_ids[i] = event_ids.index (i);
+        yield wait_for_proxy ();
         var result = yield proxy.get_events (simple_event_ids, cancellable);
         return new SimpleResultSet(Events.from_variant (result));
     }
@@ -304,17 +313,25 @@ public class Log : QueuedProxyWrapper
     */
     public async string[] find_related_uris (
         TimeRange time_range,
-        owned GenericArray<Event> event_templates,
-        owned GenericArray<Event> result_event_templates,
+        GenericArray<Event> event_templates,
+        GenericArray<Event> result_event_templates,
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        var events_cp = new GenericArray<Event>();
+        for (int i = 0; i < event_templates.length; i++)
+            events_cp.add(event_templates.get(i));
+
+        var results_cp = new GenericArray<Event>();
+        for (int i = 0; i < result_event_templates.length; i++)
+            results_cp.add(result_event_templates.get(i));
+
         yield wait_for_proxy ();
         return yield proxy.find_related_uris (time_range.to_variant (),
-            Events.to_variant (event_templates),
-            Events.to_variant (result_event_templates),
+            Events.to_variant (events_cp),
+            Events.to_variant (results_cp),
             storage_state, num_events, result_type, cancellable);
     }
 
@@ -326,13 +343,13 @@ public class Log : QueuedProxyWrapper
     *
     * @param event_ids Array<uint32>
     */
-    public async TimeRange delete_events (owned Array<uint32> event_ids,
+    public async TimeRange delete_events (Array<uint32> event_ids,
             Cancellable? cancellable=null) throws Error
     {
-        yield wait_for_proxy ();
         uint32[] _ids = new uint32 [event_ids.length];
         for (int i=0; i<event_ids.length; i++)
             _ids[i] = event_ids.index(i);
+        yield wait_for_proxy ();
         Variant time_range = yield proxy.delete_events (_ids, cancellable);
         return new TimeRange.from_variant(time_range);
     }
@@ -350,7 +367,7 @@ public class Log : QueuedProxyWrapper
     *
     * @param monitor A {@link Monitor} to report back inserts and deletes
     */
-    public void install_monitor (owned Monitor monitor) throws Error
+    public void install_monitor (Monitor monitor) throws Error
     {
         // FIXME
         //monitor.destroy.connect (() => {});

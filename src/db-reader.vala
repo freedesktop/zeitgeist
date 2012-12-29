@@ -171,7 +171,7 @@ public class DbReader : Object
     public uint32[] find_event_ids_for_clause (WhereClause where,
         uint max_events, uint result_type) throws EngineError
     {
-        string sql = "SELECT DISTINCT id FROM event_view ";
+        string sql = "SELECT id FROM event_view ";
         string where_sql = "";
         if (!where.is_empty ())
         {
@@ -187,103 +187,103 @@ public class DbReader : Object
                 sql += where_sql + " ORDER BY ";
                 break;
             case ResultType.MOST_RECENT_EVENT_ORIGIN:
-                sql += group_and_sort ("origin", where_sql);
+                sql = group_and_sort ("origin", where_sql);
                 break;
             case ResultType.LEAST_RECENT_EVENT_ORIGIN:
-                sql += group_and_sort ("origin", where_sql);
+                sql = group_and_sort ("origin", where_sql);
                 break;
             case ResultType.MOST_POPULAR_EVENT_ORIGIN:
-                sql += group_and_sort ("origin", where_sql, false);
+                sql = group_and_sort ("origin", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_EVENT_ORIGIN:
-                sql += group_and_sort ("origin", where_sql, true);
+                sql = group_and_sort ("origin", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_SUBJECTS:
-                sql += group_and_sort ("subj_id", where_sql);
+                sql = group_and_sort ("subj_id", where_sql);
                 break;
             case ResultType.LEAST_RECENT_SUBJECTS:
-                sql += group_and_sort ("subj_id", where_sql);
+                sql = group_and_sort ("subj_id", where_sql);
                 break;
             case ResultType.MOST_POPULAR_SUBJECTS:
-                sql += group_and_sort ("subj_id", where_sql, false);
+                sql = group_and_sort ("subj_id", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_SUBJECTS:
-                sql += group_and_sort ("subj_id", where_sql, true);
+                sql = group_and_sort ("subj_id", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_CURRENT_URI:
-                sql += group_and_sort ("subj_id_current", where_sql);
+                sql = group_and_sort ("subj_id_current", where_sql);
                 break;
             case ResultType.LEAST_RECENT_CURRENT_URI:
-                sql += group_and_sort ("subj_id_current", where_sql);
+                sql = group_and_sort ("subj_id_current", where_sql);
                 break;
             case ResultType.MOST_POPULAR_CURRENT_URI:
-                sql += group_and_sort ("subj_id_current", where_sql, false);
+                sql = group_and_sort ("subj_id_current", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_CURRENT_URI:
-                sql += group_and_sort ("subj_id_current", where_sql, true);
+                sql = group_and_sort ("subj_id_current", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_ACTOR:
-                sql += group_and_sort ("actor", where_sql);
+                sql = group_and_sort ("actor", where_sql);
                 break;
             case ResultType.LEAST_RECENT_ACTOR:
-                sql += group_and_sort ("actor", where_sql);
+                sql = group_and_sort ("actor", where_sql);
                 break;
             case ResultType.MOST_POPULAR_ACTOR:
-                sql += group_and_sort ("actor", where_sql, false);
+                sql = group_and_sort ("actor", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_ACTOR:
-                sql += group_and_sort ("actor", where_sql, true);
+                sql = group_and_sort ("actor", where_sql, true);
                 break;
             case ResultType.OLDEST_ACTOR:
-                sql += group_and_sort ("actor", where_sql, null, "min");
+                sql = group_and_sort ("actor", where_sql, null, "min");
                 break;
             case ResultType.MOST_RECENT_ORIGIN:
-                sql += group_and_sort ("subj_origin", where_sql);
+                sql = group_and_sort ("subj_origin", where_sql);
                 break;
             case ResultType.LEAST_RECENT_ORIGIN:
-                sql += group_and_sort ("subj_origin", where_sql);
+                sql = group_and_sort ("subj_origin", where_sql);
                 break;
             case ResultType.MOST_POPULAR_ORIGIN:
-                sql += group_and_sort ("subj_origin", where_sql, false);
+                sql = group_and_sort ("subj_origin", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_ORIGIN:
-                sql += group_and_sort ("subj_origin", where_sql, true);
+                sql = group_and_sort ("subj_origin", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_CURRENT_ORIGIN:
-                sql += group_and_sort ("subj_origin_current", where_sql);
+                sql = group_and_sort ("subj_origin_current", where_sql);
                 break;
             case ResultType.LEAST_RECENT_CURRENT_ORIGIN:
-                sql += group_and_sort ("subj_origin_current", where_sql);
+                sql = group_and_sort ("subj_origin_current", where_sql);
                 break;
             case ResultType.MOST_POPULAR_CURRENT_ORIGIN:
-                sql += group_and_sort ("subj_origin_current", where_sql, false);
+                sql = group_and_sort ("subj_origin_current", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_CURRENT_ORIGIN:
-                sql += group_and_sort ("subj_origin_current", where_sql, true);
+                sql = group_and_sort ("subj_origin_current", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_SUBJECT_INTERPRETATION:
-                sql += group_and_sort ("subj_interpretation", where_sql);
+                sql = group_and_sort ("subj_interpretation", where_sql);
                 break;
             case ResultType.LEAST_RECENT_SUBJECT_INTERPRETATION:
-                sql += group_and_sort ("subj_interpretation", where_sql);
+                sql = group_and_sort ("subj_interpretation", where_sql);
                 break;
             case ResultType.MOST_POPULAR_SUBJECT_INTERPRETATION:
-                sql += group_and_sort ("subj_interpretation", where_sql, false);
+                sql = group_and_sort ("subj_interpretation", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_SUBJECT_INTERPRETATION:
-                sql += group_and_sort ("subj_interpretation", where_sql, true);
+                sql = group_and_sort ("subj_interpretation", where_sql, true);
                 break;
             case ResultType.MOST_RECENT_MIMETYPE:
-                sql += group_and_sort ("subj_mimetype", where_sql);
+                sql = group_and_sort ("subj_mimetype", where_sql);
                 break;
             case ResultType.LEAST_RECENT_MIMETYPE:
-                sql += group_and_sort ("subj_mimetype", where_sql);
+                sql = group_and_sort ("subj_mimetype", where_sql);
                 break;
             case ResultType.MOST_POPULAR_MIMETYPE:
-                sql += group_and_sort ("subj_mimetype", where_sql, false);
+                sql = group_and_sort ("subj_mimetype", where_sql, false);
                 break;
             case ResultType.LEAST_POPULAR_MIMETYPE:
-                sql += group_and_sort ("subj_mimetype", where_sql, true);
+                sql = group_and_sort ("subj_mimetype", where_sql, true);
                 break;
             default:
                 string error_message = "Invalid ResultType.";
@@ -297,8 +297,6 @@ public class DbReader : Object
 
         if (where.get_is_simple ())
             sql = sql.replace ("FROM event_view", "FROM event");
-        if (max_events > 0)
-            sql += " LIMIT %u".printf (max_events);
 
         int rc;
         Sqlite.Statement stmt;
@@ -318,8 +316,13 @@ public class DbReader : Object
 
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
-            event_ids += (uint32) uint64.parse(
+            var event_id = (uint32) uint64.parse(
                 stmt.column_text (EventViewRows.ID));
+            // Events are supposed to be contiguous in the database
+            if (event_ids.length == 0 || event_ids[event_ids.length-1] != event_id) {
+                event_ids += event_id;
+                if (event_ids.length == max_events) break;
+            }
         }
         if (rc != Sqlite.DONE && rc != Sqlite.ROW)
         {
@@ -600,12 +603,9 @@ public class DbReader : Object
         }
 
         return """
-            NATURAL JOIN (
-                SELECT %s,
-                %s(timestamp) AS timestamp
+            SELECT id, %s, %s(timestamp) AS timestamp
                 %s
-                FROM event_view %s
-                GROUP BY %s)
+                FROM event_view %s AND %s IS NOT NULL
             GROUP BY %s
             ORDER BY %s 
             """.printf (
