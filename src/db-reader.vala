@@ -603,13 +603,12 @@ public class DbReader : Object
         }
 
         return """
-            SELECT id, %s, %s(timestamp) AS timestamp
+            SELECT id, %s(timestamp) AS timestamp
                 %s
                 FROM event_view %s AND %s IS NOT NULL
             GROUP BY %s
             ORDER BY %s 
             """.printf (
-                field,
                 aggregation_type,
                 aggregation_sql,
                 where_sql,
