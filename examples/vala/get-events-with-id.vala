@@ -10,10 +10,10 @@ int main ()
 
     Zeitgeist.Log zg = new Zeitgeist.Log ();
     zg.get_events (ids, null, (obj, res) => {
-        GenericArray<Zeitgeist.Event?> events = zg.get_events.end (res);
-        for (int i = 0; i < events.length; ++i)
+        var events = zg.get_events.end (res);
+        for (int i = 0; i < events.size(); ++i)
         {
-            Zeitgeist.Event event = events[i];
+            Zeitgeist.Event event = events.next_value();
             if (event != null)
                 stdout.printf ("First subject: %s\n", event.subjects[0].uri);
             else
