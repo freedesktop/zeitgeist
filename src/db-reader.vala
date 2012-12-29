@@ -602,7 +602,7 @@ public class DbReader : Object
         return """
             SELECT DISTINCT id, %s, %s(timestamp) AS timestamp
                 %s
-                FROM event_view %s AND %s > 0
+                FROM event_view %s AND %s IS NOT NULL
             GROUP BY %s
             ORDER BY %s 
             """.printf (
