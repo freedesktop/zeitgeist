@@ -171,7 +171,7 @@ public class DbReader : Object
     public uint32[] find_event_ids_for_clause (WhereClause where,
         uint max_events, uint result_type) throws EngineError
     {
-        string sql = "SELECT DISTINCT id FROM event_view ";
+        string sql = "SELECT id FROM event_view ";
         string where_sql = "";
         if (!where.is_empty ())
         {
@@ -297,8 +297,6 @@ public class DbReader : Object
 
         if (where.get_is_simple ())
             sql = sql.replace ("FROM event_view", "FROM event");
-        if (max_events > 0)
-            sql += " LIMIT %u".printf (max_events);
 
         int rc;
         Sqlite.Statement stmt;
@@ -318,8 +316,13 @@ public class DbReader : Object
 
         while ((rc = stmt.step()) == Sqlite.ROW)
         {
-            event_ids += (uint32) uint64.parse(
+            var event_id = (uint32) uint64.parse(
                 stmt.column_text (EventViewRows.ID));
+            // Events are supposed to be contiguous in the database
+            if (event_ids.length == 0 || event_ids[event_ids.length-1] != event_id) {
+                event_ids += event_id;
+                if (event_ids.length == max_events) break;
+            }
         }
         if (rc != Sqlite.DONE && rc != Sqlite.ROW)
         {
@@ -600,7 +603,7 @@ public class DbReader : Object
         }
 
         return """
-            SELECT DISTINCT id, %s, %s(timestamp) AS timestamp
+            SELECT id, %s, %s(timestamp) AS timestamp
                 %s
                 FROM event_view %s AND %s IS NOT NULL
             GROUP BY %s
