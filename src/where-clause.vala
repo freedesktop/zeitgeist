@@ -66,6 +66,18 @@ namespace Zeitgeist
             arguments = new GenericArray<string> ();
         }
 
+        public int get_conditions_length()
+        {
+            return conditions.length;
+        }
+
+        public bool has_non_timestamp_condition() {
+            for (int i=0; i<conditions.length; i++) {
+                    return true;
+            }
+            return false;
+        }
+
         public void add (string condition, string? argument=null)
         {
             conditions.add (condition);

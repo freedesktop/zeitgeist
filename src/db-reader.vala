@@ -187,103 +187,103 @@ public class DbReader : Object
                 sql += where_sql + " ORDER BY ";
                 break;
             case ResultType.MOST_RECENT_EVENT_ORIGIN:
-                sql = group_and_sort ("origin", where_sql);
+                sql = group_and_sort ("origin", where);
                 break;
             case ResultType.LEAST_RECENT_EVENT_ORIGIN:
-                sql = group_and_sort ("origin", where_sql);
+                sql = group_and_sort ("origin", where);
                 break;
             case ResultType.MOST_POPULAR_EVENT_ORIGIN:
-                sql = group_and_sort ("origin", where_sql, false);
+                sql = group_and_sort ("origin", where, false);
                 break;
             case ResultType.LEAST_POPULAR_EVENT_ORIGIN:
-                sql = group_and_sort ("origin", where_sql, true);
+                sql = group_and_sort ("origin", where, true);
                 break;
             case ResultType.MOST_RECENT_SUBJECTS:
-                sql = group_and_sort ("subj_id", where_sql);
+                sql = group_and_sort ("subj_id", where);
                 break;
             case ResultType.LEAST_RECENT_SUBJECTS:
-                sql = group_and_sort ("subj_id", where_sql);
+                sql = group_and_sort ("subj_id", where);
                 break;
             case ResultType.MOST_POPULAR_SUBJECTS:
-                sql = group_and_sort ("subj_id", where_sql, false);
+                sql = group_and_sort ("subj_id", where, false);
                 break;
             case ResultType.LEAST_POPULAR_SUBJECTS:
-                sql = group_and_sort ("subj_id", where_sql, true);
+                sql = group_and_sort ("subj_id", where, true);
                 break;
             case ResultType.MOST_RECENT_CURRENT_URI:
-                sql = group_and_sort ("subj_id_current", where_sql);
+                sql = group_and_sort ("subj_id_current", where);
                 break;
             case ResultType.LEAST_RECENT_CURRENT_URI:
-                sql = group_and_sort ("subj_id_current", where_sql);
+                sql = group_and_sort ("subj_id_current", where);
                 break;
             case ResultType.MOST_POPULAR_CURRENT_URI:
-                sql = group_and_sort ("subj_id_current", where_sql, false);
+                sql = group_and_sort ("subj_id_current", where, false);
                 break;
             case ResultType.LEAST_POPULAR_CURRENT_URI:
-                sql = group_and_sort ("subj_id_current", where_sql, true);
+                sql = group_and_sort ("subj_id_current", where, true);
                 break;
             case ResultType.MOST_RECENT_ACTOR:
-                sql = group_and_sort ("actor", where_sql);
+                sql = group_and_sort ("actor", where);
                 break;
             case ResultType.LEAST_RECENT_ACTOR:
-                sql = group_and_sort ("actor", where_sql);
+                sql = group_and_sort ("actor", where);
                 break;
             case ResultType.MOST_POPULAR_ACTOR:
-                sql = group_and_sort ("actor", where_sql, false);
+                sql = group_and_sort ("actor", where, false);
                 break;
             case ResultType.LEAST_POPULAR_ACTOR:
-                sql = group_and_sort ("actor", where_sql, true);
+                sql = group_and_sort ("actor", where, true);
                 break;
             case ResultType.OLDEST_ACTOR:
-                sql = group_and_sort ("actor", where_sql, null, "min");
+                sql = group_and_sort ("actor", where, null, "min");
                 break;
             case ResultType.MOST_RECENT_ORIGIN:
-                sql = group_and_sort ("subj_origin", where_sql);
+                sql = group_and_sort ("subj_origin", where);
                 break;
             case ResultType.LEAST_RECENT_ORIGIN:
-                sql = group_and_sort ("subj_origin", where_sql);
+                sql = group_and_sort ("subj_origin", where);
                 break;
             case ResultType.MOST_POPULAR_ORIGIN:
-                sql = group_and_sort ("subj_origin", where_sql, false);
+                sql = group_and_sort ("subj_origin", where, false);
                 break;
             case ResultType.LEAST_POPULAR_ORIGIN:
-                sql = group_and_sort ("subj_origin", where_sql, true);
+                sql = group_and_sort ("subj_origin", where, true);
                 break;
             case ResultType.MOST_RECENT_CURRENT_ORIGIN:
-                sql = group_and_sort ("subj_origin_current", where_sql);
+                sql = group_and_sort ("subj_origin_current", where);
                 break;
             case ResultType.LEAST_RECENT_CURRENT_ORIGIN:
-                sql = group_and_sort ("subj_origin_current", where_sql);
+                sql = group_and_sort ("subj_origin_current", where);
                 break;
             case ResultType.MOST_POPULAR_CURRENT_ORIGIN:
-                sql = group_and_sort ("subj_origin_current", where_sql, false);
+                sql = group_and_sort ("subj_origin_current", where, false);
                 break;
             case ResultType.LEAST_POPULAR_CURRENT_ORIGIN:
-                sql = group_and_sort ("subj_origin_current", where_sql, true);
+                sql = group_and_sort ("subj_origin_current", where, true);
                 break;
             case ResultType.MOST_RECENT_SUBJECT_INTERPRETATION:
-                sql = group_and_sort ("subj_interpretation", where_sql);
+                sql = group_and_sort ("subj_interpretation", where);
                 break;
             case ResultType.LEAST_RECENT_SUBJECT_INTERPRETATION:
-                sql = group_and_sort ("subj_interpretation", where_sql);
+                sql = group_and_sort ("subj_interpretation", where);
                 break;
             case ResultType.MOST_POPULAR_SUBJECT_INTERPRETATION:
-                sql = group_and_sort ("subj_interpretation", where_sql, false);
+                sql = group_and_sort ("subj_interpretation", where, false);
                 break;
             case ResultType.LEAST_POPULAR_SUBJECT_INTERPRETATION:
-                sql = group_and_sort ("subj_interpretation", where_sql, true);
+                sql = group_and_sort ("subj_interpretation", where, true);
                 break;
             case ResultType.MOST_RECENT_MIMETYPE:
-                sql = group_and_sort ("subj_mimetype", where_sql);
+                sql = group_and_sort ("subj_mimetype", where);
                 break;
             case ResultType.LEAST_RECENT_MIMETYPE:
-                sql = group_and_sort ("subj_mimetype", where_sql);
+                sql = group_and_sort ("subj_mimetype", where);
                 break;
             case ResultType.MOST_POPULAR_MIMETYPE:
-                sql = group_and_sort ("subj_mimetype", where_sql, false);
+                sql = group_and_sort ("subj_mimetype", where, false);
                 break;
             case ResultType.LEAST_POPULAR_MIMETYPE:
-                sql = group_and_sort ("subj_mimetype", where_sql, true);
+                sql = group_and_sort ("subj_mimetype", where, true);
                 break;
             default:
                 string error_message = "Invalid ResultType.";
@@ -590,31 +590,51 @@ public class DbReader : Object
     }
 
     // Used by find_event_ids
-    private string group_and_sort (string field, string where_sql,
+    private string group_and_sort (string field, WhereClause where,
         bool? count_asc=null, string aggregation_type="max")
     {
         string aggregation_sql = "";
         string order_sql = "";
+        string where_sql = where.get_sql_conditions ();
 
         if (count_asc != null)
         {
             aggregation_sql = ", COUNT(%s) AS num_events".printf (field);
             order_sql = "num_events %s,".printf ((count_asc) ? "ASC" : "DESC");
         }
-
-        return """
-            SELECT id, %s(timestamp) AS timestamp
-                %s
-                FROM event_view %s AND %s IS NOT NULL
-            GROUP BY %s
-            ORDER BY %s 
-            """.printf (
-                aggregation_type,
-                aggregation_sql,
-                where_sql,
-                field,
-                field,
-                order_sql);
+        if (where.has_non_timestamp_condition())
+            return """
+                SELECT id, %s(timestamp) AS timestamp
+                    %s
+                    FROM event_view WHERE %s AND %s IS NOT NULL
+                GROUP BY %s
+                ORDER BY %s 
+                """.printf (
+                    aggregation_type,
+                    aggregation_sql,
+                    where_sql,
+                    field,
+                    field,
+                    order_sql);
+        else
+            return """
+                SELECT id FROM event
+                NATURAL JOIN (
+                    SELECT %s,
+                    %s(timestamp) AS timestamp
+                    %s
+                    FROM event_view WHERE %s
+                    GROUP BY %s)
+                GROUP BY %s
+                ORDER BY %s 
+                """.printf (
+                    field,
+                    aggregation_type,
+                    aggregation_sql,
+                    where_sql,
+                    field,
+                    field,
+                    order_sql);
     }
 
     // Used by find_event_ids
