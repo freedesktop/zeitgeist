@@ -354,7 +354,9 @@ public class Engine : DbReader
         {
             handle_move_event (event);
         }
-
+        // After every 1000 events we analyze the queries
+        if (event.id % 1000 == 0)
+            Idle.add((SourceFunc)database.analyze);
         return event.id;
     }
 

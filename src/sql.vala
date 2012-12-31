@@ -445,6 +445,12 @@ namespace Zeitgeist.SQLite
             assert_query_success (rc, "Payload insertion query error");
         }
 
+        public bool analyze() throws EngineError
+        {
+            int rc = database.exec("ANALYZE");
+            assert_query_success (rc, "Event ID retrieval query error");
+            return false;
+        }
 
         protected void update_callback (Sqlite.Action action,
             string dbname, string table, int64 rowid)
