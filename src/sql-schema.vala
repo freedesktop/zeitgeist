@@ -36,7 +36,7 @@ namespace Zeitgeist.SQLite
     {
 
         public const string CORE_SCHEMA = "core";
-        public const int CORE_SCHEMA_VERSION = 8;
+        public const int CORE_SCHEMA_VERSION = 9;
 
         private const string DATABASE_CREATION = "database_creation";
 
@@ -51,7 +51,6 @@ namespace Zeitgeist.SQLite
                 // most likely a new DB
                 setup_database (database);
                 create_schema (database);
-                create_basic_indices (database);
                 create_event_indices (database);
 
                 // set database creation date
@@ -60,7 +59,7 @@ namespace Zeitgeist.SQLite
                     Timestamp.from_now ());
                 exec_query (database, schema_sql);
             }
-            else if (schema_version >= 3 && schema_version <= 7)
+            else if (schema_version >= 3 && schema_version <= 8)
             {
                 backup_database ();
 
@@ -112,8 +111,7 @@ namespace Zeitgeist.SQLite
                 // Create any missing tables and indices
                 create_schema (database);
                 drop_event_indices (database);
-                create_basic_indices (database);
-                create_event_indices (database);
+                drop_basic_indices (database);
 
                 // Migrate data to the new tables and delete the old ones
                 foreach (unowned string table in tables)
@@ -172,7 +170,8 @@ namespace Zeitgeist.SQLite
                     """);
 
                 exec_query (database, "COMMIT");
-
+                create_event_indices (database);
+                exec_query (database, "ANALYZE");
                 message ("Upgraded database to schema version %d.",
                     CORE_SCHEMA_VERSION);
             }
@@ -605,6 +604,22 @@ namespace Zeitgeist.SQLite
                 CREATE INDEX IF NOT EXISTS event_subj_storage
                     ON event(subj_storage, timestamp, id)
                 """);
+        }
+
+        /*
+         * Drop indices for all auxiliary tables.
+         */
+        public static void drop_basic_indices (Sqlite.Database database)
+            throws EngineError
+        {
+            exec_query (database, "DROP INDEX IF EXISTS uri_value");
+            exec_query (database, "DROP INDEX IF EXISTS interpretation_value");
+            exec_query (database, "DROP INDEX IF EXISTS manifestation_value");
+            exec_query (database, "DROP INDEX IF EXISTS mimetype_value");
+            exec_query (database, "DROP INDEX IF EXISTS actor_value");
+            exec_query (database, "DROP INDEX IF EXISTS text_value");
+            exec_query (database, "DROP INDEX IF EXISTS storage_value");
+            exec_query (database, "DROP INDEX IF EXISTS extensions_conf_key");
         }
 
         public static void drop_event_indices (Sqlite.Database database)

@@ -25,3 +25,12 @@
 #       --queries tools/development/query_sets/timerange_always.txt
 #  tools/development/query_timings.py --plot trunk.json --type overall \
 #       -o benchmark.svg
+
+# A good test for trunk and a release is as follows:
+
+tools/development/query_timings.py --name "trunk" -o synapse_trunk.json --queries tools/development/query_sets/synapse.txt && tools/development/query_timings.py --name "trunk" -o synapse_unlimited_trunk.json --queries tools/development/query_sets/synapse-unlimited.txt && tools/development/query_timings.py --name "trunk" -o timerange_always_trunk.json --queries tools/development/query_sets/timerange_always.txt && tools/development/query_timings.py --name "trunk" -o timerange_interval_trunk.json --queries tools/development/query_sets/timerange_interval.txt && tools/development/query_timings.py --name "trunk" -o jumplist_trunk.json --queries tools/development/query_sets/jumplist.txt
+
+tools/development/query_timings.py --name "0.9.5" -o jumplist_0.9.5.json --queries tools/development/query_sets/jumplist.txt && 
+tools/development/query_timings.py --name "0.9.5" -o synapse_0.9.5.json --queries tools/development/query_sets/synapse.txt && tools/development/query_timings.py --name "0.9.5" -o synapse_unlimited_0.9.5.json --queries tools/development/query_sets/synapse-unlimited.txt && tools/development/query_timings.py --name "0.9.5" -o timerange_always_0.9.5.json --queries tools/development/query_sets/timerange_always.txt && tools/development/query_timings.py --name "0.9.5" -o timerange_interval_0.9.5.json --queries tools/development/query_sets/timerange_interval.txt
+
+tools/development/query_timings.py --plot jumplist_0.9.5.json --plot jumplist_trunk.json --type overall -o jumplist.svg && tools/development/query_timings.py --plot synapse_0.9.5.json  --plot synapse_trunk.json --type overall -o synapse.svg && tools/development/query_timings.py --plot synapse_unlimited_0.9.5.json --plot synapse_unlimited_trunk.json --type overall -o synapse_unlimited.svg && tools/development/query_timings.py --plot timerange_always_0.9.5.json --plot timerange_always_trunk.json --type overall -o timerange_always.svg && tools/development/query_timings.py --plot timerange_interval_0.9.5.json --plot timerange_interval_trunk.json --type overall -o timerange_interval.svg
