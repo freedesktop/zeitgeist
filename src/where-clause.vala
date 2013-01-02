@@ -73,6 +73,7 @@ namespace Zeitgeist
 
         public bool has_non_timestamp_condition() {
             for (int i=0; i<conditions.length; i++) {
+                if (!conditions[i].has_prefix("timestamp"))
                     return true;
             }
             return false;

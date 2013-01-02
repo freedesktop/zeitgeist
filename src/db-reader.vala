@@ -596,27 +596,13 @@ public class DbReader : Object
         string aggregation_sql = "";
         string order_sql = "";
         string where_sql = where.get_sql_conditions ();
-
         if (count_asc != null)
         {
             aggregation_sql = ", COUNT(%s) AS num_events".printf (field);
             order_sql = "num_events %s,".printf ((count_asc) ? "ASC" : "DESC");
         }
-        if (where.has_non_timestamp_condition())
-            return """
-                SELECT id, %s(timestamp) AS timestamp
-                    %s
-                    FROM event_view WHERE %s AND %s IS NOT NULL
-                GROUP BY %s
-                ORDER BY %s 
-                """.printf (
-                    aggregation_type,
-                    aggregation_sql,
-                    where_sql,
-                    field,
-                    field,
-                    order_sql);
-        else
+        if (count_asc != null || !where.has_non_timestamp_condition())
+        {
             return """
                 SELECT id FROM event
                 NATURAL JOIN (
@@ -635,6 +621,17 @@ public class DbReader : Object
                     field,
                     field,
                     order_sql);
+        }
+        return """
+            SELECT id, %s(timestamp) AS timestamp
+                FROM event_view WHERE %s AND %s IS NOT NULL
+            GROUP BY %s
+            ORDER BY
+            """.printf (
+                aggregation_type,
+                where_sql,
+                field,
+                field);
     }
 
     // Used by find_event_ids
