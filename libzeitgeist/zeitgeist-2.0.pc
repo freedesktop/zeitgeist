@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libzeigeist
+Description: C bindings for Zeitgeist
+Requires: glib-2.0
+Version: 2.0.0
+Libs: -L${libdir} -lzeitgeist-2.0
+Cflags: -I${includedir}/zeitgeist-2.0
