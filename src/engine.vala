@@ -1,6 +1,6 @@
 /* engine.vala
  *
- * Copyright © 2011 Collabora Ltd.
+ * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *             By Seif Lotfy <seif@lotfy.com>
  *
@@ -76,6 +76,7 @@ public class Engine : DbReader
         database.begin_transaction ();
         try
         {
+            insert_event_data (events);
             for (int i = 0; i < events.length; ++i)
             {
                 if (events[i] != null)
@@ -96,14 +97,31 @@ public class Engine : DbReader
 
     private void preprocess_event (Event event) throws EngineError
     {
+        if (is_empty_string (event.interpretation)
+            || is_empty_string (event.manifestation)
+            || is_empty_string (event.actor))
+        {
+            throw new EngineError.INVALID_ARGUMENT (
+                "Incomplete event: interpretation, manifestation and actor " +
+                "are required");
+        }
+
         // Iterate through subjects and check for validity
-        for (int i = 0; i < event.num_subjects(); ++i)
+        for (int i = 0; i < event.num_subjects (); ++i)
         {
             unowned Subject subject = event.subjects[i];
 
-            // If current_uri is unset, give it the same value as URI
+            if (is_empty_string (subject.uri))
+            {
+                throw new EngineError.INVALID_ARGUMENT (
+                    "Incomplete event: subject without URI");
+            }
+
+            // If current_{uri,origin} are unset, set them to the same as URI
             if (is_empty_string (subject.current_uri))
                 subject.current_uri = subject.uri;
+            if (is_empty_string (subject.current_origin))
+                subject.current_origin = subject.origin;
 
             if (event.interpretation == ZG.MOVE_EVENT
                 && subject.uri == subject.current_uri)
@@ -120,6 +138,14 @@ public class Engine : DbReader
                     "Illegal event: unless event.interpretation is " +
                     "'MOVE_EVENT' then subject.uri and " +
                     "subject.current_uri have to be the same");
+            }
+            if (event.interpretation != ZG.MOVE_EVENT
+                && subject.origin != subject.current_origin)
+            {
+                throw new EngineError.INVALID_ARGUMENT (
+                    "Illegal event: unless event.interpretation is " +
+                    "'MOVE_EVENT' then subject.origin and " +
+                    "subject.current_origin have to be the same");
             }
 
             // If subject manifestation and interpretation are not set,
@@ -141,37 +167,83 @@ public class Engine : DbReader
         }
     }
 
-    private uint32 insert_event (Event event) throws EngineError
-        requires (event.id == 0)
-        requires (event.num_subjects () > 0)
+    private class DataInserter
     {
-        event.id = ++last_id;
+        // This is the maximum number of "unions" SQLite supports
+        private static const int MAX_PARAMETERS = 500;
 
-        // Make sure all the URIs, texts and storage are inserted
+        private Database database;
+        private string type;
+        private GenericArray<string> data;
+
+        public DataInserter (Database db, string data_type)
         {
-            var uris = new GenericArray<string> ();
-            var texts = new GenericArray<string> ();
-            var storages = new GenericArray<string> ();
+            database = db;
+            type = data_type;
+            data = new GenericArray<string> ();
+        }
+
+        ~DataInserter ()
+        {
+            if (data.length > 0)
+                warning ("DataInserter: destroyed with unflushed data");
+        }
+
+        public void add (string val) throws EngineError
+        {
+            if (data.length == MAX_PARAMETERS)
+                flush ();
+            data.add (val);
+        }
+
+        public void flush () throws EngineError
+        {
+            if (data.length > 0)
+            {
+                database.insert_or_ignore_into_table (type, data);
+                data = new GenericArray<string> ();
+            }
+        }
+    }
+
+    /**
+     * Makes sure all the URIs, texts and storage values used
+     * by the given events are in the database.
+     */
+    private void insert_event_data (GenericArray<Event> events)
+        throws EngineError
+    {
+        var uris = new DataInserter (database, "uri");
+        var texts = new DataInserter (database, "text");
+        var storages = new DataInserter (database, "storage");
+
+        for (int j = 0; j < events.length; ++j)
+        {
+            if (events[j] == null) continue;
+
+            Event event = events[j];
             var subj_uris = new SList<string> ();
 
             if (!is_empty_string (event.origin))
                 uris.add (event.origin);
 
             // Iterate through subjects and check for validity
-            for (int i = 0; i < event.num_subjects(); ++i)
+            for (int i = 0; i < event.num_subjects (); ++i)
             {
                 unowned Subject subject = event.subjects[i];
-                if (subj_uris.find_custom(subject.uri, strcmp) != null)
+                if (subj_uris.find_custom (subject.uri, strcmp) != null)
                 {
                     // Events with two subjects with the same URI are not supported.
-                    warning ("Events with two subjects with the same URI are not supported");
-                    return 0;
+                    throw new EngineError.INVALID_EVENT (
+                        "Events with two subjects with the same URI are not supported");
                 }
                 subj_uris.append (subject.uri);
 
                 uris.add (subject.uri);
                 if (subject.uri != subject.current_uri)
                     uris.add (subject.current_uri);
+                if (subject.origin != subject.current_origin)
+                    uris.add (subject.current_origin);
 
                 if (!is_empty_string (subject.origin))
                     uris.add (subject.origin);
@@ -180,22 +252,27 @@ public class Engine : DbReader
                 if (!is_empty_string(subject.storage))
                     storages.add (subject.storage);
             }
-
-            try
-            {
-                if (uris.length > 0)
-                    database.insert_or_ignore_into_table ("uri", uris);
-                if (texts.length > 0)
-                    database.insert_or_ignore_into_table ("text", texts);
-                if (storages.length > 0)
-                    database.insert_or_ignore_into_table ("storage", storages);
-            }
-            catch (EngineError e)
-            {
-                warning ("Can't insert data for event: " + e.message);
-                return 0;
-            }
         }
+
+        uris.flush ();
+        texts.flush ();
+        storages.flush ();
+    }
+
+    private void bind_cached_reference (Sqlite.Statement stmt,
+        int position, TableLookup table, string? value_) throws EngineError
+    {
+        if (value_ != null)
+            stmt.bind_int64 (position, table.id_for_string (value_));
+        else
+            stmt.bind_null (position);
+    }
+
+    private uint32 insert_event (Event event) throws EngineError
+        requires (event.id == 0)
+        requires (event.num_subjects () > 0)
+    {
+        event.id = ++last_id;
 
         var payload_id = store_payload (event);
 
@@ -211,11 +288,11 @@ public class Engine : DbReader
 
         insert_stmt.bind_int64 (1, event.id);
         insert_stmt.bind_int64 (2, event.timestamp);
-        insert_stmt.bind_int64 (3,
-            interpretations_table.id_for_string (event.interpretation));
-        insert_stmt.bind_int64 (4,
-            manifestations_table.id_for_string (event.manifestation));
-        insert_stmt.bind_int64 (5, actors_table.id_for_string (event.actor));
+        bind_cached_reference (insert_stmt, 3, interpretations_table,
+            event.interpretation);
+        bind_cached_reference (insert_stmt, 4, manifestations_table,
+            event.manifestation);
+        bind_cached_reference (insert_stmt, 5, actors_table, event.actor);
         insert_stmt.bind_text (6, event.origin);
         insert_stmt.bind_int64 (7, payload_id);
 
@@ -227,16 +304,17 @@ public class Engine : DbReader
 
             insert_stmt.bind_text (8, subject.uri);
             insert_stmt.bind_text (9, subject.current_uri);
-            insert_stmt.bind_int64 (10,
-                interpretations_table.id_for_string (subject.interpretation));
-            insert_stmt.bind_int64 (11,
-                manifestations_table.id_for_string (subject.manifestation));
+            bind_cached_reference (insert_stmt, 10, interpretations_table,
+                subject.interpretation);
+            bind_cached_reference (insert_stmt, 11, manifestations_table,
+                subject.manifestation);
             insert_stmt.bind_text (12, subject.origin);
-            insert_stmt.bind_int64 (13,
-                mimetypes_table.id_for_string (subject.mimetype));
-            insert_stmt.bind_text (14, subject.text);
+            insert_stmt.bind_text (13, subject.current_origin);
+            bind_cached_reference (insert_stmt, 14, mimetypes_table,
+                subject.mimetype);
+            insert_stmt.bind_text (15, subject.text);
             // FIXME: Consider a storages_table table. Too dangerous?
-            insert_stmt.bind_text (15, subject.storage);
+            insert_stmt.bind_text (16, subject.storage);
 
             if ((rc = insert_stmt.step()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)
@@ -255,11 +333,12 @@ public class Engine : DbReader
                 retrieval_stmt.reset ();
 
                 retrieval_stmt.bind_int64 (1, event.timestamp);
-                retrieval_stmt.bind_int64 (2,
-                    interpretations_table.id_for_string (event.interpretation));
-                retrieval_stmt.bind_int64 (3,
-                    manifestations_table.id_for_string (event.manifestation));
-                retrieval_stmt.bind_int64 (4, actors_table.id_for_string (event.actor));
+                bind_cached_reference (retrieval_stmt, 2,
+                    interpretations_table, event.interpretation);
+                bind_cached_reference (retrieval_stmt, 3,
+                    manifestations_table, event.manifestation);
+                bind_cached_reference (retrieval_stmt, 4,
+                    actors_table, event.actor);
 
                 if ((rc = retrieval_stmt.step ()) != Sqlite.ROW) {
                     database.assert_not_corrupt (rc);
@@ -275,7 +354,9 @@ public class Engine : DbReader
         {
             handle_move_event (event);
         }
-
+        // After every 1000 events we analyze the queries
+        if (event.id % 1000 == 0)
+            Idle.add((SourceFunc)database.analyze);
         return event.id;
     }
 
@@ -336,9 +417,10 @@ public class Engine : DbReader
             unowned Sqlite.Statement move_stmt = database.move_handling_stmt;
             move_stmt.reset();
             move_stmt.bind_text (1, subject.current_uri);
-            move_stmt.bind_text (2, subject.uri);
-            move_stmt.bind_text (3, event.interpretation);
-            move_stmt.bind_int64 (4, event.timestamp);
+            move_stmt.bind_text (2, subject.current_origin);
+            move_stmt.bind_text (3, subject.uri);
+            move_stmt.bind_text (4, event.interpretation);
+            move_stmt.bind_int64 (5, event.timestamp);
             if ((rc = move_stmt.step()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)
                 {
