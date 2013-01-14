@@ -384,18 +384,25 @@ public class Log : QueuedProxyWrapper
     {
         if (monitors.lookup (monitor) == 0)
         {
-            DBusConnection conn = ((DBusProxy) proxy).get_connection ();
-
             try
             {
-                uint registration_id = conn.register_object<RemoteMonitor> (
-                    monitor.get_path (), monitor);
-                monitors.insert (monitor, registration_id);
+                DBusConnection conn = ((DBusProxy) proxy).get_connection ();
+
+                try
+                {
+                    uint registration_id = conn.register_object<RemoteMonitor> (
+                        monitor.get_path (), monitor);
+                    monitors.insert (monitor, registration_id);
+                }
+                catch (GLib.IOError err)
+                {
+                    warning ("Error installing monitor: %s", err.message);
+                    return;
+                }
             }
-            catch (GLib.IOError err)
+            catch (IOError err)
             {
-                warning ("Error installing monitor: %s", err.message);
-                return;
+                critical ("Unable to connect to DBus session bus: %s", err.message);
             }
         }
 
