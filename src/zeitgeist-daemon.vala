@@ -23,6 +23,8 @@
  *
  */
 
+using Zeitgeist.Utils;
+
 namespace Zeitgeist
 {
 
@@ -99,6 +101,14 @@ namespace Zeitgeist
             {
                 string[] ext = engine.get_extension_names ();
                 return ext;
+            }
+        }
+
+        public string datapath
+        {
+            owned get
+            {
+                return get_database_file_path ();
             }
         }
 
