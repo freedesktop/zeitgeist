@@ -38,6 +38,9 @@
  * Zeitgeist also comes with a blacklist extension to make sure the user
  * always stays in control of what information is logged.
  */
+
+using Zeitgeist.Utils;
+
 namespace Zeitgeist
 {
 
@@ -59,6 +62,8 @@ public class Log : QueuedProxyWrapper
     private static Log default_instance;
 
     private RemoteLog proxy;
+    private bool is_direct;
+    private string datapath;
     private Variant? engine_version;
     private HashTable<Monitor, uint> monitors;
 
@@ -72,6 +77,14 @@ public class Log : QueuedProxyWrapper
                 {
                     proxy = Bus.get_proxy.end (res);
                     proxy_acquired (proxy);
+                    datapath = proxy.datapath;
+                    if (!FileUtils.test(datapath, GLib.FileTest.EXISTS) ||
+                        datapath == ":memory:")
+                        is_direct = false;
+                    else {
+                        is_direct = true;
+                        set_database_file_path(datapath);
+                    }
                 }
                 catch (IOError err)
                 {

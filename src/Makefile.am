@@ -38,18 +38,12 @@ extensions_VALASOURCES = \
 
 zeitgeist_daemon_VALASOURCES = \
 	zeitgeist-daemon.vala \
-	db-reader.vala \
 	engine.vala \
 	extension.vala \
 	extension-collection.vala \
 	extension-store.vala \
 	logging.vala \
 	notify.vala \
-	sql.vala \
-	errors.vala \
-	table-lookup.vala \
-	sql-schema.vala \
-	where-clause.vala \
 	$(NULL)
 
 zeitgeist_daemon_SOURCES = \

@@ -206,6 +206,10 @@ namespace Zeitgeist
                 throw new DataModelError.INVALID_SIGNATURE (error_message);
         }
 
+        public void set_database_file_path(string path) {
+            DATABASE_FILE_PATH = path;
+        }
+
     }
 }
 

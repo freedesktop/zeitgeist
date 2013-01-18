@@ -30,13 +30,7 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 libzeitgeist_internal_la_VALASOURCES = \
-	db-reader.vala \
 	engine.vala \
-	sql.vala \
-	errors.vala \
-	table-lookup.vala \
-	sql-schema.vala \
-	where-clause.vala \
 	ext-dummies.vala \
 	$(NULL)
 
