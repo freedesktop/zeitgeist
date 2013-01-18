@@ -163,7 +163,7 @@ public class Index : QueuedProxyWrapper
      *     You may pass {@link ResultType.RELEVANCY} to this method to
      *     have the results ordered by relevancy calculated in relation
      *     to "query"
-     * @param cancellable A {@link Cancellable} used to cancel the call or %NULL
+     * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
      */
     public async ResultSet search_with_relevancies (
         string query,

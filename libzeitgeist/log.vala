@@ -119,7 +119,7 @@ public class Log : QueuedProxyWrapper
     * be inserted into the log.
     *
     * @param event A {@link Event}
-    * @param cancellable:To cancel the operation or NULL
+    * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
     */
     public async Array<uint32> insert_event (Event event,
         Cancellable? cancellable=null) throws Error
@@ -134,8 +134,8 @@ public class Log : QueuedProxyWrapper
     * Asynchronously send a set of events to the Zeitgeist daemon, requesting they
     * be inserted into the log.
     *
-    * @param events An {@link GenericArray} of {@link Event}
-    * @param cancellable To cancel the operation or NULL
+    * @param events An {@link GLib.GenericArray} of {@link Event}
+    * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
     */
     public async Array<uint32> insert_events (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
@@ -179,7 +179,7 @@ public class Log : QueuedProxyWrapper
     * This method is exactly equivalent to calling zeitgeist_log_insert_event()
     * with NULL set as @cancellable, @callback, and @user_data.
     *
-    * @param events An {@link GenericArray} of {@link Event}
+    * @param events An {@link GLib.GenericArray} of {@link Event}
     */
     public async void insert_events_no_reply (GenericArray<Event> events)
         throws Error
@@ -199,17 +199,17 @@ public class Log : QueuedProxyWrapper
     *
     * If you need to do a query yielding a large (or unpredictable) result set
     * and you only want to show some of the results at the same time (eg., by
-    * paging them), consider using {@link find_event_ids_for_templates}.
+    * paging them), consider using {@link find_event_ids}.
     *
     * In order to use this method there needs to be a mainloop runnning.
     * Both Qt and GLib mainloops are supported.
     *
     * @param time_range {@link TimeRange} A time range in which the events should be considered in
     * @param storage_state {@link StorageState} storage state
-    * @param event_templates An {@link GenericArray} of {@link Event}
+    * @param event_templates An {@link GLib.GenericArray} of {@link Event}
     * @param num_events int represteing the number of events that should be returned
     * @param result_type {@link ResultType} how the events should be grouped and sorted
-    * @param cancellable To cancel the operation or NULL
+    * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
     */
     public async ResultSet find_events (
         TimeRange time_range,
@@ -246,10 +246,10 @@ public class Log : QueuedProxyWrapper
     *
     * @param time_range {@link TimeRange} A time range in which the events should be considered in
     * @param storage_state {@link StorageState} storage state
-    * @param event_templates An {@link GenericArray} of {@link Event}
+    * @param event_templates An {@link GLib.GenericArray} of {@link Event}
     * @param num_events int represteing the number of events that should be returned
     * @param result_type {@link ResultType} how the events should be grouped and sorted
-    * @param cancellable To cancel the operation or NULL
+    * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
     */
     public async uint32[] find_event_ids (
         TimeRange time_range,
@@ -273,7 +273,7 @@ public class Log : QueuedProxyWrapper
     * of event ids. This is useful for looking up the event data for events found
     * with the find_event_ids_* family of functions.
     *
-    * Each {@link Evnet} which is not found in the {@link Log} is represented by
+    * Each {@link Event} which is not found in the {@link Log} is represented by
     * NULL in the resulting collection. The query will be done via an asynchronous
     * DBus call and this method will return immediately. The returned events will
     * be passed to callback as a list of {@link Event}s, which must be the only
@@ -281,8 +281,8 @@ public class Log : QueuedProxyWrapper
     *
     * In order to use this method there needs to be a mainloop runnning.
     *
-    * @param Array<int> {@link Event} ids
-    * @param cancellable To cancel the operation or NULL
+    * @param event_ids a {@link GLib.Array} of {@link Event} ids
+    * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
     */
     public async ResultSet get_events (
         Array<uint32> event_ids,
@@ -305,11 +305,11 @@ public class Log : QueuedProxyWrapper
     *
     * @param time_range {@link TimeRange} A time range in which the events should be considered in
     * @param storage_state {@link StorageState} storage state
-    * @param event_templates An {@link GenericArray} of {@link Event} describing the events to relate to
-    * @param result_templates An {@link GenericArray} of {@link Event} desrcibing the result to be returned
+    * @param event_templates An {@link GLib.GenericArray} of {@link Event} describing the events to relate to
+    * @param result_event_templates An {@link GLib.GenericArray} of {@link Event} desrcibing the result to be returned
     * @param num_events int represteing the number of events that should be returned
     * @param result_type {@link ResultType} how the events should be grouped and sorted
-    * @param cancellable To cancel the operation or NULL
+    * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
     */
     public async string[] find_related_uris (
         TimeRange time_range,
@@ -342,6 +342,7 @@ public class Log : QueuedProxyWrapper
     * The deletion will be done asynchronously, and this method returns immediately.
     *
     * @param event_ids Array<uint32>
+    * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
     */
     public async TimeRange delete_events (Array<uint32> event_ids,
             Cancellable? cancellable=null) throws Error
@@ -353,7 +354,9 @@ public class Log : QueuedProxyWrapper
         Variant time_range = yield proxy.delete_events (_ids, cancellable);
         return new TimeRange.from_variant(time_range);
     }
-
+    /**
+    * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
+    */
     public async void quit (Cancellable? cancellable=null) throws Error
     {
         yield wait_for_proxy ();

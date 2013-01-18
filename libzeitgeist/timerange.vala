@@ -45,7 +45,7 @@ public class TimeRange: Object
      *        since the Unix Epoch
      * @param end_msec ending timestamp in number of milliseconds
      *        since the Unix Epoch
-     * @param a newly allocated ZeitgeistTimeRange. Free with
+     * @return a newly allocated ZeitgeistTimeRange. Free with
      *        g_object_unref()
      */
     public TimeRange (int64 start_msec, int64 end_msec)
@@ -103,7 +103,6 @@ public class TimeRange: Object
     }
 
     /**
-     * @param a #TimeRange
      * @return a new variant holding the time range
      */
     public Variant to_variant ()
