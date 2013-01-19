@@ -28,10 +28,8 @@ AM_VALAFLAGS = \
 libzeitgeist_2_0_la_SOURCES = \
 	data-source.vala \
 	data-source-registry.vala \
-	db-reader.vala \
 	mimetype.vala \
 	enumerations.vala \
-	errors.vala \
 	event.vala \
 	subject.vala \
 	timerange.vala \
@@ -45,11 +43,6 @@ libzeitgeist_2_0_la_SOURCES = \
 	remote.vala \
 	result-set.vala \
 	simple-result-set.vala \
-	sql.vala \
-	sql-schema.vala \
-	table-lookup.vala \
-	utils.vala \
-	where-clause.vala \
 	$(NULL)
 
 libzeitgeist_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
