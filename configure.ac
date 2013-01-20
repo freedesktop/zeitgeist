@@ -45,6 +45,7 @@ AC_SUBST(ZEITGEIST_LIBS)
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
+	libzeitgeist/internal/Makefile
 	libzeitgeist/Makefile
 	libzeitgeist/zeitgeist-2.0.pc
 	extensions/Makefile

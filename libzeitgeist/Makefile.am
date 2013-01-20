@@ -9,6 +9,7 @@ ONTOLOGY = \
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
+	-include $(top_srcdir)/libzeitgeist/internal \
 	-w \
 	$(NULL)
 
@@ -17,6 +18,7 @@ AM_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
+	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal-2.0.vapi \
 	$(top_srcdir)/config.vapi \
 	--vapi zeitgeist-2.0.vapi \
 	-H zeitgeist.h \
@@ -29,13 +31,11 @@ libzeitgeist_2_0_la_SOURCES = \
 	data-source.vala \
 	data-source-registry.vala \
 	mimetype.vala \
-	enumerations.vala \
 	event.vala \
 	subject.vala \
 	timerange.vala \
 	index.vala \
 	log.vala \
-	timestamp.vala \
 	monitor.vala \
 	ontology-uris.vala \
 	ontology.vala \

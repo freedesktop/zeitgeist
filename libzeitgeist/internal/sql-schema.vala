@@ -151,16 +151,16 @@ namespace Zeitgeist.SQLite
                 // Ontology update
                 exec_query (database,
                     "INSERT OR IGNORE INTO manifestation (value) VALUES ('%s')"
-                    .printf (NFO.WEB_DATA_OBJECT));
+                    .printf ("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebDataObject"));
                 exec_query (database, """
                     UPDATE event
                     SET subj_manifestation=(
-                        SELECT id FROM manifestation WHERE value='""" +
-                            NFO.WEB_DATA_OBJECT + """')
+                        SELECT id FROM manifestation
+                        WHERE value='http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebDataObject'")
                     WHERE
                         subj_manifestation=(
-                            SELECT id FROM manifestation WHERE value='""" +
-                                NFO.REMOTE_DATA_OBJECT + """')
+                            SELECT id FROM manifestation
+                            WHERE value='http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#RemoteDataObject')
                         AND subj_id IN (
                             SELECT id FROM uri
                             WHERE

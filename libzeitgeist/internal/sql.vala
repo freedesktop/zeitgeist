@@ -226,7 +226,7 @@ namespace Zeitgeist.SQLite
             return sql_condition.str;
         }
 
-        public TimeRange? get_time_range_for_event_ids (uint32[] event_ids)
+        public int64[]? get_time_range_for_event_ids (uint32[] event_ids)
             throws EngineError
         {
             if (event_ids.length == 0)
@@ -238,7 +238,7 @@ namespace Zeitgeist.SQLite
                 WHERE id IN (%s)
                 """.printf (get_sql_string_from_event_ids (event_ids));
 
-            TimeRange? time_range = null;
+            int64[] timerange = null;
             int rc = database.exec (sql,
                 (n_columns, values, column_names) =>
                 {
@@ -246,13 +246,13 @@ namespace Zeitgeist.SQLite
                     {
                         int64 start = int64.parse (values[0]);
                         int64 end = int64.parse (values[1]);
-                        time_range = new TimeRange (start, end);
+                        timerange = {start, end};
                     }
                     return 0;
                 }, null);
             assert_query_success (rc, "SQL Error");
 
-            return time_range;
+            return timerange;
         }
 
         public void insert_or_ignore_into_table (string table_name,

@@ -199,7 +199,7 @@ namespace Zeitgeist
             return s == null || s == "";
         }
 
-        internal void assert_sig (bool condition, string error_message)
+        public void assert_sig (bool condition, string error_message)
         throws DataModelError
         {
             if (unlikely (!condition))
