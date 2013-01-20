@@ -6,6 +6,10 @@ ONTOLOGY = \
 	$(wildcard $(top_srcdir)/data/ontology/*.trig) \
 	$(NULL)
 
+SUBDIRS = \
+    internal \
+    $(NULL)
+
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
