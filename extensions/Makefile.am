@@ -5,6 +5,7 @@ endif
 NULL =
 
 zeitgeist_libs = \
+	$(top_builddir)/libzeitgeist/internal/libzeitgeist-internal-2.0.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(ZEITGEIST_LIBS)
 
@@ -24,6 +25,7 @@ VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	--pkg gmodule-2.0 \
+	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal-2.0.vapi \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/src/zeitgeist-engine.vapi \
 	$(NULL)
