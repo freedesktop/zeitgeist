@@ -5,6 +5,7 @@ bin_PROGRAMS = zeitgeist-daemon
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
+	-I $(top_srcdir)/libzeitgeist/internal \
 	-I $(top_srcdir)/libzeitgeist \
 	-w \
 	$(NULL)
@@ -16,6 +17,7 @@ AM_VALAFLAGS = \
 	--pkg sqlite3 \
 	--pkg posix \
 	--pkg gmodule-2.0 \
+	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal-2.0.vapi \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
@@ -53,8 +55,9 @@ zeitgeist_daemon_SOURCES = \
 	$(NULL)
 
 zeitgeist_daemon_LDADD = \
-	$(ZEITGEIST_LIBS) \
+	$(top_builddir)/libzeitgeist/internal/libzeitgeist-internal-2.0.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+	$(ZEITGEIST_LIBS) \
 	$(NULL)
 
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined

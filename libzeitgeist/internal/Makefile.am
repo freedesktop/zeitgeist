@@ -1,6 +1,10 @@
 NULL =
 
-noinst_LTLIBRARIES = libzeitgeist-internal-2.0.la
+lib_LTLIBRARIES = libzeitgeist-internal-2.0.la
+
+ONTOLOGY = \
+	$(wildcard $(top_srcdir)/data/ontology/*.trig) \
+	$(NULL)
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
@@ -32,6 +36,29 @@ libzeitgeist_internal_2_0_la_SOURCES = \
 	$(NULL)
 
 libzeitgeist_internal_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
+libzeitgeist_internal_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
+
+libzeitgeist_internal_includedir=$(includedir)/zeitgeist-internal-2.0/
+libzeitgeist_internal_include_HEADERS = \
+	zeitgeist-internal.h \
+	$(NULL)
+
+libzeitgeist_internal_vapidir = $(datadir)/vala/vapi/
+libzeitgeist_internal_vapi_DATA = \
+	zeitgeist-internal-2.0.vapi
+	$(NULL)
+
+EXTRA_DIST = \
+	ontology.vala.in \
+	ontology-uris.vala.in \
+	$(NULL)
+
+DISTCLEANFILES = \
+	ontology.vala \
+	ontology-uris.vala \
+	zeitgeist-2.0.vapi \
+	$(NULL)
+
 
 libzeitgeist_internal_include_HEADERS = \
 	zeitgeist-internal.h \

@@ -13,7 +13,7 @@ SUBDIRS = \
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
-	-include $(top_srcdir)/libzeitgeist/internal \
+	-I $(top_srcdir)/libzeitgeist/internal \
 	-w \
 	$(NULL)
 
@@ -32,6 +32,7 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 libzeitgeist_2_0_la_SOURCES = \
+	db-reader.vala \
 	data-source.vala \
 	data-source-registry.vala \
 	mimetype.vala \

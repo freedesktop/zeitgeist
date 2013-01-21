@@ -367,8 +367,9 @@ public class Engine : DbReader
         event_ids = extension_collection.call_pre_delete_events (
             event_ids, sender);
 
-        TimeRange? time_range = database.get_time_range_for_event_ids (
+        int64[] raw_time_range = database.get_time_range_for_event_ids (
             event_ids);
+        TimeRange? time_range = new TimeRange(raw_time_range[0], raw_time_range[1]);
 
         string sql_event_ids = database.get_sql_string_from_event_ids (
             event_ids);
