@@ -56,30 +56,8 @@ EXTRA_DIST = \
 DISTCLEANFILES = \
 	ontology.vala \
 	ontology-uris.vala \
-	zeitgeist-2.0.vapi \
-	$(NULL)
-
-
-libzeitgeist_internal_include_HEADERS = \
-	zeitgeist-internal.h \
-	$(NULL)
-
-libzeitgeist_internal_vapidir = $(datadir)/vala/vapi/
-libzeitgeist_internal_vapi_DATA = \
 	zeitgeist-internal-2.0.vapi
 	$(NULL)
-
-EXTRA_DIST = \
-	ontology.vala.in \
-	ontology-uris.vala.in \
-	$(NULL)
-
-DISTCLEANFILES = \
-	ontology.vala \
-	ontology-uris.vala \
-	zeitgeist-2.0.vapi \
-	$(NULL)
-
 
 CLEANFILES =
 MAINTAINERCLEANFILES =

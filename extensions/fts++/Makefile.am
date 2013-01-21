@@ -26,6 +26,7 @@ AM_VALAFLAGS = \
 	--pkg posix \
 	--pkg gmodule-2.0 \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
+	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal-2.0.vapi \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
