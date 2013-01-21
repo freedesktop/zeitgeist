@@ -12,7 +12,10 @@ AM_CFLAGS = \
   -DZEITGEIST_COMPILATION \
   -DTEST_DIR=\"$(top_srcdir)/tests\"
 
-zeitgeist_libs = $(top_builddir)/libzeitgeist/libzeitgeist-2.0.la $(ZEITGEIST_LIBS)
+zeitgeist_libs = \
+    $(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+    $(top_builddir)/libzeitgeist/internal/libzeitgeist-internal.la \
+    $(ZEITGEIST_LIBS)
 
 EXTRA_DIST += \
   test.desktop
