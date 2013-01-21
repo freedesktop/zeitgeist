@@ -1,6 +1,6 @@
 NULL =
 
-lib_LTLIBRARIES = libzeitgeist-internal-2.0.la
+lib_LTLIBRARIES = libzeitgeist-internal.la
 
 ONTOLOGY = \
 	$(wildcard $(top_srcdir)/data/ontology/*.trig) \
@@ -18,13 +18,13 @@ AM_VALAFLAGS = \
 	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
 	$(top_srcdir)/config.vapi \
-	--vapi zeitgeist-internal-2.0.vapi \
+	--vapi zeitgeist-internal.vapi \
 	-H zeitgeist-internal.h \
 	-h zeitgeist-internal-private.h \
 	--library=zeitgeist-internal \
 	$(NULL)
 
-libzeitgeist_internal_2_0_la_SOURCES = \
+libzeitgeist_internal_la_SOURCES = \
 	enumerations.vala \
 	errors.vala \
 	sql-schema.vala \
@@ -35,17 +35,17 @@ libzeitgeist_internal_2_0_la_SOURCES = \
 	where-clause.vala \
 	$(NULL)
 
-libzeitgeist_internal_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
-libzeitgeist_internal_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
+libzeitgeist_internal_la_LIBADD = $(ZEITGEIST_LIBS)
+libzeitgeist_internal_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
 
-libzeitgeist_internal_includedir=$(includedir)/zeitgeist-internal-2.0/
+libzeitgeist_internal_includedir=$(includedir)/zeitgeist-internal/
 libzeitgeist_internal_include_HEADERS = \
 	zeitgeist-internal.h \
 	$(NULL)
 
 libzeitgeist_internal_vapidir = $(datadir)/vala/vapi/
 libzeitgeist_internal_vapi_DATA = \
-	zeitgeist-internal-2.0.vapi
+	zeitgeist-internal.vapi
 	$(NULL)
 
 EXTRA_DIST = \
@@ -56,7 +56,7 @@ EXTRA_DIST = \
 DISTCLEANFILES = \
 	ontology.vala \
 	ontology-uris.vala \
-	zeitgeist-internal-2.0.vapi
+	zeitgeist-internal.vapi
 	$(NULL)
 
 CLEANFILES =

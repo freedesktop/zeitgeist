@@ -22,7 +22,7 @@ AM_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
-	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal-2.0.vapi \
+	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal.vapi \
 	$(top_srcdir)/config.vapi \
 	--vapi zeitgeist-2.0.vapi \
 	-H zeitgeist.h \
@@ -51,7 +51,7 @@ libzeitgeist_2_0_la_SOURCES = \
 	$(NULL)
 
 libzeitgeist_2_0_la_LIBADD = \
-    $(top_builddir)/libzeitgeist/internal/libzeitgeist-internal-2.0.la \
+    $(top_builddir)/libzeitgeist/internal/libzeitgeist-internal.la \
     $(ZEITGEIST_LIBS) \
     $(NULL)$
 libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)

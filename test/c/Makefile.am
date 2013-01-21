@@ -2,6 +2,7 @@ include $(top_srcdir)/libzeitgeist/Makefile.decl
 
 INCLUDES = \
   -I$(top_srcdir)/libzeitgeist -I$(top_builddir)/libzeitgeist \
+  -I$(top_srcdir)/libzeitgeist/internal -I$(top_builddir)/libzeitgeist/internal \
   $(GIO_UNIX_CFLAGS) \
   $(ZEITGEIST_CFLAGS)
 
@@ -17,6 +18,7 @@ EXTRA_DIST += \
   test.desktop
 
 helper_sources = \
+  $(top_srcdir)/libzeitgeist/internal/zeitgeist-internal.h  \
   $(top_srcdir)/libzeitgeist/zeitgeist.h  \
   test.desktop
 
