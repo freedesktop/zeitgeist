@@ -37,7 +37,10 @@ public class Engine : DbReader
 
     public ExtensionStore extension_store;
     private ExtensionCollection extension_collection;
-
+    private TableLookup interpretations_table;
+    private TableLookup manifestations_table;
+    private TableLookup mimetypes_table;
+    private TableLookup actors_table;
     private uint32 last_id;
 
     public Engine () throws EngineError
@@ -53,6 +56,10 @@ public class Engine : DbReader
     construct
     {
         extension_store = new ExtensionStore (this);
+        interpretations_table = new TableLookup (database, "interpretation");
+        manifestations_table = new TableLookup (database, "manifestation");
+        mimetypes_table = new TableLookup (database, "mimetype");
+        actors_table = new TableLookup (database, "actor");
     }
 
     public string[] get_extension_names ()
