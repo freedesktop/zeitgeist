@@ -25,7 +25,6 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 libzeitgeist_internal_la_SOURCES = \
-	enumerations.vala \
 	errors.vala \
 	sql-schema.vala \
 	sql.vala \
