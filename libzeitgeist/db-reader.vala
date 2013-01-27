@@ -37,8 +37,8 @@ namespace Zeitgeist
 public class DbReader : Object
 {
 
-    public Zeitgeist.SQLite.Database database { get; construct; }
-    protected unowned Sqlite.Database db;
+    private Zeitgeist.SQLite.Database database;
+    private unowned Sqlite.Database db;
 
     private TableLookup interpretations_table;
     private TableLookup manifestations_table;
@@ -47,7 +47,7 @@ public class DbReader : Object
 
     public DbReader () throws EngineError
     {
-        Object (database: new Zeitgeist.SQLite.Database.read_only ());
+        database = new Zeitgeist.SQLite.Database.read_only ();
     }
 
     construct
@@ -69,7 +69,7 @@ public class DbReader : Object
         }
     }
 
-    protected Event get_event_from_row (Sqlite.Statement stmt, uint32 event_id)
+    private Event get_event_from_row (Sqlite.Statement stmt, uint32 event_id)
         throws EngineError
     {
         Event event = new Event ();
@@ -96,7 +96,7 @@ public class DbReader : Object
         return event;
     }
 
-    protected Subject get_subject_from_row (Sqlite.Statement stmt)
+    private Subject get_subject_from_row (Sqlite.Statement stmt)
         throws EngineError
     {
         Subject subject = new Subject ();
@@ -168,7 +168,7 @@ public class DbReader : Object
         return results;
     }
 
-    public uint32[] find_event_ids_for_clause (WhereClause where,
+    private uint32[] find_event_ids_for_clause (WhereClause where,
         uint max_events, uint result_type) throws EngineError
     {
         string sql = "SELECT id FROM event_view ";
