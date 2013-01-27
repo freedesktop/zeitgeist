@@ -359,7 +359,7 @@ public class DbReader : Object
             storage_state, max_events, result_type));
     }
 
-    public WhereClause get_where_clause_for_query (TimeRange time_range,
+    private WhereClause get_where_clause_for_query (TimeRange time_range,
         GenericArray<Event> event_templates, uint storage_state) throws EngineError
     {
         WhereClause where = new WhereClause (WhereClause.Type.AND);
@@ -635,7 +635,7 @@ public class DbReader : Object
     }
 
     // Used by find_event_ids
-    public WhereClause get_where_clause_from_event_templates (
+    private WhereClause get_where_clause_from_event_templates (
         GenericArray<Event> templates) throws EngineError
     {
         WhereClause where = new WhereClause (WhereClause.Type.OR);
@@ -888,7 +888,7 @@ public class DbReader : Object
         throw new EngineError.INVALID_ARGUMENT (error_message);
     }
 
-    protected WhereClause get_where_clause_for_symbol (string table_name,
+    private WhereClause get_where_clause_for_symbol (string table_name,
         string symbol, TableLookup lookup_table) throws EngineError
     {
         string _symbol = symbol;
