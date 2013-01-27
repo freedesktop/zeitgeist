@@ -16,6 +16,7 @@ AM_CPPFLAGS = \
 	$(XAPIAN_CXXFLAGS) \
 	-include $(CONFIG_HEADER) \
 	-I $(top_srcdir)/libzeitgeist \
+	-I $(top_srcdir)/libzeitgeist/utils \
 	-w \
 	$(NULL)
 
@@ -25,8 +26,8 @@ AM_VALAFLAGS = \
 	--pkg sqlite3 \
 	--pkg posix \
 	--pkg gmodule-2.0 \
+	$(top_srcdir)/libzeitgeist/utils/zeitgeist-utils.vapi \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
-	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal.vapi \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
@@ -65,6 +66,7 @@ zeitgeist_fts_SOURCES = \
 
 zeitgeist_fts_LDADD = \
 	$(builddir)/libzeitgeist-internal.la \
+	$(top_builddir)/libzeitgeist/utils/libzeitgeist-utils.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(XAPIAN_LIBS) \
 	$(NULL)

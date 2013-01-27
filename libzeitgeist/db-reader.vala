@@ -38,7 +38,7 @@ public class DbReader : Object
 {
 
     public Zeitgeist.SQLite.Database database { get; construct; }
-    protected unowned Sqlite.Database db;
+    internal unowned Sqlite.Database db;
 
     private TableLookup interpretations_table;
     private TableLookup manifestations_table;
