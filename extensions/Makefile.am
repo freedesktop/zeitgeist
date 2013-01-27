@@ -5,7 +5,7 @@ endif
 NULL =
 
 zeitgeist_libs = \
-	$(top_builddir)/libzeitgeist/internal/libzeitgeist-internal.la \
+	$(top_builddir)/libzeitgeist/utils/libzeitgeist-utils.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(ZEITGEIST_LIBS)
 
@@ -15,7 +15,7 @@ noinst_LTLIBRARIES = ds-registry.la blacklist.la storage-monitor.la fts.la bench
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
-	-I $(top_srcdir)/libzeitgeist/internal \
+	-I $(top_srcdir)/libzeitgeist/utils \
 	-I $(top_srcdir)/libzeitgeist \
 	-I $(top_srcdir)/src \
 	-w \
@@ -26,7 +26,7 @@ VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	--pkg gmodule-2.0 \
-	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal.vapi \
+	$(top_srcdir)/libzeitgeist/utils/zeitgeist-utils.vapi \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/src/zeitgeist-engine.vapi \
 	$(NULL)

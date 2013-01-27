@@ -7,13 +7,13 @@ ONTOLOGY = \
 	$(NULL)
 
 SUBDIRS = \
-    internal \
+    utils \
     $(NULL)
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
-	-I $(top_srcdir)/libzeitgeist/internal \
+	-I $(top_srcdir)/libzeitgeist/utils \
 	-w \
 	$(NULL)
 
@@ -22,7 +22,7 @@ AM_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
-	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal.vapi \
+	$(top_srcdir)/libzeitgeist/utils/zeitgeist-utils.vapi \
 	$(top_srcdir)/config.vapi \
 	--vapi zeitgeist-2.0.vapi \
 	-H zeitgeist.h \
@@ -52,7 +52,7 @@ libzeitgeist_2_0_la_SOURCES = \
 	$(NULL)
 
 libzeitgeist_2_0_la_LIBADD = \
-    $(top_builddir)/libzeitgeist/internal/libzeitgeist-internal.la \
+    $(top_builddir)/libzeitgeist/utils/libzeitgeist-utils.la \
     $(ZEITGEIST_LIBS) \
     $(NULL)$
 libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)

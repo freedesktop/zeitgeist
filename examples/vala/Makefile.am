@@ -3,7 +3,7 @@ NULL =
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
-	-I $(top_srcdir)/libzeitgeist/internal/ \
+	-I $(top_srcdir)/libzeitgeist/utils/ \
 	-I $(top_srcdir)/libzeitgeist/ \
 	-w \
 	$(NULL)
@@ -12,13 +12,13 @@ AM_VALAFLAGS = \
 	--target-glib=2.26 \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
-	$(top_srcdir)/libzeitgeist/internal/zeitgeist-internal.vapi \
+	$(top_srcdir)/libzeitgeist/utils/zeitgeist-utils.vapi \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
 zeitgeist_libs = \
-	$(top_builddir)/libzeitgeist/internal/libzeitgeist-internal.la \
+	$(top_builddir)/libzeitgeist/utils/libzeitgeist-utils.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(ZEITGEIST_LIBS)
 
