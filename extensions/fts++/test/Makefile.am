@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-w \
 	-I$(srcdir)/.. \
+	-I $(top_srcdir)/libzeitgeist/utils \
 	-I $(top_srcdir)/libzeitgeist \
 	$(NULL)
 
@@ -23,6 +24,7 @@ test_fts_SOURCES = \
 
 test_fts_LDADD = \
   $(builddir)/../libzeitgeist-internal.la \
+  $(top_builddir)/libzeitgeist/libzeitgeist-utils.la \
   $(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
   -lxapian \
   $(NULL)

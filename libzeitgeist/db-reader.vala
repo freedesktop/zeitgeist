@@ -38,7 +38,7 @@ public class DbReader : Object
 {
 
     public Zeitgeist.SQLite.Database database { get; construct; }
-    internal unowned Sqlite.Database db;
+    public unowned Sqlite.Database db;
 
     private TableLookup interpretations_table;
     private TableLookup manifestations_table;
@@ -359,7 +359,7 @@ public class DbReader : Object
             storage_state, max_events, result_type));
     }
 
-    private WhereClause get_where_clause_for_query (TimeRange time_range,
+    protected WhereClause get_where_clause_for_query (TimeRange time_range,
         GenericArray<Event> event_templates, uint storage_state) throws EngineError
     {
         WhereClause where = new WhereClause (WhereClause.Type.AND);
@@ -635,7 +635,7 @@ public class DbReader : Object
     }
 
     // Used by find_event_ids
-    private WhereClause get_where_clause_from_event_templates (
+    protected WhereClause get_where_clause_from_event_templates (
         GenericArray<Event> templates) throws EngineError
     {
         WhereClause where = new WhereClause (WhereClause.Type.OR);
@@ -649,41 +649,42 @@ public class DbReader : Object
     }
 
     // Used by get_where_clause_from_event_templates
-    private WhereClause get_where_clause_from_event_template (Event template)
-        throws EngineError
+    protected WhereClause get_where_clause_from_event_template
+        (Event event_template) throws EngineError
     {
             WhereClause where = new WhereClause (WhereClause.Type.AND);
 
             // Event ID
-            if (template.id != 0)
-                where.add ("id=?", template.id.to_string());
+            if (event_template.id != 0)
+                where.add ("id=?", event_template.id.to_string());
 
             // Interpretation
-            if (!is_empty_string (template.interpretation))
+            if (!is_empty_string (event_template.interpretation))
             {
-                assert_no_wildcard ("interpretation", template.interpretation);
+                assert_no_wildcard ("interpretation",
+                                    event_template.interpretation);
                 WhereClause subwhere = get_where_clause_for_symbol (
-                    "interpretation", template.interpretation,
+                    "interpretation", event_template.interpretation,
                     interpretations_table);
                 if (!subwhere.is_empty ())
                     where.extend (subwhere);
             }
 
             // Manifestation
-            if (!is_empty_string (template.manifestation))
+            if (!is_empty_string (event_template.manifestation))
             {
-                assert_no_wildcard ("manifestation", template.interpretation);
+                assert_no_wildcard ("manifestation", event_template.interpretation);
                 WhereClause subwhere = get_where_clause_for_symbol (
-                    "manifestation", template.manifestation,
+                    "manifestation", event_template.manifestation,
                     manifestations_table);
                 if (!subwhere.is_empty ())
                    where.extend (subwhere);
             }
 
             // Actor
-            if (!is_empty_string (template.actor))
+            if (!is_empty_string (event_template.actor))
             {
-                string val = template.actor;
+                string val = event_template.actor;
                 bool like = parse_wildcard (ref val);
                 bool negated = parse_negation (ref val);
 
@@ -695,9 +696,9 @@ public class DbReader : Object
             }
 
             // Origin
-            if (!is_empty_string (template.origin))
+            if (!is_empty_string (event_template.origin))
             {
-                string val = template.origin;
+                string val = event_template.origin;
                 bool like = parse_wildcard (ref val);
                 bool negated = parse_negation (ref val);
                 assert_no_noexpand (val, "origin");
@@ -710,15 +711,15 @@ public class DbReader : Object
 
             // Subject templates within the same event template are AND'd
             // See LP bug #592599.
-            for (int i = 0; i < template.num_subjects(); ++i)
+            for (int i = 0; i < event_template.num_subjects(); ++i)
             {
-                Subject subject_template = template.subjects[i];
+                Subject subject_template = event_template.subjects[i];
 
                 // Subject interpretation
                 if (!is_empty_string (subject_template.interpretation))
                 {
                     assert_no_wildcard ("subject interpretation",
-                        template.interpretation);
+                        event_template.interpretation);
                     WhereClause subwhere = get_where_clause_for_symbol (
                         "subj_interpretation", subject_template.interpretation,
                         interpretations_table);
@@ -888,7 +889,7 @@ public class DbReader : Object
         throw new EngineError.INVALID_ARGUMENT (error_message);
     }
 
-    private WhereClause get_where_clause_for_symbol (string table_name,
+    protected WhereClause get_where_clause_for_symbol (string table_name,
         string symbol, TableLookup lookup_table) throws EngineError
     {
         string _symbol = symbol;
