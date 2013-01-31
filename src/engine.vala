@@ -37,10 +37,6 @@ public class Engine : DbReader
 
     public ExtensionStore extension_store;
     private ExtensionCollection extension_collection;
-    private TableLookup interpretations_table;
-    private TableLookup manifestations_table;
-    private TableLookup mimetypes_table;
-    private TableLookup actors_table;
     private uint32 last_id;
 
     public Engine () throws EngineError

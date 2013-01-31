@@ -40,10 +40,10 @@ public class DbReader : Object
     public Zeitgeist.SQLite.Database database { get; construct; }
     public unowned Sqlite.Database db;
 
-    private TableLookup interpretations_table;
-    private TableLookup manifestations_table;
-    private TableLookup mimetypes_table;
-    private TableLookup actors_table;
+    protected TableLookup interpretations_table;
+    protected TableLookup manifestations_table;
+    protected TableLookup mimetypes_table;
+    protected TableLookup actors_table;
 
     public DbReader () throws EngineError
     {
