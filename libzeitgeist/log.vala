@@ -68,6 +68,7 @@ public class Log : QueuedProxyWrapper
 
     public Log ()
     {
+        MainLoop mainloop = new MainLoop();
         monitors = new HashTable<Monitor, int>(direct_hash, direct_equal);
         Bus.get_proxy<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
             Utils.ENGINE_DBUS_PATH, 0, null, (obj, res) =>
@@ -76,7 +77,14 @@ public class Log : QueuedProxyWrapper
                 {
                     proxy = Bus.get_proxy.end (res);
                     proxy_acquired (proxy);
-                    dbreader = get_dbreader();
+                    
+                    string datapath = proxy.datapath;
+                    if (datapath != null && datapath != ":memory:" && 
+                        FileUtils.test(datapath, GLib.FileTest.EXISTS))
+                    {
+                            set_database_file_path(datapath);
+                            dbreader = new DbReader();
+                    }
                 }
                 catch (IOError err)
                 {
@@ -84,23 +92,9 @@ public class Log : QueuedProxyWrapper
                         err.message);
                     proxy_unavailable (err);
                 }
+                mainloop.quit();
             });
-    }
-
-    private DbReader get_dbreader () {
-        if (dbreader == null) {
-            string datapath = proxy.datapath;
-            if (datapath == null || datapath == ":memory:")
-                return null;
-            if (FileUtils.test(datapath, GLib.FileTest.EXISTS))
-            {
-                    set_database_file_path(datapath);
-                    dbreader = new DbReader();
-                    return dbreader;
-            }
-            return null;
-        }
-        return dbreader;
+        mainloop.run();
     }
 
     /**
@@ -239,8 +233,6 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        if (dbreader == null)
-            get_dbreader();
         if (dbreader == null) {
             var event_templates_cp = new GenericArray<Event>();
             for (int i = 0; i < event_templates.length; i++)
@@ -251,10 +243,8 @@ public class Log : QueuedProxyWrapper
                 num_events, result_type, cancellable);
             return new SimpleResultSet (Events.from_variant (result));
         }
-        else {
-            return new SimpleResultSet (dbreader.find_events(time_range, 
-                event_templates, storage_state, num_events, result_type));
-        }
+        return new SimpleResultSet (dbreader.find_events(time_range, 
+            event_templates, storage_state, num_events, result_type));
     }
 
 
@@ -287,13 +277,17 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        var event_templates_cp = new GenericArray<Event>();
-        for (int i = 0; i < event_templates.length; i++)
-            event_templates_cp.add(event_templates.get(i));
-        yield wait_for_proxy ();
-        return yield proxy.find_event_ids (time_range.to_variant (),
-            Events.to_variant (event_templates_cp), storage_state,
-            num_events, result_type, cancellable);
+        if (dbreader == null) {
+            var event_templates_cp = new GenericArray<Event>();
+            for (int i = 0; i < event_templates.length; i++)
+                event_templates_cp.add(event_templates.get(i));
+            yield wait_for_proxy ();
+            return yield proxy.find_event_ids (time_range.to_variant (),
+                Events.to_variant (event_templates_cp), storage_state,
+                num_events, result_type, cancellable);
+        }
+        return dbreader.find_event_ids(time_range, 
+            event_templates, storage_state, num_events, result_type);
     }
 
     /**
@@ -319,9 +313,12 @@ public class Log : QueuedProxyWrapper
         uint32[] simple_event_ids = new uint32[event_ids.length];
         for (int i = 0; i < event_ids.length; i++)
             simple_event_ids[i] = event_ids.index (i);
-        yield wait_for_proxy ();
-        var result = yield proxy.get_events (simple_event_ids, cancellable);
-        return new SimpleResultSet(Events.from_variant (result));
+        if (dbreader == null) {
+            yield wait_for_proxy ();
+            var result = yield proxy.get_events (simple_event_ids, cancellable);
+            return new SimpleResultSet(Events.from_variant (result));
+        }
+        return new SimpleResultSet (dbreader.get_events(simple_event_ids));
     }
 
     /**

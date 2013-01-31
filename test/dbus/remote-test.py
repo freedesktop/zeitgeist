@@ -80,12 +80,15 @@ class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
 
 		# Try deleting a non-existant event
 		events = parse_events("test/data/single_event.js")
+		print "========================= 1"
 		time_range = self.deleteEventsAndWait([int(ids[0]) + 1000])
 		self.assertEquals(time_range[0], time_range[1])
 		self.assertEquals(time_range[0], -1)
 
+		print "========================= 2"
 		# Make sure the inserted event is still there
 		retrieved_events = self.getEventsAndWait(ids)
+		print "========================= 3"
 		self.assertEquals(1, len(retrieved_events))
 		self.assertEventsEqual(retrieved_events[0], events[0])
 
