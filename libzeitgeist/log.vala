@@ -60,10 +60,9 @@ namespace Zeitgeist
 public class Log : QueuedProxyWrapper
 {
     private static Log default_instance;
-
+    private static DbReader dbreader;
     private RemoteLog proxy;
-    private bool is_direct;
-    private string datapath;
+
     private Variant? engine_version;
     private HashTable<Monitor, uint> monitors;
 
@@ -77,14 +76,7 @@ public class Log : QueuedProxyWrapper
                 {
                     proxy = Bus.get_proxy.end (res);
                     proxy_acquired (proxy);
-                    datapath = proxy.datapath;
-                    if (!FileUtils.test(datapath, GLib.FileTest.EXISTS) ||
-                        datapath == ":memory:")
-                        is_direct = false;
-                    else {
-                        is_direct = true;
-                        set_database_file_path(datapath);
-                    }
+                    dbreader = get_dbreader();
                 }
                 catch (IOError err)
                 {
@@ -95,6 +87,21 @@ public class Log : QueuedProxyWrapper
             });
     }
 
+    private DbReader get_dbreader () {
+        if (dbreader == null) {
+            string datapath = proxy.datapath;
+            if (datapath == null || datapath == ":memory:")
+                return null;
+            if (FileUtils.test(datapath, GLib.FileTest.EXISTS))
+            {
+                    set_database_file_path(datapath);
+                    dbreader = new DbReader();
+                    return dbreader;
+            }
+            return null;
+        }
+        return dbreader;
+    }
 
     /**
      * Get a unique instance of #ZeitgeistLog, that you can share in your
@@ -232,14 +239,22 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        var event_templates_cp = new GenericArray<Event>();
-        for (int i = 0; i < event_templates.length; i++)
-            event_templates_cp.add(event_templates.get(i));
-        yield wait_for_proxy ();
-        var result = yield proxy.find_events (time_range.to_variant (),
-            Events.to_variant (event_templates_cp), storage_state,
-            num_events, result_type, cancellable);
-        return new SimpleResultSet (Events.from_variant (result));
+        if (dbreader == null)
+            get_dbreader();
+        if (dbreader == null) {
+            var event_templates_cp = new GenericArray<Event>();
+            for (int i = 0; i < event_templates.length; i++)
+                event_templates_cp.add(event_templates.get(i));
+            yield wait_for_proxy ();
+            var result = yield proxy.find_events (time_range.to_variant (),
+                Events.to_variant (event_templates_cp), storage_state,
+                num_events, result_type, cancellable);
+            return new SimpleResultSet (Events.from_variant (result));
+        }
+        else {
+            return new SimpleResultSet (dbreader.find_events(time_range, 
+                event_templates, storage_state, num_events, result_type));
+        }
     }
 
 
