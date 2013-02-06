@@ -25,26 +25,25 @@ TESTS = \
 	$(NULL)
 
 SRC_FILES = \
-	$(top_srcdir)/src/db-reader.vala \
 	$(top_srcdir)/src/engine.vala \
-	$(top_srcdir)/libzeitgeist/utils.vala \
-	$(top_srcdir)/src/errors.vala \
+	$(top_srcdir)/libzeitgeist/utils/utils.vala \
+	$(top_srcdir)/libzeitgeist/utils/errors.vala \
 	$(top_srcdir)/src/extension-store.vala \
 	$(top_srcdir)/src/notify.vala \
-	$(top_srcdir)/src/table-lookup.vala \
+	$(top_srcdir)/libzeitgeist/utils/table-lookup.vala \
+	$(top_srcdir)/libzeitgeist/db-reader.vala \
 	$(top_srcdir)/libzeitgeist/data-source.vala \
 	$(top_srcdir)/libzeitgeist/enumerations.vala \
 	$(top_srcdir)/libzeitgeist/event.vala \
 	$(top_srcdir)/libzeitgeist/subject.vala \
 	$(top_srcdir)/libzeitgeist/timerange.vala \
-	$(top_srcdir)/libzeitgeist/timestamp.vala \
-	$(top_srcdir)/src/where-clause.vala \
+	$(top_srcdir)/libzeitgeist/utils/timestamp.vala \
+	$(top_srcdir)/libzeitgeist/utils/where-clause.vala \
 	$(top_srcdir)/libzeitgeist/remote.vala \
-	$(top_srcdir)/libzeitgeist/timestamp.vala \
-	$(top_srcdir)/src/sql-schema.vala \
+	$(top_srcdir)/libzeitgeist/utils/sql-schema.vala \
 	$(top_srcdir)/src/extension.vala \
 	$(top_srcdir)/src/extension-collection.vala \
-	$(top_srcdir)/src/sql.vala \
+	$(top_srcdir)/libzeitgeist/utils/sql.vala \
 	$(top_srcdir)/libzeitgeist/ontology.vala \
 	$(top_srcdir)/libzeitgeist/ontology-uris.vala \
 	$(top_srcdir)/libzeitgeist/mimetype.vala \
