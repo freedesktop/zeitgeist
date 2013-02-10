@@ -6,8 +6,6 @@ SUBDIRS = \
 	extensions \
 	data \
 	python \
-	test \
-	examples \
 	po \
 	doc \
 	$(NULL)

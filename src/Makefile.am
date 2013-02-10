@@ -2,6 +2,7 @@ NULL =
 
 bin_PROGRAMS = zeitgeist-daemon
 
+
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
