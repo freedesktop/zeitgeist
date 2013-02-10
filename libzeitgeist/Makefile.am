@@ -80,13 +80,10 @@ MAINTAINERCLEANFILES =
 libzeitgeist_dlname = \
 	`$(SED) -n "s/^dlname='\([A-Za-z0-9.+-]\+\)'/\1/p" libzeitgeist-2.0.la`
 
--include $(INTROSPECTION_MAKEFILE)
-INTROSPECTION_GIRS =
-INTROSPECTION_SCANNER_ARGS =
-INTROSPECTION_COMPILER_ARGS = -l $(libzeitgeist_dlname)
-
 if HAVE_INTROSPECTION
-Zeitgeist-2.0.gir: libzeitgeist-2.0.la
+Zeitgeist-2.0.typelib: Zeitgeist-2.0.gir
+	${INTROSPECTION_COMPILER} -l ${libzeitgeist_dlname} --includedir ${INTROSPECTION_GIRDIR} -o $@ $^
+
 GIRS = Zeitgeist-2.0.gir
 
 girdir = $(datadir)/gir-1.0

@@ -3,6 +3,7 @@ NULL =
 SUBDIRS = \
 	libzeitgeist \
 	src \
+	libzeitgeist/client \
 	extensions \
 	data \
 	python \

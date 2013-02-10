@@ -1,6 +1,6 @@
 NULL =
 
-lib_LTLIBRARIES = libzeitgeistclient-1.0.la
+lib_LTLIBRARIES = libzeitgeist-client-1.0.la
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
@@ -16,36 +16,35 @@ AM_VALAFLAGS = \
 	--pkg sqlite3 \
 	$(top_srcdir)/config.vapi \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
-	--vapi zeitgeistclient.vapi \
-	-H zeitgeistclient.h \
-	-h zeitgeistclient-private.h \
-	--library=zeitgeistclient \
+	--vapi zeitgeist-client.vapi \
+	-H zeitgeist-client.h \
+	-h zeitgeist-client-private.h \
+	--library=zeitgeist-client \
 	--gir=ZeitgeistClient-1.0.gir \
 	$(NULL)
 
-libzeitgeistclient_1_0_la_SOURCES = \
+libzeitgeist_client_1_0_la_SOURCES = \
 	log.vala \
 	$(NULL)
 
-libzeitgeistclient_1_0_la_LIBADD = \
+libzeitgeist_client_1_0_la_LIBADD = \
     $(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
     $(ZEITGEIST_LIBS) \
     $(NULL)$
-libzeitgeistclient_1_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
+libzeitgeist_client_1_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
 
-libzeitgeistclient_includedir=$(includedir)/zeitgeistclient/
-libzeitgeistclient_include_HEADERS = \
-	zeitgeistclient.h \
+libzeitgeist_client_includedir=$(includedir)/zeitgeist-client/
+libzeitgeist_client_include_HEADERS = \
+	zeitgeist-client.h \
 	$(NULL)
 
-libzeitgeistclient_vapidir = $(datadir)/vala/vapi/
-libzeitgeistclient_vapi_DATA = \
-	zeitgeistclient.vapi \
+libzeitgeist_client_vapidir = $(datadir)/vala/vapi/
+libzeitgeist_client_vapi_DATA = \
+	zeitgeist-client.vapi \
 	$(NULL)
 
 DISTCLEANFILES = \
-	log.vala \
-	zeitgeistclient.vapi \
+	zeitgeist-client.vapi \
 	$(NULL)
 
 CLEANFILES =
@@ -53,16 +52,16 @@ MAINTAINERCLEANFILES =
 
 # We have to extract our own dlname from libzeitgeist-2.0.la; see bgo#658002.
 # This is what g-ir-scanner does.
-libzeitgeistclient_dlname = \
-	`$(SED) -n "s/^dlname='\([A-Za-z0-9.+-]\+\)'/\1/p" libzeitgeistclient-1.0.la`
+libzeitgeist_client_dlname = \
+	`$(SED) -n "s/^dlname='\([A-Za-z0-9.+-]\+\)'/\1/p" libzeitgeist-client-1.0.la`
 
 -include $(INTROSPECTION_MAKEFILE)
 INTROSPECTION_GIRS =
 INTROSPECTION_SCANNER_ARGS =
-INTROSPECTION_COMPILER_ARGS = -l $(libzeitgeistclient_dlname)
+INTROSPECTION_COMPILER_ARGS = -l $(libzeitgeist_client_dlname)
 
 if HAVE_INTROSPECTION
-ZeitgeistClient-1.0.gir: libzeitgeistclient-1.0.la
+ZeitgeistClient-1.0.gir: libzeitgeist-client-1.0.la
 GIRS = ZeitgeistClient-1.0.gir
 
 girdir = $(datadir)/gir-1.0
