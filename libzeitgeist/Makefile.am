@@ -1,9 +1,5 @@
 NULL =
 
-SUBDIRS = \
-	client \
-	$(NULL)
-
 lib_LTLIBRARIES = libzeitgeist-2.0.la
 
 ONTOLOGY = \
