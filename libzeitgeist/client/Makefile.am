@@ -59,7 +59,7 @@ libzeitgeist_client_dlname = \
 if HAVE_INTROSPECTION
 ZeitgeistClient-1.0.gir: libzeitgeist-client-1.0.la
 ZeitgeistClient-1.0.typelib: ZeitgeistClient-1.0.gir
-	${INTROSPECTION_COMPILER} -l ${libzeitgeist_client_dlname} --includedir ${INTROSPECTION_GIRDIR} -o $@ $^
+	${INTROSPECTION_COMPILER} -l ${libzeitgeist_client_dlname} --includedir ${INTROSPECTION_GIRDIR} $(top_srcdir)/libzeitgeist/Zeitgeist-2.0.gir -o $@ $^
 GIRS = ZeitgeistClient-1.0.gir
 
 girdir = $(datadir)/gir-1.0
