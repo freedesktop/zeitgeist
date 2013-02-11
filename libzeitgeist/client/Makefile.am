@@ -57,7 +57,8 @@ libzeitgeist_client_dlname = \
 -include $(INTROSPECTION_MAKEFILE)
 
 if HAVE_INTROSPECTION
-Zeitgeist-2.0.typelib: Zeitgeist-2.0.gir
+ZeitgeistClient-1.0.gir: libzeitgeist-client-1.0.la
+ZeitgeistClient-1.0.typelib: Zeitgeist-2.0.gir
 	${INTROSPECTION_COMPILER} -l ${libzeitgeist_dlname} --includedir ${INTROSPECTION_GIRDIR} -o $@ $^
 GIRS = ZeitgeistClient-1.0.gir
 
