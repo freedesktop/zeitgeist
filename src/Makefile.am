@@ -29,7 +29,7 @@ endif
 
 noinst_LTLIBRARIES = libzeitgeist-db-private.la 
 
-zeitgeist_db_private_la_VALASOURCES = \
+libzeitgeist_db_private_la_VALASOURCES = \
 	db-reader.vala \
 	table-lookup.vala \
 	sql-schema.vala \
@@ -37,10 +37,15 @@ zeitgeist_db_private_la_VALASOURCES = \
 	sql.vala \
 	$(NULL)
 
-zeitgeist_db_private_la_SOURCES = \
+libzeitgeist_db_private_la_VALAFLAGS = \
+	--vapi zeitgeist-db-private.vapi \
+	-H zeitgeist-db-private.h \
+	$(NULL)
+
+libzeitgeist_db_private_la_SOURCES = \
 	zeitgeist-engine_vala.stamp \
-	$(zeitgeist_db_private_la_VALASOURCES:.vala=.h) \
-	$(zeitgeist_db_private_la_VALASOURCES:.vala=.c) \
+	$(libzeitgeist_db_private_la_VALASOURCES:.vala=.h) \
+	$(libzeitgeist_db_private_la_VALASOURCES:.vala=.c) \
 	$(NULL)
 
 libzeitgeist_db_private_la_LIBADD = \
@@ -71,6 +76,11 @@ zeitgeist_daemon_VALASOURCES = \
 	errors.vala \
 	$(NULL)
 
+zeitgeist_daemon_VALAFLAGS = \
+	--vapidir $(builddir) \
+	--pkg zeitgeist-db-private \
+	$(NULL)
+
 zeitgeist_daemon_SOURCES = \
 	zeitgeist-engine_vala.stamp \
 	$(zeitgeist_daemon_VALASOURCES:.vala=.c) \
@@ -80,7 +90,7 @@ zeitgeist_daemon_SOURCES = \
 zeitgeist_daemon_LDADD = \
 	$(ZEITGEIST_LIBS) \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
-	libzeitgeist-db-private.la \
+	$(builddir)/libzeitgeist-db-private.la \
 	$(NULL)
 
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
