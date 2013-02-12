@@ -1,15 +1,12 @@
 NULL = 
 
-bin_PROGRAMS = zeitgeist-daemon
-
-
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	-I $(top_srcdir)/libzeitgeist \
 	-w \
 	$(NULL)
-
+	
 AM_VALAFLAGS = \
 	--target-glib=2.26 \
 	-D BUILTIN_EXTENSIONS \
@@ -22,10 +19,36 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 if EXPLAIN_QUERIES
+
 AM_VALAFLAGS += \
 	-D EXPLAIN_QUERIES \
 	$(NULL)
+
 endif
+
+
+noinst_LTLIBRARIES = libzeitgeist-db-private.la 
+
+zeitgeist_db_private_la_VALASOURCES = \
+	db-reader.vala \
+	table-lookup.vala \
+	sql-schema.vala \
+	where-clause.vala \
+	sql.vala \
+	$(NULL)
+
+zeitgeist_db_private_la_SOURCES = \
+	zeitgeist-engine_vala.stamp \
+	$(zeitgeist_db_private_la_VALASOURCES:.vala=.h) \
+	$(zeitgeist_db_private_la_VALASOURCES:.vala=.c) \
+	$(NULL)
+
+libzeitgeist_db_private_la_LIBADD = \
+	$(ZEITGEIST_LIBS) \
+	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+	$(NULL)
+
+bin_PROGRAMS = zeitgeist-daemon
 
 # Make sure every extension has only one vala file!
 extensions_VALASOURCES = \
@@ -39,18 +62,13 @@ extensions_VALASOURCES = \
 
 zeitgeist_daemon_VALASOURCES = \
 	zeitgeist-daemon.vala \
-	db-reader.vala \
 	engine.vala \
 	extension.vala \
 	extension-collection.vala \
 	extension-store.vala \
 	logging.vala \
 	notify.vala \
-	sql.vala \
 	errors.vala \
-	table-lookup.vala \
-	sql-schema.vala \
-	where-clause.vala \
 	$(NULL)
 
 zeitgeist_daemon_SOURCES = \
@@ -62,6 +80,7 @@ zeitgeist_daemon_SOURCES = \
 zeitgeist_daemon_LDADD = \
 	$(ZEITGEIST_LIBS) \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+	libzeitgeist-db-private.la \
 	$(NULL)
 
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
@@ -95,3 +114,4 @@ distclean-local:
 VALA_V = $(VALA_V_$(V))
 VALA_V_ = $(VALA_V_$(AM_DEFAULT_VERBOSITY))
 VALA_V_0 = @echo "  VALAC " $^;
+
