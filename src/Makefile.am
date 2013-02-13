@@ -43,7 +43,8 @@ libzeitgeist_db_internal_la_LIBADD = \
 	$(NULL)
 
 
-libzeitgeist_libzeitgeist_internal_la_VALASOURCES = \
+libzeitgeist_db_internal_la_VALASOURCES = \
+	errors.vala \
 	db-reader.vala \
 	table-lookup.vala \
 	sql-schema.vala \
@@ -90,7 +91,6 @@ zeitgeist_daemon_VALASOURCES = \
 	extension-store.vala \
 	logging.vala \
 	notify.vala \
-	errors.vala \
 	$(NULL)
 
 zeitgeist_daemon_VALAFLAGS = \
