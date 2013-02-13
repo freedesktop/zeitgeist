@@ -120,7 +120,7 @@ zeitgeist-engine_vala.stamp: $(zeitgeist_daemon_VALASOURCES)
 
 extensions_vala.stamp: zeitgeist-engine_vala.stamp $(extensions_VALASOURCES)
 	$(AM_V_GEN)$(foreach ext_src,$(filter %.vala,$^),\
-		$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) $(EXT_FLAGS) -C zeitgeist-engine.vapi $(ext_src) || exit 1;)
+		$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) $(EXT_FLAGS) -C zeitgeist-db-internal.vapi zeitgeist-engine.vapi $(ext_src) || exit 1;)
 	@touch "$@"
 
 EXTRA_DIST = \

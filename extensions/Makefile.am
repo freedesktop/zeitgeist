@@ -6,6 +6,7 @@ NULL =
 
 zeitgeist_libs = \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+	$(top_builddir)/src/libzeitgeist-db-internal.la \
 	$(ZEITGEIST_LIBS)
 
 #extensionsdir = $(libdir)/zeitgeist/extensions
@@ -25,6 +26,7 @@ VALAFLAGS = \
 	--pkg sqlite3 \
 	--pkg gmodule-2.0 \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
+	$(top_srcdir)/src/zeitgeist-db-internal.vapi \
 	$(top_srcdir)/src/zeitgeist-engine.vapi \
 	$(NULL)
 
