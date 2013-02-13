@@ -4,6 +4,7 @@ AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	-I $(top_srcdir)/libzeitgeist/ \
+	-I $(top_srcdir)/libzeitgeist/client/ \
 	-w \
 	$(NULL)
 
@@ -11,11 +12,13 @@ AM_VALAFLAGS = \
 	--target-glib=2.26 \
 	--pkg gio-2.0 \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
+	$(top_srcdir)/libzeitgeist/client/zeitgeist-client.vapi \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
 zeitgeist_libs = \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+	$(top_srcdir)/libzeitgeist/client/libzeitgeist-client-1.0.la \
 	$(ZEITGEIST_LIBS)
 
 noinst_PROGRAMS = \

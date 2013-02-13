@@ -21,6 +21,7 @@
 #include <glib/gprintf.h>
 #include <glib-object.h>
 #include <zeitgeist.h>
+#include <zeitgeist-client.h>
 
 static void
 on_events_received (ZeitgeistIndex *index,

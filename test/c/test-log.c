@@ -19,6 +19,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "zeitgeist.h"
+#include "zeitgeist-client.h"
 
 typedef struct
 {

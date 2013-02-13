@@ -54,6 +54,14 @@ AC_CONFIG_FILES([
 	data/Makefile
 	data/ontology/Makefile
 	python/Makefile
+	test/Makefile
+	test/dbus/Makefile
+	test/direct/Makefile
+	test/c/Makefile
+	test/data/Makefile
+	examples/Makefile
+	examples/c/Makefile
+	examples/vala/Makefile
 	doc/Makefile
 	doc/libzeitgeist/Makefile
 	po/Makefile.in

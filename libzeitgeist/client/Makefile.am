@@ -27,6 +27,7 @@ AM_VALAFLAGS = \
 
 libzeitgeist_client_1_0_la_SOURCES = \
 	log.vala \
+	index.vala \
 	$(NULL)
 
 libzeitgeist_client_1_0_la_LIBADD = \
