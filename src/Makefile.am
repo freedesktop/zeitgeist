@@ -26,10 +26,26 @@ AM_VALAFLAGS += \
 
 endif
 
+#######################################################################################
+#                                   DB INTERNAL LIBRARY                               #
+#######################################################################################
 
-noinst_LTLIBRARIES = libzeitgeist-db-private.la 
+noinst_lib_LTLIBRARIES = libzeitgeist-db-internal.la 
+noinst_libdir = $(abs_builddir)
 
-libzeitgeist_db_private_la_VALASOURCES = \
+libzeitgeist_db_internal_la_LDFLAGS = \
+	-avoid-version \
+	-non_shared \
+	-static \
+	$(NULL)
+
+libzeitgeist_db_internal_la_LIBADD = \
+    $(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+    $(ZEITGEIST_LIBS) \
+	$(NULL)
+
+
+libzeitgeist_libzeitgeist_internal_la_VALASOURCES = \
 	db-reader.vala \
 	table-lookup.vala \
 	sql-schema.vala \
@@ -37,21 +53,24 @@ libzeitgeist_db_private_la_VALASOURCES = \
 	sql.vala \
 	$(NULL)
 
-libzeitgeist_db_private_la_VALAFLAGS = \
-	--vapi zeitgeist-db-private.vapi \
-	-H zeitgeist-db-private.h \
+nodist_libzeitgeist_db_internal_la_SOURCES = \
+	$(libzeitgeist_db_internal_la_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-libzeitgeist_db_private_la_SOURCES = \
-	zeitgeist-engine_vala.stamp \
-	$(libzeitgeist_db_private_la_VALASOURCES:.vala=.h) \
-	$(libzeitgeist_db_private_la_VALASOURCES:.vala=.c) \
-	$(NULL)
+zeitgeist-db-internal.h zeitgeist-db-internal.vapi: libzeitgeist_db_internal_vala.stamp
 
-libzeitgeist_db_private_la_LIBADD = \
-	$(ZEITGEIST_LIBS) \
-	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
-	$(NULL)
+libzeitgeist_db_internal_vala.stamp: $(libzeitgeist_libzeitgeist_internal_la_VALASOURCES) Makefile
+	$(AM_V_VALA)$(VALAC) \
+		$(AM_VALAFLAGS) \
+		-H zeitgeist-db-internal.h \
+		--library zeitgeist-db-internal \
+		--vapi zeitgeist-db-internal.vapi \
+		$(filter %.vala %.c,$^)
+	$(AM_V_at)touch $@
+
+#######################################################################################
+#                                      DAEMON                                         #
+#######################################################################################
 
 bin_PROGRAMS = zeitgeist-daemon
 
@@ -90,7 +109,7 @@ zeitgeist_daemon_SOURCES = \
 zeitgeist_daemon_LDADD = \
 	$(ZEITGEIST_LIBS) \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
-	$(builddir)/libzeitgeist-db-private.la \
+	$(builddir)/libzeitgeist-db-internal.la \
 	$(NULL)
 
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
