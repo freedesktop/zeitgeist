@@ -61,6 +61,7 @@ public class Log : QueuedProxyWrapper
     private RemoteLog proxy;
     private Variant? engine_version;
     private HashTable<Monitor, uint> monitors;
+    private DbReader dbreader;
 
     public Log ()
     {

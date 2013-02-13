@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	-I $(top_srcdir)/libzeitgeist \
+	-I $(top_srcdir)/src \
 	-w \
 	$(NULL)
 
@@ -16,6 +17,7 @@ AM_VALAFLAGS = \
 	--pkg sqlite3 \
 	$(top_srcdir)/config.vapi \
 	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
+	$(top_srcdir)/src/zeitgeist-db-internal.vapi \
 	--vapi zeitgeist-client.vapi \
 	-H zeitgeist-client.h \
 	-h zeitgeist-client-private.h \
@@ -29,6 +31,7 @@ libzeitgeist_client_1_0_la_SOURCES = \
 
 libzeitgeist_client_1_0_la_LIBADD = \
     $(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+    $(top_builddir)/src/libzeitgeist-db-internal.la \
     $(ZEITGEIST_LIBS) \
     $(NULL)$
 libzeitgeist_client_1_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
