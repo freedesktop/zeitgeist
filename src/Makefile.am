@@ -19,11 +19,9 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 if EXPLAIN_QUERIES
-
 AM_VALAFLAGS += \
 	-D EXPLAIN_QUERIES \
 	$(NULL)
-
 endif
 
 #######################################################################################
@@ -59,7 +57,7 @@ nodist_libzeitgeist_db_internal_la_SOURCES = \
 
 zeitgeist-db-internal.h zeitgeist-db-internal.vapi: libzeitgeist_db_internal_vala.stamp
 
-libzeitgeist_db_internal_vala.stamp: $(libzeitgeist_libzeitgeist_internal_la_VALASOURCES) Makefile
+libzeitgeist_db_internal_vala.stamp: $(libzeitgeist_db_internal_la_VALASOURCES) Makefile
 	$(AM_V_VALA)$(VALAC) \
 		$(AM_VALAFLAGS) \
 		-H zeitgeist-db-internal.h \
@@ -109,7 +107,7 @@ zeitgeist_daemon_SOURCES = \
 zeitgeist_daemon_LDADD = \
 	$(ZEITGEIST_LIBS) \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
-	$(builddir)/libzeitgeist-db-internal.la \
+	libzeitgeist-db-internal.la \
 	$(NULL)
 
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
