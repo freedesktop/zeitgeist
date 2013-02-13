@@ -60,7 +60,7 @@ zeitgeist-db-internal.h zeitgeist-db-internal.vapi: libzeitgeist_db_internal_val
 libzeitgeist_db_internal_vala.stamp: $(libzeitgeist_db_internal_la_VALASOURCES) Makefile
 	$(AM_V_VALA)$(VALAC) \
 		$(AM_VALAFLAGS) \
-		-H zeitgeist-db-internal.h \
+		-C -H zeitgeist-db-internal.h \
 		--library zeitgeist-db-internal \
 		--vapi zeitgeist-db-internal.vapi \
 		$(filter %.vala %.c,$^)
@@ -107,15 +107,15 @@ zeitgeist_daemon_SOURCES = \
 zeitgeist_daemon_LDADD = \
 	$(ZEITGEIST_LIBS) \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
-	libzeitgeist-db-internal.la \
+	$(top_builddir)/src/libzeitgeist-db-internal.la \
 	$(NULL)
 
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
 
-BUILT_SOURCES = zeitgeist-engine_vala.stamp extensions_vala.stamp
+BUILT_SOURCES = libzeitgeist_db_internal_vala.stamp zeitgeist-engine_vala.stamp extensions_vala.stamp
 
 zeitgeist-engine_vala.stamp: $(zeitgeist_daemon_VALASOURCES)
-	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
+	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) -C -H zeitgeist-engine.h zeitgeist-db-internal.vapi --library zeitgeist-engine $^
 	@touch "$@"
 
 extensions_vala.stamp: zeitgeist-engine_vala.stamp $(extensions_VALASOURCES)
