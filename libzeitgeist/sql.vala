@@ -27,7 +27,7 @@ using Zeitgeist;
 namespace Zeitgeist.SQLite
 {
 
-    public enum EventViewRows
+    internal enum EventViewRows
     {
         ID,
         TIMESTAMP,
@@ -56,9 +56,9 @@ namespace Zeitgeist.SQLite
         SUBJECT_CURRENT_ORIGIN_URI
     }
 
-    public delegate void DeletionCallback (string table, int64 rowid);
+    internal delegate void DeletionCallback (string table, int64 rowid);
 
-    public class Database : Object
+    internal class Database : Object
     {
         private const int DEFAULT_OPEN_FLAGS =
             Sqlite.OPEN_READWRITE | Sqlite.OPEN_CREATE;

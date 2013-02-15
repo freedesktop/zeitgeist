@@ -34,7 +34,7 @@ using Zeitgeist.Utils;
 namespace Zeitgeist
 {
 
-public class DbReader : Object
+internal class DbReader : Object
 {
 
     public Zeitgeist.SQLite.Database database { get; construct; }

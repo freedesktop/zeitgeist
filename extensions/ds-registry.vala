@@ -49,7 +49,7 @@ namespace Zeitgeist
         }
     }
 
-    class DataSourceRegistryExtension: Extension, RemoteRegistry
+    internal class DataSourceRegistryExtension: Extension, RemoteRegistry
     {
         private const string MULTIPLE_MARKER = "<multiple>";
         private HashTable<string, DataSource> sources;

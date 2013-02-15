@@ -32,7 +32,7 @@ using Zeitgeist.Utils;
 namespace Zeitgeist
 {
 
-public class Engine : DbReader
+internal class Engine : DbReader
 {
 
     public ExtensionStore extension_store;

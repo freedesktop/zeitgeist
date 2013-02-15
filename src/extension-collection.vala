@@ -19,7 +19,7 @@
 
 namespace Zeitgeist
 {
-    public class ExtensionCollection : Object
+    internal class ExtensionCollection : Object
     {
         private GenericArray<Extension> extensions;
         private string[] disabled_extensions = {};

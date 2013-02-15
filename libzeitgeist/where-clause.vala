@@ -40,7 +40,7 @@ namespace Zeitgeist
      * Instances of this class can then be used to obtain a line of SQL code and
      * a list of arguments, for use with SQLite 3.
      */
-    public class WhereClause : Object
+    internal class WhereClause : Object
     {
 
         public enum Type
