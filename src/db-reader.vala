@@ -1,1 +1,0 @@
-/home/seif/Projects/zeitgeist/libzeitgeist/db-reader.vala

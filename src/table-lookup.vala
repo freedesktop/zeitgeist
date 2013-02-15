@@ -1,1 +1,0 @@
-/home/seif/Projects/zeitgeist/libzeitgeist/table-lookup.vala
