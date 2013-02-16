@@ -40,7 +40,7 @@ namespace Zeitgeist
         public signal void storage_unavailable (string storage_id);
     }
 
-    private interface NetworkMonitor: Object
+    public interface NetworkMonitor: Object
     {
         // This method emits the on_network_up/on_network_up signals
         // basing on the initial state of the network.

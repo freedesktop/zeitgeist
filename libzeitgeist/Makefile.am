@@ -1,6 +1,16 @@
 NULL =
 
 lib_LTLIBRARIES = libzeitgeist-2.0.la
+noinst_LTLIBRARIES = libzeitgeist-internal.la
+
+BUILT_SOURCES = \
+	libzeitgeist_2_0_la_vala.stamp \
+	libzeitgeist_internal_la_vala.stamp \
+	zeitgeist.h \
+	zeitgeist-2.0.vapi \
+	zeitgeist-internal.h \
+	zeitgeist-internal.vapi \
+	$(NULL)
 
 ONTOLOGY = \
 	$(wildcard $(top_srcdir)/data/ontology/*.trig) \
@@ -9,6 +19,7 @@ ONTOLOGY = \
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
+	-I $(builddir) \
 	-w \
 	$(NULL)
 
@@ -18,14 +29,43 @@ AM_VALAFLAGS = \
 	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
 	$(top_srcdir)/config.vapi \
-	--vapi zeitgeist-2.0.vapi \
-	-H zeitgeist.h \
-	-h zeitgeist-private.h \
-	--library=zeitgeist \
-	--gir=Zeitgeist-2.0.gir \
+	-C \
 	$(NULL)
 
-libzeitgeist_2_0_la_SOURCES = \
+libzeitgeist_internal_la_VALAFLAGS = \
+	$(builddir)/zeitgeist-2.0.vapi \
+	--vapi zeitgeist-internal.vapi \
+	-H zeitgeist-internal.h \
+	$(NULL)
+
+libzeitgeist_internal_la_LIBADD = $(builddir)/libzeitgeist-2.0.la $(ZEITGEIST_LIBS)
+libzeitgeist_internal_la_LDFLAGS = -avoid-version -non_shared -static
+
+libzeitgeist_2_0_la_VALAFLAGS = \
+	--vapi zeitgeist-2.0.vapi \
+	-H zeitgeist.h \
+	--library zeitgeist \
+	--gir Zeitgeist-2.0.gir \
+	$(NULL)
+
+libzeitgeist_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
+libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
+
+libzeitgeist_internal_la_VALASOURCES = \
+	db-reader.vala \
+	errors.vala \
+	sql.vala \
+	sql-schema.vala \
+	table-lookup.vala \
+	where-clause.vala \
+	$(NULL)
+
+nodist_libzeitgeist_internal_la_SOURCES = \
+	$(BUILT_SOURCES) \
+	$(libzeitgeist_internal_la_VALASOURCES:.vala=.c) \
+	$(NULL)
+
+libzeitgeist_2_0_la_VALASOURCES = \
 	data-source.vala \
 	data-source-registry.vala \
 	mimetype.vala \
@@ -33,12 +73,6 @@ libzeitgeist_2_0_la_SOURCES = \
 	event.vala \
 	subject.vala \
 	timerange.vala \
-	errors.vala \
-	sql.vala \
-	sql-schema.vala \
-	table-lookup.vala \
-	where-clause.vala \
-	db-reader.vala \
 	index.vala \
 	log.vala \
 	timestamp.vala \
@@ -52,35 +86,53 @@ libzeitgeist_2_0_la_SOURCES = \
 	utils.vala \
 	$(NULL)
 
-libzeitgeist_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
-libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
+nodist_libzeitgeist_2_0_la_SOURCES = \
+	$(BUILT_SOURCES) \
+	$(libzeitgeist_2_0_la_VALASOURCES:.vala=.c) \
+	$(NULL)
+
+zeitgeist-internal.h zeitgeist-internal.vapi: libzeitgeist_internal_la_vala.stamp
+
+libzeitgeist_internal_la_vala.stamp: libzeitgeist_2_0_la_vala.stamp $(libzeitgeist_internal_la_VALASOURCES) Makefile
+	$(AM_V_VALA)$(VALAC) \
+		$(AM_VALAFLAGS) $(libzeitgeist_internal_la_VALAFLAGS) \
+		$(filter %.vala %.c,$^)
+	$(AM_V_at)touch $@
+
+zeitgeist.h zeitgeist-2.0.vapi: libzeitgeist_2_0_la_vala.stamp
+
+libzeitgeist_2_0_la_vala.stamp: $(libzeitgeist_2_0_la_VALASOURCES) Makefile
+	$(AM_V_VALA)$(VALAC) \
+		$(AM_VALAFLAGS) $(libzeitgeist_2_0_la_VALAFLAGS) \
+		$(filter %.vala %.c,$^)
+	$(AM_V_at)touch $@
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = zeitgeist-2.0.pc
 
 libzeitgeist_includedir=$(includedir)/zeitgeist-2.0/
-libzeitgeist_include_HEADERS = \
+nodist_libzeitgeist_include_HEADERS = \
 	zeitgeist.h \
 	$(NULL)
 
 libzeitgeist_vapidir = $(datadir)/vala/vapi/
-libzeitgeist_vapi_DATA = \
-	zeitgeist-2.0.vapi
-	$(NULL)
-
-EXTRA_DIST = \
-	ontology.vala.in \
-	ontology-uris.vala.in \
-	$(NULL)
-
-DISTCLEANFILES = \
-	ontology.vala \
-	ontology-uris.vala \
+nodist_libzeitgeist_vapi_DATA = \
 	zeitgeist-2.0.vapi \
 	$(NULL)
 
+EXTRA_DIST = \
+	$(libzeitgeist_2_0_la_VALASOURCES) \
+	$(libzeitgeist_internal_la_VALASOURCES) \
+	ontology.vala.in \
+	ontology-uris.vala.in \
+	ontology_vala.stamp \
+	$(NULL)
 
-CLEANFILES =
+CLEANFILES = \
+	zeitgeist.h \
+	zeitgeist-2.0.vapi \
+	$(NULL)
+
 MAINTAINERCLEANFILES =
 
 # We have to extract our own dlname from libzeitgeist-2.0.la; see bgo#658002.
@@ -98,7 +150,7 @@ Zeitgeist-2.0.gir: libzeitgeist-2.0.la
 GIRS = Zeitgeist-2.0.gir
 
 girdir = $(datadir)/gir-1.0
-dist_gir_DATA = $(GIRS)
+nodist_gir_DATA = $(GIRS)
 
 MAINTAINERCLEANFILES += $(dist_gir_DATA)
 
@@ -108,17 +160,17 @@ nodist_typelib_DATA = $(GIRS:.gir=.typelib)
 CLEANFILES += $(nodist_typelib_DATA)
 endif
 
-MAINTAINERCLEANFILES += \
-	$(BUILT_SOURCES) \
-	$(NULL)
-
-
+ontology.vala ontology-uris.vala: ontology_vala.stamp
 ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in \
 		$(ONTOLOGY) $(top_srcdir)/data/ontology2code
+	$(AM_V_at)touch ontology.vala
+	$(AM_V_at)touch ontology-uris.vala
 	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala
-	@touch "$@"
-
-ontology.vala ontology-uris.vala: ontology_vala.stamp
+	$(AM_V_at)touch $@
 
 distclean-local:
 	rm -f *.c *.o *.stamp *.~[0-9]~
+
+VALA_V = $(VALA_V_$(V))
+VALA_V_ = $(VALA_V_$(AM_DEFAULT_VERBOSITY))
+VALA_V_0 = @echo "  VALAC " $^;

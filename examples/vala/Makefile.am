@@ -3,20 +3,21 @@ NULL =
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
-	-I $(top_srcdir)/libzeitgeist/ \
+	-I $(top_builddir)/libzeitgeist/ \
 	-w \
 	$(NULL)
 
 AM_VALAFLAGS = \
 	--target-glib=2.26 \
 	--pkg gio-2.0 \
-	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
+	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/config.vapi \
 	$(NULL)
 
-zeitgeist_libs = \
+AM_LDFLAGS = \
+	$(ZEITGEIST_LIBS) \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
-	$(ZEITGEIST_LIBS)
+	$(NULL)
 
 noinst_PROGRAMS = \
 	data-source-stuff \
@@ -26,20 +27,11 @@ noinst_PROGRAMS = \
 	insert-events \
 	$(NULL)
 
-data_source_stuff_SOURCES	= data-source-stuff.vala
-data_source_stuff_LDADD		= $(zeitgeist_libs)
-
-get_events_with_id_SOURCES	= get-events-with-id.vala
-get_events_with_id_LDADD	= $(zeitgeist_libs)
-
-monitor_events_SOURCES		= monitor-events.vala
-monitor_events_LDADD		= $(zeitgeist_libs)
-
-most_recent_events_SOURCES	= most-recent-events.vala
-most_recent_events_LDADD	= $(zeitgeist_libs)
-
-insert_events_SOURCES	= insert-events.vala
-insert_events_LDADD	= $(zeitgeist_libs)
+data_source_stuff_SOURCES = data-source-stuff.vala
+get_events_with_id_SOURCES = get-events-with-id.vala
+monitor_events_SOURCES = monitor-events.vala
+most_recent_events_SOURCES = most-recent-events.vala
+insert_events_SOURCES = insert-events.vala
 
 distclean-local:
 	rm -f *.c *.o *.~[0-9]~

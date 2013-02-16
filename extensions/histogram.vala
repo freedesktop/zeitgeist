@@ -30,7 +30,7 @@ namespace Zeitgeist
         public abstract Variant get_histogram_data () throws Error;
     }
 
-    class Histogram: Extension, RemoteHistogram
+    public class Histogram: Extension, RemoteHistogram
     {
 
         private uint registration_id = 0;

@@ -1,6 +1,7 @@
 NULL =
 
 EXTRA_DIST = \
+	databases \
 	five_events.js \
 	five_events_ext_move.js \
 	incomplete_events.js \

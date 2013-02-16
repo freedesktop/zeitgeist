@@ -41,7 +41,7 @@ namespace Zeitgeist
             out uint matches) throws Error;
     }
 
-    class SearchEngine: Extension, RemoteSearchEngine
+    public class SearchEngine: Extension, RemoteSearchEngine
     {
 
         private const string INDEXER_NAME = "org.gnome.zeitgeist.SimpleIndexer";

@@ -21,6 +21,7 @@ po/POTFILES
 po/stamp-it
 .deps
 .libs
+m4
 missing
 ltmain.sh
 libtool
@@ -85,6 +86,8 @@ doc/libzeitgeist/gtkdoc
 *.swp
 *.h
 *.vapi
+*.gir
+*.typelib
 test/c/test-datasource
 test/c/test-event
 test/c/test-log

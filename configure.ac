@@ -1,7 +1,8 @@
 AC_INIT([zeitgeist], [0.9.5], [dev@lists.zeitgeist-project.com], [zeitgeist])
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
-AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip])
+AM_INIT_AUTOMAKE([1.11 tar-ustar dist-xz no-dist-gzip -Wno-portability])
 AM_MAINTAINER_MODE([enable])
 
 AM_PATH_PYTHON

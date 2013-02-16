@@ -1,5 +1,7 @@
 NULL = 
 
+ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
+
 SUBDIRS = \
 	libzeitgeist \
 	src \
@@ -12,7 +14,7 @@ SUBDIRS = \
 	doc \
 	$(NULL)
 
-zeitgeistdocdir = ${prefix}/doc/zeitgeist
+zeitgeistdocdir = $(pkgsharedir)/doc
 zeitgeistdoc_DATA = \
 	AUTHORS \
 	NEWS \
@@ -28,17 +30,7 @@ EXTRA_DIST = \
 	COPYING \
 	COPYING.GPL \
 	ChangeLog \
-	intltool-extract.in \
-	intltool-merge.in \
-	intltool-update.in \
 	config.vapi \
-	$(NULL)
-
-DISTCLEANFILES = \
-	intltool-extract \
-	intltool-merge \
-	intltool-update \
-	po/.intltool-merge-cache \
 	$(NULL)
 
 run: all

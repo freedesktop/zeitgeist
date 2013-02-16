@@ -4,90 +4,47 @@ endif
 
 NULL =
 
-zeitgeist_libs = \
-	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
-	$(ZEITGEIST_LIBS)
-
 #extensionsdir = $(libdir)/zeitgeist/extensions
-noinst_LTLIBRARIES = ds-registry.la blacklist.la storage-monitor.la fts.la benchmark.la histogram.la
+noinst_LTLIBRARIES = \
+	benchmark.la \
+	blacklist.la \
+	ds-registry.la \
+	fts.la \
+	histogram.la \
+	storage-monitor.la \
+	$(NULL)
+
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
-	-I $(top_srcdir)/libzeitgeist \
-	-I $(top_srcdir)/src \
+	-I $(top_builddir)/libzeitgeist \
+	-I $(top_builddir)/src \
 	-w \
 	$(NULL)
 
-VALAFLAGS = \
+AM_VALAFLAGS = \
 	--target-glib=2.26 \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	--pkg gmodule-2.0 \
-	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
-	$(top_srcdir)/src/zeitgeist-engine.vapi \
+	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
+	$(top_builddir)/libzeitgeist/zeitgeist-internal.vapi \
+	$(top_builddir)/src/zeitgeist-engine.vapi \
 	$(NULL)
 
-ds_registry_la_SOURCES = \
-	ds-registry.vala \
-	$(NULL)
-
-ds_registry_la_LDFLAGS = -module -avoid-version
-
-ds_registry_la_LIBADD = \
+AM_LDFLAGS = \
+	-module -avoid-version \
 	$(ZEITGEIST_LIBS) \
+	$(top_builddir)/libzeitgeist/libzeitgeist-internal.la \
 	$(NULL)
 
-blacklist_la_SOURCES = \
-	blacklist.vala \
-	$(NULL)
-
-blacklist_la_LDFLAGS = -module -avoid-version
-
-blacklist_la_LIBADD = \
-	$(ZEITGEIST_LIBS) \
-	$(NULL)
-
-storage_monitor_la_SOURCES = \
-	storage-monitor.vala \
-	$(NULL)
-
-storage_monitor_la_LDFLAGS = -module -avoid-version
-
-storage_monitor_la_LIBADD = \
-	$(ZEITGEIST_LIBS) \
-	$(NULL)
-	
-
-fts_la_SOURCES = \
-	fts.vala \
-	$(NULL)
-
-fts_la_LDFLAGS = -module -avoid-version
-
-fts_la_LIBADD = \
-	$(ZEITGEIST_LIBS) \
-	$(NULL)
-	
-benchmark_la_SOURCES = \
-	benchmark.vala \
-	$(NULL)
-
-benchmark_la_LDFLAGS = -module -avoid-version
-
-benchmark_la_LIBADD = \
-	$(ZEITGEIST_LIBS) \
-	$(NULL)
-	
-histogram_la_SOURCES = \
-	histogram.vala \
-	$(NULL)
-
-histogram_la_LDFLAGS = -module -avoid-version
-
-histogram_la_LIBADD = \
-	$(ZEITGEIST_LIBS) \
-	$(NULL)
+benchmark_la_SOURCES = benchmark.vala
+blacklist_la_SOURCES = blacklist.vala
+ds_registry_la_SOURCES = ds-registry.vala
+fts_la_SOURCES = fts.vala
+histogram_la_SOURCES = histogram.vala
+storage_monitor_la_SOURCES = storage-monitor.vala
 
 distclean-local:
 	rm -f *.c *.o *.stamp *.~[0-9]~

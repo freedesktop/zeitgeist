@@ -30,7 +30,7 @@ namespace Zeitgeist
             throws Error;
     }
 
-    class Benchmarker: Extension, RemoteBenchmarker
+    public class Benchmarker: Extension, RemoteBenchmarker
     {
 
         private uint registration_id;

@@ -24,7 +24,7 @@
 namespace Zeitgeist.SQLite
 {
 
-    internal class TableLookup : Object
+    public class TableLookup : Object
     {
         unowned Zeitgeist.SQLite.Database database;
         unowned Sqlite.Database db;

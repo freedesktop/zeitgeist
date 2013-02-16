@@ -42,6 +42,9 @@ namespace Zeitgeist
         private static string log_level = "";
         private static string? log_file = null;
 
+        // load the builtin extensions first
+        RegisterExtensionFunc[] builtins = {};
+
         const OptionEntry[] options =
         {
             {
@@ -127,7 +130,17 @@ namespace Zeitgeist
 
         public Daemon () throws EngineError
         {
-            engine = new Engine ();
+#if BUILTIN_EXTENSIONS
+            builtins = {
+                data_source_registry_extension_init,
+                blacklist_init,
+                histogram_init,
+                storage_monitor_init,
+                fts_init,
+                benchmark_init
+            };
+#endif
+            engine = new Engine.with_builtins (builtins);
             notifications = MonitorManager.get_default ();
         }
 
@@ -489,6 +502,14 @@ namespace Zeitgeist
 
     }
 
+#if BUILTIN_EXTENSIONS
+    private extern static Type data_source_registry_extension_init (TypeModule mod);
+    private extern static Type blacklist_init (TypeModule mod);
+    private extern static Type histogram_init (TypeModule mod);
+    private extern static Type storage_monitor_init (TypeModule mod);
+    private extern static Type fts_init (TypeModule mod);
+    private extern static Type benchmark_init (TypeModule mod);
+#endif
 }
 
 // vim:expandtab:ts=4:sw=4

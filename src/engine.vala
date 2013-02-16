@@ -32,7 +32,7 @@ using Zeitgeist.Utils;
 namespace Zeitgeist
 {
 
-internal class Engine : DbReader
+public class Engine : DbReader
 {
 
     public ExtensionStore extension_store;
@@ -47,7 +47,17 @@ internal class Engine : DbReader
         // TODO: take care of this if we decide to subclass Engine
         // (we need to propagate the error, so it can't go to construct {})
         last_id = database.get_last_id ();
-        extension_collection = new ExtensionCollection (this);
+        extension_collection = new ExtensionCollection (this, {});
+    }
+
+    public Engine.with_builtins (RegisterExtensionFunc[] builtins) throws EngineError
+    {
+        Object (database: new Zeitgeist.SQLite.Database ());
+
+        // TODO: take care of this if we decide to subclass Engine
+        // (we need to propagate the error, so it can't go to construct {})
+        last_id = database.get_last_id ();
+        extension_collection = new ExtensionCollection (this, builtins);
     }
 
     construct

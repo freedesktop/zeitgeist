@@ -34,7 +34,7 @@ namespace Zeitgeist
      * Additionally, extensions may create their own D-Bus interface
      * over which they can expose their own methods.
      */
-    internal abstract class Extension : Object
+    public abstract class Extension : Object
     {
         public unowned Engine engine { get; construct set; }
 
@@ -130,9 +130,9 @@ namespace Zeitgeist
     }
 
     [CCode (has_target = false)]
-    internal delegate Type RegisterExtensionFunc (TypeModule module);
+    public delegate Type RegisterExtensionFunc (TypeModule module);
 
-    internal abstract class ExtensionLoader: TypeModule
+    public abstract class ExtensionLoader: TypeModule
     {
         public Type extension_type { get; protected set; }
 
@@ -152,7 +152,7 @@ namespace Zeitgeist
         }
     }
 
-    internal class ModuleLoader: ExtensionLoader
+    public class ModuleLoader: ExtensionLoader
     {
         public string module_path { get; construct; }
 
@@ -210,7 +210,7 @@ namespace Zeitgeist
         }
     }
 
-    internal class BuiltinExtension: ExtensionLoader
+    public class BuiltinExtension: ExtensionLoader
     {
         private RegisterExtensionFunc reg_func;
 

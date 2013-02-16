@@ -32,7 +32,7 @@ using Zeitgeist;
 namespace Zeitgeist.SQLite
 {
 
-    internal class DatabaseSchema : Object
+    public class DatabaseSchema : Object
     {
 
         public const string CORE_SCHEMA = "core";

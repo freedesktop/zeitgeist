@@ -1,11 +1,11 @@
-SUBDIRS = test
 NULL = 
 
-noinst_LTLIBRARIES = libzeitgeist-internal.la
+SUBDIRS = test
+
 libexec_PROGRAMS = zeitgeist-fts
 
 servicedir = $(DBUS_SERVICES_DIR)
-service_DATA = org.gnome.zeitgeist.fts.service
+nodist_service_DATA = org.gnome.zeitgeist.fts.service
 
 org.gnome.zeitgeist.fts.service: org.gnome.zeitgeist.fts.service.in
 	$(AM_V_GEN)sed  -e s!\@libexecdir\@!$(libexecdir)! < $< > $@
@@ -15,7 +15,8 @@ AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	$(XAPIAN_CXXFLAGS) \
 	-include $(CONFIG_HEADER) \
-	-I $(top_srcdir)/libzeitgeist \
+	-I $(top_builddir)/libzeitgeist \
+	-I $(top_builddir)/src \
 	-w \
 	$(NULL)
 
@@ -25,37 +26,19 @@ AM_VALAFLAGS = \
 	--pkg sqlite3 \
 	--pkg posix \
 	--pkg gmodule-2.0 \
-	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
+	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
+	$(top_builddir)/libzeitgeist/zeitgeist-internal.vapi \
+	$(top_builddir)/src/zeitgeist-engine.vapi \
+	$(srcdir)/fts.vapi \
 	$(top_srcdir)/config.vapi \
-	$(NULL)
-
-libzeitgeist_internal_la_VALASOURCES = \
-	db-reader.vala \
-	engine.vala \
-	sql.vala \
-	errors.vala \
-	table-lookup.vala \
-	sql-schema.vala \
-	where-clause.vala \
-	ext-dummies.vala \
-	$(NULL)
-
-libzeitgeist_internal_la_SOURCES = \
-	zeitgeist-internal.stamp \
-	$(libzeitgeist_internal_la_VALASOURCES:.vala=.c) \
-	$(NULL)
-
-libzeitgeist_internal_la_LIBADD = \
-	$(ZEITGEIST_LIBS) \
+	-C \
 	$(NULL)
 
 zeitgeist_fts_VALASOURCES = \
 	zeitgeist-fts.vala \
 	$(NULL)
 
-zeitgeist_fts_SOURCES = \
-	zeitgeist-fts_vala.stamp \
-	$(zeitgeist_fts_VALASOURCES:.vala=.c) \
+zeitgeist_fts_CSOURCES = \
 	controller.cpp \
 	controller.h \
 	fts.cpp \
@@ -68,11 +51,20 @@ zeitgeist_fts_SOURCES = \
 	stringutils.h \
 	$(NULL)
 
+nodist_zeitgeist_fts_SOURCES = \
+	$(BUILT_SOURCES) \
+	$(zeitgeist_fts_CSOURCES) \
+	$(zeitgeist_fts_VALASOURCES:.vala=.c) \
+	$(NULL)
+
 zeitgeist_fts_LDADD = \
-	$(builddir)/libzeitgeist-internal.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+	$(top_builddir)/libzeitgeist/libzeitgeist-internal.la \
+	$(top_builddir)/src/libzeitgeist-engine.la \
 	$(XAPIAN_LIBS) \
 	$(NULL)
+
+zeitgeist_fts_LDFLAGS = -export-dynamic -no-undefined
 
 if HAVE_DEE_ICU
 AM_CPPFLAGS += $(DEE_ICU_CFLAGS)
@@ -80,29 +72,27 @@ zeitgeist_fts_LDADD += $(DEE_ICU_LIBS)
 endif
 
 BUILT_SOURCES = \
-	zeitgeist-internal.stamp \
 	zeitgeist-fts_vala.stamp \
 	$(NULL)
 
-zeitgeist-internal.stamp: $(libzeitgeist_internal_la_VALASOURCES)
-	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) -C -H zeitgeist-internal.h --library zeitgeist-internal $^
-	@touch "$@"
-
-zeitgeist-fts_vala.stamp: $(zeitgeist_fts_VALASOURCES)
-	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) \
-	$(srcdir)/zeitgeist-internal.vapi $(srcdir)/fts.vapi -C $^
-	@touch "$@"
+zeitgeist-fts_vala.stamp: $(engine_VALASOURCES) $(zeitgeist_fts_VALASOURCES) Makefile
+	$(AM_V_VALA)$(VALAC) \
+		$(AM_VALAFLAGS) \
+		$(filter %.vala %.c,$^)
+	$(AM_V_at)touch $@
 
 EXTRA_DIST = \
-	$(libzeitgeist_internal_la_VALASOURCES) \
 	$(zeitgeist_fts_VALASOURCES) \
-	zeitgeist-fts_vala.stamp \
-	zeitgeist-internal.h \
-	zeitgeist-internal.vapi \
+	$(zeitgeist_fts_CSOURCES) \
 	org.gnome.zeitgeist.fts.service.in \
+	fts.vapi \
 	$(NULL)
 
-CLEANFILES = org.gnome.zeitgeist.fts.service
+CLEANFILES = \
+	$(BUILT_SOURCES) \
+	$(zeitgeist_fts_VALASOURCES:.vala=.c) \
+	org.gnome.zeitgeist.fts.service \
+	$(NULL)
 
 DISTCLEANFILES = \
 	$(NULL)

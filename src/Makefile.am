@@ -1,23 +1,25 @@
 NULL = 
 
 bin_PROGRAMS = zeitgeist-daemon
+noinst_LTLIBRARIES = libzeitgeist-engine.la
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
-	-I $(top_srcdir)/libzeitgeist \
+	-I$(top_builddir)/libzeitgeist \
 	-w \
 	$(NULL)
 
 AM_VALAFLAGS = \
 	--target-glib=2.26 \
-	-D BUILTIN_EXTENSIONS \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	--pkg posix \
 	--pkg gmodule-2.0 \
-	$(top_srcdir)/libzeitgeist/zeitgeist-2.0.vapi \
+	$(top_builddir)/libzeitgeist/zeitgeist-internal.vapi \
+	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/config.vapi \
+	-C \
 	$(NULL)
 
 if EXPLAIN_QUERIES
@@ -25,6 +27,12 @@ AM_VALAFLAGS += \
 	-D EXPLAIN_QUERIES \
 	$(NULL)
 endif
+
+BUILT_SOURCES = \
+	libzeitgeist_engine_la_vala.stamp \
+	extensions_vala.stamp \
+	zeitgeist_daemon_vala.stamp \
+	$(NULL)
 
 # Make sure every extension has only one vala file!
 extensions_VALASOURCES = \
@@ -36,52 +44,77 @@ extensions_VALASOURCES = \
 	ext-benchmark.vala \
 	$(NULL)
 
-zeitgeist_daemon_VALASOURCES = \
-	zeitgeist-daemon.vala \
-	$(top_srcdir)/libzeitgeist/db-reader.vala \
+libzeitgeist_engine_la_VALASOURCES = \
 	engine.vala \
 	extension.vala \
 	extension-collection.vala \
 	extension-store.vala \
 	logging.vala \
 	notify.vala \
-	$(top_srcdir)/libzeitgeist/sql.vala \
-	$(top_srcdir)/libzeitgeist/table-lookup.vala \
-	$(top_srcdir)/libzeitgeist/sql-schema.vala \
-	$(top_srcdir)/libzeitgeist/where-clause.vala \
 	$(NULL)
 
-zeitgeist_daemon_SOURCES = \
-	zeitgeist-engine_vala.stamp \
+nodist_libzeitgeist_engine_la_SOURCES = \
+	$(BUILT_SOURCES) \
+	$(libzeitgeist_engine_la_VALASOURCES:.vala=.c) \
+	$(NULL)
+
+zeitgeist_daemon_VALASOURCES = \
+	zeitgeist-daemon.vala \
+	$(NULL)
+
+nodist_zeitgeist_daemon_SOURCES = \
+	$(BUILT_SOURCES) \
 	$(zeitgeist_daemon_VALASOURCES:.vala=.c) \
 	$(extensions_VALASOURCES:.vala=.c) \
 	$(NULL)
 
 zeitgeist_daemon_LDADD = \
-	$(ZEITGEIST_LIBS) \
+	$(builddir)/libzeitgeist-engine.la \
+	$(top_builddir)/libzeitgeist/libzeitgeist-internal.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+	$(ZEITGEIST_LIBS) \
 	$(NULL)
 
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
 
-BUILT_SOURCES = zeitgeist-engine_vala.stamp extensions_vala.stamp
+libzeitgeist_engine_la_LIBADD = \
+	$(top_builddir)/libzeitgeist/libzeitgeist-internal.la \
+	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
+	$(ZEITGEIST_LIBS) \
+	$(NULL)
 
-zeitgeist-engine_vala.stamp: $(zeitgeist_daemon_VALASOURCES)
-	$(VALA_V)$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) -C -H zeitgeist-engine.h --library zeitgeist-engine $^
-	@touch "$@"
+libzeitgeist_engine_la_LDFLAGS = -avoid-version -non_shared -static
 
-extensions_vala.stamp: zeitgeist-engine_vala.stamp $(extensions_VALASOURCES)
-	$(AM_V_GEN)$(foreach ext_src,$(filter %.vala,$^),\
-		$(VALAC) $(AM_VALAFLAGS) $(VALAFLAGS) $(EXT_FLAGS) -C zeitgeist-engine.vapi $(ext_src) || exit 1;)
-	@touch "$@"
+libzeitgeist_engine_la_vala.stamp: $(libzeitgeist_engine_la_VALASOURCES) Makefile
+	$(AM_V_VALA)$(VALAC) \
+		$(AM_VALAFLAGS) \
+		-D BUILTIN_EXTENSIONS \
+		-H zeitgeist-engine.h \
+		--vapi zeitgeist-engine.vapi \
+		--library zeitgeist-engine \
+		$(filter %.vala %.c,$^)
+	$(AM_V_at)touch $@
+
+extensions_vala.stamp: libzeitgeist_engine_la_vala.stamp $(extensions_VALASOURCES) Makefile
+	$(AM_V_VALA)$(foreach ext_src, $(filter %.vala,$^), \
+		$(VALAC) \
+			$(AM_VALAFLAGS) \
+			-D BUILTIN_EXTENSIONS \
+			$(builddir)/zeitgeist-engine.vapi \
+			$(ext_src) || exit 1;)
+	$(AM_V_at)touch $@
+
+zeitgeist_daemon_vala.stamp: libzeitgeist_engine_la_vala.stamp extensions_vala.stamp $(zeitgeist_daemon_VALASOURCES) Makefile
+	$(AM_V_VALA)$(VALAC) \
+		$(AM_VALAFLAGS) \
+		$(builddir)/zeitgeist-engine.vapi \
+		$(filter %.vala %.c,$^)
+	$(AM_V_at)touch $@
 
 EXTRA_DIST = \
+	$(libzeitgeist_engine_la_VALASOURCES) \
 	$(zeitgeist_daemon_VALASOURCES) \
 	$(extensions_VALASOURCES) \
-	zeitgeist-engine.h \
-	zeitgeist-engine.vapi \
-	zeitgeist-engine_vala.stamp \
-	extensions_vala.stamp \
 	$(NULL)
 
 DISTCLEANFILES = \

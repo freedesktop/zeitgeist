@@ -22,7 +22,7 @@ using Zeitgeist;
 
 namespace Zeitgeist
 {
-    internal class ExtensionStore : Object
+    public class ExtensionStore : Object
     {
 
         private Zeitgeist.SQLite.Database database;

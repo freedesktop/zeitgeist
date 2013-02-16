@@ -19,15 +19,18 @@
 
 namespace Zeitgeist
 {
-    internal class ExtensionCollection : Object
+    public class ExtensionCollection : Object
     {
         private GenericArray<Extension> extensions;
         private string[] disabled_extensions = {};
+        RegisterExtensionFunc[] builtins = {};
 
         public unowned Engine engine { get; construct; }
 
-        public ExtensionCollection (Engine engine)
+        public ExtensionCollection (Engine engine,
+                                    RegisterExtensionFunc[] builtins)
         {
+            this.builtins = builtins;
             Object (engine: engine);
         }
 
@@ -48,25 +51,12 @@ namespace Zeitgeist
                 disabled_extensions = disabled.split_set (",:;");
             }
 
-            // load the builtin extensions first
-#if BUILTIN_EXTENSIONS
-            RegisterExtensionFunc[] builtins =
-            {
-                data_source_registry_extension_init,
-                blacklist_init,
-                histogram_init,
-                storage_monitor_init,
-                fts_init,
-                benchmark_init
-            };
-
             foreach (var func in builtins)
             {
                 ExtensionLoader builtin = new BuiltinExtension (func);
                 extension = instantiate_extension (builtin);
                 if (extension != null) extensions.add (extension);
             }
-#endif
 
             // TODO: load extensions from system & user directories, and make
             // sure the order is correct
@@ -192,15 +182,6 @@ namespace Zeitgeist
             }
         }
     }
-
-#if BUILTIN_EXTENSIONS
-    private extern static Type data_source_registry_extension_init (TypeModule mod);
-    private extern static Type blacklist_init (TypeModule mod);
-    private extern static Type histogram_init (TypeModule mod);
-    private extern static Type storage_monitor_init (TypeModule mod);
-    private extern static Type fts_init (TypeModule mod);
-    private extern static Type benchmark_init (TypeModule mod);
-#endif
 
 }
 

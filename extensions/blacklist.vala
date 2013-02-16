@@ -84,7 +84,7 @@ namespace Zeitgeist
         }
     }
 
-    class Blacklist: Extension, RemoteBlacklist
+    public class Blacklist: Extension, RemoteBlacklist
     {
         private HashTable<string, Event> blacklist;
         private uint registration_id;

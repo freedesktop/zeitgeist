@@ -24,21 +24,21 @@
 namespace Zeitgeist
 {
 
-internal class SimpleResultSet : Object, ResultSet
+public class SimpleResultSet : Object, ResultSet
 {
 
     private GenericArray<Event> events;
     private uint num_estimated_matches;
     private uint cursor;
 
-    internal SimpleResultSet (GenericArray<Event> events)
+    public SimpleResultSet (GenericArray<Event> events)
     {
         this.events = events;
         num_estimated_matches = events.length;
         cursor = 0;
     }
 
-    internal SimpleResultSet.with_num_matches (
+    public SimpleResultSet.with_num_matches (
         GenericArray<Event> events, uint matches)
     {
         this.events = events;
