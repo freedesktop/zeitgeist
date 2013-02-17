@@ -99,3 +99,16 @@ test/c/test-timestamp
 test/direct/*-test
 doc/libzeitgeist/docs_c
 doc/libzeitgeist/docs_vala
+examples/c/find-events
+examples/c/monitor-events
+examples/c/search-events
+examples/vala/data-source-stuff
+examples/vala/data-source-stuff.c
+examples/vala/get-events-with-id
+examples/vala/get-events-with-id.c
+examples/vala/insert-events
+examples/vala/insert-events.c
+examples/vala/monitor-events
+examples/vala/monitor-events.c
+examples/vala/most-recent-events
+examples/vala/most-recent-events.c
