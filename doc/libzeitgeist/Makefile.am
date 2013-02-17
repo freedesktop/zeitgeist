@@ -49,8 +49,8 @@ docs_vala: $(FILES)
 docs_c: $(FILES) $(srcdir)/zeitgeist-gtkdoc-index.sgml
 	install -D $(srcdir)/zeitgeist-gtkdoc-index.sgml $@/zeitgeist-2.0-docs.xml
 	$(VALADOC) \
-		-X $(top_srcdir)/libzeitgeist/zeitgeist.h \
-		-X -l -X $(top_srcdir)/libzeitgeist/.libs/libzeitgeist-2.0.so \
+		-X $(top_builddir)/libzeitgeist/zeitgeist.h \
+		-X -l -X $(top_builddir)/libzeitgeist/.libs/libzeitgeist-2.0.so \
 		-o $@ \
 		--doclet gtkdoc \
 		$(VALADOC_FLAGS) \
