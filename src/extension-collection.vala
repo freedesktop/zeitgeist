@@ -30,8 +30,9 @@ namespace Zeitgeist
         public ExtensionCollection (Engine engine,
                                     RegisterExtensionFunc[] builtins)
         {
-            this.builtins = builtins;
             Object (engine: engine);
+
+            this.builtins = builtins;
         }
 
         ~ExtensionCollection ()
