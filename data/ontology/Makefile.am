@@ -1,4 +1,7 @@
-ontology_trig_DATA = \
+NULL =
+
+ontology_trigdir = $(pkgdatadir)/ontology
+dist_ontology_trig_DATA = \
 	zg.trig \
 	nie.trig \
 	nco.trig \
@@ -6,9 +9,6 @@ ontology_trig_DATA = \
 	ncal.trig \
 	nao.trig \
 	nmo.trig \
-	nmm.trig
+	nmm.trig \
+	$(NULL)
 
-ontology_trigdir = $(datadir)/zeitgeist/ontology
-
-EXTRA_DIST = \
-	$(ontology_trig_DATA)
