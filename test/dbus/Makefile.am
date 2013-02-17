@@ -7,9 +7,10 @@ EXTRA_DIST = \
 	histogram-test.py \
 	monitor-test.py \
 	remote-test.py \
+	result-types-test.py \
+	run-all-tests.py \
 	testutils.py \
 	upgrade-test.py \
-	run-all-tests.py \
 	$(NULL)
 
 DISTCLEANFILES = \
