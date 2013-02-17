@@ -23,7 +23,6 @@ namespace Zeitgeist
     {
         private GenericArray<Extension> extensions;
         private string[] disabled_extensions = {};
-        RegisterExtensionFunc[] builtins = {};
 
         public unowned Engine engine { get; construct; }
 
@@ -31,8 +30,7 @@ namespace Zeitgeist
                                     RegisterExtensionFunc[] builtins)
         {
             Object (engine: engine);
-
-            this.builtins = builtins;
+            setup(builtins);
         }
 
         ~ExtensionCollection ()
@@ -40,7 +38,7 @@ namespace Zeitgeist
             extensions.foreach ((ext) => { ext.unload (); });
         }
 
-        construct
+        private void setup (RegisterExtensionFunc[] builtins)
         {
             Extension? extension;
             extensions = new GenericArray<Extension> ();
@@ -64,7 +62,7 @@ namespace Zeitgeist
             unowned string ext_dir1 = Utils.get_local_extensions_path ();
             if (!FileUtils.test (ext_dir1, FileTest.IS_DIR | FileTest.EXISTS))
                 return;
-            Dir? user_ext_dir;
+            Dir? user_ext_dir = null;
             try
             {
                 user_ext_dir = Dir.open (ext_dir1);
