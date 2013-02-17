@@ -160,7 +160,7 @@ AC_SUBST(LIBZEITGEIST_VERSION)
 # - If binary compatibility has been broken (eg removed or changed interfaces)
 #   change to C+1:0:0
 # - If the interface is the same as the previous version, change to C:R+1:A
-LIBZEITGEIST_LT_CURRENT=1
+LIBZEITGEIST_LT_CURRENT=0
 LIBZEITGEIST_LT_REV=0
 LIBZEITGEIST_LG_AGE=0
 LIBZEITGEIST_LT_VERSION="$LIBZEITGEIST_LT_CURRENT:$LIBZEITGEIST_LT_REV:$LIBZEITGEIST_LT_AGE"
