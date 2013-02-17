@@ -65,7 +65,7 @@ public class Log : QueuedProxyWrapper
     public Log ()
     {
         monitors = new HashTable<Monitor, int>(direct_hash, direct_equal);
-        Bus.get_proxy<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
+        Bus.get_proxy.begin<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
             Utils.ENGINE_DBUS_PATH, 0, null, (obj, res) =>
             {
                 try
@@ -103,7 +103,7 @@ public class Log : QueuedProxyWrapper
         // Reinstate all active monitors
         foreach (unowned Monitor monitor in monitors.get_keys ())
         {
-            reinstall_monitor (monitor);
+            reinstall_monitor.begin (monitor);
         }
 
         // Update our cached version property
@@ -379,7 +379,7 @@ public class Log : QueuedProxyWrapper
         monitors.insert(monitor, 0);
 
         if (is_connected)
-            reinstall_monitor (monitor);
+            reinstall_monitor.begin (monitor);
     }
 
     private async void reinstall_monitor (Monitor monitor)
@@ -387,29 +387,22 @@ public class Log : QueuedProxyWrapper
     {
         if (monitors.lookup (monitor) == 0)
         {
+            DBusConnection conn = ((DBusProxy) proxy).get_connection ();
+
             try
             {
-                DBusConnection conn = ((DBusProxy) proxy).get_connection ();
-
-                try
-                {
-                    uint registration_id = conn.register_object<RemoteMonitor> (
-                        monitor.get_path (), monitor);
-                    monitors.insert (monitor, registration_id);
-                }
-                catch (GLib.IOError err)
-                {
-                    warning ("Error installing monitor: %s", err.message);
-                    return;
-                }
+                uint registration_id = conn.register_object<RemoteMonitor> (
+                    monitor.get_path (), monitor);
+                monitors.insert (monitor, registration_id);
             }
-            catch (IOError err)
+            catch (GLib.IOError err)
             {
-                critical ("Unable to connect to DBus session bus: %s", err.message);
+                warning ("Error installing monitor: %s", err.message);
+                return;
             }
         }
 
-        proxy.install_monitor (
+        proxy.install_monitor.begin (
             monitor.get_path (),
             monitor.time_range.to_variant (),
             Events.to_variant (monitor.get_templates ()));

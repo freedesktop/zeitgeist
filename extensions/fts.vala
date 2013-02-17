@@ -82,7 +82,7 @@ namespace Zeitgeist
                     // make sure FTS uses the same environment as us
                     var env = new HashTable<string, string> (str_hash, str_equal);
                     env["ZEITGEIST_DATA_PATH"] = Utils.get_data_path ();
-                    connection.call ("org.freedesktop.DBus",
+                    connection.call.begin ("org.freedesktop.DBus",
                                      "/org/freedesktop/DBus",
                                      "org.freedesktop.DBus",
                                      "UpdateActivationEnvironment",

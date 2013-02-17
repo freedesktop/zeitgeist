@@ -59,7 +59,7 @@ namespace Zeitgeist
 
         public DataSourceRegistry ()
         {
-            Bus.get_proxy<RemoteRegistry> (BusType.SESSION,
+            Bus.get_proxy.begin<RemoteRegistry> (BusType.SESSION,
                 Utils.ENGINE_DBUS_NAME,
                 "/org/gnome/zeitgeist/data_source_registry", 0, null,
                 (obj, res) =>

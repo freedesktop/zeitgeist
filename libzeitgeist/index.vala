@@ -47,7 +47,7 @@ public class Index : QueuedProxyWrapper
      */
     public Index ()
     {
-        Bus.get_proxy<RemoteSimpleIndexer> (BusType.SESSION,
+        Bus.get_proxy.begin<RemoteSimpleIndexer> (BusType.SESSION,
             Utils.ENGINE_DBUS_NAME, "/org/gnome/zeitgeist/index/activity", 0,
             null, (obj, res) =>
             {

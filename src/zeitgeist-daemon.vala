@@ -294,7 +294,7 @@ namespace Zeitgeist
                 var running_instance = conn.get_proxy_sync<RemoteLog> (
                     Utils.ENGINE_DBUS_NAME, Utils.ENGINE_DBUS_PATH);
 
-                running_instance.quit ();
+                running_instance.quit.begin ();
                 return true;
             }
             catch (Error err)

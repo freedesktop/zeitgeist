@@ -130,9 +130,9 @@ namespace Zeitgeist
                 public void send (RemoteMonitor proxy_object)
                 {
                     if (type == NotificationType.INSERTION)
-                        proxy_object.notify_insert (time_range, events);
+                        proxy_object.notify_insert.begin (time_range, events);
                     else
-                        proxy_object.notify_delete (time_range, event_ids);
+                        proxy_object.notify_delete.begin (time_range, event_ids);
                 }
             }
             private SList<QueuedNotification> queued_notifications;
@@ -141,7 +141,7 @@ namespace Zeitgeist
                 TimeRange tr, GenericArray<Event> templates)
             {
                 queued_notifications = new SList<QueuedNotification> ();
-                Bus.get_proxy<RemoteMonitor> (BusType.SESSION, peer,
+                Bus.get_proxy.begin<RemoteMonitor> (BusType.SESSION, peer,
                     object_path,
                     DBusProxyFlags.DO_NOT_LOAD_PROPERTIES
                     | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS
@@ -234,7 +234,7 @@ namespace Zeitgeist
                             debug ("Notifying %s about %d insertions",
                                 p.get_name (), matching_events.length);
 
-                            proxy_object.notify_insert (time_v, events_v);
+                            proxy_object.notify_insert.begin (time_v, events_v);
                         }
                         else
                         {
@@ -263,7 +263,7 @@ namespace Zeitgeist
 
                     if (proxy_object != null && name_owner != null)
                     {
-                        proxy_object.notify_delete (time_v, event_ids);
+                        proxy_object.notify_delete.begin (time_v, event_ids);
                     }
                     else
                     {
