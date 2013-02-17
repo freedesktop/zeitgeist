@@ -88,7 +88,6 @@ libzeitgeist_engine_la_LDFLAGS = -avoid-version -non_shared -static
 libzeitgeist_engine_la_vala.stamp: $(libzeitgeist_engine_la_VALASOURCES) Makefile
 	$(AM_V_VALA)$(VALAC) \
 		$(AM_VALAFLAGS) \
-		-D BUILTIN_EXTENSIONS \
 		-H zeitgeist-engine.h \
 		--vapi zeitgeist-engine.vapi \
 		--library zeitgeist-engine \
@@ -107,6 +106,7 @@ extensions_vala.stamp: libzeitgeist_engine_la_vala.stamp $(extensions_VALASOURCE
 zeitgeist_daemon_vala.stamp: libzeitgeist_engine_la_vala.stamp extensions_vala.stamp $(zeitgeist_daemon_VALASOURCES) Makefile
 	$(AM_V_VALA)$(VALAC) \
 		$(AM_VALAFLAGS) \
+		-D BUILTIN_EXTENSIONS \
 		$(builddir)/zeitgeist-engine.vapi \
 		$(filter %.vala %.c,$^)
 	$(AM_V_at)touch $@
