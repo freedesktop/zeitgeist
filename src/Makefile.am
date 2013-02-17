@@ -17,6 +17,7 @@ AM_VALAFLAGS = \
 	--pkg posix \
 	--pkg gmodule-2.0 \
 	$(top_builddir)/libzeitgeist/zeitgeist-internal.vapi \
+	$(top_builddir)/libzeitgeist/zeitgeist-datamodel-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/config.vapi \
 	-C \
@@ -68,21 +69,10 @@ nodist_zeitgeist_daemon_SOURCES = \
 	$(extensions_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-zeitgeist_daemon_LDADD = \
-	$(builddir)/libzeitgeist-engine.la \
-	$(top_builddir)/libzeitgeist/libzeitgeist-internal.la \
-	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
-	$(ZEITGEIST_LIBS) \
-	$(NULL)
-
+zeitgeist_daemon_LDADD = $(builddir)/libzeitgeist-engine.la $(top_builddir)/libzeitgeist/libzeitgeist-2.0.la $(ZEITGEIST_LIBS)
 zeitgeist_daemon_LDFLAGS = -export-dynamic -no-undefined
 
-libzeitgeist_engine_la_LIBADD = \
-	$(top_builddir)/libzeitgeist/libzeitgeist-internal.la \
-	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
-	$(ZEITGEIST_LIBS) \
-	$(NULL)
-
+libzeitgeist_engine_la_LIBADD = $(ZEITGEIST_LIBS)
 libzeitgeist_engine_la_LDFLAGS = -avoid-version -non_shared -static
 
 libzeitgeist_engine_la_vala.stamp: $(libzeitgeist_engine_la_VALASOURCES) Makefile
@@ -118,6 +108,8 @@ EXTRA_DIST = \
 	$(NULL)
 
 CLEANFILES = \
+	$(nodist_libzeitgeist_engine_la_SOURCES) \
+	$(nodist_zeitgeist_daemon_SOURCES) \
 	zeitgeist-engine.vapi \
 	zeitgeist-engine.h \
 	$(NULL)

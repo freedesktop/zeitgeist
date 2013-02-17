@@ -8,6 +8,7 @@ AM_CFLAGS = \
 	$(GIO_UNIX_CFLAGS) \
 	$(ZEITGEIST_CFLAGS) \
 	-I $(top_builddir)/libzeitgeist \
+	-include $(top_builddir)/libzeitgeist/zeitgeist-datamodel.h \
 	-include $(top_builddir)/libzeitgeist/zeitgeist.h \
 	$(NULL)
 

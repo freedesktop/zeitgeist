@@ -28,6 +28,7 @@ AM_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	--pkg gmodule-2.0 \
+	$(top_builddir)/libzeitgeist/zeitgeist-datamodel-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-internal.vapi \
 	$(top_builddir)/src/zeitgeist-engine.vapi \
@@ -36,7 +37,9 @@ AM_VALAFLAGS = \
 AM_LDFLAGS = \
 	-module -avoid-version \
 	$(ZEITGEIST_LIBS) \
+	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-internal.la \
+	$(top_builddir)/src/libzeitgeist-engine.la \
 	$(NULL)
 
 benchmark_la_SOURCES = benchmark.vala

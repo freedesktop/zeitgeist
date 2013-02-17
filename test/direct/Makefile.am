@@ -12,6 +12,7 @@ AM_VALAFLAGS = \
 	--pkg posix \
 	--pkg gmodule-2.0 \
 	$(srcdir)/assertions.vapi \
+	$(top_builddir)/libzeitgeist/zeitgeist-datamodel-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-internal.vapi \
 	$(top_builddir)/src/zeitgeist-engine.vapi \
@@ -28,6 +29,7 @@ AM_CPPFLAGS = \
 
 AM_LDFLAGS = \
 	-export-dynamic -no-undefined \
+	$(top_builddir)/libzeitgeist/libzeitgeist-datamodel-2.0.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-internal.la \
 	$(top_builddir)/src/libzeitgeist-engine.la \

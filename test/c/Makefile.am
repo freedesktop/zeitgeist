@@ -12,10 +12,12 @@ AM_CFLAGS = \
 	$(GIO_UNIX_CFLAGS) \
 	$(ZEITGEIST_CFLAGS) \
 	-I $(top_builddir)/libzeitgeist \
+	-include $(top_builddir)/libzeitgeist/zeitgeist-datamodel.h \
 	-include $(top_builddir)/libzeitgeist/zeitgeist.h \
 	$(NULL)
 
 AM_LDFLAGS = \
+	$(top_builddir)/libzeitgeist/libzeitgeist-datamodel-2.0.la \
 	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(GIO_UNIX_LIBS) \
 	$(ZEITGEIST_LIBS) \

@@ -1,13 +1,16 @@
 NULL =
 
 lib_LTLIBRARIES = libzeitgeist-2.0.la
-noinst_LTLIBRARIES = libzeitgeist-internal.la
+noinst_LTLIBRARIES = libzeitgeist-datamodel-2.0.la libzeitgeist-internal.la
 
 BUILT_SOURCES = \
+	libzeitgeist_datamodel_2_0_la_vala.stamp \
 	libzeitgeist_2_0_la_vala.stamp \
 	libzeitgeist_internal_la_vala.stamp \
 	zeitgeist.h \
 	zeitgeist-2.0.vapi \
+	zeitgeist-datamodel.h \
+	zeitgeist-datamodel-2.0.vapi \
 	zeitgeist-internal.h \
 	zeitgeist-internal.vapi \
 	$(NULL)
@@ -33,22 +36,35 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 libzeitgeist_internal_la_VALAFLAGS = \
-	$(builddir)/zeitgeist-2.0.vapi \
+	$(builddir)/zeitgeist-datamodel-2.0.vapi \
 	--vapi zeitgeist-internal.vapi \
 	-H zeitgeist-internal.h \
 	$(NULL)
 
-libzeitgeist_internal_la_LIBADD = $(builddir)/libzeitgeist-2.0.la $(ZEITGEIST_LIBS)
+libzeitgeist_internal_la_LIBADD = $(ZEITGEIST_LIBS)
 libzeitgeist_internal_la_LDFLAGS = -avoid-version -non_shared -static
 
+libzeitgeist_datamodel_2_0_la_VALAFLAGS = \
+	--vapi zeitgeist-datamodel-2.0.vapi \
+	-H zeitgeist-datamodel.h \
+	--library zeitgeist-2.0 \
+	--gir ZeitgeistDatamodel-2.0.gir \
+	$(NULL)
+
+libzeitgeist_datamodel_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
+libzeitgeist_datamodel_2_0_la_LDFLAGS = -avoid-version -non_shared -static
+
 libzeitgeist_2_0_la_VALAFLAGS = \
+	$(builddir)/zeitgeist-datamodel-2.0.vapi \
+	$(builddir)/zeitgeist-internal.vapi \
 	--vapi zeitgeist-2.0.vapi \
 	-H zeitgeist.h \
-	--library zeitgeist \
+	--library zeitgeist-2.0 \
+	--girdir $(builddir) \
 	--gir Zeitgeist-2.0.gir \
 	$(NULL)
 
-libzeitgeist_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
+libzeitgeist_2_0_la_LIBADD = $(builddir)/libzeitgeist-datamodel-2.0.la $(builddir)/libzeitgeist-internal.la $(ZEITGEIST_LIBS)
 libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
 
 libzeitgeist_internal_la_VALASOURCES = \
@@ -66,24 +82,10 @@ nodist_libzeitgeist_internal_la_SOURCES = \
 	$(NULL)
 
 libzeitgeist_2_0_la_VALASOURCES = \
-	data-source.vala \
-	data-source-registry.vala \
-	mimetype.vala \
-	enumerations.vala \
-	event.vala \
-	subject.vala \
-	timerange.vala \
 	index.vala \
 	log.vala \
-	timestamp.vala \
 	monitor.vala \
-	ontology-uris.vala \
-	ontology.vala \
-	queued-proxy-wrapper.vala \
 	remote.vala \
-	result-set.vala \
-	simple-result-set.vala \
-	utils.vala \
 	$(NULL)
 
 nodist_libzeitgeist_2_0_la_SOURCES = \
@@ -91,17 +93,47 @@ nodist_libzeitgeist_2_0_la_SOURCES = \
 	$(libzeitgeist_2_0_la_VALASOURCES:.vala=.c) \
 	$(NULL)
 
+libzeitgeist_datamodel_2_0_la_VALASOURCES = \
+	data-source.vala \
+	data-source-registry.vala \
+	mimetype.vala \
+	enumerations.vala \
+	event.vala \
+	subject.vala \
+	timerange.vala \
+	timestamp.vala \
+	ontology-uris.vala \
+	ontology.vala \
+	queued-proxy-wrapper.vala \
+	result-set.vala \
+	simple-result-set.vala \
+	utils.vala \
+	$(NULL)
+
+nodist_libzeitgeist_datamodel_2_0_la_SOURCES = \
+	$(BUILT_SOURCES) \
+	$(libzeitgeist_datamodel_2_0_la_VALASOURCES:.vala=.c) \
+	$(NULL)
+
 zeitgeist-internal.h zeitgeist-internal.vapi: libzeitgeist_internal_la_vala.stamp
 
-libzeitgeist_internal_la_vala.stamp: libzeitgeist_2_0_la_vala.stamp $(libzeitgeist_internal_la_VALASOURCES) Makefile
+libzeitgeist_internal_la_vala.stamp: libzeitgeist_datamodel_2_0_la_vala.stamp $(libzeitgeist_internal_la_VALASOURCES) Makefile
 	$(AM_V_VALA)$(VALAC) \
 		$(AM_VALAFLAGS) $(libzeitgeist_internal_la_VALAFLAGS) \
 		$(filter %.vala %.c,$^)
 	$(AM_V_at)touch $@
 
+zeitgeist-datamodel.h zeitgeist-datamodel-2.0.vapi: libzeitgeist_datamodel_2_0_la_vala.stamp
+
+libzeitgeist_datamodel_2_0_la_vala.stamp: $(libzeitgeist_datamodel_2_0_la_VALASOURCES) Makefile
+	$(AM_V_VALA)$(VALAC) \
+		$(AM_VALAFLAGS) $(libzeitgeist_datamodel_2_0_la_VALAFLAGS) \
+		$(filter %.vala %.c,$^)
+	$(AM_V_at)touch $@
+
 zeitgeist.h zeitgeist-2.0.vapi: libzeitgeist_2_0_la_vala.stamp
 
-libzeitgeist_2_0_la_vala.stamp: $(libzeitgeist_2_0_la_VALASOURCES) Makefile
+libzeitgeist_2_0_la_vala.stamp: libzeitgeist_datamodel_2_0_la_vala.stamp libzeitgeist_internal_la_vala.stamp $(libzeitgeist_2_0_la_VALASOURCES) Makefile
 	$(AM_V_VALA)$(VALAC) \
 		$(AM_VALAFLAGS) $(libzeitgeist_2_0_la_VALAFLAGS) \
 		$(filter %.vala %.c,$^)
@@ -113,24 +145,34 @@ pkgconfig_DATA = zeitgeist-2.0.pc
 libzeitgeist_includedir=$(includedir)/zeitgeist-2.0/
 nodist_libzeitgeist_include_HEADERS = \
 	zeitgeist.h \
+	zeitgeist-datamodel.h \
 	$(NULL)
 
 libzeitgeist_vapidir = $(datadir)/vala/vapi/
 nodist_libzeitgeist_vapi_DATA = \
 	zeitgeist-2.0.vapi \
+	zeitgeist-2.0.deps \
+	zeitgeist-datamodel-2.0.vapi \
 	$(NULL)
 
 EXTRA_DIST = \
 	$(libzeitgeist_2_0_la_VALASOURCES) \
+	$(libzeitgeist_datamodel_2_0_la_VALASOURCES) \
 	$(libzeitgeist_internal_la_VALASOURCES) \
+	zeitgeist-2.0.deps \
 	ontology.vala.in \
 	ontology-uris.vala.in \
 	ontology_vala.stamp \
 	$(NULL)
 
 CLEANFILES = \
+	$(nodist_libzeitgeist_2_0_la_SOURCES) \
+	$(nodist_libzeitgeist_datamodel_2_0_la_SOURCES) \
+	$(nodist_libzeitgeist_internal_la_SOURCES) \
 	zeitgeist.h \
 	zeitgeist-2.0.vapi \
+	zeitgeist-datamodel.h \
+	zeitgeist-datamodel-2.0.vapi \
 	zeitgeist-internal.h \
 	zeitgeist-internal.vapi \
 	$(NULL)
@@ -142,12 +184,17 @@ MAINTAINERCLEANFILES =
 libzeitgeist_dlname = \
 	`$(SED) -n "s/^dlname='\([A-Za-z0-9.+-]\+\)'/\1/p" libzeitgeist-2.0.la`
 
-if HAVE_INTROSPECTION
+if FALSE #HAVE_INTROSPECTION
 Zeitgeist-2.0.gir: libzeitgeist-2.0.la
+Zeitgeist-2.0.typelib: ZeitgeistDatamodel-2.0.gir
 Zeitgeist-2.0.typelib: Zeitgeist-2.0.gir
+	${INTROSPECTION_COMPILER} -l ${libzeitgeist_dlname} --include ZeitgeistDatamodel-2.0.gir --includedir ${INTROSPECTION_GIRDIR} -o $@ $^
+
+ZeitgeistDatamodel-2.0.gir: libzeitgeist-2.0.la
+ZeitgeistDatamodel-2.0.typelib: ZeitgeistDatamodel-2.0.gir
 	${INTROSPECTION_COMPILER} -l ${libzeitgeist_dlname} --includedir ${INTROSPECTION_GIRDIR} -o $@ $^
 
-GIRS = Zeitgeist-2.0.gir
+GIRS = ZeitgeistDatamodel-2.0.gir Zeitgeist-2.0.gir
 
 girdir = $(datadir)/gir-1.0
 nodist_gir_DATA = $(GIRS)
