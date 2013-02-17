@@ -14,7 +14,7 @@ SUBDIRS = \
 	doc \
 	$(NULL)
 
-zeitgeistdocdir = $(pkgsharedir)/doc
+zeitgeistdocdir = $(pkgdatadir)/doc
 zeitgeistdoc_DATA = \
 	AUTHORS \
 	NEWS \
@@ -25,6 +25,7 @@ DISTCHECK_CONFIGURE_FLAGS = \
 	--enable-gtk-doc
 
 EXTRA_DIST = \
+	tools \
 	$(zeitgeistdoc_DATA) \
 	INSTALL \
 	COPYING \

@@ -117,7 +117,9 @@ EXTRA_DIST = \
 	$(extensions_VALASOURCES) \
 	$(NULL)
 
-DISTCLEANFILES = \
+CLEANFILES = \
+	zeitgeist-engine.vapi \
+	zeitgeist-engine.h \
 	$(NULL)
 
 distclean-local:
