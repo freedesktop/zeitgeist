@@ -27,6 +27,7 @@ test_fts_SOURCES = \
 	$(NULL)
 
 test_fts_LDADD = \
+	$(top_builddir)/libzeitgeist/libzeitgeist-2.0.la \
 	$(top_builddir)/src/libzeitgeist-engine.la \
 	$(XAPIAN_LIBS) \
 	$(NULL)
