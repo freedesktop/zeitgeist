@@ -7,8 +7,7 @@ EXTRA_DIST = \
 AM_CFLAGS = \
 	-Wall  \
 	-g \
-	-DZEITGEIST_COMPILATION \
-	-DTEST_DIR=\"$(top_srcdir)/tests\" \
+	-DTEST_DIR=\"$(abs_srcdir)\" \
 	$(GIO_UNIX_CFLAGS) \
 	$(ZEITGEIST_CFLAGS) \
 	-I $(top_builddir)/libzeitgeist \
@@ -23,7 +22,7 @@ AM_LDFLAGS = \
 	$(ZEITGEIST_LIBS) \
 	$(NULL)
 
-noinst_PROGRAMS = \
+check_PROGRAMS = \
 	test-timerange \
 	test-timestamp \
 	test-symbols \
@@ -33,6 +32,8 @@ noinst_PROGRAMS = \
 	test-datasource \
 	test-mimetypes \
 	$(NULL)
+
+TESTS = $(check_PROGRAMS)
 
 test_timerange_SOURCES = test-timerange.c
 test_timestamp_SOURCES = test-timestamp.c

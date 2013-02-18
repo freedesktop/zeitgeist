@@ -119,9 +119,8 @@ test_create_full (Fixture *fix, gconstpointer data)
   g_object_unref (ev);
 }
 
-/*
 static void
-test_actor_from_app_info (Fixture *fix, gconstpointer data)
+test_actor_from_info (Fixture *fix, gconstpointer data)
 {
   ZeitgeistEvent *ev;
   GAppInfo       *appinfo;
@@ -130,11 +129,10 @@ test_actor_from_app_info (Fixture *fix, gconstpointer data)
   g_assert (G_IS_APP_INFO (appinfo));
 
   ev = zeitgeist_event_new ();
-  zeitgeist_event_set_actor_from_app_info (ev, appinfo);
+  zeitgeist_event_set_actor_from_info (ev, appinfo);
 
   g_assert_cmpstr ("application://test.desktop", ==, zeitgeist_event_get_actor (ev));
 }
-*/
 
 static void
 test_from_variant (Fixture *fix, gconstpointer data)
@@ -432,10 +430,8 @@ main (int   argc,
               setup, test_create_empty, teardown);
   g_test_add ("/Zeitgeist/Event/CreateFull", Fixture, NULL,
               setup, test_create_full, teardown);
-  /*
-  g_test_add ("/Zeitgeist/Event/ActorFromAppInfo", Fixture, NULL,
-              setup, test_actor_from_app_info, teardown);
-  */
+  g_test_add ("/Zeitgeist/Event/ActorFromInfo", Fixture, NULL,
+              setup, test_actor_from_info, teardown);
   g_test_add ("/Zeitgeist/Event/FromVariant", Fixture, NULL,
                 setup, test_from_variant, teardown);
   g_test_add ("/Zeitgeist/Event/FromVariantWithNewFields", Fixture, NULL,

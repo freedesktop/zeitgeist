@@ -3,8 +3,6 @@ include $(top_srcdir)/libzeitgeist/Makefile.decl
 AM_CFLAGS = \
 	-Wall  \
 	-g \
-	-DZEITGEIST_COMPILATION \
-	-DTEST_DIR=\"$(top_srcdir)/tests\" \
 	$(GIO_UNIX_CFLAGS) \
 	$(ZEITGEIST_CFLAGS) \
 	-I $(top_builddir)/libzeitgeist \

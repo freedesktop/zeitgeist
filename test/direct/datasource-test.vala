@@ -23,7 +23,6 @@ using Assertions;
 
 int main (string[] argv)
 {
-    Environment.set_variable ("XDG_DATA_DIRS", test_dir (), true);
     Test.init (ref argv);
 
     Test.add_func ("/Datasource/CreateEmpty", create_empty_test);

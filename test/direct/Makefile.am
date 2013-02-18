@@ -2,6 +2,9 @@ NULL =
 
 EXTRA_DIST = \
 	assertions.vapi \
+	test.desktop \
+	tests.h \
+	tests.vapi \
 	$(NULL)
 
 AM_VALAFLAGS = \
@@ -12,6 +15,7 @@ AM_VALAFLAGS = \
 	--pkg posix \
 	--pkg gmodule-2.0 \
 	$(srcdir)/assertions.vapi \
+	$(srcdir)/tests.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-datamodel-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-internal.vapi \
@@ -20,8 +24,12 @@ AM_VALAFLAGS = \
 	$(NULL)
 
 AM_CPPFLAGS = \
+	-Wall  \
+	-g \
+	-DTEST_DIR=\"$(abs_srcdir)\" \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
+	-I $(srcdir) \
 	-I $(top_builddir)/libzeitgeist \
 	-I $(top_builddir)/src \
 	-w \

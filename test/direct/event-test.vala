@@ -25,7 +25,6 @@ using Assertions;
 
 int main (string[] argv)
 {
-    Environment.set_variable ("XDG_DATA_DIRS", test_dir (), true);
     Test.init (ref argv);
 
     Test.add_func ("/Event/CreateEmpty", create_empty_test);
@@ -86,7 +85,7 @@ void create_full_test ()
 
 void actor_from_app_info_test ()
 {
-    var appinfo = new DesktopAppInfo.from_filename (test_dir () + "/test.desktop");
+    var appinfo = new DesktopAppInfo.from_filename (Zeitgeist.Tests.DIR + "/test.desktop");
     assert (appinfo is AppInfo);
 
     var ev = new Event ();

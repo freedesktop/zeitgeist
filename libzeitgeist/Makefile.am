@@ -171,8 +171,10 @@ CLEANFILES = \
 	$(nodist_libzeitgeist_internal_la_SOURCES) \
 	zeitgeist.h \
 	zeitgeist-2.0.vapi \
+	Zeitgeist-2.0.gir \
 	zeitgeist-datamodel.h \
 	zeitgeist-datamodel-2.0.vapi \
+	ZeitgeistDatamodel-2.0.gir \
 	zeitgeist-internal.h \
 	zeitgeist-internal.vapi \
 	$(NULL)

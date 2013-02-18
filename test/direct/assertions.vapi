@@ -20,8 +20,4 @@ namespace Assertions {
   public void assert_cmpuint (uint n1, OperatorType op, uint n2);
   public void assert_cmphex (uint n1, OperatorType op, uint n2);
   public void assert_cmpfloat (float n1, OperatorType op, float n2);
-
-  public static string test_dir () {
-      return GLib.Environment.get_current_dir ();
-  }
 }
