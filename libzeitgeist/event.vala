@@ -237,7 +237,7 @@ public class Event : Object
         }
     }
 
-    public void set_actor_from_info (AppInfo info)
+    public void set_actor_from_app_info (AppInfo info)
     {
         if (info.get_id () != null)
         {

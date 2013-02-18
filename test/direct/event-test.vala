@@ -89,7 +89,7 @@ void actor_from_app_info_test ()
     assert (appinfo is AppInfo);
 
     var ev = new Event ();
-    ev.set_actor_from_info (appinfo);
+    ev.set_actor_from_app_info (appinfo);
     assert_cmpstr (ev.actor, OperatorType.EQUAL, "application://test.desktop");
 }
 
