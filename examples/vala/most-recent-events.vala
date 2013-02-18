@@ -9,7 +9,7 @@ int main ()
     var templates  = new GenericArray<Event> ();
     int num_events = 20;
 
-    log.find_events (time_range, templates, StorageState.ANY, num_events,
+    log.find_events.begin (time_range, templates, StorageState.ANY, num_events,
         ResultType.MOST_RECENT_SUBJECTS, null, (obj, res) =>
         {
             ResultSet events = log.find_events.end (res);

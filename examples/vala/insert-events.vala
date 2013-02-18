@@ -20,7 +20,7 @@ int main ()
     su.text = "bar.txt";
     su.storage = "bfb486f6-f5f8-4296-8871-0cc749cf8ef7";
 
-    Zeitgeist.Log.get_default ().insert_events (
+    Zeitgeist.Log.get_default ().insert_events.begin (
         events, null, (log, res) => {
             Array<uint32> event_ids;
             Zeitgeist.Log zg = (Zeitgeist.Log) log;

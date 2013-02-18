@@ -9,7 +9,7 @@ int main ()
     var loop = new MainLoop();
 
     Zeitgeist.Log zg = new Zeitgeist.Log ();
-    zg.get_events (ids, null, (obj, res) => {
+    zg.get_events.begin (ids, null, (obj, res) => {
         var events = zg.get_events.end (res);
         for (int i = 0; i < events.size(); ++i)
         {

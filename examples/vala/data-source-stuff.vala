@@ -71,7 +71,7 @@ int main ()
 {
     loop = new MainLoop();
 
-    do_stuff();
+    do_stuff.begin ();
 
     loop.run ();
 
