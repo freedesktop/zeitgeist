@@ -82,9 +82,11 @@ nodist_libzeitgeist_internal_la_SOURCES = \
 	$(NULL)
 
 libzeitgeist_2_0_la_VALASOURCES = \
+	data-source-registry.vala \
 	index.vala \
 	log.vala \
 	monitor.vala \
+	queued-proxy-wrapper.vala \
 	remote.vala \
 	$(NULL)
 
@@ -95,7 +97,6 @@ nodist_libzeitgeist_2_0_la_SOURCES = \
 
 libzeitgeist_datamodel_2_0_la_VALASOURCES = \
 	data-source.vala \
-	data-source-registry.vala \
 	mimetype.vala \
 	enumerations.vala \
 	event.vala \
@@ -104,7 +105,6 @@ libzeitgeist_datamodel_2_0_la_VALASOURCES = \
 	timestamp.vala \
 	ontology-uris.vala \
 	ontology.vala \
-	queued-proxy-wrapper.vala \
 	result-set.vala \
 	simple-result-set.vala \
 	utils.vala \
@@ -186,11 +186,10 @@ MAINTAINERCLEANFILES =
 libzeitgeist_dlname = \
 	`$(SED) -n "s/^dlname='\([A-Za-z0-9.+-]\+\)'/\1/p" libzeitgeist-2.0.la`
 
-if FALSE #HAVE_INTROSPECTION
+if HAVE_INTROSPECTION
 Zeitgeist-2.0.gir: libzeitgeist-2.0.la
-Zeitgeist-2.0.typelib: ZeitgeistDatamodel-2.0.gir
-Zeitgeist-2.0.typelib: Zeitgeist-2.0.gir
-	${INTROSPECTION_COMPILER} -l ${libzeitgeist_dlname} --include ZeitgeistDatamodel-2.0.gir --includedir ${INTROSPECTION_GIRDIR} -o $@ $^
+Zeitgeist-2.0.typelib: Zeitgeist-2.0.gir ZeitgeistDatamodel-2.0.gir
+	${INTROSPECTION_COMPILER} -l ${libzeitgeist_dlname} --includedir ${INTROSPECTION_GIRDIR} -o $@ $^
 
 ZeitgeistDatamodel-2.0.gir: libzeitgeist-2.0.la
 ZeitgeistDatamodel-2.0.typelib: ZeitgeistDatamodel-2.0.gir
