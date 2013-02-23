@@ -48,7 +48,6 @@ libzeitgeist_datamodel_2_0_la_VALAFLAGS = \
 	--vapi zeitgeist-datamodel-2.0.vapi \
 	-H zeitgeist-datamodel.h \
 	--library zeitgeist-2.0 \
-	--gir ZeitgeistDatamodel-2.0.gir \
 	$(NULL)
 
 libzeitgeist_datamodel_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
@@ -60,8 +59,6 @@ libzeitgeist_2_0_la_VALAFLAGS = \
 	--vapi zeitgeist-2.0.vapi \
 	-H zeitgeist.h \
 	--library zeitgeist-2.0 \
-	--girdir $(builddir) \
-	--gir Zeitgeist-2.0.gir \
 	$(NULL)
 
 libzeitgeist_2_0_la_LIBADD = $(builddir)/libzeitgeist-datamodel-2.0.la $(builddir)/libzeitgeist-internal.la $(ZEITGEIST_LIBS)
@@ -174,7 +171,6 @@ CLEANFILES = \
 	Zeitgeist-2.0.gir \
 	zeitgeist-datamodel.h \
 	zeitgeist-datamodel-2.0.vapi \
-	ZeitgeistDatamodel-2.0.gir \
 	zeitgeist-internal.h \
 	zeitgeist-internal.vapi \
 	$(NULL)
@@ -187,15 +183,29 @@ libzeitgeist_dlname = \
 	`$(SED) -n "s/^dlname='\([A-Za-z0-9.+-]\+\)'/\1/p" libzeitgeist-2.0.la`
 
 if HAVE_INTROSPECTION
-Zeitgeist-2.0.gir: libzeitgeist-2.0.la
-Zeitgeist-2.0.typelib: Zeitgeist-2.0.gir ZeitgeistDatamodel-2.0.gir
+libzeitgeist_2_0_gir_VALASOURCES = \
+	$(libzeitgeist_2_0_la_VALASOURCES) \
+	$(libzeitgeist_datamodel_2_0_la_VALASOURCES) \
+	$(NULL)
+
+.gir/Zeitgeist-2.0.gir: $(libzeitgeist_2_0_gir_VALASOURCES) Makefile
+	$(AM_V_VALA)$(VALAC) \
+		$(AM_VALAFLAGS) \
+		-H $(builddir)/.gir/zeitgeist.h \
+		--library zeitgeist-2.0 \
+		--gir Zeitgeist-2.0.gir \
+		--basedir $(builddir)/.gir \
+		--directory $(builddir)/.gir \
+		$(filter %.vala %.c,$^)
+
+Zeitgeist-2.0.gir: $(builddir)/.gir/Zeitgeist-2.0.gir
+	$(AM_V_at)cp $(builddir)/.gir/Zeitgeist-2.0.gir $(builddir)
+
+Zeitgeist-2.0.typelib: libzeitgeist-2.0.la
+Zeitgeist-2.0.typelib: Zeitgeist-2.0.gir
 	${INTROSPECTION_COMPILER} -l ${libzeitgeist_dlname} --includedir ${INTROSPECTION_GIRDIR} -o $@ $^
 
-ZeitgeistDatamodel-2.0.gir: libzeitgeist-2.0.la
-ZeitgeistDatamodel-2.0.typelib: ZeitgeistDatamodel-2.0.gir
-	${INTROSPECTION_COMPILER} -l ${libzeitgeist_dlname} --includedir ${INTROSPECTION_GIRDIR} -o $@ $^
-
-GIRS = ZeitgeistDatamodel-2.0.gir Zeitgeist-2.0.gir
+GIRS = Zeitgeist-2.0.gir
 
 girdir = $(datadir)/gir-1.0
 nodist_gir_DATA = $(GIRS)
@@ -219,6 +229,9 @@ ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in \
 
 distclean-local:
 	rm -f *.c *.o *.stamp *.~[0-9]~
+
+clean-local:
+	rm -rf .gir
 
 VALA_V = $(VALA_V_$(V))
 VALA_V_ = $(VALA_V_$(AM_DEFAULT_VERBOSITY))
