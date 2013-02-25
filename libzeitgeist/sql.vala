@@ -337,7 +337,7 @@ namespace Zeitgeist.SQLite
          *
          * @param rc error code returned by a SQLite call
          * @param msg message to print if `rc' indicates an error
-         * @throws EngineError
+         * @throws EngineError err
          */
         [Diagnostics]
         public void assert_query_success (int rc, string msg,

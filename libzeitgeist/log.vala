@@ -54,6 +54,21 @@ namespace Zeitgeist
  * variants that are "fire and forget" ignoring the normal return value, so
  * that callbacks does not have to be set up.
  */
+
+internal class DbWorker {
+    public SourceFunc func;
+
+    public DbWorker(SourceFunc func) {
+        this.func = func;
+    }
+}
+
+
+internal void run_func (DbWorker worker) {
+    worker.func();
+}
+
+
 public class Log : QueuedProxyWrapper
 {
     private static Log default_instance;
@@ -61,10 +76,14 @@ public class Log : QueuedProxyWrapper
     private RemoteLog proxy;
     private Variant? engine_version;
     private HashTable<Monitor, uint> monitors;
+    private DbReader dbreader;
+    private ThreadPool<void*> threads;
 
     public Log ()
     {
         monitors = new HashTable<Monitor, int>(direct_hash, direct_equal);
+        threads = new ThreadPool<DbWorker> ((Func<DbWorker>)run_func, 4, true);
+        MainLoop mainloop = new MainLoop();
         Bus.get_proxy.begin<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
             Utils.ENGINE_DBUS_PATH, 0, null, (obj, res) =>
             {
@@ -72,6 +91,11 @@ public class Log : QueuedProxyWrapper
                 {
                     proxy = Bus.get_proxy.end (res);
                     proxy_acquired (proxy);
+                    if (proxy.datapath != null && proxy.datapath != ":memory:" &&
+                        FileUtils.test (proxy.datapath, GLib.FileTest.EXISTS)) {
+                        Utils.set_database_file_path(proxy.datapath);
+                        dbreader = new DbReader ();
+                    }
                 }
                 catch (IOError err)
                 {
@@ -79,7 +103,9 @@ public class Log : QueuedProxyWrapper
                         err.message);
                     proxy_unavailable (err);
                 }
+                mainloop.quit();
             });
+        mainloop.run();
     }
 
 
@@ -109,6 +135,13 @@ public class Log : QueuedProxyWrapper
         // Update our cached version property
         engine_version = proxy.version;
         warn_if_fail (engine_version.get_type_string () == "(iii)");
+        if (proxy.datapath != null && proxy.datapath != ":memory:" &&
+            FileUtils.test (proxy.datapath, GLib.FileTest.EXISTS)) {
+            Utils.set_database_file_path (proxy.datapath);
+            dbreader = new DbReader ();
+        }
+        else
+            dbreader = null;
     }
 
     protected override void on_connection_lost () {
@@ -140,9 +173,9 @@ public class Log : QueuedProxyWrapper
     public async Array<uint32> insert_events (GenericArray<Event> events,
         Cancellable? cancellable=null) throws Error
     {
-        var events_cp = new GenericArray<Event>();
+        var events_cp = new GenericArray<Event> ();
         for (int i = 0; i < events.length; i++)
-            events_cp.add(events.get(i));
+            events_cp.add (events.get (i));
         yield wait_for_proxy ();
         uint32[] ids = yield proxy.insert_events (Events.to_variant (events_cp), cancellable);
         var result = new Array<uint32> ();
@@ -219,9 +252,23 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        var event_templates_cp = new GenericArray<Event>();
+        if (dbreader != null) {
+            SourceFunc callback = find_events.callback;
+            SimpleResultSet result_set = null;
+            SourceFunc run = () => {
+                var result = dbreader.find_events (time_range, event_templates,
+                    storage_state, num_events, result_type);
+                result_set = new SimpleResultSet (result);
+                Idle.add ((owned) callback);
+                return true;
+            };
+            threads.push (new DbWorker (run));
+            yield;
+            return result_set;
+        }
+        var event_templates_cp = new GenericArray<Event> ();
         for (int i = 0; i < event_templates.length; i++)
-            event_templates_cp.add(event_templates.get(i));
+            event_templates_cp.add (event_templates.get (i));
         yield wait_for_proxy ();
         var result = yield proxy.find_events (time_range.to_variant (),
             Events.to_variant (event_templates_cp), storage_state,
@@ -259,9 +306,22 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        var event_templates_cp = new GenericArray<Event>();
+        if (dbreader != null) {
+            SourceFunc callback = find_event_ids.callback;
+            uint32[] ids = null;
+            SourceFunc run = () => {
+                ids = dbreader.find_event_ids (time_range, event_templates,
+                    storage_state, num_events, result_type);
+                Idle.add ((owned) callback);
+                return true;
+            };
+            threads.push (new DbWorker (run));
+            yield;
+            return ids;
+        }
+        var event_templates_cp = new GenericArray<Event> ();
         for (int i = 0; i < event_templates.length; i++)
-            event_templates_cp.add(event_templates.get(i));
+            event_templates_cp.add(event_templates.get (i));
         yield wait_for_proxy ();
         return yield proxy.find_event_ids (time_range.to_variant (),
             Events.to_variant (event_templates_cp), storage_state,
@@ -291,9 +351,23 @@ public class Log : QueuedProxyWrapper
         uint32[] simple_event_ids = new uint32[event_ids.length];
         for (int i = 0; i < event_ids.length; i++)
             simple_event_ids[i] = event_ids.index (i);
+        if (dbreader != null)
+        {
+            SourceFunc callback = get_events.callback;
+            SimpleResultSet result_set = null;
+            SourceFunc run = () => {
+                var result = dbreader.get_events (simple_event_ids);
+                result_set = new SimpleResultSet (result);
+                Idle.add ((owned) callback);
+                return true;
+            };
+            threads.push (new DbWorker (run));
+            yield;
+            return result_set;
+        }
         yield wait_for_proxy ();
         var result = yield proxy.get_events (simple_event_ids, cancellable);
-        return new SimpleResultSet(Events.from_variant (result));
+        return new SimpleResultSet (Events.from_variant (result));
     }
 
     /**
@@ -320,13 +394,28 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        var events_cp = new GenericArray<Event>();
-        for (int i = 0; i < event_templates.length; i++)
-            events_cp.add(event_templates.get(i));
+        
+        if (dbreader != null) {
+            SourceFunc callback = find_related_uris.callback;
+            string[] uris = null;
+            SourceFunc run = () => {
+                uris = dbreader.find_related_uris (time_range, event_templates,
+                    result_event_templates, storage_state, num_events, result_type);
+                Idle.add ((owned) callback);
+                return true;
+            };
+            threads.push (new DbWorker (run));
+            yield;
+            return uris;
+        }
 
-        var results_cp = new GenericArray<Event>();
+        var events_cp = new GenericArray<Event> ();
+        for (int i = 0; i < event_templates.length; i++)
+            events_cp.add (event_templates.get (i));
+
+        var results_cp = new GenericArray<Event> ();
         for (int i = 0; i < result_event_templates.length; i++)
-            results_cp.add(result_event_templates.get(i));
+            results_cp.add (result_event_templates.get (i));
 
         yield wait_for_proxy ();
         return yield proxy.find_related_uris (time_range.to_variant (),
@@ -349,10 +438,10 @@ public class Log : QueuedProxyWrapper
     {
         uint32[] _ids = new uint32 [event_ids.length];
         for (int i=0; i<event_ids.length; i++)
-            _ids[i] = event_ids.index(i);
+            _ids[i] = event_ids.index (i);
         yield wait_for_proxy ();
         Variant time_range = yield proxy.delete_events (_ids, cancellable);
-        return new TimeRange.from_variant(time_range);
+        return new TimeRange.from_variant (time_range);
     }
     /**
     * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL

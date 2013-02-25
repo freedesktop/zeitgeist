@@ -85,6 +85,10 @@ namespace Zeitgeist
             return DATABASE_FILE_PATH;
         }
 
+        public void set_database_file_path (string path) {
+            DATABASE_FILE_PATH = path;
+        }
+
         public unowned string get_database_file_backup_path ()
         {
             if (DATABASE_FILE_BACKUP_PATH != null)

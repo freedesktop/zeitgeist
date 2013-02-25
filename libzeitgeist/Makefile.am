@@ -66,7 +66,6 @@ libzeitgeist_2_0_la_LDFLAGS = -version-info $(LIBZEITGEIST_LT_VERSION)
 
 libzeitgeist_internal_la_VALASOURCES = \
 	db-reader.vala \
-	errors.vala \
 	sql.vala \
 	sql-schema.vala \
 	table-lookup.vala \
@@ -94,6 +93,7 @@ nodist_libzeitgeist_2_0_la_SOURCES = \
 
 libzeitgeist_datamodel_2_0_la_VALASOURCES = \
 	data-source.vala \
+	errors.vala \
 	mimetype.vala \
 	enumerations.vala \
 	event.vala \
@@ -196,6 +196,7 @@ libzeitgeist_2_0_gir_VALASOURCES = \
 		--gir Zeitgeist-2.0.gir \
 		--basedir $(builddir)/.gir \
 		--directory $(builddir)/.gir \
+		$(builddir)/zeitgeist-internal.vapi \
 		$(filter %.vala %.c,$^)
 
 Zeitgeist-2.0.gir: $(builddir)/.gir/Zeitgeist-2.0.gir

@@ -128,6 +128,14 @@ namespace Zeitgeist
             }
         }
 
+        public string datapath
+        {
+            owned get
+            {
+                return Utils.get_database_file_path ();
+            }
+        }
+
         public Daemon () throws EngineError
         {
 #if BUILTIN_EXTENSIONS

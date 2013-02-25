@@ -8,6 +8,7 @@ FILES = \
 	$(top_srcdir)/libzeitgeist/mimetype.vala \
 	$(top_srcdir)/libzeitgeist/enumerations.vala \
 	$(top_srcdir)/libzeitgeist/event.vala \
+	$(top_srcdir)/libzeitgeist/errors.vala \
 	$(top_srcdir)/libzeitgeist/subject.vala \
 	$(top_srcdir)/libzeitgeist/timerange.vala \
 	$(top_srcdir)/libzeitgeist/index.vala \
@@ -29,6 +30,7 @@ VALADOC_FLAGS = \
 	--pkg gio-2.0 \
 	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
+	--pkg zeitgeist-internal \
 	--vapidir $(top_builddir)/libzeitgeist \
 	--basedir $(top_srcdir)/libzeitgeist \
 	--package-name "zeitgeist-2.0" \

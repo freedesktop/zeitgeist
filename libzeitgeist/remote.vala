@@ -97,6 +97,9 @@ namespace Zeitgeist
         [DBus (name = "version")]
         public abstract VersionStruct version { owned get; }
 
+        [DBus (name = "datapath")]
+        public abstract string datapath { owned get; }
+
     }
 
     [DBus (name = "org.gnome.zeitgeist.Monitor")]
