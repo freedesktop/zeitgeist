@@ -54,23 +54,25 @@ namespace Zeitgeist
  * variants that are "fire and forget" ignoring the normal return value, so
  * that callbacks does not have to be set up.
  */
-
-internal class DbWorker {
-    public SourceFunc func;
-
-    public DbWorker(SourceFunc func) {
-        this.func = func;
-    }
-}
-
-
-internal void run_func (DbWorker worker) {
-    worker.func();
-}
-
-
 public class Log : QueuedProxyWrapper
 {
+    [CCode (cheader_filename = "sys/sysinfo.h", cname = "get_nprocs_conf")]
+    extern static int get_nprocs_conf ();
+
+    class DbWorker
+    {
+        public SourceFunc func;
+
+        public DbWorker (SourceFunc func) {
+            this.func = func;
+        }
+    }
+
+    static void run_func (DbWorker worker)
+    {
+        worker.func ();
+    }
+
     private static Log default_instance;
 
     private RemoteLog proxy;
@@ -82,8 +84,9 @@ public class Log : QueuedProxyWrapper
     public Log ()
     {
         monitors = new HashTable<Monitor, int>(direct_hash, direct_equal);
-        threads = new ThreadPool<DbWorker> ((Func<DbWorker>)run_func, 4, true);
+        threads = new ThreadPool<DbWorker> ((Func<DbWorker>)run_func, get_nprocs_conf (), true);
         MainLoop mainloop = new MainLoop();
+
         Bus.get_proxy.begin<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
             Utils.ENGINE_DBUS_PATH, 0, null, (obj, res) =>
             {
@@ -91,11 +94,6 @@ public class Log : QueuedProxyWrapper
                 {
                     proxy = Bus.get_proxy.end (res);
                     proxy_acquired (proxy);
-                    if (proxy.datapath != null && proxy.datapath != ":memory:" &&
-                        FileUtils.test (proxy.datapath, GLib.FileTest.EXISTS)) {
-                        Utils.set_database_file_path(proxy.datapath);
-                        dbreader = new DbReader ();
-                    }
                 }
                 catch (IOError err)
                 {
@@ -105,9 +103,9 @@ public class Log : QueuedProxyWrapper
                 }
                 mainloop.quit();
             });
+
         mainloop.run();
     }
-
 
     /**
      * Get a unique instance of #ZeitgeistLog, that you can share in your
@@ -135,16 +133,21 @@ public class Log : QueuedProxyWrapper
         // Update our cached version property
         engine_version = proxy.version;
         warn_if_fail (engine_version.get_type_string () == "(iii)");
+
         if (proxy.datapath != null && proxy.datapath != ":memory:" &&
             FileUtils.test (proxy.datapath, GLib.FileTest.EXISTS)) {
             Utils.set_database_file_path (proxy.datapath);
             dbreader = new DbReader ();
         }
         else
+        {
             dbreader = null;
+        }
     }
 
-    protected override void on_connection_lost () {
+    protected override void on_connection_lost ()
+    {
+        dbreader = null;
     }
 
     /**
@@ -266,6 +269,7 @@ public class Log : QueuedProxyWrapper
             yield;
             return result_set;
         }
+
         var event_templates_cp = new GenericArray<Event> ();
         for (int i = 0; i < event_templates.length; i++)
             event_templates_cp.add (event_templates.get (i));
@@ -275,7 +279,6 @@ public class Log : QueuedProxyWrapper
             num_events, result_type, cancellable);
         return new SimpleResultSet (Events.from_variant (result));
     }
-
 
     /**
     * Send a query matching a collection of {@link Event} templates to the {@link Log}.
@@ -319,6 +322,7 @@ public class Log : QueuedProxyWrapper
             yield;
             return ids;
         }
+
         var event_templates_cp = new GenericArray<Event> ();
         for (int i = 0; i < event_templates.length; i++)
             event_templates_cp.add(event_templates.get (i));
@@ -351,6 +355,7 @@ public class Log : QueuedProxyWrapper
         uint32[] simple_event_ids = new uint32[event_ids.length];
         for (int i = 0; i < event_ids.length; i++)
             simple_event_ids[i] = event_ids.index (i);
+
         if (dbreader != null)
         {
             SourceFunc callback = get_events.callback;
@@ -365,6 +370,7 @@ public class Log : QueuedProxyWrapper
             yield;
             return result_set;
         }
+
         yield wait_for_proxy ();
         var result = yield proxy.get_events (simple_event_ids, cancellable);
         return new SimpleResultSet (Events.from_variant (result));
@@ -394,7 +400,6 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
-        
         if (dbreader != null) {
             SourceFunc callback = find_related_uris.callback;
             string[] uris = null;
@@ -443,6 +448,7 @@ public class Log : QueuedProxyWrapper
         Variant time_range = yield proxy.delete_events (_ids, cancellable);
         return new TimeRange.from_variant (time_range);
     }
+
     /**
     * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
     */
@@ -453,7 +459,10 @@ public class Log : QueuedProxyWrapper
     }
 
     /**
-    *Install a monitor in the Zeitgeist engine that calls back when events matching event_templates are logged. The matching is done exactly as in the find_* family of methods and in Event.matches_template. Furthermore matched events must also have timestamps lying in time_range.
+    * Install a monitor in the Zeitgeist engine that calls back when events matching
+    * event_templates are logged. The matching is done exactly as in the find_* family
+    * of methods and in Event.matches_template. Furthermore matched events must also
+    * have timestamps lying in time_range.
     *
     * To remove a monitor call remove_monitor() on the returned Monitor instance.
     *
