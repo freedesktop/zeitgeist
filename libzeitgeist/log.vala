@@ -80,12 +80,17 @@ public class Log : QueuedProxyWrapper
     private DbReader dbreader;
     private ThreadPool<void*> threads;
 
-    public Log () throws EngineError, ThreadError
+    public Log ()
     {
         monitors = new HashTable<Monitor, int>(direct_hash, direct_equal);
-        threads = new ThreadPool<DbWorker>.with_owned_data((worker) => {
-            worker.run (); 
-        }, get_nprocs_conf (), true);
+        try {
+            threads = new ThreadPool<DbWorker>.with_owned_data((worker) => {
+                worker.run (); 
+            }, get_nprocs_conf (), true);
+        } catch (ThreadError err) {
+            warning("%s\n", err.message);
+        }
+        
         MainLoop mainloop = new MainLoop();
 
         Bus.get_proxy.begin<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
@@ -136,7 +141,8 @@ public class Log : QueuedProxyWrapper
         warn_if_fail (engine_version.get_type_string () == "(iii)");
 
         if (proxy.datapath != null && proxy.datapath != ":memory:" &&
-            FileUtils.test (proxy.datapath, GLib.FileTest.EXISTS)) {
+            FileUtils.test (proxy.datapath, GLib.FileTest.EXISTS) && 
+            threads != null) {
             Utils.set_database_file_path (proxy.datapath);
             try {
                 dbreader = new DbReader ();
@@ -271,7 +277,7 @@ public class Log : QueuedProxyWrapper
                     result_set = new SimpleResultSet (result);
                     Idle.add ((owned) callback);
                 } catch (EngineError err) {
-                    stdout.printf("%s\n", err.message);
+                    warning("%s\n", err.message);
                 }
                 return null;
             };
@@ -328,7 +334,7 @@ public class Log : QueuedProxyWrapper
                         storage_state, num_events, result_type);
                     Idle.add ((owned) callback);
                 } catch (EngineError err) {
-                    stdout.printf("%s\n", err.message);
+                    warning("%s\n", err.message);
                 }
                 return null;
             };
@@ -380,7 +386,7 @@ public class Log : QueuedProxyWrapper
                     result_set = new SimpleResultSet (result);
                     Idle.add ((owned) callback);
                 } catch (EngineError err) {
-                    stdout.printf("%s\n", err.message);
+                    warning("%s\n", err.message);
                 }
                 return null;
             };
@@ -427,7 +433,7 @@ public class Log : QueuedProxyWrapper
                     result_event_templates, storage_state, num_events, result_type);
                     Idle.add ((owned) callback);
                 } catch (EngineError err) {
-                    stdout.printf("%s\n", err.message);
+                    warning("%s\n", err.message);
                 }
                 return null;
             };
