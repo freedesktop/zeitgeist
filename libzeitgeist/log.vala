@@ -61,16 +61,15 @@ public class Log : QueuedProxyWrapper
 
     class DbWorker
     {
-        public SourceFunc func;
+        private unowned ThreadFunc<void*> func;
 
-        public DbWorker (SourceFunc func) {
+        public DbWorker (ThreadFunc<void*> func) {
             this.func = func;
         }
-    }
 
-    static void run_func (DbWorker worker)
-    {
-        worker.func ();
+        public void run () {
+            this.func ();
+        }
     }
 
     private static Log default_instance;
@@ -81,10 +80,12 @@ public class Log : QueuedProxyWrapper
     private DbReader dbreader;
     private ThreadPool<void*> threads;
 
-    public Log ()
+    public Log () throws EngineError, ThreadError
     {
         monitors = new HashTable<Monitor, int>(direct_hash, direct_equal);
-        threads = new ThreadPool<DbWorker> ((Func<DbWorker>)run_func, get_nprocs_conf (), true);
+        threads = new ThreadPool<DbWorker>.with_owned_data((worker) => {
+            worker.run (); 
+        }, get_nprocs_conf (), true);
         MainLoop mainloop = new MainLoop();
 
         Bus.get_proxy.begin<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
@@ -115,7 +116,7 @@ public class Log : QueuedProxyWrapper
      *
      * @return ZeitgeistLog.
      */
-    public static Log get_default ()
+    public static Log get_default () throws ThreadError, EngineError
     {
         if (default_instance == null)
             default_instance = new Log ();
@@ -137,7 +138,12 @@ public class Log : QueuedProxyWrapper
         if (proxy.datapath != null && proxy.datapath != ":memory:" &&
             FileUtils.test (proxy.datapath, GLib.FileTest.EXISTS)) {
             Utils.set_database_file_path (proxy.datapath);
-            dbreader = new DbReader ();
+            try {
+                dbreader = new DbReader ();
+            } catch (EngineError err){
+                warning (err.message);
+                dbreader = null;
+            }
         }
         else
         {
@@ -253,19 +259,19 @@ public class Log : QueuedProxyWrapper
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
-        Cancellable? cancellable=null) throws Error
+        Cancellable? cancellable=null) throws EngineError, ThreadError, Error
     {
         if (dbreader != null) {
             SourceFunc callback = find_events.callback;
             SimpleResultSet result_set = null;
-            SourceFunc run = () => {
+            ThreadFunc<void*> run = () => {
                 var result = dbreader.find_events (time_range, event_templates,
                     storage_state, num_events, result_type);
                 result_set = new SimpleResultSet (result);
                 Idle.add ((owned) callback);
-                return true;
+                return null;
             };
-            threads.push (new DbWorker (run));
+            threads.add (new DbWorker (run));
             yield;
             return result_set;
         }
@@ -307,18 +313,18 @@ public class Log : QueuedProxyWrapper
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
-        Cancellable? cancellable=null) throws Error
+        Cancellable? cancellable=null) throws EngineError, ThreadError, Error
     {
         if (dbreader != null) {
             SourceFunc callback = find_event_ids.callback;
             uint32[] ids = null;
-            SourceFunc run = () => {
+            ThreadFunc<void*> run = () => {
                 ids = dbreader.find_event_ids (time_range, event_templates,
                     storage_state, num_events, result_type);
                 Idle.add ((owned) callback);
-                return true;
+                return null;
             };
-            threads.push (new DbWorker (run));
+            threads.add (new DbWorker (run));
             yield;
             return ids;
         }
@@ -350,7 +356,7 @@ public class Log : QueuedProxyWrapper
     */
     public async ResultSet get_events (
         Array<uint32> event_ids,
-        Cancellable? cancellable=null) throws Error
+        Cancellable? cancellable=null) throws EngineError, ThreadError, Error
     {
         uint32[] simple_event_ids = new uint32[event_ids.length];
         for (int i = 0; i < event_ids.length; i++)
@@ -360,13 +366,13 @@ public class Log : QueuedProxyWrapper
         {
             SourceFunc callback = get_events.callback;
             SimpleResultSet result_set = null;
-            SourceFunc run = () => {
+            ThreadFunc<void*> run = () => {
                 var result = dbreader.get_events (simple_event_ids);
                 result_set = new SimpleResultSet (result);
                 Idle.add ((owned) callback);
-                return true;
+                return null;
             };
-            threads.push (new DbWorker (run));
+            threads.add (new DbWorker (run));
             yield;
             return result_set;
         }
@@ -403,13 +409,13 @@ public class Log : QueuedProxyWrapper
         if (dbreader != null) {
             SourceFunc callback = find_related_uris.callback;
             string[] uris = null;
-            SourceFunc run = () => {
+            ThreadFunc<void*> run = () => {
                 uris = dbreader.find_related_uris (time_range, event_templates,
                     result_event_templates, storage_state, num_events, result_type);
                 Idle.add ((owned) callback);
-                return true;
+                return null;
             };
-            threads.push (new DbWorker (run));
+            threads.add (new DbWorker (run));
             yield;
             return uris;
         }
