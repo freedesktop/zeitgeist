@@ -265,10 +265,14 @@ public class Log : QueuedProxyWrapper
             SourceFunc callback = find_events.callback;
             SimpleResultSet result_set = null;
             ThreadFunc<void*> run = () => {
-                var result = dbreader.find_events (time_range, event_templates,
-                    storage_state, num_events, result_type);
-                result_set = new SimpleResultSet (result);
-                Idle.add ((owned) callback);
+                try {
+                    var result = dbreader.find_events (time_range, event_templates,
+                        storage_state, num_events, result_type);
+                    result_set = new SimpleResultSet (result);
+                    Idle.add ((owned) callback);
+                } catch (EngineError err) {
+                    stdout.printf("%s\n", err.message);
+                }
                 return null;
             };
             threads.add (new DbWorker (run));
@@ -319,9 +323,13 @@ public class Log : QueuedProxyWrapper
             SourceFunc callback = find_event_ids.callback;
             uint32[] ids = null;
             ThreadFunc<void*> run = () => {
-                ids = dbreader.find_event_ids (time_range, event_templates,
-                    storage_state, num_events, result_type);
-                Idle.add ((owned) callback);
+                try {
+                    ids = dbreader.find_event_ids (time_range, event_templates,
+                        storage_state, num_events, result_type);
+                    Idle.add ((owned) callback);
+                } catch (EngineError err) {
+                    stdout.printf("%s\n", err.message);
+                }
                 return null;
             };
             threads.add (new DbWorker (run));
@@ -367,9 +375,13 @@ public class Log : QueuedProxyWrapper
             SourceFunc callback = get_events.callback;
             SimpleResultSet result_set = null;
             ThreadFunc<void*> run = () => {
-                var result = dbreader.get_events (simple_event_ids);
-                result_set = new SimpleResultSet (result);
-                Idle.add ((owned) callback);
+                try {
+                    var result = dbreader.get_events (simple_event_ids);
+                    result_set = new SimpleResultSet (result);
+                    Idle.add ((owned) callback);
+                } catch (EngineError err) {
+                    stdout.printf("%s\n", err.message);
+                }
                 return null;
             };
             threads.add (new DbWorker (run));
@@ -410,9 +422,13 @@ public class Log : QueuedProxyWrapper
             SourceFunc callback = find_related_uris.callback;
             string[] uris = null;
             ThreadFunc<void*> run = () => {
-                uris = dbreader.find_related_uris (time_range, event_templates,
+                try {
+                    uris = dbreader.find_related_uris (time_range, event_templates,
                     result_event_templates, storage_state, num_events, result_type);
-                Idle.add ((owned) callback);
+                    Idle.add ((owned) callback);
+                } catch (EngineError err) {
+                    stdout.printf("%s\n", err.message);
+                }
                 return null;
             };
             threads.add (new DbWorker (run));
