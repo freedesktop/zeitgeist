@@ -63,11 +63,13 @@ public class Log : QueuedProxyWrapper
     {
         private unowned ThreadFunc<void*> func;
 
-        public DbWorker (ThreadFunc<void*> func) {
+        public DbWorker (ThreadFunc<void*> func)
+        {
             this.func = func;
         }
 
-        public void run () {
+        public void run ()
+        {
             this.func ();
         }
     }
@@ -78,11 +80,11 @@ public class Log : QueuedProxyWrapper
     private Variant? engine_version;
     private HashTable<Monitor, uint> monitors;
     private DbReader dbreader;
-    private ThreadPool<void*> threads;
+    private ThreadPool<DbWorker> threads;
 
     public Log ()
     {
-        monitors = new HashTable<Monitor, int>(direct_hash, direct_equal);
+        monitors = new HashTable<Monitor, uint> (direct_hash, direct_equal);
         MainLoop mainloop = new MainLoop();
 
         Bus.get_proxy.begin<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
@@ -113,7 +115,7 @@ public class Log : QueuedProxyWrapper
      *
      * @return ZeitgeistLog.
      */
-    public static Log get_default () throws ThreadError, EngineError
+    public static Log get_default ()
     {
         if (default_instance == null)
             default_instance = new Log ();
@@ -137,7 +139,8 @@ public class Log : QueuedProxyWrapper
                 worker.run ();
             }, get_nprocs_conf (), true);
         } catch (ThreadError err) {
-            warning ("%s\n", err.message);
+            warning ("%s", err.message);
+            threads = null;
         }
 
         if (threads != null && proxy.datapath != ":memory:" &&
