@@ -149,7 +149,7 @@ public class Log : QueuedProxyWrapper
             try {
                 dbreader = new DbReader ();
             } catch (EngineError err){
-                warning (err.message);
+                warning ("%s", err.message);
                 dbreader = null;
             }
         }
@@ -272,19 +272,23 @@ public class Log : QueuedProxyWrapper
         if (dbreader != null) {
             SourceFunc callback = find_events.callback;
             SimpleResultSet result_set = null;
+            EngineError error = null;
             ThreadFunc<void*> run = () => {
                 try {
                     var result = dbreader.find_events (time_range, event_templates,
                         storage_state, num_events, result_type);
                     result_set = new SimpleResultSet (result);
-                    Idle.add ((owned) callback);
                 } catch (EngineError err) {
-                    warning ("%s", err.message);
+                    error = err;
+                } finally {
+                    Idle.add ((owned) callback);
                 }
                 return null;
             };
             threads.add (new DbWorker (run));
             yield;
+            if (error != null)
+                throw error;
             return result_set;
         }
 
@@ -330,18 +334,22 @@ public class Log : QueuedProxyWrapper
         if (dbreader != null) {
             SourceFunc callback = find_event_ids.callback;
             uint32[] ids = null;
+            EngineError error = null;
             ThreadFunc<void*> run = () => {
                 try {
                     ids = dbreader.find_event_ids (time_range, event_templates,
                         storage_state, num_events, result_type);
-                    Idle.add ((owned) callback);
                 } catch (EngineError err) {
-                    warning ("%s", err.message);
+                    error = err;
+                } finally {
+                    Idle.add ((owned) callback);
                 }
                 return null;
             };
             threads.add (new DbWorker (run));
             yield;
+            if (error != null)
+                throw error;
             return ids;
         }
 
@@ -382,18 +390,22 @@ public class Log : QueuedProxyWrapper
         {
             SourceFunc callback = get_events.callback;
             SimpleResultSet result_set = null;
+            EngineError error = null;
             ThreadFunc<void*> run = () => {
                 try {
                     var result = dbreader.get_events (simple_event_ids);
                     result_set = new SimpleResultSet (result);
-                    Idle.add ((owned) callback);
                 } catch (EngineError err) {
-                    warning ("%s", err.message);
+                    error = err;
+                } finally {
+                    Idle.add ((owned) callback);
                 }
                 return null;
             };
             threads.add (new DbWorker (run));
             yield;
+            if (error != null)
+                throw error;
             return result_set;
         }
 
@@ -424,23 +436,27 @@ public class Log : QueuedProxyWrapper
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
-        Cancellable? cancellable=null) throws Error
+        Cancellable? cancellable=null) throws EngineError, ThreadError, Error
     {
         if (dbreader != null) {
             SourceFunc callback = find_related_uris.callback;
             string[] uris = null;
+            EngineError error = null;
             ThreadFunc<void*> run = () => {
                 try {
                     uris = dbreader.find_related_uris (time_range, event_templates,
                     result_event_templates, storage_state, num_events, result_type);
-                    Idle.add ((owned) callback);
                 } catch (EngineError err) {
-                    warning ("%s", err.message);
+                    error = err;
+                } finally {
+                    Idle.add ((owned) callback);
                 }
                 return null;
             };
             threads.add (new DbWorker (run));
             yield;
+            if (error != null)
+                throw error;
             return uris;
         }
 
