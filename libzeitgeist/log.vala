@@ -267,7 +267,7 @@ public class Log : QueuedProxyWrapper
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
-        Cancellable? cancellable=null) throws EngineError, ThreadError, Error
+        Cancellable? cancellable=null) throws EngineError, Error
     {
         if (dbreader != null) {
             SourceFunc callback = find_events.callback;
@@ -285,8 +285,14 @@ public class Log : QueuedProxyWrapper
                 }
                 return null;
             };
-            threads.add (new DbWorker (run));
-            yield;
+
+            try {
+                threads.add (new DbWorker (run));
+                yield;
+            } catch (ThreadError err) {
+                error = new EngineError.DATABASE_ERROR (err.message);
+            }
+
             if (error != null)
                 throw error;
             return result_set;
@@ -329,7 +335,7 @@ public class Log : QueuedProxyWrapper
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
-        Cancellable? cancellable=null) throws EngineError, ThreadError, Error
+        Cancellable? cancellable=null) throws EngineError, Error
     {
         if (dbreader != null) {
             SourceFunc callback = find_event_ids.callback;
@@ -346,8 +352,14 @@ public class Log : QueuedProxyWrapper
                 }
                 return null;
             };
-            threads.add (new DbWorker (run));
-            yield;
+
+            try {
+                threads.add (new DbWorker (run));
+                yield;
+            } catch (ThreadError err) {
+                error = new EngineError.DATABASE_ERROR (err.message);
+            }
+
             if (error != null)
                 throw error;
             return ids;
@@ -380,7 +392,7 @@ public class Log : QueuedProxyWrapper
     */
     public async ResultSet get_events (
         Array<uint32> event_ids,
-        Cancellable? cancellable=null) throws EngineError, ThreadError, Error
+        Cancellable? cancellable=null) throws EngineError, Error
     {
         uint32[] simple_event_ids = new uint32[event_ids.length];
         for (int i = 0; i < event_ids.length; i++)
@@ -402,8 +414,14 @@ public class Log : QueuedProxyWrapper
                 }
                 return null;
             };
-            threads.add (new DbWorker (run));
-            yield;
+
+            try {
+                threads.add (new DbWorker (run));
+                yield;
+            } catch (ThreadError err) {
+                error = new EngineError.DATABASE_ERROR (err.message);
+            }
+
             if (error != null)
                 throw error;
             return result_set;
@@ -436,7 +454,7 @@ public class Log : QueuedProxyWrapper
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
-        Cancellable? cancellable=null) throws EngineError, ThreadError, Error
+        Cancellable? cancellable=null) throws EngineError, Error
     {
         if (dbreader != null) {
             SourceFunc callback = find_related_uris.callback;
@@ -453,8 +471,14 @@ public class Log : QueuedProxyWrapper
                 }
                 return null;
             };
-            threads.add (new DbWorker (run));
-            yield;
+
+            try {
+                threads.add (new DbWorker (run));
+                yield;
+            } catch (ThreadError err) {
+                error = new EngineError.DATABASE_ERROR (err.message);
+            }
+
             if (error != null)
                 throw error;
             return uris;
