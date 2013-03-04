@@ -1,6 +1,8 @@
 /*
  * Copyright © 2012 Canonical Ltd.
  *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
+ * Copyright © 2013 Seif Lotfy <seif@lotfy.com>
+ * Copyright © 2013 Rico Tzschichholz <ricotz@ubuntu.com>
  *
  * Based upon a C implementation (© 2010-2012 Canonical Ltd) by:
  *  Mikkel Kamstrup Erlandsen <mikkel.kamstrup@canonical.com>
@@ -81,11 +83,13 @@ public class Log : QueuedProxyWrapper
     private HashTable<Monitor, uint> monitors;
     private DbReader dbreader;
     private ThreadPool<DbWorker> threads;
+    private bool allow_direct_read;
 
     public Log ()
     {
         monitors = new HashTable<Monitor, uint> (direct_hash, direct_equal);
         MainLoop mainloop = new MainLoop();
+        allow_direct_read = Utils.log_may_read_directly ();
 
         Bus.get_proxy.begin<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
             Utils.ENGINE_DBUS_PATH, 0, null, (obj, res) =>
@@ -143,7 +147,8 @@ public class Log : QueuedProxyWrapper
             threads = null;
         }
 
-        if (threads != null && proxy.datapath != ":memory:" &&
+        if (allow_direct_read && threads != null &&
+            proxy.datapath != ":memory:" &&
             FileUtils.test (proxy.datapath, GLib.FileTest.EXISTS)) {
             Utils.set_database_file_path (proxy.datapath);
             try {

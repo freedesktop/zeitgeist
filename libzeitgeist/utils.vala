@@ -5,6 +5,7 @@
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
  * Copyright © 2011 Manish Sinha <manishsinha@ubuntu.com>
+ * Copyright © 2013 Seif Lotfy <seif@lotfy.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -210,6 +211,16 @@ namespace Zeitgeist
                 throw new DataModelError.INVALID_SIGNATURE (error_message);
         }
 
+        /**
+         * @return True if direct reading of the DB is enabled for Log, default is True.
+         */
+        public bool log_may_read_directly ()
+        {
+            var env_var = Environment.get_variable ("ZEITGEIST_LOG_DIRECT_READ");
+            if (env_var == null)
+                return true;
+            return (int.parse (env_var) != 0);
+        }
     }
 }
 
