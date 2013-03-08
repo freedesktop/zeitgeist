@@ -272,10 +272,9 @@ public class Log : QueuedProxyWrapper
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
-        Cancellable? cancellable=null) throws EngineError, Error
+        Cancellable? cancellable=null) throws Error
     {
         if (dbreader != null) {
-            SourceFunc callback = find_events.callback;
             SimpleResultSet result_set = null;
             EngineError error = null;
             ThreadFunc<void*> run = () => {
@@ -286,17 +285,13 @@ public class Log : QueuedProxyWrapper
                 } catch (EngineError err) {
                     error = err;
                 } finally {
-                    Idle.add ((owned) callback);
+                    Idle.add (find_events.callback);
                 }
                 return null;
             };
 
-            try {
-                threads.add (new DbWorker (run));
-                yield;
-            } catch (ThreadError err) {
-                error = new EngineError.DATABASE_ERROR (err.message);
-            }
+            threads.add (new DbWorker (run));
+            yield;
 
             if (error != null)
                 throw error;
@@ -340,10 +335,9 @@ public class Log : QueuedProxyWrapper
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
-        Cancellable? cancellable=null) throws EngineError, Error
+        Cancellable? cancellable=null) throws Error
     {
         if (dbreader != null) {
-            SourceFunc callback = find_event_ids.callback;
             uint32[] ids = null;
             EngineError error = null;
             ThreadFunc<void*> run = () => {
@@ -353,17 +347,13 @@ public class Log : QueuedProxyWrapper
                 } catch (EngineError err) {
                     error = err;
                 } finally {
-                    Idle.add ((owned) callback);
+                    Idle.add (find_event_ids.callback);
                 }
                 return null;
             };
 
-            try {
-                threads.add (new DbWorker (run));
-                yield;
-            } catch (ThreadError err) {
-                error = new EngineError.DATABASE_ERROR (err.message);
-            }
+            threads.add (new DbWorker (run));
+            yield;
 
             if (error != null)
                 throw error;
@@ -397,7 +387,7 @@ public class Log : QueuedProxyWrapper
     */
     public async ResultSet get_events (
         Array<uint32> event_ids,
-        Cancellable? cancellable=null) throws EngineError, Error
+        Cancellable? cancellable=null) throws Error
     {
         uint32[] simple_event_ids = new uint32[event_ids.length];
         for (int i = 0; i < event_ids.length; i++)
@@ -405,7 +395,6 @@ public class Log : QueuedProxyWrapper
 
         if (dbreader != null)
         {
-            SourceFunc callback = get_events.callback;
             SimpleResultSet result_set = null;
             EngineError error = null;
             ThreadFunc<void*> run = () => {
@@ -415,17 +404,13 @@ public class Log : QueuedProxyWrapper
                 } catch (EngineError err) {
                     error = err;
                 } finally {
-                    Idle.add ((owned) callback);
+                    Idle.add (get_events.callback);
                 }
                 return null;
             };
 
-            try {
-                threads.add (new DbWorker (run));
-                yield;
-            } catch (ThreadError err) {
-                error = new EngineError.DATABASE_ERROR (err.message);
-            }
+            threads.add (new DbWorker (run));
+            yield;
 
             if (error != null)
                 throw error;
@@ -459,10 +444,9 @@ public class Log : QueuedProxyWrapper
         StorageState storage_state,
         uint32 num_events,
         ResultType result_type,
-        Cancellable? cancellable=null) throws EngineError, Error
+        Cancellable? cancellable=null) throws Error
     {
         if (dbreader != null) {
-            SourceFunc callback = find_related_uris.callback;
             string[] uris = null;
             EngineError error = null;
             ThreadFunc<void*> run = () => {
@@ -472,18 +456,14 @@ public class Log : QueuedProxyWrapper
                 } catch (EngineError err) {
                     error = err;
                 } finally {
-                    Idle.add ((owned) callback);
+                    Idle.add (find_related_uris.callback);
                 }
                 return null;
             };
 
-            try {
-                threads.add (new DbWorker (run));
-                yield;
-            } catch (ThreadError err) {
-                error = new EngineError.DATABASE_ERROR (err.message);
-            }
-
+            threads.add (new DbWorker (run));
+            yield;
+            
             if (error != null)
                 throw error;
             return uris;
