@@ -164,6 +164,9 @@ public class Index : QueuedProxyWrapper
      *     have the results ordered by relevancy calculated in relation
      *     to "query"
      * @param cancellable a {@link GLib.Cancellable} to cancel the operation or %NULL
+     *
+     * @param relevancies numeric relevancies of the events returned by result_set
+     * @return {@link ResultSet} result_set.
      */
     public async ResultSet search_with_relevancies (
         string query,

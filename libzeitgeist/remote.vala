@@ -21,10 +21,25 @@
 
 namespace Zeitgeist
 {
+    /**
+     * Version struct consisting of the following fields:
+     * - major
+     * - minor
+     * - minus
+     */
     public struct VersionStruct
     {
+        /**
+         * Major version number.
+         */
         int major;
+        /**
+         * Minor version number.
+         */
         int minor;
+        /**
+         * Micro version number.
+         */
         int micro;
     }
 

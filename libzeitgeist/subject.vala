@@ -73,6 +73,21 @@ public class Subject : Object
         url_store = new StringChunk (4096);
     }
 
+    /** 
+     * Create a new Subject structure with predefined data
+     * @param uri The URI or URL of the subject
+     * @param interpretation The interpretation type of the subject.
+     * @param manifestation The manifestation type of the subject.
+     * @param mimetype The mimetype of the subject. Eg. <emphasis>text/plain</emphasis>
+     * @param origin The origin of the subject.
+     * @param text A small textual representation of the subject suitable for display
+     * @param storage String identifier for the storage medium the subject is on.
+     *
+     * @return A newly create {@link Subject} instance. The returned subject will
+     *          have a floating reference which will be consumed if you pass the
+     *          event to any of the methods provided by this library (like
+     *          adding it to an event).
+     */
     public Subject.full (string? uri=null,
         string? interpretation=null, string? manifestation=null,
         string? mimetype=null, string? origin=null, string? text=null,
@@ -87,6 +102,24 @@ public class Subject : Object
         this.storage = storage;
     }
 
+    /** 
+     * Create a new Subject structure to describe a move event
+     *
+     * @param source_uri The URI or URL of the subject
+     * @param source_origin The URI or URL of the subject
+     * @param destination_uri The URI or URL of the subject
+     * @param destination_origin The URI or URL of the subject
+     * @param interpretation The interpretation type of the subject.
+     * @param manifestation The manifestation type of the subject.
+     * @param mimetype The mimetype of the subject. Eg. <emphasis>text/plain</emphasis>
+     * @param text A small textual representation of the subject suitable for display
+     * @param storage String identifier for the storage medium the subject is on.
+     *
+     * @return A newly create {@link Subject} instance. The returned subject will
+     *          have a floating reference which will be consumed if you pass the
+     *          event to any of the methods provided by this library (like
+     *          adding it to an event).
+     */
     public Subject.move_event (
         string? source_uri=null, string? source_origin=null,
         string? destination_uri=null, string? destination_origin=null,
@@ -104,6 +137,17 @@ public class Subject : Object
         this.storage = storage;
     }
 
+    
+    /** 
+     * Create a new Subject structure from predefined {@link GLib.Variant} data
+     *
+     * @param subject_variant A {@link GLib.Variant} decscribing the subject data.
+     *
+     * @return A newly create {@link Subject} instance. The returned subject will
+     *          have a floating reference which will be consumed if you pass the
+     *          event to any of the methods provided by this library (like
+     *          adding it to an event).
+     */
     public Subject.from_variant (Variant subject_variant)
         throws DataModelError
     {
@@ -156,14 +200,15 @@ public class Subject : Object
         */
     }
 
+    /**
+     * @return true if this Subject matches *subject_template*. Empty
+     * fields in the template are treated as wildcards.
+     * Interpretations and manifestations are also matched if they are
+     * children of the types specified in `subject_template`.
+     * @param template_subject a {@link Subject}
+    */
     public bool matches_template (Subject template_subject)
     {
-        /**
-        Return True if this Subject matches *subject_template*. Empty
-        fields in the template are treated as wildcards.
-        Interpretations and manifestations are also matched if they are
-        children of the types specified in `subject_template`.
-        */
         if (!check_field_match (this.uri, template_subject.uri, false, true))
             return false;
         if (!check_field_match (this.current_uri, template_subject.current_uri, false, true))

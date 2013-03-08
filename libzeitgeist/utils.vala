@@ -22,12 +22,11 @@
  *
  */
 
-/**
- * Utility functions. FOR INTERNAL USE ONLY
- */
-
 namespace Zeitgeist
 {
+    /**
+     * Utility functions. FOR INTERNAL USE ONLY
+     */
     namespace Utils
     {
         // Paths
@@ -86,6 +85,10 @@ namespace Zeitgeist
             return DATABASE_FILE_PATH;
         }
 
+        /**
+         * Sets the filepath of the database.
+         * @param path a {@link string}
+         */
         public void set_database_file_path (string path) {
             DATABASE_FILE_PATH = path;
         }
