@@ -183,9 +183,16 @@ AS_IF([test "x$enable_docs" != "xno"], [
     ], [
         AS_IF([test "x$enable_docs" == "xyes"], AC_MSG_ERROR([Unable to find valadoc]))
     ])
+    AC_PATH_PROG(GTKDOC_SCAN, gtkdoc-scan, :)
+    AS_IF([test -x "$GTKDOC_SCAN"], [
+        found_gtkdoc_scan=yes
+        AC_SUBST(GTKDOC_SCAN)
+    ], [
+        AS_IF([test "x$enable_docs" == "xyes"], AC_MSG_ERROR([Unable to find gtkdoc-scan]))
+    ])
 ])
 
-AM_CONDITIONAL(ENABLE_DOCS, test "x$found_valadoc" = "xyes")
+AM_CONDITIONAL(ENABLE_DOCS, test "x$found_valadoc" = "xyes" -a "x$found_gtkdoc_scan" = "xyes")
 
 
 AM_CONDITIONAL([HAVE_INTROSPECTION], [test "x$enable_vala" = "xyes"])
