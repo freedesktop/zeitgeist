@@ -172,7 +172,7 @@ AC_SUBST(LIBZEITGEIST_LT_VERSION)
 
 AC_ARG_ENABLE([docs],
     AS_HELP_STRING([--enable-docs], [Enable documentation generation]),
-    [enable_docs=$enableval], [enable_docs="yes"]) # FIXME: change to no
+    [enable_docs=$enableval], [enable_docs="no"])
 
 found_valadoc=no
 AS_IF([test "x$enable_docs" != "xno"], [
