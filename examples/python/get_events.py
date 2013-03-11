@@ -1,6 +1,6 @@
-from gi.repository import Zeitgeist, GObject
+from gi.repository import Zeitgeist, GLib
 log = Zeitgeist.Log.get_default()
-mainloop = GObject.MainLoop()
+mainloop = GLib.MainLoop()
 
 def callback (log, result, data):
     events = log.get_events_finish(result)

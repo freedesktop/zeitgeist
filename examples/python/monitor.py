@@ -1,6 +1,6 @@
-from gi.repository import Zeitgeist, GObject
+from gi.repository import Zeitgeist, GLib
 log = Zeitgeist.Log.get_default()
-mainloop = GObject.MainLoop()
+mainloop = GLib.MainLoop()
 
 def on_events_inserted(log, time_range, events):
     print time_range, events
