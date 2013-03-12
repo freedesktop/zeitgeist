@@ -1,4 +1,4 @@
-2012-XX-XX: Zeitgeist 1.0 Beta 1
+2012-03-12: Zeitgeist 1.0 Beta 1
 --------------------------------
 
 This version introduces libzeitgeist2, a Vala port of the previously
@@ -43,6 +43,9 @@ libzeitgeist2 has some API differences:
  - Removed insert_events (variadic version) and insert_events_valist.
  - Removed event_new_full_valist and events_from_valist.
  - Removed time_range_get_{start,end}_iso8601.
+
+Special Thanks to the hard work of Rico Tzschichholz and Paolo Borelli 
+for their contribution in this major release
 
 2012-08-26: Zeitgeist 0.9.5 "Sun Devil"
 ---------------------------------------
