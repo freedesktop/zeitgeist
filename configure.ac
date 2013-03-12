@@ -119,16 +119,16 @@ AC_ARG_ENABLE([explain-queries],
 AM_CONDITIONAL(EXPLAIN_QUERIES, test "x$explain_queries" = "xyes")
 
 #################################################
-# Configure option: --disable-fts
+# Configure option: --enable-fts
 #################################################
 
 AC_ARG_ENABLE([fts],
             AS_HELP_STRING([--disable-fts], [Build without FTS++ extension]),
-            [enable_fts=$enableval],[enable_fts="yes"])
+            [enable_fts=$enableval],[enable_fts="no"])
 
-AM_CONDITIONAL(HAVE_FTS, test "x$enable_fts" != "xno")
+AM_CONDITIONAL(HAVE_FTS, test "x$enable_fts" = "xyes")
 
-if test "x$enable_fts" != "xno"; then
+if test "x$enable_fts" = "xyes"; then
     # check for Xapian
     AC_CHECK_PROG(HAVE_XAPIAN, xapian-config, yes, no)
     if test "x$HAVE_XAPIAN" = "xno"; then
