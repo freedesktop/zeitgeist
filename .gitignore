@@ -9,6 +9,7 @@ compile
 config.guess
 config.h
 config.h.in
+config.h.in~
 config.log
 config.status
 config.sub
@@ -29,8 +30,11 @@ intltool-update.in
 intltool-merge.in
 intltool-extract.in
 po/Makefile.in.in
+po/.intltool-merge-cache
 src/*.c
 src/*.stamp
+datahub/*.c
+datahub/*.stamp
 examples/*.c
 examples/*.stamp
 src/zeitgeist

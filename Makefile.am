@@ -14,6 +14,10 @@ SUBDIRS = \
 	doc \
 	$(NULL)
 
+if ENABLE_DATAHUB
+SUBDIRS += datahub
+endif
+
 zeitgeistdocdir = $(pkgdatadir)/doc
 zeitgeistdoc_DATA = \
 	AUTHORS \
@@ -22,6 +26,8 @@ zeitgeistdoc_DATA = \
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
+	--enable-datahub \
+	--enable-fts \
 	--enable-docs \
 	$(NULL)
 

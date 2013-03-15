@@ -40,14 +40,14 @@ ZEITGEIST_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
                     sqlite3 >= $SQLITE_REQUIRED"
 
 PKG_CHECK_MODULES(ZEITGEIST, [$ZEITGEIST_REQUIRED])
-AC_SUBST(ZEITGEIST_CFLAGS)
-AC_SUBST(ZEITGEIST_LIBS)
+
 
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 	libzeitgeist/Makefile
 	libzeitgeist/zeitgeist-2.0.pc
+	datahub/Makefile
 	extensions/Makefile
 	extensions/fts++/Makefile
 	extensions/fts++/test/Makefile
@@ -138,6 +138,66 @@ if test "x$enable_fts" = "xyes"; then
     XAPIAN_CXXFLAGS=`xapian-config --cxxflags`
     AC_SUBST(XAPIAN_LIBS)
     AC_SUBST(XAPIAN_CXXFLAGS)
+fi
+
+#################################################
+# Configure option: --enable-datahub
+#################################################
+JSON_GLIB_REQUIRED=0.14.0
+GTK_REQUIRED=3.0.0
+
+ZEITGEIST_DATAHUB_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
+                            gobject-2.0 >= $GLIB_REQUIRED
+                            gio-2.0 >= $GLIB_REQUIRED
+                            gio-unix-2.0 >= $GLIB_REQUIRED
+                            gtk+-3.0 >= $GTK_REQUIRED
+                            json-glib-1.0 >= $JSON_GLIB_REQUIRED"
+
+AC_ARG_ENABLE([datahub],
+            AS_HELP_STRING([--enable-datahub], [Whether to build zeitgeist-datahub]),
+            [enable_datahub=$enableval],[enable_datahub="yes"])
+
+AM_CONDITIONAL(ENABLE_DATAHUB, test "x$enable_datahub" = "xyes")
+
+#################################################
+# Additional provider for datahub
+# Configure option: --enable-telepathy
+#################################################
+TELEPATHY_GLIB_REQUIRED=0.18.0
+
+AC_ARG_ENABLE([telepathy],
+    AS_HELP_STRING([--disable-telepathy], [Disables the Telepathy]),
+    [enable_telepathy=$enableval],[enable_telepathy="yes"])
+
+if test "x$enable_telepathy" = "xyes" -a "x$enable_datahub" = "xyes"; then
+    PKG_CHECK_MODULES(TELEPATHY_GLIB, [telepathy-glib >= $TELEPATHY_GLIB_REQUIRED])
+    ZEITGEIST_DATAHUB_REQUIRED="$ZEITGEIST_DATAHUB_REQUIRED telepathy-glib >= $TELEPATHY_GLIB_REQUIRED"
+    AC_DEFINE([ENABLE_TELEPATHY], [1], [Is the Telepathy enabled?])
+else
+    enable_telepathy="no"
+fi
+AM_CONDITIONAL(ENABLE_TELEPATHY, test "x$enable_telepathy" = "xyes" -a "x$enable_datahub" = "xyes")
+
+#################################################
+# Additional provider for datahub
+# Configure option: --enable-downloads-monitor
+#################################################
+
+AC_ARG_ENABLE([downloads-monitor],
+    AS_HELP_STRING([--disable-downloads-monitor], [Disables the XDG_DOWNLOAD_DIRECTORY file monitor]),
+    [enable_downloads_monitor=$enableval],[enable_downloads_monitor="yes"])
+
+if test "x$enable_downloads_monitor" = "xyes" -a "x$enable_datahub" = "xyes"; then
+    AC_DEFINE([DOWNLOADS_MONITOR_ENABLED], [1], [Is the XDG_DOWNLOAD_DIRECTORY file monitor enabled?])
+fi
+AM_CONDITIONAL(DOWNLOADS_MONITOR_ENABLED, test "x$enable_downloads_monitor" = "xyes" -a "x$enable_datahub" = "xyes")
+
+
+#################################################
+# Configure option: --enable-datahub
+#################################################
+if test "x$enable_datahub" = "xyes"; then
+    PKG_CHECK_MODULES(ZEITGEIST_DATAHUB, [$ZEITGEIST_DATAHUB_REQUIRED])
 fi
 
 #################################################
@@ -242,6 +302,8 @@ ${PACKAGE}-${VERSION}
     dee-icu:               ${with_dee_icu}
 
   Other build options:
+    DataHub:               ${enable_datahub}
+      Telepathy provider:  ${enable_telepathy}
     SQL debugging:         ${explain_queries}
     libzeitgeist docs:     ${enable_docs}
     GObject Introspection: ${enable_introspection}
