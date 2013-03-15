@@ -123,7 +123,7 @@ AM_CONDITIONAL(EXPLAIN_QUERIES, test "x$explain_queries" = "xyes")
 #################################################
 
 AC_ARG_ENABLE([fts],
-            AS_HELP_STRING([--disable-fts], [Build without FTS++ extension]),
+            AS_HELP_STRING([--enable-fts], [Build with FTS++ extension]),
             [enable_fts=$enableval],[enable_fts="no"])
 
 AM_CONDITIONAL(HAVE_FTS, test "x$enable_fts" = "xyes")
