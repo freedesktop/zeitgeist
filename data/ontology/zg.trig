@@ -74,6 +74,10 @@ zg:MoveEvent
     rdfs:comment "Event triggered when a resource has been moved from a location to another. Fx. moving a file from a folder to another.";
     rdfs:subClassOf zg:EventInterpretation.
     
+zg:ApplicationAction
+    a rdfs:Class ;
+    rdfs:comment "Representation of a specific Action on an Application";
+    rdfs:subClassOf nie:InformationElement.
 
 # manifestations
 
