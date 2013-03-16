@@ -3,4 +3,4 @@
 src/zeitgeist-daemon.vala
 tools/zeitgeist-explorer/details.py
 tools/zeitgeist-explorer/ontology.py
-
+data/zeitgeist-datahub.desktop.in

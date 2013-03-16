@@ -18,7 +18,7 @@ AM_VALAFLAGS = \
 	$(top_builddir)/libzeitgeist/zeitgeist-datamodel-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/config.vapi \
-	$(srcdir)/glib-extra.vapi \
+	$(top_srcdir)/datahub/glib-extra.vapi \
 	-C \
 	$(NULL)
 
@@ -35,6 +35,7 @@ zeitgeist_datahub_VALASOURCES = \
 	recent-manager-provider.vala \
 	utils.vala \
 	zeitgeist-datahub.vala \
+	glib-extra.vapi \
 	$(NULL)
 
 if ENABLE_TELEPATHY

@@ -1,3 +1,5 @@
+*.tar.xz
+*~
 codeblocks.cbp
 codeblocks.layout
 INSTALL
@@ -92,6 +94,7 @@ doc/libzeitgeist/gtkdoc
 *.vapi
 *.gir
 *.typelib
+*.asc
 test/c/test-datasource
 test/c/test-event
 test/c/test-log
