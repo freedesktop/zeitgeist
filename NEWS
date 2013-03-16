@@ -1,5 +1,20 @@
-2012-03-12: Zeitgeist 1.0 Beta 1 "Pinch Me"
---------------------------------------------
+2013-03-XX: Zeitgeist 0.9.10 (1.0 Beta 2) "Bring it on"
+-------------------------------------------------------
+
+This version includes zeitgeist datahub in the release source 
+instead of a seperate project which was called zeitgeist-datahub
+
+You can explicitely disable datahub by passing --enable-datahub=no 
+and if you just want the telepathy datasource to be disabled you 
+can just pass --disable-telepathy along with --enable-datahub
+
+For datahub, json-glib 0.14.0 or greater is needed and for 
+telepathy telepathy-glib 0.18.0 or greater is needed
+
+This release is the second beta which will lead to zeitgeist 1.0
+
+2013-03-12: Zeitgeist 0.9.9 (1.0 Beta 1) "Pinch Me"
+---------------------------------------------------
 
 This version introduces libzeitgeist2, a Vala port of the previously
 independent libzeitgeist library. Now everything you need to work with
