@@ -37,6 +37,7 @@ src/*.c
 src/*.stamp
 datahub/*.c
 datahub/*.stamp
+datahub/zeitgeist-datahub
 examples/*.c
 examples/*.stamp
 src/zeitgeist
@@ -45,6 +46,7 @@ test/direct/where-clause-test
 data/ontology/*.py
 query-operators-test
 data/org.gnome.zeitgeist.service
+data/zeitgeist-datahub.desktop
 extensions/*.c
 extensions/*.stamp
 extensions/*.la
