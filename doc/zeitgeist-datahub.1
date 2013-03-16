@@ -1,0 +1,50 @@
+.TH ZEITGEIST\-DATAHUB 1 "May 20, 2009" "Zeitgeist"
+
+.SH NAME
+zeitgeist\-datahub \- passive loggers for Zeitgeist
+
+.SH SYNOPSIS
+\fBzeitgeist\-datahub\fP \fI[OPTION]\fP
+
+.SH DESCRIPTION
+\fBzeitgeist\-datahub\fP is a daemon which centralizes all passive
+data sources into a single process, and interfaces between said data 
+sources (also known as \fIloggers\fP) and \fBzeitgeist-daemon\fP (with 
+which it communicates via D-Bus).
+.PP
+\fBPassive\fP data sources are those which run in the background and
+look for activities independently to the programs they monitor, whereas
+Zeitgeist can also work with \fBactive\fP data sources which are those
+in-build into other applications (either natively or through
+extensions).
+
+.SH OPTIONS
+The program follows the usual GNU command line syntax, with
+options starting with two dashes (`--'). A summary of options is
+included below.
+.TP
+.B Currently there are no options available.
+
+.SH SEE ALSO
+\fBzeitgeist-daemon\fR
+
+.SH BUGS
+Please report any bugs on https://bugs.launchpad.net/zeitgeist-datahub.
+
+.SH AUTHORS
+Please see the AUTHORS file bundled with this application for
+a complete list of contributors.
+
+.SH LICENSE
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+.PP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+.PP
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
