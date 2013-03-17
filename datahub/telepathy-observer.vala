@@ -445,7 +445,7 @@ public class TelepathyObserver : DataProvider
   {
     FileTransferChannel channel = (FileTransferChannel) b_channel;
     channel.notify["state"].connect (() => {
-        this.handle_ftchannel_change (observer, account, connection, channel,
+        this.handle_ftchannel_change.begin (observer, account, connection, channel,
           dispatch_operation, requests, context);
       });
   }

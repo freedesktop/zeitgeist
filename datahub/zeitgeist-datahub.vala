@@ -183,7 +183,7 @@ public class DataHub : Object, DataHubService
   {
     debug ("Inserting %u events", queued_events.length);
 
-    batch_insert_events ();
+    batch_insert_events.begin ();
 
     queued_events = new GenericArray<Event> ();
   }
@@ -220,7 +220,7 @@ public class DataHub : Object, DataHubService
   {
     Bus.own_name (BusType.SESSION, UNIQUE_NAME, BusNameOwnerFlags.NONE,
       (conn) => { conn.register_object (OBJECT_PATH, (DataHubService) this); },
-      () => { start_data_providers (); },
+      () => { start_data_providers.begin (); },
       () =>
       {
         warning ("Unable to get name \"org.gnome.zeitgeist.datahub\"" +

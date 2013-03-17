@@ -101,7 +101,7 @@ public class RecentDocumentsKDE : DataProvider
     ignored_actors = datahub.get_data_source_actors ();
     monitor.changed.connect (this.process_event);
 
-    crawl_all_items ();
+    crawl_all_items.begin ();
   }
 
   public override void stop ()
