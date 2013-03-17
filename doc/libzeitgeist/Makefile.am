@@ -61,6 +61,8 @@ docs_c: $(FILES) $(srcdir)/zeitgeist-gtkdoc-index.sgml
 
 EXTRA_DIST = \
 	zeitgeist-gtkdoc-index.sgml \
+	docs_c \
+	docs_vala \
 	$(NULL)
 
 clean-local:
