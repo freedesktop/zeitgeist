@@ -27,7 +27,6 @@ BUILT_SOURCES = \
 	$(NULL)
 
 zeitgeist_datahub_VALASOURCES = \
-	configuration.vala \
 	data-provider.vala \
 	desktop-launch-listener.vala \
 	downloads-directory-provider.vala \

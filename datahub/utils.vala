@@ -236,24 +236,18 @@ public class Utils : Object
           {
             var desktop_file = Path.build_filename (p, fi.get_name (), null);
             var f = File.new_for_path (desktop_file);
-            try
+
+            string? contents = Utils.get_file_contents (f);
+            if (contents != null)
             {
-              string? contents = Utils.get_file_contents (f);
-              if (contents != null)
+              if ("Exec=%s".printf (app_name) in contents)
               {
-                if ("Exec=%s".printf (app_name) in contents)
+                if (mimetype == null || mimetype in contents)
                 {
-                  if (mimetype == null || mimetype in contents)
-                  {
-                    app_to_desktop_file.insert (hash_name, desktop_file);
-                    return desktop_file;
-                  }
+                  app_to_desktop_file.insert (hash_name, desktop_file);
+                  return desktop_file;
                 }
               }
-            }
-            catch (GLib.Error err)
-            {
-              warning ("%s", err.message);
             }
           }
           fi = enumerator.next_file (null);
