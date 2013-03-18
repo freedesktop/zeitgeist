@@ -35,6 +35,12 @@ AM_VALAFLAGS = \
 	-C \
 	$(NULL)
 
+if EXPLAIN_QUERIES
+AM_VALAFLAGS += \
+	-D EXPLAIN_QUERIES \
+	$(NULL)
+endif
+
 libzeitgeist_internal_la_VALAFLAGS = \
 	$(builddir)/zeitgeist-datamodel-2.0.vapi \
 	--vapi zeitgeist-internal.vapi \
