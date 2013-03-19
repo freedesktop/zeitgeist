@@ -1,10 +1,10 @@
-2013-03-XX: Zeitgeist 0.9.10 (1.0 Beta 2) "Bring it on"
--------------------------------------------------------
+2013-03-19: Zeitgeist 0.9.10 (1.0 Beta 2) "Isis"
+---------------------------------------------------------------
 
 This version includes zeitgeist datahub in the release source 
-instead of a seperate project which was called zeitgeist-datahub
+instead of a separate project which was called zeitgeist-datahub
 
-You can explicitely disable datahub by passing --enable-datahub=no 
+You can explicitly disable datahub by passing --enable-datahub=no 
 and if you just want the telepathy datasource to be disabled you 
 can just pass --disable-telepathy along with --enable-datahub
 
