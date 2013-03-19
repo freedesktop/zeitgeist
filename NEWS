@@ -11,6 +11,10 @@ can just pass --disable-telepathy along with --enable-datahub
 For datahub, json-glib 0.14.0 or greater is needed and for 
 telepathy telepathy-glib 0.18.0 or greater is needed
 
+Libzeitgeist:
+ - Add new zg#ApplicationAction subject interpretation
+ - Fix sql explanation bug
+
 This release is the second beta which will lead to zeitgeist 1.0
 
 2013-03-12: Zeitgeist 0.9.9 (1.0 Beta 1) "Pinch Me"
