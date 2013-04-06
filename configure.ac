@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [0.9.10], [dev@lists.zeitgeist-project.com], [zeitgeist])
+AC_INIT([zeitgeist], [0.9.11], [dev@lists.zeitgeist-project.com], [zeitgeist])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
