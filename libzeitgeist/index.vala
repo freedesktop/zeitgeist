@@ -126,13 +126,17 @@ public class Index : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        var event_templates_cp = new GenericArray<Event> ();
+        for (int i = 0; i < event_templates.length; i++)
+            event_templates_cp.add(event_templates.get (i));
+
         yield wait_for_proxy ();
 
         Variant result;
         uint matches;
 
         yield proxy.search (query, time_range.to_variant (),
-            Events.to_variant (event_templates), offset, num_events,
+            Events.to_variant (event_templates_cp), offset, num_events,
             result_type, out result, out matches, cancellable);
 
         return new SimpleResultSet.with_num_matches (
@@ -179,6 +183,10 @@ public class Index : QueuedProxyWrapper
         Cancellable? cancellable=null,
         out double[] relevancies) throws Error
     {
+        var event_templates_cp = new GenericArray<Event> ();
+        for (int i = 0; i < event_templates.length; i++)
+            event_templates_cp.add(event_templates.get (i));
+
         yield wait_for_proxy ();
 
         Variant result;
@@ -186,7 +194,7 @@ public class Index : QueuedProxyWrapper
         uint matches;
 
         yield proxy.search_with_relevancies (query, time_range.to_variant (),
-            Events.to_variant (event_templates), storage_state, offset,
+            Events.to_variant (event_templates_cp), storage_state, offset,
             num_events, result_type, out relevancies_variant, out result,
             out matches, cancellable);
 
