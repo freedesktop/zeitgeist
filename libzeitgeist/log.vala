@@ -219,10 +219,10 @@ public class Log : QueuedProxyWrapper
     *
     * @param event A {@link Event}
     */
-    public async void insert_event_no_reply (Event event)
+    public void insert_event_no_reply (Event event)
         throws Error
     {
-        yield insert_event (event);
+        insert_event (event);
     }
 
     /**
@@ -236,10 +236,10 @@ public class Log : QueuedProxyWrapper
     *
     * @param events An {@link GLib.GenericArray} of {@link Event}
     */
-    public async void insert_events_no_reply (GenericArray<Event> events)
+    public void insert_events_no_reply (GenericArray<Event> events)
         throws Error
     {
-        yield insert_events (events);
+        insert_events (events);
     }
 
     /**
@@ -274,12 +274,16 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        var event_templates_cp = new GenericArray<Event> ();
+        for (int i = 0; i < event_templates.length; i++)
+            event_templates_cp.add (event_templates.get (i));
+    
         if (dbreader != null) {
             SimpleResultSet result_set = null;
             EngineError error = null;
             ThreadFunc<void*> run = () => {
                 try {
-                    var result = dbreader.find_events (time_range, event_templates,
+                    var result = dbreader.find_events (time_range, event_templates_cp,
                         storage_state, num_events, result_type);
                     result_set = new SimpleResultSet (result);
                 } catch (EngineError err) {
@@ -298,9 +302,6 @@ public class Log : QueuedProxyWrapper
             return result_set;
         }
 
-        var event_templates_cp = new GenericArray<Event> ();
-        for (int i = 0; i < event_templates.length; i++)
-            event_templates_cp.add (event_templates.get (i));
         yield wait_for_proxy ();
         var result = yield proxy.find_events (time_range.to_variant (),
             Events.to_variant (event_templates_cp), storage_state,
@@ -337,12 +338,16 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        var event_templates_cp = new GenericArray<Event> ();
+        for (int i = 0; i < event_templates.length; i++)
+            event_templates_cp.add(event_templates.get (i));
+
         if (dbreader != null) {
             uint32[] ids = null;
             EngineError error = null;
             ThreadFunc<void*> run = () => {
                 try {
-                    ids = dbreader.find_event_ids (time_range, event_templates,
+                    ids = dbreader.find_event_ids (time_range, event_templates_cp,
                         storage_state, num_events, result_type);
                 } catch (EngineError err) {
                     error = err;
@@ -360,9 +365,6 @@ public class Log : QueuedProxyWrapper
             return ids;
         }
 
-        var event_templates_cp = new GenericArray<Event> ();
-        for (int i = 0; i < event_templates.length; i++)
-            event_templates_cp.add(event_templates.get (i));
         yield wait_for_proxy ();
         return yield proxy.find_event_ids (time_range.to_variant (),
             Events.to_variant (event_templates_cp), storage_state,
@@ -446,13 +448,21 @@ public class Log : QueuedProxyWrapper
         ResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
+        var events_cp = new GenericArray<Event> ();
+        for (int i = 0; i < event_templates.length; i++)
+            events_cp.add (event_templates.get (i));
+
+        var results_cp = new GenericArray<Event> ();
+        for (int i = 0; i < result_event_templates.length; i++)
+            results_cp.add (result_event_templates.get (i));
+
         if (dbreader != null) {
             string[] uris = null;
             EngineError error = null;
             ThreadFunc<void*> run = () => {
                 try {
-                    uris = dbreader.find_related_uris (time_range, event_templates,
-                    result_event_templates, storage_state, num_events, result_type);
+                    uris = dbreader.find_related_uris (time_range, events_cp,
+                    results_cp, storage_state, num_events, result_type);
                 } catch (EngineError err) {
                     error = err;
                 } finally {
@@ -468,14 +478,6 @@ public class Log : QueuedProxyWrapper
                 throw error;
             return uris;
         }
-
-        var events_cp = new GenericArray<Event> ();
-        for (int i = 0; i < event_templates.length; i++)
-            events_cp.add (event_templates.get (i));
-
-        var results_cp = new GenericArray<Event> ();
-        for (int i = 0; i < result_event_templates.length; i++)
-            results_cp.add (result_event_templates.get (i));
 
         yield wait_for_proxy ();
         return yield proxy.find_related_uris (time_range.to_variant (),
