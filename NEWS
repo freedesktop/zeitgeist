@@ -1,3 +1,17 @@
+2013-04-xx: Zeitgeist 0.9.11 (1.0 Beta 3) ""
+---------------------------------------------------------------
+
+Libzeitgeist:
+ - Fix the log's insert_events_no_reply and insert_event_no_reply
+   API to not require an async callback
+ - Pass copy of templates to threads in get_events, find_events,
+   find_event_ids and find_related_uris
+
+Overall:
+ - Fix documentation title to 
+
+This release is the third beta which will lead to zeitgeist 1.0
+
 2013-03-19: Zeitgeist 0.9.10 (1.0 Beta 2) "Isis"
 ---------------------------------------------------------------
 
