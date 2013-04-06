@@ -6,6 +6,7 @@ Libzeitgeist:
    API to not require an async callback
  - Pass copy of templates to threads in get_events, find_events,
    find_event_ids and find_related_uris
+ - Pass copy of templates to search and search_with_relevancies
 
 Overall:
  - Fix documentation title to 
