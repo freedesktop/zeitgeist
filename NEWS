@@ -7,6 +7,8 @@ Libzeitgeist:
  - Pass copy of templates to threads in get_events, find_events,
    find_event_ids and find_related_uris
  - Pass copy of templates to search and search_with_relevancies
+ - Expose RemoteLog's extensions and datapath properties via Log
+   class
 
 Overall:
  - Fix documentation title to 
