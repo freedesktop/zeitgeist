@@ -612,6 +612,23 @@ public class Log : QueuedProxyWrapper
             engine_version.get ("(iii)", &major, &minor, &micro);
     }
 
+   /**
+    * Gets extensions of the running Zeitgeist daemon.
+    *
+    * @return array of extenstions names strings
+    */
+    public string[] get_extensions () {
+        return proxy.extensions;
+    }
+
+   /**
+    * Gets datapath of the running Zeitgeist daemon.
+    *
+    * @return string datapath
+    */
+    public string datapath () {
+        return proxy.datapath;
+    }
 }
 
 }
