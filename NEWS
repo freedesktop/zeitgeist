@@ -1,4 +1,4 @@
-2013-04-xx: Zeitgeist 0.9.11 (1.0 Beta 3) ""
+2013-04-09: Zeitgeist 0.9.11 (1.0 Beta 3) "H2O"
 ---------------------------------------------------------------
 
 Libzeitgeist:
@@ -11,7 +11,7 @@ Libzeitgeist:
    class
 
 Overall:
- - Fix documentation title to 
+ - Fix documentation title to Zeitgeist Reference Manual
 
 This release is the third beta which will lead to zeitgeist 1.0
 
