@@ -443,7 +443,7 @@ public class Log : QueuedProxyWrapper
         GenericArray<Event> result_event_templates,
         StorageState storage_state,
         uint32 num_events,
-        ResultType result_type,
+        RelevantResultType result_type,
         Cancellable? cancellable=null) throws Error
     {
         var events_cp = new GenericArray<Event> ();
