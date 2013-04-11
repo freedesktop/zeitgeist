@@ -425,8 +425,6 @@ public class Log : QueuedProxyWrapper
     }
 
     /**
-    * Warning: This API is EXPERIMENTAL and is not fully supported yet.
-    *
     * Get a list of URIs of subjects which frequently occur together with events
     * matching event_templates. Possibly restricting to time_range or to URIs
     * that occur as subject of events matching result_event_templates.

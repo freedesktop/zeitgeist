@@ -26,6 +26,9 @@ namespace Zeitgeist
 {
     /**
      * Utility functions. FOR INTERNAL USE ONLY
+     * 
+     * A set of funtions that if used would only affect libzeitgeist in the
+     * code it is used in.
      */
     namespace Utils
     {

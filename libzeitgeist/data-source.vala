@@ -1,5 +1,4 @@
-/* data-source.vala
- *
+/* 
  * Copyright © 2011 Michal Hruby <michal.mhr@gmail.com>
  * Copyright © 2011-2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
@@ -20,11 +19,18 @@
  */
 
 /**
- * Abstracts data sources used by the Data-Source Registry extension
+ * Abstracts data sources used by the DataSourceRegistry extension
+ *
+ * ZeitgeistDataSource represents a data source used to insert events into
+ * Zeitgeist. The data sources are identified using the unique_id property,
+ * and when querying the data source registry you get other interesting
+ * information like timestamp of the last action of the data source, flag
+ * whether it is currently running etc.
  */
 
 namespace Zeitgeist
 {
+
     public class DataSource: Object
     {
         public string unique_id { get; set; }
@@ -36,7 +42,18 @@ namespace Zeitgeist
         public bool enabled { get; set; }
         public bool running { get; set; }
         public int64 timestamp { get; set; }
-
+        /**
+         * ZeitgeistDataSource
+         *
+         * Abstracts data sources used by the ZeitgeistDataSourceRegistry extension
+         * 
+         * ZeitgeistDataSource represents a data source used to insert events into
+         * Zeitgeist. The data sources are identified using the unique_id property,
+         * and when querying the data source registry you get other interesting
+         * information like timestamp of the last action of the data source, flag
+         * whether it is currently running etc.
+         *
+         */
         public DataSource ()
         {
             Object ();

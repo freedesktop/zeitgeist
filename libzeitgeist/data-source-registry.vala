@@ -1,5 +1,4 @@
-/* data-source-registry.vala
- *
+/*
  * Copyright © 2012 Collabora Ltd.
  *             By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
  *
@@ -47,7 +46,14 @@ namespace Zeitgeist
 
     /**
      * Query the Zeitgeist Data-Source Registry extension
+     *
+     * The Zeitgeist engine maintains a publicly available list of recognized
+     * data-sources (components inserting information into Zeitgeist).
+     * ZeitgeistDataSourceRegistry is used to register new data sources,
+     * get information about them and gives the ability to enable or disable
+     * the data sources.
      */
+
     public class DataSourceRegistry : QueuedProxyWrapper
     {
 
