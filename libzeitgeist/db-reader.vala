@@ -564,9 +564,11 @@ public class DbReader : Object
             foreach (var uri in temp_ruris)
             {
                 results[i] = uri.uri;
+#if EXPLAIN_QUERIES
                 stdout.printf("%i %lld %s\n", uri.counter,
                     uri.timestamp,
                     uri.uri);
+#endif
                 i++;
             }
 
