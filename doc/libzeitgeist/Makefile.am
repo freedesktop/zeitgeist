@@ -35,7 +35,6 @@ VALADOC_FLAGS = \
 	--basedir $(top_srcdir)/libzeitgeist \
 	--package-name "zeitgeist-2.0" \
 	--package-version $(PACKAGE_VERSION) \
-	--no-protected \
 	$(FILES) \
 	$(NULL)
 
