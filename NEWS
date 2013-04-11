@@ -1,3 +1,18 @@
+2013-04-xx: Zeitgeist 0.9.12 (1.0 Beta 4) "Happy Go Lucky"
+---------------------------------------------------------------
+
+Libzeitgeist:
+ - Fix find_related_uris to only print out the ranking if
+   EXPLAIN_QUERIES is enabled
+ - Fixed find_related_uris to take RelevantResultType as an
+   argument instead of ResultType
+ - Pass copy of templates to search and search_with_relevancies
+
+Overall:
+ - Fix documentation
+
+This release is the third beta which will lead to zeitgeist 1.0
+
 2013-04-09: Zeitgeist 0.9.11 (1.0 Beta 3) "H2O"
 ---------------------------------------------------------------
 
