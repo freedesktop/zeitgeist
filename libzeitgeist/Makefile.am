@@ -23,6 +23,11 @@ AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	-I $(builddir) \
+	-DSQLITE_ENABLE_MEMORY_MANAGEMENT \
+	-DENABLE_MEMORY_MANAGEMENT \
+	-DSQLITE_ENABLE_STAT3=1 \
+	-DENABLE_STAT3=1 \
+	-DSQLITE_THREADSAFE=0\
 	-w \
 	$(NULL)
 
@@ -31,6 +36,10 @@ AM_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg gio-unix-2.0 \
 	--pkg sqlite3 \
+	-D SQLITE_ENABLE_MEMORY_MANAGEMENT=1 \
+	-D ENABLE_MEMORY_MANAGEMENT=1 \
+	-D SQLITE_ENABLE_STAT3=1 \
+	-D ENABLE_STAT3=1 \
 	$(top_srcdir)/config.vapi \
 	-C \
 	$(NULL)
@@ -44,6 +53,10 @@ endif
 libzeitgeist_internal_la_VALAFLAGS = \
 	$(builddir)/zeitgeist-datamodel-2.0.vapi \
 	--vapi zeitgeist-internal.vapi \
+	-D SQLITE_ENABLE_MEMORY_MANAGEMENT=1 \
+	-D ENABLE_MEMORY_MANAGEMENT=1 \
+	-D SQLITE_ENABLE_STAT3=1 \
+	-D ENABLE_STAT3=1 \
 	-H zeitgeist-internal.h \
 	$(NULL)
 
@@ -64,6 +77,10 @@ libzeitgeist_2_0_la_VALAFLAGS = \
 	$(builddir)/zeitgeist-internal.vapi \
 	--vapi zeitgeist-2.0.vapi \
 	-H zeitgeist.h \
+	-D SQLITE_ENABLE_MEMORY_MANAGEMENT=1 \
+	-D ENABLE_MEMORY_MANAGEMENT=1 \
+	-D SQLITE_ENABLE_STAT3=1 \
+	-D ENABLE_STAT3=1 \
 	--library zeitgeist-2.0 \
 	$(NULL)
 

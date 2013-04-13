@@ -305,6 +305,25 @@ namespace Zeitgeist.SQLite
             database = null;
         }
 
+        public void show_compile_options ()
+        {
+            int rc;
+            Sqlite.Statement stmt;
+
+            var explain_sql = "PRAGMA compile_options";
+
+            rc = database.prepare_v2 (explain_sql, -1, out stmt);
+            assert_query_success(rc, "SQL error");
+
+            print ("%s\n", explain_sql);
+
+            while ((rc = stmt.step()) == Sqlite.ROW)
+            {
+                var detail = stmt.column_text (0);
+                print ("===> %s\n", detail);
+            }
+        }
+
 #if EXPLAIN_QUERIES
         public void explain_query (Sqlite.Statement prepared_stmt)
             throws EngineError

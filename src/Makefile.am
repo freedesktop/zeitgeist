@@ -8,6 +8,11 @@ AM_CPPFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-I$(top_builddir)/libzeitgeist \
 	-w \
+	-DSQLITE_ENABLE_MEMORY_MANAGEMENT \
+	-DENABLE_MEMORY_MANAGEMENT \
+	-DSQLITE_ENABLE_STAT3=1 \
+	-DENABLE_STAT3=1 \
+	-DSQLITE_THREADSAFE=0\
 	$(NULL)
 
 AM_VALAFLAGS = \
@@ -21,6 +26,10 @@ AM_VALAFLAGS = \
 	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/config.vapi \
 	-C \
+	-D SQLITE_ENABLE_MEMORY_MANAGEMENT \
+	-D ENABLE_MEMORY_MANAGEMENT \
+	-D SQLITE_ENABLE_STAT3=1 \
+	-D ENABLE_STAT3=1 \
 	$(NULL)
 
 if EXPLAIN_QUERIES

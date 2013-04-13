@@ -75,6 +75,7 @@ public class Engine : DbReader
     {
         // Any changes to events need to be done here so they'll
         // be taken into consideration by the extensions (LP: #928804).
+        var old = Sqlite.Memory.used();
         for (int i = 0; i < events.length; ++i)
         {
             preprocess_event (events[i]);
@@ -102,6 +103,16 @@ public class Engine : DbReader
         if (err != null) throw err;
 
         extension_collection.call_post_insert_events (events, sender);
+        var cur = Sqlite.Memory.used();
+        database.show_compile_options();
+        stdout.printf("===> %i\n", Sqlite.compileoption_used("SQLITE_ENABLE_MEMORY_MANAGEMENT"));
+        stdout.printf("===> %i\n", Sqlite.compileoption_used("ENABLE_MEMORY_MANAGEMENT"));
+        stdout.printf("====> %lld\n", old);
+        stdout.printf("====> %lld\n", cur);
+        Sqlite.Memory.release(100);
+        stdout.printf("====> %lld\n", Sqlite.Memory.used());
+        stdout.printf("=======================================\n");
+
         return event_ids;
     }
 
