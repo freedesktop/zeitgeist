@@ -67,6 +67,8 @@ public class DbReader : Object
             // FIXME: propagate this properly?
             critical ("TableLookup initialization failed: %s", err.message);
         }
+
+        database.set_cache_size (128);
     }
 
     protected Event get_event_from_row (Sqlite.Statement stmt, uint32 event_id)

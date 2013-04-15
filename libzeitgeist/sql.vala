@@ -452,6 +452,11 @@ namespace Zeitgeist.SQLite
             return false;
         }
 
+        public void set_cache_size (int size) {
+            DatabaseSchema.exec_query (database,
+                "PRAGMA cache_size = %i".printf (size));
+        }
+
         protected void update_callback (Sqlite.Action action,
             string dbname, string table, int64 rowid)
         {

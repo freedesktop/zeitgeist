@@ -5,6 +5,7 @@
  * Copyright © 2011-2012 Canonical Ltd.
  *             By Michal Hruby <michal.hruby@canonical.com>
  *             By Siegfried-A. Gevatter <siegfried.gevatter@collabora.co.uk>
+ * Copyright © 2013 Seif Lotfy <seif@lotfy.com>
  *
  * Based upon a Python implementation (2009-2011) by:
  *  Markus Korn <thekorn@gmx.net>
@@ -36,7 +37,7 @@ namespace Zeitgeist.SQLite
     {
 
         public const string CORE_SCHEMA = "core";
-        public const int CORE_SCHEMA_VERSION = 9;
+        public const int CORE_SCHEMA_VERSION = 10;
 
         private const string DATABASE_CREATION = "database_creation";
 
@@ -59,7 +60,7 @@ namespace Zeitgeist.SQLite
                     Timestamp.from_now ());
                 exec_query (database, schema_sql);
             }
-            else if (schema_version >= 3 && schema_version <= 8)
+            else if (schema_version >= 3 && schema_version <= 9)
             {
                 backup_database ();
 
@@ -271,6 +272,8 @@ namespace Zeitgeist.SQLite
             exec_query (database, "PRAGMA journal_mode = WAL");
             exec_query (database, "PRAGMA synchronous = NORMAL");
             exec_query (database, "PRAGMA locking_mode = NORMAL");
+            exec_query (database, "PRAGMA default_cache_size = 50");
+            exec_query (database, "PRAGMA wal_autocheckpoint = 10");
         }
 
         public static void create_schema (Sqlite.Database database)
@@ -649,7 +652,7 @@ namespace Zeitgeist.SQLite
          * @param database the database on which to run the query
          * @param sql the SQL query to run
          */
-        private static void exec_query (Sqlite.Database database,
+        public static void exec_query (Sqlite.Database database,
             string sql) throws EngineError
         {
             int rc = database.exec (sql);

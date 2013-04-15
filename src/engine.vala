@@ -63,6 +63,7 @@ public class Engine : DbReader
     construct
     {
         extension_store = new ExtensionStore (this);
+        database.set_cache_size (24);
     }
 
     public string[] get_extension_names ()
