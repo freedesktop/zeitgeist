@@ -293,23 +293,19 @@ public class Engine : DbReader
         int rc;
         unowned Sqlite.Statement insert_stmt = database.event_insertion_stmt;
 
-        // We need to call reset here (even if we do so again in the subjects
-        // loop) since calling .bind_* after a .step() invocation is illegal.
-        insert_stmt.reset ();
-
-        insert_stmt.bind_int64 (1, event.id);
-        insert_stmt.bind_int64 (2, event.timestamp);
-        bind_cached_reference (insert_stmt, 3, interpretations_table,
-            event.interpretation);
-        bind_cached_reference (insert_stmt, 4, manifestations_table,
-            event.manifestation);
-        bind_cached_reference (insert_stmt, 5, actors_table, event.actor);
-        insert_stmt.bind_text (6, event.origin);
-        insert_stmt.bind_int64 (7, payload_id);
-
-        for (int i = 0; i < event.num_subjects(); ++i)
+        for (int i = 0; i < event.num_subjects (); ++i)
         {
-            insert_stmt.reset();
+            insert_stmt.reset ();
+
+            insert_stmt.bind_int64 (1, event.id);
+            insert_stmt.bind_int64 (2, event.timestamp);
+            bind_cached_reference (insert_stmt, 3, interpretations_table,
+                event.interpretation);
+            bind_cached_reference (insert_stmt, 4, manifestations_table,
+                event.manifestation);
+            bind_cached_reference (insert_stmt, 5, actors_table, event.actor);
+            insert_stmt.bind_text (6, event.origin);
+            insert_stmt.bind_int64 (7, payload_id);
 
             unowned Subject subject = event.subjects[i];
 
@@ -327,7 +323,7 @@ public class Engine : DbReader
             // FIXME: Consider a storages_table table. Too dangerous?
             insert_stmt.bind_text (16, subject.storage);
 
-            if ((rc = insert_stmt.step()) != Sqlite.DONE) {
+            if ((rc = insert_stmt.step ()) != Sqlite.DONE) {
                 if (rc != Sqlite.CONSTRAINT)
                 {
                     database.assert_not_corrupt (rc);
