@@ -66,6 +66,7 @@ namespace Zeitgeist
         public FtsDaemon () throws EngineError
         {
             engine = new DbReader ();
+            engine.database.set_cache_size (16);
             indexer = new Indexer (engine);
         }
 

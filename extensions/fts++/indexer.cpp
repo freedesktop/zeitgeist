@@ -1081,6 +1081,7 @@ find_events_for_result_type_and_ids (ZeitgeistDbReader *zg_reader,
       }
     }
 
+    g_ptr_array_set_free_func (results, g_object_unref);
     g_ptr_array_unref (results);
 
     // construct custom where clause which combines the original template
@@ -1234,6 +1235,8 @@ GPtrArray* Indexer::SearchWithRelevancies (const gchar *search,
                              ZEITGEIST_ENGINE_ERROR,
                              ZEITGEIST_ENGINE_ERROR_DATABASE_ERROR,
                              "Internal database error");
+        g_ptr_array_set_free_func (results, g_object_unref);
+        g_ptr_array_unref (results);
         return NULL;
       }
 
