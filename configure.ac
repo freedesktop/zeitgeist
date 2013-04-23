@@ -189,6 +189,8 @@ AC_ARG_ENABLE([downloads-monitor],
 
 if test "x$enable_downloads_monitor" = "xyes" -a "x$enable_datahub" = "xyes"; then
     AC_DEFINE([DOWNLOADS_MONITOR_ENABLED], [1], [Is the XDG_DOWNLOAD_DIRECTORY file monitor enabled?])
+else
+    AC_DEFINE([DOWNLOADS_MONITOR_ENABLED], [0], [Is the XDG_DOWNLOAD_DIRECTORY file monitor enabled?])
 fi
 AM_CONDITIONAL(DOWNLOADS_MONITOR_ENABLED, test "x$enable_downloads_monitor" = "xyes" -a "x$enable_datahub" = "xyes")
 
