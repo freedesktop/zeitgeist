@@ -1,3 +1,19 @@
+2013-XX-XX: Zeitgeist 0.9.13 (1.0 Beta 5) "Silence is Gold"
+---------------------------------------------------------------
+
+Engine:
+ - Adjust resetting of statement to proper sequence
+ - Add custom memory PRAGMA to improve memory consumption
+
+Libzeitgeist:
+ - Add default memory PRAGMA to be used by clients
+
+FTS:
+ - Improve FTS memory consumption
+
+Overall:
+ - Fix compilation breaks for --enable-datahub --disable-downloads-monitor
+
 2013-04-12: Zeitgeist 0.9.12 (1.0 Beta 4) "Happy Go Lucky"
 ---------------------------------------------------------------
 
