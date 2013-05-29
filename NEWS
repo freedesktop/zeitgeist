@@ -1,4 +1,4 @@
-2013-XX-XX: Zeitgeist 0.9.13 (1.0 Beta 5) "Silence is Gold"
+2013-05-29: Zeitgeist 0.9.13 (1.0 Beta 5) "Silence is Gold"
 ---------------------------------------------------------------
 
 Engine:
@@ -13,6 +13,8 @@ FTS:
 
 Overall:
  - Fix compilation breaks for --enable-datahub --disable-downloads-monitor
+
+This release is the fifth beta which will lead to zeitgeist 1.0
 
 2013-04-12: Zeitgeist 0.9.12 (1.0 Beta 4) "Happy Go Lucky"
 ---------------------------------------------------------------
