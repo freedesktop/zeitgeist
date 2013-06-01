@@ -166,6 +166,12 @@ public class Log : QueuedProxyWrapper
 
     protected override void on_connection_lost ()
     {
+        // Reset the monitor's registration id (0 = not registered)
+        foreach (unowned Monitor monitor in monitors.get_keys ())
+        {
+            monitors.replace (monitor, 0);
+        }
+
         dbreader = null;
     }
 
@@ -546,7 +552,7 @@ public class Log : QueuedProxyWrapper
             {
                 uint registration_id = conn.register_object<RemoteMonitor> (
                     monitor.get_path (), monitor);
-                monitors.insert (monitor, registration_id);
+                monitors.replace (monitor, registration_id);
             }
             catch (GLib.IOError err)
             {
@@ -566,13 +572,11 @@ public class Log : QueuedProxyWrapper
     *
     * @param monitor A {@link Monitor} to report back inserts and deletes
     */
-    public async void remove_monitor (owned Monitor monitor) throws Error
+    public void remove_monitor (owned Monitor monitor) throws Error
     {
-        yield wait_for_proxy ();
-
         try
         {
-            yield proxy.remove_monitor (monitor.get_path ());
+            proxy.remove_monitor.begin (monitor.get_path ());
         }
         catch (IOError err)
         {
@@ -588,6 +592,8 @@ public class Log : QueuedProxyWrapper
             var connection = ((DBusProxy) proxy).get_connection ();
             connection.unregister_object (registration_id);
         }
+
+        monitors.remove (monitor);
     }
 
    /**

@@ -26,6 +26,11 @@ int main ()
     //monitor.events_deleted.connect (on_events_deleted);
 
     log.install_monitor (monitor);
+    Timeout.add (2000, () =>
+    {
+        log.remove_monitor (monitor);
+        return false;
+    });
 
     loop.run ();
     return 0;
