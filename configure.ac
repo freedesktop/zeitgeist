@@ -13,7 +13,7 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-AM_PROG_VALAC([0.18.0])
+AM_PROG_VALAC([0.20.0])
 AS_IF([test -z "$VALAC"], [AC_MSG_ERROR(["No Vala compiler found."])])
 
 AM_SILENT_RULES([yes])
