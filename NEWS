@@ -1,3 +1,10 @@
+2013-xx-xx: Zeitgeist 0.9.14 (1.0 Beta 6) "xx"
+---------------------------------------------------------------
+
+Libzeitgeist:
+ - Fix managing and tracking registered Monitors
+
+
 2013-05-29: Zeitgeist 0.9.13 (1.0 Beta 5) "Silence is Gold"
 ---------------------------------------------------------------
 
