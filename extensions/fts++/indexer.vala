@@ -63,6 +63,11 @@ namespace Zeitgeist
 
         public void index_events (GenericArray<Event> events)
         {
+            for (var i=0; i<events.length; i++)
+                for (var j=0; j<events[i].subjects.length; j++)
+                {
+                    //TODO: insert event here
+                }
         }
 
         public void delete_events(uint32[] ids)
