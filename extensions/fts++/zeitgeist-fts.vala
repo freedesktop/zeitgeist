@@ -56,7 +56,6 @@ namespace Zeitgeist
         private static bool name_acquired = false;
         private static bool zeitgeist_up = false;
 
-        private DbReader engine;
         private Indexer indexer;
 
         private uint indexer_register_id;
@@ -65,14 +64,11 @@ namespace Zeitgeist
 
         public FtsDaemon () throws EngineError
         {
-            engine = new DbReader ();
-            engine.database.set_cache_size (16);
-            indexer = new Indexer (engine);
+            indexer = new Indexer ();
         }
 
         private void close ()
         {
-            engine.close ();
             indexer = null; // close the index
         }
 
@@ -267,6 +263,7 @@ namespace Zeitgeist
             Posix.signal (Posix.SIGINT, safe_exit);
             Posix.signal (Posix.SIGTERM, safe_exit);
 
+            
             var opt_context = new OptionContext (" - Zeitgeist FTS daemon");
             opt_context.add_main_entries (options, null);
 

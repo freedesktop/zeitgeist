@@ -30,31 +30,17 @@ AM_VALAFLAGS = \
 	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-internal.vapi \
 	$(top_builddir)/src/zeitgeist-engine.vapi \
-	$(srcdir)/fts.vapi \
 	$(top_srcdir)/config.vapi \
 	-C \
 	$(NULL)
 
 zeitgeist_fts_VALASOURCES = \
 	zeitgeist-fts.vala \
-	$(NULL)
-
-zeitgeist_fts_CSOURCES = \
-	controller.cpp \
-	controller.h \
-	fts.cpp \
-	fts.h \
-	indexer.cpp \
-	indexer.h \
-	task.cpp \
-	task.h \
-	stringutils.cpp \
-	stringutils.h \
+	indexer.vala \
 	$(NULL)
 
 nodist_zeitgeist_fts_SOURCES = \
 	$(BUILT_SOURCES) \
-	$(zeitgeist_fts_CSOURCES) \
 	$(zeitgeist_fts_VALASOURCES:.vala=.c) \
 	$(NULL)
 
@@ -84,9 +70,7 @@ zeitgeist-fts_vala.stamp: $(engine_VALASOURCES) $(zeitgeist_fts_VALASOURCES) Mak
 
 EXTRA_DIST = \
 	$(zeitgeist_fts_VALASOURCES) \
-	$(zeitgeist_fts_CSOURCES) \
 	org.gnome.zeitgeist.fts.service.in \
-	fts.vapi \
 	$(NULL)
 
 CLEANFILES = \
