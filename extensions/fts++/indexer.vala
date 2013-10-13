@@ -18,14 +18,47 @@
  *
  */
 
+
+using Zeitgeist;
+using Zeitgeist.SQLite;
+
 namespace Zeitgeist
 {
 
     public class Indexer : Object
     {
+        private bool is_read_only = false;
+        private Sqlite.Database database;
+        private const int DEFAULT_OPEN_FLAGS =
+            Sqlite.OPEN_READWRITE | Sqlite.OPEN_CREATE;
 
         public Indexer () throws EngineError
         {
+            database = null;
+            setup_database ();
+        }
+
+        public Indexer.ready_only () throws EngineError
+        {
+        }
+
+        private void setup_database ()
+        {
+            string database_path = "%s/%s".printf (Utils.get_data_path (),
+                                                   "zgfts.sqlite");
+            int flags = is_read_only ? Sqlite.OPEN_READONLY : DEFAULT_OPEN_FLAGS;
+            int rc = Sqlite.Database.open_v2 (
+                database_path,
+                out database, flags);
+            if (rc == Sqlite.OK)
+            {
+                DatabaseSchema.exec_query (database,
+                """
+                CREATE virtual TABLE IF NOT EXISTS events USING fts4
+                (event_id, event_timestmap, event_actor, event_origin,
+                 subj_current_uri, subj_origin, subj_text)
+                """);
+            }
         }
 
         public void index_events (GenericArray<Event> events)
