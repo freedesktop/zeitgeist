@@ -292,8 +292,8 @@ public class Event : Object
         }
 
         Variant event_variant = vb.end ().get_normal_form ();
-        Variant ret = optimize_variant_allocation (event_variant);
-        return ret;
+        //Variant ret = optimize_variant_allocation (event_variant);
+        return event_variant;
     }
 
     private Variant optimize_variant_allocation (Variant event_variant) {

@@ -35,8 +35,7 @@ static const gchar *old_xdg_data_dirs = NULL;
 static void
 setup (Fixture *fix, gconstpointer data)
 {
-  if (old_xdg_data_dirs != NULL)
-    old_xdg_data_dirs = g_getenv ("XDG_DATA_DIRS");
+  old_xdg_data_dirs = g_getenv ("XDG_DATA_DIRS");
   g_setenv ("XDG_DATA_DIRS", TEST_DIR, TRUE);
 }
 
