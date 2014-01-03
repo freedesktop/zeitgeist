@@ -44,7 +44,7 @@ public class Utils : Object
     }
     catch (Error err)
     {
-      warning ("Couldn't get file contents %s: %s", file.get_path (), err.message);
+      debug ("Couldn't get file contents %s: %s", file.get_path (), err.message);
     }
     contents = (string) contents_array;
 #else

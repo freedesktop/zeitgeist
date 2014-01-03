@@ -129,7 +129,7 @@ public class RecentManagerGtk : DataProvider
 
       if (desktop_file == null)
       {
-        warning ("Desktop file for \"%s\" was not found, exec: %s, mime_type: %s",
+        debug ("Desktop file for \"%s\" was not found, exec: %s, mime_type: %s",
                  uri, exec[0], ri.get_mime_type ());
         continue; // this makes us sad panda
       }
