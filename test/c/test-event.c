@@ -42,7 +42,8 @@ setup (Fixture *fix, gconstpointer data)
 static void
 teardown (Fixture *fix, gconstpointer data)
 {
-  g_setenv ("XDG_DATA_DIRS", old_xdg_data_dirs, TRUE);
+  if (old_xdg_data_dirs != NULL)
+    g_setenv ("XDG_DATA_DIRS", old_xdg_data_dirs, TRUE);
 }
 
 static void
