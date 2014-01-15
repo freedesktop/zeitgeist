@@ -1,4 +1,14 @@
-2013-xx-xx: Zeitgeist 0.9.14 (1.0 Beta 6) "Diamond"
+2014-01-15: Zeitgeist 0.9.15 (1.0 Beta 7) "Bazooka"
+---------------------------------------------------------------
+
+Libzeitgeist:
+ - Fix converting variants to event lists
+
+Datahub:
+ - change some warnings to debugs
+
+
+2013-06-30: Zeitgeist 0.9.14 (1.0 Beta 6) "Diamond"
 ---------------------------------------------------------------
 
 Libzeitgeist:

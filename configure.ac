@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [0.9.14], [dev@lists.zeitgeist-project.com], [zeitgeist])
+AC_INIT([zeitgeist], [0.9.15], [dev@lists.zeitgeist-project.com], [zeitgeist])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
@@ -13,7 +13,7 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-AM_PROG_VALAC([0.20.0])
+AM_PROG_VALAC([0.22.0])
 AS_IF([test -z "$VALAC"], [AC_MSG_ERROR(["No Vala compiler found."])])
 
 AM_SILENT_RULES([yes])
