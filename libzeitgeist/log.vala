@@ -40,6 +40,7 @@
  * Zeitgeist also comes with a blacklist extension to make sure the user
  * always stays in control of what information is logged.
  */
+
 namespace Zeitgeist
 {
 
@@ -58,8 +59,8 @@ namespace Zeitgeist
  */
 public class Log : QueuedProxyWrapper
 {
-    [CCode (cheader_filename = "sys/sysinfo.h", cname = "get_nprocs_conf")]
-    extern static int get_nprocs_conf ();
+    [CCode (cname = "g_get_num_processors")]
+    private extern static uint get_num_processors ();
 
     class DbWorker
     {
@@ -141,7 +142,7 @@ public class Log : QueuedProxyWrapper
         try {
             threads = new ThreadPool<DbWorker>.with_owned_data ((worker) => {
                 worker.run ();
-            }, get_nprocs_conf (), true);
+            }, (int) get_num_processors (), true);
         } catch (ThreadError err) {
             warning ("%s", err.message);
             threads = null;
@@ -637,4 +638,3 @@ public class Log : QueuedProxyWrapper
 
 }
 
-// vim:expandtab:ts=4:sw=4
