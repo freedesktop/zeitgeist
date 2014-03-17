@@ -211,7 +211,11 @@ namespace Zeitgeist
          */
         private T[] generic_array_to_unowned_array<T> (GenericArray<T> gptrarr)
         {
+#if VALA_0_24
+            long[] pointers = new long[gptrarr.length];
+#else
             long[] pointers = new long[gptrarr.length + 1];
+#endif
             Memory.copy(pointers, ((PtrArray *) gptrarr)->pdata,
                 (gptrarr.length) * sizeof (void *));
             return (T[]) pointers;
