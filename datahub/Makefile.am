@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
 	$(NULL)
 
 AM_VALAFLAGS = \
-	--target-glib=2.26 \
+	--target-glib=2.36 \
 	--pkg gio-2.0 \
 	--pkg gio-unix-2.0 \
 	--pkg gtk+-3.0 \

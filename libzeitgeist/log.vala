@@ -59,9 +59,6 @@ namespace Zeitgeist
  */
 public class Log : QueuedProxyWrapper
 {
-    [CCode (cname = "g_get_num_processors")]
-    private extern static uint get_num_processors ();
-
     class DbWorker
     {
         private unowned ThreadFunc<void*> func;

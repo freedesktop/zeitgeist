@@ -21,7 +21,7 @@ AM_CPPFLAGS = \
 	$(NULL)
 
 AM_VALAFLAGS = \
-	--target-glib=2.26 \
+	--target-glib=2.36 \
 	--pkg gio-2.0 \
 	--pkg sqlite3 \
 	--pkg posix \
