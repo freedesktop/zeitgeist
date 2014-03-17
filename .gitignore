@@ -97,6 +97,9 @@ doc/libzeitgeist/gtkdoc
 *.gir
 *.typelib
 *.asc
+*.trs
+*.log
+test-driver
 test/c/test-datasource
 test/c/test-event
 test/c/test-log
