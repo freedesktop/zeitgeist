@@ -275,7 +275,7 @@ fi
 
 # check for python-rdflib
 AC_MSG_CHECKING([for python-rdflib])
-echo "import rdflib" | python - 2>/dev/null
+echo "import rdflib" | $PYTHON - 2>/dev/null
 if test $? -ne 0 ; then
   AC_MSG_FAILURE([failed.  Please install the python-rdflib package.])
 else
