@@ -103,7 +103,10 @@ public class Log : QueuedProxyWrapper
                         err.message);
                     proxy_unavailable (err);
                 }
-                mainloop.quit();
+                finally
+                {
+                    mainloop.quit();
+                }
             });
 
         mainloop.run();
