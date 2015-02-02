@@ -47,6 +47,7 @@ libzeitgeist_internal_la_VALAFLAGS = \
 	-H zeitgeist-internal.h \
 	$(NULL)
 
+libzeitgeist_internal_la_CFLAGS = -fPIC
 libzeitgeist_internal_la_LIBADD = $(ZEITGEIST_LIBS)
 libzeitgeist_internal_la_LDFLAGS = -avoid-version -non_shared -static
 
@@ -56,6 +57,7 @@ libzeitgeist_datamodel_2_0_la_VALAFLAGS = \
 	--library zeitgeist-2.0 \
 	$(NULL)
 
+libzeitgeist_datamodel_2_0_la_CFLAGS = -fPIC
 libzeitgeist_datamodel_2_0_la_LIBADD = $(ZEITGEIST_LIBS)
 libzeitgeist_datamodel_2_0_la_LDFLAGS = -avoid-version -non_shared -static
 
