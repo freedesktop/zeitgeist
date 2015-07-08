@@ -1,3 +1,18 @@
+2015-07-08: Zeitgeist 0.9.16 (1.0 Beta 8) "Experience"
+---------------------------------------------------------------
+
+Overall:
+ - Don't hardcode python path
+ - Fix build with vala-0.24+
+ - Require glib 2.35.4 and adjust target-glib accordingly
+
+Libzeitgeist:
+ - Add -fPIC to libzeitgeist-internal.la and
+   libzeitgeist_datamodel-2.0.la
+ - Log: Need to quit the loop also on error, otherwise we
+   leave a stray main loop around.
+
+
 2014-01-15: Zeitgeist 0.9.15 (1.0 Beta 7) "Bazooka"
 ---------------------------------------------------------------
 
