@@ -45,42 +45,66 @@ teardown (Fixture *fix, gconstpointer data)
 static void
 test_truncate (Fixture *fix, gconstpointer data)
 {
-  g_assert_cmpstr ("", ==, StringUtils::Truncate("").c_str ());
+  std::string truncated;
 
-  g_assert_cmpstr ("", ==, StringUtils::Truncate("a", 0).c_str ());
-  g_assert_cmpstr ("a", ==, StringUtils::Truncate("a", 1).c_str ());
-  g_assert_cmpstr ("a", ==, StringUtils::Truncate("a").c_str ());
+  truncated = StringUtils::Truncate("");
+  g_assert_cmpstr ("", ==, truncated.c_str ());
 
-  g_assert_cmpstr ("", ==, StringUtils::Truncate("aa", 0).c_str ());
-  g_assert_cmpstr ("a", ==, StringUtils::Truncate("aa", 1).c_str ());
-  g_assert_cmpstr ("aa", ==, StringUtils::Truncate("aa", 2).c_str ());
-  g_assert_cmpstr ("aa", ==, StringUtils::Truncate("aa").c_str ());
+  truncated = StringUtils::Truncate("a", 0);
+  g_assert_cmpstr ("", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("a", 1);
+  g_assert_cmpstr ("a", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("a");
+  g_assert_cmpstr ("a", ==, truncated.c_str ());
+
+  truncated = StringUtils::Truncate("aa", 0);
+  g_assert_cmpstr ("", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("aa", 1);
+  g_assert_cmpstr ("a", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("aa", 2);
+  g_assert_cmpstr ("aa", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("aa");
+  g_assert_cmpstr ("aa", ==, truncated.c_str ());
 
 
-  g_assert_cmpstr ("", ==, StringUtils::Truncate("å", 0).c_str ());
-  g_assert_cmpstr ("", ==, StringUtils::Truncate("å", 1).c_str ());
-  g_assert_cmpstr ("å", ==, StringUtils::Truncate("å").c_str ());
+  truncated = StringUtils::Truncate("å", 0);
+  g_assert_cmpstr ("", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("å", 1);
+  g_assert_cmpstr ("", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("å");
+  g_assert_cmpstr ("å", ==, truncated.c_str ());
 
-  g_assert_cmpstr ("", ==, StringUtils::Truncate("åå", 0).c_str ());
-  g_assert_cmpstr ("", ==, StringUtils::Truncate("åå", 1).c_str ());
-  g_assert_cmpstr ("å", ==, StringUtils::Truncate("åå", 2).c_str ());
-  g_assert_cmpstr ("å", ==, StringUtils::Truncate("åå", 3).c_str ());
-  g_assert_cmpstr ("åå", ==, StringUtils::Truncate("åå", 4).c_str ());
-  g_assert_cmpstr ("åå", ==, StringUtils::Truncate("åå").c_str ());
+  truncated = StringUtils::Truncate("åå", 0);
+  g_assert_cmpstr ("", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("åå", 1);
+  g_assert_cmpstr ("", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("åå", 2);
+  g_assert_cmpstr ("å", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("åå", 3);
+  g_assert_cmpstr ("å", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("åå", 4);
+  g_assert_cmpstr ("åå", ==, truncated.c_str ());
+  truncated = StringUtils::Truncate("åå");
+  g_assert_cmpstr ("åå", ==, truncated.c_str ());
 }
 
 static void
 test_mangle (Fixture *fix, gconstpointer data)
 {
-  g_assert_cmpstr ("", ==, StringUtils::MangleUri("").c_str ());
+  std::string mangled;
 
-  g_assert_cmpstr ("file", ==, StringUtils::MangleUri("file").c_str ());
-  g_assert_cmpstr ("file___", ==, StringUtils::MangleUri("file://").c_str ());
-  g_assert_cmpstr ("http___www_zeitgeist_project_com", ==,
-      StringUtils::MangleUri("http://www.zeitgeist-project.com").c_str ());
+  mangled = StringUtils::MangleUri("");
+  g_assert_cmpstr ("", ==, mangled.c_str ());
 
-  g_assert_cmpstr ("scheme_no_spaces_in_uris", ==,
-      StringUtils::MangleUri("scheme:no spaces in uris").c_str ());
+  mangled = StringUtils::MangleUri("file");
+  g_assert_cmpstr ("file", ==, mangled.c_str ());
+  mangled = StringUtils::MangleUri("file://");
+  g_assert_cmpstr ("file___", ==, mangled.c_str ());
+  mangled = StringUtils::MangleUri("http://www.zeitgeist-project.com");
+  g_assert_cmpstr ("http___www_zeitgeist_project_com", ==, mangled.c_str ());
+
+  mangled = StringUtils::MangleUri("scheme:no spaces in uris");
+  g_assert_cmpstr ("scheme_no_spaces_in_uris", ==, mangled.c_str ());
 }
 
 static void
@@ -189,44 +213,64 @@ test_ascii_fold (Fixture *fix, gconstpointer data)
 static void
 test_underscores (Fixture *fix, gconstpointer data)
 {
-  g_assert_cmpstr ("", ==, StringUtils::RemoveUnderscores ("").c_str ());
+  std::string s;
 
-  g_assert_cmpstr (" ", ==, StringUtils::RemoveUnderscores ("_").c_str ());
+  s = StringUtils::RemoveUnderscores ("");
+  g_assert_cmpstr ("", ==, s.c_str ());
 
-  g_assert_cmpstr ("   ", ==, StringUtils::RemoveUnderscores ("___").c_str ());
+  s = StringUtils::RemoveUnderscores ("_");
+  g_assert_cmpstr (" ", ==, s.c_str ());
 
-  g_assert_cmpstr ("abcd", ==, StringUtils::RemoveUnderscores ("abcd").c_str ());
+  s = StringUtils::RemoveUnderscores ("___");
+  g_assert_cmpstr ("   ", ==, s.c_str ());
 
-  g_assert_cmpstr (" abcd ", ==, StringUtils::RemoveUnderscores ("_abcd_").c_str ());
+  s = StringUtils::RemoveUnderscores ("abcd");
+  g_assert_cmpstr ("abcd", ==, s.c_str ());
 
-  g_assert_cmpstr ("a b c d", ==, StringUtils::RemoveUnderscores ("a_b_c_d").c_str ());
+  s = StringUtils::RemoveUnderscores ("_abcd_");
+  g_assert_cmpstr (" abcd ", ==, s.c_str ());
+
+  s = StringUtils::RemoveUnderscores ("a_b_c_d");
+  g_assert_cmpstr ("a b c d", ==, s.c_str ());
 }
 
 static void
 test_uncamelcase (Fixture *fix, gconstpointer data)
 {
-  g_assert_cmpstr ("", ==, StringUtils::UnCamelcase ("").c_str ());
+  std::string s;
 
-  g_assert_cmpstr ("abcd", ==, StringUtils::UnCamelcase ("abcd").c_str ());
+  s = StringUtils::UnCamelcase ("");
+  g_assert_cmpstr ("", ==, s.c_str ());
 
-  g_assert_cmpstr ("Abcd", ==, StringUtils::UnCamelcase ("Abcd").c_str ());
+  s = StringUtils::UnCamelcase ("abcd");
+  g_assert_cmpstr ("abcd", ==, s.c_str ());
 
-  g_assert_cmpstr ("ABCD", ==, StringUtils::UnCamelcase ("ABCD").c_str ());
+  s = StringUtils::UnCamelcase ("Abcd");
+  g_assert_cmpstr ("Abcd", ==, s.c_str ());
 
-  g_assert_cmpstr ("ABcd", ==, StringUtils::UnCamelcase ("ABcd").c_str ());
+  s = StringUtils::UnCamelcase ("ABCD");
+  g_assert_cmpstr ("ABCD", ==, s.c_str ());
 
-  g_assert_cmpstr ("Abcd Ef", ==, StringUtils::UnCamelcase ("AbcdEf").c_str ());
+  s = StringUtils::UnCamelcase ("ABcd");
+  g_assert_cmpstr ("ABcd", ==, s.c_str ());
 
-  g_assert_cmpstr ("Text Editor", ==, StringUtils::UnCamelcase ("Text Editor").c_str ());
+  s = StringUtils::UnCamelcase ("AbcdEf");
+  g_assert_cmpstr ("Abcd Ef", ==, s.c_str ());
 
-  g_assert_cmpstr ("py Karaoke", ==, StringUtils::UnCamelcase ("pyKaraoke").c_str ());
+  s = StringUtils::UnCamelcase ("Text Editor");
+  g_assert_cmpstr ("Text Editor", ==, s.c_str ());
 
-  g_assert_cmpstr ("Zeitgeist Project", ==, StringUtils::UnCamelcase ("ZeitgeistProject").c_str ());
+  s = StringUtils::UnCamelcase ("pyKaraoke");
+  g_assert_cmpstr ("py Karaoke", ==, s.c_str ());
 
-  g_assert_cmpstr ("Very Nice Camel Case Text", ==, StringUtils::UnCamelcase ("VeryNiceCamelCaseText").c_str ());
+  s = StringUtils::UnCamelcase ("ZeitgeistProject");
+  g_assert_cmpstr ("Zeitgeist Project", ==, s.c_str ());
 
-  g_assert_cmpstr ("Ňeedš Ťo Wórk Óń Útf Čhářacters As WelL", ==,
-      StringUtils::UnCamelcase ("ŇeedšŤoWórkÓńÚtfČhářactersAsWelL").c_str ());
+  s = StringUtils::UnCamelcase ("VeryNiceCamelCaseText");
+  g_assert_cmpstr ("Very Nice Camel Case Text", ==, s.c_str ());
+
+  s = StringUtils::UnCamelcase ("ŇeedšŤoWórkÓńÚtfČhářactersAsWelL");
+  g_assert_cmpstr ("Ňeedš Ťo Wórk Óń Útf Čhářacters As WelL", ==, s.c_str ());
 }
 
 static void
