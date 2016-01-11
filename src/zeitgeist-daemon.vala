@@ -462,6 +462,8 @@ namespace Zeitgeist
             Posix.signal (Posix.SIGINT, safe_exit);
             Posix.signal (Posix.SIGTERM, safe_exit);
 
+            Intl.setlocale (LocaleCategory.ALL, "");
+
             var opt_context = new OptionContext (" - Zeitgeist daemon");
             opt_context.add_main_entries (options, null);
 
