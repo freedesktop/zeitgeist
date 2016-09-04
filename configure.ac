@@ -1,4 +1,9 @@
-AC_INIT([zeitgeist], [0.9.17], [dev@lists.zeitgeist-project.com], [zeitgeist])
+AC_INIT([zeitgeist], [0.9.17],
+        [https://bugs.freedesktop.org/enter_bug.cgi?product=Zeitgeist], [zeitgeist],
+        [https://launchpad.net/zeitgeist/])
+
+AC_PREREQ([2.65])
+
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR([Makefile.am])
