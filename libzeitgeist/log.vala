@@ -86,7 +86,7 @@ public class Log : QueuedProxyWrapper
     public Log ()
     {
         monitors = new HashTable<Monitor, uint> (direct_hash, direct_equal);
-        MainLoop mainloop = new MainLoop();
+        MainLoop mainloop = new MainLoop (MainContext.get_thread_default ());
         allow_direct_read = Utils.log_may_read_directly ();
 
         Bus.get_proxy.begin<RemoteLog> (BusType.SESSION, Utils.ENGINE_DBUS_NAME,
