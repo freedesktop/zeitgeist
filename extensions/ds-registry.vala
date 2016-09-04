@@ -58,7 +58,7 @@ namespace Zeitgeist
         private uint registration_id;
         private bool dirty;
 
-        private static const uint DISK_WRITE_TIMEOUT = 5 * 60; // 5 minutes
+        private const uint DISK_WRITE_TIMEOUT = 5 * 60; // 5 minutes
 
         DataSourceRegistryExtension ()
         {

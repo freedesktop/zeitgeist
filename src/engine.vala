@@ -181,7 +181,7 @@ public class Engine : DbReader
     private class DataInserter
     {
         // This is the maximum number of "unions" SQLite supports
-        private static const int MAX_PARAMETERS = 500;
+        private const int MAX_PARAMETERS = 500;
 
         private Database database;
         private string type;
