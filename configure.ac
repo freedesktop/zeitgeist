@@ -1,5 +1,6 @@
 AC_INIT([zeitgeist], [0.9.16], [dev@lists.zeitgeist-project.com], [zeitgeist])
 AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([1.11 tar-ustar dist-xz no-dist-gzip -Wno-portability])
@@ -10,8 +11,12 @@ AM_PATH_PYTHON
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
+AC_PROG_CXX_C_O
+AC_PROG_INSTALL
+
+LT_PREREQ([2.2.6])
+LT_INIT([disable-static])
+PKG_PROG_PKG_CONFIG([0.21])
 
 AM_PROG_VALAC([0.22.0])
 AS_IF([test -z "$VALAC"], [AC_MSG_ERROR(["No Vala compiler found."])])
