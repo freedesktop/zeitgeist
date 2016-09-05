@@ -4,12 +4,11 @@ SUBDIRS = test
 
 libexec_PROGRAMS = zeitgeist-fts
 
-servicedir = $(DBUS_SERVICES_DIR)
+servicedir = $(datadir)/dbus-1/services
 nodist_service_DATA = org.gnome.zeitgeist.fts.service
 
-org.gnome.zeitgeist.fts.service: org.gnome.zeitgeist.fts.service.in
-	$(AM_V_GEN)sed  -e s!\@libexecdir\@!$(libexecdir)! < $< > $@
-org.gnome.zeitgeist.fts.service: Makefile
+%.service: %.service.in
+	$(AM_V_GEN)sed -e "s|@libexecdir[@]|$(libexecdir)|" $< > $@
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \

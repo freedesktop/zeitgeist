@@ -25,7 +25,6 @@ zeitgeistdoc_DATA = \
 	$(NULL)
 
 DISTCHECK_CONFIGURE_FLAGS = \
-	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
 	--enable-datahub \
 	--enable-fts \
 	--enable-docs \

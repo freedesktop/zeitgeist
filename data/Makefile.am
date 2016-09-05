@@ -4,12 +4,8 @@ SUBDIRS = \
 	ontology \
 	$(NULL)
 
-servicedir = $(DBUS_SERVICES_DIR)
-service_DATA = org.gnome.zeitgeist.service
-
-org.gnome.zeitgeist.service: org.gnome.zeitgeist.service.in
-	$(AM_V_GEN)sed -e s!\@prefix\@!$(prefix)! < $< > $@
-org.gnome.zeitgeist.service: Makefile
+servicedir = $(datadir)/dbus-1/services
+nodist_service_DATA = org.gnome.zeitgeist.service
 
 bashcompletiondir = $(datadir)/bash-completion/completions
 dist_bashcompletion_DATA = completions/zeitgeist-daemon
@@ -18,7 +14,7 @@ xdgautostart_in_files = zeitgeist-datahub.desktop.in
 
 if ENABLE_DATAHUB
 xdgautostartdir=$(sysconfdir)/xdg/autostart
-xdgautostart_DATA = $(xdgautostart_in_files:.desktop.in=.desktop)
+nodist_xdgautostart_DATA = $(xdgautostart_in_files:.desktop.in=.desktop)
 endif
 
 CLEANFILES = \
@@ -33,10 +29,11 @@ EXTRA_DIST = \
 	$(xdgautostart_in_files) \
 	$(NULL)
 
-all-local: org.gnome.zeitgeist.service
-
 %.desktop: %.desktop.in
 	$(AM_V_GEN)$(MSGFMT) --desktop --template $< -d $(top_srcdir)/po -o $@
+
+%.service: %.service.in
+	$(AM_V_GEN)sed -e "s|@bindir[@]|$(bindir)|" $< > $@
 
 clean:
 	rm -rf *.pyc *.~[0-9]~
