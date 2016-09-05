@@ -710,7 +710,6 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
     tokenizer->index_text (display_name, name_weight, "A");
   }
 
-#if GLIB_CHECK_VERSION(2, 30, 0)
   val = g_desktop_app_info_get_generic_name (dai);
   if (val && val[0] != '\0')
   {
@@ -723,7 +722,7 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
     tokenizer->index_text (generic_name_folded, name_weight);
     tokenizer->index_text (generic_name_folded, name_weight, "A");
   }
-#endif
+
   if (!is_subject) return true;
   // the rest of the code only applies to events with application subject uris:
   // index the comment field, add category terms, index keywords
@@ -735,7 +734,7 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
     tokenizer->index_text (comment, comment_weight);
     tokenizer->index_text (comment, comment_weight, "A");
   }
-#if GLIB_CHECK_VERSION(2, 30, 0)
+
   val = g_desktop_app_info_get_categories (dai);
   if (val && val[0] != '\0')
   {
@@ -751,7 +750,7 @@ bool Indexer::IndexActor (std::string const& actor, bool is_subject)
     }
     g_strfreev (categories);
   }
-#endif
+
   return true;
 }
 
