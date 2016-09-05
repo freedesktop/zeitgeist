@@ -119,10 +119,7 @@ public class DataHub : Object, DataHubService
     if (Config.DOWNLOADS_MONITOR_ENABLED)
         providers.prepend (new DownloadsDirectoryMonitor (this));
 
-    if (GLibExtra.check_version (2, 28, 0))
-    {
-      providers.prepend (new DesktopLaunchListener (this));
-    }
+    providers.prepend (new DesktopLaunchListener (this));
 
     foreach (unowned DataProvider prov in providers)
     {

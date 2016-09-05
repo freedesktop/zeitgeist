@@ -18,7 +18,6 @@ AM_VALAFLAGS = \
 	$(top_builddir)/libzeitgeist/zeitgeist-datamodel-2.0.vapi \
 	$(top_builddir)/libzeitgeist/zeitgeist-2.0.vapi \
 	$(top_srcdir)/config.vapi \
-	$(srcdir)/glib-extra.vapi \
 	-C \
 	$(NULL)
 
@@ -57,7 +56,6 @@ zeitgeist_datahub_vala.stamp: $(zeitgeist_datahub_VALASOURCES) Makefile
 
 EXTRA_DIST = \
 	$(zeitgeist_datahub_VALASOURCES) \
-	glib-extra.vapi \
 	$(NULL)
 
 CLEANFILES = \
