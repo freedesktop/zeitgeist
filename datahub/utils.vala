@@ -34,9 +34,8 @@ public class Utils : Object
   //        it makes segfaults :(
   public static string? get_file_contents (GLib.File file)
   {
-    string contents;
-#if VALA_0_14
-    uint8[] contents_array;
+    uint8[]? contents_array = null;
+
     try
     {
       if (!file.load_contents (null, out contents_array, null))
@@ -46,12 +45,8 @@ public class Utils : Object
     {
       debug ("Couldn't get file contents %s: %s", file.get_path (), err.message);
     }
-    contents = (string) contents_array;
-#else
-    if (!file.load_contents (null, out contents, null, null))
-      return null;
-#endif
-    return contents;
+
+    return (string?) (owned) contents_array;
   }
 
   /*
