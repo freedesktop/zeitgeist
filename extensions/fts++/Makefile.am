@@ -2,13 +2,13 @@ NULL =
 
 SUBDIRS = test
 
-libexec_PROGRAMS = zeitgeist-fts
+pkglibexec_PROGRAMS = zeitgeist-fts
 
 servicedir = $(datadir)/dbus-1/services
 nodist_service_DATA = org.gnome.zeitgeist.fts.service
 
 %.service: %.service.in
-	$(AM_V_GEN)sed -e "s|@libexecdir[@]|$(libexecdir)|" $< > $@
+	$(AM_V_GEN)sed -e "s|@pkglibexecdir[@]|$(pkglibexecdir)|" $< > $@
 
 AM_CPPFLAGS = \
 	$(ZEITGEIST_CFLAGS) \
