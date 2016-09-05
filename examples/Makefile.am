@@ -1,4 +1,4 @@
-NULL = 
+NULL =
 
 SUBDIRS = \
 	vala \

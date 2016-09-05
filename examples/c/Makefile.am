@@ -1,4 +1,4 @@
-include $(top_srcdir)/libzeitgeist/Makefile.decl
+NULL =
 
 AM_CFLAGS = \
 	-Wall  \

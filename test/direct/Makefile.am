@@ -1,4 +1,4 @@
-NULL = 
+NULL =
 
 EXTRA_DIST = \
 	assertions.vapi \

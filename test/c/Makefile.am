@@ -1,5 +1,4 @@
-#include $(top_srcdir)/libzeitgeist/Makefile.decl
-NULL = 
+NULL =
 
 EXTRA_DIST = \
 	test.desktop

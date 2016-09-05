@@ -1,4 +1,4 @@
-NULL = 
+NULL =
 
 check_PROGRAMS = test-fts
 TESTS = test-fts

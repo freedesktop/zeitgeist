@@ -1,4 +1,4 @@
-NULL = 
+NULL =
 
 bin_PROGRAMS = zeitgeist-daemon
 noinst_LTLIBRARIES = libzeitgeist-engine.la

@@ -1,8 +1,8 @@
+NULL =
+
 if HAVE_FTS
 SUBDIRS = fts++
 endif
-
-NULL =
 
 #extensionsdir = $(libdir)/zeitgeist/extensions
 noinst_LTLIBRARIES = \

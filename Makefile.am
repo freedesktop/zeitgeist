@@ -1,4 +1,4 @@
-NULL = 
+NULL =
 
 ACLOCAL_AMFLAGS = --install -I m4 ${ACLOCAL_FLAGS}
 
