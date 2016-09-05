@@ -1,2 +1,4 @@
 src/main.c
+tools/zeitgeist-explorer/details.py
+tools/zeitgeist-explorer/ontology.py
 tools/gtk/zeitgeist-data-sources-gtk.py

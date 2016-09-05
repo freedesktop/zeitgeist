@@ -21,8 +21,6 @@ xdgautostartdir=$(sysconfdir)/xdg/autostart
 xdgautostart_DATA = $(xdgautostart_in_files:.desktop.in=.desktop)
 endif
 
-@INTLTOOL_DESKTOP_RULE@
-
 CLEANFILES = \
 	org.gnome.zeitgeist.service \
 	PythonSerializer.pyc \
@@ -36,6 +34,9 @@ EXTRA_DIST = \
 	$(NULL)
 
 all-local: org.gnome.zeitgeist.service
+
+%.desktop: %.desktop.in
+	$(AM_V_GEN)$(MSGFMT) --desktop --template $< -d $(top_srcdir)/po -o $@
 
 clean:
 	rm -rf *.pyc *.~[0-9]~
