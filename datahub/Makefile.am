@@ -37,7 +37,7 @@ zeitgeist_datahub_VALASOURCES = \
 	$(NULL)
 
 if ENABLE_TELEPATHY
-AM_VALAFLAGS += --pkg telepathy-glib
+AM_VALAFLAGS += --define ENABLE_TELEPATHY --pkg telepathy-glib
 zeitgeist_datahub_VALASOURCES += telepathy-observer.vala
 endif
 
