@@ -116,8 +116,9 @@ public class DataHub : Object, DataHubService
     providers.prepend (new TelepathyObserver (this));
 #endif
 
-    if (Config.DOWNLOADS_MONITOR_ENABLED)
-        providers.prepend (new DownloadsDirectoryMonitor (this));
+#if ENABLE_DOWNLOADS_MONITOR
+    providers.prepend (new DownloadsDirectoryMonitor (this));
+#endif
 
     providers.prepend (new DesktopLaunchListener (this));
 

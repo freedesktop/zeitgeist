@@ -28,7 +28,6 @@ BUILT_SOURCES = \
 zeitgeist_datahub_VALASOURCES = \
 	data-provider.vala \
 	desktop-launch-listener.vala \
-	downloads-directory-provider.vala \
 	kde-recent-document-provider.vala \
 	recent-manager-provider.vala \
 	utils.vala \
@@ -38,6 +37,11 @@ zeitgeist_datahub_VALASOURCES = \
 if ENABLE_TELEPATHY
 AM_VALAFLAGS += --define ENABLE_TELEPATHY --pkg telepathy-glib
 zeitgeist_datahub_VALASOURCES += telepathy-observer.vala
+endif
+
+if ENABLE_DOWNLOADS_MONITOR
+AM_VALAFLAGS += --define ENABLE_DOWNLOADS_MONITOR
+zeitgeist_datahub_VALASOURCES += downloads-directory-provider.vala
 endif
 
 nodist_zeitgeist_datahub_SOURCES = \
