@@ -5,10 +5,10 @@
 #
 # By Siegfried-Angel Gevatter Pujals <siegfried@gevatter.com>
 
-have zeitgeist-daemon &&
+_have zeitgeist-daemon &&
 _zeitgeist_daemon()
 {
 	local cur=${COMP_WORDS[COMP_CWORD]}
 	COMPREPLY=($(compgen -W "`zeitgeist-daemon --shell-completion`" -- $cur))
-}
-[ "${have:-}" ] && complete -F _zeitgeist_daemon -o default zeitgeist-daemon
+} &&
+complete -F _zeitgeist_daemon -o default zeitgeist-daemon
