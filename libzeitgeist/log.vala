@@ -229,7 +229,7 @@ public class Log : QueuedProxyWrapper
     public void insert_event_no_reply (Event event)
         throws Error
     {
-        insert_event (event);
+        insert_event.begin (event);
     }
 
     /**
@@ -246,7 +246,7 @@ public class Log : QueuedProxyWrapper
     public void insert_events_no_reply (GenericArray<Event> events)
         throws Error
     {
-        insert_events (events);
+        insert_events.begin (events);
     }
 
     /**
