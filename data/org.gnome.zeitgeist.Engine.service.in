@@ -1,3 +1,4 @@
 [D-BUS Service]
 Name=org.gnome.zeitgeist.Engine
 Exec=@bindir@/zeitgeist-daemon
+SystemdService=zeitgeist.service

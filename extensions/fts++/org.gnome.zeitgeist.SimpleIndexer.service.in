@@ -1,3 +1,4 @@
 [D-BUS Service]
 Name=org.gnome.zeitgeist.SimpleIndexer
 Exec=@pkglibexecdir@/zeitgeist-fts
+SystemdService=zeitgeist-fts.service

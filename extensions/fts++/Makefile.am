@@ -7,6 +7,9 @@ pkglibexec_PROGRAMS = zeitgeist-fts
 servicedir = $(datadir)/dbus-1/services
 nodist_service_DATA = org.gnome.zeitgeist.SimpleIndexer.service
 
+systemd_userdir = $(prefix)/lib/systemd/user
+nodist_systemd_user_DATA = zeitgeist-fts.service
+
 %.service: %.service.in
 	$(AM_V_GEN)sed -e "s|@pkglibexecdir[@]|$(pkglibexecdir)|" $< > $@
 
@@ -86,12 +89,14 @@ EXTRA_DIST = \
 	$(zeitgeist_fts_CSOURCES) \
 	org.gnome.zeitgeist.SimpleIndexer.service.in \
 	fts.vapi \
+	zeitgeist-fts.service.in \
 	$(NULL)
 
 CLEANFILES = \
 	$(BUILT_SOURCES) \
 	$(zeitgeist_fts_VALASOURCES:.vala=.c) \
 	org.gnome.zeitgeist.SimpleIndexer.service \
+	zeitgeist-fts.service \
 	$(NULL)
 
 DISTCLEANFILES = \

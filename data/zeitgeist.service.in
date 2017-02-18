@@ -1,0 +1,7 @@
+[Unit]
+Description=Zeitgeist activity log service
+
+[Service]
+Type=dbus
+BusName=org.gnome.zeitgeist.Engine
+ExecStart=@prefix@/bin/zeitgeist-daemon
