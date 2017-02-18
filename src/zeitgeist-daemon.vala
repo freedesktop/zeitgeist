@@ -37,6 +37,7 @@ namespace Zeitgeist
         private static bool show_version_info = false;
         private static bool show_options = false;
         private static bool no_datahub = false;
+        private static bool perform_vacuum = false;
         private static bool replace_mode = false;
         private static bool quit_daemon = false;
         private static string log_level = "";
@@ -54,6 +55,10 @@ namespace Zeitgeist
             {
                 "no-datahub", 0, 0, OptionArg.NONE, out no_datahub,
                 "Do not start zeitgeist-datahub automatically", null
+            },
+            {
+                "vacuum", 0, 0, OptionArg.NONE, out perform_vacuum,
+                "Perform VACUUM on database and exit", null
             },
             {
                 "no-passive-loggers", 0, OptionFlags.HIDDEN, OptionArg.NONE,
@@ -456,6 +461,38 @@ namespace Zeitgeist
             instance.do_quit ();
         }
 
+        static int vacuum ()
+        {
+            Sqlite.Database database;
+
+            if (Utils.using_in_memory_database ())
+                warning ("Using in-memory database, no VACUUM needed");
+
+            unowned string db_path = Utils.get_database_file_path ();
+            debug ("Opening database file at %s", db_path);
+
+            int rc = Sqlite.Database.open_v2 (db_path, out database, Sqlite.OPEN_READWRITE);
+            if (rc != Sqlite.OK)
+            {
+                warning ("Failed to open database \"%s\" (%s)", db_path, database.errmsg ());
+                return rc;
+            }
+
+            stdout.printf ("Performing VACUUM operation... ");
+            stdout.flush ();
+            rc = database.exec ("VACUUM");
+            if (rc != Sqlite.OK)
+            {
+                stdout.printf ("FAIL\n");
+                warning (database.errmsg ());
+                return rc;
+            }
+
+            stdout.printf ("OK\n");
+
+            return 0;
+        }
+
         static int main (string[] args)
         {
             Posix.signal (Posix.SIGHUP, safe_exit);
@@ -488,6 +525,10 @@ namespace Zeitgeist
                     stdout.printf ("--help\n");
 
                     return 0;
+                }
+                if (perform_vacuum)
+                {
+                    return vacuum ();
                 }
 
                 Logging.setup_logging (log_level, log_file);
