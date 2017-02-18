@@ -1,3 +1,24 @@
+2017-02-18: Zeitgeist 1.0 "Epiphany"
+---------------------------------------------------------------
+
+Overall:
+ - Drop dependency on gnome-common and intltool
+ - Use GNU gettext only
+ - Fix some valac warnings
+ - Use $PYTHON to check for rdflib
+ - Install zeitgeist-fts to pkglibexecdir rather than
+   libexecdir
+ - Use correct names for D-Bus service files
+ - Add systemd user service for each D-Bus session service
+ - Fix bash auto-completions script
+ - Add --vacuum option to Daemon to perform VACUUM SQLite
+   database
+
+Libzeitgeist:
+ - Ensure the log mainloop uses the current thread's context
+   when waiting
+
+
 2015-07-08: Zeitgeist 0.9.16 (1.0 Beta 8) "Experience"
 ---------------------------------------------------------------
 
