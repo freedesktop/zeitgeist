@@ -47,13 +47,15 @@ src/bluebird
 test/direct/where-clause-test
 data/ontology/*.py
 query-operators-test
-data/org.gnome.zeitgeist.service
+data/org.gnome.zeitgeist.Engine.service
+data/zeitgeist.service
 data/zeitgeist-datahub.desktop
 extensions/*.c
 extensions/fts++/*.c
 extensions/fts++/zeitgeist-internal.*
 extensions/fts++/test/test-fts
-extensions/fts++/org.gnome.zeitgeist.fts.service
+extensions/fts++/org.gnome.zeitgeist.SimpleIndexer.service
+extensions/fts++/zeitgeist-fts.service
 extensions/fts++/zeitgeist-fts
 test/direct/marshalling
 test/dbus/__pycache__
