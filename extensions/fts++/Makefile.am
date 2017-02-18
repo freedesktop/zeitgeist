@@ -5,7 +5,7 @@ SUBDIRS = test
 pkglibexec_PROGRAMS = zeitgeist-fts
 
 servicedir = $(datadir)/dbus-1/services
-nodist_service_DATA = org.gnome.zeitgeist.fts.service
+nodist_service_DATA = org.gnome.zeitgeist.SimpleIndexer.service
 
 %.service: %.service.in
 	$(AM_V_GEN)sed -e "s|@pkglibexecdir[@]|$(pkglibexecdir)|" $< > $@
@@ -84,14 +84,14 @@ zeitgeist-fts_vala.stamp: $(engine_VALASOURCES) $(zeitgeist_fts_VALASOURCES) Mak
 EXTRA_DIST = \
 	$(zeitgeist_fts_VALASOURCES) \
 	$(zeitgeist_fts_CSOURCES) \
-	org.gnome.zeitgeist.fts.service.in \
+	org.gnome.zeitgeist.SimpleIndexer.service.in \
 	fts.vapi \
 	$(NULL)
 
 CLEANFILES = \
 	$(BUILT_SOURCES) \
 	$(zeitgeist_fts_VALASOURCES:.vala=.c) \
-	org.gnome.zeitgeist.fts.service \
+	org.gnome.zeitgeist.SimpleIndexer.service \
 	$(NULL)
 
 DISTCLEANFILES = \

@@ -5,7 +5,7 @@ SUBDIRS = \
 	$(NULL)
 
 servicedir = $(datadir)/dbus-1/services
-nodist_service_DATA = org.gnome.zeitgeist.service
+nodist_service_DATA = org.gnome.zeitgeist.Engine.service
 
 bashcompletiondir = $(datadir)/bash-completion/completions
 dist_bashcompletion_DATA = completions/zeitgeist-daemon
@@ -18,13 +18,13 @@ nodist_xdgautostart_DATA = $(xdgautostart_in_files:.desktop.in=.desktop)
 endif
 
 CLEANFILES = \
-	org.gnome.zeitgeist.service \
+	org.gnome.zeitgeist.Engine.service \
 	PythonSerializer.pyc \
 	zeitgeist-datahub.desktop \
 	$(NULL)
 
 EXTRA_DIST = \
-	org.gnome.zeitgeist.service.in \
+	org.gnome.zeitgeist.Engine.service.in \
 	ontology2code \
 	$(xdgautostart_in_files) \
 	$(NULL)
