@@ -4,4 +4,4 @@ Description=Zeitgeist full-text search indexer
 [Service]
 Type=dbus
 BusName=org.gnome.zeitgeist.SimpleIndexer
-ExecStart=@libexecdir@/zeitgeist-fts
+ExecStart=@pkglibexecdir@/zeitgeist-fts
