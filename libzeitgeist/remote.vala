@@ -129,7 +129,7 @@ namespace Zeitgeist
         public async abstract void notify_delete (
             [DBus (signature = "(xx)")] Variant time_range,
             uint32[] event_ids
-        ) throws IOError;
+        ) throws Error;
 
     }
 
@@ -159,7 +159,7 @@ namespace Zeitgeist
     protected interface NetworkManagerDBus : Object
     {
         [DBus (name = "state")]
-        public abstract uint32 state () throws IOError;
+        public abstract uint32 state () throws Error;
         public signal void state_changed (uint32 state);
     }
 
@@ -168,7 +168,7 @@ namespace Zeitgeist
     [DBus (name = "net.connman.Manager")]
     protected interface ConnmanManagerDBus : Object
     {
-        public abstract string get_state () throws IOError;
+        public abstract string get_state () throws Error;
         public signal void state_changed (string state);
     }
 
