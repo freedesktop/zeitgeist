@@ -575,17 +575,19 @@ public class Log : QueuedProxyWrapper
     */
     public void remove_monitor (owned Monitor monitor) throws Error
     {
-        try
+        proxy.remove_monitor.begin (monitor.get_path (), null, (obj, res) =>
         {
-            proxy.remove_monitor.begin (monitor.get_path ());
-        }
-        catch (IOError err)
-        {
-            warning ("Failed to remove monitor from Zeitgeist. Retracting" +
-                "%s from the bus nonetheless: %s", monitor.get_path (),
-                err.message);
-            return;
-        }
+            try
+            {
+                ((RemoteLog) obj).remove_monitor.end (res);
+            }
+            catch (Error err)
+            {
+                warning ("Failed to remove monitor from Zeitgeist. Retracting" +
+                    "%s from the bus nonetheless: %s", monitor.get_path (),
+                    err.message);
+            }
+        });
 
         uint registration_id = monitors.lookup (monitor);
         if (registration_id != 0)
