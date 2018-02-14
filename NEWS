@@ -1,3 +1,13 @@
+2018-02-14: Zeitgeist 1.0.1 "Sunset"
+---------------------------------------------------------------
+
+Overall:
+ - Fix placeholder in systemd service template
+
+Libzeitgeist:
+ - Fix some vala compile warnings
+
+
 2017-02-18: Zeitgeist 1.0 "Epiphany"
 ---------------------------------------------------------------
 

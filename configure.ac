@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [1.0],
+AC_INIT([zeitgeist], [1.0.1],
         [https://bugs.freedesktop.org/enter_bug.cgi?product=Zeitgeist], [zeitgeist],
         [https://launchpad.net/zeitgeist/])
 
