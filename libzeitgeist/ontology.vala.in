@@ -56,7 +56,7 @@ namespace Zeitgeist
         {
             initialize_symbols ();
 
-            var results = new List<string> ();
+            var results = new List<unowned string> ();
             var symbol = all_symbols.lookup (symbol_uri);
             if (symbol == null) return results;
 
@@ -64,7 +64,7 @@ namespace Zeitgeist
             {
                 results.append (uri);
                 // Recursively get the other parents
-                foreach (string parent_uri in get_all_parents (uri))
+                foreach (unowned string parent_uri in get_all_parents (uri))
                     if (results.index (parent_uri) == -1)
                         results.append (parent_uri);
             }
@@ -76,7 +76,7 @@ namespace Zeitgeist
         {
             initialize_symbols ();
 
-            var results = new List<string> ();
+            var results = new List<unowned string> ();
             var symbol = all_symbols.lookup (symbol_uri);
             if (symbol == null) return results;
 
@@ -89,7 +89,7 @@ namespace Zeitgeist
         public static List<unowned string> get_children (string symbol_uri)
         {
             initialize_symbols ();
-            var results = new List<string> ();
+            var results = new List<unowned string> ();
             var symbol = all_symbols.lookup (symbol_uri);
             if (symbol == null) return results;
 
@@ -103,7 +103,7 @@ namespace Zeitgeist
         {
             initialize_symbols ();
 
-            var results = new List<string>();
+            var results = new List<unowned string>();
             var symbol = all_symbols.lookup (symbol_uri);
             if (symbol == null) return results;
 
