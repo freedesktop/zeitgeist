@@ -29,7 +29,7 @@ namespace Zeitgeist
     [DBus (name = "org.freedesktop.DBus")]
     public interface RemoteDBus : Object
     {
-        public abstract bool name_has_owner (string name) throws IOError;
+        public abstract bool name_has_owner (string name) throws GLib.Error;
     }
 
     public class Daemon : Object, RemoteLog

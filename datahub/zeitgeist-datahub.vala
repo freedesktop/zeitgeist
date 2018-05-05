@@ -25,7 +25,7 @@ using Zeitgeist;
 [DBus (name = "org.gnome.zeitgeist.datahub")]
 public interface DataHubService : Object
 {
-  public abstract string[] get_data_providers () throws IOError;
+  public abstract string[] get_data_providers () throws GLib.Error;
 }
 
 public class DataHub : Object, DataHubService
