@@ -183,7 +183,7 @@ namespace Zeitgeist
 
             var timer = new Timer ();
             yield siin.search (query_string, time_range, filter_templates,
-                               offset, count, result_type,
+                               offset, count, result_type, null,
                                out events, out matches);
             debug ("Got %u[/%u] results from indexer (in %f seconds)",
                 (uint) events.n_children (), matches, timer.elapsed ());
@@ -201,7 +201,7 @@ namespace Zeitgeist
             var timer = new Timer ();
             yield siin.search_with_relevancies (
                 query_string, time_range, filter_templates,
-                storage_state, offset, count, result_type,
+                storage_state, offset, count, result_type, null,
                 out events, out relevancies, out matches);
 
             debug ("Got %u[/%u] results from indexer (in %f seconds)",

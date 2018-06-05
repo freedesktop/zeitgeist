@@ -118,8 +118,8 @@ namespace Zeitgeist
         public async void search (string query_string, Variant time_range,
                                   Variant filter_templates,
                                   uint offset, uint count, uint result_type,
-                                  out Variant events, out uint matches,
-                                  Cancellable? cancellable=null)
+                                  Cancellable? cancellable,
+                                  out Variant events, out uint matches)
             throws Error
         {
             var tr = new TimeRange.from_variant (time_range);
@@ -140,9 +140,9 @@ namespace Zeitgeist
                                   Variant filter_templates,
                                   uint storage_state, uint offset,
                                   uint count, uint result_type,
+                                  Cancellable? cancellable,
                                   out Variant events, out double[] relevancies,
-                                  out uint matches,
-                                  Cancellable? cancellable=null)
+                                  out uint matches)
             throws Error
         {
             var tr = new TimeRange.from_variant (time_range);

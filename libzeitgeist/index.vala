@@ -137,7 +137,7 @@ public class Index : QueuedProxyWrapper
 
         yield proxy.search (query, time_range.to_variant (),
             Events.to_variant (event_templates_cp), offset, num_events,
-            result_type, out result, out matches, cancellable);
+            result_type, cancellable, out result, out matches);
 
         return new SimpleResultSet.with_num_matches (
             Events.from_variant (result), matches);
@@ -195,8 +195,8 @@ public class Index : QueuedProxyWrapper
 
         yield proxy.search_with_relevancies (query, time_range.to_variant (),
             Events.to_variant (event_templates_cp), storage_state, offset,
-            num_events, result_type, out relevancies_variant, out result,
-            out matches, cancellable);
+            num_events, result_type, cancellable, out relevancies_variant,
+            out result, out matches);
 
         relevancies = new double[relevancies_variant.n_children ()];
         VariantIter iter = relevancies_variant.iterator ();
