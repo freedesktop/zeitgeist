@@ -229,7 +229,7 @@ endif
 
 ontology.vala ontology-uris.vala: ontology.vala.in ontology-uris.vala.in \
 		$(ONTOLOGY) $(top_srcdir)/data/ontology2code
-	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala $(top_srcdir)/libzeitgeist/ontology-uris.vala.in $(top_srcdir)/libzeitgeist/ontology.vala.in ontology-uris.vala ontology.vala
+	$(AM_V_GEN)$(PYTHON) $(top_srcdir)/data/ontology2code --vala $(top_srcdir)/libzeitgeist/ontology-uris.vala.in $(top_srcdir)/libzeitgeist/ontology.vala.in ontology-uris.vala ontology.vala
 
 distclean-local:
 	rm -f *.c *.o *.stamp *.~[0-9]~

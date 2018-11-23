@@ -29,8 +29,10 @@ import re
 import sys
 import glob
 import codecs
-import commands
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import collections
 import argparse
 
@@ -66,16 +68,28 @@ class SymbolCollection(dict):
 
 	def post_process(self):
 		self.closed = True
-		for symbol in self.itervalues():
+		try:
+			symbols = self.itervalues()
+		except AttributeError:
+			symbols = self.values()
+		for symbol in symbols:
 			for (i, parent) in enumerate(symbol.parents):
 				symbol.parents[i] = self[parent]
 			self._by_namespace[symbol.namespace].append(symbol)
 
 	def iter_by_namespace(self):
-		return self._by_namespace.iteritems()
+		try:
+			items = self._by_namespace.iteritems()
+		except AttributeError:
+			items = self._by_namespace.items()
+		return items
 
 	def debug_print(self):
-		for symbol in self.registered_symbols.itervalues():
+		try:
+			symbols = self.registered_symbols.itervalues()
+		except AttributeError:
+			symbols = self.registered_symbols.values()
+		for symbol in symbols:
 			symbol.debug_print()
 			print
 
@@ -108,7 +122,11 @@ class Symbol:
 		""" Return all direct children of this Symbol. """
 		if self._children is None:
 			childs = set()
-			for symbol in self._collection.itervalues():
+			try:
+				values = self._collection.itervalues()
+			except AttributeError:
+				values = self._collection.values()
+			for symbol in values:
 				if self in symbol.parents:
 					childs.add(symbol)
 			self._children = childs
@@ -126,12 +144,12 @@ class Symbol:
 		return self._all_children
 
 	def debug_print(self):
-		print "Name: %s" % self.name
-		print "  URI: %s" % self.uri
-		print "  Display Name: %s" % self.display_name
-		print "  Parents: %s" % ', '.join([str(p) for p in self.parents])
+		print("Name: %s" % self.name)
+		print("  URI: %s" % self.uri)
+		print("  Display Name: %s" % self.display_name)
+		print("  Parents: %s" % ', '.join([str(p) for p in self.parents]))
 		doc = self.doc if len(self.doc) <= 50 else "%s..." % self.doc[:47]
-		print "  Description: %s" % doc
+		print("  Description: %s" % doc)
 
 	def __str__(self):
 		return self.name
@@ -142,6 +160,9 @@ class Symbol:
 	def __cmp__(self, other):
 		return cmp(self.namespace, other.namespace) or \
 			cmp(self.name, other.name)
+
+	def __lt__(self, other):
+		return self.name < other.name
 
 	def __hash__(self):
 		return self.uri.__hash__()
@@ -194,7 +215,7 @@ class OntologyParser:
 
 	def __init__(self, directory):
 		if not os.path.isdir(directory):
-			raise SystemExit, 'Directory doesn\'t exist: %s' % directory
+			raise SystemExit('Directory doesn\'t exist: %s' % directory)
 		self.symbols = self._parse(glob.glob(os.path.join(directory, '*.trig')))
 
 	def _parse(self, trig_files):
@@ -261,10 +282,10 @@ class PythonSerializer(GenericSerializer):
 			Utils.replace_items(parents, {
 				str(NIENS['InformationElement']): 'Interpretation',
 				str(NIENS['DataObject']): 'Manifestation' })
-			print "Symbol('%s', parent=%r, uri='%s', display_name='%s', " \
+			print("Symbol('%s', parent=%r, uri='%s', display_name='%s', " \
 				"doc='%s', auto_resolve=False)" % (symbol.name, parents,
 				symbol.uri, Utils.escape_chars(symbol.display_name, '\''),
-				Utils.escape_chars(symbol.doc, '\''))
+				Utils.escape_chars(symbol.doc, '\'')))
 
 class ValaSerializer(GenericSerializer):
 
@@ -365,7 +386,7 @@ class OntologyCodeGenerator:
 			self._vala_serializer.dump_symbols, 'vala')
 
 	def _write_file(self, tplfilename, outfilename, content_generator, _type):
-		print >>sys.stderr, "Generating %s..." % os.path.basename(outfilename)
+		sys.stderr.write("Generating %s..." % os.path.basename(outfilename))
 
 		# Read template file
 		if not os.path.isabs (tplfilename):
@@ -374,12 +395,12 @@ class OntologyCodeGenerator:
 		template = open(tplfilename).read()
 
 		# Generate output
-		content = StringIO.StringIO()
+		content = StringIO()
 		content_generator(content)
 		content = content.getvalue().strip('\n')
 
 		# Write header
-		output = StringIO.StringIO()
+		output = StringIO()
 		self._write_header(output, _type)
 
 		# Write template, insert the generated output into the correct

@@ -16,7 +16,7 @@ ONTOLOGY = \
 
 _ontology.py: $(ONTOLOGY) $(top_srcdir)/data/ontology2code
 	@echo -e "#\n# Auto-generated from .trig files. Do not edit.\n#" > $@
-	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --dump-python >> $@
+	$(AM_V_GEN)$(PYTHON) $(top_srcdir)/data/ontology2code --dump-python >> $@
 
 CLEANFILES = \
 	_ontology.py \
