@@ -116,19 +116,18 @@ namespace Zeitgeist
             {
                 var s = VersionStruct ();
                 string[] ver = Config.VERSION.split (".");
-                if (ver.length >= 3)
+                if (ver.length >= 1)
                 {
                     s.major = int.parse (ver[0]);
-                    s.minor = int.parse (ver[1]);
-                    s.micro = int.parse (ver[2]);
+                    s.minor = (ver.length >= 2) ? int.parse (ver[1]) : 0;
+                    s.micro = (ver.length >= 3) ? int.parse (ver[2]) : 0;
+                } else {
+                    warning ("Unable to parse version info `%s`!", Config.VERSION);
+                    s.major = 1;
+                    s.minor = 0;
+                    s.micro = 0;
                 }
-                else
-                {
-                    warning ("Unable to parse version info!");
-                    s.major = 0;
-                    s.minor = 8;
-                    s.micro = 99;
-                }
+
                 return s;
             }
         }
