@@ -193,24 +193,19 @@ class OntologyParser:
 	symbols = None
 
 	def __init__(self, directory):
-		rdfxml = self._load_rdfxml_from_trig_directory(directory)
-		self.symbols = self._parse(rdfxml)
-
-	@staticmethod
-	def _load_rdfxml_from_trig_directory(directory):
 		if not os.path.isdir(directory):
 			raise SystemExit, 'Directory doesn\'t exist: %s' % directory
-		files = ' '.join(glob.glob(os.path.join(directory, '*.trig')))
-		return commands.getoutput(
-			"cat %s | rapper -i trig -o rdfxml -I ZeitgeistNamespace - " \
-			"2>/dev/null" % files)
+		self.symbols = self._parse(glob.glob(os.path.join(directory, '*.trig')))
 
-	def _parse(self, rdfxml_stream):
+	def _parse(self, trig_files):
 		"""
 		Parse an RDFXML stream into a SymbolCollection.
 		"""
+		
 		ontology = rdflib.ConjunctiveGraph()
-		ontology.parse(StringInputSource(rdfxml_stream))
+		for trig_path in trig_files:
+			with open(trig_path, "r") as trig_file:
+				ontology.parse(trig_file, format='trig')
 		
 		def _get_all_classes(*super_classes):
 			for cls in super_classes:
