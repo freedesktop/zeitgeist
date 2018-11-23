@@ -32,6 +32,7 @@ import codecs
 import commands
 import StringIO
 import collections
+import argparse
 
 import rdflib
 from rdflib import RDF, RDFS
@@ -349,14 +350,12 @@ class OntologyCodeGenerator:
 	_INSERTION_MARK = '// *insert-auto-generated-code*'
 
 	_selfpath = None
-	_basepath = None
 	_parser = None
 	_python_serializer = None
 	_vala_serializer = None
 
 	def __init__(self):
 		self._selfpath = os.path.dirname(os.path.abspath(__file__))
-		self._basepath = os.path.join(self._selfpath, '..')
 		self._parser = OntologyParser(os.path.join(self._selfpath, 'ontology'))
 		self._python_serializer = PythonSerializer(self._parser)
 		self._vala_serializer = ValaSerializer(self._parser)
@@ -364,17 +363,19 @@ class OntologyCodeGenerator:
 	def generate_python(self):
 		self._python_serializer.dump()
 
-	def generate_vala(self):
-		self._write_file('libzeitgeist/ontology-uris.vala.in', 'libzeitgeist/ontology-uris.vala',
+	def generate_vala(self, uris_tpl, symbols_tpl, uris_out, symbols_out):
+		self._write_file(uris_tpl, uris_out,
 			self._vala_serializer.dump_uris, 'vala')
-		self._write_file('libzeitgeist/ontology.vala.in', 'libzeitgeist/ontology.vala',
+		self._write_file(symbols_tpl, symbols_out,
 			self._vala_serializer.dump_symbols, 'vala')
 
 	def _write_file(self, tplfilename, outfilename, content_generator, _type):
-		print >>sys.stderr, "Generating %s..." % outfilename
+		print >>sys.stderr, "Generating %s..." % os.path.basename(outfilename)
 
 		# Read template file
-		tplfilename = os.path.join(self._basepath, tplfilename)
+		if not os.path.isabs (tplfilename):
+			tplfilename = os.path.join(os.getcwd(), tplfilename)
+
 		template = open(tplfilename).read()
 
 		# Generate output
@@ -397,7 +398,11 @@ class OntologyCodeGenerator:
 		output.write(template[continue_pos+len(self._INSERTION_MARK):])
 
 		# Write everything to the result file
-		outpath = os.path.join(self._basepath, outfilename)
+		if os.path.isabs (outfilename):
+			outpath = outfilename
+		else:
+			outpath = os.path.join(os.getcwd(), outfilename)
+
 		open(outpath, 'w').write(output.getvalue())
 
 	def _write_header(self, dest, _type):
@@ -412,13 +417,16 @@ class OntologyCodeGenerator:
 		pass
 
 if __name__ == "__main__":
-	if len(sys.argv) != 2 or sys.argv[1] not in ('--vala', '--dump-python'):
-		raise SystemExit, 'Usage: %s [--vala|--dump-python]' % \
-			sys.argv[0]
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--vala', nargs=4, metavar=('URI_TEMPLATE', 'SYMBOLS_TEMPLATE', 'URI_DESTINATION', 'SYMBOLS_DESTINATION'))
+	parser.add_argument('--dump-python', action='store_false')
+
+	args = parser.parse_args()
+
 	generator = OntologyCodeGenerator()
-	if sys.argv[1] == '--vala':
-		generator.generate_vala()
-	elif sys.argv[1] == '--dump-python':
+	if args.vala:
+		generator.generate_vala(args.vala[0], args.vala[1], args.vala[2], args.vala[3])
+	elif args.dump_python:
 		generator.generate_python()
 
 # vim:noexpandtab:ts=4:sw=4

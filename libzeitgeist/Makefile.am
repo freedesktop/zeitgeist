@@ -167,7 +167,6 @@ EXTRA_DIST = \
 	zeitgeist-2.0.deps \
 	ontology.vala.in \
 	ontology-uris.vala.in \
-	ontology_vala.stamp \
 	$(NULL)
 
 CLEANFILES = \
@@ -228,13 +227,9 @@ CLEANFILES += \
 	$(NULL)
 endif
 
-ontology.vala ontology-uris.vala: ontology_vala.stamp
-ontology_vala.stamp: ontology.vala.in ontology-uris.vala.in \
+ontology.vala ontology-uris.vala: ontology.vala.in ontology-uris.vala.in \
 		$(ONTOLOGY) $(top_srcdir)/data/ontology2code
-	$(AM_V_at)touch ontology.vala
-	$(AM_V_at)touch ontology-uris.vala
-	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala
-	$(AM_V_at)touch $@
+	$(AM_V_GEN)$(top_srcdir)/data/ontology2code --vala $(top_srcdir)/libzeitgeist/ontology-uris.vala.in $(top_srcdir)/libzeitgeist/ontology.vala.in ontology-uris.vala ontology.vala
 
 distclean-local:
 	rm -f *.c *.o *.stamp *.~[0-9]~
