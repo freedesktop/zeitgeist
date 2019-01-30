@@ -29,6 +29,7 @@ namespace Zeitgeist
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
             uint offset, uint count, uint result_type,
+            Cancellable? cancellable,
             [DBus (signature = "a(asaasay)")] out Variant events,
             out uint matches) throws Error;
         public abstract async void search_with_relevancies (
@@ -36,6 +37,7 @@ namespace Zeitgeist
             [DBus (signature = "(xx)")] Variant time_range,
             [DBus (signature = "a(asaasay)")] Variant filter_templates,
             uint storage_state, uint offset, uint count, uint result_type,
+            Cancellable? cancellable,
             [DBus (signature = "a(asaasay)")] out Variant events,
             out double[] relevancies,
             out uint matches) throws Error;
@@ -177,13 +179,14 @@ namespace Zeitgeist
 
         public async void search (string query_string, Variant time_range,
             Variant filter_templates, uint offset, uint count, uint result_type,
-            out Variant events, out uint matches) throws Error
+            Cancellable? cancellable, out Variant events,
+            out uint matches) throws Error
         {
             if (siin == null) yield wait_for_proxy ();
 
             var timer = new Timer ();
             yield siin.search (query_string, time_range, filter_templates,
-                               offset, count, result_type, null,
+                               offset, count, result_type, cancellable,
                                out events, out matches);
             debug ("Got %u[/%u] results from indexer (in %f seconds)",
                 (uint) events.n_children (), matches, timer.elapsed ());
@@ -193,15 +196,15 @@ namespace Zeitgeist
             string query_string, Variant time_range,
             Variant filter_templates, uint storage_state,
             uint offset, uint count, uint result_type,
-            out Variant events, out double[] relevancies, out uint matches)
-            throws Error
+            Cancellable? cancellable, out Variant events,
+            out double[] relevancies, out uint matches) throws Error
         {
             if (siin == null) yield wait_for_proxy ();
 
             var timer = new Timer ();
             yield siin.search_with_relevancies (
                 query_string, time_range, filter_templates,
-                storage_state, offset, count, result_type, null,
+                storage_state, offset, count, result_type, cancellable,
                 out events, out relevancies, out matches);
 
             debug ("Got %u[/%u] results from indexer (in %f seconds)",
