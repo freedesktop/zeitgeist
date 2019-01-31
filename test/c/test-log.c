@@ -118,7 +118,8 @@ _on_events_received (ZeitgeistLog *log,
                                (GAsyncReadyCallback) _on_events_deleted,
                                expected_events);
 
-  g_ptr_array_unref (events);
+  g_array_unref (event_ids);
+  g_object_unref (events);
 }
 
 static void
@@ -143,6 +144,8 @@ _on_events_inserted (ZeitgeistLog *log,
   zeitgeist_log_get_events (log, event_ids, NULL, 
                             (GAsyncReadyCallback) _on_events_received,
                             expected_events);
+
+  g_array_unref (event_ids);
 }
 
 static void
