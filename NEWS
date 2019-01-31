@@ -1,3 +1,21 @@
+2018-01-31: Zeitgeist 1.0.2 "Phoenix"
+---------------------------------------------------------------
+
+Overall:
+ - Fix compile errors and warnings with new vala
+ - fts: Correctly implement the org.gnome.zeitgeist.Index DBus interface
+ - test-log: Use correct free function for ZeitgeistResultSet
+ - Do not require rapper as it is not used anymore
+ - Make ontology2code work with python3
+ - Properly fallback with the Zeitgeist version
+ - rdflib directly to parse the trig files
+ - Update Ontology2code to ba able to specify the output path
+
+Libzeitgeist:
+ - Asynchronous out-parameters are only allowed at the end of argument lists
+   *** THIS IS AN UNAVOIDABLE VALA API BREAK ***
+
+
 2018-02-14: Zeitgeist 1.0.1 "Sunset"
 ---------------------------------------------------------------
 

@@ -22,6 +22,7 @@ zeitgeistdocdir = $(pkgdatadir)/doc
 zeitgeistdoc_DATA = \
 	AUTHORS \
 	NEWS \
+	README.md \
 	$(NULL)
 
 DISTCHECK_CONFIGURE_FLAGS = \
