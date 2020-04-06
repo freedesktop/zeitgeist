@@ -282,7 +282,7 @@ namespace Zeitgeist
          * Cleanup disconnected clients and mark data-sources as not running
          * when no client remains.
          **/
-        private void name_owner_changed (DBusConnection conn, string sender,
+        private void name_owner_changed (DBusConnection conn, string? sender,
             string path, string interface_name, string signal_name,
             Variant parameters)
         {

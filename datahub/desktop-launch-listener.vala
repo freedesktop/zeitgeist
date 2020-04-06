@@ -78,7 +78,7 @@ public class DesktopLaunchListener : DataProvider
   }
 
   private void signal_received (GLib.DBusConnection connection,
-                                string sender,
+                                string? sender,
                                 string object_path,
                                 string interface_name,
                                 string signal_name,
