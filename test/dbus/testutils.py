@@ -143,7 +143,7 @@ class RemoteTestCase (unittest.TestCase):
 	def _get_pid(matching_string):
 		p1 = Popen(["ps", "aux"], stdout=PIPE, stderr=PIPE)
 		p2 = Popen(["grep", matching_string], stdin=p1.stdout, stderr=PIPE, stdout=PIPE)
-		return p2.communicate()[0]
+		return p2.communicate()[0].decode()
 		
 	@staticmethod
 	def _safe_start_subprocess(cmd, env, timeout=1, error_callback=None):
@@ -171,6 +171,7 @@ class RemoteTestCase (unittest.TestCase):
 			env = os.environ.copy()
 			
 		def error_callback(stdout, stderr):
+			stderr = stderr.decode()
 			if "--replace" in stderr:
 				return "%r | %s" %(stderr, RemoteTestCase._get_pid(
 					"./src/zeitgeist-daemon").replace("\n", "|"))
