@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -.- coding: utf-8 -.-
 
 # remote-test.py
@@ -59,10 +59,10 @@ class BlacklistTest(RemoteTestCase):
 		
 		# Now remove all existing templates...
 		allTemplates = self.blacklist.GetTemplates()
-		[self.blacklist.RemoveTemplate(key) for key in allTemplates.iterkeys()]
+		[self.blacklist.RemoveTemplate(key) for key in list(allTemplates.keys())]
 		
 		# And ensure that they are indeed gone.
-		self.assertEquals(len(self.blacklist.GetTemplates()), 0)
+		self.assertEqual(len(self.blacklist.GetTemplates()), 0)
 
 	def _add_template(self, name, template):
 		self.blacklist.AddTemplate(name, template)
@@ -71,18 +71,18 @@ class BlacklistTest(RemoteTestCase):
 		self.assertEventsEqual(template, Event(res[name]))
 
 	def _assert_template_count(self, num):
-		self.assertEquals(len(self.blacklist.GetTemplates()), num)
+		self.assertEqual(len(self.blacklist.GetTemplates()), num)
 
 	def _assert_insert_blocked(self, *events):
-		inserted_ids = map(int, self.insertEventsAndWait(events))
-		zeros = filter(lambda x: x == 0, inserted_ids)
-		self.assertEquals(len(events), len(inserted_ids))
-		self.assertEquals(len(events), len(zeros))
+		inserted_ids = list(map(int, self.insertEventsAndWait(events)))
+		zeros = [x for x in inserted_ids if x == 0]
+		self.assertEqual(len(events), len(inserted_ids))
+		self.assertEqual(len(events), len(zeros))
 	
 	def _assert_insert_allowed(self, *events):
-		inserted_ids = map(int, self.insertEventsAndWait(events))
-		self.assertEquals(len(events), len(inserted_ids))
-		self.assertEquals([], filter(lambda x: x == 0, inserted_ids))
+		inserted_ids = list(map(int, self.insertEventsAndWait(events)))
+		self.assertEqual(len(events), len(inserted_ids))
+		self.assertEqual([], [x for x in inserted_ids if x == 0])
 
 	def testSetOne(self):
 		orig = Event.new_for_values(
@@ -187,28 +187,28 @@ class BlacklistTest(RemoteTestCase):
 	def testApplyBlacklistWithAccentsInURI(self):
 		# We blacklist some particular URIs
 		self._add_template("weirdo", Event.new_for_values(
-			subject_uri=u"çàrßá€"))
+			subject_uri="çàrßá€"))
 		self._add_template("normalo", Event.new_for_values(
-			subject_uri=u"hello"))
+			subject_uri="hello"))
 		self._assert_template_count(2)
 
 		# And check that the blacklisting works
 		self._assert_insert_blocked(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"çàrßá€"))
+			subject_uri="çàrßá€"))
 		self._assert_insert_blocked(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"hello"))
+			subject_uri="hello"))
 		self._assert_insert_allowed(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"hola"))
+			subject_uri="hola"))
 		self._assert_insert_allowed(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"çàrßá"))
+			subject_uri="çàrßá"))
 
 	def testApplyBlacklistForEventWithEmptyCurrentURI(self):
 		# We blacklist some particular current URI
-		self._add_template("t", Event.new_for_values(subject_current_uri=u"t"))
+		self._add_template("t", Event.new_for_values(subject_current_uri="t"))
 		self._assert_template_count(1)
 
 		# Blocking the current_uri works
@@ -228,28 +228,28 @@ class BlacklistTest(RemoteTestCase):
 	def testApplyBlacklistWithWildcardInURI(self):
 		# We blacklist some particular URIs
 		self._add_template("wild", Event.new_for_values(
-			subject_uri=u"block me*"))
+			subject_uri="block me*"))
 		self._assert_template_count(1)
 
 		# And check that the blacklisting works
 		self._assert_insert_blocked(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"block me"))
+			subject_uri="block me"))
 		self._assert_insert_blocked(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"block me*"))
+			subject_uri="block me*"))
 		self._assert_insert_blocked(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"block me now"))
+			subject_uri="block me now"))
 		self._assert_insert_blocked(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"block meß :)"))
+			subject_uri="block meß :)"))
 		self._assert_insert_allowed(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"block mNOT"))
+			subject_uri="block mNOT"))
 		self._assert_insert_allowed(Event.new_for_values(
 			interpretation="a", manifestation="b", actor="c",
-			subject_uri=u"nblock me"))
+			subject_uri="nblock me"))
 
 	def _get_blacklist_iface(self):
 		"""
@@ -267,9 +267,9 @@ class BlacklistTest(RemoteTestCase):
 		"""
 		blacklist = self._get_blacklist_iface()
 		allTemplates = blacklist.GetTemplates()
-		[blacklist.RemoveTemplate(key) for key in allTemplates.iterkeys()]
+		[blacklist.RemoveTemplate(key) for key in list(allTemplates.keys())]
 		newAllTemplates = blacklist.GetTemplates()
-		self.assertEquals(len(newAllTemplates), 0)
+		self.assertEqual(len(newAllTemplates), 0)
 
 	def testBlacklistSignals(self, mainloop=None, connect_signals=True):
 		self.blacklist = self._get_blacklist_iface()
@@ -287,17 +287,17 @@ class BlacklistTest(RemoteTestCase):
 		@asyncTestMethod(mainloop)
 		def cb_added(template_id, event_template):
 			global hit
-			self.assertEquals(hit, 0)
+			self.assertEqual(hit, 0)
 			hit = 1
-			self.assertEquals(template_id, "TestTemplate")
+			self.assertEqual(template_id, "TestTemplate")
 			self.assertEventsEqual(template1, event_template)
 
 		@asyncTestMethod(mainloop)
 		def cb_removed(template_id, event_template):
 			global hit
-			self.assertEquals(hit, 1)
+			self.assertEqual(hit, 1)
 			hit = 2
-			self.assertEquals(template_id, "TestTemplate")
+			self.assertEqual(template_id, "TestTemplate")
 			self.assertEventsEqual(template1, event_template)
 			mainloop.quit()
 

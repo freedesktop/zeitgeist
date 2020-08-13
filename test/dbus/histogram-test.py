@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -.- coding: utf-8 -.-
 
 # histogram-test.py
@@ -91,17 +91,17 @@ class HistogramTest(RemoteTestCase):
 		ev, ev_timestamp = self._createEventOne();
 		
 		inserted_ids = self.insertEventsAndWait([ev])
-		self.assertEquals(1, len(inserted_ids))
+		self.assertEqual(1, len(inserted_ids))
 		
 		h_data = self.histogram.GetHistogramData()
-		self.assertEquals(1, len(h_data))
+		self.assertEqual(1, len(h_data))
 		
 		h_day_timestamp = h_data[0][0]
 		
 		#Check if the inserted event belong to the right day!
 		day_ev = datetime.date.fromtimestamp(ev_timestamp)
 		start_day = datetime.date.fromtimestamp(h_day_timestamp)
-		self.assertEquals(day_ev.day , start_day.day)
+		self.assertEqual(day_ev.day , start_day.day)
 
 if __name__ == "__main__":
 	unittest.main()

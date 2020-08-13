@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -.- coding: utf-8 -.-
 
 # remote-test.py
@@ -62,15 +62,15 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 
 	_ds2 = [
 		"www.example.org/bar",
-		u"© mwhahaha çàéü",
-		u"ThŊ§ ıs teĦ ün↓çØÐe¡",
+		"© mwhahaha çàéü",
+		"ThŊ§ ıs teĦ ün↓çØÐe¡",
 		[]
 	]
 
 	_ds2b = [
 		"www.example.org/bar", # same unique ID as _ds2
-		u"This string has been translated into the ASCII language",
-		u"Now the unicode is gone :(",
+		"This string has been translated into the ASCII language",
+		"Now the unicode is gone :(",
 		[
 			Event.new_for_values(subject_manifestation = "nah"),
 		],
@@ -86,21 +86,21 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		"""
 		popo = []
 		ev[0][0] = ""
-		popo.append(map(unicode, ev[0]))
-		popo.append([map(unicode, subj) for subj in ev[1]])
+		popo.append(list(map(str, ev[0])))
+		popo.append([list(map(str, subj)) for subj in ev[1]])
 		# We need the check here so that if D-Bus gives us an empty
 		# byte array we don't serialize the text "dbus.Array(...)".
-		popo.append(str(ev[2]) if ev[2] else u'')
+		popo.append(str(ev[2]) if ev[2] else '')
 		return popo
 	
 	def _assertDataSourceEquals(self, dsdbus, dsref):
-		self.assertEquals(dsdbus[DataSource.UniqueId], dsref[0])
-		self.assertEquals(dsdbus[DataSource.Name], dsref[1])
-		self.assertEquals(dsdbus[DataSource.Description], dsref[2])
-		self.assertEquals(len(dsdbus[DataSource.EventTemplates]), len(dsref[3]))
+		self.assertEqual(dsdbus[DataSource.UniqueId], dsref[0])
+		self.assertEqual(dsdbus[DataSource.Name], dsref[1])
+		self.assertEqual(dsdbus[DataSource.Description], dsref[2])
+		self.assertEqual(len(dsdbus[DataSource.EventTemplates]), len(dsref[3]))
 		for i, template in enumerate(dsref[3]):
 			tmpl = dsdbus[DataSource.EventTemplates][i]
-			self.assertEquals(self.get_plain(tmpl), self.get_plain(template))
+			self.assertEqual(self.get_plain(tmpl), self.get_plain(template))
 	
 	def testPresence(self):
 		""" Ensure that the DataSourceRegistry extension is there """
@@ -109,18 +109,18 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		registry.GetDataSources()
 	
 	def testGetDataSourcesEmpty(self):
-		self.assertEquals(self.client._registry.GetDataSources(), [])
+		self.assertEqual(self.client._registry.GetDataSources(), [])
 	
 	def testRegisterDataSource(self):
 		self.client.register_data_source(*self._ds1)
 		datasources = list(self.client._registry.GetDataSources())
-		self.assertEquals(len(datasources), 1)
+		self.assertEqual(len(datasources), 1)
 		self._assertDataSourceEquals(datasources[0], self._ds1)
 	
 	def testRegisterDataSourceUnicode(self):
 		self.client.register_data_source(*self._ds2)
 		datasources = list(self.client._registry.GetDataSources())
-		self.assertEquals(len(datasources), 1)
+		self.assertEqual(len(datasources), 1)
 		self._assertDataSourceEquals(datasources[0], self._ds2)
 	
 	def testRegisterDataSourceWithCallback(self):
@@ -133,7 +133,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		
 		# Verify that they have been inserted correctly
 		datasources = list(self.client._registry.GetDataSources())
-		self.assertEquals(len(datasources), 2)
+		self.assertEqual(len(datasources), 2)
 		datasources.sort(key=lambda x: x[DataSource.UniqueId])
 		self._assertDataSourceEquals(datasources[0], self._ds1)
 		self._assertDataSourceEquals(datasources[1], self._ds2)
@@ -143,7 +143,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		
 		# Verify that it changed correctly
 		datasources = list(self.client._registry.GetDataSources())
-		self.assertEquals(len(datasources), 2)
+		self.assertEqual(len(datasources), 2)
 		datasources.sort(key=lambda x: x[DataSource.UniqueId])
 		self._assertDataSourceEquals(datasources[0], self._ds1)
 		self._assertDataSourceEquals(datasources[1], self._ds2b)
@@ -152,28 +152,28 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		# Insert a data-source -- it should be enabled by default
 		self.client._registry.RegisterDataSource(*self._ds1)
 		ds = list(self.client._registry.GetDataSources())[0]
-		self.assertEquals(ds[DataSource.Enabled], True)
+		self.assertEqual(ds[DataSource.Enabled], True)
 		
 		# Now we can choose to disable it...
 		self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
 		ds = list(self.client._registry.GetDataSources())[0]
-		self.assertEquals(ds[DataSource.Enabled], False)
+		self.assertEqual(ds[DataSource.Enabled], False)
 		
 		# And enable it again!
 		self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
 		ds = list(self.client._registry.GetDataSources())[0]
-		self.assertEquals(ds[DataSource.Enabled], True)
+		self.assertEqual(ds[DataSource.Enabled], True)
 
 	def testSetDataSourceDisabled(self):
 		# Insert a data-source -- it should be enabled by default
 		self.client._registry.RegisterDataSource(*self._ds1)
 		ds = list(self.client._registry.GetDataSources())[0]
-		self.assertEquals(ds[DataSource.Enabled], True)
+		self.assertEqual(ds[DataSource.Enabled], True)
 
 		# Now we can choose to disable it...
 		self.client._registry.SetDataSourceEnabled(self._ds1[0], False)
 		ds = list(self.client._registry.GetDataSources())[0]
-		self.assertEquals(ds[DataSource.Enabled], False)
+		self.assertEqual(ds[DataSource.Enabled], False)
 
 		event = Event.new_for_values(
 			interpretation="interpretation",
@@ -184,15 +184,15 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 
 		# ... which will block its events from being inserted
 		ids = self.insertEventsAndWait([event])
-		self.assertEquals(ids[0], 0)
+		self.assertEqual(ids[0], 0)
 
 		# And enable it again!
 		self.client._registry.SetDataSourceEnabled(self._ds1[0], True)
 		ds = list(self.client._registry.GetDataSources())[0]
-		self.assertEquals(ds[DataSource.Enabled], True)
+		self.assertEqual(ds[DataSource.Enabled], True)
 
 		ids = self.insertEventsAndWait([event])
-		self.assertEquals(ids[0], 1)
+		self.assertEqual(ids[0], 1)
 
 	def testGetDataSourceFromId(self):
 		# Insert a data-source -- and then retrieve it by id
@@ -214,17 +214,17 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		@asyncTestMethod(mainloop)
 		def cb_registered(datasource):
 			global hit
-			self.assertEquals(hit, 0)
+			self.assertEqual(hit, 0)
 			hit = 1
 		
 		@asyncTestMethod(mainloop)
 		def cb_enabled(unique_id, enabled):
 			global hit
 			if hit == 1:
-				self.assertEquals(enabled, False)
+				self.assertEqual(enabled, False)
 				hit = 2
 			elif hit == 2:
-				self.assertEquals(enabled, True)
+				self.assertEqual(enabled, True)
 				hit = 3
 				# We're done -- change this if we figure out how to force a
 				# disconnection from the bus, so we can also check the

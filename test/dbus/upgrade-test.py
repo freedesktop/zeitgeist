@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -.- coding: utf-8 -.-
 
 # upgrade-test.py
@@ -54,53 +54,53 @@ class ZeitgeistUpgradeTest(testutils.RemoteTestCase):
         original_events = parse_events("test/data/upgrade_test.js")
 
         # Ensure no events got lost (or duplicated)
-        self.assertEquals(len(events), len(original_events))
+        self.assertEqual(len(events), len(original_events))
 
         # Ensure no subjects got lost
         for i in range(len(events)):
-            self.assertEquals(len(events[i].subjects),
+            self.assertEqual(len(events[i].subjects),
                               len(original_events[i].subjects))
 
         # Ensure data didn't change (unless it should)
         for i in range(len(events)):
             a = events[i]
             b = original_events[i]
-            self.assertEquals(a.timestamp, b.timestamp)
-            self.assertEquals(a.interpretation, b.interpretation)
-            self.assertEquals(a.manifestation, b.manifestation)
-            self.assertEquals(a.actor, b.actor)
+            self.assertEqual(a.timestamp, b.timestamp)
+            self.assertEqual(a.interpretation, b.interpretation)
+            self.assertEqual(a.manifestation, b.manifestation)
+            self.assertEqual(a.actor, b.actor)
             for j in range(len(a.subjects)):
                 sa = a.subjects[j]
                 sb = b.subjects[j]
-                self.assertEquals(sa.uri, sb.uri)
-                self.assertEquals(sa.interpretation, sb.interpretation)
+                self.assertEqual(sa.uri, sb.uri)
+                self.assertEqual(sa.interpretation, sb.interpretation)
                 if not sa.uri.startswith("http://"):
-                    self.assertEquals(sa.manifestation, sb.manifestation)
-                self.assertEquals(sa.origin, sb.origin)
-                self.assertEquals(sa.mimetype, sb.mimetype)
-                self.assertEquals(sa.text, sb.text)
-                self.assertEquals(sa.storage, sb.storage)
+                    self.assertEqual(sa.manifestation, sb.manifestation)
+                self.assertEqual(sa.origin, sb.origin)
+                self.assertEqual(sa.mimetype, sb.mimetype)
+                self.assertEqual(sa.text, sb.text)
+                self.assertEqual(sa.storage, sb.storage)
 
         # Introduced in Zeitgeist 0.8.0:
         #  - event.origin
         #  - subject.current_uri
         for event in events:
-            self.assertEquals(event.origin, "")
+            self.assertEqual(event.origin, "")
             for subject in event.subjects:
-                self.assertEquals(subject.current_uri, subject.uri)
+                self.assertEqual(subject.current_uri, subject.uri)
 
         # Introduced in Bluebird Alpha 2:
         #  - WebDataObject
         for event in events:
             for subject in event.subjects:
                 if subject.uri.startswith("http://"):
-                    self.assertEquals(subject.manifestation, Manifestation.WEB_DATA_OBJECT)
+                    self.assertEqual(subject.manifestation, Manifestation.WEB_DATA_OBJECT)
 
         # Introduced in Zeitgeist 1.0 Beta 1
         #  - subject.current_origin
         for event in events:
             for subject in event.subjects:
-                self.assertEquals(subject.current_origin, subject.origin)
+                self.assertEqual(subject.current_origin, subject.origin)
 
     def testUpgradeFrom071(self):
         self.prepare("071")

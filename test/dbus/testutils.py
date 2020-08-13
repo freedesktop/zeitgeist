@@ -77,7 +77,7 @@ def dict2event(d):
 	
 def parse_events(path):
 	data = json.load(file(path))
-	events = map(dict2event, data)
+	events = list(map(dict2event, data))
 	return events
 
 def import_events(path, engine):
@@ -108,7 +108,7 @@ def complete_event(event):
 	return event
 
 def complete_events(events):
-	return map(complete_event, events)
+	return list(map(complete_event, events))
 
 def new_event(*args, **kwargs):
 	"""
@@ -125,9 +125,9 @@ def asyncTestMethod(mainloop):
 		def new_f(*args, **kwargs):
 			try:
 				f(*args, **kwargs)
-			except AssertionError, e:
+			except AssertionError as e:
 				mainloop.fail("Assertion failed: %s" % e)
-			except Exception, e:
+			except Exception as e:
 				mainloop.fail("Unexpected exception: %s" % e)
 		return new_f
 	return wrap
@@ -220,8 +220,8 @@ class RemoteTestCase (unittest.TestCase):
 		get_bus().close()
 		self.kill_daemon()
 		if 'ZEITGEIST_TESTS_KEEP_TMP' in os.environ:
-			print '\n\nAll temporary files have been preserved in %s\n' \
-				% self.datapath
+			print('\n\nAll temporary files have been preserved in %s\n' \
+				% self.datapath)
 		else:
 			shutil.rmtree(self.datapath)
 	
@@ -385,7 +385,7 @@ class RemoteTestCase (unittest.TestCase):
 				assert self.failed is False
 				self._mainloop.run()
 				if self.failed:
-					raise AssertionError, self.failure_message
+					raise AssertionError(self.failure_message)
 		
 		mainloop = MainLoopWithFailure()
 		if timeout is not None:
@@ -413,11 +413,11 @@ class RemoteTestCase (unittest.TestCase):
 			if not subject.current_origin:
 				subject.current_origin = subject.origin
 		popo = []
-		popo.append(map(unicode, ev[0]))
-		popo.append([map(unicode, subj) for subj in ev[1]])
+		popo.append(list(map(str, ev[0])))
+		popo.append([list(map(str, subj)) for subj in ev[1]])
 		# We need the check here so that if D-Bus gives us an empty
 		# byte array we don't serialize the text "dbus.Array(...)".
-		popo.append(str(ev[2]) if ev[2] else u'')
+		popo.append(str(ev[2]) if ev[2] else '')
 		return popo
 	
 	def assertEventsEqual(self, ev1, ev2):
@@ -453,7 +453,7 @@ class DBusPrivateMessageBus(object):
 	def run(self, ignore_errors=False):
 		try:
 			return self._run()
-		except Exception, e:
+		except Exception as e:
 			if ignore_errors:
 				return e
 			raise
@@ -471,7 +471,7 @@ class DBusPrivateMessageBus(object):
 	def quit(self, ignore_errors=False):
 		try:
 			return self._quit()
-		except Exception, e:
+		except Exception as e:
 			if ignore_errors:
 				return e
 			raise

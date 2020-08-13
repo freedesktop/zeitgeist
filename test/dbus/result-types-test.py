@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -.- coding: utf-8 -.-
 
 # result-types-test.py
@@ -43,7 +43,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 				reverse=True
 			)
 		]
-		self.assertEquals(list(ids), sorted_event_ids)
+		self.assertEqual(list(ids), sorted_event_ids)
 
 	def testResultTypesLeastRecentEvents(self):
 		import_events("test/data/five_events.js", self)
@@ -57,7 +57,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			event.id for event in sorted(events,
 				cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
 		]
-		self.assertEquals(list(ids), sorted_event_ids)
+		self.assertEqual(list(ids), sorted_event_ids)
 
 	def testResultTypesMostPopularActor(self):
 		import_events("test/data/twenty_events.js", self)
@@ -66,9 +66,9 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.MostPopularActor)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e[0][4] for e in events], ["firefox", "icedove",
+		self.assertEqual([e[0][4] for e in events], ["firefox", "icedove",
 			"frobnicator"])
-		self.assertEquals([e.timestamp for e in events], ["119", "114", "105"])
+		self.assertEqual([e.timestamp for e in events], ["119", "114", "105"])
 
 	def testResultTypesMostPopularActor2(self):
 		import_events("test/data/twenty_events.js", self)
@@ -78,9 +78,9 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.MostPopularActor)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals(len(events), 2)
-		self.assertEquals([e[0][4] for e in events], ["firefox", "frobnicator"])
-		self.assertEquals([e.timestamp for e in events], ["107", "105"])
+		self.assertEqual(len(events), 2)
+		self.assertEqual([e[0][4] for e in events], ["firefox", "frobnicator"])
+		self.assertEqual([e.timestamp for e in events], ["107", "105"])
 
 	def testResultTypesLeastPopularActor(self):
 		import_events("test/data/twenty_events.js", self)
@@ -90,9 +90,9 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularActor)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e[0][4] for e in events], ["frobnicator", "icedove",
+		self.assertEqual([e[0][4] for e in events], ["frobnicator", "icedove",
 			"firefox"])
-		self.assertEquals([e.timestamp for e in events], ["105", "114", "119"])
+		self.assertEqual([e.timestamp for e in events], ["105", "114", "119"])
 
 	def testResultTypesLeastPopularActor2(self):
 		import_events("test/data/twenty_events.js", self)
@@ -103,9 +103,9 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularActor)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals(len(events), 2)
-		self.assertEquals([e[0][4] for e in events], ["frobnicator", "firefox"])
-		self.assertEquals([e.timestamp for e in events], ["105", "107"])
+		self.assertEqual(len(events), 2)
+		self.assertEqual([e[0][4] for e in events], ["frobnicator", "firefox"])
+		self.assertEqual([e.timestamp for e in events], ["105", "107"])
 
 	def testResultTypesMostRecentSubject(self):
 		import_events("test/data/five_events.js", self)
@@ -115,7 +115,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostRecentSubjects)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["163", "153", "143", "123"])
 
 	def testResultTypesLeastRecentSubject(self):
@@ -125,7 +125,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.LeastRecentSubjects)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["123", "143", "153", "163"])
 
 	def testResultTypesMostPopularSubject(self):
@@ -135,7 +135,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.MostPopularSubjects)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["143", "163", "153", "123"])
 
 	def testResultTypesLeastPopularSubject(self):
@@ -146,7 +146,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularSubjects)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["123", "153", "163", "143"])
 
 	def testResultTypesMostRecentCurrentUri(self):
@@ -158,7 +158,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostRecentCurrentUri)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["200", "153", "123"])
 
 	def testResultTypesLeastRecentCurrentUri(self):
@@ -169,7 +169,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.LeastRecentCurrentUri)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["123", "153", "200"])
 
 	def testResultTypesMostPopularCurrentUri(self):
@@ -180,7 +180,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.MostPopularCurrentUri)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["200", "123", "153"])
 
 	def testResultTypesLeastPopularCurrentUri(self):
@@ -191,7 +191,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.LeastPopularCurrentUri)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["153", "123", "200"])
 
 	def testResultTypesMostRecentCurrentOrigin(self):
@@ -203,7 +203,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type=ResultType.MostRecentCurrentOrigin)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["200", "163", "153", "123"])
 
 	def testResultTypesLeastRecentCurrentOrigin(self):
@@ -214,7 +214,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events=0,
 			result_type=ResultType.LeastRecentCurrentOrigin)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["123", "153", "163", "200"])
 
 	def testResultTypesMostPopularCurrentOrigin(self):
@@ -225,7 +225,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events=0,
 			result_type=ResultType.MostPopularCurrentOrigin)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["200", "123", "163", "153"])
 
 	def testResultTypesLeastPopularCurrentOrigin(self):
@@ -236,7 +236,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events=0,
 			result_type=ResultType.LeastPopularCurrentOrigin)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in events],
+		self.assertEqual([e.timestamp for e in events],
 			["153", "163", "123", "200"])
 
 	def testResultTypesMostRecentActor(self):
@@ -247,7 +247,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostRecentActor)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ["119", "114", "105"])
+		self.assertEqual([e.timestamp for e in events], ["119", "114", "105"])
 
 	def testResultTypesMostRecentActor2(self):
 		import_events("test/data/twenty_events.js", self)
@@ -258,7 +258,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostRecentActor)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ["107", "105"])
+		self.assertEqual([e.timestamp for e in events], ["107", "105"])
 
 	def testResultTypesOldestActorBug641968(self):
 		events = [
@@ -274,14 +274,14 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.OldestActor)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals(list(ids), [1, 3, 4])
+		self.assertEqual(list(ids), [1, 3, 4])
 
 		# Get the least recent actors for "home/boo"
 		template = Event.new_for_values(subject_uri="home/boo")
 		ids = self.findEventIdsAndWait([template],
 			num_events = 0,
 			result_type = ResultType.OldestActor)
-		self.assertEquals(list(ids), [2])
+		self.assertEqual(list(ids), [2])
 
 		# Let's also try the same with MostRecentActor... Although there
 		# should be no problem here.
@@ -289,7 +289,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 		ids = self.findEventIdsAndWait([template],
 			num_events = 0,
 			result_type = ResultType.OldestActor)
-		self.assertEquals(list(ids), [2])
+		self.assertEqual(list(ids), [2])
 
 	def testResultTypesOldestActor(self):
 		import_events("test/data/twenty_events.js", self)
@@ -299,7 +299,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.OldestActor)
 		events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in events], ["100", "101", "105"])
+		self.assertEqual([e.timestamp for e in events], ["100", "101", "105"])
 
 	def testResultTypesLeastRecentActor(self):
 		import_events("test/data/twenty_events.js", self)
@@ -310,7 +310,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastRecentActor)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ['105', '114', '119'])
+		self.assertEqual([e.timestamp for e in events], ['105', '114', '119'])
 
 	def testResultTypesLeastRecentActor2(self):
 		# The same test as before, but this time with fewer events so that
@@ -327,7 +327,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			num_events = 0,
 			result_type = ResultType.LeastRecentActor)
 		recv_events = self.getEventsAndWait(ids)
-		self.assertEquals([e.timestamp for e in recv_events], ['3', '4'])
+		self.assertEqual([e.timestamp for e in recv_events], ['3', '4'])
 
 	def testResultTypesMostPopularEventOrigin(self):
 		import_events("test/data/twenty_events.js", self)
@@ -337,9 +337,9 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostPopularEventOrigin)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e[0][5] for e in events],
+		self.assertEqual([e[0][5] for e in events],
 			["origin1", "origin3", "origin2"])
-		self.assertEquals([e.timestamp for e in events], ["102", "103", "100"])
+		self.assertEqual([e.timestamp for e in events], ["102", "103", "100"])
 
 	def testResultTypesLeastPopularEventOrigin(self):
 		import_events("test/data/twenty_events.js", self)
@@ -349,9 +349,9 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularEventOrigin)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e[0][5] for e in events],
+		self.assertEqual([e[0][5] for e in events],
 			["origin2", "origin3", "origin1"])
-		self.assertEquals([e.timestamp for e in events], ["100", "103", "102"])
+		self.assertEqual([e.timestamp for e in events], ["100", "103", "102"])
 
 	def testResultTypesMostRecentEventOrigin(self):
 		import_events("test/data/twenty_events.js", self)
@@ -361,7 +361,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostRecentEventOrigin)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ["103", "102", "100"])
+		self.assertEqual([e.timestamp for e in events], ["103", "102", "100"])
 
 	def testResultTypesLeastRecentEventOrigin(self):
 		import_events("test/data/twenty_events.js", self)
@@ -371,7 +371,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastRecentEventOrigin)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ["100", "102", "103"])
+		self.assertEqual([e.timestamp for e in events], ["100", "102", "103"])
 
 	def testResultTypesMostPopularSubjectOrigin(self):
 		import_events("test/data/twenty_events.js", self)
@@ -381,9 +381,9 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostPopularOrigin)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e[1][0][3] for e in events], ["file:///tmp", "file:///home",
+		self.assertEqual([e[1][0][3] for e in events], ["file:///tmp", "file:///home",
 			"file:///etc"])
-		self.assertEquals([e.timestamp for e in events], ["116", "118", "119"])
+		self.assertEqual([e.timestamp for e in events], ["116", "118", "119"])
 
 	def testResultTypesLeastPopularSubjectOrigin(self):
 		import_events("test/data/twenty_events.js", self)
@@ -393,9 +393,9 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularOrigin)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e[1][0][3] for e in events], ["file:///etc", "file:///home",
+		self.assertEqual([e[1][0][3] for e in events], ["file:///etc", "file:///home",
 			"file:///tmp"])
-		self.assertEquals([e.timestamp for e in events], ["119", "118", "116"])
+		self.assertEqual([e.timestamp for e in events], ["119", "118", "116"])
 
 	def testResultTypesMostRecentSubjectOrigin(self):
 		import_events("test/data/twenty_events.js", self)
@@ -405,7 +405,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostRecentOrigin)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ["119", "118", "116"])
+		self.assertEqual([e.timestamp for e in events], ["119", "118", "116"])
 
 	def testResultTypesLeastRecentSubjectOrigin(self):
 		import_events("test/data/twenty_events.js", self)
@@ -415,7 +415,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastRecentOrigin)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ["116", "118", "119"])
+		self.assertEqual([e.timestamp for e in events], ["116", "118", "119"])
 
 	def testResultTypesMostRecentMimeType(self):
 		import_events("test/data/twenty_events.js", self)
@@ -425,7 +425,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostRecentMimeType)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ['119', '114', '110', '107'])
+		self.assertEqual([e.timestamp for e in events], ['119', '114', '110', '107'])
 
 	def testResultTypesLeastRecentMimeType(self):
 		import_events("test/data/twenty_events.js", self)
@@ -435,7 +435,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastRecentMimeType)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ['107', '110', '114', '119'])
+		self.assertEqual([e.timestamp for e in events], ['107', '110', '114', '119'])
 
 	def testResultTypesMostPopularMimeType(self):
 		import_events("test/data/twenty_events.js", self)
@@ -445,7 +445,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostPopularMimeType)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ['119', '110', '107', '114'])
+		self.assertEqual([e.timestamp for e in events], ['119', '110', '107', '114'])
 
 	def testResultTypesLeastPopularMimeType(self):
 		import_events("test/data/twenty_events.js", self)
@@ -455,7 +455,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularMimeType)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ['114', '107', '110', '119'])
+		self.assertEqual([e.timestamp for e in events], ['114', '107', '110', '119'])
 
 	def testResultTypesMostRecentSubjectInterpretation(self):
 		import_events("test/data/twenty_events.js", self)
@@ -465,7 +465,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostRecentSubjectInterpretation)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ['119', '118', '116', '106'])
+		self.assertEqual([e.timestamp for e in events], ['119', '118', '116', '106'])
 
 	def testResultTypesLeastRecentSubjectInterpretation(self):
 		import_events("test/data/twenty_events.js", self)
@@ -475,7 +475,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastRecentSubjectInterpretation)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ['106', '116', '118', '119'])
+		self.assertEqual([e.timestamp for e in events], ['106', '116', '118', '119'])
 
 	def testResultTypesMostPopularSubjectInterpretation(self):
 		import_events("test/data/twenty_events.js", self)
@@ -485,7 +485,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.MostPopularSubjectInterpretation)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ['119', '116', '106', '118'])
+		self.assertEqual([e.timestamp for e in events], ['119', '116', '106', '118'])
 
 	def testResultTypesLeastPopularSubjectInterpretation(self):
 		import_events("test/data/twenty_events.js", self)
@@ -495,7 +495,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 			result_type = ResultType.LeastPopularSubjectInterpretation)
 		events = self.getEventsAndWait(ids)
 
-		self.assertEquals([e.timestamp for e in events], ['118', '106', '116', '119'])
+		self.assertEqual([e.timestamp for e in events], ['118', '106', '116', '119'])
 
 if __name__ == "__main__":
 	testutils.run()

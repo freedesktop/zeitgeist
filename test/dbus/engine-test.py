@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -.- coding: utf-8 -.-
 
 # engine-test.py
@@ -36,11 +36,11 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		test_event_1 = parse_events("test/data/one_event.js")[0]
 		# Insert item and event
 		ids = self.insertEventsAndWait([test_event_1])
-		self.assertEquals(1, len(ids))
+		self.assertEqual(1, len(ids))
 
 		result = self.getEventsAndWait(ids)
 		resulting_event = result.pop()
-		self.assertEquals(len(resulting_event), len(test_event_1))
+		self.assertEqual(len(resulting_event), len(test_event_1))
 
 		# fixing id, the initial event does not have any id set
 		test_event_1[0][0] = ids[0]
@@ -68,9 +68,9 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		ids = self.insertEventsAndWait([ev])
 		result = self.getEventsAndWait(ids)
 
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 		resulting_event = Event(result.pop())
-		self.assertEquals("foo://bar", resulting_event.interpretation)
+		self.assertEqual("foo://bar", resulting_event.interpretation)
 		self.assertTrue(resulting_event.timestamp) # We should have a timestamp again
 
 	def testDuplicateEventInsertion(self):
@@ -82,14 +82,14 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 
 		# Find all events, and make sure that this is exactly one event
 		result = self.findEventIdsAndWait([])
-		self.assertEquals(1, len(result))
-		self.assertEquals(1, result[0]) # The single event must have id 1
+		self.assertEqual(1, len(result))
+		self.assertEqual(1, result[0]) # The single event must have id 1
 
 	def testDeleteSingle(self):
 		self.testSingleInsertGet()
 		self.deleteEventsAndWait([1])
 		result = self.getEventsAndWait([1])
-		self.assertEquals(0, len(filter(None, result)))
+		self.assertEqual(0, len([_f for _f in result if _f]))
 
 	def testIllegalPredefinedEventId(self):
 		event = parse_events("test/data/single_event.js")[0]
@@ -97,44 +97,44 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 
 		# Try inserting the event
 		ids = self.insertEventsAndWait([event,])
-		self.assertEquals(len(ids), 1)
+		self.assertEqual(len(ids), 1)
 
 		# Event is not inserted, id == 0 means error
-		self.assertEquals(ids[0], 0)
+		self.assertEqual(ids[0], 0)
 
 		# Ensure that it really wasn't inserted
 		ids = self.findEventIdsAndWait([])
-		self.assertEquals(len(ids), 0)
+		self.assertEqual(len(ids), 0)
 
 	def testGetNonExisting(self):
 		events = self.getEventsAndWait([23,45,65])
-		self.assertEquals(3, len(events))
-		for ev in events: self.assertEquals(None, ev)
+		self.assertEqual(3, len(events))
+		for ev in events: self.assertEqual(None, ev)
 
 	def testGetDuplicateEventIds(self):
 		ids = import_events("test/data/five_events.js", self)
-		self.assertEquals(5, len(ids))
+		self.assertEqual(5, len(ids))
 
 		events = self.getEventsAndWait([1, 1])
 		self.assertEqual(2, len(events))
-		self.assertEqual(2, len(filter(None, events)))
+		self.assertEqual(2, len([_f for _f in events if _f]))
 		self.assertTrue(events[0].id == events[1].id == 1)
 
 	def testFindEventsId(self):
 		test_event_1 = parse_events("test/data/one_event.js")[0]
 		self.testSingleInsertGet()
 		result = self.findEventIdsAndWait([])
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 		test_event_1[0][0] = 1
 		self.assertEqual(result[0], test_event_1.id)
 
 	def testFindNothing(self):
 		result = self.findEventIdsAndWait([])
-		self.assertEquals(0, len(result))
+		self.assertEqual(0, len(result))
 
 	def testFindNothingBackwards(self):
 		result = self.findEventIdsAndWait([], timerange=(1000000,1))
-		self.assertEquals(0, len(result))
+		self.assertEqual(0, len(result))
 
 	def testFindFilteredByEventButNotSubject(self):
 		# revision rainct@ubuntu.com-20091128164327-j8ez3fsifd1gygkr (1185)
@@ -142,38 +142,38 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		self.testSingleInsertGet()
 		result = self.findEventIdsAndWait([Event.new_for_values(
 			interpretation=Interpretation.LEAVE_EVENT)])
-		self.assertEquals(0, len(result))
+		self.assertEqual(0, len(result))
 
 	def testFindFive(self):
 		import_events("test/data/five_events.js", self)
 		result = self.findEventIdsAndWait([])
-		self.assertEquals(5, len(result))
+		self.assertEqual(5, len(result))
 
 	def testFindFiveWithStorageState(self):
 		import_events("test/data/five_events.js", self)
 		# The event's storage is unknown, so we get them back always.
 		result = self.findEventIdsAndWait([], storage_state=1)
-		self.assertEquals(5, len(result))
+		self.assertEqual(5, len(result))
 		result = self.findEventIdsAndWait([], storage_state=0)
-		self.assertEquals(5, len(result))
+		self.assertEqual(5, len(result))
 
 	def testFindWithNonExistantActor(self):
 		# Bug 496109: filtering by timerange and a non-existing actor gave an
 		# incorrect result.
 		import_events("test/data/twenty_events.js", self)
 		result = self.findEventIdsAndWait([Event.new_for_values(actor="fake://foobar")])
-		self.assertEquals(0, len(result))
+		self.assertEqual(0, len(result))
 
 	def testFindWithSubjectText(self):
 		import_events("test/data/five_events.js", self)
 		result = self.findEventIdsAndWait([Event.new_for_values(subject_text='this is not real')])
-		self.assertEquals(0, len(result))
+		self.assertEqual(0, len(result))
 		result = self.findEventIdsAndWait([Event.new_for_values(subject_text='some text')])
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 		result = self.findEventIdsAndWait([Event.new_for_values(subject_text='this *')])
-		self.assertEquals(0, len(result)) # We don't support wildcards for text
+		self.assertEqual(0, len(result)) # We don't support wildcards for text
 		result = self.findEventIdsAndWait([Event.new_for_values(subject_text='this item *')])
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 
 	def testSortFindByTimeAsc(self):
 		import_events("test/data/twenty_events.js", self)
@@ -181,7 +181,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			result_type=ResultType.LeastRecentEvents)
 		event1 = self.getEventsAndWait([result[0]])[0]
 		event2 = self.getEventsAndWait([result[1]])[0]
-		self.assertEquals(True, event1.timestamp < event2.timestamp)
+		self.assertEqual(True, event1.timestamp < event2.timestamp)
 
 	def testSortFindByTimeDesc(self):
 		import_events("test/data/twenty_events.js", self)
@@ -189,7 +189,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			result_type=ResultType.MostRecentEvents)
 		event1 = self.getEventsAndWait([result[0]])[0]
 		event2 = self.getEventsAndWait([result[1]])[0]
-		self.assertEquals(True, event1.timestamp > event2.timestamp)
+		self.assertEqual(True, event1.timestamp > event2.timestamp)
 
 	def testFindWithActor(self):
 		test_event_1 = parse_events("test/data/one_event.js")[0]
@@ -199,7 +199,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			actor="application://gnome-about.desktop",
 			subjects=[subj,])
 		result = self.findEventIdsAndWait([event_template], num_events=0, result_type=1)
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 		test_event_1[0][0] = 1
 		self.assertEqual(result[0], test_event_1.id)
 
@@ -208,7 +208,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		subj = Subject()
 		event_template = Event.new_for_values(interpretation="stfu:OpenEvent", subjects=[subj])
 		result = self.findEventIdsAndWait([event_template], num_events=0, result_type=1)
-		self.assertEquals(2, len(result))
+		self.assertEqual(2, len(result))
 		events = self.getEventsAndWait(result)
 		for event in events:
 			self.assertEqual(event.interpretation, "stfu:OpenEvent")
@@ -219,13 +219,13 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			Event.new_for_values(interpretation="stfu:OpenEvent"),
 			Event.new_for_values(interpretation="stfu:EvilEvent")],
 			timerange = (102, 117), num_events=0, result_type=0)
-		self.assertEquals(15, len(result))
+		self.assertEqual(15, len(result))
 
 	def testFindWithFakeInterpretation(self):
 		import_events("test/data/twenty_events.js", self)
 		result = self.findEventIdsAndWait([Event.new_for_values(
 			interpretation="this-is-not-an-interpretation")])
-		self.assertEquals(0, len(result))
+		self.assertEqual(0, len(result))
 
 	def testFindWithManifestation(self):
 		import_events("test/data/five_events.js", self)
@@ -234,7 +234,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 
 		result = self.findEventIdsAndWait([event_template],
 			num_events=0, result_type=1)
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 		events = self.getEventsAndWait(result)
 		for event in events:
 			self.assertEqual(event.manifestation, "stfu:EpicFailActivity")
@@ -276,7 +276,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		subj2 = Subject.new_for_values(uri="file:///tmp/foo.txt")
 		event_template2 = Event.new_for_values(subjects=[subj2])
 		result = self.findEventIdsAndWait([event_template1, event_template2], num_events=0, result_type=4)
-		self.assertEquals(2, len(result))
+		self.assertEqual(2, len(result))
 		events = self.getEventsAndWait(result)
 
 	def testGetWithMultipleSubjects(self):
@@ -285,9 +285,9 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		event = new_event(subjects=[subj1, subj2])
 		result = self.insertEventsAndWait([event])
 		events = self.getEventsAndWait(result)
-		self.assertEquals(2, len(events[0].subjects))
-		self.assertEquals("file:///tmp/foo.txt", events[0].subjects[0].uri)
-		self.assertEquals("file:///tmp/loo.txt", events[0].subjects[1].uri)
+		self.assertEqual(2, len(events[0].subjects))
+		self.assertEqual("file:///tmp/foo.txt", events[0].subjects[0].uri)
+		self.assertEqual("file:///tmp/loo.txt", events[0].subjects[1].uri)
 
 	def testFindEventIdsWithMultipleSubjects(self):
 		subj1 = Subject.new_for_values(uri="file:///tmp/foo.txt")
@@ -296,7 +296,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		orig_ids = self.insertEventsAndWait([event])
 		result_ids = self.findEventIdsAndWait([Event()], num_events=0,
 			result_type=ResultType.LeastRecentEvents)
-		self.assertEquals(orig_ids, list(result_ids))
+		self.assertEqual(orig_ids, list(result_ids))
 
 	def testFindEventsEventTemplate(self):
 		import_events("test/data/five_events.js", self)
@@ -308,7 +308,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			timerange = (0, 200),
 			num_events=100,
 			result_type=0)
-		self.assertEquals(0, len(result)) # no subject with two different
+		self.assertEqual(0, len(result)) # no subject with two different
 										  # interpretations at the same time
 		subj = Subject.new_for_values(uri="file:///tmp/foo.txt")
 		subj1 = Subject.new_for_values(interpretation="stfu:Image")
@@ -318,27 +318,27 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			timerange = (0, 200),
 			num_events=100,
 			result_type=0)
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 
 	def testJsonImport(self):
 		import_events("test/data/single_event.js", self)
 		results = self.getEventsAndWait([1])
-		self.assertEquals(1, len(results))
+		self.assertEqual(1, len(results))
 		ev = results[0]
-		self.assertEquals(1, ev.id)
-		self.assertEquals("123", ev.timestamp)
-		self.assertEquals("stfu:OpenEvent", ev.interpretation)
-		self.assertEquals("stfu:UserActivity", ev.manifestation)
-		self.assertEquals("firefox", ev.actor)
-		self.assertEquals(1, len(ev.subjects))
+		self.assertEqual(1, ev.id)
+		self.assertEqual("123", ev.timestamp)
+		self.assertEqual("stfu:OpenEvent", ev.interpretation)
+		self.assertEqual("stfu:UserActivity", ev.manifestation)
+		self.assertEqual("firefox", ev.actor)
+		self.assertEqual(1, len(ev.subjects))
 
 		subj = ev.subjects[0]
-		self.assertEquals("file:///tmp/foo.txt", subj.uri)
-		self.assertEquals("stfu:Document", subj.interpretation)
-		self.assertEquals("stfu:File", subj.manifestation)
-		self.assertEquals("text/plain", subj.mimetype)
-		self.assertEquals("this item has no text... rly!", subj.text)
-		self.assertEquals("368c991f-8b59-4018-8130-3ce0ec944157", subj.storage)
+		self.assertEqual("file:///tmp/foo.txt", subj.uri)
+		self.assertEqual("stfu:Document", subj.interpretation)
+		self.assertEqual("stfu:File", subj.manifestation)
+		self.assertEqual("text/plain", subj.mimetype)
+		self.assertEqual("this item has no text... rly!", subj.text)
+		self.assertEqual("368c991f-8b59-4018-8130-3ce0ec944157", subj.storage)
 
 	def testInsertSubjectOptionalAttributes(self):
 		ev = Event.new_for_values(
@@ -356,7 +356,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 
 		ids = self.insertEventsAndWait([ev,])
 		result = self.getEventsAndWait(ids)
-		self.assertEquals(len(ids), len(result))
+		self.assertEqual(len(ids), len(result))
 
 	def testEventWithoutSubject(self):
 		ev = Event.new_for_values(timestamp=123,
@@ -364,25 +364,25 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 					manifestation=Manifestation.USER_ACTIVITY,
 					actor="Freak Mamma")
 		ids = self.insertEventsAndWait([ev,])
-		self.assertEquals(len(ids), 1)
+		self.assertEqual(len(ids), 1)
 		# event is not inserted, id == 0 means error
-		self.assertEquals(ids[0], 0)
+		self.assertEqual(ids[0], 0)
 		# check if really not events were inserted
 		ids = self.findEventIdsAndWait([ev],
 			num_events=0,
 			result_type= ResultType.MostRecentEvents)
-		self.assertEquals(len(ids), 0)
+		self.assertEqual(len(ids), 0)
 
 	def testUnicodeEventInsert(self):
 		# Insert and get a unicode event
 		ids = import_events("test/data/unicode_event.js", self)
-		self.assertEquals(len(ids), 1)
+		self.assertEqual(len(ids), 1)
 		result = self.getEventsAndWait(ids)
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 		event = result[0]
-		self.assertEquals(1, len(event.subjects))
-		self.assertEquals(u"hällö, I'm gürmen - åge drikker øl - ☠", event.subjects[0].text)
-		self.assertEquals(u"http://live.gnome.org/☠", event.subjects[0].uri)
+		self.assertEqual(1, len(event.subjects))
+		self.assertEqual("hällö, I'm gürmen - åge drikker øl - ☠", event.subjects[0].text)
+		self.assertEqual("http://live.gnome.org/☠", event.subjects[0].uri)
 
 		# Update the event we got from the DB's timestamp and insert
 		# it again, we want to to test some ping-pong back and forth
@@ -390,20 +390,20 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		event.timestamp = "243"
 		ids = self.insertEventsAndWait([event])
 		result = self.getEventsAndWait(ids)
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 		event = result[0]
-		self.assertEquals(1, len(event.subjects))
-		self.assertEquals(u"hällö, I'm gürmen - åge drikker øl - ☠", event.subjects[0].text)
-		self.assertEquals(u"http://live.gnome.org/☠", event.subjects[0].uri)
+		self.assertEqual(1, len(event.subjects))
+		self.assertEqual("hällö, I'm gürmen - åge drikker øl - ☠", event.subjects[0].text)
+		self.assertEqual("http://live.gnome.org/☠", event.subjects[0].uri)
 
 		# Try and find a unicode event
 		subj = Subject.new_for_values(text="hällö, I'm gürmen - åge drikker øl - ☠",
-			origin="file:///åges_øl í", uri=u"http://live.gnome.org/☠")
+			origin="file:///åges_øl í", uri="http://live.gnome.org/☠")
 		event_template = Event.new_for_values(subjects=[subj,])
 
 		result = self.findEventIdsAndWait([event_template],
 			timerange=(0,200), num_events=100, result_type=0)
-		self.assertEquals(len(result), 1)
+		self.assertEqual(len(result), 1)
 
 	def testEventWithBinaryPayload(self):
 		event = parse_events("test/data/single_event.js")[0]
@@ -421,8 +421,8 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 
 		ids = self.insertEventsAndWait([event])
 		result = self.getEventsAndWait(ids)[0]
-		result.payload = u"".join(unicode(x) for x in result.payload)
-		self.assertEquals(event.payload, result.payload)
+		result.payload = "".join(str(x) for x in result.payload)
+		self.assertEqual(event.payload, result.payload)
 		self.assertEventsEqual(event, result)
 
 	def testQueryByParent(self):
@@ -434,8 +434,8 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents)
 
-		self.assertEquals(1, len(ids))
-		self.assertEquals(_ids, list(ids))
+		self.assertEqual(1, len(ids))
+		self.assertEqual(_ids, list(ids))
 
 	def testNegation(self):
 		import_events("test/data/five_events.js", self)
@@ -447,7 +447,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(3, len(ids))
+		self.assertEqual(3, len(ids))
 		
 		template = Event.new_for_values(
 			manifestation = "!stfu:YourActivity"
@@ -456,7 +456,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(4, len(ids))
+		self.assertEqual(4, len(ids))
 		
 		template = Event.new_for_values(
 			actor = "!firefox"
@@ -465,7 +465,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(2, len(ids))
+		self.assertEqual(2, len(ids))
 
 		template = Event.new_for_values(
 			subject_uri = "!file:///tmp/foo.txt"
@@ -474,7 +474,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(3, len(ids))
+		self.assertEqual(3, len(ids))
 
 		template = Event.new_for_values(
 			subject_interpretation = "!stfu:Document"
@@ -483,7 +483,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(4, len(ids))
+		self.assertEqual(4, len(ids))
 
 		template = Event.new_for_values(
 			subject_manifestation = "!stfu:File"
@@ -492,7 +492,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(1, len(ids))
+		self.assertEqual(1, len(ids))
 
 		template = Event.new_for_values(
 			subject_origin = "!file:///tmp"
@@ -501,7 +501,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(2, len(ids))
+		self.assertEqual(2, len(ids))
 
 		template = Event.new_for_values(
 			subject_mimetype = "!text/plain"
@@ -510,7 +510,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(2, len(ids))
+		self.assertEqual(2, len(ids))
 
 		# the next two fields do not support negation, '!' is treated as
 		# content
@@ -522,7 +522,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(0, len(ids))
+		self.assertEqual(0, len(ids))
 
 	def testNegationCombination(self):
 		import_events("test/data/five_events.js", self)
@@ -535,7 +535,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(2, len(ids))
+		self.assertEqual(2, len(ids))
 
 		template = Event.new_for_values(
 			interpretation = "!stfu:OpenEvent",
@@ -545,7 +545,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(3, len(ids))
+		self.assertEqual(3, len(ids))
 
 	def testFindStorageNotExistant(self):
 		events = [
@@ -558,7 +558,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(0, len(results))
+		self.assertEqual(0, len(results))
 
 	def testFindStorage(self):
 		events = [
@@ -571,7 +571,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(1, len(results))
+		self.assertEqual(1, len(results))
 
 	def testMoving(self):
 		import_events("test/data/five_events.js", self)
@@ -581,23 +581,23 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		ids = self.findEventIdsAndWait([template],
 			num_events = 0,
 			result_type = ResultType.MostRecentCurrentUri)
-		self.assertEquals(2, len(ids))
+		self.assertEqual(2, len(ids))
 
 		ids = self.findEventIdsAndWait([template],
 			num_events = 0,
 			result_type = ResultType.MostRecentCurrentUri)
-		self.assertEquals(2, len(ids))
+		self.assertEqual(2, len(ids))
 
 		ids = self.findEventIdsAndWait([template],
 			num_events = 0,
 			result_type = ResultType.MostRecentEvents)
-		self.assertEquals(5, len(ids))
+		self.assertEqual(5, len(ids))
 
 		template = Event.new_for_values(subject_current_origin='file:///*')
 		ids = self.findEventIdsAndWait([template],
 			num_events = 0,
 			result_type = ResultType.MostRecentEvents)
-		self.assertEquals(4, len(ids))
+		self.assertEqual(4, len(ids))
 
 	def testWildcard(self):
 		import_events("test/data/five_events.js", self)
@@ -609,7 +609,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(2, len(ids))
+		self.assertEqual(2, len(ids))
 
 		template = Event.new_for_values(
 			actor = "!ge*"
@@ -618,7 +618,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(3, len(ids))
+		self.assertEqual(3, len(ids))
 
 		template = Event.new_for_values(
 			subject_mimetype = "text/*"
@@ -627,7 +627,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(3, len(ids))
+		self.assertEqual(3, len(ids))
 
 		template = Event.new_for_values(
 			subject_uri = "http://*"
@@ -636,7 +636,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(1, len(ids))
+		self.assertEqual(1, len(ids))
 
 		template = Event.new_for_values(
 			subject_current_uri = "http://*"
@@ -645,7 +645,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(1, len(ids))
+		self.assertEqual(1, len(ids))
 
 		template = Event.new_for_values(
 			subject_origin = "file://*"
@@ -654,7 +654,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 			num_events=10,
 			result_type=ResultType.MostRecentEvents
 		)
-		self.assertEquals(3, len(ids))
+		self.assertEqual(3, len(ids))
 
 if __name__ == "__main__":
 	testutils.run()

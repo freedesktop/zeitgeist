@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -.- coding: utf-8 -.-
 
 # remote-test.py
@@ -71,7 +71,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.client.insert_events(events)
 		mainloop.run()
 		
-		self.assertEquals(2, len(result))
+		self.assertEqual(2, len(result))
 		
 	def testMonitorInsertEventsWithSubjectTemplate(self):
 		result = []
@@ -95,7 +95,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.client.insert_events(events)
 		mainloop.run()
 		
-		self.assertEquals(1, len(result))
+		self.assertEqual(1, len(result))
 		
 	def testMonitorInsertEventsOutOfTimeRange(self):
 		result = []
@@ -119,7 +119,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.client.insert_events(events)
 		mainloop.run()
 		
-		self.assertEquals(3, len(result))
+		self.assertEqual(3, len(result))
 	
 	def testMonitorInsertEventsWithWildcardSubjectTemplate(self):
 		result = []
@@ -143,7 +143,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.client.insert_events(events)
 		mainloop.run()
 		
-		self.assertEquals(2, len(result))
+		self.assertEqual(2, len(result))
 	
 	def testMonitorInsertEventsWithNegatedSubjectTemplate(self):
 		result = []
@@ -167,7 +167,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.client.insert_events(events)
 		mainloop.run()
 		
-		self.assertEquals(4, len(result))
+		self.assertEqual(4, len(result))
 	
 	def testMonitorDeleteEvents(self):
 		result = []
@@ -176,7 +176,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		
 		@asyncTestMethod(mainloop)
 		def notify_insert_handler(time_range, events):
-			event_ids = map(lambda ev : ev.id, events)
+			event_ids = [ev.id for ev in events]
 			self.client.delete_events(event_ids)
 		
 		@asyncTestMethod(mainloop)
@@ -190,7 +190,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.client.insert_events(events)
 		mainloop.run()
 		
-		self.assertEquals(2, len(result))
+		self.assertEqual(2, len(result))
 	
 	def testMonitorDeleteNonExistingEvent(self):
 		result = []
@@ -206,7 +206,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 
 		@asyncTestMethod(mainloop)
 		def notify_insert_handler(time_range, events):
-			event_ids = map(lambda ev : ev.id, events)
+			event_ids = [ev.id for ev in events]
 			self.client.delete_events([9999999])
 		
 		@asyncTestMethod(mainloop)
@@ -234,7 +234,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 
 		@asyncTestMethod(mainloop)
 		def notify_insert_handler1(time_range, events):
-			event_ids = map(lambda ev : ev.id, events)
+			event_ids = [ev.id for ev in events]
 			self.client.delete_events(event_ids)
 		
 		@asyncTestMethod(mainloop)
@@ -256,8 +256,8 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.client.insert_events(events)
 		mainloop.run()
 		
-		self.assertEquals(2, len(result1))
-		self.assertEquals(2, len(result2))
+		self.assertEqual(2, len(result1))
+		self.assertEqual(2, len(result2))
 
 	def testMonitorInstallRemoval(self):
 		result = []
@@ -283,8 +283,8 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		
 		self.client.remove_monitor(mon, removed_handler)
 		mainloop.run()
-		self.assertEquals(1, len(result))
-		self.assertEquals(1, result.pop())
+		self.assertEqual(1, len(result))
+		self.assertEqual(1, result.pop())
 
 	def testMonitorReconnection(self):
 		result = []
@@ -313,7 +313,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 
 		mainloop.run()
 		
-		self.assertEquals(3, len(result))
+		self.assertEqual(3, len(result))
 
 if __name__ == "__main__":
 	unittest.main()

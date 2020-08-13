@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -.- coding: utf-8 -.-
 
 # Zeitgeist
@@ -29,15 +29,15 @@ import sys
 from optparse import OptionParser
 
 if not os.path.isfile("NEWS"):
-    print >> sys.stderr, "*** Please run from root directory."
+    print("*** Please run from root directory.", file=sys.stderr)
     raise SystemExit
 
 # Load the updated Zeitgeist Python module
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 if not os.path.isdir("zeitgeist"):
-	print >> sys.stderr, "*** If you get unexpected failures, " \
-		"you may want to run: `ln -s python zeitgeist`"
+	print("*** If you get unexpected failures, " \
+		"you may want to run: `ln -s python zeitgeist`", file=sys.stderr)
 
 from testutils import RemoteTestCase
 
@@ -98,13 +98,13 @@ if __name__ == "__main__":
 	bus = DBusPrivateMessageBus()
 	err = bus.run(ignore_errors=True)
 	if err:
-		print >> sys.stderr, "*** Failed to setup private bus, error was: %s" %err
+		print("*** Failed to setup private bus, error was: %s" %err, file=sys.stderr)
 		raise SystemExit
 	else:
-		print >> sys.stderr, "*** Testsuite is running using a private dbus bus"
+		print("*** Testsuite is running using a private dbus bus", file=sys.stderr)
 		config = bus.dbus_config.copy()
 		config.update({"DISPLAY": bus.DISPLAY, "pid.Xvfb": bus.display.pid})
-		print >> sys.stderr, "*** Configuration: %s" %config
+		print("*** Configuration: %s" %config, file=sys.stderr)
 	try:
 		os.environ["ZEITGEIST_DEFAULT_EXTENSIONS"] = \
 			"_zeitgeist.engine.extensions.blacklist.Blacklist," \
