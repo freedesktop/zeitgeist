@@ -413,7 +413,7 @@ class OntologyCodeGenerator(object):
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--vala', nargs=4, metavar=('URI_TEMPLATE', 'SYMBOLS_TEMPLATE', 'URI_DESTINATION', 'SYMBOLS_DESTINATION'))
-	parser.add_argument('--dump-python', action='store_false')
+	parser.add_argument('--dump-python', action='store_true')
 
 	args = parser.parse_args()
 
