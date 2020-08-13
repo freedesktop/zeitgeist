@@ -30,6 +30,7 @@ from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState, DataSource, NULL_EVENT, ResultType)
 
 import testutils
+from dbus.exceptions import DBusException
 from testutils import parse_events, import_events
 
 class ZeitgeistRemoteAPITest(testutils.RemoteTestCase):
@@ -497,7 +498,12 @@ class ZeitgeistRemoteInterfaceTest(testutils.RemoteTestCase):
 		Calling Quit() on the remote interface should shutdown the
 		engine in a clean way.
 		"""
-		self.client._iface.Quit()
+		try:
+			self.client._iface.Quit()
+		except DBusException as e:
+			# expect a silent remote disconnection
+			if e.get_dbus_name() != "org.freedesktop.DBus.Error.NoReply":
+				raise (e)
 		self.daemon.wait()
 		self.assertRaises(OSError, self.kill_daemon)
 		self.spawn_daemon()
