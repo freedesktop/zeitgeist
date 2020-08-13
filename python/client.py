@@ -118,7 +118,7 @@ class _DBusInterface(object):
 
 		try:
 			return method_getter()(*args, **kwargs)
-		except dbus.exceptions.DBusException, e:
+		except dbus.exceptions.DBusException as e:
 			return reconnecting_error_handler(e)
 
 	def __getattr__(self, name):
@@ -258,7 +258,7 @@ class ZeitgeistDBusInterface(object):
 			try:
 				proxy = get_bus().get_object(self.BUS_NAME,
 					self.OBJECT_PATH, follow_name_owner_changes=True)
-			except dbus.exceptions.DBusException, e:
+			except dbus.exceptions.DBusException as e:
 				if e.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
 					raise RuntimeError(
 						"Found no running zeitgeist-daemon instance: %s" % \
@@ -291,7 +291,7 @@ class Monitor(dbus.service.Object):
 		delete_callback, monitor_path=None, event_type=None):
 		if not monitor_path:
 			monitor_path = Monitor._next_path()
-		elif isinstance(monitor_path, (str, unicode)):
+		elif isinstance(monitor_path, str):
 			monitor_path = dbus.ObjectPath(monitor_path)
 		
 		if event_type:
@@ -336,7 +336,7 @@ class Monitor(dbus.service.Object):
 		    See :meth:`ZeitgeistClient.install_monitor`
 		"""
 		self._insert_callback(TimeRange(time_range[0], time_range[1]),
-			map(self._event_type, events))
+			list(map(self._event_type, events)))
 	
 	@dbus.service.method("org.gnome.zeitgeist.Monitor",
 	                     in_signature="(xx)au")
@@ -371,7 +371,7 @@ class Monitor(dbus.service.Object):
 		return dbus.ObjectPath("/org/gnome/zeitgeist/monitor/%s" % \
 			cls._last_path_id)
 
-class ZeitgeistClient:
+class ZeitgeistClient(object):
 	"""
 	Convenience APIs to have a Pythonic way to call and monitor the running
 	Zeitgeist engine. For raw DBus access use the
@@ -467,7 +467,7 @@ class ZeitgeistClient:
 		return [int(i) for i in self._iface.version()]
 		
 	def get_extensions(self):
-		return [unicode(i) for i in self._iface.extensions()]
+		return [str(i) for i in self._iface.extensions()]
 	
 	# Methods
 	
@@ -727,7 +727,7 @@ class ZeitgeistClient:
 					num_events,
 					result_type,
 					reply_handler=lambda raw: events_reply_handler(
-						map(self._event_type.new_for_struct, raw)),
+						list(map(self._event_type.new_for_struct, raw))),
 					error_handler=self._safe_error_handler(error_handler,
 						events_reply_handler, []))
 	
@@ -788,7 +788,7 @@ class ZeitgeistClient:
 		# the raw DBus reply into a list of Event instances
 		self._iface.GetEvents(event_ids,
 				reply_handler=lambda raw: events_reply_handler(
-					map(self._event_type.new_for_struct, raw)),
+					list(map(self._event_type.new_for_struct, raw))),
 				error_handler=self._safe_error_handler(error_handler,
 						events_reply_handler, []))
 	
@@ -960,7 +960,7 @@ class ZeitgeistClient:
 		:param monitor_removed_handler: A callback function taking
 		    one integer argument. 1 on success, 0 on failure.
 		"""
-		if isinstance(monitor, (str,unicode)):
+		if isinstance(monitor, str):
 			path = dbus.ObjectPath(monitor)
 		elif isinstance(monitor, Monitor):
 			path = monitor.path
@@ -1054,11 +1054,11 @@ class ZeitgeistClient:
 		"""
 		
 		if unique_id not in self._data_sources:
-			raise ValueError, 'set_data_source_enabled_callback() called before ' \
-			'register_data_source()'
+			raise ValueError('set_data_source_enabled_callback() called before ' \
+			'register_data_source()')
 		
 		if not callable(enabled_callback):
-			raise TypeError, 'enabled_callback: expected a callable method'
+			raise TypeError('enabled_callback: expected a callable method')
 		
 		self._data_sources[unique_id]['callback'] = enabled_callback
 	
@@ -1092,7 +1092,7 @@ class ZeitgeistClient:
 		Error handler for async DBus calls that prints the error
 		to sys.stderr
 		"""
-		print >> sys.stderr, "Error from Zeitgeist engine:", exception
+		print("Error from Zeitgeist engine:", exception, file=sys.stderr)
 		
 		if callable(normal_reply_handler):
 			normal_reply_handler(normal_reply_data)
