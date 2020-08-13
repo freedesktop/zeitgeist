@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -.- coding: utf-8 -.-
 
 # Zeitgeist
@@ -29,26 +29,17 @@ import re
 import sys
 import glob
 import codecs
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 import collections
 import argparse
 
 import rdflib
 from rdflib import RDF, RDFS
 from rdflib.plugin import register
-try:
-	# rdflib2
-	from rdflib.syntax.serializers import Serializer
-	from rdflib import StringInputSource
-	from rdflib.Namespace import Namespace
-except ImportError:
-	# rdflib3 (LP: #626224)
-	from rdflib.serializer import Serializer
-	from rdflib.parser import StringInputSource
-	from rdflib.namespace import Namespace
+
+from rdflib.serializer import Serializer
+from rdflib.parser import StringInputSource
+from rdflib.namespace import Namespace
 
 NIENS = Namespace("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#")
 
@@ -68,32 +59,22 @@ class SymbolCollection(dict):
 
 	def post_process(self):
 		self.closed = True
-		try:
-			symbols = self.itervalues()
-		except AttributeError:
-			symbols = self.values()
+		symbols = list(self.values())
 		for symbol in symbols:
 			for (i, parent) in enumerate(symbol.parents):
 				symbol.parents[i] = self[parent]
 			self._by_namespace[symbol.namespace].append(symbol)
 
 	def iter_by_namespace(self):
-		try:
-			items = self._by_namespace.iteritems()
-		except AttributeError:
-			items = self._by_namespace.items()
-		return items
+		return list(self._by_namespace.items())
 
 	def debug_print(self):
-		try:
-			symbols = self.registered_symbols.itervalues()
-		except AttributeError:
-			symbols = self.registered_symbols.values()
+		symbols = list(self.registered_symbols.values())
 		for symbol in symbols:
 			symbol.debug_print()
-			print
+			print()
 
-class Symbol:
+class Symbol(object):
 
 	name = None
 	namespace = None
@@ -122,10 +103,7 @@ class Symbol:
 		""" Return all direct children of this Symbol. """
 		if self._children is None:
 			childs = set()
-			try:
-				values = self._collection.itervalues()
-			except AttributeError:
-				values = self._collection.values()
+			values = list(self._collection.values())
 			for symbol in values:
 				if self in symbol.parents:
 					childs.add(symbol)
@@ -167,7 +145,7 @@ class Symbol:
 	def __hash__(self):
 		return self.uri.__hash__()
 
-class Utils:
+class Utils(object):
 
 	@staticmethod
 	def escape_chars(text, quotes='"', strip=True):
@@ -195,7 +173,7 @@ class Utils:
 	def replace_items(item_set, item_map):
 		if not item_set:
 			return
-		for item, value in item_map.iteritems():
+		for item, value in list(item_map.items()):
 			try:
 				item_set.remove(item)
 			except KeyError:
@@ -209,7 +187,7 @@ class Utils:
 	def indent(text, indentation):
 		return re.sub(r'(?m)^(.+)$', r'%s\1' % indentation, text)
 
-class OntologyParser:
+class OntologyParser(object):
 
 	symbols = None
 
@@ -265,7 +243,7 @@ class OntologyParser:
 		symbols.post_process()
 		return symbols
 
-class GenericSerializer:
+class GenericSerializer(object):
 
 	parser = None
 	symbols = None
@@ -277,7 +255,7 @@ class GenericSerializer:
 class PythonSerializer(GenericSerializer):
 
 	def dump(self):
-		for symbol in sorted(self.symbols.itervalues()):
+		for symbol in sorted(self.symbols.values()):
 			parents = set((symbol.uri for symbol in symbol.parents))
 			Utils.replace_items(parents, {
 				str(NIENS['InformationElement']): 'Interpretation',
@@ -361,7 +339,7 @@ class ValaSerializer(GenericSerializer):
 				dest.write('Symbol.Info.register (uri, display_name, description, ' \
 					'parents, children, all_children);\n\n')
 
-class OntologyCodeGenerator:
+class OntologyCodeGenerator(object):
 
 	_INSERTION_MARK = '// *insert-auto-generated-code*'
 
