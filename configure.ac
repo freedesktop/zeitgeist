@@ -11,7 +11,7 @@ AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([1.11 tar-ustar dist-xz no-dist-gzip -Wno-portability])
 AM_MAINTAINER_MODE([enable])
 
-AM_PATH_PYTHON
+AM_PATH_PYTHON([3])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -251,11 +251,11 @@ fi
 # Ontology parsing dependencies
 #################################################
 
-# check for python-rdflib
-AC_MSG_CHECKING([for python-rdflib])
+# check for python3-rdflib
+AC_MSG_CHECKING([for python3-rdflib])
 echo "import rdflib" | $PYTHON - 2>/dev/null
 if test $? -ne 0 ; then
-  AC_MSG_FAILURE([failed.  Please install the python-rdflib package.])
+  AC_MSG_FAILURE([failed.  Please install the python3-rdflib package.])
 else
   AC_MSG_RESULT([yes])
 fi
