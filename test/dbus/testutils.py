@@ -141,9 +141,14 @@ class RemoteTestCase (unittest.TestCase):
 	
 	@staticmethod
 	def _get_pid(matching_string):
-		p1 = Popen(["ps", "aux"], stdout=PIPE, stderr=PIPE)
-		p2 = Popen(["grep", matching_string], stdin=p1.stdout, stderr=PIPE, stdout=PIPE)
-		return p2.communicate()[0].decode()
+		p1 = Popen(["pgrep", "-x", "zeitgeist-daemo"], stdout=PIPE, stderr=PIPE)
+		out = p1.communicate()[0]
+		pid = out.decode().split('\n')[0]
+
+		p2 = Popen(["ps", "--no-headers", "-fp", pid], stderr=PIPE, stdout=PIPE)
+		pid_line = p2.communicate()[0].decode()
+
+		return pid_line
 		
 	@staticmethod
 	def _safe_start_subprocess(cmd, env, timeout=1, error_callback=None):
