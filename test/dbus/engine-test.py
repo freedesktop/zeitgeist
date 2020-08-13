@@ -412,7 +412,7 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 		<Content name="Telepathy" class="Text">
 		  <header>johnsmith@foo.bar</header>
 		  <body>
-		    John: Here is a talking point
+		    John: 你好 Here is a talking point
 		    You: Ok that looks fine
 		  </body>
 		  <launcher command="{application} johnsmith@foo.bar"/>
@@ -421,9 +421,11 @@ class ZeitgeistEngineTest(testutils.RemoteTestCase):
 
 		ids = self.insertEventsAndWait([event])
 		result = self.getEventsAndWait(ids)[0]
-		result.payload = "".join(str(x) for x in result.payload)
-		self.assertEqual(event.payload, result.payload)
-		self.assertEventsEqual(event, result)
+
+		# verify all '248' bytes
+		self.assertEqual(len(event.payload), len(result.payload))
+		for i in list(range(len(event.payload))):
+			self.assertEqual(event.payload[i], result.payload[i])
 
 	def testQueryByParent(self):
 		ev = new_event(subject_interpretation=Interpretation.AUDIO)
