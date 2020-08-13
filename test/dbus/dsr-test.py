@@ -33,14 +33,15 @@ import time
 import tempfile
 import shutil
 import pickle
+import gi
 from subprocess import Popen, PIPE
 
 # DBus setup
-import gobject
 from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 from dbus.exceptions import DBusException
 
+from gi.repository import GLib
 from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState, DataSource, NULL_EVENT, ResultType)
 
@@ -244,7 +245,7 @@ class ZeitgeistRemoteDataSourceRegistryTest(testutils.RemoteTestCase):
 		#self.client._registry.connect('DataSourceDisconnected', cb_disconnect)
 		
 		# Register data-source, disable it, enable it again
-		gobject.idle_add(self.testSetDataSourceEnabled)
+		GLib.idle_add(self.testSetDataSourceEnabled)
 		
 		mainloop.run()
 	

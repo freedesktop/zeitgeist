@@ -36,11 +36,12 @@ import pickle
 from subprocess import Popen, PIPE
 
 # DBus setup
-import gobject
+import gi
 from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 from dbus.exceptions import DBusException
 
+from gi.repository import GLib
 from zeitgeist.datamodel import (Event, Subject, Interpretation, Manifestation,
 	TimeRange, StorageState, DataSource, NULL_EVENT, ResultType)
 
@@ -217,7 +218,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.client.install_monitor(TimeRange(125, 145), [],
 			notify_insert_handler, notify_delete_handler)
 		
-		gobject.timeout_add_seconds(5, timeout)
+		GLib.timeout_add_seconds(5, timeout)
 		self.client.insert_events(events)
 		mainloop.run()
 	
@@ -309,7 +310,7 @@ class ZeitgeistMonitorTest(testutils.RemoteTestCase):
 		self.spawn_daemon()
 
 		# Insert events in idle loop to give the reconnection logic enough time
-		gobject.idle_add(lambda *args: self.client.insert_events(events))
+		GLib.idle_add(lambda *args: self.client.insert_events(events))
 
 		mainloop.run()
 		

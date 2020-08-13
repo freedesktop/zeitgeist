@@ -27,12 +27,13 @@
 import sys
 import os
 import unittest
-import gobject
+import gi
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface
 from zeitgeist.datamodel import *
 from testutils import RemoteTestCase, asyncTestMethod
+from gi.repository import GLib
 
 class BlacklistTest(RemoteTestCase):
 
@@ -309,7 +310,7 @@ class BlacklistTest(RemoteTestCase):
 		def launch_tests():
 			self.blacklist.AddTemplate("TestTemplate", template1)
 			self.blacklist.RemoveTemplate("TestTemplate")
-		gobject.idle_add(launch_tests)
+		GLib.idle_add(launch_tests)
 
 		mainloop.run()
 

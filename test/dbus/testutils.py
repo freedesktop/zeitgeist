@@ -29,10 +29,11 @@ import signal
 import tempfile
 import shutil
 import random
+import gi
 from subprocess import Popen, PIPE
 
 # DBus setup
-import gobject
+from gi.repository import GLib
 from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 
@@ -76,7 +77,7 @@ def dict2event(d):
 	return ev
 	
 def parse_events(path):
-	data = json.load(file(path))
+	data = json.load(open(path))
 	events = list(map(dict2event, data))
 	return events
 
@@ -370,7 +371,7 @@ class RemoteTestCase (unittest.TestCase):
 			"""
 			
 			def __init__(self):
-				self._mainloop = gobject.MainLoop()
+				self._mainloop = GLib.MainLoop()
 				self.failed = False
 			
 			def __getattr__(self, name):
@@ -395,7 +396,7 @@ class RemoteTestCase (unittest.TestCase):
 				return False # stop timeout from being called again
 			
 			# Add an arbitrary timeout so this test won't block if it fails
-			gobject.timeout_add_seconds(timeout, cb_timeout)
+			GLib.timeout_add_seconds(timeout, cb_timeout)
 		
 		return mainloop
 	
@@ -435,7 +436,7 @@ class DBusPrivateMessageBus(object):
 
 	def _run(self):
 		os.environ.update({"DISPLAY": self.DISPLAY})
-		devnull = file("/dev/null", "w")
+		devnull = open("/dev/null", "w")
 		self.display = Popen(
 			["Xvfb", self.DISPLAY, "-screen", "0", "1024x768x8"],
 			stderr=devnull, stdout=devnull
@@ -447,7 +448,7 @@ class DBusPrivateMessageBus(object):
 			raise RuntimeError("Could not start Xvfb on display %s, got err=%i" %(self.DISPLAY, err))
 		dbus = Popen(["dbus-launch"], stdout=PIPE)
 		time.sleep(1)
-		self.dbus_config = dict(l.split("=", 1) for l in dbus.communicate()[0].split("\n") if l)
+		self.dbus_config = dict(l.split("=", 1) for l in dbus.communicate()[0].decode().split("\n") if l)
 		os.environ.update(self.dbus_config)
 		
 	def run(self, ignore_errors=False):

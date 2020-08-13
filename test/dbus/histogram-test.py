@@ -26,7 +26,6 @@ import time
 import datetime
 import calendar
 import unittest
-import gobject
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from zeitgeist.client import ZeitgeistDBusInterface
