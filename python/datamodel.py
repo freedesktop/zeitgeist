@@ -1169,7 +1169,8 @@ _SYMBOLS_BY_URI["Manifestation"] = Manifestation
 # Load the ontology definitions
 ontology_file = os.path.join(os.path.dirname(__file__), "_ontology.py")
 try:
-	exec(compile(open(ontology_file, "rb").read(), ontology_file, 'exec'))
+	with open(ontology_file, "rb") as f:
+		exec(compile(f.read(), ontology_file, 'exec'))
 except IOError:
 	raise ImportError("Unable to load Zeitgeist ontology. Did you run `make`?")
 

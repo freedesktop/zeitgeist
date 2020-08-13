@@ -42,7 +42,8 @@ class ZeitgeistUpgradeTest(testutils.RemoteTestCase):
     def prepare(self, from_version):
         # Create initial database
         con = sqlite3.connect(self._db_file)
-        initial_sql = open("test/data/databases/%s.sql" % from_version).read()
+        with open("test/data/databases/%s.sql" % from_version) as f:
+                initial_sql = f.read()
         con.cursor().executescript(initial_sql)
         del con
 

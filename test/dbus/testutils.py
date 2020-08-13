@@ -77,7 +77,8 @@ def dict2event(d):
 	return ev
 	
 def parse_events(path):
-	data = json.load(open(path))
+	with open(path) as f:
+		data = json.load(f)
 	events = list(map(dict2event, data))
 	return events
 
