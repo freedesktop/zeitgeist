@@ -39,7 +39,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 		events = self.getEventsAndWait(ids)
 		sorted_event_ids = [
 			event.id for event in sorted(events,
-				cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)),
+				key=lambda x: x.timestamp,
 				reverse=True
 			)
 		]
@@ -55,7 +55,7 @@ class ResultTypeTest(testutils.RemoteTestCase):
 		events = self.getEventsAndWait(ids)
 		sorted_event_ids = [
 			event.id for event in sorted(events,
-				cmp=lambda x, y: cmp(int(x.timestamp), int(y.timestamp)))
+				key=lambda x: x.timestamp)
 		]
 		self.assertEqual(list(ids), sorted_event_ids)
 
