@@ -1,4 +1,13 @@
-2018-01-31: Zeitgeist 1.0.2 "Phoenix"
+2020-10-15: Zeitgeist 1.0.3 "Ruby"
+---------------------------------------------------------------
+
+Overall:
+ - Fix compile error with new vala
+ - Port to python3 and update tests
+ - Drop support for python2
+
+
+2019-01-31: Zeitgeist 1.0.2 "Phoenix"
 ---------------------------------------------------------------
 
 Overall:

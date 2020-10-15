@@ -1,4 +1,4 @@
-AC_INIT([zeitgeist], [1.0.2],
+AC_INIT([zeitgeist], [1.0.3],
         [https://gitlab.freedesktop.org/zeitgeist/zeitgeist/issues], [zeitgeist],
         [https://launchpad.net/zeitgeist/])
 
