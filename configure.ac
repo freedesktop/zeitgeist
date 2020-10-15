@@ -1,5 +1,5 @@
 AC_INIT([zeitgeist], [1.0.2],
-        [https://bugs.freedesktop.org/enter_bug.cgi?product=Zeitgeist], [zeitgeist],
+        [https://gitlab.freedesktop.org/zeitgeist/zeitgeist/issues], [zeitgeist],
         [https://launchpad.net/zeitgeist/])
 
 AC_PREREQ([2.65])
