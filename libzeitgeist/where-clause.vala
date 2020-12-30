@@ -216,7 +216,7 @@ namespace Zeitgeist
 #else
             long[] pointers = new long[gptrarr.length + 1];
 #endif
-            Memory.copy(pointers, ((PtrArray *) gptrarr)->pdata,
+            Memory.copy(pointers, (void*) gptrarr.data,
                 gptrarr.length * sizeof (void *));
             return (T[]) pointers;
         }
