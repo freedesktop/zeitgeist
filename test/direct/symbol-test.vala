@@ -100,7 +100,7 @@ void is_uri_valid (string uri)
 void media_children_test ()
 {
     var children = Symbol.get_children (NFO.MEDIA);
-    assert_cmpuint (children.length (), OperatorType.GREATER_THAN, 0);
+    assert_cmpuint (children.length (), CompareOperator.GT, 0);
     foreach (string uri in children)
         is_uri_valid (uri);
 }
@@ -108,7 +108,7 @@ void media_children_test ()
 void media_all_children_test ()
 {
     var children = Symbol.get_all_children (NFO.MEDIA);
-    assert_cmpuint (children.length (), OperatorType.GREATER_THAN, 0);
+    assert_cmpuint (children.length (), CompareOperator.GT, 0);
     foreach (string uri in children)
         is_uri_valid (uri);
 }
@@ -116,7 +116,7 @@ void media_all_children_test ()
 void vector_image_parents_test ()
 {
     var parents = Symbol.get_all_parents (NFO.VECTOR_IMAGE);
-    assert_cmpuint (parents.length (), OperatorType.GREATER_THAN, 0);
+    assert_cmpuint (parents.length (), CompareOperator.GT, 0);
     foreach (string uri in parents)
         is_uri_valid (uri);
 }
@@ -126,8 +126,8 @@ void media_complex_test ()
     var children = Symbol.get_children (NFO.MEDIA);
     var all_ch = Symbol.get_all_children (NFO.MEDIA);
 
-    assert_cmpuint (children.length (), OperatorType.GREATER_THAN, 0);
-    assert_cmpuint (all_ch.length (), OperatorType.GREATER_THAN, children.length ());
+    assert_cmpuint (children.length (), CompareOperator.GT, 0);
+    assert_cmpuint (all_ch.length (), CompareOperator.GT, children.length ());
 
     foreach (string uri in children)
     {

@@ -35,9 +35,9 @@ int main (string[] argv)
 void create_empty_test ()
 {
     var src = new DataSource ();
-    assert_cmpstr (src.unique_id, OperatorType.EQUAL, null);
-    assert_cmpstr (src.name, OperatorType.EQUAL, null);
-    assert_cmpstr (src.description, OperatorType.EQUAL, null);
+    assert_cmpstr (src.unique_id, CompareOperator.EQ, null);
+    assert_cmpstr (src.name, CompareOperator.EQ, null);
+    assert_cmpstr (src.description, CompareOperator.EQ, null);
     assert (src.event_templates == null);
     assert (src.running == false);
     assert (src.timestamp == 0);
@@ -48,9 +48,9 @@ void create_full_test ()
 {
     var src = new DataSource.full ("my-id", "my-name", "my-desc", null);
 
-    assert_cmpstr (src.unique_id, OperatorType.EQUAL, "my-id");
-    assert_cmpstr (src.name, OperatorType.EQUAL, "my-name");
-    assert_cmpstr (src.description, OperatorType.EQUAL, "my-desc");
+    assert_cmpstr (src.unique_id, CompareOperator.EQ, "my-id");
+    assert_cmpstr (src.name, CompareOperator.EQ, "my-name");
+    assert_cmpstr (src.description, CompareOperator.EQ, "my-desc");
     assert (src.event_templates == null);
     assert (src.running == false);
     assert (src.timestamp ==  0);
@@ -81,16 +81,16 @@ void to_from_variant_test ()
     orig.event_templates = event_templates;
 
     var src = new DataSource.from_variant (orig.to_variant ());
-    assert_cmpstr (src.unique_id, OperatorType.EQUAL, "my-id");
-    assert_cmpstr (src.name, OperatorType.EQUAL, "my-name");
-    assert_cmpstr (src.description, OperatorType.EQUAL, "my-desc");
+    assert_cmpstr (src.unique_id, CompareOperator.EQ, "my-id");
+    assert_cmpstr (src.name, CompareOperator.EQ, "my-name");
+    assert_cmpstr (src.description, CompareOperator.EQ, "my-desc");
     assert (src.event_templates != null);
     assert (src.running == false);
     assert (src.timestamp == now);
     assert (src.enabled == true);
 
     event_templates = src.event_templates;
-    assert_cmpint (event_templates.length, OperatorType.EQUAL, 1);
+    assert_cmpint (event_templates.length, CompareOperator.EQ, 1);
     assert (event_templates.get (0) is Event);
 }
 

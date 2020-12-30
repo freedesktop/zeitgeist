@@ -42,18 +42,18 @@ int main (string[] args)
 
 public void mime_type_basic_test ()
 {
-    assert_cmpstr (NFO.TEXT_DOCUMENT, OperatorType.EQUAL,
+    assert_cmpstr (NFO.TEXT_DOCUMENT, CompareOperator.EQ,
         interpretation_for_mimetype ("text/plain"));
 }
 
 public void mime_type_regex_test ()
 {
     // We should have a fallack for application/x-applix-*
-    assert_cmpstr (NFO.DOCUMENT, OperatorType.EQUAL,
+    assert_cmpstr (NFO.DOCUMENT, CompareOperator.EQ,
         interpretation_for_mimetype ("application/x-applix-FOOBAR"));
 
     // Still application/x-applix-speadsheet should be a spreadsheet
-    assert_cmpstr (NFO.SPREADSHEET, OperatorType.EQUAL,
+    assert_cmpstr (NFO.SPREADSHEET, CompareOperator.EQ,
         interpretation_for_mimetype ("application/x-applix-spreadsheet"));
 }
 
@@ -81,17 +81,17 @@ public void mime_type_registration_test ()
     mime_type_regex_test ();
     mime_type_none_test ();
 
-    assert_cmpstr ("Bluebird", OperatorType.EQUAL,
+    assert_cmpstr ("Bluebird", CompareOperator.EQ,
         interpretation_for_mimetype ("awesome/bird"));
-    assert_cmpstr ("is nothing", OperatorType.EQUAL,
+    assert_cmpstr ("is nothing", CompareOperator.EQ,
         interpretation_for_mimetype ("everything/everywhere"));
 }
 
 public void uri_scheme_basic_test ()
 {
-    assert_cmpstr (NFO.FILE_DATA_OBJECT, OperatorType.EQUAL,
+    assert_cmpstr (NFO.FILE_DATA_OBJECT, CompareOperator.EQ,
         manifestation_for_uri ("file:///tmp/foo.txt"));
-    assert_cmpstr (NFO.REMOTE_DATA_OBJECT, OperatorType.EQUAL,
+    assert_cmpstr (NFO.REMOTE_DATA_OBJECT, CompareOperator.EQ,
         manifestation_for_uri ("ftp://ftp.example.com"));
 }
 
@@ -107,7 +107,7 @@ public void uri_scheme_registration_test ()
     uri_scheme_basic_test ();
     uri_scheme_none_test ();
 
-    assert_cmpstr ("the answer", OperatorType.EQUAL,
+    assert_cmpstr ("the answer", CompareOperator.EQ,
         manifestation_for_uri ("42://what is it?"));
 }
 

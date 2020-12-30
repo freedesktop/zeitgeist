@@ -113,7 +113,7 @@ void foreach_test ()
     int i = 0;
     foreach (Event e in result_set)
     {
-        assert_cmpint ((int) e.id, OperatorType.EQUAL, i);
+        assert_cmpint ((int) e.id, CompareOperator.EQ, i);
         i++;
     }
 

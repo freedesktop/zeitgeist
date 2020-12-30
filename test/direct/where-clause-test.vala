@@ -59,16 +59,16 @@ public void basic_test ()
     where = new WhereClause (WhereClause.Type.AND);
     where.add ("1st condition");
     where.add ("2nd condition");
-    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL, "(1st condition AND 2nd condition)");
+    assert_cmpstr (where.get_sql_conditions (), CompareOperator.EQ, "(1st condition AND 2nd condition)");
 
     where = new WhereClause (WhereClause.Type.OR);
     where.add ("1st condition");
     where.add ("2nd condition");
-    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL, "(1st condition OR 2nd condition)");
+    assert_cmpstr (where.get_sql_conditions (), CompareOperator.EQ, "(1st condition OR 2nd condition)");
 
     where = new WhereClause (WhereClause.Type.AND, true);
     where.add ("some condition");
-    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL, "NOT some condition");
+    assert_cmpstr (where.get_sql_conditions (), CompareOperator.EQ, "NOT some condition");
 }
 
 public void nested_test ()
@@ -88,16 +88,16 @@ public void nested_test ()
     where.extend (subwhere);
     where.add ("last condition");
 
-    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL,
+    assert_cmpstr (where.get_sql_conditions (), CompareOperator.EQ,
         "(1st condition AND (2nd condition OR 3rd condition) AND " +
         "last condition)");
 
     {
         var args = where.get_bind_arguments ();
-        assert_cmpint (args.length, OperatorType.EQUAL, 3);
-        assert_cmpstr (args[0], OperatorType.EQUAL, "arg1");
-        assert_cmpstr (args[1], OperatorType.EQUAL, "arg2");
-        assert_cmpstr (args[2], OperatorType.EQUAL, "arg3");
+        assert_cmpint (args.length, CompareOperator.EQ, 3);
+        assert_cmpstr (args[0], CompareOperator.EQ, "arg1");
+        assert_cmpstr (args[1], CompareOperator.EQ, "arg2");
+        assert_cmpstr (args[2], CompareOperator.EQ, "arg3");
     }
 }
 
@@ -112,7 +112,7 @@ public void nested_negation_test ()
     where.extend (subwhere);
     where.add ("cond3");
 
-    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL,
+    assert_cmpstr (where.get_sql_conditions (), CompareOperator.EQ,
         "(cond1 OR NOT cond2 OR cond3)");
 }
 
@@ -123,14 +123,14 @@ public void match_condition_test ()
     // Plain
     where = new WhereClause (WhereClause.Type.AND);
     where.add_match_condition ("field1", 5);
-    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL,
+    assert_cmpstr (where.get_sql_conditions (), CompareOperator.EQ,
         "field1 = 5");
-    assert_cmpint (where.get_bind_arguments ().length, OperatorType.EQUAL, 0);
+    assert_cmpint (where.get_bind_arguments ().length, CompareOperator.EQ, 0);
 
     // Negation
     where = new WhereClause (WhereClause.Type.AND);
     where.add_match_condition ("f2", 3, true);
-    assert_cmpstr (where.get_sql_conditions (), OperatorType.EQUAL, "f2 != 3");
+    assert_cmpstr (where.get_sql_conditions (), CompareOperator.EQ, "f2 != 3");
 
     // FIXME: test LIKE stuff...
 }
@@ -138,9 +138,9 @@ public void match_condition_test ()
 public void right_boundary_test ()
 {
     var clause = new PublicWhereClause (WhereClause.Type.AND);
-    assert_cmpstr (clause.get_right_boundary ("a"), OperatorType.EQUAL, "b");
-    assert_cmpstr (clause.get_right_boundary ("hello"), OperatorType.EQUAL, "hellp");
-    assert_cmpstr (clause.get_right_boundary ("a b"), OperatorType.EQUAL, "a c");
+    assert_cmpstr (clause.get_right_boundary ("a"), CompareOperator.EQ, "b");
+    assert_cmpstr (clause.get_right_boundary ("hello"), CompareOperator.EQ, "hellp");
+    assert_cmpstr (clause.get_right_boundary ("a b"), CompareOperator.EQ, "a c");
 }
 
 // vim:expandtab:ts=4:sw=4

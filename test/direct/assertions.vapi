@@ -1,23 +1,25 @@
 [CCode (cprefix = "G", lower_case_cprefix = "g_", cheader_filename = "glib.h")]
 namespace Assertions {
-  public enum OperatorType {
+#if !VALA_0_52
+  public enum CompareOperator {
     [CCode (cname = "==")]
-    EQUAL,
+    EQ,
     [CCode (cname = "!=")]
-    NOT_EQUAL,
-    [CCode (cname = "<")]
-    LESS_THAN,
-    [CCode (cname = ">")]
-    GREATER_THAN,
-    [CCode (cname = "<=")]
-    LESS_OR_EQUAL,
+    NE,
     [CCode (cname = ">=")]
-    GREATER_OR_EQUAL
+    GE,
+    [CCode (cname = "<=")]
+    LE,
+    [CCode (cname = ">")]
+    GT,
+    [CCode (cname = "<")]
+    LT
   }
 
-  public void assert_cmpstr (string? s1, OperatorType op, string? s2);
-  public void assert_cmpint (int n1, OperatorType op, int n2);
-  public void assert_cmpuint (uint n1, OperatorType op, uint n2);
-  public void assert_cmphex (uint n1, OperatorType op, uint n2);
-  public void assert_cmpfloat (float n1, OperatorType op, float n2);
+  public void assert_cmpstr (string? s1, CompareOperator op, string? s2);
+  public void assert_cmpint (int n1, CompareOperator op, int n2);
+  public void assert_cmpuint (uint n1, CompareOperator op, uint n2);
+  public void assert_cmphex (uint n1, CompareOperator op, uint n2);
+  public void assert_cmpfloat (double n1, CompareOperator op, double n2);
+#endif
 }

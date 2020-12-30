@@ -98,7 +98,7 @@ void events_test ()
     Variant vevents = Events.to_variant (events);
 
     var demarshalled = Events.from_variant (vevents);
-    assert_cmpint (demarshalled.length, OperatorType.EQUAL, 1000);
+    assert_cmpint (demarshalled.length, CompareOperator.EQ, 1000);
 }
 
 void timerange_test ()
@@ -107,8 +107,8 @@ void timerange_test ()
     {
         Variant v = new Variant("(xx)", i, i+42);
         TimeRange timerange = new TimeRange.from_variant (v);
-        assert_cmpint ((int) timerange.start, OperatorType.EQUAL, (int)i);
-        assert_cmpint ((int) timerange.end, OperatorType.EQUAL, (int)i+42);
+        assert_cmpint ((int) timerange.start, CompareOperator.EQ, (int)i);
+        assert_cmpint ((int) timerange.end, CompareOperator.EQ, (int)i+42);
     }
 }
 

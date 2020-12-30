@@ -58,15 +58,15 @@ public void basic_test ()
     TableLookup table_lookup = new TableLookup (database, "actor");
 
     int id = table_lookup.id_for_string ("1st-actor");
-    assert_cmpint (table_lookup.id_for_string ("2nd-actor"), OperatorType.EQUAL, id+1);
-    assert_cmpint (table_lookup.id_for_string ("1st-actor"), OperatorType.EQUAL, id);
+    assert_cmpint (table_lookup.id_for_string ("2nd-actor"), CompareOperator.EQ, id+1);
+    assert_cmpint (table_lookup.id_for_string ("1st-actor"), CompareOperator.EQ, id);
 
     int rc = db.exec ("DELETE FROM actor WHERE value='1st-actor'");
     assert (rc == Sqlite.OK);
 
     table_lookup.remove (1);
-    assert_cmpint (table_lookup.id_for_string ("2nd-actor"), OperatorType.EQUAL, id+1);
-    assert_cmpint (table_lookup.id_for_string ("1st-actor"), OperatorType.EQUAL, id+2);
+    assert_cmpint (table_lookup.id_for_string ("2nd-actor"), CompareOperator.EQ, id+1);
+    assert_cmpint (table_lookup.id_for_string ("1st-actor"), CompareOperator.EQ, id+2);
 }
 
 public void get_value_with_query_test ()
@@ -78,7 +78,7 @@ public void get_value_with_query_test ()
     int rc = db.exec ("INSERT INTO actor (id, value) VALUES (100, 'new-actor')");
     assert (rc == Sqlite.OK);
 
-    assert_cmpstr (table_lookup.get_value (100), OperatorType.EQUAL, "new-actor");
+    assert_cmpstr (table_lookup.get_value (100), CompareOperator.EQ, "new-actor");
 }
 
 public void engine_test ()
@@ -88,14 +88,14 @@ public void engine_test ()
     unowned Sqlite.Database db = database.database;
     TableLookup table_lookup = engine.get_actors_table_lookup();
 
-    assert_cmpint (table_lookup.id_for_string ("something"), OperatorType.EQUAL, 1);
+    assert_cmpint (table_lookup.id_for_string ("something"), CompareOperator.EQ, 1);
 
     // Since we're running with Engine, this should trigger the deletion
     // callback, which in turn should fix the cache (LP: #598666).
     int rc = db.exec ("DELETE FROM actor WHERE value='something'");
     assert (rc == Sqlite.OK);
 
-    assert_cmpint (table_lookup.id_for_string ("something"), OperatorType.EQUAL, 2);
+    assert_cmpint (table_lookup.id_for_string ("something"), CompareOperator.EQ, 2);
 }
 
 // vim:expandtab:ts=4:sw=4

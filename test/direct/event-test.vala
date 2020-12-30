@@ -46,11 +46,11 @@ void create_empty_test ()
 
     assert (ev.id == 0);
     assert (ev.timestamp == 0);
-    assert_cmpstr (ev.interpretation, OperatorType.EQUAL, null);
-    assert_cmpstr (ev.manifestation, OperatorType.EQUAL, null);
-    assert_cmpstr (ev.actor, OperatorType.EQUAL, null);
-    assert_cmpstr (ev.origin, OperatorType.EQUAL, null);
-    assert_cmpint (ev.num_subjects (), OperatorType.EQUAL, 0);
+    assert_cmpstr (ev.interpretation, CompareOperator.EQ, null);
+    assert_cmpstr (ev.manifestation, CompareOperator.EQ, null);
+    assert_cmpstr (ev.actor, CompareOperator.EQ, null);
+    assert_cmpstr (ev.origin, CompareOperator.EQ, null);
+    assert_cmpint (ev.num_subjects (), CompareOperator.EQ, 0);
     assert (ev.payload == null);
 }
 
@@ -65,22 +65,22 @@ void create_full_test ()
 
     assert (ev.id == 0);
     assert (ev.timestamp == 0);
-    assert_cmpstr (ev.interpretation, OperatorType.EQUAL, ZG.ACCESS_EVENT);
-    assert_cmpstr (ev.manifestation, OperatorType.EQUAL, ZG.USER_ACTIVITY);
-    assert_cmpstr (ev.actor, OperatorType.EQUAL, "application://firefox.desktop");
-    assert_cmpstr (ev.origin, OperatorType.EQUAL, null);
-    assert_cmpint (ev.num_subjects (), OperatorType.EQUAL, 2);
+    assert_cmpstr (ev.interpretation, CompareOperator.EQ, ZG.ACCESS_EVENT);
+    assert_cmpstr (ev.manifestation, CompareOperator.EQ, ZG.USER_ACTIVITY);
+    assert_cmpstr (ev.actor, CompareOperator.EQ, "application://firefox.desktop");
+    assert_cmpstr (ev.origin, CompareOperator.EQ, null);
+    assert_cmpint (ev.num_subjects (), CompareOperator.EQ, 2);
     assert (ev.payload == null);
 
     var su = ev.subjects[1];
-    assert_cmpstr (su.uri, OperatorType.EQUAL, null);
-    assert_cmpstr (su.interpretation, OperatorType.EQUAL, null);
-    assert_cmpstr (su.manifestation, OperatorType.EQUAL, null);
-    assert_cmpstr (su.mimetype, OperatorType.EQUAL, null);
-    assert_cmpstr (su.origin, OperatorType.EQUAL, null);
-    assert_cmpstr (su.text, OperatorType.EQUAL, null);
-    assert_cmpstr (su.storage, OperatorType.EQUAL, null);
-    assert_cmpstr (su.current_uri, OperatorType.EQUAL, null);
+    assert_cmpstr (su.uri, CompareOperator.EQ, null);
+    assert_cmpstr (su.interpretation, CompareOperator.EQ, null);
+    assert_cmpstr (su.manifestation, CompareOperator.EQ, null);
+    assert_cmpstr (su.mimetype, CompareOperator.EQ, null);
+    assert_cmpstr (su.origin, CompareOperator.EQ, null);
+    assert_cmpstr (su.text, CompareOperator.EQ, null);
+    assert_cmpstr (su.storage, CompareOperator.EQ, null);
+    assert_cmpstr (su.current_uri, CompareOperator.EQ, null);
 }
 
 void actor_from_app_info_test ()
@@ -90,7 +90,7 @@ void actor_from_app_info_test ()
 
     var ev = new Event ();
     ev.set_actor_from_app_info (appinfo);
-    assert_cmpstr (ev.actor, OperatorType.EQUAL, "application://test.desktop");
+    assert_cmpstr (ev.actor, CompareOperator.EQ, "application://test.desktop");
 }
 
 void from_variant_test ()
@@ -139,26 +139,26 @@ void from_variant_test ()
 
     assert (ev.id == 27);
     assert (ev.timestamp == 68);
-    assert_cmpstr (ev.interpretation, OperatorType.EQUAL, ZG.ACCESS_EVENT);
-    assert_cmpstr (ev.manifestation, OperatorType.EQUAL, ZG.USER_ACTIVITY);
-    assert_cmpstr (ev.actor, OperatorType.EQUAL, "application://foo.desktop");
-    assert_cmpstr (ev.origin, OperatorType.EQUAL, null);
-    assert_cmpint (ev.num_subjects (), OperatorType.EQUAL, 1);
+    assert_cmpstr (ev.interpretation, CompareOperator.EQ, ZG.ACCESS_EVENT);
+    assert_cmpstr (ev.manifestation, CompareOperator.EQ, ZG.USER_ACTIVITY);
+    assert_cmpstr (ev.actor, CompareOperator.EQ, "application://foo.desktop");
+    assert_cmpstr (ev.origin, CompareOperator.EQ, null);
+    assert_cmpint (ev.num_subjects (), CompareOperator.EQ, 1);
 
     var su = ev.subjects[0];
-    assert_cmpstr (su.uri, OperatorType.EQUAL, "file:///tmp/foo.txt");
-    assert_cmpstr (su.interpretation, OperatorType.EQUAL, NFO.DOCUMENT);
-    assert_cmpstr (su.manifestation, OperatorType.EQUAL, NFO.FILE_DATA_OBJECT);
-    assert_cmpstr (su.mimetype, OperatorType.EQUAL, "text/plain");
-    assert_cmpstr (su.origin, OperatorType.EQUAL, "file://tmp");
-    assert_cmpstr (su.storage, OperatorType.EQUAL, "36e5604e-7e1b-4ebd-bb6a-184c6ea99627");
+    assert_cmpstr (su.uri, CompareOperator.EQ, "file:///tmp/foo.txt");
+    assert_cmpstr (su.interpretation, CompareOperator.EQ, NFO.DOCUMENT);
+    assert_cmpstr (su.manifestation, CompareOperator.EQ, NFO.FILE_DATA_OBJECT);
+    assert_cmpstr (su.mimetype, CompareOperator.EQ, "text/plain");
+    assert_cmpstr (su.origin, CompareOperator.EQ, "file://tmp");
+    assert_cmpstr (su.storage, CompareOperator.EQ, "36e5604e-7e1b-4ebd-bb6a-184c6ea99627");
 
     var payload = ev.payload;
     assert (payload != null);
-    assert_cmpuint (payload.len, OperatorType.EQUAL, 3);
-    assert_cmpint (payload.data[0], OperatorType.EQUAL, 1);
-    assert_cmpint (payload.data[1], OperatorType.EQUAL, 2);
-    assert_cmpint (payload.data[2], OperatorType.EQUAL, 3);
+    assert_cmpuint (payload.len, CompareOperator.EQ, 3);
+    assert_cmpint (payload.data[0], CompareOperator.EQ, 1);
+    assert_cmpint (payload.data[1], CompareOperator.EQ, 2);
+    assert_cmpint (payload.data[2], CompareOperator.EQ, 3);
 }
 
 void from_variant_with_new_fields_test ()
@@ -210,29 +210,29 @@ void from_variant_with_new_fields_test ()
 
     assert (ev.id == 27);
     assert (ev.timestamp == 68);
-    assert_cmpstr (ev.interpretation, OperatorType.EQUAL, ZG.ACCESS_EVENT);
-    assert_cmpstr (ev.manifestation, OperatorType.EQUAL, ZG.USER_ACTIVITY);
-    assert_cmpstr (ev.actor, OperatorType.EQUAL, "application://foo.desktop");
-    assert_cmpstr (ev.origin, OperatorType.EQUAL, "origin");
-    assert_cmpint (ev.num_subjects (), OperatorType.EQUAL, 1);
+    assert_cmpstr (ev.interpretation, CompareOperator.EQ, ZG.ACCESS_EVENT);
+    assert_cmpstr (ev.manifestation, CompareOperator.EQ, ZG.USER_ACTIVITY);
+    assert_cmpstr (ev.actor, CompareOperator.EQ, "application://foo.desktop");
+    assert_cmpstr (ev.origin, CompareOperator.EQ, "origin");
+    assert_cmpint (ev.num_subjects (), CompareOperator.EQ, 1);
 
     var su = ev.subjects[0];
-    assert_cmpstr (su.uri, OperatorType.EQUAL, "file:///tmp/foo.txt");
-    assert_cmpstr (su.interpretation, OperatorType.EQUAL, NFO.DOCUMENT);
-    assert_cmpstr (su.manifestation, OperatorType.EQUAL, NFO.FILE_DATA_OBJECT);
-    assert_cmpstr (su.mimetype, OperatorType.EQUAL, "text/plain");
-    assert_cmpstr (su.origin, OperatorType.EQUAL, "file:///tmp");
-    assert_cmpstr (su.text, OperatorType.EQUAL, "foo.text");
-    assert_cmpstr (su.storage, OperatorType.EQUAL, "36e5604e-7e1b-4ebd-bb6a-184c6ea99627");
-    assert_cmpstr (su.current_uri, OperatorType.EQUAL, "file:///tmp/current.txt");
-    assert_cmpstr (su.current_origin, OperatorType.EQUAL, "file:///tmp1");
+    assert_cmpstr (su.uri, CompareOperator.EQ, "file:///tmp/foo.txt");
+    assert_cmpstr (su.interpretation, CompareOperator.EQ, NFO.DOCUMENT);
+    assert_cmpstr (su.manifestation, CompareOperator.EQ, NFO.FILE_DATA_OBJECT);
+    assert_cmpstr (su.mimetype, CompareOperator.EQ, "text/plain");
+    assert_cmpstr (su.origin, CompareOperator.EQ, "file:///tmp");
+    assert_cmpstr (su.text, CompareOperator.EQ, "foo.text");
+    assert_cmpstr (su.storage, CompareOperator.EQ, "36e5604e-7e1b-4ebd-bb6a-184c6ea99627");
+    assert_cmpstr (su.current_uri, CompareOperator.EQ, "file:///tmp/current.txt");
+    assert_cmpstr (su.current_origin, CompareOperator.EQ, "file:///tmp1");
 
     var payload = ev.payload;
     assert (payload != null);
-    assert_cmpuint (payload.len, OperatorType.EQUAL, 3);
-    assert_cmpint (payload.data[0], OperatorType.EQUAL, 1);
-    assert_cmpint (payload.data[1], OperatorType.EQUAL, 2);
-    assert_cmpint (payload.data[2], OperatorType.EQUAL, 3);
+    assert_cmpuint (payload.len, CompareOperator.EQ, 3);
+    assert_cmpint (payload.data[0], CompareOperator.EQ, 1);
+    assert_cmpint (payload.data[1], CompareOperator.EQ, 2);
+    assert_cmpint (payload.data[2], CompareOperator.EQ, 3);
 
 }
 
@@ -252,11 +252,11 @@ void empty_to_from_variant_test ()
 
     assert (marshalled.id == 0);
     assert (marshalled.timestamp == orig.timestamp);
-    assert_cmpstr (marshalled.interpretation, OperatorType.EQUAL, null);
-    assert_cmpstr (marshalled.manifestation, OperatorType.EQUAL, null);
-    assert_cmpstr (marshalled.actor, OperatorType.EQUAL, null);
-    assert_cmpstr (marshalled.origin, OperatorType.EQUAL, null);
-    assert_cmpint (marshalled.num_subjects (), OperatorType.EQUAL, 0);
+    assert_cmpstr (marshalled.interpretation, CompareOperator.EQ, null);
+    assert_cmpstr (marshalled.manifestation, CompareOperator.EQ, null);
+    assert_cmpstr (marshalled.actor, CompareOperator.EQ, null);
+    assert_cmpstr (marshalled.origin, CompareOperator.EQ, null);
+    assert_cmpint (marshalled.num_subjects (), CompareOperator.EQ, 0);
     assert (marshalled.payload == null);
 }
 
@@ -278,11 +278,11 @@ void with_one_subject_to_from_variant_test ()
     var marshalled = new Event.from_variant (orig.to_variant ());
 
     assert (marshalled.id == 0);
-    assert_cmpstr (marshalled.interpretation, OperatorType.EQUAL, ZG.ACCESS_EVENT);
-    assert_cmpstr (marshalled.manifestation, OperatorType.EQUAL, ZG.USER_ACTIVITY);
-    assert_cmpstr (marshalled.actor, OperatorType.EQUAL, "application://firefox.desktop");
-    assert_cmpstr (marshalled.origin, OperatorType.EQUAL, "origin");
-    assert_cmpint (marshalled.num_subjects (), OperatorType.EQUAL, 1);
+    assert_cmpstr (marshalled.interpretation, CompareOperator.EQ, ZG.ACCESS_EVENT);
+    assert_cmpstr (marshalled.manifestation, CompareOperator.EQ, ZG.USER_ACTIVITY);
+    assert_cmpstr (marshalled.actor, CompareOperator.EQ, "application://firefox.desktop");
+    assert_cmpstr (marshalled.origin, CompareOperator.EQ, "origin");
+    assert_cmpint (marshalled.num_subjects (), CompareOperator.EQ, 1);
 
     payload = marshalled.payload;
     assert (payload != null);
@@ -290,14 +290,14 @@ void with_one_subject_to_from_variant_test ()
     assert (payload.data[0] == 255);
 
     var su = marshalled.subjects[0];
-    assert_cmpstr (su.uri, OperatorType.EQUAL, "http://example.com");
-    assert_cmpstr (su.interpretation, OperatorType.EQUAL, NFO.WEBSITE);
-    assert_cmpstr (su.manifestation, OperatorType.EQUAL, NFO.REMOTE_DATA_OBJECT);
-    assert_cmpstr (su.mimetype, OperatorType.EQUAL, "text/html");
-    assert_cmpstr (su.origin, OperatorType.EQUAL, "http://example.com");
-    assert_cmpstr (su.text, OperatorType.EQUAL, "example.com");
-    assert_cmpstr (su.storage, OperatorType.EQUAL, "net");
-    assert_cmpstr (su.current_uri, OperatorType.EQUAL, "http://current-example.com");
+    assert_cmpstr (su.uri, CompareOperator.EQ, "http://example.com");
+    assert_cmpstr (su.interpretation, CompareOperator.EQ, NFO.WEBSITE);
+    assert_cmpstr (su.manifestation, CompareOperator.EQ, NFO.REMOTE_DATA_OBJECT);
+    assert_cmpstr (su.mimetype, CompareOperator.EQ, "text/html");
+    assert_cmpstr (su.origin, CompareOperator.EQ, "http://example.com");
+    assert_cmpstr (su.text, CompareOperator.EQ, "example.com");
+    assert_cmpstr (su.storage, CompareOperator.EQ, "net");
+    assert_cmpstr (su.current_uri, CompareOperator.EQ, "http://current-example.com");
 }
 
 void three_events_to_from_variant_test ()
@@ -324,7 +324,7 @@ void zero_events_to_from_variant_test ()
     var vevents = Events.to_variant (events);
     assert (vevents.n_children () == 0);
     events = Events.from_variant (vevents);
-    assert_cmpint (events.length, OperatorType.EQUAL, 0);
+    assert_cmpint (events.length, CompareOperator.EQ, 0);
 }
 
 // vim:expandtab:ts=4:sw=4
