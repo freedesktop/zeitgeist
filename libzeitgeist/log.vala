@@ -29,6 +29,7 @@
  *
  * Its main component is the Zeitgeist engine, a D-Bus service that logs
  * any events other applications send to it. An event may be anything like:
+ *
  *  - The user opened/created/modified/closed a file, or visited a website.
  *  - The user received an e-mail, a phone call or an IM notification.
  *  - Someone modified a remote (eg. Google Drive) document owned by the user.
